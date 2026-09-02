@@ -5,7 +5,7 @@
 <title>The Sports Outpost</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.webmanifest">
-<meta name="theme-color" content="#080b14">
+<meta name="theme-color" content="#080C18">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="The Sports Outpost">
@@ -38,10 +38,14 @@
 @import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800&f[]=satoshi@300,400,500,700&f[]=jetbrains-mono@400,500,700&display=swap');
 
 :root{
-  --night:#080b14; --night2:#0c1020; --panel:#111726; --panel2:#141a2a; --line:#1e2740;
+  /* Sports Outpost brand palette applied app-wide. Functional/state colors
+     below (--grass, --hr-red, --live-green, --warm, --hot) are intentionally
+     untouched — those encode meaning (hit/miss/live/warning), not brand,
+     and changing them would break the app's color language, not just its look. */
+  --night:#080C18; --night2:#0C1428; --panel:#081A40; --panel2:#0C203D; --line:rgba(45,127,255,0.22);
   --grass:#7a1220; --grass-bright:#22c55e; --foul:#2d7fff;
   --white:#e2e8f0; --mute:#8b95a8; --hot:#ff4757; --warm:#f59e0b; --cool:#b8c4d4;
-  --accent:#2d7fff; --accent-glow:rgba(45,127,255,0.15); --accent-bright:#4a9fff;
+  --accent:#2d7fff; --accent-glow:rgba(45,127,255,0.15); --accent-bright:#6EDCFF;
   --accent-dim:#1a4d99; --accent-dark:#0d2f5c;
   --panel-glow:rgba(45,127,255,0.08);
   --hr-red:#ff3b3b; --hr-red-glow:rgba(255,59,59,0.15);
@@ -50,7 +54,7 @@
   --shadow-card: 0 2px 8px rgba(0,0,0,0.5), 0 4px 16px rgba(0,0,0,0.4);
   --shadow-inset: inset 0 1px 0 rgba(255,255,255,0.03);
   --transition: 200ms cubic-bezier(0.16, 1, 0.3, 1);
-  --border-light:#2a3654; --border-bright:#3a4870;
+  --border-light:rgba(45,127,255,0.18); --border-bright:rgba(110,220,255,0.5);
   --headshot-crop: 50% 16%;
 
   /* Semantic aliases for the navy redesign. These were referenced in ~83 places
@@ -58,11 +62,11 @@
      `background:var(--surface)` resolved to an invalid value and fell back to
      `unset` — which is why feed and slate cards rendered with no border and a
      transparent background. */
-  --bg:#080b14;
-  --bg-2:#0c1020;
-  --surface:#0f1421;
-  --surface-2:#141a2a;
-  --border:#1e2740;
+  --bg:#080C18;
+  --bg-2:#0C1428;
+  --surface:#081A40;
+  --surface-2:#0C203D;
+  --border:rgba(45,127,255,0.22);
   --text:#e2e8f0;
   --text-muted:#8b95a8;
   --success:#22c55e;
@@ -2354,7 +2358,7 @@ footer{ margin-left:0; }
     position:absolute; top:5px; left:50%; margin-left:4px;
     font-size:8.5px !important; min-width:15px; height:15px; line-height:15px;
     padding:0 3px; border-radius:99px; background:var(--hr-red); color:#fff;
-    font-weight:700; text-align:center; border:2px solid #0c1020;
+    font-weight:700; text-align:center; border:2px solid #0C1428;
   }
 }
 
@@ -2397,7 +2401,7 @@ footer{ margin-left:0; }
 
 .online-pop-tb-head{
   display: flex; align-items: center; gap: 7px; padding: 9px 12px;
-  background: #141a2a; border-bottom: 1px solid var(--border);
+  background: #0C203D; border-bottom: 1px solid var(--border);
   font-family: 'JetBrains Mono','Space Mono', monospace; font-size: 10px;
   letter-spacing: .06em; text-transform: uppercase; color: var(--success); flex-shrink: 0;
 }
@@ -2604,7 +2608,7 @@ footer{ margin-left:0; }
 
 .chat-panel-head{
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 10px 14px; background: #141a2a; border-bottom: 1px solid var(--border);
+  padding: 10px 14px; background: #0C203D; border-bottom: 1px solid var(--border);
   cursor: pointer; flex-shrink: 0;
 }
 .chat-panel-title{
@@ -2984,7 +2988,7 @@ footer{ margin-left:0; }
 .dw-share-sheet{ position:fixed; inset:0; z-index:999999; display:flex; align-items:flex-end; justify-content:center;
   background:rgba(0,0,0,0); transition:background .2s; }
 .dw-share-sheet.is-open{ background:rgba(0,0,0,.55); }
-.dw-share-card{ width:100%; max-width:440px; background:#0f1421; border:1px solid #1f2937;
+.dw-share-card{ width:100%; max-width:440px; background:#0f1421; border:1px solid #12294d;
   border-radius:16px 16px 0 0; padding:16px 16px calc(16px + env(safe-area-inset-bottom));
   transform:translateY(100%); transition:transform .25s cubic-bezier(.22,.68,.3,1); box-shadow:0 -8px 30px rgba(0,0,0,.4); }
 .dw-share-sheet.is-open .dw-share-card{ transform:translateY(0); }
@@ -2993,7 +2997,7 @@ footer{ margin-left:0; }
 .dw-share-x{ background:none; border:none; color:#8b95a8; font-size:15px; cursor:pointer; padding:2px 6px; }
 .dw-share-preview{ font-size:12px; color:#8b95a8; background:rgba(255,255,255,.04); padding:8px 10px; border-radius:8px; margin-bottom:14px; line-height:1.4; max-height:90px; overflow:auto; }
 .dw-share-cardimg{ width:100%; max-height:240px; object-fit:contain; border-radius:10px; margin-bottom:12px;
-  background:#080b14; border:1px solid #1f2937; }
+  background:#080C18; border:1px solid #12294d; }
 .dw-share-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
 .dw-share-opt{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 4px; border-radius:12px;
   background:rgba(255,255,255,.04); text-decoration:none; color:#e2e8f0; font-size:11px; font-family:'Oswald',sans-serif; transition:background .15s, transform .1s; }
@@ -3001,12 +3005,12 @@ footer{ margin-left:0; }
 .dw-share-opt:active{ transform:scale(.95); }
 .dw-share-logo{ width:44px; height:44px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
 .dw-share-logo svg{ width:22px; height:22px; display:block; }
-.dw-share-copy{ display:block; width:100%; padding:11px; margin-bottom:8px; border-radius:10px; border:1px solid #1f2937;
+.dw-share-copy{ display:block; width:100%; padding:11px; margin-bottom:8px; border-radius:10px; border:1px solid #12294d;
   background:rgba(45,127,255,.1); color:#2d7fff; font-family:'Oswald',sans-serif; font-size:13px; font-weight:600; cursor:pointer; }
 .dw-share-copy:last-child{ margin-bottom:0; }
 .dw-share-clip{ display:flex; align-items:center; justify-content:center; gap:8px; background:linear-gradient(135deg,rgba(45,127,255,.18),rgba(245,200,66,.14)); color:#f5c842; border-color:rgba(245,200,66,.4); }
 .dw-share-clip svg{ display:block; }
-.dw-share-clip-loading{ color:#9fb0c8; border-color:#1f2937; background:rgba(255,255,255,.04); cursor:progress; }
+.dw-share-clip-loading{ color:#9fb0c8; border-color:#12294d; background:rgba(255,255,255,.04); cursor:progress; }
 .dw-share-clip:disabled{ opacity:.8; }
 .dw-clip-spin{ width:13px; height:13px; border:2px solid rgba(159,176,200,.3); border-top-color:#9fb0c8; border-radius:50%; display:inline-block; animation:dw-clip-spin .8s linear infinite; }
 @keyframes dw-clip-spin{ to{ transform:rotate(360deg); } }
@@ -3335,7 +3339,7 @@ footer{ margin-left:0; }
    ========================================================================== */
 #splash{
   position:fixed; inset:0; z-index:9999;
-  background: radial-gradient(ellipse at 50% 35%, #0c1020 0%, #080b14 100%);
+  background: radial-gradient(ellipse at 50% 35%, #0C1428 0%, #080C18 100%);
   display:none; flex-direction:column; align-items:center; justify-content:center;
   gap:28px; transition: opacity .4s ease;
 }
@@ -3416,14 +3420,14 @@ footer{ margin-left:0; }
 }
 .splash-prog i{
   display:block; height:100%; width:0%; border-radius:99px;
-  background:linear-gradient(90deg,#2d7fff,#4a9fff);
+  background:linear-gradient(90deg,#2d7fff,#6EDCFF);
   transition:width .25s ease;
 }
 .splash-count{
   font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.06em;
   color:#8b95a8; margin-top:7px;
 }
-.splash-count b{ color:#4a9fff; font-weight:600; }
+.splash-count b{ color:#6EDCFF; font-weight:600; }
 
 .splash-text{
   font-family:'Cabinet Grotesk','Satoshi',sans-serif;
@@ -3437,7 +3441,7 @@ footer{ margin-left:0; }
 }
 .splash-dots{ display:inline-flex; gap:3px; }
 .splash-dots span{
-  width:5px; height:5px; border-radius:50%; background:#4a9fff;
+  width:5px; height:5px; border-radius:50%; background:#6EDCFF;
   animation: dotPulse 1.2s ease-in-out infinite;
 }
 .splash-dots span:nth-child(2){ animation-delay:.2s; }
@@ -3453,7 +3457,7 @@ footer{ margin-left:0; }
   font-size:28px; font-weight:800; letter-spacing:-.02em;
   color:#e2e8f0; margin-bottom:4px;
 }
-.splash-brand span{ color:#4a9fff; }
+.splash-brand span{ color:#6EDCFF; }
 .splash-brand-img{ height:52px; width:auto; margin:0 auto 4px; display:block; }
 
 @media (max-width:560px){
@@ -3485,8 +3489,8 @@ footer{ margin-left:0; }
    .player-card-v2 so it never collides with the tabbed game/odds modals.
    ============================================================ */
 .player-card-v2{
-  --bg:#080b14; --panel:#0f1421; --panel2:#141b2b; --panel3:#1a2233;
-  --accent:#2d7fff; --accent-bright:#4a9fff; --accent-glow:rgba(45,127,255,.15);
+  --bg:#080C18; --panel:#081A40; --panel2:#0C203D; --panel3:#12294d;
+  --accent:#2d7fff; --accent-bright:#6EDCFF; --accent-glow:rgba(45,127,255,.15);
   --gold:#f5c842; --green:#22c55e; --green-bright:#3ee37a; --red:#ff5b5b; --orange:#ff9f43; --cyan:#3bb0ff; --purple:#a472ff;
   --text:#e2e8f0; --muted:#8b95a8; --faint:#5a6273;
   --border:rgba(255,255,255,.08); --line:rgba(255,255,255,.06);
@@ -3510,7 +3514,7 @@ body.modal-open{ overflow:hidden; }
 /* ---------- Header ---------- */
 .player-card-v2 .hdr{ position:relative; display:flex; align-items:center; gap:14px; padding:16px 18px; border-bottom:1px solid var(--line);
   background:linear-gradient(90deg,rgba(45,127,255,.10),transparent 70%) }
-.player-card-v2 .ava{ position:relative; width:60px; height:60px; flex:0 0 auto; border-radius:50%; background:#1f2937; overflow:hidden; border:2px solid var(--accent);
+.player-card-v2 .ava{ position:relative; width:60px; height:60px; flex:0 0 auto; border-radius:50%; background:#12294d; overflow:hidden; border:2px solid var(--accent);
   box-shadow:0 0 0 4px rgba(45,127,255,.12) }
 .player-card-v2 .ava img{ width:100%; height:100%; object-fit:cover; object-position:var(--headshot-crop, center 25%) }
 .player-card-v2 .hdr .who{ flex:1; min-width:0; padding-right:58px }
@@ -3858,7 +3862,7 @@ body.modal-open{ overflow:hidden; }
       </g>
 
       <!-- Impact ring -->
-      <circle class="impact-ring" cx="180" cy="68" r="14" fill="none" stroke="#4a9fff" stroke-width="3"/>
+      <circle class="impact-ring" cx="180" cy="68" r="14" fill="none" stroke="#6EDCFF" stroke-width="3"/>
 
       <!-- Ball flying away from viewer -->
       <g class="scene-ball">
@@ -6945,7 +6949,7 @@ function slateFieldHTML(g){
   const rel = haveWind ? windRelativeToPark(g.windDeg, cfDeg) : null;
 
   const sectorColor = !rel ? '#8b95a8'
-    : rel.sector === 'out' ? '#4a9fff'
+    : rel.sector === 'out' ? '#6EDCFF'
     : rel.sector === 'in'  ? '#3ecf6e' : '#f59e0b';
   const sectorColorVar = !rel ? 'var(--mute)'
     : rel.sector === 'out' ? 'var(--accent)'
@@ -6992,7 +6996,7 @@ function slateFieldHTML(g){
   // Sits in the sky band, not over the infield — at y=148 it collided with
   // home plate and the basepath lines.
   const roofBadge = !isOpen
-    ? `<g><rect x="64" y="22" width="72" height="14" rx="7" fill="#0c1020" opacity="0.85" stroke="#2a3654" stroke-width="0.6"/>
+    ? `<g><rect x="64" y="22" width="72" height="14" rx="7" fill="#0C1428" opacity="0.85" stroke="#1a2f52" stroke-width="0.6"/>
        <text x="100" y="31.5" text-anchor="middle" font-size="7.5" letter-spacing="0.6" fill="#8b95a8" font-family="monospace">ROOF CLOSED</text></g>`
     : '';
 
@@ -7015,13 +7019,13 @@ function slateFieldHTML(g){
       <rect x="0" y="0" width="200" height="165" fill="url(#sky-${g.id})"/>
 
       <!-- stadium silhouette (upper deck + lights) -->
-      <path d="M0,12 L0,0 L200,0 L200,12" fill="#0c1020" opacity="0.8"/>
-      <path d="M0,12 Q20,8 40,12 Q60,8 80,12 Q100,8 120,12 Q140,8 160,12 Q180,8 200,12 L200,0 L0,0 Z" fill="#141a2a"/>
+      <path d="M0,12 L0,0 L200,0 L200,12" fill="#0C1428" opacity="0.8"/>
+      <path d="M0,12 Q20,8 40,12 Q60,8 80,12 Q100,8 120,12 Q140,8 160,12 Q180,8 200,12 L200,0 L0,0 Z" fill="#0C203D"/>
       <!-- light towers -->
-      <rect x="8" y="2" width="6" height="14" fill="#1e2740" rx="1"/>
-      <rect x="186" y="2" width="6" height="14" fill="#1e2740" rx="1"/>
-      <circle cx="11" cy="5" r="2" fill="#4a9fff" opacity="0.7"/>
-      <circle cx="189" cy="5" r="2" fill="#4a9fff" opacity="0.7"/>
+      <rect x="8" y="2" width="6" height="14" fill="#12294d" rx="1"/>
+      <rect x="186" y="2" width="6" height="14" fill="#12294d" rx="1"/>
+      <circle cx="11" cy="5" r="2" fill="#6EDCFF" opacity="0.7"/>
+      <circle cx="189" cy="5" r="2" fill="#6EDCFF" opacity="0.7"/>
 
       ${clouds}
       ${tempGlow}
@@ -9717,9 +9721,9 @@ function homeRunMomentHTML(ev, narrative, shortPitch){
           <stop offset="100%" stop-color="#1d4326"/>
         </linearGradient>
         <linearGradient id="hrmTopFade${id}" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#080b14" stop-opacity="0.82"/>
-          <stop offset="62%" stop-color="#080b14" stop-opacity="0.4"/>
-          <stop offset="100%" stop-color="#080b14" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#080C18" stop-opacity="0.82"/>
+          <stop offset="62%" stop-color="#080C18" stop-opacity="0.4"/>
+          <stop offset="100%" stop-color="#080C18" stop-opacity="0"/>
         </linearGradient>
         <radialGradient id="hrmLand${id}" cx="0.5" cy="0.5" r="0.5">
           <stop offset="0" stop-color="#ffd24a" stop-opacity="0.9"/><stop offset="1" stop-color="#ffd24a" stop-opacity="0"/>
@@ -9870,7 +9874,7 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   const W=HR_SHARE_W,H=HR_SHARE_H;
   const canvas=document.createElement('canvas'); canvas.width=W; canvas.height=H;
   const ctx=canvas.getContext('2d');
-  const GOLD='#f5c842', BLUE='#2d7fff', TEXT='#f4f1ea', MUTE='#9fb0c8', BG='#080b14';
+  const GOLD='#f5c842', BLUE='#2d7fff', TEXT='#f4f1ea', MUTE='#9fb0c8', BG='#080C18';
   // bg
   ctx.fillStyle=BG; ctx.fillRect(0,0,W,H);
   // ---- field photo (16:9) ----
@@ -9916,7 +9920,7 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   const mcY=FH+200;
   const batt=await _hrLoadImg(headshotUrl(ev.batter,ev.batterId));
   const pitch=ev.pitcher?await _hrLoadImg(headshotUrl(ev.pitcher,ev.pitcherId)):null;
-  function drawHead(img,cx,cy,r){ ctx.save(); _hrCircle(ctx,cx,cy,r); ctx.clip(); if(img){ _hrDrawCover(ctx,img,cx-r,cy-r,r*2,r*2); } else { ctx.fillStyle='#1f2937'; _hrCircle(ctx,cx,cy,r); ctx.fill(); } ctx.restore(); ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=3; _hrCircle(ctx,cx,cy,r); ctx.stroke(); }
+  function drawHead(img,cx,cy,r){ ctx.save(); _hrCircle(ctx,cx,cy,r); ctx.clip(); if(img){ _hrDrawCover(ctx,img,cx-r,cy-r,r*2,r*2); } else { ctx.fillStyle='#12294d'; _hrCircle(ctx,cx,cy,r); ctx.fill(); } ctx.restore(); ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.lineWidth=3; _hrCircle(ctx,cx,cy,r); ctx.stroke(); }
   const hr=58;
   drawHead(batt,120,mcY,hr);
   ctx.textAlign='left'; ctx.textBaseline='middle';
@@ -9960,8 +9964,11 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   // little home-plate mark
   ctx.fillStyle=GOLD; ctx.beginPath(); ctx.moveTo(W/2-150,wmY-22); ctx.lineTo(W/2-110,wmY-22); ctx.lineTo(W/2-92,wmY-4); ctx.lineTo(W/2-110,wmY+18); ctx.lineTo(W/2-150,wmY+18); ctx.lineTo(W/2-168,wmY); ctx.closePath(); ctx.fill();
   ctx.textAlign='left';
-  ctx.fillStyle=TEXT; ctx.font="700 46px Oswald,sans-serif"; ctx.fillText('DINGER',W/2-80,wmY);
-  ctx.fillStyle=GOLD; ctx.fillText('WATCH',W/2+88,wmY);
+  ctx.font="700 46px Oswald,sans-serif";
+  const wmStartX = W/2-80;
+  ctx.fillStyle=TEXT; ctx.fillText('SPORTS',wmStartX,wmY);
+  const sportsWidth = ctx.measureText('SPORTS').width;
+  ctx.fillStyle=GOLD; ctx.fillText('OUTPOST',wmStartX+sportsWidth+16,wmY);
   ctx.textAlign='center'; ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('dingerwatch.app',W/2,wmY+48);
   ctx.fillStyle=MUTE; ctx.font="400 19px Oswald,sans-serif"; ctx.fillText('Home runs the moment they happen',W/2,wmY+84);
   return new Promise((res)=>canvas.toBlob(b=>res(b?new File([b],'sports-outpost-home-run.png',{type:'image/png'}):null),'image/png',0.92));
@@ -10186,7 +10193,7 @@ async function renderHRClip(ev, quip){
   document.body.appendChild(vc);
   const ctx=vc.getContext('2d');
   function drawFrame(p){
-    if(baseImg) ctx.drawImage(baseImg,0,0,W,H); else { ctx.fillStyle='#080b14'; ctx.fillRect(0,0,W,H); }
+    if(baseImg) ctx.drawImage(baseImg,0,0,W,H); else { ctx.fillStyle='#080C18'; ctx.fillRect(0,0,W,H); }
     _hrDrawTrajFrame(ctx, W, FH, ev, p);
   }
   let stream=null, rec=null;
@@ -14908,11 +14915,11 @@ function buildShareCardNode(w){
     <div id="shareCardRoot" style="position:relative; width:390px; background:#0a0d17; font-family:'Oswald',sans-serif; padding:26px 22px 20px; box-sizing:border-box;">
       <div style="position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:520px; height:420px; background:radial-gradient(circle, rgba(34,197,94,0.20) 0%, rgba(34,197,94,0) 70%); pointer-events:none;"></div>
       <div style="position:relative; display:flex; align-items:center; gap:10px;">
-        <div style="width:34px; height:34px; border-radius:9px; background:linear-gradient(160deg,#4a9fff,#2d7fff 55%,#1a4fb8); display:flex; align-items:center; justify-content:center;">
+        <div style="width:34px; height:34px; border-radius:9px; background:linear-gradient(160deg,#6EDCFF,#2d7fff 55%,#1a4fb8); display:flex; align-items:center; justify-content:center;">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#0a0d17" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3c2 3 2 15 0 18M3 12c3-2 15-2 18 0"/></svg>
         </div>
         <div>
-          <div style="font-weight:700; font-size:15px; color:#f4f6fb;">DINGER<span style="color:#4a9fff;">WATCH</span></div>
+          <div style="font-weight:700; font-size:15px; color:#f4f6fb;">SPORTS <span style="color:#6EDCFF;">OUTPOST</span></div>
           <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#7b849c; letter-spacing:0.08em; text-transform:uppercase; margin-top:1px;">Slip settled</div>
         </div>
       </div>
@@ -14947,7 +14954,7 @@ function buildShareCardNode(w){
         <div style="font-size:10.5px; color:#5b6784; line-height:1.4; margin-bottom:14px; padding-top:14px; border-top:1px solid #232a3d;">Model-based predictions, not real sportsbook odds. Points have no cash value.</div>
         <div style="display:flex; align-items:center; justify-content:space-between;">
           <span style="font-size:13px; color:#7b849c;">Build your own slip</span>
-          <span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:#4a9fff;">dingerwatch.app</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:#6EDCFF;">dingerwatch.app</span>
         </div>
       </div>
     </div>`;
@@ -15686,7 +15693,7 @@ function exportToExcel(){
     XLSX.utils.book_append_sheet(wb, wsM, 'About');
 
     const date = slateMeta.date || new Date().toISOString().slice(0,10);
-    XLSX.writeFile(wb, `dinger-watch-props-${date}.xlsx`);
+    XLSX.writeFile(wb, `sports-outpost-props-${date}.xlsx`);
   }catch(err){
     console.error('[export] failed:', err);
     alert('Export failed: ' + err.message);
@@ -16306,7 +16313,7 @@ document.addEventListener('visibilitychange', ()=>{
   }catch(e){ return; }
   const A = {p:'hr',h:'hits',t:'tb',r:'rbi',x:'hrr',s:'sb'};
   const CSS = `
-#dwperf{position:fixed;inset:0;z-index:2147483000;background:var(--bg,#080b14);color:var(--text,#e2e8f0);font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:auto;padding:24px 20px 80px}
+#dwperf{position:fixed;inset:0;z-index:2147483000;background:var(--bg,#080C18);color:var(--text,#e2e8f0);font:14px/1.5 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;overflow:auto;padding:24px 20px 80px}
 #dwperf *{box-sizing:border-box}
 .dwperf-wrap{max-width:980px;margin:0 auto}
 .dwperf-h{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:6px}
@@ -16935,7 +16942,7 @@ document.addEventListener('visibilitychange', ()=>{
 
 <!-- ===== SPIN THE WHEEL (Sports Outpost) ===== -->
 <style id="wheelStyles">
-.wheel-fab{position:fixed;right:18px;bottom:calc(var(--mobile-nav-h,60px) + 16px);z-index:900;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#2d7fff,#4a9fff);box-shadow:0 10px 26px rgba(45,127,255,.5),0 0 0 6px rgba(45,127,255,.14);display:none;align-items:center;justify-content:center;color:#fff;transition:transform .15s,box-shadow .15s}
+.wheel-fab{position:fixed;right:18px;bottom:calc(var(--mobile-nav-h,60px) + 16px);z-index:900;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#2d7fff,#6EDCFF);box-shadow:0 10px 26px rgba(45,127,255,.5),0 0 0 6px rgba(45,127,255,.14);display:none;align-items:center;justify-content:center;color:#fff;transition:transform .15s,box-shadow .15s}
 .wheel-fab.show{display:flex}
 .wheel-fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 14px 32px rgba(45,127,255,.6),0 0 0 8px rgba(45,127,255,.16)}
 .wheel-fab:active{transform:translateY(0) scale(.97)}
@@ -17038,7 +17045,7 @@ document.addEventListener('visibilitychange', ()=>{
   const remainTxt=document.getElementById('remainTxt');
   const wheelClose=document.getElementById('wheelClose');
   const wheelFab=document.getElementById('wheelFab');
-  const SEG_COLORS=['#2d7fff','#1e3a8a','#4a9fff'];
+  const SEG_COLORS=['#2d7fff','#1e3a8a','#6EDCFF'];
   let players=[],remaining=[],rotation=0,spinning=false,rafId=0,lastTickSeg=-1;
 
   // ---- Audio (synthesized tick + ding, no external file) ----
