@@ -982,9 +982,16 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .narrative{ font-size:13px; color: var(--white); line-height:1.7; background: var(--night2); border:1px solid var(--line); border-radius:10px; padding:15px 17px; }
 
 .slate-list{ display:flex; flex-direction:column; gap:10px; margin-top:14px; }
-.slate-card{ background: var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; cursor:pointer; transition: var(--transition); box-shadow: var(--shadow-card), var(--shadow-inset); }
+.slate-card{ background: var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px 18px; cursor:pointer; transition: var(--transition); box-shadow: var(--shadow-card), var(--shadow-inset); position:relative; overflow:hidden; }
 .slate-card:hover{ border-color: var(--accent); }
 .slate-card.is-live{ border-color: var(--accent); box-shadow: 0 0 0 1px rgba(45,127,255,0.25); }
+.slate-card.is-live::before{
+  content:''; position:absolute; top:10px; right:10px; width:14px; height:14px; pointer-events:none;
+  background:
+    linear-gradient(var(--accent-bright), var(--accent-bright)) top right / 9px 1.5px no-repeat,
+    linear-gradient(var(--accent-bright), var(--accent-bright)) top right / 1.5px 9px no-repeat;
+  opacity:0.55;
+}
 .slate-status-row{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .slate-card-top{ margin-bottom:4px; overflow-x:auto; }
 /* Inline line score = one table: logo + team name (left), innings (middle),
@@ -995,8 +1002,11 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 /* Total runs (R) = same size as H/E, but colored blue (accent) so the score
    stands out. Won/lost dimming applies to H/E only, not R. */
 .linescore-inline td.rhe.runs{ color:var(--accent-bright); }
-.slate-badge{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:10px; letter-spacing:0.05em; padding:3px 9px; border-radius:20px; text-transform:uppercase; font-weight:700; }
-.slate-badge.live{ background:rgba(45,127,255,0.18); color:var(--accent-bright); border:1px solid rgba(45,127,255,0.4); animation: pulse 1.8s infinite; }
+.slate-badge{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:10px; letter-spacing:0.05em; padding:3px 9px; border-radius:20px; text-transform:uppercase; font-weight:700; display:inline-flex; align-items:center; gap:6px; }
+.slate-badge.live{ background:rgba(45,127,255,0.18); color:var(--accent-bright); border:1px solid rgba(45,127,255,0.4); }
+.slate-live-dot{ position:relative; width:6px; height:6px; border-radius:50%; background:#ff5c5c; flex-shrink:0; }
+.slate-live-dot::after{ content:''; position:absolute; inset:-5px; border-radius:50%; border:1px solid #ff5c5c;
+  animation:soRadarPulse 1.8s ease-out infinite; }
 .slate-badge.final{ background: var(--night2); color: var(--mute); border:1px solid var(--line); }
 .slate-badge.pre{ background: var(--night2); color: var(--cool); border:1px solid var(--line); }
 .slate-time{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:11px; color: var(--mute); }
@@ -8816,7 +8826,7 @@ function slateCardHTML(g){
   const bucket = slateBucket(g);
   const isLive = bucket === 'live';
   const isFinal = bucket === 'final';
-  const badge = isLive ? `<span class="slate-badge live">● Live</span>`
+  const badge = isLive ? `<span class="slate-badge live"><span class="slate-live-dot"></span>Live</span>`
     : (isFinal ? `<span class="slate-badge final">Final</span>` : `<span class="slate-badge pre">Scheduled</span>`);
   const ls = g.liveScore || {};
   const inningTxt = isLive && ls.inning ? `${ls.inningState==='Top'?'▲':'▼'} ${ls.inning===1?'1st':ls.inning===2?'2nd':ls.inning===3?'3rd':ls.inning+'th'}` : '';
