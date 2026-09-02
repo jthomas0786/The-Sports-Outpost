@@ -1,0 +1,93 @@
+# .github/workflows/push.yml
+#
+# Sends home run push notifications. Runs in Actions, so it works with every
+# browser and phone app closed — that's the whole point.
+#
+# SETUP
+#   1. node gen-vapid-keys.js
+#   2. Paste the PUBLIC key into index.html as VAPID_PUBLIC_KEY
+#   3. Add repo secrets: VAPID_PRIVATE_KEY, VAPID_PUBLIC_KEY, VAPID_SUBJECT,
+#      SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+#      (the last two are the SAME values already used by the Supabase Edge
+#      Functions — but GitHub Actions secrets and Supabase secrets are two
+#      separate stores, so they need adding here too, not just there)
+#   4. That's it. Every signed-in user's device registers itself
+#      automatically when they enable Alerts — nothing to copy, paste, or
+#      commit per user anymore.
+
+name: Push home run alerts
+
+on:
+  schedule:
+    # Every 5 minutes during game hours (UTC; does not shift for DST).
+    - cron: '*/5 17-23 * * *'
+    - cron: '*/5 0-5 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Detect home runs but send nothing'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  # Two overlapping runs would double-notify.
+  group: hr-push
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Send pushes
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_PUBLIC_KEY:  ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_SUBJECT:     ${{ secrets.VAPID_SUBJECT }}
+          SUPABASE_URL:      ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            node send-push.js --dry-run
+          else
+            node send-push.js
+          fi
+
+      - name: Commit state
+        run: |
+          git config user.name  'push-bot'
+          git config user.email 'actions@github.com'
+          # push-subscriptions.json is gone from this list on purpose — the
+          # subscriber list lives in Supabase now, not a file in this repo.
+          # latest-hr.json / pushed-hrs.json are still small, single, shared
+          # state files (not one per user), so committing them is still fine.
+          git add latest-hr.json pushed-hrs.json 2>/dev/null || true
+          git diff --staged --quiet && echo "no changes" && exit 0
+          git commit -m "push: $(date -u +%Y-%m-%dT%H:%M)"
+
+          # This job runs every few minutes, so a collision with the daily build
+          # or a manual push is likely. Retry on rejection instead of failing —
+          # a dropped run here means duplicate notifications on the next one,
+          # because the posted-HR ledger never gets persisted.
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              echo "pushed on attempt $attempt"
+              exit 0
+            fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || {
+              echo "::error::rebase failed"
+              exit 1
+            }
+            sleep $((attempt * 3))
+          done
+          echo "::error::could not push after 5 attempts"
+          exit 1
