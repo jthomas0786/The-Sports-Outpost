@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Dinger Watch</title>
+<title>The Sports Outpost</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#080b14">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Dinger Watch">
+<meta name="apple-mobile-web-app-title" content="The Sports Outpost">
 <!-- iOS Home Screen icons. iOS reads these <link> tags, not the manifest, and
      falls back to a generated letter tile if none of them resolve. Several sizes
      are supplied so no device has to downscale. -->
@@ -650,6 +650,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .gate-brand{ display:flex; align-items:center; gap:14px; margin-bottom:22px; }
 .gate-logo{ width:56px; height:56px; border-radius:14px; flex-shrink:0; }
 .gate-title{ font-family:'Cabinet Grotesk','Archivo Black',sans-serif; font-size:26px; letter-spacing:-.02em; line-height:1; }
+.gate-title-img{ height:44px; width:auto; }
 .gate-title span{ color:var(--accent); }
 .gate-tag{ font-family:'Oswald',sans-serif; font-size:13px; color:var(--mute); margin-top:4px; }
 
@@ -1617,6 +1618,8 @@ body{
 .brand-logo svg{ width:26px; height:26px; }
 .brand-logo.sm{ width:34px; height:34px; border-radius:11px; }
 .brand-logo.sm svg{ width:20px; height:20px; }
+.so-brand-img{ height:40px; width:auto; display:block; }
+.so-brand-img-sm{ height:30px; }
 .brand-text h1{
   font-family:'Cabinet Grotesk','Archivo Black',sans-serif; font-weight:800;
   font-size:17px; letter-spacing:-0.02em; line-height:1; color:var(--white); margin:0;
@@ -3451,6 +3454,7 @@ footer{ margin-left:0; }
   color:#e2e8f0; margin-bottom:4px;
 }
 .splash-brand span{ color:#4a9fff; }
+.splash-brand-img{ height:52px; width:auto; margin:0 auto 4px; display:block; }
 
 @media (max-width:560px){
   .splash-batter{ width:190px; height:160px; }
@@ -3786,7 +3790,7 @@ body.modal-open{ overflow:hidden; }
 
 <!-- ============ SPLASH SCREEN ============ -->
 <div id="splash">
-  <div class="splash-brand">DINGER<span>WATCH</span></div>
+  <img src="logo-outpost.png" alt="The Sports Outpost" class="splash-brand-img">
   <div class="splash-batter">
     <svg class="swing-scene" viewBox="0 0 240 200" aria-hidden="true">
       <defs>
@@ -3883,17 +3887,7 @@ body.modal-open{ overflow:hidden; }
   <!-- ============ SIDEBAR (desktop) / BOTTOM NAV (mobile) ============ -->
   <aside class="app-sidebar">
     <div class="sb-brand">
-      <div class="brand-logo">
-        <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-          <circle cx="16" cy="16" r="11" fill="#fff"/>
-          <path d="M14.2 6.8 Q5.4 16 14.2 25.2" stroke="#2d7fff" stroke-width="1.9" fill="none" stroke-linecap="round"/>
-          <path d="M17.8 6.8 Q26.6 16 17.8 25.2" stroke="#2d7fff" stroke-width="1.9" fill="none" stroke-linecap="round"/>
-        </svg>
-      </div>
-      <div class="brand-text">
-        <h1>DINGER<span>WATCH</span></h1>
-        <div class="brand-tagline">Who's Going <span>Deep</span></div>
-      </div>
+      <img src="logo-outpost.png" alt="The Sports Outpost" class="so-brand-img">
     </div>
 
     <!-- #propTabs keeps its id/class: JS renders nav buttons into it -->
@@ -3921,14 +3915,7 @@ body.modal-open{ overflow:hidden; }
     <header class="topbar">
       <div class="topbar-left">
         <div class="tb-mobile-brand">
-          <div class="brand-logo sm">
-            <svg viewBox="0 0 32 32" fill="none" aria-hidden="true">
-              <circle cx="16" cy="16" r="11" fill="#fff"/>
-              <path d="M14.2 6.8 Q5.4 16 14.2 25.2" stroke="#2d7fff" stroke-width="1.9" fill="none" stroke-linecap="round"/>
-              <path d="M17.8 6.8 Q26.6 16 17.8 25.2" stroke="#2d7fff" stroke-width="1.9" fill="none" stroke-linecap="round"/>
-            </svg>
-          </div>
-          <div class="brand-text"><h1>DINGER<span>WATCH</span></h1></div>
+          <img src="logo-outpost.png" alt="The Sports Outpost" class="so-brand-img so-brand-img-sm">
         </div>
         <div class="day-toggle" id="dayToggle">
           <button class="active" data-day="today" id="todayBtn">Today</button>
@@ -9318,7 +9305,7 @@ async function toggleNotifications(){
     notifyEnabled = true;
     store.set('dw_notify', '1');
     const bg = pushSupported();
-    new Notification('Dinger Watch', {
+    new Notification('The Sports Outpost', {
       body: bg
         ? "Alerts are on. Background delivery activates once this device is registered."
         : "You'll get a notification for every home run while this page is open.",
@@ -9538,7 +9525,7 @@ function iosInstallHintHTML(){
   return `<div class="ios-hint" id="iosHint">
     <div class="ios-hint-body">
       <b>Want home run alerts on your iPhone?</b>
-      iOS only allows notifications from installed apps. Tap <b>Share</b> → <b>Add to Home Screen</b>, then open Dinger Watch from your Home Screen and turn on Alerts.
+      iOS only allows notifications from installed apps. Tap <b>Share</b> → <b>Add to Home Screen</b>, then open The Sports Outpost from your Home Screen and turn on Alerts.
     </div>
     <button class="ios-hint-x" id="iosHintX" aria-label="Dismiss">&times;</button>
   </div>`;
@@ -9624,7 +9611,7 @@ function homeRunMomentHTML(ev, narrative, shortPitch){
     ev.pitcher ? `off ${ev.pitcher}` : '',
     ev.pitchType ? `(${shortPitch(ev.pitchType)}${ev.pitchSpeed?', '+Math.round(ev.pitchSpeed)+' mph':''})` : '',
     ev.park ? `at ${ev.park}` : ''
-  ].filter(Boolean).join(' · ') + '. #DingerWatch';
+  ].filter(Boolean).join(' · ') + '. #SportsOutpost';
   const _shareData = escapeHTML(JSON.stringify({ text:_shareText, url:'https://dingerwatch.app' }));
   const _evData = escapeHTML(JSON.stringify(ev));
 
@@ -9764,7 +9751,7 @@ function openShareSheet(text, url, imgDataUrl, opts){
     {name:'Facebook', color:'#1877f2', logo:_SHARE_LOGOS.FB, url:`https://www.facebook.com/sharer/sharer.php?u=${enc(fullUrl)}&quote=${enc(text)}`},
     {name:'WhatsApp', color:'#25d366', logo:_SHARE_LOGOS.WA, url:`https://wa.me/?text=${enc(text+' '+fullUrl)}`},
     {name:'Reddit', color:'#ff4500', logo:_SHARE_LOGOS.RD, url:`https://www.reddit.com/submit?title=${enc(text)}&url=${enc(fullUrl)}`},
-    {name:'Email', color:'#6b7280', logo:_SHARE_LOGOS.EM, url:`mailto:?subject=${enc('Home run \u2014 DingerWatch')}&body=${enc(text+'\n'+fullUrl)}`}
+    {name:'Email', color:'#6b7280', logo:_SHARE_LOGOS.EM, url:`mailto:?subject=${enc('Home run \u2014 The Sports Outpost')}&body=${enc(text+'\n'+fullUrl)}`}
   ];
   const sheet=document.createElement('div');
   sheet.className='dw-share-sheet';
@@ -9793,7 +9780,7 @@ function openShareSheet(text, url, imgDataUrl, opts){
   sheet.querySelector('.dw-share-x').onclick=closeShareSheet;
   sheet.addEventListener('click',e=>{ if(e.target===sheet) closeShareSheet(); });
   const dl=sheet.querySelector('#dw-share-dl');
-  if(dl && imgDataUrl){ dl.onclick=function(){ const a=document.createElement('a'); a.href=imgDataUrl; a.download='dingerwatch-home-run.png'; document.body.appendChild(a); a.click(); a.remove(); }; }
+  if(dl && imgDataUrl){ dl.onclick=function(){ const a=document.createElement('a'); a.href=imgDataUrl; a.download='sports-outpost-home-run.png'; document.body.appendChild(a); a.click(); a.remove(); }; }
   const copy=sheet.querySelector('#dw-share-copylink');
   if(copy){ copy.onclick=async function(){ try{ await navigator.clipboard.writeText(fullUrl); this.textContent='Copied!'; setTimeout(()=>{this.textContent='Copy link';},1500); }catch(e){} }; }
   if(showClip){
@@ -9967,7 +9954,7 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   });
   // divider
   ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(80,FH+510); ctx.lineTo(W-80,FH+510); ctx.stroke();
-  // DingerWatch wordmark + URL
+  // The Sports Outpost wordmark + URL
   const wmY=FH+570;
   ctx.textAlign='center'; ctx.textBaseline='middle';
   // little home-plate mark
@@ -9977,7 +9964,7 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   ctx.fillStyle=GOLD; ctx.fillText('WATCH',W/2+88,wmY);
   ctx.textAlign='center'; ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('dingerwatch.app',W/2,wmY+48);
   ctx.fillStyle=MUTE; ctx.font="400 19px Oswald,sans-serif"; ctx.fillText('Home runs the moment they happen',W/2,wmY+84);
-  return new Promise((res)=>canvas.toBlob(b=>res(b?new File([b],'dingerwatch-home-run.png',{type:'image/png'}):null),'image/png',0.92));
+  return new Promise((res)=>canvas.toBlob(b=>res(b?new File([b],'sports-outpost-home-run.png',{type:'image/png'}):null),'image/png',0.92));
 }
 /** Expands/collapses one card's replay graphic — entirely independent of
  *  shareHR() below, which already reads everything it needs from this
@@ -10215,7 +10202,7 @@ async function renderHRClip(ev, quip){
       const type=(rec.mimeType||mime);
       const blob=new Blob(chunks,{type});
       if(!blob.size || !/mp4/i.test(type)){ resolve(null); return; }   // no blank/webm-as-mp4
-      resolve(new File([blob], 'dingerwatch-home-run.mp4', {type:'video/mp4', lastModified:Date.now()}));
+      resolve(new File([blob], 'sports-outpost-home-run.mp4', {type:'video/mp4', lastModified:Date.now()}));
     };
     rec.onerror=()=>{ _stopStream(stream); vc.remove(); if(baseDataUrl)URL.revokeObjectURL(baseDataUrl); resolve(null); };
     drawFrame(0);
@@ -10277,7 +10264,7 @@ function _dwClipReady(key){
   // 1) Download animated MP4 — always available once generated, no canShare needed.
   ph.id='dw-share-mp4-dl'; ph.disabled=false; ph.classList.remove('dw-share-clip-loading'); ph.removeAttribute('data-failed');
   ph.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Download animated MP4';
-  ph.onclick=function(){ const a=document.createElement('a'); a.href=mp4Url; a.download='dingerwatch-home-run.mp4'; document.body.appendChild(a); a.click(); a.remove(); };
+  ph.onclick=function(){ const a=document.createElement('a'); a.href=mp4Url; a.download='sports-outpost-home-run.mp4'; document.body.appendChild(a); a.click(); a.remove(); };
   // 2) System share (native fallback) — files-only so the MP4 stays a video.
   if(!ph.dataset.sysInserted && navigator.canShare && navigator.canShare({files:[mp4File]})){
     ph.dataset.sysInserted='1';
@@ -11517,7 +11504,7 @@ async function openWagerPanel(){
   panel.style.display = 'block';
   panel.innerHTML = `
     <div class="bs-wager-balance">Balance: <b>${balance}</b> pts</div>
-    <div class="bs-wager-disclaimer">These odds aren't real sportsbook lines — they're generated from DingerWatch's own ranking/probability model.</div>
+    <div class="bs-wager-disclaimer">These odds aren't real sportsbook lines — they're generated from The Sports Outpost's own ranking/probability model.</div>
     <div class="bs-wager-row">
       <input type="number" id="wagerStake" min="1" max="${balance}" step="1" placeholder="Stake" value="${Math.min(50, balance) || ''}">
       <button class="bs-btn primary" id="wagerConfirm">Confirm</button>
@@ -12007,7 +11994,7 @@ function gateHTML(mode){
       <div class="gate-brand">
         <img src="icon-192.png" alt="" class="gate-logo" onerror="this.style.display='none'">
         <div>
-          <div class="gate-title">DINGER<span>WATCH</span></div>
+          <img src="logo-outpost.png" alt="The Sports Outpost" class="gate-title-img">
           <div class="gate-tag">Who's Going Deep</div>
         </div>
       </div>
@@ -12021,7 +12008,7 @@ function gateHTML(mode){
         <ul>
           <li><b>These are projections, not predictions.</b> Every grade comes from a
               statistical model. A 38% home run chance means it usually doesn't happen.</li>
-          <li><b>No one can guarantee a win.</b> Dinger Watch doesn't, and anyone who
+          <li><b>No one can guarantee a win.</b> The Sports Outpost doesn't, and anyone who
               tells you otherwise is selling something.</li>
           <li><b>Only bet what you can afford to lose</b> — treat it as the price of
               entertainment, not an investment or a way to make money back.</li>
@@ -12229,6 +12216,7 @@ function evaluateGate(){
 .dwpreview-hero-inner{ position:relative; z-index:2; width:100%; max-width:1080px; margin:0 auto; padding:46px 24px 40px; box-sizing:border-box; }
 .dwpreview-logo{ display:flex; align-items:center; gap:12px; margin-bottom:20px; }
 .dwpreview-logo img{ width:48px; height:48px; border-radius:12px; }
+.dwpreview-logo-img{ width:auto !important; height:52px !important; border-radius:0 !important; }
 .dwpreview-brand{ font-family:'Cabinet Grotesk','Archivo Black',sans-serif; font-weight:800; font-size:28px; letter-spacing:-.01em; line-height:1.1; }
 .dwpreview-brand span{ color:var(--grass-bright,#22c55e); }
 .dwpreview-tag{ color:var(--mute,#8b95a8); font-size:12px; letter-spacing:.14em; text-transform:uppercase; margin-top:2px; }
@@ -12350,7 +12338,7 @@ body.dwpreview-active #modalOverlay.open{ z-index:4000; }
     el.innerHTML = `<div class="dwpreview-wrap">
       <section class="dwpreview-hero" style="background-image:url('preview-hero.jpg')">
         <div class="dwpreview-hero-inner">
-          <div class="dwpreview-logo"><img src="icon-192.png" alt="DingerWatch"><div><div class="dwpreview-brand">DINGER<span>WATCH</span></div><div class="dwpreview-tag">Who\u2019s Going Deep</div></div></div>
+          <div class="dwpreview-logo"><img src="logo-outpost.png" alt="The Sports Outpost" class="dwpreview-logo-img"></div>
           <h1 class="dwpreview-h1">Tonight\u2019s home run board, <em>modeled.</em></h1>
           <p class="dwpreview-sub">Statistical projections for every MLB game \u2014 letter grades, full scouting, live results. Free to explore below.</p>
           <div><button class="dwpreview-cta" id="dwPreviewCta">Get Started \u2014 free</button><button class="dwpreview-cta dwpreview-cta-ghost" id="dwPreviewTop3Jump">See tonight\u2019s Top 3</button></div>
@@ -14548,8 +14536,8 @@ function showSubscribeGate(checkoutUrl, connected, whopUsername){
          href="${url}" target="_blank" rel="noopener">Subscribe on Whop</a>`;
 
   const explain = !connected
-    ? "Dinger Watch requires an active Whop subscription. Connect your Whop account to check — this takes one click and doesn't share your password with us."
-    : "No active Dinger Watch subscription was found on the Whop account linked to this login. If you subscribed on a different Whop account, relink below — otherwise subscribe, then tap \u201cCheck again.\u201d";
+    ? "The Sports Outpost requires an active Whop subscription. Connect your Whop account to check — this takes one click and doesn't share your password with us."
+    : "No active Sports Outpost subscription was found on the Whop account linked to this login. If you subscribed on a different Whop account, relink below — otherwise subscribe, then tap \u201cCheck again.\u201d";
 
   // Naming the linked account is the whole fix for "but I AM subscribed": if
   // the gate is checking a different Whop account than the one that bought the
@@ -14576,7 +14564,7 @@ function showSubscribeGate(checkoutUrl, connected, whopUsername){
         <div class="gate-brand">
           <img src="icon-192.png" alt="" class="gate-logo" onerror="this.style.display='none'">
           <div>
-            <div class="gate-title">DINGER<span>WATCH</span></div>
+            <img src="logo-outpost.png" alt="The Sports Outpost" class="gate-title-img">
             <div class="gate-tag">Who's Going Deep</div>
           </div>
         </div>
@@ -14992,11 +14980,11 @@ async function shareWagerResult(w, triggerBtn){
 
     canvas.toBlob(async (blob) => {
       if(!blob){ triggerBtn.textContent = 'Failed — try again'; triggerBtn.disabled = false; return; }
-      const file = new File([blob], 'dingerwatch-result.png', { type: 'image/png' });
+      const file = new File([blob], 'sports-outpost-result.png', { type: 'image/png' });
 
       if(navigator.canShare && navigator.canShare({ files: [file] })){
         try{
-          await navigator.share({ files: [file], title: 'DingerWatch result' });
+          await navigator.share({ files: [file], title: 'Sports Outpost result' });
           triggerBtn.textContent = originalText; triggerBtn.disabled = false;
           return;
         }catch(e){
@@ -15006,7 +14994,7 @@ async function shareWagerResult(w, triggerBtn){
       }
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'dingerwatch-result.png';
+      a.href = url; a.download = 'sports-outpost-result.png';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 4000);
       triggerBtn.textContent = originalText; triggerBtn.disabled = false;
@@ -16945,7 +16933,7 @@ document.addEventListener('visibilitychange', ()=>{
   }
 </script>
 
-<!-- ===== SPIN THE WHEEL (Dinger Watch) ===== -->
+<!-- ===== SPIN THE WHEEL (Sports Outpost) ===== -->
 <style id="wheelStyles">
 .wheel-fab{position:fixed;right:18px;bottom:calc(var(--mobile-nav-h,60px) + 16px);z-index:900;width:56px;height:56px;border-radius:50%;border:none;cursor:pointer;background:linear-gradient(135deg,#2d7fff,#4a9fff);box-shadow:0 10px 26px rgba(45,127,255,.5),0 0 0 6px rgba(45,127,255,.14);display:none;align-items:center;justify-content:center;color:#fff;transition:transform .15s,box-shadow .15s}
 .wheel-fab.show{display:flex}
@@ -17025,7 +17013,7 @@ document.addEventListener('visibilitychange', ()=>{
         <div class="wheel-stage">
           <svg class="pointer" width="44" height="48" viewBox="0 0 44 48"><path d="M0 0 L44 0 L44 28 L22 48 L0 28 Z" fill="#fff" stroke="#0b0f1a" stroke-width="2"/></svg>
           <svg class="wheel" id="wheel" viewBox="0 0 400 400"></svg>
-          <div class="hub"><img src="./assets/img/dw-wheel-logo.png" alt="Dinger Watch"/><div class="cnt" id="hubCnt">20 left</div></div>
+          <div class="hub"><img src="./assets/img/dw-wheel-logo.png" alt="The Sports Outpost"/><div class="cnt" id="hubCnt">20 left</div></div>
           <div class="result" id="wheelResult" hidden></div>
         </div>
         <div class="controls">
