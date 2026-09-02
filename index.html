@@ -1533,6 +1533,25 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .so-radar-legend{ text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);
   margin-bottom:20px; }
 
+/* ============ Prop Radar — second view for any prop list, alongside the
+   existing Board. Reuses .so-radar-* structure above; adds real headshot
+   markers and a rank badge instead of plain dots, plus the toggle that
+   switches between the two views. ============ */
+.prop-view-toggle{ display:inline-flex; gap:4px; margin-left:12px; padding:3px; border-radius:8px; background:var(--surface); border:1px solid var(--border); vertical-align:middle; }
+.pv-toggle-btn{ font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
+  padding:6px 12px; border-radius:6px; border:none; background:transparent; color:var(--text-muted); cursor:pointer; }
+.pv-toggle-btn.is-active{ background:var(--accent-glow); color:var(--text); }
+.pr-marker{ position:absolute; transform:translate(-50%,-50%); cursor:pointer; z-index:2; }
+.pr-avatar-wrap{ border-radius:50%; overflow:hidden; border:2px solid rgba(255,255,255,0.2); box-shadow:0 0 0 3px rgba(8,12,24,0.8); }
+.pr-avatar-img{ width:100%; height:100%; object-fit:cover; object-position:var(--headshot-crop); display:block; }
+.pr-rank-badge{ position:absolute; bottom:-3px; right:-3px; background:var(--panel2); border:1.5px solid var(--live-green); color:var(--live-green);
+  border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono',monospace; font-size:8px; font-weight:700; }
+.pr-marker:hover, .pr-marker:focus{ z-index:50; }
+.pr-marker:hover .pr-avatar-wrap{ box-shadow:0 0 0 3px var(--live-green); }
+.pr-sweep::before{ background:conic-gradient(from 0deg, rgba(34,197,94,0.22), transparent 22%, transparent 100%) !important; }
+.pr-center{ background:var(--live-green) !important; box-shadow:0 0 14px var(--live-green) !important; }
+
 /* ============ Command Center — reuses the app's own real --accent/
    --surface/--border variables throughout, not a parallel brand palette,
    since this lives inside the real app rather than a standalone concept. ============ */
@@ -5576,6 +5595,7 @@ const PROP_IDS = new Set(PROP_MENU.map(p=>p.id));
 let activeTab = 'radar';
 let lastProp = 'hr';            // last-selected prop market; 'Player Props' tab reopens here
 let propMenuOpen = false;
+let propViewMode = 'board';     // 'board' (existing list) or 'radar' (new, rank-driven view)
 let propMenuBackdrop = null;   // created once, reused across re-renders
 const TOP_N = 20;
 
@@ -6565,7 +6585,11 @@ function renderPropSubtabs(){
   host.hidden = false;
   host.innerHTML = `<div class="prop-subtabs" role="tablist" aria-label="Player prop market">` +
     PROP_MENU.map(p => `<button type="button" class="prop-subtab ${p.id===activeTab?'is-active':''}" data-tab="${p.id}" role="tab" aria-selected="${p.id===activeTab}">${p.label}</button>`).join('') +
-    `</div>`;
+    `</div>
+    <div class="prop-view-toggle" role="tablist" aria-label="Board or Radar view">
+      <button type="button" class="pv-toggle-btn ${propViewMode==='board'?'is-active':''}" data-view="board">Board</button>
+      <button type="button" class="pv-toggle-btn ${propViewMode==='radar'?'is-active':''}" data-view="radar">Radar</button>
+    </div>`;
   host.querySelectorAll('.prop-subtab').forEach(btn => {
     btn.addEventListener('click', () => {
       activeTab = btn.dataset.tab;
@@ -6573,6 +6597,12 @@ function renderPropSubtabs(){
       renderTabs();
       renderList();
       window.scrollTo({top:0, behavior:'smooth'});
+    });
+  });
+  host.querySelectorAll('.pv-toggle-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      propViewMode = btn.dataset.view;
+      renderList();
     });
   });
 }
@@ -6632,6 +6662,12 @@ function renderList(){
     pickList.innerHTML = `<div style="text-align:center; padding:40px 20px; color:var(--mute); font-family:'Oswald',sans-serif; font-size:14px;">${emptyMsg}</div>`;
     return;
   }
+
+  if(propViewMode === 'radar'){
+    renderPropRadar(top5);
+    return;
+  }
+
   const rankClasses = Array.from({length:TOP_N}, (_,i)=> i===0?'':(i===1?'r2':(i===2?'r3':'r5')));
   pickList.innerHTML = top5.map((p, i) => {
     const isPitcher = activeTab==='k';
@@ -8901,6 +8937,91 @@ function switchCCTab(tabEl){
   panel.querySelectorAll('.cc-tab').forEach(t => t.classList.remove('active'));
   tabEl.classList.add('active');
   panel.querySelectorAll('.cc-col').forEach(c => c.classList.toggle('active', c.dataset.col === targetName));
+}
+
+/** Prop Radar — the second view for any prop list, alongside the existing
+ *  Board. Same underlying ranked data (getTop5), same real headshots and
+ *  scores, just plotted by rank instead of listed: rank 1 sits closest to
+ *  center, weaker ranks sit toward the edge. Tier split is proportional to
+ *  the actual player count (not hardcoded to exactly 20), verified safe
+ *  down to a single qualifying player — an earlier version of this split
+ *  double-counted at n=1 before that was caught and fixed. Radii are
+ *  spaced so overlap is geometrically impossible regardless of angle,
+ *  same guarantee verified for the standalone concept this is based on. */
+function propRadarTierSplit(n){
+  if(n <= 0) return [0, 0, 0];
+  const t1 = Math.min(n, Math.max(1, Math.min(3, Math.round(n * 0.15))));
+  const remaining1 = n - t1;
+  const t2 = Math.min(remaining1, Math.max(remaining1 > 0 ? 1 : 0, Math.round(n * 0.35)));
+  const t3 = n - t1 - t2;
+  return [t1, t2, t3];
+}
+function renderPropRadar(top5){
+  const isPitcher = activeTab === 'k';
+  const [c1, c2, c3] = propRadarTierSplit(top5.length);
+  const tiers = [
+    { r: 30, size: 22, players: top5.slice(0, c1) },
+    { r: 70, size: 18, players: top5.slice(c1, c1+c2) },
+    { r: 103, size: 15, players: top5.slice(c1+c2, c1+c2+c3) },
+  ].filter(t => t.players.length > 0);
+
+  const markers = [];
+  let rank = 0;
+  tiers.forEach((tier, tierIdx) => {
+    const n = tier.players.length;
+    const step = 360 / n;
+    const offset = tierIdx * 15;
+    tier.players.forEach((p, i) => {
+      rank++;
+      const angle = step * i - 90 + offset;
+      const rad = angle * Math.PI / 180;
+      const x = ((140 + Math.cos(rad) * tier.r) / 280 * 100).toFixed(2);
+      const y = ((140 + Math.sin(rad) * tier.r) / 280 * 100).toFixed(2);
+      const pct = scoreFor(activeTab, p);
+      const team = isPitcher ? '' : p.team;
+      markers.push(`<div class="so-radar-marker pr-marker" style="left:${x}%; top:${y}%; width:${tier.size*2}px; height:${tier.size*2}px;"
+           data-team="${escapeHTML(p.team||'')}" data-pname="${escapeHTML(p.name)}">
+        <div class="pr-avatar-wrap" style="width:100%; height:100%;">
+          ${headshotImgTag(p.name, 'pr-avatar-img', p.team, p.id)}
+        </div>
+        <div class="pr-rank-badge">${rank}</div>
+        <div class="so-radar-tip">
+          <b>${escapeHTML(p.name)}</b>${team?` · ${team}`:''}<br><span style="color:var(--live-green);">${pct}%</span>
+        </div>
+      </div>`);
+    });
+  });
+
+  pickList.innerHTML = `
+    <div class="so-radar-page">
+    <div class="so-radar-wrap">
+      <svg class="so-radar-svg" viewBox="0 0 280 280">
+        <defs><radialGradient id="soPropRadarBg" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#0e2444"/><stop offset="100%" stop-color="#081a40"/>
+        </radialGradient></defs>
+        <circle cx="140" cy="140" r="136" fill="url(#soPropRadarBg)" stroke="rgba(34,197,94,0.25)" stroke-width="1"/>
+        <circle cx="140" cy="140" r="103" fill="none" stroke="rgba(34,197,94,0.14)" stroke-width="1"/>
+        <circle cx="140" cy="140" r="70" fill="none" stroke="rgba(34,197,94,0.14)" stroke-width="1"/>
+        <circle cx="140" cy="140" r="30" fill="none" stroke="rgba(34,197,94,0.2)" stroke-width="1"/>
+        <line x1="140" y1="4" x2="140" y2="276" stroke="rgba(110,220,255,0.14)" stroke-width="1"/>
+        <line x1="4" y1="140" x2="276" y2="140" stroke="rgba(110,220,255,0.14)" stroke-width="1"/>
+      </svg>
+      <div class="so-radar-sweep pr-sweep"></div>
+      <div class="so-radar-center pr-center"></div>
+      ${markers.join('')}
+    </div>
+    <div class="so-radar-legend">Rank 1 sits at center. Tap a target for the full breakdown.</div>
+    </div>
+  `;
+
+  pickList.querySelectorAll('.pr-marker').forEach(marker => {
+    marker.addEventListener('click', () => {
+      const pool = isPitcher ? allPitchers : allBatters;
+      const p = pool.find(x => x.team === marker.dataset.team && x.name === marker.dataset.pname);
+      if(!p) return;
+      if(isPitcher) openPitcherModal(p); else openBatterModal(p);
+    });
+  });
 }
 
 function renderRadar(){
