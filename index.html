@@ -1502,7 +1502,8 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
    concept work, wired to this app's real games array and real liveScore
    data instead of mock data. Scoped under .so- so nothing here can
    collide with the app's existing class names. ============ */
-.so-radar-wrap{ position:relative; width:min(560px, 92vw); aspect-ratio:1; margin:32px auto 8px; }
+.so-radar-page{ display:flex; flex-direction:column; align-items:center; width:100%; }
+.so-radar-wrap{ position:relative; width:min(560px, 92vw); aspect-ratio:1; margin:32px 0 8px; }
 .so-radar-svg{ position:absolute; inset:0; width:100%; height:100%; }
 .so-radar-sweep{ position:absolute; inset:0; border-radius:50%; overflow:hidden;
   -webkit-mask-image:radial-gradient(circle, black 60%, transparent 60%); mask-image:radial-gradient(circle, black 60%, transparent 60%); }
@@ -1526,6 +1527,62 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .so-radar-marker:hover, .so-radar-marker:focus{ z-index:50; }
 .so-radar-legend{ text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);
   margin-bottom:20px; }
+
+/* ============ Command Center — reuses the app's own real --accent/
+   --surface/--border variables throughout, not a parallel brand palette,
+   since this lives inside the real app rather than a standalone concept. ============ */
+.cc-trigger{
+  display:inline-flex; align-items:center; gap:9px; font-family:'Oswald',sans-serif; font-size:12.5px; font-weight:600;
+  letter-spacing:.04em; text-transform:uppercase; color:var(--text); padding:10px 20px; border-radius:999px;
+  background:var(--accent-glow); border:1px solid var(--border-bright); cursor:pointer;
+}
+.cc-trigger:hover{ background:rgba(45,127,255,0.22); }
+.cc-trigger-dot{ width:7px; height:7px; border-radius:50%; background:var(--live-green); box-shadow:0 0 8px var(--live-green);
+  animation:ccDotPulse 2s ease-in-out infinite; }
+@keyframes ccDotPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
+
+.cc-backdrop{
+  position:fixed; inset:0; z-index:9500; background:rgba(4,8,18,0.6); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  opacity:0; visibility:hidden; transition:opacity .25s ease, visibility 0s linear .25s;
+  display:flex; flex-direction:column;
+}
+.cc-backdrop.is-open{ opacity:1; visibility:visible; transition:opacity .25s ease, visibility 0s linear 0s; }
+.cc-panel{
+  background:rgba(15,20,33,0.92); border:1px solid var(--border-bright); border-radius:20px;
+  margin:auto; width:min(1000px, 94vw); max-height:88vh; overflow:hidden; display:flex; flex-direction:column;
+  transform:scale(0.25); transform-origin:var(--cc-origin-x, 50%) var(--cc-origin-y, 50%);
+  transition:transform .4s cubic-bezier(.2,.85,.25,1.1);
+  box-shadow:0 40px 100px rgba(0,0,0,0.6);
+}
+.cc-backdrop.is-open .cc-panel{ transform:scale(1); }
+.cc-header{ display:flex; align-items:center; justify-content:space-between; padding:16px 22px; border-bottom:1px solid var(--border); flex-shrink:0; }
+.cc-header h2{ font-family:'Oswald',sans-serif; font-size:16px; font-weight:700; text-transform:uppercase; margin:0; display:flex; align-items:center; gap:9px; color:var(--text); }
+.cc-close{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--border); color:var(--text-muted); cursor:pointer; }
+.cc-close:hover{ color:var(--text); border-color:var(--border-bright); }
+.cc-tabs{ display:none; gap:6px; padding:12px 16px 0; flex-shrink:0; overflow-x:auto; }
+.cc-tab{ font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
+  padding:8px 14px; border-radius:8px; color:var(--text-muted); white-space:nowrap; cursor:pointer; }
+.cc-tab.active{ background:var(--accent-glow); color:var(--text); }
+.cc-body{ overflow-y:auto; padding:18px 22px 26px; flex:1; }
+.cc-columns{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+.cc-col-title{ font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
+  color:var(--text-muted); margin:0 0 12px; }
+.cc-target-row{ display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
+.cc-target-row:first-of-type{ border-top:none; }
+.cc-target-avatar-img{ width:30px; height:30px; border-radius:50%; flex-shrink:0; object-fit:cover; }
+.cc-target-name{ font-family:'Oswald',sans-serif; font-size:12.5px; flex:1; color:var(--text); }
+.cc-target-stat{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--accent-bright); }
+.cc-goto-btn{ font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
+  padding:9px 16px; border-radius:8px; border:1px solid var(--border-bright); background:var(--accent-glow); color:var(--text); cursor:pointer; }
+.cc-goto-btn:hover{ background:rgba(45,127,255,0.22); }
+@media (max-width:860px){
+  .cc-panel{ width:100vw; max-width:100vw; height:100vh; max-height:100vh; margin:0; border-radius:0; }
+  .cc-tabs{ display:flex; }
+  .cc-columns{ display:block; }
+  .cc-col{ display:none; }
+  .cc-col.active{ display:block; }
+}
 
 body{
   background: var(--night);
@@ -3685,6 +3742,47 @@ body.modal-open{ overflow:hidden; }
 </style>
 </head>
 <body class="dw-booting">
+
+<!-- ============ COMMAND CENTER OVERLAY ============ -->
+<div class="cc-backdrop" id="ccBackdrop">
+  <div class="cc-panel">
+    <div class="cc-header">
+      <h2><span class="cc-trigger-dot"></span> Command Center</h2>
+      <div class="cc-close" onclick="closeCommandCenter()" role="button" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+    </div>
+    <div class="cc-tabs">
+      <div class="cc-tab active" data-tab="targets" onclick="switchCCTab(this)">Targets</div>
+      <div class="cc-tab" data-tab="news" onclick="switchCCTab(this)">News</div>
+      <div class="cc-tab" data-tab="chat" onclick="switchCCTab(this)">Chat</div>
+      <div class="cc-tab" data-tab="foryou" onclick="switchCCTab(this)">For You</div>
+    </div>
+    <div class="cc-body">
+      <div class="cc-columns">
+        <div class="cc-col active" data-col="targets">
+          <div class="cc-col-title">Tracked Targets</div>
+          <div id="ccTargetsCol"></div>
+        </div>
+        <div class="cc-col" data-col="news">
+          <div class="cc-col-title">Home Run Feed</div>
+          <p style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;">Every homer as it happens, with exit velocity, launch angle, and distance.</p>
+          <button class="cc-goto-btn" onclick="ccGoToTab('feed')">Open HR Feed →</button>
+        </div>
+        <div class="cc-col" data-col="chat">
+          <div class="cc-col-title">Live Chat</div>
+          <p style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;">Real-time chat with everyone online right now.</p>
+          <button class="cc-goto-btn" onclick="ccGoToTab('feed'); document.getElementById('chatBtnMobile')?.click();">Open Chat →</button>
+        </div>
+        <div class="cc-col" data-col="foryou">
+          <div class="cc-col-title">For You</div>
+          <p style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;">Community status updates, picks, and reactions.</p>
+          <button class="cc-goto-btn" onclick="ccGoToTab('foryou')">Open For You →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ============ SPLASH SCREEN ============ -->
 <div id="splash">
@@ -8761,6 +8859,59 @@ function radarCloseness(liveScore){
   const diffScore = Math.min(1, diff / 8);
   return Math.max(0, Math.min(1, diffScore * 0.7 + (1 - lateness) * 0.3));
 }
+/** Command Center overlay — a quick-access summary reachable from the
+ *  radar. Targets pulls from the real watchedPlayerIds set (empty is the
+ *  honest state right now with the sign-in gate bypassed, not faked).
+ *  Chat/For You/News don't duplicate those features — they link straight
+ *  into the app's own existing, already-working tabs. */
+function ccBuildTargetsHTML(){
+  const ids = [...watchedPlayerIds];
+  if(!ids.length){
+    return `<div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); padding:8px 0;">
+      No tracked players yet. Star a player from any prop list to see them here.</div>`;
+  }
+  const pool = [...(allBatters||[]), ...(allPitchers||[])];
+  const rows = ids.map(id => pool.find(p => String(p.id) === id)).filter(Boolean).slice(0, 8);
+  if(!rows.length){
+    return `<div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); padding:8px 0;">
+      Tracked players aren't in tonight's pool.</div>`;
+  }
+  return rows.map(p => `<div class="cc-target-row">
+    ${headshotImgTag(p.name, 'cc-target-avatar-img', p.team, p.id)}
+    <div class="cc-target-name">${escapeHTML(p.name)}</div>
+    <div class="cc-target-stat">${p.team||''}</div>
+  </div>`).join('');
+}
+function ccGoToTab(tabId){
+  closeCommandCenter();
+  activeTab = tabId;
+  if(PROP_IDS.has(tabId)) lastProp = tabId;
+  renderTabs();
+  renderList();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+function openCommandCenter(event, btn){
+  const rect = btn.getBoundingClientRect();
+  const originX = ((rect.left + rect.width / 2) / window.innerWidth * 100).toFixed(1) + '%';
+  const originY = ((rect.top + rect.height / 2) / window.innerHeight * 100).toFixed(1) + '%';
+  const backdrop = document.getElementById('ccBackdrop');
+  const panel = backdrop.querySelector('.cc-panel');
+  panel.style.setProperty('--cc-origin-x', originX);
+  panel.style.setProperty('--cc-origin-y', originY);
+  document.getElementById('ccTargetsCol').innerHTML = ccBuildTargetsHTML();
+  backdrop.classList.add('is-open');
+}
+function closeCommandCenter(){
+  document.getElementById('ccBackdrop').classList.remove('is-open');
+}
+function switchCCTab(tabEl){
+  const targetName = tabEl.dataset.tab;
+  const panel = tabEl.closest('.cc-panel');
+  panel.querySelectorAll('.cc-tab').forEach(t => t.classList.remove('active'));
+  tabEl.classList.add('active');
+  panel.querySelectorAll('.cc-col').forEach(c => c.classList.toggle('active', c.dataset.col === targetName));
+}
+
 function renderRadar(){
   const todaysGames = games.filter(g => g.gamePk);
   if(!todaysGames.length){
@@ -8797,6 +8948,7 @@ function renderRadar(){
   }).join('');
 
   pickList.innerHTML = `
+    <div class="so-radar-page">
     <div class="so-radar-wrap">
       <svg class="so-radar-svg" viewBox="0 0 280 280">
         <defs><radialGradient id="soRadarBg" cx="50%" cy="50%" r="50%">
@@ -8814,6 +8966,12 @@ function renderRadar(){
       ${markers}
     </div>
     <div class="so-radar-legend">Closer to center = a tighter, later-inning game right now.</div>
+    <div class="cc-trigger" onclick="openCommandCenter(event, this)">
+      <span class="cc-trigger-dot"></span>
+      Command Center
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </div>
+    </div>
   `;
 }
 
