@@ -7496,6 +7496,12 @@ async function fetchLiveGameStates(){
               if(!all || !all.length) return [];
               return all.map(p => {
                 const a = p.about || {}, r = p.result || {}, m = p.matchup || {};
+                // Last play-event in this at-bat carrying hitData — same
+                // extraction already proven in gcExtractPitchState below,
+                // reused here so EVERY batted ball's EV is available, not
+                // just the ones that happened to result in a home run.
+                const hitEvent = (p.playEvents || []).slice().reverse().find(pe => pe.hitData);
+                const hd = hitEvent && hitEvent.hitData;
                 return {
                   id: (a.atBatIndex!=null?a.atBatIndex:0) + '-' + (a.playIndex!=null?a.playIndex:0),
                   inning: a.inning || 0, half: a.half || '',
@@ -7506,7 +7512,14 @@ async function fetchLiveGameStates(){
                   away: r.awayScore!=null ? r.awayScore : null,
                   home: r.homeScore!=null ? r.homeScore : null,
                   batterId: m.batter ? m.batter.id : null,
+                  batterName: m.batter ? m.batter.fullName : null,
                   pitcherId: m.pitcher ? m.pitcher.id : null,
+                  pitcherName: m.pitcher ? m.pitcher.fullName : null,
+                  hitData: hd ? {
+                    launchSpeed: hd.launchSpeed != null ? Number(hd.launchSpeed) : null,
+                    launchAngle: hd.launchAngle != null ? Number(hd.launchAngle) : null,
+                    totalDistance: hd.totalDistance != null ? Number(hd.totalDistance) : null,
+                  } : null,
                 };
               });
             })(),
@@ -8960,17 +8973,24 @@ function ccBuildBaseballHTML(){
     <div class="cc-kpi-tile"><b>${topProp ? Math.round(scoreFor('hr', topProp))+'%' : '—'}</b><span>Top HR Odds</span></div>
   </div>`;
 
-  const threats = [...feedEvents]
-    .filter(ev => ev.exitVelo != null && ev.exitVelo >= 108)
-    .sort((a,b) => b.exitVelo - a.exitVelo)
+  // Elite exit velocity that did NOT leave the yard — a real near-miss log,
+  // not confirmed home runs. Pulled from every live game's actual
+  // play-by-play (g.liveScore.plays), each carrying real hitData when the
+  // play was a batted ball. event !== 'Home Run' is what makes this
+  // genuinely different from a home-run list: same 108+ mph bar, but for
+  // the ball that got caught, not the one that left the park.
+  const threats = games.flatMap(g => (g.liveScore?.plays || [])
+      .filter(p => p.hitData && p.hitData.launchSpeed != null && p.hitData.launchSpeed >= 108 && p.event !== 'Home Run')
+      .map(p => ({...p, away: g.away, home: g.home})))
+    .sort((a,b) => b.hitData.launchSpeed - a.hitData.launchSpeed)
     .slice(0, 5);
   const alertsHTML = threats.length
-    ? threats.map(ev => `<div class="cc-alert-row">
-        ${headshotImgTag(ev.batter, 'cc-alert-avatar', ev.team, ev.batterId||'')}
-        <div class="cc-alert-text">${escapeHTML(ev.batter)}<small>${Math.round(ev.exitVelo)} mph EV · ${ev.distance?Math.round(ev.distance)+' ft':''} off ${escapeHTML(ev.pitcher||'')}</small></div>
-        <span class="cc-alert-tag">HOT</span>
+    ? threats.map(p => `<div class="cc-alert-row">
+        ${headshotImgTag(p.batterName, 'cc-alert-avatar', '', p.batterId||'')}
+        <div class="cc-alert-text">${escapeHTML(p.batterName||'Unknown')}<small>${Math.round(p.hitData.launchSpeed)} mph EV · ${escapeHTML(p.event||'')}${p.hitData.totalDistance?' · '+Math.round(p.hitData.totalDistance)+' ft':''} vs ${escapeHTML(p.pitcherName||'')}</small></div>
+        <span class="cc-alert-tag">HARD-HIT</span>
       </div>`).join('')
-    : `<div class="cc-empty-note">No elite-EV (108+ mph) home runs yet tonight.</div>`;
+    : `<div class="cc-empty-note">No elite-EV (108+ mph) near-misses yet tonight.</div>`;
 
   const liveGames = games.filter(g => g.mlbStatus === 'Live').slice(0, 6);
   const gamesHTML = liveGames.length
@@ -8984,7 +9004,7 @@ function ccBuildBaseballHTML(){
     <div class="cc-col-title">Baseball</div>
     ${kpiRow}
     <div class="cc-section">
-      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Threat Alerts — Elite Exit Velo</div>
+      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Threat Alerts — Elite EV, No HR</div>
       ${alertsHTML}
     </div>
     <div class="cc-section">
