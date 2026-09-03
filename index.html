@@ -9763,7 +9763,7 @@ function homeRunMomentHTML(ev, narrative, shortPitch){
     ev.pitchType ? `(${shortPitch(ev.pitchType)}${ev.pitchSpeed?', '+Math.round(ev.pitchSpeed)+' mph':''})` : '',
     ev.park ? `at ${ev.park}` : ''
   ].filter(Boolean).join(' · ') + '. #SportsOutpost';
-  const _shareData = escapeHTML(JSON.stringify({ text:_shareText, url:'https://dingerwatch.app' }));
+  const _shareData = escapeHTML(JSON.stringify({ text:_shareText, url:'https://thesportsoutpost.com' }));
   const _evData = escapeHTML(JSON.stringify(ev));
 
   // ---- radial stat rings (moved into the matchup row, so this now needs to
@@ -9895,7 +9895,7 @@ const _SHARE_LOGOS = {
 function openShareSheet(text, url, imgDataUrl, opts){
   opts=opts||{};
   const enc = encodeURIComponent;
-  const fullUrl = url || 'https://dingerwatch.app';
+  const fullUrl = url || 'https://thesportsoutpost.com';
   closeShareSheet();
   const links=[
     {name:'X', color:'#000000', logo:_SHARE_LOGOS.X, url:`https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(fullUrl)}`},
@@ -10116,7 +10116,7 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   ctx.fillStyle=TEXT; ctx.fillText('SPORTS',wmStartX,wmY);
   const sportsWidth = ctx.measureText('SPORTS').width;
   ctx.fillStyle=GOLD; ctx.fillText('OUTPOST',wmStartX+sportsWidth+16,wmY);
-  ctx.textAlign='center'; ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('dingerwatch.app',W/2,wmY+48);
+  ctx.textAlign='center'; ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('thesportsoutpost.com',W/2,wmY+48);
   ctx.fillStyle=MUTE; ctx.font="400 19px Oswald,sans-serif"; ctx.fillText('Home runs the moment they happen',W/2,wmY+84);
   return new Promise((res)=>canvas.toBlob(b=>res(b?new File([b],'sports-outpost-home-run.png',{type:'image/png'}):null),'image/png',0.92));
 }
@@ -10158,7 +10158,7 @@ function toggleHRGraphic(btn){
   }
 }
 function shareHR(btn){
-  let data={text:'',url:'https://dingerwatch.app'};
+  let data={text:'',url:'https://thesportsoutpost.com'};
   try{ data=Object.assign(data, JSON.parse(btn.dataset.share||'{}')); }catch(e){}
   let ev=null;
   try{ ev=JSON.parse(btn.dataset.ev||'null'); }catch(e){}
@@ -10443,7 +10443,7 @@ function shareHRClip(btn){
   // Defensive: if the device can't produce/share a clip, behave like Share
   // (the button is also hidden in renderFeed, but this guards stale DOM).
   if(!_hrClipSupported()){ shareHR(btn); return; }
-  let data={text:'',url:'https://dingerwatch.app'};
+  let data={text:'',url:'https://thesportsoutpost.com'};
   try{ data=Object.assign(data, JSON.parse(btn.dataset.share||'{}')); }catch(e){}
   let ev=null;
   try{ ev=JSON.parse(btn.dataset.ev||'null'); }catch(e){}
@@ -15101,7 +15101,7 @@ function buildShareCardNode(w){
         <div style="font-size:10.5px; color:#5b6784; line-height:1.4; margin-bottom:14px; padding-top:14px; border-top:1px solid #232a3d;">Model-based predictions, not real sportsbook odds. Points have no cash value.</div>
         <div style="display:flex; align-items:center; justify-content:space-between;">
           <span style="font-size:13px; color:#7b849c;">Build your own slip</span>
-          <span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:#6EDCFF;">dingerwatch.app</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px; color:#6EDCFF;">thesportsoutpost.com</span>
         </div>
       </div>
     </div>`;
@@ -16594,7 +16594,7 @@ document.addEventListener('visibilitychange', ()=>{
   const REPO = 'jthomas0786/DingerWatch';
   const ghAPI = folder => `https://api.github.com/repos/${REPO}/contents/model-logs/${folder}?ref=public`;
   const filePath = (folder, name) => `model-logs/${folder}/${name}`;
-  const LIVE = 'https://dingerwatch.app';
+  const LIVE = 'https://thesportsoutpost.com';
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const fmt = (v,d=3) => v==null?'—':(typeof v==='number'?v.toFixed(d):esc(v));
   const pct = v => v==null?'—':(v*100).toFixed(1)+'%';
@@ -16779,7 +16779,7 @@ document.addEventListener('visibilitychange', ()=>{
     // ---- Quick links + safe local actions ----
     let body = `<details class="dwadmin-sec" open><summary>Quick links</summary>
       <div class=dwadmin-links>
-        <a href="${LIVE}" target=_blank>↗ Live site (dingerwatch.app)</a>
+        <a href="${LIVE}" target=_blank>↗ Live site (thesportsoutpost.com)</a>
         <a href="https://github.com/${REPO}" target=_blank>↗ GitHub repo</a>
         <a href="https://github.com/${REPO}/actions" target=_blank>↗ GitHub Actions</a>
         <a href="https://github.com/${REPO}/settings/pages" target=_blank>↗ GitHub Pages settings</a>
