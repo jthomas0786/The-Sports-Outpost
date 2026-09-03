@@ -1703,6 +1703,8 @@ body{
   transition:border-color .2s ease, background .2s ease;
 }
 .sb-picks-btn:hover{ border-color:var(--accent-bright); background:linear-gradient(135deg, rgba(45,127,255,0.24), rgba(110,220,255,0.12)); }
+.sb-radar-btn{ margin-bottom:8px; border-color:rgba(110,220,255,0.3); }
+.sb-radar-btn:hover{ border-color:#6EDCFF; }
 .sb-picks-icon{ font-size:16px; }
 
 .sb-sport-accordion{ display:flex; flex-direction:column; gap:8px; flex:1; }
@@ -3936,6 +3938,10 @@ body.modal-open{ overflow:hidden; }
       <img src="logo-outpost.png" alt="The Sports Outpost" class="so-brand-img">
     </div>
 
+    <button type="button" class="sb-picks-btn sb-radar-btn" id="sbRadarBtn">
+      <span class="sb-picks-icon">🛰️</span> Game Radar
+    </button>
+
     <button type="button" class="sb-picks-btn" id="sbPicksBtn">
       <span class="sb-picks-icon">🏆</span> Outpost Picks
     </button>
@@ -5966,7 +5972,7 @@ function renderSidebarSports(){
   sbExpandedSport = currentSport;
 
   const mlbFlat = [
-    ...PROP_TABS.filter(t => t.id !== 'foryou' && !t.dropdown),
+    ...PROP_TABS.filter(t => t.id !== 'foryou' && t.id !== 'radar' && !t.dropdown),
     ...PROP_MENU,
   ];
 
@@ -6068,6 +6074,18 @@ function openOutpostPicks(){
   } else {
     window.DW_selectTab?.('foryou');
   }
+}
+
+/** Game Radar — currently an MLB-only view (no NHL/NBA data exists yet,
+ *  and NFL's data isn't exposed outside its own module — same honest
+ *  limitation as the Command Center's Football section). Selecting the
+ *  tab before switching routes means MLB's view already has the right
+ *  content the moment it becomes visible, rather than showing whatever
+ *  was there before. */
+function openGameRadar(){
+  window.DW_selectTab?.('radar');
+  const sport = (window.DW_getSport && window.DW_getSport()) || 'mlb';
+  if(sport !== 'mlb') location.hash = 'mlb';
 }
 window.renderSidebarSports = renderSidebarSports;
 
@@ -15482,6 +15500,7 @@ function toggleChatPanel(){
 async function boot(){
   renderTabs();
   renderSidebarSports();
+  document.getElementById('sbRadarBtn')?.addEventListener('click', openGameRadar);
   document.getElementById('sbPicksBtn')?.addEventListener('click', openOutpostPicks);
   renderList();                       // paint the shell immediately
 
