@@ -1602,12 +1602,13 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-close{ width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   border:1px solid var(--border); color:var(--text-muted); cursor:pointer; }
 .cc-close:hover{ color:var(--text); border-color:var(--border-bright); }
-.cc-tabs{ display:none; gap:6px; padding:12px 16px 0; flex-shrink:0; overflow-x:auto; }
+.cc-tabs{ display:flex; gap:6px; padding:12px 16px 0; flex-shrink:0; overflow-x:auto; }
 .cc-tab{ font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:600; letter-spacing:.03em; text-transform:uppercase;
   padding:8px 14px; border-radius:8px; color:var(--text-muted); white-space:nowrap; cursor:pointer; }
 .cc-tab.active{ background:var(--accent-glow); color:var(--text); }
 .cc-body{ overflow-y:auto; padding:18px 22px 26px; flex:1; }
-.cc-columns{ display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:16px; }
+.cc-columns-single .cc-col{ display:none; }
+.cc-columns-single .cc-col.active{ display:block; }
 .cc-col-title{ font-family:'Oswald',sans-serif; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
   color:var(--text-muted); margin:0 0 12px; }
 .cc-target-row{ display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--border); }
@@ -1618,12 +1619,37 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-goto-btn{ font-family:'Oswald',sans-serif; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.03em;
   padding:9px 16px; border-radius:8px; border:1px solid var(--border-bright); background:var(--accent-glow); color:var(--text); cursor:pointer; }
 .cc-goto-btn:hover{ background:rgba(45,127,255,0.22); }
+
+/* ============ New sport-dashboard sub-components ============ */
+.cc-kpi-row{ display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:10px; margin-bottom:18px; }
+.cc-kpi-tile{ background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:12px; text-align:center; }
+.cc-kpi-tile b{ display:block; font-family:'JetBrains Mono',monospace; font-size:19px; color:var(--text); }
+.cc-kpi-tile span{ font-family:'Oswald',sans-serif; font-size:9.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); }
+.cc-section{ margin-bottom:22px; }
+.cc-section:last-child{ margin-bottom:0; }
+.cc-alert-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+.cc-alert-row:first-of-type{ border-top:none; }
+.cc-alert-avatar{ width:32px; height:32px; border-radius:50%; flex-shrink:0; object-fit:cover; border:1.5px solid var(--live-green); }
+.cc-alert-text{ flex:1; font-family:'Oswald',sans-serif; font-size:12.5px; color:var(--text); }
+.cc-alert-text small{ display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); margin-top:1px; }
+.cc-alert-tag{ font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; padding:3px 8px; border-radius:20px;
+  background:rgba(34,197,94,.15); color:var(--live-green); white-space:nowrap; }
+.cc-empty-note{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;
+  background:var(--surface); border:1px dashed var(--border); border-radius:10px; padding:14px; }
+.cc-coming-soon{ text-align:center; padding:50px 20px; }
+.cc-coming-soon .icon{ font-size:40px; margin-bottom:14px; opacity:0.6; }
+.cc-coming-soon h3{ font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:.03em; color:var(--text); margin:0 0 8px; }
+.cc-coming-soon p{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); max-width:320px; margin:0 auto; line-height:1.6; }
+.cc-game-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-top:1px solid var(--border); font-family:'JetBrains Mono',monospace; font-size:11.5px; }
+.cc-game-row:first-of-type{ border-top:none; }
+.cc-game-row .teams{ color:var(--text); font-family:'Oswald',sans-serif; font-size:12.5px; }
+.cc-game-row .state{ color:var(--live-green); }
+.cc-trend-chart{ display:flex; align-items:flex-end; gap:4px; height:52px; margin-top:8px; }
+.cc-trend-bar{ flex:1; background:linear-gradient(180deg, var(--accent-bright), var(--accent)); border-radius:2px 2px 0 0; min-height:3px; }
+.cc-trend-bar.loss{ background:var(--dark-gray, #3C4655); }
+
 @media (max-width:860px){
   .cc-panel{ width:100vw; max-width:100vw; height:100vh; max-height:100vh; margin:0; border-radius:0; }
-  .cc-tabs{ display:flex; }
-  .cc-columns{ display:block; }
-  .cc-col{ display:none; }
-  .cc-col.active{ display:block; }
 }
 
 body{
@@ -3819,32 +3845,17 @@ body.modal-open{ overflow:hidden; }
       </div>
     </div>
     <div class="cc-tabs">
-      <div class="cc-tab active" data-tab="targets" onclick="switchCCTab(this)">Targets</div>
-      <div class="cc-tab" data-tab="news" onclick="switchCCTab(this)">News</div>
-      <div class="cc-tab" data-tab="chat" onclick="switchCCTab(this)">Chat</div>
-      <div class="cc-tab" data-tab="foryou" onclick="switchCCTab(this)">For You</div>
+      <div class="cc-tab active" data-tab="baseball" onclick="switchCCTab(this)">⚾ Baseball</div>
+      <div class="cc-tab" data-tab="football" onclick="switchCCTab(this)">🏈 Football</div>
+      <div class="cc-tab" data-tab="hockey" onclick="switchCCTab(this)">🏒 Hockey</div>
+      <div class="cc-tab" data-tab="basketball" onclick="switchCCTab(this)">🏀 Basketball</div>
     </div>
     <div class="cc-body">
-      <div class="cc-columns">
-        <div class="cc-col active" data-col="targets">
-          <div class="cc-col-title">Tracked Targets</div>
-          <div id="ccTargetsCol"></div>
-        </div>
-        <div class="cc-col" data-col="news">
-          <div class="cc-col-title">Home Run Feed</div>
-          <p style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;">Every homer as it happens, with exit velocity, launch angle, and distance.</p>
-          <button class="cc-goto-btn" onclick="ccGoToTab('feed')">Open HR Feed →</button>
-        </div>
-        <div class="cc-col" data-col="chat">
-          <div class="cc-col-title">Live Chat</div>
-          <p style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;">Real-time chat with everyone online right now.</p>
-          <button class="cc-goto-btn" onclick="ccGoToTab('feed'); document.getElementById('chatBtnMobile')?.click();">Open Chat →</button>
-        </div>
-        <div class="cc-col" data-col="foryou">
-          <div class="cc-col-title">For You</div>
-          <p style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;">Community status updates, picks, and reactions.</p>
-          <button class="cc-goto-btn" onclick="ccGoToTab('foryou')">Open For You →</button>
-        </div>
+      <div class="cc-columns cc-columns-single">
+        <div class="cc-col active" data-col="baseball" id="ccBaseballCol"></div>
+        <div class="cc-col" data-col="football" id="ccFootballCol"></div>
+        <div class="cc-col" data-col="hockey" id="ccHockeyCol"></div>
+        <div class="cc-col" data-col="basketball" id="ccBasketballCol"></div>
       </div>
     </div>
   </div>
@@ -8930,32 +8941,132 @@ function radarCloseness(liveScore){
  *  honest state right now with the sign-in gate bypassed, not faked).
  *  Chat/For You/News don't duplicate those features — they link straight
  *  into the app's own existing, already-working tabs. */
-function ccBuildTargetsHTML(){
-  const ids = [...watchedPlayerIds];
-  if(!ids.length){
-    return `<div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); padding:8px 0;">
-      No tracked players yet. Star a player from any prop list to see them here.</div>`;
-  }
-  const pool = [...(allBatters||[]), ...(allPitchers||[])];
-  const rows = ids.map(id => pool.find(p => String(p.id) === id)).filter(Boolean).slice(0, 8);
-  if(!rows.length){
-    return `<div style="font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); padding:8px 0;">
-      Tracked players aren't in tonight's pool.</div>`;
-  }
-  return rows.map(p => `<div class="cc-target-row">
-    ${headshotImgTag(p.name, 'cc-target-avatar-img', p.team, p.id)}
-    <div class="cc-target-name">${escapeHTML(p.name)}</div>
-    <div class="cc-target-stat">${p.team||''}</div>
-  </div>`).join('');
+/** Baseball Command Center section — every number here is real:
+ *  feedEvents (actual home runs with real EV/distance), games (live MLB
+ *  slate), getTop5('hr') (real prop rankings), loadWagers (real wager
+ *  history). No fabricated "near miss" detection — that would need a
+ *  live batted-ball stream that doesn't exist; what's shown here is
+ *  confirmed home runs with genuinely elite exit velocity (108+ mph is
+ *  a real Statcast benchmark, not an arbitrary cutoff), framed as
+ *  "this player is hot right now" rather than invented predictions. */
+function ccBuildBaseballHTML(){
+  const liveCount = games.filter(g => g.mlbStatus === 'Live').length;
+  const hrToday = feedEvents.length;
+  const topProp = (typeof getTop5 === 'function' && games.length) ? getTop5('hr')[0] : null;
+
+  const kpiRow = `<div class="cc-kpi-row">
+    <div class="cc-kpi-tile"><b>${liveCount}</b><span>Live Now</span></div>
+    <div class="cc-kpi-tile"><b>${hrToday}</b><span>HRs Today</span></div>
+    <div class="cc-kpi-tile"><b>${topProp ? Math.round(scoreFor('hr', topProp))+'%' : '—'}</b><span>Top HR Odds</span></div>
+  </div>`;
+
+  const threats = [...feedEvents]
+    .filter(ev => ev.exitVelo != null && ev.exitVelo >= 108)
+    .sort((a,b) => b.exitVelo - a.exitVelo)
+    .slice(0, 5);
+  const alertsHTML = threats.length
+    ? threats.map(ev => `<div class="cc-alert-row">
+        ${headshotImgTag(ev.batter, 'cc-alert-avatar', ev.team, ev.batterId||'')}
+        <div class="cc-alert-text">${escapeHTML(ev.batter)}<small>${Math.round(ev.exitVelo)} mph EV · ${ev.distance?Math.round(ev.distance)+' ft':''} off ${escapeHTML(ev.pitcher||'')}</small></div>
+        <span class="cc-alert-tag">HOT</span>
+      </div>`).join('')
+    : `<div class="cc-empty-note">No elite-EV (108+ mph) home runs yet tonight.</div>`;
+
+  const liveGames = games.filter(g => g.mlbStatus === 'Live').slice(0, 6);
+  const gamesHTML = liveGames.length
+    ? liveGames.map(g => `<div class="cc-game-row">
+        <span class="teams">${escapeHTML(g.away)} @ ${escapeHTML(g.home)}</span>
+        <span class="state">${g.liveScore ? `${g.liveScore.away}-${g.liveScore.home} · ${escapeHTML(g.liveScore.inningState||'')} ${g.liveScore.inning||''}` : ''}</span>
+      </div>`).join('')
+    : `<div class="cc-empty-note">No live MLB games right now.</div>`;
+
+  return `
+    <div class="cc-col-title">Baseball</div>
+    ${kpiRow}
+    <div class="cc-section">
+      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Threat Alerts — Elite Exit Velo</div>
+      ${alertsHTML}
+    </div>
+    <div class="cc-section">
+      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Live Games</div>
+      ${gamesHTML}
+    </div>
+    <div class="cc-section" id="ccBaseballWagerTrend">
+      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Your Win Rate — Last 10 Settled</div>
+      <div class="cc-empty-note">Sign in to see your wager history here.</div>
+    </div>
+  `;
 }
-function ccGoToTab(tabId){
-  closeCommandCenter();
-  activeTab = tabId;
-  if(PROP_IDS.has(tabId)) lastProp = tabId;
-  renderTabs();
-  renderList();
-  window.scrollTo({top:0, behavior:'smooth'});
+
+/** Loads real wager history async (requires sign-in) and fills in the
+ *  win/loss trend once it resolves — separate from the synchronous HTML
+ *  build above since this is a real network call, not instant data. */
+async function ccLoadBaseballWagerTrend(){
+  const host = document.getElementById('ccBaseballWagerTrend');
+  if(!host) return;
+  const s = social();
+  if(!s || !s.socialEnabled?.() || !s.getUser?.()){
+    return; // stays on the honest "sign in" empty state
+  }
+  const wagers = await s.loadWagers(10);
+  const settled = wagers.filter(w => w.status === 'won' || w.status === 'lost').reverse();
+  if(!settled.length){
+    host.querySelector('.cc-empty-note') && (host.querySelector('.cc-empty-note').textContent = 'No settled wagers yet.');
+    return;
+  }
+  const wins = settled.filter(w => w.status === 'won').length;
+  const pct = Math.round(wins / settled.length * 100);
+  const bars = settled.map(w => `<div class="cc-trend-bar${w.status==='lost'?' loss':''}" style="height:${w.status==='won'?100:35}%;" title="${w.status}"></div>`).join('');
+  host.innerHTML = `
+    <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Your Win Rate — Last ${settled.length} Settled</div>
+    <div style="font-family:'JetBrains Mono',monospace; font-size:22px; color:var(--live-green); font-weight:700;">${pct}%</div>
+    <div class="cc-trend-chart">${bars}</div>
+  `;
 }
+
+/** Football section — honest about a real limitation: the NFL module
+ *  (sports/nfl/ui.js) only exposes mount/render on window.DW_NFL, not
+ *  its actual game/player data. Reaching into its internals to fake a
+ *  KPI row would mean guessing at variable names I haven't verified
+ *  exist — real risk of either silently wrong numbers or a thrown
+ *  error. The real, rich NFL view already exists at #nflView; this
+ *  links to it honestly rather than duplicating data I can't safely read. */
+function ccBuildFootballHTML(){
+  return `
+    <div class="cc-col-title">Football</div>
+    <div class="cc-empty-note" style="margin-bottom:14px;">
+      Live NFL KPIs and threat alerts aren't wired into this dashboard yet — the NFL experience runs as its own
+      module and doesn't currently expose its data for a summary view like this one. That's a real next step,
+      not a missing feature shown here by mistake.
+    </div>
+    <button class="cc-goto-btn" onclick="closeCommandCenter(); location.hash='#nfl';">Open Touchdown Watch (NFL) →</button>
+  `;
+}
+
+/** Hockey and Basketball — no data pipeline exists for either sport at
+ *  all right now (confirmed: only sports/mlb/ and sports/nfl/ exist).
+ *  Built as honest placeholders, not fake content, so they're ready to
+ *  wire up the moment real data work happens — not a mockup pretending
+ *  to be real. */
+function ccBuildHockeyHTML(){
+  return `
+    <div class="cc-coming-soon">
+      <div class="icon">🏒</div>
+      <h3>Hockey — Coming Soon</h3>
+      <p>NHL data isn't connected to The Sports Outpost yet. This section is ready and waiting for that work.</p>
+    </div>
+  `;
+}
+function ccBuildBasketballHTML(){
+  return `
+    <div class="cc-coming-soon">
+      <div class="icon">🏀</div>
+      <h3>Basketball — Coming Soon</h3>
+      <p>NBA data isn't connected yet, and WNBA will fold into this same section once it is.</p>
+    </div>
+  `;
+}
+
 function openCommandCenter(event, btn){
   const rect = btn.getBoundingClientRect();
   const originX = ((rect.left + rect.width / 2) / window.innerWidth * 100).toFixed(1) + '%';
@@ -8964,18 +9075,28 @@ function openCommandCenter(event, btn){
   const panel = backdrop.querySelector('.cc-panel');
   panel.style.setProperty('--cc-origin-x', originX);
   panel.style.setProperty('--cc-origin-y', originY);
-  document.getElementById('ccTargetsCol').innerHTML = ccBuildTargetsHTML();
+  document.getElementById('ccBaseballCol').innerHTML = ccBuildBaseballHTML();
+  ccLoadBaseballWagerTrend();
   backdrop.classList.add('is-open');
 }
 function closeCommandCenter(){
   document.getElementById('ccBackdrop').classList.remove('is-open');
 }
+const CC_SPORT_BUILDERS = {
+  baseball: () => { document.getElementById('ccBaseballCol').innerHTML = ccBuildBaseballHTML(); ccLoadBaseballWagerTrend(); },
+  football: () => { document.getElementById('ccFootballCol').innerHTML = ccBuildFootballHTML(); },
+  hockey:   () => { document.getElementById('ccHockeyCol').innerHTML = ccBuildHockeyHTML(); },
+  basketball: () => { document.getElementById('ccBasketballCol').innerHTML = ccBuildBasketballHTML(); },
+};
 function switchCCTab(tabEl){
   const targetName = tabEl.dataset.tab;
   const panel = tabEl.closest('.cc-panel');
   panel.querySelectorAll('.cc-tab').forEach(t => t.classList.remove('active'));
   tabEl.classList.add('active');
   panel.querySelectorAll('.cc-col').forEach(c => c.classList.toggle('active', c.dataset.col === targetName));
+  // Rebuilt fresh every switch, not loaded once — Baseball/Football show
+  // live data that can genuinely change while the panel sits open.
+  CC_SPORT_BUILDERS[targetName]?.();
 }
 
 /** Prop Radar — the second view for any prop list, alongside the existing
