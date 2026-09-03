@@ -1687,6 +1687,81 @@ body{
 .brand-logo.sm svg{ width:20px; height:20px; }
 .so-brand-img{ height:40px; width:auto; display:block; }
 .so-brand-img-sm{ height:30px; }
+
+/* ============ Outpost Picks + sport accordion — desktop sidebar only.
+   #propTabs and #nflSideNav (unchanged) remain the mobile bottom bar;
+   this new accordion is what replaces the old header dropdown, matching
+   the app's established radar/crosshair visual language rather than a
+   plain expand/collapse list. ============ */
+.sb-picks-btn{
+  display:flex; align-items:center; gap:10px; width:100%; margin-bottom:16px;
+  background:linear-gradient(135deg, rgba(45,127,255,0.16), rgba(110,220,255,0.08));
+  border:1px solid var(--border-bright); border-radius:12px; padding:12px 14px;
+  font-family:'Oswald',sans-serif; font-size:13px; font-weight:700; letter-spacing:.02em;
+  color:var(--text); cursor:pointer; text-align:left;
+  box-shadow:0 0 0 1px rgba(110,220,255,0.08) inset;
+  transition:border-color .2s ease, background .2s ease;
+}
+.sb-picks-btn:hover{ border-color:var(--accent-bright); background:linear-gradient(135deg, rgba(45,127,255,0.24), rgba(110,220,255,0.12)); }
+.sb-picks-icon{ font-size:16px; }
+
+.sb-sport-accordion{ display:flex; flex-direction:column; gap:8px; flex:1; }
+.sb-sport-block{ border-radius:12px; overflow:hidden; border:1px solid var(--line); background:var(--night2); }
+.sb-sport-head{
+  width:100%; display:flex; align-items:center; justify-content:space-between;
+  padding:13px 14px; background:none; border:none; cursor:pointer;
+  font-family:'Oswald',sans-serif; font-size:13px; font-weight:700; letter-spacing:.03em; text-transform:uppercase;
+  color:var(--text); position:relative;
+}
+.sb-sport-head::before{
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--sport-accent, var(--accent)); opacity:0; transition:opacity .25s ease;
+}
+.sb-sport-head.is-open::before{ opacity:1; }
+.sb-sport-head.is-open{ background:rgba(255,255,255,0.03); }
+.sb-sport-head:not(.is-soon):hover{ background:rgba(255,255,255,0.04); }
+.sb-sport-name{ display:flex; align-items:center; gap:9px; }
+.sb-sport-name::before{
+  content:''; width:8px; height:8px; border-radius:50%; background:var(--sport-accent, var(--accent));
+  box-shadow:0 0 8px var(--sport-accent, var(--accent));
+}
+.sb-sport-chevron{
+  font-size:11px; color:var(--text-muted); transition:transform .3s cubic-bezier(.2,.85,.2,1);
+}
+.sb-sport-head.is-open .sb-sport-chevron{ transform:rotate(180deg); color:var(--sport-accent, var(--accent)); }
+.sb-sport-head.is-soon{ cursor:default; color:var(--text-muted); }
+.sb-sport-soon-tag{
+  font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.03em; text-transform:none;
+  color:var(--text-muted); background:rgba(255,255,255,0.05); border-radius:20px; padding:3px 8px;
+}
+.sb-sport-panel{
+  max-height:0; overflow:hidden;
+  transition:max-height .45s cubic-bezier(.2,.85,.2,1);
+}
+.sb-sport-panel.is-open{ max-height:600px; }
+.sb-sub-item{
+  display:block; width:100%; text-align:left; background:none; border:none;
+  padding:10px 14px 10px 26px; font-family:'Oswald',sans-serif; font-size:12.5px; color:var(--text-muted);
+  cursor:pointer; border-top:1px solid rgba(255,255,255,0.04);
+  transition:color .15s ease, background .15s ease;
+}
+.sb-sub-item:hover{ color:var(--text); background:rgba(255,255,255,0.03); }
+.sb-sub-item.is-active{ color:var(--accent-bright); font-weight:700; background:rgba(45,127,255,0.08); }
+.sb-soon-note{
+  padding:12px 14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); line-height:1.5;
+}
+
+/* Desktop shows the new accordion; mobile keeps the existing bottom bar
+   (#propTabs, #nflSideNav) exactly as it always worked — these rules are
+   purely additive visibility, nothing about those elements' own CSS or
+   JS changed. */
+@media (max-width:1023px){
+  .sb-picks-btn, .sb-sport-accordion{ display:none; }
+}
+@media (min-width:1024px){
+  #propTabs, #nflSideNav{ display:none !important; }
+}
+
 .brand-text h1{
   font-family:'Cabinet Grotesk','Archivo Black',sans-serif; font-weight:800;
   font-size:17px; letter-spacing:-0.02em; line-height:1; color:var(--white); margin:0;
@@ -3861,12 +3936,31 @@ body.modal-open{ overflow:hidden; }
       <img src="logo-outpost.png" alt="The Sports Outpost" class="so-brand-img">
     </div>
 
-    <!-- #propTabs keeps its id/class: JS renders nav buttons into it -->
+    <button type="button" class="sb-picks-btn" id="sbPicksBtn">
+      <span class="sb-picks-icon">🏆</span> Outpost Picks
+    </button>
+
+    <!-- Desktop-only accordion. Built by renderSidebarSports(). MLB's
+         sub-items call window.DW_selectTab() directly. NFL's sub-items
+         each .click() the corresponding REAL button in #nflSideNav below
+         — that element is never moved or duplicated, so its own
+         wireNflNav() and mobile bottom-bar behavior stay completely
+         untouched. This accordion is hidden on mobile; #propTabs and
+         #nflSideNav (visible on mobile, hidden on desktop) keep doing
+         exactly what they always did there. -->
+    <nav class="sb-sport-accordion" id="sbSportAccordion"></nav>
+
+    <!-- #propTabs keeps its id/class: JS renders nav buttons into it.
+         Visible on mobile (becomes the bottom tab bar), hidden on desktop
+         (replaced there by #sbSportAccordion above). -->
     <nav class="prop-tabs" id="propTabs"></nav>
 
-    <!-- NFL-only sidebar nav. Static markup; router.js toggles it with the view so the
-         sidebar isn't blank once the MLB prop tabs are hidden. ui.js wires the
-         tab/prop switching and toggles .is-active + .open states at runtime. -->
+    <!-- NFL-only nav. Static markup; router.js toggles it with the view.
+         Visible on mobile (becomes part of the bottom tab bar), hidden on
+         desktop (replaced there by #sbSportAccordion above, which drives
+         this same element's buttons programmatically when used from the
+         accordion). ui.js wires the tab/prop switching and toggles
+         .is-active + .open states at runtime — completely unchanged. -->
     <nav class="nfl-sidenav" id="nflSideNav" hidden>
       <button type="button" class="nfl-sn-tab is-active" data-nfl-tab="slate"><svg class="nfl-sn-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="10" x2="12" y2="20"/></svg>Slate</button>
       <button type="button" class="nfl-sn-tab" data-nfl-tab="feed"><svg class="nfl-sn-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5"/></svg>TD Feed</button>
@@ -3891,7 +3985,6 @@ body.modal-open{ overflow:hidden; }
         <div class="day-toggle" id="dayToggle">
           <button class="active" data-day="today" id="todayBtn">Today</button>
         </div>
-        <div class="sport-switch" id="sportSwitch" aria-label="Sport"></div>
         <div class="tb-status">
           <div class="live-status">
             <span><span class="dot pending" id="dotSlate"></span>Slate data</span>
@@ -5852,6 +5945,143 @@ const propTabsEl = document.getElementById('propTabs');
 const sectionTitle = document.getElementById('sectionTitle');
 const sectionSub = document.getElementById('sectionSub');
 
+/** Mirrors sports/registry.js's key fields for the sidebar accordion —
+ *  duplicated rather than dynamically imported to keep this synchronous
+ *  and avoid async-loading complexity for four small, stable records.
+ *  If a sport's brand/accent/season ever changes in the registry, this
+ *  needs updating too. */
+const SB_SPORTS = {
+  mlb: { brand:'MLB', accent:'#22c55e', adapterReady:true, seasonStart:null },
+  nfl: { brand:'NFL', accent:'#f59e0b', adapterReady:true, seasonStart:null },
+  nhl: { brand:'NHL', accent:'#38bdf8', adapterReady:false, seasonStart:'2026-09-29' },
+  nba: { brand:'NBA', accent:'#a855f7', adapterReady:false, seasonStart:'2026-10-20' },
+};
+const SB_SPORT_ORDER = ['mlb','nfl','nhl','nba'];
+let sbExpandedSport = 'mlb';
+
+function renderSidebarSports(){
+  const host = document.getElementById('sbSportAccordion');
+  if(!host) return;
+  const currentSport = (window.DW_getSport && window.DW_getSport()) || 'mlb';
+  sbExpandedSport = currentSport;
+
+  const mlbFlat = [
+    ...PROP_TABS.filter(t => t.id !== 'foryou' && !t.dropdown),
+    ...PROP_MENU,
+  ];
+
+  host.innerHTML = SB_SPORT_ORDER.map(key => {
+    const s = SB_SPORTS[key];
+    const expanded = key === sbExpandedSport;
+    const soon = !s.adapterReady;
+    const header = `<button type="button" class="sb-sport-head ${expanded?'is-open':''} ${soon?'is-soon':''}" data-sport="${key}" style="--sport-accent:${s.accent}">
+      <span class="sb-sport-name">${s.brand}</span>
+      ${soon ? `<span class="sb-sport-soon-tag">${s.seasonStart?'Launches '+s.seasonStart:'Coming soon'}</span>` : `<span class="sb-sport-chevron">▾</span>`}
+    </button>`;
+
+    let panelInner = '';
+    if(key === 'mlb'){
+      panelInner = mlbFlat.map(t => `<button type="button" class="sb-sub-item ${t.id===activeTab?'is-active':''}" data-mlb-tab="${t.id}">${t.label}</button>`).join('');
+    } else if(key === 'nfl'){
+      // These are NEW buttons styled to match this accordion — not the real
+      // #nflSideNav element, which stays exactly where it always was (a
+      // direct sidebar child, visible on mobile as part of the bottom bar,
+      // hidden here on desktop). Each one below just proxies a real click
+      // to its #nflSideNav counterpart, reusing wireNflNav()'s already-
+      // working logic instead of duplicating or relocating it.
+      panelInner = `
+        <button type="button" class="sb-sub-item" data-nfl-proxy="slate">Slate</button>
+        <button type="button" class="sb-sub-item" data-nfl-proxy="feed">TD Feed</button>
+        <button type="button" class="sb-sub-item" data-nfl-proxy="props">Player Props</button>
+      `;
+    } else {
+      panelInner = `<div class="sb-soon-note">${s.brand} isn't connected yet — this section is ready and waiting.</div>`;
+    }
+
+    return `<div class="sb-sport-block">
+      ${header}
+      <div class="sb-sport-panel ${expanded?'is-open':''}">${panelInner}</div>
+    </div>`;
+  }).join('');
+
+  host.querySelectorAll('.sb-sport-head').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.sport;
+      if(!SB_SPORTS[key].adapterReady) return; // coming-soon: no-op
+      const liveCurrent = (window.DW_getSport && window.DW_getSport()) || 'mlb';
+      if(key !== liveCurrent){
+        location.hash = key; // real router.js hashchange handles the actual view swap + a full renderSidebarSports() rebuild
+        return;
+      }
+      // Same sport already active — this is a pure expand/collapse, not a
+      // route change. Toggle CSS classes only; no rebuild needed here.
+      toggleSidebarSportPanel(btn);
+    });
+  });
+  host.querySelectorAll('.sb-sub-item[data-mlb-tab]').forEach(btn => {
+    btn.addEventListener('click', () => window.DW_selectTab?.(btn.dataset.mlbTab));
+  });
+  // Proxy NFL's accordion buttons to the real #nflSideNav buttons (which
+  // live in their original, unmoved sidebar position) — this is what
+  // actually triggers the sport's own already-working switch logic.
+  host.querySelectorAll('.sb-sub-item[data-nfl-proxy]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelector(`#nflSideNav [data-nfl-tab="${btn.dataset.nflProxy}"]`)?.click();
+    });
+  });
+}
+window.renderSidebarSports = renderSidebarSports;
+
+/** Pure expand/collapse — toggles CSS classes on the clicked section (and
+ *  closes any other open one) without rebuilding any innerHTML. */
+function toggleSidebarSportPanel(headBtn){
+  const key = headBtn.dataset.sport;
+  const block = headBtn.closest('.sb-sport-block');
+  const panel = block?.querySelector('.sb-sport-panel');
+  const willOpen = !headBtn.classList.contains('is-open');
+  document.querySelectorAll('.sb-sport-head').forEach(h => {
+    h.classList.remove('is-open');
+    h.closest('.sb-sport-block')?.querySelector('.sb-sport-panel')?.classList.remove('is-open');
+  });
+  if(willOpen){
+    headBtn.classList.add('is-open');
+    panel?.classList.add('is-open');
+    sbExpandedSport = key;
+  } else {
+    sbExpandedSport = null;
+  }
+}
+
+/** Outpost Picks — one shared button above the sport accordion. Both MLB
+ *  and NFL's own "For You" already render the exact same shared community
+ *  feed (confirmed directly in nfl/ui.js's own subtitle text: "Same page
+ *  as MLB") — so this doesn't need to force a sport switch, just trigger
+ *  whichever sport's own already-working path to that same content. NFL's
+ *  path is its real #nflSideNav "For You" button — hidden on desktop by
+ *  CSS (display:none doesn't prevent it from being found and .click()'d
+ *  programmatically) rather than a second visible nav item, so nothing is
+ *  duplicated in the UI. */
+function openOutpostPicks(){
+  const sport = (window.DW_getSport && window.DW_getSport()) || 'mlb';
+  if(sport === 'nfl'){
+    document.querySelector('#nflSideNav [data-nfl-tab="foryou"]')?.click();
+  } else {
+    window.DW_selectTab?.('foryou');
+  }
+}
+window.renderSidebarSports = renderSidebarSports;
+
+/** Lightweight sync for MLB's sidebar sub-items — updates is-active classes
+ *  only, never rebuilds any innerHTML. Safe to call from renderTabs() on
+ *  every tab switch regardless of which sport is actually routed right
+ *  now, unlike the full renderSidebarSports() rebuild which must not run
+ *  while NFL's section could be genuinely active. */
+function syncSidebarMlbActive(){
+  document.querySelectorAll('#sbSportAccordion .sb-sub-item[data-mlb-tab]').forEach(btn => {
+    btn.classList.toggle('is-active', btn.dataset.mlbTab === activeTab);
+  });
+}
+
 function renderTabs(){
   // If a previous menu was reparented to <body>, drop it before we write fresh
   // tab markup — otherwise two elements would share the id #propMenu and
@@ -5897,6 +6127,7 @@ function renderTabs(){
     renderList();
     window.scrollTo({top:0, behavior:'smooth'});
   };
+  window.DW_selectTab = selectTab;
 
   propTabsEl.querySelectorAll('.prop-tab[data-tab]').forEach(btn=>{
     btn.addEventListener('click', ()=> selectTab(btn.dataset.tab));
@@ -5916,6 +6147,8 @@ function renderTabs(){
     e.stopPropagation();
     propMenuOpen ? closePropMenu() : openPropMenu(menuBtn);
   });
+
+  syncSidebarMlbActive();
 }
 
 /** Mobile menu: plain in-flow markup, re-rendered whenever the tabs change. */
@@ -15248,6 +15481,8 @@ function toggleChatPanel(){
 
 async function boot(){
   renderTabs();
+  renderSidebarSports();
+  document.getElementById('sbPicksBtn')?.addEventListener('click', openOutpostPicks);
   renderList();                       // paint the shell immediately
 
   // Restore the notification preference. Permission can be revoked in browser
