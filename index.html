@@ -1676,6 +1676,23 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-alert-time{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
 .cc-empty-note{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;
   background:var(--surface); border:1px dashed var(--border); border-radius:10px; padding:14px; }
+
+/* ============ Info modal content ============ */
+.info-list{ display:flex; flex-direction:column; gap:10px; }
+.info-row{ display:flex; gap:12px; align-items:flex-start; padding:11px 13px; background:var(--surface); border:1px solid var(--border); border-radius:10px; }
+.info-row-icon{ font-size:18px; line-height:1; flex-shrink:0; margin-top:1px; }
+.info-row-text{ display:flex; flex-direction:column; gap:3px; min-width:0; }
+.info-row-text b{ font-family:'Oswald',sans-serif; font-size:13px; font-weight:600; color:var(--text); text-transform:uppercase; letter-spacing:.02em; }
+.info-row-text span{ font-size:12.5px; color:var(--text-muted); line-height:1.5; }
+
+.info-model-list{ display:flex; flex-direction:column; gap:8px; }
+.info-model-row{ display:flex; align-items:center; gap:12px; padding:11px 13px; background:var(--surface); border:1px solid var(--border); border-radius:10px; flex-wrap:wrap; }
+.info-model-name{ font-family:'Oswald',sans-serif; font-size:13px; font-weight:700; text-transform:uppercase; color:var(--text); flex:0 0 auto; min-width:110px; }
+.info-model-stats{ display:flex; gap:14px; flex-wrap:wrap; font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); flex:1; }
+.info-model-stats b{ color:var(--accent-bright); }
+.info-model-n{ opacity:0.7; }
+.info-model-cal{ font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:.03em; color:var(--live-green); flex:0 0 auto; }
+
 .cc-coming-soon{ text-align:center; padding:50px 20px; }
 .cc-coming-soon .icon{ font-size:40px; margin-bottom:14px; opacity:0.6; }
 .cc-coming-soon h3{ font-family:'Oswald',sans-serif; font-size:16px; text-transform:uppercase; letter-spacing:.03em; color:var(--text); margin:0 0 8px; }
@@ -3946,6 +3963,26 @@ body.modal-open{ overflow:hidden; }
 </button>
 
 <!-- ============ COMMAND CENTER OVERLAY ============ -->
+<!-- ============ INFO MODAL — "About The Sports Outpost". Reuses the
+     Command Center's proven scale-from-click-origin animation pattern
+     (same CSS mechanics, new class prefix so the two modals never
+     conflict), with its own 4 tabs built dynamically in JS. ============ -->
+<div class="cc-backdrop" id="infoBackdrop">
+  <div class="cc-panel" id="infoPanel" style="width:min(720px, 94vw);">
+    <div class="cc-header">
+      <h2>ℹ️ About The Sports Outpost</h2>
+      <div class="cc-close" id="infoClose" onclick="closeInfoModal()">✕</div>
+    </div>
+    <div class="cc-tabs" id="infoTabs">
+      <div class="cc-tab active" data-info-tab="features">Features</div>
+      <div class="cc-tab" data-info-tab="badges">Badges</div>
+      <div class="cc-tab" data-info-tab="statcast">Statcast Stats</div>
+      <div class="cc-tab" data-info-tab="model">Model Performance</div>
+    </div>
+    <div id="infoBody" style="overflow-y:auto; padding:18px 22px 24px;"></div>
+  </div>
+</div>
+
 <div class="cc-backdrop" id="ccBackdrop">
   <div class="cc-panel">
     <div class="cc-header">
@@ -4073,6 +4110,9 @@ body.modal-open{ overflow:hidden; }
       <div class="topbar-right">
         <button class="balance-chip" id="balanceChip" style="display:none;" title="Your points balance — tap to see your wager history">
           <span id="balanceChipVal">0</span>
+        </button>
+        <button class="icon-btn info-btn-tb" id="infoBtnTb" title="About The Sports Outpost" aria-label="Info" onclick="openInfoModal(event, this)">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11"/><circle cx="12" cy="8" r="0.5" fill="currentColor"/></svg>
         </button>
         <div class="online-wrap-tb" id="onlineWrapTb" hidden>
           <button class="icon-btn online-btn-tb" id="onlineBtnTb" title="Who's online" aria-label="Online now" aria-expanded="false">
@@ -5923,14 +5963,14 @@ let allPlayersSearch = '';
  *  — badges are fairly exclusive by nature, so requiring ALL of several
  *  at once would be an unusually narrow filter almost nothing clears. */
 const BADGE_FILTER_DEFS = [
-  { id:'triple',  emoji:'💣', label:'Triple Threat' },
-  { id:'barrel',  emoji:'🎯', label:'Barrel Rate' },
-  { id:'ev',      emoji:'🚀', label:'Exit Velo' },
-  { id:'power',   emoji:'💪', label:'Power' },
-  { id:'fire',    emoji:'🔥', label:'On Fire' },
-  { id:'warming', emoji:'📈', label:'Warming Up' },
-  { id:'sleeper', emoji:'💤', label:'Sleeper' },
-  { id:'wind',    emoji:'💨', label:'High Wind' },
+  { id:'triple',  emoji:'💣', label:'Triple Threat', desc:'Clears elite thresholds for barrel rate, exit velocity, AND power all at once — the strongest combined signal in the system.' },
+  { id:'barrel',  emoji:'🎯', label:'Barrel Rate', desc:'Barrel rate of 12%+ (recent 10-game window, falling back to season) — the share of batted balls hit with the ideal exit velo + launch angle combo for damage.' },
+  { id:'ev',      emoji:'🚀', label:'Exit Velo', desc:'Average exit velocity of 91+ mph (recent 10-game window, falling back to season) — how hard the ball comes off the bat.' },
+  { id:'power',   emoji:'💪', label:'Power', desc:'Isolated power (ISO) of .220+ (recent 10-game window, falling back to season) — extra bases per at-bat, stripping out batting average.' },
+  { id:'fire',    emoji:'🔥', label:'On Fire', desc:'2 or more home runs in the last 10 games — a genuinely hot recent stretch, not just a decent week.' },
+  { id:'warming', emoji:'📈', label:'Warming Up', desc:'Exactly 1 home run in the last 10 games — a modest but real recent signal.' },
+  { id:'sleeper', emoji:'💤', label:'Sleeper', desc:"Tonight's modeled HR probability is elite (20%+) despite little or no recent production — the model sees something (matchup, park, wind) recent stats alone don't show yet." },
+  { id:'wind',    emoji:'💨', label:'High Wind', desc:"12+ mph wind blowing OUT toward the field at tonight's park — wind blowing in suppresses power, so only 'out' counts here." },
 ];
 let activeBadgeFilters = new Set();
 /** Real badges for this player, tagged by their filter id — combines the
@@ -9455,6 +9495,174 @@ function openCommandCenter(event, btn){
 }
 function closeCommandCenter(){
   document.getElementById('ccBackdrop').classList.remove('is-open');
+}
+
+/** ============ INFO MODAL — "About The Sports Outpost" ============
+ *  Reuses the exact same scale-from-click-origin mechanics as the
+ *  Command Center overlay (see openCommandCenter above), just targeting
+ *  the separate infoBackdrop/infoPanel elements so the two modals never
+ *  interfere with each other. */
+let infoActiveTab = 'features';
+
+function openInfoModal(event, btn){
+  const backdrop = document.getElementById('infoBackdrop');
+  const panel = document.getElementById('infoPanel');
+  if(btn){
+    const rect = btn.getBoundingClientRect();
+    panel.style.setProperty('--cc-origin-x', ((rect.left + rect.width/2) / window.innerWidth * 100).toFixed(1) + '%');
+    panel.style.setProperty('--cc-origin-y', ((rect.top + rect.height/2) / window.innerHeight * 100).toFixed(1) + '%');
+  }
+  backdrop.classList.add('is-open');
+  renderInfoTab(infoActiveTab);
+
+  document.querySelectorAll('#infoTabs .cc-tab').forEach(tab => {
+    tab.onclick = () => {
+      infoActiveTab = tab.dataset.infoTab;
+      document.querySelectorAll('#infoTabs .cc-tab').forEach(t => t.classList.toggle('active', t === tab));
+      renderInfoTab(infoActiveTab);
+    };
+  });
+
+  // First-login auto-show marks itself seen the moment the modal is
+  // actually opened, whether that's automatic or a manual tap — see
+  // maybeShowInfoModalForNewUser() below for where this flag gets checked.
+  markInfoModalSeen();
+}
+function closeInfoModal(){
+  document.getElementById('infoBackdrop').classList.remove('is-open');
+}
+
+function renderInfoTab(tabId){
+  const body = document.getElementById('infoBody');
+  if(tabId === 'features') body.innerHTML = infoFeaturesHTML();
+  else if(tabId === 'badges') body.innerHTML = infoBadgesHTML();
+  else if(tabId === 'statcast') body.innerHTML = infoStatcastHTML();
+  else if(tabId === 'model'){
+    body.innerHTML = `<div class="cc-empty-note">Loading model performance…</div>`;
+    infoModelHTML().then(html => { if(infoActiveTab === 'model') body.innerHTML = html; });
+  }
+}
+
+/** Real feature list — every entry matches an actual tab or system that
+ *  exists in the app right now, not aspirational copy. One sentence each. */
+const INFO_FEATURES = [
+  { icon:'🛰️', name:'Game Radar', desc:"Tonight's MLB games plotted by closeness to center — the tightest, latest-inning games sit closest to the middle." },
+  { icon:'📋', name:'Slate', desc:"The full schedule of tonight's games with live scores, odds, and weather." },
+  { icon:'⚾', name:'HR Feed', desc:'A live, real-time feed of home runs as they happen across the league.' },
+  { icon:'🏆', name:'For You', desc:'Your personalized picks alongside community status updates and reactions.' },
+  { icon:'📊', name:'Player Props', desc:'Ranked, graded projections (A+ to D) for HR, Hits, Total Bases, RBIs, H+R+RBI, Stolen Bases, Strikeouts, and 1st Inning O/U.' },
+  { icon:'🎯', name:'Prop Radar', desc:'Top-ranked player props for any prop, plotted visually by rank instead of a list.' },
+  { icon:'🔎', name:'All Players', desc:'Every hitter tonight in one sortable, filterable list — stack any stat or badge filter together.' },
+  { icon:'💻', name:'Command Center', desc:"A live dashboard of tonight's hardest-hit near-misses, key stats, and game statuses across the whole slate." },
+  { icon:'🎰', name:'Wagering', desc:'Place free-to-play parlays with points, and track your balance and wager history.' },
+  { icon:'⭐', name:'Watchlist', desc:'Star any player to track them across every tab in the app.' },
+  { icon:'💬', name:'Chat & Presence', desc:'React, comment, and see who else is online right now.' },
+];
+function infoFeaturesHTML(){
+  return `<div class="info-list">${INFO_FEATURES.map(f => `
+    <div class="info-row">
+      <div class="info-row-icon">${f.icon}</div>
+      <div class="info-row-text"><b>${escapeHTML(f.name)}</b><span>${escapeHTML(f.desc)}</span></div>
+    </div>`).join('')}</div>`;
+}
+
+/** Badges tab — built directly from BADGE_FILTER_DEFS, the exact same
+ *  source of truth already driving the All Players badge filter, so this
+ *  can never drift out of sync with what the badges actually mean. */
+function infoBadgesHTML(){
+  return `<div class="info-list">${BADGE_FILTER_DEFS.map(b => `
+    <div class="info-row">
+      <div class="info-row-icon">${b.emoji}</div>
+      <div class="info-row-text"><b>${escapeHTML(b.label)}</b><span>${escapeHTML(b.desc)}</span></div>
+    </div>`).join('')}</div>`;
+}
+
+/** Real Statcast metrics used throughout the app — matches the actual
+ *  fields pulled from p.statcast / p.statcastL10 elsewhere in this file. */
+const INFO_STATCAST = [
+  { name:'Barrel %', desc:'The share of batted balls hit with the ideal combination of exit velocity and launch angle for real damage — the single best predictor of extra-base power.' },
+  { name:'Exit Velocity (EV)', desc:'How fast the ball comes off the bat, in mph. MLB average is roughly 88-89 mph; 91+ is genuinely hard contact.' },
+  { name:'Hard-Hit %', desc:'The share of batted balls hit 95+ mph — a broader, less extreme cousin of Barrel % capturing solid contact generally.' },
+  { name:'ISO (Isolated Power)', desc:'Extra bases per at-bat — slugging percentage with batting average stripped out, isolating raw power specifically.' },
+  { name:'xSLG (Expected Slugging)', desc:"What a hitter's slugging percentage 'should' be based on the quality of contact, independent of luck or defense." },
+  { name:'xwOBA (Expected Weighted On-Base Avg)', desc:'A single, contact-quality-based number blending every outcome — walks, singles, extra-base hits — into one overall offensive value.' },
+  { name:'Launch Angle', desc:'The vertical angle a ball leaves the bat, in degrees. Roughly 10-30° is the sweet spot for extra-base hits.' },
+];
+function infoStatcastHTML(){
+  return `<div class="info-list">${INFO_STATCAST.map(s => `
+    <div class="info-row">
+      <div class="info-row-text"><b>${escapeHTML(s.name)}</b><span>${escapeHTML(s.desc)}</span></div>
+    </div>`).join('')}</div>`;
+}
+
+/** Model Performance tab — fetches the REAL calibration-history.json,
+ *  already generated and accumulated daily by the app's own scoring
+ *  pipeline (one more day folded in each time it runs), so "up to date
+ *  as of today" is a property of the data itself, not something this
+ *  function needs to compute. This only ever reads and summarizes the
+ *  top-level, all-time-to-date numbers — no numbers are invented here. */
+const PROP_LABELS_FOR_INFO = { hr:'Home Runs', hits:'Hits', tb:'Total Bases', rbi:'RBIs', hrr:'H+R+RBI', sb:'Stolen Bases' };
+async function infoModelHTML(){
+  try{
+    const res = await fetch('model-logs/calibration-history.json');
+    if(!res.ok) throw new Error('fetch failed');
+    const data = await res.json();
+    const genDate = data.generatedAt ? new Date(data.generatedAt).toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }) : 'recently';
+
+    const rows = Object.entries(data.perProp || {}).map(([key, p]) => {
+      const label = PROP_LABELS_FOR_INFO[key] || key;
+      const hitPct = (p.hitRate * 100).toFixed(1);
+      const modeledPct = (p.meanProb * 100).toFixed(1);
+      // Calibration read: how close the model's own stated odds track what
+      // actually happened — smaller gap is better calibrated, not "better."
+      const gap = Math.abs(p.hitRate - p.meanProb) * 100;
+      const calLabel = gap < 1.5 ? 'well-calibrated' : gap < 3.5 ? 'reasonably calibrated' : 'drifting';
+      return `<div class="info-model-row">
+        <div class="info-model-name">${escapeHTML(label)}</div>
+        <div class="info-model-stats">
+          <span><b>${hitPct}%</b> actual hit rate</span>
+          <span><b>${modeledPct}%</b> modeled avg</span>
+          <span class="info-model-n">${p.n.toLocaleString()} graded picks</span>
+        </div>
+        <div class="info-model-cal">${calLabel}</div>
+      </div>`;
+    }).join('');
+
+    return `
+      <div class="cc-empty-note" style="margin-bottom:14px;">
+        Based on <b>${data.daysScored}</b> day${data.daysScored===1?'':'s'} of settled picks (<b>${(data.totalRows||0).toLocaleString()}</b> total graded rows) — last updated ${escapeHTML(genDate)}. This updates automatically as each additional day's results come in.
+      </div>
+      <div class="info-model-list">${rows}</div>
+      <div class="cc-empty-note" style="margin-top:14px; font-size:10.5px;">
+        "Actual hit rate" vs. "modeled avg" is a calibration check, not a promise — if the model says 20% across a set of picks, roughly 20% of those should hit over time. Close numbers mean the stated odds are trustworthy; a wide gap means they're currently drifting.
+      </div>`;
+  }catch(e){
+    return `<div class="cc-empty-note">Model performance data isn't available right now — check back shortly.</div>`;
+  }
+}
+
+/** First-login auto-show — checks the real has_seen_intro flag already
+ *  present on the signed-in user's profile object (see the SQL migration
+ *  and the extended allowed-fields list in social.js's updateProfile),
+ *  not a guess based on Supabase auth timestamps, which are known to be
+ *  unreliable across auth providers for detecting a genuine first sign-in.
+ *  Shows the modal once, then marks it seen so it never auto-shows again. */
+function maybeShowInfoModalForNewUser(){
+  try{
+    const s = social();
+    const user = s?.getUser?.();
+    if(!user) return;
+    if(user.has_seen_intro) return;   // already seen — never auto-show again
+    openInfoModal(null, document.getElementById('infoBtnTb'));
+  }catch(e){ /* non-critical — never block sign-in on this */ }
+}
+async function markInfoModalSeen(){
+  try{
+    const s = social();
+    const user = s?.getUser?.();
+    if(!user || user.has_seen_intro) return;   // already marked — skip the write
+    await s.updateProfile?.({ has_seen_intro: true });
+  }catch(e){ /* non-critical */ }
 }
 const CC_SPORT_BUILDERS = {
   baseball: () => { document.getElementById('ccBaseballCol').innerHTML = ccBuildBaseballHTML(); ccLoadBaseballWagerTrend(); },
@@ -16254,6 +16462,7 @@ function initOnlinePresence(){
       startNotifications();
       s.checkIn?.();
       refreshBalanceChip();
+      maybeShowInfoModalForNewUser();
     } else {
       // Signed out — drop the inbox + realtime subscription so the next user
       // starts clean and the previous user's alerts don't linger in the bell.
