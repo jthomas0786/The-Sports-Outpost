@@ -16246,7 +16246,7 @@ function exportToExcel(){
  * which is served publicly. Treat this as decluttering the UI for other users —
  * if the data ever genuinely needs protecting, that has to happen server-side.
  */
-const EXPORT_OWNER = 'dingerwatch';   // compared lower-case
+const EXPORT_OWNER = 'justcallme_jt';   // compared lower-case
 /** Moderator profile — Tuner tab access only, nothing else. Deliberately
  *  separate from EXPORT_OWNER: the Admin panel (Points/Wagers, Export,
  *  Model logs) stays owner-only and does NOT check this list. Usernames
@@ -16980,7 +16980,7 @@ document.addEventListener('visibilitychange', ()=>{
 (function initAdminPanel(){
   const isOwner = () => { const u = social()?.getUser?.(); return !!(u && String(u.username).toLowerCase() === EXPORT_OWNER); };
 
-  const REPO = 'jthomas0786/DingerWatch';
+  const REPO = 'jthomas0786/The-Sports-Outpost';
   const ghAPI = folder => `https://api.github.com/repos/${REPO}/contents/model-logs/${folder}?ref=public`;
   const filePath = (folder, name) => `model-logs/${folder}/${name}`;
   const LIVE = 'https://thesportsoutpost.com';
