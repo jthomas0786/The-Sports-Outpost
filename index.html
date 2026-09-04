@@ -1597,6 +1597,30 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
   animation:ccDotPulse 2s ease-in-out infinite; }
 @keyframes ccDotPulse{ 0%,100%{ opacity:1; } 50%{ opacity:0.4; } }
 
+/* ============ Global Command Center trigger — always visible, bottom-left
+   (opposite corner from the existing wheel FAB, avoiding any overlap),
+   sitting above the mobile bottom nav bar using the same proven pattern
+   already used elsewhere for that. Red/green alert state driven by
+   refreshCommandCenterAlertState(). ============ */
+.cc-global-trigger{
+  position:fixed; left:18px; bottom:calc(var(--mobile-nav-h,60px) + 16px); z-index:900;
+  display:inline-flex; align-items:center; gap:9px; font-family:'Oswald',sans-serif; font-size:12.5px; font-weight:600;
+  letter-spacing:.04em; text-transform:uppercase; color:var(--text); padding:12px 20px; border-radius:999px;
+  background:#0C203D; border:1px solid var(--border-bright); cursor:pointer;
+  box-shadow:0 10px 26px rgba(0,0,0,0.4);
+  transition:background .15s ease, border-color .3s ease;
+}
+.cc-global-trigger:hover{ background:rgba(45,127,255,0.22); }
+@media (min-width:1024px){
+  .cc-global-trigger{ left:calc(var(--sb-w, 248px) + 18px); bottom:18px; }
+}
+.cc-global-trigger.has-alert .cc-trigger-dot{
+  background:var(--hr-red, #ff3b3b); box-shadow:0 0 8px var(--hr-red, #ff3b3b);
+  animation:ccDotPulseAlert 1s ease-in-out infinite;
+}
+.cc-global-trigger.has-alert{ border-color:rgba(255,59,59,0.5); }
+@keyframes ccDotPulseAlert{ 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(1.15); } }
+
 .cc-backdrop{
   position:fixed; inset:0; z-index:9500; background:rgba(4,8,18,0.6);
   opacity:0; visibility:hidden; transition:opacity .25s ease, visibility 0s linear .25s;
@@ -3891,6 +3915,17 @@ body.modal-open{ overflow:hidden; }
 </style>
 </head>
 <body class="dw-booting">
+
+<!-- ============ COMMAND CENTER TRIGGER — global, always visible on both
+     desktop and mobile regardless of which tab or sport is showing. A
+     direct body child (not nested in any sport-specific container) so
+     router.js's MLB/NFL visibility toggling never hides it. Red/green
+     alert state is driven by refreshCommandCenterAlertState(). ============ -->
+<button type="button" class="cc-global-trigger" id="ccGlobalTrigger" onclick="openCommandCenter(event, this)">
+  <span class="cc-trigger-dot" id="ccGlobalTriggerDot"></span>
+  Command Center
+  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+</button>
 
 <!-- ============ COMMAND CENTER OVERLAY ============ -->
 <div class="cc-backdrop" id="ccBackdrop">
@@ -9144,6 +9179,46 @@ function radarCloseness(liveScore){
  *  confirmed home runs with genuinely elite exit velocity (108+ mph is
  *  a real Statcast benchmark, not an arbitrary cutoff), framed as
  *  "this player is hot right now" rather than invented predictions. */
+/** Shared source of truth for "threat" plays — elite exit velocity (108+
+ *  mph, a real Statcast benchmark) that did NOT result in a home run.
+ *  Returns EVERY qualifying play, not sliced to a display count, since
+ *  this feeds both the Command Center's top-5 display AND the global
+ *  trigger's alert detection — the latter needs to know about every new
+ *  threat, not just the ones visible in the top 5, or a new lower-EV
+ *  threat could appear with no alert at all. Each play gets a globally
+ *  unique key (game id + play id) so "seen" tracking works correctly
+ *  across every game, not just within one. */
+function computeThreatPlays(){
+  return games.flatMap(g => (g.liveScore?.plays || [])
+    .filter(p => p.hitData && p.hitData.launchSpeed != null && p.hitData.launchSpeed >= 108 && p.event !== 'Home Run')
+    .map(p => ({...p, away: g.away, home: g.home, _threatKey: `${g.id}:${p.id}` })));
+}
+
+/** Page-session "seen" tracking for the global trigger's red/green alert
+ *  state — resets on reload, which is reasonable here: a fresh page load
+ *  re-evaluates what's currently live rather than remembering across
+ *  visits. Not the same "seen" concept as notifications/chat unread
+ *  counts elsewhere in the app; this is specifically about threat plays. */
+let ccSeenThreatKeys = new Set();
+
+/** Called after every live-data poll (same 20s cycle that already
+ *  refreshes games) — flips the global trigger red the moment a threat
+ *  exists that hasn't been marked seen yet, green otherwise. */
+function refreshCommandCenterAlertState(){
+  const current = computeThreatPlays();
+  const hasUnseen = current.some(p => !ccSeenThreatKeys.has(p._threatKey));
+  document.getElementById('ccGlobalTrigger')?.classList.toggle('has-alert', hasUnseen);
+}
+
+/** Called when the user actually opens the Command Center — marks every
+ *  threat CURRENTLY live as seen (not just the ones displayed) and
+ *  immediately reverts the trigger to green, matching "until the user
+ *  clicks and reads the alert, then it goes back to green." */
+function markCommandCenterAlertsSeen(){
+  computeThreatPlays().forEach(p => ccSeenThreatKeys.add(p._threatKey));
+  document.getElementById('ccGlobalTrigger')?.classList.remove('has-alert');
+}
+
 function ccBuildBaseballHTML(){
   const liveCount = games.filter(g => g.mlbStatus === 'Live').length;
   const hrToday = feedEvents.length;
@@ -9161,9 +9236,7 @@ function ccBuildBaseballHTML(){
   // play was a batted ball. event !== 'Home Run' is what makes this
   // genuinely different from a home-run list: same 108+ mph bar, but for
   // the ball that got caught, not the one that left the park.
-  const threats = games.flatMap(g => (g.liveScore?.plays || [])
-      .filter(p => p.hitData && p.hitData.launchSpeed != null && p.hitData.launchSpeed >= 108 && p.event !== 'Home Run')
-      .map(p => ({...p, away: g.away, home: g.home})))
+  const threats = computeThreatPlays()
     .sort((a,b) => b.hitData.launchSpeed - a.hitData.launchSpeed)
     .slice(0, 5);
   const alertsHTML = threats.length
@@ -9280,6 +9353,7 @@ function openCommandCenter(event, btn){
   document.getElementById('ccBaseballCol').innerHTML = ccBuildBaseballHTML();
   ccLoadBaseballWagerTrend();
   backdrop.classList.add('is-open');
+  markCommandCenterAlertsSeen();
 }
 function closeCommandCenter(){
   document.getElementById('ccBackdrop').classList.remove('is-open');
@@ -9505,11 +9579,6 @@ function renderRadar(){
       ${markers}
     </div>
     <div class="so-radar-legend">Closer to center = a tighter, later-inning game right now.</div>
-    <div class="cc-trigger" onclick="openCommandCenter(event, this)">
-      <span class="cc-trigger-dot"></span>
-      Command Center
-      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-    </div>
     </div>
   `;
 }
@@ -16334,6 +16403,7 @@ async function fullLiveRefresh(){
 
   renderList();   // re-renders the active tab — incl. For You (date-scoped to the new slate)
   touchLastUpdated();
+  refreshCommandCenterAlertState();
   if(btn) btn.classList.remove('spinning');
 }
 
@@ -16357,6 +16427,7 @@ setInterval(()=>{
     else if(activeTab==='hr') applyLiveHRHighlights();  // live HR results on the Top 20 list, no scroll reset
     else if(activeTab==='foryou') applyLegHighlights(); // live HR results on each betslip leg
     renderTabs();                       // keeps the unread badge current
+    refreshCommandCenterAlertState();   // re-check for new threat plays now that games has fresh data
   });
 }, 20*1000);
 
