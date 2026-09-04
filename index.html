@@ -7808,6 +7808,10 @@ async function fetchLiveGameStates(){
                   batterName: m.batter ? m.batter.fullName : null,
                   pitcherId: m.pitcher ? m.pitcher.id : null,
                   pitcherName: m.pitcher ? m.pitcher.fullName : null,
+                  // Real, actual timestamp for when this play concluded —
+                  // straight from the MLB feed's own about.endTime, not an
+                  // approximation of when this app happened to first see it.
+                  endTime: a.endTime ? Date.parse(a.endTime) : null,
                   hitData: hd ? {
                     launchSpeed: hd.launchSpeed != null ? Number(hd.launchSpeed) : null,
                     launchAngle: hd.launchAngle != null ? Number(hd.launchAngle) : null,
@@ -9255,13 +9259,6 @@ function radarCloseness(liveScore){
  *  confirmed home runs with genuinely elite exit velocity (108+ mph is
  *  a real Statcast benchmark, not an arbitrary cutoff), framed as
  *  "this player is hot right now" rather than invented predictions. */
-/** Persistent first-seen timestamp per threat key — recorded once, the
- *  moment a threat is first observed, and never overwritten afterward.
- *  Necessary because g.liveScore.plays is rebuilt from scratch on every
- *  poll (see fetchLiveGameStates), so without this a play from 5 minutes
- *  ago would otherwise look like it just happened on every single refresh. */
-let ccThreatFirstSeenAt = {};
-
 /** Shared source of truth for "threat" plays — elite exit velocity (108+
  *  mph, a real Statcast benchmark) that did NOT result in a home run.
  *  Only from games still actually Live — once a game goes Final its
@@ -9270,29 +9267,24 @@ let ccThreatFirstSeenAt = {};
  *  qualifying play, not sliced to a display count, since this feeds both
  *  the Command Center's full list AND the global trigger's alert
  *  detection — the latter needs to know about every new threat, not
- *  just the ones visible on screen. Each play gets a globally unique key
- *  (game id + play id) for both "seen" tracking and "how long ago". */
+ *  just the ones visible on screen. Ordering and "time ago" both use the
+ *  play's real endTime from the MLB feed (see fetchLiveGameStates) —
+ *  when this happened in the actual game, not when this app session
+ *  happened to first notice it. That distinction matters: g.liveScore.plays
+ *  is rebuilt from scratch on every poll, so a "first seen by this app"
+ *  timestamp would make every threat already on the board when someone
+ *  opens the Command Center look like it just happened, all at once,
+ *  with no way to tell which one was actually most recent. */
 function computeThreatPlays(){
-  const threats = games.filter(g => g.mlbStatus === 'Live').flatMap(g => (g.liveScore?.plays || [])
+  return games.filter(g => g.mlbStatus === 'Live').flatMap(g => (g.liveScore?.plays || [])
     .filter(p => p.hitData && p.hitData.launchSpeed != null && p.hitData.launchSpeed >= 108 && p.event !== 'Home Run')
     .map(p => ({...p, away: g.away, home: g.home, _threatKey: `${g.id}:${p.id}` })));
-
-  const now = Date.now();
-  threats.forEach(t => {
-    if(!(t._threatKey in ccThreatFirstSeenAt)) ccThreatFirstSeenAt[t._threatKey] = now;
-    t._firstSeenAt = ccThreatFirstSeenAt[t._threatKey];
-  });
-
-  // Housekeeping: drop timestamps for threats no longer in play (game
-  // ended, etc.) so this doesn't grow unbounded over a long session.
-  const liveKeys = new Set(threats.map(t => t._threatKey));
-  Object.keys(ccThreatFirstSeenAt).forEach(k => { if(!liveKeys.has(k)) delete ccThreatFirstSeenAt[k]; });
-
-  return threats;
 }
 
-/** "2m ago" / "1h ago" style relative time, matching the format requested. */
+/** "2m ago" / "1h ago" style relative time. Returns '' when the play has
+ *  no real endTime (rare — an MLB feed gap), rather than guessing. */
 function formatTimeAgo(timestamp){
+  if(timestamp == null) return '';
   const diffMs = Date.now() - timestamp;
   const mins = Math.floor(diffMs / 60000);
   if(mins < 1) return 'just now';
@@ -9344,12 +9336,12 @@ function ccBuildBaseballHTML(){
   // genuinely different from a home-run list: same 108+ mph bar, but for
   // the ball that got caught, not the one that left the park.
   const threats = computeThreatPlays()
-    .sort((a,b) => b._firstSeenAt - a._firstSeenAt);
+    .sort((a,b) => (b.endTime ?? 0) - (a.endTime ?? 0));
   const alertsHTML = threats.length
     ? threats.map(p => `<div class="cc-alert-row">
         ${headshotImgTag(p.batterName, 'cc-alert-avatar', '', p.batterId||'')}
         <div class="cc-alert-text">${escapeHTML(p.batterName||'Unknown')}<small>${Math.round(p.hitData.launchSpeed)} mph EV · ${escapeHTML(p.event||'')}${p.hitData.totalDistance?' · '+Math.round(p.hitData.totalDistance)+' ft':''} vs ${escapeHTML(p.pitcherName||'')}</small></div>
-        <span class="cc-alert-time">${formatTimeAgo(p._firstSeenAt)}</span>
+        <span class="cc-alert-time">${formatTimeAgo(p.endTime)}</span>
       </div>`).join('')
     : `<div class="cc-empty-note">No elite-EV (108+ mph) near-misses yet tonight.</div>`;
 
