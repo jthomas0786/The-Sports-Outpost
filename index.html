@@ -1546,8 +1546,18 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
   background:#0C203D; border:1px solid rgba(110,220,255,0.5); border-radius:8px; padding:7px 10px;
   white-space:nowrap; font-family:'JetBrains Mono',monospace; font-size:10.5px; opacity:0; pointer-events:none;
   transition:opacity .15s ease; }
-.so-radar-marker:hover .so-radar-tip, .so-radar-marker:focus .so-radar-tip{ opacity:1; z-index:50; }
-.so-radar-marker:hover, .so-radar-marker:focus{ z-index:50; }
+.so-radar-marker:hover .so-radar-tip, .so-radar-marker:focus .so-radar-tip, .so-radar-marker.is-active .so-radar-tip{
+  opacity:1; pointer-events:auto; z-index:50; }
+.so-radar-marker:hover, .so-radar-marker:focus, .so-radar-marker.is-active{ z-index:50; }
+/* Additive — only applied to Game Radar's tooltip (which has the bullseye
+   button), not Prop Radar's (which shares .so-radar-tip's base block
+   layout and its own <br>-based two-line text, untouched by this). */
+.so-radar-tip.has-action{ display:flex; align-items:center; gap:8px; }
+.so-radar-tip-expand{
+  flex-shrink:0; width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:rgba(110,220,255,0.15); border:1px solid rgba(110,220,255,0.5); color:#6EDCFF; cursor:pointer;
+  transition:background .15s ease; }
+.so-radar-tip-expand:hover{ background:rgba(110,220,255,0.3); }
 .so-radar-legend{ text-align:center; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);
   margin-bottom:20px; }
 
@@ -9372,6 +9382,29 @@ function renderPropRadar(top5){
   });
 }
 
+/** Click-to-toggle a radar marker's tooltip — mirrors the standalone
+ *  concept's proven toggleHRRMarker() pattern: only one marker active at
+ *  a time (works consistently on touch, unlike hover), tapping the same
+ *  one again closes it. */
+function toggleRadarMarker(el){
+  const wasActive = el.classList.contains('is-active');
+  document.querySelectorAll('.so-radar-marker.is-active').forEach(m => m.classList.remove('is-active'));
+  if(!wasActive) el.classList.add('is-active');
+}
+
+/** Opens the real, existing game-detail modal (openGameModal) for a radar
+ *  marker's game — looked up by gamePk from the live games array rather
+ *  than embedding the full game object in HTML. This is the same modal
+ *  already used elsewhere in the app, so it already has the animated
+ *  open/close from the earlier modal-overlay fix — nothing new to build
+ *  there, just wiring this marker to the real thing. */
+function openRadarGameModal(gamePk){
+  const g = games.find(x => String(x.gamePk) === String(gamePk));
+  if(!g) return;
+  document.querySelectorAll('.so-radar-marker.is-active').forEach(m => m.classList.remove('is-active'));
+  openGameModal(g);
+}
+
 function renderRadar(){
   const todaysGames = games.filter(g => g.gamePk);
   if(!todaysGames.length){
@@ -9398,11 +9431,16 @@ function renderRadar(){
     const stateTxt = g.liveScore
       ? `${g.liveScore.inningState || ''} ${g.liveScore.inning || ''}`.trim()
       : gameTime(g);
-    return `<div class="so-radar-marker" style="left:${x}%; top:${y}%;" onclick="activeTab='slate'; renderTabs(); renderList();">
+    return `<div class="so-radar-marker" data-game-pk="${escapeHTML(String(g.gamePk))}" style="left:${x}%; top:${y}%;" onclick="toggleRadarMarker(this)">
       <div class="so-radar-dot ${isLive?'is-live':''}"></div>
-      <div class="so-radar-tip">
-        <b>${escapeHTML(g.away)}</b> ${awayScore!=null?awayScore:''} – <b>${escapeHTML(g.home)}</b> ${homeScore!=null?homeScore:''}
-        <br><span style="color:var(--so-glow,#6EDCFF);">${escapeHTML(stateTxt)}</span>
+      <div class="so-radar-tip has-action">
+        <span>
+          <b>${escapeHTML(g.away)}</b> ${awayScore!=null?awayScore:''} – <b>${escapeHTML(g.home)}</b> ${homeScore!=null?homeScore:''}
+          <br><span style="color:var(--so-glow,#6EDCFF);">${escapeHTML(stateTxt)}</span>
+        </span>
+        <button type="button" class="so-radar-tip-expand" title="Open full game card" onclick="event.stopPropagation(); openRadarGameModal('${escapeHTML(String(g.gamePk))}')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg>
+        </button>
       </div>
     </div>`;
   }).join('');
