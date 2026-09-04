@@ -9342,13 +9342,17 @@ function renderPropRadar(top5){
       const pct = scoreFor(activeTab, p);
       const team = isPitcher ? '' : p.team;
       markers.push(`<div class="so-radar-marker pr-marker" style="left:${x}%; top:${y}%; width:${tier.size*2}px; height:${tier.size*2}px;"
-           data-team="${escapeHTML(p.team||'')}" data-pname="${escapeHTML(p.name)}">
+           data-team="${escapeHTML(p.team||'')}" data-pname="${escapeHTML(p.name)}" onclick="toggleRadarMarker(this)">
         <div class="pr-avatar-wrap" style="width:100%; height:100%;">
           ${headshotImgTag(p.name, 'pr-avatar-img', p.team, p.id)}
         </div>
         <div class="pr-rank-badge">${rank}</div>
-        <div class="so-radar-tip">
-          <b>${escapeHTML(p.name)}</b>${team?` · ${team}`:''}<br><span style="color:var(--live-green);">${pct}%</span>
+        <div class="so-radar-tip has-action">
+          <span><b>${escapeHTML(p.name)}</b>${team?` · ${team}`:''}<br><span style="color:var(--live-green);">${pct}%</span></span>
+          <button type="button" class="so-radar-tip-expand pr-tip-expand" title="Open player breakdown"
+              data-team="${escapeHTML(p.team||'')}" data-pname="${escapeHTML(p.name)}" data-pitcher="${isPitcher}">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.5" fill="currentColor"/></svg>
+          </button>
         </div>
       </div>`);
     });
@@ -9376,14 +9380,25 @@ function renderPropRadar(top5){
     </div>
   `;
 
-  pickList.querySelectorAll('.pr-marker').forEach(marker => {
-    marker.addEventListener('click', () => {
-      const pool = isPitcher ? allPitchers : allBatters;
-      const p = pool.find(x => x.team === marker.dataset.team && x.name === marker.dataset.pname);
-      if(!p) return;
-      if(isPitcher) openPitcherModal(p); else openBatterModal(p);
+  pickList.querySelectorAll('.pr-tip-expand').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation(); // don't also re-toggle the marker's tooltip
+      openPropRadarPlayerModal(btn.dataset.team, btn.dataset.pname, btn.dataset.pitcher === 'true');
     });
   });
+}
+
+/** Opens the real player modal for a Prop Radar marker — reuses the exact
+ *  same team+name lookup the old direct-click handler used, just now
+ *  triggered from the tooltip's bullseye button instead of the marker's
+ *  first click (which now only toggles the tooltip, matching Game
+ *  Radar's two-step pattern). */
+function openPropRadarPlayerModal(team, name, isPitcher){
+  document.querySelectorAll('.so-radar-marker.is-active').forEach(m => m.classList.remove('is-active'));
+  const pool = isPitcher ? allPitchers : allBatters;
+  const p = pool.find(x => x.team === team && x.name === name);
+  if(!p) return;
+  if(isPitcher) openPitcherModal(p); else openBatterModal(p);
 }
 
 /** Click-to-toggle a radar marker's tooltip — mirrors the standalone
