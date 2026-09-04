@@ -3695,6 +3695,7 @@ body.modal-open{ overflow:hidden; }
    .player-card-v2) since player cards and the game modal's prop
    rankings both use this outside that scope too. ============ */
 .pb-badge-row{ display:inline-flex; align-items:center; gap:4px; vertical-align:middle; }
+.pick-body > .pb-badge-row{ display:flex; margin-top:4px; }
 .pb-badge{
   display:inline-flex; align-items:center; justify-content:center;
   font-size:13px; line-height:1; cursor:default;
@@ -6973,7 +6974,8 @@ function renderList(){
         <div class="pick-rank ${rankClasses[i]}">${i+1}</div>
         ${headshotImgTag(p.name, 'pick-headshot', ringTeam, p.id)}
         <div class="pick-body">
-          <div class="pick-name-row"><span class="pick-name">${p.name}</span>${isPitcher ? '' : badgeRowHTML([...computeBatterBadges(p), computeWindBadge(g)].filter(Boolean))}<span class="pick-team">${isPitcher ? '' : team+' · '+(p.pos||'')}</span><span class="pick-matchup">${matchupTxt}</span>${isPitcher ? '' : watchStarHTML(p)}</div>
+          <div class="pick-name-row"><span class="pick-name">${p.name}</span><span class="pick-team">${isPitcher ? '' : team+' · '+(p.pos||'')}</span><span class="pick-matchup">${matchupTxt}</span>${isPitcher ? '' : watchStarHTML(p)}</div>
+          ${isPitcher ? '' : badgeRowHTML([...computeBatterBadges(p), computeWindBadge(g)].filter(Boolean))}
           <div class="pick-metrics">
             <div class="pick-chips">${chipsFor(activeTab, p).join('')}</div>
             <div class="pick-env">
@@ -12375,10 +12377,13 @@ function computeBatterBadges(p){
     formBadges.push({ emoji:'💤', label:'Sleeper', tier:'form' });
   }
 
-  const picked = [];
-  if(skillBadges.length) picked.push(skillBadges[0]);
-  if(formBadges.length) picked.push(formBadges[0]);
-  return picked;
+  // skillBadges is already either [Triple Threat] alone, or up to 2 of the
+  // 3 individual badges (never all 3 individually — that case becomes
+  // Triple Threat above instead) — show everything that actually
+  // qualifies here, not just the first one. formBadges is naturally
+  // capped at 1 already: On Fire/Warming Up and Sleeper are mutually
+  // exclusive by their own thresholds (l10hr >= 1 vs l10hr === 0/null).
+  return [...skillBadges, ...formBadges];
 }
 
 /** Real, live wind badge — game/park-level, not tied to any one batter.
