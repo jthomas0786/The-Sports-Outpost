@@ -430,7 +430,7 @@ async function updateProfile(fields){
   if(!currentUser) return { error: 'not signed in' };
   const allowed = {};
   // Only these are editable; never let the client set id or created_at.
-  for(const k of ['display_name', 'bio', 'team', 'avatar_url']) {
+  for(const k of ['display_name', 'bio', 'team', 'avatar_url', 'has_seen_intro']) {
     if(fields[k] !== undefined) allowed[k] = fields[k];
   }
   if(fields.username !== undefined){
