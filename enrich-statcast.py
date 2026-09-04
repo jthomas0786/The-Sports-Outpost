@@ -365,6 +365,18 @@ def compute_windowed_statcast(df, n_games, min_bbe, min_pa, min_ab):
             num = float(ests[ests.notna()].sum())
             out["xslg"] = round(num / ab, 3)
 
+    # --- Real (actual-outcome) rolling ISO ---
+    # Unlike xSLG above, this uses what actually happened rather than a
+    # modeled/expected value — isolated power is conventionally SLG minus
+    # AVG, which reduces to extra bases from 2B/3B/HR divided by AB. Reuses
+    # the same ab_rows/ab already computed above, gated by the same min_ab
+    # sample-size threshold for consistency with xSLG's own gating.
+    if ab >= min_ab:
+        doubles = int((ab_rows["events"] == "double").sum())
+        triples = int((ab_rows["events"] == "triple").sum())
+        homers  = int((ab_rows["events"] == "home_run").sum())
+        out["iso"] = round((doubles + 2 * triples + 3 * homers) / ab, 3)
+
     return out
 
 
