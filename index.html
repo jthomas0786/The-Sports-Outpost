@@ -4296,8 +4296,11 @@ function statcastWindow(s) {
   const xwoba       = plausible(s?.xwoba,       0, 2.5, 'xwoba');
   const xslg        = plausible(s?.xslg,        0,   4, 'xslg');
   const launchAngle = plausible(s?.launchAngle, -90, 90, 'launchAngle');
-  const any = [barrel, ev, hardHit, xwoba, xslg, launchAngle].some(v => v != null);
-  return any ? { barrel, ev, hardHit, xwoba, xslg, launchAngle, bbe: s?.bbe ?? null } : null;
+  // Real (actual-outcome) rolling ISO — computed server-side from actual
+  // 2B/3B/HR ÷ AB in the window, not a modeled/expected value like xSLG.
+  const iso         = plausible(s?.iso,          0,   2, 'iso');
+  const any = [barrel, ev, hardHit, xwoba, xslg, launchAngle, iso].some(v => v != null);
+  return any ? { barrel, ev, hardHit, xwoba, xslg, launchAngle, iso, bbe: s?.bbe ?? null } : null;
 }
 
 /** Speed score proxy — SB rate relative to opportunities, scaled by position.
@@ -12386,8 +12389,17 @@ function paRates(p){
  */
 /** Batter badge system — every trigger below maps to a real, verified
  *  field, not an invented threshold:
- *    barrel/ev  -> p.statcast.{barrel,ev}      (season Statcast rates)
- *    power      -> p.iso                        (isolated power)
+ *    barrel/ev/power -> rolling L10 Statcast (statcastL10), falling back
+ *                        to L5 then season when the recent sample is too
+ *                        thin — same fallback priority rangeStat() already
+ *                        uses elsewhere in the app. Using season-only
+ *                        values here would mean the same handful of
+ *                        elite-season hitters show identical badges every
+ *                        single day regardless of how they're actually
+ *                        playing recently. Power specifically uses a REAL
+ *                        rolling ISO (actual 2B/3B/HR ÷ AB in the window,
+ *                        computed server-side in enrich-statcast.py), not
+ *                        a modeled proxy like xSLG.
  *    form       -> p.l10.hr                      (real number — NOT
  *                  p.recentForm.last15, which is a display STRING like
  *                  "3 HR / 42 AB" and can't be compared numerically;
@@ -12395,14 +12407,11 @@ function paRates(p){
  *    sleeper    -> simulatePlayer(p).hr.pct vs p.l10.hr
  *  When a player clears all three skill thresholds at once, Triple
  *  Threat replaces the three individual badges rather than stacking
- *  alongside them. Capped at one skill-tier badge + one form-tier badge
- *  (2 total) so a hot, skilled player doesn't show three redundant skill
- *  icons while a real recent-form signal gets silently dropped. */
+ *  alongside them. */
 function computeBatterBadges(p){
-  const sc = p.statcast || {};
-  const iso = p.iso;
-  const barrel = sc.barrel;
-  const ev = sc.ev;
+  const barrel = p.statcastL10?.barrel ?? p.statcastL5?.barrel ?? p.statcast?.barrel;
+  const ev = p.statcastL10?.ev ?? p.statcastL5?.ev ?? p.statcast?.ev;
+  const iso = p.statcastL10?.iso ?? p.statcastL5?.iso ?? p.iso;
   const l10hr = p.l10?.hr;
 
   const hasBarrel = barrel != null && barrel >= 12;
