@@ -1611,6 +1611,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
   transition:background .15s ease, border-color .3s ease;
 }
 .cc-global-trigger:hover{ background:rgba(45,127,255,0.22); }
+.cc-trigger-icon{ height:14px; width:auto; display:block; }
 @media (min-width:1024px){
   .cc-global-trigger{ left:calc(var(--sb-w, 248px) + 18px); bottom:18px; }
 }
@@ -3920,9 +3921,9 @@ body.modal-open{ overflow:hidden; }
      direct body child (not nested in any sport-specific container) so
      router.js's MLB/NFL visibility toggling never hides it. Red/green
      alert state is driven by refreshCommandCenterAlertState(). ============ -->
-<button type="button" class="cc-global-trigger" id="ccGlobalTrigger" onclick="openCommandCenter(event, this)">
+<button type="button" class="cc-global-trigger" id="ccGlobalTrigger" onclick="openCommandCenter(event, this)" aria-label="Command Center">
   <span class="cc-trigger-dot" id="ccGlobalTriggerDot"></span>
-  Command Center
+  <img src="icon-command.png" alt="" class="cc-trigger-icon">
   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
 </button>
 
