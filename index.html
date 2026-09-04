@@ -3500,7 +3500,7 @@ footer{ margin-left:0; }
    Prop Radar, Command Center) instead of a sport-specific animation left
    over from the old single-sport brand. Four sport blips pulse in a
    staggered sequence as if the sweep is detecting each one in turn. ============ */
-.splash-radar{ position:relative; width:220px; height:220px; }
+.splash-radar{ position:relative; width:300px; height:300px; }
 .splash-radar-svg{ position:absolute; inset:0; width:100%; height:100%; }
 .splash-radar-sweep{ position:absolute; inset:0; border-radius:50%; overflow:hidden;
   -webkit-mask-image:radial-gradient(circle, black 60%, transparent 60%); mask-image:radial-gradient(circle, black 60%, transparent 60%); }
@@ -3568,10 +3568,11 @@ footer{ margin-left:0; }
   color:#e2e8f0; margin-bottom:4px;
 }
 .splash-brand span{ color:#6EDCFF; }
-.splash-brand-img{ height:52px; width:auto; margin:0 auto 4px; display:block; }
+.splash-brand-img{ height:130px; width:auto; margin:0 auto 4px; display:block; }
 
 @media (max-width:560px){
-  .splash-radar{ width:170px; height:170px; }
+  .splash-radar{ width:230px; height:230px; }
+  .splash-brand-img{ height:100px; }
   .splash-brand{ font-size:22px; }
   .splash-text{ font-size:15px; }
   .splash-sub{ font-size:9.5px; }
@@ -3901,7 +3902,7 @@ body.modal-open{ overflow:hidden; }
 
 <!-- ============ SPLASH SCREEN ============ -->
 <div id="splash">
-  <img src="logo-outpost.png" alt="The Sports Outpost" class="splash-brand-img">
+  <img src="logo-outpost-primary.png" alt="The Sports Outpost" class="splash-brand-img">
   <div class="splash-radar">
     <svg class="splash-radar-svg" viewBox="0 0 200 200" aria-hidden="true">
       <defs><radialGradient id="splashRadarBg" cx="50%" cy="50%" r="50%">
