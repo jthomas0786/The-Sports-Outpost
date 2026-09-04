@@ -5911,6 +5911,33 @@ function resolveTiers(d){ return typeof d.tiers === 'function' ? d.tiers() : d.t
 let activeFilters = {};
 let allPlayersSort = 'sim_hr';
 let allPlayersSearch = '';
+
+/** Canonical badge list for the All Players filter — mirrors exactly what
+ *  computeBatterBadges()/computeWindBadge() can actually produce, so a
+ *  filter chip can never exist for a badge that couldn't appear on any
+ *  card. OR logic when multiple are selected (a player showing ANY of
+ *  the checked badges qualifies), matching how tag filters normally work
+ *  — badges are fairly exclusive by nature, so requiring ALL of several
+ *  at once would be an unusually narrow filter almost nothing clears. */
+const BADGE_FILTER_DEFS = [
+  { id:'triple',  emoji:'💣', label:'Triple Threat' },
+  { id:'barrel',  emoji:'🎯', label:'Barrel Rate' },
+  { id:'ev',      emoji:'🚀', label:'Exit Velo' },
+  { id:'power',   emoji:'💪', label:'Power' },
+  { id:'fire',    emoji:'🔥', label:'On Fire' },
+  { id:'warming', emoji:'📈', label:'Warming Up' },
+  { id:'sleeper', emoji:'💤', label:'Sleeper' },
+  { id:'wind',    emoji:'💨', label:'High Wind' },
+];
+let activeBadgeFilters = new Set();
+/** Real badges for this player, tagged by their filter id — combines the
+ *  batter badges with the game-level wind badge, same set shown on their
+ *  card, so "does this player match a checked filter" is always checking
+ *  against the exact same computation the card itself displays. */
+function playerBadgeFilterIds(p){
+  const badges = [...computeBatterBadges(p), computeWindBadge(p.game)].filter(Boolean);
+  return new Set(badges.map(b => BADGE_FILTER_DEFS.find(d => d.label === b.label)?.id).filter(Boolean));
+}
 // Minimum letter grade to show. Applies to whichever graded prop is being
 // sorted on, so "A- or better" means A- or better AT THAT PROP. Empty = no
 // grade filter. Note this behaves differently from the old HR Index slider:
@@ -5960,6 +5987,13 @@ function filteredPlayers(){
       return true;
     });
   }
+  if(activeBadgeFilters.size){
+    list = list.filter(p => {
+      const ids = playerBadgeFilterIds(p);
+      for(const id of activeBadgeFilters) if(ids.has(id)) return true;
+      return false;
+    });
+  }
   const simCfg = simSortCfg(allPlayersSort);
   if(simCfg){
     if(minGradeFilter){
@@ -5980,7 +6014,7 @@ function filteredPlayers(){
                                     : simulatePlayer(b).hr.exact - simulatePlayer(a).hr.exact));
 }
 
-function activeFilterCount(){ return Object.keys(activeFilters).length; }
+function activeFilterCount(){ return Object.keys(activeFilters).length + activeBadgeFilters.size; }
 
 /** Only the HR index is a percentage; every other prop is a projected count. */
 function isPercentTab(tabId){ return tabId === 'hr'; }
@@ -6527,6 +6561,12 @@ function filterBarHTML(shown, total){
         </div>
       </div>
       ${rangeFilter ? '<div class="filter-note">AVG, HR &amp; Statcast use the selected window; falls back to season when recent samples are thin.</div>' : ''}
+      <div class="filter-range">
+        <span>Badges</span>
+        <div class="tier-chips">
+          ${BADGE_FILTER_DEFS.map(d=>`<button type="button" class="tier-chip badge-chip ${activeBadgeFilters.has(d.id)?'active':''}" data-badge="${d.id}">${d.emoji} ${d.label}</button>`).join('')}
+        </div>
+      </div>
       <div class="filter-grid">${items}</div>
       <div class="filter-sort">
         <span>Min grade</span>
@@ -6642,6 +6682,7 @@ function wireFilterBar(){
   if(clear) clear.addEventListener('click', e=>{
     e.stopPropagation();
     activeFilters = {};
+    activeBadgeFilters.clear();
     minGradeFilter = '';
     renderAllPlayers();
   });
@@ -6690,6 +6731,18 @@ function wireFilterBar(){
         if(tier){ f.min = tier.min ?? null; f.max = tier.max ?? null; }
         else delete activeFilters[id];
       }
+      filterPanelOpen = true;
+      renderAllPlayers();
+    });
+  });
+
+  // Badge filters — simple toggle per badge id, OR logic applied in
+  // filteredPlayers() (a player showing ANY checked badge qualifies).
+  pickList.querySelectorAll('.badge-chip').forEach(chip=>{
+    chip.addEventListener('click', ()=>{
+      const id = chip.dataset.badge;
+      if(activeBadgeFilters.has(id)) activeBadgeFilters.delete(id);
+      else activeBadgeFilters.add(id);
       filterPanelOpen = true;
       renderAllPlayers();
     });
