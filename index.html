@@ -1677,7 +1677,7 @@ body{
 .app-sidebar::-webkit-scrollbar{ width:4px; }
 .app-sidebar::-webkit-scrollbar-thumb{ background: var(--border-light); border-radius:99px; }
 
-.sb-brand{ display:flex; align-items:center; gap:12px; padding: 0 8px 20px; margin-bottom:4px; border-bottom:1px solid var(--line); }
+.sb-brand{ display:flex; align-items:center; justify-content:center; gap:12px; padding: 0 8px 20px; margin-bottom:4px; border-bottom:1px solid var(--line); }
 .brand-logo{
   width:44px; height:44px; border-radius:14px; flex-shrink:0;
   background: linear-gradient(135deg, var(--accent) 0%, #1a4d99 100%);
@@ -1687,8 +1687,8 @@ body{
 .brand-logo svg{ width:26px; height:26px; }
 .brand-logo.sm{ width:34px; height:34px; border-radius:11px; }
 .brand-logo.sm svg{ width:20px; height:20px; }
-.so-brand-img{ height:40px; width:auto; display:block; }
-.so-brand-img-sm{ height:30px; }
+.so-mobile-logo{ width:100%; max-width:100px; height:auto; display:block; }
+.so-sidebar-logo{ width:100%; max-width:210px; height:auto; display:block; }
 
 /* ============ Outpost Picks + sport accordion — desktop sidebar only.
    #propTabs and #nflSideNav (unchanged) remain the mobile bottom bar;
@@ -3940,7 +3940,7 @@ body.modal-open{ overflow:hidden; }
   <!-- ============ SIDEBAR (desktop) / BOTTOM NAV (mobile) ============ -->
   <aside class="app-sidebar">
     <div class="sb-brand">
-      <img src="logo-outpost.png" alt="The Sports Outpost" class="so-brand-img">
+      <img src="logo-sidebar.png" alt="The Sports Outpost" class="so-sidebar-logo">
     </div>
 
     <button type="button" class="sb-picks-btn sb-radar-btn" id="sbRadarBtn">
@@ -3991,7 +3991,7 @@ body.modal-open{ overflow:hidden; }
     <header class="topbar">
       <div class="topbar-left">
         <div class="tb-mobile-brand">
-          <img src="logo-outpost.png" alt="The Sports Outpost" class="so-brand-img so-brand-img-sm">
+          <img src="logo-sidebar.png" alt="The Sports Outpost" class="so-mobile-logo">
         </div>
         <div class="day-toggle" id="dayToggle">
           <button class="active" data-day="today" id="todayBtn">Today</button>
