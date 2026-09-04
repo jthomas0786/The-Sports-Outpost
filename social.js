@@ -562,7 +562,7 @@ const WHOP_CLIENT_ID = 'app_QdNZC391lkoy4R';
 // exactly the 'redirect_uri is invalid' error even though the app 'looks'
 // like it's running from the right place. Set this to ONE canonical URL and
 // register that exact same string in the Whop dashboard.
-const WHOP_REDIRECT_URI = 'https://dingerwatch.app/';   // e.g. 'https://dingerwatch.app/' — include the trailing slash
+const WHOP_REDIRECT_URI = 'https://thesportsoutpost.com/';   // e.g. 'https://thesportsoutpost.com/' — include the trailing slash
 const WHOP_OAUTH_STORAGE_KEY = 'dw_whop_pkce';
 
 function whopOAuthConfigured(){ return !!WHOP_CLIENT_ID; }
