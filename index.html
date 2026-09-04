@@ -3491,6 +3491,7 @@ footer{ margin-left:0; }
   background: radial-gradient(ellipse at 50% 35%, #0C1428 0%, #080C18 100%);
   display:none; flex-direction:column; align-items:center; justify-content:center;
   gap:28px; transition: opacity .4s ease;
+  overflow-y:auto; padding:20px 0;
 }
 #splash.show{ display:flex; }
 #splash.hide{ opacity:0; pointer-events:none; }
@@ -3568,11 +3569,11 @@ footer{ margin-left:0; }
   color:#e2e8f0; margin-bottom:4px;
 }
 .splash-brand span{ color:#6EDCFF; }
-.splash-brand-img{ height:130px; width:auto; margin:0 auto 4px; display:block; }
+.splash-brand-img{ height:250px; width:auto; margin:0 auto 4px; display:block; }
 
 @media (max-width:560px){
   .splash-radar{ width:230px; height:230px; }
-  .splash-brand-img{ height:100px; }
+  .splash-brand-img{ height:190px; }
   .splash-brand{ font-size:22px; }
   .splash-text{ font-size:15px; }
   .splash-sub{ font-size:9.5px; }
