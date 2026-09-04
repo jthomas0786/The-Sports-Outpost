@@ -3690,6 +3690,23 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .hdr .who h2 .dq-badge.modeled{ background:rgba(245,200,66,.12); color:var(--gold) }
 .player-card-v2 .hdr .who .sub{ color:var(--muted); font-size:13px; margin-top:5px }
 .player-card-v2 .hdr .who .sub b{ color:var(--text); font-weight:600 }
+
+/* ============ Batter badge system — global (not scoped to
+   .player-card-v2) since player cards and the game modal's prop
+   rankings both use this outside that scope too. ============ */
+.pb-badge-row{ display:inline-flex; align-items:center; gap:4px; vertical-align:middle; }
+.pb-badge{
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:13px; line-height:1; cursor:default;
+}
+.pb-badge-triple{
+  display:inline-flex; align-items:center; gap:5px;
+  background:#2D7FFF; color:#fff; font-family:'Oswald',sans-serif; font-size:10.5px; font-weight:700;
+  letter-spacing:.03em; text-transform:uppercase; padding:3px 9px 3px 7px; border-radius:20px;
+  box-shadow:0 0 10px rgba(45,127,255,.5);
+}
+.pb-badge-triple span{ font-size:12px; }
+
 .player-card-v2 .hdr-stats{ display:flex; gap:0; margin-top:9px; border:1px solid var(--border); border-radius:9px; overflow:hidden;
   background:rgba(255,255,255,.02); max-width:340px }
 .player-card-v2 .hdr-stats div{ flex:1; padding:6px 0; text-align:center; border-right:1px solid var(--border) }
@@ -6956,7 +6973,7 @@ function renderList(){
         <div class="pick-rank ${rankClasses[i]}">${i+1}</div>
         ${headshotImgTag(p.name, 'pick-headshot', ringTeam, p.id)}
         <div class="pick-body">
-          <div class="pick-name-row"><span class="pick-name">${p.name}</span><span class="pick-team">${isPitcher ? '' : team+' · '+(p.pos||'')}</span><span class="pick-matchup">${matchupTxt}</span>${isPitcher ? '' : watchStarHTML(p)}</div>
+          <div class="pick-name-row"><span class="pick-name">${p.name}</span>${isPitcher ? '' : badgeRowHTML([...computeBatterBadges(p), computeWindBadge(g)].filter(Boolean))}<span class="pick-team">${isPitcher ? '' : team+' · '+(p.pos||'')}</span><span class="pick-matchup">${matchupTxt}</span>${isPitcher ? '' : watchStarHTML(p)}</div>
           <div class="pick-metrics">
             <div class="pick-chips">${chipsFor(activeTab, p).join('')}</div>
             <div class="pick-env">
@@ -12311,6 +12328,85 @@ function paRates(p){
  * Simulate the game SIM_RUNS times. Returns, for every prop, the share of
  * simulations clearing each line plus the median and 90th-percentile outcome.
  */
+/** Batter badge system — every trigger below maps to a real, verified
+ *  field, not an invented threshold:
+ *    barrel/ev  -> p.statcast.{barrel,ev}      (season Statcast rates)
+ *    power      -> p.iso                        (isolated power)
+ *    form       -> p.l10.hr                      (real number — NOT
+ *                  p.recentForm.last15, which is a display STRING like
+ *                  "3 HR / 42 AB" and can't be compared numerically;
+ *                  l10 is also the actual available window, not 15)
+ *    sleeper    -> simulatePlayer(p).hr.pct vs p.l10.hr
+ *  When a player clears all three skill thresholds at once, Triple
+ *  Threat replaces the three individual badges rather than stacking
+ *  alongside them. Capped at one skill-tier badge + one form-tier badge
+ *  (2 total) so a hot, skilled player doesn't show three redundant skill
+ *  icons while a real recent-form signal gets silently dropped. */
+function computeBatterBadges(p){
+  const sc = p.statcast || {};
+  const iso = p.iso;
+  const barrel = sc.barrel;
+  const ev = sc.ev;
+  const l10hr = p.l10?.hr;
+
+  const hasBarrel = barrel != null && barrel >= 12;
+  const hasEV = ev != null && ev >= 91;
+  const hasPower = iso != null && iso >= 0.220;
+
+  const skillBadges = [];
+  if(hasBarrel && hasEV && hasPower){
+    skillBadges.push({ emoji:'💣', label:'Triple Threat', tier:'triple' });
+  } else {
+    if(hasBarrel) skillBadges.push({ emoji:'🎯', label:'Barrel Rate', tier:'skill' });
+    if(hasEV) skillBadges.push({ emoji:'🚀', label:'Exit Velo', tier:'skill' });
+    if(hasPower) skillBadges.push({ emoji:'💪', label:'Power', tier:'skill' });
+  }
+
+  const formBadges = [];
+  if(l10hr != null && l10hr >= 2) formBadges.push({ emoji:'🔥', label:'On Fire', tier:'form' });
+  else if(l10hr === 1) formBadges.push({ emoji:'📈', label:'Warming Up', tier:'form' });
+
+  // Sleeper: tonight's modeled HR probability is genuinely elite while
+  // recent games show little or nothing — the model sees something
+  // (matchup, park, wind) recent production alone doesn't explain yet.
+  let tonightHrPct = null;
+  try { tonightHrPct = simulatePlayer(p)?.hr?.pct ?? null; } catch(e) { tonightHrPct = null; }
+  if(tonightHrPct != null && tonightHrPct >= 20 && (l10hr == null || l10hr === 0)){
+    formBadges.push({ emoji:'💤', label:'Sleeper', tier:'form' });
+  }
+
+  const picked = [];
+  if(skillBadges.length) picked.push(skillBadges[0]);
+  if(formBadges.length) picked.push(formBadges[0]);
+  return picked;
+}
+
+/** Real, live wind badge — game/park-level, not tied to any one batter.
+ *  Only fires for open-air parks with a genuine wind reading AND a known
+ *  park orientation, reusing the already-proven windRelativeToPark() so
+ *  "blowing out" is computed relative to THIS park, not guessed. Wind
+ *  blowing in suppresses power rather than helping it, so only 'out'
+ *  counts here — a badge framed as a positive signal shouldn't fire for
+ *  a condition that actually works against the hitter. */
+function computeWindBadge(g){
+  if(!g || g.roof !== 'open-air' || g.windMph == null || g.windMph < 12 || g.cfBearing == null || g.windDeg == null) return null;
+  const rel = windRelativeToPark(g.windDeg, g.cfBearing);
+  if(rel.sector !== 'out') return null;
+  return { emoji:'💨', label:'High Wind', tier:'wind' };
+}
+
+/** Renders a badge list (from computeBatterBadges/computeWindBadge) as
+ *  HTML — shared across the player modal, player cards, and the game
+ *  modal's prop rankings so all three stay visually consistent and never
+ *  drift into three separate implementations of the same thing. */
+function badgeRowHTML(badges){
+  if(!badges || !badges.length) return '';
+  return `<span class="pb-badge-row">${badges.map(b => b.tier === 'triple'
+    ? `<span class="pb-badge pb-badge-triple" title="${escapeHTML(b.label)}"><span>${b.emoji}</span> ${escapeHTML(b.label)}</span>`
+    : `<span class="pb-badge" title="${escapeHTML(b.label)}">${b.emoji}</span>`
+  ).join('')}</span>`;
+}
+
 function simulatePlayer(p){
   if(p._sim) return p._sim;                       // cached per scoring pass
 
@@ -14092,7 +14188,7 @@ function openBatterModal(p){
         ${watchStarHTML(p)}
         <div class="ava-reticle"><div class="ava">${headshotImgTag(p.name,'',p.team,p.id)}</div></div>
         <div class="who">
-          <h2>${p.name} <span class="dq-badge ${dqClass}">${dqLabel}</span></h2>
+          <h2>${p.name} <span class="dq-badge ${dqClass}">${dqLabel}</span> ${badgeRowHTML([...computeBatterBadges(p), computeWindBadge(p.game)].filter(Boolean))}</h2>
           <div class="sub">+0.5 HR · vs ${sp.name||'the starter'}${throwsTag} · ${g.awayName} @ ${g.homeName} · ${gameTime(g)}</div>
           <div class="hdr-stats">
             <div><b>${sc.hardHit!=null?Math.round(sc.hardHit)+'%':'—'}</b><small>Hard-hit</small></div>
@@ -14247,7 +14343,7 @@ function gamePlayersHTML(g){
     const tag = isAtBat ? '<span class="rt-tag">AT BAT</span>' : isOnDeck ? '<span class="rt-tag deck">ON DECK</span>' : '';
     return `<div class="rt-row${rowCls}" data-side="${side}" data-idx="${idx}" role="button" tabindex="0">
       <span class="rt-ord">${idx+1}</span>
-      <span class="rt-pl">${headshotImgTag(p.name, 'roster-head', p.team, p.id)}<span class="rt-pl-txt"><span class="rt-name">${escapeHTML(p.name)}</span><span class="rt-meta"><span class="rt-pos">${escapeHTML(p.pos||'')} · ${p.hand||'?'}B</span>${tag}</span></span></span>
+      <span class="rt-pl">${headshotImgTag(p.name, 'roster-head', p.team, p.id)}<span class="rt-pl-txt"><span class="rt-name">${escapeHTML(p.name)} ${badgeRowHTML(computeBatterBadges(p))}</span><span class="rt-meta"><span class="rt-pos">${escapeHTML(p.pos||'')} · ${p.hand||'?'}B</span>${tag}</span></span></span>
       <span class="rt-c">${gradeRingHTML(sim.hr.pct, gh.g, 'xs', 'hr')}</span>
       <span class="rt-c">${gradeRingHTML(sim.tb15.pct, gt.g, 'xs', 'tb')}</span>
       <span class="rt-c">${gradeRingHTML(sim.hits05.pct, gi.g, 'xs', 'hits')}</span>
@@ -14257,7 +14353,7 @@ function gamePlayersHTML(g){
 
   const team = (name, abbr, roster, side, isHome) => `
     <div class="rt-team${isHome?' home':''}">
-      <div class="rt-team-name">${escapeHTML(name)} <span class="rt-abbr">${escapeHTML(abbr||'')}</span></div>
+      <div class="rt-team-name">${escapeHTML(name)} <span class="rt-abbr">${escapeHTML(abbr||'')}</span> ${badgeRowHTML([computeWindBadge(g)].filter(Boolean))}</div>
       <div class="rt-scroll">${header(side)}<div class="rt-body">${roster.map((p,i)=>row(p,side,i)).join('')}</div></div>
     </div>`;
 
