@@ -6019,25 +6019,39 @@ function renderSidebarSports(){
     btn.addEventListener('click', () => {
       const key = btn.dataset.sport;
       if(!SB_SPORTS[key].adapterReady) return; // coming-soon: no-op
-      const liveCurrent = (window.DW_getSport && window.DW_getSport()) || 'mlb';
-      if(key !== liveCurrent){
-        location.hash = key; // real router.js hashchange handles the actual view swap + a full renderSidebarSports() rebuild
-        return;
-      }
-      // Same sport already active — this is a pure expand/collapse, not a
-      // route change. Toggle CSS classes only; no rebuild needed here.
+      // Header click ALWAYS just expands/collapses this section — it never
+      // navigates or loads anything, regardless of which sport is currently
+      // routed. Picking an actual item inside the menu is what navigates.
       toggleSidebarSportPanel(btn);
     });
   });
   host.querySelectorAll('.sb-sub-item[data-mlb-tab]').forEach(btn => {
-    btn.addEventListener('click', () => window.DW_selectTab?.(btn.dataset.mlbTab));
+    btn.addEventListener('click', () => {
+      const liveCurrent = (window.DW_getSport && window.DW_getSport()) || 'mlb';
+      if(liveCurrent !== 'mlb') location.hash = 'mlb'; // switch into MLB's view first if we're elsewhere
+      window.DW_selectTab?.(btn.dataset.mlbTab);
+    });
   });
   // Proxy NFL's accordion buttons to the real #nflSideNav buttons (which
   // live in their original, unmoved sidebar position) — this is what
   // actually triggers the sport's own already-working switch logic.
   host.querySelectorAll('.sb-sub-item[data-nfl-proxy]').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelector(`#nflSideNav [data-nfl-tab="${btn.dataset.nflProxy}"]`)?.click();
+      const liveCurrent = (window.DW_getSport && window.DW_getSport()) || 'mlb';
+      const proxyTarget = btn.dataset.nflProxy;
+      if(liveCurrent !== 'nfl'){
+        // NFL's module is lazy-loaded on first route into #nfl — its own
+        // click wiring (wireNflNav) only exists once that finishes, so a
+        // proxy click fired the instant the hash changes can land before
+        // the real button is wired yet. A short, one-time delay covers
+        // that load without needing router.js to expose a completion hook.
+        location.hash = 'nfl';
+        setTimeout(() => {
+          document.querySelector(`#nflSideNav [data-nfl-tab="${proxyTarget}"]`)?.click();
+        }, 150);
+      } else {
+        document.querySelector(`#nflSideNav [data-nfl-tab="${proxyTarget}"]`)?.click();
+      }
     });
   });
 }
