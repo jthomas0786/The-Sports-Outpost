@@ -32,7 +32,14 @@
  *   SUPABASE_SERVICE_ROLE_KEY
  */
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const RAW_SUPABASE_URL = process.env.SUPABASE_URL;
+// Normalize away a trailing slash and any accidental /rest/v1 suffix — an
+// easy mistake to make when copying from Supabase's dashboard, since the
+// Connect dialog sometimes shows a full API URL rather than the bare
+// Project URL this script expects. Without this, the request below
+// doubles the path (.../rest/v1/rest/v1/...), which PostgREST rejects
+// with a 404 PGRST125 "Invalid path specified in request URL".
+const SUPABASE_URL = RAW_SUPABASE_URL ? RAW_SUPABASE_URL.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '') : RAW_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if(!SUPABASE_URL || !SERVICE_KEY){

@@ -40,7 +40,10 @@ const STATE_FILE = process.env.PUSH_STATE_FILE || 'pushed-hrs.json';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY;
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY;
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:noreply@example.com';
-const SUPABASE_URL = process.env.SUPABASE_URL;
+const RAW_SUPABASE_URL = process.env.SUPABASE_URL;
+// Normalize away a trailing slash and any accidental /rest/v1 suffix — see
+// settle-wagers.js for the full explanation of why this matters.
+const SUPABASE_URL = RAW_SUPABASE_URL ? RAW_SUPABASE_URL.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '') : RAW_SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 const POLL_MS = Number(process.env.POLL_MS || 25000);
