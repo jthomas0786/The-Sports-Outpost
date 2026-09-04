@@ -6583,6 +6583,7 @@ function renderAllPlayers(){
         ${headshotImgTag(p.name, 'pick-headshot', p.team, p.id)}
         <div class="pick-body">
           <div class="pick-name-row"><span class="pick-name">${p.name}</span><span class="pick-team">${p.team} · ${p.pos||''}</span><span class="pick-matchup">${g.awayName} @ ${g.homeName} · ${gameTime(g)}</span>${watchStarHTML(p)}</div>
+          ${badgeRowHTML([...computeBatterBadges(p), computeWindBadge(g)].filter(Boolean))}
           <div class="pick-metrics">
             <div class="pick-chips">${chipsFor(propTab, p).join('')}</div>
             <div class="pick-env">
