@@ -60,10 +60,10 @@ const PARK_DIMENSIONS = {
   'Fenway Park':                { lf: 310, cf: 420, rf: 302, wallHeight: 37, wallHeightNote: 'Green Monster in LF only — RF wall is a standard ~5ft; using LF height here as this table has one height per park' },
   'Globe Life Field':           { lf: 329, cf: 407, rf: 326, wallHeight: 8 },
   'Great American Ball Park':   { lf: 328, cf: 404, rf: 325, wallHeight: 8 },
-  'Guaranteed Rate Field':      { lf: 330, cf: 400, rf: 335, wallHeight: 8 },
+  'Rate Field':                 { lf: 330, cf: 400, rf: 335, wallHeight: 8 },
   'Kauffman Stadium':           { lf: 364, cf: 410, rf: 364, wallHeight: 8.5 },  // verified against MLB.com's current guide, Jan 2026 fence-move
   'loanDepot Park':             { lf: 344, cf: 400, rf: 335, wallHeight: 8 },
-  'Minute Maid Park':           { lf: 315, cf: 409, rf: 326, wallHeight: 8, wallHeightNote: 'LF "Crawford Boxes" wall is ~19ft — using standard default here since this table has one height per park' },
+  'Daikin Park':                { lf: 315, cf: 409, rf: 326, wallHeight: 8, wallHeightNote: 'LF "Crawford Boxes" wall is ~19ft — using standard default here since this table has one height per park' },
   'Nationals Park':             { lf: 337, cf: 402, rf: 335, wallHeight: 8 },
   'Oracle Park':                { lf: 339, cf: 391, rf: 309, wallHeight: 8, wallHeightNote: 'RF wall (into McCovey Cove) is ~24ft — using standard default here since this table has one height per park' },
   'Petco Park':                 { lf: 336, cf: 396, rf: 322, wallHeight: 8 },
@@ -78,5 +78,46 @@ const PARK_DIMENSIONS = {
   'Wrigley Field':              { lf: 355, cf: 400, rf: 353, wallHeight: 11.5 },
   'Yankee Stadium':             { lf: 318, cf: 408, rf: 314, wallHeight: 8 },
 };
+
+/**
+ * REAL BUG THIS TABLE ALREADY CAUSED, DOCUMENTED HERE RATHER THAN
+ * QUIETLY FORGOTTEN: MLB ballpark sponsorship names change — not
+ * hypothetically, this already broke production. On Sept 5, 2026, the
+ * live Top 20 Home Run list was dominated almost entirely by two games
+ * (Twins @ White Sox, D-backs @ Astros) because their venues' CURRENT
+ * names ("Rate Field" and "Daikin Park") didn't match this table's
+ * then-current keys ("Guaranteed Rate Field" and "Minute Maid Park") —
+ * both real, confirmed sponsor renames (White Sox effective the 2025
+ * season; Astros' rename wasn't independently dated but was confirmed
+ * directly from the live app's own MLB API data on the day this broke).
+ * Since the park lookup is an exact string match, ANY mismatch meant
+ * the physics-based HR check silently never ran for that game — those
+ * players' HR-caliber rolls never got the same downgrade check every
+ * other game's did, so their probabilities stayed artificially high
+ * relative to the rest of the slate and dominated the ranking.
+ *
+ * This alias table is the actual fix, not just correcting the two names
+ * that happened to break: old/alternate names resolve to the same
+ * canonical entry above, so a future rename (or the API returning a
+ * name this table hasn't been updated for) degrades gracefully instead
+ * of silently disabling the physics model for that game. getParkDimensions()
+ * below is the real lookup path everything should use — direct
+ * PARK_DIMENSIONS[name] indexing bypasses this protection entirely.
+ */
+const PARK_NAME_ALIASES = {
+  'Guaranteed Rate Field': 'Rate Field',       // pre-2025 name
+  'Minute Maid Park': 'Daikin Park',            // pre-rename name
+  'Uniqlo Field': 'Dodger Stadium',             // field-level sponsor name announced Mar 2026; stadium itself is still "Dodger Stadium"
+};
+
+/** The real lookup path — checks the canonical table first, then known
+ *  aliases, so a stale or alternate venue name degrades gracefully
+ *  instead of silently disabling the physics model for that game. */
+function getParkDimensions(venueName){
+  if(!venueName) return null;
+  if(PARK_DIMENSIONS[venueName]) return PARK_DIMENSIONS[venueName];
+  const canonical = PARK_NAME_ALIASES[venueName];
+  return canonical ? PARK_DIMENSIONS[canonical] : null;
+}
 
 if(typeof module !== 'undefined' && module.exports) module.exports = { PARK_DIMENSIONS };
