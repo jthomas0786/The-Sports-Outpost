@@ -1810,15 +1810,15 @@ body{
   padding:12px 14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); line-height:1.5;
 }
 
-/* Desktop shows the new accordion; mobile keeps the existing bottom bar
-   (#propTabs, #nflSideNav) exactly as it always worked — these rules are
-   purely additive visibility, nothing about those elements' own CSS or
-   JS changed. */
+/* The accordion is now the nav on every screen size — #propTabs and
+   #nflSideNav stay in the DOM (the accordion's rows still read/drive
+   them) but are never shown directly themselves anymore. */
+#propTabs, #nflSideNav{ display:none !important; }
+
+.sidebar-hamburger{ display:none; }
+.sidebar-backdrop{ display:none; }
 @media (max-width:1023px){
-  .sb-picks-btn, .sb-sport-accordion{ display:none; }
-}
-@media (min-width:1024px){
-  #propTabs, #nflSideNav{ display:none !important; }
+  .sidebar-backdrop{ display:block; }
 }
 
 .brand-text h1{
@@ -1944,36 +1944,13 @@ body{
 .sport-dd-item:disabled{ color:var(--mute); cursor:not-allowed; }
 .sport-pill-soon{ font-size:9px; letter-spacing:0.06em; text-transform:uppercase; color:var(--mute); background:var(--night2); padding:1px 5px; border-radius:9999px; }
 
-/* NFL mobile bottom-nav: mirrors MLB's #propTabs behavior. The .app-sidebar
-   itself becomes the bottom bar at <=1023px; here we just turn .nfl-sidenav
-   into a flex row of icon+label tabs and float the Player Props menu above it. */
+/* .nfl-sidenav is never shown directly anymore (see the unconditional
+   #nflSideNav hide rule) — its buttons are still real, clickable proxy
+   targets for the sidebar accordion's NFL rows, so no styling is needed
+   here beyond what's still actually visible on mobile. */
 @media (max-width: 1023px){
-  .nfl-sidenav{ flex-direction:row !important; width:100%; margin:0; gap:0;
-    justify-content:space-around; align-items:stretch; padding:0; }
-  .nfl-sn-label{ display:none; }
-  .nfl-sn-tab{ flex:1 1 0; min-width:0; flex-direction:column; align-items:center; justify-content:center;
-    gap:0; font-size:10px; font-weight:600; padding:8px 2px; border-radius:0; background:none;
-    color:var(--mute); position:relative; overflow:visible; white-space:nowrap; }
-  .nfl-sn-ico{ display:block !important; flex:none; width:19px; height:19px; margin-bottom:3px; }
-  .nfl-sn-tab.is-active{ color:#fbbf24 !important; font-weight:700; background:none !important; box-shadow:none !important; }
-  .nfl-sn-tab.is-active::after{ content:''; position:absolute; top:0; left:50%; transform:translateX(-50%); width:26px; height:2.5px;
-    border-radius:0 0 3px 3px; background:var(--nfl); box-shadow:0 0 8px var(--nfl); }
-  .nfl-sn-caret{ display:none; }
-  .nfl-sn-dropdown{ flex:1 1 0; display:flex; min-width:0; position:relative; }
-  .nfl-sn-propmenu{ position:absolute !important; left:50% !important; top:auto !important; bottom:calc(100% + 10px);
-    transform:translateX(-50%); margin:0; min-width:200px; max-height:60vh; overflow-y:auto; }
-  .nfl-view{ padding:14px 16px calc(var(--mobile-nav-h) + 90px); }
+  .nfl-view{ padding:14px 16px 40px; }
   .nfl-games{ grid-template-columns:1fr; }
-  /* Chat is a mobile-only bottom-nav action (desktop opens chat from the header). */
-  .nfl-sn-tab.nfl-chat-tab{ display:flex !important; }
-  .nfl-chat-tab .chat-unread-dot{ position:absolute; top:6px; right:24%; width:8px; height:8px; border-radius:50%;
-    background:var(--hr-red); border:1.5px solid var(--bg); display:none; }
-  .nfl-chat-tab .chat-unread-dot.show{ display:block; }
-  /* 5 tabs at 375px: force equal 20% widths so labels never collide */
-  .nfl-sidenav > .nfl-sn-tab,
-  .nfl-sidenav > .nfl-sn-dropdown{ flex:0 0 20% !important; width:20% !important; min-width:0 !important; overflow:hidden; }
-  .nfl-sidenav .nfl-sn-tab{ font-size:9px !important; justify-content:center; gap:2px; }
-  .nfl-sidenav .nfl-sn-tab .nfl-sn-ico{ width:16px; height:16px; }
 }
 @media (max-width:560px){
   .tb-mobile-brand .brand-text{ display:none; }
@@ -2277,7 +2254,7 @@ html[data-sport="nfl"] #propTabs{ display:none; }
 @media (min-width:1700px){ .nfl-view{ padding:24px 48px 120px; max-width:2100px; margin:0 auto; } }
 
 @media (max-width:640px){
-  .nfl-view{ padding:14px 16px calc(var(--mobile-nav-h) + 90px); }
+  .nfl-view{ padding:14px 16px 40px; }
   .nfl-games{ grid-template-columns:1fr; }
   .nfl-head{ padding:16px 0 12px; }
   .nfl-title{ font-size:20px; }
@@ -2327,101 +2304,56 @@ main{ max-width:none; margin:0; padding: 20px 28px 120px; flex:1; }
 }
 
 /* ==========================================================================
-   MOBILE — app-style layout with bottom tab bar
+   MOBILE — slide-out drawer nav (same content/layout as the desktop
+   sidebar, just off-screen by default and toggled via the hamburger
+   button in the topbar). Replaces the old bottom tab bar entirely —
+   .app-sidebar keeps its normal, desktop-style vertical layout here
+   rather than being repositioned into a horizontal bar, since the whole
+   point is that mobile now gets the SAME nav the rest of the site uses.
    ========================================================================== */
 @media (max-width: 1023px){
+  :root{ --mobile-nav-h: 0px; }   /* the bottom bar is gone — every calc() that reserved space for it collapses to 0 automatically */
+
   .app-sidebar{
-    left:0; right:0; top:auto; bottom:0; width:auto;
-    height: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px));
-    flex-direction: row; align-items:stretch;
-    padding: 0 0 env(safe-area-inset-bottom, 0px);
-    border-right:none; border-top:1px solid var(--line);
-    background: rgba(12,16,32,0.96);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    overflow: visible; z-index:950;
-    /* Higher than .betslip-bar's z-index:900 — deliberately. .app-sidebar
-       is position:fixed with its own z-index, which makes it a stacking
-       context: everything nested inside it (including #propMenu, which
-       stays nested here on mobile rather than reparenting to <body> the
-       way the desktop popover does) is bounded by THIS z-index when
-       competing against siblings like the bet slip bar, regardless of
-       that dropdown's own, higher local z-index:1000. Without this, the
-       bet slip bar would win that stacking fight and cover the bottom of
-       the open dropdown — exactly where "All Players" sits, being last
-       in the list. */
+    transform: translateX(-100%);
+    transition: transform 320ms cubic-bezier(0.16,1,0.3,1);
+    z-index: 1200;   /* above the topbar and betslip bar while open */
+    box-shadow: 0 0 0 rgba(0,0,0,0);
   }
-  .sb-brand, .sb-foot{ display:none; }
+  .app-sidebar.is-open{
+    transform: translateX(0);
+    box-shadow: 24px 0 60px rgba(0,0,0,.5);
+  }
+  @media (prefers-reduced-motion: reduce){
+    .app-sidebar{ transition: none; }
+  }
 
-  .app-sidebar .prop-tabs{
-    flex-direction: row; width:100%; margin:0; gap:0;
-    justify-content: space-around; align-items:stretch;
+  .sidebar-backdrop{
+    position: fixed; inset: 0; z-index: 1150;
+    background: rgba(5,7,14,0.6);
+    backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+    opacity: 0; pointer-events: none;
+    transition: opacity 320ms cubic-bezier(0.16,1,0.3,1);
   }
-  .app-sidebar .prop-tab{
-    flex:1 1 0; min-width:0;
-    flex-direction: column; align-items:center; justify-content:center; gap:0;
-    font-size:10.5px; font-weight:600; letter-spacing:0.01em;
-    padding:8px 2px; border-radius:0; background:none !important;
-    box-shadow:none !important; color:var(--mute);
-    overflow:hidden; text-overflow:ellipsis;
+  .sidebar-backdrop.is-open{ opacity: 1; pointer-events: auto; }
+  @media (prefers-reduced-motion: reduce){
+    .sidebar-backdrop{ transition: none; }
   }
-  .app-sidebar .prop-tab::before{
-    content:''; display:block; width:20px; height:20px; margin-bottom:4px;
-    background: currentColor; opacity:.9;
-    -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat;
-    -webkit-mask-position:center; mask-position:center;
-    -webkit-mask-size:contain; mask-size:contain;
-  }
-  .app-sidebar .prop-tab.active{
-    color: var(--accent-bright) !important; font-weight:700;
-    background:none !important; box-shadow:none !important;
-  }
-  .app-sidebar .prop-tab.active::after{
-    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
-    width:26px; height:2.5px; border-radius:0 0 3px 3px; background:var(--accent);
-    box-shadow:0 0 8px var(--accent);
-  }
-  .app-sidebar .prop-tab{ position:relative; }
 
-  /* Chat is a genuine 5th item in the SAME flex row as the other 4 tabs
-     (Slate/HR Feed/Chat/For You/Player Props) — flex:1 1 0 inherited from
-     the base .prop-tab rule guarantees even spacing across all five the
-     same way it already does for the other four. Styled with the exact
-     same icon-mask + ::after-label technique the other four already use,
-     rather than a one-off custom look — same size, same theme, nothing
-     bespoke to go wrong independently of the pattern that already works. */
-  .app-sidebar .prop-tab#chatBtnMobile .chat-unread-dot{
-    position:absolute; top:14px; right:22%; width:9px; height:9px; border-radius:50%;
-    background: var(--hr-red); border:2px solid var(--bg); display:none;
+  .sidebar-hamburger{
+    display: flex; align-items:center; justify-content:center;
+    width: 38px; height: 38px; border-radius:9px; flex-shrink:0;
+    background: var(--panel); border:1px solid var(--line); color: var(--white);
+    cursor: pointer;
   }
-  .app-sidebar .prop-tab#chatBtnMobile .chat-unread-dot.show{ display:block; }
 
-  /* Icons for each bottom-nav item */
-  .app-sidebar .prop-tab[data-tab="slate"]::before{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3Cline x1='12' y1='10' x2='12' y2='20'/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='16' rx='2'/%3E%3Cline x1='3' y1='10' x2='21' y2='10'/%3E%3Cline x1='12' y1='10' x2='12' y2='20'/%3E%3C/svg%3E"); }
-  .app-sidebar .prop-tab[data-tab="feed"]::before{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 11a9 9 0 0 1 9 9'/%3E%3Cpath d='M4 4a16 16 0 0 1 16 16'/%3E%3Ccircle cx='5' cy='19' r='1.5'/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 11a9 9 0 0 1 9 9'/%3E%3Cpath d='M4 4a16 16 0 0 1 16 16'/%3E%3Ccircle cx='5' cy='19' r='1.5'/%3E%3C/svg%3E"); }
-  .app-sidebar .prop-tab[data-tab="foryou"]::before{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9.5' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='9.5' cy='7' r='4'/%3E%3Cpath d='M22 21v-2a4 4 0 0 0-3-3.87'/%3E%3Cpath d='M16 3.13a4 4 0 0 1 0 7.75'/%3E%3C/svg%3E"); }
-  .app-sidebar #propMenuBtn::before{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='21' x2='4' y2='14'/%3E%3Cline x1='4' y1='10' x2='4' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12' y2='3'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='20' y1='12' x2='20' y2='3'/%3E%3Cline x1='1' y1='14' x2='7' y2='14'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3Cline x1='17' y1='16' x2='23' y2='16'/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cline x1='4' y1='21' x2='4' y2='14'/%3E%3Cline x1='4' y1='10' x2='4' y2='3'/%3E%3Cline x1='12' y1='21' x2='12' y2='12'/%3E%3Cline x1='12' y1='8' x2='12' y2='3'/%3E%3Cline x1='20' y1='21' x2='20' y2='16'/%3E%3Cline x1='20' y1='12' x2='20' y2='3'/%3E%3Cline x1='1' y1='14' x2='7' y2='14'/%3E%3Cline x1='9' y1='8' x2='15' y2='8'/%3E%3Cline x1='17' y1='16' x2='23' y2='16'/%3E%3C/svg%3E"); }
-  /* Chat — same icon-mask technique as its siblings above, just scoped by
-     ID since it isn't part of the data-tab set. Shown here (overriding
-     the desktop-hide rule) since this block is the mobile bottom bar. */
-  .app-sidebar #chatBtnMobile{ display:flex; }
-  /* The bottom-bar chat button above replaces this one on mobile — having
-     both visible at once would be a redundant, duplicate trigger for the
-     same panel. #chatBtnTb has no display rule of its own outside this
-     media query, so it stays visible on desktop untouched. */
-  #chatBtnTb{ display:none; }
-  .app-sidebar .prop-tab.chat-tab::before{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 11.5a8.38 8.38 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.4-8.5 8.38 8.38 0 0 1 8.6 8.5z'/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M21 11.5a8.38 8.38 0 0 1-9 8.4 8.5 8.5 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 8.4-8.5 8.38 8.38 0 0 1 8.6 8.5z'/%3E%3C/svg%3E"); }
-  .app-sidebar .prop-tab.chat-tab::after{ content:"Chat"; }
-  /* Player Props icon — a target/crosshair (props & projections). The label
-     is shown via ::after so it appears on desktop (text hidden on mobile via
-     font-size:0, same as the other sidebar tabs). */
-  .app-sidebar .prop-tab[data-tab="__props__"]::before{ -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1.5'/%3E%3C/svg%3E"); mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Ccircle cx='12' cy='12' r='5'/%3E%3Ccircle cx='12' cy='12' r='1.5'/%3E%3C/svg%3E"); }
-  .app-sidebar .prop-tab[data-tab="__props__"]::after{ content:"Player Props"; }
-  /* Confirmed directly against the live site: an active tab's label
-     genuinely disappears (content:none) rather than staying visible —
-     this makes chat match that behavior explicitly and reliably, rather
-     than depending on where this rule happens to fall relative to other,
-     unrelated rules elsewhere in the file. */
-  .app-sidebar .prop-tab.chat-tab.active::after{ content:none; }
+  /* #propTabs and #nflSideNav no longer drive a bottom bar on mobile —
+     the sidebar's own accordion (below) is now the single nav UI on
+     every screen size. Both stay in the DOM: the accordion's NFL rows
+     still .click() the real buttons inside #nflSideNav to drive its
+     existing, untouched JS, and #propTabs is still where the MLB prop
+     tab buttons themselves are rendered even though the accordion
+     handles switching them, so hiding rather than removing either. */
 
   /* Mobile props menu is a popover again, anchored above the bar */
   .app-sidebar .prop-dropdown{ flex:1 1 0; display:flex; min-width:0; position:relative; }
@@ -2450,7 +2382,7 @@ main{ max-width:none; margin:0; padding: 20px 28px 120px; flex:1; }
   .date-pill{ font-size:11.5px; padding:4px 10px; }
   .status-bar .status-info{ font-size:11px; flex-basis:100%; }
 
-  main{ padding: 14px 16px calc(var(--mobile-nav-h) + 90px); }
+  main{ padding: 14px 16px 40px; }
 }
 
 @media (max-width: 420px){
@@ -2848,10 +2780,10 @@ footer{ margin-left:0; }
   .chat-panel{
     width: 100vw; max-width: 100vw; height: 65vh; max-height: 65vh;
     border-radius: 16px 16px 0 0;
-    /* Sits above the bottom nav bar rather than covering it — same
-       safe-area-aware offset the bet slip bar already uses for the same
-       reason. Without this, the base rule's bottom:0 puts the panel's
-       higher z-index directly over the nav bar, hiding it while open. */
+    /* --mobile-nav-h is 0 now that the bottom bar is gone, so this
+       collapses to just the safe-area inset — kept as a calc() rather
+       than a plain env() so nothing needs to change again if a bottom
+       bar of some kind ever comes back. */
     bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px));
   }
   .wagers-panel{
@@ -4064,7 +3996,7 @@ body.modal-open{ overflow:hidden; }
 <div class="app-shell">
 
   <!-- ============ SIDEBAR (desktop) / BOTTOM NAV (mobile) ============ -->
-  <aside class="app-sidebar">
+  <aside class="app-sidebar" id="appSidebarNav">
     <div class="sb-brand">
       <img src="logo-sidebar.png" alt="The Sports Outpost" class="so-sidebar-logo">
     </div>
@@ -4077,27 +4009,18 @@ body.modal-open{ overflow:hidden; }
       <span class="sb-picks-icon">🏆</span> Outpost Picks
     </button>
 
-    <!-- Desktop-only accordion. Built by renderSidebarSports(). MLB's
-         sub-items call window.DW_selectTab() directly. NFL's sub-items
-         each .click() the corresponding REAL button in #nflSideNav below
-         — that element is never moved or duplicated, so its own
-         wireNflNav() and mobile bottom-bar behavior stay completely
-         untouched. This accordion is hidden on mobile; #propTabs and
-         #nflSideNav (visible on mobile, hidden on desktop) keep doing
-         exactly what they always did there. -->
+    <!-- Built by renderSidebarSports(). Now the single nav UI on every
+         screen size — MLB's sub-items call window.DW_selectTab() directly;
+         NFL's sub-items each .click() the corresponding real button in
+         #nflSideNav below (that element is never moved or duplicated, so
+         its own wireNflNav() stays completely untouched). -->
     <nav class="sb-sport-accordion" id="sbSportAccordion"></nav>
 
-    <!-- #propTabs keeps its id/class: JS renders nav buttons into it.
-         Visible on mobile (becomes the bottom tab bar), hidden on desktop
-         (replaced there by #sbSportAccordion above). -->
+    <!-- No longer shown directly (see the unconditional hide rule near
+         the top of the stylesheet) — #propTabs still receives the real
+         MLB prop-tab buttons from JS, and #nflSideNav's buttons are still
+         real, clickable targets the accordion's NFL rows proxy to above. -->
     <nav class="prop-tabs" id="propTabs"></nav>
-
-    <!-- NFL-only nav. Static markup; router.js toggles it with the view.
-         Visible on mobile (becomes part of the bottom tab bar), hidden on
-         desktop (replaced there by #sbSportAccordion above, which drives
-         this same element's buttons programmatically when used from the
-         accordion). ui.js wires the tab/prop switching and toggles
-         .is-active + .open states at runtime — completely unchanged. -->
     <nav class="nfl-sidenav" id="nflSideNav" hidden>
       <button type="button" class="nfl-sn-tab is-active" data-nfl-tab="slate"><svg class="nfl-sn-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="10" x2="12" y2="20"/></svg>Slate</button>
       <button type="button" class="nfl-sn-tab" data-nfl-tab="feed"><svg class="nfl-sn-ico" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.5"/></svg>TD Feed</button>
@@ -4110,12 +4033,16 @@ body.modal-open{ overflow:hidden; }
       <div class="sb-legal">Modeled projections. Entertainment only.</div>
     </div>
   </aside>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 
   <!-- ============ MAIN COLUMN ============ -->
   <div class="app-main">
 
     <header class="topbar">
       <div class="topbar-left">
+        <button type="button" class="sidebar-hamburger" id="sidebarHamburger" aria-label="Open navigation" aria-expanded="false" aria-controls="appSidebarNav">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
         <div class="tb-mobile-brand">
           <img src="logo-sidebar.png" alt="The Sports Outpost" class="so-mobile-logo">
         </div>
@@ -17052,11 +16979,57 @@ function toggleChatPanel(){
 }
 
 
+/**
+ * Mobile slide-out nav drawer. The sidebar itself (#appSidebarNav) is the
+ * SAME element and content used on desktop — this only toggles whether
+ * it's translated on-screen or off, via the .is-open class the mobile
+ * media query's CSS transition already handles. Body scroll is locked
+ * while open so the page behind the drawer doesn't scroll along with it.
+ */
+function toggleSidebarDrawer(forceOpen){
+  const sidebar = document.getElementById('appSidebarNav');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const hamburger = document.getElementById('sidebarHamburger');
+  if(!sidebar || !backdrop) return;
+  const open = forceOpen != null ? forceOpen : !sidebar.classList.contains('is-open');
+  sidebar.classList.toggle('is-open', open);
+  backdrop.classList.toggle('is-open', open);
+  hamburger?.setAttribute('aria-expanded', open ? 'true' : 'false');
+  document.body.style.overflow = open ? 'hidden' : '';
+}
+function initSidebarDrawer(){
+  const sidebar = document.getElementById('appSidebarNav');
+  const backdrop = document.getElementById('sidebarBackdrop');
+  const hamburger = document.getElementById('sidebarHamburger');
+  if(!sidebar || !backdrop || !hamburger) return;
+  hamburger.addEventListener('click', () => toggleSidebarDrawer());
+  backdrop.addEventListener('click', () => toggleSidebarDrawer(false));
+  document.addEventListener('keydown', e => {
+    if(e.key === 'Escape') toggleSidebarDrawer(false);
+  });
+  // Auto-close after an actual navigation action — deliberately excludes
+  // .sb-sport-head, which only expands/collapses an accordion section
+  // rather than navigating anywhere, so opening a sport's sub-menu
+  // doesn't immediately slide the whole drawer shut on the same tap.
+  sidebar.addEventListener('click', e => {
+    if(e.target.closest('.sb-sub-item, .sb-picks-btn')) toggleSidebarDrawer(false);
+  });
+  // If the viewport is resized (or rotated) past the mobile breakpoint
+  // while the drawer happens to be open, drop the open state and the
+  // scroll lock — the CSS itself stops applying the drawer transform on
+  // desktop widths regardless, but the JS-driven body scroll lock has no
+  // matching media query of its own and would otherwise stay stuck on.
+  window.addEventListener('resize', () => {
+    if(window.innerWidth >= 1024 && sidebar.classList.contains('is-open')) toggleSidebarDrawer(false);
+  });
+}
+
 async function boot(){
   renderTabs();
   renderSidebarSports();
   document.getElementById('sbRadarBtn')?.addEventListener('click', openGameRadar);
   document.getElementById('sbPicksBtn')?.addEventListener('click', openOutpostPicks);
+  initSidebarDrawer();
   renderList();                       // paint the shell immediately
 
   // Restore the notification preference. Permission can be revoked in browser
