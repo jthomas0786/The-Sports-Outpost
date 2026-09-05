@@ -2176,29 +2176,49 @@ html[data-sport="nfl"] #propTabs{ display:none; }
 .nfl-gc-ot-val.wp-lose{ color:var(--hot); }
 .nfl-gc-ot-val.wp-proj{ color:var(--mute); font-size:12.5px; }
 
-/* ---- pick list ---- */
-.nfl-picklist-head h3{ margin:0 0 10px; font-size:13px; font-weight:700; color:var(--cool);
-  text-transform:uppercase; letter-spacing:0.06em; }
-.nfl-picklist{ display:flex; flex-direction:column; gap:7px; }
-.nfl-player{ display:grid; grid-template-columns:26px 40px 1fr auto 34px; align-items:center; gap:11px;
-  background:var(--surface); border:1px solid var(--border); border-radius:11px; padding:9px 12px; transition:var(--transition); }
-.nfl-player:hover{ border-color:rgba(245,158,11,0.42); }
-.nfl-player.is-out{ opacity:0.5; }
-.nfl-p-rank{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--mute); text-align:center; }
-.nfl-p-head{ width:40px; height:40px; border-radius:50%; object-fit:cover; object-position:50% 12%;
-  background:var(--panel2); border:1px solid var(--line); }
-.nfl-p-main{ min-width:0; }
-.nfl-p-name{ font-size:14px; font-weight:600; color:var(--white); display:flex; align-items:baseline; gap:7px;
-  flex-wrap:wrap; line-height:1.25; }
-.nfl-p-pos{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--mute); font-weight:400; }
-.nfl-p-sub{ display:flex; align-items:center; gap:6px; margin-top:4px; flex-wrap:wrap; font-size:11px; color:var(--mute); }
-.nfl-p-team{ font-family:'JetBrains Mono',monospace; color:var(--cool); font-weight:600; }
-.nfl-chip-depth{ border-color:rgba(45,127,255,0.4); color:#9dc4ff; }
-.nfl-chip-moved{ border-color:rgba(245,158,11,0.4); color:#fbbf24; }
-.nfl-chip-warn{ border-color:rgba(139,149,168,0.45); color:var(--mute); }
-.nfl-avail-out{ border-color:rgba(255,59,59,0.5); color:#ff8f8f; }
-.nfl-avail-doubtful{ border-color:rgba(255,59,59,0.4); color:#ffb3b3; }
-.nfl-avail-questionable{ border-color:rgba(245,158,11,0.45); color:#fcd34d; }
+/* ---- Top 20 Anytime TD pick list — mirrors the MLB app's Top 20 card
+   structure and density (same .sgr* ring classes, same general
+   proportions), built independently here since this view is
+   deliberately isolated from the MLB code path. ---- */
+.nfl-picklist{ display:flex; flex-direction:column; gap:9px; }
+.nfl-pick-card{ display:flex; gap:12px; align-items:flex-start;
+  background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:13px 15px;
+  transition:var(--transition); }
+.nfl-pick-card:hover{ border-color:rgba(245,158,11,0.42); }
+.nfl-pick-card.is-out{ opacity:0.5; }
+.nfl-pick-rank{ font-family:'Cabinet Grotesk','Archivo Black',sans-serif; font-size:20px; color:var(--nfl);
+  width:24px; flex-shrink:0; text-align:center; padding-top:4px; }
+.nfl-pick-rank.r2{ color:#86efac; } .nfl-pick-rank.r3{ color:#7db3ff; } .nfl-pick-rank.r5{ color:var(--mute); }
+.nfl-pick-headshot{ width:52px; height:52px; border-radius:12px; flex-shrink:0; object-fit:cover;
+  object-position:50% 12%; background:var(--panel2); border:2px solid var(--line); }
+.nfl-pick-body{ flex:1; min-width:0; }
+.nfl-pick-name-row{ display:flex; align-items:baseline; gap:7px; flex-wrap:wrap; }
+.nfl-pick-name{ font-family:'Oswald',sans-serif; font-weight:600; font-size:15px; color:var(--white); }
+.nfl-pick-team{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--cool); font-weight:600; }
+.nfl-pick-matchup{ font-size:11.5px; color:var(--mute); }
+.nfl-pick-badges{ display:flex; gap:5px; flex-wrap:wrap; margin-top:6px; }
+.nfl-pick-badge{ font-family:'JetBrains Mono',monospace; font-size:9.5px; background:var(--panel2);
+  border:1px solid var(--line); color:var(--mute); padding:2px 7px; border-radius:20px; }
+.nfl-pick-metrics{ display:flex; align-items:center; gap:12px; margin-top:8px; flex-wrap:wrap; }
+.nfl-pick-chips{ display:flex; gap:6px; flex-wrap:wrap; }
+.nfl-pick-chip{ font-family:'JetBrains Mono',monospace; font-size:10px; background:var(--panel2);
+  border:1px solid var(--line); color:var(--mute); padding:3px 8px; border-radius:6px; }
+.nfl-pick-env{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.nfl-pick-env-item{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--mute); }
+.nfl-pick-odds{ margin-top:7px; }
+.nfl-pick-odds-link{ font-family:'JetBrains Mono',monospace; font-size:10.5px; font-weight:700; color:#86efac;
+  text-decoration:none; border:1px solid rgba(34,197,94,0.5); border-radius:6px; padding:3px 9px; display:inline-block; }
+.nfl-pick-odds-link:hover{ background:rgba(34,197,94,0.16); border-color:rgba(34,197,94,0.8); }
+.nfl-pick-score{ flex:0 0 54px; text-align:center; padding-top:2px; }
+.nfl-pick-score-label{ font-size:8px; color:var(--mute); font-family:'JetBrains Mono',monospace;
+  text-transform:uppercase; margin-top:4px; letter-spacing:0.04em; }
+@media(max-width:640px){
+  .nfl-pick-card{ padding:10px 11px; gap:9px; }
+  .nfl-pick-headshot{ width:42px; height:42px; }
+  .nfl-pick-rank{ font-size:16px; width:18px; }
+  .nfl-pick-name{ font-size:13.5px; }
+}
+
 /* odds chip + Week-1 preview (OpticOdds sample) */
 .nfl-odds-chip{ display:inline-flex; align-items:center; gap:3px; border-color:rgba(34,197,94,0.5); color:#86efac; text-decoration:none; font-weight:700; }
 .nfl-odds-chip:hover{ background:rgba(34,197,94,0.16); border-color:rgba(34,197,94,0.8); }
@@ -2216,17 +2236,8 @@ html[data-sport="nfl"] #propTabs{ display:none; }
 .nfl-prev-name{ font-size:12.5px; color:var(--text); font-weight:600; }
 .nfl-prev-name em{ font-style:normal; color:var(--mute); font-weight:400; font-size:10.5px; margin-left:4px; }
 .nfl-prev-amt{ font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:#86efac; }
-.nfl-p-prob{ text-align:right; min-width:88px; }
-.nfl-p-pct{ font-family:'JetBrains Mono',monospace; font-size:14.5px; font-weight:700; color:var(--white); }
-.nfl-p-bar{ height:4px; background:rgba(255,255,255,0.09); border-radius:9999px; overflow:hidden; margin-top:5px; }
-.nfl-p-bar span{ display:block; height:100%; background:linear-gradient(90deg,var(--nfl),#fbbf24); border-radius:9999px; }
-.nfl-p-grade{ width:34px; height:34px; border-radius:9px; display:grid; place-items:center;
-  font-family:'JetBrains Mono',monospace; font-size:14px; font-weight:800; }
-.nfl-grade-A{ background:rgba(34,197,94,0.16); color:#4ade80; border:1px solid rgba(34,197,94,0.4); }
-.nfl-grade-B{ background:rgba(45,127,255,0.16); color:#7db3ff; border:1px solid rgba(45,127,255,0.4); }
-.nfl-grade-C{ background:rgba(245,158,11,0.14); color:#fcd34d; border:1px solid rgba(245,158,11,0.36); }
-.nfl-grade-D{ background:rgba(139,149,168,0.14); color:var(--mute); border:1px solid rgba(139,149,168,0.3); }
-.nfl-grade-F{ background:rgba(255,59,59,0.13); color:#ff8f8f; border:1px solid rgba(255,59,59,0.32); }
+.nfl-picklist-head h3{ margin:0 0 10px; font-size:13px; font-weight:700; color:var(--cool);
+  text-transform:uppercase; letter-spacing:0.06em; }
 
 .nfl-foot{ margin-top:28px; padding-top:16px; border-top:1px solid var(--border); font-size:11px; line-height:1.65; color:var(--mute); }
 .nfl-empty{ padding:26px; text-align:center; color:var(--mute); font-size:13px; background:var(--surface);
