@@ -408,15 +408,54 @@ observed season rate, unchanged since before this feature existed).
 `tests/physics-model-disabled.test.js` guards against this silently
 flipping back on without a deliberate decision and real validation.
 
-**What stays intact**: all the underlying infrastructure — real park
-dimensions, the carry-distance physics, the sampling functions — is
-still in place, still tested, and still a reasonable foundation for a
-future, properly-validated attempt. The actual work needed before
-re-enabling: find or derive real, cited HR-conditional EV/launch-angle
-distributions (not the all-batted-balls ones currently used), a
-properly-validated spray-angle model, and confirm the whole pipeline
-reproduces multiple real Statcast reference points — not just one —
-before trusting it with live probabilities again.
+**What replaced it**: see "Park-pull adjustment" below — a much simpler,
+deterministic, bounded alternative built the same day, using the same
+real park geometry data without any of the sampling/calibration
+problems above. The disabled model's own sampling functions
+(`sampleBattedBall`, `isHomeRun`, `carryDistance`) stay in place and
+tested regardless — the park-pull adjustment doesn't call any of them —
+so they remain a real foundation if a properly-validated full physics
+attempt is worth revisiting later.
+
+## Park-pull adjustment
+
+**STATUS: ACTIVE.** Wired into `simulatePlayer()`, replacing the
+disabled full physics model above with something deliberately smaller
+in scope and much lower risk.
+
+No batted-ball sampling, no randomness, no per-PA physics simulation —
+just a small, bounded, deterministic multiplier on a player's existing
+rate-based HR probability (`parkPullAdjustment()`), based on real park
+geometry: how much shorter or longer tonight's park is on a player's
+pull side compared to their own opposite side.
+
+**Deliberately compares pull-side against opposite-side, not against
+league average.** The app's existing `parkFactor` context already
+captures a park's overall historical run environment (altitude, overall
+size, everything) — comparing against league average here would
+double-count that same signal a second time. Comparing against the
+park's own opposite-side fence isolates something genuinely different:
+this specific park's asymmetry, and whether it happens to favor or hurt
+this player's particular handedness.
+
+Verified directly against real, well-known parks before shipping: a
+perfectly symmetric park (Dodger Stadium, LF=RF=330) produces exactly
+neutral (1.0) for either handedness. Comerica Park's real, well-known
+deep pull side for right-handed hitters (LF 345 vs RF 330) correctly
+produces a real penalty for righties and a real boost for lefties
+pulling to the shorter side.
+
+Bounded to [0.85, 1.20] deliberately, and verified this stays a genuine,
+small adjustment rather than a dominant one: a realistic top player's
+baseline ~17% per-game HR probability shifts to roughly 14.8%-20.4%
+across the full range of real park/handedness combinations — a few
+percentage points either way, not the 10x swing the disabled physics
+model was producing.
+
+Switch hitters get no adjustment (neutral) — they can pull to either
+side depending on the pitcher's handedness, and matchup-specific splits
+aren't available in this sampling context to know which side applies
+for tonight's specific game.
 
 **A real production bug this model caused, found and fixed Sept 5,
 2026**: the Top 20 Home Run list was dominated almost entirely by two

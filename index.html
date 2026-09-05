@@ -13174,6 +13174,48 @@ function getFenceDistance(dims, angleDeg){
 if(typeof module !== 'undefined' && module.exports) module.exports = { getFenceDistance };
 
 /**
+ * A much simpler, lower-risk replacement for the disabled full physics
+ * model (see MODEL.md's "Contact/flight model" section for that
+ * incident). No sampling, no randomness, no per-PA physics simulation —
+ * just a small, bounded, deterministic multiplier on the player's
+ * existing rate-based HR probability, based on real park geometry.
+ *
+ * WHAT IT MEASURES, SPECIFICALLY: how much shorter or longer THIS park's
+ * fence is on the player's pull side compared to their OWN opposite
+ * side — not compared to league average, and not the park's overall
+ * size. That distinction matters: the app's existing `parkFactor`
+ * context already captures a park's overall, historical run
+ * environment (altitude, overall size, everything) — comparing a
+ * player's pull side against league average here would double-count
+ * that same signal a second time. Comparing pull side against THIS
+ * park's own opposite side isolates a genuinely different, additional
+ * piece of information: the park's asymmetry specifically, and whether
+ * it happens to favor or hurt this player's particular handedness.
+ *
+ * Switch hitters get no adjustment (neutral, 1.0) — they can pull to
+ * either side depending on the pitcher's handedness, and matchup-
+ * specific split data isn't available in this sampling context to know
+ * which side applies for tonight's specific matchup.
+ *
+ * Bounded to [0.85, 1.20] deliberately — a gentle nudge, not a dominant
+ * factor. Verified directly against real, well-known parks before
+ * shipping: a symmetric park (Dodger Stadium, LF=RF=330) correctly
+ * produces exactly 1.0 for either handedness; Comerica Park's real,
+ * well-known deep pull side for right-handed hitters (LF 345 vs RF 330)
+ * correctly produces a real penalty for righties and a real boost for
+ * lefties pulling to the shorter side.
+ */
+function parkPullAdjustment(parkDims, batSide){
+  if(!parkDims || (batSide !== 'L' && batSide !== 'R')) return 1;
+  const pullFence = batSide === 'L' ? parkDims.rf : parkDims.lf;
+  const oppoFence  = batSide === 'L' ? parkDims.lf : parkDims.rf;
+  if(!pullFence || !oppoFence) return 1;
+  return clamp(oppoFence / pullFence, 0.85, 1.20);
+}
+
+if(typeof module !== 'undefined' && module.exports) module.exports.parkPullAdjustment = parkPullAdjustment;
+
+/**
  * Approximates how far a batted ball actually travels, given exit
  * velocity and launch angle, adjusted for temperature/elevation.
  *
@@ -13346,10 +13388,13 @@ function simulatePlayer(p){
 
   const r = paRates(p);
   // Cumulative thresholds — one draw picks exactly one outcome. cHR here
-  // is the BASE rate (context-adjusted, but not yet path-adjusted); the
-  // actual per-iteration HR threshold below additionally scales this by
-  // that specific path's shared game effect (see getGameEffects).
-  const cHR = r.hr, cDbl = cHR + r.dbl, cTrp = cDbl + r.trp,
+  // is the BASE rate (context-adjusted, AND now also adjusted for this
+  // park's real pull-side/opposite-side asymmetry — see
+  // parkPullAdjustment — but not yet path-adjusted); the actual
+  // per-iteration HR threshold below additionally scales this by that
+  // specific path's shared game effect (see getGameEffects).
+  const pullAdj = parkPullAdjustment(getParkDimensions(p.game?.park), p.hand);
+  const cHR = r.hr * pullAdj, cDbl = cHR + r.dbl, cTrp = cDbl + r.trp,
         cSgl = cTrp + r.sgl, cBB = cSgl + r.bb, cK = cBB + r.k;
   // Widths of the non-HR outcome bands, held fixed as the HR band itself
   // grows or shrinks per path — this is what lets the shared game effect
