@@ -238,7 +238,7 @@ function gameCard(game) {
     : '<span class="nfl-scorer nfl-scorer-none">No candidate</span>';
 
   return `
-<article class="nfl-game" data-game="${esc(game.gameId)}" tabindex="0" role="button"
+<article class="nfl-game" data-game="${esc(game.gameId)}" data-status="${esc(game.status)}" tabindex="0" role="button"
          aria-expanded="${activeGameId === game.gameId}" aria-label="Open gamecast for ${esc(game.away.abbr)} at ${esc(game.home.abbr)}">
   <div class="nfl-game-field">
     ${fieldSVG(game, 'compact')}
@@ -252,8 +252,8 @@ function gameCard(game) {
       </div>
       <div class="nfl-game-center">
         ${isFinal || isLive
-          ? `<div class="nfl-score"><span>${esc(game.away.score)}</span><span class="nfl-score-dash">–</span><span>${esc(game.home.score)}</span></div>
-             <div class="nfl-status ${isLive ? 'is-live' : ''}">${isLive ? 'LIVE' : 'FINAL'}</div>`
+          ? `<div class="nfl-score" id="nflScore-${esc(game.gameId)}"><span>${esc(game.away.score)}</span><span class="nfl-score-dash">–</span><span>${esc(game.home.score)}</span></div>
+             <div class="nfl-status ${isLive ? 'is-live' : ''}" id="nflStatus-${esc(game.gameId)}">${isLive ? 'LIVE' : 'FINAL'}</div>`
           : `<div class="nfl-kick">${esc(kickoff(game.startTimeUTC))}</div>
              <div class="nfl-at">@</div>`}
       </div>
@@ -440,23 +440,87 @@ function renderPicks(host) {
     : '<div class="nfl-empty">No players match this filter.</div>';
 }
 
-function renderGames(host) {
-  host.innerHTML = slate.games.map(gameCard).join('');
-  host.querySelectorAll('.nfl-game').forEach(el => {
-    const open = () => {
-      const id = el.dataset.game;
-      activeGameId = activeGameId === id ? null : id;
-      render();
-    };
-    el.addEventListener('click', open);
-    el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
-    });
+/** Wires a single game card's click/keyboard-open behavior. Shared by
+ *  renderGames() (every card, on a full grid render) and
+ *  updateLiveDisplay() (just the one card it structurally replaced) —
+ *  extracted specifically because a card swapped in via outerHTML loses
+ *  whatever listener was on the DOM node it replaced. */
+function wireGameCard(el) {
+  const open = () => {
+    const id = el.dataset.game;
+    activeGameId = activeGameId === id ? null : id;
+    render();
+  };
+  el.addEventListener('click', open);
+  el.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
   });
 }
 
+function renderGames(host) {
+  host.innerHTML = slate.games.map(gameCard).join('');
+  host.querySelectorAll('.nfl-game').forEach(wireGameCard);
+}
+
+/**
+ * Targeted live-data update for the live-poll callback — the actual
+ * performance fix. Unlike render(), this never rebuilds the header,
+ * toolbar, banner, or footer, and skips the expensive SVG field
+ * regeneration entirely whenever a game's status hasn't structurally
+ * changed — the common case during an already-live game, where most
+ * poll ticks are just a score or clock update.
+ *
+ * Deliberately does nothing at all when the user isn't on the Slate tab
+ * — Feed, For You, and Props don't show anything this poll's data would
+ * change, so there's nothing to update. The underlying `slate` object
+ * is already mutated by live.js's tick() regardless of whether this
+ * function touches the DOM, so switching back to Slate later picks up
+ * the latest state naturally through the next real render() anyway.
+ */
+function updateLiveDisplay() {
+  if (activeNflTab !== 'slate') return;
+  const root = document.getElementById('nflView');
+  if (!root) return;
+
+  if (activeGameId) {
+    // Gamecast view — just this one game's three live regions. The SVG
+    // field, logos, and RZ-defense labels are untouched: none of them
+    // depend on live score data at all.
+    const g = slate.games.find(x => x.gameId === activeGameId);
+    if (!g) return;
+    const kickEl = root.querySelector('#nflGcKick');
+    const detailEl = root.querySelector('#nflGcDetail');
+    const oddsEl = root.querySelector('#nflGcOdds');
+    if (kickEl) kickEl.textContent = g.status === 'pre' ? kickoff(g.startTimeUTC) : `${g.away.score}–${g.home.score}`;
+    if (detailEl) detailEl.textContent = g.statusDetail || '';
+    if (oddsEl) oddsEl.innerHTML = oddsHTML(g);   // small and cheap — no SVG involved
+    return;
+  }
+
+  // Grid view — update each card's score/status in place. Only fully
+  // replaces a card when its status has genuinely, structurally changed
+  // (kickoff just happened, or the game just went final) — the one case
+  // a text-only update can't handle safely, since the center column's
+  // markup itself differs between pre-game and live/final.
+  const gamesHost = root.querySelector('#nflGames');
+  if (!gamesHost) return;
+  for (const g of slate.games) {
+    const cardEl = gamesHost.querySelector(`.nfl-game[data-game="${g.gameId}"]`);
+    if (!cardEl) continue;
+    if (cardEl.dataset.status !== g.status) {
+      cardEl.outerHTML = gameCard(g);
+      wireGameCard(gamesHost.querySelector(`.nfl-game[data-game="${g.gameId}"]`));
+      continue;
+    }
+    const scoreEl = gamesHost.querySelector(`#nflScore-${g.gameId}`);
+    const statusEl = gamesHost.querySelector(`#nflStatus-${g.gameId}`);
+    if (scoreEl) scoreEl.innerHTML = `<span>${esc(g.away.score)}</span><span class="nfl-score-dash">–</span><span>${esc(g.home.score)}</span>`;
+    if (statusEl) statusEl.textContent = g.status === 'in' ? 'LIVE' : 'FINAL';
+  }
+}
+
 function gamecastHTML(g) {
-  return `<section class="nfl-gamecast">
+  return `<section class="nfl-gamecast" data-game="${esc(g.gameId)}">
   <div class="nfl-gc-field">
     ${fieldSVG(g, 'full')}
     <div class="nfl-gc-overlay">
@@ -466,8 +530,8 @@ function gamecastHTML(g) {
         <div class="nfl-gc-rz">${esc(rzDefLabel(g.away.rzDefense).text)}</div></div>
       </div>
       <div class="nfl-gc-center">
-        <div class="nfl-gc-kick">${g.status === 'pre' ? esc(kickoff(g.startTimeUTC)) : `${esc(g.away.score)}–${esc(g.home.score)}`}</div>
-        <div class="nfl-gc-detail">${esc(g.statusDetail || '')}</div>
+        <div class="nfl-gc-kick" id="nflGcKick">${g.status === 'pre' ? esc(kickoff(g.startTimeUTC)) : `${esc(g.away.score)}–${esc(g.home.score)}`}</div>
+        <div class="nfl-gc-detail" id="nflGcDetail">${esc(g.statusDetail || '')}</div>
       </div>
       <div class="nfl-gc-team nfl-gc-team-home">
         <div class="nfl-ta-right"><div class="nfl-gc-abbr"><span class="nfl-gc-full">${esc(g.home.name)}</span><span class="nfl-gc-short">${esc(g.home.abbr)}</span></div>
@@ -480,7 +544,7 @@ function gamecastHTML(g) {
     <span>${esc(g.venue?.name || '')}${g.venue?.city ? ` · ${esc(g.venue.city)}` : ''}</span>
     ${(g.broadcast || []).map(b => `<span class="nfl-chip">${esc(b.names?.join('/') || '')}</span>`).join('')}
   </div>
-  ${oddsHTML(g)}
+  <div id="nflGcOdds">${oddsHTML(g)}</div>
 </section>`;
 }
 
@@ -622,9 +686,15 @@ export async function mount() {
     render();
     // Live score polling (ESPN scoreboard, CORS-enabled) keeps score/period/
     // clock/possession current so the win-probability tiles stay live.
-    // Don't let the live-poll re-render blow away the For You compose box
-    // (typing + scroll position) every tick — only slate/feed/props need it.
-    startLivePolling(slate, () => { if (activeNflTab !== 'foryou') render(); });
+    // Calls the targeted updateLiveDisplay(), NOT the full render() — every
+    // poll tick used to tear down and rebuild the entire view (including
+    // every game's SVG football field and the full, re-sorted player pick
+    // list) roughly every 15 seconds during live play, which is exactly
+    // when someone is most likely actively watching. updateLiveDisplay()
+    // only touches the specific score/status/win-probability DOM regions
+    // that could plausibly have changed, and does nothing at all when the
+    // user isn't even on the Slate tab to see it.
+    startLivePolling(slate, () => { updateLiveDisplay(); });
   } catch (e) {
     root.innerHTML = `<div class="nfl-error">
       <div class="nfl-error-title">Couldn't load the NFL slate</div>
@@ -637,3 +707,18 @@ export async function mount() {
 }
 
 window.DW_NFL = { mount, render };
+
+// ---------------------------------------------------------------------------
+// test-only exports — used exclusively by tests/nfl-live-update.test.js to
+// exercise the REAL functions above directly, rather than a hand-copied
+// mirror of their logic in the test file. __setTestState lets a test put
+// this module's private slate/activeNflTab/activeGameId into a known
+// configuration without going through mount()'s full fetch()-based
+// initialization. Never called from production code.
+// ---------------------------------------------------------------------------
+export function __setTestState(next) {
+  if ('slate' in next) slate = next.slate;
+  if ('activeNflTab' in next) activeNflTab = next.activeNflTab;
+  if ('activeGameId' in next) activeGameId = next.activeGameId;
+}
+export { updateLiveDisplay, wireGameCard, gameCard, gamecastHTML };
