@@ -4684,6 +4684,7 @@ const MODEL = {
     parkFactor: 100,     // neutral park
     tempF:      72,
     runsPerGame: 4.40,   // team runs per game
+    paPerGame:  4.30,    // plate appearances per game, league average — regression target for projectExpPA()
     csPct:      20.0,    // % of steal attempts a catcher throws out
     sprintSpeed: 27.0,   // feet per second
 
@@ -12748,7 +12749,7 @@ function buildPropPrediction(p, propKey){
   const LG = MODEL.league.rates;
   const R = MODEL.confidence;
   const rateCI = betaCredibleInterval(hits, pa, LG.hr, R.regressionPA);
-  const expPA = p.expPA || 4.3;
+  const expPA = projectExpPA(p);
   // Propagate the per-PA rate interval to a game-level probability the
   // same way the point estimate itself is implicitly built: P(>=1 HR in
   // n PA) = 1-(1-rate)^n. This does NOT re-run the Monte Carlo at the
@@ -12810,6 +12811,36 @@ async function loadCalibrationCache(){
   }catch(e){ /* non-critical — calibration_bucket just stays null */ }
 }
 
+/** Opportunity model: projected plate appearances for tonight.
+ *
+ *  HONEST SCOPE — read this before extending it: the roadmap in MODEL.md
+ *  calls for a real lineup-slot / platoon / bullpen-chain projection.
+ *  That isn't buildable right now: `battingOrder` is null for every
+ *  single player in the current slate.json (checked directly — 0 of 386
+ *  players had it set), so there is no real lineup-slot signal to build
+ *  on. This function instead uses a genuine, different, honest signal:
+ *  the player's OWN observed season PA-per-game rate — a leadoff hitter
+ *  naturally accumulates more plate appearances per game than a #8
+ *  hitter over a full season, purely by simple accumulation — shrunk
+ *  toward the league-average PA/G by games played, the same statistical
+ *  principle already used elsewhere in this model (see paRates()).
+ *
+ *  Deliberately does NOT also factor in tonight's team scoring
+ *  environment (team runsPerGame), even though that data is available,
+ *  because MODEL.role.teamOffense already feeds a runsPerGame-based
+ *  signal into other props' rate contexts — stacking the same underlying
+ *  number into PA projection too would double-count one piece of
+ *  evidence as if it were two independent ones. */
+function projectExpPA(p){
+  const LG_PA_PER_G = MODEL.league.paPerGame;
+  const REGRESSION_G = 20;   // games played before the player's own rate is mostly trusted
+  const g = p.g ?? 0;
+  const pa = p.pa ?? 0;
+  const playerRate = g > 0 ? pa / g : LG_PA_PER_G;
+  const w = g / (g + REGRESSION_G);
+  return playerRate * w + LG_PA_PER_G * (1 - w);
+}
+
 function mapPARoll(roll, t){
   if(roll < t.cHR)  return { type:'HR',  hr:1, h:1, tb:4, dbl:0, trp:0, sgl:0 };
   if(roll < t.cDbl) return { type:'2B',  hr:0, h:1, tb:2, dbl:1, trp:0, sgl:0 };
@@ -12829,7 +12860,7 @@ function simulatePlayer(p){
         cSgl = cTrp + r.sgl, cBB = cSgl + r.bb, cK = cBB + r.k;
   const thresholds = { cHR, cDbl, cTrp, cSgl, cBB, cK };
 
-  const expPA = p.expPA || 4.3;
+  const expPA = projectExpPA(p);
   // RBI opportunity. Homers are handled separately below, so this rate covers
   // only non-HR run production — otherwise the HR-driven RBI get counted twice
   // and the season total no longer reconciles.

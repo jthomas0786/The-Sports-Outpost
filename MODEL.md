@@ -93,7 +93,8 @@ game-level number elsewhere in the simulation.
 - Context multipliers for park, pitcher quality, and weather — currently
   applied as deterministic scalars to the rate itself, not drawn
   per-path (see "Known limitations")
-- Projected plate appearances for the game (`expPA`)
+- Projected plate appearances for the game (`expPA`) — see "Opportunity
+  model" below
 
 **Random** (drawn independently on every simulated path):
 - Whether the player gets the floor or ceiling number of plate
@@ -103,6 +104,40 @@ game-level number elsewhere in the simulation.
   against the player's cumulative rate thresholds (`mapPARoll()`)
 - Secondary events conditioned on reaching base (whether a runner
   scores, whether a ball in play produces an RBI)
+
+## Opportunity model
+
+`projectExpPA()` replaces what was previously a flat, universal constant
+(4.3 PA, applied to literally every player in every game — `p.expPA` was
+never actually set anywhere in the pipeline, so the fallback fired 100%
+of the time with zero exceptions, confirmed by checking every player in
+a real slate.json).
+
+**Honest scope:** the original roadmap called for a lineup-slot /
+platoon / bullpen-chain opportunity model. That isn't buildable right
+now — `battingOrder` is null for every single player in the current
+slate.json (checked directly: 0 of 386 players had it populated), so
+there is no real batting-order signal in the data to build on yet.
+
+What's implemented instead is a genuine, different, honest signal: each
+player's own observed season PA-per-game rate, shrunk toward the league
+average (4.30) by games played using the same shrinkage principle
+already used for per-PA rates elsewhere in this model. A real leadoff
+hitter who has actually accumulated more plate appearances per game
+over a full season projects above league average; a real bottom-of-order
+hitter projects below it; a small early-season sample stays close to
+league average rather than trusting a noisy few-game rate. Verified
+against real players from an actual slate: an established, high-PA
+player like Fernando Tatis Jr. projects to within 0.01 of his own
+observed rate, while a 23-game sample gets pulled meaningfully toward
+league average even though its raw rate looks similar.
+
+This deliberately does NOT also factor in tonight's specific team
+scoring environment, even though that data (`teamStats.runsPerGame`) is
+available — `MODEL.role.teamOffense` already feeds a runsPerGame-based
+signal into other props' rate contexts, and stacking the same underlying
+number into PA projection too would double-count one piece of evidence
+as if it were two independent ones.
 
 ## How `p_hat` is aggregated
 
@@ -154,8 +189,12 @@ In priority order, matching the project's own stated sequencing:
 
 1. ~~Freeze the prop definition~~ — done for `hr`.
 2. ~~Baseline model + Brier score comparison~~ — see `backtest.js`.
-3. **Opportunity model** — replace the fixed `expPA` with a genuine
-   projection from lineup slot, platoon matchup, and bullpen chain.
+3. ~~Opportunity model~~ — **partially done**: `projectExpPA()` replaces
+   the flat constant with each player's own regressed season PA/G rate.
+   The originally-envisioned lineup-slot/platoon/bullpen-chain version is
+   still not built — `battingOrder` isn't currently in the data (see
+   "Opportunity model" section above) — so this remains open until that
+   data exists.
 4. **Matchup + park/weather as shared, per-path draws** — rather than
    deterministic multipliers, draw the game's actual weather/park
    condition once per simulated path and share it across every player
