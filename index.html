@@ -3758,6 +3758,9 @@ body.modal-open{ overflow:hidden; }
   padding:3px 8px; border-radius:20px; background:rgba(245,200,66,.12); color:var(--gold); }
 .player-card-v2 .pv-interval{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted); padding:3px 8px; border:1px solid var(--border); border-radius:20px; }
 .player-card-v2 .pv-pa-note{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted); padding:3px 8px; border:1px solid var(--border); border-radius:20px; }
+.player-card-v2 .pv-cal-label{ font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; padding:3px 8px; border-radius:20px; }
+.player-card-v2 .pv-cal-overconfident{ background:rgba(239,68,68,.12); color:var(--red, #ef4444); }
+.player-card-v2 .pv-cal-underconfident{ background:rgba(34,197,94,.12); color:var(--green-bright); }
 .player-card-v2 .ring{ position:relative; width:128px; height:128px; color:#22c55e }
 .player-card-v2 .ring svg{ position:absolute; inset:0; width:100%; height:100% }
 .player-card-v2 .ring .rt{ fill:none; stroke:rgba(255,255,255,.08); stroke-width:8 }
@@ -13198,6 +13201,23 @@ function isHomeRun(battedBall, parkDims, elevationFt, tempF, carryDistanceFn, ge
 }
 
 
+/** Real calibration check — the spec's own "ship rule": don't show a bare
+ *  percentage as if it were simply true; if the historical, observed
+ *  hit rate for this exact grade meaningfully diverges from what the
+ *  model claims on average, say so plainly rather than hiding it.
+ *
+ *  Gated on a minimum sample size (30) before ever labeling something
+ *  over/underconfident — a tiny sample's apparent gap is easily just
+ *  noise, and confidently mislabeling that would be worse than saying
+ *  nothing. 3 percentage points is the minimum gap treated as
+ *  meaningful rather than sampling variance around a true 0 gap. */
+function calibrationLabel(bucket){
+  if(!bucket || bucket.n < 30) return null;
+  const gap = bucket.meanProb - bucket.hitRate;
+  if(Math.abs(gap) < 0.03) return null;   // close enough — no label needed
+  return gap > 0 ? 'overconfident' : 'underconfident';
+}
+
 function mapPARoll(roll, t){
   if(roll < t.cHR)  return { type:'HR',  hr:1, h:1, tb:4, dbl:0, trp:0, sgl:0 };
   if(roll < t.cDbl) return { type:'2B',  hr:0, h:1, tb:2, dbl:1, trp:0, sgl:0 };
@@ -14918,6 +14938,7 @@ function openBatterModal(p){
     let fallbackTag = '';
     let intervalNote = '';
     let paNote = '';
+    let calNote = '';
     if(prop === 'hr'){
       const contract = buildPropPrediction(p, 'hr');
       if(contract.fallback_flag){
@@ -14926,6 +14947,13 @@ function openBatterModal(p){
       if(contract.p_lo != null && contract.p_hi != null){
         const lo = Math.round(contract.p_lo * 100), hi = Math.round(contract.p_hi * 100);
         if(hi > lo) intervalNote = `<span class="pv-interval" title="A real, honest range — not just the single point estimate">${lo}–${hi}%</span>`;
+      }
+      // The spec's own "ship rule": don't show a bare percentage as if it
+      // were simply true — if this exact grade's real, historical hit
+      // rate meaningfully diverges from what the model claims, say so.
+      const calLabel = calibrationLabel(contract.calibration_bucket);
+      if(calLabel){
+        calNote = `<span class="pv-cal-label pv-cal-${calLabel}" title="Based on this grade's real, historical hit rate vs. what the model has claimed on average">${calLabel}</span>`;
       }
       // Matches the spec's own example format exactly: "HR 18% | 4.1 PA proj."
       // Shown specifically when PA projection is doing real work — i.e. it
@@ -14943,7 +14971,7 @@ function openBatterModal(p){
       <div class="vd-right" style="color:${col}">
         <div class="vd-head">${pcGradeHead(gr.g)}</div>
         <div class="vd-body">${pct}% ${cfg.short} for ${last}. ${bits.join(' · ')||'Matchup graded neutral.'}.</div>
-        ${(fallbackTag || intervalNote || paNote) ? `<div class="vd-honesty-row">${intervalNote}${paNote}${fallbackTag}</div>` : ''}
+        ${(fallbackTag || intervalNote || paNote || calNote) ? `<div class="vd-honesty-row">${intervalNote}${paNote}${calNote}${fallbackTag}</div>` : ''}
       </div>
     </div>`;
   }
@@ -16782,6 +16810,12 @@ async function boot(){
 
   loadBetslip();
   renderBetslipBar();
+  // Fire-and-forget: powers the calibration_bucket field in
+  // buildPropPrediction() and the honest over/underconfident annotation
+  // in pcVerdictHTML(). Non-critical (both already handle a null cache
+  // gracefully) and changes at most once daily server-side, so this
+  // doesn't need to block boot or be re-run on every refresh.
+  loadCalibrationCache();
 
   // Social is optional: if the module didn't load, everything above still works.
 

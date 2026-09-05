@@ -170,6 +170,29 @@ Scoped to the `hr` prop specifically, matching the contract's own
 current scope — other props don't yet have this same treatment since
 they don't have a real contract to draw from.
 
+**A second, related gap found while building this**: `calibration_bucket`
+in the contract has always been null in practice, because
+`loadCalibrationCache()` — the function that actually populates it — was
+defined but never called anywhere, the same "built but never wired"
+pattern as `buildPropPrediction()` itself before this. Fixed by calling
+it once, fire-and-forget, during boot.
+
+With that fixed, `calibrationLabel()` implements the spec's own "ship
+rule" directly: don't show a bare percentage as if it were simply true —
+if a grade's real, historical hit rate meaningfully diverges from what
+the model has actually claimed on average (a gap of 3+ percentage
+points, gated on at least 30 real observations so a thin sample doesn't
+get confidently mislabeled), the player card now says so, as
+"overconfident" or "underconfident," pulling directly from
+`calibration-history.json`.
+
+This isn't hypothetical — checked against the real, current data:
+grade A+ shows a genuine gap right now (n=142, actual hit rate ~16.9%
+vs. a claimed average of ~24.5%), and the label now correctly surfaces
+that as "overconfident" rather than showing 20-25% probabilities to
+users with no indication the model has been running hot for this
+specific grade.
+
 ## Correlation and parlay pricing
 
 Two teammates in the same game aren't independent — a night where the
