@@ -18626,7 +18626,10 @@ document.addEventListener('visibilitychange', ()=>{
     // ---- Points & Wagers ----
     body += `<details class="dwadmin-sec"><summary>Points & Wagers</summary>
       <div class=dwadmin-grp>Adjust one user</div>
-      <input class=dwadmin-search id=dwadminPtsUser placeholder="username">
+      <div style="display:flex;gap:6px;align-items:center">
+        <select class=dwadmin-search id=dwadminPtsUser style="flex:1;margin:0"><option value="">Loading users…</option></select>
+        <button class=dwadmin-btn id=dwadminPtsRefresh title="Refresh user list" style="flex:0 0 auto;padding:6px 10px">↻</button>
+      </div>
       <div style="display:flex;gap:6px;margin:8px 0">
         <input class=dwadmin-search id=dwadminPtsAmt type=number step=1 placeholder="amount (+/-)" style="flex:1;margin:0">
         <input class=dwadmin-search id=dwadminPtsNote placeholder="note (optional)" style="flex:2;margin:0">
@@ -18699,6 +18702,36 @@ document.addEventListener('visibilitychange', ()=>{
       const reportHost = document.getElementById('dwadminReportHost');
 
       const setStatus = (elm, msg, isErr) => { elm.textContent = msg; elm.className = 'dwadmin-status' + (isErr ? ' err' : ''); };
+
+      // Populates the username dropdown from the real, live list — every
+      // current user, plus anyone who's joined since the panel last
+      // loaded, since this is a fresh query each time, not a cached or
+      // build-time list. Retries automatically once social finishes
+      // loading, the same "not ready yet" case every other handler here
+      // already accounts for.
+      async function loadUsernameOptions(){
+        const s = social();
+        if(!s?.adminListUsernames){
+          ptsUser.innerHTML = '<option value="">Social module not ready — retrying…</option>';
+          setTimeout(loadUsernameOptions, 1500);
+          return;
+        }
+        const res = await s.adminListUsernames();
+        if(res.error){
+          ptsUser.innerHTML = `<option value="">Failed to load users</option>`;
+          setStatus(ptsStatus, res.error, true);
+          return;
+        }
+        const current = ptsUser.value;
+        ptsUser.innerHTML = res.usernames.length
+          ? `<option value="">— select a user —</option>` + res.usernames.map(u => `<option value="${esc(u)}">${esc(u)}</option>`).join('')
+          : '<option value="">No users found</option>';
+        // Preserves whichever user was already selected across a refresh,
+        // e.g. if this ever gets called again after a new signup.
+        if(current && res.usernames.includes(current)) ptsUser.value = current;
+      }
+      loadUsernameOptions();
+      document.getElementById('dwadminPtsRefresh').addEventListener('click', loadUsernameOptions);
 
       document.getElementById('dwadminPtsLookup').addEventListener('click', async () => {
         const s = social();
