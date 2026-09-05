@@ -139,6 +139,37 @@ signal into other props' rate contexts, and stacking the same underlying
 number into PA projection too would double-count one piece of evidence
 as if it were two independent ones.
 
+## Uncertainty and honesty in the UI
+
+`buildPropPrediction()` — the frozen contract, with real `fallback_flag`,
+`p_lo`/`p_hi`, and PA-projection data — was built during the "freeze the
+contract" step, but a check before starting this step found it was never
+actually called anywhere. The full contract existed as real, tested,
+unused code for an entire step of this project. Fixed now:
+
+- **Rate-stats fallback** — when a player has no usable Statcast data,
+  the player modal now visibly shows a "rate-stats fallback" tag next to
+  the graded probability, rather than presenting a Statcast-quality
+  number with no visible difference from one that's actually backed by
+  real batted-ball data.
+- **The real uncertainty interval** — `p_lo`–`p_hi` is now shown
+  alongside the point estimate, matching the spec's explicit instruction
+  not to show a single number and imply false precision.
+- **PA-driver transparency** — shown specifically when a player's
+  projected plate appearances have moved meaningfully away from league
+  average (more than 0.15 PA), matching the spec's own example format
+  ("HR 18% | 4.1 PA proj.") — not shown unconditionally on every card,
+  since that would bury the specific cases where it's actually
+  informative.
+- **Checked, not assumed**: the word "odds" is never used anywhere in
+  this app to describe a model-derived probability — it's reserved for
+  real market/sportsbook odds pulled from a separate `p.odds` field.
+  Confirmed this directly rather than assuming it was already true.
+
+Scoped to the `hr` prop specifically, matching the contract's own
+current scope — other props don't yet have this same treatment since
+they don't have a real contract to draw from.
+
 ## Correlation and parlay pricing
 
 Two teammates in the same game aren't independent — a night where the

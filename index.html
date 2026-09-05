@@ -3753,6 +3753,11 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .vd-head{ font-family:'Oswald',sans-serif; font-weight:700; font-size:16px; letter-spacing:.08em; color:inherit; text-transform:uppercase }
 .player-card-v2 .vd-body{ font-size:13.5px; color:var(--text); line-height:1.5; margin-top:5px }
 .player-card-v2 .vd-body b{ color:inherit }
+.player-card-v2 .vd-honesty-row{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.player-card-v2 .pv-fallback-tag{ font-family:'JetBrains Mono',monospace; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em;
+  padding:3px 8px; border-radius:20px; background:rgba(245,200,66,.12); color:var(--gold); }
+.player-card-v2 .pv-interval{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted); padding:3px 8px; border:1px solid var(--border); border-radius:20px; }
+.player-card-v2 .pv-pa-note{ font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--text-muted); padding:3px 8px; border:1px solid var(--border); border-radius:20px; }
 .player-card-v2 .ring{ position:relative; width:128px; height:128px; color:#22c55e }
 .player-card-v2 .ring svg{ position:absolute; inset:0; width:100%; height:100% }
 .player-card-v2 .ring .rt{ fill:none; stroke:rgba(255,255,255,.08); stroke-width:8 }
@@ -14906,11 +14911,39 @@ function openBatterModal(p){
     if(p.statcast?.barrel!=null) bits.push(`${p.statcast.barrel}% barrel rate`);
     if(sp.hr9) bits.push(`${sp.hr9} HR/9 allowed by ${surname(sp.name||'the starter')}`);
     if(p.game.parkFactor!==100) bits.push(`${p.game.parkShort||p.game.park} at ${p.game.parkFactor} park factor`);
+
+    // Real honesty-in-the-UI wiring — only for 'hr', the one prop with a
+    // real, frozen contract right now (see buildPropPrediction, MODEL.md).
+    // Was built weeks ago but never actually reached the screen until now.
+    let fallbackTag = '';
+    let intervalNote = '';
+    let paNote = '';
+    if(prop === 'hr'){
+      const contract = buildPropPrediction(p, 'hr');
+      if(contract.fallback_flag){
+        fallbackTag = `<span class="pv-fallback-tag" title="No usable Statcast data for this player — this number leans on season rate stats instead">rate-stats fallback</span>`;
+      }
+      if(contract.p_lo != null && contract.p_hi != null){
+        const lo = Math.round(contract.p_lo * 100), hi = Math.round(contract.p_hi * 100);
+        if(hi > lo) intervalNote = `<span class="pv-interval" title="A real, honest range — not just the single point estimate">${lo}–${hi}%</span>`;
+      }
+      // Matches the spec's own example format exactly: "HR 18% | 4.1 PA proj."
+      // Shown specifically when PA projection is doing real work — i.e. it
+      // has actually moved away from a flat, generic default — since
+      // showing this unconditionally on every single card would bury the
+      // one case where it's genuinely informative.
+      const expPA = projectExpPA(p);
+      if(Math.abs(expPA - MODEL.league.paPerGame) > 0.15){
+        paNote = `<span class="pv-pa-note">${expPA.toFixed(1)} PA proj.</span>`;
+      }
+    }
+
     return `<div class="verdict">
       <div class="ring" style="color:${col}">${pcRingSVG(pct,true,propRingMax(prop))}<div class="ring-c"><div class="ring-g">${gr.g}</div><div class="ring-tag">${pct}% ${cfg.code}</div></div></div>
       <div class="vd-right" style="color:${col}">
         <div class="vd-head">${pcGradeHead(gr.g)}</div>
         <div class="vd-body">${pct}% ${cfg.short} for ${last}. ${bits.join(' · ')||'Matchup graded neutral.'}.</div>
+        ${(fallbackTag || intervalNote || paNote) ? `<div class="vd-honesty-row">${intervalNote}${paNote}${fallbackTag}</div>` : ''}
       </div>
     </div>`;
   }
