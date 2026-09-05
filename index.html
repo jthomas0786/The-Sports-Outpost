@@ -11822,11 +11822,39 @@ async function renderContactQuality(p){
     // warning track: a tan band just inside the wall, on the grass.
     const track = `M 0 ${lf.sy} Q ${cf.sx} ${cf.sy-14} ${VW} ${rf.sy} L ${VW} ${(rf.sy+9).toFixed(1)} Q ${cf.sx} ${(cf.sy-14+9).toFixed(1)} 0 ${(lf.sy+9).toFixed(1)} Z`;
     // arcs: parabola home→landing, apex from dist & launch angle.
+    //
+    // REAL BUG FIXED HERE: this park's wall is a single, generic shape
+    // (233ft down the lines, 400ft dead center) shared by every batted
+    // ball in this list, regardless of which real MLB park it actually
+    // happened at. Real fences vary a lot by park and direction — a real
+    // home run at a park with a genuinely shorter fence could fall short
+    // of this generic wall even though it was a real homer, and a deep
+    // flyout's Statcast "total distance" (the ball's full, uncaught
+    // projected trajectory, not where it was actually caught) could
+    // exceed this generic wall even though it was genuinely an out.
+    // Letting raw distance alone decide "did this clear the fence"
+    // produced exactly that: real home runs not visually clearing, and
+    // real outs appearing to. Fixed by using the one fact that's always
+    // actually correct — the real, known outcome (b.outcome) — to
+    // constrain the visual distance, rather than trusting geometry that
+    // was never going to match every specific real park.
+    const wallDistAt = (theta) => {
+      const t = Math.min(1, Math.abs(theta) / (Math.PI/4));   // 0 at dead center, 1 at the foul lines
+      const ease = (1 - Math.cos(t * Math.PI)) / 2;
+      return 400 - (400 - 233*Math.SQRT2) * ease;   // 400ft center -> ~329.5ft down the lines
+    };
     const arcs = [];
     rows.forEach((b,i)=>{
       if(b.cx==null||b.cy==null||!(b.dist>0)) return;
       const theta = Math.atan2(b.cx-SAVANT_HOME_X, SAVANT_HOME_Y-b.cy);
-      const d = b.dist, lx = d*Math.sin(theta), ly = d*Math.cos(theta);
+      const wallDist = wallDistAt(theta);
+      const isHR = contactKind(b.outcome) === 'hr';
+      // A real home run always visually clears; anything else never does —
+      // clamped just past or just short of the wall so it's unambiguous
+      // either way, using the player's own real distance whenever that's
+      // already consistent with the real outcome.
+      const d = isHR ? Math.max(b.dist, wallDist * 1.04) : Math.min(b.dist, wallDist * 0.96);
+      const lx = d*Math.sin(theta), ly = d*Math.cos(theta);
       const la = (b.la==null?15:b.la)*Math.PI/180;
       const apex = Math.max(2, Math.min(95, d*Math.tan(la)/4));
       const N=14; let pts='';
