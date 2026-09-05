@@ -10593,8 +10593,8 @@ function homeRunMomentHTML(ev, narrative, shortPitch){
   // Elevated camera behind home plate looking out to center: the field is drawn
   // in slight 3D — grass wedge foreshortened toward home, outfield wall as a
   // curved (elliptical) arc, and tall foul poles rising in the LF/RF corners.
-  const VW=400, VH=225, HX=200, HY=202;   // home plate (~90% down, centered in the 16:9 photo)
-  const WALL_TOP=140, WALL_CORNER=146, POLE_X=180;  // outfield wall y (center/corner) + half-span to poles
+  const VW=400, VH=225, HX=200, HY=214;   // home plate — measured directly from the new stadium photo
+  const WALL_TOP=81, WALL_CORNER=104, POLE_X=181;  // outfield wall y (center/corner) + half-span to poles — measured and verified against the photo's actual fence line
 
   // ---- the actual landing: bearing from Statcast spray coords, distance from EV ----
   const evv = ev.exitVelo != null ? Number(ev.exitVelo) : null;
@@ -10867,7 +10867,7 @@ function _hrDrawTrajectory(ctx,ox,oy,sx,syOrEv,maybeEv){
   const sy = maybeEv!==undefined ? syOrEv : sx;
   const ev = maybeEv!==undefined ? maybeEv : syOrEv;
   if(!ev || typeof ev!=='object') return null;
-  const VW=400,VH=225,HX=200,HY=202,WALL_TOP=140,WALL_CORNER=146,POLE_X=180;
+  const VW=400,VH=225,HX=200,HY=214,WALL_TOP=81,WALL_CORNER=104,POLE_X=181;  // kept in sync with homeRunMomentHTML's calibration — see comment there
   const evv=ev.exitVelo!=null?Number(ev.exitVelo):null;
   const dist=ev.distance!=null?Number(ev.distance):null;
   let theta=0;
@@ -11168,7 +11168,7 @@ function _hrClipCacheSet(key, entry){
 // Draw one progress frame (0..1) of the trajectory onto the field region of ctx.
 function _hrDrawTrajFrame(ctx, W, FH, ev, p){
   const sx=W/400, sy=FH/225;
-  const VW=400,VH=225,HX=200,HY=202,WALL_TOP=140,WALL_CORNER=146,POLE_X=180;
+  const VW=400,VH=225,HX=200,HY=214,WALL_TOP=81,WALL_CORNER=104,POLE_X=181;  // kept in sync with homeRunMomentHTML's calibration — see comment there
   const evv=ev.exitVelo!=null?Number(ev.exitVelo):null, dist=ev.distance!=null?Number(ev.distance):null;
   let theta=0;
   if(ev.coordX!=null&&ev.coordY!=null&&isFinite(ev.coordX)&&isFinite(ev.coordY)) theta=Math.atan2(ev.coordX-125,199-ev.coordY);
@@ -11781,7 +11781,15 @@ async function renderContactQuality(p){
     // (home plate, mound, foul poles, outfield wall). Behind-home-plate pinhole:
     // depth foreshortens toward a vanishing point just above the wall, so the
     // spray arcs originate at the photo's home plate and land on its field.
-    const VW=400, VH=225, CQ_CX=200, CQ_HY=203, CQ_VP=128, CQ_CAMD=60, CQ_FOCAL=239;
+    // Recalibrated for the new TSO stadium photo: home plate, the mound, and
+    // both foul poles were measured directly from the image (pixel-grid
+    // overlay + crop zooms) and converted into this 400x225 viewport's
+    // coordinate space, accounting for the image's own aspect ratio and the
+    // xMidYMid-slice crop. Verified by re-projecting all four landmarks back
+    // through this exact formula and confirming each lands within a few
+    // pixels of its real, measured position — including the outfield wall
+    // arc traced against the photo's actual fence line before finalizing.
+    const VW=400, VH=225, CQ_CX=200, CQ_HY=214, CQ_VP=90, CQ_CAMD=30, CQ_FOCAL=205;
     const proj = (fx,fy,fz=0) => { const d=fy+CQ_CAMD; const gy=CQ_VP+(CQ_HY-CQ_VP)*CQ_CAMD/d; return { sx:CQ_CX+CQ_FOCAL*fx/d, sy:gy-CQ_FOCAL*fz/d }; };
     const rf=proj(233,233), lf=proj(-233,233), cf=proj(0,400), hp=proj(0,0);
     const b1=proj(63.6,63.6), b2=proj(0,127.3), b3=proj(-63.6,63.6), mound=proj(0,60.5);
