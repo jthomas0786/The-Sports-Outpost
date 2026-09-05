@@ -12675,6 +12675,151 @@ function badgeRowHTML(badges){
   ).join('')}</span>`;
 }
 
+/** Pure outcome mapper for a single plate appearance.
+ *
+ *  Given a random roll (expected 0-1) and this player's cumulative outcome
+ *  thresholds for tonight, returns exactly which discrete event occurred.
+ *  Deliberately has NO randomness inside — the roll is an explicit
+ *  argument — which is what makes this fully unit-testable: a test can
+ *  assert "roll=0.05 with these thresholds must be an HR" without ever
+ *  touching Math.random(). simulatePlayer() below calls this exact
+ *  function for every simulated PA, so tests here cover real production
+ *  behavior, not a parallel reimplementation that could drift from it.
+ *
+ *  Thresholds must be cumulative and non-decreasing: cHR <= cDbl <= cTrp
+ *  <= cSgl <= cBB <= cK. Anything at or above cK is a non-strikeout out. */
+/** Beta-Binomial credible interval on a per-PA rate.
+ *
+ *  paRates()'s shrinkage (`rate*w + leagueRate*(1-w)`, where
+ *  w = pa/(pa+regressionPA)) is mathematically the POSTERIOR MEAN of a
+ *  Beta-Binomial model: a Beta(alpha0, beta0) prior with "effective
+ *  sample size" regressionPA centered at leagueRate, updated by `hits`
+ *  successes in `pa` real trials. This function computes the credible
+ *  interval implied by that exact same posterior — not a separately
+ *  invented uncertainty number — using the standard normal approximation
+ *  to the Beta distribution (accurate once alpha+beta is more than ~30,
+ *  comfortably true here since regressionPA alone is 220).
+ *
+ *  Returns the interval on the PER-PA RATE. Callers propagate this to a
+ *  game-level probability via the same 1-(1-rate)^n form used elsewhere. */
+function betaCredibleInterval(hits, pa, leagueRate, regressionPA, z = 1.2816){ // z=1.2816 -> 80% interval
+  const alpha0 = leagueRate * regressionPA;
+  const beta0 = (1 - leagueRate) * regressionPA;
+  const alpha = alpha0 + hits;
+  const beta = beta0 + Math.max(0, pa - hits);
+  const total = alpha + beta;
+  const mean = alpha / total;
+  const variance = (alpha * beta) / (total * total * (total + 1));
+  const sd = Math.sqrt(Math.max(0, variance));
+  return { lo: clamp(mean - z * sd, 0, 1), hi: clamp(mean + z * sd, 0, 1), mean };
+}
+
+/** The frozen prediction contract (see MODEL.md). Every prop prediction
+ *  returned to the UI or logged for backtesting must have this exact
+ *  shape — no ad-hoc partial versions of it elsewhere in the codebase.
+ *
+ *  Currently only implemented for 'hr', since that's this pass's scope
+ *  (game-HR is the prop named in the backtest success criterion) — other
+ *  props fall back to a minimal contract with fallback_flag forced true
+ *  until they get the same treatment. */
+function buildPropPrediction(p, propKey){
+  const sim = simulatePlayer(p);
+  const now = new Date().toISOString();
+  const gamePk = p.game?.gamePk ?? null;
+
+  const base = {
+    prop_id: `${p.id}:${propKey}:${gamePk}:${now}`,
+    target: PROP_TARGETS[propKey] || `${propKey} in this game`,
+    p_hat: null, p_lo: null, p_hi: null,
+    n_sims: SIM_RUNS,
+    inputs_used: [],
+    fallback_flag: true,
+    model_version: CLIENT_MODEL_VERSION,
+    calibration_bucket: null,
+  };
+
+  if(propKey !== 'hr') return base;   // scope of this pass — see comment above
+
+  const d = sim.hr;
+  base.p_hat = d.exact / 100;
+
+  const pa = Math.max(1, p.pa || 1);
+  const hits = p.hr ?? 0;
+  const LG = MODEL.league.rates;
+  const R = MODEL.confidence;
+  const rateCI = betaCredibleInterval(hits, pa, LG.hr, R.regressionPA);
+  const expPA = p.expPA || 4.3;
+  // Propagate the per-PA rate interval to a game-level probability the
+  // same way the point estimate itself is implicitly built: P(>=1 HR in
+  // n PA) = 1-(1-rate)^n. This does NOT re-run the Monte Carlo at the
+  // interval bounds — it's the same closed-form relationship already
+  // implicit in the simulation's own per-PA thresholds.
+  base.p_lo = clamp(1 - Math.pow(1 - rateCI.lo, expPA), 0, 1);
+  base.p_hi = clamp(1 - Math.pow(1 - rateCI.hi, expPA), 0, 1);
+
+  const inputs = [];
+  const hasStatcast = p.statcast != null && !p.statcast._regressed;
+  if(hasStatcast) inputs.push('statcast');
+  else inputs.push('season-rate-fallback');
+  if(p.game?.parkFactor != null) inputs.push('park');
+  if(p.game?.windMph != null) inputs.push('weather');
+  if(p.oppPitcher?.hr9 != null) inputs.push('pitcher');
+  if(p.battingOrder != null) inputs.push('lineup-slot');
+  base.inputs_used = inputs;
+  base.fallback_flag = !hasStatcast;
+
+  // Real calibration read for this player's CURRENT grade, from the same
+  // calibration-history.json already driving the About modal's Model
+  // Performance tab — not a separate, second calibration computation.
+  base.calibration_bucket = CALIBRATION_CACHE?.perProp?.hr?.byGrade?.[gradeFor('hr', d.exact).g] || null;
+
+  return base;
+}
+const PROP_TARGETS = {
+  hr: 'At least 1 home run for this player in this game',
+  hits: 'At least 1 hit for this player in this game',
+  tb: 'At least 1.5 total bases for this player in this game',
+  rbi: 'At least 1 RBI for this player in this game',
+  hrr: 'At least 1.5 combined hits+runs+RBI for this player in this game',
+  sb: 'At least 1 stolen base for this player in this game',
+};
+// Client-side model version — a hash of the actual client-side MODEL
+// config object, since that's what governs simulatePlayer()'s behavior
+// from this file. Deliberately NOT the same value as the server-side
+// modelHash already logged in predictions/*.json (see model-logs) —
+// that hashes the separate server-side build pipeline's config. Both are
+// real, meaningful version identifiers; they answer different questions
+// ("what did the client compute with" vs "what did the server compute
+// with") and should not be conflated into one number.
+const CLIENT_MODEL_VERSION = (() => {
+  try{
+    const str = JSON.stringify(MODEL);
+    let hash = 0;
+    for(let i = 0; i < str.length; i++){ hash = (hash * 31 + str.charCodeAt(i)) | 0; }
+    return 'client-' + Math.abs(hash).toString(16);
+  }catch(e){ return 'client-unknown'; }
+})();
+// Populated by loadCalibrationCache() below — kept as a simple module-level
+// cache rather than re-fetching calibration-history.json on every single
+// prediction, since it changes at most once a day.
+let CALIBRATION_CACHE = null;
+async function loadCalibrationCache(){
+  try{
+    const res = await fetch('model-logs/calibration-history.json');
+    if(res.ok) CALIBRATION_CACHE = await res.json();
+  }catch(e){ /* non-critical — calibration_bucket just stays null */ }
+}
+
+function mapPARoll(roll, t){
+  if(roll < t.cHR)  return { type:'HR',  hr:1, h:1, tb:4, dbl:0, trp:0, sgl:0 };
+  if(roll < t.cDbl) return { type:'2B',  hr:0, h:1, tb:2, dbl:1, trp:0, sgl:0 };
+  if(roll < t.cTrp) return { type:'3B',  hr:0, h:1, tb:3, dbl:0, trp:1, sgl:0 };
+  if(roll < t.cSgl) return { type:'1B',  hr:0, h:1, tb:1, dbl:0, trp:0, sgl:1 };
+  if(roll < t.cBB)  return { type:'BB',  hr:0, h:0, tb:0, dbl:0, trp:0, sgl:0 };
+  if(roll < t.cK)   return { type:'K',   hr:0, h:0, tb:0, dbl:0, trp:0, sgl:0 };
+  return { type:'OUT', hr:0, h:0, tb:0, dbl:0, trp:0, sgl:0 };
+}
+
 function simulatePlayer(p){
   if(p._sim) return p._sim;                       // cached per scoring pass
 
@@ -12682,6 +12827,7 @@ function simulatePlayer(p){
   // Cumulative thresholds — one draw picks exactly one outcome.
   const cHR = r.hr, cDbl = cHR + r.dbl, cTrp = cDbl + r.trp,
         cSgl = cTrp + r.sgl, cBB = cSgl + r.bb, cK = cBB + r.k;
+  const thresholds = { cHR, cDbl, cTrp, cSgl, cBB, cK };
 
   const expPA = p.expPA || 4.3;
   // RBI opportunity. Homers are handled separately below, so this rate covers
@@ -12711,13 +12857,11 @@ function simulatePlayer(p){
 
     for(let a = 0; a < pa; a++){
       const roll = Math.random();
-      let hadHR = false;
-      if(roll < cHR)      { hr++; h++; tb+=4; runs++; hadHR = true; }  // his own HR scores him
-      else if(roll < cDbl){ h++; tb+=2; dbl++; }
-      else if(roll < cTrp){ h++; tb+=3; }
-      else if(roll < cSgl){ h++; tb+=1; sgl++; }
-      else if(roll < cBB) { /* walk — no AB, no TB */ }
-      else if(roll < cK)  { /* strikeout */ }
+      const outcome = mapPARoll(roll, thresholds);
+      const hadHR = outcome.type === 'HR';
+      hr += outcome.hr; h += outcome.h; tb += outcome.tb;
+      dbl += outcome.dbl; sgl += outcome.sgl;
+      if(hadHR) runs++;   // his own HR scores him
 
       // Driving in other runners, and scoring after reaching base.
       if(roll >= cHR && roll < cBB){                 // reached base, not via HR
@@ -12743,6 +12887,7 @@ function simulatePlayer(p){
     tally.sgl.push(sgl); tally.dbl.push(dbl);
     tally.hrr.push(h + runs + rbi);
   }
+
 
   const rawPct = (arr, line) => 100 * arr.filter(v => v > line).length / arr.length;
   const quant = (arr, q) => { const s=[...arr].sort((a,b)=>a-b); return s[Math.floor(q*(s.length-1))]; };
