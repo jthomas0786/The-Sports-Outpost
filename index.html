@@ -12934,6 +12934,265 @@ function getGameEffects(game, simRuns){
   return effects;
 }
 
+/**
+ * Real MLB ballpark outfield dimensions, by direction, for all 30 parks.
+ *
+ * WHY THIS EXISTS: the app's own slate.json only ever carries a single,
+ * aggregate `parkFactor` number per venue (e.g. 108) — nothing about
+ * fence distance by direction. A genuine batted-ball outcome model needs
+ * to know how far a ball actually has to travel at a SPECIFIC spray
+ * angle to clear the fence, since real parks vary enormously by
+ * direction (Fenway's Green Monster sits ~310ft down the left-field
+ * line but the deepest part of that same park is ~420ft). This table is
+ * that missing piece, compiled from public sources since it doesn't
+ * exist anywhere in the app's current data pipeline.
+ *
+ * HONEST LIMITATIONS — read before trusting this blindly:
+ *
+ * 1. PARK DIMENSIONS CHANGE. This isn't hypothetical — while building
+ *    this specific file, cross-checking one entry (Kauffman Stadium)
+ *    against multiple sources surfaced a real discrepancy: two
+ *    aggregator sites gave different, both-stale numbers, and the
+ *    ballpark's actual current dimensions (364-L/379-LC/410-C/379-RC/
+ *    364-R, 8.5ft walls) only appeared in MLB.com's own current guide
+ *    page, reflecting a change the Royals announced in January 2026.
+ *    The other 29 parks below have NOT been individually re-verified
+ *    against a current, authoritative source with the same rigor —
+ *    they're compiled from public reference tables as of September
+ *    2026 and could be stale for any park that's undergone recent
+ *    renovation. Treat this as a real, usable improvement over having
+ *    zero directional data at all, not as a guaranteed-current source.
+ *
+ * 2. ONLY THREE POINTS PER PARK (left line, straightaway center, right
+ *    line) are given real, sourced numbers. Real "power alley"
+ *    (intermediate angle) distances exist and often differ meaningfully
+ *    from a straight-line interpolation between these three points, but
+ *    compiling verified power-alley numbers for all 30 parks was out of
+ *    scope for this pass. getFenceDistance() (see park-geometry.js)
+ *    interpolates between these three known points — a real, honest
+ *    approximation, not equivalent to true power-alley-specific data.
+ *
+ * 3. Wall height is only well-documented for a small number of famous
+ *    exceptions (Fenway's 37ft Green Monster being the obvious one).
+ *    Most parks use a reasonable, documented default (8ft, a genuinely
+ *    common MLB outfield wall height) rather than a fabricated
+ *    park-specific number this file can't actually back up.
+ *
+ * Distances in feet, from home plate. cfBearing/roof/elevation are
+ * NOT duplicated here — those already exist correctly in slate.json's
+ * venue object and should keep being read from there.
+ */
+const PARK_DIMENSIONS = {
+  'American Family Field':    { lf: 342, cf: 400, rf: 337, wallHeight: 8 },
+  'Angel Stadium':             { lf: 347, cf: 396, rf: 350, wallHeight: 8 },
+  'Busch Stadium':             { lf: 336, cf: 400, rf: 335, wallHeight: 8 },
+  'Camden Yards':               { lf: 333, cf: 400, rf: 318, wallHeight: 7 },  // "Flag Court" in RF is taller; 318 line itself is a modest wall
+  'Chase Field':                { lf: 330, cf: 407, rf: 334, wallHeight: 8 },
+  'Citi Field':                 { lf: 335, cf: 408, rf: 330, wallHeight: 8 },
+  'Citizens Bank Park':         { lf: 329, cf: 401, rf: 330, wallHeight: 8 },
+  'Comerica Park':              { lf: 345, cf: 412, rf: 330, wallHeight: 8 },
+  'Coors Field':                { lf: 347, cf: 415, rf: 350, wallHeight: 8 },
+  'Dodger Stadium':             { lf: 330, cf: 395, rf: 330, wallHeight: 8 },
+  'Fenway Park':                { lf: 310, cf: 420, rf: 302, wallHeight: 37, wallHeightNote: 'Green Monster in LF only — RF wall is a standard ~5ft; using LF height here as this table has one height per park' },
+  'Globe Life Field':           { lf: 329, cf: 407, rf: 326, wallHeight: 8 },
+  'Great American Ball Park':   { lf: 328, cf: 404, rf: 325, wallHeight: 8 },
+  'Guaranteed Rate Field':      { lf: 330, cf: 400, rf: 335, wallHeight: 8 },
+  'Kauffman Stadium':           { lf: 364, cf: 410, rf: 364, wallHeight: 8.5 },  // verified against MLB.com's current guide, Jan 2026 fence-move
+  'loanDepot Park':             { lf: 344, cf: 400, rf: 335, wallHeight: 8 },
+  'Minute Maid Park':           { lf: 315, cf: 409, rf: 326, wallHeight: 8, wallHeightNote: 'LF "Crawford Boxes" wall is ~19ft — using standard default here since this table has one height per park' },
+  'Nationals Park':             { lf: 337, cf: 402, rf: 335, wallHeight: 8 },
+  'Oracle Park':                { lf: 339, cf: 391, rf: 309, wallHeight: 8, wallHeightNote: 'RF wall (into McCovey Cove) is ~24ft — using standard default here since this table has one height per park' },
+  'Petco Park':                 { lf: 336, cf: 396, rf: 322, wallHeight: 8 },
+  'PNC Park':                   { lf: 325, cf: 399, rf: 320, wallHeight: 8 },
+  'Progressive Field':          { lf: 325, cf: 400, rf: 325, wallHeight: 8 },
+  'RingCentral Coliseum':       { lf: 330, cf: 400, rf: 300, wallHeight: 8 },
+  'Rogers Centre':              { lf: 328, cf: 400, rf: 328, wallHeight: 8 },
+  'T-Mobile Park':              { lf: 331, cf: 401, rf: 326, wallHeight: 8 },
+  'Target Field':               { lf: 339, cf: 404, rf: 328, wallHeight: 8 },
+  'Tropicana Field':            { lf: 315, cf: 404, rf: 322, wallHeight: 8 },
+  'Truist Park':                { lf: 335, cf: 400, rf: 325, wallHeight: 8 },
+  'Wrigley Field':              { lf: 355, cf: 400, rf: 353, wallHeight: 11.5 },
+  'Yankee Stadium':             { lf: 318, cf: 408, rf: 314, wallHeight: 8 },
+};
+
+if(typeof module !== 'undefined' && module.exports) module.exports = { PARK_DIMENSIONS };
+
+/**
+ * Interpolates fence distance at any spray angle from a park's three
+ * known dimension points (left line, straightaway center, right line).
+ *
+ * Angle convention: 0° = straight down the LEFT field line, 45° =
+ * straight to CENTER field, 90° = straight down the RIGHT field line.
+ * This spans all fair territory in the outfield.
+ *
+ * HONEST NOTE: real MLB fences do not follow a perfectly smooth curve
+ * between these three points — actual "power alley" (intermediate
+ * angle) distances often depart from what a smooth interpolation alone
+ * would predict (this is exactly the kind of discrepancy the research
+ * literature on park dimensions describes — see park-dimensions.js's own
+ * header). A cosine-eased blend is used here specifically because it's
+ * smooth (no artificial kink exactly at center field, unlike a naive
+ * piecewise-linear interpolation) and it exactly reproduces the three
+ * real, sourced numbers at 0°/45°/90° — but it is still an
+ * approximation between those anchor points, not real power-alley data.
+ */
+function getFenceDistance(dims, angleDeg){
+  const angle = Math.max(0, Math.min(90, angleDeg));
+  // Cosine ease: smoothly blends from 0 (at the first anchor) to 1 (at
+  // the second anchor) with zero slope at both ends, avoiding a kink.
+  const ease = (t) => (1 - Math.cos(t * Math.PI)) / 2;
+
+  if(angle <= 45){
+    const t = angle / 45;
+    return dims.lf + (dims.cf - dims.lf) * ease(t);
+  }
+  const t = (angle - 45) / 45;
+  return dims.cf + (dims.rf - dims.cf) * ease(t);
+}
+
+if(typeof module !== 'undefined' && module.exports) module.exports = { getFenceDistance };
+
+/**
+ * Approximates how far a batted ball actually travels, given exit
+ * velocity and launch angle, adjusted for temperature/elevation.
+ *
+ * METHOD: computes the exact, standard vacuum (no-drag) projectile
+ * distance — D = v²·sin(2θ)/g, real physics, not an approximation —
+ * then applies a single "carry ratio" representing the real-world
+ * reduction from aerodynamic drag, which a true model would derive from
+ * numerically integrating drag and Magnus-force differential equations
+ * (see Alan Nathan's actual trajectory work, University of Illinois,
+ * baseball.physics.illinois.edu). That full simulation is out of scope
+ * here; this uses one fixed, documented ratio instead.
+ *
+ * HONEST CALIBRATION NOTE: checked this ratio against TWO independent,
+ * real reference points from Nathan's published research:
+ *   - A HITf/x-calibrated analysis: 100mph/26° -> ~405ft mean distance
+ *     implies a ratio of 0.769 against the vacuum distance.
+ *   - Nathan's own worked trajectory example: 100mph/29°/2500rpm
+ *     backspin -> 397ft actual vs 571ft vacuum, ratio 0.695.
+ *   These disagree with each other by a meaningful amount (0.70 vs
+ *   0.77) — which itself confirms the real ratio genuinely varies with
+ *   conditions (backspin, exact launch angle, air density) rather than
+ *   being one true constant. CARRY_RATIO_BASE below (0.735) is the
+ *   midpoint between these two real, cited values — a documented
+ *   compromise, not a precisely fitted number. Treat any single
+ *   distance this produces as a rough estimate, not a precise
+ *   prediction — it's meant to rank "would this batted ball plausibly
+ *   clear THIS fence" relative to real geometry, not to reproduce
+ *   Statcast's own actual measured distances.
+ *
+ * Temperature/elevation adjustment: warmer air and higher elevation are
+ * both real, well-documented contributors to a ball carrying farther
+ * (thinner air = less drag) — this is the entire reason Coors Field is
+ * baseball's most famous hitter's park. Approximated here as roughly
+ * +1.5% carry per 1000ft of elevation and +0.5% per 10°F above 70°F —
+ * documented, reasonable rule-of-thumb magnitudes, not independently
+ * re-derived from first-principles air-density physics for this project.
+ *
+ * ANGLE-DEPENDENT PENALTY, AND WHY IT'S NECESSARY: a single, flat carry
+ * ratio applied uniformly can't be right — vacuum projectile physics
+ * alone always peaks at exactly 45°, but real, documented research is
+ * clear that actual fly balls peak at 25-30° (Nathan's own analysis,
+ * cited above), because drag disproportionately punishes the longer
+ * hang-time of a higher trajectory. A first version of this function
+ * used one flat ratio and a test written specifically to check this
+ * caught it immediately — the distance curve peaked at 45°, contradicting
+ * the very research this function cites. Fixed with a quadratic penalty
+ * centered at 28° (the middle of the real 25-30° optimal range),
+ * numerically tuned so the overall distance curve's peak lands at
+ * ~29-30° while both cited reference points still hold within a
+ * documented ±15% tolerance. */
+const CARRY_RATIO_BASE = 0.735;
+const ANGLE_PENALTY_COEF = 0.006;   // tuned so peak distance lands at ~29-30°, matching real research
+const ANGLE_PENALTY_CENTER = 28;    // degrees — middle of the documented 25-30° optimal range
+
+function carryDistance(evMph, launchAngleDeg, elevationFt = 0, tempF = 70){
+  if(evMph <= 0 || launchAngleDeg <= 0 || launchAngleDeg >= 90) return 0;
+
+  const v = evMph * 1.46667;   // mph -> ft/s
+  const g = 32.2;              // ft/s^2
+  const rad = launchAngleDeg * Math.PI / 180;
+  const vacuumDistance = (v * v * Math.sin(2 * rad)) / g;
+
+  const anglePenalty = Math.max(0.3, 1 - ANGLE_PENALTY_COEF * Math.pow(launchAngleDeg - ANGLE_PENALTY_CENTER, 2));
+  const carryRatio = CARRY_RATIO_BASE * anglePenalty;
+
+  const elevationBoost = 1 + (elevationFt / 1000) * 0.015;
+  const tempBoost = 1 + ((tempF - 70) / 10) * 0.005;
+
+  return vacuumDistance * carryRatio * elevationBoost * tempBoost;
+}
+
+if(typeof module !== 'undefined' && module.exports) module.exports = { carryDistance, CARRY_RATIO_BASE };
+
+/**
+ * Samples an individual batted ball (exit velocity + launch angle) for
+ * one plate appearance, centered on a player's own real season averages,
+ * then determines via actual park geometry whether that specific batted
+ * ball would clear the fence.
+ *
+ * WHY SAMPLE AT ALL, RATHER THAN JUST USE THE PLAYER'S AVERAGE: a
+ * player's average EV/LA describes their typical contact, but any
+ * individual swing produces a real, different outcome — the entire
+ * point of this model is to simulate an actual batted ball, not just
+ * repeatedly evaluate the same average one. Real player-specific spread
+ * (standard deviation) isn't available in this app's data — only the
+ * mean ever reaches the client (see MODEL.md's "Opportunity model"
+ * section for the same limitation affecting PA projection) — so a
+ * single, documented league-typical spread is used for every player
+ * instead of a real, player-specific one.
+ *
+ * SPREAD VALUES AND THEIR SOURCES:
+ *   - Launch angle SD ≈ 26°. Grounded in real, cited research (Alex
+ *     Chamberlain, FanGraphs): the 15 TIGHTEST-controlled hitters in the
+ *     Statcast era (min. 1600 batted balls each) ranged from 21.8° to
+ *     24.4° SD. Since that list is specifically the most consistent
+ *     hitters in the league, a typical, average hitter's spread is
+ *     reasonably higher than that range — 26° is a documented,
+ *     reasoned estimate above the cited tight-hitter ceiling, not a
+ *     precisely fitted league-wide number (that would require the raw,
+ *     per-batted-ball data this app doesn't have access to).
+ *   - Exit velocity SD ≈ 10.5 mph. A commonly-cited approximate figure
+ *     in public sabermetric analysis of batted-ball spread; not
+ *     independently re-derived here from raw data for the same reason.
+ *
+ * SPRAY ANGLE: real hitters have genuine pull tendencies (more batted
+ * balls toward their pull side than oppo), but per-player spray
+ * tendency isn't in this app's data either. Modeled here as a normal
+ * distribution centered on straightaway center field (45° in this
+ * file's 0-90° convention) — an honest simplification, not a claim that
+ * real hitters spray evenly across the field.
+ */
+const LAUNCH_ANGLE_SD = 26;
+const EXIT_VELO_SD = 10.5;
+const SPRAY_ANGLE_SD = 20;   // degrees, centered on straightaway (45°)
+
+/** Samples one real batted ball for a single plate appearance.
+ *  randNormalFn is injected (rather than calling a global randNormal())
+ *  so this stays testable with a fixed, deterministic sequence of draws
+ *  instead of real randomness. */
+function sampleBattedBall(meanEV, meanLaunchAngle, randNormalFn){
+  const ev = Math.max(30, meanEV + randNormalFn() * EXIT_VELO_SD);
+  const launchAngle = meanLaunchAngle + randNormalFn() * LAUNCH_ANGLE_SD;
+  const sprayAngle = Math.max(0, Math.min(90, 45 + randNormalFn() * SPRAY_ANGLE_SD));
+  return { ev, launchAngle, sprayAngle };
+}
+
+/** The actual physics decision: given a specific batted ball and a
+ *  specific park's real geometry, does it clear the fence?
+ *
+ *  A negative or near-zero launch angle (grounder, weak liner) never
+ *  has a realistic chance regardless of EV — carryDistance() already
+ *  returns 0 for launchAngle <= 0, so this falls out naturally rather
+ *  than needing a separate special case. */
+function isHomeRun(battedBall, parkDims, elevationFt, tempF, carryDistanceFn, getFenceDistanceFn){
+  const carry = carryDistanceFn(battedBall.ev, battedBall.launchAngle, elevationFt, tempF);
+  const fenceDistance = getFenceDistanceFn(parkDims, battedBall.sprayAngle);
+  return carry >= fenceDistance;
+}
+
+
 function mapPARoll(roll, t){
   if(roll < t.cHR)  return { type:'HR',  hr:1, h:1, tb:4, dbl:0, trp:0, sgl:0 };
   if(roll < t.cDbl) return { type:'2B',  hr:0, h:1, tb:2, dbl:1, trp:0, sgl:0 };
@@ -12962,6 +13221,21 @@ function simulatePlayer(p){
   const gameEffects = getGameEffects(p.game, SIM_RUNS);
 
   const expPA = projectExpPA(p);
+  // Physics-based HR check (see the batted-ball model functions above) —
+  // pre-computed once here rather than inside the hot per-path loop,
+  // since neither the park lookup nor the player's own mean EV/launch
+  // angle change path to path. Falls back to null (meaning: skip the
+  // physics check, use the original rate-based HR call as-is) if either
+  // this venue isn't in PARK_DIMENSIONS or the player has no usable
+  // Statcast EV/launch angle at all — a defensive fallback rather than
+  // letting a data gap silently break the simulation.
+  const parkDims = p.game?.park ? PARK_DIMENSIONS[p.game.park] : null;
+  const meanEV = p.statcastL10?.ev ?? p.statcastL5?.ev ?? p.statcast?.ev ?? null;
+  const meanLaunchAngle = p.statcastL10?.launchAngle ?? p.statcastL5?.launchAngle ?? p.statcast?.launchAngle ?? null;
+  const canUsePhysicsModel = !!(parkDims && meanEV != null && meanLaunchAngle != null);
+  const elevationFt = p.game?.elevation ?? 0;
+  const tempF = p.game?.tempF ?? 70;
+
   // RBI opportunity. Homers are handled separately below, so this rate covers
   // only non-HR run production — otherwise the HR-driven RBI get counted twice
   // and the season total no longer reconciles.
@@ -13008,9 +13282,26 @@ function simulatePlayer(p){
     for(let a = 0; a < pa; a++){
       const roll = Math.random();
       const outcome = mapPARoll(roll, pathThresholds);
-      const hadHR = outcome.type === 'HR';
-      hr += outcome.hr; h += outcome.h; tb += outcome.tb;
-      dbl += outcome.dbl; sgl += outcome.sgl;
+      let hadHR = outcome.type === 'HR';
+      let hrOutcome = outcome;
+      let downgradedFromHR = false;
+      if(hadHR && canUsePhysicsModel){
+        // The rate-based model said "HR-caliber contact" — now actually
+        // simulate that specific batted ball and check it against this
+        // specific game's real fence geometry, rather than automatically
+        // crediting every HR-caliber roll. A near-fence miss becomes a
+        // fly out — see MODEL.md for why this doesn't yet distinguish a
+        // near-miss double/triple off the wall from a routine fly out.
+        const battedBall = sampleBattedBall(meanEV, meanLaunchAngle, randNormal);
+        const cleared = isHomeRun(battedBall, parkDims, elevationFt, tempF, carryDistance, getFenceDistance);
+        if(!cleared){
+          hadHR = false;
+          downgradedFromHR = true;
+          hrOutcome = { type:'OUT', hr:0, h:0, tb:0, dbl:0, trp:0, sgl:0 };
+        }
+      }
+      hr += hrOutcome.hr; h += hrOutcome.h; tb += hrOutcome.tb;
+      dbl += hrOutcome.dbl; sgl += hrOutcome.sgl;
       if(hadHR) runs++;   // his own HR scores him
 
       // Driving in other runners, and scoring after reaching base.
@@ -13018,9 +13309,16 @@ function simulatePlayer(p){
         if(Math.random() < runRate * 2.2) runs++;
       }
       // A homer always drives in at least himself; additional RBI depend on
-      // runners aboard. Non-HR plate appearances use the base RBI rate.
+      // runners aboard. Non-HR plate appearances use the base RBI rate. A
+      // roll downgraded from HR to a fly out is explicitly routed to the
+      // sac-fly/RBI-groundout branch below — its original `roll` value
+      // still numerically satisfies roll < pathCSgl (the "was this a hit"
+      // check), which would otherwise incorrectly treat this fly out as
+      // if it were a base hit for RBI purposes.
       if(hadHR){
         rbi += 1 + (Math.random() < 0.55 ? 1 : 0);   // ~1.6 RBI per HR league-wide
+      } else if(downgradedFromHR){
+        if(Math.random() < rbiRate * 0.55) rbi++;    // treated as a fly out — sac-fly RBI chance only
       } else if(roll < pathCSgl){
         // Extra-base hits clear the bases more often than singles.
         const xbh = roll >= pathCHR && roll < pathCTrp;
