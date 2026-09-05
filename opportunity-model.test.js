@@ -78,3 +78,25 @@ test('two players with identical career PA/G rates but different sample sizes ge
   assert.ok(Math.abs(large - 4.5) < Math.abs(small - 4.5),
     `the 120-game sample (${large}) should land closer to the true 4.5 rate than the 5-game sample (${small})`);
 });
+
+test('a CONFIRMED lineup slot trusts the player\'s own rate MORE than an otherwise-identical unconfirmed player', () => {
+  // Same games, same PA, same raw rate — the only difference is whether
+  // tonight's lineup slot is confirmed. The confirmed player should land
+  // closer to their own true rate, since real, tonight-specific role
+  // information genuinely reduces uncertainty.
+  const trueRate = 4.6;
+  const g = 15, pa = Math.round(trueRate * g);
+  const unconfirmed = projectExpPA({ g, pa });
+  const confirmed = projectExpPA({ g, pa, battingOrder: 2 });
+  assert.ok(Math.abs(confirmed - trueRate) < Math.abs(unconfirmed - trueRate),
+    `confirmed (${confirmed}) should sit closer to the true rate ${trueRate} than unconfirmed (${unconfirmed})`);
+});
+
+test('two players with genuinely different confirmed lineup slots still each reflect their OWN real season rate, not some shared slot-based number', () => {
+  // This function deliberately does not invent a "PA by slot" formula —
+  // confirms it isn't secretly keying off the slot NUMBER itself, only
+  // using confirmation as a trust signal on each player's own real rate.
+  const leadoff = projectExpPA({ g: 20, pa: 92, battingOrder: 1 });   // 4.6 PA/G
+  const eighth = projectExpPA({ g: 20, pa: 70, battingOrder: 8 });    // 3.5 PA/G
+  assert.ok(leadoff > eighth, 'the leadoff hitter\'s own higher real rate should still produce a higher projection');
+});

@@ -7729,11 +7729,17 @@ function extractBoxSide(side){
     // in something other than "00" means the player entered mid-game.
     const order = p.battingOrder ? String(p.battingOrder) : '';
     const sub = order && !order.endsWith('00');
+    // The real lineup slot (1-9) is the first digit of the 3-digit MLB
+    // battingOrder string (e.g. "500" -> slot 5, "501" -> also slot 5,
+    // a substitute who entered later in that same spot). Used to merge
+    // real lineup-slot data back into the main player objects once a
+    // game's lineup is actually posted — see the merge step below.
+    const battingOrderSlot = order.length >= 1 ? parseInt(order[0], 10) : null;
     return {
       id: p.person ? p.person.id : null,
       name: p.person ? p.person.fullName : '—',
       pos: p.position ? p.position.abbreviation : '',
-      sub,
+      sub, battingOrderSlot,
       ab: b.atBats ?? 0, r: b.runs ?? 0, h: b.hits ?? 0,
       rbi: b.rbi ?? 0, bb: b.baseOnBalls ?? 0, so: b.strikeOuts ?? 0,
       hr: b.homeRuns ?? 0,
@@ -7756,6 +7762,29 @@ function extractBoxSide(side){
   }).filter(Boolean);
 
   return { batters, pitchers };
+}
+
+/**
+ * Extracts real lineup slots (1-9) from a live boxscore side — every
+ * player currently in the box for this game, NOT filtered by whether
+ * they've had an at-bat yet (unlike extractBoxSide(), which is built
+ * for box-score display and only shows players who've actually batted).
+ * That distinction matters here specifically: the whole point is to
+ * pick up a real lineup slot as soon as MLB posts it, which happens
+ * before first pitch — well before anyone in it has batted.
+ * Returns a Map from player id to their real lineup slot.
+ */
+function extractLineupSlots(side){
+  const result = new Map();
+  if(!side || !side.players) return result;
+  for(const key of Object.keys(side.players)){
+    const p = side.players[key];
+    if(!p || !p.person || !p.battingOrder) continue;
+    const order = String(p.battingOrder);
+    const slot = order.length >= 1 ? parseInt(order[0], 10) : null;
+    if(slot != null && slot >= 1 && slot <= 9) result.set(p.person.id, slot);
+  }
+  return result;
 }
 
 async function fetchLiveGameStates(){
@@ -7889,6 +7918,27 @@ async function fetchLiveGameStates(){
         const bx = data.liveData && data.liveData.boxscore;
         if(bx && bx.teams){
           g.boxScore = { away: extractBoxSide(bx.teams.away), home: extractBoxSide(bx.teams.home) };
+
+          // Real lineup slots, merged back into the main player objects the
+          // simulation actually reads (projectExpPA/paRates) — see MODEL.md's
+          // "Opportunity model" section for why this matters: battingOrder
+          // is null in slate.json at build time (lineups aren't posted yet
+          // that early), but IS genuinely present in this same live feed
+          // once MLB actually posts it, typically a few hours before first
+          // pitch. Only touches players whose slot has actually changed
+          // (a fresh null->number, or a real correction) and only
+          // invalidates THEIR cached simulation specifically, rather than
+          // blanket-invalidating every player's cache on every 20s poll
+          // regardless of whether anything relevant changed.
+          const awaySlots = extractLineupSlots(bx.teams.away);
+          const homeSlots = extractLineupSlots(bx.teams.home);
+          for(const [playerId, slot] of [...awaySlots, ...homeSlots]){
+            const player = allBatters.find(p => p.id === playerId);
+            if(player && player.battingOrder !== slot){
+              player.battingOrder = slot;
+              player._ctx = null; player._sim = null;   // this player's projection depends on it — see projectExpPA
+            }
+          }
         }
       }catch(e){ /* leave this game's state as last-known on a per-game fetch failure */ }
     }));
@@ -12879,17 +12929,35 @@ async function loadCalibrationCache(){
 
 /** Opportunity model: projected plate appearances for tonight.
  *
- *  HONEST SCOPE — read this before extending it: the roadmap in MODEL.md
- *  calls for a real lineup-slot / platoon / bullpen-chain projection.
- *  That isn't buildable right now: `battingOrder` is null for every
- *  single player in the current slate.json (checked directly — 0 of 386
- *  players had it set), so there is no real lineup-slot signal to build
- *  on. This function instead uses a genuine, different, honest signal:
- *  the player's OWN observed season PA-per-game rate — a leadoff hitter
- *  naturally accumulates more plate appearances per game than a #8
- *  hitter over a full season, purely by simple accumulation — shrunk
- *  toward the league-average PA/G by games played, the same statistical
- *  principle already used elsewhere in this model (see paRates()).
+ *  UPDATE — the battingOrder gap described below is now solved for
+ *  games where MLB has actually posted a lineup: extractLineupSlots(),
+ *  called from fetchLiveGameStates() on the same 20s poll already
+ *  fetching live scores, extracts real lineup slots from the live
+ *  boxscore feed and merges them into p.battingOrder directly, since
+ *  the feed genuinely carries this data (unlike slate.json at build
+ *  time, well before lineups are posted). See "Real lineup data" in
+ *  MODEL.md for the full story, including the discovery that this
+ *  API is already fetched by this app for a different purpose.
+ *
+ *  What that buys today is intentionally modest: this function does NOT
+ *  attempt an unverified "expected PA by lineup slot" formula — no real,
+ *  cited number for that relationship was found the way the carry-
+ *  distance physics was grounded in real research. Instead, when a
+ *  confirmed lineup slot exists for tonight, it's used as a real,
+ *  tonight-specific signal to trust the player's own season PA/G rate
+ *  MORE (less pulled toward league average) than an unconfirmed player
+ *  would be — since a real, posted lineup slot genuinely reduces
+ *  uncertainty about tonight's role, even without a precise formula for
+ *  translating slot number into an exact PA count. Full lineup-slot-to-
+ *  PA modeling remains open, now blocked on finding or deriving that
+ *  real relationship rather than on data availability.
+ *
+ *  Base signal, still the primary driver either way: the player's OWN
+ *  observed season PA-per-game rate — a leadoff hitter naturally
+ *  accumulates more plate appearances per game than a #8 hitter over a
+ *  full season, purely by simple accumulation — shrunk toward the
+ *  league-average PA/G by games played, the same statistical principle
+ *  already used elsewhere in this model (see paRates()).
  *
  *  Deliberately does NOT also factor in tonight's team scoring
  *  environment (team runsPerGame), even though that data is available,
@@ -12899,7 +12967,11 @@ async function loadCalibrationCache(){
  *  evidence as if it were two independent ones. */
 function projectExpPA(p){
   const LG_PA_PER_G = MODEL.league.paPerGame;
-  const REGRESSION_G = 20;   // games played before the player's own rate is mostly trusted
+  // Confirmed lineup slot for tonight specifically reduces real
+  // uncertainty about role — halving effective regression is a modest,
+  // documented way to lean more on the player's own rate, not a claim
+  // that lineup slot 1-9 has been precisely calibrated to a PA count.
+  const REGRESSION_G = p.battingOrder != null ? 10 : 20;
   const g = p.g ?? 0;
   const pa = p.pa ?? 0;
   const playerRate = g > 0 ? pa / g : LG_PA_PER_G;

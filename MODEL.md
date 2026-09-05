@@ -139,6 +139,51 @@ signal into other props' rate contexts, and stacking the same underlying
 number into PA projection too would double-count one piece of evidence
 as if it were two independent ones.
 
+## Real lineup data
+
+The `battingOrder` gap described above as blocking is now partially
+solved, and it's worth documenting exactly how, since the actual answer
+turned out to be different from the original assumption.
+
+**The real reason `battingOrder` was null wasn't a bug — it was
+timing.** MLB doesn't post official lineups until roughly 1-3 hours
+before first pitch. `slate.json` is built earlier in the day, well
+before that window, so the data genuinely didn't exist yet at build
+time — confirmed against the MLB Stats API's own real boxscore schema
+(a `battingOrder` field is documented there) and cross-referenced
+against an independent, real open-source project solving this exact
+same problem the same way: try the live feed first, since it has the
+data once lineups are posted, and only fall back to something else if
+it doesn't.
+
+**The actual fix didn't need a new API call.** This app already polls
+`https://statsapi.mlb.com/api/v1.1/game/{gamePk}/feed/live` every 20
+seconds via `fetchLiveGameStates()` — and that same response already
+carries real `battingOrder` per player once MLB posts it. In fact, the
+app already had code (`extractBoxSide()`) reading this exact field —
+just for a different purpose (the box score's substitute indicator),
+never merged back into the actual player objects the simulation
+depends on. `extractLineupSlots()` is a second, deliberately unfiltered
+extraction (unlike `extractBoxSide()`, which only includes players who
+have already batted — no use for pre-game projection) that pulls every
+real, currently-posted lineup slot and merges it into `p.battingOrder`
+on the main player objects, invalidating only that specific player's
+cached simulation rather than the whole slate's.
+
+**What this actually changes today, stated honestly**: no formula here
+claims to convert "batting 2nd" into a precise PA number — that
+relationship wasn't found grounded in real, cited research the way the
+carry-distance physics was, so it isn't invented. What a confirmed slot
+does instead is act as a real trust signal: a player with a
+tonight-specific, officially confirmed role gets less pulled toward
+league average and more toward their own real season rate, since
+genuine uncertainty about their role has been directly reduced.
+
+**Practical implication**: this data simply isn't available for most of
+the day — only once each team posts its lineup, which for early games
+might be mid-afternoon and for late games might be evening. Every
+player defaults to the unconfirmed treatment until that happens.
+
 ## Uncertainty and honesty in the UI
 
 `buildPropPrediction()` — the frozen contract, with real `fallback_flag`,
@@ -292,11 +337,11 @@ In priority order, matching the project's own stated sequencing:
 1. ~~Freeze the prop definition~~ — done for `hr`.
 2. ~~Baseline model + Brier score comparison~~ — see `backtest.js`.
 3. ~~Opportunity model~~ — **partially done**: `projectExpPA()` replaces
-   the flat constant with each player's own regressed season PA/G rate.
-   The originally-envisioned lineup-slot/platoon/bullpen-chain version is
-   still not built — `battingOrder` isn't currently in the data (see
-   "Opportunity model" section above) — so this remains open until that
-   data exists.
+   the flat constant with each player's own regressed season PA/G rate,
+   now with a real confirmed-lineup trust boost — see "Real lineup data"
+   below. Full lineup-slot-to-PA modeling remains open, no longer
+   blocked on data availability but on finding or deriving a real,
+   cited relationship between slot number and expected PA.
 4. ~~Shared, per-path game effect~~ — **done**: `getGameEffects()` draws
    a per-game "carry" multiplier once per simulated path, shared across
    every player simulated from that game, creating real correlation
