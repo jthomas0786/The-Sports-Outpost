@@ -10997,19 +10997,34 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   });
   // divider
   ctx.strokeStyle='rgba(255,255,255,0.10)'; ctx.lineWidth=1; ctx.beginPath(); ctx.moveTo(80,FH+510); ctx.lineTo(W-80,FH+510); ctx.stroke();
-  // The Sports Outpost wordmark + URL
-  const wmY=FH+570;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  // little home-plate mark
-  ctx.fillStyle=GOLD; ctx.beginPath(); ctx.moveTo(W/2-150,wmY-22); ctx.lineTo(W/2-110,wmY-22); ctx.lineTo(W/2-92,wmY-4); ctx.lineTo(W/2-110,wmY+18); ctx.lineTo(W/2-150,wmY+18); ctx.lineTo(W/2-168,wmY); ctx.closePath(); ctx.fill();
-  ctx.textAlign='left';
-  ctx.font="700 46px Oswald,sans-serif";
-  const wmStartX = W/2-80;
-  ctx.fillStyle=TEXT; ctx.fillText('SPORTS',wmStartX,wmY);
-  const sportsWidth = ctx.measureText('SPORTS').width;
-  ctx.fillStyle=GOLD; ctx.fillText('OUTPOST',wmStartX+sportsWidth+16,wmY);
-  ctx.textAlign='center'; ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('thesportsoutpost.com',W/2,wmY+48);
-  ctx.fillStyle=MUTE; ctx.font="400 19px Oswald,sans-serif"; ctx.fillText('Home runs the moment they happen',W/2,wmY+84);
+  // The Sports Outpost logo + URL
+  const wmY=FH+560;
+  const logoImg = await _hrLoadImg('logo-horizontal.png?v=1');
+  if(logoImg){
+    // Real logo, not hand-drawn shapes — scaled to a consistent width,
+    // preserving its actual aspect ratio (998x439, ~2.27:1) so it never
+    // looks stretched or squashed regardless of canvas size.
+    const logoW = 320;
+    const logoH = logoW * (logoImg.naturalHeight / logoImg.naturalWidth);
+    ctx.drawImage(logoImg, W/2 - logoW/2, wmY - logoH/2, logoW, logoH);
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('thesportsoutpost.com',W/2,wmY+logoH/2+38);
+    ctx.fillStyle=MUTE; ctx.font="400 19px Oswald,sans-serif"; ctx.fillText('Home runs the moment they happen',W/2,wmY+logoH/2+74);
+  } else {
+    // Falls back to the original hand-drawn wordmark if the logo file
+    // fails to load for any reason — a broken image reference should
+    // never mean the whole share card silently loses its branding.
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillStyle=GOLD; ctx.beginPath(); ctx.moveTo(W/2-150,wmY-22); ctx.lineTo(W/2-110,wmY-22); ctx.lineTo(W/2-92,wmY-4); ctx.lineTo(W/2-110,wmY+18); ctx.lineTo(W/2-150,wmY+18); ctx.lineTo(W/2-168,wmY); ctx.closePath(); ctx.fill();
+    ctx.textAlign='left';
+    ctx.font="700 46px Oswald,sans-serif";
+    const wmStartX = W/2-80;
+    ctx.fillStyle=TEXT; ctx.fillText('SPORTS',wmStartX,wmY);
+    const sportsWidth = ctx.measureText('SPORTS').width;
+    ctx.fillStyle=GOLD; ctx.fillText('OUTPOST',wmStartX+sportsWidth+16,wmY);
+    ctx.textAlign='center'; ctx.fillStyle=MUTE; ctx.font="600 26px Oswald,sans-serif"; ctx.fillText('thesportsoutpost.com',W/2,wmY+48);
+    ctx.fillStyle=MUTE; ctx.font="400 19px Oswald,sans-serif"; ctx.fillText('Home runs the moment they happen',W/2,wmY+84);
+  }
   return new Promise((res)=>canvas.toBlob(b=>res(b?new File([b],'sports-outpost-home-run.png',{type:'image/png'}):null),'image/png',0.92));
 }
 /** Expands/collapses one card's replay graphic — entirely independent of
