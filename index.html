@@ -13370,7 +13370,30 @@ function simulatePlayer(p){
   const parkDims = getParkDimensions(p.game?.park);
   const meanEV = p.statcastL10?.ev ?? p.statcastL5?.ev ?? p.statcast?.ev ?? null;
   const meanLaunchAngle = p.statcastL10?.launchAngle ?? p.statcastL5?.launchAngle ?? p.statcast?.launchAngle ?? null;
-  const canUsePhysicsModel = !!(parkDims && meanEV != null && meanLaunchAngle != null);
+  // TEMPORARILY DISABLED — see MODEL.md's "Contact/flight model" section
+  // for the full incident writeup. Investigation on Sept 5, 2026 found
+  // this was systematically under-counting real HR probability by a
+  // large, compounding margin: sampling batted balls around a player's
+  // OVERALL season average EV/launch angle (rather than conditioning on
+  // "this PA is already known to be HR-caliber contact"), combined with
+  // a spray-angle distribution centered on straightaway center field
+  // (the deepest, hardest-to-clear part of nearly every park, when real
+  // home runs are heavily pulled toward one line), compounded into a
+  // roughly 10x under-count relative to what a top player's real season
+  // rate should produce. A checked-against-real-data fix (Statcast:
+  // 105mph/25° should be a home run 77.2% of the time) was attempted but
+  // did not converge to that target even under a wide, pull-weighted
+  // spray distribution — several interacting factors are miscalibrated
+  // together, not just one. Rather than ship a still-wrong multi-factor
+  // model under time pressure, this reverts to the original, proven
+  // rate-based HR determination (each player's own real, observed season
+  // rate) until the physics model can be properly, separately
+  // recalibrated and validated against real reference points before
+  // re-enabling. All the underlying infrastructure — park dimensions,
+  // carry-distance physics, the sampling functions — stays in place and
+  // tested; only this one switch changes.
+  const PHYSICS_MODEL_ENABLED = false;
+  const canUsePhysicsModel = PHYSICS_MODEL_ENABLED && !!(parkDims && meanEV != null && meanLaunchAngle != null);
   const elevationFt = p.game?.elevation ?? 0;
   const tempF = p.game?.tempF ?? 70;
 

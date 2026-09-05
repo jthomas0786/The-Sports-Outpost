@@ -362,6 +362,62 @@ In priority order, matching the project's own stated sequencing:
 
 ## Contact/flight model
 
+**STATUS: DISABLED as of Sept 5, 2026.** `PHYSICS_MODEL_ENABLED = false`
+in `simulatePlayer()`. Read this before re-enabling it.
+
+After fixing the park-name bug below (which made MORE games eligible
+for this model, not fewer), the person reported the #1-ranked player
+was showing 1.9% — roughly 10x lower than a top HR bat should show.
+Investigated and found this wasn't a display issue; the physics model
+itself was systematically under-counting real HR probability, from at
+least two compounding, interacting sources:
+
+1. **Wrong conditioning.** When the rate-based model says "this PA is
+   HR-caliber," that's already conditional on this being one of the
+   player's real, actual home runs — but the batted ball was being
+   sampled around their OVERALL season average EV/launch angle (~90mph
+   for a typical elite hitter), not around what an actual home run's
+   contact quality looks like (~103-105mph). Verified directly: sampling
+   around the season average and checking it against real park fences
+   left only ~4-12% of "should be a home run" rolls actually surviving.
+
+2. **Wrong spray-angle distribution.** Real, cited Statcast research
+   (FanGraphs) found actual home runs average an absolute spray angle of
+   38° (in a convention where 0° = center, ±45° = the foul lines) — real
+   home runs are heavily pulled toward one line, not spread evenly
+   toward center. The original sampling centered on straightaway center
+   field, the single deepest and hardest-to-clear point in nearly every
+   park.
+
+Attempted a fix using a real, cited, direct reference point (Statcast:
+a 105mph/25° batted ball is a home run 77.2% of the time) as the target
+to calibrate against. Tried a pull-weighted, bimodal spray distribution
+at several spread values — none converged on 77.2% even at a very wide
+spread, landing anywhere from 85-100% survival instead. That's evidence
+the miscalibration isn't isolated to one factor (spray alone, or EV
+conditioning alone) but compounds across several interacting pieces —
+possibly including `carryDistance()`'s own drag-ratio calibration,
+which was validated against different reference points earlier and may
+not hold up cleanly at this specific EV/LA combination.
+
+**Decision**: rather than ship a still-wrong multi-factor model under
+time pressure — this was actively degrading a live, production feature
+— disabled the physics veto entirely and reverted to the original,
+already-proven rate-based HR determination (each player's own real,
+observed season rate, unchanged since before this feature existed).
+`tests/physics-model-disabled.test.js` guards against this silently
+flipping back on without a deliberate decision and real validation.
+
+**What stays intact**: all the underlying infrastructure — real park
+dimensions, the carry-distance physics, the sampling functions — is
+still in place, still tested, and still a reasonable foundation for a
+future, properly-validated attempt. The actual work needed before
+re-enabling: find or derive real, cited HR-conditional EV/launch-angle
+distributions (not the all-batted-balls ones currently used), a
+properly-validated spray-angle model, and confirm the whole pipeline
+reproduces multiple real Statcast reference points — not just one —
+before trusting it with live probabilities again.
+
 **A real production bug this model caused, found and fixed Sept 5,
 2026**: the Top 20 Home Run list was dominated almost entirely by two
 games' players (Twins @ White Sox, D-backs @ Astros) instead of
@@ -370,4 +426,84 @@ real, current sponsor names — "Rate Field" and "Daikin Park" — that
 didn't match this table's then-current keys ("Guaranteed Rate Field"
 and "Minute Maid Park"), both stale from earlier sponsorship renames.
 Since the park lookup was a direct, exact string match, the mismatch
-meant the physics-based HR check silently never 
+meant the physics-based HR check silently never ran for those two
+games — their players' HR-caliber rolls never got the same downgrade
+check every other game's did, so their probabilities stayed
+artificially high and dominated the ranking.
+
+Diagnosed directly from a live screenshot the person provided, cross-
+referenced against a real, dated news source confirming the White Sox
+rename (effective the 2025 season). Fixed two ways: corrected the two
+stale keys, and — since sponsorship renames are clearly a real,
+recurring MLB phenomenon rather than a one-off (the same research pass
+also surfaced a March 2026 Dodger Stadium field-sponsor rename to
+"Uniqlo Field") — added `PARK_NAME_ALIASES` and a real
+`getParkDimensions()` lookup function that checks old/alternate names
+too, so a future rename degrades gracefully instead of silently
+disabling the physics model for that game again. Direct
+`PARK_DIMENSIONS[name]` indexing, the pattern that caused this bug, has
+been replaced everywhere with the alias-aware lookup.
+
+When the rate-based model calls a simulated plate appearance "HR-caliber
+contact," that's no longer automatically credited as a home run. Instead,
+a real, individual batted ball — exit velocity and launch angle — is
+sampled around the player's own actual season (or recent-window) Statcast
+averages, and checked against this specific game's real park geometry to
+see if it would actually clear the fence.
+
+**Real research behind each piece, not invented physics:**
+- **Carry distance** uses exact, standard projectile-motion physics for
+  the no-drag baseline, then applies a real-world drag reduction ratio
+  cross-checked against two independent, cited reference points from
+  Alan Nathan's published trajectory research (University of Illinois) —
+  documented fully in `data/carry-distance.js`.
+- **Park geometry** — real, sourced left-field/center-field/right-field
+  distances for all 30 parks (`data/park-dimensions.js`), with fence
+  distance at any specific spray angle interpolated smoothly between
+  those three real points (`data/park-geometry.js`).
+- **Batted-ball spread** (since only each player's mean EV/launch angle
+  ever reaches the client, never their real distribution) uses a
+  documented launch-angle spread grounded in real, cited research on the
+  tightest-controlled MLB hitters, and a commonly-cited exit-velocity
+  spread — both explicitly flagged as league-typical approximations, not
+  real per-player numbers, in `data/batted-ball-model.js`.
+
+**Two real bugs, caught by testing rather than assumed away:**
+1. An early version of the carry-distance formula used one flat drag
+   ratio, which meant distance always peaked at exactly 45° — correct
+   for vacuum physics, but contradicting the same cited research this
+   function is built on, which shows real fly balls peak at 25-30°
+   because drag punishes a higher trajectory's longer hang time. A test
+   written specifically to check the peak landed in that real range
+   caught it immediately. Fixed with an angle-dependent penalty,
+   numerically tuned until the peak genuinely fell in the right place.
+2. Wiring the physics check into `simulatePlayer()`'s existing loop
+   introduced a real RBI-crediting bug: a plate appearance downgraded
+   from "HR" to "fly out" still had its original `roll` value sitting in
+   the HR-caliber range, which the RBI logic below was already using to
+   mean "this was a hit" — silently crediting downgraded fly outs with
+   hit-level RBI chances. Caught before shipping by writing a test that
+   forced every physics check to fail and asserting HR count came out to
+   exactly zero, then tracing the RBI math by hand. Fixed by explicitly
+   tracking the downgrade rather than relying on the stale `roll` value.
+
+**Honest limitations:**
+- A ball that doesn't clear the fence always becomes a routine fly out —
+  this doesn't yet distinguish a ball that fell just a few feet short
+  (which in reality is often a double or triple off the wall) from a
+  routine, short fly ball. That distinction would need real data on how
+  a near-miss's remaining distance maps to what actually happens next,
+  which isn't available.
+- Spray angle is sampled from a simple, park-centered distribution —
+  real hitters have genuine pull tendencies that aren't reflected here,
+  since per-player spray tendency isn't in this app's data.
+- Falls back cleanly to the original rate-based HR call — not the
+  physics model — whenever a player's park isn't in the dimension table
+  or they have no usable Statcast EV/launch angle at all. Verified
+  directly: this fallback path produces byte-identical results to the
+  pre-physics-model logic across 5,000 randomized trials.
+- Sanity-checked with a realistic elite-slugger contact profile across
+  three real parks: Coors Field's real, famous elevation advantage
+  showed up correctly as the highest clear-rate of the three, without
+  that being explicitly hand-coded anywhere — it fell out naturally from
+  the elevation term in the real carry-distance physics.
