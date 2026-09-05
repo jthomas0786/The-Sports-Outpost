@@ -1234,7 +1234,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .gamecast-diamond svg{ width:100%; height:100%; }
 
 /* ---- 3D field + strike zone ---- */
-.gc-3d-wrap{ position:relative; width:100%; max-width:760px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:linear-gradient(rgba(7,11,16,0.40),rgba(7,11,16,0.58)),url('preview-hero.jpg') center/cover no-repeat; border:1px solid var(--line); }
+.gc-3d-wrap{ position:relative; width:100%; max-width:760px; aspect-ratio:16/9; border-radius:12px; overflow:hidden; background:linear-gradient(rgba(7,11,16,0.40),rgba(7,11,16,0.58)),url('preview-hero.jpg?v=2') center/cover no-repeat; border:1px solid var(--line); }
 .gc-3d-host{ position:absolute; inset:0; }
 .gc-3d-canvas{ width:100%; height:100%; display:block; }
 .gc-3d-loading{ position:absolute; left:50%; bottom:8px; transform:translateX(-50%); font-size:10px; color:#1b2a3a; background:rgba(255,255,255,.5); padding:2px 8px; border-radius:8px; pointer-events:none; }
@@ -10771,7 +10771,7 @@ function homeRunMomentHTML(ev, narrative, shortPitch){
   }
   function slateBackdrop(id, dim){
     const op = dim ? '0.4' : '1';
-    return `<image href="field-bg.jpg" x="0" y="0" width="${VW}" height="${VH}" preserveAspectRatio="xMidYMid slice" opacity="${op}"/>
+    return `<image href="field-bg.jpg?v=2" x="0" y="0" width="${VW}" height="${VH}" preserveAspectRatio="xMidYMid slice" opacity="${op}"/>
       <rect x="0" y="0" width="${VW}" height="98" fill="url(#hrmTopFade${id})" opacity="${op}"/>`;
   }
 }
@@ -10918,7 +10918,7 @@ async function renderHRShareImage(ev, narrative, shortPitch, opts){
   ctx.fillStyle=BG; ctx.fillRect(0,0,W,H);
   // ---- field photo (16:9) ----
   const FH=Math.round(W*9/16); // 607
-  const field=await _hrLoadImg('field-bg.jpg');
+  const field=await _hrLoadImg('field-bg.jpg?v=2');
   if(field){ _hrDrawCover(ctx,field,0,0,W,FH); }
   // top scrim for ring legibility
   const sg=ctx.createLinearGradient(0,0,0,FH*0.42); sg.addColorStop(0,'rgba(8,11,20,0.82)'); sg.addColorStop(0.7,'rgba(8,11,20,0.4)'); sg.addColorStop(1,'rgba(8,11,20,0)');
@@ -11849,7 +11849,7 @@ async function renderContactQuality(p){
       </div>
       <div class="cq-field-wrap"><svg class="cq-field" viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet">
         <defs><linearGradient id="cq-vign" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(6,10,15,0.55)"/><stop offset="0.5" stop-color="rgba(6,10,15,0.30)"/><stop offset="1" stop-color="rgba(6,10,15,0.18)"/></linearGradient></defs>
-        <image href="preview-hero.jpg" x="0" y="0" width="${VW}" height="${VH}" preserveAspectRatio="xMidYMid slice"/>
+        <image href="preview-hero.jpg?v=2" x="0" y="0" width="${VW}" height="${VH}" preserveAspectRatio="xMidYMid slice"/>
         <rect x="0" y="0" width="${VW}" height="${VH}" fill="url(#cq-vign)"/>
         <circle cx="${hp.sx}" cy="${hp.sy}" r="3" fill="#fff" opacity="0.5"/>
         ${arcs.map(a=>`<path class="cq-arc" data-i="${a.i}" d="${a.pts}" stroke="${a.col}" stroke-width="${a.kind==='hr'?2.6:1.7}" fill="none" opacity="${a.kind==='out'?0.55:0.92}"/>`).join('')}
@@ -14269,7 +14269,7 @@ body.dwpreview-active #modalOverlay.open{ z-index:4000; }
     const el = document.createElement('div');
     el.id = 'dwPreview'; el.className = 'dwpreview';
     el.innerHTML = `<div class="dwpreview-wrap">
-      <section class="dwpreview-hero" style="background-image:url('preview-hero.jpg')">
+      <section class="dwpreview-hero" style="background-image:url('preview-hero.jpg?v=2')">
         <div class="dwpreview-hero-inner">
           <div class="dwpreview-logo"><img src="logo-outpost.png" alt="The Sports Outpost" class="dwpreview-logo-img"></div>
           <h1 class="dwpreview-h1">Tonight\u2019s home run board, <em>modeled.</em></h1>
