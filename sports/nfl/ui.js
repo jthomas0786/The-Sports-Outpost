@@ -25,6 +25,54 @@ let posFilter = 'ALL';
 // Not encoded in location.hash (router only routes #nfl); kept in-module.
 let activeNflTab = 'slate';        // 'slate' | 'feed' | 'foryou' | 'props'
 let activeNflProp = 'atd';         // 'atd' | 'firstTd' | 'rushYds' | 'recYds' | 'receptions' | 'passTds'
+// ---------------------------------------------------------------------------
+// team colors + grade ring — mirrors the MLB app's visual language
+// (same ring math as its siteRingSVG()) but built independently here,
+// since this module is deliberately isolated from the MLB code path.
+// ---------------------------------------------------------------------------
+/** Each team's real, sourced primary brand color. Where a team's true
+ *  primary is black (Raiders, Jaguars) or collides visually with another
+ *  team already in this list (Seahawks' navy vs. Patriots/Rams), the
+ *  team's own real SECONDARY color is used instead for the ring
+ *  specifically, since a barely-visible or duplicated ring color
+ *  defeats the point of a quick, at-a-glance team identifier — the
+ *  underlying color is still a genuine, sourced brand color for that
+ *  team, just not always the very first one listed. */
+const NFL_TEAM_COLORS = {
+  ARI: '#97233F', ATL: '#A71930', BAL: '#241773', BUF: '#00338D',
+  CAR: '#0085CA', CHI: '#0B162A', CIN: '#FB4F14', CLE: '#FF3C00',
+  DAL: '#003594', DEN: '#FB4F14', DET: '#0076B6', GB: '#203731',
+  HOU: '#03202F', IND: '#002C5F', JAX: '#006778', KC: '#E31837',
+  LA: '#002244', LAC: '#0080C6', LV: '#A5ACAF', MIA: '#008E97',
+  MIN: '#4F2683', NE: '#002244', NO: '#D3BC8D', NYG: '#0B2265',
+  NYJ: '#125740', PHI: '#004C54', PIT: '#FFB612', SEA: '#69BE28',
+  SF: '#AA0000', TB: '#D50A0A', TEN: '#0C2340', WAS: '#5A1414',
+};
+function nflTeamColor(abbr) { return NFL_TEAM_COLORS[abbr] || '#8b95a8'; }
+
+/** Grade letter -> color, matching the MLB app's own scheme exactly. */
+function nflGradeColor(g) {
+  const u = (g || '').toUpperCase();
+  return u.startsWith('A') ? '#22c55e' : u.startsWith('B') ? '#f4c430'
+    : u.startsWith('C') ? '#ff9f43' : u.startsWith('D') ? '#8b95a8' : '#22c55e';
+}
+
+// Same circumference constant and stroke-dasharray approach as the MLB
+// app's siteRingSVG() (r=52, C = 2*pi*52 ~= 326.7) — genuinely the same
+// ring, not just a visually-similar approximation.
+const NFL_RING_C = 326.7;
+function nflRingSVG(pct) {
+  const v = Math.max(0, Math.min(100, Number(pct) || 0));
+  const off = (NFL_RING_C * (1 - v / 100)).toFixed(1);
+  return `<svg viewBox="0 0 120 120" class="sgr-svg" aria-hidden="true"><circle class="sgr-rt" cx="60" cy="60" r="52"/><circle class="sgr-rf" cx="60" cy="60" r="52" transform="rotate(-90 60 60)" stroke-dasharray="${NFL_RING_C}" stroke-dashoffset="${off}"/></svg>`;
+}
+/** Full grade ring with percentage — mirrors gradePctRingHTML() exactly. */
+function nflGradeRingHTML(probability, grade) {
+  const pctVal = probability * 100;
+  const disp = pctVal < 10 ? pctVal.toFixed(1) : Math.round(pctVal);
+  return `<span class="sgr sgr-xl sgr-pct" style="color:${nflGradeColor(grade)}">${nflRingSVG(pctVal)}<span class="sgr-l"><b class="sgr-gd2">${esc(grade)}</b><span class="sgr-pv">${disp}%</span></span></span>`;
+}
+
 const NFL_PROPS = {
   atd:        { label: 'Anytime TD',      modeled: true },
   firstTd:    { label: 'First TD',        modeled: false },
@@ -293,45 +341,86 @@ function gameCard(game) {
 // ---------------------------------------------------------------------------
 // player row
 // ---------------------------------------------------------------------------
-function playerRow(p, opts = {}) {
+/**
+ * The Top 20 Anytime TD card — mirrors the MLB app's Top 20 Home Run
+ * card structure and information density (rank, team-colored headshot,
+ * name/matchup row, a real badge row, contextual metrics, and a full
+ * grade ring), built independently here since this module is
+ * deliberately isolated from the MLB code path, but using the exact
+ * same ring math/CSS classes (see nflGradeRingHTML above) so the two
+ * genuinely look and read the same way.
+ */
+function pickCardHTML(p, opts = {}) {
   const a = p.props.atd;
   const conf = CONF_LABEL[a.dataConfidence];
   const isOut = a.availability.status === 'out';
-  const barW = Math.max(2, Math.min(100, a.probability * 100));
-  const depth = p.depthRank != null
-    ? `<span class="nfl-chip nfl-chip-depth" title="2026 depth-chart rank at ${esc(p.position)}">${esc(p.position)}${p.depthRank}</span>`
+  const g = teamToGameMap()[p.team];
+  const rankCls = opts.rank === 2 ? 'r2' : opts.rank === 3 ? 'r3' : opts.rank >= 4 ? 'r5' : '';
+
+  // Matchup line: real kickoff time pre-game, live score once underway —
+  // the exact same status states the gamecast itself uses.
+  let matchupTxt = `vs ${esc(p.opponent)}`;
+  if (g) {
+    if (g.status === 'pre') matchupTxt += ` · ${esc(kickoff(g.startTimeUTC))}`;
+    else if (g.status === 'in') matchupTxt += ` · LIVE ${esc(g.away.score)}–${esc(g.home.score)}`;
+    else if (g.status === 'post') matchupTxt += ` · FINAL ${esc(g.away.score)}–${esc(g.home.score)}`;
+  }
+
+  // Real badge row — the same underlying facts the old chip row showed,
+  // restyled to match the MLB app's small-pill badge visual language
+  // rather than the larger, differently-styled chips used elsewhere.
+  const badges = [];
+  if (p.depthRank != null) badges.push({ icon: '📋', text: `${esc(p.position)}${p.depthRank}`, title: `2026 depth-chart rank at ${esc(p.position)}` });
+  if (p.teamChanged) badges.push({ icon: '🔁', text: `${esc(p.prevTeam)}→${esc(p.team)}`, title: `Changed teams for 2026 — 2025 production was with ${esc(p.prevTeam)}` });
+  if (conf) badges.push({ icon: '⚠️', text: esc(conf.text), title: esc(conf.title) });
+  if (!isOut && a.availability.status !== 'active' && a.availability.status !== 'unconfirmed') {
+    badges.push({ icon: '🩹', text: esc(AVAIL_LABEL[a.availability.status] || a.availability.status), title: esc(a.availability.note || '') });
+  }
+  const badgeRow = badges.length
+    ? `<div class="nfl-pick-badges">${badges.map(b => `<span class="nfl-pick-badge" title="${b.title}">${b.icon} ${b.text}</span>`).join('')}</div>`
     : '';
-  const moved = p.teamChanged
-    ? `<span class="nfl-chip nfl-chip-moved" title="Changed teams for 2026 — 2025 production was with ${esc(p.prevTeam)}">${esc(p.prevTeam)}→${esc(p.team)}</span>`
+
+  // Real red-zone defense context for THIS matchup — already computed
+  // elsewhere in this module (rzDefLabel), the closest NFL analog to the
+  // MLB card's opponent-pitcher chip: what does the defense this player
+  // faces tonight actually do in the red zone.
+  const oppTeam = g ? (g.away.abbr === p.team ? g.home : g.away) : null;
+  const rzChip = oppTeam ? rzDefLabel(oppTeam.rzDefense) : null;
+  const rzChipHTML = rzChip
+    ? `<span class="nfl-pick-chip" title="${esc(rzChip.detail)}">${esc(rzChip.text)}</span>`
     : '';
-  const confChip = conf
-    ? `<span class="nfl-chip nfl-chip-warn" title="${esc(conf.title)}">${esc(conf.text)}</span>`
+
+  const venueHTML = g?.venue
+    ? `<div class="nfl-pick-env-item">${g.venue.indoor ? '🏟️ Indoor' : '☀️ Outdoor'}${g.venue.name ? ` · ${esc(g.venue.name.split(',')[0])}` : ''}</div>`
     : '';
-  const availChip = a.availability.status !== 'active' && a.availability.status !== 'unconfirmed'
-    ? `<span class="nfl-chip nfl-chip-avail nfl-avail-${esc(a.availability.status)}" title="${esc(a.availability.note || '')}">${esc(AVAIL_LABEL[a.availability.status] || a.availability.status)}</span>`
-    : '';
+
   const atdOdds = p.odds?.atd?.best;
-  const oddsChip = atdOdds ? `<a class="nfl-chip nfl-odds-chip" href="${esc(atdOdds.link)}" target="_blank" rel="noopener" title="${esc(atdOdds.book)} · Anytime TD — tap to bet">Bet ${priceFmt(atdOdds.price)}</a>` : '';
+  const oddsRow = atdOdds
+    ? `<div class="nfl-pick-odds"><a href="${esc(atdOdds.link)}" target="_blank" rel="noopener" class="nfl-pick-odds-link" title="${esc(atdOdds.book)} · Anytime TD — tap to bet">💰 Best price ${priceFmt(atdOdds.price)} · ${esc(atdOdds.book)}</a></div>`
+    : '';
+
   return `
-<div class="nfl-player ${isOut ? 'is-out' : ''}" data-gsis="${esc(p.gsisId)}">
-  <div class="nfl-p-rank">${opts.rank != null ? opts.rank : ''}</div>
-  <img class="nfl-p-head" src="${esc(p.headshot || '')}" alt="" loading="lazy"
-       onerror="this.style.visibility='hidden'"/>
-  <div class="nfl-p-main">
-    <div class="nfl-p-name">${esc(p.name)}
-      <span class="nfl-p-pos">${esc(p.position)}${p.jersey ? ` · #${esc(p.jersey)}` : ''}</span>
+<div class="nfl-pick-card ${isOut ? 'is-out' : ''}" data-gsis="${esc(p.gsisId)}">
+  <div class="nfl-pick-rank ${rankCls}">${opts.rank != null ? opts.rank : ''}</div>
+  <img class="nfl-pick-headshot" style="border-color:${nflTeamColor(p.team)};" src="${esc(p.headshot || '')}" alt=""
+       loading="lazy" onerror="this.style.visibility='hidden'"/>
+  <div class="nfl-pick-body">
+    <div class="nfl-pick-name-row">
+      <span class="nfl-pick-name">${esc(p.name)}</span>
+      <span class="nfl-pick-team">${esc(p.team)} · ${esc(p.position)}${p.jersey ? ` #${esc(p.jersey)}` : ''}</span>
+      <span class="nfl-pick-matchup">${matchupTxt}</span>
     </div>
-    <div class="nfl-p-sub">
-      <span class="nfl-p-team">${esc(p.team)}</span>
-      <span class="nfl-p-vs">vs ${esc(p.opponent)}</span>
-      ${depth}${moved}${confChip}${availChip}${oddsChip}
+    ${badgeRow}
+    <div class="nfl-pick-metrics">
+      <div class="nfl-pick-chips">${rzChipHTML}</div>
+      <div class="nfl-pick-env">${venueHTML}</div>
     </div>
+    ${oddsRow}
   </div>
-  <div class="nfl-p-prob">
-    <div class="nfl-p-pct">${pct(a.probability)}</div>
-    <div class="nfl-p-bar"><span style="width:${barW.toFixed(1)}%"></span></div>
+  <div class="nfl-pick-score">
+    ${nflGradeRingHTML(a.probability, a.grade)}
+    <div class="nfl-pick-score-label">ATD PROB</div>
   </div>
-  <div class="nfl-p-grade nfl-grade-${esc(a.grade)}" title="${esc(a.gradeLabel)}">${esc(a.grade)}</div>
 </div>`;
 }
 
@@ -340,6 +429,19 @@ function playerRow(p, opts = {}) {
 // ---------------------------------------------------------------------------
 function allPlayers() {
   return slate.games.flatMap(g => g.players);
+}
+
+/** Maps each team abbreviation (both sides of every game) to its real
+ *  game object — a player only carries p.opponent (a string), not a
+ *  direct game reference, so this is how the redesigned card looks up
+ *  kickoff time, status, and venue for a given player's own game. */
+function teamToGameMap() {
+  const map = {};
+  for (const g of slate.games) {
+    if (g.away?.abbr) map[g.away.abbr] = g;
+    if (g.home?.abbr) map[g.home.abbr] = g;
+  }
+  return map;
 }
 
 // ---------------------------------------------------------------------------
@@ -433,10 +535,10 @@ function renderPicks(host) {
     : allPlayers();
   if (posFilter !== 'ALL') list = list.filter(p => p.position === posFilter);
   list = [...list].sort((a, b) => b.props.atd.probability - a.props.atd.probability);
-  const limit = activeGameId ? list.length : 40;
+  const limit = activeGameId ? list.length : 20;
   const shown = list.slice(0, limit);
   host.innerHTML = shown.length
-    ? shown.map((p, i) => playerRow(p, { rank: i + 1 })).join('')
+    ? shown.map((p, i) => pickCardHTML(p, { rank: i + 1 })).join('')
     : '<div class="nfl-empty">No players match this filter.</div>';
 }
 
@@ -569,9 +671,9 @@ export function render() {
     title = 'TD Feed';
     sub = `Live touchdowns the moment they cross. The feed lights up with every scoring play — rush, pass, and return TDs — once games go live.`;
   } else if (activeNflTab === 'props') {
-    title = NFL_PROPS[activeNflProp].label;
+    title = isAt ? 'Top 20 · Anytime TD' : NFL_PROPS[activeNflProp].label;
     sub = isAt
-      ? `${weekLabel} · ${slate.gameCount} games · ${allPlayers().length} players graded. Ranked by modeled probability of scoring a rushing or receiving touchdown.`
+      ? `${weekLabel} · ${slate.gameCount} games · ranked by modeled probability of scoring a rushing or receiving touchdown.`
       : `${weekLabel} · best Over price across books · player-prop lines post 24–48 hours before kickoff.`;
   }
 
@@ -602,7 +704,7 @@ export function render() {
     <div class="nfl-picklist" id="nflPickList"></div>`;
   } else {
     // Slate tab, OR Player Props → Anytime TD: field gamecast (or game grid) + ATD pick list.
-    body = `${g ? gamecastHTML(g) : '<div class="nfl-games" id="nflGames"></div>'}${isAt ? `${propSubtabs}<div class="nfl-picklist-head"><h3>${g ? `${esc(g.away.abbr)} @ ${esc(g.home.abbr)} — every graded player` : 'Top 40 across the slate'}</h3></div><div class="nfl-picklist" id="nflPickList"></div>` : ''}`;
+    body = `${g ? gamecastHTML(g) : '<div class="nfl-games" id="nflGames"></div>'}${isAt ? `${propSubtabs}<div class="nfl-picklist-head"><h3>${g ? `${esc(g.away.abbr)} @ ${esc(g.home.abbr)} — every graded player` : 'Top 20 across the slate'}</h3></div><div class="nfl-picklist" id="nflPickList"></div>` : ''}`;
   }
 
   root.innerHTML = `
@@ -721,4 +823,4 @@ export function __setTestState(next) {
   if ('activeNflTab' in next) activeNflTab = next.activeNflTab;
   if ('activeGameId' in next) activeGameId = next.activeGameId;
 }
-export { updateLiveDisplay, wireGameCard, gameCard, gamecastHTML };
+export { updateLiveDisplay, wireGameCard, gameCard, gamecastHTML, pickCardHTML, nflGradeRingHTML, nflTeamColor };
