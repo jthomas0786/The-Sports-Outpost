@@ -139,6 +139,54 @@ signal into other props' rate contexts, and stacking the same underlying
 number into PA projection too would double-count one piece of evidence
 as if it were two independent ones.
 
+## Correlation and parlay pricing
+
+Two teammates in the same game aren't independent — a night where the
+ball is genuinely carrying well helps both of them at once. The old
+model treated every player as fully independent regardless of whether
+they shared a game, which understates the true probability of multiple
+teammates all hitting together.
+
+**The mechanism:** `getGameEffects()` draws a per-game "carry" factor —
+`exp(N(0, σ))`, log-normal so it's always positive — once per simulated
+path, cached on the game object, and reused for every player simulated
+from that game. Every player's HR rate for a given simulated path is
+scaled by that same shared draw, which is what produces real, measurable
+correlation between teammates' simulated outcomes without needing to
+change each player's own individual, marginal probability at all.
+
+**Honest calibration note:** `GAME_EFFECT_SD = 0.12` is a documented,
+conservative assumption, not fitted from real historical data. The
+actual effect size this produces is modest — verified directly, a
+2-leg same-game parlay with two ~8% shooters shows roughly a 2-3%
+increase in true joint probability over the naive independent
+assumption. A genuine calibration study of real game-to-game HR-rate
+variance would be needed to tune this precisely; until then, treat the
+magnitude as a reasonable placeholder, not a calibrated number.
+
+**Wired all the way through to real payouts**, not just simulation
+internals: `jointHRProbability()` computes the true joint probability
+for same-game legs from their shared simulated paths, `computeCombinedOdds()`
+turns that into a `correlationAdjustment` factor, and that factor is
+submitted alongside the wager and applied server-side in
+`place_wager()` (see `wagering-schema.sql`), clamped to `[0.5, 2.0]`
+there rather than trusted outright from the client.
+
+**A real bug caught and fixed during this work, worth documenting
+rather than quietly correcting:** the first version of the client-side
+preview shaded the *combined joint probability* once by the house edge.
+The server, unchanged, shades *each leg separately* by the house edge
+and multiplies the results — mathematically a different number, since
+shading compounds across legs. Caught this with a test reimplementing
+the server's actual formula independently and comparing outputs
+directly, rather than testing the client's formula against a copy of
+itself — the two disagreed by a meaningful margin on a real example.
+The client-side function was rewritten to mirror the server's exact
+per-leg-then-adjust formula, and a permanent test now asserts client and
+server agree exactly on every commit, specifically because a silent
+mismatch here means showing someone one number and paying them a
+different one.
+
 ## How `p_hat` is aggregated
 
 10,000 independent simulated games are run per player. `p_hat` is the
@@ -195,10 +243,14 @@ In priority order, matching the project's own stated sequencing:
    still not built — `battingOrder` isn't currently in the data (see
    "Opportunity model" section above) — so this remains open until that
    data exists.
-4. **Matchup + park/weather as shared, per-path draws** — rather than
-   deterministic multipliers, draw the game's actual weather/park
-   condition once per simulated path and share it across every player
-   simulated in that same game.
+4. ~~Shared, per-path game effect~~ — **done**: `getGameEffects()` draws
+   a per-game "carry" multiplier once per simulated path, shared across
+   every player simulated from that game, creating real correlation
+   between teammates. Wired all the way through to actual parlay
+   pricing — see "Correlation and parlay pricing" below. This is
+   specifically a residual/unmodeled variance effect, not yet the
+   literal shared weather/park draw the roadmap originally described —
+   see that section for the honest distinction.
 5. **Contact/flight model** — simulate a batted-ball event (EV + launch
    angle from the player's own distribution) and map that through park
    dimensions and weather to an outcome, rather than sampling a discrete

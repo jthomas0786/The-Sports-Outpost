@@ -12298,6 +12298,65 @@ let betslipOpen = false;
 // real number is always recomputed server-side inside place_wager().
 let wagerConfigCache = null;
 
+/** Real player object lookup for a betslip leg — needed because
+ *  jointHRProbability requires the actual simulatable player (with
+ *  p.game.gamePk and everything simulatePlayer needs), not just the
+ *  leg's own display metadata (player_id, game_pk, pct). */
+function resolvePlayerForLeg(leg){
+  return allBatters.find(p => p.id === leg.player_id && p.game?.gamePk === leg.game_pk) || null;
+}
+
+/** Correlation-aware combined odds for a betslip.
+ *
+ *  CRITICAL: this must produce EXACTLY the same number place_wager() will
+ *  actually compute server-side, or the preview shown before confirming
+ *  would lie about what the wager actually pays out. The server shades
+ *  each leg's probability SEPARATELY (each leg's own probability times
+ *  (1+houseEdge), capped at 0.90) and multiplies those together BEFORE
+ *  applying the correlation adjustment — this is NOT mathematically the
+ *  same as shading one combined joint probability once, since shading
+ *  compounds multiplicatively across legs. An earlier version of this
+ *  function shaded the joint probability directly and was verified,
+ *  numerically, to disagree with the server's actual math by a
+ *  meaningful margin — this version instead mirrors the server's real
+ *  per-leg-then-adjust formula exactly, matching wagering-schema.sql's
+ *  place_wager() step for step.
+ *
+ *  Returns { multiplier, correlationAdjustment }:
+ *    - multiplier: the real combined odds for preview display.
+ *    - correlationAdjustment: submitted alongside the wager (see the
+ *      submission code below) so the server applies the SAME adjustment
+ *      this preview already accounted for.
+ *
+ *  Falls back to the old, uncorrelated formula (adjustment = 1) if any
+ *  leg's real player object can't be resolved — safer than silently
+ *  mispricing off incomplete data. */
+function computeCombinedOdds(legs, houseEdge, maxMult){
+  // Step 1, exactly matching the server: shade each leg's OWN probability
+  // separately, multiply the resulting odds together. Unchanged from
+  // before correlation existed at all.
+  const naiveCombined = legs.reduce((acc, l) => acc * previewOdds(l.pct, houseEdge), 1);
+
+  const players = legs.map(resolvePlayerForLeg);
+  if(players.some(p => !p)){
+    return { multiplier: Math.min(naiveCombined, maxMult), correlationAdjustment: 1 };
+  }
+
+  const naiveIndependentProb = players.reduce((acc, p) => acc * (simulatePlayer(p).hr.exact / 100), 1);
+  const trueJointProb = jointHRProbability(players);
+  const rawCorrelationAdjustment = naiveIndependentProb > 0 ? trueJointProb / naiveIndependentProb : 1;
+  // Same clamp place_wager() applies server-side (see wagering-schema.sql)
+  // — applied here too so an extreme correlation scenario can never make
+  // this preview diverge from what the server will actually compute.
+  const correlationAdjustment = clamp(rawCorrelationAdjustment, 0.5, 2.0);
+
+  // Step 2, exactly matching the server: divide the per-leg combined odds
+  // by the correlation adjustment, THEN cap at the max multiplier.
+  const multiplier = Math.min(naiveCombined / correlationAdjustment, maxMult);
+
+  return { multiplier, correlationAdjustment };
+}
+
 /** Same formula as place_wager() on the database side, used here only to
  *  show a live preview as the user types a stake — never trusted as the
  *  actual payout. */
@@ -12321,10 +12380,7 @@ function previewOdds(pct, houseEdge){
  * first, rather than committing it immediately.
  */
 function buildWagerShareDraft(wageredLegs, houseEdge, maxMult){
-  const combined = Math.min(
-    wageredLegs.reduce((acc, l) => acc * previewOdds(l.pct, houseEdge), 1),
-    maxMult
-  );
+  const { multiplier: combined } = computeCombinedOdds(wageredLegs, houseEdge, maxMult);
 
   const defaultBody = wageredLegs.length === 1
     ? `🎰 Locked in a ${combined.toFixed(2)}x bet slip`
@@ -12421,10 +12477,7 @@ async function openWagerPanel(){
   const balance = await s.loadBalance();
 
   const renderPreview = (stake) => {
-    const combined = Math.min(
-      betslip.reduce((acc, l) => acc * previewOdds(l.pct, houseEdge), 1),
-      maxMult
-    );
+    const { multiplier: combined } = computeCombinedOdds(betslip, houseEdge, maxMult);
     const payout = Math.round(stake * combined);
     return `<div class="bs-wager-preview">
       <span>${combined.toFixed(2)}x</span>
@@ -12466,9 +12519,14 @@ async function openWagerPanel(){
       game_pk: l.game_pk, slate_date: l.slate_date,
       probability: l.pct / 100,   // stored as a whole-number percent on the leg; RPC expects 0-1
     }));
+    // Same real, correlation-aware calculation the preview just showed —
+    // submitted alongside the unchanged per-leg data so the server prices
+    // the SAME thing the person just saw, not a different, independent-
+    // assumption number silently recomputed underneath them.
+    const { correlationAdjustment } = computeCombinedOdds(betslip, houseEdge, maxMult);
     const confirmBtn = document.getElementById('wagerConfirm');
     confirmBtn.disabled = true;
-    const res = await s.placeWager(stake, legs);
+    const res = await s.placeWager(stake, legs, correlationAdjustment);
     confirmBtn.disabled = false;
     if(res.error){ err.textContent = res.error; return; }
 
@@ -12841,6 +12899,41 @@ function projectExpPA(p){
   return playerRate * w + LG_PA_PER_G * (1 - w);
 }
 
+/** Standard normal random draw via Box-Muller transform. Pure randomness
+ *  helper — no dependencies, fully testable via its statistical
+ *  properties (mean ≈ 0, SD ≈ 1) rather than by mocking Math.random(). */
+function randNormal(){
+  let u = 0, v = 0;
+  while(u === 0) u = Math.random();
+  while(v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+/** Residual game-to-game "carry" variance, beyond what park/weather/
+ *  pitcher factors already explain — drawn ONCE per game, cached on the
+ *  game object, and reused for every player simulated from that game.
+ *  This is what creates real correlation between teammates' simulated
+ *  outcomes: in a specific simulated path where this draw came out high,
+ *  every player in that game benefits together, the same way an actual
+ *  night where the ball is carrying unusually well helps both teammates
+ *  at once rather than one independently of the other.
+ *
+ *  HONEST CALIBRATION NOTE: GAME_EFFECT_SD is a documented, conservative
+ *  assumption (see MODEL.md), not fitted from real historical data — a
+ *  genuine study of game-to-game HR-rate variance beyond known factors
+ *  would be needed to tune this precisely. Log-normal (exp of a normal
+ *  draw) rather than a plain normal multiplier specifically because it's
+ *  always positive — a rate can be scaled up or down but never negative. */
+const GAME_EFFECT_SD = 0.12;
+function getGameEffects(game, simRuns){
+  if(!game) return null;
+  if(game._pathEffects && game._pathEffects.length === simRuns) return game._pathEffects;
+  const effects = new Float64Array(simRuns);
+  for(let i = 0; i < simRuns; i++) effects[i] = Math.exp(randNormal() * GAME_EFFECT_SD);
+  game._pathEffects = effects;
+  return effects;
+}
+
 function mapPARoll(roll, t){
   if(roll < t.cHR)  return { type:'HR',  hr:1, h:1, tb:4, dbl:0, trp:0, sgl:0 };
   if(roll < t.cDbl) return { type:'2B',  hr:0, h:1, tb:2, dbl:1, trp:0, sgl:0 };
@@ -12855,10 +12948,18 @@ function simulatePlayer(p){
   if(p._sim) return p._sim;                       // cached per scoring pass
 
   const r = paRates(p);
-  // Cumulative thresholds — one draw picks exactly one outcome.
+  // Cumulative thresholds — one draw picks exactly one outcome. cHR here
+  // is the BASE rate (context-adjusted, but not yet path-adjusted); the
+  // actual per-iteration HR threshold below additionally scales this by
+  // that specific path's shared game effect (see getGameEffects).
   const cHR = r.hr, cDbl = cHR + r.dbl, cTrp = cDbl + r.trp,
         cSgl = cTrp + r.sgl, cBB = cSgl + r.bb, cK = cBB + r.k;
-  const thresholds = { cHR, cDbl, cTrp, cSgl, cBB, cK };
+  // Widths of the non-HR outcome bands, held fixed as the HR band itself
+  // grows or shrinks per path — this is what lets the shared game effect
+  // move HR probability up and down without needing to touch the other
+  // five outcomes' own relative likelihoods.
+  const widthDbl = r.dbl, widthTrp = r.trp, widthSgl = r.sgl, widthBB = r.bb, widthK = r.k;
+  const gameEffects = getGameEffects(p.game, SIM_RUNS);
 
   const expPA = projectExpPA(p);
   // RBI opportunity. Homers are handled separately below, so this rate covers
@@ -12880,33 +12981,51 @@ function simulatePlayer(p){
   const sbPerG  = p.projSB ?? 0;
 
   const tally = { hr:[], hits:[], tb:[], rbi:[], runs:[], sb:[], sgl:[], dbl:[], hrr:[] };
+  // Per-path HR outcome (1 = at least one HR this simulated game, 0 = none)
+  // for THIS specific player — exposed for joint/correlated probability
+  // across teammates (see jointHRProbability). A compact typed array since
+  // it's just a flag per path, kept small even across a full slate of players.
+  const hrHitPath = new Uint8Array(SIM_RUNS);
 
   for(let i = 0; i < SIM_RUNS; i++){
+    // This path's shared game effect — identical for every player
+    // simulated from this same game, on this same path index, which is
+    // exactly what makes teammates' simulated outcomes correlated rather
+    // than independent.
+    const pathHR = clamp(cHR * (gameEffects ? gameEffects[i] : 1), 0, 0.6);
+    const pathCHR = pathHR;
+    const pathCDbl = pathCHR + widthDbl;
+    const pathCTrp = pathCDbl + widthTrp;
+    const pathCSgl = pathCTrp + widthSgl;
+    const pathCBB = pathCSgl + widthBB;
+    const pathCK = pathCBB + widthK;
+    const pathThresholds = { cHR: pathCHR, cDbl: pathCDbl, cTrp: pathCTrp, cSgl: pathCSgl, cBB: pathCBB, cK: pathCK };
+
     // Plate appearances vary game to game; a lineup can turn over an extra time.
     const pa = Math.random() < (expPA % 1) ? Math.ceil(expPA) : Math.floor(expPA);
     let hr=0, h=0, tb=0, rbi=0, runs=0, sgl=0, dbl=0;
 
     for(let a = 0; a < pa; a++){
       const roll = Math.random();
-      const outcome = mapPARoll(roll, thresholds);
+      const outcome = mapPARoll(roll, pathThresholds);
       const hadHR = outcome.type === 'HR';
       hr += outcome.hr; h += outcome.h; tb += outcome.tb;
       dbl += outcome.dbl; sgl += outcome.sgl;
       if(hadHR) runs++;   // his own HR scores him
 
       // Driving in other runners, and scoring after reaching base.
-      if(roll >= cHR && roll < cBB){                 // reached base, not via HR
+      if(roll >= pathCHR && roll < pathCBB){          // reached base, not via HR
         if(Math.random() < runRate * 2.2) runs++;
       }
       // A homer always drives in at least himself; additional RBI depend on
       // runners aboard. Non-HR plate appearances use the base RBI rate.
       if(hadHR){
         rbi += 1 + (Math.random() < 0.55 ? 1 : 0);   // ~1.6 RBI per HR league-wide
-      } else if(roll < cSgl){
+      } else if(roll < pathCSgl){
         // Extra-base hits clear the bases more often than singles.
-        const xbh = roll >= cHR && roll < cTrp;
+        const xbh = roll >= pathCHR && roll < pathCTrp;
         if(Math.random() < rbiRate * (xbh ? 1.5 : 1)) rbi += (Math.random() < 0.25 ? 2 : 1);
-      } else if(roll >= cK){
+      } else if(roll >= pathCK){
         // Outs in play — sac flies and RBI groundouts.
         if(Math.random() < rbiRate * 0.55) rbi++;
       }
@@ -12917,6 +13036,7 @@ function simulatePlayer(p){
     tally.rbi.push(rbi); tally.runs.push(runs); tally.sb.push(sb);
     tally.sgl.push(sgl); tally.dbl.push(dbl);
     tally.hrr.push(h + runs + rbi);
+    hrHitPath[i] = hr > 0 ? 1 : 0;
   }
 
 
@@ -12946,8 +13066,58 @@ function simulatePlayer(p){
     hrr25:   stat(tally.hrr, 2.5),
     sb:      stat(tally.sb, 0.5),
     rates: r,
+    // Per-path HR flags (1/0 per simulated game) for THIS player, sharing
+    // the same game._pathEffects every teammate simulated from this game
+    // also used — this is what jointHRProbability() reads to compute a
+    // real correlated probability instead of naively multiplying
+    // independent per-player odds together.
+    hrHitPath,
   };
   return p._sim;
+}
+
+/** Real, correlation-aware joint probability for a set of HR legs.
+ *
+ *  Players sharing the same game (same gamePk) get their TRUE joint
+ *  probability computed directly from their shared simulated paths —
+ *  the fraction of paths where every one of them hit their HR in the
+ *  same simulated version of that game — rather than naively multiplying
+ *  their individual probabilities together as if independent. Players
+ *  from different games are genuinely independent, so groups are
+ *  combined by ordinary multiplication across games.
+ *
+ *  Takes real player objects (each must already be simulatable via
+ *  simulatePlayer — needs p.game.gamePk and the fields paRates/
+ *  simulatePlayer expect), not raw betslip leg metadata, since the
+ *  actual shared per-path data lives on the real simulation result. */
+function jointHRProbability(players){
+  if(!players || !players.length) return 1;
+
+  const byGame = new Map();
+  for(const p of players){
+    const gamePk = p.game?.gamePk ?? `no-game-${p.id}`;   // no shared game = never correlated with anyone
+    if(!byGame.has(gamePk)) byGame.set(gamePk, []);
+    byGame.get(gamePk).push(p);
+  }
+
+  let combined = 1;
+  for(const group of byGame.values()){
+    if(group.length === 1){
+      // No correlation to compute for a lone player — just their own p_hat.
+      combined *= simulatePlayer(group[0]).hr.exact / 100;
+      continue;
+    }
+    const paths = group.map(p => simulatePlayer(p).hrHitPath);
+    const n = paths[0].length;
+    let allHitCount = 0;
+    for(let i = 0; i < n; i++){
+      let allHit = true;
+      for(const path of paths){ if(!path[i]){ allHit = false; break; } }
+      if(allHit) allHitCount++;
+    }
+    combined *= allHitCount / n;
+  }
+  return combined;
 }
 
 /**

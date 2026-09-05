@@ -1025,6 +1025,16 @@ async function loadBalance(){
  * are computed server-side from the live house_edge config, never trusted
  * from the client, so nothing here can submit odds better than what the
  * config actually allows.
+ *
+ * correlationAdjustment: for legs sharing the same game (real teammates),
+ * their TRUE joint probability of both hitting is higher than treating
+ * them as independent would suggest — this is that real ratio (true
+ * joint ÷ naive independent product), computed client-side from the same
+ * simulation that already produced each leg's own probability. Defaults
+ * to 1 (no adjustment) so existing callers that don't pass it keep
+ * behaving exactly as before. The server clamps this to a safe range
+ * rather than trusting it outright — see place_wager() in
+ * wagering-schema.sql for why and by how much.
  */
 /**
  * Routes through the place-wager-validated edge function rather than
@@ -1035,12 +1045,12 @@ async function loadBalance(){
  * someone could watch a home run happen live and immediately wager on
  * that exact player for a guaranteed win.
  */
-async function placeWager(stake, legs){
+async function placeWager(stake, legs, correlationAdjustment = 1){
   if(!currentUser) return { error: 'not signed in' };
   if(!Array.isArray(legs) || !legs.length) return { error: 'at least one leg is required' };
 
   const { data, error } = await sb.functions.invoke('place-wager-validated', {
-    body: { stake, legs },
+    body: { stake, legs, correlation_adjustment: correlationAdjustment },
   });
 
   if(error){
