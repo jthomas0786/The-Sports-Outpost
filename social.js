@@ -1010,6 +1010,16 @@ async function adminWagerReport(){
   return { ok: true, rows: data || [] };
 }
 
+/** Every real username with a profile, for the admin panel's Points &
+ *  Wagers username dropdown. Same ownership gate as the other four admin
+ *  functions (assert_is_owner(), re-checked server-side) — a non-owner
+ *  calling this just gets 'not authorized' back, not a real list. */
+async function adminListUsernames(){
+  const { data, error } = await sb.rpc('admin_list_usernames');
+  if(error) return { error: error.message };
+  return { ok: true, usernames: (data || []).map(r => r.username) };
+}
+
 async function loadBalance(){
   if(!currentUser) return 0;
   const { data, error } = await sb.from('point_balances')
@@ -1141,7 +1151,7 @@ export {
   getWatchlist, addToWatchlist, removeFromWatchlist,
   savePushSubscription, removePushSubscription,
   loadBalance, placeWager, loadWagers, checkIn, loadWagerConfig,
-  adminLookupUser, adminAdjustPoints, adminAdjustPointsAll, adminWagerReport,
+  adminLookupUser, adminAdjustPoints, adminAdjustPointsAll, adminWagerReport, adminListUsernames,
   joinPresence, getOnlineUsers,
   getProfile, updateProfile, isFollowing,
   postStatus, deleteStatus, loadStatuses, loadFollowingStatuses,
