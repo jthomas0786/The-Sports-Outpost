@@ -16377,10 +16377,10 @@ function checkWatchlistPlay(g, play){
   const detail = hd ? `${hd.launchSpeed} mph, ${hd.totalDistance ?? '?'} ft` : (play.result?.description || '');
 
   social()?.selfNotify?.('atbat_result', {
-    player_name: name, player_id: batterId, result, detail, emoji, atbat_key: atBatKey, game_pk: g.gamePk,
+    player_name: name, player_id: batterId, result, detail, emoji, atbat_key: atBatKey,
   }, slateMeta.date);   // stamped so this alert stops showing after today
-  pushAppNotification({ title: `${emoji} ${name}: ${result}`, body: detail, dedupeKey: `atbat_result:${atBatKey}`, gamePk: g.gamePk });
-  notifyWatchlistAlert(`${emoji} ${name}: ${result}`, detail, g.gamePk, `atbat_result:${atBatKey}`);
+  pushAppNotification({ title: `${emoji} ${name}: ${result}`, body: detail, dedupeKey: `atbat_result:${atBatKey}` });
+  notifyWatchlistAlert(`${emoji} ${name}: ${result}`, detail, null, `atbat_result:${atBatKey}`);
 }
 
 // === PORTED FROM GITHUB: closeNotifyPop ===
@@ -16560,7 +16560,13 @@ function formatNotification(row){
     case 'atbat_up':
       return { title: `⚾ ${p.player_name} is up to bat`, body: p.game || '', gamePk: p.game_pk ?? null };
     case 'atbat_result':
-      return { title: `${p.emoji || '💥'} ${p.player_name}: ${p.result || 'at-bat over'}`, body: p.detail || '', gamePk: p.game_pk ?? null };
+      // No Watch button on the result — the at-bat is already over by the
+      // time this fires, so there's nothing left to watch live. Deliberately
+      // doesn't read p.game_pk even though older stored rows may still have
+      // it, so a notification rehydrated from storage stays consistent with
+      // the live path above rather than the button reappearing after a
+      // reload.
+      return { title: `${p.emoji || '💥'} ${p.player_name}: ${p.result || 'at-bat over'}`, body: p.detail || '' };
     default:
       return { title: 'Notification', body: '' };
   }
