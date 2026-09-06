@@ -4163,6 +4163,34 @@ body.modal-open{ overflow:hidden; }
   .gc-mini-diamond i.home{ left:18px !important; }
 }
 </style>
+
+<style id="mobile-gamecast-v11">
+/* v11: stable strike zone, larger top-corner player cards, no center logo overlay. */
+.gc-stadium-brand{ display:none !important; }
+@media (max-width:760px){
+  .gc-player-card{
+    top:3.5% !important;
+    width:36% !important;
+    padding:8px 9px !important;
+    border-radius:11px !important;
+  }
+  .gc-batter-card{ left:1.5% !important; }
+  .gc-pitcher-card{ right:1.5% !important; }
+  .gc-player-photo{ width:38px !important; height:38px !important; flex-basis:38px !important; }
+  .gc-player-copy>b{ font-size:12px !important; }
+  .gc-player-copy>span{ font-size:7px !important; }
+  .gc-player-stats{ margin-top:6px !important; padding-top:5px !important; }
+  .gc-player-stats b{ font-size:10px !important; }
+  .gc-player-stats i{ font-size:6px !important; }
+  .gc-zone-box{ fill:rgba(2,9,20,.10) !important; stroke-width:1.55 !important; }
+  .gc-zone-line{ stroke-width:.85 !important; }
+}
+@media (max-width:430px){
+  .gc-player-card{ top:3% !important; width:37% !important; padding:7px 8px !important; }
+  .gc-player-photo{ width:35px !important; height:35px !important; flex-basis:35px !important; }
+  .gc-player-copy>b{ font-size:11px !important; }
+}
+</style>
 </head>
 <body class="dw-booting">
 
@@ -8768,7 +8796,6 @@ class GamecastController {
       </div>
       <div class="gc-broadcast-stage">
         <div class="gc-3d-host" aria-hidden="true"></div>
-        <div class="gc-stadium-brand"><img src="gamecast-horizontal-logo.png" alt="The Sports Outpost"></div>
 
         <section class="gc-player-card gc-batter-card">
           <div class="gc-player-kicker">AT BAT</div>
@@ -8908,27 +8935,16 @@ class GamecastController {
   _renderZone(pitches, sz){
     const svg=this.zoneSvg; if(!svg) return; const dots=svg.querySelector('.gc-zone-dots'); if(!dots) return;
     const top=sz?sz.top:3.5, bot=sz?sz.bottom:1.5;
-    const lp=(pitches&&pitches.length)?pitches[pitches.length-1]:{};
-    const sig=(pitches?pitches.length:0)+'|'+(lp.index??'')+'|'+(lp.call||'')+'|'+(lp.px??'')+'|'+(lp.pz??''); if(this._zoneSig===sig)return; this._zoneSig=sig;
-    if(!pitches||!pitches.length){dots.innerHTML=''; if(this.pitchLegend)this.pitchLegend.innerHTML='<span class="gc-muted">No pitches yet</span>'; return;}
-    // The drawn rectangle is the ACTUAL rule-book strike zone, not the whole
-    // pitch plotting area. Half a plate plus roughly one baseball radius is
-    // about 0.83 ft from center. Mapping ±1.25 ft to the box (the old code)
-    // visually pulled obvious balls inside the zone.
-    // On phones the stage is much closer to square than the desktop 16:9 view.
-    // A single SVG geometry therefore made the strike zone look unnaturally tall
-    // and narrow after preserveAspectRatio=none stretched it. Use a wider/shorter
-    // mobile plot box while leaving desktop geometry exactly as before.
     const mobileZone = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
-    // Mobile uses a deliberately wider/shorter strike-zone geometry. Because the
-    // SVG stretches to a much taller phone-stage, keeping the desktop rectangle
-    // makes the zone look like a narrow vertical tower. These coordinates are
-    // chosen so the rendered phone zone lands close to real plate proportions.
-    const L=mobileZone?410:438, R=mobileZone?590:562, T=mobileZone?292:250, B=mobileZone?410:420, HALF_W=0.83;
 
-    // The grid itself is static markup, so update its rectangle/thirds to match
-    // the same geometry used for pitch dots. This fixes the old mismatch where
-    // dots used mobile coordinates but the visible box stayed desktop-sized.
+    // One geometry for the entire at-bat, including before pitch 1. Previously
+    // the static SVG rectangle stayed at desktop dimensions until the first pitch,
+    // then jumped to a separate short mobile rectangle. That caused the visible
+    // size change. Keep one stable, slightly-taller-than-wide mobile zone.
+    const L=mobileZone?432:438, R=mobileZone?568:562;
+    const T=mobileZone?238:250, B=mobileZone?428:420;
+    const HALF_W=0.83;
+
     const grid = svg.querySelector('.gc-zone-grid');
     if(grid){
       const rect=grid.querySelector('rect');
@@ -8942,10 +8958,16 @@ class GamecastController {
         lines[3].setAttribute('x1',L); lines[3].setAttribute('x2',R); lines[3].setAttribute('y1',y2); lines[3].setAttribute('y2',y2);
       }
     }
+
+    const lp=(pitches&&pitches.length)?pitches[pitches.length-1]:{};
+    const sig=(pitches?pitches.length:0)+'|'+(lp.index??'')+'|'+(lp.call||'')+'|'+(lp.px??'')+'|'+(lp.pz??'')+'|'+(mobileZone?'m':'d');
+    if(this._zoneSig===sig)return; this._zoneSig=sig;
+    if(!pitches||!pitches.length){dots.innerHTML=''; if(this.pitchLegend)this.pitchLegend.innerHTML='<span class="gc-muted">No pitches yet</span>'; return;}
+
     const xScale=(R-L)/(HALF_W*2);
     const yScale=(B-T)/Math.max(.8,(top-bot));
-    const toX=px=>Math.max(mobileZone?300:330,Math.min(mobileZone?700:670,500+Number(px)*xScale));
-    const toY=pz=>Math.max(mobileZone?205:175,Math.min(mobileZone?475:490,T+(top-Number(pz))*yScale));
+    const toX=px=>Math.max(mobileZone?330:330,Math.min(mobileZone?670:670,500+Number(px)*xScale));
+    const toY=pz=>Math.max(mobileZone?185:175,Math.min(mobileZone?485:490,T+(top-Number(pz))*yScale));
     const mid=(top+bot)/2, third=(top-bot)/3;
     const fallback=z=>({1:[-.45,top-third*.5],2:[0,top-third*.5],3:[.45,top-third*.5],4:[-.45,mid],5:[0,mid],6:[.45,mid],7:[-.45,bot+third*.5],8:[0,bot+third*.5],9:[.45,bot+third*.5],11:[-1.15,mid],12:[1.15,mid],13:[0,top+.55],14:[0,bot-.55]}[z]||[0,mid]);
     dots.innerHTML=pitches.map((p,i)=>{let px=p.px,pz=p.pz;if(px==null||pz==null){const q=fallback(Number(p.zone));if(px==null)px=q[0];if(pz==null)pz=q[1];} const cls=p.isInPlay||p.call==='X'?'gc-pdot-inplay':(p.isTwoStrikeFoul?'gc-pdot-foul2':(p.isStrike||p.call==='S'?'gc-pdot-strike':'gc-pdot-ball')); const x=toX(px),y=toY(pz); return `<circle class="gc-pdot ${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10"></circle><text class="gc-pdot-num" x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}">${i+1}</text>`;}).join('');
