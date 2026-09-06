@@ -3932,6 +3932,135 @@ body.modal-open{ overflow:hidden; }
 .gc-pitch-row.foul2 em{color:#b8afff!important;font-weight:800}
 
 </style>
+
+<style id="mobile-density-v8">
+/* ======================================================================
+   MOBILE DENSITY PASS v8
+   Desktop is intentionally untouched. These rules only apply below 760px.
+   ====================================================================== */
+@media (max-width:760px){
+  :root{ --mobile-nav-h:54px; }
+  body{ font-size:14px; }
+  main{ padding:10px 10px 34px !important; }
+  .topbar{ height:52px !important; padding:0 10px !important; }
+  .topbar-left{ gap:8px !important; }
+  .topbar-right{ gap:5px !important; }
+  .tb-mobile-brand img{ max-height:30px !important; width:auto !important; }
+  .icon-btn,.avatar-btn,.sidebar-hamburger{ width:30px !important; height:30px !important; border-radius:8px !important; }
+  .icon-btn svg{ width:14px !important; height:14px !important; }
+  .status-bar{ margin:8px 10px 0 !important; padding:7px 9px !important; gap:6px !important; border-radius:9px !important; }
+  .date-pill{ font-size:10px !important; padding:3px 8px !important; }
+  .status-bar .status-info{ font-size:9.5px !important; }
+  .section-head{ margin:8px 0 9px !important; }
+  .section-head h2{ font-size:17px !important; }
+  .section-head p{ font-size:10.5px !important; line-height:1.35 !important; }
+
+  /* Slate cards */
+  .slate-list,#pickList > .slate-list,#pickList > .pick-list{ gap:7px !important; }
+  .slate-card{ padding:10px 11px !important; border-radius:11px !important; }
+  .slate-status-row{ margin-bottom:6px !important; }
+  .slate-badge{ font-size:8px !important; padding:2px 7px !important; gap:4px !important; }
+  .slate-time{ font-size:9px !important; }
+  .slate-team-row{ gap:7px !important; }
+  .slate-logo{ width:21px !important; height:21px !important; }
+  .slate-team-name{ font-size:12.5px !important; }
+  .slate-runs{ font-size:17px !important; min-width:22px !important; }
+  .slate-live-detail{ margin-top:8px !important; padding-top:8px !important; gap:6px !important; }
+  .slate-count{ gap:9px !important; }
+  .slate-matchup{ font-size:9.5px !important; }
+  .slate-group-head{ margin:12px 0 6px !important; font-size:9.5px !important; }
+
+  /* Game detail tabs */
+  .live-tabs,.tabs{ gap:0 !important; padding-left:8px !important; padding-right:8px !important; }
+  .live-tab,.tab{ font-size:9px !important; padding:8px 9px !important; }
+
+  /* Gamecast score bar */
+  .gc-broadcast-scorebar{ min-height:58px !important; grid-template-columns:1fr .82fr 1fr !important; }
+  .gc-score-team{ padding:6px 7px !important; gap:5px !important; }
+  .gc-score-team img{ width:27px !important; height:27px !important; flex-basis:27px !important; }
+  .gc-score-team b{ font-size:11px !important; }
+  .gc-score-team small{ font-size:6px !important; }
+  .gc-score-team strong{ font-size:22px !important; }
+  .gc-score-center{ padding:4px !important; }
+  .gc-score-inning{ font-size:10px !important; }
+  .gc-score-count{ font-size:7px !important; letter-spacing:.02em !important; }
+  .gc-score-bases{ display:none !important; }
+  .gc-score-live{ display:none !important; }
+
+  /* Shorter field and smaller overlays */
+  .gc-broadcast-stage{ height:405px !important; min-height:0 !important; }
+  .gc-stadium-brand{ top:5% !important; width:25% !important; max-width:150px !important; }
+  .gc-player-card{ top:14% !important; width:35% !important; max-width:none !important; min-width:0 !important; padding:6px 7px !important; border-radius:9px !important; }
+  .gc-batter-card{ left:1.5% !important; }
+  .gc-pitcher-card{ right:1.5% !important; }
+  .gc-player-kicker,.gc-panel-title{ font-size:7px !important; letter-spacing:.09em !important; }
+  .gc-player-main{ gap:6px !important; margin-top:4px !important; }
+  .gc-player-photo{ width:34px !important; height:34px !important; flex-basis:34px !important; border-width:1.5px !important; }
+  .gc-player-copy>b{ font-size:11.5px !important; }
+  .gc-player-copy>span{ font-size:6.5px !important; margin-top:2px !important; }
+  .gc-player-stats{ gap:2px !important; margin-top:5px !important; padding-top:5px !important; grid-template-columns:repeat(2,1fr) !important; }
+  .gc-player-stats span:nth-child(n+3){ display:none !important; }
+  .gc-player-stats i{ font-size:5.5px !important; }
+  .gc-player-stats b{ font-size:9px !important; }
+  .gc-player-today{ margin-top:4px !important; font-size:6px !important; }
+
+  .gc-pitch-log-panel,.gc-hit-metrics{ left:1.5% !important; width:35% !important; max-width:none !important; min-width:0 !important; bottom:8% !important; padding:7px !important; max-height:31% !important; border-radius:9px !important; }
+  .gc-pitch-row{ grid-template-columns:20px 1fr auto !important; gap:5px !important; padding:3px 0 !important; }
+  .gc-pitch-row>b{ width:19px !important; height:19px !important; font-size:7px !important; }
+  .gc-pitch-row strong{ font-size:9px !important; }
+  .gc-pitch-row small,.gc-pitch-row em{ font-size:6px !important; }
+
+  .gc-runners-panel,.gc-last-panel{ right:1.5% !important; width:35% !important; max-width:none !important; min-width:0 !important; padding:7px !important; border-radius:9px !important; }
+  .gc-runners-panel{ top:auto !important; bottom:27% !important; }
+  .gc-last-panel{ bottom:8% !important; }
+  .gc-runner-row,.gc-last-play{ font-size:7px !important; }
+
+  .gc-zone-grid{ width:25% !important; max-width:112px !important; }
+  .gc-count-pill{ bottom:1.5% !important; padding:5px 11px !important; font-size:9px !important; }
+  .gc-outcome-banner{ max-width:66% !important; padding:6px 10px !important; bottom:2% !important; }
+  .gc-outcome-banner b{ font-size:9px !important; }
+  .gc-hit-label{ padding:5px 8px !important; }
+  .gc-hit-label b{ font-size:11px !important; }
+  .gc-hit-label span{ font-size:7px !important; }
+  .gc-hit-metrics>div:not(.gc-panel-title){ font-size:7px !important; padding:3px 0 !important; }
+
+  /* Compact footer */
+  .gc-broadcast-footer{ min-height:0 !important; grid-template-columns:1fr !important; border-radius:0 0 10px 10px !important; }
+  .gc-footer-score,.gc-footer-due{ padding:6px 7px !important; }
+  .gc-footer-score table{ min-width:330px !important; font-size:7px !important; }
+  .gc-footer-score th,.gc-footer-score td{ padding:3px 3px !important; }
+  .gc-footer-team{ min-width:88px !important; gap:5px !important; }
+  .gc-footer-team img{ width:18px !important; height:18px !important; flex-basis:18px !important; }
+  .gc-footer-team b,.gc-footer-score td:first-child{ font-size:9px !important; }
+  .gc-footer-due{ border-left:0 !important; border-top:1px solid rgba(45,127,255,.18) !important; }
+  .gc-due-list{ gap:2px !important; }
+  .gc-due-list>div{ grid-template-columns:18px 1fr auto !important; font-size:7px !important; gap:4px !important; }
+  .gc-due-list b{ width:17px !important; height:15px !important; font-size:7px !important; }
+
+  /* Modals / social / bet slip density */
+  .modal-overlay{ padding:6px 6px calc(var(--mobile-nav-h) + 6px) !important; }
+  .modal{ border-radius:11px !important; }
+  .modal-head{ padding:13px 14px 11px !important; gap:9px !important; }
+  .modal-headshot{ width:50px !important; height:50px !important; }
+  .modal-name{ font-size:18px !important; }
+  .modal-tag{ font-size:9px !important; }
+  .tab-content{ padding:12px 13px 16px !important; }
+  .betslip-bar{ font-size:12px !important; }
+}
+
+@media (max-width:420px){
+  main{ padding-left:7px !important; padding-right:7px !important; }
+  .status-bar{ margin-left:7px !important; margin-right:7px !important; }
+  .topbar{ padding-left:7px !important; padding-right:7px !important; }
+  .slate-card{ padding:8px 9px !important; }
+  .gc-broadcast-stage{ height:365px !important; }
+  .gc-player-card,.gc-pitch-log-panel,.gc-runners-panel,.gc-last-panel,.gc-hit-metrics{ width:36% !important; }
+  .gc-player-photo{ width:30px !important; height:30px !important; flex-basis:30px !important; }
+  .gc-player-copy>b{ font-size:10.5px !important; }
+  .gc-stadium-brand{ width:23% !important; }
+  .gc-footer-score table{ min-width:305px !important; }
+}
+</style>
 </head>
 <body class="dw-booting">
 
