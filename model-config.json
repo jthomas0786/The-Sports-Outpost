@@ -103,7 +103,10 @@
     "barrel": 8.0,         // league barrel %
     "hardHit": 30.0,       // league hard-hit %
     "exitVelo": 89.0,      // league average exit velocity (mph)
-    "airPct": 68.0,        // league air-ball % (fly balls + line drives)
+    "airPct": 53.0,        // air-out share baseline. Re-centered to the current slate
+                           //   distribution (~52.6%) so this factor is neutral at
+                           //   an actually average MLB hitter instead of penalizing
+                           //   nearly the entire board.
     "xslg": 0.350,         // league expected slugging
     "xwoba": 0.320,        // league expected wOBA
     "babip": 0.300,        // league BABIP — the anchor for the luck factor
@@ -330,32 +333,34 @@
     //  xSLG already carry it. If you turn them up, turn barrel down.
     "hr": {
       "enabled": true,
-      "clamp": { "min": 0.35, "max": 2.20 },
+      // Sep 6, 2026 HR tune:
+      // 4,465 logged HR forecasts were well ranked overall, but the extremes
+      // were too spread out: A+ averaged ~24% predicted vs ~15% observed, while
+      // the lowest bucket was slightly under-predicted. The safest fix is to
+      // compress contextual influence rather than chase the last few days.
+      "clamp": { "min": 0.55, "max": 1.75 },
       "weights": {
         "contact": {
-          "barrel":      0.45,   // still the strongest single HR signal, but trimmed
-                                  //   so the same 6 elite sluggers no longer pin the
-                                  //   top every night regardless of matchup/park
-          "xSLG":        0.32,   // power output, park-neutral
-          "airRate":     0.35,   // must get it airborne (correlated with barrel)
-          "hardHit":     -0.4,   // off by default — correlated with barrel
-          "exitVelo":    0.2,   // off by default — correlated with barrel
+          // The player's regressed season HR rate is already the base signal,
+          // so Statcast should sharpen it — not count the same power skill 4x.
+          "barrel":      0.30,   // strongest quality-of-contact adjustment
+          "xSLG":        0.18,   // expected power, complementary to barrel rate
+          "airRate":     0.12,   // airborne contact matters, but is not power itself
+          "hardHit":     0.00,   // intentionally off: highly correlated with barrel/xSLG
+          "exitVelo":    0.00,   // intentionally off: highly correlated with barrel/xSLG
         },
         "pitcher": {
-          "hr9":         0.34,   // opponent HR allowed — the core matchup lever,
-                                  //   lifted so a favorable starter can move a
-                                  //   good-but-not-elite bat up the board
-          "gbFb":       -0.14,   // NEGATIVE: sinkerballers suppress HR
-          "hand":        0.5,   // platoon edge, slugging split — kept modest;
-                                  //   platoon splits are noisy
+          "hr9":         0.20,   // meaningful matchup signal, tempered for starter sample/noise
+          "gbFb":       -0.10,   // NEGATIVE: ground-ball pitchers suppress HR
+          "hand":        0.12,   // platoon SLG edge; kept modest because splits are noisy
         },
         "park": {
-          "hrFactor":    0.32,   // park HR factor — the other main contextual lever
-          "weather":     0.16,
-          "temperature": 0.10,
+          "hrFactor":    0.18,   // real park HR environment
+          "weather":     0.08,   // wind helps/hurts, but avoid double-counting environment
+          "temperature": 0.05,   // smaller secondary carry adjustment
         },
         "form": {
-          "powerTrend":  0.35,   // small on purpose — 10 games is noise
+          "powerTrend":  0.05,   // recent HR form is noisy; use only as a tiebreaker
         },
       },
     },
