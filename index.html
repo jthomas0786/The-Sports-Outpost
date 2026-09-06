@@ -4060,6 +4060,70 @@ body.modal-open{ overflow:hidden; }
   .gc-stadium-brand{ width:23% !important; }
   .gc-footer-score table{ min-width:305px !important; }
 }
+
+
+/* ======================================================================
+   MOBILE GAMECAST POLISH v9
+   Keeps desktop untouched. Reduces overlay competition and corrects the
+   strike-zone proportions on the taller phone field.
+   ====================================================================== */
+@media (max-width:760px){
+  .gc-broadcast-stage{ height:385px !important; }
+
+  /* Center-field brand: the desktop 180px min-width + 74px image height was
+     forcing a giant billboard on phones. */
+  .gc-stadium-brand{
+    top:4.5% !important; width:28% !important; min-width:0 !important;
+    max-width:118px !important; padding:4px 6px !important; border-width:1px !important;
+  }
+  .gc-stadium-brand img{ height:40px !important; }
+
+  /* Keep the player cards in the corners instead of covering the middle. */
+  .gc-player-card{ top:18% !important; width:30.5% !important; padding:6px !important; }
+  .gc-batter-card{ left:1.2% !important; }
+  .gc-pitcher-card{ right:1.2% !important; }
+  .gc-player-photo{ width:30px !important; height:30px !important; flex-basis:30px !important; }
+  .gc-player-copy>b{ font-size:10.5px !important; }
+  .gc-player-stats{ margin-top:4px !important; padding-top:4px !important; }
+  .gc-player-stats b{ font-size:8.5px !important; }
+  .gc-player-today{ display:none !important; }
+
+  /* Side information stays useful but no longer crowds home plate. */
+  .gc-pitch-log-panel,.gc-hit-metrics{ left:1.2% !important; width:30.5% !important; bottom:10% !important; max-height:29% !important; }
+  .gc-runners-panel,.gc-last-panel{ right:1.2% !important; width:30.5% !important; }
+  .gc-runners-panel{ bottom:29% !important; }
+  .gc-last-panel{ bottom:10% !important; min-height:54px !important; }
+  .gc-runners-body{ grid-template-columns:42px 1fr !important; gap:5px !important; margin-top:4px !important; }
+  .gc-mini-diamond{ width:40px !important; height:38px !important; transform:scale(.78); transform-origin:center; }
+
+  /* Mobile zone is rendered with separate JS geometry; these make its lines
+     and pitch dots lighter so the center of the field remains readable. */
+  .gc-zone-box{ stroke-width:1.45 !important; fill:rgba(2,9,20,.12) !important; }
+  .gc-zone-line{ stroke-width:.8 !important; opacity:.78 !important; }
+  .gc-pdot{ stroke-width:1.4 !important; }
+  .gc-pdot-num{ font-size:8px !important; }
+
+  .gc-count-pill{ bottom:2.2% !important; gap:7px !important; padding:4px 9px !important; }
+  .gc-count-pill b{ font-size:11px !important; }
+  .gc-count-pill span{ font-size:7px !important; }
+
+  /* Less opaque glass = more field, less visual clutter. */
+  .gc-player-card,.gc-glass-card,.gc-hit-metrics{ background:rgba(4,17,34,.43) !important; backdrop-filter:blur(4px); -webkit-backdrop-filter:blur(4px); }
+}
+
+@media (max-width:430px){
+  .gc-broadcast-stage{ height:360px !important; }
+  .gc-stadium-brand{ width:25% !important; max-width:104px !important; }
+  .gc-stadium-brand img{ height:35px !important; }
+  .gc-player-card,.gc-pitch-log-panel,.gc-runners-panel,.gc-last-panel,.gc-hit-metrics{ width:29.5% !important; }
+  .gc-player-card{ top:18.5% !important; }
+  .gc-player-photo{ width:27px !important; height:27px !important; flex-basis:27px !important; }
+  .gc-player-copy>b{ font-size:9.5px !important; }
+  .gc-player-kicker,.gc-panel-title{ font-size:6.3px !important; }
+  .gc-pitch-row strong{ font-size:8px !important; }
+  .gc-pitch-row small,.gc-pitch-row em{ font-size:5.5px !important; }
+  .gc-runner-row,.gc-last-play{ font-size:6.4px !important; }
+}
 </style>
 </head>
 <body class="dw-booting">
@@ -8813,11 +8877,16 @@ class GamecastController {
     // pitch plotting area. Half a plate plus roughly one baseball radius is
     // about 0.83 ft from center. Mapping ±1.25 ft to the box (the old code)
     // visually pulled obvious balls inside the zone.
-    const L=438,R=562,T=250,B=420, HALF_W=0.83;
+    // On phones the stage is much closer to square than the desktop 16:9 view.
+    // A single SVG geometry therefore made the strike zone look unnaturally tall
+    // and narrow after preserveAspectRatio=none stretched it. Use a wider/shorter
+    // mobile plot box while leaving desktop geometry exactly as before.
+    const mobileZone = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
+    const L=mobileZone?420:438, R=mobileZone?580:562, T=mobileZone?286:250, B=mobileZone?414:420, HALF_W=0.83;
     const xScale=(R-L)/(HALF_W*2);
     const yScale=(B-T)/Math.max(.8,(top-bot));
-    const toX=px=>Math.max(330,Math.min(670,500+Number(px)*xScale));
-    const toY=pz=>Math.max(175,Math.min(490,T+(top-Number(pz))*yScale));
+    const toX=px=>Math.max(mobileZone?300:330,Math.min(mobileZone?700:670,500+Number(px)*xScale));
+    const toY=pz=>Math.max(mobileZone?205:175,Math.min(mobileZone?475:490,T+(top-Number(pz))*yScale));
     const mid=(top+bot)/2, third=(top-bot)/3;
     const fallback=z=>({1:[-.45,top-third*.5],2:[0,top-third*.5],3:[.45,top-third*.5],4:[-.45,mid],5:[0,mid],6:[.45,mid],7:[-.45,bot+third*.5],8:[0,bot+third*.5],9:[.45,bot+third*.5],11:[-1.15,mid],12:[1.15,mid],13:[0,top+.55],14:[0,bot-.55]}[z]||[0,mid]);
     dots.innerHTML=pitches.map((p,i)=>{let px=p.px,pz=p.pz;if(px==null||pz==null){const q=fallback(Number(p.zone));if(px==null)px=q[0];if(pz==null)pz=q[1];} const cls=p.isInPlay||p.call==='X'?'gc-pdot-inplay':(p.isTwoStrikeFoul?'gc-pdot-foul2':(p.isStrike||p.call==='S'?'gc-pdot-strike':'gc-pdot-ball')); const x=toX(px),y=toY(pz); return `<circle class="gc-pdot ${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10"></circle><text class="gc-pdot-num" x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}">${i+1}</text>`;}).join('');
