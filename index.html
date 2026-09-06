@@ -471,10 +471,27 @@ footer{ max-width:760px; margin:36px auto 0; padding:0 20px; color: var(--mute);
 .split-label b{ color:var(--accent); font-size:9.5px; font-family:'JetBrains Mono','Space Mono',monospace; }
 .split-stat{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:11.5px; text-align:center; color:var(--white); }
 
+/* --- handedness matchup header (batter vs tonight's pitcher, with real photos) --- */
+.hand-matchup{ display:flex; align-items:center; justify-content:center; gap:18px; padding:14px 8px 18px; }
+.hm-side{ display:flex; flex-direction:column; align-items:center; gap:7px; flex:1; max-width:150px; }
+.hm-photo{ width:64px; height:64px; }
+.hm-img{ width:64px; height:64px; border-radius:50%; object-fit:cover; border:2px solid var(--line); background:var(--night2); }
+.hm-name{ font-size:13px; font-weight:700; color:var(--white); text-align:center; }
+.hm-hand-badge{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:10px; padding:3px 10px; border-radius:999px;
+  background:var(--night2); border:1px solid var(--line); color:var(--mute); white-space:nowrap; }
+.hm-hand-badge.hm-bat{ color:#7db3ff; border-color:rgba(45,127,255,.4); }
+.hm-hand-badge.hm-throw{ color:#fbbf24; border-color:rgba(245,158,11,.4); }
+.hm-vs{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:11px; font-weight:700; color:var(--mute);
+  flex:0 0 auto; padding:0 2px; }
+
 @media (max-width:520px){
   .zone-grid{ grid-template-columns:repeat(3,46px); grid-template-rows:repeat(3,38px); }
   .pmix-head,.pmix-row{ grid-template-columns:1.4fr .6fr 1fr .6fr .4fr; font-size:11px; }
   .ars-velo{ display:none; }
+  .hand-matchup{ gap:10px; padding:10px 4px 14px; }
+  .hm-photo, .hm-img{ width:52px; height:52px; }
+  .hm-name{ font-size:11.5px; }
+  .split-row{ grid-template-columns:1.3fr .6fr .6fr .6fr .4fr .4fr; font-size:10.5px; }
 }
 .section-mini{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:10px; color:var(--mute); text-transform:uppercase; letter-spacing:.08em; margin:18px 0 9px; }
 .section-mini:first-child{ margin-top:0; }
@@ -15861,6 +15878,33 @@ function openBatterModal(p){
         }).join('')}
       </table></div>`;
   }
+  // Batter vs pitcher handedness matchup — real photos of both players with
+  // their actual handedness, sitting above the season-split stats table.
+  // platoonSplitHTML() already existed and already had its own CSS, but was
+  // never actually called from anywhere — wired in here for the first time.
+  function pcHandednessMatchupHTML(p){
+    const sp = p.oppPitcher || {};
+    const pitcherTeam = p.team === g.away ? g.home : g.away;
+    const batHand = (p.hand || '').toUpperCase();
+    const throwHand = (sp.throws || '').toUpperCase();
+    const batLabel = batHand === 'S' ? 'Switch hitter' : batHand === 'L' ? 'Bats Left' : batHand === 'R' ? 'Bats Right' : 'Bats —';
+    const throwLabel = throwHand === 'L' ? 'Throws Left' : throwHand === 'R' ? 'Throws Right' : 'Throws —';
+    const splitHTML = platoonSplitHTML(p, sp);
+    return `<div class="hand-matchup">
+      <div class="hm-side">
+        <div class="hm-photo">${headshotImgTag(p.name, 'hm-img', p.team, p.id)}</div>
+        <div class="hm-name">${surname(p.name)}</div>
+        <div class="hm-hand-badge hm-bat">${batLabel}</div>
+      </div>
+      <div class="hm-vs">VS</div>
+      <div class="hm-side">
+        <div class="hm-photo">${headshotImgTag(sp.name, 'hm-img', pitcherTeam, sp.id)}</div>
+        <div class="hm-name">${surname(sp.name)}</div>
+        <div class="hm-hand-badge hm-throw">${throwLabel}</div>
+      </div>
+    </div>
+    ${splitHTML || `<div class="ab-empty">No handedness split data available for ${surname(p.name)}.</div>`}`;
+  }
   const dqLabel = p.dataQuality==='sourced' ? 'Sourced' : 'Modeled';
   const dqClass = p.dataQuality==='sourced' ? 'sourced' : 'modeled';
   const g = p.game;
@@ -15897,6 +15941,11 @@ function openBatterModal(p){
       <div class="sec">
         <div class="sec-h"><h3>Swing Factors</h3></div>
         ${pcEngineHTML(p)}
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><h3>Handedness Matchup</h3><span class="cap">season splits vs LHP/RHP</span></div>
+        ${pcHandednessMatchupHTML(p)}
       </div>
 
       <div class="sec">
