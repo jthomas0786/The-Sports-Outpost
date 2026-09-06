@@ -378,10 +378,15 @@ footer{ max-width:760px; margin:36px auto 0; padding:0 20px; color: var(--mute);
 .cq-hbtn.active{ background:var(--accent); color:#fff; border-color:var(--accent); }
 .cq-field-wrap{ width:100%; max-width:440px; margin:0 auto; border-radius:12px; overflow:hidden; border:1px solid var(--line); background:linear-gradient(180deg,#b9d4ee,#dceaf3); }
 .cq-field{ width:100%; height:auto; aspect-ratio:16/9; display:block; }
-.cq-arc{ transition:opacity .15s; }
+.cq-arc{ transition:opacity .15s; vector-effect:non-scaling-stroke; }
+.cq-arc.cq-flight-anim{ will-change:stroke-dashoffset,opacity; }
 .cq-arc.hl{ stroke-width:3.2; opacity:1; filter:drop-shadow(0 0 4px currentColor); }
-.cq-land{ transition:r .15s; }
+.cq-land{ transition:r .15s; transform-box:fill-box; transform-origin:center; }
+.cq-land.cq-flight-anim{ will-change:transform,opacity; }
 .cq-land.hl{ r:4.5; }
+@media (prefers-reduced-motion:reduce){
+  .cq-arc.cq-flight-anim,.cq-land.cq-flight-anim{ transition:none !important; animation:none !important; }
+}
 .cq-pitch-row{ display:flex; gap:6px; flex-wrap:wrap; margin:8px 0 4px; }
 .cq-pbtn{ font-size:11px; padding:4px 9px; border-radius:7px; border:1px solid var(--line); background:var(--surface-alt); color:var(--mute); cursor:pointer; transition:background .12s; }
 .cq-pbtn.active{ background:var(--accent-bright); color:#0c1b14; border-color:var(--accent-bright); font-weight:700; }
@@ -3743,6 +3748,15 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .chip{ font-family:'JetBrains Mono',monospace; font-weight:600; font-size:11px; padding:5px 9px; border-radius:6px; background:transparent;
   border:1px solid var(--border); color:var(--muted); cursor:pointer }
 .player-card-v2 .chip.on{ background:var(--accent); color:#fff; border-color:transparent; box-shadow:0 4px 14px var(--accent-glow) }
+.player-card-v2 .bars-toolbar{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-top:14px }
+.player-card-v2 .bars-toolbar .filters{ margin-top:0; min-width:0 }
+.player-card-v2 .venue-filters{ display:flex; gap:6px; margin-left:auto; flex:0 0 auto }
+.player-card-v2 .venue-filters .chip{ min-width:58px; text-align:center }
+@media(max-width:520px){
+  .player-card-v2 .bars-toolbar{ flex-wrap:wrap; gap:8px }
+  .player-card-v2 .bars-toolbar .filters{ flex:1 1 100% }
+  .player-card-v2 .venue-filters{ margin-left:auto }
+}
 .player-card-v2 .clear{ color:var(--muted); font-size:11px; margin-top:8px; font-family:'JetBrains Mono',monospace }
 .player-card-v2 .clear b{ color:var(--gold) }
 
@@ -3846,35 +3860,56 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .field .hp{ fill:rgba(255,255,255,.5) }
 .player-card-v2 .cq-field-wrap{ position:relative; width:100%; max-width:100%; aspect-ratio:16/9; background:#0a0d14; border:1px solid var(--border); border-radius:12px; overflow:hidden }
 .player-card-v2 .cq-field-wrap svg.cq-field{ position:absolute; inset:0; width:100%; height:100% }
-.player-card-v2 .spray-leg{ display:flex; gap:16px; margin-top:10px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted) }
-.player-card-v2 .spray-leg span b{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:6px; vertical-align:middle }
+.player-card-v2 .spray-leg{ display:flex; gap:7px; margin-top:11px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted); flex-wrap:wrap; align-items:center }
+.player-card-v2 .spray-leg .spray-filter{ display:inline-flex; align-items:center; gap:6px; min-height:30px; padding:5px 10px; border:1px solid var(--border); border-radius:8px; background:var(--panel3); color:var(--muted); font:700 10px 'JetBrains Mono',monospace; letter-spacing:.04em; cursor:pointer; transition:background .15s,border-color .15s,color .15s,transform .15s }
+.player-card-v2 .spray-leg .spray-filter:hover{ color:var(--text); border-color:var(--accent); transform:translateY(-1px) }
+.player-card-v2 .spray-leg .spray-filter.active{ color:#fff; background:rgba(45,127,255,.17); border-color:var(--accent); box-shadow:0 0 0 1px rgba(45,127,255,.12) inset }
+.player-card-v2 .spray-leg .spray-filter b{ display:inline-block; width:9px; height:9px; border-radius:50%; flex:0 0 9px }
+.player-card-v2 .spray-leg .spray-filter[data-contact="BRL"].active{ color:var(--gold); border-color:var(--gold); background:rgba(255,193,7,.10) }
 
 /* ---------- Recent at-bats log ---------- */
-.player-card-v2 .ab-log{ border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--panel3) }
+.player-card-v2 .ab-log{ border:1px solid var(--border); border-radius:12px; overflow:hidden; background:linear-gradient(180deg,rgba(12,32,61,.82),rgba(7,22,43,.92)) }
 .player-card-v2 .ab-sum{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px }
-.player-card-v2 .ab-sum .s{ background:var(--panel3); border:1px solid var(--border); border-radius:10px; padding:11px 6px; text-align:center }
-.player-card-v2 .ab-sum .s b{ display:block; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:18px; color:var(--text); line-height:1.1 }
-.player-card-v2 .ab-sum .s small{ font-family:'JetBrains Mono',monospace; font-size:9.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-top:6px; display:block }
-.player-card-v2 .ab-scroll{ overflow-x:auto }
-.player-card-v2 .ab-table{ width:100%; border-collapse:collapse; min-width:440px }
-.player-card-v2 .ab-table thead th{ font-family:'JetBrains Mono',monospace; font-size:9px; letter-spacing:.12em; color:var(--faint); text-transform:uppercase; text-align:right; padding:9px 14px; background:var(--panel2); border-bottom:1px solid var(--border); font-weight:700 }
+.player-card-v2 .ab-sum .s{ position:relative; overflow:hidden; background:linear-gradient(180deg,var(--panel3),rgba(7,22,43,.92)); border:1px solid var(--border); border-radius:10px; padding:12px 7px 10px; text-align:center }
+.player-card-v2 .ab-sum .s::before{ content:''; position:absolute; left:18%; right:18%; top:0; height:2px; border-radius:0 0 4px 4px; background:var(--accent); opacity:.8 }
+.player-card-v2 .ab-sum .s:nth-child(2)::before{ background:var(--gold) }
+.player-card-v2 .ab-sum .s:nth-child(3)::before{ background:var(--green-bright) }
+.player-card-v2 .ab-sum .s:nth-child(4)::before{ background:var(--orange) }
+.player-card-v2 .ab-sum .s b{ display:block; font-family:'JetBrains Mono',monospace; font-weight:800; font-size:19px; color:var(--text); line-height:1.1 }
+.player-card-v2 .ab-sum .s small{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.09em; margin-top:6px; display:block }
+.player-card-v2 .ab-filter-note{ display:flex; align-items:center; gap:7px; min-height:28px; margin:-2px 0 9px; padding:6px 9px; border-radius:8px; background:rgba(45,127,255,.07); border:1px solid rgba(45,127,255,.16); color:var(--muted); font:700 9.5px 'JetBrains Mono',monospace; letter-spacing:.04em }
+.player-card-v2 .ab-filter-note b{ color:var(--accent-bright); font-weight:800 }
+.player-card-v2 .ab-scroll{ overflow-x:auto; border:1px solid var(--border); border-radius:11px; background:rgba(4,14,29,.54); scrollbar-width:thin; scrollbar-color:rgba(110,220,255,.35) transparent }
+.player-card-v2 .ab-table{ width:100%; border-collapse:separate; border-spacing:0; min-width:590px }
+.player-card-v2 .ab-table thead th{ font-family:'JetBrains Mono',monospace; font-size:8.5px; letter-spacing:.11em; color:var(--faint); text-transform:uppercase; text-align:right; padding:9px 12px; background:rgba(7,22,43,.96); border-bottom:1px solid var(--border); font-weight:800 }
 .player-card-v2 .ab-table thead th.l{ text-align:left }
-.player-card-v2 .ab-table tbody tr{ border-bottom:1px solid rgba(255,255,255,.045); transition:background .15s }
-.player-card-v2 .ab-table tbody tr:hover{ background:rgba(255,255,255,.03) }
-.player-card-v2 .ab-table tbody tr:last-child{ border-bottom:0 }
-.player-card-v2 .ab-table td{ padding:10px 14px; font-family:'JetBrains Mono',monospace; font-size:12px; text-align:right; vertical-align:middle; color:var(--text) }
+.player-card-v2 .ab-table tbody tr{ position:relative; border-bottom:1px solid rgba(255,255,255,.045); transition:background .15s,transform .15s }
+.player-card-v2 .ab-table tbody tr:hover{ background:rgba(45,127,255,.055) }
+.player-card-v2 .ab-table tbody tr:last-child td{ border-bottom:0 }
+.player-card-v2 .ab-table td{ padding:10px 12px; border-bottom:1px solid rgba(255,255,255,.045); font-family:'JetBrains Mono',monospace; font-size:11.5px; text-align:right; vertical-align:middle; color:var(--text) }
 .player-card-v2 .ab-table td.l{ text-align:left }
-.player-card-v2 .ab-table td .pdot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:middle }
-.player-card-v2 .ab-table td .pc{ font-weight:700; color:var(--text) }
-.player-card-v2 .ab-date{ color:var(--muted); font-size:11px }
-.player-card-v2 .ab-date.new{ color:var(--text); font-weight:700 }
-.player-card-v2 .ab-ev{ font-weight:700 }
+.player-card-v2 .ab-table td .pdot{ display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:7px; vertical-align:middle; box-shadow:0 0 7px currentColor }
+.player-card-v2 .ab-table td .pc{ font-weight:800; color:var(--text) }
+.player-card-v2 .ab-date{ color:var(--muted); font-size:10.5px; line-height:1.15 }
+.player-card-v2 .ab-date.new{ color:var(--text); font-weight:800 }
+.player-card-v2 .ab-date small{ display:block; margin-top:3px; color:var(--faint); font-size:8.5px; letter-spacing:.05em }
+.player-card-v2 .ab-pitch{ white-space:nowrap }
+.player-card-v2 .ab-pitch small{ display:block; margin-top:3px; color:var(--faint); font:600 8.5px 'Inter',sans-serif; max-width:125px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
+.player-card-v2 .ab-ev{ font-weight:800 }
 .player-card-v2 .ab-ev.brl{ color:var(--gold) } .player-card-v2 .ab-ev.hard{ color:var(--green-bright) } .player-card-v2 .ab-ev.soft{ color:var(--muted) }
-.player-card-v2 .ab-res{ display:inline-flex; align-items:center; gap:7px; justify-content:flex-end; font-weight:700; font-size:10.5px; letter-spacing:.04em }
-.player-card-v2 .ab-res i{ width:8px; height:8px; border-radius:50%; display:inline-block }
+.player-card-v2 .ab-la,.player-card-v2 .ab-dist{ color:#dce8f5; font-weight:700 }
+.player-card-v2 .ab-unit{ display:block; color:var(--faint); font-size:7.5px; margin-top:2px; letter-spacing:.05em; text-transform:uppercase }
+.player-card-v2 .ab-res{ display:inline-flex; align-items:center; gap:6px; justify-content:center; min-width:52px; padding:4px 8px; border-radius:999px; border:1px solid currentColor; background:rgba(255,255,255,.025); font-weight:800; font-size:9.5px; letter-spacing:.06em }
+.player-card-v2 .ab-res i{ width:6px; height:6px; border-radius:50%; display:inline-block; background:currentColor; box-shadow:0 0 6px currentColor }
 .player-card-v2 tr.ab-out td:first-child{ box-shadow:inset 3px 0 0 var(--red) }
 .player-card-v2 tr.ab-hit td:first-child{ box-shadow:inset 3px 0 0 var(--green-bright) }
 .player-card-v2 tr.ab-brl td:first-child{ box-shadow:inset 3px 0 0 var(--gold) }
+@media(max-width:680px){
+  .player-card-v2 .ab-sum{ grid-template-columns:repeat(2,1fr) }
+  .player-card-v2 .ab-table{ min-width:535px }
+  .player-card-v2 .ab-table thead th,.player-card-v2 .ab-table td{ padding:8px 9px }
+  .player-card-v2 .ab-pitch small{ max-width:90px }
+}
 
 /* ---------- Footer ---------- */
 .player-card-v2 .foot{ display:flex; align-items:center; justify-content:center; gap:14px; padding:11px 18px; border-top:1px solid var(--line); background:rgba(0,0,0,.2); font-size:10.5px; color:var(--faint); text-align:center }
@@ -3892,7 +3927,7 @@ body.modal-open{ overflow:hidden; }
   .player-card-v2 .pill{ font-size:10px; padding:5px 7px }
   .player-card-v2 .eng-grid{ grid-template-columns:1fr }
   .player-card-v2 .metrics{ grid-template-columns:repeat(4,1fr) }
-  .player-card-v2 .ab-table{ min-width:300px; font-size:10px }
+  .player-card-v2 .ab-table{ min-width:535px; font-size:10px }
   .player-card-v2 .ab-table th,.player-card-v2 .ab-table td{ padding:7px 8px }
   .player-card-v2 .ab-res{ font-size:9.5px; gap:5px }
   .player-card-v2 .sec-h{ flex-wrap:wrap; gap:4px }
@@ -4258,6 +4293,222 @@ body.modal-open{ overflow:hidden; }
   .gc-player-today{ font-size:5.2px !important; }
 }
 </style>
+
+<style id="tso-matchup-mix-v1">
+/* ========================================================================== */
+/* TSO Matchup Mix — composite batter/pitcher scouting visual                */
+/* Lives in the batter modal directly below Contact Quality.                  */
+/* ========================================================================== */
+.matchup-mix{
+  position:relative; overflow:hidden; border-radius:16px;
+  border:1px solid rgba(45,127,255,.42);
+  background:
+    radial-gradient(circle at 16% 0%,rgba(45,127,255,.17),transparent 35%),
+    radial-gradient(circle at 92% 5%,rgba(245,158,11,.10),transparent 30%),
+    linear-gradient(180deg,rgba(9,27,58,.96),rgba(5,16,35,.98));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 14px 30px rgba(0,0,0,.16);
+}
+.matchup-mix:before{
+  content:""; position:absolute; inset:0; pointer-events:none; opacity:.22;
+  background-image:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
+  background-size:24px 24px;
+}
+.mm-topbar{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 15px;border-bottom:1px solid rgba(45,127,255,.22)}
+.mm-brand{min-width:0}.mm-kicker{display:block;font-family:'JetBrains Mono','Space Mono',monospace;font-size:8.5px;font-weight:800;letter-spacing:.16em;color:var(--accent-bright);text-transform:uppercase}
+.mm-title{font-family:'Cabinet Grotesk','Archivo Black',sans-serif;font-size:17px;line-height:1.05;color:var(--white);margin-top:3px;letter-spacing:.01em}
+.mm-handline{display:flex;align-items:center;gap:6px;white-space:nowrap;font-family:'JetBrains Mono','Space Mono',monospace;font-size:9px;color:var(--mute)}
+.mm-hand-chip{display:inline-flex;align-items:center;justify-content:center;min-width:42px;padding:4px 8px;border-radius:999px;font-weight:900;letter-spacing:.06em}
+.mm-hand-chip.bat{color:#9ac7ff;background:rgba(45,127,255,.13);border:1px solid rgba(45,127,255,.48)}
+.mm-hand-chip.pitch{color:#ffd56a;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.38)}
+.mm-hero{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1fr) 126px minmax(0,1fr);grid-template-areas:'batter edge pitcher';gap:10px;padding:14px}
+.mm-person{border:1px solid rgba(255,255,255,.075);background:rgba(2,10,24,.48);border-radius:13px;padding:11px;min-width:0}
+.mm-batter{grid-area:batter}.mm-pitcher{grid-area:pitcher}
+.mm-person-top{display:grid;grid-template-columns:54px minmax(0,1fr);gap:10px;align-items:center}
+.mm-avatar{width:54px;height:54px;border-radius:50%;overflow:hidden;border:2px solid rgba(255,255,255,.15);box-shadow:0 0 0 3px rgba(45,127,255,.08)}
+.mm-pitcher .mm-avatar{box-shadow:0 0 0 3px rgba(245,158,11,.07)}
+.mm-avatar img{width:100%;height:100%;object-fit:cover;display:block}
+.mm-role{font:800 8px 'JetBrains Mono','Space Mono',monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.mm-name{font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:2px 0 4px}
+.mm-subbadge{display:inline-flex;padding:3px 7px;border-radius:6px;background:rgba(255,255,255,.045);font:800 8.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);border:1px solid rgba(255,255,255,.07)}
+.mm-batter .mm-subbadge{color:#8bc1ff;border-color:rgba(45,127,255,.25)}
+.mm-pitcher .mm-subbadge{color:#ffd56a;border-color:rgba(245,158,11,.22)}
+.mm-split-label{margin-top:9px;font:700 8px 'JetBrains Mono','Space Mono',monospace;text-transform:uppercase;letter-spacing:.08em;color:var(--mute)}
+.mm-split-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-top:6px}
+.mm-stat{min-width:0;border-radius:8px;background:rgba(255,255,255,.035);padding:7px 5px;text-align:center;border:1px solid rgba(255,255,255,.045)}
+.mm-stat b{display:block;font-family:'Oswald',sans-serif;font-size:15px;line-height:1;color:var(--white)}
+.mm-stat small{display:block;margin-top:4px;font:700 7.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.04em}
+.mm-mini-line{margin-top:7px;font:700 8.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.mm-edge{grid-area:edge;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-width:0}
+.mm-edge-caption{font:900 8px 'JetBrains Mono','Space Mono',monospace;letter-spacing:.12em;color:var(--mute);text-transform:uppercase;margin-bottom:7px}
+.mm-edge-orb{--edge:50%;position:relative;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--edge-color,#2d7fff) var(--edge),rgba(255,255,255,.075) 0);box-shadow:0 0 28px rgba(45,127,255,.12)}
+.mm-edge-orb:before{content:"";position:absolute;inset:7px;border-radius:50%;background:#07162d;border:1px solid rgba(255,255,255,.075)}
+.mm-edge-inner{position:relative;z-index:1}.mm-edge-num{display:block;font-family:'Cabinet Grotesk','Archivo Black',sans-serif;font-size:24px;line-height:1;color:var(--white)}
+.mm-edge-inner small{display:block;margin-top:3px;font:800 7px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);letter-spacing:.08em}
+.mm-edge-label{margin-top:8px;font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:var(--edge-color,#7db3ff);line-height:1.15}
+.mm-edge-note{margin-top:4px;font:600 7.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);line-height:1.35}
+
+.mm-analysis-grid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(235px,.82fr) minmax(0,1.18fr);gap:10px;padding:0 14px 14px}
+.mm-card{border-radius:13px;border:1px solid rgba(255,255,255,.07);background:rgba(2,10,24,.48);padding:12px;min-width:0}
+.mm-card-head{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-bottom:10px}
+.mm-card-head b{font-family:'Oswald',sans-serif;font-size:13px;color:var(--white);letter-spacing:.04em}
+.mm-card-head span{font:700 7.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.05em;text-align:right}
+.mm-zone-body{display:flex;align-items:center;gap:12px}
+.mm-zone-shell{position:relative;width:154px;flex:0 0 154px;padding:15px 0 14px}
+.mm-zone-grid{display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:3px;padding:3px;border:2px solid rgba(255,255,255,.26);border-radius:6px;background:rgba(0,0,0,.12)}
+.mm-zone-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:4px;overflow:hidden;border:1px solid rgba(255,255,255,.035)}
+.mm-zone-cell b{font-family:'Oswald',sans-serif;font-size:14px;color:#fff;line-height:1;text-shadow:0 1px 5px rgba(0,0,0,.45)}
+.mm-zone-cell small{font:700 7px 'JetBrains Mono','Space Mono',monospace;color:rgba(255,255,255,.72);margin-top:4px}
+.mm-zone-hr{position:absolute;right:3px;top:3px;min-width:14px;height:14px;padding:0 3px;border-radius:5px;background:rgba(0,0,0,.42);display:grid;place-items:center;font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:#ffd56a}
+.mm-zone-axis{position:absolute;left:0;right:0;text-align:center;font:700 7px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}.mm-zone-axis.top{top:0}.mm-zone-axis.bot{bottom:0}
+.mm-zone-insight{min-width:0;flex:1}.mm-zone-insight .eyebrow{font:800 7.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.08em}
+.mm-zone-insight strong{display:block;font-family:'Oswald',sans-serif;font-size:18px;line-height:1.05;color:var(--white);margin:4px 0 3px}.mm-zone-insight p{font-size:10.5px;color:var(--mute);line-height:1.45;margin:0}
+.mm-heat-legend{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.mm-heat-legend span{display:flex;align-items:center;gap:4px;font:700 7px 'JetBrains Mono','Space Mono',monospace;color:var(--mute)}.mm-heat-legend i{width:9px;height:7px;border-radius:2px}
+
+.mm-pitches{display:flex;flex-direction:column;gap:5px}
+.mm-pitch-head,.mm-pitch-row{display:grid;grid-template-columns:minmax(92px,1.35fr) .72fr .72fr .7fr;gap:7px;align-items:center}
+.mm-pitch-head{padding:0 7px 2px;font:800 7.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);text-transform:uppercase;letter-spacing:.04em;text-align:center}.mm-pitch-head span:first-child{text-align:left}
+.mm-pitch-row{padding:7px;border-radius:8px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.04)}
+.mm-pitch-name{display:flex;align-items:center;gap:6px;min-width:0;font-size:10.5px;color:var(--white);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mm-pitch-dot{width:8px;height:8px;border-radius:3px;flex:0 0 8px}
+.mm-usage{position:relative;height:17px;border-radius:5px;background:rgba(255,255,255,.05);overflow:hidden;display:flex;align-items:center;justify-content:center}.mm-usage-fill{position:absolute;left:0;top:0;bottom:0;opacity:.45}.mm-usage b{position:relative;font:800 8px 'JetBrains Mono','Space Mono',monospace;color:#fff}
+.mm-pitch-val{text-align:center;font:800 9px 'JetBrains Mono','Space Mono',monospace;color:var(--white)}
+.mm-pitch-edge{justify-self:center;min-width:48px;text-align:center;border-radius:999px;padding:3px 6px;font:900 6.8px 'JetBrains Mono','Space Mono',monospace;letter-spacing:.03em;text-transform:uppercase}
+.mm-pitch-edge.hit{color:#8ed6ff;background:rgba(45,127,255,.13);border:1px solid rgba(45,127,255,.32)}
+.mm-pitch-edge.arm{color:#ffd56a;background:rgba(245,158,11,.10);border:1px solid rgba(245,158,11,.28)}
+.mm-pitch-edge.even{color:var(--mute);background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08)}
+.mm-pitch-foot{margin-top:8px;font:600 7.5px 'JetBrains Mono','Space Mono',monospace;color:var(--mute);line-height:1.4}
+
+.mm-read{position:relative;z-index:1;margin:0 14px 14px;border-radius:12px;padding:11px 12px;border:1px solid rgba(45,127,255,.22);background:linear-gradient(90deg,rgba(45,127,255,.095),rgba(45,127,255,.025))}
+.mm-read-top{display:flex;align-items:center;gap:8px;margin-bottom:4px}.mm-read-badge{flex:0 0 auto;border-radius:6px;padding:3px 6px;background:var(--accent);color:#fff;font:900 7px 'JetBrains Mono','Space Mono',monospace;letter-spacing:.08em}.mm-read strong{font-family:'Oswald',sans-serif;font-size:12px;color:var(--white)}
+.mm-read p{margin:0;font-size:10.5px;line-height:1.5;color:#b6c3d8}.mm-read em{font-style:normal;color:var(--accent-bright)}
+.mm-disclaimer{position:relative;z-index:1;margin:-5px 14px 12px;font:600 7px 'JetBrains Mono','Space Mono',monospace;color:rgba(139,149,168,.72);line-height:1.35}
+
+@media(max-width:620px){
+  .mm-topbar{padding:11px 10px}.mm-title{font-size:15px}.mm-handline{gap:4px}.mm-hand-chip{min-width:38px;padding:3px 6px;font-size:8px}
+  .mm-hero{grid-template-columns:1fr 1fr;grid-template-areas:'batter pitcher' 'edge edge';gap:7px;padding:10px}
+  .mm-person{padding:8px}.mm-person-top{grid-template-columns:42px minmax(0,1fr);gap:7px}.mm-avatar{width:42px;height:42px}.mm-name{font-size:12.5px}.mm-role{font-size:6.8px}.mm-subbadge{font-size:7.3px;padding:2px 5px}
+  .mm-split-label{font-size:7px;margin-top:7px}.mm-split-metrics{gap:3px}.mm-stat{padding:6px 3px}.mm-stat b{font-size:13px}.mm-stat small{font-size:6.5px}.mm-mini-line{font-size:7.2px}
+  .mm-edge{flex-direction:row;gap:10px;padding:2px 0 1px}.mm-edge-caption{display:none}.mm-edge-orb{width:60px;height:60px;flex:0 0 60px}.mm-edge-orb:before{inset:5px}.mm-edge-num{font-size:18px}.mm-edge-label{margin-top:0;font-size:11.5px;text-align:left}.mm-edge-note{text-align:left;max-width:145px}
+  .mm-analysis-grid{grid-template-columns:1fr;padding:0 10px 10px;gap:7px}.mm-card{padding:10px}.mm-zone-body{justify-content:center}.mm-zone-shell{width:142px;flex-basis:142px}.mm-zone-grid{grid-template-rows:repeat(3,48px)}.mm-zone-insight strong{font-size:16px}.mm-zone-insight p{font-size:9px}
+  .mm-pitch-head,.mm-pitch-row{grid-template-columns:minmax(80px,1.25fr) .7fr .65fr .72fr;gap:4px}.mm-pitch-head{font-size:6.5px}.mm-pitch-row{padding:6px 5px}.mm-pitch-name{font-size:9px}.mm-pitch-val{font-size:8px}.mm-pitch-edge{min-width:42px;font-size:6px;padding:3px 4px}
+  .mm-read{margin:0 10px 10px;padding:9px 10px}.mm-read p{font-size:9.5px}.mm-disclaimer{margin:-3px 10px 10px;font-size:6.5px}
+}
+@media(max-width:380px){
+  .mm-zone-body{align-items:flex-start;gap:8px}.mm-zone-shell{width:132px;flex-basis:132px}.mm-zone-grid{grid-template-rows:repeat(3,44px)}
+  .mm-zone-cell b{font-size:12px}.mm-zone-cell small{font-size:6.3px}.mm-zone-insight strong{font-size:14px}
+  .mm-pitch-head,.mm-pitch-row{grid-template-columns:minmax(76px,1.2fr) .65fr .62fr .66fr}
+}
+</style>
+
+
+<style id="tso-matchup-mix-v2">
+/* v14: Matchup Mix uses the same surfaces, borders and spacing language as the Player Modal. */
+.player-card-v2 .matchup-mix{
+  background:var(--panel3);
+  border:1px solid var(--border);
+  border-radius:11px;
+  box-shadow:none;
+}
+.player-card-v2 .matchup-mix:before{display:none}
+.player-card-v2 .mm-topbar{
+  justify-content:center;
+  padding:11px 14px;
+  border-bottom:1px solid var(--line);
+  background:transparent;
+}
+.player-card-v2 .mm-handline{color:var(--muted)}
+.player-card-v2 .mm-hand-chip{background:var(--panel2);border:1px solid var(--border)}
+.player-card-v2 .mm-hand-chip.bat{color:var(--accent-bright);border-color:var(--border);background:var(--panel2)}
+.player-card-v2 .mm-hand-chip.pitch{color:var(--gold);border-color:var(--border);background:var(--panel2)}
+.player-card-v2 .mm-person,
+.player-card-v2 .mm-card{
+  background:var(--panel2);
+  border:1px solid var(--border);
+  box-shadow:none;
+}
+.player-card-v2 .mm-stat,
+.player-card-v2 .mm-pitch-row{
+  background:var(--panel3);
+  border:1px solid var(--border);
+}
+.player-card-v2 .mm-zone-grid{
+  background:var(--panel);
+  border:1px solid var(--border);
+}
+.player-card-v2 .mm-edge-orb{box-shadow:none}
+.player-card-v2 .mm-edge-orb:before{background:var(--panel2);border:1px solid var(--border)}
+.player-card-v2 .mm-read{
+  border:1px solid var(--border);
+  background:rgba(45,127,255,.055);
+}
+.player-card-v2 .mm-zone-cell{gap:0}
+.player-card-v2 .mm-zone-hr{
+  position:static;
+  right:auto; top:auto;
+  min-width:0; height:auto; padding:0; margin-top:3px;
+  display:block;
+  background:transparent;
+  border-radius:0;
+  color:var(--gold);
+  font:800 6.5px 'JetBrains Mono','Space Mono',monospace;
+  line-height:1;
+  text-align:center;
+}
+@media(max-width:620px){
+  .player-card-v2 .mm-topbar{padding:9px 10px}
+  .player-card-v2 .mm-zone-hr{font-size:6px}
+}
+</style>
+
+
+<style id="tso-matchup-mix-v3">
+/* v15: remove the outer Matchup Mix surface and strengthen the TSO Edge label. */
+.player-card-v2 .matchup-mix{
+  background:transparent;
+  box-shadow:none;
+}
+.player-card-v2 .mm-edge-caption{
+  font-family:'JetBrains Mono','Space Mono',monospace;
+  font-size:10.5px;
+  font-weight:900;
+  letter-spacing:.13em;
+  color:var(--accent-bright);
+  text-transform:uppercase;
+  text-shadow:0 0 10px rgba(110,220,255,.22);
+  margin-bottom:8px;
+}
+@media(max-width:620px){
+  .player-card-v2 .mm-edge{position:relative;padding-top:18px}
+  .player-card-v2 .mm-edge-caption{
+    display:block;
+    position:absolute;
+    top:0; left:0; right:0;
+    margin:0;
+    text-align:center;
+    font-size:9.5px;
+  }
+}
+</style>
+
+<style id="tso-matchup-mix-v4">
+/* v16: blend Matchup Mix directly into the Player Modal. */
+.player-card-v2 .matchup-mix{
+  border:0;
+  border-radius:0;
+}
+.player-card-v2 .mm-hero{padding-top:4px}
+.player-card-v2 .mm-zone-hr{
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.01em;
+  margin-top:4px;
+}
+@media(max-width:620px){
+  .player-card-v2 .mm-zone-hr{font-size:8px}
+  .player-card-v2 .mm-hero{padding-top:2px}
+}
+</style>
+
 </head>
 <body class="dw-booting">
 
@@ -12039,6 +12290,7 @@ async function fetchPlayerGameLogs(playerId){
       const st = s.stat || {};
       return { date: s.date,
         opp: op ? (_OPP[op.id]||op.abbreviation||op.name||'') : '',
+        homeAway: s.isHome === true ? 'home' : s.isHome === false ? 'away' : '',
         ab: st.atBats||0, h: st.hits||0, hr: st.homeRuns||0, rbi: st.rbi||0,
         r: st.runs||0, tb: st.totalBases||0, sb: st.stolenBases||0 };
     });
@@ -12212,7 +12464,7 @@ async function fetchContactBalls(player){
       for(const pe of (play.playEvents || [])){
         if(!pe.hitData) continue;
         const hd = pe.hitData, dt = pe.details||{}, ty = dt.type||{}, c = hd.coordinates||{}, ab = play.about||{};
-        balls.push({ ev:hd.launchSpeed!=null?Number(hd.launchSpeed):null, la:hd.launchAngle!=null?Number(hd.launchAngle):null, dist:hd.totalDistance!=null?Number(hd.totalDistance):null, cx:c.coordX, cy:c.coordY, traj:hd.trajectory, hard:hd.hardness, pitchCode:ty.code, pitchName:ty.description, pHand:mu.pitchHand&&mu.pitchHand.code, outcome:play.result&&play.result.event, date:g.date, opp:g.opp, inning:ab.inning });
+        balls.push({ ev:hd.launchSpeed!=null?Number(hd.launchSpeed):null, la:hd.launchAngle!=null?Number(hd.launchAngle):null, dist:hd.totalDistance!=null?Number(hd.totalDistance):null, cx:c.coordX, cy:c.coordY, traj:hd.trajectory, hard:hd.hardness, pitchCode:ty.code, pitchName:ty.description, pHand:mu.pitchHand&&mu.pitchHand.code, outcome:play.result&&play.result.event, date:g.date, opp:g.opp, inning:ab.inning, gamePk:g.gamePk });
       }
     }
   }));
@@ -12220,19 +12472,160 @@ async function fetchContactBalls(player){
   _contactCache[id] = { balls, fetchedAt:Date.now(), games:games.length };
   return _contactCache[id];
 }
-async function renderContactQuality(p){
+// Recent At-Bats — polished Statcast log. The spray-chart filter is shared
+// with this table so FB / BRK / OFF / BRL selections always stay in sync.
+// Animate spray-chart trajectories from home plate to their landing point.
+// The first render waits until the field actually scrolls into view; every
+// filter redraw replays immediately because the filter controls are visible.
+function animateSprayTrajectories(host){
+  if(!host) return;
+  const wrap = host.querySelector('.cq-field-wrap');
+  const svg = wrap && wrap.querySelector('.cq-field');
+  if(!wrap || !svg) return;
+  if(host._sprayObserver){ try{ host._sprayObserver.disconnect(); }catch(e){} host._sprayObserver=null; }
+  const paths = [...svg.querySelectorAll('.cq-arc')];
+  const lands = [...svg.querySelectorAll('.cq-land')];
+  if(!paths.length) return;
+  const reduce = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  paths.forEach(path=>{
+    const finalOpacity = path.getAttribute('opacity') || '1';
+    path.dataset.finalOpacity = finalOpacity;
+    if(reduce) return;
+    // .cq-arc uses non-scaling-stroke, so dash lengths must be based on the
+    // path's DISPLAYED screen length, not only its 400x225 SVG user units.
+    // Using only getTotalLength() made the dash too short on large/desktop
+    // renders, which left a permanent gap between the line and landing dot.
+    let len=1;
+    try{
+      const userLen=Math.max(1,path.getTotalLength());
+      const ctm=path.getScreenCTM();
+      const sx=ctm?Math.hypot(ctm.a,ctm.b):1;
+      const sy=ctm?Math.hypot(ctm.c,ctm.d):sx;
+      const screenScale=Math.max(.01,(sx+sy)/2);
+      len=Math.max(1,userLen*screenScale);
+    }catch(e){}
+    path.dataset.pathLen=String(len);
+    path.classList.add('cq-flight-anim');
+    path.style.transition='none';
+    path.style.strokeDasharray=`${len}px ${len}px`;
+    path.style.strokeDashoffset=`${len}px`;
+    path.style.opacity='0';
+  });
+  lands.forEach(dot=>{
+    const finalOpacity = dot.getAttribute('opacity') || '1';
+    dot.dataset.finalOpacity = finalOpacity;
+    if(reduce) return;
+    dot.classList.add('cq-flight-anim');
+    dot.style.transition='none';
+    dot.style.opacity='0';
+    dot.style.transform='scale(.18)';
+  });
+  if(reduce) return;
+  let started=false;
+  const start=()=>{
+    if(started) return; started=true;
+    if(host._sprayObserver){ try{ host._sprayObserver.disconnect(); }catch(e){} host._sprayObserver=null; }
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      paths.forEach((path,i)=>{
+        const len=Number(path.dataset.pathLen)||1;
+        const delay=Math.min(i*48,720);
+        const duration=Math.round(620 + Math.min(len*.48,330));
+        path.style.transition=`stroke-dashoffset ${duration}ms cubic-bezier(.22,.61,.36,1) ${delay}ms, opacity 160ms ease ${delay}ms`;
+        path.style.strokeDashoffset='0px';
+        path.style.opacity=path.dataset.finalOpacity||'1';
+        // Once the draw finishes, remove the dash mask entirely. This makes
+        // the completed trajectory a normal solid SVG path and guarantees the
+        // full line remains visible all the way to the landing marker.
+        const finish=()=>{
+          path.style.transition='none';
+          path.style.strokeDasharray='none';
+          path.style.strokeDashoffset='0';
+          path.style.opacity=path.dataset.finalOpacity||'1';
+          path.classList.remove('cq-flight-anim');
+        };
+        const timer=setTimeout(finish, delay+duration+80);
+        path.addEventListener('transitionend',e=>{
+          if(e.propertyName==='stroke-dashoffset'){ clearTimeout(timer); finish(); }
+        },{once:true});
+        const dot=lands[i];
+        if(dot){
+          const dotDelay=delay+Math.round(duration*.78);
+          dot.style.transition=`transform 300ms cubic-bezier(.2,1.55,.45,1) ${dotDelay}ms, opacity 170ms ease ${dotDelay}ms`;
+          dot.style.opacity=dot.dataset.finalOpacity||'1';
+          dot.style.transform='scale(1)';
+          setTimeout(()=>{
+            dot.style.transition='none';
+            dot.style.opacity=dot.dataset.finalOpacity||'1';
+            dot.style.transform='scale(1)';
+            dot.classList.remove('cq-flight-anim');
+          },dotDelay+360);
+        }
+      });
+    }));
+  };
+  const r=wrap.getBoundingClientRect();
+  const visible = r.bottom>0 && r.top < (window.innerHeight||document.documentElement.clientHeight)*.94;
+  if(visible) start();
+  else if('IntersectionObserver' in window){
+    host._sprayObserver = new IntersectionObserver(entries=>{
+      if(entries.some(e=>e.isIntersecting)){ start(); }
+    },{threshold:.18});
+    host._sprayObserver.observe(wrap);
+  }else start();
+}
+
+function pcRecentABHTML(balls, p, contactFilter='ALL'){
+  const hand = p.oppPitcher?.throws;
+  let rows = balls||[];
+  if(hand==='L'||hand==='R') rows = rows.filter(b=>b.pHand===hand);
+  const filter = contactFilter || 'ALL';
+  if(filter==='BRL') rows = rows.filter(b=>contactBarrel(b.ev,b.la));
+  else if(filter!=='ALL') rows = rows.filter(b=>pitchGroupOf(b.pitchCode)===filter);
+  rows = rows.slice(0,12);
+  const handText = hand==='L'?'LHP':hand==='R'?'RHP':'all hands';
+  const filterText = filter==='ALL'?'All contact':filter==='Fastball'?'Fastballs':filter==='Breaking'?'Breaking balls':filter==='Offspeed'?'Offspeed':filter==='BRL'?'Barrels':filter;
+  if(!rows.length) return `<div class="ab-filter-note"><b>${filterText}</b><span>· vs ${handText}</span></div><div class="ab-sum"><div class="s"><b>—</b><small>balls</small></div><div class="s"><b>—</b><small>barrels</small></div><div class="s"><b>—</b><small>avg EV</small></div><div class="s"><b>—</b><small>hard</small></div></div><div class="ab-scroll"><table class="ab-table"><tr><td colspan="6" class="ab-empty">No matching batted balls.</td></tr></table></div>`;
+  const evs = rows.map(b=>b.ev).filter(v=>v!=null);
+  const avgEv = evs.length?Math.round(evs.reduce((a,b)=>a+b,0)/evs.length):null;
+  const barrels = rows.filter(b=>contactBarrel(b.ev,b.la)).length;
+  const hard = rows.filter(b=>b.ev!=null&&b.ev>=95).length;
+  const hits = rows.filter(b=>['hr','hit'].includes(contactKind(b.outcome))).length;
+  const seen=new Set();
+  return `<div class="ab-filter-note"><b>${filterText}</b><span>· vs ${handText} · linked to Spray Chart</span></div>
+    <div class="ab-sum">
+      <div class="s"><b>${hits}</b><small>hits</small></div><div class="s"><b>${barrels}</b><small>barrels</small></div>
+      <div class="s"><b>${avgEv!=null?avgEv:'—'}</b><small>avg EV</small></div><div class="s"><b>${hard}/${rows.length}</b><small>hard hit</small></div>
+    </div>
+    <div class="ab-scroll"><table class="ab-table">
+      <thead><tr><th class="l">Date / Opp</th><th class="l">Pitch</th><th>EV</th><th>LA</th><th>Dist</th><th>Result</th></tr></thead>
+      <tbody>${rows.map(b=>{
+        const k=contactKind(b.outcome);
+        const brl=contactBarrel(b.ev,b.la);
+        const rcls=brl?'ab-brl':(k==='hit'||k==='hr'?'ab-hit':'ab-out');
+        const rcol=contactColor(b);
+        const evc=brl?'brl':(b.ev!=null&&b.ev>=95?'hard':(b.ev!=null?'soft':'soft'));
+        const res=k==='hr'?'HR':k==='hit'?'HIT':k==='err'?'ERR':'OUT';
+        const isNew = seen.has(b.date)?'':(seen.add(b.date),' new');
+        const pitchTitle = b.pitchName || pitchName(b.pitchCode||'') || 'Pitch';
+        return `<tr class="${rcls}"><td class="ab-date${isNew} l">${b.date?b.date.slice(5):'—'}<small>${b.opp?'vs '+escapeHTML(b.opp):'—'}</small></td><td class="ab-pitch l"><span class="pdot" style="background:${pitchColor(b.pitchCode||'')}" title="${escapeHTML(pitchTitle)}"></span><span class="pc">${b.pitchCode||'?'}</span><small>${escapeHTML(pitchTitle)}</small></td><td class="ab-ev ${evc}">${b.ev!=null?Math.round(b.ev):'—'}<span class="ab-unit">mph</span></td><td class="ab-la">${b.la!=null?Math.round(b.la)+'°':'—'}<span class="ab-unit">LA</span></td><td class="ab-dist">${b.dist!=null?Math.round(b.dist):'—'}<span class="ab-unit">ft</span></td><td><span class="ab-res" style="color:${rcol}"><i></i>${res}</span></td></tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+}
+
+async function renderContactQuality(p, prefetchedData=null){
   const host = document.getElementById('contactHost');
   if(!host) return;
-  const st = host._state = host._state || { hand:null, pitch:null };
+  const st = host._state = host._state || { hand:null, contact:'ALL' };
   if(st.hand===null){ const t = p.oppPitcher && p.oppPitcher.throws; st.hand = (t==='L'||t==='R') ? t : 'ALL'; }
-  let data;
-  try{ data = await fetchContactBalls(p); }
+  let data = prefetchedData;
+  try{ if(!data) data = await fetchContactBalls(p); }
   catch(e){ host.innerHTML = `<div class="live-note err">Couldn't load contact data: ${e.message}</div>`; return; }
   const balls = data.balls || [];
   const draw = () => {
     let rows = balls;
     if(st.hand!=='ALL') rows = rows.filter(b=>b.pHand===st.hand);
-    if(st.pitch) rows = rows.filter(b=>pitchGroupOf(b.pitchCode)===st.pitch);
+    if(st.contact==='BRL') rows = rows.filter(b=>contactBarrel(b.ev,b.la));
+    else if(st.contact && st.contact!=='ALL') rows = rows.filter(b=>pitchGroupOf(b.pitchCode)===st.contact);
     // Perspective projection calibrated to the stadium photo's field landmarks
     // (home plate, mound, foul poles, outfield wall). Behind-home-plate pinhole:
     // depth foreshortens toward a vanishing point just above the wall, so the
@@ -12317,19 +12710,20 @@ async function renderContactQuality(p){
       for(let k=0;k<=N;k++){ const t=k/N, px=lx*t, py=ly*t, pz=apex*4*t*(1-t); const s=proj(px,py,pz); pts+=(k?' L ':'M ')+s.sx.toFixed(1)+' '+s.sy.toFixed(1); }
       arcs.push({ i, pts, land:proj(lx,ly,0), col:contactColor(b), kind:contactKind(b.outcome), b });
     });
-    const handBtn = (v,lbl)=>`<button class="cq-hbtn ${st.hand===v?'active':''}" data-hand="${v}">${lbl}</button>`;
-    const pitchBtn = (v,lbl)=>`<button class="cq-pbtn ${st.pitch===v?'active':''}" data-pitch="${v||''}">${lbl}</button>`;
-    const cnt = { L:balls.filter(b=>b.pHand==='L').length, R:balls.filter(b=>b.pHand==='R').length };
-    const listRows = rows.map((b,i)=>{
-      const o=b.outcome||'—', col=contactColor(b), barrel=contactBarrel(b.ev,b.la), pow=contactPower(b.ev);
-      return `<tr class="cq-row" data-i="${i}"><td class="cq-d">${b.date?b.date.slice(5):'—'}</td><td class="cq-o"><span class="cq-dot" style="background:${col};"></span>${o}</td><td>${b.ev!=null?b.ev.toFixed(1):'—'}<i>mph</i></td><td>${b.la!=null?Math.round(b.la)+'°':'—'}</td><td>${b.dist!=null?Math.round(b.dist):'—'}<i>ft</i></td><td>${pow}</td><td>${barrel?'<span class="cq-barrel">Barrel</span>':'—'}</td><td class="cq-p">${b.pitchCode||'—'}</td><td>${b.pHand||'—'}</td></tr>`;
-    }).join('');
-    const _brl = p.statcast?.barrel!=null?Math.round(p.statcast.barrel):null;
-    const _ev  = p.statcast?.ev!=null?Math.round(p.statcast.ev):null;
+    // These headline stats follow the exact same filtered batted-ball set as the
+    // trajectories below. That way FB / BRK / OFF / BRL (and handedness) update
+    // the numbers instead of leaving the player's season-level Statcast values.
+    const _filteredEvs = rows.map(b=>b.ev).filter(v=>Number.isFinite(v));
+    const _ev = _filteredEvs.length ? Math.round(_filteredEvs.reduce((sum,v)=>sum+v,0)/_filteredEvs.length) : null;
+    const _barrels = rows.filter(b=>contactBarrel(b.ev,b.la)).length;
+    const _brl = rows.length ? Math.round((_barrels/rows.length)*100) : null;
+    const _gameKeys = new Set(rows.map(b=>b.gamePk || `${b.date||''}|${b.opp||''}`).filter(Boolean));
+    const _games = _gameKeys.size;
+    const _bip = rows.length;
     host.innerHTML = `
       <div class="spray-top">
         <div class="stat"><div><b>${_brl!=null?_brl+'%':'—'}</b><small>BRL</small></div><div><b>${_ev!=null?_ev:'—'}</b><small>EV</small></div></div>
-        <div style="display:flex;gap:8px;align-items:center">${balls.length?`<span class="badge">${data.games||0} G · ${balls.length} balls in play</span>`:''}</div>
+        <div style="display:flex;gap:8px;align-items:center"><span class="badge">${_games} G · ${_bip} ball${_bip===1?'':'s'} in play</span></div>
       </div>
       <div class="cq-field-wrap"><svg class="cq-field" viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid meet">
         <defs><linearGradient id="cq-vign" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(6,10,15,0.55)"/><stop offset="0.5" stop-color="rgba(6,10,15,0.30)"/><stop offset="1" stop-color="rgba(6,10,15,0.18)"/></linearGradient></defs>
@@ -12339,13 +12733,19 @@ async function renderContactQuality(p){
         ${arcs.map(a=>`<path class="cq-arc" data-i="${a.i}" d="${a.pts}" stroke="${a.col}" stroke-width="${a.kind==='hr'?2.6:1.7}" fill="none" opacity="${a.kind==='out'?0.55:0.92}"/>`).join('')}
         ${arcs.map(a=>`<circle class="cq-land" data-i="${a.i}" cx="${a.land.sx}" cy="${a.land.sy}" r="${a.kind==='hr'?3.8:2.6}" fill="${a.col}" opacity="${a.kind==='out'?0.65:1}"/>`).join('')}
       </svg><div class="scrim"></div></div>
-      <div class="spray-leg"><span><b style="background:var(--accent)"></b>FB</span><span><b style="background:var(--orange)"></b>BRK</span><span><b style="background:var(--purple)"></b>OFF</span><span><b style="background:var(--gold)"></b>BRL</span></div>`;
-    host.querySelectorAll('.cq-hbtn').forEach(btn=>btn.addEventListener('click',()=>{ st.hand=btn.dataset.hand; draw(); }));
-    host.querySelectorAll('.cq-pbtn').forEach(btn=>btn.addEventListener('click',()=>{ st.pitch=btn.dataset.pitch||null; draw(); }));
-    host.querySelectorAll('.cq-row').forEach(r=>r.addEventListener('mouseenter',()=>{
-      host.querySelectorAll('.cq-arc,.cq-land').forEach(x=>x.classList.remove('hl'));
-      const i=r.dataset.i; const a=host.querySelector(`.cq-arc[data-i="${i}"]`), l=host.querySelector(`.cq-land[data-i="${i}"]`);
-      if(a){ a.classList.add('hl'); l&&l.classList.add('hl'); }
+      <div class="spray-leg" aria-label="Contact filters">
+        <button class="spray-filter ${st.contact==='ALL'?'active':''}" data-contact="ALL"><b style="background:#dce8f5"></b>ALL</button>
+        <button class="spray-filter ${st.contact==='Fastball'?'active':''}" data-contact="Fastball"><b style="background:var(--accent)"></b>FB</button>
+        <button class="spray-filter ${st.contact==='Breaking'?'active':''}" data-contact="Breaking"><b style="background:var(--orange)"></b>BRK</button>
+        <button class="spray-filter ${st.contact==='Offspeed'?'active':''}" data-contact="Offspeed"><b style="background:var(--purple)"></b>OFF</button>
+        <button class="spray-filter ${st.contact==='BRL'?'active':''}" data-contact="BRL"><b style="background:var(--gold)"></b>BRL</button>
+      </div>`;
+    const recentHost = document.getElementById('recentABHost');
+    if(recentHost) recentHost.innerHTML = pcRecentABHTML(balls, p, st.contact);
+    animateSprayTrajectories(host);
+    host.querySelectorAll('.spray-filter').forEach(btn=>btn.addEventListener('click',()=>{
+      st.contact=btn.dataset.contact||'ALL';
+      draw();
     }));
   };
   draw();
@@ -12671,6 +13071,160 @@ function platoonSplitHTML(p, pitcher){
     <div class="split-row split-head"><span class="split-label">Hitter splits</span><span>AVG</span><span>SLG</span><span>OPS</span><span>HR</span><span>PA</span></div>
     ${row('vs LHP', hs.vsLHP, relevant === 'vsLHP')}
     ${row('vs RHP', hs.vsRHP, relevant === 'vsRHP')}
+  </div>`;
+}
+
+
+/**
+ * Matchup Mix — a single visual summary of tonight's batter/pitcher fit.
+ * Uses only data already shipped in slate.json: hitter/pitcher platoon splits,
+ * hitter Statcast zone BA, hitter results by pitch type, and starter arsenal.
+ * The Edge score is directional context, not an outcome probability.
+ */
+function matchupMixHTML(p){
+  const sp = p?.oppPitcher || {};
+  const g = p?.game || {};
+  const detail = p?.detail || {};
+  const batHandRaw = String(p?.hand || '?').toUpperCase();
+  const throwHand = String(sp?.throws || '?').toUpperCase();
+  // Switch hitters bat opposite the pitcher's throwing hand in normal matchups.
+  const effectiveBatHand = batHandRaw === 'S'
+    ? (throwHand === 'R' ? 'L' : throwHand === 'L' ? 'R' : 'S')
+    : batHandRaw;
+  const batterSplitKey = throwHand === 'L' ? 'vsLHP' : throwHand === 'R' ? 'vsRHP' : null;
+  // Pitcher split keys come from the builder's handedness split payload; for a
+  // pitcher they represent performance allowed to hitters of that side.
+  const pitcherSplitKey = effectiveBatHand === 'L' ? 'vsLHP' : effectiveBatHand === 'R' ? 'vsRHP' : null;
+  const bs = batterSplitKey ? p?.splits?.[batterSplitKey] : null;
+  const ps = pitcherSplitKey ? sp?.splits?.[pitcherSplitKey] : null;
+  const fmt3 = v => v == null || Number.isNaN(Number(v)) ? '—' : Number(v).toFixed(3).replace(/^0/,'');
+  const fmt1 = v => v == null || Number.isNaN(Number(v)) ? '—' : Number(v).toFixed(1);
+  const clampMM = (v,a,b)=>Math.max(a,Math.min(b,v));
+  const hitterTeam = p?.team || '';
+  const pitcherTeam = hitterTeam === g?.away ? g?.home : g?.away;
+  const batterHandLabel = batHandRaw === 'S' ? `SHB → ${effectiveBatHand}HB` : `${batHandRaw}HB`;
+  const pitcherHandLabel = `${throwHand}HP`;
+  const hitterSplitLabel = throwHand === 'L' ? 'vs LHP' : throwHand === 'R' ? 'vs RHP' : 'hand split';
+  const pitcherSplitLabel = effectiveBatHand === 'L' ? 'vs LHB' : effectiveBatHand === 'R' ? 'vs RHB' : 'batter split';
+
+  // Weighted zone BA (actual AB only) and hottest qualified zone.
+  const zones = detail?.zones || {};
+  const zoneRows = [1,2,3,4,5,6,7,8,9].map(n=>({n,d:zones[n]||zones[String(n)]||{}}));
+  const zAB = zoneRows.reduce((a,z)=>a+(Number(z.d.abs)||0),0);
+  const zH  = zoneRows.reduce((a,z)=>a+(Number(z.d.hits)||0),0);
+  const zoneBA = zAB ? zH/zAB : null;
+  const qualifiedZones = zoneRows.filter(z=>z.d.avg!=null && (Number(z.d.abs)||0)>=5);
+  const hotZone = qualifiedZones.sort((a,b)=>(Number(b.d.avg)||0)-(Number(a.d.avg)||0))[0] || null;
+  const zoneNames = {1:'Upper-left',2:'Upper-middle',3:'Upper-right',4:'Middle-left',5:'Middle-middle',6:'Middle-right',7:'Lower-left',8:'Lower-middle',9:'Lower-right'};
+  const heat = v => {
+    if(v==null) return 'rgba(255,255,255,.035)';
+    v=Number(v);
+    if(v>=.400) return 'linear-gradient(145deg,rgba(255,75,64,.88),rgba(255,128,55,.67))';
+    if(v>=.300) return 'linear-gradient(145deg,rgba(245,158,11,.72),rgba(244,196,48,.48))';
+    if(v>=.220) return 'linear-gradient(145deg,rgba(45,127,255,.55),rgba(45,127,255,.28))';
+    return 'linear-gradient(145deg,rgba(35,62,102,.68),rgba(18,35,64,.72))';
+  };
+  const zoneHTML = zoneRows.map(z=>{
+    const d=z.d||{}; const hrs=Number(d.hr)||0;
+    return `<div class="mm-zone-cell" style="background:${heat(d.avg)}" title="${zoneNames[z.n]} · ${fmt3(d.avg)} AVG · ${d.ev!=null?fmt1(d.ev)+' mph EV':'EV —'} · ${d.abs??0} AB">
+      <b>${fmt3(d.avg)}</b><small>${d.ev!=null?Math.round(d.ev)+' EV':'— EV'}</small>
+      ${hrs?`<span class="mm-zone-hr">${hrs} HR</span>`:''}
+    </div>`;
+  }).join('');
+
+  // Starter arsenal × hitter pitch-type results.
+  const arsenal = Array.isArray(sp?.arsenal) ? [...sp.arsenal].sort((a,b)=>(b.usagePct||0)-(a.usagePct||0)).slice(0,5) : [];
+  const pt = detail?.pitchTypes || {};
+  let weightedPitchAvgNum=0, weightedPitchAvgDen=0;
+  arsenal.forEach(a=>{ const d=pt[a.code]; if(d?.avg!=null && a.usagePct!=null){ weightedPitchAvgNum += Number(d.avg)*Number(a.usagePct); weightedPitchAvgDen += Number(a.usagePct); } });
+  const weightedPitchAvg = weightedPitchAvgDen ? weightedPitchAvgNum/weightedPitchAvgDen : null;
+  const pitchRows = arsenal.length ? arsenal.map(a=>{
+    const d=pt[a.code]||{}; const avg=d.avg!=null?Number(d.avg):null;
+    const edgeCls = avg==null ? 'even' : avg>=.285 ? 'hit' : avg<=.220 ? 'arm' : 'even';
+    const edgeTxt = avg==null ? 'NO DATA' : avg>=.285 ? 'HITTER' : avg<=.220 ? 'PITCHER' : 'EVEN';
+    return `<div class="mm-pitch-row">
+      <div class="mm-pitch-name" title="${pitchName(a.code)}"><i class="mm-pitch-dot" style="background:${pitchColor(a.code)}"></i>${pitchName(a.code)}</div>
+      <div class="mm-usage"><i class="mm-usage-fill" style="width:${clampMM(Number(a.usagePct)||0,0,100)}%;background:${pitchColor(a.code)}"></i><b>${a.usagePct!=null?Math.round(a.usagePct)+'%':'—'}</b></div>
+      <div class="mm-pitch-val">${fmt3(avg)}</div>
+      <span class="mm-pitch-edge ${edgeCls}">${edgeTxt}</span>
+    </div>`;
+  }).join('') : `<div class="ab-empty">Starter pitch mix unavailable.</div>`;
+
+  // Directional edge score. Every term is bounded so a single small-sample
+  // split cannot dominate the visual. This is intentionally NOT a probability.
+  let edge = 50;
+  if(bs?.ops!=null) edge += clampMM((Number(bs.ops)-.750)*42,-8,8);
+  if(ps?.ops!=null) edge += clampMM((Number(ps.ops)-.750)*42,-8,8); // higher OPS allowed helps hitter
+  if(sp?.hr9!=null) edge += clampMM((Number(sp.hr9)-1.15)*7,-5,6);
+  if(sp?.k9!=null) edge += clampMM((9.0-Number(sp.k9))*1.25,-5,5);
+  if(weightedPitchAvg!=null) edge += clampMM((weightedPitchAvg-.250)*48,-6,6);
+  if(zoneBA!=null) edge += clampMM((zoneBA-.250)*28,-4,4);
+  edge = Math.round(clampMM(edge,25,75));
+  const edgeLabel = edge>=62 ? 'Batter Edge' : edge>=55 ? 'Slight Batter Edge' : edge<=38 ? 'Pitcher Edge' : edge<=45 ? 'Slight Pitcher Edge' : 'Near Even';
+  const edgeColor = edge>=55 ? '#6edcff' : edge<=45 ? '#f4c430' : '#9caac0';
+
+  // Plain-English read from the strongest pieces of the same underlying data.
+  const notes=[];
+  if(bs?.ops!=null){
+    if(bs.ops>=.850) notes.push(`${surname(p.name)} owns the handedness split at <em>${fmt3(bs.ops)} OPS</em> ${hitterSplitLabel}.`);
+    else if(bs.ops<=.700) notes.push(`${surname(p.name)} has been quieter in this split at <em>${fmt3(bs.ops)} OPS</em> ${hitterSplitLabel}.`);
+    else notes.push(`${surname(p.name)} is <em>${fmt3(bs.ops)} OPS</em> ${hitterSplitLabel}.`);
+  }
+  if(ps?.ops!=null){
+    const side = pitcherSplitLabel.replace('vs ','');
+    if(ps.ops>=.800) notes.push(`${surname(sp.name||'The starter')} has allowed <em>${fmt3(ps.ops)} OPS</em> to ${side}.`);
+    else if(ps.ops<=.700) notes.push(`${surname(sp.name||'The starter')} has held ${side} to <em>${fmt3(ps.ops)} OPS</em>.`);
+  }
+  const primary = arsenal[0];
+  if(primary){
+    const d=pt[primary.code];
+    if(d?.avg!=null && d.avg>=.285) notes.push(`The primary ${pitchName(primary.code)} (${Math.round(primary.usagePct||0)}%) is a current hitter advantage at <em>${fmt3(d.avg)} AVG</em>.`);
+    else if(d?.avg!=null && d.avg<=.220) notes.push(`The primary ${pitchName(primary.code)} (${Math.round(primary.usagePct||0)}%) is the pressure pitch at <em>${fmt3(d.avg)} AVG</em>.`);
+  }
+  if(hotZone?.d?.avg!=null) notes.push(`Best qualified zone: <em>${zoneNames[hotZone.n]}</em> at ${fmt3(hotZone.d.avg)} AVG.`);
+  const read = notes.slice(0,3).join(' ');
+
+  return `<div class="matchup-mix">
+    <div class="mm-hero">
+      <div class="mm-person mm-batter">
+        <div class="mm-person-top"><div class="mm-avatar">${headshotImgTag(p.name,'',hitterTeam,p.id)}</div><div><div class="mm-role">Batter</div><div class="mm-name">${p.name}</div><span class="mm-subbadge">${batHandRaw==='S'?'Switch · bats '+effectiveBatHand: 'Bats '+batHandRaw}</span></div></div>
+        <div class="mm-split-label">${hitterSplitLabel} · season</div>
+        <div class="mm-split-metrics"><div class="mm-stat"><b>${fmt3(bs?.avg)}</b><small>AVG</small></div><div class="mm-stat"><b>${fmt3(bs?.slg)}</b><small>SLG</small></div><div class="mm-stat"><b>${fmt3(bs?.ops)}</b><small>OPS</small></div></div>
+        <div class="mm-mini-line">${bs?.hr!=null?bs.hr+' HR':''}${bs?.pa!=null?` · ${bs.pa} PA`:''}${p?.hr!=null?` · ${p.hr} HR season`:''}</div>
+      </div>
+
+      <div class="mm-edge" style="--edge-color:${edgeColor}">
+        <div class="mm-edge-caption">TSO Edge</div>
+        <div class="mm-edge-orb" style="--edge:${edge}%;--edge-color:${edgeColor}"><div class="mm-edge-inner"><span class="mm-edge-num">${edge}</span><small>EDGE</small></div></div>
+        <div><div class="mm-edge-label" style="color:${edgeColor}">${edgeLabel}</div><div class="mm-edge-note">directional matchup read<br>50 = even</div></div>
+      </div>
+
+      <div class="mm-person mm-pitcher">
+        <div class="mm-person-top"><div class="mm-avatar">${headshotImgTag(sp.name||'Starter','',pitcherTeam,sp.id)}</div><div><div class="mm-role">Pitcher</div><div class="mm-name">${sp.name||'Starter TBD'}</div><span class="mm-subbadge">Throws ${throwHand}</span></div></div>
+        <div class="mm-split-label">${pitcherSplitLabel} · allowed</div>
+        <div class="mm-split-metrics"><div class="mm-stat"><b>${fmt3(ps?.avg)}</b><small>AVG</small></div><div class="mm-stat"><b>${fmt3(ps?.slg)}</b><small>SLG</small></div><div class="mm-stat"><b>${fmt3(ps?.ops)}</b><small>OPS</small></div></div>
+        <div class="mm-mini-line">${sp?.k9!=null?fmt1(sp.k9)+' K/9':''}${sp?.hr9!=null?` · ${fmt1(sp.hr9)} HR/9`:''}${sp?.era!=null?` · ${fmt1(sp.era)} ERA`:''}</div>
+      </div>
+    </div>
+
+    <div class="mm-analysis-grid">
+      <div class="mm-card">
+        <div class="mm-card-head"><b>Zone BA</b><span>catcher's view · AVG / EV</span></div>
+        <div class="mm-zone-body">
+          <div class="mm-zone-shell"><div class="mm-zone-axis top">UP</div><div class="mm-zone-grid">${zoneHTML}</div><div class="mm-zone-axis bot">DOWN</div></div>
+          <div class="mm-zone-insight"><span class="eyebrow">Damage zone</span><strong>${hotZone?zoneNames[hotZone.n]:'No sample'}</strong><p>${hotZone?`${fmt3(hotZone.d.avg)} AVG · ${hotZone.d.ev!=null?Math.round(hotZone.d.ev)+' mph EV':'EV —'} · ${hotZone.d.abs||0} AB`:'Not enough qualified zone data.'}</p><div class="mm-heat-legend"><span><i style="background:#f15b48"></i>Hot</span><span><i style="background:#e6b33d"></i>Warm</span><span><i style="background:#2d7fff"></i>Cool</span></div></div>
+        </div>
+      </div>
+
+      <div class="mm-card">
+        <div class="mm-card-head"><b>Pitch Mix Battle</b><span>${sp.name||'starter'} usage × hitter AVG</span></div>
+        <div class="mm-pitches"><div class="mm-pitch-head"><span>Pitch</span><span>Usage</span><span>BAT AVG</span><span>Edge</span></div>${pitchRows}</div>
+        <div class="mm-pitch-foot">Hitter/Pitcher tags compare this batter's results against each pitch type to a neutral batting-average band. Usage is tonight's starter's season mix.</div>
+      </div>
+    </div>
+
+    <div class="mm-read"><div class="mm-read-top"><span class="mm-read-badge">TSO READ</span><strong>${edgeLabel}</strong></div><p>${read || 'Not enough split and pitch-type data is available to build a reliable matchup read yet.'}</p></div>
+    <div class="mm-disclaimer">Edge is a bounded matchup context score built from available handedness splits, zone BA, pitch-type results, K/9 and HR/9. It is not a win probability or guarantee.</div>
   </div>`;
 }
 
@@ -15766,8 +16320,8 @@ function openBatterModal(p){
       </div>${propFactorBlockHTML(p, prop)}`;
   }
   // game-log trend chart: positive bars green; labels show only when bars are wide enough.
-  function pcBarsHTML(logs, prop, range, containerW){
-    const RANGES = [['5','L5'],['10','L10'],['15','L15'],['30','L30'],['26',"'26"],['25',"'25"]];
+  function pcBarsHTML(logs, prop, range, containerW, venue){
+    const RANGES = [['5','L5'],['10','L10'],['15','L15'],['30','L30'],['26',"'26"],['25',"'25"],['h2h','H2H']];
     const PROP_LABEL = {hr:'HR',hits:'HITS',tb:'TB',hrr:'H+R+RBI',rbi:'RBI',sb:'SB'};
     const propVal = g => {
       switch(prop){
@@ -15779,21 +16333,37 @@ function openBatterModal(p){
         case 'hr': default: return g.hr||0;
       }
     };
+    const h2hOpp = p && p.game && p.team
+      ? (p.team===p.game.away ? p.game.home : p.team===p.game.home ? p.game.away : '')
+      : '';
     const chips = RANGES.map(([k,l])=>`<button class="chip ${k===String(range)?'on':''}" data-range="${k}">${l}</button>`).join('');
-    if(!logs) return `<div class="filters">${chips}</div><div class="clear">Loading game log…</div>`;
+    const venueChips = ['home','away'].map(v=>`<button class="chip ${venue===v?'on':''}" data-venue="${v}">${v==='home'?'Home':'Away'}</button>`).join('');
+    const toolbar = `<div class="bars-toolbar"><div class="filters">${chips}</div><div class="venue-filters">${venueChips}</div></div>`;
+    if(!logs) return `${toolbar}<div class="clear">Loading game log…</div>`;
     let games, seasonTag='';
-    if(range==='25'){ games=(logs.g25||[]).slice(); seasonTag='2025'; }
+    if(range==='h2h'){
+      games=[...(logs.g25||[]), ...(logs.g26||[])].filter(g=>!h2hOpp || String(g.opp||'').toUpperCase()===String(h2hOpp).toUpperCase());
+      games.sort((a,b)=>String(a.date||'').localeCompare(String(b.date||'')));
+      seasonTag=h2hOpp?`H2H vs ${h2hOpp}`:'H2H';
+    } else if(range==='25'){ games=(logs.g25||[]).slice(); seasonTag='2025'; }
     else if(range==='26'){ games=(logs.g26||[]).slice(); seasonTag='2026'; }
     else { const n=parseInt(range,10)||10; games=(logs.g26||[]).slice(-n); seasonTag=`Last ${n}`; }
-    if(!games.length) return `<div class="filters">${chips}</div><div class="clear">No ${seasonTag} game log available.</div>`;
+    if(venue==='home' || venue==='away') games = games.filter(g=>g.homeAway===venue);
+    const venueTag = venue==='home'?'Home':venue==='away'?'Away':'';
+    if(!games.length){
+      const scope = [seasonTag, venueTag].filter(Boolean).join(' · ');
+      return `${toolbar}<div class="clear">No ${scope || 'matching'} game log available.</div>`;
+    }
     const rows = games.slice(); // newest on the right (chronological oldest -> newest, left to right)
     const maxV = Math.max(1, ...rows.map(propVal));
     let onPct=0; rows.forEach(g=>{ if(propVal(g)>0) onPct++; });
     const total = rows.reduce((s,g)=>s+propVal(g),0);
     const label = PROP_LABEL[prop]||'HR';
-    const summ = (range==='26'||range==='25')
+    const prefix = [range==='h2h' && h2hOpp ? `H2H vs ${h2hOpp}` : '', venueTag].filter(Boolean).join(' · ');
+    const coreSumm = (range==='26'||range==='25')
       ? `${total} ${label} · ${onPct} games with ${label} · ${rows.length} games`
       : `${onPct} of ${rows.length} games with ${label} · ${total} ${label}`;
+    const summ = prefix ? `${prefix} · ${coreSumm}` : coreSumm;
     // Bars fill the section width; labels (date + opp) only when bars are wide enough.
     const n = rows.length;
     const gap = n>20 ? 2 : (n>10 ? 4 : 6);
@@ -15806,9 +16376,10 @@ function openBatterModal(p){
       const pct = v>0 ? Math.max(8, Math.round(v/maxV*100)) : 0;
       const valTxt = (v>0 && showVal) ? (prop==='hr'?v+'HR':v) : '';
       const xb = showLabels ? `<div class="xbottom"><div class="xd">${g.date?g.date.slice(5):''}</div><div class="xo">${g.opp||''}</div></div>` : '';
-      return `<div class="b ${v>0?'on':''}" title="${g.date||''} ${g.opp||''} · ${v} ${label}"><div class="plot"><div class="bar" style="height:${pct}%"><div class="v">${valTxt}</div></div></div>${xb}</div>`;
+      const venueTitle = g.homeAway ? ` · ${g.homeAway==='home'?'Home':'Away'}` : '';
+      return `<div class="b ${v>0?'on':''}" title="${g.date||''} ${g.opp||''}${venueTitle} · ${v} ${label}"><div class="plot"><div class="bar" style="height:${pct}%"><div class="v">${valTxt}</div></div></div>${xb}</div>`;
     }).join('');
-    return `<div class="filters">${chips}</div>
+    return `${toolbar}
       <div class="clear">${summ}</div>
       <div class="bars" style="gap:${gap}px">${bars}</div>`;
   }
@@ -15846,37 +16417,6 @@ function openBatterModal(p){
         <div class="ptabs" id="pdTabs"><button class="on" data-range="season">SEASON</button><button data-range="l5">L5</button><button data-range="l3">L3</button></div>
       </div>
       <div id="pdTable">${pcPitchTable(sorted, rows, handLabel)}</div>`;
-  }
-  // Recent At-Bats — mockup .ab-table (colored rows + EV color-coding + 4-stat summary).
-  function pcRecentABHTML(balls, p){
-    const hand = p.oppPitcher?.throws;
-    let rows = balls||[];
-    if(hand==='L'||hand==='R') rows = rows.filter(b=>b.pHand===hand);
-    rows = rows.slice(0,12);
-    if(!rows.length) return `<div class="ab-sum"><div class="s"><b>—</b><small>balls</small></div><div class="s"><b>—</b><small>barrels</small></div><div class="s"><b>—</b><small>avg EV</small></div><div class="s"><b>—</b><small>hard</small></div></div><div class="ab-scroll"><table class="ab-table"><tr><td colspan="5" class="ab-empty">No batted balls vs ${hand==='L'?'LHP':hand==='R'?'RHP':'any hand'}.</td></tr></table></div>`;
-    const evs = rows.map(b=>b.ev).filter(v=>v!=null);
-    const avgEv = evs.length?Math.round(evs.reduce((a,b)=>a+b,0)/evs.length):null;
-    const barrels = rows.filter(b=>contactBarrel(b.ev,b.la)).length;
-    const hard = rows.filter(b=>b.ev!=null&&b.ev>=95).length;
-    const hits = rows.filter(b=>['hr','hit'].includes(contactKind(b.outcome))).length;
-    const seen=new Set();
-    return `<div class="ab-sum">
-        <div class="s"><b>${hits}</b><small>hits</small></div><div class="s"><b>${barrels}</b><small>barrels</small></div>
-        <div class="s"><b>${avgEv!=null?avgEv:'—'}</b><small>avg EV</small></div><div class="s"><b>${hard}/${rows.length}</b><small>hard</small></div>
-      </div>
-      <div class="ab-scroll"><table class="ab-table">
-        <tr><th>Date</th><th>Pitch</th><th>EV</th><th>LA</th><th>Result</th></tr>
-        ${rows.map(b=>{
-          const k=contactKind(b.outcome);
-          const brl=contactBarrel(b.ev,b.la);
-          const rcls=brl?'ab-brl':(k==='hit'||k==='hr'?'ab-hit':'ab-out');
-          const rcol=contactColor(b);
-          const evc=brl?'brl':(b.ev!=null&&b.ev>=95?'hard':(b.ev!=null?'soft':'soft'));
-          const res=k==='hr'?'HR':k==='hit'?'HIT':k==='err'?'ERR':'OUT';
-          const isNew = seen.has(b.date)?'':(seen.add(b.date),' new');
-          return `<tr class="${rcls}"><td class="ab-date${isNew}">${b.date?b.date.slice(5):'—'}</td><td class="ab-pitch"><span class="pdot" style="background:${pitchColor(b.pitchCode||'')}" title="${b.pitchName||''}"></span><span class="pc">${b.pitchCode||'?'}</span></td><td class="ab-ev ${evc}">${b.ev!=null?Math.round(b.ev):'—'}</td><td class="ab-la">${b.la!=null?Math.round(b.la)+'°':'—'}</td><td class="ab-res" style="color:${rcol}">${res}</td></tr>`;
-        }).join('')}
-      </table></div>`;
   }
   // Batter vs pitcher handedness matchup — real photos of both players with
   // their actual handedness, sitting above the season-split stats table.
@@ -15944,23 +16484,13 @@ function openBatterModal(p){
       </div>
 
       <div class="sec">
-        <div class="sec-h"><h3>Handedness Matchup</h3><span class="cap">season splits vs LHP/RHP</span></div>
-        ${pcHandednessMatchupHTML(p)}
-      </div>
-
-      <div class="sec">
         <div class="sec-h"><h3>Contact Quality</h3></div>
         ${pcMetricsHTML(p)}
       </div>
 
-      <div class="sec">
-        <div class="sec-h"><h3>Why</h3></div>
-        <div id="whyHost">${pcWhyHeadHTML(p,'hr')}</div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-h"><h3>Pitch Breakdown</h3><span class="cap">${sp.name||'Starter'} · arsenal</span></div>
-        <div id="pitchBreakdownHost"><div class="ab-empty">Loading pitch breakdown…</div></div>
+      <div class="sec matchup-mix-sec">
+        <div class="sec-h"><h3>Matchup Mix</h3><span class="cap">handedness · zone BA · pitch mix</span></div>
+        ${matchupMixHTML(p)}
       </div>
 
       <div class="sec">
@@ -15971,6 +16501,11 @@ function openBatterModal(p){
       <div class="sec">
         <div class="sec-h"><h3>Recent At-Bats</h3><span class="cap">vs ${sp.throws&&sp.throws!=='?'?sp.throws+'HP':'all'}</span></div>
         <div id="recentABHost"><div class="ab-empty">Loading recent at-bats…</div></div>
+      </div>
+
+      <div class="sec">
+        <div class="sec-h"><h3>Why</h3></div>
+        <div id="whyHost">${pcWhyHeadHTML(p,'hr')}</div>
       </div>
 
       <div class="foot">Every number here is a model input. +0.5 HR — not a guarantee.</div>
@@ -15992,27 +16527,38 @@ function openBatterModal(p){
     const tbl = pdHost.querySelector('#pdTable');
     if(tbl) tbl.innerHTML = pcPitchTable(pdCtx.sorted, rows, pdCtx.handLabel);
   });
-  // Bars chart state — logs (2026+2025), current prop, current range.
-  let pcLogs = null, pcProp = 'hr', pcRange = '10';
+  // Bars chart state — logs (2026+2025), current prop/range, plus venue filter.
+  let pcLogs = null, pcProp = 'hr', pcRange = '10', pcVenue = '';
   const renderBars = () => {
     const h = document.getElementById('barsHost');
     if(!h) return;
     const w = h.clientWidth || 680;
-    h.innerHTML = pcBarsHTML(pcLogs, pcProp, pcRange, w);
+    h.innerHTML = pcBarsHTML(pcLogs, pcProp, pcRange, w, pcVenue);
     h.querySelectorAll('.chip[data-range]').forEach(c => {
       c.onclick = () => { pcRange = c.dataset.range; renderBars(); };
+    });
+    h.querySelectorAll('.chip[data-venue]').forEach(c => {
+      c.onclick = () => {
+        const v = c.dataset.venue;
+        pcVenue = pcVenue===v ? '' : v;
+        renderBars();
+      };
     });
   };
   renderBars();
   fetchPlayerGameLogs(p.id).then(data => { pcLogs = data; renderBars(); })
     .catch(()=>{ const h=document.getElementById('barsHost'); if(h) h.innerHTML='<div class="clear">Game log unavailable.</div>'; });
-  renderContactQuality(p);
-  fetchContactBalls(p).then(data => {
+  fetchContactBalls(p).then(async data => {
+    await renderContactQuality(p, data);
     const h = document.getElementById('recentABHost');
-    if(h) h.innerHTML = pcRecentABHTML(data.balls, p);
+    if(h && /Loading recent at-bats/i.test(h.textContent||'')) {
+      const activeFilter = document.getElementById('contactHost')?._state?.contact || 'ALL';
+      h.innerHTML = pcRecentABHTML(data.balls, p, activeFilter);
+    }
     const pb = document.getElementById('pitchBreakdownHost');
     if(pb) pb.innerHTML = pcPitchBreakdownHTML(sp.arsenal, data.balls, p);
   }).catch(()=>{
+    const ch=document.getElementById('contactHost'); if(ch) ch.innerHTML='<div class="ab-empty">Contact data unavailable.</div>';
     const h=document.getElementById('recentABHost'); if(h) h.innerHTML='<div class="ab-empty">Contact data unavailable.</div>';
     const pb=document.getElementById('pitchBreakdownHost'); if(pb) pb.innerHTML=pcPitchBreakdownHTML(sp.arsenal, [], p);
   });
