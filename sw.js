@@ -16,23 +16,6 @@ const VERSION = 'dw-sw-v1';
 const LATEST_URL = 'latest-hr.json';
 const ICON = 'icon-192.png';
 
-/**
- * The page mirrors the signed-in user's watch list into this cache entry (see
- * syncWatchlistToSW in index.html) because a worker running with every tab
- * closed has no session and cannot query Supabase. Absent entry means "never
- * synced" — most likely a signed-out device — and we fall back to showing every
- * home run rather than going silent.
- */
-async function watchedIds() {
-  try {
-    const cache = await caches.open(VERSION);
-    const res = await cache.match('watchlist');
-    if (!res) return null;
-    const { ids } = await res.json();
-    return Array.isArray(ids) ? new Set(ids.map(String)) : null;
-  } catch { return null; }
-}
-
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 
@@ -56,42 +39,18 @@ async function rememberKey(key) {
 
 self.addEventListener('push', event => {
   event.waitUntil((async () => {
-    let items = [];
+    let hrs = [];
 
     // A payload is optional — use it if the sender included one, otherwise
     // fetch. cache:'no-store' matters here or we'd re-show a stale homer.
     try {
       if (event.data) {
         const parsed = event.data.json();
-        items = Array.isArray(parsed) ? parsed : [parsed];
+        hrs = Array.isArray(parsed) ? parsed : [parsed];
       }
     } catch {}
 
-    // Generic (non-home-run) notifications — e.g. the daily slate summary and
-    // top-3 list. These carry their own title/body, go to every subscriber (no
-    // watchlist filter), and dedup by key so a workflow rerun can't re-send.
-    const generic = items.filter(i => i && i.type === 'generic' && i.key);
-    let hrs = items.filter(i => !(i && i.type === 'generic'));
-
-    const seen = await seenKeys();
-
-    for (const g of generic) {
-      if (seen.has(g.key)) continue;
-      await self.registration.showNotification(g.title || 'Dinger Watch', {
-        body: g.body || '',
-        icon: ICON,
-        badge: ICON,
-        tag: g.key,
-        data: { url: g.url || 'index.html' },
-        vibrate: [200, 100, 200],
-      });
-      await rememberKey(g.key);
-    }
-
-    // Only fall back to fetching a home run when the push carried NO payload at
-    // all (a bare "wake up" from push.yml). A slate-summary push has a payload
-    // but no HRs — we must NOT fetch a stale homer to accompany it.
-    if (!items.length) {
+    if (!hrs.length) {
       try {
         const res = await fetch(LATEST_URL + '?t=' + Date.now(), { cache: 'no-store' });
         if (res.ok) {
@@ -103,23 +62,8 @@ self.addEventListener('push', event => {
 
     if (!hrs.length) return;   // nothing to say — stay silent rather than show a placeholder
 
-    let fresh = hrs.filter(h => h.key && !seen.has(h.key)).slice(-5);
-
-    // Narrow to the watch list. latest-hr.json is a single global file shared by
-    // every device, so this per-device filter is what turns a league-wide feed
-    // into "only the players I follow".
-    const watched = await watchedIds();
-    if (watched) {
-      const mine = fresh.filter(h => h.batterId != null && watched.has(String(h.batterId)));
-      // We subscribed with userVisibleOnly:true, so a push MUST produce a
-      // visible notification — if we show nothing the browser substitutes its own
-      // "site updated in the background" message and repeated offences can cost
-      // us the subscription. The sender only wakes a device when that user
-      // watches someone in this batch, so an empty result here means the batch
-      // moved on before we fetched. Fall back to the newest home run instead of
-      // going silent.
-      fresh = mine.length ? mine : fresh.slice(-1);
-    }
+    const seen = await seenKeys();
+    const fresh = hrs.filter(h => h.key && !seen.has(h.key)).slice(-5);
 
     for (const hr of fresh) {
       const bits = [];
@@ -143,55 +87,46 @@ self.addEventListener('push', event => {
 
 self.addEventListener('notificationclick', event => {
   event.notification.close();
+  const isWatchAction = event.action === 'watch';
+  const gamePk = event.notification.data?.gamePk;
   event.waitUntil((async () => {
     const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-    // Focus an existing tab rather than piling up new ones. Matching on
-    // 'index.html' used to miss every real visit: the site is served from the
-    // bare origin (https://dingerwatch.app/) so an open tab's URL contains no
-    // such segment, and tapping a notification opened a duplicate window on top
-    // of the app the user already had. Compare against the worker's scope.
-    const scope = self.registration.scope;
+    // Focus an existing tab rather than piling up new ones, then hand off
+    // the Watch action to it — the service worker has no access to any of
+    // the page's own state (openRadarGamecastModal, the live games list,
+    // etc.), so it can only ask the real page to act on this, not do it
+    // directly the way it can with clients.openWindow.
     for (const c of all) {
-      if (c.url.startsWith(scope) && 'focus' in c) return c.focus();
+      if (c.url.includes('index.html') && 'focus' in c) {
+        await c.focus();
+        if (isWatchAction && gamePk) c.postMessage({ type: 'watch-game', gamePk });
+        return;
+      }
     }
-    if (clients.openWindow) return clients.openWindow(event.notification.data?.url || './');
+    if (clients.openWindow) {
+      const client = await clients.openWindow(event.notification.data?.url || 'index.html');
+      // A freshly-opened window hasn't finished loading yet — postMessage
+      // right away would land before this page's own message listener
+      // exists to receive it. A short delay covers that without needing
+      // the page itself to expose a "ready" signal back to the worker.
+      if (isWatchAction && gamePk && client) {
+        setTimeout(() => client.postMessage({ type: 'watch-game', gamePk }), 2500);
+      }
+    }
   })());
 });
 
-/**
- * Chrome may rotate a subscription; re-subscribe so alerts don't silently stop.
- *
- * This previously POSTed the new subscription to `self.__DW_PUSH_API || ''` —
- * a variable that was never assigned anywhere in the codebase, so it always
- * POSTed to the empty string. That resolves against the worker's scope, i.e.
- * the site root on GitHub Pages, which is a static host that accepts no POSTs.
- * Every rotation therefore silently discarded the new subscription and that
- * device stopped receiving pushes permanently.
- *
- * There is no HTTP endpoint to post to — subscriptions live in Supabase and
- * writing to them needs the user's session, which a worker doesn't have. So
- * stash the new subscription in the cache and let the page persist it on next
- * open; boot() calls ensurePushRegistered, which re-saves and clears it.
- */
+/** Chrome may drop a subscription; re-subscribe so alerts don't silently stop. */
 self.addEventListener('pushsubscriptionchange', event => {
   event.waitUntil((async () => {
     try {
-      // Reuse the old options so the VAPID applicationServerKey carries over.
-      // Subscribing with only { userVisibleOnly: true } — the old fallback —
-      // is rejected outright by Chrome, which requires an applicationServerKey.
-      const opts = event.oldSubscription?.options;
-      const sub = event.newSubscription || (opts
-        ? await self.registration.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: opts.applicationServerKey,
-          })
-        : null);
-      if (!sub) return;
-      const cache = await caches.open(VERSION);
-      await cache.put('pending-subscription', new Response(JSON.stringify(sub.toJSON())));
-      // Tell any open tab to persist it right now.
-      const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-      all.forEach(c => c.postMessage({ type: 'push-subscription-changed' }));
+      const sub = await self.registration.pushManager.subscribe(
+        event.oldSubscription?.options || { userVisibleOnly: true });
+      await fetch(self.__DW_PUSH_API || '', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ subscription: sub }),
+      });
     } catch {}
   })());
 });

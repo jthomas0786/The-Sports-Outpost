@@ -10591,6 +10591,11 @@ async function registerServiceWorker(){
       if(e.data?.type === 'open-feed'){
         activeTab = 'feed'; markFeedRead(); renderTabs(); renderList();
       }
+      // The Watch action on a watchlist notification — jump straight into
+      // that game's live gamecast, same modal Game Radar already opens.
+      if(e.data?.type === 'watch-game' && e.data.gamePk){
+        openRadarGamecastModal(e.data.gamePk);
+      }
       // The browser rotated this device's push subscription. The worker can't
       // write to Supabase (no session), so it hands off to us.
       if(e.data?.type === 'push-subscription-changed'){
@@ -10786,6 +10791,33 @@ function notifyHomeRun(ev){
     n.onclick = () => { window.focus(); activeTab = 'feed'; markFeedRead(); renderTabs(); renderList(); n.close(); };
     setTimeout(() => n.close(), 20000);
   }catch(e){ /* some browsers throw on tag reuse — not worth surfacing */ }
+}
+
+/**
+ * Fires a real, OS-level notification for a watchlist alert, with an actual
+ * "▶ Watch" action button on it — not just a clickable body. A plain
+ * `new Notification(...)` (see notifyHomeRun above) can't do this: only a
+ * service-worker-backed notification (registration.showNotification with a
+ * real `actions` array) supports separately-labeled buttons. Tapping the
+ * Watch action itself is handled in sw.js's notificationclick handler,
+ * which posts a message back here (see the 'watch-game' case in the
+ * message listener above) rather than trying to touch app state directly
+ * from the service worker, where none of this page's variables exist.
+ */
+function notifyWatchlistAlert(title, body, gamePk, dedupeKey){
+  if(!notifyEnabled || !notifySupported() || Notification.permission !== 'granted' || !swRegistration) return;
+  try{
+    swRegistration.showNotification(title, {
+      body,
+      icon: NOTIFY_ICON,
+      badge: NOTIFY_BADGE,
+      tag: dedupeKey,             // dedupe — a re-poll can't double-show the same alert
+      renotify: false,
+      silent: false,
+      data: { gamePk, url: 'index.html' },
+      actions: gamePk ? [{ action: 'watch', title: '▶ Watch' }] : [],
+    });
+  }catch(e){ /* some browsers throw on tag reuse or unsupported actions — not worth surfacing */ }
 }
 
 function renderNotifyBtn(){
@@ -16324,6 +16356,7 @@ function checkWatchlistPlay(g, play){
       game: `${g.awayName} @ ${g.homeName}`, game_pk: g.gamePk,
     }, slateMeta.date);   // stamped so this alert stops showing after today
     pushAppNotification({ title: `⚾ ${name} is up to bat`, body: `${g.awayName} @ ${g.homeName}`, dedupeKey: `atbat_up:${atBatKey}`, gamePk: g.gamePk });
+    notifyWatchlistAlert(`⚾ ${name} is up to bat`, `${g.awayName} @ ${g.homeName}`, g.gamePk, `atbat_up:${atBatKey}`);
     return;
   }
 
@@ -16347,6 +16380,7 @@ function checkWatchlistPlay(g, play){
     player_name: name, player_id: batterId, result, detail, emoji, atbat_key: atBatKey, game_pk: g.gamePk,
   }, slateMeta.date);   // stamped so this alert stops showing after today
   pushAppNotification({ title: `${emoji} ${name}: ${result}`, body: detail, dedupeKey: `atbat_result:${atBatKey}`, gamePk: g.gamePk });
+  notifyWatchlistAlert(`${emoji} ${name}: ${result}`, detail, g.gamePk, `atbat_result:${atBatKey}`);
 }
 
 // === PORTED FROM GITHUB: closeNotifyPop ===
