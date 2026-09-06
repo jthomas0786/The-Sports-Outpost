@@ -1248,6 +1248,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .gc-pdot-strike{ fill:var(--hr-red); }
 .gc-pdot-ball{ fill:var(--live-green); }
 .gc-pdot-inplay{ fill:#ffb020; }
+.gc-pdot-foul2{ fill:#6d5dfc; stroke:#d7d2ff; stroke-width:3; stroke-dasharray:4 2; filter:drop-shadow(0 0 5px rgba(109,93,252,.9)); }
 .gc-pdot-num{ fill:#fff; font-size:11px; font-weight:800; font-family:'JetBrains Mono',monospace; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
 /* Hit-trajectory readout: a transparent side panel, placed on the side
    OPPOSITE the batted ball's landing spot so it never blocks the view of
@@ -3900,6 +3901,36 @@ body.modal-open{ overflow:hidden; }
 }
 .notify-badge.show{ display:block; }
 #notifyBtn{ position:relative; }
+
+
+/* ==========================================================================\n   TSO BROADCAST GAMECAST v3 — exact field-first live layout\n   ========================================================================== */
+.gc-broadcast{width:100%;color:var(--white);font-family:'Satoshi','Inter',sans-serif}
+.gc-broadcast-scorebar{display:grid;grid-template-columns:minmax(190px,1fr) minmax(240px,1.15fr) minmax(190px,1fr) minmax(150px,.7fr);align-items:center;gap:0;background:linear-gradient(180deg,#06172f,#041226);border:1px solid rgba(45,127,255,.42);border-bottom:0;border-radius:14px 14px 0 0;min-height:82px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.22)}
+.gc-score-team{display:flex;align-items:center;gap:10px;padding:12px 16px;min-width:0}.gc-score-team img{width:46px;height:46px;object-fit:contain;flex:0 0 46px}.gc-score-team>div{display:flex;flex-direction:column;min-width:0}.gc-score-team b{font:700 18px/1 'Oswald',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gc-score-team small{margin-top:5px;font:700 8px 'JetBrains Mono',monospace;color:#6687ac;letter-spacing:.08em}.gc-score-team strong{font:800 38px/1 'Oswald',sans-serif;color:#fff}.gc-score-away{justify-content:flex-end;border-right:1px solid rgba(45,127,255,.14)}.gc-score-home{border-left:1px solid rgba(45,127,255,.14)}
+.gc-score-center{display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;align-items:center;justify-items:center;padding:8px 12px;position:relative}.gc-score-inning{font:800 16px 'Oswald',sans-serif;color:#fff}.gc-score-count{font:800 11px 'JetBrains Mono',monospace;color:#e5eef9}.gc-score-bases{grid-row:1/3;grid-column:2;position:relative;width:48px;height:40px;margin-left:12px}.gc-score-bases i{position:absolute;width:13px;height:13px;transform:rotate(45deg);border:1px solid #dce8f5;background:#071934}.gc-score-bases i[data-base="2B"]{left:17px;top:0}.gc-score-bases i[data-base="3B"]{left:3px;top:14px}.gc-score-bases i[data-base="1B"]{right:3px;top:14px}.gc-score-bases i.on{background:#ffd54f;border-color:#ffd54f;box-shadow:0 0 9px rgba(255,213,79,.45)}
+.gc-score-live{height:100%;display:flex;align-items:center;padding:10px 14px;border-left:1px solid rgba(45,127,255,.14)}.gc-score-live>div{display:flex;flex-direction:column;min-width:0;width:100%;gap:5px}.gc-score-live b{font:700 11px 'Oswald',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}.gc-score-live small{display:flex;flex-direction:column;gap:3px;font:700 8px 'JetBrains Mono',monospace;color:#9eb2ca}.gc-score-weather-line,.gc-score-wind-line{display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gc-score-weather-line::before{content:'☁';color:#dce8f5;font-size:10px}.gc-score-wind-line::before{content:'↝';color:var(--accent-bright);font-size:12px}
+.gc-broadcast-stage{position:relative;width:100%;aspect-ratio:16/9;min-height:420px;overflow:hidden;border:1px solid rgba(45,127,255,.34);border-radius:0;background:linear-gradient(180deg,rgba(3,10,24,.10),rgba(3,10,24,.18)),url('field-bg.jpg') center 52%/cover no-repeat;box-shadow:inset 0 0 70px rgba(0,0,0,.28)}
+.gc-broadcast-stage .gc-3d-host{display:none!important}
+.gc-stadium-brand{position:absolute;top:8.5%;left:50%;transform:translateX(-50%);width:25%;min-width:180px;max-width:310px;z-index:2;background:#000;border:2px solid rgba(45,127,255,.95);box-shadow:0 7px 24px rgba(0,0,0,.55),0 0 18px rgba(45,127,255,.18);padding:8px 14px;border-radius:2px}.gc-stadium-brand img{display:block;width:100%;height:74px;object-fit:contain}
+.gc-player-card,.gc-glass-card{position:absolute;z-index:5;background:rgba(4,17,34,.52);border:1px solid rgba(45,127,255,.48);box-shadow:0 8px 30px rgba(0,0,0,.24);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);border-radius:12px;color:#fff}
+.gc-player-card{top:18%;width:25%;max-width:250px;min-width:190px;padding:10px 12px}.gc-batter-card{left:1.5%}.gc-pitcher-card{right:1.5%}
+.gc-player-kicker,.gc-panel-title{font-family:'JetBrains Mono','Space Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.11em;color:var(--accent-bright);text-transform:uppercase}.gc-player-main{display:flex;align-items:center;gap:10px;margin-top:7px}.gc-player-photo{width:54px;height:54px;flex:0 0 54px;border-radius:50%;overflow:hidden;border:2px solid rgba(110,220,255,.55);background:rgba(3,10,24,.8)}.gc-card-headshot{width:100%;height:100%;object-fit:cover;object-position:50% 16%}.gc-player-copy{min-width:0;display:flex;flex-direction:column}.gc-player-copy>b{font:600 18px/1.05 'Oswald',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gc-player-copy>span{font:600 9px/1.3 'JetBrains Mono',monospace;color:#a9b7cc;margin-top:4px}.gc-player-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:8px;padding-top:7px;border-top:1px solid rgba(110,220,255,.16)}.gc-player-stats span{display:flex;flex-direction:column;gap:1px}.gc-player-stats i{font:700 7px 'JetBrains Mono',monospace;color:#8092a9;font-style:normal}.gc-player-stats b{font:700 13px 'Oswald',sans-serif}.gc-player-today{margin-top:6px;font:700 8px 'JetBrains Mono',monospace;color:#9fb1c7;text-transform:uppercase}
+.gc-pitch-log-panel{left:1.5%;bottom:7%;width:25%;max-width:250px;min-width:190px;padding:10px 11px;max-height:34%;display:flex;flex-direction:column;overflow:hidden}.gc-pitch-log{margin-top:5px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:rgba(110,220,255,.55) transparent;padding-right:3px}.gc-pitch-log::-webkit-scrollbar{width:5px}.gc-pitch-log::-webkit-scrollbar-thumb{background:rgba(110,220,255,.55);border-radius:8px}.gc-pitch-log::-webkit-scrollbar-track{background:transparent}.gc-pitch-row{display:grid;grid-template-columns:25px 1fr auto;align-items:center;gap:7px;padding:5px 0;border-top:1px solid rgba(255,255,255,.08)}.gc-pitch-row:first-child{border-top:0}.gc-pitch-row>b{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:#1e8cf7;font:800 10px 'JetBrains Mono',monospace}.gc-pitch-row.ball>b{background:#17b86e}.gc-pitch-row.strike>b{background:#ef3f4e}.gc-pitch-row.inplay>b{background:#f0a51e}.gc-pitch-row>span{display:flex;flex-direction:column}.gc-pitch-row strong{font:600 12px 'Oswald',sans-serif}.gc-pitch-row small{font:600 8px 'JetBrains Mono',monospace;color:#99abc1}.gc-pitch-row em{font:700 8px 'JetBrains Mono',monospace;color:#a7b4c5;font-style:normal}
+.gc-runners-panel{right:1.5%;top:52%;width:25%;max-width:250px;min-width:190px;padding:10px 11px}.gc-runners-body{display:grid;grid-template-columns:64px 1fr;gap:10px;margin-top:7px;align-items:center}.gc-mini-diamond{position:relative;width:58px;height:54px}.gc-mini-diamond i{position:absolute;width:16px;height:16px;transform:rotate(45deg);border:1px solid rgba(255,255,255,.7);background:rgba(4,17,34,.75)}.gc-mini-diamond i[data-base="2B"]{left:21px;top:0}.gc-mini-diamond i[data-base="3B"]{left:3px;top:19px}.gc-mini-diamond i[data-base="1B"]{right:3px;top:19px}.gc-mini-diamond i.home{left:21px;bottom:0;border-radius:50%;width:14px;height:14px}.gc-mini-diamond i.on{background:#ffd54f;border-color:#ffd54f;box-shadow:0 0 10px rgba(255,213,79,.6)}.gc-runner-list{display:flex;flex-direction:column;gap:4px}.gc-runner-list>div{display:grid;grid-template-columns:28px 1fr;gap:4px;font:700 9px 'JetBrains Mono',monospace}.gc-runner-list b{color:#ffd54f}.gc-runner-list span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc-last-panel{right:1.5%;bottom:7%;width:25%;max-width:250px;min-width:190px;padding:10px 11px;min-height:74px}.gc-last-play{margin-top:7px;font:600 11px/1.35 'Oswald',sans-serif;color:#fff}
+.gc-zone{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none}.gc-zone-box{fill:rgba(2,9,20,.18);stroke:rgba(255,255,255,.82);stroke-width:1.3}.gc-zone-line{stroke:rgba(255,255,255,.32);stroke-width:1}.gc-pdot{stroke:#061327;stroke-width:2}.gc-pdot-strike{fill:#ef3f4e}.gc-pdot-ball{fill:#18bd70}.gc-pdot-inplay{fill:#f4aa20}.gc-pdot-foul2{fill:#6d5dfc;stroke:#d7d2ff;stroke-width:3;stroke-dasharray:4 2;filter:drop-shadow(0 0 5px rgba(109,93,252,.9))}.gc-pdot-num{fill:#fff;font:800 10px 'JetBrains Mono',monospace;text-anchor:middle;dominant-baseline:central}
+.gc-count-pill{position:absolute;z-index:7;left:50%;bottom:2.2%;transform:translateX(-50%);display:flex;align-items:center;gap:12px;padding:7px 18px;border-radius:999px;background:rgba(3,12,28,.82);border:1px solid rgba(45,127,255,.5);box-shadow:0 4px 18px rgba(0,0,0,.3);font-family:'JetBrains Mono',monospace}.gc-count-pill b{font-size:16px}.gc-count-pill span{font-size:10px;color:#dce6f2;font-weight:800}
+.gc-flight-layer{opacity:0}.is-hit-mode .gc-flight-layer{opacity:1}.gc-flight-glow,.gc-flight-line{fill:none}.gc-flight-glow{stroke:rgba(2,24,72,.92);stroke-width:17;filter:blur(2.5px)}.gc-flight-line{stroke:#1766d2;stroke-width:6;stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;filter:drop-shadow(0 1px 1px rgba(0,0,0,.95)) drop-shadow(0 0 3px #001a4d) drop-shadow(0 0 7px rgba(45,127,255,.75));animation:gcDrawFlight 1.55s cubic-bezier(.2,.75,.25,1) forwards}.gc-flight-land-ring{fill:none;stroke:#1766d2;stroke-width:4;opacity:0;filter:drop-shadow(0 1px 1px rgba(0,0,0,.9)) drop-shadow(0 0 7px #001a4d);animation:gcLandPulse 1.2s 1.2s ease-out infinite}.gc-flight-land-dot{fill:#1766d2;stroke:#e7f4ff;stroke-width:2;opacity:0;filter:drop-shadow(0 0 4px #001a4d);animation:gcLandIn .2s 1.45s forwards}@keyframes gcDrawFlight{to{stroke-dashoffset:0}}@keyframes gcLandIn{to{opacity:1}}@keyframes gcLandPulse{0%{opacity:0;transform:scale(.7);transform-origin:center}35%{opacity:1}100%{opacity:0;transform:scale(1.7);transform-origin:center}}
+.is-hit-mode .gc-zone-grid,.is-hit-mode .gc-zone-dots{opacity:0;transition:opacity .2s}.is-hit-mode .gc-pitch-log-panel{opacity:0;pointer-events:none}.gc-hit-metrics{display:none;position:absolute;z-index:8;left:1.5%;bottom:7%;width:25%;max-width:250px;min-width:190px;padding:10px 11px;border-radius:12px;background:rgba(4,17,34,.58);border:1px solid rgba(45,127,255,.55);backdrop-filter:blur(5px);color:#fff}.is-hit-mode .gc-hit-metrics{display:block}.gc-hit-metrics>div:not(.gc-panel-title){display:flex;align-items:center;justify-content:space-between;padding:4px 0;border-top:1px solid rgba(255,255,255,.08);font:600 9px 'JetBrains Mono',monospace}.gc-hit-metrics span{color:#a9b7cc}.gc-hit-metrics b{color:#6edcff}.gc-hit-metrics b.hot{color:#ff5966}.gc-hit-metrics b.good{color:#3de78c}.gc-hit-label{display:none;position:absolute;z-index:9;transform:translate(-50%,-115%);padding:7px 12px;border-radius:8px;background:rgba(3,12,28,.9);border:1px solid #2d7fff;box-shadow:0 0 20px rgba(45,127,255,.35);text-align:center;white-space:nowrap}.is-hit-mode .gc-hit-label{display:flex;flex-direction:column}.gc-hit-label b{font:800 15px 'Oswald',sans-serif}.gc-hit-label span{font:800 9px 'JetBrains Mono',monospace;color:#6edcff}.gc-outcome-banner{display:none;position:absolute;z-index:9;left:50%;bottom:3%;transform:translateX(-50%);max-width:56%;padding:8px 18px;border-radius:10px;background:rgba(3,12,28,.92);border:1px solid rgba(45,127,255,.6);text-align:center}.is-hit-mode .gc-outcome-banner{display:block}.gc-outcome-banner b{font:600 12px 'Oswald',sans-serif}.is-hit-mode .gc-count-pill{opacity:0}
+.gc-broadcast-footer{display:grid;grid-template-columns:minmax(0,2.2fr) minmax(190px,.8fr);background:#071934;border:1px solid rgba(45,127,255,.34);border-top:0;border-radius:0 0 14px 14px;min-height:106px}.gc-footer-score,.gc-footer-due{padding:10px 12px;min-width:0}.gc-footer-due{border-left:1px solid rgba(45,127,255,.18)}.gc-footer-score{overflow-x:auto}.gc-footer-score table{width:100%;border-collapse:collapse;min-width:420px;font:700 9px 'JetBrains Mono',monospace}.gc-footer-score th,.gc-footer-score td{text-align:center;padding:4px 5px;border-bottom:1px solid rgba(45,127,255,.12)}.gc-footer-score td:first-child{text-align:left;font:600 12px 'Oswald',sans-serif;color:#fff}.gc-footer-team{display:flex;align-items:center;gap:7px;min-width:118px}.gc-footer-team img{width:24px;height:24px;object-fit:contain;flex:0 0 24px}.gc-footer-team b{font:600 12px 'Oswald',sans-serif;white-space:nowrap}.gc-footer-due .gc-panel-title,.gc-footer-info .gc-panel-title{margin-bottom:6px}.gc-due-list{display:flex;flex-direction:column;gap:4px}.gc-due-list>div{display:grid;grid-template-columns:22px 1fr auto;gap:6px;align-items:center;font:700 9px 'JetBrains Mono',monospace}.gc-due-list b{display:grid;place-items:center;width:20px;height:18px;border-radius:5px;background:#0b3268;color:#6edcff}.gc-due-list em{font-style:normal;color:#b5c3d4}.gc-game-info{display:flex;flex-direction:column;gap:5px;font:600 9px 'JetBrains Mono',monospace;color:#b7c5d7}.gc-muted{font:600 9px 'JetBrains Mono',monospace;color:#8b95a8}
+.gamecast-right{display:none!important}.gc-strip{display:none!important}
+@media(max-width:760px){.gc-broadcast-scorebar{grid-template-columns:1fr 1.05fr 1fr;min-height:72px}.gc-score-live{display:none}.gc-score-team{padding:9px 10px}.gc-score-team img{width:36px;height:36px;flex-basis:36px}.gc-score-team b{font-size:14px}.gc-score-team strong{font-size:30px}.gc-score-center{padding:6px}.gc-score-inning{font-size:13px}.gc-score-count{font-size:9px}.gc-score-bases{width:40px;margin-left:5px}.gc-broadcast-stage{aspect-ratio:auto;height:520px}.gc-player-card,.gc-pitch-log-panel,.gc-runners-panel,.gc-last-panel,.gc-hit-metrics{width:29%;min-width:0}.gc-player-card{top:15%;padding:8px}.gc-player-photo{width:42px;height:42px;flex-basis:42px}.gc-player-copy>b{font-size:14px}.gc-player-stats b{font-size:11px}.gc-runners-panel{top:52%}.gc-broadcast-footer{grid-template-columns:1fr 1fr}.gc-footer-score{grid-column:1/-1}}
+@media(max-width:520px){.gc-broadcast-scorebar{grid-template-columns:1fr .9fr 1fr}.gc-score-team{gap:5px;padding:7px 6px}.gc-score-team img{width:30px;height:30px;flex-basis:30px}.gc-score-team b{font-size:11px}.gc-score-team small{font-size:6px}.gc-score-team strong{font-size:24px}.gc-score-center{grid-template-columns:1fr}.gc-score-bases{display:none}.gc-score-inning{font-size:11px}.gc-score-count{font-size:7px}.gc-broadcast-stage{height:500px}.gc-stadium-brand{top:7%;width:26%}.gc-player-card{width:39%;top:15%}.gc-batter-card{left:2%}.gc-pitcher-card{right:2%}.gc-player-stats{grid-template-columns:repeat(2,1fr)}.gc-player-stats span:nth-child(n+3){display:none}.gc-pitch-log-panel{left:2%;width:40%;bottom:9%}.gc-runners-panel{right:2%;width:40%;top:auto;bottom:26%}.gc-last-panel{right:2%;width:40%;bottom:9%}.gc-hit-metrics{left:2%;width:40%;bottom:9%}.gc-zone-box{stroke-width:2}.gc-broadcast-footer{grid-template-columns:1fr}.gc-footer-due{border-left:0;border-top:1px solid rgba(45,127,255,.18)}.gc-outcome-banner{max-width:74%;bottom:3%}}
+
+/* Two-strike foul: visually distinct from a normal strike because the count stays at two. */
+.gc-pitch-row.foul2 b{background:#6d5dfc!important;border:1px dashed #d7d2ff;box-shadow:0 0 8px rgba(109,93,252,.55)}
+.gc-pitch-row.foul2 em{color:#b8afff!important;font-weight:800}
+
 </style>
 </head>
 <body class="dw-booting">
@@ -7993,6 +8024,9 @@ function gcExtractPitchState(data){
   const playEvents = cp.playEvents || [];
   const pitches = [];
   let strikeZone = null, lastHit = null, currentHitId = null, currentPitchId = null;
+
+  // Current at-bat pitch locations. MLB pX/pZ are measured in feet at the plate;
+  // keep the raw values so the renderer can map the REAL strike-zone dimensions.
   playEvents.forEach(pe => {
     if(!pe) return;
     const pd = pe.pitchData || null;
@@ -8006,32 +8040,64 @@ function gcExtractPitchState(data){
       if(strikeZone == null){
         const t = pd.strikeZoneTop != null ? Number(pd.strikeZoneTop) : null;
         const b = pd.strikeZoneBottom != null ? Number(pd.strikeZoneBottom) : null;
-        if(t != null && b != null) strikeZone = { top: t, bottom: b };
+        if(Number.isFinite(t) && Number.isFinite(b) && t>b) strikeZone = { top:t, bottom:b };
       }
+      const callObj = det.call || null;
+      const callCode = callObj && typeof callObj === 'object' ? callObj.code : callObj;
+      const eventCount = pe.count || {};
+      const strikesAfter = eventCount.strikes != null ? Number(eventCount.strikes) : null;
+      const isFoul = callCode === 'F' || /foul/i.test(det.description || '');
+      // A foul with two strikes does not add another strike. Give those pitches a
+      // distinct visual treatment so the sequence does not look like a normal
+      // called/swinging strike that changed the count.
+      const isTwoStrikeFoul = !!isFoul && strikesAfter === 2;
       pitches.push({
         index: pe.index != null ? pe.index : (pitches.length + 1),
         px, pz, zone,
-        call: det.call || null,
+        call: callCode || null,
         isStrike: !!det.isStrike, isBall: !!det.isBall, isInPlay: !!det.isInPlay,
-        code: det.code || null, speed, desc: det.description || ''
+        isFoul, isTwoStrikeFoul,
+        strikesAfter,
+        code: (det.type && det.type.code) || null,
+        pitchName: (det.type && det.type.description) || null,
+        speed, desc: det.description || ''
       });
       currentPitchId = (pe.index != null ? pe.index : pitches.length) + '';
     }
-    if(pe.hitData){
-      const hd = pe.hitData;
-      lastHit = {
-        launchSpeed: hd.launchSpeed != null ? Number(hd.launchSpeed) : null,
-        launchAngle: hd.launchAngle != null ? Number(hd.launchAngle) : null,
-        totalDistance: hd.totalDistance != null ? Number(hd.totalDistance) : null,
-        trajectory: hd.trajectory || null,
-        direction: hd.direction != null ? Number(hd.direction) : null,
-        event: (cp.result && cp.result.event) || (det.description || ''),
-        rbi: (cp.result && cp.result.rbi) || 0,
-        scoring: !!(cp.about && cp.about.isScoringPlay)
-      };
-      currentHitId = (cp.about && cp.about.atBatIndex != null ? cp.about.atBatIndex : 0) + '-' + (pe.index != null ? pe.index : 0);
-    }
   });
+
+  // A batted ball can disappear from currentPlay almost immediately when MLB
+  // advances to the next at-bat. Scan the most recent completed plays too and
+  // keep a hit eligible for ~15 seconds so the 2.5s fast poll cannot miss it.
+  const now = Date.now();
+  const all = (plays && plays.allPlays) || [];
+  const candidates = [cp, ...all.slice(-4).reverse()].filter((p,i,a)=>p && a.indexOf(p)===i);
+  for(const play of candidates){
+    const pes = play.playEvents || [];
+    const hitEvent = pes.slice().reverse().find(pe => pe && pe.hitData);
+    if(!hitEvent) continue;
+    const about = play.about || {};
+    const ended = about.endTime ? Date.parse(about.endTime) : now;
+    const isCurrent = play === cp || (about.atBatIndex != null && cp.about && about.atBatIndex === cp.about.atBatIndex);
+    if(!isCurrent && Number.isFinite(ended) && now-ended > 15000) continue;
+    const hd = hitEvent.hitData || {};
+    lastHit = {
+      launchSpeed: hd.launchSpeed != null ? Number(hd.launchSpeed) : null,
+      launchAngle: hd.launchAngle != null ? Number(hd.launchAngle) : null,
+      totalDistance: hd.totalDistance != null ? Number(hd.totalDistance) : null,
+      trajectory: hd.trajectory || null,
+      direction: hd.direction != null ? Number(hd.direction) : null,
+      event: (play.result && (play.result.event || play.result.eventType)) || 'Ball in play',
+      description: (play.result && play.result.description) || '',
+      rbi: (play.result && play.result.rbi) || 0,
+      scoring: !!about.isScoringPlay,
+      coordX: hd.coordinates && hd.coordinates.coordX != null ? Number(hd.coordinates.coordX) : null,
+      coordY: hd.coordinates && hd.coordinates.coordY != null ? Number(hd.coordinates.coordY) : null
+    };
+    currentHitId = (about.atBatIndex != null ? about.atBatIndex : 0) + '-' + (hitEvent.index != null ? hitEvent.index : 0);
+    break;
+  }
+
   if(!strikeZone) strikeZone = { top: 3.5, bottom: 1.5 };
   const a = cp.about || {};
   return {
@@ -8054,7 +8120,7 @@ function gcLoadThree(){
     .catch(e => { _gcThreePromise = null; throw e; });
   return _gcThreePromise;
 }
-const GC_PITCH_LABELS = { FF:'4-Seam', SI:'Sinker', FC:'Cutter', SL:'Slider', CH:'Changeup', CU:'Curveball', KC:'Knuckle Curve', FS:'Splitter', KN:'Knuckleball', FO:'Forkball', EP:'Eephus', SC:'Screwball', IN:'Int. Ball', PO:'Pitchout', AB:'Auto Ball', UN:'Unknown' };
+const GC_PITCH_LABELS = { FF:'Four-Seam Fastball', FA:'Fastball', FT:'Two-Seam Fastball', SI:'Sinker', FC:'Cutter', SL:'Slider', ST:'Sweeper', CH:'Changeup', CU:'Curveball', KC:'Knuckle Curve', FS:'Split-Finger', KN:'Knuckleball', FO:'Forkball', EP:'Eephus', SC:'Screwball', IN:'Intentional Ball', PO:'Pitchout', AB:'Automatic Ball', UN:'Unknown Pitch' };
 function gcPitchName(code){ return GC_PITCH_LABELS[code] || (code || 'Pitch'); }
 
 class GamecastField {
@@ -8363,12 +8429,12 @@ class GamecastController {
       el.innerHTML = this._buildHTML();
       this.fieldHost = el.querySelector('.gc-3d-host');
       this.zoneSvg = el.querySelector('.gc-zone');
-      this.hitOverlay = el.querySelector('.gc-hit-overlay');
-      this.pitchLegend = el.querySelector('.gc-pitch-legend');
-      this.countWrap = el.querySelector('.gc-count-row');
-      this.basesRow = el.querySelector('.gc-bases-row');
-      this.batterCard = el.querySelector('.gc-batter');
-      this.pitcherCard = el.querySelector('.gc-pitcher');
+      this.hitOverlay = el.querySelector('.gc-hit-metrics');
+      this.pitchLegend = el.querySelector('.gc-pitch-log');
+      this.countWrap = el.querySelector('.gc-count-pill');
+      this.basesRow = el.querySelector('.gc-runner-list');
+      this.batterCard = el.querySelector('.gc-batter-card');
+      this.pitcherCard = el.querySelector('.gc-pitcher-card');
       this.lastPlayEl = el.querySelector('.gc-last-play');
       // PBP box now lives in its own tab pane (sibling of the gc-mount),
       // bound separately in _bindPBP() — not scoped to this element.
@@ -8427,29 +8493,16 @@ class GamecastController {
   }
 
   _initField(){
-    if(!this.fieldHost) return;
-    // Field already exists (e.g. the shell was rebuilt on a fresh element):
-    // re-point it at the current host and re-attach its canvas if it's gone,
-    // without re-importing Three.js or recreating the WebGL context.
-    if(this.field){
-      this.field.host = this.fieldHost;
-      if(this.field.domElement && this.field.domElement.parentElement !== this.fieldHost){
-        this.fieldHost.appendChild(this.field.domElement);
-        if(this.field.ready) this.field.resize();
-      }
-      return;
-    }
-    if(this.fieldInitStarted) return;
-    this.fieldInitStarted = true;
-    if(!this.field) this.field = new GamecastField(this.fieldHost);
-    this.field.onHitSummary = (s) => this._renderHitReadout(s);
-    this.field.init();
+    // Broadcast Gamecast v3 uses the supplied stadium photograph for BOTH pitch
+    // tracking and balls in play. The legacy Three.js field is intentionally
+    // disabled so a batted ball never swaps the viewer into the old gamecast.
+    this.field = null;
   }
   _onVisible(){ this._startFastPoll(); if(this.field && this.field.ready) this.field.start(); }
   _onHidden(){ this._stopFastPoll(); if(this.field && this.field.ready) this.field.stop(); }
 
-  // Fast poll (visible game only, ~6s) for pitch-by-pitch live feel.
-  _startFastPoll(){ if(this.fastPoll) return; this._fastTick(); this.fastPoll = setInterval(() => this._fastTick(), 6000); }
+  // Fast poll (visible game only, ~2.5s) so contact/trajectory is not missed between MLB play transitions.
+  _startFastPoll(){ if(this.fastPoll) return; this._fastTick(); this.fastPoll = setInterval(() => this._fastTick(), 2500); }
   _stopFastPoll(){ if(this.fastPoll){ clearInterval(this.fastPoll); this.fastPoll = null; } }
   async _fastTick(){
     const g = this.g; if(!g || !g.gamePk) return;
@@ -8475,69 +8528,144 @@ class GamecastController {
 
   _buildHTML(){
     return `
-    <div class="gamecast-grid">
-      <div class="gamecast-diamond-wrap">
-          <div class="gc-3d-wrap">
-            <div class="gc-3d-host"></div>
-            <svg class="gc-zone" viewBox="0 0 200 280" aria-label="Strike zone">
-              <rect class="gc-zone-box" x="44" y="66" width="112" height="148" rx="4"></rect>
-              <line class="gc-zone-line" x1="81.3" y1="66" x2="81.3" y2="214"></line>
-              <line class="gc-zone-line" x1="118.6" y1="66" x2="118.6" y2="214"></line>
-              <line class="gc-zone-line" x1="44" y1="115.3" x2="156" y2="115.3"></line>
-              <line class="gc-zone-line" x1="44" y1="164.7" x2="156" y2="164.7"></line>
-              <g class="gc-zone-dots"></g>
-            </svg>
-            <div class="gc-participant gc-batter">
-              <img class="gc-participant-img" alt="" onerror="this.classList.add('gc-participant-noimg')">
-              <div class="gc-participant-info">
-                <span class="gc-participant-role">Batter</span>
-                <span class="gc-participant-name">—</span>
-                <span class="gc-participant-stat"></span>
-              </div>
-            </div>
-            <div class="gc-participant gc-pitcher">
-              <img class="gc-participant-img" alt="" onerror="this.classList.add('gc-participant-noimg')">
-              <div class="gc-participant-info">
-                <span class="gc-participant-role">Pitcher</span>
-                <span class="gc-participant-name">—</span>
-                <span class="gc-participant-stat"></span>
-              </div>
-            </div>
-            <div class="gc-last-play"></div>
-            <div class="gc-hit-overlay"></div>
-            <div class="gc-3d-loading">Loading 3D field…</div>
-          </div>
-          <div class="gc-strip">
-            <div class="gc-count-row"></div>
-            <div class="gc-bases-row"></div>
-            <div class="gc-pitch-legend"></div>
-          </div>
-        </div>
-      <div class="gamecast-right">
-        <div class="gc-odds-wrap"></div>
+    <div class="gc-broadcast">
+      <div class="gc-broadcast-scorebar">
+        <div class="gc-score-team gc-score-away"><img class="gc-score-away-logo" alt=""><div><b class="gc-score-away-name">—</b><small>AWAY</small></div><strong class="gc-score-away-runs">0</strong></div>
+        <div class="gc-score-center"><div class="gc-score-inning">LIVE</div><div class="gc-score-count">0 - 0 &nbsp; 0 OUTS</div><div class="gc-score-bases"><i data-base="2B"></i><i data-base="3B"></i><i data-base="1B"></i></div></div>
+        <div class="gc-score-team gc-score-home"><strong class="gc-score-home-runs">0</strong><div><b class="gc-score-home-name">—</b><small>HOME</small></div><img class="gc-score-home-logo" alt=""></div>
+        <div class="gc-score-live"><div><b class="gc-score-park">Ballpark</b><small><span class="gc-score-weather-line">—</span><span class="gc-score-wind-line">Wind —</span></small></div></div>
       </div>
+      <div class="gc-broadcast-stage">
+        <div class="gc-3d-host" aria-hidden="true"></div>
+        <div class="gc-stadium-brand"><img src="gamecast-horizontal-logo.png" alt="The Sports Outpost"></div>
+
+        <section class="gc-player-card gc-batter-card">
+          <div class="gc-player-kicker">AT BAT</div>
+          <div class="gc-player-main">
+            <div class="gc-player-photo gc-batter-photo"></div>
+            <div class="gc-player-copy"><b class="gc-batter-name">—</b><span class="gc-batter-meta">—</span></div>
+          </div>
+          <div class="gc-player-stats gc-batter-stats"></div>
+          <div class="gc-player-today gc-batter-today"></div>
+        </section>
+
+        <section class="gc-player-card gc-pitcher-card">
+          <div class="gc-player-kicker">PITCHING</div>
+          <div class="gc-player-main">
+            <div class="gc-player-photo gc-pitcher-photo"></div>
+            <div class="gc-player-copy"><b class="gc-pitcher-name">—</b><span class="gc-pitcher-meta">—</span></div>
+          </div>
+          <div class="gc-player-stats gc-pitcher-stats"></div>
+        </section>
+
+        <section class="gc-glass-card gc-pitch-log-panel">
+          <div class="gc-panel-title">PITCH LOG</div><div class="gc-pitch-log"></div>
+        </section>
+
+        <section class="gc-glass-card gc-runners-panel">
+          <div class="gc-panel-title">BASE RUNNERS</div>
+          <div class="gc-runners-body"><div class="gc-mini-diamond"><i data-base="2B"></i><i data-base="3B"></i><i data-base="1B"></i><i class="home"></i></div><div class="gc-runner-list"></div></div>
+        </section>
+
+        <section class="gc-glass-card gc-last-panel">
+          <div class="gc-panel-title">LAST PLAY</div><div class="gc-last-play">Waiting for play…</div>
+        </section>
+
+        <svg class="gc-zone" viewBox="0 0 1000 600" preserveAspectRatio="none" aria-label="Live pitch location">
+          <g class="gc-zone-grid">
+            <rect class="gc-zone-box" x="438" y="250" width="124" height="170" rx="4"></rect>
+            <line class="gc-zone-line" x1="479.3" y1="250" x2="479.3" y2="420"></line>
+            <line class="gc-zone-line" x1="520.6" y1="250" x2="520.6" y2="420"></line>
+            <line class="gc-zone-line" x1="438" y1="306.6" x2="562" y2="306.6"></line>
+            <line class="gc-zone-line" x1="438" y1="363.3" x2="562" y2="363.3"></line>
+          </g>
+          <g class="gc-zone-dots"></g>
+          <g class="gc-flight-layer">
+            <path class="gc-flight-glow"></path><path class="gc-flight-line"></path>
+            <circle class="gc-flight-land-ring" r="14"></circle><circle class="gc-flight-land-dot" r="5"></circle>
+          </g>
+        </svg>
+
+        <div class="gc-hit-label"></div>
+        <div class="gc-hit-metrics"></div>
+        <div class="gc-outcome-banner"></div>
+        <div class="gc-count-pill"></div>
+      </div>
+
+      <div class="gc-broadcast-footer">
+        <div class="gc-footer-score"></div>
+        <div class="gc-footer-due"><div class="gc-panel-title">DUE UP</div><div class="gc-due-list"></div></div>
+      </div>
+      <div class="gc-odds-wrap"></div>
     </div>`;
   }
 
   update(g){
     this.g = g;
     const ls = g.liveScore || {};
-    // Signature-guard the innerHTML writes so a 6s poll that returns the SAME
-    // count / bases / odds / pitches doesn't tear down and rebuild the DOM
-    // (that rebuild was the source of the per-pitch flash).
     const csig = (ls.balls??0)+'/'+(ls.strikes??0)+'/'+(ls.outs??0);
-    if(this.countWrap && this._countSig !== csig){ this._countSig = csig; this.countWrap.innerHTML = this._countHTML(ls); }
+    if(this.countWrap && this._countSig !== csig){ this._countSig = csig; this.countWrap.innerHTML = `<b>${ls.balls??0} - ${ls.strikes??0}</b><span>${ls.outs??0} OUT${Number(ls.outs)===1?'':'S'}</span>`; }
     const rs = ls.runners || [];
-    const bsig = rs.map(r => r.base).sort().join('|');
-    if(this.basesRow && this._basesSig !== bsig){ this._basesSig = bsig; this.basesRow.innerHTML = this._basesHTML(rs); }
-    if(this.lastPlayEl){ this.lastPlayEl.textContent = ls.lastPlay || ''; this.lastPlayEl.classList.toggle('has', !!ls.lastPlay); }
+    const bsig = rs.map(r => (r.base||'')+':'+(r.id||'')).sort().join('|');
+    if(this.basesRow && this._basesSig !== bsig){ this._basesSig = bsig; this._renderRunners(rs); }
+    if(this.lastPlayEl){ this.lastPlayEl.textContent = ls.lastPlay || 'Waiting for play…'; this.lastPlayEl.classList.toggle('has', !!ls.lastPlay); }
     this._diffPlays(ls.plays || []);
     this._updateMatchup(ls.matchup);
+    this._renderBroadcastMeta(g, ls);
     const ow = this.root && this.root.querySelector('.gc-odds-wrap');
-    if(ow){ const osig = (g.awayOdds||'')+'-'+(g.homeOdds||'')+'-'+(g.totalOdds||'')+'-'+(ls.away??g.awayScore??'')+'-'+(ls.home??g.homeScore??'')+'-'+(ls.inning??'')+'-'+(ls.inningState||'')+'-'+(ls.outs??'')+'-'+(ls.firstBase?1:0)+(ls.secondBase?1:0)+(ls.thirdBase?1:0)+'-'+(ls.matchup&&ls.matchup.batter?ls.matchup.batter.id:''); if(this._oddsSig !== osig){ this._oddsSig = osig; ow.innerHTML = gcOddsPropsHTML(g); } }
-    // 3D strike zone + batted-ball trajectory
+    if(ow){ const osig = (g.awayOdds||'')+'-'+(g.homeOdds||'')+'-'+(g.totalOdds||'')+'-'+(ls.away??g.awayScore??'')+'-'+(ls.home??g.homeScore??'')+'-'+(ls.inning??'')+'-'+(ls.inningState||'')+'-'+(ls.outs??''); if(this._oddsSig !== osig){ this._oddsSig = osig; ow.innerHTML = gcOddsPropsHTML(g); } }
     this._renderZoneFromLive(ls);
     this._checkHit(ls);
+  }
+
+  _renderRunners(runners){
+    const on = {}; (runners||[]).forEach(r => { on[r.base]=r; });
+    const stage = this.root && this.root.querySelector('.gc-mini-diamond');
+    if(stage) stage.querySelectorAll('i[data-base]').forEach(i => i.classList.toggle('on', !!on[i.dataset.base]));
+    if(this.basesRow) this.basesRow.innerHTML = ['1B','2B','3B'].map(base => `<div><b>${base}</b><span>${on[base] ? escapeHTML(on[base].name || 'Runner') : '—'}</span></div>`).join('');
+  }
+
+  _renderBroadcastMeta(g, ls){
+    if(!this.root) return;
+    const setTxt=(sel,val)=>{const el=this.root.querySelector(sel);if(el)el.textContent=val;};
+    const setImg=(sel,team)=>{const el=this.root.querySelector(sel);if(el){el.src=teamLogoUrl(team);el.alt=team||'';}};
+    setTxt('.gc-score-away-name',g.awayName||g.away||'Away'); setTxt('.gc-score-home-name',g.homeName||g.home||'Home');
+    setTxt('.gc-score-away-runs',ls.away??g.awayScore??0); setTxt('.gc-score-home-runs',ls.home??g.homeScore??0);
+    setImg('.gc-score-away-logo',g.away); setImg('.gc-score-home-logo',g.home);
+    const inn=Number(ls.inning)||0, suffix=inn===1?'st':inn===2?'nd':inn===3?'rd':'th';
+    const half=String(ls.inningState||'').toLowerCase().includes('top')?'▲':String(ls.inningState||'').toLowerCase().includes('bottom')?'▼':'';
+    setTxt('.gc-score-inning',inn?`${half} ${inn}${suffix}`:'LIVE');
+    setTxt('.gc-score-count',`${ls.balls??0} - ${ls.strikes??0}   ${ls.outs??0} OUT${Number(ls.outs)===1?'':'S'}`);
+    setTxt('.gc-score-park',g.parkShort||g.park||'Ballpark');
+    const temp = g.tempF != null ? `${Math.round(g.tempF)}°F` : 'Weather —';
+    const windMph = g.windMph != null ? `${Math.round(g.windMph)} mph` : '';
+    const windDir = g.windLabel || (g.windDeg != null && typeof windDirLabel === 'function' ? windDirLabel(g.windDeg) : '');
+    setTxt('.gc-score-weather-line', temp);
+    setTxt('.gc-score-wind-line', windMph || windDir ? `${windMph}${windMph && windDir ? ' · ' : ''}${windDir}` : 'Wind —');
+    const occupied=new Set((ls.runners||[]).map(r=>r.base));
+    this.root.querySelectorAll('.gc-score-bases i').forEach(el=>el.classList.toggle('on',occupied.has(el.dataset.base)));
+    const innings = ls.innings || [];
+    const maxInn = Math.max(9, ...innings.map(x=>Number(x.num)||0));
+    const byNum = Object.fromEntries(innings.map(x=>[x.num,x]));
+    const cell = v => v == null ? '–' : v;
+    const footer = this.root.querySelector('.gc-footer-score');
+    if(footer){
+      const nums = Array.from({length:maxInn},(_,i)=>i+1);
+      footer.innerHTML = `<table><thead><tr><th></th>${nums.map(n=>`<th>${n}</th>`).join('')}<th>R</th><th>H</th><th>E</th></tr></thead><tbody>`+
+        `<tr><td><span class="gc-footer-team"><img src="${teamLogoUrl(g.away)}" alt=""><b>${escapeHTML(g.awayName||g.away)}</b></span></td>${nums.map(n=>`<td>${cell(byNum[n]&&byNum[n].away)}</td>`).join('')}<td>${ls.away??'–'}</td><td>${ls.awayHits??'–'}</td><td>${ls.awayErrors??'–'}</td></tr>`+
+        `<tr><td><span class="gc-footer-team"><img src="${teamLogoUrl(g.home)}" alt=""><b>${escapeHTML(g.homeName||g.home)}</b></span></td>${nums.map(n=>`<td>${cell(byNum[n]&&byNum[n].home)}</td>`).join('')}<td>${ls.home??'–'}</td><td>${ls.homeHits??'–'}</td><td>${ls.homeErrors??'–'}</td></tr></tbody></table>`;
+    }
+    const due = this.root.querySelector('.gc-due-list');
+    const battingAway = String(ls.inningState||'').toLowerCase().includes('top');
+    const team = battingAway ? g.away : g.home;
+    const batters = (typeof allBatters!=='undefined'?allBatters:[]).filter(p => p.game && p.game.id===g.id && p.team===team);
+    const currentId = ls.matchup && ls.matchup.batter && ls.matchup.batter.id;
+    let idx = batters.findIndex(p => p.id===currentId || p.mlbId===currentId);
+    if(idx<0) idx=0;
+    const next = batters.length ? [0,1,2].map(k=>batters[(idx+k)%batters.length]).filter(Boolean) : [];
+    if(due) due.innerHTML = next.map((p,i)=>`<div><b>${i+1}</b><span>${escapeHTML(p.name||'—')}</span><em>${p.avg!=null?Number(p.avg).toFixed(3).replace(/^0/,''):''}</em></div>`).join('') || '<span class="gc-muted">Lineup unavailable</span>';
+    const info = this.root.querySelector('.gc-game-info');
+    if(info) info.innerHTML = `<div>⌖ ${escapeHTML(g.parkShort || g.park || 'Ballpark')}</div><div>☁ ${g.weather && g.weather.temp!=null ? Math.round(g.weather.temp)+'°' : (g.temp!=null?Math.round(g.temp)+'°':'—')}</div><div>↝ ${g.weather && g.weather.wind ? escapeHTML(String(g.weather.wind)) : (g.wind ? escapeHTML(String(g.wind)) : 'Wind —')}</div>`;
   }
 
   // ---- strike zone (SVG overlay) ----
@@ -8547,82 +8675,95 @@ class GamecastController {
     this._renderZone(ps.pitches || [], ps.strikeZone || { top: 3.5, bottom: 1.5 });
   }
   _renderZone(pitches, sz){
-    const svg = this.zoneSvg; if(!svg) return;
-    const g = svg.querySelector('.gc-zone-dots'); if(!g) return;
-    const top = sz ? sz.top : 3.5, bot = sz ? sz.bottom : 1.5;
-    // Only rebuild the SVG dots when the pitch set actually changed — re-plotting
-    // the same dots every 6s poll was what made the zone flicker.
-    const lp = (pitches && pitches.length) ? pitches[pitches.length-1] : {};
-    const zsig = (pitches?pitches.length:0)+'|'+(lp&&lp.index!=null?lp.index:'')+'|'+(lp&&lp.call||'')+'|'+(lp&&lp.code||'')+'|'+(lp&&lp.px!=null?lp.px:'')+'|'+(lp&&lp.pz!=null?lp.pz:'')+'|'+top+'|'+bot;
-    if(this._zoneSig === zsig) return;
-    this._zoneSig = zsig;
-    if(!pitches || !pitches.length){ g.innerHTML = ''; if(this.pitchLegend) this.pitchLegend.innerHTML = '<span class="gc-pl-empty">No pitches yet</span>'; return; }
-    // plot range: a bit beyond the plate/zone so balls outside still show
-    const xMin = -1.1, xMax = 1.1, yMin = Math.max(0.2, bot - 1.3), yMax = top + 1.3;
-    const boxL = 44, boxR = 156, boxT = 66, boxB = 214;
-    const toX = px => boxL + ((Math.max(xMin, Math.min(xMax, px)) - xMin) / (xMax - xMin)) * (boxR - boxL);
-    const toY = pz => boxT + ((yMax - Math.max(yMin, Math.min(yMax, pz))) / (yMax - yMin)) * (boxB - boxT);
-    const zonePos = z => { const c = {1:[-0.35,3.05],2:[0,3.05],3:[0.35,3.05],4:[-0.35,2.45],5:[0,2.45],6:[0.35,2.45],7:[-0.35,1.85],8:[0,1.85],9:[0.35,1.85],11:[-1.0,2.45],12:[1.0,2.45],13:[0,3.9],14:[0,1.0]}; return c[z] || [0,2.45]; };
-    g.innerHTML = pitches.map(p => {
-      let px = p.px, pz = p.pz;
-      if(px == null || pz == null){ const z = zonePos(p.zone); px = (px==null?z[0]:px); pz = (pz==null?z[1]:pz); }
-      const cx = toX(px), cy = toY(pz);
-      let cls = 'gc-pdot-ball';
-      if(p.isInPlay || p.call === 'X') cls = 'gc-pdot-inplay';
-      else if(p.isStrike || p.call === 'S') cls = 'gc-pdot-strike';
-      else if(p.isBall || p.call === 'B') cls = 'gc-pdot-ball';
-      return `<circle class="gc-pdot ${cls}" cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="11"></circle><text class="gc-pdot-num" x="${cx.toFixed(1)}" y="${(cy+4).toFixed(1)}" text-anchor="middle">${p.index}</text>`;
-    }).join('');
-    if(this.pitchLegend){
-      this.pitchLegend.innerHTML = pitches.slice(-8).map(p => {
-        const res = p.isInPlay || p.call === 'X' ? 'in play' : (p.isStrike || p.call==='S' ? 'strike' : 'ball');
-        const cls = p.isInPlay || p.call==='X' ? 'inplay' : (p.isStrike || p.call==='S' ? 'strike' : 'ball');
-        return `<span class="gc-pl-item ${cls}"><b>${p.index}</b><i>${gcPitchName(p.code)}</i><i>${p.speed!=null?Math.round(p.speed)+' mph':'—'}</i><i>${res}</i></span>`;
-      }).join('') || '<span class="gc-pl-empty">No pitches yet</span>';
-    }
+    const svg=this.zoneSvg; if(!svg) return; const dots=svg.querySelector('.gc-zone-dots'); if(!dots) return;
+    const top=sz?sz.top:3.5, bot=sz?sz.bottom:1.5;
+    const lp=(pitches&&pitches.length)?pitches[pitches.length-1]:{};
+    const sig=(pitches?pitches.length:0)+'|'+(lp.index??'')+'|'+(lp.call||'')+'|'+(lp.px??'')+'|'+(lp.pz??''); if(this._zoneSig===sig)return; this._zoneSig=sig;
+    if(!pitches||!pitches.length){dots.innerHTML=''; if(this.pitchLegend)this.pitchLegend.innerHTML='<span class="gc-muted">No pitches yet</span>'; return;}
+    // The drawn rectangle is the ACTUAL rule-book strike zone, not the whole
+    // pitch plotting area. Half a plate plus roughly one baseball radius is
+    // about 0.83 ft from center. Mapping ±1.25 ft to the box (the old code)
+    // visually pulled obvious balls inside the zone.
+    const L=438,R=562,T=250,B=420, HALF_W=0.83;
+    const xScale=(R-L)/(HALF_W*2);
+    const yScale=(B-T)/Math.max(.8,(top-bot));
+    const toX=px=>Math.max(330,Math.min(670,500+Number(px)*xScale));
+    const toY=pz=>Math.max(175,Math.min(490,T+(top-Number(pz))*yScale));
+    const mid=(top+bot)/2, third=(top-bot)/3;
+    const fallback=z=>({1:[-.45,top-third*.5],2:[0,top-third*.5],3:[.45,top-third*.5],4:[-.45,mid],5:[0,mid],6:[.45,mid],7:[-.45,bot+third*.5],8:[0,bot+third*.5],9:[.45,bot+third*.5],11:[-1.15,mid],12:[1.15,mid],13:[0,top+.55],14:[0,bot-.55]}[z]||[0,mid]);
+    dots.innerHTML=pitches.map((p,i)=>{let px=p.px,pz=p.pz;if(px==null||pz==null){const q=fallback(Number(p.zone));if(px==null)px=q[0];if(pz==null)pz=q[1];} const cls=p.isInPlay||p.call==='X'?'gc-pdot-inplay':(p.isTwoStrikeFoul?'gc-pdot-foul2':(p.isStrike||p.call==='S'?'gc-pdot-strike':'gc-pdot-ball')); const x=toX(px),y=toY(pz); return `<circle class="gc-pdot ${cls}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="10"></circle><text class="gc-pdot-num" x="${x.toFixed(1)}" y="${(y+4).toFixed(1)}">${i+1}</text>`;}).join('');
+    if(this.pitchLegend) this.pitchLegend.innerHTML=pitches.slice().reverse().map((p,i)=>{const n=pitches.length-i; const kind=p.isInPlay||p.call==='X'?'inplay':(p.isTwoStrikeFoul?'foul2':(p.isStrike||p.call==='S'?'strike':'ball')); const res=kind==='inplay'?'IN PLAY':kind==='foul2'?'FOUL':kind.toUpperCase(); const pitchLabel=p.pitchName||gcPitchName(p.code); return `<div class="gc-pitch-row ${kind}"><b>${n}</b><span><strong>${escapeHTML(pitchLabel)}</strong><small>${p.speed!=null?Math.round(p.speed)+' MPH':'—'}</small></span><em>${res}</em></div>`;}).join('');
   }
 
   // ---- batted-ball → 3D trajectory ----
   _checkHit(ls){
-    const ps = ls && ls.pitchState; if(!ps) return;
-    // a brand-new pitch in the at-bat returns us to the strike-zone view
-    if(ps.currentPitchId && ps.currentPitchId !== this.prevPitchId){
-      this.prevPitchId = ps.currentPitchId;
-      if(this.mode === 'hit') this._setMode('zone');
-    }
-    // a new batted ball → fly the trajectory
-    if(ps.currentHitId && ps.currentHitId !== this.prevHitId){
-      this.prevHitId = ps.currentHitId;
-      if(ps.lastHit){ this._setMode('hit'); if(this.field) this.field.showHit(ps.lastHit); }
-    }
+    const ps=ls&&ls.pitchState;if(!ps)return;
+    if(ps.currentPitchId&&ps.currentPitchId!==this.prevPitchId){this.prevPitchId=ps.currentPitchId;if(this.mode==='hit' && (!ps.currentHitId || ps.currentHitId===this.prevHitId)) this._setMode('zone');}
+    if(ps.currentHitId&&ps.currentHitId!==this.prevHitId){this.prevHitId=ps.currentHitId;if(ps.lastHit){this._setMode('hit');this._showBroadcastHit(ps.lastHit,ls);}}
   }
-  _setMode(m){ this.mode = m; if(this.root) this.root.classList.toggle('is-hit-mode', m === 'hit'); }
-  _renderHitReadout(s){
-    if(!this.hitOverlay) return;
-    // Place the readout on the side OPPOSITE the batted ball's landing spot, so
-    // it never covers where the ball was hit. Right-field hit (landingX>=0)
-    // → panel on the left; left-field hit → panel on the right.
-    const goLeft = (s.landingX != null ? s.landingX : 0) >= 0;
-    this.hitOverlay.classList.toggle('on-left', goLeft);
-    this.hitOverlay.classList.toggle('on-right', !goLeft);
-    const f = (v, d) => v == null ? '—' : (typeof v === 'number' ? v.toFixed(d) : escapeHTML(String(v)));
-    const ev = (s.event || 'Batted ball').replace(/_/g, ' ');
-    const clearanceTxt = s.clearance == null ? '' : (s.clearance > 0
-      ? `clears ${f(s.clearance, 1)} ft wall` : `short of wall`);
-    const verdict = s.isHR ? '<span class="gc-verdict hr">HOME RUN</span>'
-      : `<span class="gc-verdict out">${escapeHTML(ev)}</span>`;
-    this.hitOverlay.innerHTML = `
-      <div class="gc-hit-top">${verdict}</div>
-      <div class="gc-hit-stats">
-        <span><b>${f(s.dist, 0)}</b><i>ft</i></span>
-        <span><b>${f(s.launchSpeed, 1)}</b><i>ev mph</i></span>
-        <span><b>${f(s.launchAngle, 0)}°</b><i>launch</i></span>
-        <span><b>${f(s.apex, 0)}</b><i>apex ft</i></span>
-        <span><b>${f(s.wallDist, 0)}</b><i>wall ft</i></span>
-        <span><b>${f(s.clearance, 1)}</b><i>${s.isHR ? 'clear ft' : 'clear'}</i></span>
-      </div>
-      <div class="gc-hit-note">Trajectory vs ~${f(s.fenceH, 0)} ft fence · approx park dims</div>`;
+  _setMode(m){this.mode=m;if(this.root)this.root.classList.toggle('is-hit-mode',m==='hit'); if(m==='zone') this._clearHitVisual();}
+  _clearHitVisual(){
+    if(!this.root)return; const line=this.root.querySelector('.gc-flight-line'), glow=this.root.querySelector('.gc-flight-glow'), ring=this.root.querySelector('.gc-flight-land-ring'), dot=this.root.querySelector('.gc-flight-land-dot');
+    [line,glow].forEach(x=>{if(x)x.removeAttribute('d')}); [ring,dot].forEach(x=>{if(x){x.removeAttribute('cx');x.removeAttribute('cy')}});
+    const lab=this.root.querySelector('.gc-hit-label'), met=this.root.querySelector('.gc-hit-metrics'), ban=this.root.querySelector('.gc-outcome-banner'); if(lab)lab.innerHTML='';if(met)met.innerHTML='';if(ban)ban.innerHTML='';
   }
+  _showBroadcastHit(h,ls){
+    if(!this.root)return;
+    const sx=500, sy=558; let ex,ey;
+    let dist=Number(h.totalDistance); const cxRaw=Number(h.coordX), cyRaw=Number(h.coordY); let dir=Number(h.direction);
+    const desc=String(h.description||'');
+
+    // Convert Statcast chart coordinates into a SPRAY ANGLE first. Using coordX
+    // directly as screen pixels made different hits collapse toward the same
+    // location. MLB's chart origin is approximately home=(125,199): +theta is
+    // right field, -theta is left field from the batter's point of view.
+    let theta=null;
+    if(Number.isFinite(cxRaw) && Number.isFinite(cyRaw) && Math.hypot(cxRaw-125,199-cyRaw)>2){
+      theta=Math.atan2(cxRaw-125,199-cyRaw);
+    } else if(Number.isFinite(dir)){
+      // Some feeds expose direction in degrees; normalize common 0=center form.
+      let deg=dir;
+      if(deg>90 && deg<270) deg-=180;
+      theta=deg*Math.PI/180;
+    }
+    // Text direction is a reliable last resort when Statcast chart coordinates
+    // have not arrived yet (very common for the first live poll after contact).
+    if(theta==null){
+      const d=desc.toLowerCase();
+      if(/left center|left-center/.test(d)) theta=-0.34;
+      else if(/right center|right-center/.test(d)) theta=0.34;
+      else if(/left field|left fielder|to left|third baseman|shortstop/.test(d)) theta=-0.62;
+      else if(/right field|right fielder|to right|first baseman|second baseman/.test(d)) theta=0.62;
+      else theta=0;
+    }
+    theta=Math.max(-0.88,Math.min(0.88,theta));
+
+    // Distance controls DEPTH while theta controls DIRECTION. This keeps a
+    // 29-foot grounder near the infield and a 400-foot fly near the wall while
+    // preserving left/center/right spray direction.
+    if(!Number.isFinite(dist) || dist<=0){
+      const tr=String(h.trajectory||'').toLowerCase();
+      dist=tr.includes('ground')?95:tr.includes('line')?235:tr.includes('popup')?145:315;
+    }
+    const depth=Math.max(.06,Math.min(1,dist/410));
+    const fair=Math.sin(0.88);
+    ex=sx+(Math.sin(theta)/fair)*405*depth;
+    ey=sy-315*depth;
+    ex=Math.max(72,Math.min(928,ex));ey=Math.max(190,Math.min(530,ey));
+    const dx=ex-sx;
+    const la=Number(h.launchAngle);
+    const rise=Math.min(235,Math.max(28,Number.isFinite(la)?Math.max(0,la)*4.7:85));
+    const cx=sx+dx*.52,cy=Math.max(75,Math.min(sy,ey)-rise);
+    const d=`M ${sx} ${sy} Q ${cx.toFixed(1)} ${cy.toFixed(1)} ${ex.toFixed(1)} ${ey.toFixed(1)}`;
+    const line=this.root.querySelector('.gc-flight-line'),glow=this.root.querySelector('.gc-flight-glow'); if(line){line.setAttribute('d',d);line.style.setProperty('--gc-flight-len','1000');} if(glow)glow.setAttribute('d',d);
+    for(const sel of ['.gc-flight-land-ring','.gc-flight-land-dot']){const e=this.root.querySelector(sel);if(e){e.setAttribute('cx',ex);e.setAttribute('cy',ey);}}
+    const event=String(h.event||'Ball in play').replace(/_/g,' '); const isHR=/home run|homer/i.test(event); const isHit=isHR||/single|double|triple/i.test(event);
+    const lab=this.root.querySelector('.gc-hit-label'); if(lab){lab.style.left=(ex/10)+'%';lab.style.top=(ey/6)+'%';lab.innerHTML=`<b>${Number.isFinite(dist)?Math.round(dist)+' FT':''}</b><span>${escapeHTML(event.toUpperCase())}</span>`;}
+    const met=this.root.querySelector('.gc-hit-metrics'); if(met) met.innerHTML=`<div class="gc-panel-title">HIT METRICS</div><div><span>Exit Velocity</span><b>${h.launchSpeed!=null?Number(h.launchSpeed).toFixed(1)+' MPH':'—'}</b></div><div><span>Launch Angle</span><b>${h.launchAngle!=null?Math.round(h.launchAngle)+'°':'—'}</b></div><div><span>Distance</span><b>${Number.isFinite(dist)?Math.round(dist)+' FT':'—'}</b></div><div><span>Outcome</span><b class="${isHR?'hot':(isHit?'good':'')}">${escapeHTML(event)}</b></div>`;
+    const ban=this.root.querySelector('.gc-outcome-banner'); if(ban) ban.innerHTML=`<b>${escapeHTML((ls&&ls.lastPlay)||event)}</b>`;
+    clearTimeout(this._hitUiTimer); this._hitUiTimer=setTimeout(()=>{if(this.mode==='hit')this._setMode('zone')},9000);
+  }
+  _renderHitReadout(){ /* legacy Three.js callback intentionally unused */ }
 
   _countHTML(ls){
     const dots = (n, max, cls) => Array.from({length:max}, (_,i) => `<span class="gc-dot ${i < (n||0) ? cls : ''}"></span>`).join('');
@@ -8704,29 +8845,23 @@ class GamecastController {
     this._muCache = res;
     this._renderMatchup(mu, res);
   }
-  // Batter (left) + pitcher (right) flank the strike zone: headshot + name +
-  // one tiny stat. No more big overlay frame.
-  _participantHTML(role, name, playerId, stat){
-    const img = headshotImgTag(name || '—', 'gc-participant-img', null, playerId);
-    return `${img}<div class="gc-participant-info"><span class="gc-participant-role">${role}</span><span class="gc-participant-name">${escapeHTML(name || '—')}</span><span class="gc-participant-stat">${stat || ''}</span></div>`;
-  }
-  _clearParticipants(){
-    if(this.batterCard) this.batterCard.innerHTML = this._participantHTML('Batter', null, null, '');
-    if(this.pitcherCard) this.pitcherCard.innerHTML = this._participantHTML('Pitcher', null, null, '');
-  }
+  // Compact broadcast player cards. These update in-place so live polling never
+  // expands or flashes the overlays across the field.
+  _clearParticipants(){ this._renderMatchupNames({batter:{name:'—'},pitcher:{name:'—'}}); }
   _renderMatchupNames(mu){
-    if(!this.batterCard && !this.pitcherCard) return;
-    if(this.batterCard) this.batterCard.innerHTML = this._participantHTML('Batter', mu.batter.name, mu.batter.id, 'Loading…');
-    if(this.pitcherCard) this.pitcherCard.innerHTML = this._participantHTML('Pitcher', mu.pitcher.name, mu.pitcher.id, 'Loading…');
+    if(!this.root)return; const b=mu&&mu.batter||{},p=mu&&mu.pitcher||{};
+    const bp=this.root.querySelector('.gc-batter-photo'), pp=this.root.querySelector('.gc-pitcher-photo');
+    if(bp)bp.innerHTML=headshotImgTag(b.name||'—','gc-card-headshot',null,b.id); if(pp)pp.innerHTML=headshotImgTag(p.name||'—','gc-card-headshot',null,p.id);
+    const bn=this.root.querySelector('.gc-batter-name'),pn=this.root.querySelector('.gc-pitcher-name');if(bn)bn.textContent=b.name||'—';if(pn)pn.textContent=p.name||'—';
+    const bs=this.root.querySelector('.gc-batter-stats'),ps=this.root.querySelector('.gc-pitcher-stats');if(bs)bs.innerHTML='<span><i>AVG</i><b>—</b></span><span><i>HR</i><b>—</b></span><span><i>RBI</i><b>—</b></span><span><i>OPS</i><b>—</b></span>';if(ps)ps.innerHTML='<span><i>ERA</i><b>—</b></span><span><i>K/9</i><b>—</b></span><span><i>IP</i><b>—</b></span><span><i>WHIP</i><b>—</b></span>';
   }
-  _renderMatchup(mu, res){
-    if(!this.batterCard && !this.pitcherCard) return;
-    const b = res && res.batter, p = res && res.pitcher;
-    const f = (v, d) => v == null ? '—' : (typeof v === 'number' ? v.toFixed(d == null ? 3 : d) : escapeHTML(String(v)));
-    const bStat = b ? `AVG ${f(b.avg)}` : '';
-    const pStat = p ? `ERA ${f(p.era, 2)}` : '';
-    if(this.batterCard) this.batterCard.innerHTML = this._participantHTML('Batter', mu.batter.name, mu.batter.id, bStat);
-    if(this.pitcherCard) this.pitcherCard.innerHTML = this._participantHTML('Pitcher', mu.pitcher.name, mu.pitcher.id, pStat);
+  _renderMatchup(mu,res){
+    if(!this.root)return; this._renderMatchupNames(mu); const b=res&&res.batter,p=res&&res.pitcher; const fmt=(v,d=3)=>v==null?'—':Number(v).toFixed(d).replace(/^0(?=\.)/,'');
+    const bx=this.g&&this.g.boxScore; const allB=bx?[...(bx.away?.batters||[]),...(bx.home?.batters||[])]:[]; const allP=bx?[...(bx.away?.pitchers||[]),...(bx.home?.pitchers||[])]:[]; const liveB=allB.find(x=>x.id===mu.batter.id)||null; const liveP=allP.find(x=>x.name===mu.pitcher.name)||null;
+    const bm=this.root.querySelector('.gc-batter-meta'),pm=this.root.querySelector('.gc-pitcher-meta'); if(bm)bm.textContent=[b&&b.position,b&&b.bats].filter(Boolean).join('  ·  '); if(pm)pm.textContent=[p&&p.throws?'Throws '+p.throws:null].filter(Boolean).join('');
+    const bs=this.root.querySelector('.gc-batter-stats'); if(bs&&b)bs.innerHTML=`<span><i>AVG</i><b>${fmt(b.avg)}</b></span><span><i>HR</i><b>${b.hr??'—'}</b></span><span><i>RBI</i><b>${b.rbi??'—'}</b></span><span><i>OPS</i><b>${fmt(b.ops)}</b></span>`;
+    const ps=this.root.querySelector('.gc-pitcher-stats'); if(ps&&p)ps.innerHTML=`<span><i>ERA</i><b>${fmt(p.era,2)}</b></span><span><i>K/9</i><b>${p.k9!=null?Number(p.k9).toFixed(1):'—'}</b></span><span><i>IP</i><b>${liveP?.ip??p.ip??'—'}</b></span><span><i>P</i><b>${liveP?.pitches??'—'}</b></span>`;
+    const today=this.root.querySelector('.gc-batter-today'); if(today)today.textContent=liveB?`TODAY · ${liveB.h} H · ${liveB.hr} HR · ${liveB.rbi} RBI`:'TODAY · live';
   }
 
   destroy(){
@@ -9063,7 +9198,7 @@ async function gcFetchBatter(id){
   const last7 = await _gcLastGamesAvg(id);
   let hot = null;
   if(last7 != null && avg != null && avg > 0) hot = last7 >= avg * 1.12;
-  return { avg, ops, kPct, last7, hot };
+  return { avg, ops, kPct, last7, hot, hr:Number(s.homeRuns||0), rbi:Number(s.rbi||0), position:null, bats:null };
 }
 async function gcFetchPitcher(id){
   const s = await _gcSeasonStat(id, 'pitching');
@@ -9072,7 +9207,7 @@ async function gcFetchPitcher(id){
   const k9 = s.strikeoutsPer9Inn != null ? Number(s.strikeoutsPer9Inn) : null;
   const ip = Number(s.inningsPitched || 0), so = Number(s.strikeOuts || 0);
   const kPct = ip > 0 ? so / (ip * 3) : null;
-  return { era, k9, kPct, hot: null };
+  return { era, k9, kPct, hot: null, ip:s.inningsPitched != null ? s.inningsPitched : null, whip:s.whip != null ? Number(s.whip) : null, throws:null };
 }
 async function gcFetchH2H(batterId, pitcherId){
   try{
@@ -9238,7 +9373,7 @@ function slateCardHTML(g){
         ${badge}
         <span class="slate-time">${isLive ? inningTxt : (isFinal ? (g.parkShort || g.park.split(',')[0]) : gameTime(g))}</span>
       </div>
-      <div class="slate-card-top" id="ls-${g.id}">${line}</div>
+      ${isLive ? '' : `<div class="slate-card-top" id="ls-${g.id}">${line}</div>`}
       ${body}
     </div>`;
 }
