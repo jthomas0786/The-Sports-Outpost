@@ -4125,6 +4125,44 @@ body.modal-open{ overflow:hidden; }
   .gc-runner-row,.gc-last-play{ font-size:6.4px !important; }
 }
 </style>
+
+<style id="mobile-gamecast-v10">
+/* Mobile Gamecast v10: strike-zone + base-runner spacing only. Desktop untouched. */
+@media (max-width:760px){
+  /* Give the runner card a little more breathing room and reserve a real column
+     for the diamond so the rotated bases never collide with the labels. */
+  .gc-runners-panel{ width:32.5% !important; padding:7px 8px !important; }
+  .gc-runners-body{
+    grid-template-columns:56px minmax(0,1fr) !important;
+    column-gap:8px !important;
+    align-items:center !important;
+    margin-top:6px !important;
+  }
+  .gc-mini-diamond{ width:54px !important; height:50px !important; transform:none !important; }
+  .gc-mini-diamond i{ width:12px !important; height:12px !important; }
+  .gc-mini-diamond i[data-base="2B"]{ left:21px !important; top:1px !important; }
+  .gc-mini-diamond i[data-base="3B"]{ left:5px !important; top:18px !important; }
+  .gc-mini-diamond i[data-base="1B"]{ right:5px !important; top:18px !important; }
+  .gc-mini-diamond i.home{ left:21px !important; bottom:1px !important; width:11px !important; height:11px !important; }
+  .gc-runner-list{ gap:5px !important; min-width:0 !important; }
+  .gc-runner-list>div{ grid-template-columns:23px minmax(0,1fr) !important; gap:5px !important; font-size:6.8px !important; line-height:1.25 !important; }
+  .gc-runner-list b{ white-space:nowrap !important; }
+  .gc-runner-list span{ min-width:0 !important; }
+
+  /* The JS now resizes the actual SVG grid to match the mobile pitch mapping. */
+  .gc-zone-box{ stroke-width:1.6 !important; }
+  .gc-zone-line{ stroke-width:.9 !important; }
+}
+@media (max-width:430px){
+  .gc-runners-panel{ width:33.5% !important; }
+  .gc-runners-body{ grid-template-columns:50px minmax(0,1fr) !important; gap:6px !important; }
+  .gc-mini-diamond{ width:48px !important; height:46px !important; }
+  .gc-mini-diamond i[data-base="2B"]{ left:18px !important; }
+  .gc-mini-diamond i[data-base="3B"]{ left:4px !important; top:17px !important; }
+  .gc-mini-diamond i[data-base="1B"]{ right:4px !important; top:17px !important; }
+  .gc-mini-diamond i.home{ left:18px !important; }
+}
+</style>
 </head>
 <body class="dw-booting">
 
@@ -8882,7 +8920,28 @@ class GamecastController {
     // and narrow after preserveAspectRatio=none stretched it. Use a wider/shorter
     // mobile plot box while leaving desktop geometry exactly as before.
     const mobileZone = window.matchMedia && window.matchMedia('(max-width: 760px)').matches;
-    const L=mobileZone?420:438, R=mobileZone?580:562, T=mobileZone?286:250, B=mobileZone?414:420, HALF_W=0.83;
+    // Mobile uses a deliberately wider/shorter strike-zone geometry. Because the
+    // SVG stretches to a much taller phone-stage, keeping the desktop rectangle
+    // makes the zone look like a narrow vertical tower. These coordinates are
+    // chosen so the rendered phone zone lands close to real plate proportions.
+    const L=mobileZone?410:438, R=mobileZone?590:562, T=mobileZone?292:250, B=mobileZone?410:420, HALF_W=0.83;
+
+    // The grid itself is static markup, so update its rectangle/thirds to match
+    // the same geometry used for pitch dots. This fixes the old mismatch where
+    // dots used mobile coordinates but the visible box stayed desktop-sized.
+    const grid = svg.querySelector('.gc-zone-grid');
+    if(grid){
+      const rect=grid.querySelector('rect');
+      const lines=grid.querySelectorAll('line');
+      const w=R-L, h=B-T, x1=L+w/3, x2=L+2*w/3, y1=T+h/3, y2=T+2*h/3;
+      if(rect){ rect.setAttribute('x',L); rect.setAttribute('y',T); rect.setAttribute('width',w); rect.setAttribute('height',h); }
+      if(lines.length>=4){
+        lines[0].setAttribute('x1',x1); lines[0].setAttribute('x2',x1); lines[0].setAttribute('y1',T); lines[0].setAttribute('y2',B);
+        lines[1].setAttribute('x1',x2); lines[1].setAttribute('x2',x2); lines[1].setAttribute('y1',T); lines[1].setAttribute('y2',B);
+        lines[2].setAttribute('x1',L); lines[2].setAttribute('x2',R); lines[2].setAttribute('y1',y1); lines[2].setAttribute('y2',y1);
+        lines[3].setAttribute('x1',L); lines[3].setAttribute('x2',R); lines[3].setAttribute('y1',y2); lines[3].setAttribute('y2',y2);
+      }
+    }
     const xScale=(R-L)/(HALF_W*2);
     const yScale=(B-T)/Math.max(.8,(top-bot));
     const toX=px=>Math.max(mobileZone?300:330,Math.min(mobileZone?700:670,500+Number(px)*xScale));
