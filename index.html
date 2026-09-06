@@ -3598,6 +3598,12 @@ footer{ margin-left:0; }
 .notify-item-title{ font-family:'Cabinet Grotesk',sans-serif; font-weight:700; font-size:12.5px; color:var(--text); }
 .notify-item-body{ font-size:11.5px; color:var(--text-muted); margin-top:2px; line-height:1.5; }
 .notify-item-time{ font-family:'JetBrains Mono',monospace; font-size:9px; color:var(--text-muted); margin-top:4px; }
+.notify-item-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:4px; }
+.notify-item-foot .notify-item-time{ margin-top:0; }
+.notify-watch-btn{ font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:.02em;
+  color:#fff; background:var(--accent); border:none; border-radius:999px; padding:4px 11px; cursor:pointer;
+  transition:var(--transition); flex-shrink:0; }
+.notify-watch-btn:hover{ background:var(--accent-bright); transform:translateY(-1px); }
 .notify-pop-foot{ padding:9px 14px; border-top:1px solid var(--border); }
 .notify-pop-foot button{ width:100%; background:none; border:1px solid var(--border); color:var(--text-muted);
   font-family:'JetBrains Mono',monospace; font-size:10px; padding:7px; border-radius:8px; cursor:pointer; }
@@ -16315,9 +16321,9 @@ function checkWatchlistPlay(g, play){
     const name = play.matchup?.batter?.fullName ?? 'Watched player';
     social()?.selfNotify?.('atbat_up', {
       player_name: name, player_id: batterId, atbat_key: atBatKey,
-      game: `${g.awayName} @ ${g.homeName}`,
+      game: `${g.awayName} @ ${g.homeName}`, game_pk: g.gamePk,
     }, slateMeta.date);   // stamped so this alert stops showing after today
-    pushAppNotification({ title: `⚾ ${name} is up to bat`, body: `${g.awayName} @ ${g.homeName}`, dedupeKey: `atbat_up:${atBatKey}` });
+    pushAppNotification({ title: `⚾ ${name} is up to bat`, body: `${g.awayName} @ ${g.homeName}`, dedupeKey: `atbat_up:${atBatKey}`, gamePk: g.gamePk });
     return;
   }
 
@@ -16338,9 +16344,9 @@ function checkWatchlistPlay(g, play){
   const detail = hd ? `${hd.launchSpeed} mph, ${hd.totalDistance ?? '?'} ft` : (play.result?.description || '');
 
   social()?.selfNotify?.('atbat_result', {
-    player_name: name, player_id: batterId, result, detail, emoji, atbat_key: atBatKey,
+    player_name: name, player_id: batterId, result, detail, emoji, atbat_key: atBatKey, game_pk: g.gamePk,
   }, slateMeta.date);   // stamped so this alert stops showing after today
-  pushAppNotification({ title: `${emoji} ${name}: ${result}`, body: detail, dedupeKey: `atbat_result:${atBatKey}` });
+  pushAppNotification({ title: `${emoji} ${name}: ${result}`, body: detail, dedupeKey: `atbat_result:${atBatKey}`, gamePk: g.gamePk });
 }
 
 // === PORTED FROM GITHUB: closeNotifyPop ===
@@ -16518,9 +16524,9 @@ function formatNotification(row){
     case 'follow':
       return { title: `@${p.username || 'someone'} started following you`, body: '' };
     case 'atbat_up':
-      return { title: `⚾ ${p.player_name} is up to bat`, body: p.game || '' };
+      return { title: `⚾ ${p.player_name} is up to bat`, body: p.game || '', gamePk: p.game_pk ?? null };
     case 'atbat_result':
-      return { title: `${p.emoji || '💥'} ${p.player_name}: ${p.result || 'at-bat over'}`, body: p.detail || '' };
+      return { title: `${p.emoji || '💥'} ${p.player_name}: ${p.result || 'at-bat over'}`, body: p.detail || '', gamePk: p.game_pk ?? null };
     default:
       return { title: 'Notification', body: '' };
   }
@@ -16717,7 +16723,10 @@ function notifyPopHTML(){
     <div class="notify-item ${n.read?'':'unread'}" data-nid="${n.id}">
       <div class="notify-item-title">${escapeHTML(n.title || 'Notification')}</div>
       ${n.body ? `<div class="notify-item-body">${escapeHTML(n.body)}</div>` : ''}
-      <div class="notify-item-time">${timeAgo(n.ts)}</div>
+      <div class="notify-item-foot">
+        <div class="notify-item-time">${timeAgo(n.ts)}</div>
+        ${n.gamePk ? `<button type="button" class="notify-watch-btn" data-game-pk="${escapeHTML(String(n.gamePk))}">▶ Watch</button>` : ''}
+      </div>
     </div>`).join('');
 }
 
@@ -16837,9 +16846,9 @@ async function primeAllSimulations(){
  *  by the local instant-add and the Supabase realtime echo of the same
  *  alert. If an item with this key already exists, the echo is skipped —
  *  so the bell never shows two entries for one at-bat. */
-function pushAppNotification({ title, body = '', id = null, ts = Date.now(), read = false, dedupeKey = null } = {}){
+function pushAppNotification({ title, body = '', id = null, ts = Date.now(), read = false, dedupeKey = null, gamePk = null } = {}){
   if(dedupeKey && notifyItems.some(n => n.dedupeKey === dedupeKey)) return;   // realtime echo of an alert already shown locally
-  notifyItems.unshift({ id: id ?? `n${Date.now()}`, title, body, ts, read, dedupeKey });
+  notifyItems.unshift({ id: id ?? `n${Date.now()}`, title, body, ts, read, dedupeKey, gamePk });
   notifyItems = notifyItems.slice(0, 50);   // cap so this can't grow unbounded
   renderNotifyBtn();
   const pop = document.getElementById('notifyPop');
@@ -16874,6 +16883,17 @@ function renderNotifyPop(){
     e.stopPropagation();
     await toggleNotifications();
     renderNotifyPop();   // re-render footer with the new label
+  });
+  // Watch: jumps straight into that game's live gamecast, reusing the exact
+  // same modal Game Radar already opens — no separate modal path to keep
+  // in sync with it. Closes the notification popup first so the newly-
+  // opened gamecast modal isn't sitting underneath it.
+  pop.querySelectorAll('.notify-watch-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeNotifyPop();
+      openRadarGamecastModal(btn.dataset.gamePk);
+    });
   });
 }
 
