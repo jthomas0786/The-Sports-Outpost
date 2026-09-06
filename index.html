@@ -6595,6 +6595,9 @@ function filteredPlayers(){
       return false;
     });
   }
+  if(allPlayersSort === 'tso_edge'){
+    return list.sort((a,b)=> tsoEdgeFor(b) - tsoEdgeFor(a));
+  }
   const simCfg = simSortCfg(allPlayersSort);
   if(simCfg){
     if(minGradeFilter){
@@ -7179,6 +7182,9 @@ function filterBarHTML(shown, total){
       <div class="filter-sort">
         <span>Sort by</span>
         <select id="filterSort">
+          <optgroup label="Matchup">
+            <option value="tso_edge" ${allPlayersSort==='tso_edge'?'selected':''}>TSO Edge (high to low)</option>
+          </optgroup>
           <optgroup label="Graded props">
             ${ALL_SORTS.map(o=>`<option value="${o.id}" ${allPlayersSort===o.id?'selected':''}>${o.label}</option>`).join('')}
           </optgroup>
@@ -7198,10 +7204,13 @@ function renderAllPlayers(){
   const total = allBatters.filter(isPlayable).length;
   const list = filteredPlayers();
   const simCfg = simSortCfg(allPlayersSort);
+  const edgeSort = allPlayersSort === 'tso_edge';
   const sortDef = FILTER_DEFS.find(d=>d.id===allPlayersSort);
-  const sortLabel = simCfg
-    ? ALL_SORTS.find(o=>o.id===allPlayersSort).label
-    : (sortDef ? sortDef.label + (['avg','hr','barrel','ev','hardHit','xwoba','xslg','launchAngle'].includes(sortDef.id) && rangeFilter ? ` (${rangeFilter==='last10'?'L10':'L5'})` : '') : 'HR Probability');
+  const sortLabel = edgeSort
+    ? 'TSO Edge'
+    : simCfg
+      ? ALL_SORTS.find(o=>o.id===allPlayersSort).label
+      : (sortDef ? sortDef.label + (['avg','hr','barrel','ev','hardHit','xwoba','xslg','launchAngle'].includes(sortDef.id) && rangeFilter ? ` (${rangeFilter==='last10'?'L10':'L5'})` : '') : 'HR Probability');
 
   // Same compact card template as the Top 20 tabs, so scanning feels identical.
   const propTab = simCfg ? ALL_SORTS.find(o=>o.id===allPlayersSort).sim : 'hr';
@@ -7211,8 +7220,11 @@ function renderAllPlayers(){
     // otherwise it's the raw stat being sorted on.
     const simData = simCfg ? simulatePlayer(p)[simCfg.key] : null;
     const gr = simCfg ? gradeFor(simCfg.grade, simData.exact) : null;
-    const sortVal = simCfg ? simData.pct : (sortDef ? sortDef.get(p) : simulatePlayer(p).hr.pct);
-    const display = simCfg ? `${simData.pct}%`
+    const sortVal = edgeSort ? tsoEdgeFor(p)
+                  : simCfg ? simData.pct
+                  : (sortDef ? sortDef.get(p) : simulatePlayer(p).hr.pct);
+    const display = edgeSort ? String(sortVal)
+                  : simCfg ? `${simData.pct}%`
                   : (Number.isInteger(sortVal) ? sortVal : (+sortVal).toFixed(sortDef.step < 0.01 ? 3 : 1));
     const windTemp = g.roof==='open-air'
       ? `${g.tempF!=null ? g.tempF+'°F' : ''} ${g.windMph!=null ? 'wind '+windDirLabel(g.windDeg)+' '+g.windMph+'mph' : ''}`.trim()
@@ -13076,6 +13088,55 @@ function platoonSplitHTML(p, pitcher){
 
 
 /**
+ * Canonical TSO Edge score used by both the Player Modal and All Players sorting.
+ * Keeping the math in one place guarantees that the number used to rank the
+ * board is exactly the number the user sees after opening that player's modal.
+ */
+function tsoEdgeFor(p){
+  const sp = p?.oppPitcher || {};
+  const detail = p?.detail || {};
+  const batHandRaw = String(p?.hand || '?').toUpperCase();
+  const throwHand = String(sp?.throws || '?').toUpperCase();
+  const effectiveBatHand = batHandRaw === 'S'
+    ? (throwHand === 'R' ? 'L' : throwHand === 'L' ? 'R' : 'S')
+    : batHandRaw;
+  const batterSplitKey = throwHand === 'L' ? 'vsLHP' : throwHand === 'R' ? 'vsRHP' : null;
+  const pitcherSplitKey = effectiveBatHand === 'L' ? 'vsLHP' : effectiveBatHand === 'R' ? 'vsRHP' : null;
+  const bs = batterSplitKey ? p?.splits?.[batterSplitKey] : null;
+  const ps = pitcherSplitKey ? sp?.splits?.[pitcherSplitKey] : null;
+  const clamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+  const zones = detail?.zones || {};
+  const zoneRows = [1,2,3,4,5,6,7,8,9].map(n=>zones[n] || zones[String(n)] || {});
+  const zAB = zoneRows.reduce((a,d)=>a+(Number(d.abs)||0),0);
+  const zH  = zoneRows.reduce((a,d)=>a+(Number(d.hits)||0),0);
+  const zoneBA = zAB ? zH/zAB : null;
+
+  const arsenal = Array.isArray(sp?.arsenal)
+    ? [...sp.arsenal].sort((a,b)=>(b.usagePct||0)-(a.usagePct||0)).slice(0,5)
+    : [];
+  const pt = detail?.pitchTypes || {};
+  let weightedPitchAvgNum = 0, weightedPitchAvgDen = 0;
+  arsenal.forEach(a=>{
+    const d = pt[a.code];
+    if(d?.avg!=null && a.usagePct!=null){
+      weightedPitchAvgNum += Number(d.avg) * Number(a.usagePct);
+      weightedPitchAvgDen += Number(a.usagePct);
+    }
+  });
+  const weightedPitchAvg = weightedPitchAvgDen ? weightedPitchAvgNum/weightedPitchAvgDen : null;
+
+  let edge = 50;
+  if(bs?.ops!=null) edge += clamp((Number(bs.ops)-.750)*42,-8,8);
+  if(ps?.ops!=null) edge += clamp((Number(ps.ops)-.750)*42,-8,8);
+  if(sp?.hr9!=null) edge += clamp((Number(sp.hr9)-1.15)*7,-5,6);
+  if(sp?.k9!=null) edge += clamp((9.0-Number(sp.k9))*1.25,-5,5);
+  if(weightedPitchAvg!=null) edge += clamp((weightedPitchAvg-.250)*48,-6,6);
+  if(zoneBA!=null) edge += clamp((zoneBA-.250)*28,-4,4);
+  return Math.round(clamp(edge,25,75));
+}
+
+/**
  * Matchup Mix — a single visual summary of tonight's batter/pitcher fit.
  * Uses only data already shipped in slate.json: hitter/pitcher platoon splits,
  * hitter Statcast zone BA, hitter results by pitch type, and starter arsenal.
@@ -13150,16 +13211,8 @@ function matchupMixHTML(p){
     </div>`;
   }).join('') : `<div class="ab-empty">Starter pitch mix unavailable.</div>`;
 
-  // Directional edge score. Every term is bounded so a single small-sample
-  // split cannot dominate the visual. This is intentionally NOT a probability.
-  let edge = 50;
-  if(bs?.ops!=null) edge += clampMM((Number(bs.ops)-.750)*42,-8,8);
-  if(ps?.ops!=null) edge += clampMM((Number(ps.ops)-.750)*42,-8,8); // higher OPS allowed helps hitter
-  if(sp?.hr9!=null) edge += clampMM((Number(sp.hr9)-1.15)*7,-5,6);
-  if(sp?.k9!=null) edge += clampMM((9.0-Number(sp.k9))*1.25,-5,5);
-  if(weightedPitchAvg!=null) edge += clampMM((weightedPitchAvg-.250)*48,-6,6);
-  if(zoneBA!=null) edge += clampMM((zoneBA-.250)*28,-4,4);
-  edge = Math.round(clampMM(edge,25,75));
+  // Canonical score also powers the All Players TSO Edge sort.
+  const edge = tsoEdgeFor(p);
   const edgeLabel = edge>=62 ? 'Batter Edge' : edge>=55 ? 'Slight Batter Edge' : edge<=38 ? 'Pitcher Edge' : edge<=45 ? 'Slight Pitcher Edge' : 'Near Even';
   const edgeColor = edge>=55 ? '#6edcff' : edge<=45 ? '#f4c430' : '#9caac0';
 
