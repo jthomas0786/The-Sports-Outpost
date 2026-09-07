@@ -380,6 +380,173 @@ def compute_windowed_statcast(df, n_games, min_bbe, min_pa, min_ab):
     return out
 
 
+
+
+# ---------------------------------------------------------------------------
+# Matchup Mix zone-comparison support
+# ---------------------------------------------------------------------------
+# The Player Modal's Zone Comparison view compares the hitter's own results in
+# each Statcast strike-zone cell against his personal baseline, then weights
+# those cells by where tonight's starter actually throws.  Keeping the raw
+# ingredients in slate.json means the browser can render the view instantly and
+# the All Players TSO Edge sort can use the exact same data without a second
+# network request.
+
+_WHIFF_DESCRIPTIONS = {
+    "swinging_strike", "swinging_strike_blocked", "missed_bunt",
+}
+
+
+def _pct(num, den):
+    return round(100.0 * num / den, 1) if den else None
+
+
+def _zone_quality_metrics(grp):
+    """Raw hitter contact-quality rates for one dataframe slice."""
+    if grp is None or grp.empty:
+        return {
+            "pitches": 0, "swings": 0, "contactPct": None,
+            "bbe": 0, "barrelPct": None, "hrRate": None,
+            "hardHitPct": None,
+        }
+
+    desc = grp["description"].fillna("").astype(str) if "description" in grp.columns else None
+    if desc is not None:
+        swing_mask = desc.str.contains("swing|foul|hit_into_play", case=False, na=False)
+        whiff_mask = desc.isin(_WHIFF_DESCRIPTIONS)
+        swings = int(swing_mask.sum())
+        whiffs = int(whiff_mask.sum())
+    else:
+        swings = whiffs = 0
+
+    bbe_df = grp[grp["launch_speed"].notna()] if "launch_speed" in grp.columns else grp.iloc[0:0]
+    bbe = int(len(bbe_df))
+
+    barrels = 0
+    if bbe and "launch_speed_angle" in bbe_df.columns:
+        import pandas as pd
+        lsa = pd.to_numeric(bbe_df["launch_speed_angle"], errors="coerce")
+        barrels = int((lsa == 6).sum())
+    elif bbe and "barrel" in bbe_df.columns:
+        barrels = int((bbe_df["barrel"] == 1).sum())
+
+    hard_hits = int((bbe_df["launch_speed"] >= 95).sum()) if bbe else 0
+    homers = int((grp["events"] == "home_run").sum()) if "events" in grp.columns else 0
+
+    return {
+        "pitches": int(len(grp)),
+        "swings": swings,
+        "contactPct": _pct(max(0, swings - whiffs), swings),
+        "bbe": bbe,
+        "barrelPct": _pct(barrels, bbe),
+        "hrRate": _pct(homers, bbe),
+        "hardHitPct": _pct(hard_hits, bbe),
+    }
+
+
+def _batter_zone_group(df):
+    """Baseline + zone 1-9 hitter metrics for one pitcher-handedness slice."""
+    if df is None or df.empty:
+        return None
+    baseline = _zone_quality_metrics(df)
+    zones = {}
+    if "zone" in df.columns:
+        for n in range(1, 10):
+            grp = df[df["zone"] == n]
+            if not grp.empty:
+                zones[n] = _zone_quality_metrics(grp)
+    return {
+        "pitches": int(len(df)),
+        "baseline": baseline,
+        "zones": zones,
+    }
+
+
+def build_batter_zone_comparison(df):
+    """
+    Hitter zone-quality profile used by Matchup Mix.
+
+    The same metrics are stored overall and split by pitcher handedness.  The
+    frontend prefers tonight's relevant split, but falls back to the all-hand
+    sample when the split is too thin.  These are RAW rates; the 0-100 matchup
+    scores are deliberately calculated in one place in index.html so the UI and
+    TSO Edge ranking can never drift apart.
+    """
+    out = {"all": _batter_zone_group(df)}
+    if "p_throws" in df.columns:
+        out["vsLHP"] = _batter_zone_group(df[df["p_throws"] == "L"])
+        out["vsRHP"] = _batter_zone_group(df[df["p_throws"] == "R"])
+    else:
+        out["vsLHP"] = None
+        out["vsRHP"] = None
+    return out
+
+
+def _pitcher_zone_group(df):
+    """Pitcher usage for Statcast zones 1-9; percentages use all zoned pitches."""
+    if df is None or df.empty or "zone" not in df.columns:
+        return None
+    zoned = df[df["zone"].notna()]
+    total = int(len(zoned))
+    if not total:
+        return None
+    zones = {}
+    for n in range(1, 10):
+        cnt = int((zoned["zone"] == n).sum())
+        zones[n] = {
+            "pitches": cnt,
+            # Percent of ALL classified pitches, including chase zones 11-14.
+            # That way "14%" means 14% of everything he threw, not 14% of only
+            # the pitches that happened to be inside the strike zone.
+            "usagePct": round(100.0 * cnt / total, 1),
+        }
+    top = sorted(range(1, 10), key=lambda n: zones[n]["pitches"], reverse=True)
+    in_zone = sum(zones[n]["pitches"] for n in range(1, 10))
+    return {
+        "pitches": total,
+        "inZonePitches": in_zone,
+        "inZonePct": round(100.0 * in_zone / total, 1),
+        "topZones": [n for n in top if zones[n]["pitches"] > 0][:7],
+        "zones": zones,
+    }
+
+
+def fetch_pitcher_zone_profiles(player_ids, days=60):
+    """
+    Recent pitcher location tendencies for Matchup Mix Zone Comparison.
+
+    We pull only tonight's probable starters and keep a compact 1-9 zone usage
+    profile overall plus vs LHB/RHB.  This is part of the optional Statcast
+    enrichment layer, so a Savant outage still leaves the core slate usable.
+    """
+    from pybaseball import statcast_pitcher
+    from datetime import date, timedelta
+
+    end = date.today()
+    start = end - timedelta(days=days)
+    out = {}
+    for n, pid in enumerate(player_ids, 1):
+        if n % 10 == 0:
+            log(f"  pitcher zones {n}/{len(player_ids)}")
+        try:
+            df = statcast_pitcher(start.isoformat(), end.isoformat(), pid)
+        except Exception:
+            continue
+        if df is None or df.empty:
+            continue
+        profile = {
+            "windowDays": days,
+            "all": _pitcher_zone_group(df),
+            "vsLHB": None,
+            "vsRHB": None,
+        }
+        if "stand" in df.columns:
+            profile["vsLHB"] = _pitcher_zone_group(df[df["stand"] == "L"])
+            profile["vsRHB"] = _pitcher_zone_group(df[df["stand"] == "R"])
+        out[str(pid)] = profile
+    return out
+
+
 def fetch_batter_detail(player_ids, season, days=45):
     """
     Per-hitter Statcast detail that only exists in the raw pitch-level data:
@@ -463,6 +630,7 @@ def fetch_batter_detail(player_ids, season, days=45):
         out[str(pid)] = {
             "windowDays": days,
             "zones": zones,
+            "zoneComparison": build_batter_zone_comparison(df),
             "pitchTypes": pitches,
             "battedBalls": points,
             "statcastL5": compute_windowed_statcast(df, 5,  min_bbe=3, min_pa=8,  min_ab=6),
@@ -478,6 +646,8 @@ def main():
                     help="days before the cached leaderboard is considered stale")
     ap.add_argument("--detail-days", type=int, default=45,
                     help="lookback window for per-hitter zone/pitch-type data")
+    ap.add_argument("--pitcher-zone-days", type=int, default=60,
+                    help="lookback window for probable-starter zone usage")
     ap.add_argument("--skip-detail", action="store_true",
                     help="skip the slow per-hitter pitch-level pull")
     args = ap.parse_args()
@@ -514,7 +684,18 @@ def main():
                 slate_ids.append(h["id"])
     slate_ids = list(dict.fromkeys(slate_ids))
 
+    # Probable starters are a much smaller set than hitters, so the extra raw
+    # Statcast pulls for zone usage are modest compared with hitter detail.
+    pitcher_ids = []
+    for game in slate["games"]:
+        for side in ("away", "home"):
+            pitcher = game[side].get("pitcher") or {}
+            if pitcher.get("id"):
+                pitcher_ids.append(pitcher["id"])
+    pitcher_ids = list(dict.fromkeys(pitcher_ids))
+
     detail = {}
+    pitcher_zones = {}
     if not args.skip_detail:
         log(f"fetching pitch-level detail for {len(slate_ids)} hitters (this is the slow part)…")
         try:
@@ -523,6 +704,22 @@ def main():
         except Exception as e:
             log(f"batter detail failed ({e}) — zone/pitch-type charts will be unavailable")
             slate.setdefault("warnings", []).append("Statcast pitch-level detail unavailable")
+
+        log(f"fetching recent zone usage for {len(pitcher_ids)} probable starters…")
+        try:
+            pitcher_zones = fetch_pitcher_zone_profiles(pitcher_ids, days=args.pitcher_zone_days)
+            log(f"pitcher zone profiles retrieved for {len(pitcher_zones)} starters")
+        except Exception as e:
+            log(f"pitcher zone detail failed ({e}) — Zone Comparison will use its fallback state")
+            slate.setdefault("warnings", []).append("Statcast pitcher zone detail unavailable")
+
+    # Attach starter zone profiles before hitters are adapted in the browser.
+    for game in slate["games"]:
+        for side in ("away", "home"):
+            pitcher = game[side].get("pitcher") or {}
+            z = pitcher_zones.get(str(pitcher.get("id")))
+            if z:
+                pitcher["zoneProfile"] = z
 
     matched = missing = 0
     for game in slate["games"]:
