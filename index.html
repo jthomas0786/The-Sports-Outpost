@@ -1708,6 +1708,13 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-kpi-tile span{ font-family:'Oswald',sans-serif; font-size:9.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--text-muted); }
 .cc-section{ margin-bottom:22px; }
 .cc-section:last-child{ margin-bottom:0; }
+/* Baseball Command Center: watch list + threat alerts share one desktop row.
+   They stack again on tablets/phones so neither list gets cramped. */
+.cc-baseball-duo{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:18px; align-items:start; margin-bottom:22px; }
+.cc-baseball-duo .cc-section{ min-width:0; margin-bottom:0; padding:14px 15px; border:1px solid var(--border); border-radius:12px; background:rgba(255,255,255,.018); }
+@media (max-width:760px){
+  .cc-baseball-duo{ grid-template-columns:1fr; gap:16px; }
+}
 .cc-alert-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
 .cc-alert-row:first-of-type{ border-top:none; }
 .cc-alert-avatar{ width:32px; height:32px; border-radius:50%; flex-shrink:0; object-fit:cover; border:1.5px solid var(--live-green); }
@@ -10925,6 +10932,12 @@ function ccFindBatterForModal(playerId, playerName){
 function openCommandCenterBatter(playerId, playerName){
   const p = ccFindBatterForModal(playerId, playerName);
   if(!p) return;
+  const ccBody = document.querySelector('#ccBackdrop .cc-body');
+  const activeCCTab = document.querySelector('#ccBackdrop .cc-tab.active')?.dataset?.tab || 'baseball';
+  // Preserve the exact Command Center screen (sport tab + scroll position) so
+  // closing the player modal returns here instead of dropping the user back
+  // onto the page underneath.
+  setNextModalOrigin({ type:'command-center', tab:activeCCTab, scrollTop:ccBody?.scrollTop || 0 });
   closeCommandCenter();
   // Let the Command Center begin its close transition before opening the
   // shared player modal above it. This prevents the two overlays competing.
@@ -10995,13 +11008,15 @@ function ccBuildBaseballHTML(){
   return `
     <div class="cc-col-title">Baseball</div>
     ${kpiRow}
-    <div class="cc-section">
-      <div class="cc-section-label">Your Watch List <span>${watchedBatters.length}</span></div>
-      ${watchHTML}
-    </div>
-    <div class="cc-section">
-      <div class="cc-section-label">Threat Alerts — Elite EV, No HR <span>${threats.length||''}</span></div>
-      ${alertsHTML}
+    <div class="cc-baseball-duo">
+      <div class="cc-section">
+        <div class="cc-section-label">Your Watch List <span>${watchedBatters.length}</span></div>
+        ${watchHTML}
+      </div>
+      <div class="cc-section">
+        <div class="cc-section-label">Threat Alerts — Elite EV, No HR <span>${threats.length||''}</span></div>
+        ${alertsHTML}
+      </div>
     </div>
     <div class="cc-section">
       <div class="cc-section-label">Live Games <span>${liveCount||''}</span></div>
@@ -11475,6 +11490,7 @@ function openMlbLiveGamecastModal(gamePk){
   const g=games.find(x=>String(x.gamePk)===String(gamePk));
   if(!g) return;
   if(slateBucket(g)!=='live'){ openGameModal(g); return; }
+  beginModalOpen({type:'gamecast', gamePk:String(gamePk)});
   const ls=g.liveScore||{};
   modalBody.dataset.gcGid=g.id;
   modalBody.innerHTML=`<div class="mlb-live-gc-shell"><button class="modal-close" id="modalClose">&times;</button>
@@ -13261,9 +13277,119 @@ document.getElementById('dayToggle').addEventListener('click', (e)=>{
 const overlay = document.getElementById('modalOverlay');
 const modalBody = document.getElementById('modalBody');
 function pctl(val, max){ return Math.min(100, Math.round((val/max)*100)); }
-function closeModal(){ const gcGid=modalBody?.dataset?.gcGid; if(gcGid && _gcControllers?.[gcGid]){ try{ _gcControllers[gcGid].destroy(); }catch(e){} delete _gcControllers[gcGid]; } if(modalBody?.dataset) delete modalBody.dataset.gcGid; overlay.classList.remove('open'); modalBody.style.height = ''; document.body.classList.remove('modal-open'); }
+
+// ---- Modal navigation history ------------------------------------------------
+// The shared MLB modal used to overwrite whatever was open before it. That
+// meant Game -> Player -> close dropped all the way back to the page, and a
+// Player opened from Command Center closed back to the page as well. Treat the
+// overlay like a tiny navigation stack instead: close always returns one level.
+const _modalNavStack = [];
+let _modalCurrent = null;
+let _modalRestoring = false;
+let _modalPendingOrigin = null;
+
+function setNextModalOrigin(ctx){ _modalPendingOrigin = ctx || null; }
+
+function modalPageContext(){
+  return { type:'page', tab:activeTab, scrollX:window.scrollX||0, scrollY:window.scrollY||0 };
+}
+function modalCommandCenterContext(){
+  const body=document.querySelector('#ccBackdrop .cc-body');
+  return {
+    type:'command-center',
+    tab:document.querySelector('#ccBackdrop .cc-tab.active')?.dataset?.tab || 'baseball',
+    scrollTop:body?.scrollTop || 0
+  };
+}
+function cleanupModalResources(){
+  const gcGid=modalBody?.dataset?.gcGid;
+  if(gcGid && _gcControllers?.[gcGid]){
+    try{ _gcControllers[gcGid].destroy(); }catch(e){}
+    delete _gcControllers[gcGid];
+  }
+  if(modalBody?.dataset) delete modalBody.dataset.gcGid;
+}
+function beginModalOpen(desc){
+  if(_modalRestoring){
+    _modalCurrent=desc;
+    document.body.classList.add('modal-open');
+    return;
+  }
+  let origin=null;
+  if(overlay.classList.contains('open') && _modalCurrent){
+    origin=_modalCurrent;
+  }else if(_modalPendingOrigin){
+    origin=_modalPendingOrigin;
+    _modalPendingOrigin=null;
+  }else if(document.getElementById('ccBackdrop')?.classList.contains('is-open')){
+    origin=modalCommandCenterContext();
+  }else{
+    origin=modalPageContext();
+  }
+  _modalNavStack.push(origin);
+  if(overlay.classList.contains('open')) cleanupModalResources();
+  _modalCurrent=desc;
+  document.body.classList.add('modal-open');
+}
+function restoreCommandCenterContext(ctx){
+  const backdrop=document.getElementById('ccBackdrop');
+  const panel=backdrop?.querySelector('.cc-panel');
+  if(!backdrop || !panel) return;
+  panel.style.setProperty('--cc-origin-x','50%');
+  panel.style.setProperty('--cc-origin-y','50%');
+  backdrop.classList.add('is-open');
+  const tab=panel.querySelector(`.cc-tab[data-tab="${ctx.tab||'baseball'}"]`) || panel.querySelector('.cc-tab[data-tab="baseball"]');
+  if(tab) switchCCTab(tab);
+  requestAnimationFrame(()=>{
+    const body=backdrop.querySelector('.cc-body');
+    if(body) body.scrollTop=Number(ctx.scrollTop)||0;
+  });
+}
+function restoreMainModal(desc){
+  if(!desc) return;
+  _modalRestoring=true;
+  try{
+    if(desc.type==='batter' && desc.player) openBatterModal(desc.player);
+    else if(desc.type==='pitcher' && desc.player) openPitcherModal(desc.player);
+    else if(desc.type==='game' && desc.game) openGameModal(desc.game);
+    else if(desc.type==='gamecast' && desc.gamePk!=null) openMlbLiveGamecastModal(desc.gamePk);
+  }finally{
+    _modalRestoring=false;
+  }
+}
+function closeModal(){
+  cleanupModalResources();
+  modalBody.style.height='';
+  const previous=_modalNavStack.pop() || null;
+  _modalCurrent=null;
+
+  // Another modal was directly underneath this one (for example Game ->
+  // Player). Rebuild that exact modal instead of closing the overlay.
+  if(previous && ['batter','pitcher','game','gamecast'].includes(previous.type)){
+    restoreMainModal(previous);
+    return;
+  }
+
+  overlay.classList.remove('open');
+  document.body.classList.remove('modal-open');
+
+  if(previous?.type==='command-center'){
+    restoreCommandCenterContext(previous);
+    return;
+  }
+  if(previous?.type==='page'){
+    // Normally the underlying page never changes, but preserve its tab too in
+    // case a future modal action navigates elsewhere before closing.
+    if(previous.tab && activeTab!==previous.tab){
+      activeTab=previous.tab;
+      renderTabs();
+      renderList();
+    }
+    requestAnimationFrame(()=>window.scrollTo(previous.scrollX||0, previous.scrollY||0));
+  }
+}
 overlay.addEventListener('click', (e)=>{ if(e.target===overlay) closeModal(); });
-document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && overlay.classList.contains('open')) closeModal(); });
 function wireTabs(playerName, player){
   wireTabs._player = player;
   modalBody.querySelectorAll('.tab').forEach(t=>{
@@ -17425,6 +17551,7 @@ function propFactorBlockHTML(p, prop){
 }
 
 function openBatterModal(p){
+  beginModalOpen({type:'batter', player:p});
   // PLAYER CARD v2 — single-scroll re-skin. All data still flows through the
   // existing helpers (simulatePlayer, gradeFor, pctlBarHTML, arsenal/zone
   // renderers, loadLast10, renderContactQuality, propFactorBlockHTML).
@@ -17888,6 +18015,7 @@ function gamePlayersHTML(g){
 }
 
 function openGameModal(g){
+  beginModalOpen({type:'game', game:g});
   // g.odds is null whenever no sportsbook feed is configured (the default), so
   // everything below must tolerate its absence — dereferencing it unguarded
   // threw before the modal ever rendered, which made cards look unclickable.
@@ -17992,6 +18120,7 @@ function openGameModal(g){
 }
 
 function openPitcherModal(p){
+  beginModalOpen({type:'pitcher', player:p});
   const g = p.game;
   // allPitchers stores the OPPONENT on `opp`, so a pitcher's own club is
   // whichever side of this game he isn't facing.
