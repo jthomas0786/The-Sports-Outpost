@@ -1643,7 +1643,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
    already used elsewhere for that. Red/green alert state driven by
    refreshCommandCenterAlertState(). ============ */
 .cc-global-trigger{
-  position:fixed; left:18px; bottom:calc(var(--mobile-nav-h,60px) + 16px); z-index:900;
+  position:fixed; left:18px; bottom:calc(var(--mobile-nav-h,60px) + 16px + var(--cc-betslip-offset,0px)); z-index:900;
   display:inline-flex; align-items:center; gap:9px; font-family:'Oswald',sans-serif; font-size:12.5px; font-weight:600;
   letter-spacing:.04em; text-transform:uppercase; color:var(--text); padding:12px 20px; border-radius:999px;
   background:#0C203D; border:1px solid var(--border-bright); cursor:pointer;
@@ -1653,7 +1653,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-global-trigger:hover{ background:rgba(45,127,255,0.22); }
 .cc-trigger-icon{ height:14px; width:auto; display:block; }
 @media (min-width:1024px){
-  .cc-global-trigger{ left:calc(var(--sb-w, 248px) + 18px); bottom:18px; }
+  .cc-global-trigger{ left:calc(var(--sb-w, 248px) + 18px); bottom:calc(18px + var(--cc-betslip-offset,0px)); }
 }
 .cc-global-trigger.has-alert .cc-trigger-dot{
   background:var(--hr-red, #ff3b3b); box-shadow:0 0 8px var(--hr-red, #ff3b3b);
@@ -1714,6 +1714,13 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-alert-text{ flex:1; font-family:'Oswald',sans-serif; font-size:12.5px; color:var(--text); }
 .cc-alert-text small{ display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); margin-top:1px; }
 .cc-alert-time{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
+.cc-player-link{ appearance:none; -webkit-appearance:none; width:100%; color:inherit; background:transparent; border:0; text-align:left; cursor:pointer; border-radius:8px; transition:background .14s ease, transform .14s ease; }
+.cc-player-link:hover,.cc-player-link:focus-visible{ background:rgba(45,127,255,.10); }
+.cc-player-link:active{ transform:translateY(1px); }
+.cc-player-link .cc-target-name small{ display:block; margin-top:2px; font:700 9.5px 'JetBrains Mono','Space Mono',monospace; color:var(--text-muted); }
+.cc-watch-star{ color:#f4c430; font-size:13px; line-height:1; flex:0 0 auto; }
+.cc-section-label{ font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.cc-section-label span{ font:700 9px 'JetBrains Mono','Space Mono',monospace; color:var(--accent-bright); }
 .cc-empty-note{ font-family:'JetBrains Mono',monospace; font-size:11.5px; color:var(--text-muted); line-height:1.6;
   background:var(--surface); border:1px dashed var(--border); border-radius:10px; padding:14px; }
 
@@ -10899,6 +10906,38 @@ function markCommandCenterAlertsSeen(){
   document.getElementById('ccGlobalTrigger')?.classList.remove('has-alert');
 }
 
+function ccFindBatterForModal(playerId, playerName){
+  const id = String(playerId ?? '');
+  const name = String(playerName || '');
+  let p = allBatters.find(x => id && String(x.id ?? '') === id);
+  if(!p && name) p = allBatters.find(x => normName(x.name||'') === normName(name));
+  if(p) return p;
+  // Live substitutions can exist on a game roster even if they were not in
+  // the initial allBatters array. Use the current game rosters as a fallback.
+  for(const g of games){
+    const roster = [...(g.awayRoster||[]), ...(g.homeRoster||[])];
+    p = roster.find(x => (id && String(x.id ?? '') === id) || (name && normName(x.name||'') === normName(name)));
+    if(p) return p;
+  }
+  return null;
+}
+
+function openCommandCenterBatter(playerId, playerName){
+  const p = ccFindBatterForModal(playerId, playerName);
+  if(!p) return;
+  closeCommandCenter();
+  // Let the Command Center begin its close transition before opening the
+  // shared player modal above it. This prevents the two overlays competing.
+  setTimeout(() => openBatterModal(p), 70);
+}
+
+function wireCommandCenterPlayerLinks(root=document){
+  root?.querySelectorAll?.('.cc-player-link:not([data-cc-wired])').forEach(btn => {
+    btn.dataset.ccWired = '1';
+    btn.addEventListener('click', () => openCommandCenterBatter(btn.dataset.ccPlayerId, btn.dataset.ccPlayerName));
+  });
+}
+
 function ccBuildBaseballHTML(){
   const liveCount = games.filter(g => g.mlbStatus === 'Live').length;
   const hrToday = feedEvents.length;
@@ -10910,20 +10949,39 @@ function ccBuildBaseballHTML(){
     <div class="cc-kpi-tile"><b>${topProp ? Math.round(scoreFor('hr', topProp))+'%' : '—'}</b><span>Top HR Odds</span></div>
   </div>`;
 
-  // Elite exit velocity that did NOT leave the yard — a real near-miss log,
-  // not confirmed home runs. Pulled from every live game's actual
-  // play-by-play (g.liveScore.plays), each carrying real hitData when the
-  // play was a batted ball. event !== 'Home Run' is what makes this
-  // genuinely different from a home-run list: same 108+ mph bar, but for
-  // the ball that got caught, not the one that left the park.
+  // Watch list: use the same real batter objects that power player cards and
+  // the player modal so tapping a name always opens the canonical analysis.
+  const watchedBatters = [...watchedPlayerIds]
+    .map(id => ccFindBatterForModal(id, ''))
+    .filter(Boolean)
+    .sort((a,b) => (simulatePlayer(b).hr?.exact ?? 0) - (simulatePlayer(a).hr?.exact ?? 0));
+  const watchHTML = watchedBatters.length
+    ? watchedBatters.map(p => {
+        const sim = simulatePlayer(p);
+        const gr = gradeFor('hr', sim.hr.exact).g;
+        let edge = null;
+        try{ edge = tsoEdgeFor(p); }catch{}
+        return `<button type="button" class="cc-target-row cc-player-link" data-cc-player-id="${escapeHTML(String(p.id??''))}" data-cc-player-name="${escapeHTML(p.name||'')}">
+          ${headshotImgTag(p.name, 'cc-target-avatar-img', p.team||'', p.id||'')}
+          <span class="cc-watch-star" aria-hidden="true">★</span>
+          <span class="cc-target-name">${escapeHTML(p.name||'Unknown')}<small>${escapeHTML(p.team||'')} · HR ${sim.hr.pct}% · Grade ${escapeHTML(gr)}</small></span>
+          <span class="cc-target-stat">${edge!=null?`Edge ${edge}`:'Open'}</span>
+        </button>`;
+      }).join('')
+    : watchedPlayerIds.size
+      ? `<div class="cc-empty-note">Your watched batters are not on the current modeled slate yet.</div>`
+      : `<div class="cc-empty-note">No watched batters yet. Tap the star on any player card or player modal to add one.</div>`;
+
+  // Elite exit velocity that did NOT leave the yard — pulled from live MLB
+  // play-by-play. Each row is now a player-modal shortcut as well.
   const threats = computeThreatPlays()
     .sort((a,b) => (b.endTime ?? 0) - (a.endTime ?? 0));
   const alertsHTML = threats.length
-    ? threats.map(p => `<div class="cc-alert-row">
+    ? threats.map(p => `<button type="button" class="cc-alert-row cc-player-link" data-cc-player-id="${escapeHTML(String(p.batterId||''))}" data-cc-player-name="${escapeHTML(p.batterName||'')}">
         ${headshotImgTag(p.batterName, 'cc-alert-avatar', '', p.batterId||'')}
-        <div class="cc-alert-text">${escapeHTML(p.batterName||'Unknown')}<small>${Math.round(p.hitData.launchSpeed)} mph EV · ${escapeHTML(p.event||'')}${p.hitData.totalDistance?' · '+Math.round(p.hitData.totalDistance)+' ft':''} vs ${escapeHTML(p.pitcherName||'')}</small></div>
+        <span class="cc-alert-text">${escapeHTML(p.batterName||'Unknown')}<small>${Math.round(p.hitData.launchSpeed)} mph EV · ${escapeHTML(p.event||'')}${p.hitData.totalDistance?' · '+Math.round(p.hitData.totalDistance)+' ft':''} vs ${escapeHTML(p.pitcherName||'')}</small></span>
         <span class="cc-alert-time">${formatTimeAgo(p.endTime)}</span>
-      </div>`).join('')
+      </button>`).join('')
     : `<div class="cc-empty-note">No elite-EV (108+ mph) near-misses yet tonight.</div>`;
 
   const liveGames = games.filter(g => g.mlbStatus === 'Live').slice(0, 6);
@@ -10938,15 +10996,19 @@ function ccBuildBaseballHTML(){
     <div class="cc-col-title">Baseball</div>
     ${kpiRow}
     <div class="cc-section">
-      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Threat Alerts — Elite EV, No HR</div>
+      <div class="cc-section-label">Your Watch List <span>${watchedBatters.length}</span></div>
+      ${watchHTML}
+    </div>
+    <div class="cc-section">
+      <div class="cc-section-label">Threat Alerts — Elite EV, No HR <span>${threats.length||''}</span></div>
       ${alertsHTML}
     </div>
     <div class="cc-section">
-      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Live Games</div>
+      <div class="cc-section-label">Live Games <span>${liveCount||''}</span></div>
       ${gamesHTML}
     </div>
     <div class="cc-section" id="ccBaseballWagerTrend">
-      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">Your Win Rate — Last 10 Settled</div>
+      <div class="cc-section-label">Your Win Rate — Last 10 Settled</div>
       <div class="cc-empty-note">Sign in to see your wager history here.</div>
     </div>
   `;
@@ -11047,7 +11109,9 @@ function openCommandCenter(event, btn){
   const panel = backdrop.querySelector('.cc-panel');
   panel.style.setProperty('--cc-origin-x', originX);
   panel.style.setProperty('--cc-origin-y', originY);
-  document.getElementById('ccBaseballCol').innerHTML = ccBuildBaseballHTML();
+  const baseballHost = document.getElementById('ccBaseballCol');
+  baseballHost.innerHTML = ccBuildBaseballHTML();
+  wireCommandCenterPlayerLinks(baseballHost);
   ccLoadBaseballWagerTrend();
   backdrop.classList.add('is-open');
   markCommandCenterAlertsSeen();
@@ -11267,7 +11331,7 @@ async function markInfoModalSeen(){
   }catch(e){ /* non-critical */ }
 }
 const CC_SPORT_BUILDERS = {
-  baseball: () => { document.getElementById('ccBaseballCol').innerHTML = ccBuildBaseballHTML(); ccLoadBaseballWagerTrend(); },
+  baseball: () => { const host=document.getElementById('ccBaseballCol'); host.innerHTML = ccBuildBaseballHTML(); wireCommandCenterPlayerLinks(host); ccLoadBaseballWagerTrend(); },
   football: () => { document.getElementById('ccFootballCol').innerHTML = ccBuildFootballHTML(); },
   hockey:   () => { document.getElementById('ccHockeyCol').innerHTML = ccBuildHockeyHTML(); },
   basketball: () => { document.getElementById('ccBasketballCol').innerHTML = ccBuildBasketballHTML(); },
@@ -12989,6 +13053,7 @@ function renderFeed(){
 
 let foryouSub = null;
 let watchedPlayerIds = new Set();
+let watchedPlayerRows = [];
 let seenWatchUpKeys = new Set();
 let seenWatchResultKeys = new Set();
 let notifyItems = [];   // newest first: { id, title, body, ts, read }
@@ -14489,9 +14554,24 @@ function betslipText(){
   return head + legs.join(', ') + '.';
 }
 
+let ccObservedBetslipBar = null;
+const ccBetslipResizeObserver = typeof ResizeObserver === 'function'
+  ? new ResizeObserver(() => updateCommandCenterBetslipOffset())
+  : null;
+function updateCommandCenterBetslipOffset(){
+  const bar = document.getElementById('betslipBar');
+  const offset = bar ? Math.ceil(bar.getBoundingClientRect().height) + 10 : 0;
+  document.documentElement.style.setProperty('--cc-betslip-offset', `${offset}px`);
+  if(ccBetslipResizeObserver && bar !== ccObservedBetslipBar){
+    if(ccObservedBetslipBar) ccBetslipResizeObserver.unobserve(ccObservedBetslipBar);
+    ccObservedBetslipBar = bar;
+    if(bar) ccBetslipResizeObserver.observe(bar);
+  }
+}
+
 function renderBetslipBar(){
   let bar = document.getElementById('betslipBar');
-  if(!betslip.length){ if(bar) bar.remove(); return; }
+  if(!betslip.length){ if(bar) bar.remove(); updateCommandCenterBetslipOffset(); return; }
   if(!bar){
     bar = document.createElement('div');
     bar.id = 'betslipBar';
@@ -14597,6 +14677,9 @@ function renderBetslipBar(){
 
   const wagerBtn = document.getElementById('bsWager');
   if(wagerBtn) wagerBtn.onclick = () => openWagerPanel();
+  // Keep the floating Command Center button fully above the betslip, whether
+  // the slip is collapsed or expanded. ResizeObserver follows the transition.
+  requestAnimationFrame(updateCommandCenterBetslipOffset);
 }
 let betslipOpen = false;
 
@@ -18431,9 +18514,10 @@ async function toggleWatchFromButton(btn){
 // === PORTED FROM GITHUB: loadWatchlistCache ===
 async function loadWatchlistCache(){
   const s = social();
-  if(!s || !s.socialEnabled() || !s.getUser?.()) { watchedPlayerIds = new Set(); return; }
+  if(!s || !s.socialEnabled() || !s.getUser?.()) { watchedPlayerIds = new Set(); watchedPlayerRows = []; return; }
   const rows = await s.getWatchlist();
-  watchedPlayerIds = new Set(rows.map(r => String(r.player_id ?? '')));
+  watchedPlayerRows = Array.isArray(rows) ? rows : [];
+  watchedPlayerIds = new Set(watchedPlayerRows.map(r => String(r.player_id ?? '')));
   syncWatchlistToSW();
 }
 
