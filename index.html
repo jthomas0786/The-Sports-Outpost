@@ -8889,49 +8889,397 @@ async function _legacyFetchLiveWeather(){
     return true;
   }catch(e){ if(dot) dot.className = 'dot fallback'; return false; }
 }
-async function fetchLiveSchedule(){
-  const dot = document.getElementById('dotSchedule');
+// ---- Starter auto-refresh ---------------------------------------------------
+// Probable starters are the one part of the pregame model most likely to change
+// after the daily slate snapshot is built. Poll MLB every three minutes, and if
+// a TBD becomes official or MLB replaces a listed starter, rebuild the opposing
+// batter context in-place instead of waiting for a new site build/page reload.
+const STARTER_REFRESH_MS = 3 * 60 * 1000;
+const STARTER_PROFILE_TTL_MS = 30 * 60 * 1000;
+const STARTER_PROFILE_GAME_LIMIT = 10;
+const _starterProfileCache = new Map();
+const _starterProfileInflight = new Map();
+let _starterRefreshPromise = null;
+
+function mlbSeasonForLiveRefresh(){
+  const y = Number(String(slateMeta?.date || '').slice(0,4));
+  return Number.isFinite(y) && y >= 2000 ? y : new Date().getFullYear();
+}
+function mlbIpToInnings(ip){
+  if(ip == null) return 0;
+  const parts = String(ip).split('.');
+  const whole = Number(parts[0] || 0);
+  const frac = Number(parts[1] || 0);
+  return Math.max(0, whole + (frac === 1 ? 1/3 : frac === 2 ? 2/3 : 0));
+}
+async function mlbLiveJSON(url){
   try{
-    const date = currentDates.today;
-    const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}&hydrate=probablePitcher,linescore`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error('bad response');
-    const data = await res.json();
+    const r = await fetch(url, { cache:'no-store' });
+    if(!r.ok) return null;
+    return await r.json();
+  }catch(e){ return null; }
+}
+function mlbTrackedGameForSchedule(gm){
+  if(!gm) return null;
+  const pk = gm.gamePk != null ? String(gm.gamePk) : '';
+  if(pk){
+    const exact = games.find(g => String(g.gamePk ?? '') === pk);
+    if(exact) return exact;
+  }
+  const awayId = gm.teams?.away?.team?.id, homeId = gm.teams?.home?.team?.id;
+  const idToTeam = Object.fromEntries(Object.entries(TEAM_IDS).map(([k,v])=>[String(v),k]));
+  const away = idToTeam[String(awayId)], home = idToTeam[String(homeId)];
+  if(!away || !home) return null;
+  const candidates = games.filter(g => g.away === away && g.home === home);
+  if(candidates.length <= 1) return candidates[0] || null;
+  const target = Date.parse(gm.gameDate || '');
+  if(Number.isFinite(target)){
+    return candidates.slice().sort((a,b)=>Math.abs(Date.parse(a.startTimeUTC||'')-target)-Math.abs(Date.parse(b.startTimeUTC||'')-target))[0] || null;
+  }
+  return candidates[0] || null;
+}
 
-    // Reconcile our tracked games against the real live schedule: confirm/replace
-    // probable starters with whoever MLB actually has listed for this date.
-    const idToTeam = Object.fromEntries(Object.entries(TEAM_IDS).map(([k,v])=>[v,k]));
-    const scheduledGames = (data.dates && data.dates[0] && data.dates[0].games) || [];
-    scheduledGames.forEach(gm => {
-      const awayAbbr = idToTeam[gm.teams.away.team.id];
-      const homeAbbr = idToTeam[gm.teams.home.team.id];
-      if(!awayAbbr || !homeAbbr) return; // a team we're not tracking in this slate
-      const g = games.find(x => x.away===awayAbbr && x.home===homeAbbr);
-      if(!g) return;
-      g.gamePk = gm.gamePk;
-      g.mlbStatus = gm.status && gm.status.abstractGameState; // Preview / Live / Final
-      const applyPitcher = (slot, probable) => {
-        if(!probable || !probable.fullName) return;
-        if(probable.fullName !== g[slot].name){
-          // a different starter than our curated snapshot — swap in the real name,
-          // keep tendency stats at league-average placeholders since we haven't
-          // researched this specific pitcher's HR9/K9/barrel% yet
-          Object.assign(g[slot], {
-            id: probable.id || g[slot].id,
-            name: probable.fullName, hr9:1.05, k9:9.0, era:null, ip:null, hrAllowed:null, barrelAllowed:7.5,
-            mix:'Live-confirmed starter — detailed pitch-mix profile not yet synced', liveConfirmed:true
-          });
-        } else {
-          g[slot].liveConfirmed = true; // matches our curated data exactly
+function mlbPitchScope(){ return { pitches:0, zones:{}, pitchTypes:{} }; }
+function mlbAddPitchToScope(scope, zone, code){
+  if(!scope) return;
+  scope.pitches++;
+  if(code) scope.pitchTypes[code] = (scope.pitchTypes[code] || 0) + 1;
+  const z = Number(zone);
+  if(z >= 1 && z <= 9) scope.zones[z] = (scope.zones[z] || 0) + 1;
+}
+function mlbFinishZoneScope(scope){
+  const total = Number(scope?.pitches || 0);
+  const zones = {};
+  for(let n=1;n<=9;n++){
+    const count = Number(scope?.zones?.[n] || 0);
+    zones[n] = { pitches:count, usagePct: total ? +(count * 100 / total).toFixed(2) : 0 };
+  }
+  const topZones = [1,2,3,4,5,6,7,8,9].sort((a,b)=>(zones[b].pitches||0)-(zones[a].pitches||0));
+  return { pitches:total, zones, topZones };
+}
+function mlbSplitAccumulator(){ return { pa:0, ab:0, h:0, bb:0, hbp:0, sf:0, hr:0, tb:0 }; }
+function mlbAddPA(split, result){
+  if(!split || !result) return;
+  const ev = String(result.eventType || result.event || '').toLowerCase().replace(/\s+/g,'_');
+  if(!ev) return;
+  split.pa++;
+  if(ev === 'walk' || ev === 'intent_walk' || ev === 'intentional_walk'){ split.bb++; return; }
+  if(ev === 'hit_by_pitch'){ split.hbp++; return; }
+  if(ev === 'sac_fly' || ev === 'sacrifice_fly'){ split.sf++; return; }
+  if(ev === 'sac_bunt' || ev === 'sacrifice_bunt' || ev === 'catcher_interf') return;
+  split.ab++;
+  if(ev === 'single'){ split.h++; split.tb += 1; }
+  else if(ev === 'double'){ split.h++; split.tb += 2; }
+  else if(ev === 'triple'){ split.h++; split.tb += 3; }
+  else if(ev === 'home_run' || ev === 'home_run_inside_the_park'){ split.h++; split.hr++; split.tb += 4; }
+}
+function mlbFinishAllowedSplit(s){
+  if(!s || !s.pa) return null;
+  const avg = s.ab ? s.h / s.ab : null;
+  const slg = s.ab ? s.tb / s.ab : null;
+  const obDen = s.ab + s.bb + s.hbp + s.sf;
+  const obp = obDen ? (s.h + s.bb + s.hbp) / obDen : null;
+  return {
+    pa:s.pa, ab:s.ab, hr:s.hr,
+    avg:avg==null?null:+avg.toFixed(3),
+    slg:slg==null?null:+slg.toFixed(3),
+    obp:obp==null?null:+obp.toFixed(3),
+    ops:(obp==null||slg==null)?null:+(obp+slg).toFixed(3),
+  };
+}
+function mlbSeasonSplitFromStat(st){
+  if(!st) return null;
+  const avg = st.avg != null ? Number(st.avg) : null;
+  const slg = st.slg != null ? Number(st.slg) : null;
+  const obp = st.obp != null ? Number(st.obp) : null;
+  const ops = st.ops != null ? Number(st.ops) : (obp!=null && slg!=null ? obp+slg : null);
+  return {
+    pa:Number(st.plateAppearances ?? st.battersFaced ?? st.atBats ?? 0) || 0,
+    ab:Number(st.atBats ?? 0) || 0,
+    hr:Number(st.homeRuns ?? 0) || 0,
+    avg:Number.isFinite(avg)?avg:null, slg:Number.isFinite(slg)?slg:null,
+    obp:Number.isFinite(obp)?obp:null, ops:Number.isFinite(ops)?ops:null,
+    ip:st.inningsPitched ?? null,
+  };
+}
+async function mlbFetchPitcherSeasonSplits(id, season){
+  // StatsAPI supports situational split codes on the same endpoint already used
+  // elsewhere in this file. If a particular response omits them, the recent
+  // game-feed-derived splits below remain the fallback rather than guessing.
+  const url = `https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=statSplits&group=pitching&sitCodes=vl,vr&season=${season}`;
+  const j = await mlbLiveJSON(url);
+  if(!j) return null;
+  let left=null, right=null;
+  for(const block of (j.stats || [])){
+    for(const sp of (block.splits || [])){
+      const ident = `${sp.split?.code||''} ${sp.split?.description||''} ${sp.split?.abbreviation||''}`.toLowerCase();
+      const row = mlbSeasonSplitFromStat(sp.stat);
+      if(!row) continue;
+      if(ident.includes('vl') || ident.includes('left')) left = row;
+      else if(ident.includes('vr') || ident.includes('right')) right = row;
+    }
+  }
+  return (left || right) ? { vsLHP:left, vsRHP:right } : null;
+}
+
+async function mlbBuildRecentPitcherProfile(id, season){
+  const log = await mlbLiveJSON(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=gameLog&group=pitching&season=${season}&gameType=R`);
+  const rows = (log?.stats?.[0]?.splits || [])
+    .map(s => ({ gamePk:s.game?.gamePk, date:s.date || '' }))
+    .filter(x => x.gamePk)
+    .sort((a,b)=>String(b.date).localeCompare(String(a.date)))
+    .slice(0, STARTER_PROFILE_GAME_LIMIT);
+  if(!rows.length) return { arsenal:null, zoneProfile:null, splits:null };
+
+  const scopes = { all:mlbPitchScope(), vsLHB:mlbPitchScope(), vsRHB:mlbPitchScope() };
+  const splitL = mlbSplitAccumulator(), splitR = mlbSplitAccumulator();
+  const feeds = await Promise.all(rows.map(x => mlbLiveJSON(`https://statsapi.mlb.com/api/v1.1/game/${x.gamePk}/feed/live`)));
+  let detectedThrows = null;
+  for(const feed of feeds){
+    if(!detectedThrows){
+      detectedThrows = feed?.gameData?.players?.['ID'+id]?.pitchHand?.code || null;
+    }
+    for(const play of (feed?.liveData?.plays?.allPlays || [])){
+      const mu = play.matchup || {};
+      if(String(mu.pitcher?.id ?? '') !== String(id)) continue;
+      const side = String(mu.batSide?.code || mu.batterSide?.code || '').toUpperCase();
+      const sideScope = side === 'L' ? scopes.vsLHB : side === 'R' ? scopes.vsRHB : null;
+      for(const pe of (play.playEvents || [])){
+        if(!(pe.isPitch || pe.details?.isPitch)) continue;
+        const code = pe.details?.type?.code || null;
+        const zone = pe.details?.zone ?? pe.pitchData?.zone ?? null;
+        mlbAddPitchToScope(scopes.all, zone, code);
+        if(sideScope) mlbAddPitchToScope(sideScope, zone, code);
+      }
+      if(side === 'L') mlbAddPA(splitL, play.result);
+      else if(side === 'R') mlbAddPA(splitR, play.result);
+    }
+  }
+
+  const totalPitches = scopes.all.pitches || 0;
+  const arsenal = Object.entries(scopes.all.pitchTypes)
+    .map(([code,count]) => ({ code, usagePct:totalPitches ? +(count*100/totalPitches).toFixed(1) : 0, pitches:count }))
+    .sort((a,b)=>b.pitches-a.pitches).slice(0,8);
+  const zoneProfile = totalPitches ? {
+    windowDays: rows.length ? Math.max(1, Math.round((Date.now() - Date.parse(rows[rows.length-1].date || new Date())) / 86400000)) : null,
+    all:mlbFinishZoneScope(scopes.all),
+    vsLHB:mlbFinishZoneScope(scopes.vsLHB),
+    vsRHB:mlbFinishZoneScope(scopes.vsRHB),
+  } : null;
+  const splits = { vsLHP:mlbFinishAllowedSplit(splitL), vsRHP:mlbFinishAllowedSplit(splitR) };
+  return { arsenal:arsenal.length?arsenal:null, zoneProfile, splits, throws:detectedThrows };
+}
+
+async function mlbFetchLiveStarterProfile(probable){
+  const id = probable?.id;
+  if(!id) return null;
+  const key = String(id);
+  const cached = _starterProfileCache.get(key);
+  if(cached && Date.now()-cached.fetchedAt < STARTER_PROFILE_TTL_MS) return cached.profile;
+  if(_starterProfileInflight.has(key)) return _starterProfileInflight.get(key);
+
+  const promise = (async()=>{
+    const season = mlbSeasonForLiveRefresh();
+    const [person, seasonStatsJson, seasonSplits, recent] = await Promise.all([
+      mlbLiveJSON(`https://statsapi.mlb.com/api/v1/people/${id}`),
+      mlbLiveJSON(`https://statsapi.mlb.com/api/v1/people/${id}/stats?stats=season&group=pitching&season=${season}`),
+      mlbFetchPitcherSeasonSplits(id, season),
+      mlbBuildRecentPitcherProfile(id, season),
+    ]);
+    const st = seasonStatsJson?.stats?.[0]?.splits?.[0]?.stat || {};
+    const ip = st.inningsPitched ?? null;
+    const innings = mlbIpToInnings(ip);
+    const so = Number(st.strikeOuts ?? 0), hr = Number(st.homeRuns ?? 0), bb = Number(st.baseOnBalls ?? 0);
+    const bf = Number(st.battersFaced ?? 0);
+    const k9 = st.strikeoutsPer9Inn != null ? Number(st.strikeoutsPer9Inn) : (innings ? so*9/innings : null);
+    const hr9 = innings ? hr*9/innings : null;
+    const bb9 = st.walksPer9Inn != null ? Number(st.walksPer9Inn) : (innings ? bb*9/innings : null);
+    const era = st.era != null ? Number(st.era) : null;
+    const whip = st.whip != null ? Number(st.whip) : null;
+    const gOut = Number(st.groundOuts ?? 0), aOut = Number(st.airOuts ?? 0);
+    const throws = person?.people?.[0]?.pitchHand?.code || probable?.pitchHand?.code || recent?.throws || '?';
+    const name = probable?.fullName || person?.people?.[0]?.fullName || 'Starter';
+    const liveSplits = (seasonSplits || recent?.splits) ? {
+      vsLHP: seasonSplits?.vsLHP || recent?.splits?.vsLHP || null,
+      vsRHP: seasonSplits?.vsRHP || recent?.splits?.vsRHP || null,
+    } : null;
+    const profile = {
+      id, name, throws,
+      hr9:Number.isFinite(hr9)?+hr9.toFixed(2):MODEL.league.hr9,
+      k9:Number.isFinite(k9)?+k9.toFixed(2):MODEL.league.k9,
+      bb9:Number.isFinite(bb9)?+bb9.toFixed(2):null,
+      era:Number.isFinite(era)?era:null, whip:Number.isFinite(whip)?whip:null,
+      ip, hrAllowed:Number.isFinite(hr)?hr:null,
+      arsenal:recent?.arsenal || null,
+      splits:liveSplits,
+      zoneProfile:recent?.zoneProfile || null,
+      kPct:bf>0 ? +(so*100/bf).toFixed(1) : null,
+      bbPct:bf>0 ? +(bb*100/bf).toFixed(1) : null,
+      gbFb:aOut>0 ? +(gOut/aOut).toFixed(2) : null,
+      avgAgainst:st.avg != null ? Number(st.avg) : null,
+      barrelAllowed:Number.isFinite(hr9)?+(hr9*6.8).toFixed(1):7.5,
+      mix:Number.isFinite(era)
+        ? `${era.toFixed(2)} ERA · ${Number.isFinite(whip)?whip.toFixed(2):'—'} WHIP · ${Number.isFinite(k9)?k9.toFixed(1):'—'} K/9 · ${Number.isFinite(hr9)?hr9.toFixed(1):'—'} HR/9`
+        : 'Live-confirmed starter · season profile synced from MLB',
+      announced:true, liveConfirmed:true, liveProfile:true,
+    };
+    _starterProfileCache.set(key, { profile, fetchedAt:Date.now() });
+    return profile;
+  })().finally(()=>_starterProfileInflight.delete(key));
+  _starterProfileInflight.set(key, promise);
+  return promise;
+}
+
+function mlbSetStarterIdentity(g, slot, probable){
+  const p = g?.[slot];
+  if(!p || !probable?.fullName) return false;
+  const newId = probable.id ?? null;
+  const changed = !p.announced || String(p.id ?? '') !== String(newId ?? '') || p.name !== probable.fullName;
+  if(!changed){ p.liveConfirmed = true; p.announced = true; return false; }
+  // Never carry the OLD starter's arsenal/splits/location map under the NEW
+  // starter's name. Use neutral model baselines for the brief sync window.
+  Object.assign(p, {
+    id:newId, name:probable.fullName, throws:probable.pitchHand?.code || '?',
+    hr9:MODEL.league.hr9, k9:MODEL.league.k9, bb9:null, era:null, whip:null, ip:null,
+    hrAllowed:null, arsenal:null, splits:null, zoneProfile:null, kPct:null, bbPct:null,
+    gbFb:null, avgAgainst:null, barrelAllowed:7.5,
+    mix:'Starter announced — syncing full MLB matchup profile…',
+    announced:true, liveConfirmed:true, liveProfile:false, profileRefreshing:true,
+  });
+  return true;
+}
+function mlbApplyStarterProfile(g, slot, profile){
+  if(!g?.[slot] || !profile) return;
+  Object.assign(g[slot], profile, { profileRefreshing:false, announced:true, liveConfirmed:true });
+}
+function mlbOpposingRosterForStarter(g, slot){
+  return slot === 'awayPitcher' ? (g.homeRoster || []) : (g.awayRoster || []);
+}
+async function mlbPrimeAffectedPlayers(players){
+  const list = [...new Set(players.filter(Boolean))];
+  const batch = 6;
+  for(let i=0;i<list.length;i+=batch){
+    for(let j=i;j<Math.min(i+batch,list.length);j++) simulatePlayer(list[j]);
+    if(i+batch<list.length) await new Promise(r=>setTimeout(r,0));
+  }
+}
+async function mlbRecomputeStarterChanges(changes){
+  if(!changes?.length) return [];
+  const affected=[];
+  for(const {g,slot} of changes){
+    const pitcher = g[slot];
+    for(const p of mlbOpposingRosterForStarter(g, slot)){
+      p.oppPitcher = pitcher;
+      p.narrative = buildNarrative(p, g);
+      scorePlayer(p, g); // clears context/sim and rebuilds HR/TB/Hits/etc from the new starter
+      affected.push(p);
+    }
+  }
+  rebuildPools();                 // refresh pitcher K board as well
+  invalidateGradeCache();        // HR Grade is slate-relative, so one game can move every letter cut
+  await mlbPrimeAffectedPlayers(affected);
+  return affected;
+}
+function mlbRefreshOpenModalForGames(gameIds){
+  if(!overlay?.classList?.contains('open') || !_modalCurrent || !gameIds?.size) return;
+  const current = _modalCurrent;
+  const g = current.game || current.player?.game || games.find(x=>String(x.gamePk)===String(current.gamePk));
+  if(!g || !gameIds.has(g.id)) return;
+  const scroll = modalBody?.scrollTop || 0;
+  _modalRestoring = true;
+  try{
+    if(current.type === 'batter' && current.player) openBatterModal(current.player);
+    else if(current.type === 'game') openGameModal(g);
+    else if(current.type === 'pitcher'){
+      const np = allPitchers.find(x => String(x.id??'')===String(current.player?.id??'') && x.game?.id===g.id)
+        || allPitchers.find(x => x.name===current.player?.name && x.game?.id===g.id);
+      if(np) openPitcherModal(np);
+    }
+  }finally{ _modalRestoring = false; }
+  requestAnimationFrame(()=>{ if(modalBody) modalBody.scrollTop = scroll; });
+}
+function mlbRefreshStarterDrivenUI(changes){
+  if(!changes?.length || !_uiRevealed) return;
+  const gameIds = new Set(changes.map(x=>x.g.id));
+  const sx=window.scrollX||0, sy=window.scrollY||0;
+  renderList();
+  requestAnimationFrame(()=>window.scrollTo(sx,sy));
+
+  // The Command Center watch list/top HR KPI are model-driven. Threat Alerts
+  // themselves are real 108+ mph live batted balls, so they do not change just
+  // because a probable starter did; rebuilding the panel preserves those real
+  // alerts while refreshing every model-driven item around them.
+  const cc = document.getElementById('ccBackdrop');
+  if(cc?.classList.contains('is-open')){
+    const tab = cc.querySelector('.cc-tab.active')?.dataset?.tab;
+    if(tab === 'baseball'){
+      const body = cc.querySelector('.cc-body'), st = body?.scrollTop || 0;
+      CC_SPORT_BUILDERS.baseball();
+      requestAnimationFrame(()=>{ const b=cc.querySelector('.cc-body'); if(b) b.scrollTop=st; });
+    }
+  }
+  refreshCommandCenterAlertState();
+  mlbRefreshOpenModalForGames(gameIds);
+}
+
+async function refreshMLBProbableStarters(options={}){
+  if(_starterRefreshPromise) return _starterRefreshPromise;
+  _starterRefreshPromise = (async()=>{
+    const dot = document.getElementById('dotSchedule');
+    try{
+      const date = currentDates.today;
+      const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}&hydrate=probablePitcher,linescore`;
+      const data = await mlbLiveJSON(url);
+      if(!data) throw new Error('schedule fetch failed');
+      const scheduledGames = data.dates?.[0]?.games || [];
+      const changed=[];
+      for(const gm of scheduledGames){
+        const g = mlbTrackedGameForSchedule(gm);
+        if(!g) continue;
+        g.gamePk = gm.gamePk ?? g.gamePk;
+        g.mlbStatus = gm.status?.abstractGameState || g.mlbStatus;
+        g.detailedState = gm.status?.detailedState || g.detailedState;
+        const pairs = [
+          ['awayPitcher', gm.teams?.away?.probablePitcher],
+          ['homePitcher', gm.teams?.home?.probablePitcher],
+        ];
+        for(const [slot,probable] of pairs){
+          if(!probable?.fullName) continue;
+          if(mlbSetStarterIdentity(g, slot, probable)) changed.push({g,slot,probable});
         }
-      };
-      applyPitcher('awayPitcher', gm.teams.away.probablePitcher);
-      applyPitcher('homePitcher', gm.teams.home.probablePitcher);
-    });
+      }
 
-    if(dot) dot.className = 'dot ok';
-    return true;
-  }catch(e){ if(dot) dot.className = 'dot fallback'; return false; }
+      if(changed.length){
+        // First pass makes the new name/TBD resolution visible immediately and
+        // clears stale old-starter matchup data before the richer profile lands.
+        await mlbRecomputeStarterChanges(changed);
+        if(options.render !== false) mlbRefreshStarterDrivenUI(changed);
+
+        await Promise.all(changed.map(async item=>{
+          const profile = await mlbFetchLiveStarterProfile(item.probable);
+          if(profile && String(item.g[item.slot]?.id ?? '') === String(item.probable.id ?? '')){
+            mlbApplyStarterProfile(item.g, item.slot, profile);
+          }
+        }));
+        await mlbRecomputeStarterChanges(changed);
+        if(options.render !== false) mlbRefreshStarterDrivenUI(changed);
+        touchLastUpdated?.();
+      }
+      if(dot) dot.className = 'dot ok';
+      return true;
+    }catch(e){
+      if(dot) dot.className = 'dot fallback';
+      console.warn('[starter-refresh] live probable starter sync failed', e);
+      return false;
+    }
+  })().finally(()=>{ _starterRefreshPromise = null; });
+  return _starterRefreshPromise;
+}
+
+// Historical call sites (manual day control) keep using this name; they now get
+// the same full starter-refresh/recompute path rather than the old placeholder swap.
+async function fetchLiveSchedule(){
+  return refreshMLBProbableStarters({ render:false });
 }
 
 // ---- Live scoreboard: real-time score/inning/count/batter/pitcher per game ----
@@ -19964,6 +20312,12 @@ function initOnlinePresence(){
     return;
   }
 
+  // Before the first simulation pass, reconcile any TBD/changed probable
+  // starters with MLB. This only enriches pitchers whose identity differs from
+  // the slate snapshot, so a normal boot stays cheap while late announcements
+  // are reflected before the user ever sees a stale matchup grade.
+  await refreshMLBProbableStarters({ render:false });
+
   // Slate is loaded — mark ready so maybeRunSims can proceed once the gate
   // is also dismissed. The splash stays visible until both conditions are met.
   _slateLoaded = true;
@@ -20237,7 +20591,15 @@ async function fullLiveRefresh(){
 
   // Re-pull the whole slate (cheap: one request) plus current live game state.
   const ok = await loadSlate();
-  if(ok){ refreshDayLabelsAndStaleness(); updateSlateFooter(); }
+  if(ok){
+    refreshDayLabelsAndStaleness();
+    updateSlateFooter();
+    // A 5-minute slate refresh can reload an older snapshot from slate.json.
+    // Immediately overlay MLB's current probable-starter truth before any
+    // simulations/rankings are re-primed, so a late pitching change never
+    // gets temporarily reverted on screen.
+    await refreshMLBProbableStarters({ render:false });
+  }
 
   // loadSlate() rebuilds every batter as a fresh object via rebuildPools(),
   // which silently wipes each player's cached simulation (p._sim lives on
@@ -20264,8 +20626,14 @@ async function fullLiveRefresh(){
 // Manual refresh button
 document.getElementById('refreshBtn').addEventListener('click', fullLiveRefresh);
 
-// Auto-refresh live data (weather, schedule, active/injured status) every 5 minutes
+// Full slate/data refresh stays on the existing 5-minute cadence.
 setInterval(fullLiveRefresh, 5*60*1000);
+
+// Probable pitchers are more time-sensitive than the rest of the pregame
+// snapshot. Poll MLB independently every 3 minutes (inside the requested 2–5
+// minute window). Only an actual TBD/changed starter triggers re-scoring and a
+// UI repaint; no-op polls do not disturb scroll position or open screens.
+setInterval(()=>{ refreshMLBProbableStarters({ render:true }); }, STARTER_REFRESH_MS);
 
 // Live scoreboard needs much faster updates than everything else — poll game
 // state (score/inning/count/batter/pitcher) every 20 seconds so the Slate tab
