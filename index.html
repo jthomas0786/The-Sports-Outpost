@@ -8901,6 +8901,97 @@ const _starterProfileCache = new Map();
 const _starterProfileInflight = new Map();
 let _starterRefreshPromise = null;
 
+// MLB remains the primary probable-pitcher authority, but its schedule feed can
+// legitimately stay TBD even after a club has announced a bulk/start plan. ESPN
+// often reflects that announcement sooner. Use ESPN only as a fallback for slots
+// MLB still leaves unnamed; all pitcher stats/matchup math still come from MLB.
+const ESPN_STARTER_BOARD_TTL_MS = 75 * 1000;
+const _espnStarterBoardCache = { date:null, fetchedAt:0, data:null };
+const _espnToMlbPersonCache = new Map();
+const ESPN_TO_TSO_TEAM = { ARI:'AZ', CHW:'CWS', OAK:'ATH', WSH:'WSH', WSN:'WSH' };
+function tsoTeamFromESPN(abbr){
+  const a=String(abbr||'').toUpperCase();
+  return ESPN_TO_TSO_TEAM[a] || a;
+}
+function normPersonName(name){
+  return String(name||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/gi,' ').trim().toLowerCase();
+}
+function starterLooksTBD(p){
+  const n=String(p?.name||'').toLowerCase();
+  return !p || !p.announced || !p.id || !n || n.includes('tbd') || n.includes('not yet announced');
+}
+async function espnStarterBoard(date){
+  if(_espnStarterBoardCache.date===date && _espnStarterBoardCache.data && Date.now()-_espnStarterBoardCache.fetchedAt<ESPN_STARTER_BOARD_TTL_MS){
+    return _espnStarterBoardCache.data;
+  }
+  const compact=String(date||'').replace(/-/g,'');
+  const data=await mlbLiveJSON(`https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard?dates=${compact}`);
+  if(data){
+    _espnStarterBoardCache.date=date;
+    _espnStarterBoardCache.fetchedAt=Date.now();
+    _espnStarterBoardCache.data=data;
+  }
+  return data;
+}
+function espnEventForTrackedGame(board,g){
+  for(const ev of (board?.events||[])){
+    const comp=ev?.competitions?.[0];
+    const teams=comp?.competitors||[];
+    const away=teams.find(x=>x.homeAway==='away');
+    const home=teams.find(x=>x.homeAway==='home');
+    if(tsoTeamFromESPN(away?.team?.abbreviation)===g.away && tsoTeamFromESPN(home?.team?.abbreviation)===g.home) return comp;
+  }
+  return null;
+}
+function espnProbableAthlete(comp,side){
+  const c=(comp?.competitors||[]).find(x=>x.homeAway===side);
+  if(!c) return null;
+  const rows=Array.isArray(c.probables)?c.probables:[];
+  const probable=rows.find(x=>String(x?.name||'').toLowerCase().includes('probable')) || rows[0];
+  return probable?.athlete || probable?.player || null;
+}
+async function mlbResolveESPNProbable(athlete,teamAbbr){
+  const fullName=athlete?.fullName || athlete?.displayName || athlete?.shortName;
+  if(!fullName) return null;
+  const cacheKey=`${teamAbbr}:${normPersonName(fullName)}`;
+  const cached=_espnToMlbPersonCache.get(cacheKey);
+  if(cached && Date.now()-cached.fetchedAt<6*60*60*1000) return cached.person;
+
+  const season=mlbSeasonForLiveRefresh();
+  const q=encodeURIComponent(fullName);
+  let j=await mlbLiveJSON(`https://statsapi.mlb.com/api/v1/people/search?names=${q}&active=true&sportIds=1`);
+  let people=j?.people||[];
+  if(!people.length) {
+    j=await mlbLiveJSON(`https://statsapi.mlb.com/api/v1/people/search?names=${q}`);
+    people=j?.people||[];
+  }
+  const wanted=normPersonName(fullName);
+  let person=people.find(x=>normPersonName(x.fullName)===wanted) || people[0] || null;
+
+  // If search is temporarily sparse for a recalled/minor-league arm, use the
+  // club's 40-man roster as a second MLB-ID resolver.
+  if(!person){
+    const teamId=TEAM_IDS[teamAbbr];
+    if(teamId){
+      const roster=await mlbLiveJSON(`https://statsapi.mlb.com/api/v1/teams/${teamId}/roster?rosterType=40Man&season=${season}`);
+      const row=(roster?.roster||[]).find(r=>normPersonName(r?.person?.fullName)===wanted);
+      if(row?.person?.id){
+        const pj=await mlbLiveJSON(`https://statsapi.mlb.com/api/v1/people/${row.person.id}`);
+        person=pj?.people?.[0] || row.person;
+      }
+    }
+  }
+  if(!person?.id) return null;
+  const resolved={
+    id:person.id,
+    fullName:person.fullName || fullName,
+    pitchHand:person.pitchHand || { code:'?' },
+    fallbackSource:'ESPN',
+  };
+  _espnToMlbPersonCache.set(cacheKey,{ person:resolved, fetchedAt:Date.now() });
+  return resolved;
+}
+
 function mlbSeasonForLiveRefresh(){
   const y = Number(String(slateMeta?.date || '').slice(0,4));
   return Number.isFinite(y) && y >= 2000 ? y : new Date().getFullYear();
@@ -9233,6 +9324,7 @@ async function refreshMLBProbableStarters(options={}){
       if(!data) throw new Error('schedule fetch failed');
       const scheduledGames = data.dates?.[0]?.games || [];
       const changed=[];
+      const mlbNamedSlots=new Set();
       for(const gm of scheduledGames){
         const g = mlbTrackedGameForSchedule(gm);
         if(!g) continue;
@@ -9245,7 +9337,34 @@ async function refreshMLBProbableStarters(options={}){
         ];
         for(const [slot,probable] of pairs){
           if(!probable?.fullName) continue;
-          if(mlbSetStarterIdentity(g, slot, probable)) changed.push({g,slot,probable});
+          mlbNamedSlots.add(`${g.id}:${slot}`);
+          if(mlbSetStarterIdentity(g, slot, probable)) changed.push({g,slot,probable,source:'MLB'});
+        }
+      }
+
+      // MLB can lag a club/ESPN announcement by hours (especially when a bulk
+      // pitcher or opener is involved). For ONLY the still-unnamed MLB slots,
+      // ask ESPN's scoreboard for its probable and resolve that name back to an
+      // MLB person ID. MLB remains authoritative whenever it supplies a name.
+      const needsFallback=[];
+      for(const g of games){
+        for(const slot of ['awayPitcher','homePitcher']){
+          if(!mlbNamedSlots.has(`${g.id}:${slot}`)) needsFallback.push({g,slot});
+        }
+      }
+      if(needsFallback.length){
+        const board=await espnStarterBoard(date);
+        if(board){
+          for(const item of needsFallback){
+            const comp=espnEventForTrackedGame(board,item.g);
+            const side=item.slot==='awayPitcher'?'away':'home';
+            const athlete=espnProbableAthlete(comp,side);
+            if(!athlete) continue;
+            const teamAbbr=side==='away'?item.g.away:item.g.home;
+            const probable=await mlbResolveESPNProbable(athlete,teamAbbr);
+            if(!probable?.fullName) continue;
+            if(mlbSetStarterIdentity(item.g,item.slot,probable)) changed.push({...item,probable,source:'ESPN'});
+          }
         }
       }
 
@@ -20595,7 +20714,7 @@ async function fullLiveRefresh(){
     refreshDayLabelsAndStaleness();
     updateSlateFooter();
     // A 5-minute slate refresh can reload an older snapshot from slate.json.
-    // Immediately overlay MLB's current probable-starter truth before any
+    // Immediately overlay the latest probable-starter truth (MLB primary, ESPN fallback) before any
     // simulations/rankings are re-primed, so a late pitching change never
     // gets temporarily reverted on screen.
     await refreshMLBProbableStarters({ render:false });
@@ -20630,7 +20749,7 @@ document.getElementById('refreshBtn').addEventListener('click', fullLiveRefresh)
 setInterval(fullLiveRefresh, 5*60*1000);
 
 // Probable pitchers are more time-sensitive than the rest of the pregame
-// snapshot. Poll MLB independently every 3 minutes (inside the requested 2–5
+// snapshot. Poll probable starters independently every 3 minutes (inside the requested 2–5
 // minute window). Only an actual TBD/changed starter triggers re-scoring and a
 // UI repaint; no-op polls do not disturb scroll position or open screens.
 setInterval(()=>{ refreshMLBProbableStarters({ render:true }); }, STARTER_REFRESH_MS);
