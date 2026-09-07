@@ -4917,6 +4917,104 @@ body.modal-open{ overflow:hidden; }
 @media(max-width:390px){.mlb-live-chip{flex-basis:260px}.mlb-wind-card{grid-template-columns:88px 1fr}.mlb-wind-diamond{width:82px}.mlb-match-pitcher-primary,.mlb-match-pitcher.home .mlb-match-pitcher-primary{grid-template-columns:42px minmax(0,1fr);gap:7px}.mlb-match-pitcher-stats{grid-template-columns:repeat(2,1fr)}.mlb-match-pitcher-head{width:40px;height:40px}.mlb-slate-player,.mlb-team-board-cols{grid-template-columns:34px minmax(0,1fr) 48px 46px;padding-left:7px;padding-right:7px;gap:6px}.mlb-slate-player-name{grid-template-columns:minmax(0,1fr) 58px}.mlb-slate-badges{width:58px;min-width:58px}.mlb-slate-player-head{width:34px;height:34px}.mlb-slate-player-name .pb-badge-signal{width:34px}.mlb-team-board-cols{font-size:6.7px}.mlb-slate-player-grade-ring .sgr-sm{width:31px;height:31px}.mlb-slate-player-grade-ring .sgr-l{font-size:10px}.mlb-slate-player-stat.edge b{font-size:12px}}
 </style>
 
+<style id="desktop-single-column-v54">
+/* ========================================================================
+   v54 — unified desktop content lane
+   The shared #pickList was being converted to a 2/3-column grid at wide
+   breakpoints. Pages such as MLB Slate only render one full matchup surface,
+   so that surface was trapped in the first half-width grid column. Keep page-
+   level content single-column on desktop; intentional grids inside a card
+   (two teams, pitcher comparisons, metrics, etc.) remain untouched.
+   ======================================================================== */
+@media (min-width:1024px){
+  .app-main > main{
+    width:100%;
+    max-width:1560px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  .app-main > main .section-head,
+  .app-main > main #propMenuInline,
+  .app-main > main #propSubtabs,
+  .app-main > main #pickList{
+    width:100%;
+    max-width:1480px;
+    margin-left:auto;
+    margin-right:auto;
+    min-width:0;
+  }
+
+  /* Keep the page heading in one readable left-aligned lane instead of
+     splitting title and description across opposite sides of the screen. */
+  .app-main > main .section-head{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    justify-content:flex-start;
+    gap:4px;
+  }
+  .app-main > main .section-head p{
+    max-width:82ch;
+    margin-top:4px;
+  }
+
+  /* Override every earlier desktop 2/3-column .pick-list rule. This affects
+     Props, All Players, First Inning, Slate, Feed wrappers, and other MLB
+     pages that reuse the shared list host. */
+  .app-main > main #pickList.pick-list,
+  .app-main > main #pickList .pick-list{
+    display:flex !important;
+    flex-direction:column !important;
+    grid-template-columns:none !important;
+    align-items:stretch !important;
+    gap:12px;
+  }
+  .app-main > main #pickList > *,
+  .app-main > main #pickList .pick-card,
+  .app-main > main #pickList > .slate-list,
+  .app-main > main #pickList > .feed-list{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+
+  /* The redesigned MLB Slate already has intentional two-team columns inside
+     each game card. Only the page-level wrapper should be one column. */
+  .app-main > main .mlb-matchup-slate{
+    width:100% !important;
+    max-width:1480px !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+  .app-main > main .mlb-live-page{
+    width:100%;
+    max-width:1480px;
+  }
+
+  /* Older NFL surfaces used an auto-fill game grid. Keep those page-level
+     game cards in one vertical lane too; the newer Gamecast slate is already
+     one column. */
+  .nfl-games{
+    grid-template-columns:1fr !important;
+    width:100%;
+    max-width:1320px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+}
+
+@media (min-width:1700px){
+  .app-main > main{ max-width:1640px; }
+  .app-main > main .section-head,
+  .app-main > main #propMenuInline,
+  .app-main > main #propSubtabs,
+  .app-main > main #pickList,
+  .app-main > main .mlb-matchup-slate,
+  .app-main > main .mlb-live-page{ max-width:1540px !important; }
+}
+</style>
+
 </head>
 <body class="dw-booting">
 
