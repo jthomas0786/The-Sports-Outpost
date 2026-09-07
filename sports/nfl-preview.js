@@ -1,3 +1,5 @@
+import { startLivePolling } from './nfl/live.js';
+
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
  * architecture. It uses the already-connected slates/nfl.json wherever data
@@ -68,7 +70,10 @@ async function loadData(){
       away:{...g.away,abbr:g.away?.abbr||'AWY',name:g.away?.shortName||g.away?.name||'Away'},
       home:{...g.home,abbr:g.home?.abbr||'HME',name:g.home?.shortName||g.home?.name||'Home'},
       time:g.startTimeUTC?new Date(g.startTimeUTC).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'TBD',
-      venue:g.venue?.name||'NFL Stadium', detail:g.statusDetail||`Week ${d.week||1}`, status:g.status||'pre',
+      venue:g.venue?.name||'NFL Stadium', city:g.venue?.city||'', detail:g.statusDetail||`Week ${d.week||1}`, status:g.status||'pre',
+      broadcast:(g.broadcast||[]).flatMap(x=>x?.names||[]).filter(Boolean).join(', ') || 'NFL',
+      startTimeUTC:g.startTimeUTC||null,
+      liveScore:g.liveScore?{...g.liveScore}:null,
       score:g.status==='pre'?null:`${g.away?.score||0} – ${g.home?.score||0}`,
     }));
     const players=[];
@@ -94,6 +99,11 @@ async function loadData(){
     }
     players.sort((a,b)=>b.prob-a.prob);
     state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null};
+    startLivePolling(d,()=>{
+      syncPreviewGamesFromRaw(d);
+      const root=document.getElementById('nflView');
+      if(root && !root.hidden && state.tab==='slate') render();
+    });
   }catch(e){
     state.data={games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1,generatedAt:null};
   }
@@ -108,6 +118,71 @@ async function loadData(){
     signals:dd.players.filter(p=>p.edge>=60).slice(0,6).map(p=>({name:p.name,team:p.team,edge:p.edge,prob:p.prob,firstTd:firstTdProbability(p),headshot:p.headshot||null})),
   };
 }
+
+
+function syncPreviewGamesFromRaw(raw){
+  if(!state.data?.games || !raw?.games) return;
+  const byId=new Map(state.data.games.map(g=>[String(g.id),g]));
+  for(const rg of raw.games){
+    const g=byId.get(String(rg.gameId)); if(!g) continue;
+    g.status=rg.status||g.status;
+    g.detail=rg.statusDetail||g.detail;
+    g.liveScore=rg.liveScore?{...rg.liveScore}:g.liveScore;
+    if(rg.away?.score!=null) g.away={...g.away,score:rg.away.score};
+    if(rg.home?.score!=null) g.home={...g.home,score:rg.home.score};
+    g.score=g.status==='pre'?null:`${g.away?.score||0} – ${g.home?.score||0}`;
+  }
+}
+
+function scoreNum(team){ const n=Number(team?.score); return Number.isFinite(n)?n:0; }
+function quarterLabel(period){ return period===1?'1ST':period===2?'2ND':period===3?'3RD':period===4?'4TH':period>=5?'OT':''; }
+function clockLabel(clockMin){
+  if(!Number.isFinite(Number(clockMin))) return '';
+  const total=Math.max(0,Math.round(Number(clockMin)*60));
+  return `${Math.floor(total/60)}:${String(total%60).padStart(2,'0')}`;
+}
+function liveState(g){
+  const live=g?.liveScore||{};
+  const period=Number(live.period)||0;
+  const q=quarterLabel(period);
+  const clock=clockLabel(live.clockMin);
+  const label=g?.status==='in' ? [q,clock].filter(Boolean).join(' ') : g?.status==='post' ? 'FINAL' : (g?.time||'TBD');
+  return {live,period,q,clock,label};
+}
+function possessionAbbr(g){
+  const poss=g?.liveScore?.possession;
+  return poss==='home'?g.home.abbr:poss==='away'?g.away.abbr:null;
+}
+function ballFieldPct(g){
+  const live=g?.liveScore||{};
+  const y=Number(live.yardFromOwn);
+  if(Number.isFinite(y) && live.possession){
+    return clamp(live.possession==='home'?100-y:y,5,95);
+  }
+  return num(g.id+'ball',34,68);
+}
+function firstDownPct(g,ball){
+  const live=g?.liveScore||{};
+  const dist=Number(live.distance);
+  const d=Number.isFinite(dist)?clamp(dist,1,20):10;
+  return clamp(ball+(live.possession==='home'?-d:d),7,93);
+}
+function fieldPositionLabel(g){
+  const live=g?.liveScore||{};
+  const y=Math.round(Number(live.yardFromOwn));
+  if(!Number.isFinite(y)||!live.possession) return `${g.home.abbr} 50`;
+  const own=live.possession==='home'?g.home.abbr:g.away.abbr;
+  const opp=live.possession==='home'?g.away.abbr:g.home.abbr;
+  return y<=50?`${own} ${y}`:`${opp} ${100-y}`;
+}
+function downDistanceLabel(g){
+  const live=g?.liveScore||{};
+  if(live.downDistanceText) return live.downDistanceText;
+  const down=Number(live.down), dist=Number(live.distance);
+  if(Number.isFinite(down)&&Number.isFinite(dist)) return `${down}${down===1?'st':down===2?'nd':down===3?'rd':'th'} & ${dist}`;
+  return g?.status==='in'?'1st & 10':'Pregame';
+}
+function lastPlayLabel(g){ return g?.liveScore?.lastPlayText || (g?.status==='in'?'Live play data updating':'Awaiting kickoff'); }
 
 function data(){ return state.data || {games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1}; }
 
@@ -168,18 +243,47 @@ function headerHTML(){
 
 function footballField(g,{gamecast=false}={}){
   const markers=[10,20,30,40,50,60,70,80,90].map((x,i)=>`<span class="ms-field-marker" style="left:${x}%"><b>${i<5?(i+1)*10:(9-i)*10}</b></span>`).join('');
-  const ball=num(g.id+'ball',34,68);
-  const first=clamp(ball+num(g.id+'fd',7,14),10,88);
+  const ball=ballFieldPct(g);
+  const first=firstDownPct(g,ball);
   return `<div class="ms-field"><div class="ms-endzone">${esc(g.away.abbr)}</div><div class="ms-yard-lines">${markers}${gamecast?`<span class="ms-los" style="left:${ball}%"></span><span class="ms-firstdown" style="left:${first}%"></span>`:''}<span class="ms-ball" style="left:${ball}%"></span></div><div class="ms-endzone">${esc(g.home.abbr)}</div></div>`;
 }
 
-function gameCard(g){
-  const center=g.score||g.time;
+function slateGamecastCard(g){
+  const p=featuredPlayerForGame(g);
+  const st=liveState(g);
+  const live=g.status==='in', final=g.status==='post';
+  const poss=possessionAbbr(g);
   const homeWp=num(g.id+'wp',43,64);
-  return `<button class="ms-game-card" data-nfl-game="${esc(g.id)}"><div class="ms-game-art">${footballField(g)}</div><div class="ms-game-teams"><div>${teamLogo(g.away)}<span><b>${esc(g.away.name)}</b><small>${esc(record(g.away))} · Away</small></span></div><div class="ms-game-center"><strong>${esc(center)}</strong><small>${esc(g.detail)}</small></div><div class="home"><span><b>${esc(g.home.name)}</b><small>${esc(record(g.home))} · Home</small></span>${teamLogo(g.home)}</div></div><div class="ms-game-meta"><span>${esc(g.venue)}</span><span>${homeWp}% home win prob · QUICK WATCH</span></div></button>`;
+  const statusText=live?'Live':final?'Final':'Game Preview';
+  const centerMain=live?st.label:(final?'FINAL':g.time);
+  const centerSub=live?`${downDistanceLabel(g)} · ${fieldPositionLabel(g)}`:esc(g.detail);
+  const featuredAtd=Math.round((p.prob||0)*100), featuredFirst=Math.round((firstTdProbability(p)||0)*100);
+  const defAbbr=p.opp||g.home.abbr;
+  const last=lastPlayLabel(g);
+  const edge=num(g.id+'rze',57,73);
+  const scoring=live?num(g.id+'liveScoreChance',48,79):num(g.id+'preScoreChance',45,68);
+  const sideTeam=p.team||g.away.abbr;
+  const teamCopy=t=>`<div class="ms-slate-team-copy"><small>${esc(t.abbr)}</small><b>${esc(t.name)}</b><span>${esc(record(t))}</span></div>`;
+  return `<article class="ms-slate-cast ${live?'is-live':final?'is-final':'is-pre'}" data-nfl-game="${esc(g.id)}" tabindex="0" role="button" aria-label="Open ${esc(g.away.name)} at ${esc(g.home.name)} Gamecast">
+    <div class="ms-slate-statusbar"><span class="ms-slate-status">${esc(statusText)}</span><span class="ms-slate-network">${esc(g.broadcast||'NFL')} · ${esc(g.detail)}</span></div>
+    <div class="ms-slate-scorebar">
+      <div class="ms-slate-team">${teamLogo(g.away)}${teamCopy(g.away)}<strong class="ms-slate-score">${scoreNum(g.away)}</strong></div>
+      <div class="ms-slate-center"><strong>${esc(centerMain)}</strong><b>${esc(centerSub)}</b><small>${poss?`${esc(poss)} has the ball`:(live?'Possession updating':'Kickoff preview')}</small></div>
+      <div class="ms-slate-team home"><strong class="ms-slate-score">${scoreNum(g.home)}</strong>${teamCopy(g.home)}${teamLogo(g.home)}</div>
+    </div>
+    <div class="ms-slate-body">
+      <div class="ms-slate-side"><div class="ms-slate-side-head">Player to Watch · ${esc(sideTeam)}</div><div class="ms-slate-person"><div class="ms-avatar">${p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`}</div><div><b>${esc(p.name)}</b><span>${esc(p.pos)} · vs ${esc(p.opp||'DEF')}</span></div></div><div class="ms-slate-person-stats"><div><b>${featuredAtd}%</b><span>ATD</span></div><div><b>${featuredFirst}%</b><span>1ST TD</span></div><div><b>${p.edge}</b><span>TSO EDGE</span></div></div></div>
+      <div class="ms-slate-field-wrap">${footballField(g,{gamecast:true})}<div class="ms-slate-field-tag">${esc(downDistanceLabel(g))} · ${esc(fieldPositionLabel(g))}</div><div class="ms-slate-field-legend"><span><i class="los"></i>Line of scrimmage</span><span><i class="fd"></i>First down</span></div></div>
+      <div class="ms-slate-side"><div class="ms-slate-side-head">Defensive Look · ${esc(defAbbr)}</div><div class="ms-slate-defense"><div><span>MAN</span><b>${num(defAbbr+'man',31,48)}%</b></div><div><span>BLITZ</span><b>${num(defAbbr+'blitz',18,34)}%</b></div><div><span>RZ TD ALLOW</span><b>${p.oppRzAllowed!=null?(p.oppRzAllowed*100).toFixed(1):num(defAbbr+'rz',18,29)}%</b></div><div><span>TSO EDGE</span><b>${edge}</b></div></div><div class="ms-slate-defense-note">Coverage, pressure and red-zone context update the football matchup read.</div></div>
+    </div>
+    <div class="ms-slate-lower"><div><span>Last Play</span><b>${esc(last)}</b><small>${live?'Live feed · refreshes automatically':'Full play-by-play appears once the game starts'}</small></div><div><span>Scoring Chance</span><b>${scoring}%</b><small>${live?'Current drive':'Pregame scoring environment'}</small></div><div><span>Possession</span><b>${esc(poss||'—')}</b><small>${esc(fieldPositionLabel(g))}</small></div><div><span>TSO Game Edge</span><b>${edge}</b><small>${live?'Live context':'Pregame matchup'}</small></div></div>
+    <div class="ms-slate-footer"><span>${esc(g.venue)}${g.city?` · ${esc(g.city)}`:''} · ${homeWp}% home win prob</span><button type="button" class="ms-slate-open" data-nfl-game="${esc(g.id)}">${live?'Watch Live Gamecast':'Open Gamecast'}</button></div>
+  </article>`;
 }
 
-function slateHTML(){ return `<div class="ms-game-grid">${data().games.map(gameCard).join('')}</div>`; }
+function gameCard(g){ return slateGamecastCard(g); }
+function slateHTML(){ return `<div class="ms-game-grid">${data().games.map(slateGamecastCard).join('')}</div>`; }
+
 
 function gameRadarHTML(){
   const games=data().games.slice(0,12);
@@ -312,7 +416,8 @@ function wire(root){
   root.querySelector('#nflPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value;if(state.prop==='allPlayers')state.propView='board';render();});
   root.querySelectorAll('[data-nfl-prop-view]').forEach(b=>b.addEventListener('click',()=>{state.propView=b.dataset.nflPropView;render();}));
   root.querySelectorAll('[data-nfl-player]').forEach(b=>b.addEventListener('click',()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();}));
-  root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',()=>{state.game=b.dataset.nflGame;state.tab='slate';render();}));
+  root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.tab='slate';render();}));
+  root.querySelectorAll('.ms-slate-cast[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.game=card.dataset.nflGame;state.tab='slate';render();}}));
   root.querySelectorAll('[data-nfl-close-game]').forEach(b=>b.addEventListener('click',()=>{state.game=null;render();}));
   root.querySelectorAll('[data-nfl-close-modal]').forEach(b=>b.addEventListener('click',()=>{state.player=null;state.mapFilter='ALL';render();}));
   root.querySelectorAll('[data-nfl-mapfilter]').forEach(b=>b.addEventListener('click',()=>{state.mapFilter=b.dataset.nflMapfilter;render();}));
