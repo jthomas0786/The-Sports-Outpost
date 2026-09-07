@@ -4556,8 +4556,11 @@ body.modal-open{ overflow:hidden; }
 
 .player-card-v2 .mm-zcmp,.player-card-v2 .mm-zcmp *{box-sizing:border-box}
 .player-card-v2 .mm-zcmp{max-width:100%}
-.player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:1fr;gap:8px;align-items:start;max-width:100%;min-width:0}
-.player-card-v2 .mm-zcmp-shell{width:154px;max-width:100%;margin:0 auto;padding-top:15px;padding-bottom:14px}
+/* Match Zone BA's left-hand geometry exactly so the strike-zone grid does not
+   jump when switching views. Comparison metrics occupy the same right column
+   that the Zone BA damage-zone summary uses. */
+.player-card-v2 .mm-zcmp-main{display:flex;align-items:center;gap:12px;width:100%;min-width:0}
+.player-card-v2 .mm-zcmp-shell{width:154px;flex:0 0 154px;max-width:154px;margin:0;padding-top:15px;padding-bottom:14px}
 .player-card-v2 .mm-zcmp-grid{
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:3px;
   padding:3px;border:1px solid var(--border);border-radius:6px;background:var(--panel)
@@ -4578,7 +4581,7 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zcmp-cell.is-low{opacity:.34}
 .player-card-v2 .mm-zcmp-cell:hover,.player-card-v2 .mm-zcmp-cell.active{opacity:1;transform:translateY(-1px);border-color:var(--accent-bright);box-shadow:0 0 0 1px rgba(110,220,255,.18)}
 
-.player-card-v2 .mm-zcmp-side{width:100%;min-width:0;max-width:100%;overflow:hidden}
+.player-card-v2 .mm-zmetrics-side{min-width:0;flex:1;display:grid;grid-template-columns:1fr;gap:5px;align-content:center}
 .player-card-v2 .mm-zone-edge-summary{
   display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'label score' 'status status';gap:3px 8px;align-items:center;
   width:100%;max-width:100%;min-width:0;overflow:hidden;
@@ -4598,12 +4601,12 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zdetail-head>div,
 .player-card-v2 .mm-zdetail-head strong,
 .player-card-v2 .mm-zdetail-head em{min-width:0;max-width:100%;overflow-wrap:anywhere}
-.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
-.player-card-v2 .mm-zmetric{padding:6px 7px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
-.player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.player-card-v2 .mm-zmetric span{font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.player-card-v2 .mm-zmetric b{font:700 11px 'Oswald',sans-serif;color:var(--white)}
-.player-card-v2 .mm-zmetric>i{display:block;height:3px;margin-top:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:1fr;gap:5px;margin:0}
+.player-card-v2 .mm-zmetric{padding:5px 6px;border:1px solid var(--border);border-radius:7px;background:var(--panel3);min-width:0}
+.player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:5px}
+.player-card-v2 .mm-zmetric span{font:800 6.1px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.035em;white-space:nowrap}
+.player-card-v2 .mm-zmetric b{font:700 11px 'Oswald',sans-serif;color:var(--white);line-height:1}
+.player-card-v2 .mm-zmetric>i{display:block;height:3px;margin-top:3px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
 .player-card-v2 .mm-zmetric>i>em{display:block;height:100%;border-radius:inherit;background:#7d8ca3}
 .player-card-v2 .mm-zmetric.bat>i>em,.player-card-v2 .mm-zmetric.bat-strong>i>em{background:var(--accent-bright)}
 .player-card-v2 .mm-zmetric.arm>i>em,.player-card-v2 .mm-zmetric.arm-strong>i>em{background:var(--gold)}
@@ -4632,15 +4635,9 @@ body.modal-open{ overflow:hidden; }
 
 
 @media(max-width:520px){
-  .player-card-v2 .mm-zcmp-shell{width:146px}
-  .player-card-v2 .mm-zcmp-grid{grid-template-rows:repeat(3,50px)}
-  .player-card-v2 .mm-zmetrics{grid-template-columns:1fr 1fr}
   .player-card-v2 .mm-zdetail-stats{grid-template-columns:1fr 1fr}
 }
 @media(max-width:1040px){
-  .player-card-v2 .mm-zcmp-body{grid-template-columns:1fr;gap:10px}
-  .player-card-v2 .mm-zcmp-shell{width:154px;max-width:154px;margin:0 auto}
-  .player-card-v2 .mm-zcmp-side{width:100%}
   .player-card-v2 .mm-zone-edge-summary>strong{font-size:9px}
 }
 
@@ -4652,14 +4649,22 @@ body.modal-open{ overflow:hidden; }
   .player-card-v2 .mm-zone-tabs{width:100%;justify-content:flex-start}
   .player-card-v2 .mm-zone-tabs button{font-size:6.8px;padding:5px 7px}
   .player-card-v2 .mm-zone-tip{left:0;right:0;top:58px;max-width:none}
-  .player-card-v2 .mm-zcmp-body{grid-template-columns:1fr;gap:8px}
-  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;margin:0 auto;flex-basis:auto}
+  .player-card-v2 .mm-zcmp-main{justify-content:center;gap:12px}
+  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;flex:0 0 142px;margin:0}
   .player-card-v2 .mm-zcmp-grid{grid-template-rows:repeat(3,48px)}
   .player-card-v2 .mm-zcmp-cell b{font-size:15px}.player-card-v2 .mm-zcmp-cell small{font-size:5.7px}
+  .player-card-v2 .mm-zmetric{padding:5px 5px}.player-card-v2 .mm-zmetric span{font-size:5.7px}.player-card-v2 .mm-zmetric b{font-size:10px}
   .player-card-v2 .mm-zone-edge-summary{grid-template-columns:auto 38px minmax(0,1fr)}
   .player-card-v2 .mm-zone-edge-summary>b{font-size:19px}.player-card-v2 .mm-zone-edge-summary>strong{font-size:9px}
   .player-card-v2 .mm-zdetail-stats{grid-template-columns:1fr 1fr}
   .player-card-v2 .mm-zdetail-head{align-items:flex-start}.player-card-v2 .mm-zdetail-head em{max-width:105px;font-size:6.4px}
+}
+@media(max-width:380px){
+  .player-card-v2 .mm-zcmp-main{align-items:flex-start;gap:8px}
+  .player-card-v2 .mm-zcmp-shell{width:132px;max-width:132px;flex-basis:132px}
+  .player-card-v2 .mm-zcmp-grid{grid-template-rows:repeat(3,44px)}
+  .player-card-v2 .mm-zcmp-cell b{font-size:13px}.player-card-v2 .mm-zcmp-cell small{font-size:5.2px}
+  .player-card-v2 .mm-zmetric{padding:4px 5px}.player-card-v2 .mm-zmetric span{font-size:5.3px}.player-card-v2 .mm-zmetric b{font-size:9.5px}
 }
 </style>
 
@@ -13508,25 +13513,23 @@ function mmZoneComparisonHTML(p){
   const edgeLabel=mmScoreLabel(z.zoneEdge);
   const best = z.best;
   return `<div class="mm-zcmp">
-    <div class="mm-zcmp-body">
+    <div class="mm-zcmp-main">
       <div class="mm-zone-shell mm-zcmp-shell">
         <div class="mm-zone-axis top">UP</div>
         <div class="mm-zcmp-grid">${cells}</div>
         <div class="mm-zone-axis bot">DOWN</div>
       </div>
-      <div class="mm-zcmp-side">
-        <div class="mm-zone-edge-summary ${mmScoreClass(z.zoneEdge)}">
-          <span>ZONE EDGE</span><b>${z.zoneEdge==null?'—':z.zoneEdge}</b><strong>${edgeLabel}</strong>
-        </div>
-        <div class="mm-zmetrics">
-          ${mmMetricTile('Contact',z.metrics.contact)}
-          ${mmMetricTile('Barrel',z.metrics.barrel)}
-          ${mmMetricTile('HR Rate',z.metrics.hr)}
-          ${mmMetricTile('Hard Hit',z.metrics.hardHit)}
-        </div>
-        <div class="mm-zcmp-caption">${z.top7.length} most-used in-zone locations · ${z.topUsagePct.toFixed(1)}% of classified pitches${best?` · best overlap: ${best.name} (${best.score})`:''}</div>
+      <div class="mm-zmetrics mm-zmetrics-side">
+        ${mmMetricTile('Contact',z.metrics.contact)}
+        ${mmMetricTile('HR Rate',z.metrics.hr)}
+        ${mmMetricTile('Barrel',z.metrics.barrel)}
+        ${mmMetricTile('Hard Hit',z.metrics.hardHit)}
       </div>
     </div>
+    <div class="mm-zone-edge-summary ${mmScoreClass(z.zoneEdge)}">
+      <span>ZONE EDGE</span><b>${z.zoneEdge==null?'—':z.zoneEdge}</b><strong>${edgeLabel}</strong>
+    </div>
+    <div class="mm-zcmp-caption">${z.top7.length} most-used in-zone locations · ${z.topUsagePct.toFixed(1)}% of classified pitches${best?` · best overlap: ${best.name} (${best.score})`:''}</div>
     <div class="mm-zdetail">${panes}</div>
     <div class="mm-zscope">Hitter sample: ${z.batterScope}${z.batterWindow?` · ${z.batterWindow}d window`:''} &nbsp;•&nbsp; Pitcher usage: ${z.pitcherScope}${z.pitcherWindow?` · ${z.pitcherWindow}d window`:''}</div>
   </div>`;
