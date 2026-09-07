@@ -4656,8 +4656,10 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zone-view{display:none}
 .player-card-v2 .mm-zone-view.active{display:block}
 
-.player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:154px minmax(0,1fr);gap:12px;align-items:center}
+.player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:154px minmax(0,1fr);gap:10px;align-items:start;max-width:100%;min-width:0}
 .player-card-v2 .mm-zcmp-shell{padding-top:15px;padding-bottom:14px}
+.player-card-v2 .mm-zcmp,.player-card-v2 .mm-zcmp *{box-sizing:border-box}
+.player-card-v2 .mm-zcmp{max-width:100%;min-width:0}
 .player-card-v2 .mm-zcmp-grid{
   display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:3px;
   padding:3px;border:1px solid var(--border);border-radius:6px;background:var(--panel)
@@ -4678,7 +4680,7 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zcmp-cell.is-low{opacity:.34}
 .player-card-v2 .mm-zcmp-cell:hover,.player-card-v2 .mm-zcmp-cell.active{opacity:1;transform:translateY(-1px);border-color:var(--accent-bright);box-shadow:0 0 0 1px rgba(110,220,255,.18)}
 
-.player-card-v2 .mm-zcmp-side{min-width:0}
+.player-card-v2 .mm-zcmp-side{width:100%;min-width:0;max-width:100%;overflow:hidden}
 .player-card-v2 .mm-zone-edge-summary{
   display:grid;grid-template-columns:auto 42px minmax(0,1fr);gap:8px;align-items:center;
   padding:8px 9px;border:1px solid var(--border);border-radius:8px;background:var(--panel3)
@@ -4688,16 +4690,16 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zone-edge-summary>strong{font-size:10px;color:var(--white);line-height:1.15}
 .player-card-v2 .mm-zone-edge-summary.bat b,.player-card-v2 .mm-zone-edge-summary.bat-strong b{color:var(--accent-bright)}
 .player-card-v2 .mm-zone-edge-summary.arm b,.player-card-v2 .mm-zone-edge-summary.arm-strong b{color:var(--gold)}
-.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
-.player-card-v2 .mm-zmetric{padding:6px 7px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
-.player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.player-card-v2 .mm-zmetric span{font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin-top:6px;min-width:0;max-width:100%}
+.player-card-v2 .mm-zmetric{min-width:0;padding:5px 7px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
+.player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
+.player-card-v2 .mm-zmetric span{min-width:0;font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .player-card-v2 .mm-zmetric b{font:700 11px 'Oswald',sans-serif;color:var(--white)}
 .player-card-v2 .mm-zmetric>i{display:block;height:3px;margin-top:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
 .player-card-v2 .mm-zmetric>i>em{display:block;height:100%;border-radius:inherit;background:#7d8ca3}
 .player-card-v2 .mm-zmetric.bat>i>em,.player-card-v2 .mm-zmetric.bat-strong>i>em{background:var(--accent-bright)}
 .player-card-v2 .mm-zmetric.arm>i>em,.player-card-v2 .mm-zmetric.arm-strong>i>em{background:var(--gold)}
-.player-card-v2 .mm-zcmp-caption{margin-top:6px;font:700 6.8px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);line-height:1.4}
+.player-card-v2 .mm-zcmp-caption{margin-top:6px;max-width:100%;font:700 6.8px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
 
 .player-card-v2 .mm-zdetail{margin-top:9px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden}
 .player-card-v2 .mm-zdetail-pane{display:none;padding:9px 10px}
@@ -13695,8 +13697,8 @@ function mmZoneComparisonHTML(p){
         </div>
         <div class="mm-zmetrics">
           ${mmMetricTile('Contact',z.metrics.contact)}
-          ${mmMetricTile('Barrel',z.metrics.barrel)}
           ${mmMetricTile('HR Rate',z.metrics.hr)}
+          ${mmMetricTile('Barrel',z.metrics.barrel)}
           ${mmMetricTile('Hard Hit',z.metrics.hardHit)}
         </div>
         <div class="mm-zcmp-caption">${z.top7.length} most-used in-zone locations · ${z.topUsagePct.toFixed(1)}% of classified pitches${best?` · best overlap: ${best.name} (${best.score})`:''}</div>
