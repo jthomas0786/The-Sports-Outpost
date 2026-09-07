@@ -4509,6 +4509,134 @@ body.modal-open{ overflow:hidden; }
 }
 </style>
 
+
+<style id="tso-matchup-zone-comparison-v5">
+/* v25: Matchup Mix Zone Comparison — 0–100 batter-vs-pitcher location overlap. */
+.player-card-v2 .mm-edge-components{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;
+  margin:-5px 14px 12px;padding:0;
+}
+.player-card-v2 .mm-edge-components>span{
+  display:flex;align-items:center;justify-content:center;gap:7px;
+  min-height:32px;border:1px solid var(--border);border-radius:8px;background:var(--panel2);
+}
+.player-card-v2 .mm-edge-components small{
+  font:800 7px 'JetBrains Mono','Space Mono',monospace;letter-spacing:.08em;color:var(--muted)
+}
+.player-card-v2 .mm-edge-components b{font:700 13px 'Oswald',sans-serif;color:var(--white)}
+.player-card-v2 .mm-edge-components .bat b,.player-card-v2 .mm-edge-components .bat-strong b{color:var(--accent-bright)}
+.player-card-v2 .mm-edge-components .arm b,.player-card-v2 .mm-edge-components .arm-strong b{color:var(--gold)}
+
+.player-card-v2 .mm-zone-card{position:relative}
+.player-card-v2 .mm-zone-switch{
+  position:relative;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:10px;padding-bottom:9px;border-bottom:1px solid var(--line)
+}
+.player-card-v2 .mm-zone-switch-title{display:flex;flex-direction:column;gap:2px;min-width:0}
+.player-card-v2 .mm-zone-switch-title b{font-family:'Oswald',sans-serif;font-size:13px;color:var(--white);letter-spacing:.04em}
+.player-card-v2 .mm-zone-switch-title span{font:700 7px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.player-card-v2 .mm-zone-tabs{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.player-card-v2 .mm-zone-tabs button{
+  appearance:none;border:1px solid var(--border);border-radius:7px;background:var(--panel3);color:var(--muted);
+  padding:5px 8px;font:800 7.5px 'JetBrains Mono','Space Mono',monospace;cursor:pointer;transition:.16s ease
+}
+.player-card-v2 .mm-zone-tabs button:hover{border-color:rgba(45,127,255,.55);color:var(--white)}
+.player-card-v2 .mm-zone-tabs button.active{background:rgba(45,127,255,.16);border-color:var(--accent);color:var(--accent-bright)}
+.player-card-v2 .mm-zone-tabs .mm-zone-info{
+  width:24px;height:24px;padding:0;border-radius:50%;font-size:9px;color:var(--accent-bright)
+}
+.player-card-v2 .mm-zone-tip{
+  display:none;position:absolute;z-index:7;right:0;top:34px;max-width:360px;padding:9px 10px;
+  border:1px solid var(--border);border-radius:8px;background:var(--panel);box-shadow:0 10px 28px rgba(0,0,0,.32);
+  font-size:9px;line-height:1.45;color:#b6c3d8
+}
+.player-card-v2 .mm-zone-tip.open{display:block}
+.player-card-v2 .mm-zone-view{display:none}
+.player-card-v2 .mm-zone-view.active{display:block}
+
+.player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:154px minmax(0,1fr);gap:12px;align-items:center}
+.player-card-v2 .mm-zcmp-shell{padding-top:15px;padding-bottom:14px}
+.player-card-v2 .mm-zcmp-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:3px;
+  padding:3px;border:1px solid var(--border);border-radius:6px;background:var(--panel)
+}
+.player-card-v2 .mm-zcmp-cell{
+  appearance:none;position:relative;min-width:0;border:1px solid rgba(255,255,255,.045);border-radius:4px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;
+  color:var(--white);transition:transform .14s ease,border-color .14s ease,opacity .14s ease,box-shadow .14s ease
+}
+.player-card-v2 .mm-zcmp-cell b{font:700 17px 'Oswald',sans-serif;line-height:1}
+.player-card-v2 .mm-zcmp-cell small{font:800 6.3px 'JetBrains Mono','Space Mono',monospace;color:rgba(255,255,255,.74);white-space:nowrap}
+.player-card-v2 .mm-zcmp-cell.bat-strong{background:linear-gradient(145deg,rgba(45,127,255,.74),rgba(45,127,255,.38))}
+.player-card-v2 .mm-zcmp-cell.bat{background:linear-gradient(145deg,rgba(110,220,255,.25),rgba(45,127,255,.18))}
+.player-card-v2 .mm-zcmp-cell.even{background:rgba(255,255,255,.055)}
+.player-card-v2 .mm-zcmp-cell.arm{background:rgba(244,196,48,.14)}
+.player-card-v2 .mm-zcmp-cell.arm-strong{background:linear-gradient(145deg,rgba(245,158,11,.30),rgba(244,196,48,.16))}
+.player-card-v2 .mm-zcmp-cell.na{background:rgba(255,255,255,.025);color:var(--muted)}
+.player-card-v2 .mm-zcmp-cell.is-low{opacity:.34}
+.player-card-v2 .mm-zcmp-cell:hover,.player-card-v2 .mm-zcmp-cell.active{opacity:1;transform:translateY(-1px);border-color:var(--accent-bright);box-shadow:0 0 0 1px rgba(110,220,255,.18)}
+
+.player-card-v2 .mm-zcmp-side{min-width:0}
+.player-card-v2 .mm-zone-edge-summary{
+  display:grid;grid-template-columns:auto 42px minmax(0,1fr);gap:8px;align-items:center;
+  padding:8px 9px;border:1px solid var(--border);border-radius:8px;background:var(--panel3)
+}
+.player-card-v2 .mm-zone-edge-summary>span{font:900 7px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);letter-spacing:.08em}
+.player-card-v2 .mm-zone-edge-summary>b{font:700 22px 'Oswald',sans-serif;color:var(--white);line-height:1;text-align:center}
+.player-card-v2 .mm-zone-edge-summary>strong{font-size:10px;color:var(--white);line-height:1.15}
+.player-card-v2 .mm-zone-edge-summary.bat b,.player-card-v2 .mm-zone-edge-summary.bat-strong b{color:var(--accent-bright)}
+.player-card-v2 .mm-zone-edge-summary.arm b,.player-card-v2 .mm-zone-edge-summary.arm-strong b{color:var(--gold)}
+.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:6px}
+.player-card-v2 .mm-zmetric{padding:6px 7px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
+.player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:6px}
+.player-card-v2 .mm-zmetric span{font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.player-card-v2 .mm-zmetric b{font:700 11px 'Oswald',sans-serif;color:var(--white)}
+.player-card-v2 .mm-zmetric>i{display:block;height:3px;margin-top:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.player-card-v2 .mm-zmetric>i>em{display:block;height:100%;border-radius:inherit;background:#7d8ca3}
+.player-card-v2 .mm-zmetric.bat>i>em,.player-card-v2 .mm-zmetric.bat-strong>i>em{background:var(--accent-bright)}
+.player-card-v2 .mm-zmetric.arm>i>em,.player-card-v2 .mm-zmetric.arm-strong>i>em{background:var(--gold)}
+.player-card-v2 .mm-zcmp-caption{margin-top:6px;font:700 6.8px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);line-height:1.4}
+
+.player-card-v2 .mm-zdetail{margin-top:9px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden}
+.player-card-v2 .mm-zdetail-pane{display:none;padding:9px 10px}
+.player-card-v2 .mm-zdetail-pane.active{display:block}
+.player-card-v2 .mm-zdetail-head{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.player-card-v2 .mm-zdetail-head>div{min-width:0}
+.player-card-v2 .mm-zdetail-head span{display:block;font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);letter-spacing:.06em}
+.player-card-v2 .mm-zdetail-head strong{display:block;margin-top:2px;font-family:'Oswald',sans-serif;font-size:13px;color:var(--white)}
+.player-card-v2 .mm-zdetail-head em{font:800 7px 'JetBrains Mono','Space Mono',monospace;color:var(--accent-bright);font-style:normal;text-align:right}
+.player-card-v2 .mm-zdetail-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:7px}
+.player-card-v2 .mm-zdetail-stat{padding:6px 5px;border-radius:6px;background:rgba(255,255,255,.035);text-align:center}
+.player-card-v2 .mm-zdetail-stat span{display:block;font:800 6px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase}
+.player-card-v2 .mm-zdetail-stat b{display:block;margin-top:2px;font:700 13px 'Oswald',sans-serif;color:var(--white)}
+.player-card-v2 .mm-zdetail-stat small{display:block;margin-top:2px;font:700 5.7px 'JetBrains Mono','Space Mono',monospace;color:var(--muted)}
+.player-card-v2 .mm-zdetail-stat.bat b,.player-card-v2 .mm-zdetail-stat.bat-strong b{color:var(--accent-bright)}
+.player-card-v2 .mm-zdetail-stat.arm b,.player-card-v2 .mm-zdetail-stat.arm-strong b{color:var(--gold)}
+.player-card-v2 .mm-zdetail-copy{margin:7px 0 0;font-size:8.5px;line-height:1.4;color:var(--muted)}
+.player-card-v2 .mm-zscope{margin-top:6px;font:700 6.3px 'JetBrains Mono','Space Mono',monospace;color:rgba(139,149,168,.72);line-height:1.35}
+.player-card-v2 .mm-zone-empty{padding:16px 10px;text-align:center;border:1px dashed var(--border);border-radius:8px;background:rgba(255,255,255,.02)}
+.player-card-v2 .mm-zone-empty b{display:block;font-family:'Oswald',sans-serif;font-size:12px;color:var(--white)}
+.player-card-v2 .mm-zone-empty span{display:block;max-width:360px;margin:5px auto 0;font-size:8.5px;line-height:1.45;color:var(--muted)}
+
+@media(max-width:620px){
+  .player-card-v2 .mm-edge-components{margin:-2px 10px 9px;gap:4px}
+  .player-card-v2 .mm-edge-components>span{min-height:29px;gap:4px}
+  .player-card-v2 .mm-edge-components small{font-size:5.8px}.player-card-v2 .mm-edge-components b{font-size:11px}
+  .player-card-v2 .mm-zone-switch{align-items:flex-start;flex-direction:column;gap:7px}
+  .player-card-v2 .mm-zone-tabs{width:100%;justify-content:flex-start}
+  .player-card-v2 .mm-zone-tabs button{font-size:6.8px;padding:5px 7px}
+  .player-card-v2 .mm-zone-tip{left:0;right:0;top:58px;max-width:none}
+  .player-card-v2 .mm-zcmp-body{grid-template-columns:1fr;gap:8px}
+  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;margin:0 auto;flex-basis:auto}
+  .player-card-v2 .mm-zcmp-grid{grid-template-rows:repeat(3,48px)}
+  .player-card-v2 .mm-zcmp-cell b{font-size:15px}.player-card-v2 .mm-zcmp-cell small{font-size:5.7px}
+  .player-card-v2 .mm-zone-edge-summary{grid-template-columns:auto 38px minmax(0,1fr)}
+  .player-card-v2 .mm-zone-edge-summary>b{font-size:19px}.player-card-v2 .mm-zone-edge-summary>strong{font-size:9px}
+  .player-card-v2 .mm-zdetail-stats{grid-template-columns:1fr 1fr}
+  .player-card-v2 .mm-zdetail-head{align-items:flex-start}.player-card-v2 .mm-zdetail-head em{max-width:105px;font-size:6.4px}
+}
+</style>
+
 </head>
 <body class="dw-booting">
 
@@ -5065,6 +5193,7 @@ function adaptGame(sg) {
       era: st.era ?? null, whip: st.whip ?? null, ip: st.ip ?? null,
       arsenal: p.arsenal || null,
       splits: p.splits || null,
+      zoneProfile: p.zoneProfile || null, // recent Statcast location usage for Matchup Mix
       kPct: st.kPct ?? null,
       bbPct: st.bbPct ?? null,
       gbFb: st.gbFb ?? null,       // ground-ball pitchers structurally suppress HR
@@ -13092,7 +13221,158 @@ function platoonSplitHTML(p, pitcher){
  * Keeping the math in one place guarantees that the number used to rank the
  * board is exactly the number the user sees after opening that player's modal.
  */
-function tsoEdgeFor(p){
+const MM_ZONE_NAMES = {
+  1:'Upper-left', 2:'Upper-middle', 3:'Upper-right',
+  4:'Middle-left',5:'Middle-middle',6:'Middle-right',
+  7:'Lower-left', 8:'Lower-middle', 9:'Lower-right'
+};
+const mmClamp = (v,a,b)=>Math.max(a,Math.min(b,v));
+
+/**
+ * Convert a raw zone rate into a 0-100 favorability score vs this hitter's own
+ * baseline.  Tiny samples are explicitly shrunk back toward 50 so one barrel
+ * or one homer in a zone cannot create a fake 99 score.
+ */
+function mmMetricScore(raw, baseline, sample, prior, scale){
+  raw = Number(raw); baseline = Number(baseline); sample = Number(sample)||0;
+  if(!Number.isFinite(raw) || !Number.isFinite(baseline) || sample <= 0) return null;
+  const w = sample / (sample + prior);
+  const shrunk = baseline + (raw - baseline) * w;
+  const delta = shrunk - baseline;
+  return Math.round(mmClamp(50 + 40 * Math.tanh(delta / scale), 8, 92));
+}
+function mmWeighted(values){
+  let n=0,d=0;
+  values.forEach(([v,w])=>{ if(v!=null && Number.isFinite(Number(v)) && Number(w)>0){ n += Number(v)*Number(w); d += Number(w); } });
+  return d ? n/d : null;
+}
+function mmScoreLabel(v){
+  if(v==null) return 'Insufficient data';
+  if(v>=68) return 'Strong Batter Advantage';
+  if(v>=57) return 'Batter Advantage';
+  if(v<=32) return 'Strong Pitcher Advantage';
+  if(v<=43) return 'Pitcher Advantage';
+  return 'Near Even';
+}
+function mmScoreClass(v){
+  if(v==null) return 'na';
+  if(v>=68) return 'bat-strong';
+  if(v>=57) return 'bat';
+  if(v<=32) return 'arm-strong';
+  if(v<=43) return 'arm';
+  return 'even';
+}
+
+/**
+ * Build the data behind Matchup Mix -> Zone Comparison.
+ *
+ * Batter side: recent Statcast quality in each zone, preferably vs tonight's
+ * pitcher hand. Each metric is scored relative to THIS hitter's own baseline.
+ * Pitcher side: recent location usage, preferably vs this batter's side.
+ * Zone Edge: the seven most-used in-zone locations, weighted by starter usage.
+ */
+function matchupZoneComparison(p){
+  const sp = p?.oppPitcher || {};
+  const detail = p?.detail || {};
+  const zc = detail?.zoneComparison;
+  const zp = sp?.zoneProfile;
+  if(!zc || !zp) return null;
+
+  const throwHand = String(sp?.throws||'').toUpperCase();
+  const rawBat = String(p?.hand||'').toUpperCase();
+  const batSide = rawBat === 'S'
+    ? (throwHand === 'R' ? 'L' : throwHand === 'L' ? 'R' : 'S')
+    : rawBat;
+
+  const preferredBatter = throwHand === 'L' ? zc.vsLHP : throwHand === 'R' ? zc.vsRHP : null;
+  // A few dozen pitches are enough to use the handedness slice because every
+  // zone metric below is additionally sample-shrunk. Otherwise use all hands.
+  const bg = preferredBatter?.pitches >= 45 ? preferredBatter : (zc.all || preferredBatter);
+  const bgAll = zc.all || bg;
+
+  const preferredPitcher = batSide === 'L' ? zp.vsLHB : batSide === 'R' ? zp.vsRHB : null;
+  const pg = preferredPitcher?.pitches >= 80 ? preferredPitcher : (zp.all || preferredPitcher);
+  if(!bg?.baseline || !pg?.zones) return null;
+
+  const baseline = bg.baseline || bgAll?.baseline || {};
+  const allBase = bgAll?.baseline || baseline;
+  const pzones = pg.zones || {};
+  const ordered = (pg.topZones || [1,2,3,4,5,6,7,8,9])
+    .map(Number)
+    .filter(n=>n>=1&&n<=9);
+  const fallbackOrder = [1,2,3,4,5,6,7,8,9].sort((a,b)=>
+    (Number(pzones[b]?.usagePct)||0)-(Number(pzones[a]?.usagePct)||0));
+  const top7 = [...new Set([...ordered,...fallbackOrder])]
+    .filter(n=>(Number(pzones[n]?.pitches)||Number(pzones[String(n)]?.pitches)||0)>0)
+    .slice(0,7);
+  if(!top7.length) return null;
+  const rank = Object.fromEntries(top7.map((n,i)=>[n,i+1]));
+
+  const zmap = {};
+  for(let n=1;n<=9;n++){
+    const splitZ = bg?.zones?.[n] || bg?.zones?.[String(n)] || {};
+    const allZ = bgAll?.zones?.[n] || bgAll?.zones?.[String(n)] || {};
+    // Prefer tonight's handedness slice metric-by-metric, but let the all-hand
+    // window fill genuine holes rather than turning the cell blank.
+    const raw = (key) => splitZ?.[key] != null ? splitZ[key] : allZ?.[key];
+    const base = (key) => baseline?.[key] != null ? baseline[key] : allBase?.[key];
+    const swings = Number(splitZ?.swings || allZ?.swings || 0);
+    const bbe = Number(splitZ?.bbe || allZ?.bbe || 0);
+    const contact = mmMetricScore(raw('contactPct'), base('contactPct'), swings, 18, 7.0);
+    const barrel  = mmMetricScore(raw('barrelPct'),  base('barrelPct'),  bbe, 18, 5.0);
+    const hr      = mmMetricScore(raw('hrRate'),     base('hrRate'),     bbe, 28, 2.8);
+    const hardHit = mmMetricScore(raw('hardHitPct'), base('hardHitPct'), bbe, 16, 10.0);
+    const parts = [[contact,.15],[barrel,.35],[hr,.30],[hardHit,.20]].filter(([v])=>v!=null);
+    const score = parts.length >= 2 ? Math.round(mmWeighted(parts)) : null;
+    const pd = pzones[n] || pzones[String(n)] || {};
+    zmap[n] = {
+      n,
+      name: MM_ZONE_NAMES[n],
+      usage: Number(pd.usagePct)||0,
+      pitches: Number(pd.pitches)||0,
+      rank: rank[n] || null,
+      top: !!rank[n],
+      swings, bbe,
+      contact, barrel, hr, hardHit, score,
+      raw: {
+        contactPct: raw('contactPct'), barrelPct: raw('barrelPct'),
+        hrRate: raw('hrRate'), hardHitPct: raw('hardHitPct')
+      }
+    };
+  }
+
+  const weightedTop = top7.map(n=>zmap[n]).filter(z=>z?.score!=null && z.usage>0);
+  const zoneEdge = weightedTop.length >= 3
+    ? Math.round(mmWeighted(weightedTop.map(z=>[z.score,z.usage])))
+    : null;
+  const metricScore = key => {
+    const rows = top7.map(n=>zmap[n]).filter(z=>z?.[key]!=null && z.usage>0);
+    return rows.length >= 3 ? Math.round(mmWeighted(rows.map(z=>[z[key],z.usage]))) : null;
+  };
+  const valid = weightedTop.slice().sort((a,b)=>b.score-a.score);
+  const mostUsed = zmap[top7[0]] || null;
+  const topUsagePct = top7.reduce((a,n)=>a+(zmap[n]?.usage||0),0);
+  return {
+    zones:zmap, top7, zoneEdge,
+    metrics:{
+      contact:metricScore('contact'), barrel:metricScore('barrel'),
+      hr:metricScore('hr'), hardHit:metricScore('hardHit')
+    },
+    best:valid[0]||null,
+    worst:valid.length?valid[valid.length-1]:null,
+    mostUsed,
+    topUsagePct,
+    batterScope: preferredBatter?.pitches >= 45
+      ? (throwHand==='L'?'vs LHP':'vs RHP') : 'all pitcher hands',
+    pitcherScope: preferredPitcher?.pitches >= 80
+      ? (batSide==='L'?'vs LHB':'vs RHB') : 'all batters',
+    pitcherWindow: zp.windowDays || null,
+    batterWindow: detail.windowDays || null,
+  };
+}
+
+/** Shared component scores so the modal and All Players sorter stay identical. */
+function tsoEdgeComponents(p){
   const sp = p?.oppPitcher || {};
   const detail = p?.detail || {};
   const batHandRaw = String(p?.hand || '?').toUpperCase();
@@ -13125,6 +13405,16 @@ function tsoEdgeFor(p){
     }
   });
   const weightedPitchAvg = weightedPitchAvgDen ? weightedPitchAvgNum/weightedPitchAvgDen : null;
+  const zcmp = matchupZoneComparison(p);
+
+  // Human-readable component scores (0-100). They are not separate models;
+  // they expose the same ingredients the canonical Edge uses below.
+  const splitVals=[];
+  if(bs?.ops!=null) splitVals.push(mmClamp(50 + (Number(bs.ops)-.750)*115, 15, 85));
+  if(ps?.ops!=null) splitVals.push(mmClamp(50 + (Number(ps.ops)-.750)*115, 15, 85));
+  const splitScore = splitVals.length ? Math.round(splitVals.reduce((a,b)=>a+b,0)/splitVals.length) : null;
+  const pitchMixScore = weightedPitchAvg!=null
+    ? Math.round(mmClamp(50 + (weightedPitchAvg-.250)*300,15,85)) : null;
 
   let edge = 50;
   if(bs?.ops!=null) edge += clamp((Number(bs.ops)-.750)*42,-8,8);
@@ -13133,7 +13423,117 @@ function tsoEdgeFor(p){
   if(sp?.k9!=null) edge += clamp((9.0-Number(sp.k9))*1.25,-5,5);
   if(weightedPitchAvg!=null) edge += clamp((weightedPitchAvg-.250)*48,-6,6);
   if(zoneBA!=null) edge += clamp((zoneBA-.250)*28,-4,4);
-  return Math.round(clamp(edge,25,75));
+  // New zone-overlap term: capped at +/-6 points so location tendencies can
+  // meaningfully separate close matchups without overpowering established
+  // platoon/pitcher skill.
+  if(zcmp?.zoneEdge!=null) edge += clamp((zcmp.zoneEdge-50)*0.18,-6,6);
+  edge = Math.round(clamp(edge,25,75));
+  return { edge, splitScore, pitchMixScore, zoneEdge:zcmp?.zoneEdge ?? null, zcmp };
+}
+
+function tsoEdgeFor(p){ return tsoEdgeComponents(p).edge; }
+
+function mmMetricTile(label, score){
+  const cls = mmScoreClass(score);
+  const width = score == null ? 0 : mmClamp(score,0,100);
+  return `<div class="mm-zmetric ${cls}"><div><span>${label}</span><b>${score==null?'—':score}</b></div><i><em style="width:${width}%"></em></i></div>`;
+}
+
+/** Zone Comparison panel markup. Kept separate so Zone BA remains unchanged. */
+function mmZoneComparisonHTML(p){
+  const z = matchupZoneComparison(p);
+  if(!z){
+    return `<div class="mm-zone-empty">
+      <b>Zone Comparison is waiting on pitcher location data.</b>
+      <span>The next Statcast-enriched slate rebuild will add the starter's recent zone usage and unlock the 0–100 matchup map.</span>
+    </div>`;
+  }
+  const defaultZone = z.mostUsed?.n || z.top7?.[0] || 5;
+  const cells = [1,2,3,4,5,6,7,8,9].map(n=>{
+    const d=z.zones[n]||{};
+    const score=d.score;
+    const cls=mmScoreClass(score);
+    return `<button type="button" class="mm-zcmp-cell ${cls} ${d.top?'is-top':'is-low'} ${n===defaultZone?'active':''}" data-mm-zone-cell="${n}" aria-label="${d.name || 'Zone '+n}: ${score==null?'no score':score+' matchup score'}">
+      <b>${score==null?'—':score}</b>
+      <small>${d.rank?`#${d.rank} · ${d.usage.toFixed(1)}%`:(d.usage?`${d.usage.toFixed(1)}%`:'low use')}</small>
+    </button>`;
+  }).join('');
+
+  const panes = [1,2,3,4,5,6,7,8,9].map(n=>{
+    const d=z.zones[n]||{};
+    const fmtRaw = v => v==null || !Number.isFinite(Number(v)) ? '—' : `${Number(v).toFixed(1)}%`;
+    if(d.score==null){
+      return `<div class="mm-zdetail-pane ${n===defaultZone?'active':''}" data-mm-zone-pane="${n}">
+        <div class="mm-zdetail-head"><div><span>ZONE ${n} · ${(d.name||'').toUpperCase()}</span><strong>Not enough hitter data</strong></div><em>${d.usage?d.usage.toFixed(1)+'% pitcher usage':'usage —'}</em></div>
+        <p class="mm-zdetail-copy">This zone does not have enough recent contact-quality sample to produce a reliable matchup score.</p>
+      </div>`;
+    }
+    const rows = [
+      ['Contact',d.contact,d.raw?.contactPct],['Barrel',d.barrel,d.raw?.barrelPct],
+      ['HR Rate',d.hr,d.raw?.hrRate],['Hard Hit',d.hardHit,d.raw?.hardHitPct]
+    ].map(([label,score,raw])=>`<div class="mm-zdetail-stat ${mmScoreClass(score)}"><span>${label}</span><b>${score==null?'—':score}</b><small>${fmtRaw(raw)} raw</small></div>`).join('');
+    return `<div class="mm-zdetail-pane ${n===defaultZone?'active':''}" data-mm-zone-pane="${n}">
+      <div class="mm-zdetail-head"><div><span>ZONE ${n} · ${(d.name||'').toUpperCase()}</span><strong>Zone Score ${d.score}</strong></div><em>${d.rank?`#${d.rank} location · `:''}${d.usage.toFixed(1)}% usage</em></div>
+      <div class="mm-zdetail-stats">${rows}</div>
+      <p class="mm-zdetail-copy">${d.swings||0} swings · ${d.bbe||0} balls in play. Scores compare this hitter's result in this zone with his own baseline, then shrink small samples toward neutral.</p>
+    </div>`;
+  }).join('');
+
+  const edgeLabel=mmScoreLabel(z.zoneEdge);
+  const best = z.best;
+  return `<div class="mm-zcmp">
+    <div class="mm-zcmp-body">
+      <div class="mm-zone-shell mm-zcmp-shell">
+        <div class="mm-zone-axis top">UP</div>
+        <div class="mm-zcmp-grid">${cells}</div>
+        <div class="mm-zone-axis bot">DOWN</div>
+      </div>
+      <div class="mm-zcmp-side">
+        <div class="mm-zone-edge-summary ${mmScoreClass(z.zoneEdge)}">
+          <span>ZONE EDGE</span><b>${z.zoneEdge==null?'—':z.zoneEdge}</b><strong>${edgeLabel}</strong>
+        </div>
+        <div class="mm-zmetrics">
+          ${mmMetricTile('Contact',z.metrics.contact)}
+          ${mmMetricTile('Barrel',z.metrics.barrel)}
+          ${mmMetricTile('HR Rate',z.metrics.hr)}
+          ${mmMetricTile('Hard Hit',z.metrics.hardHit)}
+        </div>
+        <div class="mm-zcmp-caption">${z.top7.length} most-used in-zone locations · ${z.topUsagePct.toFixed(1)}% of classified pitches${best?` · best overlap: ${best.name} (${best.score})`:''}</div>
+      </div>
+    </div>
+    <div class="mm-zdetail">${panes}</div>
+    <div class="mm-zscope">Hitter sample: ${z.batterScope}${z.batterWindow?` · ${z.batterWindow}d window`:''} &nbsp;•&nbsp; Pitcher usage: ${z.pitcherScope}${z.pitcherWindow?` · ${z.pitcherWindow}d window`:''}</div>
+  </div>`;
+}
+
+/** Wire Zone BA / Zone Comparison and per-zone detail without rerendering modal. */
+function wireMatchupMix(root=document){
+  root.querySelectorAll?.('.matchup-mix').forEach(mm=>{
+    if(mm.dataset.mmWired==='1') return;
+    mm.dataset.mmWired='1';
+    mm.addEventListener('click',e=>{
+      const tab=e.target.closest?.('[data-mm-zone-tab]');
+      if(tab){
+        const view=tab.dataset.mmZoneTab;
+        mm.querySelectorAll('[data-mm-zone-tab]').forEach(b=>b.classList.toggle('active',b===tab));
+        mm.querySelectorAll('[data-mm-zone-panel]').forEach(p=>p.classList.toggle('active',p.dataset.mmZonePanel===view));
+        const tip=mm.querySelector('.mm-zone-tip'); if(tip) tip.classList.remove('open');
+        return;
+      }
+      const info=e.target.closest?.('[data-mm-zone-info]');
+      if(info){
+        const tip=mm.querySelector('.mm-zone-tip');
+        if(tip) tip.classList.toggle('open');
+        return;
+      }
+      const cell=e.target.closest?.('[data-mm-zone-cell]');
+      if(cell){
+        const n=cell.dataset.mmZoneCell;
+        mm.querySelectorAll('[data-mm-zone-cell]').forEach(c=>c.classList.toggle('active',c===cell));
+        mm.querySelectorAll('[data-mm-zone-pane]').forEach(p=>p.classList.toggle('active',p.dataset.mmZonePane===n));
+      }
+    });
+  });
 }
 
 /**
@@ -13212,7 +13612,9 @@ function matchupMixHTML(p){
   }).join('') : `<div class="ab-empty">Starter pitch mix unavailable.</div>`;
 
   // Canonical score also powers the All Players TSO Edge sort.
-  const edge = tsoEdgeFor(p);
+  const edgeParts = tsoEdgeComponents(p);
+  const edge = edgeParts.edge;
+  const zcmp = edgeParts.zcmp;
   const edgeLabel = edge>=62 ? 'Batter Edge' : edge>=55 ? 'Slight Batter Edge' : edge<=38 ? 'Pitcher Edge' : edge<=45 ? 'Slight Pitcher Edge' : 'Near Even';
   const edgeColor = edge>=55 ? '#6edcff' : edge<=45 ? '#f4c430' : '#9caac0';
 
@@ -13234,7 +13636,11 @@ function matchupMixHTML(p){
     if(d?.avg!=null && d.avg>=.285) notes.push(`The primary ${pitchName(primary.code)} (${Math.round(primary.usagePct||0)}%) is a current hitter advantage at <em>${fmt3(d.avg)} AVG</em>.`);
     else if(d?.avg!=null && d.avg<=.220) notes.push(`The primary ${pitchName(primary.code)} (${Math.round(primary.usagePct||0)}%) is the pressure pitch at <em>${fmt3(d.avg)} AVG</em>.`);
   }
-  if(hotZone?.d?.avg!=null) notes.push(`Best qualified zone: <em>${zoneNames[hotZone.n]}</em> at ${fmt3(hotZone.d.avg)} AVG.`);
+  if(zcmp?.zoneEdge!=null){
+    if(zcmp.best) notes.unshift(`Location overlap leans <em>${mmScoreLabel(zcmp.zoneEdge).toLowerCase()}</em>; the best fit is ${zcmp.best.name} at a ${zcmp.best.score} Zone Score.`);
+    else notes.unshift(`Pitcher location overlap carries a <em>${zcmp.zoneEdge} Zone Edge</em>.`);
+  }
+  if(hotZone?.d?.avg!=null) notes.push(`Best qualified Zone BA: <em>${zoneNames[hotZone.n]}</em> at ${fmt3(hotZone.d.avg)} AVG.`);
   const read = notes.slice(0,3).join(' ');
 
   return `<div class="matchup-mix">
@@ -13260,13 +13666,30 @@ function matchupMixHTML(p){
       </div>
     </div>
 
+    <div class="mm-edge-components">
+      <span><small>SPLITS</small><b>${edgeParts.splitScore==null?'—':edgeParts.splitScore}</b></span>
+      <span><small>PITCH MIX</small><b>${edgeParts.pitchMixScore==null?'—':edgeParts.pitchMixScore}</b></span>
+      <span class="${mmScoreClass(edgeParts.zoneEdge)}"><small>ZONE EDGE</small><b>${edgeParts.zoneEdge==null?'—':edgeParts.zoneEdge}</b></span>
+    </div>
+
     <div class="mm-analysis-grid">
-      <div class="mm-card">
-        <div class="mm-card-head"><b>Zone BA</b><span>catcher's view · AVG / EV</span></div>
-        <div class="mm-zone-body">
-          <div class="mm-zone-shell"><div class="mm-zone-axis top">UP</div><div class="mm-zone-grid">${zoneHTML}</div><div class="mm-zone-axis bot">DOWN</div></div>
-          <div class="mm-zone-insight"><span class="eyebrow">Damage zone</span><strong>${hotZone?zoneNames[hotZone.n]:'No sample'}</strong><p>${hotZone?`${fmt3(hotZone.d.avg)} AVG · ${hotZone.d.ev!=null?Math.round(hotZone.d.ev)+' mph EV':'EV —'} · ${hotZone.d.abs||0} AB`:'Not enough qualified zone data.'}</p><div class="mm-heat-legend"><span><i style="background:#f15b48"></i>Hot</span><span><i style="background:#e6b33d"></i>Warm</span><span><i style="background:#2d7fff"></i>Cool</span></div></div>
+      <div class="mm-card mm-zone-card">
+        <div class="mm-zone-switch">
+          <div class="mm-zone-switch-title"><b>Zone Matchup</b><span>catcher's view</span></div>
+          <div class="mm-zone-tabs">
+            <button type="button" class="active" data-mm-zone-tab="ba">Zone BA</button>
+            <button type="button" data-mm-zone-tab="compare">Zone Comparison</button>
+            <button type="button" class="mm-zone-info" data-mm-zone-info aria-label="About Zone Comparison">i</button>
+          </div>
+          <div class="mm-zone-tip">Scores are 0–100 matchup ratings, not raw stats. Each zone compares this batter's contact, barrel, HR-rate and hard-hit results with his own baseline. The pitcher's recent zone usage determines how much each location influences Zone Edge.</div>
         </div>
+        <div class="mm-zone-view active" data-mm-zone-panel="ba">
+          <div class="mm-zone-body">
+            <div class="mm-zone-shell"><div class="mm-zone-axis top">UP</div><div class="mm-zone-grid">${zoneHTML}</div><div class="mm-zone-axis bot">DOWN</div></div>
+            <div class="mm-zone-insight"><span class="eyebrow">Damage zone</span><strong>${hotZone?zoneNames[hotZone.n]:'No sample'}</strong><p>${hotZone?`${fmt3(hotZone.d.avg)} AVG · ${hotZone.d.ev!=null?Math.round(hotZone.d.ev)+' mph EV':'EV —'} · ${hotZone.d.abs||0} AB`:'Not enough qualified zone data.'}</p><div class="mm-heat-legend"><span><i style="background:#f15b48"></i>Hot</span><span><i style="background:#e6b33d"></i>Warm</span><span><i style="background:#2d7fff"></i>Cool</span></div></div>
+          </div>
+        </div>
+        <div class="mm-zone-view" data-mm-zone-panel="compare">${mmZoneComparisonHTML(p)}</div>
       </div>
 
       <div class="mm-card">
@@ -13276,8 +13699,8 @@ function matchupMixHTML(p){
       </div>
     </div>
 
-    <div class="mm-read"><div class="mm-read-top"><span class="mm-read-badge">TSO READ</span><strong>${edgeLabel}</strong></div><p>${read || 'Not enough split and pitch-type data is available to build a reliable matchup read yet.'}</p></div>
-    <div class="mm-disclaimer">Edge is a bounded matchup context score built from available handedness splits, zone BA, pitch-type results, K/9 and HR/9. It is not a win probability or guarantee.</div>
+    <div class="mm-read"><div class="mm-read-top"><span class="mm-read-badge">TSO READ</span><strong>${edgeLabel}</strong></div><p>${read || 'Not enough split, pitch-type and zone-overlap data is available to build a reliable matchup read yet.'}</p></div>
+    <div class="mm-disclaimer">TSO Edge is a bounded matchup-context score. When Statcast location data is available, Zone Edge adds the hitter's zone quality weighted by the starter's recent location usage. It is not a probability or guarantee.</div>
   </div>`;
 }
 
@@ -16542,7 +16965,7 @@ function openBatterModal(p){
       </div>
 
       <div class="sec matchup-mix-sec">
-        <div class="sec-h"><h3>Matchup Mix</h3><span class="cap">handedness · zone BA · pitch mix</span></div>
+        <div class="sec-h"><h3>Matchup Mix</h3><span class="cap">handedness · zone edge · pitch mix</span></div>
         ${matchupMixHTML(p)}
       </div>
 
@@ -16567,6 +16990,7 @@ function openBatterModal(p){
   document.body.classList.add('modal-open');
   overlay.classList.add('open');
   document.getElementById('modalClose').onclick = closeModal;
+  wireMatchupMix(modalBody);
   // Pitch breakdown range tabs (SEASON / L5 / L3) re-filter the batted-ball window.
   const pdHost = modalBody.querySelector('#pitchBreakdownHost');
   if(pdHost) pdHost.addEventListener('click', e=>{
