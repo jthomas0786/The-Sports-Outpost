@@ -4092,6 +4092,94 @@ body.modal-open{ overflow:hidden; }
 .nxg-embedded .nxg-openfull{color:#7fc1ff;border-color:rgba(45,127,255,.48)}
 .nxg-previewpill .dot{background:#64748b;box-shadow:none;animation:none}
 @media(max-width:760px){.ms-game-grid.has-full-gamecasts{gap:20px}.nxg-embedded .nxg-tools .nxg-feedpill,.nxg-embedded .nxg-dotbtn{display:none}.nxg-embedded .nxg-openfull{width:100%;justify-content:center}}
+
+
+/* v56 — clean, non-overflowing mobile topbar */
+@media (max-width:760px){
+  .topbar{
+    width:100%; max-width:100%;
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:8px !important;
+    overflow:visible;
+  }
+  .topbar-left{
+    min-width:0;
+    gap:7px !important;
+    overflow:hidden;
+  }
+  .topbar-right{
+    min-width:0;
+    gap:5px !important;
+    flex-shrink:1;
+  }
+  .tb-status{display:none !important;}
+  .tb-mobile-brand{
+    display:flex !important;
+    min-width:0;
+    flex:0 1 88px;
+    overflow:hidden;
+  }
+  .tb-mobile-brand img,
+  .so-mobile-logo{
+    width:auto !important;
+    max-width:88px !important;
+    max-height:28px !important;
+    object-fit:contain;
+  }
+
+  /* Keep the four mobile actions people actually use. The drawer/auto-refresh
+     still provides navigation and live-data refresh, so the lesser actions do
+     not need to fight for 30px buttons in the header. */
+  .topbar .info-btn-tb,
+  .topbar #refreshBtn,
+  .topbar .online-wrap-tb{display:none !important;}
+
+  .topbar .balance-chip{
+    height:30px;
+    min-width:0;
+    max-width:84px;
+    padding:0 9px;
+    gap:4px;
+    border-radius:999px;
+    font-size:14px;
+    line-height:1;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    flex:0 1 auto;
+  }
+  .topbar .balance-chip::before{font-size:8px;flex:0 0 auto;}
+  .topbar #balanceChipVal{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .topbar #chatBtnTb,
+  .topbar #notifyBtn,
+  .topbar .avatar-btn,
+  .topbar .sidebar-hamburger{
+    width:30px !important;
+    height:30px !important;
+    flex:0 0 30px;
+  }
+  .topbar .notify-pop{
+    right:8px;
+    width:min(280px,calc(100vw - 16px));
+  }
+}
+@media (max-width:420px){
+  .topbar{padding-left:8px !important;padding-right:8px !important;gap:6px !important;}
+  .topbar-left{gap:6px !important;}
+  .topbar-right{gap:4px !important;}
+  .tb-mobile-brand{flex-basis:78px;}
+  .tb-mobile-brand img,.so-mobile-logo{max-width:78px !important;max-height:26px !important;}
+  .topbar .balance-chip{max-width:76px;padding:0 8px;font-size:13px;}
+}
+@media (max-width:360px){
+  .tb-mobile-brand{flex-basis:68px;}
+  .tb-mobile-brand img,.so-mobile-logo{max-width:68px !important;}
+  .topbar .balance-chip{max-width:66px;font-size:12px;padding:0 7px;}
+  .topbar #notifyBtn{display:none !important;}
+}
+
 </style>
 
 <style id="mobile-density-v8">
