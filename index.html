@@ -10498,9 +10498,12 @@ function mlbPitcherSplitHR9(p,key){
 function mlbPitcherStatClass(kind,value){
   const v=Number(value);
   if(!Number.isFinite(v)) return 'na';
-  if(kind==='k9') return v>=8.6?'good':'bad';
-  if(kind==='hr9') return v<=1.15?'good':'bad';
-  if(kind==='era') return v<=4.20?'good':'bad';
+  // Slate is batter-prop focused, so colors are intentionally from the
+  // HITTER'S perspective: green = a pitcher stat that helps the batter,
+  // red = a pitcher stat that makes the matchup tougher.
+  if(kind==='k9') return v>=8.6?'bad':'good';
+  if(kind==='hr9') return v>=1.15?'good':'bad';
+  if(kind==='era') return v>=4.20?'good':'bad';
   return 'na';
 }
 function mlbPitcherMiniHTML(p,team,side){
