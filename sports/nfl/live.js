@@ -44,7 +44,15 @@ export function extractLive(event) {
   let possession = null;       // 'away' | 'home' | null
   let yardFromOwn = null;      // yards from possessing team's own goal line (0-100)
   let isRedZone = false;
+  let down = null;
+  let distance = null;
+  let downDistanceText = null;
+  let lastPlayText = null;
   if (sit && state === 'in') {
+    down = Number.isFinite(Number(sit.down)) ? Number(sit.down) : null;
+    distance = Number.isFinite(Number(sit.distance)) ? Number(sit.distance) : null;
+    downDistanceText = sit.shortDownDistanceText || sit.downDistanceText || sit.possessionText || null;
+    lastPlayText = sit.lastPlay?.text || sit.lastPlay?.shortText || null;
     const possId = sit.possession; // ESPN team id of the team with the ball
     if (possId != null) {
       if (String(home.team?.id) === String(possId)) possession = 'home';
@@ -70,6 +78,10 @@ export function extractLive(event) {
     possession,
     yardFromOwn,
     isRedZone,
+    down,
+    distance,
+    downDistanceText,
+    lastPlayText,
     lastFetchedAt: Date.now(),
   };
 }
@@ -89,7 +101,8 @@ function parseClock(displayClock) {
 function sig(live) {
   if (!live) return '';
   return [live.status, live.awayScore, live.homeScore, live.period, live.clockMin && live.clockMin.toFixed(2),
-    live.possession, live.yardFromOwn != null ? Math.round(live.yardFromOwn) : '', live.isRedZone ? 1 : 0].join('|');
+    live.possession, live.yardFromOwn != null ? Math.round(live.yardFromOwn) : '', live.isRedZone ? 1 : 0,
+    live.down ?? '', live.distance ?? '', live.downDistanceText || '', live.lastPlayText || ''].join('|');
 }
 
 async function tick() {
@@ -113,6 +126,8 @@ async function tick() {
         g.liveScore = {
           period: gl.period, clockMin: gl.clockMin,
           possession: gl.possession, yardFromOwn: gl.yardFromOwn, isRedZone: gl.isRedZone,
+          down: gl.down, distance: gl.distance, downDistanceText: gl.downDistanceText,
+          lastPlayText: gl.lastPlayText,
           lastFetchedAt: gl.lastFetchedAt || data.lastFetchedAt,
         };
         _lastSig[g.gameId] = s;
