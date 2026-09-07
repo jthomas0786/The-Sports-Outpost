@@ -22,6 +22,8 @@ const state = {
   inlineTabs: {},
 };
 
+const NFL_FIELD_ART = 'nfl-tso-field.png?v=40';
+
 const PROPS = {
   atd: 'Anytime TD',
   firstTd: 'First TD',
@@ -246,10 +248,9 @@ function headerHTML(){
 }
 
 function footballField(g,{gamecast=false}={}){
-  const markers=[10,20,30,40,50,60,70,80,90].map((x,i)=>`<span class="ms-field-marker" style="left:${x}%"><b>${i<5?(i+1)*10:(9-i)*10}</b></span>`).join('');
-  const ball=ballFieldPct(g);
-  const first=firstDownPct(g,ball);
-  return `<div class="ms-field"><div class="ms-endzone">${esc(g.away.abbr)}</div><div class="ms-yard-lines">${markers}${gamecast?`<span class="ms-los" style="left:${ball}%"></span><span class="ms-firstdown" style="left:${first}%"></span>`:''}<span class="ms-ball" style="left:${ball}%"></span></div><div class="ms-endzone">${esc(g.home.abbr)}</div></div>`;
+  const ball=clamp(ballFieldPct(g), 8, 92);
+  const first=clamp(firstDownPct(g,ball), 8, 92);
+  return `<div class="ms-field ms-field-art"><img class="ms-field-art-img" src="${NFL_FIELD_ART}" alt="The Sports Outpost branded football field"><div class="ms-field-overlay">${gamecast?`<span class="ms-los" style="left:${ball}%"></span><span class="ms-firstdown" style="left:${first}%"></span>`:''}<span class="ms-ball" style="left:${ball}%"></span></div></div>`;
 }
 
 function slateGamecastCard(g){
@@ -470,26 +471,19 @@ function routeTargetPct(g){ const ball=ballLeftPct(g), first=firstLeftPct(g); re
 function fieldOverlayHTML(g,p){
   const ball=ballLeftPct(g)/100, first=firstLeftPct(g)/100, target=routeTargetPct(g)/100;
   const ctx=offenseContext(g), dir=target>ball?1:-1;
-  const topL=110, topR=890, botL=38, botR=962, topY=112, botY=466;
+  const topL=208, topR=1326, botL=6, botR=1530, topY=90, botY=528;
   const topX=pct=>topL+(topR-topL)*pct, botX=pct=>botL+(botR-botL)*pct;
   const point=(pct,yf)=>({x:topX(pct)+(botX(pct)-topX(pct))*yf,y:topY+(botY-topY)*yf});
-  const quad=(p1,p2)=>`${topX(p1)},${topY} ${topX(p2)},${topY} ${botX(p2)},${botY} ${botX(p1)},${botY}`;
-  const yardLines=[]; const yardNums=[];
-  for(let i=1;i<10;i++){
-    const pct=i/10, a=point(pct,0), b=point(pct,1), n=i<=5?i*10:(10-i)*10;
-    yardLines.push(`<line x1="${a.x}" y1="${a.y}" x2="${b.x}" y2="${b.y}" class="nxg-svg-yardline"/>`);
-    const nt=point(pct,.28), nb=point(pct,.76);
-    yardNums.push(`<text x="${nt.x}" y="${nt.y}" class="nxg-svg-yardnum top" text-anchor="middle">${n}</text><text x="${nb.x}" y="${nb.y}" class="nxg-svg-yardnum" text-anchor="middle">${n}</text>`);
-  }
   const losA=point(ball,0), losB=point(ball,1), fdA=point(first,0), fdB=point(first,1);
-  const ballPt=point(ball,.69), targetPt=point(target,.39), ctrl=point(clamp(ball+dir*.12,.08,.92),.48);
+  const ballPt=point(ball,.72), targetPt=point(target,.40), ctrl=point(clamp(ball+dir*.12,.08,.92),.52);
   const offDef=[];
-  const off=[[-.07,.73],[-.035,.65],[0,.72],[.035,.64],[.07,.73],[-.11,.80],[-.02,.82],[.055,.81],[-.15,.86],[.11,.86]];
-  const def=[[-.07,.57],[-.025,.54],[.025,.58],[.075,.54],[-.12,.61],[.12,.61],[-.045,.67],[.035,.67],[.105,.70],[-.105,.70],[-.18,.72]];
+  const off=[[-.07,.75],[-.035,.67],[0,.74],[.035,.66],[.07,.75],[-.11,.82],[-.02,.84],[.055,.83],[-.15,.88],[.11,.88]];
+  const def=[[-.07,.58],[-.025,.55],[.025,.59],[.075,.55],[-.12,.62],[.12,.62],[-.045,.69],[.035,.69],[.105,.72],[-.105,.72],[-.18,.75]];
   for(const [dx,y] of def){const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="10" class="nxg-svg-def"/>`)}
   off.forEach(([dx,y],i)=>{const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="${i===1?11:10}" class="${i===1?'nxg-svg-qb':'nxg-svg-off'}"/>`)});
-  const targetLabel=point(target,.36), logoAway=esc(g.away.logo||''), logoHome=esc(g.home.logo||'');
-  return `<div class="nxg-fieldshell nxg-fieldshell-exact"><div class="nxg-stadium-exact"><div class="nxg-stadium-lights"></div><div class="nxg-stadium-crowd"></div></div><div class="nxg-brandmark-exact">TSO</div><div class="nxg-nfllive"><span>🏈</span><b>NFL LIVE</b></div><div class="nxg-fieldtag">${esc(g.status==='in'?downDistanceLabel(g):'Pregame')}</div><svg class="nxg-fieldsvg" viewBox="0 0 1000 520" preserveAspectRatio="none" aria-label="NFL field visualization"><defs><linearGradient id="nxgGrass-${esc(g.id)}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a7a3a"/><stop offset="1" stop-color="#1d5e30"/></linearGradient><linearGradient id="nxgLeft-${esc(g.id)}" x1="0" x2="1"><stop offset="0" stop-color="#8a1b24"/><stop offset="1" stop-color="#c92a32"/></linearGradient><linearGradient id="nxgRight-${esc(g.id)}" x1="0" x2="1"><stop offset="0" stop-color="#122d68"/><stop offset="1" stop-color="#1d438f"/></linearGradient><filter id="nxgShadow-${esc(g.id)}"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-opacity=".45"/></filter></defs><polygon points="${quad(0,1)}" fill="url(#nxgGrass-${esc(g.id)})" class="nxg-svg-field"/><polygon points="${quad(0,.13)}" fill="url(#nxgLeft-${esc(g.id)})"/><polygon points="${quad(.87,1)}" fill="url(#nxgRight-${esc(g.id)})"/>${yardLines.join('')}${yardNums.join('')}<line x1="${losA.x}" y1="${losA.y}" x2="${losB.x}" y2="${losB.y}" class="nxg-svg-los"/><line x1="${fdA.x}" y1="${fdA.y}" x2="${fdB.x}" y2="${fdB.y}" class="nxg-svg-first"/>${offDef.join('')}<path d="M ${ballPt.x} ${ballPt.y} Q ${ctrl.x} ${ctrl.y} ${targetPt.x} ${targetPt.y}" class="nxg-svg-route"/><path d="M ${ballPt.x} ${ballPt.y} Q ${point(clamp(ball+dir*.06,.08,.92),.55).x} ${point(clamp(ball+dir*.06,.08,.92),.55).y} ${point(clamp(ball+dir*.14,.08,.92),.43).x} ${point(clamp(ball+dir*.14,.08,.92),.43).y}" class="nxg-svg-route-dash"/><ellipse cx="${ballPt.x}" cy="${ballPt.y}" rx="12" ry="7" transform="rotate(-18 ${ballPt.x} ${ballPt.y})" class="nxg-svg-ball"/><text x="${point(.065,.58).x}" y="${point(.065,.58).y}" transform="rotate(-90 ${point(.065,.58).x} ${point(.065,.58).y})" class="nxg-svg-endtext" text-anchor="middle">${esc(g.away.name).toUpperCase()}</text><text x="${point(.935,.58).x}" y="${point(.935,.58).y}" transform="rotate(90 ${point(.935,.58).x} ${point(.935,.58).y})" class="nxg-svg-endtext" text-anchor="middle">${esc(g.home.name).toUpperCase()}</text>${logoAway?`<image href="${logoAway}" x="${point(.055,.79).x-24}" y="${point(.055,.79).y-18}" width="48" height="36" preserveAspectRatio="xMidYMid meet" opacity=".95"/>`:''}${logoHome?`<image href="${logoHome}" x="${point(.945,.79).x-24}" y="${point(.945,.79).y-18}" width="48" height="36" preserveAspectRatio="xMidYMid meet" opacity=".95"/>`:''}<g transform="translate(${targetLabel.x-44},${targetLabel.y-20})" filter="url(#nxgShadow-${esc(g.id)})"><rect width="88" height="40" rx="10" fill="#071a3b" stroke="#258cff" stroke-width="1.4"/><circle cx="20" cy="20" r="11" fill="#1688ff"/><text x="20" y="24" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">${esc((p?.team||ctx.offense.abbr).slice(0,3))}</text><text x="38" y="24" fill="#fff" font-size="11" font-weight="800">#${esc(String(p?.id||'88').slice(-2))}</text></g></svg><div class="nxg-fieldlegend"><span><i class="off"></i>Offense (${esc(ctx.offense.abbr)})</span><span><i class="def"></i>Defense (${esc(ctx.defense.abbr)})</span><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div></div>`;
+  const targetLabel=point(target,.37);
+  const playerNo=String(p?.id||'88').slice(-2);
+  return `<div class="nxg-fieldshell nxg-fieldshell-exact"><div class="nxg-stadium-exact"><div class="nxg-stadium-lights"></div><div class="nxg-stadium-crowd"></div></div><div class="nxg-brandmark-exact">TSO</div><div class="nxg-nfllive"><span>🏈</span><b>NFL LIVE</b></div><div class="nxg-fieldtag">${esc(g.status==='in'?downDistanceLabel(g):'Pregame')}</div><div class="nxg-fieldart-frame"><img class="nxg-fieldart-img" src="${NFL_FIELD_ART}" alt="The Sports Outpost football field"><div class="nxg-fieldart-shade"></div><svg class="nxg-fieldsvg" viewBox="0 0 1536 600" preserveAspectRatio="none" aria-label="NFL field visualization"><defs><filter id="nxgShadow-${esc(g.id)}"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity=".42"/></filter></defs><line x1="${losA.x}" y1="${losA.y}" x2="${losB.x}" y2="${losB.y}" class="nxg-svg-los"/><line x1="${fdA.x}" y1="${fdA.y}" x2="${fdB.x}" y2="${fdB.y}" class="nxg-svg-first"/>${offDef.join('')}<path d="M ${ballPt.x} ${ballPt.y} Q ${ctrl.x} ${ctrl.y} ${targetPt.x} ${targetPt.y}" class="nxg-svg-route"/><path d="M ${ballPt.x} ${ballPt.y} Q ${point(clamp(ball+dir*.06,.08,.92),.57).x} ${point(clamp(ball+dir*.06,.08,.92),.57).y} ${point(clamp(ball+dir*.14,.08,.92),.45).x} ${point(clamp(ball+dir*.14,.08,.92),.45).y}" class="nxg-svg-route-dash"/><ellipse cx="${ballPt.x}" cy="${ballPt.y}" rx="12" ry="7" transform="rotate(-18 ${ballPt.x} ${ballPt.y})" class="nxg-svg-ball"/><g transform="translate(${targetLabel.x-44},${targetLabel.y-20})" filter="url(#nxgShadow-${esc(g.id)})"><rect width="88" height="40" rx="10" fill="#071a3b" stroke="#258cff" stroke-width="1.4"/><circle cx="20" cy="20" r="11" fill="#1688ff"/><text x="20" y="24" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">${esc((p?.team||ctx.offense.abbr).slice(0,3))}</text><text x="38" y="24" fill="#fff" font-size="11" font-weight="800">#${esc(playerNo)}</text></g></svg></div><div class="nxg-fieldlegend"><span><i class="off"></i>Offense (${esc(ctx.offense.abbr)})</span><span><i class="def"></i>Defense (${esc(ctx.defense.abbr)})</span><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div></div>`;
 }
 
 function offenseSideHTML(g){
