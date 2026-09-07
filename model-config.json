@@ -302,7 +302,14 @@
         "values": { "CF":1.10, "SS":1.06, "2B":1.04, "LF":1.02, "RF":1.00,
                     "3B":0.97, "1B":0.93, "DH":0.92, "C":0.90 } },
     },
-  },
+
+    "edge": {
+      // Composite proprietary matchup read from Matchup Mix. Neutral at 50.
+      // Because it already blends platoon fit, pitch mix, zone overlap, and
+      // pieces of starter context, the overlapping raw pitcher/split weights
+      // are trimmed in Section 5 instead of being counted twice.
+      "tsoEdge": { "type": "curve", "floor": 40, "scale": 60 },
+    },  },
 
   // =========================================================================
   //  5. PROPS — which factors matter, and how much
@@ -350,9 +357,9 @@
           "exitVelo":    0.00,   // intentionally off: highly correlated with barrel/xSLG
         },
         "pitcher": {
-          "hr9":         0.20,   // meaningful matchup signal, tempered for starter sample/noise
-          "gbFb":       -0.10,   // NEGATIVE: ground-ball pitchers suppress HR
-          "hand":        0.12,   // platoon SLG edge; kept modest because splits are noisy
+          "hr9":         0.12,   // trimmed: TSO Edge already bakes in a piece of starter HR susceptibility
+          "gbFb":       -0.10,   // NEGATIVE: unique suppression trait, keep it separate
+          "hand":        0.00,   // duplicated inside TSO Edge; handled there now
         },
         "park": {
           "hrFactor":    0.18,   // real park HR environment
@@ -361,6 +368,9 @@
         },
         "form": {
           "powerTrend":  0.05,   // recent HR form is noisy; use only as a tiebreaker
+        },
+        "edge": {
+          "tsoEdge":     0.16,   // proprietary matchup signal: platoon + pitch mix + zone overlap + starter context
         },
       },
     },
@@ -378,16 +388,19 @@
           "babipLuck":  -0.15,   // NEGATIVE: a .370 BABIP is regression waiting
         },
         "pitcher": {
-          "kMismatch":  -0.20,   // NEGATIVE: high-K batters put fewer in play
-          "k9":         -0.16,   // NEGATIVE: high-K starters suppress hits
+          "kMismatch":  -0.20,   // NEGATIVE: still unique because it blends batter + pitcher strikeout shape
+          "k9":         -0.08,   // trimmed: TSO Edge already includes starter bat-missing ability
           "era":         0.10,   // hittable starter helps
-          "handContact": 0.14,   // platoon edge, average version
+          "handContact": 0.00,   // duplicated inside TSO Edge; handled there now
         },
         "park": {
           "runsFactor":  0.06,   // park matters much less for singles
         },
         "form": {
           "avgTrend":    0.12,
+        },
+        "edge": {
+          "tsoEdge":     0.12,
         },
       },
     },
@@ -404,10 +417,10 @@
           "xSLG":        0.20,   // the best single TB input
         },
         "pitcher": {
-          "hr9":         0.12,
+          "hr9":         0.08,   // trimmed: overlap with TSO Edge
           "era":         0.10,
           "gbFb":       -0.08,   // NEGATIVE
-          "hand":        0.14,
+          "hand":        0.00,   // duplicated inside TSO Edge
         },
         "park": {
           "xbFactor":    0.14,
@@ -417,6 +430,9 @@
         "form": {
           "powerTrend":  0.06,
           "avgTrend":    0.06,
+        },
+        "edge": {
+          "tsoEdge":     0.14,
         },
       },
     },
@@ -435,7 +451,7 @@
         },
         "pitcher": {
           "era":         0.14,
-          "hand":        0.10,
+          "hand":        0.00,   // duplicated inside TSO Edge
         },
         "park": {
           "runsFactor":  0.12,
@@ -447,6 +463,9 @@
         },
         "form": {
           "avgTrend":    0.08,
+        },
+        "edge": {
+          "tsoEdge":     0.10,
         },
       },
     },
@@ -461,8 +480,8 @@
       "weights": {
         "pitcher": {
           "era":         0.12,
-          "k9":         -0.10,   // NEGATIVE
-          "handContact": 0.08,
+          "k9":         -0.08,   // NEGATIVE — trimmed: TSO Edge already carries some bat-missing signal
+          "handContact": 0.00,   // duplicated inside TSO Edge
         },
         "park": {
           "runsFactor":  0.12,
@@ -474,6 +493,9 @@
         },
         "form": {
           "avgTrend":    0.08,
+        },
+        "edge": {
+          "tsoEdge":     0.10,
         },
       },
     },
