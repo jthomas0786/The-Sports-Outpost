@@ -4657,7 +4657,8 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zone-view.active{display:block}
 
 .player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:154px minmax(0,1fr);gap:10px;align-items:start;max-width:100%;min-width:0}
-.player-card-v2 .mm-zcmp-shell{padding-top:15px;padding-bottom:14px}
+.player-card-v2 .mm-zcmp-left{width:154px;min-width:0;max-width:154px}
+.player-card-v2 .mm-zcmp-shell{width:154px;max-width:154px;padding-top:15px;padding-bottom:14px;margin:0}
 .player-card-v2 .mm-zcmp,.player-card-v2 .mm-zcmp *{box-sizing:border-box}
 .player-card-v2 .mm-zcmp{max-width:100%;min-width:0}
 .player-card-v2 .mm-zcmp-grid{
@@ -4682,15 +4683,15 @@ body.modal-open{ overflow:hidden; }
 
 .player-card-v2 .mm-zcmp-side{width:100%;min-width:0;max-width:100%;overflow:hidden}
 .player-card-v2 .mm-zone-edge-summary{
-  display:grid;grid-template-columns:auto 42px minmax(0,1fr);gap:8px;align-items:center;
-  padding:8px 9px;border:1px solid var(--border);border-radius:8px;background:var(--panel3)
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'label score' 'status score';gap:2px 6px;align-items:center;
+  width:100%;margin-top:6px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden
 }
-.player-card-v2 .mm-zone-edge-summary>span{font:900 7px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);letter-spacing:.08em}
-.player-card-v2 .mm-zone-edge-summary>b{font:700 22px 'Oswald',sans-serif;color:var(--white);line-height:1;text-align:center}
-.player-card-v2 .mm-zone-edge-summary>strong{font-size:10px;color:var(--white);line-height:1.15}
+.player-card-v2 .mm-zone-edge-summary>span{grid-area:label;min-width:0;font:900 6.6px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);letter-spacing:.07em;white-space:nowrap}
+.player-card-v2 .mm-zone-edge-summary>b{grid-area:score;font:700 22px 'Oswald',sans-serif;color:var(--white);line-height:1;text-align:right}
+.player-card-v2 .mm-zone-edge-summary>strong{grid-area:status;min-width:0;font-size:8.7px;color:var(--white);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .player-card-v2 .mm-zone-edge-summary.bat b,.player-card-v2 .mm-zone-edge-summary.bat-strong b{color:var(--accent-bright)}
 .player-card-v2 .mm-zone-edge-summary.arm b,.player-card-v2 .mm-zone-edge-summary.arm-strong b{color:var(--gold)}
-.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin-top:6px;min-width:0;max-width:100%}
+.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin-top:0;min-width:0;max-width:100%}
 .player-card-v2 .mm-zmetric{min-width:0;padding:5px 7px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
 .player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
 .player-card-v2 .mm-zmetric span{min-width:0;font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
@@ -4731,11 +4732,11 @@ body.modal-open{ overflow:hidden; }
   .player-card-v2 .mm-zone-tabs button{font-size:6.8px;padding:5px 7px}
   .player-card-v2 .mm-zone-tip{left:0;right:0;top:58px;max-width:none}
   .player-card-v2 .mm-zcmp-body{grid-template-columns:1fr;gap:8px}
-  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;margin:0 auto;flex-basis:auto}
+  .player-card-v2 .mm-zcmp-left{width:142px;max-width:142px;margin:0 auto}
+  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;margin:0;flex-basis:auto}
   .player-card-v2 .mm-zcmp-grid{grid-template-rows:repeat(3,48px)}
   .player-card-v2 .mm-zcmp-cell b{font-size:15px}.player-card-v2 .mm-zcmp-cell small{font-size:5.7px}
-  .player-card-v2 .mm-zone-edge-summary{grid-template-columns:auto 38px minmax(0,1fr)}
-  .player-card-v2 .mm-zone-edge-summary>b{font-size:19px}.player-card-v2 .mm-zone-edge-summary>strong{font-size:9px}
+  .player-card-v2 .mm-zone-edge-summary>b{font-size:19px}.player-card-v2 .mm-zone-edge-summary>strong{font-size:8.2px}
   .player-card-v2 .mm-zdetail-stats{grid-template-columns:1fr 1fr}
   .player-card-v2 .mm-zdetail-head{align-items:flex-start}.player-card-v2 .mm-zdetail-head em{max-width:105px;font-size:6.4px}
 }
@@ -13686,15 +13687,17 @@ function mmZoneComparisonHTML(p){
   const best = z.best;
   return `<div class="mm-zcmp">
     <div class="mm-zcmp-body">
-      <div class="mm-zone-shell mm-zcmp-shell">
-        <div class="mm-zone-axis top">UP</div>
-        <div class="mm-zcmp-grid">${cells}</div>
-        <div class="mm-zone-axis bot">DOWN</div>
-      </div>
-      <div class="mm-zcmp-side">
+      <div class="mm-zcmp-left">
+        <div class="mm-zone-shell mm-zcmp-shell">
+          <div class="mm-zone-axis top">UP</div>
+          <div class="mm-zcmp-grid">${cells}</div>
+          <div class="mm-zone-axis bot">DOWN</div>
+        </div>
         <div class="mm-zone-edge-summary ${mmScoreClass(z.zoneEdge)}">
           <span>ZONE EDGE</span><b>${z.zoneEdge==null?'—':z.zoneEdge}</b><strong>${edgeLabel}</strong>
         </div>
+      </div>
+      <div class="mm-zcmp-side">
         <div class="mm-zmetrics">
           ${mmMetricTile('Contact',z.metrics.contact)}
           ${mmMetricTile('HR Rate',z.metrics.hr)}
