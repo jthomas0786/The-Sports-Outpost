@@ -4081,6 +4081,16 @@ body.modal-open{ overflow:hidden; }
 @media(max-width:1180px){.nxg-scorebar{grid-template-columns:1fr 250px 1fr}.nxg-weather{grid-column:1/-1;border-left:0;border-top:1px solid rgba(45,127,255,.16);flex-direction:row;align-items:center;justify-content:center;text-align:center}.nxg-main{grid-template-columns:1fr}.nxg-lower,.nxg-bottom{grid-template-columns:1fr 1fr}.nxg-watch{grid-template-columns:58px 1fr}.nxg-watchstats{grid-column:1/-1;min-width:0}}
 @media(max-width:760px){.nxg-crumb{flex-direction:column;align-items:flex-start;gap:6px}.nxg-topbar{align-items:stretch}.nxg-tabs{width:100%}.nxg-tab{min-width:0;flex:1;padding:10px 10px;font-size:11px}.nxg-tools{width:100%;justify-content:flex-start}.nxg-livepill,.nxg-feedpill,.nxg-ghostbtn,.nxg-dotbtn{padding:8px 10px;font-size:11px}.nxg-scorebar{grid-template-columns:1fr}.nxg-teamblock,.nxg-teamblock.home{grid-template-columns:78px 1fr auto;text-align:left}.nxg-teamblock.home .nxg-teamlogo{grid-column:auto}.nxg-teamlogo{width:72px;height:46px}.nxg-teamcopy b{font-size:20px}.nxg-score{font-size:46px}.nxg-centerblock{border-left:0;border-right:0;border-top:1px solid rgba(45,127,255,.16);border-bottom:1px solid rgba(45,127,255,.16)}.nxg-clockline{gap:16px}.nxg-period{font-size:22px}.nxg-clock{font-size:28px}.nxg-downchip{font-size:15px;padding:8px 12px}.nxg-fieldshell{height:330px}.nxg-field{left:10px;right:10px;top:62px;bottom:20px}.nxg-endzone span{font-size:20px}.nxg-yardnum{font-size:15px}.nxg-yardnum.top{display:none}.nxg-targetchip{padding:4px 6px;font-size:8px}.nxg-fieldlegend{gap:10px;font-size:8px}.nxg-lower,.nxg-bottom{grid-template-columns:1fr}.nxg-gaugewrap{flex-direction:column;align-items:flex-start}.nxg-watch{grid-template-columns:56px 1fr}.nxg-watch .nxg-avatar{width:56px;height:56px}.nxg-watchstats{grid-template-columns:repeat(3,1fr)}.nxg-teamstats{grid-template-columns:1fr}.nxg-teamstats .logo{display:none}.nxg-pbp-item{grid-template-columns:1fr}.nxg-pbp-tag{justify-self:start}}
 
+
+/* v38 — full broadcast Gamecast cards directly on the one-column NFL slate */
+.ms-game-grid.has-full-gamecasts{max-width:1320px;gap:28px}
+.ms-game-grid.has-full-gamecasts .nxg-wrap{width:100%;max-width:none;margin:0;padding:0 0 18px;border-bottom:1px solid rgba(45,127,255,.18)}
+.ms-game-grid.has-full-gamecasts .nxg-wrap:last-child{border-bottom:0}
+.nxg-embedded{padding-top:2px!important}
+.nxg-embedded .nxg-crumb{margin-top:0}
+.nxg-embedded .nxg-openfull{color:#7fc1ff;border-color:rgba(45,127,255,.48)}
+.nxg-previewpill .dot{background:#64748b;box-shadow:none;animation:none}
+@media(max-width:760px){.ms-game-grid.has-full-gamecasts{gap:20px}.nxg-embedded .nxg-tools .nxg-feedpill,.nxg-embedded .nxg-dotbtn{display:none}.nxg-embedded .nxg-openfull{width:100%;justify-content:center}}
 </style>
 
 <style id="mobile-density-v8">
