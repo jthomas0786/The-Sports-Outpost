@@ -109,30 +109,22 @@ async function swapView(active) {
 
   MLB_SELECTORS.forEach(sel => setVisible(document.querySelector(sel), showingMlb));
   setVisible(nflView, active === 'nfl');
-  setVisible(document.getElementById('nflSideNav'), active === 'nfl');
+  // The legacy hidden NFL nav remains in the DOM for backwards compatibility,
+  // but the visible sidebar is now driven by the shared sport accordion.
+  setVisible(document.getElementById('nflSideNav'), false);
 
-  // Mark the shell so CSS can retint the accent per sport.
   document.documentElement.setAttribute('data-sport', active);
   const accent = SPORTS[active]?.accent;
   if (accent) document.documentElement.style.setProperty('--sport-accent', accent);
 
-  // Chat is sport-scoped (room = sport key). If the floating panel is open
-  // when the sport flips, reload it so the user lands in the new room rather
-  // than still viewing the previous sport's messages.
   if (typeof window.DW_reloadChatForSport === 'function') window.DW_reloadChatForSport();
 
   if (active === 'nfl') {
-    // Lazy-load the NFL view module only when it's actually needed, so the MLB
-    // path pays nothing for it.
     try {
-      const mod = await import('./nfl/ui.js');
+      const mod = await import('./nfl-preview.js');
       await mod.mount();
     } catch (e) {
-      if (nflView) {
-        nflView.innerHTML = '<div class="nfl-error"><div class="nfl-error-title">' +
-          'Couldn\'t load the Touchdown Watch view</div><div>' +
-          String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
-      }
+      if (nflView) nflView.innerHTML = '<div class="nfl-error"><div class="nfl-error-title">Couldn\'t load the NFL preview</div><div>' + String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
     }
   }
 }
@@ -142,7 +134,7 @@ function render() {
   window.DW_SPORT = active;
   window.DW_SPORT_PREVIEW = isPreview(active);
   renderPills(active);
-  swapView(active);
+  swapView(active).finally(() => window.renderSidebarSports?.());
 }
 
 window.DW_getSport = activeSport;

@@ -33,7 +33,7 @@ export const SPORTS = {
     adapterReady: true,        seasonStart: '2026-09-09',
     uiReady: true,
     slateUrl: './slates/nfl.json',
-    props: ['atd', 'rushYds', 'recYds', 'receptions', 'passTds'],
+    props: ['atd', 'firstTd', 'rushYds', 'recYds', 'receptions', 'passYds', 'passTds', 'completions'],
   },
   nhl: {
     brand: 'NHL',      short: 'NHL',        accent: '#38bdf8',
