@@ -4133,8 +4133,8 @@ body.modal-open{ overflow:hidden; }
      still provides navigation and live-data refresh, so the lesser actions do
      not need to fight for 30px buttons in the header. */
   .topbar .info-btn-tb,
-  .topbar #refreshBtn,
-  .topbar .online-wrap-tb{display:none !important;}
+  .topbar #refreshBtn{display:none !important;}
+  .topbar .online-wrap-tb{display:inline-flex !important;flex:0 0 auto;}
 
   .topbar .balance-chip{
     height:30px;
@@ -4177,7 +4177,6 @@ body.modal-open{ overflow:hidden; }
   .tb-mobile-brand{flex-basis:68px;}
   .tb-mobile-brand img,.so-mobile-logo{max-width:68px !important;}
   .topbar .balance-chip{max-width:66px;font-size:12px;padding:0 7px;}
-  .topbar #notifyBtn{display:none !important;}
 }
 
 </style>
@@ -5000,7 +4999,15 @@ body.modal-open{ overflow:hidden; }
 }
 @media(max-width:760px){
   .mlb-live-chip{flex-basis:282px}
-  .mlb-match-head{grid-template-columns:1fr;gap:9px}.mlb-match-team.home{justify-content:flex-start;text-align:left}.mlb-match-center{grid-row:1}.mlb-match-team{padding:0 4px}.mlb-match-head .mlb-match-team.home{grid-row:3}
+  .mlb-match-head{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'center center' 'away home';gap:11px 8px;padding:12px 12px 11px}
+  .mlb-match-head>.mlb-match-team:not(.home){grid-area:away;justify-content:flex-start;text-align:left;padding:0;min-width:0}
+  .mlb-match-head>.mlb-match-team.home{grid-area:home;justify-content:flex-end;text-align:right;padding:0;min-width:0}
+  .mlb-match-head>.mlb-match-center{grid-area:center;grid-row:auto;min-width:0}
+  .mlb-match-team img{width:42px;height:42px}
+  .mlb-match-team-copy b{font-size:16px}
+  .mlb-match-team-copy small{font-size:8px}
+  .mlb-match-time{font-size:15px}
+  .mlb-match-park{font-size:9.5px}
   .mlb-match-pitchers{grid-template-columns:1fr}.mlb-match-pitcher.home{text-align:left}.mlb-match-pitcher-primary,.mlb-match-pitcher.home .mlb-match-pitcher-primary{grid-template-columns:46px minmax(0,1fr);text-align:left}.mlb-match-pitcher.home .mlb-match-pitcher-head{grid-column:1}.mlb-match-pitcher.home .mlb-match-pitcher-info{grid-column:2;grid-row:1}.mlb-match-pitcher-head{width:44px;height:44px}.mlb-match-pitcher-stats{grid-template-columns:repeat(4,1fr)}
   .mlb-match-env{grid-template-columns:1fr 1fr}.mlb-wind-card{grid-column:1/-1}.mlb-env-tile{min-height:66px}
   .mlb-match-lineups{grid-template-columns:1fr}.mlb-slate-player,.mlb-team-board-cols{grid-template-columns:38px minmax(0,1fr) 52px 52px}.mlb-slate-player{min-height:70px}.mlb-slate-badges{width:100%;min-width:0}.mlb-slate-player-name>strong{font-size:12px}.mlb-slate-player-head{width:36px;height:36px}.mlb-team-board-cols{font-size:7px}.mlb-slate-player-grade-ring .sgr-sm{width:34px;height:34px}.mlb-slate-player-stat.edge b{font-size:13px}
@@ -5103,6 +5110,39 @@ body.modal-open{ overflow:hidden; }
   .app-main > main #pickList,
   .app-main > main .mlb-matchup-slate,
   .app-main > main .mlb-live-page{ max-width:1540px !important; }
+}
+</style>
+
+
+<style id="mobile-header-gamecard-v57">
+/* v57 — restore Online Now + compact notification glyph + fix MLB game-card header */
+@media(max-width:760px){
+  .topbar .online-wrap-tb{display:inline-flex !important;position:relative;flex:0 0 auto}
+  .topbar .online-btn-tb{width:30px !important;height:30px !important;min-width:30px !important;padding:0 5px !important;gap:3px !important;justify-content:center}
+  .topbar .online-dot-tb{width:6px;height:6px;flex:0 0 6px}
+  .topbar .online-count-tb{font-size:9px !important;line-height:1}
+  .topbar #notifyBtn svg{width:11px !important;height:11px !important;stroke-width:1.9}
+
+  .mlb-match-head{grid-template-columns:minmax(0,1fr) minmax(0,1fr) !important;grid-template-areas:'center center' 'away home' !important;gap:11px 8px !important;padding:12px 12px 11px !important;align-items:center}
+  .mlb-match-head>.mlb-match-center{grid-area:center !important;grid-row:auto !important;text-align:center;min-width:0}
+  .mlb-match-head>.mlb-match-team:not(.home){grid-area:away !important;justify-content:flex-start !important;text-align:left !important;padding:0 !important;min-width:0}
+  .mlb-match-head>.mlb-match-team.home{grid-area:home !important;grid-row:auto !important;justify-content:flex-end !important;text-align:right !important;padding:0 !important;min-width:0}
+  .mlb-match-head .mlb-match-team img{width:42px !important;height:42px !important;flex:0 0 42px}
+  .mlb-match-head .mlb-match-team-copy{min-width:0}
+  .mlb-match-head .mlb-match-team-copy b{font-size:16px !important;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mlb-match-head .mlb-match-team-copy small{font-size:8px !important}
+  .mlb-match-head .mlb-match-time{font-size:15px !important}
+  .mlb-match-head .mlb-match-park{font-size:9.5px !important}
+}
+@media(max-width:390px){
+  .topbar .online-btn-tb{width:28px !important;height:28px !important;min-width:28px !important;padding:0 4px !important}
+  .topbar #notifyBtn svg{width:10px !important;height:10px !important}
+  .mlb-match-head{padding:11px 9px 10px !important;gap:9px 6px !important}
+  .mlb-match-head .mlb-match-team img{width:36px !important;height:36px !important;flex-basis:36px}
+  .mlb-match-head .mlb-match-team{gap:7px !important}
+  .mlb-match-head .mlb-match-team-copy b{font-size:14.5px !important}
+  .mlb-match-head .mlb-match-team-copy small{font-size:7.5px !important}
+  .mlb-match-head .mlb-match-time{font-size:14px !important}
 }
 </style>
 
