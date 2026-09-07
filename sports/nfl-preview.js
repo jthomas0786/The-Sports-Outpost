@@ -285,7 +285,9 @@ function slateGamecastCard(g){
 }
 
 function gameCard(g){ return slateGamecastCard(g); }
-function slateHTML(){ return `<div class="ms-game-grid">${data().games.map(slateGamecastCard).join('')}</div>`; }
+function slateHTML(){
+  return `<div class="ms-game-grid has-full-gamecasts">${data().games.map(g=>gamecastDashboardHTML(g,featuredPlayerForGame(g),{embedded:true,tab:'game'})).join('')}</div>`;
+}
 
 
 function gameRadarHTML(){
@@ -497,15 +499,30 @@ function playByPlayHTML(g){
   const stamps=['Q3 12:14','Q3 10:58','Q3 09:41','Q3 08:57',`${liveState(g).q||'Q1'} ${liveState(g).clock||'15:00'}`];
   return `<div class="nxg-pbp-list">${log.map((r,i)=>`<article class="nxg-pbp-item"><b>${stamps[i]||'Q1 15:00'}</b><div><span>${esc(r.text)}</span><small>${esc(r.state)} · ${esc(offense.abbr)} offense</small></div><div class="nxg-pbp-tag">${r.current?'Current Play':'Drive'}</div></article>`).join('')}</div>`;
 }
-function gamecastDashboardHTML(g,p){
+
+function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const wx=weatherForGame(g), st=liveState(g), ctx=offenseContext(g);
+  const activeTab=tab || state.gamecastTab || 'game';
   const live=g.status==='in';
   const dateLabel=g.startTimeUTC?new Date(g.startTimeUTC).toLocaleDateString([], {weekday:'short', month:'short', day:'numeric', year:'numeric'}):`Week ${data().week}`;
-  const topLabel=live?st.q||'LIVE':g.status==='post'?'FINAL':g.time;
-  const gameView = `<div><div class="nxg-main">${offenseSideHTML(g)}<section class="nxg-card nxg-fieldcard">${fieldOverlayHTML(g,p)}</section>${defenseSideHTML(g)}</div><div class="nxg-lower">${lastPlayPanelHTML(g)}${scoringChancePanelHTML(g)}${playerWatchPanelHTML(g,p)}${driveMetricsPanelHTML(g)}</div>${bottomPanelsHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>Live Data</span><span>The Sports Outpost</span></div></div>`;
+  const topLabel=live?(st.q||'LIVE'):g.status==='post'?'FINAL':'PREGAME';
+  const displayClock=live?(st.clock||''):g.status==='post'?'':(g.time||'TBD');
+  const statusText=live?'Live':g.status==='post'?'Final':'Game Preview';
+  const scoreDots='<i></i><i></i><i></i>';
+  const gameView = `<div><div class="nxg-main">${offenseSideHTML(g)}<section class="nxg-card nxg-fieldcard">${fieldOverlayHTML(g,p)}</section>${defenseSideHTML(g)}</div><div class="nxg-lower">${lastPlayPanelHTML(g)}${scoringChancePanelHTML(g)}${playerWatchPanelHTML(g,p)}${driveMetricsPanelHTML(g)}</div>${bottomPanelsHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>${live?'Live Data':'Game Preview'}</span><span>The Sports Outpost</span></div></div>`;
   const boxView = `<div><div class="nxg-lower">${scoringChancePanelHTML(g)}${driveMetricsPanelHTML(g)}${playerWatchPanelHTML(g,p)}${lastPlayPanelHTML(g)}</div>${bottomPanelsHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>Stat Summary</span><span>The Sports Outpost</span></div></div>`;
   const pbpView = `<div class="nxg-card" style="padding:14px">${playByPlayHTML(g)}</div><div class="nxg-footerline"><span>NFL Gamecast</span><span>Play by Play</span><span>The Sports Outpost</span></div>`;
-  return `<div class="nxg-wrap"><div class="nxg-crumb"><span>🏈 NFL › Live Gamecast</span><span class="nxg-crumb-right">Week ${data().week} &nbsp;•&nbsp; ${esc(dateLabel)} &nbsp;•&nbsp; ${esc(g.broadcast||'NFL on CBS')}</span></div><div class="nxg-topbar"><div class="nxg-tabs"><button type="button" class="nxg-tab ${state.gamecastTab==='game'?'active':''}" data-nfl-gamecast-tab="game">Game View</button><button type="button" class="nxg-tab ${state.gamecastTab==='box'?'active':''}" data-nfl-gamecast-tab="box">Box Score</button><button type="button" class="nxg-tab ${state.gamecastTab==='pbp'?'active':''}" data-nfl-gamecast-tab="pbp">Play by Play</button></div><div class="nxg-tools"><span class="nxg-livepill"><span class="dot"></span>Live <span class="nxg-livebars"><i></i><i></i><i></i></span></span><span class="nxg-feedpill">Gamecast Feed ▾</span><button type="button" class="nxg-dotbtn" title="Share">⤴</button><button type="button" class="nxg-dotbtn" title="More">•••</button><button type="button" class="nxg-ghostbtn" data-nfl-close-game>← Back</button></div></div><section class="nxg-scorebar"><div class="nxg-teamblock">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(g.away.abbr)}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots"><i></i><i></i><i></i></div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(st.clock||g.time||'')}</div></div><div class="nxg-downchip"><span>${esc(downDistanceLabel(g))}</span><i></i><span>${esc(fieldPositionLabel(g))}</span><span class="arr">▲</span></div><div class="nxg-posstext">${ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Awaiting kickoff')}</div></div><div class="nxg-teamblock home"><div><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots"><i></i><i></i><i></i></div></div><div class="nxg-teamcopy"><small>${esc(g.home.abbr)}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||'')}</span></div></section>${state.gamecastTab==='box'?boxView:state.gamecastTab==='pbp'?pbpView:gameView}</div>`;
+  const tabButton=(id,label)=> embedded
+    ? `<button type="button" class="nxg-tab ${activeTab===id?'active':''}" data-nfl-open-game="${esc(g.id)}" data-nfl-open-tab="${id}">${label}</button>`
+    : `<button type="button" class="nxg-tab ${activeTab===id?'active':''}" data-nfl-gamecast-tab="${id}">${label}</button>`;
+  const backTool=embedded
+    ? `<button type="button" class="nxg-ghostbtn nxg-openfull" data-nfl-open-game="${esc(g.id)}" data-nfl-open-tab="game">Open Full Gamecast ›</button>`
+    : `<button type="button" class="nxg-ghostbtn" data-nfl-close-game>← Back to Slate</button>`;
+  const liveTool=live
+    ? `<span class="nxg-livepill"><span class="dot"></span>Live <span class="nxg-livebars"><i></i><i></i><i></i></span></span>`
+    : `<span class="nxg-livepill nxg-previewpill"><span class="dot"></span>${statusText}</span>`;
+  const body=activeTab==='box'?boxView:activeTab==='pbp'?pbpView:gameView;
+  return `<article class="nxg-wrap ${embedded?'nxg-embedded':''}" data-nfl-inline-game="${esc(g.id)}"><div class="nxg-crumb"><span>🏈 NFL › ${live?'Live Gamecast':'Gamecast Preview'}</span><span class="nxg-crumb-right">Week ${data().week} &nbsp;•&nbsp; ${esc(dateLabel)} &nbsp;•&nbsp; ${esc(g.broadcast||'NFL')}</span></div><div class="nxg-topbar"><div class="nxg-tabs">${tabButton('game','Game View')}${tabButton('box','Box Score')}${tabButton('pbp','Play by Play')}</div><div class="nxg-tools">${liveTool}<span class="nxg-feedpill">Gamecast Feed ▾</span><button type="button" class="nxg-dotbtn" title="Share">⤴</button><button type="button" class="nxg-dotbtn" title="More">•••</button>${backTool}</div></div><section class="nxg-scorebar"><div class="nxg-teamblock">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(g.away.abbr)}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(displayClock)}</div></div><div class="nxg-downchip"><span>${esc(downDistanceLabel(g))}</span><i></i><span>${esc(fieldPositionLabel(g))}</span><span class="arr">▲</span></div><div class="nxg-posstext">${ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(g.home.abbr)}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||'')}</span></div></section>${body}</article>`;
 }
 function gamecastHTML(g){
   if(!g) return '';
@@ -581,6 +598,7 @@ function wire(root){
   root.querySelector('#nflPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value;if(state.prop==='allPlayers')state.propView='board';render();});
   root.querySelectorAll('[data-nfl-prop-view]').forEach(b=>b.addEventListener('click',()=>{state.propView=b.dataset.nflPropView;render();}));
   root.querySelectorAll('[data-nfl-player]').forEach(b=>b.addEventListener('click',()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();}));
+  root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('.ms-slate-cast[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.game=card.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}}));
   root.querySelectorAll('[data-nfl-close-game]').forEach(b=>b.addEventListener('click',()=>{state.game=null;state.gamecastTab='game';render();}));
