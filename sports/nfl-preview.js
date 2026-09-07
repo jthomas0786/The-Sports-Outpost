@@ -22,7 +22,7 @@ const state = {
   inlineTabs: {},
 };
 
-const NFL_FIELD_ART = 'nfl-tso-field.png?v=40';
+const NFL_FIELD_ART = 'nfl-tso-field.png?v=42';
 
 const PROPS = {
   atd: 'Anytime TD',
@@ -576,7 +576,7 @@ function routeMapHTML(p){
   const avg=shown.length?Math.round(shown.reduce((a,r)=>a+r.yds,0)/shown.length):0;
   const rz=shown.filter(r=>r.type==='RZ').length; const exp=shown.filter(r=>r.type==='EXP').length;
   const lines=shown.map((r,i)=>`<path class="ms-route-line ${i%2?'alt':''}" d="${r.path}"/><circle class="ms-route-dot" cx="${r.x}" cy="${r.y}" r="5" fill="#fff"/>`).join('');
-  return `<div class="ms-map-controls">${['ALL','REC','RUSH','RZ','EXP'].map(x=>`<button data-nfl-mapfilter="${x}" class="${x===filter?'active':''}">${x}</button>`).join('')}</div><svg class="ms-nfl-map" viewBox="0 0 300 190" preserveAspectRatio="none"><rect width="300" height="190" fill="#174a2c"/>${[30,60,90,120,150,180,210,240,270].map(x=>`<line x1="${x}" y1="0" x2="${x}" y2="190" stroke="rgba(255,255,255,.17)"/>`).join('')}<rect x="0" width="28" height="190" fill="rgba(0,0,0,.35)"/><rect x="272" width="28" height="190" fill="rgba(0,0,0,.35)"/>${lines}<circle cx="18" cy="168" r="6" fill="#f59e0b"/></svg><div class="ms-route-stats"><div><span>PLAYS</span><b>${shown.length}</b></div><div><span>AVG YDS</span><b>${avg}</b></div><div><span>RZ LOOKS</span><b>${rz}</b></div><div><span>EXPLOSIVE</span><b>${exp}</b></div></div><p class="ms-filtered-note">Filters update both the route/touch trajectories and Recent Opportunities below.</p>`;
+  return `<div class="ms-map-controls">${['ALL','REC','RUSH','RZ','EXP'].map(x=>`<button data-nfl-mapfilter="${x}" class="${x===filter?'active':''}">${x}</button>`).join('')}</div><svg class="ms-nfl-map" viewBox="0 0 300 190" preserveAspectRatio="none"><image href="${NFL_FIELD_ART}" x="0" y="0" width="300" height="190" preserveAspectRatio="xMidYMid slice"/><rect width="300" height="190" fill="rgba(4,12,28,.18)"/>${lines}<circle cx="18" cy="168" r="6" fill="#f59e0b" stroke="#fff" stroke-width="1.2"/></svg><div class="ms-route-stats"><div><span>PLAYS</span><b>${shown.length}</b></div><div><span>AVG YDS</span><b>${avg}</b></div><div><span>RZ LOOKS</span><b>${rz}</b></div><div><span>EXPLOSIVE</span><b>${exp}</b></div></div><p class="ms-filtered-note">Filters update both the route/touch trajectories and Recent Opportunities below. The same TSO stadium field used in Gamecast is used here for a consistent NFL visual language.</p>`;
 }
 
 function recentOpportunitiesHTML(p){
