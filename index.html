@@ -4656,22 +4656,22 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zone-view{display:none}
 .player-card-v2 .mm-zone-view.active{display:block}
 
-.player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:154px minmax(0,1fr);gap:10px;align-items:start;max-width:100%;min-width:0}
-.player-card-v2 .mm-zcmp-left{width:154px;min-width:0;max-width:154px}
-.player-card-v2 .mm-zcmp-shell{width:154px;max-width:154px;padding-top:15px;padding-bottom:14px;margin:0}
 .player-card-v2 .mm-zcmp,.player-card-v2 .mm-zcmp *{box-sizing:border-box}
 .player-card-v2 .mm-zcmp{max-width:100%;min-width:0}
+.player-card-v2 .mm-zcmp-body{display:grid;grid-template-columns:minmax(190px,204px) minmax(100px,1fr);gap:12px;align-items:start;max-width:100%;min-width:0}
+.player-card-v2 .mm-zcmp-left{display:flex;flex-direction:column;gap:8px;min-width:0}
+.player-card-v2 .mm-zcmp-shell{width:100%;max-width:none;padding-top:15px;padding-bottom:14px;margin:0}
 .player-card-v2 .mm-zcmp-grid{
-  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,54px);gap:3px;
-  padding:3px;border:1px solid var(--border);border-radius:6px;background:var(--panel)
+  display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,56px);gap:4px;
+  padding:4px;border:1px solid var(--border);border-radius:8px;background:var(--panel)
 }
 .player-card-v2 .mm-zcmp-cell{
-  appearance:none;position:relative;min-width:0;border:1px solid rgba(255,255,255,.045);border-radius:4px;
+  appearance:none;position:relative;min-width:0;border:1px solid rgba(255,255,255,.045);border-radius:6px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;
   color:var(--white);transition:transform .14s ease,border-color .14s ease,opacity .14s ease,box-shadow .14s ease
 }
-.player-card-v2 .mm-zcmp-cell b{font:700 17px 'Oswald',sans-serif;line-height:1}
-.player-card-v2 .mm-zcmp-cell small{font:800 6.3px 'JetBrains Mono','Space Mono',monospace;color:rgba(255,255,255,.74);white-space:nowrap}
+.player-card-v2 .mm-zcmp-cell b{font:700 18px 'Oswald',sans-serif;line-height:1}
+.player-card-v2 .mm-zcmp-cell small{font:800 6.6px 'JetBrains Mono','Space Mono',monospace;color:rgba(255,255,255,.74);white-space:nowrap}
 .player-card-v2 .mm-zcmp-cell.bat-strong{background:linear-gradient(145deg,rgba(45,127,255,.74),rgba(45,127,255,.38))}
 .player-card-v2 .mm-zcmp-cell.bat{background:linear-gradient(145deg,rgba(110,220,255,.25),rgba(45,127,255,.18))}
 .player-card-v2 .mm-zcmp-cell.even{background:rgba(255,255,255,.055)}
@@ -4681,28 +4681,28 @@ body.modal-open{ overflow:hidden; }
 .player-card-v2 .mm-zcmp-cell.is-low{opacity:.34}
 .player-card-v2 .mm-zcmp-cell:hover,.player-card-v2 .mm-zcmp-cell.active{opacity:1;transform:translateY(-1px);border-color:var(--accent-bright);box-shadow:0 0 0 1px rgba(110,220,255,.18)}
 
-.player-card-v2 .mm-zcmp-side{width:100%;min-width:0;max-width:100%;overflow:hidden}
+.player-card-v2 .mm-zcmp-side{display:flex;flex-direction:column;gap:6px;width:100%;min-width:0;max-width:100%;overflow:hidden}
 .player-card-v2 .mm-zone-edge-summary{
-  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'label score' 'status score';gap:2px 6px;align-items:center;
-  width:100%;margin-top:6px;padding:7px 8px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:'label score' 'status score';gap:2px 8px;align-items:center;
+  width:100%;margin-top:0;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden
 }
-.player-card-v2 .mm-zone-edge-summary>span{grid-area:label;min-width:0;font:900 6.6px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);letter-spacing:.07em;white-space:nowrap}
-.player-card-v2 .mm-zone-edge-summary>b{grid-area:score;font:700 22px 'Oswald',sans-serif;color:var(--white);line-height:1;text-align:right}
-.player-card-v2 .mm-zone-edge-summary>strong{grid-area:status;min-width:0;font-size:8.7px;color:var(--white);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.player-card-v2 .mm-zone-edge-summary>span{grid-area:label;min-width:0;font:900 6.8px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);letter-spacing:.07em;white-space:nowrap}
+.player-card-v2 .mm-zone-edge-summary>b{grid-area:score;font:700 23px 'Oswald',sans-serif;color:var(--white);line-height:1;text-align:right}
+.player-card-v2 .mm-zone-edge-summary>strong{grid-area:status;min-width:0;font-size:8.9px;color:var(--white);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .player-card-v2 .mm-zone-edge-summary.bat b,.player-card-v2 .mm-zone-edge-summary.bat-strong b{color:var(--accent-bright)}
 .player-card-v2 .mm-zone-edge-summary.arm b,.player-card-v2 .mm-zone-edge-summary.arm-strong b{color:var(--gold)}
-.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:minmax(0,1fr);gap:4px;margin-top:0;min-width:0;max-width:100%}
-.player-card-v2 .mm-zmetric{min-width:0;padding:5px 7px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
+.player-card-v2 .mm-zmetrics{display:grid;grid-template-columns:minmax(0,1fr);gap:5px;margin-top:0;min-width:0;max-width:100%}
+.player-card-v2 .mm-zmetric{min-width:0;padding:6px 8px;border:1px solid var(--border);border-radius:7px;background:var(--panel3)}
 .player-card-v2 .mm-zmetric>div{display:flex;align-items:center;justify-content:space-between;gap:6px;min-width:0}
-.player-card-v2 .mm-zmetric span{min-width:0;font:800 6.5px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.player-card-v2 .mm-zmetric span{min-width:0;font:800 6.4px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
 .player-card-v2 .mm-zmetric b{font:700 11px 'Oswald',sans-serif;color:var(--white)}
-.player-card-v2 .mm-zmetric>i{display:block;height:3px;margin-top:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
+.player-card-v2 .mm-zmetric>i{display:block;height:3px;margin-top:5px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
 .player-card-v2 .mm-zmetric>i>em{display:block;height:100%;border-radius:inherit;background:#7d8ca3}
 .player-card-v2 .mm-zmetric.bat>i>em,.player-card-v2 .mm-zmetric.bat-strong>i>em{background:var(--accent-bright)}
 .player-card-v2 .mm-zmetric.arm>i>em,.player-card-v2 .mm-zmetric.arm-strong>i>em{background:var(--gold)}
-.player-card-v2 .mm-zcmp-caption{margin-top:6px;max-width:100%;font:700 6.8px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
+.player-card-v2 .mm-zcmp-caption{margin-top:8px;max-width:100%;font:700 6.8px 'JetBrains Mono','Space Mono',monospace;color:var(--muted);line-height:1.4;overflow-wrap:anywhere}
 
-.player-card-v2 .mm-zdetail{margin-top:9px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden}
+.player-card-v2 .mm-zdetail{margin-top:10px;border:1px solid var(--border);border-radius:8px;background:var(--panel3);overflow:hidden}
 .player-card-v2 .mm-zdetail-pane{display:none;padding:9px 10px}
 .player-card-v2 .mm-zdetail-pane.active{display:block}
 .player-card-v2 .mm-zdetail-head{display:flex;align-items:center;justify-content:space-between;gap:9px}
@@ -4732,8 +4732,8 @@ body.modal-open{ overflow:hidden; }
   .player-card-v2 .mm-zone-tabs button{font-size:6.8px;padding:5px 7px}
   .player-card-v2 .mm-zone-tip{left:0;right:0;top:58px;max-width:none}
   .player-card-v2 .mm-zcmp-body{grid-template-columns:1fr;gap:8px}
-  .player-card-v2 .mm-zcmp-left{width:142px;max-width:142px;margin:0 auto}
-  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;margin:0;flex-basis:auto}
+  .player-card-v2 .mm-zcmp-left{width:100%;max-width:none;margin:0}
+  .player-card-v2 .mm-zcmp-shell{width:142px;max-width:142px;margin:0 auto;flex-basis:auto}
   .player-card-v2 .mm-zcmp-grid{grid-template-rows:repeat(3,48px)}
   .player-card-v2 .mm-zcmp-cell b{font-size:15px}.player-card-v2 .mm-zcmp-cell small{font-size:5.7px}
   .player-card-v2 .mm-zone-edge-summary>b{font-size:19px}.player-card-v2 .mm-zone-edge-summary>strong{font-size:8.2px}
@@ -13704,9 +13704,9 @@ function mmZoneComparisonHTML(p){
           ${mmMetricTile('Barrel',z.metrics.barrel)}
           ${mmMetricTile('Hard Hit',z.metrics.hardHit)}
         </div>
-        <div class="mm-zcmp-caption">${z.top7.length} most-used in-zone locations · ${z.topUsagePct.toFixed(1)}% of classified pitches${best?` · best overlap: ${best.name} (${best.score})`:''}</div>
       </div>
     </div>
+    <div class="mm-zcmp-caption">${z.top7.length} most-used in-zone locations · ${z.topUsagePct.toFixed(1)}% of classified pitches${best?` · best overlap: ${best.name} (${best.score})`:''}</div>
     <div class="mm-zdetail">${panes}</div>
     <div class="mm-zscope">Hitter sample: ${z.batterScope}${z.batterWindow?` · ${z.batterWindow}d window`:''} &nbsp;•&nbsp; Pitcher usage: ${z.pitcherScope}${z.pitcherWindow?` · ${z.pitcherWindow}d window`:''}</div>
   </div>`;
