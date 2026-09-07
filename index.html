@@ -3698,9 +3698,13 @@ body.modal-open{ overflow:hidden; }
   box-shadow:0 0 10px rgba(45,127,255,.5);
 }
 .pb-badge-triple span{ font-size:12px; }
-.pb-badge-signal{ width:24px; height:24px; border-radius:999px; overflow:hidden; border:1px solid rgba(110,220,255,.55); background:radial-gradient(circle at 50% 50%, rgba(98,235,255,.22), rgba(45,127,255,.06) 70%); box-shadow:0 0 0 1px rgba(45,127,255,.18), 0 0 12px rgba(45,127,255,.28); animation:tsoSignalPulse 1.9s ease-in-out infinite; }
-.pb-badge-signal img{ width:100%; height:100%; display:block; object-fit:cover; filter:drop-shadow(0 0 6px rgba(110,220,255,.6)); }
-@keyframes tsoSignalPulse{ 0%,100%{ transform:scale(1); box-shadow:0 0 0 1px rgba(45,127,255,.18), 0 0 10px rgba(45,127,255,.24); } 50%{ transform:scale(1.08); box-shadow:0 0 0 1px rgba(98,235,255,.38), 0 0 18px rgba(98,235,255,.58); } }
+.pb-badge-signal{ width:84px; height:38px; border-radius:999px; overflow:visible; background:none; box-shadow:none; display:flex; align-items:center; justify-content:center; }
+.pb-badge-signal img{ width:100%; height:100%; display:block; object-fit:contain; }
+.info-row-icon img, .badge-chip-icon{ display:block; object-fit:contain; }
+.info-row-icon.has-image{ width:84px; height:38px; display:flex; align-items:center; justify-content:center; margin-top:0; }
+.info-row-icon.has-image img{ width:100%; height:100%; }
+.badge-chip.has-image{ display:inline-flex; align-items:center; gap:6px; }
+.badge-chip-icon{ width:64px; height:28px; flex:0 0 auto; }
 
 .player-card-v2 .hdr-stats{ display:flex; gap:0; margin-top:9px; border:1px solid var(--border); border-radius:9px; overflow:hidden;
   background:rgba(255,255,255,.02); max-width:340px }
@@ -6682,7 +6686,7 @@ const BADGE_FILTER_DEFS = [
   { id:'fire',    emoji:'🔥', label:'On Fire', desc:'2 or more home runs in the last 10 games — a genuinely hot recent stretch, not just a decent week.' },
   { id:'warming', emoji:'📈', label:'Warming Up', desc:'Exactly 1 home run in the last 10 games — a modest but real recent signal.' },
   { id:'sleeper', emoji:'💤', label:'Sleeper', desc:"Tonight's modeled HR probability is elite (20%+) despite little or no recent production — the model sees something (matchup, park, wind) recent stats alone don't show yet." },
-  { id:'tso_signal', emoji:'📡', label:'TSO Signal', desc:'TSO Edge of 60+ — the proprietary matchup read is flashing a strong advantage once platoon fit, pitch mix, zone overlap, and starter context are blended together.' },
+  { id:'tso_signal', emoji:'📡', icon:'neon_tso_signal_emblem.png', label:'TSO Signal', desc:'TSO Edge of 60+ — a premium matchup signal showing the player grades out especially well once platoon fit, pitch mix, zone overlap, contact profile, and starter context are blended together. Think of it as our all-in-one green light badge.' },
   { id:'wind',    emoji:'💨', label:'High Wind', desc:"12+ mph wind blowing OUT toward the field at tonight's park — wind blowing in suppresses power, so only 'out' counts here." },
 ];
 let activeBadgeFilters = new Set();
@@ -7323,7 +7327,7 @@ function filterBarHTML(shown, total){
       <div class="filter-range">
         <span>Badges</span>
         <div class="tier-chips">
-          ${BADGE_FILTER_DEFS.map(d=>`<button type="button" class="tier-chip badge-chip ${activeBadgeFilters.has(d.id)?'active':''}" data-badge="${d.id}">${d.emoji} ${d.label}</button>`).join('')}
+          ${BADGE_FILTER_DEFS.map(d=>`<button type="button" class="tier-chip badge-chip ${d.icon?'has-image':''} ${activeBadgeFilters.has(d.id)?'active':''}" data-badge="${d.id}">${d.icon ? `<img class=\"badge-chip-icon\" src=\"${escapeHTML(d.icon)}\" alt=\"${escapeHTML(d.label)}\">` : d.emoji} ${d.label}</button>`).join('')}
         </div>
       </div>
       <div class="filter-grid">${items}</div>
@@ -10473,7 +10477,7 @@ function infoFeaturesHTML(){
 function infoBadgesHTML(){
   return `<div class="info-list">${BADGE_FILTER_DEFS.map(b => `
     <div class="info-row">
-      <div class="info-row-icon">${b.emoji}</div>
+      <div class="info-row-icon ${b.icon ? 'has-image' : ''}">${b.icon ? `<img src=\"${escapeHTML(b.icon)}\" alt=\"${escapeHTML(b.label)}\">` : b.emoji}</div>
       <div class="info-row-text"><b>${escapeHTML(b.label)}</b><span>${escapeHTML(b.desc)}</span></div>
     </div>`).join('')}</div>`;
 }
@@ -14353,7 +14357,7 @@ function computeBatterBadges(p){
 
   const signalBadges = [];
   if(edgeScore != null && edgeScore >= 60){
-    signalBadges.push({ label:'TSO Signal', tier:'signal', score:edgeScore, icon:'neon_tso_broadcast_signal_emblem.png' });
+    signalBadges.push({ label:'TSO Signal', tier:'signal', score:edgeScore, icon:'neon_tso_signal_emblem.png' });
   }
 
   const formBadges = [];
