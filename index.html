@@ -140,6 +140,23 @@ main{ max-width:1280px; margin:0 auto; padding:0 24px 100px; }
 .prop-subtab{ flex:0 0 auto; background:var(--panel); border:1px solid var(--line); color:var(--mute); font-family:'Satoshi','Inter',sans-serif; font-size:13px; padding:8px 14px; border-radius:9999px; cursor:pointer; white-space:nowrap; transition:var(--transition); font-weight:500; }
 .prop-subtab:hover{ border-color:var(--line); color:var(--text); }
 .prop-subtab.is-active{ background:var(--accent); color:#fff; border-color:var(--accent); font-weight:700; box-shadow:0 2px 12px var(--accent-glow); }
+/* v32: one MLB Props market dropdown replaces the nine market pills. */
+.prop-market-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:2px 0 14px; flex-wrap:wrap; }
+.prop-market-select-wrap{ position:relative; display:flex; align-items:center; min-width:230px; max-width:330px; flex:0 1 330px; }
+.prop-market-select-wrap::after{ content:'▾'; position:absolute; right:13px; top:50%; transform:translateY(-52%); pointer-events:none; color:var(--accent-bright); font-size:12px; }
+.prop-market-select{ width:100%; appearance:none; -webkit-appearance:none; background:var(--panel); border:1px solid var(--border-bright); color:var(--white); font-family:'Satoshi','Inter',sans-serif; font-size:13px; font-weight:700; padding:10px 38px 10px 13px; border-radius:10px; cursor:pointer; outline:none; box-shadow:0 2px 10px rgba(0,0,0,.16); }
+.prop-market-select:hover,.prop-market-select:focus{ border-color:var(--accent); box-shadow:0 0 0 2px rgba(45,127,255,.12); }
+.prop-market-label{ font-family:'JetBrains Mono','Space Mono',monospace; font-size:8px; text-transform:uppercase; letter-spacing:.10em; color:var(--mute); margin-right:8px; flex:0 0 auto; }
+.prop-market-control{ display:flex; align-items:center; gap:8px; min-width:0; flex:1 1 320px; }
+@media(max-width:600px){
+  .prop-market-bar{ align-items:stretch; gap:8px; }
+  .prop-market-control{ width:100%; flex:1 1 100%; }
+  .prop-market-select-wrap{ min-width:0; max-width:none; flex:1 1 auto; }
+  .prop-market-select{ font-size:12px; padding:9px 34px 9px 11px; }
+  .prop-market-label{ display:none; }
+  .prop-market-bar .prop-view-toggle{ margin-left:0; }
+}
+
 /* Desktop default: hidden — desktop keeps the separate chat icon already
    in the header. #chatBtnMobile is an ID selector, which always outranks
    any number of classes in specificity, so this reliably wins regardless
@@ -6450,14 +6467,14 @@ function scorePlayer(base, game){
 }
 
 
-// Top-level nav. The six player props collapse into one dropdown so the bar
-// doesn't overflow on mobile; everything else stays a direct button.
+// Top-level nav. MLB props are represented by one Props destination;
+// the individual markets are selected from the dropdown on the Props page.
 const PROP_TABS = [
   {id:'radar',       label:'Game Radar'},
   {id:'slate',       label:'Slate'},
   {id:'feed',        label:'HR Feed'},
   {id:'foryou',      label:'For You'},
-  {id:'__props__',   label:'Player Props', dropdown:true},
+  {id:'__props__',   label:'Props', dropdown:true},
 ];
 const PROP_MENU = [
   {id:'hr',   label:'Home Runs'},
@@ -6472,7 +6489,7 @@ const PROP_MENU = [
 ];
 const PROP_IDS = new Set(PROP_MENU.map(p=>p.id));
 let activeTab = 'radar';
-let lastProp = 'hr';            // last-selected prop market; 'Player Props' tab reopens here
+let lastProp = 'hr';            // current prop market; clicking the main Props destination always resets to HR
 let propMenuOpen = false;
 let propViewMode = 'board';     // 'board' (existing list) or 'radar' (new, rank-driven view)
 let propMenuBackdrop = null;   // created once, reused across re-renders
@@ -6843,7 +6860,7 @@ function renderSidebarSports(){
 
   const mlbFlat = [
     ...PROP_TABS.filter(t => t.id !== 'foryou' && t.id !== 'radar' && !t.dropdown),
-    ...PROP_MENU,
+    { id:'__props__', label:'Props', isProps:true },
   ];
 
   host.innerHTML = SB_SPORT_ORDER.map(key => {
@@ -6857,7 +6874,10 @@ function renderSidebarSports(){
 
     let panelInner = '';
     if(key === 'mlb'){
-      panelInner = mlbFlat.map(t => `<button type="button" class="sb-sub-item ${t.id===activeTab?'is-active':''}" data-mlb-tab="${t.id}">${t.label}</button>`).join('');
+      panelInner = mlbFlat.map(t => {
+        const isActive = t.isProps ? PROP_IDS.has(activeTab) : t.id === activeTab;
+        return `<button type="button" class="sb-sub-item ${isActive?'is-active':''}" data-mlb-tab="${t.id}">${t.label}</button>`;
+      }).join('');
     } else if(key === 'nfl'){
       // These are NEW buttons styled to match this accordion — not the real
       // #nflSideNav element, which stays exactly where it always was (a
@@ -6980,7 +7000,9 @@ window.renderSidebarSports = renderSidebarSports;
  *  while NFL's section could be genuinely active. */
 function syncSidebarMlbActive(){
   document.querySelectorAll('#sbSportAccordion .sb-sub-item[data-mlb-tab]').forEach(btn => {
-    btn.classList.toggle('is-active', btn.dataset.mlbTab === activeTab);
+    const id = btn.dataset.mlbTab;
+    const on = id === '__props__' ? PROP_IDS.has(activeTab) : id === activeTab;
+    btn.classList.toggle('is-active', on);
   });
 }
 
@@ -6994,9 +7016,8 @@ function renderTabs(){
   const propActive = PROP_IDS.has(activeTab);
   propTabsEl.innerHTML = PROP_TABS.map(t => {
     if(t.dropdown){
-      // "Player Props" is a normal tab now (no popover dropdown). The prop
-      // markets render as a static, in-flow sub-tab row above the pick list —
-      // see renderPropSubtabs(). Tapping this tab reopens the last market.
+      // Props is one destination. Individual MLB markets live in the
+      // dropdown rendered by renderPropSubtabs(); tapping Props always opens HR.
       return `<button class="prop-tab ${propActive?'active':''}" data-tab="${t.id}" aria-haspopup="false">${t.label}</button>`;
     }
     const badge = (t.id==='feed' && feedUnread>0 && activeTab!=='feed')
@@ -7020,7 +7041,7 @@ function renderTabs(){
   }).join('');
 
   const selectTab = id => {
-    if(id === '__props__'){ activeTab = lastProp || 'hr'; }   // 'Player Props' tab reopens last market
+    if(id === '__props__'){ activeTab = 'hr'; lastProp = 'hr'; }   // Props always opens on Home Runs
     else { activeTab = id; if(PROP_IDS.has(id)) lastProp = id; }
     closePropMenu();
     if(id==='feed') markFeedRead();
@@ -7683,34 +7704,39 @@ function paintBVP(slot){
 }
 
 
-// Static, in-flow sub-tab row for the player-prop markets. Replaces the old
-// popover dropdown: the nine markets (Home Runs, Hits, Total Bases, RBIs,
-// H+R+RBI, Stolen Bases, Strikeouts, 1st Inning O/U, All Players) render as
-// pill buttons directly above the pick list whenever a prop market is active,
-// and the row is hidden for Slate / HR Feed / For You. Mirrors the NFL props
-// sub-tab row. selectTab is an inner closure of renderTabs, so the click
-// handler inlines the same switch + re-render logic rather than calling it.
+// One in-flow dropdown for MLB player-prop markets. The sidebar now has a
+// single Props destination; clicking Props always lands on Home Runs, and this
+// control switches between the nine prop pages without filling the page with
+// nine separate pills.
 function renderPropSubtabs(){
   const host = document.getElementById('propSubtabs');
   if(!host) return;
   if(!PROP_IDS.has(activeTab)){ host.innerHTML=''; host.hidden = true; return; }
   host.hidden = false;
-  host.innerHTML = `<div class="prop-subtabs" role="tablist" aria-label="Player prop market">` +
-    PROP_MENU.map(p => `<button type="button" class="prop-subtab ${p.id===activeTab?'is-active':''}" data-tab="${p.id}" role="tab" aria-selected="${p.id===activeTab}">${p.label}</button>`).join('') +
-    `</div>
+  host.innerHTML = `<div class="prop-market-bar">
+    <div class="prop-market-control">
+      <span class="prop-market-label">Prop Market</span>
+      <div class="prop-market-select-wrap">
+        <select class="prop-market-select" id="mlbPropMarketSelect" aria-label="Select MLB prop market">
+          ${PROP_MENU.map(p => `<option value="${p.id}" ${p.id===activeTab?'selected':''}>${p.label}</option>`).join('')}
+        </select>
+      </div>
+    </div>
     <div class="prop-view-toggle" role="tablist" aria-label="Board or Radar view">
       <button type="button" class="pv-toggle-btn ${propViewMode==='board'?'is-active':''}" data-view="board">Board</button>
       <button type="button" class="pv-toggle-btn ${propViewMode==='radar'?'is-active':''}" data-view="radar">Radar</button>
-    </div>`;
-  host.querySelectorAll('.prop-subtab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeTab = btn.dataset.tab;
-      if(PROP_IDS.has(activeTab)) lastProp = activeTab;
-      renderTabs();
-      renderList();
-      window.scrollTo({top:0, behavior:'smooth'});
-    });
+    </div>
+  </div>`;
+
+  const select = host.querySelector('#mlbPropMarketSelect');
+  select?.addEventListener('change', () => {
+    activeTab = select.value;
+    if(PROP_IDS.has(activeTab)) lastProp = activeTab;
+    renderTabs();
+    renderList();
+    window.scrollTo({top:0, behavior:'smooth'});
   });
+
   host.querySelectorAll('.pv-toggle-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       propViewMode = btn.dataset.view;
@@ -7718,7 +7744,6 @@ function renderPropSubtabs(){
     });
   });
 }
-
 
 function renderList(){
   // Suppress renders until the splash sequence finishes, so the slate can never
