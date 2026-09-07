@@ -3699,7 +3699,8 @@ body.modal-open{ overflow:hidden; }
 }
 .pb-badge-triple span{ font-size:12px; }
 .pb-badge-signal{ width:84px; height:38px; border-radius:999px; overflow:visible; background:none; box-shadow:none; display:flex; align-items:center; justify-content:center; }
-.pb-badge-signal img{ width:100%; height:100%; display:block; object-fit:contain; }
+.pb-badge-signal img{ width:100%; height:100%; display:block; object-fit:contain; animation:tsoSignalPulseNoGlow 1.8s ease-in-out infinite; transform-origin:center center; }
+@keyframes tsoSignalPulseNoGlow{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.085); } }
 .info-row-icon img, .badge-chip-icon{ display:block; object-fit:contain; }
 .info-row-icon.has-image{ width:84px; height:38px; display:flex; align-items:center; justify-content:center; margin-top:0; }
 .info-row-icon.has-image img{ width:100%; height:100%; }
@@ -6686,7 +6687,7 @@ const BADGE_FILTER_DEFS = [
   { id:'fire',    emoji:'🔥', label:'On Fire', desc:'2 or more home runs in the last 10 games — a genuinely hot recent stretch, not just a decent week.' },
   { id:'warming', emoji:'📈', label:'Warming Up', desc:'Exactly 1 home run in the last 10 games — a modest but real recent signal.' },
   { id:'sleeper', emoji:'💤', label:'Sleeper', desc:"Tonight's modeled HR probability is elite (20%+) despite little or no recent production — the model sees something (matchup, park, wind) recent stats alone don't show yet." },
-  { id:'tso_signal', emoji:'📡', icon:'neon_tso_signal_emblem.png', label:'TSO Signal', desc:'TSO Edge of 60+ — a premium matchup signal showing the player grades out especially well once platoon fit, pitch mix, zone overlap, contact profile, and starter context are blended together. Think of it as our all-in-one green light badge.' },
+  { id:'tso_signal', emoji:'📡', icon:'glossy_blue_tso_wireless_badge.png', label:'TSO Signal', desc:'TSO Edge of 60+ — a premium matchup signal showing the player grades out especially well once platoon fit, pitch mix, zone overlap, contact profile, and starter context are blended together. Think of it as our all-in-one green light badge.' },
   { id:'wind',    emoji:'💨', label:'High Wind', desc:"12+ mph wind blowing OUT toward the field at tonight's park — wind blowing in suppresses power, so only 'out' counts here." },
 ];
 let activeBadgeFilters = new Set();
@@ -14357,7 +14358,7 @@ function computeBatterBadges(p){
 
   const signalBadges = [];
   if(edgeScore != null && edgeScore >= 60){
-    signalBadges.push({ label:'TSO Signal', tier:'signal', score:edgeScore, icon:'neon_tso_signal_emblem.png' });
+    signalBadges.push({ label:'TSO Signal', tier:'signal', score:edgeScore, icon:'glossy_blue_tso_wireless_badge.png' });
   }
 
   const formBadges = [];
@@ -14407,7 +14408,7 @@ function badgeRowHTML(badges){
     }
     if(b.tier === 'signal'){
       const title = `${b.label}${b.score != null ? ' · Edge ' + b.score : ''}`;
-      return `<span class="pb-badge pb-badge-signal" title="${escapeHTML(title)}"><img src="${escapeHTML(b.icon || 'neon_tso_broadcast_signal_emblem.png')}" alt="${escapeHTML(b.label)}"></span>`;
+      return `<span class="pb-badge pb-badge-signal" title="${escapeHTML(title)}"><img src="${escapeHTML(b.icon || 'glossy_blue_tso_wireless_badge.png')}" alt="${escapeHTML(b.label)}"></span>`;
     }
     return `<span class="pb-badge" title="${escapeHTML(b.label)}">${b.emoji}</span>`;
   }).join('')}</span>`;
