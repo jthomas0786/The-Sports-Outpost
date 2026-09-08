@@ -4954,6 +4954,42 @@ body.modal-open{ overflow:hidden; }
 .nfl-match-team-copy{min-width:0}.nfl-match-team-copy small{display:block;font:800 8.5px 'JetBrains Mono','Space Mono',monospace;color:#fbbf24;letter-spacing:.05em}.nfl-match-team-copy b{display:block;font:700 18px 'Oswald',sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nfl-match-team-copy span{display:block;margin-top:2px;font-size:9px;color:var(--mute)}
 .nfl-match-center{text-align:center;min-width:145px}.nfl-match-state{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--line);font:900 8.5px 'JetBrains Mono','Space Mono',monospace;text-transform:uppercase;color:var(--cool);background:rgba(4,14,31,.52)}.nfl-match-state.live{color:#ff7584;border-color:rgba(255,64,86,.35)}.nfl-match-state.live i{width:6px;height:6px;border-radius:50%;background:#ff4056;animation:msLiveDot 1.25s ease-in-out infinite}.nfl-match-state.final{color:#b8c4d4}
 .nfl-match-time{display:block;margin-top:5px;font:900 14px 'JetBrains Mono','Space Mono',monospace;color:#fff}.nfl-match-venue{display:block;margin-top:3px;font-size:9.5px;color:var(--mute)}
+
+.nxg-scorebar{grid-template-columns:minmax(0,1fr) 340px minmax(0,1fr) 138px}
+.nxg-score,.nxg-period,.nxg-clock,.nxg-weather strong{font-family:'Oswald',sans-serif;letter-spacing:.01em}
+.nxg-score{font-size:88px;line-height:.92}
+.nxg-centerblock{gap:8px}
+.nxg-clockline{flex-direction:column;gap:2px}
+.nxg-period{font-size:32px;line-height:1;color:#38a8ff}
+.nxg-clock{font-size:64px;line-height:.95}
+.nxg-posstext{font-size:14px}
+.nxg-gameview-modern{margin-top:14px}
+.nxg-live-stage{margin-top:0}
+.nxg-fieldshell-live{height:780px;border:0;background:transparent;box-shadow:none;padding:0}
+.nxg-fieldshell-live .nxg-stadium-exact{height:190px}
+.nxg-fieldshell-live .nxg-fieldart-frame{left:12px;right:12px;top:70px;bottom:44px;border-radius:16px;box-shadow:0 20px 36px rgba(0,0,0,.28)}
+.nxg-fieldshell-live .nxg-fieldtag{top:92px;left:50%;transform:translateX(-50%);z-index:10;padding:8px 14px;font-size:11px;border-radius:999px;background:rgba(8,27,58,.72);backdrop-filter:blur(8px)}
+.nxg-overlay-stack{position:absolute;top:214px;z-index:9;display:flex;flex-direction:column;gap:14px;width:min(29%,360px)}
+.nxg-overlay-stack.left{left:24px}
+.nxg-overlay-stack.right{right:24px}
+.nxg-overlay-block{width:100%}
+.nxg-overlay-panel{padding:14px 16px;border-radius:16px;background:linear-gradient(180deg,rgba(3,14,34,.30),rgba(3,14,34,.12));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(140,197,255,.12);box-shadow:none;color:#fff}
+.nxg-overlay-title{display:flex;align-items:center;gap:8px;padding-bottom:10px;margin-bottom:10px;border-bottom:1px solid rgba(140,197,255,.18);font:900 11px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase;color:#39a5ff}
+.nxg-overlay-scoring-row{display:flex;align-items:center;gap:16px}
+.nxg-gauge-sm{width:82px;flex:0 0 82px}.nxg-gauge-sm::after{inset:8px}.nxg-gauge-sm b{font-size:16px}
+.nxg-overlay-copy strong{font-size:17px}.nxg-overlay-copy span{font-size:11px;line-height:1.45}
+.nxg-overlay-meta{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#d4e4ff;font:800 10px 'JetBrains Mono',monospace}.nxg-overlay-meta img,.nxg-overlay-meta .ms-nfl-team-logo{width:18px;height:18px;object-fit:contain}
+.nxg-overlay-plays{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+.nxg-overlay-play{display:grid;grid-template-columns:12px 1fr;gap:10px;align-items:start}.nxg-overlay-play i{width:10px;height:10px;border-radius:50%;background:#4ade80;box-shadow:0 0 0 2px rgba(74,222,128,.14);margin-top:4px}.nxg-overlay-play.current i{background:#cfdcff;box-shadow:0 0 0 2px rgba(207,220,255,.15)}.nxg-overlay-play small{display:block;font-size:10px;color:#8fb0d8;margin-bottom:2px}.nxg-overlay-play span{display:block;font-size:12px;line-height:1.42;color:#fff}
+.nxg-overlay-metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.nxg-overlay-metric-grid div{text-align:center;padding:4px 6px}.nxg-overlay-metric-grid b{display:block;font:900 30px 'Oswald',sans-serif;line-height:1;color:#fff}.nxg-overlay-metric-grid span{display:block;margin-top:5px;font:800 9px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#95b5de}.nxg-overlay-metric-grid small{display:block;margin-top:3px;font:800 9px 'JetBrains Mono',monospace;color:#55a9ff}
+.nxg-overlay-watch-list{display:flex;flex-direction:column;gap:10px}
+.nxg-overlay-watch-row{display:grid;grid-template-columns:46px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(140,197,255,.12)}.nxg-overlay-watch-row:last-child{border-bottom:0;padding-bottom:0}.nxg-overlay-watch-avatar{width:46px;height:46px;border-radius:12px}.nxg-overlay-watch-copy{min-width:0}.nxg-overlay-watch-copy b{display:block;font:700 15px 'Oswald',sans-serif;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.nxg-overlay-watch-copy small{display:block;font-size:10px;color:#9eb5db}
+.nxg-overlay-watch-stats{display:grid;grid-template-columns:repeat(3,minmax(34px,1fr));gap:8px;min-width:130px}.nxg-overlay-watch-stats div{text-align:center}.nxg-overlay-watch-stats b{display:block;font:900 18px 'JetBrains Mono',monospace;color:#fff;line-height:1}.nxg-overlay-watch-stats span{display:block;margin-top:4px;font:800 8px 'JetBrains Mono',monospace;letter-spacing:.05em;text-transform:uppercase;color:#9cb1d7}
+@media(max-width:1180px){.nxg-scorebar{grid-template-columns:1fr 300px 1fr}.nxg-fieldshell-live{height:720px}.nxg-overlay-stack{top:196px;width:min(31%,320px)}.nxg-overlay-stack.left{left:18px}.nxg-overlay-stack.right{right:18px}.nxg-overlay-panel{padding:12px 13px}.nxg-overlay-metric-grid b{font-size:24px}.nxg-overlay-watch-row{grid-template-columns:42px minmax(0,1fr)}.nxg-overlay-watch-stats{grid-column:1/-1;min-width:0}}
+@media(max-width:920px){.nxg-score{font-size:70px}.nxg-clock{font-size:52px}.nxg-fieldshell-live{height:930px}.nxg-fieldshell-live .nxg-fieldart-frame{top:66px;bottom:250px}.nxg-fieldshell-live .nxg-fieldtag{top:84px}.nxg-overlay-stack{top:auto;left:18px!important;right:18px!important;width:auto}.nxg-overlay-stack.left{bottom:250px}.nxg-overlay-stack.right{bottom:28px}.nxg-overlay-panel{background:linear-gradient(180deg,rgba(3,14,34,.42),rgba(3,14,34,.20))}.nxg-overlay-metric-grid{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:760px){.nxg-scorebar{grid-template-columns:1fr}.nxg-score{font-size:52px}.nxg-period{font-size:24px}.nxg-clock{font-size:42px}.nxg-fieldshell-live{height:1120px}.nxg-fieldshell-live .nxg-stadium-exact{height:130px}.nxg-fieldshell-live .nxg-fieldart-frame{left:8px;right:8px;top:56px;bottom:440px}.nxg-fieldshell-live .nxg-fieldtag{top:70px}.nxg-overlay-stack{left:10px!important;right:10px!important;gap:10px}.nxg-overlay-stack.left{bottom:440px}.nxg-overlay-stack.right{bottom:16px}.nxg-overlay-scoring-row{align-items:flex-start}.nxg-overlay-metric-grid{grid-template-columns:repeat(2,1fr);row-gap:8px}.nxg-overlay-watch-row{grid-template-columns:40px minmax(0,1fr)}.nxg-overlay-watch-avatar{width:40px;height:40px}.nxg-overlay-watch-stats{grid-column:1/-1;grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.nxg-fieldshell-live{height:1180px}.nxg-fieldshell-live .nxg-fieldart-frame{bottom:488px}.nxg-overlay-stack.left{bottom:488px}.nxg-overlay-play span{font-size:11px}.nxg-overlay-title{font-size:10px}.nxg-overlay-panel{padding:11px 12px}}
+
 .nfl-live-gamecast-btn{appearance:none;border:1px solid rgba(245,158,11,.55);background:rgba(245,158,11,.10);color:#fbbf24;border-radius:8px;padding:6px 9px;font:900 7px 'JetBrains Mono','Space Mono',monospace;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;margin-top:6px}.nfl-live-gamecast-btn:hover{background:rgba(245,158,11,.18);color:#fff}
 
 .nfl-match-leaders{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:11px 14px 12px;border-bottom:1px solid var(--line);background:rgba(3,13,31,.35)}
