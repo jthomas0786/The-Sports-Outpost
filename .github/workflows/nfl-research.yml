@@ -1,0 +1,38 @@
+name: NFL Research Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */6 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-research-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Build current NFL research file
+        run: node scripts/nfl-research.mjs
+      - name: Commit updated research data
+        run: |
+          if git diff --quiet -- slates/nfl-research.json; then
+            echo "NFL research data is unchanged."
+            exit 0
+          fi
+          git config user.name "TSO NFL Research Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add slates/nfl-research.json
+          git commit -m "Refresh NFL research data"
+          git push
