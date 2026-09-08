@@ -2,6 +2,10 @@ name: NFL Research Refresh
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/nfl-research.mjs'
+      - '.github/workflows/nfl-research.yml'
   schedule:
     - cron: '17 */6 * * *'
 
