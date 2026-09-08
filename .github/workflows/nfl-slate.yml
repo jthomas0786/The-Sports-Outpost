@@ -103,9 +103,9 @@ jobs:
           git config user.name  'slate-bot'
           git config user.email 'actions@github.com'
 
-          # Only the files this job owns — never index.html, slate.json, or config.
+          # NFL owns only slates/nfl.json. MLB model-logs are intentionally
+          # excluded so NFL refreshes can never rewrite calibration-history.json.
           git add slates/nfl.json
-          [ -d model-logs ] && git add model-logs/ || true
           git diff --staged --quiet && echo "no changes" && exit 0
           git commit -m "nfl slate: $(date -u +%Y-%m-%d)"
 
