@@ -14,7 +14,11 @@
  */
 
 const POLL_MS = 15000; // 15s — frequent enough to catch a drive, gentle on Pages CDN
-const LIVE_URL = 'slates/nfl-live.json';
+const STATIC_LIVE_URL = 'slates/nfl-live.json';
+const configuredLiveUrl = () => {
+  if (typeof window === 'undefined') return null;
+  return window.DW_NFL_LIVE_ENDPOINT || window.TSO_NFL_LIVE_URL || null;
+};
 
 let _slate = null;
 let _onChange = null;      // () => void — called after a merge that changed something
@@ -100,17 +104,33 @@ function parseClock(displayClock) {
 
 function sig(live) {
   if (!live) return '';
-  return [live.status, live.awayScore, live.homeScore, live.period, live.clockMin && live.clockMin.toFixed(2),
+  const drive = live.currentDrive || {};
+  const recent = Array.isArray(live.plays) ? live.plays : [];
+  const playerKeys = Object.keys(live.playerStats?.byId || {}).sort();
+  return [
+    live.status, live.awayScore, live.homeScore, live.period,
+    live.clockMin != null ? Number(live.clockMin).toFixed(2) : '',
     live.possession, live.yardFromOwn != null ? Math.round(live.yardFromOwn) : '', live.isRedZone ? 1 : 0,
-    live.down ?? '', live.distance ?? '', live.downDistanceText || '', live.lastPlayText || ''].join('|');
+    live.down ?? '', live.distance ?? '', live.downDistanceText || '', live.lastPlayText || '',
+    drive.id || '', drive.playCount ?? '', drive.yards ?? '', drive.elapsedDisplay || '',
+    recent.at(-1)?.id || '', recent.length, playerKeys.length,
+    live.lastFetchedAt || ''
+  ].join('|');
 }
 
 async function tick() {
   if (_inflight || !_slate) return;
   _inflight = true;
   try {
-    const res = await fetch(LIVE_URL, { cache: 'no-store' });
-    if (!res.ok) return; // 404 (no live file yet) → keep showing the slate
+    let res = null;
+    const remote = configuredLiveUrl();
+    if (remote) {
+      try { res = await fetch(remote, { cache: 'no-store' }); } catch (_e) { res = null; }
+    }
+    if (!res || !res.ok) {
+      res = await fetch(STATIC_LIVE_URL, { cache: 'no-store' });
+    }
+    if (!res.ok) return; // no live snapshot yet → keep showing the slate
     const data = await res.json();
     const live = data && data.games ? data.games : {};
     let changed = false;
@@ -128,6 +148,12 @@ async function tick() {
           possession: gl.possession, yardFromOwn: gl.yardFromOwn, isRedZone: gl.isRedZone,
           down: gl.down, distance: gl.distance, downDistanceText: gl.downDistanceText,
           lastPlayText: gl.lastPlayText,
+          linescores: gl.linescores || null,
+          currentDrive: gl.currentDrive || null,
+          plays: Array.isArray(gl.plays) ? gl.plays : [],
+          playerStats: gl.playerStats || null,
+          teamStats: gl.teamStats || null,
+          scoringPlays: Array.isArray(gl.scoringPlays) ? gl.scoringPlays : [],
           lastFetchedAt: gl.lastFetchedAt || data.lastFetchedAt,
         };
         _lastSig[g.gameId] = s;
@@ -165,6 +191,10 @@ export function startLivePolling(slate, onChange) {
   _timer = setInterval(() => {
     if (shouldPoll()) tick();
   }, POLL_MS);
+}
+
+export async function refreshLiveNow() {
+  await tick();
 }
 
 export function stopLivePolling() {
