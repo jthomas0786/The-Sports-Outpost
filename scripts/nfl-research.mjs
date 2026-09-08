@@ -128,17 +128,21 @@ function summarizeSeason(row){
   const rushYds=stat(row,'rushing_yards');
   const recYds=stat(row,'receiving_yards');
   const passYds=stat(row,'passing_yards');
+  const completions=stat(row,'completions');
+  const attempts=stat(row,'attempts','passing_attempts');
   const passTds=stat(row,'passing_tds');
   const rushTds=stat(row,'rushing_tds');
   const recTds=stat(row,'receiving_tds');
   return {
-    games,carries,targets,receptions,rushYds,recYds,passYds,passTds,rushTds,recTds,
+    games,carries,targets,receptions,rushYds,recYds,passYds,completions,attempts,passTds,rushTds,recTds,
     totalTds:passTds+rushTds+recTds+stat(row,'special_teams_tds'),
     touches:carries+receptions,
     scrimmageYds:rushYds+recYds,
     perGame: games ? {
       carries:round(carries/games), targets:round(targets/games), receptions:round(receptions/games),
       rushYds:round(rushYds/games), recYds:round(recYds/games), scrimmageYds:round((rushYds+recYds)/games),
+      passYds:round(passYds/games), completions:round(completions/games), attempts:round(attempts/games),
+      passTds:round(passTds/games,2), rushTds:round(rushTds/games,2), recTds:round(recTds/games,2),
       tds:round((rushTds+recTds)/games,2)
     } : null,
     targetShare: round(stat(row,'target_share')*100),
@@ -184,13 +188,15 @@ function summarizeLast(rows, count=5, scheduleIndex=null){
   if(!usable.length) return null;
   const sums=usable.reduce((a,r)=>{
     a.carries+=stat(r,'carries','rushing_attempts'); a.targets+=stat(r,'targets'); a.receptions+=stat(r,'receptions');
+    a.completions+=stat(r,'completions'); a.attempts+=stat(r,'attempts','passing_attempts');
     a.rushYds+=stat(r,'rushing_yards'); a.recYds+=stat(r,'receiving_yards'); a.passYds+=stat(r,'passing_yards');
+    a.passTds+=stat(r,'passing_tds'); a.rushTds+=stat(r,'rushing_tds'); a.recTds+=stat(r,'receiving_tds');
     a.tds+=totalTds(r); return a;
-  },{carries:0,targets:0,receptions:0,rushYds:0,recYds:0,passYds:0,tds:0});
+  },{carries:0,targets:0,receptions:0,completions:0,attempts:0,rushYds:0,recYds:0,passYds:0,passTds:0,rushTds:0,recTds:0,tds:0});
   const games=usable.length;
   return {
     games,
-    avg:{ carries:round(sums.carries/games), targets:round(sums.targets/games), receptions:round(sums.receptions/games), rushYds:round(sums.rushYds/games), recYds:round(sums.recYds/games), scrimmageYds:round((sums.rushYds+sums.recYds)/games), passYds:round(sums.passYds/games), tds:round(sums.tds/games,2)},
+    avg:{ carries:round(sums.carries/games), targets:round(sums.targets/games), receptions:round(sums.receptions/games), completions:round(sums.completions/games), attempts:round(sums.attempts/games), rushYds:round(sums.rushYds/games), recYds:round(sums.recYds/games), scrimmageYds:round((sums.rushYds+sums.recYds)/games), passYds:round(sums.passYds/games), passTds:round(sums.passTds/games,2), rushTds:round(sums.rushTds/games,2), recTds:round(sums.recTds/games,2), tds:round(sums.tds/games,2)},
     tdGames:usable.filter(r=>totalTds(r)>0).length,
     gamesLog:gameLogRows(usable,scheduleIndex,count)
   };
@@ -280,16 +286,17 @@ function buildDefenseAllowed(rows){
     const week=n(r.week);
     if(!defense||!['QB','RB','WR','TE'].includes(pos)||!week) continue;
     const key=`${defense}|${pos}`;
-    if(!groups.has(key)) groups.set(key,{defense,pos,weeks:new Set(),passYds:0,rushYds:0,recYds:0,targets:0,receptions:0,carries:0,passTds:0,rushTds:0,recTds:0,turnovers:0});
+    if(!groups.has(key)) groups.set(key,{defense,pos,weeks:new Set(),passYds:0,rushYds:0,recYds:0,targets:0,receptions:0,carries:0,completions:0,attempts:0,passTds:0,rushTds:0,recTds:0,turnovers:0});
     const g=groups.get(key); g.weeks.add(week);
     g.passYds+=stat(r,'passing_yards');g.rushYds+=stat(r,'rushing_yards');g.recYds+=stat(r,'receiving_yards');
     g.targets+=stat(r,'targets');g.receptions+=stat(r,'receptions');g.carries+=stat(r,'carries','rushing_attempts');
+    g.completions+=stat(r,'completions');g.attempts+=stat(r,'attempts','passing_attempts');
     g.passTds+=stat(r,'passing_tds');g.rushTds+=stat(r,'rushing_tds');g.recTds+=stat(r,'receiving_tds');g.turnovers+=stat(r,'interceptions')+stat(r,'fumbles_lost');
   }
   const out=new Map();
   for(const [key,g] of groups){
     const games=Math.max(1,g.weeks.size),tds=g.passTds+g.rushTds+g.recTds;
-    out.set(key,{games,position:g.pos,totalYards:g.passYds+g.rushYds+g.recYds,passYds:g.passYds,rushYds:g.rushYds,recYds:g.recYds,totalTds:tds,perGame:{yards:round((g.passYds+g.rushYds+g.recYds)/games),passYds:round(g.passYds/games),rushYds:round(g.rushYds/games),recYds:round(g.recYds/games),tds:round(tds/games,2),targets:round(g.targets/games),receptions:round(g.receptions/games),carries:round(g.carries/games)}});
+    out.set(key,{games,position:g.pos,totalYards:g.passYds+g.rushYds+g.recYds,passYds:g.passYds,rushYds:g.rushYds,recYds:g.recYds,totalTds:tds,perGame:{yards:round((g.passYds+g.rushYds+g.recYds)/games),passYds:round(g.passYds/games),rushYds:round(g.rushYds/games),recYds:round(g.recYds/games),passTds:round(g.passTds/games,2),rushTds:round(g.rushTds/games,2),recTds:round(g.recTds/games,2),tds:round(tds/games,2),targets:round(g.targets/games),receptions:round(g.receptions/games),carries:round(g.carries/games),completions:round(g.completions/games),attempts:round(g.attempts/games)}});
   }
   return out;
 }
