@@ -121,12 +121,20 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview.js?v=68');
+      const mod = await import('./nfl-preview.js?v=69');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
         mod.selectTab(pendingTab);
         window.DW_nflPreviewPendingTab = null;
+      }
+      // v69 — source-backed NFL research presentation layer. This enhances
+      // Slate rows and the Player Modal without changing TSO model outputs.
+      try {
+        const researchUi = await import('./nfl-research-ui.js?v=69');
+        await researchUi.mountNflResearchUI(nflView);
+      } catch (researchError) {
+        console.warn('[NFL research UI] enhancement unavailable:', researchError);
       }
     } catch (e) {
       if (nflView) nflView.innerHTML = '<div class="nfl-error"><div class="nfl-error-title">Couldn\'t load the NFL preview</div><div>' + String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
