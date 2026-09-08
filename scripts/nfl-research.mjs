@@ -31,6 +31,7 @@ const URLS = {
   roster: season => `https://github.com/nflverse/nflverse-data/releases/download/rosters/roster_${season}.csv`,
   playerWeek: season => `https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_${season}.csv`,
   playerReg: season => `https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_reg_${season}.csv`,
+  snaps: season => `https://github.com/nflverse/nflverse-data/releases/download/snap_counts/snap_counts_${season}.csv`,
 };
 
 const health = {};
@@ -54,18 +55,35 @@ async function fetchText(url, key, required=false){
     return '';
   }
 }
+function espnCandidates(url){
+  const out=[url];
+  if(url.includes('://site.api.espn.com/')) out.push(url.replace('://site.api.espn.com/', '://site.web.api.espn.com/'));
+  else if(url.includes('://site.web.api.espn.com/')) out.push(url.replace('://site.web.api.espn.com/', '://site.api.espn.com/'));
+  return [...new Set(out)];
+}
 async function fetchJson(url, key, required=false){
-  try{
-    const res = await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'}});
-    if(!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-    const j = await res.json();
-    health[key] = {ok:true};
-    return j;
-  }catch(err){
-    health[key] = {ok:false,error:String(err?.message||err)};
-    if(required) throw err;
-    return null;
+  const attempts=[];
+  for(const candidate of espnCandidates(url)){
+    try{
+      const res = await fetch(candidate,{headers:{
+        'user-agent':UA,
+        'accept':'application/json,text/plain,*/*',
+        'accept-language':'en-US,en;q=0.9',
+        'referer':'https://www.espn.com/',
+        'origin':'https://www.espn.com',
+      }});
+      if(!res.ok){ attempts.push(`${new URL(candidate).host}: ${res.status} ${res.statusText}`); continue; }
+      const j = await res.json();
+      health[key] = {ok:true,host:new URL(candidate).host,attempts};
+      return j;
+    }catch(err){
+      attempts.push(`${new URL(candidate).host}: ${String(err?.message||err)}`);
+    }
   }
+  const message=attempts.join(' | ') || 'No ESPN endpoint candidates succeeded';
+  health[key] = {ok:false,error:message};
+  if(required) throw new Error(`${key}: ${message}`);
+  return null;
 }
 
 function parseCsv(text){
@@ -204,13 +222,51 @@ function indexRows(rows, key='player_id'){
 function groupRows(rows,key='player_id'){
   const m=new Map(); for(const r of rows){const k=clean(r[key]); if(!k) continue; if(!m.has(k))m.set(k,[]);m.get(k).push(r);} return m;
 }
+function posGroup(v){
+  const p=String(v||'').toUpperCase();
+  if(p==='HB'||p==='FB') return 'RB';
+  if(['QB','RB','WR','TE'].includes(p)) return p;
+  return p;
+}
+function pctValue(v){
+  const x=Number(String(v??'').replace('%','')); if(!Number.isFinite(x)) return null;
+  return round(x<=1.01?x*100:x,1);
+}
+function summarizeSnaps(rows,count=5){
+  const usable=[...rows].sort((a,b)=>n(b.week)-n(a.week)).slice(0,count);
+  if(!usable.length) return null;
+  const vals=usable.map(r=>pctValue(pick(r,'offense_pct','offense_percent','offense_percentage'))).filter(v=>v!=null);
+  const snaps=usable.map(r=>stat(r,'offense_snaps')).filter(v=>Number.isFinite(v));
+  return {games:usable.length,avgOffensePct:vals.length?round(vals.reduce((a,b)=>a+b,0)/vals.length,1):null,lastOffensePct:vals[0]??null,avgOffenseSnaps:snaps.length?round(snaps.reduce((a,b)=>a+b,0)/snaps.length,1):null};
+}
+function buildDefenseAllowed(rows){
+  const groups=new Map();
+  for(const r of rows){
+    const defense=normTeam(pick(r,'opponent_team','opponent')||'');
+    const pos=posGroup(pick(r,'position_group','position')||'');
+    const week=n(r.week);
+    if(!defense||!['QB','RB','WR','TE'].includes(pos)||!week) continue;
+    const key=`${defense}|${pos}`;
+    if(!groups.has(key)) groups.set(key,{defense,pos,weeks:new Set(),passYds:0,rushYds:0,recYds:0,targets:0,receptions:0,carries:0,passTds:0,rushTds:0,recTds:0,turnovers:0});
+    const g=groups.get(key); g.weeks.add(week);
+    g.passYds+=stat(r,'passing_yards');g.rushYds+=stat(r,'rushing_yards');g.recYds+=stat(r,'receiving_yards');
+    g.targets+=stat(r,'targets');g.receptions+=stat(r,'receptions');g.carries+=stat(r,'carries','rushing_attempts');
+    g.passTds+=stat(r,'passing_tds');g.rushTds+=stat(r,'rushing_tds');g.recTds+=stat(r,'receiving_tds');g.turnovers+=stat(r,'interceptions')+stat(r,'fumbles_lost');
+  }
+  const out=new Map();
+  for(const [key,g] of groups){
+    const games=Math.max(1,g.weeks.size),tds=g.passTds+g.rushTds+g.recTds;
+    out.set(key,{games,position:g.pos,totalYards:g.passYds+g.rushYds+g.recYds,passYds:g.passYds,rushYds:g.rushYds,recYds:g.recYds,totalTds:tds,perGame:{yards:round((g.passYds+g.rushYds+g.recYds)/games),passYds:round(g.passYds/games),rushYds:round(g.rushYds/games),recYds:round(g.recYds/games),tds:round(tds/games,2),targets:round(g.targets/games),receptions:round(g.receptions/games),carries:round(g.carries/games)}});
+  }
+  return out;
+}
 
 async function main(){
   await fs.mkdir(path.dirname(OUT),{recursive:true});
   const slate=await readLocalJson(SLATE);
 
-  const [teamsJson,injJson,playersCsv,rosterCsv,prevWeekCsv,prevRegCsv,currentWeekCsv,currentRegCsv] = await Promise.all([
-    fetchJson(URLS.teams,'espnTeams',true),
+  const [teamsJson,injJson,playersCsv,rosterCsv,prevWeekCsv,prevRegCsv,currentWeekCsv,currentRegCsv,prevSnapsCsv,currentSnapsCsv] = await Promise.all([
+    fetchJson(URLS.teams,'espnTeams'),
     fetchJson(URLS.injuries,'espnInjuries'),
     fetchText(URLS.players,'nflversePlayers'),
     fetchText(URLS.roster(SEASON),'nflverseRosterCurrent'),
@@ -218,10 +274,27 @@ async function main(){
     fetchText(URLS.playerReg(PREV),'nflversePrevRegular'),
     fetchText(URLS.playerWeek(SEASON),'nflverseCurrentWeekly'),
     fetchText(URLS.playerReg(SEASON),'nflverseCurrentRegular'),
+    fetchText(URLS.snaps(PREV),'nflversePrevSnaps'),
+    fetchText(URLS.snaps(SEASON),'nflverseCurrentSnaps'),
   ]);
 
-  const teams=flattenTeams(teamsJson);
-  health.espnTeams.rows=teams.length;
+  let teams=flattenTeams(teamsJson);
+  // Fail-soft fallback: if both ESPN hosts are unavailable, derive teams from
+  // the current TSO slate so nflverse-backed player research can still build.
+  if(!teams.length && slate?.games?.length){
+    const seen=new Map();
+    for(const g of slate.games){
+      for(const t of [g.away,g.home]){
+        if(!t?.abbr) continue;
+        const abbr=normTeam(t.abbr);
+        if(!seen.has(abbr)) seen.set(abbr,{id:String(t.id||abbr),abbr,name:t.name||abbr,shortName:t.shortName||t.name||abbr,logo:t.logo||null});
+      }
+    }
+    teams=[...seen.values()];
+    health.espnTeams = {...(health.espnTeams||{}),fallback:'slates/nfl.json',rows:teams.length};
+  }else{
+    health.espnTeams = {...(health.espnTeams||{}),rows:teams.length};
+  }
   const injuries=flattenInjuries(injJson||{});
 
   const teamPayloads=await parallelMap(teams,6,async team=>{
@@ -238,6 +311,9 @@ async function main(){
   const prevReg=parseCsv(prevRegCsv); health.nflversePrevRegular.rows=prevReg.length;
   const curWeek=parseCsv(currentWeekCsv); health.nflverseCurrentWeekly.rows=curWeek.length;
   const curReg=parseCsv(currentRegCsv); health.nflverseCurrentRegular.rows=curReg.length;
+  const prevSnaps=parseCsv(prevSnapsCsv); health.nflversePrevSnaps.rows=prevSnaps.length;
+  const curSnaps=parseCsv(currentSnapsCsv); health.nflverseCurrentSnaps.rows=curSnaps.length;
+  const defenseAllowedPrev=buildDefenseAllowed(prevWeek);
 
   const xByEspn=new Map(),xByGsis=new Map(),xByName=new Map();
   for(const r of xwalk){
@@ -250,6 +326,7 @@ async function main(){
     if(e)nvRosterByEspn.set(e,r); if(g)nvRosterByGsis.set(g,r); if(team&&nm)nvRosterByNameTeam.set(`${team}|${nm}`,r);
   }
   const prevRegBy=indexRows(prevReg); const curRegBy=indexRows(curReg); const prevWeeksBy=groupRows(prevWeek); const curWeeksBy=groupRows(curWeek);
+  const prevSnapsByPfr=groupRows(prevSnaps,'pfr_player_id'); const curSnapsByPfr=groupRows(curSnaps,'pfr_player_id');
 
   const slatePlayers=[]; const slateByEspn=new Map(), slateByGsis=new Map(), slateByNameTeam=new Map();
   for(const g of slate?.games||[]) for(const p of g.players||[]){
@@ -274,8 +351,11 @@ async function main(){
       const jersey=p.jersey||pick(nv,'jersey_number','jersey')||null;
       const position=p.position||pick(nv,'position','position_group')||pick(x,'position')||'';
       const status=inj?.status||p.status||pick(nv,'status')||'Active';
+      const pfr=clean(x?.pfr_id)||null;
+      const snapTrend=pfr?summarizeSnaps([...(curSnapsByPfr.get(pfr)||[]),...(prevSnapsByPfr.get(pfr)||[])],5):null;
+      const matchup=model?.opponent?defenseAllowedPrev.get(`${normTeam(model.opponent)}|${posGroup(position)}`)||null:null;
       resultPlayers.push({
-        espnId:p.espnId,gsisId:gsis,pfrId:clean(x?.pfr_id)||null,team:p.team,name:p.name,position,jersey,
+        espnId:p.espnId,gsisId:gsis,pfrId:pfr,team:p.team,name:p.name,position,jersey,
         headshot:p.headshot||pick(x,'headshot','headshot_url')||pick(nv,'headshot_url')||null,
         rosterStatus:status,active:p.active,experience:p.experience,age:p.age,
         depth:{rank:depth?.rank??nullableN(model?.depthRank),position:depth?.position||position,slot:depth?.slot||null},
@@ -286,7 +366,8 @@ async function main(){
           snapShare:nullableN(model?.stats?.snapShare),rzTargets:nullableN(model?.stats?.rzTargets),rzCarries:nullableN(model?.stats?.rzCarries),
           gamesPlayed:nullableN(model?.stats?.gamesPlayed),tds:nullableN(model?.stats?.tds),
         }:null,
-        previousSeason:prevSeason,currentSeason,last5,
+        previousSeason:prevSeason,currentSeason,last5,snapTrend,
+        matchup:matchup?{opponent:normTeam(model?.opponent),positionGroup:posGroup(position),previousSeasonAllowed:matchup}:null,
       });
     }
   }
@@ -298,13 +379,13 @@ async function main(){
     const key=`${normTeam(m.team)}|${nameKey(m.name)}`; if(have.has(key))continue;
     const x=(m.espnId&&xByEspn.get(String(m.espnId)))||(m.gsisId&&xByGsis.get(String(m.gsisId)))||xByName.get(nameKey(m.name))||null;
     const gsis=clean(m.gsisId)||clean(x?.gsis_id)||null;
-    resultPlayers.push({espnId:clean(m.espnId)||clean(x?.espn_id)||null,gsisId:gsis,pfrId:clean(x?.pfr_id)||null,team:normTeam(m.team),name:m.name,position:m.position||pick(x,'position')||'',jersey:null,headshot:m.headshot||pick(x,'headshot','headshot_url')||null,rosterStatus:'Slate player',active:true,experience:null,age:null,depth:{rank:nullableN(m.depthRank),position:m.position||'',slot:null},injury:null,opponent:m.opponent||null,gameId:m.gameId||null,model:{atdProbability:nullableN(m?.props?.atd?.probability),atdGrade:m?.props?.atd?.grade||null,snapShare:nullableN(m?.stats?.snapShare),rzTargets:nullableN(m?.stats?.rzTargets),rzCarries:nullableN(m?.stats?.rzCarries),gamesPlayed:nullableN(m?.stats?.gamesPlayed),tds:nullableN(m?.stats?.tds)},previousSeason:gsis?summarizeSeason(prevRegBy.get(gsis)):null,currentSeason:gsis?summarizeSeason(curRegBy.get(gsis)):null,last5:gsis?summarizeLast([...(curWeeksBy.get(gsis)||[]),...(prevWeeksBy.get(gsis)||[])],5):null});
+    resultPlayers.push({espnId:clean(m.espnId)||clean(x?.espn_id)||null,gsisId:gsis,pfrId:clean(x?.pfr_id)||null,team:normTeam(m.team),name:m.name,position:m.position||pick(x,'position')||'',jersey:null,headshot:m.headshot||pick(x,'headshot','headshot_url')||null,rosterStatus:'Slate player',active:true,experience:null,age:null,depth:{rank:nullableN(m.depthRank),position:m.position||'',slot:null},injury:null,opponent:m.opponent||null,gameId:m.gameId||null,model:{atdProbability:nullableN(m?.props?.atd?.probability),atdGrade:m?.props?.atd?.grade||null,snapShare:nullableN(m?.stats?.snapShare),rzTargets:nullableN(m?.stats?.rzTargets),rzCarries:nullableN(m?.stats?.rzCarries),gamesPlayed:nullableN(m?.stats?.gamesPlayed),tds:nullableN(m?.stats?.tds)},previousSeason:gsis?summarizeSeason(prevRegBy.get(gsis)):null,currentSeason:gsis?summarizeSeason(curRegBy.get(gsis)):null,last5:gsis?summarizeLast([...(curWeeksBy.get(gsis)||[]),...(prevWeeksBy.get(gsis)||[])],5):null,snapTrend:clean(x?.pfr_id)?summarizeSnaps([...(curSnapsByPfr.get(clean(x?.pfr_id))||[]),...(prevSnapsByPfr.get(clean(x?.pfr_id))||[])],5):null,matchup:m.opponent?{opponent:normTeam(m.opponent),positionGroup:posGroup(m.position),previousSeasonAllowed:defenseAllowedPrev.get(`${normTeam(m.opponent)}|${posGroup(m.position)}`)||null}:null});
   }
 
   resultPlayers.sort((a,b)=>a.team.localeCompare(b.team)||((a.depth?.rank??99)-(b.depth?.rank??99))||a.position.localeCompare(b.position)||a.name.localeCompare(b.name));
   const output={
     schemaVersion:1,season:SEASON,previousSeason:PREV,generatedAt:new Date().toISOString(),
-    sources:{espn:'Current rosters, depth charts, injuries',nflverse:'Player ID crosswalk and historical/current player statistics (CC BY 4.0)',tso:'Existing slates/nfl.json model fields'},
+    sources:{espn:'Current rosters, depth charts, injuries',nflverse:'Player ID crosswalk, historical/current player statistics, and snap counts (CC BY 4.0)',tso:'Existing slates/nfl.json model fields'},
     sourceHealth:health,
     teamCount:teams.length,playerCount:resultPlayers.length,
     teams:teams.map(t=>({...t,rosterCount:resultPlayers.filter(p=>p.team===t.abbr).length})),
