@@ -4995,6 +4995,51 @@ body.modal-open{ overflow:hidden; }
 }
 @media(max-width:390px){.nfl-match-leader-stats{grid-template-columns:repeat(2,1fr)}.nfl-slate-player,.nfl-team-board-cols{grid-template-columns:34px minmax(0,1fr) 48px 46px;padding-left:7px;padding-right:7px;gap:6px}.nfl-slate-player-head{width:34px;height:34px}.nfl-live-chip{flex-basis:260px}}
 </style>
+<style id="nfl-responsive-performance-v65">
+/* ========================================================================
+   v65 — NFL Slate responsive sizing + scroll/render performance
+   ======================================================================== */
+#nflView,#nflView .ms-content{min-width:0;max-width:100%;overflow-x:clip}
+#nflView .ms-content{box-sizing:border-box}
+.nfl-matchup-slate{width:100%!important;max-width:100%!important;min-width:0;margin-left:0!important;margin-right:0!important;container-type:inline-size}
+.nfl-match-card{width:100%;max-width:100%;min-width:0;box-sizing:border-box;content-visibility:auto;contain-intrinsic-size:auto 760px;contain:layout paint style}
+.nfl-match-card *{box-sizing:border-box}
+.nfl-match-head,.nfl-match-leaders,.nfl-match-env,.nfl-match-threats,.nfl-team-board,.nfl-slate-footer{min-width:0;max-width:100%}
+.nfl-match-env{grid-template-columns:repeat(4,minmax(0,1fr))}
+.nfl-env-tile{min-width:0}
+.nfl-live-page,.nfl-live-rail-wrap,.nfl-live-rail{max-width:100%;min-width:0}
+.nfl-live-chip{max-width:calc(100vw - 32px)}
+.nfl-match-leader-avatar img,.nfl-slate-player-head img{content-visibility:auto}
+
+/* Container queries respond to the actual NFL content column, not the full
+   viewport. This matters when the desktop sidebar steals horizontal space. */
+@container (max-width:900px){
+  .nfl-match-threats{grid-template-columns:1fr}
+  .nfl-match-env{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nfl-match-env .venue{grid-column:1/-1}
+}
+@container (max-width:700px){
+  .nfl-match-head{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:'center center' 'away home';gap:11px 8px;padding:12px}
+  .nfl-match-head>.nfl-match-team:not(.home){grid-area:away}.nfl-match-head>.nfl-match-team.home{grid-area:home}.nfl-match-head>.nfl-match-center{grid-area:center;min-width:0}
+  .nfl-match-leaders{grid-template-columns:1fr}
+  .nfl-match-leader.home{text-align:left}.nfl-match-leader.home .nfl-match-leader-primary{grid-template-columns:46px minmax(0,1fr)}.nfl-match-leader.home .nfl-match-leader-avatar{grid-column:1}.nfl-match-leader.home .nfl-match-leader-info{grid-column:2;grid-row:1}
+  .nfl-slate-footer{flex-direction:column;align-items:flex-start}
+}
+@container (max-width:520px){
+  .nfl-match-team{gap:7px}.nfl-match-team .ms-nfl-team-logo,.nfl-match-team .ms-team-token{width:36px;height:36px}.nfl-match-team-copy b{font-size:14px}.nfl-match-team-copy span{font-size:8px}
+  .nfl-match-leader-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .nfl-match-env{grid-template-columns:1fr}.nfl-match-env .venue{grid-column:auto}
+  .nfl-match-threats{padding-left:8px;padding-right:8px}
+  .nfl-slate-player,.nfl-team-board-cols{grid-template-columns:34px minmax(0,1fr) 46px 44px;gap:5px;padding-left:7px;padding-right:7px}
+  .nfl-slate-player-head{width:32px;height:32px}.nfl-slate-player-name>strong{font-size:11.5px}.nfl-slate-player-meta{font-size:7.5px}.nfl-slate-badges .ms-nfl-badge{font-size:5.5px;padding:2px 4px}
+  .nfl-slate-player-stat.grade b{min-width:30px;height:30px;font-size:9.5px}.nfl-slate-player-stat.edge b{font-size:12px}
+}
+@media(max-width:760px){
+  #nflView .ms-content{padding-left:10px;padding-right:10px}
+  .nfl-live-chip{flex:0 0 min(286px,calc(100vw - 44px))}
+}
+@media(max-width:390px){.nfl-live-chip{flex-basis:min(260px,calc(100vw - 36px))}}
+</style>
 
 <style id="mlb-live-slate-v48">
 /* ========================================================================
@@ -21869,7 +21914,7 @@ document.addEventListener('visibilitychange', ()=>{
 </div>
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
-<script type="module" src="./sports/router.js?v=64"></script>
+<script type="module" src="./sports/router.js?v=65"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 
 <!-- Mobile debug console — completely inert for everyone else. Loads a
