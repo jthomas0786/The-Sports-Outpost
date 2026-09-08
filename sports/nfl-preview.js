@@ -223,6 +223,43 @@ function lastPlayLabel(g){ return g?.liveScore?.lastPlayText || (g?.status==='in
 
 function data(){ return state.data || {games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1}; }
 
+const TEST_LIVE_GAME_ID='tso-nfl-live-preview-test';
+function testLiveGame(){
+  const d=data();
+  const source=d.games.find(g=>g.away?.abbr==='NE' && g.home?.abbr==='SEA')
+    || d.games.find(g=>g.status==='pre')
+    || d.games[0]
+    || FALLBACK_GAMES[0];
+  if(!source) return null;
+  return {
+    ...source,
+    id:TEST_LIVE_GAME_ID,
+    __test:true,
+    __sourceGameId:String(source.id),
+    status:'in',
+    detail:'3rd · 7:42',
+    score:'17 – 14',
+    away:{...source.away,score:17},
+    home:{...source.home,score:14},
+    liveScore:{
+      ...(source.liveScore||{}),
+      period:3,
+      clockMin:7.7,
+      possession:'away',
+      yardFromOwn:50,
+      down:2,
+      distance:6,
+      downDistanceText:'2nd & 6',
+      isRedZone:false,
+      lastPlayText:`${source.away?.abbr||'Away'} gains 8 yards on a crossing route.`,
+    },
+  };
+}
+function gameForId(id){
+  if(String(id)===TEST_LIVE_GAME_ID) return testLiveGame();
+  return data().games.find(x=>String(x.id)===String(id));
+}
+
 /**
  * First-touchdown preview probability. ATD remains the connected scoring model;
  * until a dedicated drive-order model is wired, First TD is derived from ATD
@@ -405,20 +442,18 @@ function slateHTML(){
 function nflLivePreviewHTML(g){
   const st=liveState(g);
   const poss=possessionAbbr(g);
-  return `<button type="button" class="nfl-live-chip" data-nfl-open-game="${esc(g.id)}" data-nfl-origin="live">
-    <div class="nfl-live-chip-top"><span class="nfl-live-now"><i></i> Live</span><span class="nfl-live-clock">${esc(st.label||'LIVE')}</span></div>
+  return `<button type="button" class="nfl-live-chip ${g.__test?'is-test':''}" data-nfl-open-game="${esc(g.id)}" data-nfl-origin="live">
+    <div class="nfl-live-chip-top"><span class="nfl-live-now"><i></i> ${g.__test?'Test Game':'Live'}</span><span class="nfl-live-clock">${esc(st.label||'LIVE')}</span></div>
     <div class="nfl-live-score"><div class="nfl-live-team">${teamLogo(g.away)}<b>${esc(g.away.name)}</b><strong>${scoreNum(g.away)}</strong></div><div class="nfl-live-vs">VS</div><div class="nfl-live-team home"><strong>${scoreNum(g.home)}</strong><b>${esc(g.home.name)}</b>${teamLogo(g.home)}</div></div>
     <div class="nfl-live-context"><div><span>Down & Distance</span><b>${esc(downDistanceLabel(g))}</b></div><div><span>Field Position</span><b>${esc(fieldPositionLabel(g))}${poss?` · ${esc(poss)} ball`:''}</b></div></div>
     <div class="nfl-live-openhint">Open full Gamecast →</div>
   </button>`;
 }
 function liveHTML(){
-  const live=data().games.filter(g=>g.status==='in');
-  if(!live.length){
-    const next=[...data().games].filter(g=>g.status==='pre').sort((a,b)=>String(a.startTimeUTC||'').localeCompare(String(b.startTimeUTC||'')))[0];
-    return `<div class="nfl-live-page"><div class="nfl-live-empty"><b>No NFL games are live right now.</b><span>The Live hub will populate automatically as soon as a game starts.</span>${next?`<div class="nfl-live-next">Next: ${esc(next.away.name)} @ ${esc(next.home.name)} · ${esc(next.time||'TBD')}</div>`:''}</div></div>`;
-  }
-  return `<div class="nfl-live-page"><div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${live.length} game${live.length===1?'':'s'} in progress · refreshes automatically</span></div><div class="nfl-live-rail">${live.map(nflLivePreviewHTML).join('')}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>Choose any live matchup above to open the full NFL Game View, Box Score and Play by Play Gamecast.</div></div></div>`;
+  const realLive=data().games.filter(g=>g.status==='in');
+  const test=testLiveGame();
+  const live=[...realLive,...(test?[test]:[])];
+  return `<div class="nfl-live-page"><div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} real game${realLive.length===1?'':'s'} in progress · `:''}test game available for Gamecast preview</span></div><div class="nfl-live-rail">${live.map(nflLivePreviewHTML).join('')}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any live matchup, or use the Test Game to preview the redesigned Gamecast.':'Use the Test Game above to preview the redesigned NFL Live Gamecast while no real game is in progress.'}</div></div></div>`;
 }
 
 
@@ -477,7 +512,7 @@ function allPlayersHTML(){
 
 
 function featuredPlayerForGame(g){
-  const list=data().players.filter(p=>String(p.gameId)===String(g.id));
+  const list=playersForGame(g);
   const poss=possessionAbbr(g);
   const offense=poss==='home'?g.home.abbr:poss==='away'?g.away.abbr:(g.away.abbr);
   return list.find(p=>p.team===offense) || list[0] || data().players[0] || FALLBACK_PLAYERS[0];
@@ -536,9 +571,10 @@ function scoringChance(g){
 }
 function playersForGame(g){
   ensurePlayerIndexes();
-  const indexed=_playersByGame.get(String(g.id));
+  const gameId=String(g?.__sourceGameId||g?.id||'');
+  const indexed=_playersByGame.get(gameId);
   if(indexed) return indexed;
-  return data().players.filter(p=>String(p.gameId)===String(g.id));
+  return data().players.filter(p=>String(p.gameId)===gameId);
 }
 function keyTargetsForGame(g){
   const list=playersForGame(g);
@@ -761,7 +797,7 @@ function playerModal(p){
 }
 
 function contentHTML(){
-  if(state.game){ const g=data().games.find(x=>String(x.id)===String(state.game)); return gamecastHTML(g); }
+  if(state.game){ const g=gameForId(state.game); return gamecastHTML(g); }
   if(state.tab==='radar') return gameRadarHTML();
   if(state.tab==='slate') return slateHTML();
   if(state.tab==='live') return liveHTML();
