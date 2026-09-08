@@ -1,20 +1,22 @@
 # .github/workflows/daily-slate.yml
 #
-# Rebuilds slate.json every morning and commits it. GitHub Pages then serves it
-# same-origin alongside your HTML, so the browser never makes a cross-origin
-# request — which is what was getting blocked when publishing before.
+# Rebuilds the NEXT DAY'S slate.json every night at 11pm Central and commits it.
+# Example: the 9/8 slate is built at 11pm Central on 9/7.
+# GitHub Pages then serves it same-origin alongside your HTML, so the browser
+# never makes a cross-origin request.
 
 name: Build daily MLB slate
 
 on:
   schedule:
-    # 10:00 UTC = 6am ET / 3am PT — after overnight games finish, before first pitch.
-    # Note: GitHub cron is UTC and does NOT shift with daylight saving.
-    - cron: '0 10 * * *'
+    # 11:00 PM Central every night. America/Chicago automatically follows
+    # CST/CDT daylight-saving changes, so this stays at 11pm local Central time.
+    - cron: '0 23 * * *'
+      timezone: 'America/Chicago'
   workflow_dispatch:      # lets you trigger a rebuild by hand from the Actions tab
     inputs:
       date:
-        description: 'Date to build (YYYY-MM-DD), blank = today'
+        description: 'Date to build (YYYY-MM-DD), blank = today for manual runs'
         required: false
 
 permissions:
@@ -41,13 +43,24 @@ jobs:
 
       # No npm install needed — the builder uses only Node's built-in fetch.
 
-      - name: Build today's slate
+      - name: Resolve slate date
+        id: slate-date
         run: |
           if [ -n "${{ inputs.date }}" ]; then
-            node build-slate.js --date "${{ inputs.date }}" --out slate.json --verbose
+            TARGET_DATE="${{ inputs.date }}"
+          elif [ "${{ github.event_name }}" = "schedule" ]; then
+            # Scheduled 11pm Central run always prepares tomorrow's slate.
+            TARGET_DATE="$(TZ=America/Chicago date -d 'tomorrow' +%F)"
           else
-            node build-slate.js --out slate.json --verbose
+            # Preserve the old manual behavior when no date is supplied.
+            TARGET_DATE="$(TZ=America/Chicago date +%F)"
           fi
+          echo "date=$TARGET_DATE" >> "$GITHUB_OUTPUT"
+          echo "Building MLB slate for $TARGET_DATE"
+
+      - name: Build MLB slate
+        run: |
+          node build-slate.js --date "${{ steps.slate-date.outputs.date }}" --out slate.json --verbose
 
       # Real odds + one-tap betslip deep links. Allowed to fail: without it the
       # app still works, it just falls back to the text handoff instead of
@@ -114,7 +127,7 @@ jobs:
           # index.html or config isn't clobbered.
           git add slate.json model-logs/
           git diff --staged --quiet && echo "no changes" && exit 0
-          git commit -m "slate: $(date -u +%Y-%m-%d)"
+          git commit -m "slate: ${{ steps.slate-date.outputs.date }}"
 
           # The checkout can go stale while the build runs — any push made in
           # the meantime makes this a non-fast-forward and the push is rejected.
