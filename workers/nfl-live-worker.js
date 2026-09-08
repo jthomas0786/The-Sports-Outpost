@@ -13,9 +13,17 @@ const n=v=>{const x=Number(v);return Number.isFinite(x)?x:null};
 const norm=t=>({LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'}[String(t||'').toUpperCase()]||String(t||'').toUpperCase());
 
 async function json(url){
-  const r=await fetch(url,{headers:{'user-agent':'TheSportsOutpost/1.0','accept':'application/json'}});
-  if(!r.ok) throw new Error(`${r.status} ${r.statusText}`);
-  return r.json();
+  const urls=[url];
+  if(url.includes('://site.api.espn.com/')) urls.push(url.replace('://site.api.espn.com/','://site.web.api.espn.com/'));
+  let last=null;
+  for(const candidate of urls){
+    try{
+      const r=await fetch(candidate,{headers:{'user-agent':'TheSportsOutpost/1.0','accept':'application/json','accept-language':'en-US,en;q=0.9','cache-control':'no-cache'}});
+      if(r.ok) return r.json();
+      last=new Error(`${r.status} ${r.statusText} ${candidate}`);
+    }catch(err){last=err;}
+  }
+  throw last||new Error('ESPN request failed');
 }
 function clockMin(display){
   if(!display)return null;
@@ -85,6 +93,22 @@ function playerStats(summary){
   }
   return out;
 }
+
+function fullBoxScore(summary){
+  const teams={};
+  for(const tb of summary?.boxscore?.players||[]){
+    const t=tb?.team||{},abbr=norm(t.abbreviation||''); if(!abbr)continue;
+    const sections=[];
+    for(const cat of tb.statistics||[]){
+      const labels=(cat.labels||cat.descriptions||cat.keys||[]).map(x=>String(x));
+      const rows=(cat.athletes||[]).map(row=>{const a=row.athlete||{};return {id:a.id?String(a.id):null,name:a.displayName||a.fullName||a.shortName||'Player',jersey:a.jersey||null,position:a.position?.abbreviation||null,headshot:a.headshot?.href||null,stats:Array.isArray(row.stats)?row.stats:Array.isArray(row.statistics)?row.statistics:[]}});
+      sections.push({name:cat.name||cat.type||'statistics',displayName:cat.displayName||cat.label||cat.name||cat.type||'Statistics',labels,rows,totals:Array.isArray(cat.totals)?cat.totals:[]});
+    }
+    teams[abbr]={team:{id:t.id?String(t.id):null,abbr,name:t.displayName||t.shortDisplayName||t.name||abbr,logo:t.logo||null},sections};
+  }
+  return {teams};
+}
+
 function teamStats(summary){
   const out={};
   for(const tb of summary?.boxscore?.teams||[]){
@@ -104,15 +128,15 @@ export default {
       const board=await json(SCOREBOARD); const games={};
       await Promise.all((board.events||[]).map(async event=>{
         const id=String(event.id||''); let g=base(event); if(!id||!g)return;
-        if(g.status==='in'){
+        if(g.status==='in' || g.status==='post'){
           try{
             const summary=await json(SUMMARY(id)); const plays=recent(summary);
-            g={...g,currentDrive:currentDrive(summary),plays,playerStats:playerStats(summary),teamStats:teamStats(summary),scoringPlays:scoringPlays(summary),lastPlayText:plays.at(-1)?.text||g.lastPlayText};
+            g={...g,currentDrive:currentDrive(summary),plays,playerStats:playerStats(summary),boxScore:fullBoxScore(summary),teamStats:teamStats(summary),scoringPlays:scoringPlays(summary),lastPlayText:plays.at(-1)?.text||g.lastPlayText};
           }catch(err){g.summaryError=String(err?.message||err)}
         }
         g.lastFetchedAt=Date.now(); games[id]=g;
       }));
-      return new Response(JSON.stringify({schemaVersion:2,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games}),{headers:OUT_HEADERS});
+      return new Response(JSON.stringify({schemaVersion:3,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games}),{headers:OUT_HEADERS});
     }catch(err){
       return new Response(JSON.stringify({error:String(err?.message||err)}),{status:502,headers:OUT_HEADERS});
     }

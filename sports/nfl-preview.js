@@ -1,4 +1,4 @@
-import { startLivePolling } from './nfl/live.js?v=68';
+import { startLivePolling } from './nfl/live.js?v=74';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -108,7 +108,29 @@ function ensureNflGamecastConceptStyles(){
   @media(max-width:1180px){#nflView .nxg-concept .nxg-scorebar{grid-template-columns:520px 300px 428px 168px!important}#nflView .nxg-concept .nxg-weather{grid-column:auto!important;display:flex!important}#nflView .nxg-concept .nxg-overlay-stack{top:36px!important;width:410px!important}#nflView .nxg-concept .nxg-overlay-stack.left{left:18px!important}#nflView .nxg-concept .nxg-overlay-stack.right{right:18px!important}}
   @media(max-width:920px){#nflView .nxg-concept .nxg-score{font-size:74px!important}#nflView .nxg-concept .nxg-clock{font-size:42px!important}#nflView .nxg-concept .nxg-fieldshell-live{height:870px!important}#nflView .nxg-concept .nxg-fieldart-frame{inset:0!important}#nflView .nxg-concept .nxg-overlay-stack{top:36px!important;left:auto!important;right:auto!important;width:410px!important}#nflView .nxg-concept .nxg-overlay-stack.left{left:18px!important}#nflView .nxg-concept .nxg-overlay-stack.right{right:18px!important}}
   @media(max-width:760px){#nflView .nxg-concept .nxg-topbar{display:grid!important;grid-template-columns:292px 448px minmax(0,1fr)!important}#nflView .nxg-concept .nxg-tabs{width:448px!important}#nflView .nxg-concept .nxg-tools{width:auto!important;overflow:visible!important}#nflView .nxg-concept .nxg-scorebar{grid-template-columns:520px 300px 428px 168px!important}#nflView .nxg-concept .nxg-teamblock,#nflView .nxg-concept .nxg-teamblock.home{grid-template-columns:132px minmax(0,1fr) 112px!important;text-align:left!important;padding:18px 28px!important}#nflView .nxg-concept .nxg-teamblock.home{grid-template-columns:112px minmax(0,1fr) 132px!important;text-align:right!important}#nflView .nxg-concept .nxg-teamlogo{width:126px!important;height:76px!important}#nflView .nxg-concept .nxg-teamcopy b{font-size:31px!important}#nflView .nxg-concept .nxg-score{font-size:74px!important}#nflView .nxg-concept .nxg-centerblock{border-left:1px solid rgba(45,127,255,.2)!important;border-right:1px solid rgba(45,127,255,.2)!important;border-top:0!important;border-bottom:0!important}#nflView .nxg-concept .nxg-weather{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;justify-content:center!important}#nflView .nxg-concept .nxg-fieldshell-live{height:870px!important}#nflView .nxg-concept .nxg-fieldart-frame{inset:0!important}#nflView .nxg-concept .nxg-overlay-stack{left:auto!important;right:auto!important;bottom:auto!important;gap:12px!important}#nflView .nxg-concept .nxg-overlay-stack.left{left:18px!important}#nflView .nxg-concept .nxg-overlay-stack.right{right:18px!important}#nflView .nxg-concept .nxg-overlay-metric-grid{grid-template-columns:repeat(4,1fr)!important}#nflView .nxg-concept .nxg-overlay-watch-row{grid-template-columns:48px minmax(0,1fr) 146px!important}#nflView .nxg-concept .nxg-overlay-watch-stats{grid-column:auto!important;grid-template-columns:repeat(3,1fr)!important}}
-  `;
+  
+  /* v74 — ESPN-complete Box Score, presented in TSO styling. */
+  #nflView .nxg-espn-box{padding:16px 0 28px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:start}
+  #nflView .nxg-espn-team{min-width:0;background:#06142c;border:1px solid rgba(45,127,255,.34);border-radius:14px;overflow:hidden}
+  #nflView .nxg-espn-teamtop{display:flex;align-items:center;gap:10px;padding:12px 14px;background:linear-gradient(180deg,#0a2146,#071a38);border-bottom:1px solid rgba(45,127,255,.28)}
+  #nflView .nxg-espn-teamtop img{width:30px;height:30px;object-fit:contain}
+  #nflView .nxg-espn-teamtop b{font:800 16px/1.1 'Oswald',sans-serif;color:#f5f9ff;text-transform:uppercase;letter-spacing:.02em}
+  #nflView .nxg-espn-teamtop span{margin-left:auto;font:700 11px/1 'JetBrains Mono',monospace;color:#80bcff}
+  #nflView .nxg-espn-section{padding:0 12px 14px}
+  #nflView .nxg-espn-section-title{display:flex;align-items:center;gap:7px;padding:14px 2px 7px;border-bottom:1px solid rgba(124,164,211,.28);font:800 12px/1 'JetBrains Mono',monospace;color:#eaf3ff;text-transform:uppercase;letter-spacing:.025em}
+  #nflView .nxg-espn-section-title img{width:17px;height:17px;object-fit:contain}
+  #nflView .nxg-espn-scroll{width:100%;overflow-x:auto;overscroll-behavior-inline:contain;scrollbar-width:thin}
+  #nflView .nxg-espn-table{width:100%;min-width:480px;border-collapse:collapse;table-layout:auto;font:600 11px/1.2 'JetBrains Mono',monospace;color:#d9e8fa}
+  #nflView .nxg-espn-table th{padding:7px 7px;text-align:right;color:#8eacd0;font-size:10px;font-weight:800;white-space:nowrap;border-bottom:1px solid rgba(124,164,211,.18)}
+  #nflView .nxg-espn-table th:first-child{text-align:left;min-width:155px}
+  #nflView .nxg-espn-table td{padding:7px 7px;text-align:right;white-space:nowrap;border-bottom:1px solid rgba(124,164,211,.11)}
+  #nflView .nxg-espn-table td:first-child{text-align:left;font-family:'Oswald',sans-serif;font-size:12px;font-weight:700;color:#f2f7ff}
+  #nflView .nxg-espn-table tr.team-total td{font-weight:900;background:rgba(255,255,255,.025);color:#eef6ff}
+  #nflView .nxg-espn-player-no{font-family:'JetBrains Mono',monospace;color:#7894b8;font-size:10px;margin-left:4px;font-weight:600}
+  #nflView .nxg-espn-empty{grid-column:1/-1;padding:28px;border:1px solid rgba(45,127,255,.3);border-radius:14px;text-align:center;background:#06142c;color:#9eb8d6;font:700 12px/1.6 'JetBrains Mono',monospace}
+  #nflView .nxg-espn-note{grid-column:1/-1;padding:0 4px;color:#6f8eb5;font:700 10px/1.5 'JetBrains Mono',monospace}
+  @media(max-width:820px){#nflView .nxg-espn-box{grid-template-columns:1fr;gap:12px;padding-top:10px}#nflView .nxg-espn-table{min-width:520px}}
+`;
   document.head.appendChild(style);
 }
 function fitNflGamecastConcept(root=document){
@@ -903,6 +925,57 @@ function bottomPanelsHTML(g){
   const box=boxScoreData(g), stats=teamStatsData(g), keys=keyTargetsForGame(g), awayRows=box.away.map(v=>v==null?'–':v), homeRows=box.home.map(v=>v==null?'–':v);
   return `<div class="nxg-bottom"><section class="nxg-card"><div class="nxg-card-head"><span>☷ Box Score</span></div><div class="nxg-card-pad"><table class="nxg-table"><thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr></thead><tbody><tr><td><div class="nxg-rowteam">${teamLogo(g.away)}<span>${esc(g.away.name)}</span></div></td>${awayRows.map(v=>`<td>${v}</td>`).join('')}<td><strong>${scoreNum(g.away)}</strong></td></tr><tr><td><div class="nxg-rowteam">${teamLogo(g.home)}<span>${esc(g.home.name)}</span></div></td>${homeRows.map(v=>`<td>${v}</td>`).join('')}<td><strong>${scoreNum(g.home)}</strong></td></tr></tbody></table></div></section><section class="nxg-card"><div class="nxg-card-head"><span>≣ Team Stats</span></div><div class="nxg-card-pad"><div class="nxg-teamstats"><img class="logo" src="${esc(g.away.logo||'')}" alt=""><div class="nxg-teamstats-grid"><b>${stats.aY}</b><span>Total Yards</span><em>${stats.hY}</em><b>${stats.aPass}</b><span>Passing Yards</span><em>${stats.hPass}</em><b>${stats.aRush}</b><span>Rushing Yards</span><em>${stats.hRush}</em><b>${stats.aTo}</b><span>Turnovers</span><em>${stats.hTo}</em><b>${stats.aTop}</b><span>Time of Possession</span><em>${stats.hTop}</em></div><img class="logo" src="${esc(g.home.logo||'')}" alt=""></div></div></section><section class="nxg-card"><div class="nxg-card-head"><span>➤ Due Up – Key Targets</span><small style="color:#fff">${esc(offenseContext(g).offense.abbr)}</small></div><div class="nxg-card-pad"><div class="nxg-targets">${keys.map((p,i)=>{const line=playerLine(p,i); return `<div class="nxg-targetrow"><strong>${i+1}</strong><div class="nxg-avatar">${p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`}</div><div><b>${esc(p.name)}</b><small>${esc(p.pos)} #${esc(String(p.id||'14').slice(-2))}</small></div><span>${line.v1} ${line.a}</span><span>${line.v2} ${line.b}</span><span>${line.v3} ${line.c}</span></div>`;}).join('')}</div></div></section></div>`;
 }
+
+function boxSectionTitle(section){
+  const raw=String(section?.displayName||section?.label||section?.name||'Statistics');
+  return raw.replace(/([a-z])([A-Z])/g,'$1 $2').replace(/\bdefensive\b/i,'Defense').replace(/\bpassing\b/i,'Passing').replace(/\brushing\b/i,'Rushing').replace(/\breceiving\b/i,'Receiving').replace(/\bfumbles\b/i,'Fumbles').replace(/\bkicking\b/i,'Kicking').replace(/\bpunting\b/i,'Punting').replace(/\bkick returns?\b/i,'Kick Returns').replace(/\bpunt returns?\b/i,'Punt Returns');
+}
+function normalizeBoxSectionsFromPlayers(g,teamAbbr){
+  const ps=g?.liveScore?.playerStats;
+  if(!ps?.byId) return [];
+  const byCat=new Map();
+  for(const row of Object.values(ps.byId)){
+    if(normNflTeam(row?.team)!==normNflTeam(teamAbbr)) continue;
+    for(const [name,obj] of Object.entries(row.categories||{})){
+      if(!byCat.has(name)) byCat.set(name,{name,displayName:name,labels:Object.keys(obj||{}),rows:[],totals:[]});
+      const sec=byCat.get(name);
+      for(const k of Object.keys(obj||{})) if(!sec.labels.includes(k)) sec.labels.push(k);
+      sec.rows.push({id:row.id,name:row.name,jersey:row.jersey,position:row.position,stats:sec.labels.map(k=>obj?.[k]??'—'),_obj:obj});
+    }
+  }
+  for(const sec of byCat.values()) sec.rows=sec.rows.map(r=>({...r,stats:sec.labels.map(k=>r._obj?.[k]??'—')}));
+  return [...byCat.values()];
+}
+function espnBoxTeamData(g,team){
+  const bs=g?.liveScore?.boxScore;
+  const key=normNflTeam(team?.abbr);
+  if(bs?.teams?.[key]) return bs.teams[key];
+  return {team:{abbr:key,name:team?.name||key,logo:team?.logo||''},sections:normalizeBoxSectionsFromPlayers(g,key)};
+}
+function espnBoxSectionHTML(team,section){
+  const labels=Array.isArray(section?.labels)?section.labels:[];
+  const rows=Array.isArray(section?.rows)?section.rows:[];
+  const totals=Array.isArray(section?.totals)?section.totals:[];
+  if(!labels.length || (!rows.length && !totals.length)) return '';
+  const title=boxSectionTitle(section);
+  const rowHtml=rows.map(r=>`<tr><td>${esc(r.name||'Player')}${r.jersey?`<span class="nxg-espn-player-no">#${esc(r.jersey)}</span>`:''}</td>${labels.map((_,i)=>`<td>${esc(r.stats?.[i]??'—')}</td>`).join('')}</tr>`).join('');
+  const totalHtml=totals.length?`<tr class="team-total"><td>TEAM</td>${labels.map((_,i)=>`<td>${esc(totals[i]??'—')}</td>`).join('')}</tr>`:'';
+  return `<section class="nxg-espn-section"><div class="nxg-espn-section-title">${team?.logo?`<img src="${esc(team.logo)}" alt="">`:''}<span>${esc(team?.name||team?.abbr||'Team')} ${esc(title)}</span></div><div class="nxg-espn-scroll"><table class="nxg-espn-table"><thead><tr><th></th>${labels.map(l=>`<th>${esc(l)}</th>`).join('')}</tr></thead><tbody>${rowHtml}${totalHtml}</tbody></table></div></section>`;
+}
+function espnBoxTeamHTML(g,team){
+  const d=espnBoxTeamData(g,team);
+  const sections=(d?.sections||[]).map(sec=>espnBoxSectionHTML({...team,...(d.team||{})},sec)).join('');
+  return `<div class="nxg-espn-team"><div class="nxg-espn-teamtop">${teamLogo(team)}<b>${esc(teamLocation(team))} ${esc(team.name)}</b><span>${scoreNum(team)} PTS</span></div>${sections||'<div class="nxg-espn-empty" style="margin:12px">Player box-score data will populate when ESPN publishes it.</div>'}</div>`;
+}
+function espnCompleteBoxScoreHTML(g){
+  const hasStructured=!!(g?.liveScore?.boxScore?.teams && Object.keys(g.liveScore.boxScore.teams).length);
+  const hasLegacy=!!(g?.liveScore?.playerStats?.byId && Object.keys(g.liveScore.playerStats.byId).length);
+  if(!hasStructured&&!hasLegacy){
+    return `<div class="nxg-espn-box"><div class="nxg-espn-empty"><b>FULL BOX SCORE</b><br>Passing, rushing, receiving, fumbles, defense, returns, kicking and punting will appear here as ESPN publishes the official in-game box score.</div></div>`;
+  }
+  return `<div class="nxg-espn-box">${espnBoxTeamHTML(g,g.away)}${espnBoxTeamHTML(g,g.home)}<div class="nxg-espn-note">Live categories and column labels mirror the ESPN game-summary feed. Sections appear dynamically, so if ESPN adds kicking, punting, returns or additional defensive columns, The Sports Outpost displays them without a code change.</div></div>`;
+}
+
 function playByPlayHTML(g){
   const real=g?.liveScore?.plays;
   if(Array.isArray(real)&&real.length){
@@ -923,7 +996,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const displayClock=live?(st.clock||''):g.status==='post'?'':(g.time||'TBD');
   const scoreDots='<i></i><i></i><i></i>';
   const gameView=fieldOverlayLiveRedesignHTML(g,p);
-  const boxView=`<div><div class="nxg-lower">${scoringChancePanelHTML(g)}${driveMetricsPanelHTML(g)}${playerWatchPanelHTML(g,p)}${lastPlayPanelHTML(g)}</div>${bottomPanelsHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>Stat Summary</span><span>The Sports Outpost</span></div></div>`;
+  const boxView=`<div>${espnCompleteBoxScoreHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>Full Box Score</span><span>The Sports Outpost</span></div></div>`;
   const pbpView=`<div class="nxg-card" style="padding:14px">${playByPlayHTML(g)}</div><div class="nxg-footerline"><span>NFL Gamecast</span><span>Play by Play</span><span>The Sports Outpost</span></div>`;
   const tabButton=(id,label)=> embedded
     ? `<button type="button" class="nxg-tab ${activeTab===id?'active':''}" data-nfl-inline-game="${esc(g.id)}" data-nfl-inline-tab="${id}">${label}</button>`

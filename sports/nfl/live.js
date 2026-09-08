@@ -107,13 +107,15 @@ function sig(live) {
   const drive = live.currentDrive || {};
   const recent = Array.isArray(live.plays) ? live.plays : [];
   const playerKeys = Object.keys(live.playerStats?.byId || {}).sort();
+  const boxTeams = live.boxScore?.teams || {};
+  const boxSig = Object.entries(boxTeams).map(([abbr,t])=>`${abbr}:${(t?.sections||[]).map(s=>`${s.name}:${(s.rows||[]).length}`).join(',')}`).sort().join(';');
   return [
     live.status, live.awayScore, live.homeScore, live.period,
     live.clockMin != null ? Number(live.clockMin).toFixed(2) : '',
     live.possession, live.yardFromOwn != null ? Math.round(live.yardFromOwn) : '', live.isRedZone ? 1 : 0,
     live.down ?? '', live.distance ?? '', live.downDistanceText || '', live.lastPlayText || '',
     drive.id || '', drive.playCount ?? '', drive.yards ?? '', drive.elapsedDisplay || '',
-    recent.at(-1)?.id || '', recent.length, playerKeys.length,
+    recent.at(-1)?.id || '', recent.length, playerKeys.length, boxSig,
     live.lastFetchedAt || ''
   ].join('|');
 }
@@ -152,6 +154,7 @@ async function tick() {
           currentDrive: gl.currentDrive || null,
           plays: Array.isArray(gl.plays) ? gl.plays : [],
           playerStats: gl.playerStats || null,
+          boxScore: gl.boxScore || null,
           teamStats: gl.teamStats || null,
           scoringPlays: Array.isArray(gl.scoringPlays) ? gl.scoringPlays : [],
           lastFetchedAt: gl.lastFetchedAt || data.lastFetchedAt,

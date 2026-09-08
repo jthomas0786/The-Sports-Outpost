@@ -16,15 +16,24 @@ const OUT=path.join(ROOT,'slates','nfl-live.json');
 const UA='TheSportsOutpost/1.0 (+https://thesportsoutpost.com)';
 const SCOREBOARD='https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100';
 const SUMMARY=id=>`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${encodeURIComponent(id)}`;
+const ESPN_WEB_HOST='https://site.web.api.espn.com';
 
 const clean=s=>String(s??'').trim();
 const number=v=>{const x=Number(v);return Number.isFinite(x)?x:null;};
 const normTeam=t=>({LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'}[String(t||'').toUpperCase()]||String(t||'').toUpperCase());
 
 async function getJson(url){
-  const res=await fetch(url,{headers:{'user-agent':UA,'accept':'application/json'}});
-  if(!res.ok) throw new Error(`${res.status} ${res.statusText} ${url}`);
-  return res.json();
+  const urls=[url];
+  if(url.includes('://site.api.espn.com/')) urls.push(url.replace('://site.api.espn.com/', '://site.web.api.espn.com/'));
+  let lastErr=null;
+  for(const candidate of urls){
+    try{
+      const res=await fetch(candidate,{headers:{'user-agent':UA,'accept':'application/json','accept-language':'en-US,en;q=0.9','cache-control':'no-cache'}});
+      if(res.ok) return res.json();
+      lastErr=new Error(`${res.status} ${res.statusText} ${candidate}`);
+    }catch(err){lastErr=err;}
+  }
+  throw lastErr||new Error(`ESPN request failed: ${url}`);
 }
 function clockMin(display){
   if(!display)return null; const parts=String(display).split(':');
@@ -112,6 +121,33 @@ function parsePlayerBox(summary){
   }
   return out;
 }
+
+function parseFullBoxScore(summary){
+  const teams={};
+  for(const teamBlock of summary?.boxscore?.players||[]){
+    const t=teamBlock?.team||{}; const abbr=normTeam(t.abbreviation||''); if(!abbr)continue;
+    const sections=[];
+    for(const cat of teamBlock?.statistics||[]){
+      const labels=(cat?.labels||cat?.descriptions||cat?.keys||[]).map(x=>String(x));
+      const rows=[];
+      for(const row of cat?.athletes||[]){
+        const a=row?.athlete||{};
+        rows.push({
+          id:a.id?String(a.id):null,name:a.displayName||a.fullName||a.shortName||'Player',jersey:a.jersey||null,
+          position:a.position?.abbreviation||null,headshot:a.headshot?.href||null,
+          stats:Array.isArray(row?.stats)?row.stats:Array.isArray(row?.statistics)?row.statistics:[],
+        });
+      }
+      sections.push({
+        name:cat?.name||cat?.type||'statistics',displayName:cat?.displayName||cat?.label||cat?.name||cat?.type||'Statistics',
+        labels,rows,totals:Array.isArray(cat?.totals)?cat.totals:[],
+      });
+    }
+    teams[abbr]={team:{id:t.id?String(t.id):null,abbr,name:t.displayName||t.shortDisplayName||t.name||abbr,logo:t.logo||null},sections};
+  }
+  return {teams};
+}
+
 function parseTeamStats(summary){
   const out={};
   for(const t of summary?.boxscore?.teams||[]){
@@ -140,7 +176,7 @@ function mergeSummary(base,summary){
     const faux={competitions:[headerComp],status:headerComp.status}; const fresh=baseLive(faux); if(fresh)base={...base,...fresh};
   }
   const drive=currentDrive(summary); const recent=recentPlays(summary); const players=parsePlayerBox(summary); const teams=parseTeamStats(summary);
-  return {...base,currentDrive:drive,plays:recent,playerStats:players,teamStats:teams,scoringPlays:scoringPlays(summary),lastPlayText:recent.at(-1)?.text||base.lastPlayText||null};
+  return {...base,currentDrive:drive,plays:recent,playerStats:players,boxScore:parseFullBoxScore(summary),teamStats:teams,scoringPlays:scoringPlays(summary),lastPlayText:recent.at(-1)?.text||base.lastPlayText||null};
 }
 
 async function main(){
@@ -149,7 +185,7 @@ async function main(){
   const relevant=events.filter(e=>['pre','in','post'].includes(e?.status?.type?.state||e?.competitions?.[0]?.status?.type?.state));
   for(const event of relevant){
     const id=String(event.id||''); if(!id)continue; let live=baseLive(event); if(!live)continue;
-    if(live.status==='in' || process.env.NFL_LIVE_INCLUDE_FINAL==='1'){
+    if(live.status==='in' || live.status==='post' || process.env.NFL_LIVE_INCLUDE_FINAL==='1'){
       try{live=mergeSummary(live,await getJson(SUMMARY(id)));}catch(err){live.summaryError=String(err?.message||err);}
     }
     live.lastFetchedAt=Date.now(); games[id]=live;
@@ -158,7 +194,7 @@ async function main(){
   let existing=null; try{existing=JSON.parse(await fs.readFile(OUT,'utf8'));}catch(_e){}
   const hadLive=Object.values(existing?.games||{}).some(g=>g?.status==='in');
   if(active===0 && !hadLive){ console.log('NFL live snapshot: no game in progress; existing live file left unchanged.'); return; }
-  const out={schemaVersion:2,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games};
+  const out={schemaVersion:3,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games};
   await fs.writeFile(OUT,JSON.stringify(out,null,2)+'\n');
   console.log(`NFL live snapshot: ${active} live / ${Object.keys(games).length} scoreboard games -> ${path.relative(ROOT,OUT)}`);
 }
