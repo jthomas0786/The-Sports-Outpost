@@ -1,5 +1,5 @@
 /**
- * sports/nfl-research-ui.js — v70 MLB-style NFL player research presentation layer.
+ * sports/nfl-research-ui.js — v71 MLB-style NFL player research presentation layer.
  *
  * This module intentionally sits beside nfl-preview.js instead of replacing its
  * model logic. It reads slates/nfl-research.json and enriches the rendered NFL
@@ -110,7 +110,7 @@ function ensureStyles(){
     .tso-nfl-games-wrap{overflow-x:auto}.tso-nfl-games{width:100%;border-collapse:collapse;min-width:520px}.tso-nfl-games th,.tso-nfl-games td{padding:7px 8px;border-bottom:1px solid rgba(120,176,239,.10);text-align:right;font-size:9px;color:#b8c9df}.tso-nfl-games th{font:800 7px 'JetBrains Mono',monospace;text-transform:uppercase;color:#6f8daf}.tso-nfl-games th:first-child,.tso-nfl-games td:first-child,.tso-nfl-games th:nth-child(2),.tso-nfl-games td:nth-child(2){text-align:left}.tso-nfl-games td strong{color:#fff}.tso-nfl-games tr:last-child td{border-bottom:0}
     .tso-nfl-research-source2{font:700 8px 'JetBrains Mono',monospace;color:#6f8daf;line-height:1.5}.tso-nfl-research-source2 b{color:#9eb5d2}
 
-    /* v70 — NFL Player Modal uses the exact MLB Player Card v2 visual system. */
+    /* v71 — NFL Player Modal uses the MLB Player Card v2 visual system. */
     .ms-modal-backdrop.tso-mlb-backdrop{background:rgba(5,7,12,.82);backdrop-filter:blur(6px);padding:24px;z-index:1500}
     .ms-modal.tso-mlb-player-shell{width:100%;max-width:760px;max-height:calc(100vh - 48px);display:flex;flex-direction:column;overflow:hidden;padding:0;background:var(--surface,#081A40);border:1px solid rgba(255,255,255,.10);border-radius:18px;box-shadow:0 24px 64px rgba(0,0,0,.55),0 0 0 1px rgba(255,255,255,.03) inset}
     .ms-modal.tso-mlb-player-shell>.player-card-v2{width:100%;max-height:100%;flex:1 1 auto;min-height:0}
@@ -146,6 +146,20 @@ function ensureStyles(){
     .tso-nfl-player-card-v70 .tso-nfl-touch-wrap .ms-route-stats span{display:block;font:800 8px 'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase}
     .tso-nfl-player-card-v70 .tso-nfl-touch-wrap .ms-route-stats b{display:block;margin-top:4px;font:800 16px 'JetBrains Mono',monospace;color:#fff}
     .tso-nfl-player-card-v70 .tso-nfl-touch-wrap .ms-filtered-note{font-size:10.5px;color:var(--muted);line-height:1.5;margin-top:8px}
+    .tso-nfl-player-card-v70 .tso-nfl-data-viz{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.35fr);gap:12px}
+    .tso-nfl-player-card-v70 .tso-nfl-viz-card{border:1px solid var(--border);border-radius:12px;background:linear-gradient(180deg,rgba(12,32,61,.78),rgba(7,22,43,.94));overflow:hidden;min-width:0}
+    .tso-nfl-player-card-v70 .tso-nfl-viz-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line)}
+    .tso-nfl-player-card-v70 .tso-nfl-viz-head b{font-family:'Oswald',sans-serif;font-size:13px;letter-spacing:.05em;color:var(--accent-bright)}
+    .tso-nfl-player-card-v70 .tso-nfl-viz-head span{font:700 8px 'JetBrains Mono',monospace;color:var(--faint);text-transform:uppercase;letter-spacing:.05em}
+    .tso-nfl-player-card-v70 .tso-nfl-role-visual{padding:13px}
+    .tso-nfl-player-card-v70 .tso-nfl-role-top{display:grid;grid-template-columns:106px 1fr;gap:13px;align-items:center}
+    .tso-nfl-player-card-v70 .tso-nfl-role-ring{position:relative;width:98px;height:98px;color:var(--accent-bright)}
+    .tso-nfl-player-card-v70 .tso-nfl-role-ring svg{position:absolute;inset:0;width:100%;height:100%}.tso-nfl-player-card-v70 .tso-nfl-role-ring .rt{fill:none;stroke:rgba(255,255,255,.08);stroke-width:8}.tso-nfl-player-card-v70 .tso-nfl-role-ring .rf{fill:none;stroke:currentColor;stroke-width:8;stroke-linecap:round;filter:drop-shadow(0 0 6px currentColor)}
+    .tso-nfl-player-card-v70 .tso-nfl-role-ring-copy{position:absolute;inset:0;display:grid;place-items:center;text-align:center;align-content:center}.tso-nfl-player-card-v70 .tso-nfl-role-ring-copy b{font:700 24px 'Oswald',sans-serif;color:#fff;line-height:1}.tso-nfl-player-card-v70 .tso-nfl-role-ring-copy span{margin-top:4px;font:800 8px 'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+    .tso-nfl-player-card-v70 .tso-nfl-role-mini{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.tso-nfl-player-card-v70 .tso-nfl-role-mini div{padding:8px;border:1px solid rgba(255,255,255,.06);border-radius:8px;background:rgba(4,17,38,.45)}.tso-nfl-player-card-v70 .tso-nfl-role-mini span{display:block;font:800 7px 'JetBrains Mono',monospace;color:var(--faint);text-transform:uppercase}.tso-nfl-player-card-v70 .tso-nfl-role-mini b{display:block;margin-top:4px;font:700 16px 'Oswald',sans-serif;color:#fff}
+    .tso-nfl-player-card-v70 .tso-nfl-mix{margin-top:12px}.tso-nfl-player-card-v70 .tso-nfl-mix-labels{display:flex;justify-content:space-between;gap:10px;font:800 8px 'JetBrains Mono',monospace;color:var(--muted)}.tso-nfl-player-card-v70 .tso-nfl-mix-labels b{color:#fff}.tso-nfl-player-card-v70 .tso-nfl-mix-track{display:flex;height:12px;margin-top:6px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.06)}.tso-nfl-player-card-v70 .tso-nfl-mix-track i{display:block;height:100%}.tso-nfl-player-card-v70 .tso-nfl-mix-track i:first-child{background:linear-gradient(90deg,var(--accent),var(--accent-bright))}.tso-nfl-player-card-v70 .tso-nfl-mix-track i:last-child{background:linear-gradient(90deg,#c99411,#f5c842)}
+    .tso-nfl-player-card-v70 .tso-nfl-compare{padding:12px}.tso-nfl-player-card-v70 .tso-nfl-compare-row{display:grid;grid-template-columns:100px minmax(0,1fr) 58px;gap:9px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.055)}.tso-nfl-player-card-v70 .tso-nfl-compare-row:last-child{border-bottom:0}.tso-nfl-player-card-v70 .tso-nfl-compare-label{font:800 8px 'JetBrains Mono',monospace;color:var(--muted);text-transform:uppercase}.tso-nfl-player-card-v70 .tso-nfl-compare-bars{display:flex;flex-direction:column;gap:5px}.tso-nfl-player-card-v70 .tso-nfl-compare-line{display:grid;grid-template-columns:26px 1fr 42px;gap:6px;align-items:center}.tso-nfl-player-card-v70 .tso-nfl-compare-line small{font:800 7px 'JetBrains Mono',monospace;color:var(--faint)}.tso-nfl-player-card-v70 .tso-nfl-compare-line strong{font:800 9px 'JetBrains Mono',monospace;color:#fff;text-align:right}.tso-nfl-player-card-v70 .tso-nfl-compare-track{height:7px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}.tso-nfl-player-card-v70 .tso-nfl-compare-track i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-bright))}.tso-nfl-player-card-v70 .tso-nfl-compare-line.opp .tso-nfl-compare-track i{background:linear-gradient(90deg,#c99411,#f5c842)}.tso-nfl-player-card-v70 .tso-nfl-compare-read{font:700 8px 'JetBrains Mono',monospace;text-align:right;color:var(--muted)}.tso-nfl-player-card-v70 .tso-nfl-compare-read.plus{color:var(--green-bright)}.tso-nfl-player-card-v70 .tso-nfl-compare-read.minus{color:#ff7a7a}
+    .tso-nfl-player-card-v70 .tso-nfl-chart-host .bars-toolbar{margin-top:0}.tso-nfl-player-card-v70 .tso-nfl-chart-host .clear{min-height:18px}.tso-nfl-player-card-v70 .tso-nfl-chart-host .venue-filters .chip{min-width:58px}
     .tso-nfl-player-card-v70 .ab-res.td{color:var(--green-bright)}
     .tso-nfl-player-card-v70 .ab-res.no-td{color:var(--muted)}
     .tso-nfl-player-card-v70 .tso-nfl-table-note{display:flex;align-items:center;gap:7px;margin-bottom:9px;padding:6px 9px;border-radius:8px;background:rgba(45,127,255,.07);border:1px solid rgba(45,127,255,.16);color:var(--muted);font:700 9.5px 'JetBrains Mono',monospace}
@@ -160,7 +174,10 @@ function ensureStyles(){
       .tso-nfl-player-card-v70 .pill-row{width:100%;max-width:none;justify-content:flex-start;margin-left:0}
       .tso-nfl-player-card-v70 .tso-nfl-split{grid-template-columns:1.2fr repeat(3,.75fr)}
       .tso-nfl-player-card-v70 .tso-nfl-split span:nth-child(5),.tso-nfl-player-card-v70 .tso-nfl-split span:nth-child(6){display:none}
-      .tso-nfl-player-card-v70 .tso-nfl-touch-wrap .ms-route-stats{grid-template-columns:repeat(2,1fr)}
+      .tso-nfl-player-card-v70 .tso-nfl-data-viz{grid-template-columns:1fr}
+      .tso-nfl-player-card-v70 .tso-nfl-role-top{grid-template-columns:92px 1fr}
+      .tso-nfl-player-card-v70 .tso-nfl-role-ring{width:86px;height:86px}
+      .tso-nfl-player-card-v70 .tso-nfl-compare-row{grid-template-columns:86px minmax(0,1fr) 52px}
     }
 
     @media(max-width:980px){.tso-nfl-research-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-nfl-research-subgrid{grid-template-columns:1fr}.tso-nfl-research-pill.matchup{display:none}}
@@ -293,17 +310,72 @@ function recentValue(g,pos){
   if(pos==='RB') return (Number(g.rushYds)||0)+(Number(g.recYds)||0);
   return Number(g.recYds)||0;
 }
-function recentBarsMLB(r,pos){
-  const rows=[...(r?.last5?.gamesLog||[])].slice(0,5).reverse();
-  if(!rows.length) return `<div class="clear">Recent game log unavailable.</div>`;
-  const vals=rows.map(g=>recentValue(g,pos)); const mx=Math.max(1,...vals);
-  const bars=rows.map((g,i)=>{
-    const v=vals[i],h=Math.max(8,Math.round(v/mx*78)),td=Number(g.tds)||0;
-    const cls=td>=2?'td2':td===1?'on':'';
-    return `<div class="b ${cls}" title="Week ${esc(g.week)} vs ${esc(g.opponent||'—')} · ${v} yards · ${td} TD"><div class="plot"><div class="bar" style="height:${h}%"><span class="v">${v}</span></div></div><div class="xbottom"><div class="xd">W${esc(g.week)}</div><div class="xo">${esc(g.opponent||'—')}</div></div></div>`;
-  }).join('');
-  return `<div class="bars">${bars}</div><div class="tso-nfl-bar-caption"><i></i><span>Green/gold bars mark games with a touchdown · chart uses source-backed completed-game production.</span></div>`;
+function recentHistoryRows(r){
+  const full=Array.isArray(r?.gameLog)?r.gameLog:[];
+  if(full.length) return [...full];
+  return [...(r?.last5?.gamesLog||[])];
 }
+function recentBarsMLB(r,pos,range='5',venue='all'){
+  const RANGES=[['5','L5'],['10','L10'],['15','L15'],['30','L30'],['26',"'26"],['25',"'25"],['h2h','H2H']];
+  const all=recentHistoryRows(r);
+  const opp=normTeam(r?.matchup?.opponent||r?.opponent||'');
+  const chips=RANGES.map(([k,l])=>`<button class="chip ${String(range)===k?'on':''}" data-nfl-chart-range="${k}">${l}</button>`).join('');
+  const hasVenue=all.some(g=>g.homeAway==='home'||g.homeAway==='away');
+  const venueChips=hasVenue?['home','away'].map(v=>`<button class="chip ${venue===v?'on':''}" data-nfl-chart-venue="${v}">${v==='home'?'Home':'Away'}</button>`).join(''):'';
+  const toolbar=`<div class="bars-toolbar"><div class="filters">${chips}</div>${venueChips?`<div class="venue-filters">${venueChips}</div>`:''}</div>`;
+  if(!all.length) return `${toolbar}<div class="clear">Recent game log unavailable.</div>`;
+  let rows;
+  if(range==='h2h') rows=all.filter(g=>!opp||normTeam(g.opponent)===opp);
+  else if(range==='25'||range==='26') rows=all.filter(g=>String(g.season).slice(-2)===range);
+  else rows=all.slice(0,Math.max(1,parseInt(range,10)||5));
+  if(venue==='home'||venue==='away') rows=rows.filter(g=>g.homeAway===venue);
+  rows=[...rows].sort((a,b)=>(Number(a.season||0)-Number(b.season||0))||(Number(a.week||0)-Number(b.week||0)));
+  const rangeLabel=range==='h2h'?`H2H${opp?` vs ${opp}`:''}`:range==='25'?'2025':range==='26'?'2026':`Last ${range}`;
+  const venueLabel=venue==='home'?'Home':venue==='away'?'Away':'';
+  if(!rows.length) return `${toolbar}<div class="clear">No ${[rangeLabel,venueLabel].filter(Boolean).join(' · ')} games available.</div>`;
+  const vals=rows.map(g=>recentValue(g,pos)); const mx=Math.max(1,...vals);
+  const tdGames=rows.filter(g=>Number(g.tds)>0).length;
+  const totalTd=rows.reduce((sum,g)=>sum+(Number(g.tds)||0),0);
+  const avgY=Math.round(vals.reduce((a,b)=>a+b,0)/Math.max(1,vals.length));
+  const n=rows.length, gap=n>20?2:n>10?4:6;
+  const bars=rows.map((g,i)=>{
+    const v=vals[i],h=v>0?Math.max(8,Math.round(v/mx*88)):5,td=Number(g.tds)||0;
+    const cls=td>=2?'td2':td===1?'on':'';
+    const date=g.date?String(g.date).slice(5):`W${g.week}`;
+    const title=[g.date||`Week ${g.week}`,`vs ${g.opponent||'—'}`,g.homeAway?g.homeAway==='home'?'Home':'Away':'',`${v} yards`,`${td} TD`].filter(Boolean).join(' · ');
+    return `<div class="b ${cls}" title="${esc(title)}"><div class="plot"><div class="bar" style="height:${h}%"><span class="v">${v}</span></div></div><div class="xbottom"><div class="xd">${esc(date)}</div><div class="xo">${esc(g.opponent||'—')}</div></div></div>`;
+  }).join('');
+  return `${toolbar}<div class="clear">${esc([rangeLabel,venueLabel,`${avgY} avg yds`,`${tdGames}/${rows.length} TD games`,`${totalTd} TD`].filter(Boolean).join(' · '))}</div><div class="bars" style="gap:${gap}px">${bars}</div><div class="tso-nfl-bar-caption"><i></i><span>Green/gold bars mark touchdown games · filters match the MLB player chart controls.</span></div>`;
+}
+function roleMixVisual(r,pos,snapPct,rzOpps){
+  const prev=r?.previousSeason||{},last=r?.last5||{},avg=last.avg||{};
+  let a=0,b=0,aLabel='',bLabel='';
+  if(pos==='QB'){a=numeric(prev.passYds,0);b=numeric(prev.rushYds,0);aLabel='Pass yards';bLabel='Rush yards';}
+  else if(pos==='RB'){a=numeric(prev.rushYds,0);b=numeric(prev.recYds,0);aLabel='Rush yards';bLabel='Rec yards';}
+  else {a=numeric(prev.receptions,0);b=Math.max(0,numeric(prev.targets,0)-numeric(prev.receptions,0));aLabel='Caught targets';bLabel='Other targets';}
+  const total=a+b,ap=total?Math.round(a/total*100):50,bp=100-ap;
+  const volume=pos==='QB'?fmt1(avg.passYds):pos==='RB'?fmt1(avg.carries):fmt1(avg.targets);
+  const volLabel=pos==='QB'?'L5 pass yds/g':pos==='RB'?'L5 carries/g':'L5 targets/g';
+  return `<div class="tso-nfl-viz-card"><div class="tso-nfl-viz-head"><b>Role Profile</b><span>source-backed</span></div><div class="tso-nfl-role-visual"><div class="tso-nfl-role-top"><div class="tso-nfl-role-ring">${ringSVG(snapPct,100)}<div class="tso-nfl-role-ring-copy"><b>${esc(snapPct||'—')}${snapPct?'%':''}</b><span>Snap share</span></div></div><div class="tso-nfl-role-mini"><div><span>${esc(volLabel)}</span><b>${esc(volume)}</b></div><div><span>TD games L5</span><b>${esc(last.tdGames??'—')}</b></div><div><span>RZ opps</span><b>${esc(rzOpps??'—')}</b></div><div><span>2025 games</span><b>${esc(prev.games??'—')}</b></div></div></div><div class="tso-nfl-mix"><div class="tso-nfl-mix-labels"><span>${esc(aLabel)} <b>${fmt(a)}</b></span><span>${esc(bLabel)} <b>${fmt(b)}</b></span></div><div class="tso-nfl-mix-track"><i style="width:${ap}%"></i><i style="width:${bp}%"></i></div></div></div></div>`;
+}
+function matchupComparisonRows(r,pos){
+  const avg=r?.last5?.avg||{},pg=r?.matchup?.previousSeasonAllowed?.perGame||{};
+  if(pos==='QB') return [['Pass Yds/G',avg.passYds,pg.passYds],['Total Yds/G',numeric(avg.passYds,0)+numeric(avg.rushYds,0),pg.yards],['TD/G',avg.tds,pg.tds]];
+  if(pos==='RB') return [['Scrim Yds/G',avg.scrimmageYds,pg.yards],['Rush Yds/G',avg.rushYds,pg.rushYds],['Carries/G',avg.carries,pg.carries],['TD/G',avg.tds,pg.tds]];
+  return [['Rec Yds/G',avg.recYds,pg.recYds],['Targets/G',avg.targets,pg.targets],['Receptions/G',avg.receptions,pg.receptions],['TD/G',avg.tds,pg.tds]];
+}
+function matchupVisual(r,pos,opp){
+  const rows=matchupComparisonRows(r,pos).filter(([,a,b])=>Number.isFinite(Number(a))||Number.isFinite(Number(b)));
+  if(!rows.length) return `<div class="tso-nfl-viz-card"><div class="tso-nfl-viz-head"><b>Player vs Defense</b><span>matchup</span></div><div class="ab-empty" style="padding:18px">Opponent comparison data is not available yet.</div></div>`;
+  const body=rows.map(([label,a,b])=>{
+    const av=numeric(a,0),bv=numeric(b,0),mx=Math.max(1,av,bv),aw=av>0?Math.max(4,av/mx*100):0,bw=bv>0?Math.max(4,bv/mx*100):0;
+    const diff=av-bv,read=Math.abs(diff)<(.08*mx)?'EVEN':diff>0?'PLAYER +':'DEF +',cls=read==='PLAYER +'?'plus':read==='DEF +'?'minus':'';
+    return `<div class="tso-nfl-compare-row"><div class="tso-nfl-compare-label">${esc(label)}</div><div class="tso-nfl-compare-bars"><div class="tso-nfl-compare-line"><small>L5</small><div class="tso-nfl-compare-track"><i style="width:${aw}%"></i></div><strong>${fmt1(av)}</strong></div><div class="tso-nfl-compare-line opp"><small>${esc(opp||'DEF')}</small><div class="tso-nfl-compare-track"><i style="width:${bw}%"></i></div><strong>${fmt1(bv)}</strong></div></div><div class="tso-nfl-compare-read ${cls}">${read}</div></div>`;
+  }).join('');
+  return `<div class="tso-nfl-viz-card"><div class="tso-nfl-viz-head"><b>Player vs Defense</b><span>L5 player · 2025 allowed</span></div><div class="tso-nfl-compare">${body}</div></div>`;
+}
+function dataVisualsHTML(r,pos,snapPct,rzOpps,opp){ return `<div class="tso-nfl-data-viz">${roleMixVisual(r,pos,snapPct,rzOpps)}${matchupVisual(r,pos,opp)}</div>`; }
+
 function productionMetrics(r,pos,snapPct,rzOpps){
   const prev=r?.previousSeason||{},last=r?.last5||{},avg=last.avg||{};
   let items;
@@ -336,7 +408,7 @@ function whyMLB(r,pos,edge,atd,snapPct,rzOpps){
   return `<div class="why-intro">What's driving tonight's <b>Anytime TD</b> projection — TSO model signal plus source-backed role, recent production and opponent context.</div><div class="phead" style="color:${gradeColor(r?.model?.atdGrade)}"><div class="pgring">${ringSVG(atd,65)}<div class="pg-c">${esc(r?.model?.atdGrade||'—')}</div></div><div class="mid"><div class="lbl">${esc(r.name)} <span>· vs ${esc(r?.matchup?.opponent||r?.opponent||'—')}</span></div><div class="sub">TSO Edge ${esc(edge)} · ${esc(depthLabel(r,pos))} · ${esc(statusLabel(r))}</div></div><div class="pct">${esc(atd)}%</div></div><div class="fac-head"><span>Factor</span><span></span><span>Read</span></div>${factorRow('Snap Share',`${snapPct}% role baseline`,snapScore,snapScore>=70?'PLUS':'EVEN')}${factorRow('Red-Zone Work',`${rzOpps} modeled RZ opportunities`,rzScore,rzScore>=60?'PLUS':'EVEN')}${factorRow('Recent Form',`${fmt1(formY)} yards/game over latest five`,formScore,formScore>=60?'PLUS':'EVEN')}${factorRow('Opponent TD Allowance',`${fmt1(pg.tds)} TD/game allowed to ${esc(pos)}`,matchupScore,matchupScore>=58?'PLUS':'EVEN')}${factorRow('TSO Edge',`Composite matchup signal`,edge,edge>=60?'PLUS':edge<45?'MINUS':'EVEN')}<div class="fac-foot"><b>Read:</b> The scoring probability remains a TSO model output. Roster/depth/injury, completed-game production and snap history are source-backed research inputs.</div>`;
 }
 function enhanceModal(root){
-  const modal=root.querySelector('.ms-modal'); if(!modal || modal.dataset.tsoMlbV70==='1') return;
+  const modal=root.querySelector('.ms-modal'); if(!modal || modal.dataset.tsoMlbV71==='1') return;
   const {name,team}=modalIdentity(modal);
   const r=findResearch({name,team}); if(!r) return;
   const pos=String(r.position||'PLAYER').toUpperCase();
@@ -352,7 +424,7 @@ function enhanceModal(root){
   const rzOpps=numeric(textMetric(scoring,'RZ Opportunities'),(Number(r?.model?.rzTargets)||0)+(Number(r?.model?.rzCarries)||0));
   let snapPct=numeric(textMetric(usage,'Snap Share'),Number(r?.model?.snapShare||0)*100);
   if(!snapPct) snapPct=numeric(r?.snapTrend?.avgOffensePct,0);
-  const routeHost=modal.querySelector('#nflMapHost'); if(routeHost) routeHost.remove();
+  modal.querySelector('#nflMapHost')?.remove();
   const opp=normTeam(r?.matchup?.opponent||r?.opponent||sub.split('vs ')[1]?.split('·')[0]?.trim()||'');
   const oppLogo=opponentLogo(root,opp);
   const grade=r?.model?.atdGrade||'—'; const col=gradeColor(grade);
@@ -367,7 +439,7 @@ function enhanceModal(root){
   const playerPhoto=headshot?`<img class="hm-img" src="${esc(headshot)}" alt="${esc(name)}">`:`<div class="hm-img" style="display:grid;place-items:center">${esc(name.split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</div>`;
   modal.closest('.ms-modal-backdrop')?.classList.add('tso-mlb-backdrop');
   modal.classList.add('tso-mlb-player-shell');
-  modal.dataset.tsoMlbV70='1';
+  modal.dataset.tsoMlbV71='1';
   modal.innerHTML=`<div class="player-card-v2 tso-nfl-player-card-v70">
     <button class="modal-close" type="button" aria-label="Close">&times;</button>
     <div class="hdr">
@@ -375,16 +447,26 @@ function enhanceModal(root){
       <div class="who"><h2>${esc(name)} <span class="dq-badge sourced">Sourced</span><span class="tso-nfl-hdr-badges"><span class="tso-nfl-hdr-badge ${statClass}">${esc(depthLabel(r,pos))} · ${esc(status)}</span>${edge>=60?`<span class="tso-nfl-hdr-badge edge">TSO Signal ${edge}</span>`:''}</span></h2><div class="sub">Anytime TD · vs ${esc(opp||'DEF')} · ${esc(team)} ${pos}${r.jersey?` #${esc(r.jersey)}`:''}</div><div class="hdr-stats"><div><b>${snapPct||'—'}${snapPct?'%':''}</b><small>Snap</small></div><div><b>${rzOpps||'—'}</b><small>RZ Opps</small></div><div><b>${esc(yearYds??'—')}</b><small>${esc(ydLabel)}</small></div><div><b>${esc(prev.totalTds??'—')}</b><small>${esc(String(research?.previousSeason||'Prev'))} TD</small></div></div></div>
       <div class="pill-row" id="tsoNflPropSwitch"><button class="pill active" data-mode="atd">ATD</button><button class="pill" data-mode="first">1ST TD</button><button class="pill" data-mode="role">ROLE</button><button class="pill" data-mode="matchup">MATCHUP</button></div>
     </div>
-    <div class="sec"><div id="tsoNflVerdict"><div class="verdict"><div class="ring" style="color:${col}">${ringSVG(atd,65)}<div class="ring-c"><div class="ring-g">${esc(grade)}</div><div class="ring-tag">${atd}% ATD</div></div></div><div class="vd-right" style="color:${col}"><div class="vd-head">${gradeHeadline(grade)}</div><div class="vd-body">${atd}% anytime TD for ${esc(name.split(' ').slice(-1)[0])}. ${esc(verdictBits.join(' · '))}.</div><div class="vd-honesty-row"><span class="pv-interval">${esc(String(research?.previousSeason||'Prev'))} baseline</span><span class="pv-pa-note">${esc(freshness())}</span><span class="pv-cal-label pv-cal-underconfident">TSO model</span></div></div></div></div>${recentBarsMLB(r,pos)}<button class="cta" id="tsoNflPropsCta" type="button">Open Anytime TD Board</button></div>
+    <div class="sec"><div id="tsoNflVerdict"><div class="verdict"><div class="ring" style="color:${col}">${ringSVG(atd,65)}<div class="ring-c"><div class="ring-g">${esc(grade)}</div><div class="ring-tag">${atd}% ATD</div></div></div><div class="vd-right" style="color:${col}"><div class="vd-head">${gradeHeadline(grade)}</div><div class="vd-body">${atd}% anytime TD for ${esc(name.split(' ').slice(-1)[0])}. ${esc(verdictBits.join(' · '))}.</div><div class="vd-honesty-row"><span class="pv-interval">${esc(String(research?.previousSeason||'Prev'))} baseline</span><span class="pv-pa-note">${esc(freshness())}</span><span class="pv-cal-label pv-cal-underconfident">TSO model</span></div></div></div></div><div class="tso-nfl-chart-host" id="tsoNflRecentChart">${recentBarsMLB(r,pos,'5','all')}</div><button class="cta" id="tsoNflPropsCta" type="button">Open Anytime TD Board</button></div>
     <div class="sec" id="tso-nfl-factors"><div class="sec-h"><h3>Scoring Factors</h3></div><div class="eng-grid"><div class="eng"><div class="v">${rzOpps||'—'}</div><div class="t">Red-Zone Opportunities</div><div class="d">The highest-value touchdown workload in the model. Carries and targets near the goal line drive scoring access.</div></div><div class="eng"><div class="v" style="color:${numeric(pg.tds,0)>=.7?'var(--green-bright)':'var(--gold)'}">${Number.isFinite(Number(pg.tds))?fmt1(pg.tds):'—'}</div><div class="t">Opponent TD / Game</div><div class="d">${esc(opp||'Opponent')} allowed this many touchdowns per game to the ${esc(pos)} position group in the previous season.</div></div></div><div class="blurb"><b>${esc(name)}</b> combines a ${edge} TSO Edge with a ${snapPct||'—'}% role baseline, ${rzOpps||'—'} red-zone opportunities and ${fmt1(lastYds)} recent yards per game.</div></div>
     <div class="sec"><div class="sec-h"><h3>Production Quality</h3><span class="cap">role · volume · recent form</span></div>${productionMetrics(r,pos,snapPct||'—',rzOpps||'—')}</div>
     <div class="sec matchup-mix-sec" id="tso-nfl-matchup"><div class="sec-h"><h3>Matchup Mix</h3><span class="cap">player role · defense · TSO edge</span></div><div class="hand-matchup"><div class="hm-side"><div class="hm-photo">${playerPhoto}</div><div class="hm-name">${esc(name)}</div><div class="hm-hand-badge hm-bat">${esc(depthLabel(r,pos))} · ${snapPct||'—'}% snap</div></div><div class="hm-vs">VS</div><div class="hm-side"><div class="hm-photo">${opponentPhoto}</div><div class="hm-name">${esc(opp||'Opponent')}</div><div class="hm-hand-badge hm-throw">vs ${esc(pos)}</div></div></div><div class="tso-nfl-matchup-note">Previous-season defense allowed vs this position group, compared with the player's recent role and TSO model signal.</div><div class="tso-nfl-split head"><span>Profile</span><span>Yds/G</span><span>TD/G</span><span>Vol/G</span><span>Snap</span><span>Edge</span></div><div class="tso-nfl-split relevant"><b>${esc(name.split(' ').slice(-1)[0])}</b><span>${fmt1(lastYds)}</span><span>${fmt1(last.tds)}</span><span>${fmt1(pos==='RB'?last.carries:last.targets)}</span><span>${snapPct||'—'}%</span><span>${edge}</span></div><div class="tso-nfl-split"><b>${esc(opp||'DEF')} allowed</b><span>${fmt1(pg.yards)}</span><span>${fmt1(pg.tds)}</span><span>${fmt1(pos==='RB'?pg.carries:pg.targets)}</span><span>—</span><span>${edge>=60?'PLUS':'EVEN'}</span></div></div>
-    <div class="sec"><div class="sec-h"><h3>Touch Map</h3><span class="cap">routes · rushes · red zone</span></div><div class="tso-nfl-touch-wrap" id="tsoNflTouchMapHost">${routeHost?'':'<div class="ab-empty">Touch map unavailable.</div>'}</div></div>
+    <div class="sec"><div class="sec-h"><h3>Role & Matchup Visuals</h3><span class="cap">real usage · recent production · defense allowed</span></div>${dataVisualsHTML(r,pos,snapPct||0,rzOpps||0,opp)}</div>
     <div class="sec"><div class="sec-h"><h3>Recent Opportunities</h3><span class="cap">completed games</span></div>${recentTableMLB(r,pos)}</div>
     <div class="sec"><div class="sec-h"><h3>Why</h3></div>${whyMLB(r,pos,edge,atd,snapPct||0,rzOpps||0)}</div>
     <div class="foot">Every TSO percentage and grade remains a model output. Roster, depth, injury, snap history and completed-game production are source-backed research inputs.</div>
   </div>`;
-  if(routeHost) modal.querySelector('#tsoNflTouchMapHost')?.appendChild(routeHost);
+  const recentChart=modal.querySelector('#tsoNflRecentChart');
+  if(recentChart){
+    const chartState={range:'5',venue:'all'};
+    const redraw=()=>{ recentChart.innerHTML=recentBarsMLB(r,pos,chartState.range,chartState.venue); };
+    recentChart.addEventListener('click',e=>{
+      const rangeBtn=e.target.closest('[data-nfl-chart-range]');
+      if(rangeBtn){ chartState.range=rangeBtn.dataset.nflChartRange||'5'; redraw(); return; }
+      const venueBtn=e.target.closest('[data-nfl-chart-venue]');
+      if(venueBtn){ const v=venueBtn.dataset.nflChartVenue; chartState.venue=chartState.venue===v?'all':v; redraw(); }
+    });
+  }
   const newClose=modal.querySelector('.modal-close');
   newClose?.addEventListener('click',()=>oldClose?.click());
   modal.querySelector('#tsoNflPropsCta')?.addEventListener('click',()=>{ oldClose?.click(); setTimeout(()=>window.DW_nflPreviewSelectTab?.('props'),0); });

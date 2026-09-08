@@ -121,7 +121,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview.js?v=70');
+      const mod = await import('./nfl-preview.js?v=71');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
@@ -131,7 +131,7 @@ async function swapView(active) {
       // v69 — source-backed NFL research presentation layer. This enhances
       // Slate rows and the Player Modal without changing TSO model outputs.
       try {
-        const researchUi = await import('./nfl-research-ui.js?v=70');
+        const researchUi = await import('./nfl-research-ui.js?v=71');
         await researchUi.mountNflResearchUI(nflView);
       } catch (researchError) {
         console.warn('[NFL research UI] enhancement unavailable:', researchError);
