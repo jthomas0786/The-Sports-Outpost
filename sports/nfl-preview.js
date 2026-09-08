@@ -1,4 +1,4 @@
-import { startLivePolling } from './nfl/live.js?v=65';
+import { startLivePolling } from './nfl/live.js?v=68';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -17,6 +17,7 @@ const state = {
   mapFilter: 'ALL',
   loaded: false,
   data: null,
+  research: null,
   allSort: 'edge',
   gamecastTab: 'game',
   inlineTabs: {},
@@ -88,6 +89,27 @@ function record(team){ return team?.records?.find?.(r=>r.type==='total')?.summar
 function signalBadge(edge){ return edge>=60 ? `<span class="ms-nfl-badge signal"><img src="glossy_blue_tso_wireless_badge.png" alt="TSO Signal" title="TSO Signal · Edge ${edge}"></span>` : ''; }
 function teamLogo(team,cls=''){ return team?.logo ? `<img class="ms-nfl-team-logo ${cls}" src="${esc(team.logo)}" alt="">` : `<span class="ms-team-token">${esc(team?.abbr||'?')}</span>`; }
 
+function normNflTeam(t){ return ({LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'}[String(t||'').toUpperCase()] || String(t||'').toUpperCase()); }
+function researchNameKey(name){ return String(name||'').toLowerCase().replace(/[^a-z0-9]/g,''); }
+function buildResearchIndexes(research){
+  const byEspn=new Map(),byGsis=new Map(),byTeamName=new Map();
+  for(const p of research?.players||[]){
+    if(p.espnId) byEspn.set(String(p.espnId),p);
+    if(p.gsisId) byGsis.set(String(p.gsisId),p);
+    byTeamName.set(`${normNflTeam(p.team)}|${researchNameKey(p.name)}`,p);
+  }
+  return {byEspn,byGsis,byTeamName};
+}
+function matchResearchPlayer(idx,p){
+  return (p?.espnId&&idx.byEspn.get(String(p.espnId))) || (p?.gsisId&&idx.byGsis.get(String(p.gsisId))) || idx.byTeamName.get(`${normNflTeam(p?.team)}|${researchNameKey(p?.name)}`) || null;
+}
+function researchFreshnessLabel(){
+  const r=state.research; if(!r?.generatedAt) return 'Research feed pending';
+  const ms=Date.now()-new Date(r.generatedAt).getTime(); if(!Number.isFinite(ms)) return 'Research feed loaded';
+  const mins=Math.max(0,Math.round(ms/60000)); if(mins<60) return `Research updated ${mins}m ago`;
+  const hrs=Math.round(mins/60); return `Research updated ${hrs}h ago`;
+}
+
 async function loadData(){
   if(state.loaded) return;
   state.loaded = true;
@@ -95,6 +117,10 @@ async function loadData(){
     const r = await fetch('./slates/nfl.json',{cache:'no-cache'});
     if(!r.ok) throw new Error('NFL slate unavailable');
     const d = await r.json();
+    let research=null;
+    try{ const rr=await fetch('./slates/nfl-research.json',{cache:'no-cache'}); if(rr.ok) research=await rr.json(); }catch(_e){}
+    state.research=research;
+    const researchIdx=buildResearchIndexes(research);
     const games=(d.games||[]).map(g=>({
       id:String(g.gameId),
       away:{...g.away,abbr:g.away?.abbr||'AWY',name:g.away?.shortName||g.away?.name||'Away',fullName:g.away?.name||g.away?.shortName||'Away'},
@@ -117,18 +143,21 @@ async function loadData(){
         const snap=Number(p.stats?.snapShare);
         const rzOpp=(Number(p.stats?.rzTargets)||0)+(Number(p.stats?.rzCarries)||0);
         const edge=clamp(Math.round(50+(atd-.25)*35+(oppFactor-1)*42+(Number.isFinite(snap)?(snap-.65)*12:0)),30,78);
+        const rp=matchResearchPlayer(researchIdx,p);
         players.push({
-          id:p.gsisId||p.espnId||p.name, name:p.name, team:p.team, pos:p.position||'SKILL', opp:p.opponent||'',
-          edge, prob:atd, grade:p.props?.atd?.grade||gradeFor(atd), headshot:p.headshot||null,
-          usage:Number.isFinite(snap)?Math.round(snap*100):num(p.name+'snap',58,88),
-          rz:rzOpp||num(p.name+'rz',6,25), explosive:num(p.name+'exp',9,24),
-          gamesPlayed:Number(p.stats?.gamesPlayed)||17, tds:Number(p.stats?.tds)||0,
-          oppRzAllowed:Number.isFinite(rzAllowed)?rzAllowed:null, gameId:String(g.gameId), depthRank:p.depthRank||null,
+          id:p.gsisId||p.espnId||p.name, espnId:p.espnId||rp?.espnId||null, gsisId:p.gsisId||rp?.gsisId||null,
+          name:p.name, team:normNflTeam(p.team), pos:p.position||rp?.position||'SKILL', opp:normNflTeam(p.opponent||rp?.opponent||''),
+          edge, prob:atd, grade:p.props?.atd?.grade||gradeFor(atd), headshot:p.headshot||rp?.headshot||null,
+          usage:Number.isFinite(snap)?Math.round(snap*100):Math.round((Number(rp?.model?.snapShare)||0)*100)||num(p.name+'snap',58,88),
+          rz:rzOpp||((Number(rp?.model?.rzTargets)||0)+(Number(rp?.model?.rzCarries)||0))||num(p.name+'rz',6,25), explosive:num(p.name+'exp',9,24),
+          gamesPlayed:Number(p.stats?.gamesPlayed)||Number(rp?.previousSeason?.games)||17, tds:Number(p.stats?.tds)||Number(rp?.previousSeason?.totalTds)||0,
+          oppRzAllowed:Number.isFinite(rzAllowed)?rzAllowed:null, gameId:String(g.gameId), depthRank:p.depthRank||rp?.depth?.rank||null,
+          research:rp,
         });
       }
     }
     players.sort((a,b)=>b.prob-a.prob);
-    state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null};
+    state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null,researchGeneratedAt:research?.generatedAt||null};
     startLivePolling(d,()=>{
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
@@ -142,7 +171,7 @@ async function loadData(){
       }
     });
   }catch(e){
-    state.data={games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1,generatedAt:null};
+    state.data={games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1,generatedAt:null,researchGeneratedAt:null};
   }
   const dd=state.data;
   const firstTdRank=[...dd.players].map(p=>({p,prob:firstTdProbability(p)})).filter(x=>x.prob!=null).sort((a,b)=>b.prob-a.prob);
@@ -231,11 +260,26 @@ function testLiveGame(){
     || d.games[0]
     || FALLBACK_GAMES[0];
   if(!source) return null;
+  const sourceId=String(source.id);
+  const watch=(d.players||[]).filter(p=>String(p.gameId)===sourceId && p.team===source.away.abbr).slice(0,3);
+  const byId={},byName={};
+  watch.forEach((p,i)=>{
+    const flat=['QB'].includes(p.pos)?{compAtt:`${15+i}/${22+i}`,passYds:188+i*24,passTds:i===0?1:0,interceptions:0}:['RB','HB'].includes(p.pos)?{carries:11+i*2,rushYds:64+i*9,rushTds:i===0?1:0}:{receptions:5+i,recYds:72+i*13,recTds:i===1?1:0,targets:7+i};
+    const row={id:p.espnId||String(p.id),name:p.name,team:p.team,position:p.pos,flat};
+    byId[String(row.id)]=row; byName[`${p.team}|${String(p.name).toLowerCase()}`]=row;
+  });
+  const drivePlays=[
+    {id:'t1',text:`${source.away.abbr} run for 6 yards.`,period:3,clock:'9:14',downDistanceText:'1st & 10',team:source.away.abbr},
+    {id:'t2',text:`Short pass complete for 11 yards.`,period:3,clock:'8:47',downDistanceText:'2nd & 4',team:source.away.abbr},
+    {id:'t3',text:`Inside run gains 4 yards.`,period:3,clock:'8:21',downDistanceText:'1st & 10',team:source.away.abbr},
+    {id:'t4',text:`Crossing route moves the chains for 13 yards.`,period:3,clock:'7:58',downDistanceText:'2nd & 6',team:source.away.abbr},
+    {id:'t5',text:`${source.away.abbr} gains 8 yards on a crossing route.`,period:3,clock:'7:42',downDistanceText:'2nd & 6',team:source.away.abbr},
+  ];
   return {
     ...source,
     id:TEST_LIVE_GAME_ID,
     __test:true,
-    __sourceGameId:String(source.id),
+    __sourceGameId:sourceId,
     status:'in',
     detail:'3rd · 7:42',
     score:'17 – 14',
@@ -243,15 +287,17 @@ function testLiveGame(){
     home:{...source.home,score:14},
     liveScore:{
       ...(source.liveScore||{}),
-      period:3,
-      clockMin:7.7,
-      possession:'away',
-      yardFromOwn:50,
-      down:2,
-      distance:6,
-      downDistanceText:'2nd & 6',
-      isRedZone:false,
-      lastPlayText:`${source.away?.abbr||'Away'} gains 8 yards on a crossing route.`,
+      period:3,clockMin:7.7,possession:'away',yardFromOwn:50,down:2,distance:6,downDistanceText:'2nd & 6',isRedZone:false,
+      lastPlayText:drivePlays.at(-1).text,
+      currentDrive:{id:'test-drive-7',team:source.away.abbr,playCount:5,yards:42,elapsedDisplay:'2:06',plays:drivePlays},
+      plays:drivePlays,
+      playerStats:{byId,byName},
+      teamStats:{
+        [source.away.abbr]:{totalYards:286,passingYards:196,rushingYards:90,turnovers:0,timeOfPossession:'19:44'},
+        [source.home.abbr]:{totalYards:241,passingYards:167,rushingYards:74,turnovers:1,timeOfPossession:'17:34'},
+      },
+      linescores:{away:[7,3,7,null],home:[7,7,0,null]},
+      scoringPlays:[],lastFetchedAt:Date.now(),
     },
   };
 }
@@ -315,7 +361,7 @@ function headerHTML(){
     players:'Every modeled skill player in one searchable board, with TSO Edge sorting.',
     foryou:'The same shared community feed, now inside the NFL experience.',
   };
-  return `<header class="ms-head"><div><div class="ms-kicker"><span>🏈</span>NFL · WEEK ${data().week} PREVIEW</div><h2>${esc(titles[state.tab])}</h2><p>${esc(subs[state.tab])}</p></div><div class="ms-head-actions">${signalBadge(67)}<span>TSO Edge enabled</span></div></header>`;
+  return `<header class="ms-head"><div><div class="ms-kicker"><span>🏈</span>NFL · WEEK ${data().week} PREVIEW</div><h2>${esc(titles[state.tab])}</h2><p>${esc(subs[state.tab])}</p></div><div class="ms-head-actions">${signalBadge(67)}<span>${esc(researchFreshnessLabel())}</span></div></header>`;
 }
 
 function footballField(g,{gamecast=false}={}){
@@ -557,7 +603,15 @@ function weatherForGame(g){
   return {temp,cond,ico};
 }
 function driveSummary(g){
-  return {plays:num(g.id+'plays',4,8), yards:num(g.id+'yards',34,76), time:`${num(g.id+'dm',1,3)}:${String(num(g.id+'ds',5,58)).padStart(2,'0')}`};
+  const d=g?.liveScore?.currentDrive;
+  if(d){
+    const plays=Number.isFinite(Number(d.playCount))?Number(d.playCount):(Array.isArray(d.plays)?d.plays.length:0);
+    const yards=Number.isFinite(Number(d.yards))?Number(d.yards):'—';
+    const time=d.elapsedDisplay||'—';
+    return {plays,yards,time,real:true};
+  }
+  if(g?.status==='in') return {plays:'—',yards:'—',time:'—',real:false};
+  return {plays:num(g.id+'plays',4,8), yards:num(g.id+'yards',34,76), time:`${num(g.id+'dm',1,3)}:${String(num(g.id+'ds',5,58)).padStart(2,'0')}`,real:false};
 }
 function scoringChance(g){
   const live=g.liveScore||{}; const dist=Number(live.distance); const y=Number(live.yardFromOwn);
@@ -589,6 +643,16 @@ function playerLine(p,i=0){
   if(['QB'].includes(p.pos)) return {a:'COMP',b:'YDS',c:'TD',v1:`${num(p.name+'cmp',12,24)}/${num(p.name+'att',18,34)}`,v2:num(p.name+'py',148,322),v3:num(p.name+'ptd',0,3)};
   return {a:'REC',b:'YDS',c:'TD',v1:num(p.name+'rec',4,9),v2:num(p.name+'yd',38,119),v3:num(p.name+'td',0,2)};
 }
+function livePlayerLine(g,p,i=0){
+  const ps=g?.liveScore?.playerStats; if(!ps||!p) return playerLine(p,i);
+  const byId=ps.byId||{},byName=ps.byName||{};
+  const row=(p.espnId&&byId[String(p.espnId)]) || byId[String(p.id)] || byName[`${p.team}|${String(p.name).toLowerCase()}`];
+  if(!row) return g?.status==='in' ? (['QB'].includes(p.pos)?{a:'COMP',b:'YDS',c:'TD',v1:'—',v2:'—',v3:'—'}:['RB','HB'].includes(p.pos)?{a:'CAR',b:'YDS',c:'TD',v1:'—',v2:'—',v3:'—'}:{a:'REC',b:'YDS',c:'TD',v1:'—',v2:'—',v3:'—'}) : playerLine(p,i);
+  const f=row.flat||{};
+  if(['QB'].includes(p.pos)) return {a:'COMP',b:'YDS',c:'TD',v1:f.compAtt??'0/0',v2:f.passYds??0,v3:f.passTds??0,real:true};
+  if(['RB','HB'].includes(p.pos)) return {a:'CAR',b:'YDS',c:'TD',v1:f.carries??0,v2:f.rushYds??0,v3:f.rushTds??0,real:true};
+  return {a:'REC',b:'YDS',c:'TD',v1:f.receptions??0,v2:f.recYds??0,v3:f.recTds??0,real:true};
+}
 function offenseContext(g){
   const poss=possessionAbbr(g);
   const offense=poss==='home'?g.home:g.away;
@@ -596,9 +660,17 @@ function offenseContext(g){
   return { offense, defense, offenseGuide:teamGuide(offense.abbr), defenseGuide:teamGuide(defense.abbr), poss };
 }
 function playLogForGame(g){
+  const real=g?.liveScore?.currentDrive?.plays;
+  if(Array.isArray(real)&&real.length){
+    return real.slice(-5).map((r,i,arr)=>({
+      state:r.downDistanceText||downDistanceLabel(g), text:r.text||r.shortText||'Play updating',
+      sub:[r.period?`Q${r.period}`:'',r.clock||'',r.team||''].filter(Boolean).join(' · '), current:i===arr.length-1
+    }));
+  }
+  if(g?.status==='in') return [{state:downDistanceLabel(g),text:lastPlayLabel(g),sub:'Current drive feed syncing',current:true}];
   const {offense}=offenseContext(g); const p=featuredPlayerForGame(g); const targets=keyTargetsForGame(g); const ds=driveSummary(g);
   const last=lastPlayLabel(g); const fp=fieldPositionLabel(g); const dd=downDistanceLabel(g);
-  const t1=targets[0]?.name||p.name, t2=targets[1]?.name||p.name, t3=targets[2]?.name||p.name;
+  const t1=targets[0]?.name||p?.name||'receiver', t2=targets[1]?.name||p?.name||'runner', t3=targets[2]?.name||p?.name||'receiver';
   return [
     {state:'1st & 10', text:`${num(g.id+'p1',7,14)} yd pass to ${t1}`, sub:`at ${fp}`},
     {state:'1st & 10', text:`${num(g.id+'p2',4,9)} yd run by ${t2.split(' ')[0]}`, sub:`Tempo pushing current drive`},
@@ -616,21 +688,27 @@ function splitScore(total, played, seed){
   return [0,1,2,3].map(i=>i<played?vals[i]:null);
 }
 function boxScoreData(g){
+  const real=g?.liveScore?.linescores;
+  if(real && (Array.isArray(real.away)||Array.isArray(real.home))){
+    const norm=a=>Array.from({length:4},(_,i)=>a?.[i]??null);
+    return {away:norm(real.away),home:norm(real.home),played:Math.max(real.away?.length||0,real.home?.length||0),real:true};
+  }
   const st=liveState(g); const played=g.status==='post'?4:Math.max(1,Math.min(4,st.period||1));
-  return {
-    away:splitScore(scoreNum(g.away), played, g.id+'aq'),
-    home:splitScore(scoreNum(g.home), played, g.id+'hq'),
-    played
-  };
+  if(g?.status==='in') return {away:[null,null,null,null],home:[null,null,null,null],played,real:false};
+  return {away:splitScore(scoreNum(g.away), played, g.id+'aq'),home:splitScore(scoreNum(g.home), played, g.id+'hq'),played,real:false};
 }
 function teamStatsData(g){
+  const real=g?.liveScore?.teamStats;
+  const a=real?.[g.away.abbr],h=real?.[g.home.abbr];
+  if(a||h) return {aY:a?.totalYards??'—',hY:h?.totalYards??'—',aPass:a?.passingYards??'—',hPass:h?.passingYards??'—',aRush:a?.rushingYards??'—',hRush:h?.rushingYards??'—',aTo:a?.turnovers??'—',hTo:h?.turnovers??'—',aTop:a?.timeOfPossession??'—',hTop:h?.timeOfPossession??'—',real:true};
+  if(g?.status==='in') return {aY:'—',hY:'—',aPass:'—',hPass:'—',aRush:'—',hRush:'—',aTo:'—',hTo:'—',aTop:'—',hTop:'—',real:false};
   const aY=num(g.id+'ay',218,386), hY=num(g.id+'hy',192,368);
   const aPass=Math.min(aY-40,num(g.id+'ap',118,268)), hPass=Math.min(hY-40,num(g.id+'hp',112,254));
   const aRush=Math.max(28,aY-aPass), hRush=Math.max(28,hY-hPass);
   const aTo=num(g.id+'ato',0,2), hTo=num(g.id+'hto',0,2);
   const aTop=`${num(g.id+'atm',12,19)}:${String(num(g.id+'ats',0,59)).padStart(2,'0')}`;
   const hTop=`${num(g.id+'htm',10,18)}:${String(num(g.id+'hts',0,59)).padStart(2,'0')}`;
-  return {aY,hY,aPass,hPass,aRush,hRush,aTo,hTo,aTop,hTop};
+  return {aY,hY,aPass,hPass,aRush,hRush,aTo,hTo,aTop,hTop,real:false};
 }
 function ballLeftPct(g){ return ballFieldPct(g); }
 function firstLeftPct(g){ return firstDownPct(g, ballLeftPct(g)); }
@@ -668,7 +746,7 @@ function driveMetricsOverlayHTML(g){
 }
 function playersWatchOverlayHTML(g){
   const watch=keyTargetsForGame(g).slice(0,3);
-  return `<section class="nxg-overlay-panel nxg-overlay-watch"><div class="nxg-overlay-title">✦ Players to Watch</div><div class="nxg-overlay-watch-list">${watch.map((p,i)=>{ const line=playerLine(p,i); const head=p?.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p?.name||'TSO'))}</span>`; return `<div class="nxg-overlay-watch-row"><div class="nxg-avatar nxg-overlay-watch-avatar">${head}</div><div class="nxg-overlay-watch-copy"><b>${esc(p.name)}</b><small>${esc(p.pos)} #${esc(String(p.id||'14').slice(-2))}</small></div><div class="nxg-overlay-watch-stats"><div><b>${line.v1}</b><span>${line.a}</span></div><div><b>${line.v2}</b><span>${line.b}</span></div><div><b>${line.v3}</b><span>${line.c}</span></div></div></div>`;}).join('')}</div></section>`;
+  return `<section class="nxg-overlay-panel nxg-overlay-watch"><div class="nxg-overlay-title">✦ Players to Watch</div><div class="nxg-overlay-watch-list">${watch.map((p,i)=>{ const line=livePlayerLine(g,p,i); const head=p?.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p?.name||'TSO'))}</span>`; return `<div class="nxg-overlay-watch-row"><div class="nxg-avatar nxg-overlay-watch-avatar">${head}</div><div class="nxg-overlay-watch-copy"><b>${esc(p.name)}</b><small>${esc(p.pos)}${p.research?.jersey?` #${esc(p.research.jersey)}`:''}</small></div><div class="nxg-overlay-watch-stats"><div><b>${esc(line.v1)}</b><span>${line.a}</span></div><div><b>${esc(line.v2)}</b><span>${line.b}</span></div><div><b>${esc(line.v3)}</b><span>${line.c}</span></div></div></div>`;}).join('')}</div></section>`;
 }
 function fieldOverlayLiveRedesignHTML(g,p){
   const ball=ballLeftPct(g)/100, first=firstLeftPct(g)/100, target=routeTargetPct(g)/100;
@@ -720,6 +798,11 @@ function bottomPanelsHTML(g){
   return `<div class="nxg-bottom"><section class="nxg-card"><div class="nxg-card-head"><span>☷ Box Score</span></div><div class="nxg-card-pad"><table class="nxg-table"><thead><tr><th></th><th>1</th><th>2</th><th>3</th><th>4</th><th>T</th></tr></thead><tbody><tr><td><div class="nxg-rowteam">${teamLogo(g.away)}<span>${esc(g.away.name)}</span></div></td>${awayRows.map(v=>`<td>${v}</td>`).join('')}<td><strong>${scoreNum(g.away)}</strong></td></tr><tr><td><div class="nxg-rowteam">${teamLogo(g.home)}<span>${esc(g.home.name)}</span></div></td>${homeRows.map(v=>`<td>${v}</td>`).join('')}<td><strong>${scoreNum(g.home)}</strong></td></tr></tbody></table></div></section><section class="nxg-card"><div class="nxg-card-head"><span>≣ Team Stats</span></div><div class="nxg-card-pad"><div class="nxg-teamstats"><img class="logo" src="${esc(g.away.logo||'')}" alt=""><div class="nxg-teamstats-grid"><b>${stats.aY}</b><span>Total Yards</span><em>${stats.hY}</em><b>${stats.aPass}</b><span>Passing Yards</span><em>${stats.hPass}</em><b>${stats.aRush}</b><span>Rushing Yards</span><em>${stats.hRush}</em><b>${stats.aTo}</b><span>Turnovers</span><em>${stats.hTo}</em><b>${stats.aTop}</b><span>Time of Possession</span><em>${stats.hTop}</em></div><img class="logo" src="${esc(g.home.logo||'')}" alt=""></div></div></section><section class="nxg-card"><div class="nxg-card-head"><span>➤ Due Up – Key Targets</span><small style="color:#fff">${esc(offenseContext(g).offense.abbr)}</small></div><div class="nxg-card-pad"><div class="nxg-targets">${keys.map((p,i)=>{const line=playerLine(p,i); return `<div class="nxg-targetrow"><strong>${i+1}</strong><div class="nxg-avatar">${p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`}</div><div><b>${esc(p.name)}</b><small>${esc(p.pos)} #${esc(String(p.id||'14').slice(-2))}</small></div><span>${line.v1} ${line.a}</span><span>${line.v2} ${line.b}</span><span>${line.v3} ${line.c}</span></div>`;}).join('')}</div></div></section></div>`;
 }
 function playByPlayHTML(g){
+  const real=g?.liveScore?.plays;
+  if(Array.isArray(real)&&real.length){
+    const rows=real.slice(-18).reverse();
+    return `<div class="nxg-pbp-list">${rows.map((r,i)=>`<article class="nxg-pbp-item"><b>${esc([r.period?`Q${r.period}`:'',r.clock||''].filter(Boolean).join(' ')||'LIVE')}</b><div><span>${esc(r.text||r.shortText||'Play updating')}</span><small>${esc(r.downDistanceText||r.type||'Live play')}${r.team?` · ${esc(r.team)}`:''}</small></div><div class="nxg-pbp-tag">${i===0?'Current Play':r.scoring?'Scoring':'Play'}</div></article>`).join('')}</div>`;
+  }
   const log=playLogForGame(g); const offense=offenseContext(g).offense;
   const stamps=['Q3 12:14','Q3 10:58','Q3 09:41','Q3 08:57',`${liveState(g).q||'Q1'} ${liveState(g).clock||'15:00'}`];
   return `<div class="nxg-pbp-list">${log.map((r,i)=>`<article class="nxg-pbp-item"><b>${stamps[i]||'Q1 15:00'}</b><div><span>${esc(r.text)}</span><small>${esc(r.state)} · ${esc(offense.abbr)} offense</small></div><div class="nxg-pbp-tag">${r.current?'Current Play':'Drive'}</div></article>`).join('')}</div>`;
@@ -754,6 +837,13 @@ function gamecastHTML(g){
 }
 
 function recentBars(p){
+  const logs=p?.research?.last5?.gamesLog;
+  if(Array.isArray(logs)&&logs.length){
+    const ordered=[...logs].reverse();
+    const isQb=p.pos==='QB';
+    const vals=ordered.map(g=>Number(isQb?g.passYds:g.scrimmageYds)||0); const max=Math.max(...vals,1);
+    return `<div class="ms-recent-chart">${ordered.map((g,i)=>`<div><span style="height:${Math.max(5,Math.round(vals[i]/max*100))}%"></span><b>${vals[i]}</b><small>W${esc(g.week||'—')}</small></div>`).join('')}</div>`;
+  }
   const vals=[0,1,2,3,4].map(i=>num(p.name+'g'+i,38,126)); const max=Math.max(...vals,1);
   return `<div class="ms-recent-chart">${vals.map((v,i)=>`<div><span style="height:${Math.round(v/max*100)}%"></span><b>${v}</b><small>G${5-i}</small></div>`).join('')}</div>`;
 }
@@ -788,12 +878,40 @@ function recentOpportunitiesHTML(p){
   return shown.map((r,i)=>`<div><b>${i+1}</b><span>${esc(r.type)} · ${esc(r.label)}</span><em>${r.yds} yds${r.type==='RZ'?' · TD look':''}</em></div>`).join('') || '<div><b>—</b><span>No opportunities in this filter</span><em>—</em></div>';
 }
 
+function researchSnapshotHTML(p){
+  const r=p?.research;
+  if(!r) return `<div class="nfl-research-empty">Research feed is not generated yet. The TSO model is still available; run the NFL Research Refresh workflow to populate roster, depth, injury and historical production.</div>`;
+  const prev=r.previousSeason||{}, last=r.last5||{}, avg=last.avg||{}, cur=r.currentSeason||{};
+  const isQb=p.pos==='QB';
+  const seasonYds=isQb?(prev.passYds??'—'):(prev.scrimmageYds??'—');
+  const lastYds=isQb?(avg.passYds??'—'):(avg.scrimmageYds??'—');
+  const depth=r.depth?.rank?`${r.depth.position||p.pos}${r.depth.rank}`:(r.depth?.position||p.pos||'—');
+  const status=r.injury?.status||r.rosterStatus||'Active';
+  const injuryDetail=r.injury?.detail?`<div class="nfl-research-alert"><b>${esc(status)}</b><span>${esc(r.injury.detail)}</span></div>`:'';
+  const currentYds=isQb?(cur.passYds??0):(cur.scrimmageYds??0);
+  const items=[
+    ['Depth',depth],['Status',status],[`${state.research?.previousSeason||'Prev'} Yards`,seasonYds],[`${state.research?.previousSeason||'Prev'} TD`,prev.totalTds??'—'],
+    ['Last 5 Yds/G',lastYds],['TD Games L5',last.tdGames??'—'],['Current Yards',currentYds],['RZ Opps',p.rz??'—']
+  ];
+  return `${injuryDetail}<div class="ms-quality nfl-research-grid">${items.map(([l,v])=>`<div><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join('')}</div><div class="nfl-research-source">${esc(researchFreshnessLabel())} · ESPN roster/depth/injury + nflverse production · TSO model unchanged</div>`;
+}
+function playerResearchWhy(p){
+  const r=p?.research, prev=r?.previousSeason, last=r?.last5?.avg;
+  if(!r) return `${esc(p.name)} combines a ${p.edge} TSO Edge with ${p.usage}% snap share and ${p.rz} red-zone opportunities against ${esc(p.opp)}.`;
+  const isQb=p.pos==='QB';
+  const seasonMetric=isQb?`${prev?.passYds??'—'} passing yards`:`${prev?.scrimmageYds??'—'} scrimmage yards`;
+  const lastMetric=isQb?`${last?.passYds??'—'} pass yds/game`:`${last?.scrimmageYds??'—'} scrimmage yds/game`;
+  const depth=r.depth?.rank?`${r.depth.position||p.pos}${r.depth.rank}`:p.pos;
+  const status=r.injury?.status||r.rosterStatus||'Active';
+  return `${esc(p.name)} enters this matchup as ${esc(depth)} (${esc(status)}) with a ${p.edge} TSO Edge. The research baseline adds ${esc(seasonMetric)} from the previous season and ${esc(lastMetric)} over the latest five available games, alongside ${p.usage}% modeled snap share and ${p.rz} red-zone opportunities. TSO Edge/TD Grade remain model outputs; roster, depth, injury and historical production are source-backed research inputs.`;
+}
+
 function playerModal(p){
   if(!p) return '';
   const quality=[['Snap Share',`${p.usage}%`],['RZ Opps',`${p.rz}`],['Explosive %',`${p.explosive}%`],['Route/Touch Edge',`${num(p.name+'route',56,86)}`]];
   const atd=propValue(p,'atd'), first=propValue(p,'firstTd');
   const scoring=[['Anytime TD',atd.main],['First TD',first.main],['RZ Opportunities',`${p.rz}`],['TSO Edge',`${p.edge}`]];
-  return `<div class="ms-modal-backdrop" data-nfl-close-modal><div class="ms-modal" onclick="event.stopPropagation()"><button class="ms-modal-x" data-nfl-close-modal>×</button><header><div class="ms-avatar big">${p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`}</div><div><div class="ms-modal-name"><h2>${esc(p.name)}</h2>${signalBadge(p.edge)}</div><p>${esc(p.team)} · ${esc(p.pos)} · vs ${esc(p.opp)}</p></div><section><span>TSO EDGE</span><strong>${p.edge}</strong><small>${p.edge>=60?'Strong matchup':'Balanced matchup'}</small></section></header><div class="ms-modal-body"><div class="ms-sec"><div class="ms-sec-title">Scoring Outlook</div><div class="ms-quality">${scoring.map(([l,v])=>`<div><span>${l}</span><b>${v}</b></div>`).join('')}</div></div><div class="ms-sec"><div class="ms-sec-title">Recent Games</div>${recentBars(p)}</div><div class="ms-sec"><div class="ms-sec-title">Usage & Efficiency</div><div class="ms-quality">${quality.map(([l,v])=>`<div><span>${l}</span><b>${v}</b></div>`).join('')}</div></div><div class="ms-sec"><div class="ms-sec-title">Matchup Mix</div>${matchupPanel(p)}</div><div class="ms-sec"><div class="ms-sec-title">Route / Touch Map</div><div id="nflMapHost">${routeMapHTML(p)}</div></div><div class="ms-sec"><div class="ms-sec-title">Recent Opportunities</div><div class="ms-recent-list">${recentOpportunitiesHTML(p)}</div></div><div class="ms-sec"><div class="ms-sec-title">Why</div><p class="ms-why">${esc(p.name)} combines a ${p.edge} TSO Edge with ${p.usage}% snap share, ${p.rz} red-zone opportunities and a favorable coverage/usage profile against ${esc(p.opp)}. Anytime TD is the connected scoring anchor; First TD is a separate preview probability that also accounts for how concentrated the player's snap and red-zone role is. This is the football equivalent of MLB Matchup Mix: pitch/zone overlap becomes coverage fit, red-zone usage, route/touch distribution and explosive-play opportunity.</p></div></div></div></div>`;
+  return `<div class="ms-modal-backdrop" data-nfl-close-modal><div class="ms-modal" onclick="event.stopPropagation()"><button class="ms-modal-x" data-nfl-close-modal>×</button><header><div class="ms-avatar big">${p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`}</div><div><div class="ms-modal-name"><h2>${esc(p.name)}</h2>${signalBadge(p.edge)}</div><p>${esc(p.team)} · ${esc(p.pos)} · vs ${esc(p.opp)}</p></div><section><span>TSO EDGE</span><strong>${p.edge}</strong><small>${p.edge>=60?'Strong matchup':'Balanced matchup'}</small></section></header><div class="ms-modal-body"><div class="ms-sec"><div class="ms-sec-title">Gameday Research</div>${researchSnapshotHTML(p)}</div><div class="ms-sec"><div class="ms-sec-title">Scoring Outlook</div><div class="ms-quality">${scoring.map(([l,v])=>`<div><span>${l}</span><b>${v}</b></div>`).join('')}</div></div><div class="ms-sec"><div class="ms-sec-title">Recent Games</div>${recentBars(p)}</div><div class="ms-sec"><div class="ms-sec-title">Usage & Efficiency</div><div class="ms-quality">${quality.map(([l,v])=>`<div><span>${l}</span><b>${v}</b></div>`).join('')}</div></div><div class="ms-sec"><div class="ms-sec-title">Matchup Mix</div>${matchupPanel(p)}</div><div class="ms-sec"><div class="ms-sec-title">Route / Touch Map <small style="color:var(--mute);font-weight:600">Illustrative until tracking data is connected</small></div><div id="nflMapHost">${routeMapHTML(p)}</div></div><div class="ms-sec"><div class="ms-sec-title">Recent Opportunities</div><div class="ms-recent-list">${recentOpportunitiesHTML(p)}</div></div><div class="ms-sec"><div class="ms-sec-title">Why</div><p class="ms-why">${playerResearchWhy(p)}</p></div></div></div></div>`;
 }
 
 function contentHTML(){
@@ -813,7 +931,7 @@ function render(){
   document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>btn.classList.toggle('is-active', btn.dataset.nflTab===state.tab));
   root.style.setProperty('--ms-accent','#f59e0b'); root.style.setProperty('--ms-accent2','#fbbf24');
   const p=state.player?data().players.find(x=>String(x.id)===String(state.player)):null;
-  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL product preview.</b> The schedule, teams, headshots and Anytime TD model come from the site’s connected NFL slate. First TD is preview-derived from the connected ATD signal plus snap/red-zone role; the other not-yet-connected prop values, route maps and live-event rows are deterministic presentation data until those NFL pipelines are wired.</footer>`;
+  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Live Engine.</b> Roster/depth/injury and historical production can refresh independently through nfl-research.json. TSO Edge/TD Grade stay model-driven. During games, score, clock, possession, field position, current drive, player box stats, team stats and play-by-play use nfl-live.json when the server poller is running; route/player tracking remains illustrative.</footer>`;
   wire(root);
   if(state.tab==='foryou') window.renderForYou?.(root.querySelector('#nflForYouHost'));
   window.renderSidebarSports?.();
