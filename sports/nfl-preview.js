@@ -20,6 +20,7 @@ const state = {
   allSort: 'edge',
   gamecastTab: 'game',
   inlineTabs: {},
+  expandedSlate: new Set(),
 };
 
 const NFL_FIELD_ART = 'nfl-tso-field.png?v=42';
@@ -106,7 +107,7 @@ async function loadData(){
     startLivePolling(d,()=>{
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
-      if(root && !root.hidden && state.tab==='slate') render();
+      if(root && !root.hidden && (state.tab==='slate' || state.tab==='live' || state.game)) render();
     });
   }catch(e){
     state.data={games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1,generatedAt:null};
@@ -235,10 +236,11 @@ function nflBadges(p){
 function headerHTML(){
   if(state.game) return '';
   const propTitle=state.prop==='allPlayers'?'All Players':`${PROPS[state.prop]} Props`;
-  const titles={radar:'Game Radar',slate:'NFL Slate',feed:'TD Feed',props:propTitle,players:'All Players',foryou:'For You'};
+  const titles={radar:'Game Radar',slate:'NFL Slate',live:'NFL Live',feed:'TD Feed',props:propTitle,players:'All Players',foryou:'For You'};
   const subs={
     radar:'Every Week 1 matchup plotted by competitiveness and scoring pressure.',
-    slate:'Football-first gamecards with field position, matchup context and one-tap Gamecast.',
+    slate:'Pregame matchup research built like MLB Slate: team context, scoring leaders, TSO Edge and each side’s top touchdown threats.',
+    live:'Every NFL game in progress right now. Open any matchup for the full Sports Outpost Gamecast, Box Score and Play by Play.',
     feed:'A touchdown stream built like the MLB Home Run Feed, using football scoring context.',
     props:state.prop==='allPlayers'?'Every modeled skill player in one searchable board, inside the same Props dropdown as the markets.':'Ranked NFL props with one market dropdown, Board/Radar views, grades and TSO Edge.',
     players:'Every modeled skill player in one searchable board, with TSO Edge sorting.',
@@ -287,9 +289,95 @@ function slateGamecastCard(g){
 }
 
 function gameCard(g){ return slateGamecastCard(g); }
+
+function nflSlatePlayersForTeam(g,abbr){
+  return playersForGame(g).filter(p=>p.team===abbr).sort((a,b)=>(b.prob||0)-(a.prob||0));
+}
+function nflSlateLeaderHTML(g,team,isHome=false){
+  const list=nflSlatePlayersForTeam(g,team.abbr);
+  const p=list[0] || featuredPlayerForGame(g);
+  const atd=Math.round((p?.prob||0)*100);
+  const first=Math.round((firstTdProbability(p)||0)*100);
+  const avatar=p?.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p?.name||team.abbr))}</span>`;
+  return `<section class="nfl-match-leader ${isHome?'home':''}">
+    <div class="nfl-match-leader-primary">
+      <div class="nfl-match-leader-avatar">${avatar}</div>
+      <div class="nfl-match-leader-info"><span>Top Scoring Threat · ${esc(team.abbr)}</span><b>${esc(p?.name||'Player TBD')}</b><small>${esc(p?.pos||'SKILL')} · ${atd}% Anytime TD</small></div>
+    </div>
+    <div class="nfl-match-leader-stats">
+      <div><span>ATD</span><b>${atd}%</b></div><div><span>1st TD</span><b>${first}%</b></div><div><span>RZ Opps</span><b>${p?.rz??'—'}</b></div><div class="edge"><span>TSO Edge</span><b>${p?.edge??'—'}</b></div>
+    </div>
+  </section>`;
+}
+function nflSlatePlayerRowHTML(p,extra=false){
+  const avatar=p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`;
+  return `<button type="button" class="nfl-slate-player ${extra?'is-extra':''}" data-nfl-player="${esc(p.id)}">
+    <div class="nfl-slate-player-head">${avatar}</div>
+    <div class="nfl-slate-player-main"><span class="nfl-slate-player-name"><strong>${esc(p.name)}</strong></span><span class="nfl-slate-player-meta">${esc(p.pos)} · ${p.usage}% snaps · ${p.rz} RZ opps</span><div class="nfl-slate-badges">${nflBadges(p)}</div></div>
+    <div class="nfl-slate-player-stat grade"><b>${esc(p.grade||gradeFor(p.prob||0))}</b></div>
+    <div class="nfl-slate-player-stat edge"><b>${p.edge}</b></div>
+  </button>`;
+}
+function nflThreatBoardHTML(g,team){
+  const list=nflSlatePlayersForTeam(g,team.abbr);
+  const rows=list.map((p,i)=>nflSlatePlayerRowHTML(p,i>=5)).join('');
+  return `<section class="nfl-team-board"><div class="nfl-team-board-head">${teamLogo(team)}<div><b>${esc(team.name)}</b><span>Top TD Threats · ${list.length} modeled players</span></div></div><div class="nfl-team-board-cols"><span class="player-col">Player</span><span>TD Grade</span><span>TSO Edge</span></div>${rows||'<div style="padding:14px;color:var(--mute);font-size:11px;">Player model data not posted yet.</div>'}</section>`;
+}
+function nflSlateMatchupCard(g){
+  const live=g.status==='in', final=g.status==='post', st=liveState(g), wx=weatherForGame(g);
+  const expanded=state.expandedSlate.has(String(g.id));
+  const awayList=nflSlatePlayersForTeam(g,g.away.abbr), homeList=nflSlatePlayersForTeam(g,g.home.abbr);
+  const canExpand=Math.max(awayList.length,homeList.length)>5;
+  const gameEdge=Math.max(
+    awayList[0]?.edge||0,
+    homeList[0]?.edge||0,
+    num(g.id+'gameedge',52,72)
+  );
+  const homeWp=num(g.id+'wp',43,64);
+  const stateLabel=live?'Live':final?'Final':'Pregame';
+  const time=live?(st.label||'LIVE'):final?'FINAL':(g.time||'TBD');
+  const poss=possessionAbbr(g);
+  const statusClass=live?'live':final?'final':'';
+  return `<article class="nfl-match-card ${live?'is-live':final?'is-final':''} ${expanded?'is-expanded':''}" data-nfl-slate-card="${esc(g.id)}">
+    <div class="nfl-match-head">
+      <div class="nfl-match-team">${teamLogo(g.away)}<div class="nfl-match-team-copy"><small>${esc(g.away.abbr)}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div></div>
+      <div class="nfl-match-center"><span class="nfl-match-state ${statusClass}">${live?'<i></i>':''}${esc(stateLabel)}</span><span class="nfl-match-time">${esc(time)}</span><span class="nfl-match-venue">${esc(g.venue)}${g.city?` · ${esc(g.city)}`:''}</span>${live?`<button type="button" class="nfl-live-gamecast-btn" data-nfl-open-game="${esc(g.id)}" data-nfl-origin="live">Open Live Gamecast</button>`:''}</div>
+      <div class="nfl-match-team home"><div class="nfl-match-team-copy"><small>${esc(g.home.abbr)}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home)}</div>
+    </div>
+    <div class="nfl-match-leaders">${nflSlateLeaderHTML(g,g.away,false)}${nflSlateLeaderHTML(g,g.home,true)}</div>
+    <div class="nfl-match-env">
+      <div class="nfl-env-tile"><span>Weather</span><b>${wx.ico} ${wx.temp}°</b><small>${esc(wx.cond)}</small></div>
+      <div class="nfl-env-tile venue"><span>Game Context</span><b>${esc(g.detail||`Week ${data().week}`)}</b><small>${esc(g.broadcast||'NFL')} · ${live?(poss?`${poss} possession`:'Possession updating'):'Kickoff matchup'}</small></div>
+      <div class="nfl-env-tile edge"><span>TSO Game Edge</span><b>${gameEdge}</b><small>Best scoring matchup signal</small></div>
+      <div class="nfl-env-tile ${live?'live':''}"><span>${live?'Live State':'Home Win Prob'}</span><b>${live?esc(downDistanceLabel(g)):`${homeWp}%`}</b><small>${live?esc(fieldPositionLabel(g)):`${esc(g.home.abbr)} modeled win probability`}</small></div>
+    </div>
+    <div class="nfl-match-threats">${nflThreatBoardHTML(g,g.away)}${nflThreatBoardHTML(g,g.home)}</div>
+    ${canExpand?`<div class="nfl-lineup-expand"><button type="button" data-nfl-expand-slate="${esc(g.id)}">${expanded?'Show top 5':'View full player pools'} <span class="chev">⌄</span></button></div>`:''}
+    <div class="nfl-slate-footer"><span>TD probability · red-zone role · snap share · TSO Edge</span><span>${live?'Live Gamecast available on NFL Live':'Tap any player for the full matchup profile'}</span></div>
+  </article>`;
+}
 function slateHTML(){
   const ordered=[...data().games].sort((a,b)=>{const rank=x=>x.status==='in'?0:x.status==='pre'?1:2; return rank(a)-rank(b);});
-  return `<div class="ms-game-grid has-full-gamecasts">${ordered.map(g=>gamecastDashboardHTML(g,featuredPlayerForGame(g),{embedded:true,tab:state.inlineTabs[String(g.id)]||'game'})).join('')}</div>`;
+  return `<div class="nfl-matchup-slate">${ordered.map(nflSlateMatchupCard).join('')}</div>`;
+}
+
+function nflLivePreviewHTML(g){
+  const st=liveState(g);
+  const poss=possessionAbbr(g);
+  return `<button type="button" class="nfl-live-chip" data-nfl-open-game="${esc(g.id)}" data-nfl-origin="live">
+    <div class="nfl-live-chip-top"><span class="nfl-live-now"><i></i> Live</span><span class="nfl-live-clock">${esc(st.label||'LIVE')}</span></div>
+    <div class="nfl-live-score"><div class="nfl-live-team">${teamLogo(g.away)}<b>${esc(g.away.name)}</b><strong>${scoreNum(g.away)}</strong></div><div class="nfl-live-vs">VS</div><div class="nfl-live-team home"><strong>${scoreNum(g.home)}</strong><b>${esc(g.home.name)}</b>${teamLogo(g.home)}</div></div>
+    <div class="nfl-live-context"><div><span>Down & Distance</span><b>${esc(downDistanceLabel(g))}</b></div><div><span>Field Position</span><b>${esc(fieldPositionLabel(g))}${poss?` · ${esc(poss)} ball`:''}</b></div></div>
+    <div class="nfl-live-openhint">Open full Gamecast →</div>
+  </button>`;
+}
+function liveHTML(){
+  const live=data().games.filter(g=>g.status==='in');
+  if(!live.length){
+    const next=[...data().games].filter(g=>g.status==='pre').sort((a,b)=>String(a.startTimeUTC||'').localeCompare(String(b.startTimeUTC||'')))[0];
+    return `<div class="nfl-live-page"><div class="nfl-live-empty"><b>No NFL games are live right now.</b><span>The Live hub will populate automatically as soon as a game starts.</span>${next?`<div class="nfl-live-next">Next: ${esc(next.away.name)} @ ${esc(next.home.name)} · ${esc(next.time||'TBD')}</div>`:''}</div></div>`;
+  }
+  return `<div class="nfl-live-page"><div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${live.length} game${live.length===1?'':'s'} in progress · refreshes automatically</span></div><div class="nfl-live-rail">${live.map(nflLivePreviewHTML).join('')}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>Choose any live matchup above to open the full NFL Game View, Box Score and Play by Play Gamecast.</div></div></div>`;
 }
 
 
@@ -536,9 +624,10 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const tabButton=(id,label)=> embedded
     ? `<button type="button" class="nxg-tab ${activeTab===id?'active':''}" data-nfl-inline-game="${esc(g.id)}" data-nfl-inline-tab="${id}">${label}</button>`
     : `<button type="button" class="nxg-tab ${activeTab===id?'active':''}" data-nfl-gamecast-tab="${id}">${label}</button>`;
+  const backLabel=state.tab==='live'?'Live':'Slate';
   const backTool=embedded
-    ? `<button type="button" class="nxg-ghostbtn" data-nfl-slate-top>← Back to Slate</button>`
-    : `<button type="button" class="nxg-ghostbtn" data-nfl-close-game>← Back to Slate</button>`;
+    ? `<button type="button" class="nxg-ghostbtn" data-nfl-slate-top>← Back to ${backLabel}</button>`
+    : `<button type="button" class="nxg-ghostbtn" data-nfl-close-game>← Back to ${backLabel}</button>`;
   const statusTool=live?`<span class="nxg-livepill"><span class="dot"></span>Live <span class="nxg-livebars"><i></i><i></i><i></i></span></span>`:`<span class="nxg-livepill nxg-previewpill"><span class="dot"></span>Game Preview</span>`;
   const body=activeTab==='box'?boxView:activeTab==='pbp'?pbpView:gameView;
   return `<article class="nxg-wrap ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-crumb"><span>🏈 NFL &nbsp;›&nbsp; LIVE GAMECAST</span><span class="nxg-crumb-right">WEEK ${data().week} &nbsp;•&nbsp; ${esc(dateLabel).toUpperCase()} &nbsp;•&nbsp; ${esc(g.broadcast||'NFL').toUpperCase()}</span></div><div class="nxg-topbar"><div class="nxg-tabs">${tabButton('game','Game View')}${tabButton('box','Box Score')}${tabButton('pbp','Play by Play')}</div><div class="nxg-tools">${statusTool}<span class="nxg-feedpill">Gamecast Feed⌄</span><button type="button" class="nxg-dotbtn" title="More">•••</button>${backTool}</div></div><section class="nxg-scorebar ${live?'is-live':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(displayClock)}</div></div><div class="nxg-downchip"><span>${esc(g.status==='in'?downDistanceLabel(g):'Pregame')}</span><i></i><span>${esc(fieldPositionLabel(g))}</span><span class="arr">▲</span></div><div class="nxg-posstext">${ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>${body}</article>`;
@@ -596,6 +685,7 @@ function contentHTML(){
   if(state.game){ const g=data().games.find(x=>String(x.id)===String(state.game)); return gamecastHTML(g); }
   if(state.tab==='radar') return gameRadarHTML();
   if(state.tab==='slate') return slateHTML();
+  if(state.tab==='live') return liveHTML();
   if(state.tab==='feed') return feedHTML();
   if(state.tab==='players') return allPlayersHTML();
   if(state.tab==='foryou') return '<div id="nflForYouHost"></div>';
@@ -617,8 +707,9 @@ function wire(root){
   root.querySelector('#nflPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value;if(state.prop==='allPlayers')state.propView='board';render();});
   root.querySelectorAll('[data-nfl-prop-view]').forEach(b=>b.addEventListener('click',()=>{state.propView=b.dataset.nflPropView;render();}));
   root.querySelectorAll('[data-nfl-player]').forEach(b=>b.addEventListener('click',()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();}));
-  root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
+  root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab=b.dataset.nflOrigin==='live'?'live':'slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
+  root.querySelectorAll('[data-nfl-expand-slate]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const id=String(b.dataset.nflExpandSlate);state.expandedSlate.has(id)?state.expandedSlate.delete(id):state.expandedSlate.add(id);render();document.querySelector(`[data-nfl-slate-card="${CSS.escape(id)}"]`)?.scrollIntoView({block:'nearest'});}));
   root.querySelectorAll('.ms-slate-cast[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.game=card.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}}));
   root.querySelectorAll('[data-nfl-close-game]').forEach(b=>b.addEventListener('click',()=>{state.game=null;state.gamecastTab='game';render();}));
   root.querySelectorAll('[data-nfl-gamecast-tab]').forEach(b=>b.addEventListener('click',()=>{state.gamecastTab=b.dataset.nflGamecastTab;render();window.scrollTo?.({top:0,behavior:'smooth'});}));
@@ -632,7 +723,7 @@ function wire(root){
 }
 
 export function selectTab(tab){
-  if(!['radar','slate','feed','props','players','foryou'].includes(tab)) return;
+  if(!['radar','slate','live','feed','props','players','foryou'].includes(tab)) return;
   state.tab=tab; state.game=null; state.player=null;
   if(tab==='props'){state.prop='atd'; state.propView='board';}
   render(); window.scrollTo({top:0,behavior:'smooth'});
