@@ -1,4 +1,4 @@
-import { startLivePolling } from './nfl/live.js';
+import { startLivePolling } from './nfl/live.js?v=64';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -695,6 +695,7 @@ function contentHTML(){
 function render(){
   const root=document.getElementById('nflView'); if(!root) return;
   window.DW_nflPreviewTab=state.tab;
+  document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>btn.classList.toggle('is-active', btn.dataset.nflTab===state.tab));
   root.style.setProperty('--ms-accent','#f59e0b'); root.style.setProperty('--ms-accent2','#fbbf24');
   const p=state.player?data().players.find(x=>String(x.id)===String(state.player)):null;
   root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL product preview.</b> The schedule, teams, headshots and Anytime TD model come from the site’s connected NFL slate. First TD is preview-derived from the connected ATD signal plus snap/red-zone role; the other not-yet-connected prop values, route maps and live-event rows are deterministic presentation data until those NFL pipelines are wired.</footer>`;
@@ -730,4 +731,13 @@ export function selectTab(tab){
 }
 window.DW_nflPreviewSelectTab=selectTab;
 
-export async function mount(){ await loadData(); render(); }
+let navBound=false;
+function bindLegacyNflNav(){
+  if(navBound) return;
+  navBound=true;
+  document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>{
+    btn.addEventListener('click',()=>selectTab(btn.dataset.nflTab));
+  });
+}
+
+export async function mount(){ await loadData(); bindLegacyNflNav(); render(); }

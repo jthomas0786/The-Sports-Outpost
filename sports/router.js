@@ -121,8 +121,13 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview.js');
+      const mod = await import('./nfl-preview.js?v=64');
       await mod.mount();
+      const pendingTab = window.DW_nflPreviewPendingTab;
+      if (pendingTab && typeof mod.selectTab === 'function') {
+        mod.selectTab(pendingTab);
+        window.DW_nflPreviewPendingTab = null;
+      }
     } catch (e) {
       if (nflView) nflView.innerHTML = '<div class="nfl-error"><div class="nfl-error-title">Couldn\'t load the NFL preview</div><div>' + String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
     }
