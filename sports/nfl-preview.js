@@ -1,4 +1,4 @@
-import { startLivePolling } from './nfl/live.js?v=64';
+import { startLivePolling } from './nfl/live.js?v=65';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -24,6 +24,31 @@ const state = {
 };
 
 const NFL_FIELD_ART = 'nfl-tso-field.png?v=42';
+
+// v65 performance: build player lookup maps once per loaded slate instead of
+// repeatedly filtering the entire player array for every matchup/card render.
+let _playerIndexSource = null;
+let _playersByGame = new Map();
+let _playersByGameTeam = new Map();
+function ensurePlayerIndexes(){
+  const players=data().players||[];
+  if(_playerIndexSource===players) return;
+  _playerIndexSource=players;
+  _playersByGame=new Map();
+  _playersByGameTeam=new Map();
+  for(const p of players){
+    const gameId=String(p.gameId??'');
+    if(gameId){
+      if(!_playersByGame.has(gameId)) _playersByGame.set(gameId,[]);
+      _playersByGame.get(gameId).push(p);
+      const key=`${gameId}|${p.team||''}`;
+      if(!_playersByGameTeam.has(key)) _playersByGameTeam.set(key,[]);
+      _playersByGameTeam.get(key).push(p);
+    }
+  }
+  for(const list of _playersByGame.values()) list.sort((a,b)=>(b.prob||0)-(a.prob||0));
+  for(const list of _playersByGameTeam.values()) list.sort((a,b)=>(b.prob||0)-(a.prob||0));
+}
 
 const PROPS = {
   atd: 'Anytime TD',
@@ -107,7 +132,14 @@ async function loadData(){
     startLivePolling(d,()=>{
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
-      if(root && !root.hidden && (state.tab==='slate' || state.tab==='live' || state.game)) render();
+      if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.game)) return;
+      // Gamecast/Live should update immediately. The heavier Slate refresh waits
+      // for an idle frame so live polling never fights the user's scrolling.
+      if(state.tab==='slate' && !state.game && 'requestIdleCallback' in window){
+        requestIdleCallback(()=>{ if(state.tab==='slate' && !state.game) render(); },{timeout:1200});
+      }else{
+        requestAnimationFrame(()=>render());
+      }
     });
   }catch(e){
     state.data={games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1,generatedAt:null};
@@ -291,6 +323,11 @@ function slateGamecastCard(g){
 function gameCard(g){ return slateGamecastCard(g); }
 
 function nflSlatePlayersForTeam(g,abbr){
+  ensurePlayerIndexes();
+  const indexed=_playersByGameTeam.get(`${String(g.id)}|${abbr}`);
+  if(indexed) return indexed;
+  // Fallback data may not carry gameId; keep the preview useful without
+  // sacrificing the indexed fast path for connected slates.
   return playersForGame(g).filter(p=>p.team===abbr).sort((a,b)=>(b.prob||0)-(a.prob||0));
 }
 function nflSlateLeaderHTML(g,team,isHome=false){
@@ -298,7 +335,7 @@ function nflSlateLeaderHTML(g,team,isHome=false){
   const p=list[0] || featuredPlayerForGame(g);
   const atd=Math.round((p?.prob||0)*100);
   const first=Math.round((firstTdProbability(p)||0)*100);
-  const avatar=p?.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p?.name||team.abbr))}</span>`;
+  const avatar=p?.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy" decoding="async">`:`<span>${esc(initials(p?.name||team.abbr))}</span>`;
   return `<section class="nfl-match-leader ${isHome?'home':''}">
     <div class="nfl-match-leader-primary">
       <div class="nfl-match-leader-avatar">${avatar}</div>
@@ -310,7 +347,7 @@ function nflSlateLeaderHTML(g,team,isHome=false){
   </section>`;
 }
 function nflSlatePlayerRowHTML(p,extra=false){
-  const avatar=p.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p.name))}</span>`;
+  const avatar=p.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy" decoding="async">`:`<span>${esc(initials(p.name))}</span>`;
   return `<button type="button" class="nfl-slate-player ${extra?'is-extra':''}" data-nfl-player="${esc(p.id)}">
     <div class="nfl-slate-player-head">${avatar}</div>
     <div class="nfl-slate-player-main"><span class="nfl-slate-player-name"><strong>${esc(p.name)}</strong></span><span class="nfl-slate-player-meta">${esc(p.pos)} · ${p.usage}% snaps · ${p.rz} RZ opps</span><div class="nfl-slate-badges">${nflBadges(p)}</div></div>
@@ -320,7 +357,11 @@ function nflSlatePlayerRowHTML(p,extra=false){
 }
 function nflThreatBoardHTML(g,team){
   const list=nflSlatePlayersForTeam(g,team.abbr);
-  const rows=list.map((p,i)=>nflSlatePlayerRowHTML(p,i>=5)).join('');
+  const expanded=state.expandedSlate.has(String(g.id));
+  // v65: keep hidden bench players out of the DOM until requested. On a full
+  // Sunday slate this cuts hundreds of nodes, badges and headshot decodes.
+  const visible=expanded?list:list.slice(0,5);
+  const rows=visible.map(p=>nflSlatePlayerRowHTML(p,false)).join('');
   return `<section class="nfl-team-board"><div class="nfl-team-board-head">${teamLogo(team)}<div><b>${esc(team.name)}</b><span>Top TD Threats · ${list.length} modeled players</span></div></div><div class="nfl-team-board-cols"><span class="player-col">Player</span><span>TD Grade</span><span>TSO Edge</span></div>${rows||'<div style="padding:14px;color:var(--mute);font-size:11px;">Player model data not posted yet.</div>'}</section>`;
 }
 function nflSlateMatchupCard(g){
@@ -494,6 +535,9 @@ function scoringChance(g){
   return {pct,label};
 }
 function playersForGame(g){
+  ensurePlayerIndexes();
+  const indexed=_playersByGame.get(String(g.id));
+  if(indexed) return indexed;
   return data().players.filter(p=>String(p.gameId)===String(g.id));
 }
 function keyTargetsForGame(g){
