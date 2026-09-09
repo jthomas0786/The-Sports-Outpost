@@ -9,9 +9,10 @@ name: Build daily MLB slate
 
 on:
   schedule:
-    # 11:00 PM Central every night. America/Chicago automatically follows
-    # CST/CDT daylight-saving changes, so this stays at 11pm local Central time.
-    - cron: '0 23 * * *'
+    # 11:07 PM Central every night. America/Chicago automatically follows
+    # CST/CDT daylight-saving changes. The 7-minute offset avoids GitHub's
+    # documented top-of-hour schedule congestion while staying effectively 11pm.
+    - cron: '7 23 * * *'
       timezone: 'America/Chicago'
   workflow_dispatch:      # lets you trigger a rebuild by hand from the Actions tab
     inputs:
@@ -49,8 +50,10 @@ jobs:
           if [ -n "${{ inputs.date }}" ]; then
             TARGET_DATE="${{ inputs.date }}"
           elif [ "${{ github.event_name }}" = "schedule" ]; then
-            # Scheduled 11pm Central run always prepares tomorrow's slate.
-            TARGET_DATE="$(TZ=America/Chicago date -d 'tomorrow' +%F)"
+            # Scheduled run is anchored to the 11pm Central rollover, not the
+            # actual runner start time. This stays correct even if GitHub queues
+            # the job past midnight: 11pm 9/8 or delayed 3am 9/9 both build 9/9.
+            TARGET_DATE="$(TZ=America/Chicago date -d '+1 hour' +%F)"
           else
             # Preserve the old manual behavior when no date is supplied.
             TARGET_DATE="$(TZ=America/Chicago date +%F)"
