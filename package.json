@@ -13,7 +13,8 @@
     "nfl:halftime:odds": "node scripts/nfl-halftime-odds-refresh.mjs",
     "nfl:v87:test": "node scripts/nfl-v87-selftest.mjs && npm run nfl:sim:test",
     "nfl:v88:test": "node scripts/nfl-v88-selftest.mjs && npm run nfl:v87:test",
-    "nfl:v881:test": "node scripts/nfl-v881-selftest.mjs && npm run nfl:v88:test"
+    "nfl:v881:test": "node scripts/nfl-v881-selftest.mjs && npm run nfl:v88:test",
+    "nfl:v88.2:test": "node scripts/nfl-v882-selftest.mjs"
   },
   "engines": {
     "node": ">=18"

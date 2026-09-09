@@ -1,5 +1,6 @@
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88';
+import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.2';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -32,6 +33,7 @@ const state = {
 };
 
 const NFL_FIELD_ART = 'nfl-tso-field.png?v=42';
+const NFL_DEMO_MODE=getNflDemoMode();
 
 
 // v76 — cleaned/scalable NFL Gamecast concept canvas.  The Game View is authored once at
@@ -647,6 +649,7 @@ async function loadData(){
       (async()=>{try{const hr=await fetch('./slates/nfl-halftime.json',{cache:'no-cache'});if(hr.ok){const candidate=await hr.json();if(Array.isArray(candidate?.games))halftime=candidate;}}catch(_e){}})(),
     ]);
     state.research=research; state.odds=odds; state.sim=sim; state.halftime=halftime;
+  hydrateNflDemoState(state,{data:state.data,research,odds,sim,halftime});
     const researchIdx=buildResearchIndexes(research);
     const oddsIdx=buildPreviewOddsIndex(odds);
     const simIdx=buildPreviewSimIndex(sim);
@@ -1749,9 +1752,12 @@ function bindLegacyNflNav(){
 export async function mount(){
   ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles();
   await loadData(); bindLegacyNflNav();
-  startHalftimeBoardPolling(doc=>{
-    state.halftime=doc;
-    if(state.tab==='live'&&!state.game) requestAnimationFrame(()=>render());
-  });
+  if(!NFL_DEMO_MODE){
+    startHalftimeBoardPolling(doc=>{
+      state.halftime=doc;
+      if(state.tab==='live'&&!state.game) requestAnimationFrame(()=>render());
+    });
+  }
   render();
+  requestAnimationFrame(()=>postRenderNflDemoSync(state,{openHalftimeParlayLab}));
 }
