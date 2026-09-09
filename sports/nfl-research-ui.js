@@ -277,6 +277,151 @@ function ensureStyles(){
 
     @media(max-width:980px){.tso-nfl-research-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-nfl-research-subgrid{grid-template-columns:1fr}.tso-nfl-research-pill.matchup{display:none}}
     @media(max-width:700px){.tso-nfl-research-row{gap:4px}.tso-nfl-research-pill{font-size:6.5px;padding:3px 5px}.tso-nfl-research-pill:nth-of-type(n+4){display:none}.tso-nfl-board-fresh{display:none}.tso-nfl-research-kpis{grid-template-columns:repeat(2,1fr)}.tso-nfl-role-grid{grid-template-columns:repeat(2,1fr)}.tso-nfl-role-grid div:nth-child(3n){border-right:1px solid rgba(120,176,239,.10)}.tso-nfl-role-grid div:nth-child(2n){border-right:0}.tso-nfl-role-grid div:nth-last-child(-n+3){border-bottom:1px solid rgba(120,176,239,.10)}.tso-nfl-role-grid div:nth-last-child(-n+2){border-bottom:0}}
+
+    /* v86.3 modal prop selector */
+    .tso-nfl-player-card-v72 .hdr{
+      display:grid!important;
+      grid-template-columns:auto minmax(0,1fr) 232px!important;
+      align-items:start!important;
+      column-gap:14px!important;
+      row-gap:8px!important;
+      padding-right:58px!important;
+    }
+    .tso-nfl-player-card-v72 .hdr>.ava-reticle{grid-column:1;grid-row:1}
+    .tso-nfl-player-card-v72 .hdr>.who{grid-column:2;grid-row:1;min-width:0}
+    .tso-nfl-player-card-v72 .tso-nfl-prop-control{
+      grid-column:3;
+      grid-row:1;
+      width:232px;
+      min-width:0;
+      margin:0;
+      align-self:start;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-control-label{
+      display:block;
+      margin:0 0 5px;
+      font:900 7px 'JetBrains Mono',monospace;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#6f92bd;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-select-wrap{position:relative;width:100%}
+    .tso-nfl-player-card-v72 .tso-nfl-prop-select{
+      width:100%;
+      height:38px;
+      box-sizing:border-box;
+      appearance:none;
+      -webkit-appearance:none;
+      padding:0 34px 0 12px;
+      border:1px solid rgba(74,157,255,.50);
+      border-radius:9px;
+      outline:0;
+      background:#0b2448;
+      color:#fff;
+      font:800 10px 'JetBrains Mono',monospace;
+      cursor:pointer;
+      box-shadow:0 5px 15px rgba(0,0,0,.12);
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-select:focus{
+      border-color:#48a9ff;
+      box-shadow:0 0 0 2px rgba(45,127,255,.14);
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-select-chevron{
+      position:absolute;
+      top:50%;
+      right:12px;
+      transform:translateY(-52%);
+      pointer-events:none;
+      color:#68c9ff;
+      font:900 11px/1 'JetBrains Mono',monospace;
+    }
+
+    /* Selected sportsbook odds live directly under the dropdown. */
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-strip{
+      display:block!important;
+      width:100%!important;
+      margin:7px 0 0!important;
+      padding:0!important;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-compact{
+      width:100%;
+      box-sizing:border-box;
+      padding:8px 10px;
+      border:1px solid rgba(120,176,239,.20);
+      border-radius:9px;
+      background:rgba(5,23,49,.58);
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-compact.has-odds{
+      border-color:rgba(34,197,94,.28);
+      background:rgba(5,63,43,.18);
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-main{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      min-width:0;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-market{
+      min-width:0;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+      font:800 7px 'JetBrains Mono',monospace;
+      letter-spacing:.045em;
+      text-transform:uppercase;
+      color:#87a8ce;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-price{
+      flex:0 0 auto;
+      font:900 16px/1 'Oswald',sans-serif;
+      color:#58e89a;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-meta{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      margin-top:5px;
+      color:#7899c0;
+      font:700 7px 'JetBrains Mono',monospace;
+    }
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-meta b{color:#bcd1ea;font-weight:800}
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-edge.pos{color:#58e89a!important}
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-edge.neg{color:#ff9f43!important}
+    .tso-nfl-player-card-v72 .tso-nfl-prop-odds-pending{
+      width:100%!important;
+      box-sizing:border-box;
+      padding:9px 10px!important;
+      border:1px dashed rgba(120,176,239,.23);
+      border-radius:9px;
+      background:rgba(5,23,49,.34);
+      font:800 7.5px/1.3 'JetBrains Mono',monospace!important;
+      letter-spacing:.035em;
+      color:#829fc1;
+      text-transform:uppercase;
+    }
+
+    /* Nothing is allowed to occupy the X's upper-right gutter. */
+    .ms-modal.tso-mlb-player-shell .modal-close{z-index:30!important}
+
+    @media(max-width:680px){
+      .tso-nfl-player-card-v72 .hdr{
+        grid-template-columns:auto minmax(0,1fr)!important;
+        padding-right:48px!important;
+        row-gap:12px!important;
+      }
+      .tso-nfl-player-card-v72 .hdr>.ava-reticle{grid-column:1;grid-row:1}
+      .tso-nfl-player-card-v72 .hdr>.who{grid-column:2;grid-row:1}
+      .tso-nfl-player-card-v72 .tso-nfl-prop-control{
+        grid-column:1/-1;
+        grid-row:2;
+        width:100%;
+        max-width:none;
+      }
+      .tso-nfl-player-card-v72 .tso-nfl-prop-select{height:42px;font-size:10px}
+      .tso-nfl-player-card-v72 .tso-nfl-prop-odds-strip{margin-top:7px!important}
+    }
   `;
   document.head.appendChild(style);
 }
@@ -587,20 +732,30 @@ function propHeaderStats(r,ctx,snapPct,rzOpps){
 
 function propOddsStripHTML(ctx){
   const price=ctx?.offer?.price!=null?Number(ctx.offer.price):NaN;
-  if(!Number.isFinite(price)){
-    return `<div class="tso-nfl-prop-odds-pending">${esc(ctx?.meta?.label||'Prop')} · Sportsbook odds pending</div>`;
-  }
-  const implied=impliedFromAmerican(price);
-  const impliedPct=implied==null?null:implied*100;
-  const edge=impliedPct==null?null:Number(ctx.prob)-impliedPct;
   const lineLabel=(ctx.key==='atd'||ctx.key==='firstTd')
     ? ctx.meta.label
     : `Over ${fmtLine(ctx.line)} ${ctx.meta.unit}`;
-  return `
-    <div class="tso-nfl-prop-odds-chip best"><span>Best sportsbook odds</span><b>${esc(fmtAmericanPrice(price))}</b><em>${esc(ctx.offer?.book||'Sportsbook')}</em></div>
-    <div class="tso-nfl-prop-odds-chip"><span>Market</span><b>${esc(lineLabel)}</b><em>Current posted line</em></div>
-    <div class="tso-nfl-prop-odds-chip"><span>Book implied</span><b>${impliedPct==null?'—':impliedPct.toFixed(1)+'%'}</b><em>From American odds</em></div>
-    <div class="tso-nfl-prop-odds-chip edge"><span>TSO edge</span><b class="${edge!=null&&edge>=0?'pos':'neg'}">${edge==null?'—':(edge>=0?'+':'')+edge.toFixed(1)+' pts'}</b><em>TSO probability vs book</em></div>`;
+
+  if(!Number.isFinite(price)){
+    return `<div class="tso-nfl-prop-odds-pending">${esc(lineLabel)} · sportsbook odds pending</div>`;
+  }
+
+  const implied=impliedFromAmerican(price);
+  const impliedPct=implied==null?null:implied*100;
+  const edge=impliedPct==null?null:Number(ctx.prob)-impliedPct;
+  const edgeClass=edge!=null&&edge>=0?'pos':'neg';
+  const edgeText=edge==null?'—':`${edge>=0?'+':''}${edge.toFixed(1)} pts`;
+
+  return `<div class="tso-nfl-prop-odds-compact has-odds">
+    <div class="tso-nfl-prop-odds-main">
+      <span class="tso-nfl-prop-odds-market">${esc(lineLabel)} · ${esc(ctx.offer?.book||'Sportsbook')}</span>
+      <b class="tso-nfl-prop-odds-price">${esc(fmtAmericanPrice(price))}</b>
+    </div>
+    <div class="tso-nfl-prop-odds-meta">
+      <span>Book implied <b>${impliedPct==null?'—':impliedPct.toFixed(1)+'%'}</b></span>
+      <span>TSO edge <b class="tso-nfl-prop-odds-edge ${edgeClass}">${esc(edgeText)}</b></span>
+    </div>
+  </div>`;
 }
 
 function propVerdictHTML(r,ctx,name,edge,snapPct,rzOpps){
@@ -742,8 +897,14 @@ function enhanceModal(root){
     <div class="hdr">
       <div class="ava-reticle"><div class="ava">${headshot?`<img src="${esc(headshot)}" alt="${esc(name)}">`:`<span style="display:grid;place-items:center;height:100%;font:700 16px 'Oswald',sans-serif">${esc(name.split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</span>`}</div></div>
       <div class="who"><h2>${esc(name)} <span class="dq-badge sourced">Sourced</span><span class="tso-nfl-hdr-badges"><span class="tso-nfl-hdr-badge ${statClass}">${esc(depthLabel(r,pos))} · ${esc(status)}</span>${edge>=60?`<span class="tso-nfl-hdr-badge edge">TSO Signal ${edge}</span>`:''}</span></h2><div class="sub" id="tsoNflPropSub"></div><div class="hdr-stats" id="tsoNflHeaderStats"></div></div>
-      <div class="pill-row tso-nfl-prop-switch" id="tsoNflPropSwitch">${props.map((key,i)=>`<button class="pill ${i===0?'active':''}" data-nfl-modal-prop="${key}" title="${esc(NFL_PROP_META[key]?.label||key)}">${esc(NFL_PROP_META[key]?.button||key)}</button>`).join('')}</div>
-      <div class="tso-nfl-prop-odds-strip" id="tsoNflPropOdds"></div>
+      <div class="tso-nfl-prop-control">
+        <label class="tso-nfl-prop-control-label" for="tsoNflPropSelect">Player Prop</label>
+        <div class="tso-nfl-prop-select-wrap">
+          <select class="tso-nfl-prop-select" id="tsoNflPropSelect" aria-label="Select player prop">${props.map((key,i)=>`<option value="${key}"${i===0?' selected':''}>${esc(NFL_PROP_META[key]?.label||key)}</option>`).join('')}</select>
+          <span class="tso-nfl-prop-select-chevron" aria-hidden="true">▼</span>
+        </div>
+        <div class="tso-nfl-prop-odds-strip" id="tsoNflPropOdds"></div>
+      </div>
     </div>
     <div class="sec"><div id="tsoNflVerdict"></div><div class="tso-nfl-chart-host" id="tsoNflRecentChart"></div><div id="tsoNflSlipHost"></div></div>
     <div class="sec" id="tso-nfl-factors"></div>
@@ -752,12 +913,12 @@ function enhanceModal(root){
     <div class="sec"><div class="sec-h"><h3>Prop & Matchup Visuals</h3><span class="cap" id="tsoNflVisualCap"></span></div><div id="tsoNflVisuals"></div></div>
     <div class="sec"><div class="sec-h"><h3>Recent Opportunities</h3><span class="cap" id="tsoNflRecentCap"></span></div><div id="tsoNflRecentTable"></div></div>
     <div class="sec"><div class="sec-h"><h3>Why</h3></div><div id="tsoNflWhy"></div></div>
-    <div class="foot">Select a prop in the upper-right to re-key the entire modal. Sportsbook lines are used when available; otherwise the modal clearly identifies a TSO research line. Roster, depth, injury, snap history and completed-game production are source-backed.</div>
+    <div class="foot">Select a prop from the dropdown to re-key the entire modal. Sportsbook lines are used when available; otherwise the modal clearly identifies a TSO research line. Roster, depth, injury, snap history and completed-game production are source-backed.</div>
   </div>`;
 
   const renderSelectedProp=()=>{
     const ctx=propContext(r,selected,{atd,firstTd,edge});
-    modal.querySelectorAll('#tsoNflPropSwitch [data-nfl-modal-prop]').forEach(b=>b.classList.toggle('active',b.dataset.nflModalProp===selected));
+    const propSelect=modal.querySelector('#tsoNflPropSelect'); if(propSelect) propSelect.value=selected;
     const subEl=modal.querySelector('#tsoNflPropSub');
     if(subEl) subEl.innerHTML=`${esc(selectedPropLabel(ctx))} · vs ${esc(opp||'DEF')} · ${esc(team)} ${esc(pos)}${r.jersey?` #${esc(r.jersey)}`:''}`;
     const hs=propHeaderStats(r,ctx,snapPct,rzOpps);
@@ -778,9 +939,9 @@ function enhanceModal(root){
   };
 
   modal.querySelector('.modal-close')?.addEventListener('click',()=>oldClose?.click());
-  modal.querySelector('#tsoNflPropSwitch')?.addEventListener('click',e=>{
-    const btn=e.target.closest('[data-nfl-modal-prop]'); if(!btn) return;
-    selected=btn.dataset.nflModalProp||selected; renderSelectedProp();
+  modal.querySelector('#tsoNflPropSelect')?.addEventListener('change',e=>{
+    selected=e.currentTarget?.value||selected;
+    renderSelectedProp();
   });
   modal.querySelector('#tsoNflRecentChart')?.addEventListener('click',e=>{
     const rangeBtn=e.target.closest('[data-nfl-chart-range]');
