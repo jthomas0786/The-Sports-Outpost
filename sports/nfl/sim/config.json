@@ -6,7 +6,7 @@
   "league": {
     "playsPerTeam": 63.5,
     "homeFieldPoints": 1.5,
-    "defaultTotal": 44.0,
+    "defaultTotal": 44,
     "defaultPassRate": 0.575,
     "defensiveSpecialTeamsTdShare": 0.08,
     "fieldGoalPointShare": 0.25,
@@ -48,56 +48,56 @@
   },
   "fallback": {
     "QB": {
-      "attempts": 33.0,
+      "attempts": 33,
       "completions": 21.4,
-      "passYds": 235.0,
+      "passYds": 235,
       "passTds": 1.45,
       "carries": 4.2,
-      "rushYds": 23.0,
+      "rushYds": 23,
       "rushTds": 0.18
     },
     "RB": {
       "carries": 13.5,
       "targets": 3.5,
       "receptions": 2.7,
-      "rushYds": 58.0,
-      "recYds": 21.0,
+      "rushYds": 58,
+      "recYds": 21,
       "rushTds": 0.38,
       "recTds": 0.09
     },
     "WR": {
       "targets": 6.4,
       "receptions": 4.1,
-      "recYds": 52.0,
+      "recYds": 52,
       "recTds": 0.28,
       "carries": 0.3,
-      "rushYds": 2.0,
+      "rushYds": 2,
       "rushTds": 0.01
     },
     "TE": {
       "targets": 4.7,
       "receptions": 3.3,
-      "recYds": 36.0,
+      "recYds": 36,
       "recTds": 0.22,
       "carries": 0.05,
       "rushYds": 0.2,
-      "rushTds": 0.0
+      "rushTds": 0
     }
   },
   "depthRole": {
     "QB": [
-      1.0,
+      1,
       0.08,
       0.03
     ],
     "RB": [
-      1.0,
+      1,
       0.62,
       0.34,
       0.18
     ],
     "WR": [
-      1.0,
+      1,
       0.88,
       0.72,
       0.47,
@@ -105,7 +105,7 @@
       0.16
     ],
     "TE": [
-      1.0,
+      1,
       0.52,
       0.26,
       0.12
@@ -148,5 +148,16 @@
     "existingModelWeight": 0.3,
     "lineTolerance": 0.01,
     "note": "Initial v86 blend. Calibrate per market after enough completed-game results."
+  },
+  "orchestrationVersion": "v87.0.0",
+  "halftime": {
+    "candidateMinProbability": 0.53,
+    "candidateMinEdge": 0.02,
+    "maxOddsAgeSeconds": 600,
+    "maxCandidatesPerGame": 40,
+    "correlationCandidateLimit": 24,
+    "positiveLift": 0.015,
+    "conflictLift": -0.015,
+    "maxCandidateRetries": 3
   }
 }

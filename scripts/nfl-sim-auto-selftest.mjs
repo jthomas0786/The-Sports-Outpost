@@ -48,9 +48,49 @@ assert.equal(isHalftimeState(halftime),true);
 now=new Date('2026-09-09T22:05:00-04:00');
 let hd=decideAutomaticRun({game,research,odds,liveGame:halftime,config,now,existingResult:existing,previousState:state});
 assert.equal(hd.run,true);assert.equal(hd.phase,'halftime');assert.equal(hd.iterations,50000);
-state=nextAutomationState({previousState:state,decision:hd,result:{iterations:50000,generatedAt:now.toISOString(),game:{currentScore:{away:13,home:10}}},game,now});
-hd=decideAutomaticRun({game,research,odds,liveGame:halftime,config,now:new Date(now.getTime()+5*60000),existingResult:existing,previousState:state});
-assert.equal(hd.run,false);assert.match(hd.reason,/already complete/);
+// v87: an empty halftime candidate board must retry instead of permanently
+// marking halftime complete after the first 50K simulation.
+state=nextAutomationState({
+  previousState:state,
+  decision:hd,
+  result:{
+    iterations:50000,
+    generatedAt:now.toISOString(),
+    game:{currentScore:{away:13,home:10}},
+    automation:{halftimeCandidatesReady:false},
+  },
+  game,now
+});
+hd=decideAutomaticRun({
+  game,research,odds,liveGame:halftime,config,
+  now:new Date(now.getTime()+5*60000),
+  existingResult:existing,previousState:state
+});
+assert.equal(hd.run,true);
+assert.match(hd.reason,/halftime candidate retry/);
+assert.equal(hd.iterations,50000);
+
+// Once the live sportsbook candidate board is ready, the same halftime state
+// is complete and must NOT fire another 50K run.
+const retryNow=new Date(now.getTime()+5*60000);
+state=nextAutomationState({
+  previousState:state,
+  decision:hd,
+  result:{
+    iterations:50000,
+    generatedAt:retryNow.toISOString(),
+    game:{currentScore:{away:13,home:10}},
+    automation:{halftimeCandidatesReady:true},
+  },
+  game,now:retryNow
+});
+hd=decideAutomaticRun({
+  game,research,odds,liveGame:halftime,config,
+  now:new Date(retryNow.getTime()+5*60000),
+  existingResult:existing,previousState:state
+});
+assert.equal(hd.run,false);
+assert.match(hd.reason,/already complete/);
 
 const post={...halftime,status:'post',period:4,clockMin:0,statusDetail:'Final'};
 const pd=decideAutomaticRun({game,research,odds,liveGame:post,config,now:new Date('2026-09-10T00:00:00-04:00'),existingResult:existing,previousState:state});
@@ -58,5 +98,5 @@ assert.equal(pd.run,false);assert.equal(pd.phase,'post');
 
 console.log('✓ NFL automatic simulation scheduler self-test passed');
 console.log('  pregame checkpoints: 180m / 90m / 15m = 50,000 each');
-console.log('  halftime = 50,000 automatically');
+console.log('  halftime = 50,000 automatically; retries until candidate board is ready');
 console.log('  regular live refresh = 15,000 when state changes');

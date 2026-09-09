@@ -4,6 +4,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine.js';
 import { decideAutomaticRun, nextAutomationState } from '../sports/nfl/sim/auto.js';
+import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 
 const ROOT=process.cwd();
 const arg=(flag,fallback=null)=>{const i=process.argv.indexOf(flag);return i>=0&&process.argv[i+1]!=null?process.argv[i+1]:fallback};
@@ -16,6 +17,8 @@ const RESEARCH=path.resolve(ROOT,arg('--research','slates/nfl-research.json'));
 const ODDS=path.resolve(ROOT,arg('--odds','slates/nfl-odds.json'));
 const OUT=path.resolve(ROOT,arg('--out','slates/nfl-sim.json'));
 const STATE=path.resolve(ROOT,arg('--state','slates/nfl-sim-state.json'));
+const LIVE_ODDS=path.resolve(ROOT,arg('--live-odds','slates/nfl-live-odds.json'));
+const HALFTIME_OUT=path.resolve(ROOT,arg('--halftime-out','slates/nfl-halftime.json'));
 const CONFIG=path.resolve(ROOT,arg('--config','sports/nfl/sim/config.json'));
 const GAME=arg('--game',null);
 const LIVE_URL=arg('--live-url',process.env.NFL_LIVE_ENDPOINT||'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live');
@@ -49,9 +52,10 @@ function selectedGames(slate){
   });
 }
 
-const [slate,research,odds,config,existing,stateDoc,liveBoard]=await Promise.all([
+const [slate,research,odds,config,existing,stateDoc,liveBoard,liveOdds,halftimeExisting]=await Promise.all([
   read(SLATE,{games:[]}),read(RESEARCH,{players:[]}),read(ODDS,{games:[]}),read(CONFIG,null),
   read(OUT,{schemaVersion:2,games:[]}),read(STATE,{schemaVersion:1,games:{}}),fetchLive(),
+  read(LIVE_ODDS,{meta:null,games:[]}),read(HALFTIME_OUT,{schemaVersion:1,games:[]}),
 ]);
 if(!config) throw new Error(`NFL sim config missing: ${CONFIG}`);
 if(config.automatic?.enabled===false && !FORCE){console.log('NFL automatic simulation is disabled in config.');process.exit(0);}
@@ -64,6 +68,8 @@ const weekChanged=previousWeekKey!==weekKey;
 if(weekChanged) console.log(`↻ NFL simulation weekly rollover: ${previousWeekKey||"unkeyed"} → ${weekKey}`);
 const existingById=new Map((weekChanged?[]:(existing?.games||[])).map(r=>[String(r?.game?.gameId||''),r]));
 const stateGames=weekChanged?{}:{...(stateDoc?.games||{})};
+const halftimeById=new Map((weekChanged?[]:(halftimeExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
+let halftimeTouched=false;
 let runs=0,totalIterations=0;
 const touched=[];
 
@@ -83,11 +89,21 @@ for(const game of games){
     touched.push({gameId,pair,decision});
     continue;
   }
-  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:false});
+  const needHalftimeSamples=decision.phase==='halftime';
+  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples});
+  let halftimeBoard=null;
+  if(needHalftimeSamples){
+    halftimeBoard=buildHalftimeBoard({result:raw,game,liveGame,liveOdds,config,generatedAt:NOW.toISOString()});
+    halftimeById.set(gameId,halftimeBoard);
+    halftimeTouched=true;
+    console.log(`  ↳ halftime board: ${halftimeBoard.candidates.length} eligible candidate(s), ready=${halftimeBoard.ready}`);
+  }
   const result=stripPrivateSamples(raw);
   result.automation={
     automatic:true,phase:decision.phase,reason:decision.reason,checkpointMinutes:decision.checkpointMinutes??null,
     inputFingerprint:decision.fingerprint,runAt:NOW.toISOString(),probabilityBlend:config.probabilityBlend||null,
+    halftimeCandidatesReady:halftimeBoard?.ready??null,
+    halftimeCandidateCount:halftimeBoard?.candidates?.length??null,
   };
   existingById.set(gameId,result);
   stateGames[gameId]=nextAutomationState({previousState:prev,decision,result,game,now:NOW});
@@ -124,8 +140,17 @@ const payload={
   gameCount:merged.length,games:merged,
 };
 const nextState={schemaVersion:2,engineVersion:config.engineVersion,weekKey,updatedAt:NOW.toISOString(),games:stateGames};
+const halftimeGames=[...halftimeById.values()].filter(x=>slateIds.has(String(x?.gameId||'')));
+const halftimePayload={
+  schemaVersion:1,orchestrationVersion:'v87.0.0',engineVersion:config.engineVersion,weekKey,
+  generatedAt:NOW.toISOString(),gameCount:halftimeGames.length,games:halftimeGames,
+};
 await fs.mkdir(path.dirname(OUT),{recursive:true});
 await fs.mkdir(path.dirname(STATE),{recursive:true});
 await fs.writeFile(OUT,JSON.stringify(payload,null,2)+'\n');
 await fs.writeFile(STATE,JSON.stringify(nextState,null,2)+'\n');
-console.log(`✓ wrote ${path.relative(ROOT,OUT)} + ${path.relative(ROOT,STATE)} — ${runs} run(s), ${totalIterations.toLocaleString()} simulations`);
+if(halftimeTouched||weekChanged){
+  await fs.mkdir(path.dirname(HALFTIME_OUT),{recursive:true});
+  await fs.writeFile(HALFTIME_OUT,JSON.stringify(halftimePayload,null,2)+'\n');
+}
+console.log(`✓ wrote ${path.relative(ROOT,OUT)} + ${path.relative(ROOT,STATE)}${halftimeTouched?' + '+path.relative(ROOT,HALFTIME_OUT):''} — ${runs} run(s), ${totalIterations.toLocaleString()} simulations`);

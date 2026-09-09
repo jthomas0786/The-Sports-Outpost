@@ -147,8 +147,11 @@ export function decideAutomaticRun({
 
   if(phase==='halftime'){
     const already=prev.halftimeFingerprint===fingerprint;
-    if(already) return {run:false,phase,reason:'halftime 50K already complete',fingerprint,iterations:0,ready};
-    return {run:true,phase,reason:'halftime',fingerprint,iterations:halftimeIterations,checkpointMinutes:null,ready};
+    if(already) return {run:false,phase,reason:'halftime 50K + candidate board already complete',fingerprint,iterations:0,ready};
+    const attempts=Number(prev.halftimeCandidateAttempts||0);
+    const maxAttempts=Number(config?.halftime?.maxCandidateRetries??3);
+    if(attempts>=maxAttempts) return {run:false,phase,reason:'halftime candidate retries exhausted',fingerprint,iterations:0,ready};
+    return {run:true,phase,reason:attempts?('halftime candidate retry '+(attempts+1)):'halftime',fingerprint,iterations:halftimeIterations,checkpointMinutes:null,ready};
   }
 
   if(phase==='live'){
@@ -195,7 +198,13 @@ export function nextAutomationState({previousState=null,decision,result,game,now
   if(decision.checkpointMinutes!=null) out.checkpoints[String(decision.checkpointMinutes)]=stamp;
   if(decision.phase==='halftime'){
     out.halftimeRunAt=stamp;
-    out.halftimeFingerprint=decision.fingerprint;
+    out.halftimeCandidateAttempts=Number(prev.halftimeCandidateAttempts||0)+1;
+    out.halftimeCandidatesReady=result?.automation?.halftimeCandidatesReady===true;
+    if(out.halftimeCandidatesReady){
+      out.halftimeFingerprint=decision.fingerprint;
+    }else{
+      delete out.halftimeFingerprint;
+    }
     out.halftimeGameStateKey=`${result?.game?.currentScore?.away??''}-${result?.game?.currentScore?.home??''}`;
   }
   return out;

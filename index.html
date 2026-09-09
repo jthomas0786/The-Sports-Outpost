@@ -15180,6 +15180,32 @@ function betslipText(){
   return head + legs.join(', ') + '.';
 }
 
+// v87 — exact two-stage Gambly UX.
+// State is keyed to the actual TSO slip, so adding/removing a leg automatically
+// invalidates an older generated Gambly URL.
+const GAMBLY_GENERATED_SLIP_KEY='tso_gambly_generated_slip_v1';
+function gamblySlipFingerprint(){
+  const raw=betslip.map(l=>[l.sport||'',l.game||'',l.player||'',l.market||'',l.side||'over',l.line??''].join('|')).join('||');
+  let h=2166136261;
+  for(let i=0;i<raw.length;i++){ h^=raw.charCodeAt(i); h=Math.imul(h,16777619); }
+  return (h>>>0).toString(16).padStart(8,'0');
+}
+function currentGeneratedGamblySlip(){
+  try{
+    const x=JSON.parse(localStorage.getItem(GAMBLY_GENERATED_SLIP_KEY)||'null');
+    if(!x?.shareUrl||x.fingerprint!==gamblySlipFingerprint()) return null;
+    const u=new URL(x.shareUrl);
+    if(!/(^|\.)gambly\.com$/i.test(u.hostname)||!/^\/share-bet\//.test(u.pathname)) return null;
+    return x;
+  }catch{return null}
+}
+function saveGeneratedGamblySlip(shareUrl){
+  const rec={fingerprint:gamblySlipFingerprint(),shareUrl,generatedAt:new Date().toISOString()};
+  localStorage.setItem(GAMBLY_GENERATED_SLIP_KEY,JSON.stringify(rec));
+  return rec;
+}
+function clearGeneratedGamblySlip(){ try{localStorage.removeItem(GAMBLY_GENERATED_SLIP_KEY)}catch{} }
+
 let ccObservedBetslipBar = null;
 const ccBetslipResizeObserver = typeof ResizeObserver === 'function'
   ? new ResizeObserver(() => updateCommandCenterBetslipOffset())
@@ -15205,6 +15231,7 @@ function renderBetslipBar(){
     document.body.appendChild(bar);
   }
   const priced = betslip.filter(l => l.link).length;
+  const gamblyGenerated = currentGeneratedGamblySlip();
   const legs = betslip.map((l,i) => `
     <div class="bs-leg">
       <span class="bs-leg-txt">${legToText(l)}</span>
@@ -15220,14 +15247,12 @@ function renderBetslipBar(){
     </div>
     <div class="bs-body ${betslipOpen?'open':''}">
       <div class="bs-legs">${legs}</div>
-      <div class="bs-note" id="bsNote">${priced === betslip.length && priced > 0
-        ? 'Every leg has a live line — this opens the betslip already loaded.'
-        : priced > 0
-          ? `${priced} of ${betslip.length} legs have live lines; the rest will be skipped.`
-          : 'No standard sportsbook lines are posted for these selections yet. TSO point wagers can still use the model probability.'}</div>
+      <div class="bs-note" id="bsNote">${gamblyGenerated
+        ? 'Gambly slip is ready. Tap Place Bet, then choose your sportsbook on Gambly.'
+        : 'Generate the full TSO slip on Gambly. Once Gambly returns a share-bet, this button becomes Place Bet.'}</div>
       <div class="bs-actions">
-        <button class="bs-btn primary" id="bsBuild">${priced ? 'Place bet' : 'Send picks'}</button>
-        <button class="bs-btn" id="bsText">Text GamblyBot</button>
+        <button class="bs-btn primary" id="bsBuild">${gamblyGenerated ? 'Place Bet' : 'Generate on Gambly'}</button>
+        <button class="bs-btn" id="bsText">GamblyBot Fallback</button>
         <button class="bs-btn wager" id="bsWager">Wager Points</button>
         <button class="bs-btn ghost" id="bsClear">Clear</button>
       </div>
@@ -15256,39 +15281,41 @@ function renderBetslipBar(){
    */
   const buildBtn = document.getElementById('bsBuild');
   if(buildBtn) buildBtn.onclick = async () => {
-    const note = document.getElementById('bsNote');
-    const withLinks = betslip.filter(l => l.link);
-    const noLinks   = betslip.filter(l => !l.link);
-
-    if(withLinks.length){
-      // Open the first immediately — inside the click handler, so it is never
-      // treated as an unsolicited popup. Stagger the rest slightly.
-      window.open(withLinks[0].link, '_blank', 'noopener');
-      withLinks.slice(1).forEach((l, i) => setTimeout(() => window.open(l.link, '_blank', 'noopener'), (i + 1) * 350));
-
-      buildBtn.textContent = withLinks.length > 1 ? `Opening ${withLinks.length} legs…` : 'Opened ✓';
-      setTimeout(()=>{ buildBtn.textContent = 'Place bet'; }, 2600);
-
-      if(note){
-        note.textContent = withLinks.length > 1
-          ? `${withLinks.length} tabs opened — each leg loads into the same betslip at ${withLinks[0].book}. Allow popups if some are blocked.`
-          : `Loaded at ${withLinks[0].book}. Review the stake and confirm.`;
-        if(noLinks.length) note.textContent += ` ${noLinks.length} leg(s) had no market and were skipped.`;
-      }
+    const note=document.getElementById('bsNote');
+    const ready=currentGeneratedGamblySlip();
+    if(ready){
+      window.open(ready.shareUrl,'_blank','noopener');
+      if(note) note.textContent='Gambly slip opened. Choose the sportsbook you want on Gambly.';
       return;
     }
 
-    // Nothing priced: fall back to the text handoff.
-    const txt = betslipText();
-    let copied = false;
-    try{ await navigator.clipboard.writeText(txt); copied = true; }catch{}
-    const win = window.open('https://gambly.com/chat?q=' + encodeURIComponent(txt), '_blank', 'noopener');
+    buildBtn.disabled=true;
+    buildBtn.textContent='Generating Gambly slip…';
+    if(note) note.textContent='Sending this TSO slip to Gambly…';
+
+    const bridge=window.DW_SOCIAL;
+    if(!bridge?.generateGamblySlip){
+      buildBtn.disabled=false;
+      buildBtn.textContent='Generate on Gambly';
+      if(note) note.textContent='TSO Gambly bridge is still loading. Try again in a moment.';
+      return;
+    }
+
+    const res=await bridge.generateGamblySlip(betslip,betslipText());
+    if(res?.ok&&res.shareUrl){
+      saveGeneratedGamblySlip(res.shareUrl);
+      buildBtn.disabled=false;
+      buildBtn.textContent='Place Bet';
+      if(note) note.textContent='Gambly slip generated ✓ Tap Place Bet, then choose your sportsbook on Gambly.';
+      return;
+    }
+
+    buildBtn.disabled=false;
+    buildBtn.textContent='Generate on Gambly';
     if(note){
-      note.innerHTML = win
-        ? 'No live prices in this slate yet, so these picks were sent as text.' +
-          (copied ? ' They are also on your clipboard — paste if the box is empty.' : '') +
-          '<br><span style="color:var(--warm)">Run fetch-odds.js to enable one-tap betslips.</span>'
-        : '<b style="color:var(--hot)">Popup blocked.</b> Allow popups for this site.';
+      note.textContent=res?.code==='GAMBLY_PARTNER_API_NOT_CONFIGURED'
+        ? 'Direct Gambly generation is wired in TSO but needs Gambly partner API access before it can create the share-bet automatically. GamblyBot Fallback remains available.'
+        : (res?.error||'Gambly could not generate this slip. Try again or use GamblyBot Fallback.');
     }
   };
 
@@ -15299,7 +15326,7 @@ function renderBetslipBar(){
   };
 
   const clearBtn = document.getElementById('bsClear');
-  if(clearBtn) clearBtn.onclick = () => { betslip = []; saveBetslip(); renderBetslipBar(); syncAddButtons(); };
+  if(clearBtn) clearBtn.onclick = () => { betslip = []; clearGeneratedGamblySlip(); saveBetslip(); renderBetslipBar(); syncAddButtons(); };
 
   const wagerBtn = document.getElementById('bsWager');
   if(wagerBtn) wagerBtn.onclick = () => openWagerPanel();

@@ -9,7 +9,9 @@
     "nfl:sim": "node scripts/nfl-simulate.mjs",
     "nfl:sim:test": "node scripts/nfl-sim-selftest.mjs && node scripts/nfl-sim-auto-selftest.mjs",
     "nfl:sim:auto": "node scripts/nfl-sim-auto.mjs",
-    "nfl:sim:auto:test": "node scripts/nfl-sim-auto-selftest.mjs"
+    "nfl:sim:auto:test": "node scripts/nfl-sim-auto-selftest.mjs",
+    "nfl:halftime:odds": "node scripts/nfl-halftime-odds-refresh.mjs",
+    "nfl:v87:test": "node scripts/nfl-v87-selftest.mjs && npm run nfl:sim:test"
   },
   "engines": {
     "node": ">=18"

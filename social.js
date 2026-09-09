@@ -1137,6 +1137,33 @@ async function publishPick(pick){
 }
 
 
+// ---------------------------------------------------------------- Gambly direct-slip bridge
+/**
+ * Generate a Gambly share-bet through TSO's server-side adapter.
+ *
+ * The adapter intentionally fails closed until Gambly provides an approved
+ * partner/API endpoint. No private/undocumented Gambly endpoint is embedded in
+ * browser code and no partner token is exposed to the client.
+ */
+async function generateGamblySlip(legs, text){
+  if(!socialReady) return { error: 'TSO connection is still loading — try again in a moment.' };
+  if(!Array.isArray(legs)||!legs.length) return { error: 'Add at least one pick first.' };
+  const bodyText=String(text||'').trim();
+  if(!bodyText) return { error: 'Betslip text is empty.' };
+  try{
+    const { data, error } = await sb.functions.invoke('gambly-slip', { body: { legs, text: bodyText } });
+    if(error){
+      const detail=await error.context?.json?.().catch(()=>null);
+      return { error: detail?.error||error.message, code: detail?.code||null };
+    }
+    if(data?.error) return { error:data.error, code:data.code||null };
+    if(!data?.shareUrl) return { error:'Gambly did not return a share-bet URL.', code:'GAMBLY_BAD_RESPONSE' };
+    return { ok:true, shareUrl:data.shareUrl };
+  }catch(e){
+    return { error:e?.message||'Could not generate the Gambly slip.' };
+  }
+}
+
 // ---------------------------------------------------------------- exports
 export {
   initSocial, socialEnabled,
@@ -1150,7 +1177,7 @@ export {
   loadNotifications, markAllNotificationsRead, selfNotify, subscribeNotifications,
   getWatchlist, addToWatchlist, removeFromWatchlist,
   savePushSubscription, removePushSubscription,
-  loadBalance, placeWager, loadWagers, checkIn, loadWagerConfig,
+  loadBalance, placeWager, loadWagers, checkIn, loadWagerConfig, generateGamblySlip,
   adminLookupUser, adminAdjustPoints, adminAdjustPointsAll, adminWagerReport, adminListUsernames,
   joinPresence, getOnlineUsers,
   getProfile, updateProfile, isFollowing,

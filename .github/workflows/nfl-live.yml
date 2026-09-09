@@ -36,7 +36,13 @@ jobs:
       - name: Build NFL live fallback snapshot
         run: node scripts/nfl-live-poller.mjs
 
-      - name: Run v86 automatic NFL simulation gate
+      - name: Refresh v87 halftime sportsbook props when needed
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+        run: node scripts/nfl-halftime-odds-refresh.mjs
+
+      - name: Run v87 automatic NFL simulation / halftime candidate gate
         env:
           NFL_SIM_FORCE: ${{ inputs.force_sim == true && '1' || '0' }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
@@ -57,6 +63,22 @@ jobs:
           console.log(`✓ v86 simulation cache: ${sim.gameCount||0} game(s)`);
           NODE
 
+      - name: Validate v87 halftime candidate board when present
+        run: |
+          if [ ! -f slates/nfl-halftime.json ]; then
+            echo "No halftime candidate board yet."
+            exit 0
+          fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const h=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
+          if(h.orchestrationVersion!=='v87.0.0') throw new Error('unexpected halftime orchestration version');
+          for(const g of h.games||[]){
+            if(g.iterations!==50000) throw new Error('halftime board is not based on 50K simulations');
+          }
+          console.log(`✓ v87 halftime board: ${h.gameCount||0} game(s)`);
+          NODE
+
       - name: Commit live/simulation outputs only when changed
         run: |
           git config user.name "TSO NFL Live Bot"
@@ -64,6 +86,8 @@ jobs:
           [ -e slates/nfl-live.json ] && git add slates/nfl-live.json || true
           [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
           [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
+          [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
+          [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
           git diff --staged --quiet && echo "No NFL live/simulation change to publish." && exit 0
           git commit -m "Update NFL live and simulation state"
           for attempt in 1 2 3 4 5; do
