@@ -1,0 +1,108 @@
+{
+  "engineVersion": "v85.0.0",
+  "defaultIterations": 25000,
+  "liveIterations": 15000,
+  "maxIterations": 100000,
+  "league": {
+    "playsPerTeam": 63.5,
+    "homeFieldPoints": 1.5,
+    "defaultTotal": 44.0,
+    "defaultPassRate": 0.575,
+    "defensiveSpecialTeamsTdShare": 0.08,
+    "fieldGoalPointShare": 0.25,
+    "touchdownPointShare": 0.68,
+    "interceptionRatePerAttempt": 0.025,
+    "paceVolatility": 0.09,
+    "offenseVolatility": 0.18,
+    "yardageVolatility": 0.16,
+    "scriptPassRatePerPoint": 0.0045,
+    "maxScriptPassRateAdjustment": 0.12
+  },
+  "blend": {
+    "currentSeason": 0.50,
+    "last5": 0.30,
+    "previousSeason": 0.20,
+    "noCurrentLast5": 0.45,
+    "noCurrentPrevious": 0.55,
+    "matchupWeight": 0.20,
+    "snapTrendWeight": 0.18,
+    "marketAnchorWeightPregame": 0.78,
+    "marketAnchorWeightLive": 0.70,
+    "observedScoringWeightLive": 0.30
+  },
+  "clamps": {
+    "matchupFactorMin": 0.88,
+    "matchupFactorMax": 1.12,
+    "snapFactorMin": 0.82,
+    "snapFactorMax": 1.18,
+    "passRateMin": 0.38,
+    "passRateMax": 0.78,
+    "completionRateMin": 0.48,
+    "completionRateMax": 0.78,
+    "yardsPerAttemptMin": 4.5,
+    "yardsPerAttemptMax": 10.5,
+    "yardsPerCarryMin": 2.5,
+    "yardsPerCarryMax": 7.5,
+    "catchRateMin": 0.35,
+    "catchRateMax": 0.90
+  },
+  "fallback": {
+    "QB": {
+      "attempts": 33.0,
+      "completions": 21.4,
+      "passYds": 235.0,
+      "passTds": 1.45,
+      "carries": 4.2,
+      "rushYds": 23.0,
+      "rushTds": 0.18
+    },
+    "RB": {
+      "carries": 13.5,
+      "targets": 3.5,
+      "receptions": 2.7,
+      "rushYds": 58.0,
+      "recYds": 21.0,
+      "rushTds": 0.38,
+      "recTds": 0.09
+    },
+    "WR": {
+      "targets": 6.4,
+      "receptions": 4.1,
+      "recYds": 52.0,
+      "recTds": 0.28,
+      "carries": 0.3,
+      "rushYds": 2.0,
+      "rushTds": 0.01
+    },
+    "TE": {
+      "targets": 4.7,
+      "receptions": 3.3,
+      "recYds": 36.0,
+      "recTds": 0.22,
+      "carries": 0.05,
+      "rushYds": 0.2,
+      "rushTds": 0.0
+    }
+  },
+  "depthRole": {
+    "QB": [1.0, 0.08, 0.03],
+    "RB": [1.0, 0.62, 0.34, 0.18],
+    "WR": [1.0, 0.88, 0.72, 0.47, 0.28, 0.16],
+    "TE": [1.0, 0.52, 0.26, 0.12]
+  },
+  "trackedStats": [
+    "passYds",
+    "completions",
+    "attempts",
+    "passTds",
+    "interceptions",
+    "rushYds",
+    "carries",
+    "rushTds",
+    "recYds",
+    "receptions",
+    "targets",
+    "recTds",
+    "tds"
+  ]
+}
