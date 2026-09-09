@@ -1,4 +1,5 @@
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
+import { ensureHalftimeLabStyles, halftimeBannerHTML, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -21,6 +22,7 @@ const state = {
   research: null,
   odds: null,
   sim: null,
+  halftime: null,
   allSort: 'edge',
   gamecastTab: 'game',
   inlineTabs: {},
@@ -637,13 +639,14 @@ async function loadData(){
     const r = await fetch('./slates/nfl.json',{cache:'no-cache'});
     if(!r.ok) throw new Error('NFL slate unavailable');
     const d = await r.json();
-    let research=null,odds=null,sim=null;
+    let research=null,odds=null,sim=null,halftime=null;
     await Promise.all([
       (async()=>{try{const rr=await fetch('./slates/nfl-research.json',{cache:'no-cache'});if(rr.ok)research=await rr.json();}catch(_e){}})(),
       (async()=>{try{const or=await fetch('./slates/nfl-odds.json',{cache:'no-cache'});if(or.ok){const candidate=await or.json();if(candidate?.meta?.sample===false)odds=candidate;}}catch(_e){}})(),
       (async()=>{try{const sr=await fetch('./slates/nfl-sim.json',{cache:'no-cache'});if(sr.ok){const candidate=await sr.json();if(Array.isArray(candidate?.games)&&String(candidate?.engineVersion||'').startsWith('v86'))sim=candidate;}}catch(_e){}})(),
+      (async()=>{try{const hr=await fetch('./slates/nfl-halftime.json',{cache:'no-cache'});if(hr.ok){const candidate=await hr.json();if(Array.isArray(candidate?.games))halftime=candidate;}}catch(_e){}})(),
     ]);
-    state.research=research; state.odds=odds; state.sim=sim;
+    state.research=research; state.odds=odds; state.sim=sim; state.halftime=halftime;
     const researchIdx=buildResearchIndexes(research);
     const oddsIdx=buildPreviewOddsIndex(odds);
     const simIdx=buildPreviewSimIndex(sim);
@@ -1103,7 +1106,7 @@ function liveHTML(){
   const live=[...realLive,...(qaTest?[qaTest]:[])];
   const next=data().games.filter(g=>g.status==='pre').sort((a,b)=>new Date(a.startTimeUTC||0)-new Date(b.startTimeUTC||0))[0]||null;
   const rail=live.length?live.map(nflLivePreviewHTML).join(''):`<div class="nfl-live-empty"><b>No NFL game is live right now.</b><span>${next?`Next: ${esc(next.away.name)} at ${esc(next.home.name)} · ${esc(next.time||'TBD')}`:'The next live matchup will appear here automatically.'}</span></div>`;
-  return `<div class="nfl-live-page"><div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} game${realLive.length===1?'':'s'} in progress`:'Waiting for kickoff'}</span></div><div class="nfl-live-rail">${rail}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any matchup for the full live Gamecast, Box Score and Play by Play.':'This page switches to live automatically when the game begins.'}${qaTest?' · QA test mode is enabled.':''}</div></div></div>`;
+  return `<div class="nfl-live-page">${halftimeBannerHTML(state.halftime)}<div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} game${realLive.length===1?'':'s'} in progress`:'Waiting for kickoff'}</span></div><div class="nfl-live-rail">${rail}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any matchup for the full live Gamecast, Box Score and Play by Play.':'This page switches to live automatically when the game begins.'}${qaTest?' · QA test mode is enabled.':''}</div></div></div>`;
 }
 
 
@@ -1692,7 +1695,7 @@ function render(){
   document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>btn.classList.toggle('is-active', btn.dataset.nflTab===state.tab));
   root.style.setProperty('--ms-accent','#f59e0b'); root.style.setProperty('--ms-accent2','#fbbf24');
   const p=state.player?data().players.find(x=>String(x.id)===String(state.player)):null;
-  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Simulation + Live Engine.</b> v86 blends the existing TSO model/research lean with the latest correlated Monte Carlo result when the sportsbook line matches the simulated line. Automatic 50K runs publish at key pregame checkpoints and halftime; live state continues through the low-latency NFL endpoint. Route/player tracking remains illustrative.</footer>`;
+  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Simulation + Live Engine.</b> v88 blends the existing TSO model/research lean with the latest correlated Monte Carlo result when the sportsbook line matches the simulated line. Automatic 50K runs publish at key pregame checkpoints and halftime; live state continues through the low-latency NFL endpoint. Route/player tracking remains illustrative.</footer>`;
   wire(root);
   fitNflGamecastConcept(root);
   if(state.tab==='foryou') window.renderForYou?.(root.querySelector('#nflForYouHost'));
@@ -1700,6 +1703,7 @@ function render(){
 }
 
 function wire(root){
+  root.querySelectorAll('[data-nfl-halftime-open]').forEach(b=>b.addEventListener('click',()=>openHalftimeParlayLab({halftimeDoc:state.halftime})));
   root.querySelector('#nflPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value;if(state.prop==='allPlayers')state.propView='board';render();});
   root.querySelector('#nflMlbPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value||'atd';state.propView='board';render();});
   root.querySelectorAll('[data-nfl-prop-key]').forEach(b=>b.addEventListener('click',()=>{state.prop=b.dataset.nflPropKey||'atd';state.propView='board';render();}));
@@ -1742,4 +1746,12 @@ function bindLegacyNflNav(){
   });
 }
 
-export async function mount(){ ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); await loadData(); bindLegacyNflNav(); render(); }
+export async function mount(){
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles();
+  await loadData(); bindLegacyNflNav();
+  startHalftimeBoardPolling(doc=>{
+    state.halftime=doc;
+    if(state.tab==='live'&&!state.game) requestAnimationFrame(()=>render());
+  });
+  render();
+}

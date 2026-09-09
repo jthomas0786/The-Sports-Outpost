@@ -15168,7 +15168,12 @@ function legToText(l){
   if(l.kind === 'firstinning'){
     return `${l.game} first inning ${l.side} ${l.line} runs`;
   }
-  return `${l.player} ${l.market} over ${l.line}`;
+  const market=String(l.market||'').trim();
+  const side=String(l.side||'over').toLowerCase();
+  if(/^(atd|anytime td|anytime touchdown)$/i.test(market)){
+    return `${l.player} anytime touchdown`;
+  }
+  return `${l.player} ${market} ${side} ${l.line}`;
 }
 
 function betslipText(){
@@ -15253,7 +15258,9 @@ function renderBetslipBar(){
       <div class="bs-actions">
         <button class="bs-btn primary" id="bsBuild">${gamblyGenerated ? 'Place Bet' : 'Generate on Gambly'}</button>
         <button class="bs-btn" id="bsText">GamblyBot Fallback</button>
-        <button class="bs-btn wager" id="bsWager">Wager Points</button>
+        ${betslip.some(l=>l?.point_wager_eligible===false)
+          ? '<button class="bs-btn wager" id="bsWager" disabled title="Live halftime props are sportsbook-only">Points unavailable for live props</button>'
+          : '<button class="bs-btn wager" id="bsWager">Wager Points</button>'}
         <button class="bs-btn ghost" id="bsClear">Clear</button>
       </div>
       <div class="bs-wager-panel" id="bsWagerPanel" style="display:none;"></div>

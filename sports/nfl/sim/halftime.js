@@ -81,6 +81,14 @@ function pairJoint(a,b,n){
   for(let i=0;i<n;i++) if(a[i]&&b[i]) hits++;
   return hits/n;
 }
+function packMaskBase64(mask,n){
+  // 50,000 worlds -> 6,250 bytes/candidate before base64. This is the minimum
+  // derived data v88 needs to evaluate arbitrary user parlays exactly without
+  // publishing the private per-player stat arrays.
+  const bytes=new Uint8Array(Math.ceil(n/8));
+  for(let i=0;i<n;i++) if(mask[i]) bytes[i>>3]|=1<<(i&7);
+  return Buffer.from(bytes).toString('base64');
+}
 function longshotValue(c){
   const plus=Math.max(0,Number(c.price)||0);
   const payoutBoost=plus>0?Math.min(2,plus/250):0;
@@ -102,7 +110,7 @@ export function buildHalftimeBoard({result,game,liveGame,liveOdds,config,generat
 
   const base={
     schemaVersion:1,
-    orchestrationVersion:'v87.0.0',
+    orchestrationVersion:'v88.0.0',
     generatedAt,
     gameId,
     matchup:`${game?.away?.abbr||result?.game?.away?.abbr||'AWY'} @ ${game?.home?.abbr||result?.game?.home?.abbr||'HME'}`,
@@ -164,7 +172,7 @@ export function buildHalftimeBoard({result,game,liveGame,liveOdds,config,generat
         const id=candidateId(gameId,p,market,side,line);
         const c={
           id,gameId,playerId:String(p.playerId||''),espnId:p.espnId||null,name:p.name,team:p.team,position:p.position,
-          market,side:side==='atd'?'over':side,line,book:offer?.book||null,price,
+          market,side:side==='atd'?'over':side,line,book:offer?.book||null,price,link:offer?.link||null,
           oddsAgeSeconds:age,
           simProbability:round(sim,4),
           bookFairProbability:round(fair,4),
@@ -184,11 +192,18 @@ export function buildHalftimeBoard({result,game,liveGame,liveOdds,config,generat
   const candidates=all.slice(0,maxCandidates);
   const byId=new Map(candidates.map(c=>[c.id,c]));
   const masks=new Map();
-  const corrPool=candidates.slice(0,corrLimit);
-  for(const c of corrPool){
+  // v88 stores ONLY packed candidate hit/miss worlds, never the raw private
+  // simulated stat arrays. Browser optimizer can therefore calculate exact
+  // same-world joint probability for any 2–6 leg combination instantly.
+  for(const c of candidates){
     const rec=samples.players.get(String(c.playerId));
-    if(rec) masks.set(c.id,legMask(samples,rec,c));
+    if(!rec) continue;
+    const mask=legMask(samples,rec,c);
+    masks.set(c.id,mask);
+    c.worldMaskB64=packMaskBase64(mask,samples.iterations);
+    c.worldMaskIterations=samples.iterations;
   }
+  const corrPool=candidates.slice(0,corrLimit);
   const positive=[],conflicts=[];
   let neutralCount=0,pairCount=0;
   for(let i=0;i<corrPool.length;i++){
