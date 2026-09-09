@@ -35,9 +35,9 @@ const NFL_GAMECAST_CANVAS_W = 1448;
 const NFL_GAMECAST_CANVAS_H = 1086;
 let _nflGamecastResizeObserver = null;
 function ensureNflGamecastConceptStyles(){
-  if(document.getElementById('nfl-gamecast-concept-v76')) return;
+  if(document.getElementById('nfl-gamecast-concept-v77')) return;
   const style=document.createElement('style');
-  style.id='nfl-gamecast-concept-v76';
+  style.id='nfl-gamecast-concept-v77';
   style.textContent=`
   #nflView .nxg-wrap.nxg-concept{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;color:#dcecff!important;overflow:visible!important}
   #nflView .nxg-concept-viewport{position:relative;width:100%;min-width:0;overflow:hidden;background:#020a18;border-radius:0}
@@ -153,6 +153,21 @@ function ensureNflGamecastConceptStyles(){
     #nflView .nxg-concept .nxg-overlay-stack.left{transform:scale(1.28)!important;transform-origin:top left!important}
     #nflView .nxg-concept .nxg-overlay-stack.right{transform:scale(1.28)!important;transform-origin:top right!important}
   }
+
+  /* v77 — crop NFL player headshots tighter so they match the MLB-style zoom. */
+  #nflView .ms-avatar,
+  #nflView .nfl-match-leader-avatar,
+  #nflView .nfl-slate-player-head,
+  #nflView .nxg-avatar,
+  #nflView .nxg-overlay-watch-avatar{overflow:hidden!important}
+  #nflView .ms-avatar img,
+  #nflView .nfl-match-leader-avatar img,
+  #nflView .nfl-slate-player-head img,
+  #nflView .nxg-overlay-watch-avatar img,
+  #nflView .nxg-watch .nxg-avatar img,
+  #nflView .nxg-targetrow .nxg-avatar img,
+  #nflView .nxg-profile .nxg-avatar:not(.nxg-team-avatar) img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center 18%!important;transform:scale(1.18)!important;transform-origin:center 24%!important}
+  #nflView .ms-avatar.big img{transform:scale(1.22)!important;transform-origin:center 22%!important}
 `;
   document.head.appendChild(style);
 }
