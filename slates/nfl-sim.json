@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "engineVersion": "v86.0.0",
-  "generatedAt": "2026-09-09T13:39:49.441Z",
+  "generatedAt": "2026-09-09T17:16:54.480Z",
   "meta": {
     "automatic": true,
     "pollMinutes": 5,
@@ -24,7 +24,7 @@
       "games": 1,
       "totalIterations": 50000,
       "reasonCounts": {
-        "initial ready": 1
+        "material input change": 1
       }
     }
   },
@@ -39,7 +39,7 @@
     {
       "schemaVersion": 1,
       "engineVersion": "v86.0.0",
-      "generatedAt": "2026-09-09T13:40:03.539Z",
+      "generatedAt": "2026-09-09T17:17:10.919Z",
       "game": {
         "gameId": "401872656",
         "away": {
@@ -439,19 +439,28 @@
           },
           "sportsbook": {
             "over": {
+              "recYds": {
+                "line": 19.5,
+                "probability": 0.3647
+              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.0742
               }
             },
             "under": {
+              "recYds": {
+                "line": 19.5,
+                "probability": 0.6353
+              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.9258
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -1131,28 +1140,19 @@
           },
           "sportsbook": {
             "over": {
-              "rushYds": {
-                "line": 49.5,
-                "probability": 0.1591
-              },
               "receptions": {
                 "line": 1.5,
                 "probability": 0.379
               }
             },
             "under": {
-              "rushYds": {
-                "line": 49.5,
-                "probability": 0.8409
-              },
               "receptions": {
                 "line": 1.5,
                 "probability": 0.621
               }
             },
             "markets": [
-              "receptions",
-              "rushYds"
+              "receptions"
             ]
           }
         },
@@ -1336,8 +1336,8 @@
               }
             },
             "markets": [
-              "passTds",
-              "completions"
+              "completions",
+              "passTds"
             ]
           }
         },
@@ -1501,28 +1501,19 @@
           },
           "sportsbook": {
             "over": {
-              "recYds": {
-                "line": 29.5,
-                "probability": 0.4809
-              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.23
               }
             },
             "under": {
-              "recYds": {
-                "line": 29.5,
-                "probability": 0.5191
-              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.77
               }
             },
             "markets": [
-              "receptions",
-              "recYds"
+              "receptions"
             ]
           }
         },
@@ -1686,19 +1677,28 @@
           },
           "sportsbook": {
             "over": {
+              "recYds": {
+                "line": 59.5,
+                "probability": 0.4328
+              },
               "receptions": {
                 "line": 5.5,
                 "probability": 0.2804
               }
             },
             "under": {
+              "recYds": {
+                "line": 59.5,
+                "probability": 0.5672
+              },
               "receptions": {
                 "line": 5.5,
                 "probability": 0.7196
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -2891,28 +2891,19 @@
           },
           "sportsbook": {
             "over": {
-              "recYds": {
-                "line": 29.5,
-                "probability": 0.2469
-              },
               "receptions": {
                 "line": 2.5,
                 "probability": 0.2225
               }
             },
             "under": {
-              "recYds": {
-                "line": 29.5,
-                "probability": 0.7531
-              },
               "receptions": {
                 "line": 2.5,
                 "probability": 0.7775
               }
             },
             "markets": [
-              "receptions",
-              "recYds"
+              "receptions"
             ]
           }
         },
@@ -3421,8 +3412,8 @@
                 "probability": 0.1749
               },
               "completions": {
-                "line": 19.5,
-                "probability": 0.2475
+                "line": 20.5,
+                "probability": 0.1821
               }
             },
             "under": {
@@ -3431,13 +3422,13 @@
                 "probability": 0.8251
               },
               "completions": {
-                "line": 19.5,
-                "probability": 0.7525
+                "line": 20.5,
+                "probability": 0.8179
               }
             },
             "markets": [
-              "passTds",
-              "completions"
+              "completions",
+              "passTds"
             ]
           }
         },
@@ -3602,8 +3593,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 19.5,
-                "probability": 0.2362
+                "line": 9.5,
+                "probability": 0.4977
               },
               "receptions": {
                 "line": 1.5,
@@ -3612,8 +3603,8 @@
             },
             "under": {
               "recYds": {
-                "line": 19.5,
-                "probability": 0.7638
+                "line": 9.5,
+                "probability": 0.5023
               },
               "receptions": {
                 "line": 1.5,
@@ -3949,9 +3940,21 @@
             "twoPlusTd": 0.0015
           },
           "sportsbook": {
-            "over": {},
-            "under": {},
-            "markets": []
+            "over": {
+              "receptions": {
+                "line": 1.5,
+                "probability": 0.6522
+              }
+            },
+            "under": {
+              "receptions": {
+                "line": 1.5,
+                "probability": 0.3478
+              }
+            },
+            "markets": [
+              "receptions"
+            ]
           }
         },
         {
@@ -8568,16 +8571,18 @@
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "initial ready",
+        "reason": "material input change",
         "checkpointMinutes": null,
-        "inputFingerprint": "bead6b2d",
-        "runAt": "2026-09-09T13:39:49.441Z",
+        "inputFingerprint": "82aca866",
+        "runAt": "2026-09-09T17:16:54.480Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
           "lineTolerance": 0.01,
           "note": "Initial v86 blend. Calibrate per market after enough completed-game results."
-        }
+        },
+        "halftimeCandidatesReady": null,
+        "halftimeCandidateCount": null
       }
     }
   ]
