@@ -1191,7 +1191,7 @@ function playerCard(p,prop,rank){
   const matchup=[`vs ${p.opp||'DEF'}`,date,g?.time].filter(Boolean).join(' · ');
   const marketLabel=PROPS[prop]||prop;
   const marketMain=(prop==='atd'||prop==='firstTd')?v.main:(v.line!=null?`Over ${fmtLine(v.line)}`:`Proj ${fmtLine(v.projection)}`);
-  const odds=offer?`<div class="nfl-mlb-prop-odds"><span>BEST ODDS</span><b>${priceFmt(offer.price)}</b><em>${esc(offer.book||'Sportsbook')}</em></div>`:`<div class="nfl-mlb-prop-odds" style="border-color:rgba(110,137,171,.18);background:rgba(8,25,49,.32);color:#7f9ab9"><span>ODDS</span><b style="font-size:9px">Not posted</b></div>`;
+  const odds=offer?`<div class="nfl-mlb-prop-odds"><span>BEST ODDS</span><b>${priceFmt(offer.price)}</b><em>${esc(offer.book||'Sportsbook')}</em></div>`:`<div class="nfl-mlb-prop-odds" style="border-color:rgba(110,137,171,.18);background:rgba(8,25,49,.32);color:#7f9ab9"><span>ODDS</span><b style="font-size:9px">Sportsbook pending</b></div>`;
   const wager=prop==='atd'?atdWagerButtonHTML(p,'Add ATD to Slip'):'';
   return `<article class="nfl-mlb-prop-card" data-nfl-player="${esc(p.id)}" role="button" tabindex="0">
     <div class="nfl-mlb-prop-rank">${rank}</div>

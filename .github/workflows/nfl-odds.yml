@@ -8,10 +8,10 @@ on:
         type: boolean
         default: true
   schedule:
-    # Cheap hourly gate. The script calls the free /events endpoint first and
-    # only spends credits when an NFL kickoff is within 24h and the current odds
-    # file has reached its time-to-kickoff refresh threshold.
-    - cron: '7 * * * *'
+    # v88.1: run the FREE weekly gate every 20 minutes. The script itself only
+    # makes paid calls when its distance-to-next-kickoff threshold is due:
+    # 4h far away, 1h inside 12h, 30m inside 3h, 20m inside 90m.
+    - cron: '7,27,47 * * * *'
 
 permissions:
   contents: write
@@ -44,7 +44,7 @@ jobs:
             echo "Odds file unchanged."
             exit 0
           fi
-          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi')process.exit(2);console.log('✓',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players')"
+          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi'||d.meta?.windowMode!=='nfl-week-tue-mon')process.exit(2);console.log('✓ weekly odds',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players',d.meta.windowStartLocal,'->',d.meta.windowEndLocal)"
 
       - name: Commit odds when changed
         run: |

@@ -6,16 +6,19 @@
  * Produces slates/nfl-odds.json in the shape already consumed by
  * sports/nfl-research-ui.js, plus gameLines for the NFL Slate.
  *
- * Credit control:
- * - GET /events is free and is used as the gate.
- * - When a kickoff is within the next 24h, one /props call (3 credits) and one
- *   /odds call for h2h/spreads/totals (3 credits) are made.
- * - Existing output throttles paid calls: every 4h >6h pregame, hourly inside
- *   6h, every 20m inside 90m. Manual NFL_ODDS_FORCE=1 bypasses the throttle.
+ * Weekly NFL odds architecture (v88.1):
+ * - NFL product week is Tuesday 3:00 AM Central -> next Tuesday 3:00 AM.
+ * - GET /events is free and discovers the ENTIRE active NFL week.
+ * - One sport-level /props call covers every currently published NFL prop row.
+ * - One /odds call covers game lines across the weekly window.
+ * - Paid calls are throttled: every 4h far away, hourly inside 12h,
+ *   every 30m inside 3h, every 20m inside 90m.
+ * - Manual NFL_ODDS_FORCE=1 bypasses the throttle.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { activeNflWeekWindow, weeklyPaidRefreshMs } from './nfl-week-window.mjs';
 
 const ROOT = process.cwd();
 const SLATE_PATH = path.join(ROOT, 'slates', 'nfl.json');
@@ -45,6 +48,7 @@ const MARKET_MAP = {
 const API_MARKETS = Object.keys(MARKET_MAP);
 const CORE = Object.values(MARKET_MAP);
 const SPORTSBOOK_KEYS = new Set(['draftkings','fanduel','caesars','bovada','betmgm','fanatics','pinnacle','fliff','bet365','betrivers','hardrock','hardrockbet','parx','parxcasino','pmu','unibet','betriversca','sportsbetau','rushbet','espnbet']);
+const SPORTSBOOK_QUERY=[...SPORTSBOOK_KEYS].join(',');
 const isNonSportsbook = r => !SPORTSBOOK_KEYS.has(bookKey(r));
 
 const TEAM_ABBR = new Map(Object.entries({
@@ -107,9 +111,7 @@ async function fetchJson(url, auth=true) {
 }
 
 function paidRefreshMs(hoursToKick) {
-  if (hoursToKick <= 1.5) return 20 * 60_000;
-  if (hoursToKick <= 6) return 60 * 60_000;
-  return 4 * HOUR;
+  return weeklyPaidRefreshMs(hoursToKick);
 }
 
 function best(entries) {
@@ -245,32 +247,57 @@ async function main() {
   const existing = await readJson(OUT_PATH, null);
   const slateIndex = buildSlateIndex(slate);
 
-  // Event discovery is free. It prevents paid calls on days with no imminent NFL game.
-  const from = new Date(NOW - 15*60_000).toISOString();
-  const to = new Date(NOW + 24*HOUR).toISOString();
-  const eventsUrl = `${API}/sports/${SPORT}/events?commenceTimeFrom=${encodeURIComponent(from)}&commenceTimeTo=${encodeURIComponent(to)}`;
-  const allEvents = await fetchJson(eventsUrl);
-  const relevant = (Array.isArray(allEvents)?allEvents:[]).filter(e=>{
-    const t=Date.parse(e.commence_time||''); return Number.isFinite(t)&&t>=NOW-15*60_000&&t<=NOW+24*HOUR;
+  // v88.1: NFL props are a WEEKLY product. Discover every event in the active
+  // Tuesday->Monday window, even when the nearest game is more than 24h away.
+  const week=activeNflWeekWindow(NOW);
+  const from=week.startIso;
+  const to=week.endIso;
+  const eventsUrl=`${API}/sports/${SPORT}/events?commenceTimeFrom=${encodeURIComponent(from)}&commenceTimeTo=${encodeURIComponent(to)}`;
+  const allEvents=await fetchJson(eventsUrl);
+  const relevant=(Array.isArray(allEvents)?allEvents:[]).filter(e=>{
+    const t=Date.parse(e.commence_time||'');
+    return Number.isFinite(t)&&t>=week.startMs&&t<week.endMs;
   });
-  if (!relevant.length) {
-    console.log('NFL odds: no kickoff in the next 24h; paid ParlayAPI calls skipped.');
+  if(!relevant.length){
+    console.log(`NFL odds: no events found in active weekly window ${week.startLocal} -> ${week.endLocal} Central; paid calls skipped.`);
     return;
   }
 
-  const firstKick = Math.min(...relevant.map(e=>Date.parse(e.commence_time)));
-  const hoursToKick = Math.max(0,(firstKick-NOW)/HOUR);
-  const fetchedAt = Date.parse(existing?.meta?.fetchedAt || '');
-  const age = Number.isFinite(fetchedAt) ? NOW-fetchedAt : Infinity;
-  const refreshMs = paidRefreshMs(hoursToKick);
-  const isLiveCurrent = existing?.meta?.source === 'parlayapi' && existing?.meta?.sample === false;
-  if (!FORCE && isLiveCurrent && age < refreshMs) {
-    console.log(`NFL odds: current file is ${Math.round(age/60000)}m old; next paid refresh threshold is ${Math.round(refreshMs/60000)}m. Skipping.`);
+  const upcoming=relevant.filter(e=>{
+    const t=Date.parse(e.commence_time||'');
+    return Number.isFinite(t)&&t>=NOW-15*60_000;
+  });
+  if(!upcoming.length&&!FORCE){
+    console.log('NFL odds: active weekly slate has no remaining kickoff; paid calls skipped.');
+    return;
+  }
+  const nextKick=upcoming.length?Math.min(...upcoming.map(e=>Date.parse(e.commence_time))):NOW;
+  const hoursToKick=Math.max(0,(nextKick-NOW)/HOUR);
+  const fetchedAt=Date.parse(existing?.meta?.fetchedAt||'');
+  const age=Number.isFinite(fetchedAt)?NOW-fetchedAt:Infinity;
+  const refreshMs=paidRefreshMs(hoursToKick);
+  const isLiveCurrent=
+    existing?.meta?.source==='parlayapi' &&
+    existing?.meta?.sample===false &&
+    existing?.meta?.windowMode==='nfl-week-tue-mon' &&
+    existing?.meta?.windowStartUTC===week.startIso &&
+    existing?.meta?.windowEndUTC===week.endIso;
+  if(!FORCE&&isLiveCurrent&&age<refreshMs){
+    console.log(`NFL odds: weekly file is ${Math.round(age/60000)}m old; next paid refresh threshold is ${Math.round(refreshMs/60000)}m (${hoursToKick.toFixed(1)}h to next kickoff). Skipping.`);
     return;
   }
 
-  const propParams = new URLSearchParams({markets:API_MARKETS.join(','),limit:'10000',maxAgeSec:'3600'});
-  const props = await fetchJson(`${API}/sports/${SPORT}/props?${propParams}`);
+  // /props is one sport-level call. Explicitly request sportsbook sources only:
+  // no DFS/exchange rows consume the 10K response budget or masquerade as a
+  // sportsbook line. ParlayAPI's live props table is freshness-bounded to 1h.
+  const propParams=new URLSearchParams({
+    markets:API_MARKETS.join(','),
+    bookmakers:SPORTSBOOK_QUERY,
+    limit:'10000',
+    maxAgeSec:'3600'
+  });  const props = await fetchJson(`${API}/sports/${SPORT}/props?${propParams}`);
+  const propsResponseCapped=Array.isArray(props)&&props.length>=10000;
+  if(propsResponseCapped) console.warn('::warning::NFL weekly /props response hit the 10,000-row cap. Sportsbook-only filtering is active, but some late-week rows may be omitted by ParlayAPI.');
   const oddsParams = new URLSearchParams({regions:'us',markets:'h2h,spreads,totals',oddsFormat:'american',commenceTimeFrom:from,commenceTimeTo:to});
   const gameOdds = await fetchJson(`${API}/sports/${SPORT}/odds?${oddsParams}`);
 
@@ -334,7 +361,7 @@ async function main() {
   }
 
   const result={
-    meta:{source:'parlayapi',sportKey:SPORT,books:[...books].sort(),markets:CORE,fetchedAt:new Date().toISOString(),sample:false,creditsEstimated:6,windowHours:24,diagnosticsVersion:1,note:'Live NFL game lines + player props from ParlayAPI. Sportsbook rows only for player cards; DFS/exchange rows are excluded from displayed best prices.'},
+    meta:{source:'parlayapi',sportKey:SPORT,books:[...books].sort(),markets:CORE,fetchedAt:new Date().toISOString(),sample:false,creditsEstimated:6,windowMode:'nfl-week-tue-mon',windowStartUTC:week.startIso,windowEndUTC:week.endIso,windowStartLocal:week.startLocal,windowEndLocal:week.endLocal,windowHours:168,nextKickoffUTC:new Date(nextKick).toISOString(),hoursToNextKickoff:+hoursToKick.toFixed(2),refreshThresholdMinutes:Math.round(refreshMs/60000),propsResponseCapped,diagnosticsVersion:2,note:'Weekly Tuesday-Monday NFL game lines + player props from ParlayAPI. Sportsbook sources only; DFS/exchange rows excluded from request/display.'},
     games:outputGames.sort((a,b)=>String(a.startDateUTC).localeCompare(String(b.startDateUTC))),
   };
   if (!result.games.length) throw new Error('ParlayAPI returned data but no relevant NFL events could be normalized. Refusing to overwrite.');
