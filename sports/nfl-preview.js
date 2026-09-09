@@ -719,6 +719,45 @@ async function loadData(){
     wagerByTeamName[`${p.team}|${researchNameKey(p.name)}`]=meta;
   }
   window.DW_NFL_WAGER_META={byEspnId:wagerByEspnId,byTeamName:wagerByTeamName,games:gameMetaById};
+  // v86.2 — canonical prop-result bridge. Slate, Props and Player Modal must
+  // consume the same final TSO result instead of grading independently.
+  window.DW_NFL_PROP_RESULT=({id,name,team,prop}={})=>{
+    const sid=id!=null?String(id):'';
+    const nk=researchNameKey(name);
+    const nt=normNflTeam(team);
+    const pool=dd.players||[];
+    let player=sid?pool.find(p=>[p.espnId,p.id,p.gsisId].some(v=>v!=null&&String(v)===sid)):null;
+    if(!player&&nk&&nt) player=pool.find(p=>normNflTeam(p.team)===nt&&researchNameKey(p.name)===nk);
+    if(!player&&nk) player=pool.find(p=>researchNameKey(p.name)===nk);
+    if(!player||!prop) return null;
+    const v=propValue(player,prop);
+    if(!v) return null;
+    const o=v.offer||null;
+    return {
+      prop,
+      playerId:player.espnId||player.id||null,
+      name:player.name,
+      team:player.team,
+      prob:finiteNumberOrNull(v.prob),
+      grade:v.grade||null,
+      projection:finiteNumberOrNull(v.projection),
+      line:finiteNumberOrNull(v.line),
+      main:v.main||null,
+      sub:v.sub||null,
+      modelProb:finiteNumberOrNull(v.modelProb),
+      simProb:finiteNumberOrNull(v.simProb),
+      simUsed:!!v.simUsed,
+      offer:o?{
+        line:finiteNumberOrNull(o.line),
+        price:finiteNumberOrNull(o.price),
+        book:o.book||null,
+        link:o.link||null,
+        gameId:o.gameId||null,
+        eventId:o.eventId||null,
+        startDateUTC:o.startDateUTC||null
+      }:null
+    };
+  };
 
   const firstTdRank=[...dd.players].map(p=>({p,prob:firstTdProbability(p)})).filter(x=>x.prob!=null).sort((a,b)=>b.prob-a.prob);
   window.DW_NFL_PREVIEW_SUMMARY={

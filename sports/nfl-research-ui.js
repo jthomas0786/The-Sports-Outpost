@@ -106,6 +106,21 @@ function findPreviewWagerMeta(r){
   return store.byTeamName?.[key]||null;
 }
 
+function findPreviewPropResult(r,key){
+  if(typeof window==='undefined'||!r||!key||typeof window.DW_NFL_PROP_RESULT!=='function') return null;
+  try{
+    return window.DW_NFL_PROP_RESULT({
+      id:r.espnId||r.gsisId||r.id||null,
+      name:r.name,
+      team:r.team,
+      prop:key
+    })||null;
+  }catch(err){
+    console.warn('[NFL research UI] canonical prop result unavailable:',err);
+    return null;
+  }
+}
+
 function findResearch({id,name,team}={}){
   if(!indexes) return null;
   if(id && indexes.byId.has(String(id))) return indexes.byId.get(String(id));
@@ -152,6 +167,19 @@ function ensureStyles(){
   const style=document.createElement('style');
   style.id='tso-nfl-research-ui-v72';
   style.textContent=`
+    /* v86.2 selected-prop sportsbook odds */
+    .tso-nfl-prop-odds-strip{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:10px 0 2px;padding:0}
+    .tso-nfl-prop-odds-strip:empty{display:none}
+    .tso-nfl-prop-odds-chip{display:flex;flex-direction:column;justify-content:center;min-width:108px;min-height:50px;padding:8px 11px;border:1px solid rgba(120,176,239,.18);border-radius:9px;background:rgba(5,23,49,.58)}
+    .tso-nfl-prop-odds-chip span{font:800 7px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;color:#7597bf}
+    .tso-nfl-prop-odds-chip b{margin-top:3px;font:800 15px/1 'Oswald',sans-serif;color:#fff}
+    .tso-nfl-prop-odds-chip em{margin-top:3px;font:700 8px 'JetBrains Mono',monospace;color:#8fb2da;font-style:normal}
+    .tso-nfl-prop-odds-chip.best{border-color:rgba(34,197,94,.32);background:rgba(5,63,43,.24)}
+    .tso-nfl-prop-odds-chip.best b{color:#58e89a;font-size:18px}
+    .tso-nfl-prop-odds-chip.edge b.pos{color:#58e89a}.tso-nfl-prop-odds-chip.edge b.neg{color:#ff9f43}
+    .tso-nfl-prop-odds-pending{width:100%;padding:9px 11px;border:1px dashed rgba(120,176,239,.23);border-radius:9px;background:rgba(5,23,49,.34);font:800 8px 'JetBrains Mono',monospace;letter-spacing:.04em;color:#829fc1;text-transform:uppercase}
+    @media(max-width:620px){.tso-nfl-prop-odds-strip{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}.tso-nfl-prop-odds-chip{min-width:0}.tso-nfl-prop-odds-pending{grid-column:1/-1}}
+
     .tso-nfl-research-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-top:7px;min-width:0}
     .tso-nfl-research-pill{display:inline-flex;align-items:center;gap:4px;max-width:100%;padding:3px 6px;border:1px solid rgba(120,176,239,.20);border-radius:6px;background:rgba(5,23,49,.55);font:800 7px 'JetBrains Mono','Space Mono',monospace;letter-spacing:.025em;color:#b8c9df;white-space:nowrap}
     .tso-nfl-research-pill b{color:#fff;font-weight:900}.tso-nfl-research-pill.ok b{color:#68e29b}.tso-nfl-research-pill.warn{border-color:rgba(255,101,101,.32);background:rgba(86,20,29,.28)}.tso-nfl-research-pill.warn b{color:#ff8b8b}
@@ -376,6 +404,11 @@ function clampNum(v,a,b){ return Math.max(a,Math.min(b,Number(v)||0)); }
 function roundHalf(v){ const x=Number(v); return Number.isFinite(x)?Math.round(x*2)/2:null; }
 function fmtLine(v){ const x=Number(v); return Number.isFinite(x)?(Number.isInteger(x)?String(x):x.toFixed(1)):'—'; }
 function fmtAmericanPrice(v){ const x=Number(v); return Number.isFinite(x)?(x>0?`+${x}`:`${x}`):''; }
+function impliedFromAmerican(v){
+  const x=Number(v);
+  if(!Number.isFinite(x)||x===0) return null;
+  return x>0 ? 100/(x+100) : (-x)/((-x)+100);
+}
 
 const NFL_PROP_META={
   atd:{button:'ATD',label:'Anytime TD',market:'ANYTIME TD',unit:'TD',oddsKey:'atd'},
@@ -493,16 +526,43 @@ function researchProjection(key,seasonPg,recent){
   if(recent>0&&seasonPg>0) return +(recent*.65+seasonPg*.35).toFixed(key==='receptions'||key==='passTds'||key==='completions'?1:1);
   return +(recent||seasonPg||0).toFixed(1);
 }
-function gradeFromProbability(p){ return p>=64?'A':p>=59?'A-':p>=55?'B+':p>=51?'B':p>=47?'C+':'C'; }
+function gradeFromProbability(p){ return p>=70?'A+':p>=65?'A':p>=61?'A-':p>=57?'B+':p>=54?'B':p>=51?'B-':p>=48?'C+':'C'; }
+function gradeFromAtdProbability(p){ return p>=48?'A+':p>=41?'A':p>=35?'A-':p>=29?'B+':p>=23?'B':'C+'; }
+
 function propContext(r,key,{atd=0,firstTd=0,edge=50}={}){
   const meta=NFL_PROP_META[key]||NFL_PROP_META.atd;
-  const seasonPg=propSeasonPg(r,key), recent=propRecentAvg(r,key), defense=propDefenseAvg(r,key), offer=propOddsOffer(r,key);
-  const line=offer?.line ?? defaultResearchLine(key,seasonPg,recent);
+  const seasonPg=propSeasonPg(r,key), recent=propRecentAvg(r,key), defense=propDefenseAvg(r,key);
+  const canonical=findPreviewPropResult(r,key);
+  const researchOffer=propOddsOffer(r,key);
+  const canonicalOffer=canonical?.offer?.price!=null&&Number.isFinite(Number(canonical.offer.price))?canonical.offer:null;
+  const offer=canonicalOffer||researchOffer;
+  const fallbackLine=offer?.line ?? defaultResearchLine(key,seasonPg,recent);
+  const canonicalLine=canonical?.line!=null&&Number.isFinite(Number(canonical.line))?Number(canonical.line):null;
+  const line=canonicalLine!=null?canonicalLine:fallbackLine;
+
+  if(canonical?.prob!=null&&Number.isFinite(Number(canonical.prob))){
+    const raw=Number(canonical.prob);
+    const prob=clampNum(raw<=1.0001?raw*100:raw,0,99.9);
+    const cp=canonical.projection!=null?Number(canonical.projection):NaN;
+    const projection=Number.isFinite(cp)?cp:((key==='atd'||key==='firstTd')?prob:researchProjection(key,seasonPg,recent));
+    return {
+      key,meta,line,projection,prob:+prob.toFixed(1),
+      grade:canonical.grade||((key==='atd')?gradeFromAtdProbability(prob):gradeFromProbability(prob)),
+      seasonPg,recent,defense,offer,
+      lineSource:offer?'Sportsbook':((key==='atd'||key==='firstTd')?'TSO model':'TSO research line'),
+      canonical:true,simUsed:!!canonical.simUsed,
+      modelProb:canonical.modelProb,simProb:canonical.simProb
+    };
+  }
+
+  // Fallback only if preview has not mounted yet.
   if(key==='atd'){
-    const prob=clampNum(atd,0,99); return {key,meta,line,projection:prob,prob,grade:r?.model?.atdGrade||gradeFromProbability(prob),seasonPg,recent,defense,offer,lineSource:offer?'Sportsbook':'TSO model'};
+    const prob=clampNum(atd,0,99);
+    return {key,meta,line,projection:prob,prob,grade:gradeFromAtdProbability(prob),seasonPg,recent,defense,offer,lineSource:offer?'Sportsbook':'TSO model'};
   }
   if(key==='firstTd'){
-    const prob=clampNum(firstTd,0,99); return {key,meta,line,projection:prob,prob,grade:prob>=18?'A':prob>=13?'B+':prob>=8?'B':'C',seasonPg,recent,defense,offer,lineSource:offer?'Sportsbook':'TSO model'};
+    const prob=clampNum(firstTd,0,99);
+    return {key,meta,line,projection:prob,prob,grade:prob>=18?'A':prob>=13?'B+':prob>=8?'B':'C',seasonPg,recent,defense,offer,lineSource:offer?'Sportsbook':'TSO model'};
   }
   const projection=researchProjection(key,seasonPg,recent);
   const scale=key==='receptions'?1.6:key==='passTds'?0.7:key==='completions'?3.5:Math.max(7,Math.abs(line)*.16);
@@ -524,6 +584,25 @@ function propHeaderStats(r,ctx,snapPct,rzOpps){
   ];
   return [[fmt1(ctx.recent),'L5 Avg'],[fmtLine(ctx.line),'Line'],[fmt1(ctx.seasonPg),'Season Avg'],[fmt1(ctx.defense),`Opp ${ctx.meta.unit}/G`]];
 }
+
+function propOddsStripHTML(ctx){
+  const price=ctx?.offer?.price!=null?Number(ctx.offer.price):NaN;
+  if(!Number.isFinite(price)){
+    return `<div class="tso-nfl-prop-odds-pending">${esc(ctx?.meta?.label||'Prop')} · Sportsbook odds pending</div>`;
+  }
+  const implied=impliedFromAmerican(price);
+  const impliedPct=implied==null?null:implied*100;
+  const edge=impliedPct==null?null:Number(ctx.prob)-impliedPct;
+  const lineLabel=(ctx.key==='atd'||ctx.key==='firstTd')
+    ? ctx.meta.label
+    : `Over ${fmtLine(ctx.line)} ${ctx.meta.unit}`;
+  return `
+    <div class="tso-nfl-prop-odds-chip best"><span>Best sportsbook odds</span><b>${esc(fmtAmericanPrice(price))}</b><em>${esc(ctx.offer?.book||'Sportsbook')}</em></div>
+    <div class="tso-nfl-prop-odds-chip"><span>Market</span><b>${esc(lineLabel)}</b><em>Current posted line</em></div>
+    <div class="tso-nfl-prop-odds-chip"><span>Book implied</span><b>${impliedPct==null?'—':impliedPct.toFixed(1)+'%'}</b><em>From American odds</em></div>
+    <div class="tso-nfl-prop-odds-chip edge"><span>TSO edge</span><b class="${edge!=null&&edge>=0?'pos':'neg'}">${edge==null?'—':(edge>=0?'+':'')+edge.toFixed(1)+' pts'}</b><em>TSO probability vs book</em></div>`;
+}
+
 function propVerdictHTML(r,ctx,name,edge,snapPct,rzOpps){
   const col=gradeColor(ctx.grade),last=name.split(' ').slice(-1)[0];
   const source=ctx.offer?`${ctx.offer.book||'Book'} ${fmtAmericanPrice(ctx.offer.price)}`:ctx.lineSource;
@@ -664,6 +743,7 @@ function enhanceModal(root){
       <div class="ava-reticle"><div class="ava">${headshot?`<img src="${esc(headshot)}" alt="${esc(name)}">`:`<span style="display:grid;place-items:center;height:100%;font:700 16px 'Oswald',sans-serif">${esc(name.split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</span>`}</div></div>
       <div class="who"><h2>${esc(name)} <span class="dq-badge sourced">Sourced</span><span class="tso-nfl-hdr-badges"><span class="tso-nfl-hdr-badge ${statClass}">${esc(depthLabel(r,pos))} · ${esc(status)}</span>${edge>=60?`<span class="tso-nfl-hdr-badge edge">TSO Signal ${edge}</span>`:''}</span></h2><div class="sub" id="tsoNflPropSub"></div><div class="hdr-stats" id="tsoNflHeaderStats"></div></div>
       <div class="pill-row tso-nfl-prop-switch" id="tsoNflPropSwitch">${props.map((key,i)=>`<button class="pill ${i===0?'active':''}" data-nfl-modal-prop="${key}" title="${esc(NFL_PROP_META[key]?.label||key)}">${esc(NFL_PROP_META[key]?.button||key)}</button>`).join('')}</div>
+      <div class="tso-nfl-prop-odds-strip" id="tsoNflPropOdds"></div>
     </div>
     <div class="sec"><div id="tsoNflVerdict"></div><div class="tso-nfl-chart-host" id="tsoNflRecentChart"></div><div id="tsoNflSlipHost"></div></div>
     <div class="sec" id="tso-nfl-factors"></div>
@@ -682,6 +762,7 @@ function enhanceModal(root){
     if(subEl) subEl.innerHTML=`${esc(selectedPropLabel(ctx))} · vs ${esc(opp||'DEF')} · ${esc(team)} ${esc(pos)}${r.jersey?` #${esc(r.jersey)}`:''}`;
     const hs=propHeaderStats(r,ctx,snapPct,rzOpps);
     const hsEl=modal.querySelector('#tsoNflHeaderStats'); if(hsEl) hsEl.innerHTML=hs.map(([v,l])=>`<div><b>${esc(v)}</b><small>${esc(l)}</small></div>`).join('');
+    const oddsEl=modal.querySelector('#tsoNflPropOdds'); if(oddsEl) oddsEl.innerHTML=propOddsStripHTML(ctx);
     const verdict=modal.querySelector('#tsoNflVerdict'); if(verdict) verdict.innerHTML=propVerdictHTML(r,ctx,name,edge,snapPct,rzOpps);
     const chart=modal.querySelector('#tsoNflRecentChart'); if(chart) chart.innerHTML=recentBarsMLB(r,pos,ctx,chartState.range,chartState.venue);
     const slip=modal.querySelector('#tsoNflSlipHost'); if(slip) slip.innerHTML=propSlipHTML(r,ctx,team,opp,edge);

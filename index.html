@@ -15387,6 +15387,18 @@ function previewOdds(pct, houseEdge){
   return shaded > 0 ? 1 / shaded : 0;
 }
 
+/** v86.2 — display point-wager prices as American odds.
+ * Internal decimal odds remain unchanged for payout math / Supabase. */
+function decimalToAmerican(decimal){
+  const d=Number(decimal);
+  if(!Number.isFinite(d)||d<=1) return null;
+  return d>=2 ? Math.round((d-1)*100) : Math.round(-100/(d-1));
+}
+function formatAmericanFromDecimal(decimal){
+  const a=decimalToAmerican(decimal);
+  return a==null?'—':(a>0?`+${a}`:`${a}`);
+}
+
 /**
  * Auto-posts a placed wager to the status feed — legs and the combined
  * multiplier shown, stake amount deliberately never included. Failures
@@ -15506,7 +15518,7 @@ async function openWagerPanel(){
     const { multiplier: combined } = computeCombinedOdds(betslip, houseEdge, maxMult);
     const payout = Math.round(stake * combined);
     return `<div class="bs-wager-preview">
-      <span>${combined.toFixed(2)}x</span>
+      <span>TSO Odds ${formatAmericanFromDecimal(combined)}</span>
       <span>Stake ${stake} → ${payout} pts if it hits</span>
     </div>`;
   };
@@ -19753,7 +19765,7 @@ function wagerCardHTML(w){
     <div class="wager-legs">${legs.map(wagerLegRow).join('')}</div>
     <div class="wager-stats">
       <span>Stake <b>${w.stake}</b></span>
-      <span>${(+w.combined_decimal_odds).toFixed(2)}x</span>
+      <span>Odds <b>${formatAmericanFromDecimal(+w.combined_decimal_odds)}</b></span>
       <span>${w.status === 'won' ? 'Won' : 'Potential'} <b>${w.potential_payout}</b></span>
     </div>
     ${w.status === 'won' ? `<button class="wager-share-btn" data-share-id="${w.id}">Share result</button>` : ''}
@@ -19839,8 +19851,8 @@ function buildShareCardNode(w){
   const legs = (w.wager_legs || []).slice().sort((a,b) => a.id - b.id);
   const legCount = legs.length;
   const headline = legCount === 1
-    ? `Hit at <b>${(+w.combined_decimal_odds).toFixed(2)}x</b>`
-    : `Hit all ${legCount} legs at <b>${(+w.combined_decimal_odds).toFixed(2)}x</b>`;
+    ? `Hit at <b>${formatAmericanFromDecimal(+w.combined_decimal_odds)}</b>`
+    : `Hit all ${legCount} legs at <b>${formatAmericanFromDecimal(+w.combined_decimal_odds)}</b>`;
 
   const wrap = document.createElement('div');
   wrap.style.cssText = 'position:fixed; left:-9999px; top:0; width:390px;';
@@ -19876,8 +19888,8 @@ function buildShareCardNode(w){
         </div>
         <div style="margin-top:4px; height:1px; background:repeating-linear-gradient(90deg,#232a3d 0 6px,transparent 6px 12px);"></div>
         <div style="display:flex; justify-content:space-between; align-items:flex-end; padding:16px 0 18px;">
-          <div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#7b849c; letter-spacing:0.08em; text-transform:uppercase;">Multiplier</div>
-            <div style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:#f4f6fb; margin-top:3px;">${(+w.combined_decimal_odds).toFixed(2)}x</div></div>
+          <div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#7b849c; letter-spacing:0.08em; text-transform:uppercase;">American Odds</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:#f4f6fb; margin-top:3px;">${formatAmericanFromDecimal(+w.combined_decimal_odds)}</div></div>
           <div style="text-align:right;"><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#7b849c; letter-spacing:0.08em; text-transform:uppercase;">Points won</div>
             <div style="font-family:'JetBrains Mono',monospace; font-weight:700; font-size:20px; color:#4ade80; margin-top:3px;">+${w.potential_payout}</div></div>
         </div>
