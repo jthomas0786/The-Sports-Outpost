@@ -13,11 +13,12 @@
  * + pre-game win probability from the slate. Nothing breaks.
  */
 
-const POLL_MS = 15000; // 15s — frequent enough to catch a drive, gentle on Pages CDN
+const POLL_MS = 10000; // 10s — low-latency primary endpoint, static file remains the fallback
 const STATIC_LIVE_URL = 'slates/nfl-live.json';
+const DEFAULT_LIVE_URL = 'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';
 const configuredLiveUrl = () => {
   if (typeof window === 'undefined') return null;
-  return window.DW_NFL_LIVE_ENDPOINT || window.TSO_NFL_LIVE_URL || null;
+  return window.DW_NFL_LIVE_ENDPOINT || window.TSO_NFL_LIVE_URL || DEFAULT_LIVE_URL;
 };
 
 let _slate = null;

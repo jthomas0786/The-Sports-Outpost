@@ -1,4 +1,4 @@
-import { startLivePolling } from './nfl/live.js?v=74';
+import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -35,9 +35,9 @@ const NFL_GAMECAST_CANVAS_W = 1448;
 const NFL_GAMECAST_CANVAS_H = 1086;
 let _nflGamecastResizeObserver = null;
 function ensureNflGamecastConceptStyles(){
-  if(document.getElementById('nfl-gamecast-concept-v77')) return;
+  if(document.getElementById('nfl-gamecast-concept-v78')) return;
   const style=document.createElement('style');
-  style.id='nfl-gamecast-concept-v77';
+  style.id='nfl-gamecast-concept-v78';
   style.textContent=`
   #nflView .nxg-wrap.nxg-concept{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;color:#dcecff!important;overflow:visible!important}
   #nflView .nxg-concept-viewport{position:relative;width:100%;min-width:0;overflow:hidden;background:#020a18;border-radius:0}
@@ -331,7 +331,7 @@ async function loadData(){
     startLivePolling(d,()=>{
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
-      if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.game)) return;
+      if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.tab==='feed' || state.game)) return;
       // Gamecast/Live should update immediately. The heavier Slate refresh waits
       // for an idle frame so live polling never fights the user's scrolling.
       if(state.tab==='slate' && !state.game && 'requestIdleCallback' in window){
@@ -667,9 +667,11 @@ function nflLivePreviewHTML(g){
 }
 function liveHTML(){
   const realLive=data().games.filter(g=>g.status==='in');
-  const test=testLiveGame();
-  const live=[...realLive,...(test?[test]:[])];
-  return `<div class="nfl-live-page"><div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} real game${realLive.length===1?'':'s'} in progress · `:''}test game available for Gamecast preview</span></div><div class="nfl-live-rail">${live.map(nflLivePreviewHTML).join('')}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any live matchup, or use the Test Game to preview the redesigned Gamecast.':'Use the Test Game above to preview the redesigned NFL Live Gamecast while no real game is in progress.'}</div></div></div>`;
+  const qaTest=(typeof window!=='undefined' && window.DW_NFL_TEST_MODE===true) ? testLiveGame() : null;
+  const live=[...realLive,...(qaTest?[qaTest]:[])];
+  const next=data().games.filter(g=>g.status==='pre').sort((a,b)=>new Date(a.startTimeUTC||0)-new Date(b.startTimeUTC||0))[0]||null;
+  const rail=live.length?live.map(nflLivePreviewHTML).join(''):`<div class="nfl-live-empty"><b>No NFL game is live right now.</b><span>${next?`Next: ${esc(next.away.name)} at ${esc(next.home.name)} · ${esc(next.time||'TBD')}`:'The next live matchup will appear here automatically.'}</span></div>`;
+  return `<div class="nfl-live-page"><div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} game${realLive.length===1?'':'s'} in progress`:'Waiting for kickoff'}</span></div><div class="nfl-live-rail">${rail}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any matchup for the full live Gamecast, Box Score and Play by Play.':'This page switches to live automatically when the game begins.'}${qaTest?' · QA test mode is enabled.':''}</div></div></div>`;
 }
 
 
@@ -682,10 +684,30 @@ function gameRadarHTML(){
   return `<section class="ms-radar-wrap"><div class="ms-radar"><i></i><i></i><i></i><div class="ms-radar-cross x"></div><div class="ms-radar-cross y"></div><div class="ms-radar-core">TSO<br><small>NFL</small></div>${pts}</div><div class="ms-radar-side"><h3>Closest games</h3>${games.slice(0,6).map((g,i)=>`<button data-nfl-game="${esc(g.id)}"><b>${i+1}</b><span>${esc(g.away.abbr)} @ ${esc(g.home.abbr)}</span><em>${num(g.id+'close',52,78)} GAME EDGE</em></button>`).join('')}</div></section>`;
 }
 
+function isTouchdownScoringPlay(p){
+  const s=`${p?.type||''} ${p?.text||''}`;
+  return /touchdown|\btd\b/i.test(s) && !/extra point|field goal/i.test(s);
+}
+function tdFeedEvents(){
+  const out=[];
+  for(const g of data().games){
+    for(const p of g.liveScore?.scoringPlays||[]){
+      if(!isTouchdownScoringPlay(p)) continue;
+      const q=Number(p.period)||0;
+      const parts=String(p.clock||'').split(':');
+      const clockSec=parts.length===2?(Number(parts[0])*60+Number(parts[1])):9999;
+      out.push({g,p,order:q*100000+(9999-clockSec)});
+    }
+  }
+  return out.sort((a,b)=>b.order-a.order);
+}
 function feedHTML(){
-  const top=data().players.slice(0,6);
-  const feed=top.map((p,i)=>({time:['Q4 08:12','Q3 02:44','Q3 10:31','Q2 11:03','Q2 04:58','Q1 07:40'][i],team:p.team,player:p.name,detail:i%2?'7-yard rushing TD':'18-yard receiving TD',meta:i%3===0?'Red zone · 3rd & Goal':'Scoring drive · play action'}));
-  return `<div class="ms-feed">${feed.map((e,i)=>`<article><div class="ms-feed-time">${esc(e.time)}</div><span class="ms-team-token">${esc(e.team)}</span><div class="ms-feed-copy"><b>${esc(e.player)}</b><span>${esc(e.detail)}</span><small>${esc(e.meta)}</small></div><div class="ms-feed-num">TD<strong>${i+1}</strong></div></article>`).join('')}</div><div class="ms-preview-foot"><b>Preview feed.</b> Layout is ready for live scoring events; these scoring rows are illustrative until the live NFL event feed is connected.</div>`;
+  const feed=tdFeedEvents();
+  if(!feed.length){
+    const liveNow=data().games.some(g=>g.status==='in');
+    return `<div class="ms-feed"><div class="nfl-live-empty"><b>${liveNow?'No touchdowns yet.':'TD Feed is standing by.'}</b><span>${liveNow?'The first touchdown will appear here as soon as ESPN posts the scoring play.':'Live touchdown events will populate here automatically once an NFL game begins.'}</span></div></div><div class="ms-preview-foot"><b>Live TD Feed.</b> Powered by the same low-latency game feed as Gamecast.</div>`;
+  }
+  return `<div class="ms-feed">${feed.map(({g,p},i)=>`<article><div class="ms-feed-time">Q${esc(p.period||'?')} ${esc(p.clock||'')}</div><span class="ms-team-token">${esc(p.team||'TD')}</span><div class="ms-feed-copy"><b>${esc(p.team||'NFL')} TOUCHDOWN</b><span>${esc(p.text||p.type||'Touchdown')}</span><small>${esc(g.away.abbr)} ${p.awayScore??scoreNum(g.away)} · ${esc(g.home.abbr)} ${p.homeScore??scoreNum(g.home)}</small></div><div class="ms-feed-num">TD<strong>${feed.length-i}</strong></div></article>`).join('')}</div><div class="ms-preview-foot"><b>Live TD Feed.</b> Real touchdown scoring plays from the Gamecast live endpoint.</div>`;
 }
 
 function propToolbar(){
@@ -1048,7 +1070,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
     ? `<button type="button" class="nxg-ghostbtn" data-nfl-slate-top>← Back to ${backLabel}</button>`
     : `<button type="button" class="nxg-ghostbtn" data-nfl-close-game>← Back to ${backLabel}</button>`;
   const statusTool=live?`<span class="nxg-livepill"><span class="dot"></span>Live <span class="nxg-livebars"><i></i><i></i><i></i></span></span>`:`<span class="nxg-livepill nxg-previewpill"><span class="dot"></span>Game Preview</span>`;
-  const topbar=`<div class="nxg-topbar"><div class="nxg-tabs">${tabButton('game','Game View')}${tabButton('box','Box Score')}${tabButton('pbp','Play by Play')}</div><div class="nxg-tools">${statusTool}<span class="nxg-feedpill">Gamecast Feed⌄</span><button type="button" class="nxg-dotbtn" title="More">•••</button>${backTool}</div></div>`;
+  const topbar=`<div class="nxg-topbar"><div class="nxg-tabs">${tabButton('game','Game View')}${tabButton('box','Box Score')}${tabButton('pbp','Play by Play')}</div><div class="nxg-tools">${statusTool}<button type="button" class="nxg-feedpill" data-nfl-gamecast-feed>TD Feed</button><button type="button" class="nxg-dotbtn" data-nfl-refresh-live title="Refresh live data">↻</button>${backTool}</div></div>`;
   const scorebar=`<section class="nxg-scorebar ${live?'is-live':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(displayClock)}</div></div><div class="nxg-downchip"><span>${esc(g.status==='in'?downDistanceLabel(g):'Pregame')}</span><i></i><span>${esc(fieldPositionLabel(g))}</span><span class="arr">▲</span></div><div class="nxg-posstext">${ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
 
   // Game View is the approved 1448×1086 composition.  It never switches to a
@@ -1161,7 +1183,7 @@ function render(){
   document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>btn.classList.toggle('is-active', btn.dataset.nflTab===state.tab));
   root.style.setProperty('--ms-accent','#f59e0b'); root.style.setProperty('--ms-accent2','#fbbf24');
   const p=state.player?data().players.find(x=>String(x.id)===String(state.player)):null;
-  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Live Engine.</b> Roster/depth/injury and historical production can refresh independently through nfl-research.json. TSO Edge/TD Grade stay model-driven. During games, score, clock, possession, field position, current drive, player box stats, team stats and play-by-play use nfl-live.json when the server poller is running; route/player tracking remains illustrative.</footer>`;
+  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Live Engine.</b> Roster/depth/injury and historical production can refresh independently through nfl-research.json. TSO Edge/TD Grade stay model-driven. During games, score, clock, possession, field position, current drive, player box stats, team stats, touchdowns and play-by-play use the low-latency NFL live endpoint with nfl-live.json as a fallback; route/player tracking remains illustrative.</footer>`;
   wire(root);
   fitNflGamecastConcept(root);
   if(state.tab==='foryou') window.renderForYou?.(root.querySelector('#nflForYouHost'));
@@ -1178,6 +1200,8 @@ function wire(root){
   root.querySelectorAll('.ms-slate-cast[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.game=card.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}}));
   root.querySelectorAll('[data-nfl-close-game]').forEach(b=>b.addEventListener('click',()=>{state.game=null;state.gamecastTab='game';render();}));
   root.querySelectorAll('[data-nfl-gamecast-tab]').forEach(b=>b.addEventListener('click',()=>{state.gamecastTab=b.dataset.nflGamecastTab;render();window.scrollTo?.({top:0,behavior:'smooth'});}));
+  root.querySelectorAll('[data-nfl-gamecast-feed]').forEach(b=>b.addEventListener('click',()=>selectTab('feed')));
+  root.querySelectorAll('[data-nfl-refresh-live]').forEach(b=>b.addEventListener('click',async()=>{b.disabled=true;try{await refreshLiveNow();render();}finally{b.disabled=false;}}));
   root.querySelectorAll('[data-nfl-inline-tab]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.inlineTabs[String(b.dataset.nflInlineGame)]=b.dataset.nflInlineTab;render();const el=document.querySelector(`[data-nfl-inline-gamecast=\"${CSS.escape(String(b.dataset.nflInlineGame))}\"]`);el?.scrollIntoView({block:'start'});}));
   root.querySelectorAll('[data-nfl-slate-top]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-close-modal]').forEach(b=>b.addEventListener('click',()=>{state.player=null;state.mapFilter='ALL';render();}));
