@@ -24,6 +24,8 @@ const state = {
   gamecastTab: 'game',
   inlineTabs: {},
   expandedSlate: new Set(),
+  intelOpenGame: null,
+  intelTabs: {},
 };
 
 const NFL_FIELD_ART = 'nfl-tso-field.png?v=42';
@@ -37,9 +39,9 @@ const NFL_GAMECAST_CANVAS_W = 1448;
 const NFL_GAMECAST_CANVAS_H = 1086;
 let _nflGamecastResizeObserver = null;
 function ensureNflGamecastConceptStyles(){
-  if(document.getElementById('nfl-gamecast-concept-v78')) return;
+  if(document.getElementById('nfl-gamecast-concept-v84')) return;
   const style=document.createElement('style');
-  style.id='nfl-gamecast-concept-v78';
+  style.id='nfl-gamecast-concept-v84';
   style.textContent=`
   #nflView .nxg-wrap.nxg-concept{max-width:none!important;width:100%!important;margin:0!important;padding:0!important;color:#dcecff!important;overflow:visible!important}
   #nflView .nxg-concept-viewport{position:relative;width:100%;min-width:0;overflow:hidden;background:#020a18;border-radius:0}
@@ -151,6 +153,39 @@ function ensureNflGamecastConceptStyles(){
   #nflView .nxg-espn-empty{grid-column:1/-1;padding:28px;border:1px solid rgba(45,127,255,.3);border-radius:14px;text-align:center;background:#06142c;color:#9eb8d6;font:700 12px/1.6 'JetBrains Mono',monospace}
   #nflView .nxg-espn-note{grid-column:1/-1;padding:0 4px;color:#6f8eb5;font:700 10px/1.5 'JetBrains Mono',monospace}
   @media(max-width:820px){#nflView .nxg-espn-box{grid-template-columns:1fr;gap:12px;padding-top:10px}#nflView .nxg-espn-table{min-width:520px}}
+  /* v84 — clean-field Game Intel. Desktop uses a dock below the field; mobile uses a bottom sheet. */
+  #nflView .nxg-intel-desktop-toggle{height:38px!important;box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;gap:8px!important;padding:0 14px!important;border-radius:9px!important;border:1px solid rgba(42,137,255,.52)!important;background:#031127!important;color:#8ecbff!important;font:800 10px/1 'JetBrains Mono',monospace!important;white-space:nowrap!important;cursor:pointer!important}
+  #nflView .nxg-intel-desktop-toggle.is-open{background:linear-gradient(180deg,#1688ff,#0a64db)!important;color:#fff!important;border-color:#2d94ff!important}
+  #nflView .nxg-intel-mobile-launch{display:none}
+  #nflView .nxg-intel-dock{margin:12px 0 0;border:1px solid rgba(45,127,255,.38);border-radius:14px;background:linear-gradient(180deg,#07172f,#041024);box-shadow:0 14px 30px rgba(0,0,0,.24);overflow:hidden}
+  #nflView .nxg-intel-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid rgba(45,127,255,.18);background:rgba(8,27,58,.76)}
+  #nflView .nxg-intel-title{display:flex;align-items:center;gap:8px;color:#dcecff;font:900 11px 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap}
+  #nflView .nxg-intel-title i{width:8px;height:8px;border-radius:50%;background:#2d94ff;box-shadow:0 0 0 5px rgba(45,148,255,.11)}
+  #nflView .nxg-intel-tabs{display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none}.nxg-intel-tabs::-webkit-scrollbar{display:none}
+  #nflView .nxg-intel-tab{appearance:none;border:1px solid rgba(45,127,255,.26);background:#06152c;color:#91afd3;border-radius:8px;padding:7px 10px;font:800 9px 'JetBrains Mono',monospace;letter-spacing:.03em;text-transform:uppercase;cursor:pointer;white-space:nowrap}
+  #nflView .nxg-intel-tab.active{background:rgba(45,127,255,.18);border-color:#2d7fff;color:#fff}
+  #nflView .nxg-intel-close{appearance:none;width:32px;height:30px;border:1px solid rgba(45,127,255,.28);border-radius:8px;background:#06152c;color:#a8c7ee;cursor:pointer;font-size:16px;line-height:1}
+  #nflView .nxg-intel-body{padding:12px}
+  #nflView .nxg-intel-body .nxg-overlay-panel{width:100%;box-sizing:border-box;padding:14px 16px;border-radius:12px;background:linear-gradient(180deg,rgba(7,25,52,.92),rgba(5,17,37,.96));border:1px solid rgba(92,166,255,.18);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+  #nflView .nxg-intel-team{display:grid;grid-template-columns:minmax(120px,.75fr) repeat(2,minmax(0,1fr));gap:1px;border:1px solid rgba(45,127,255,.18);border-radius:10px;overflow:hidden;background:rgba(45,127,255,.18)}
+  #nflView .nxg-intel-team>div{background:#06152c;padding:9px 10px;min-width:0}.nxg-intel-team .label{color:#8ca9ce;font:800 9px 'JetBrains Mono',monospace;text-transform:uppercase}.nxg-intel-team .team{display:flex;align-items:center;gap:7px;color:#fff;font:900 10px 'JetBrains Mono',monospace}.nxg-intel-team .team img{width:24px;height:20px;object-fit:contain}.nxg-intel-team .value{text-align:center;color:#fff;font:900 14px 'JetBrains Mono',monospace}
+  #nflView .nxg-intel-backdrop{display:none}
+
+  @media(max-width:760px){
+    #nflView .nxg-intel-desktop-toggle{display:none!important}
+    #nflView .nxg-intel-mobile-launch{display:block;padding:10px 0 2px}
+    #nflView .nxg-intel-mobile-launch button{width:100%;height:44px;border:1px solid rgba(45,127,255,.45);border-radius:11px;background:linear-gradient(180deg,#082247,#061830);color:#dcecff;font:900 11px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase;cursor:pointer}
+    #nflView .nxg-intel-backdrop{display:block;position:fixed;inset:0;z-index:2147482500;background:rgba(0,5,15,.56);backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px)}
+    #nflView .nxg-intel-dock{position:fixed;left:0;right:0;bottom:0;z-index:2147482501;margin:0;border-radius:18px 18px 0 0;border-left:0;border-right:0;border-bottom:0;max-height:min(68vh,620px);overflow:hidden;box-shadow:0 -22px 46px rgba(0,0,0,.48)}
+    #nflView .nxg-intel-head{position:sticky;top:0;z-index:2;flex-direction:column;align-items:stretch;padding:10px 12px 9px;background:#071a36}
+    #nflView .nxg-intel-title{justify-content:space-between}.nxg-intel-title .nxg-intel-close{margin-left:auto}
+    #nflView .nxg-intel-tabs{width:100%;gap:5px}.nxg-intel-tab{flex:1;min-width:max-content;text-align:center}
+    #nflView .nxg-intel-body{max-height:calc(min(68vh,620px) - 94px);overflow:auto;padding:10px 10px max(18px,env(safe-area-inset-bottom))}
+    #nflView .nxg-intel-body .nxg-overlay-panel{padding:12px}
+    #nflView .nxg-overlay-scoring-row{align-items:center}.nxg-overlay-metric-grid{grid-template-columns:repeat(2,1fr)!important}
+    #nflView .nxg-intel-team{grid-template-columns:96px repeat(2,minmax(0,1fr))}.nxg-intel-team>div{padding:8px 6px}.nxg-intel-team .team{font-size:9px}.nxg-intel-team .value{font-size:12px}
+  }
+
   @media(max-width:640px){
     #nflView .nxg-concept .nxg-overlay-stack.left{transform:scale(1.28)!important;transform-origin:top left!important}
     #nflView .nxg-concept .nxg-overlay-stack.right{transform:scale(1.28)!important;transform-origin:top right!important}
@@ -685,6 +720,7 @@ function firstDownPct(g,ball){
   return clamp(ball+(live.possession==='home'?-d:d),7,93);
 }
 function fieldPositionLabel(g){
+  if(g?.status==='post') return 'Game Complete';
   const live=g?.liveScore||{};
   const y=Math.round(Number(live.yardFromOwn));
   if(!Number.isFinite(y)||!live.possession) return `${g.home.abbr} 50`;
@@ -697,6 +733,7 @@ function downDistanceLabel(g){
   if(live.downDistanceText) return live.downDistanceText;
   const down=Number(live.down), dist=Number(live.distance);
   if(Number.isFinite(down)&&Number.isFinite(dist)) return `${down}${down===1?'st':down===2?'nd':down===3?'rd':'th'} & ${dist}`;
+  if(g?.status==='post') return 'Final';
   return g?.status==='in'?'1st & 10':'Pregame';
 }
 function lastPlayLabel(g){ return g?.liveScore?.lastPlayText || (g?.status==='in'?'Live play data updating':'Awaiting kickoff'); }
@@ -1276,7 +1313,24 @@ function playersWatchOverlayHTML(g){
   const watch=keyTargetsForGame(g).slice(0,3);
   return `<section class="nxg-overlay-panel nxg-overlay-watch"><div class="nxg-overlay-title">✦ Players to Watch</div><div class="nxg-overlay-watch-list">${watch.map((p,i)=>{ const line=livePlayerLine(g,p,i); const head=p?.headshot?`<img src="${esc(p.headshot)}" alt="">`:`<span>${esc(initials(p?.name||'TSO'))}</span>`; return `<div class="nxg-overlay-watch-row"><div class="nxg-avatar nxg-overlay-watch-avatar">${head}</div><div class="nxg-overlay-watch-copy"><b>${esc(p.name)}</b><small>${esc(p.pos)}${p.research?.jersey?` #${esc(p.research.jersey)}`:''}</small></div><div class="nxg-overlay-watch-stats"><div><b>${esc(line.v1)}</b><span>${line.a}</span></div><div><b>${esc(line.v2)}</b><span>${line.b}</span></div><div><b>${esc(line.v3)}</b><span>${line.c}</span></div></div></div>`;}).join('')}</div></section>`;
 }
+function teamIntelOverlayHTML(g){
+  const s=teamStatsData(g);
+  const rows=[
+    ['Total Yards',s.aY,s.hY],['Passing',s.aPass,s.hPass],['Rushing',s.aRush,s.hRush],['Turnovers',s.aTo,s.hTo],['Possession',s.aTop,s.hTop]
+  ];
+  return `<section class="nxg-overlay-panel"><div class="nxg-overlay-title">▤ Team Snapshot</div><div class="nxg-intel-team"><div class="label">Metric</div><div class="team">${teamLogo(g.away)}<span>${esc(g.away.abbr)}</span></div><div class="team">${teamLogo(g.home)}<span>${esc(g.home.abbr)}</span></div>${rows.map(([label,a,h])=>`<div class="label">${esc(label)}</div><div class="value">${esc(a)}</div><div class="value">${esc(h)}</div>`).join('')}</div></section>`;
+}
+function gameIntelDockHTML(g){
+  const id=String(g.id), open=String(state.intelOpenGame||'')===id;
+  if(!open) return `<div class="nxg-intel-mobile-launch"><button type="button" data-nfl-intel-toggle="${esc(id)}">▦ Game Intel</button></div>`;
+  const tab=state.intelTabs[id]||'drive';
+  const content=tab==='scoring'?scoringChanceOverlayHTML(g):tab==='players'?playersWatchOverlayHTML(g):tab==='team'?teamIntelOverlayHTML(g):currentDriveOverlayHTML(g);
+  const tabs=[['drive','Drive'],['scoring','Scoring'],['players','Players'],['team','Team']];
+  return `<div class="nxg-intel-mobile-launch"><button type="button" data-nfl-intel-toggle="${esc(id)}">▦ Hide Game Intel</button></div><div class="nxg-intel-backdrop" data-nfl-intel-toggle="${esc(id)}"></div><section class="nxg-intel-dock" aria-label="Game Intel"><div class="nxg-intel-head"><div class="nxg-intel-title"><i></i><span>Game Intel</span><button type="button" class="nxg-intel-close" data-nfl-intel-toggle="${esc(id)}" aria-label="Close Game Intel">×</button></div><div class="nxg-intel-tabs">${tabs.map(([key,label])=>`<button type="button" class="nxg-intel-tab ${tab===key?'active':''}" data-nfl-intel-tab="${key}" data-nfl-intel-game="${esc(id)}">${label}</button>`).join('')}</div></div><div class="nxg-intel-body">${content}</div></section>`;
+}
+
 function fieldOverlayLiveRedesignHTML(g,p){
+  const activePlay=g?.status==='in';
   const ball=ballLeftPct(g)/100, first=firstLeftPct(g)/100, target=routeTargetPct(g)/100;
   const ctx=offenseContext(g), dir=target>ball?1:-1;
   const topL=208, topR=1326, botL=6, botR=1530, topY=90, botY=528;
@@ -1287,13 +1341,17 @@ function fieldOverlayLiveRedesignHTML(g,p){
   const offDef=[];
   const off=[[-.07,.75],[-.035,.67],[0,.74],[.035,.66],[.07,.75],[-.11,.82],[-.02,.84],[.055,.83],[-.15,.88],[.11,.88]];
   const def=[[-.07,.58],[-.025,.55],[.025,.59],[.075,.55],[-.12,.62],[.12,.62],[-.045,.69],[.035,.69],[.105,.72],[-.105,.72],[-.18,.75]];
-  for(const [dx,y] of def){const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="10" class="nxg-svg-def"/>`)}
-  off.forEach(([dx,y],i)=>{const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="${i===1?11:10}" class="${i===1?'nxg-svg-qb':'nxg-svg-off'}"/>`)});
+  if(activePlay){
+    for(const [dx,y] of def){const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="10" class="nxg-svg-def"/>`)}
+    off.forEach(([dx,y],i)=>{const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="${i===1?11:10}" class="${i===1?'nxg-svg-qb':'nxg-svg-off'}"/>`)});
+  }
   const targetLabel=point(target,.37);
   const playerNo=String(p?.id||'88').slice(-2);
-  return `<section class="nxg-live-stage"><div class="nxg-fieldshell nxg-fieldshell-live nxg-fieldshell-exact"><div class="nxg-stadium-exact"><div class="nxg-stadium-lights"></div><div class="nxg-stadium-crowd"></div></div><div class="nxg-nfllive"><span>🏈</span><b>NFL LIVE</b></div><div class="nxg-fieldtag">${esc(g.status==='in'?downDistanceLabel(g):'Pregame')}</div><div class="nxg-fieldart-frame"><img class="nxg-fieldart-img" src="${NFL_FIELD_ART}" alt="The Sports Outpost football field"><div class="nxg-fieldart-shade"></div><svg class="nxg-fieldsvg" viewBox="0 0 1536 600" preserveAspectRatio="none" aria-label="NFL field visualization"><defs><filter id="nxgShadowExact-${esc(g.id)}"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity=".42"/></filter></defs><line x1="${losA.x}" y1="${losA.y}" x2="${losB.x}" y2="${losB.y}" class="nxg-svg-los"/><line x1="${fdA.x}" y1="${fdA.y}" x2="${fdB.x}" y2="${fdB.y}" class="nxg-svg-first"/>${offDef.join('')}<path d="M ${ballPt.x} ${ballPt.y} Q ${ctrl.x} ${ctrl.y} ${targetPt.x} ${targetPt.y}" class="nxg-svg-route"/><path d="M ${ballPt.x} ${ballPt.y} Q ${point(clamp(ball+dir*.06,.08,.92),.57).x} ${point(clamp(ball+dir*.06,.08,.92),.57).y} ${point(clamp(ball+dir*.14,.08,.92),.45).x} ${point(clamp(ball+dir*.14,.08,.92),.45).y}" class="nxg-svg-route-dash"/><ellipse cx="${ballPt.x}" cy="${ballPt.y}" rx="12" ry="7" transform="rotate(-18 ${ballPt.x} ${ballPt.y})" class="nxg-svg-ball"/><g transform="translate(${targetLabel.x-44},${targetLabel.y-20})" filter="url(#nxgShadowExact-${esc(g.id)})"><rect width="88" height="40" rx="10" fill="#071a3b" stroke="#258cff" stroke-width="1.4"/><circle cx="20" cy="20" r="11" fill="#1688ff"/><text x="20" y="24" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">${esc((p?.team||ctx.offense.abbr).slice(0,3))}</text><text x="38" y="24" fill="#fff" font-size="11" font-weight="800">#${esc(playerNo)}</text></g></svg></div><div class="nxg-overlay-stack left"><div class="nxg-overlay-block">${scoringChanceOverlayHTML(g)}</div><div class="nxg-overlay-block">${currentDriveOverlayHTML(g)}</div></div><div class="nxg-overlay-stack right"><div class="nxg-overlay-block">${driveMetricsOverlayHTML(g)}</div><div class="nxg-overlay-block">${playersWatchOverlayHTML(g)}</div></div><div class="nxg-fieldlegend"><span><i class="off"></i>Offense (${esc(ctx.offense.abbr)})</span><span><i class="def"></i>Defense (${esc(ctx.defense.abbr)})</span><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div></div></section>`;
+  const liveMarks=activePlay?`<line x1="${losA.x}" y1="${losA.y}" x2="${losB.x}" y2="${losB.y}" class="nxg-svg-los"/><line x1="${fdA.x}" y1="${fdA.y}" x2="${fdB.x}" y2="${fdB.y}" class="nxg-svg-first"/>${offDef.join('')}<path d="M ${ballPt.x} ${ballPt.y} Q ${ctrl.x} ${ctrl.y} ${targetPt.x} ${targetPt.y}" class="nxg-svg-route"/><path d="M ${ballPt.x} ${ballPt.y} Q ${point(clamp(ball+dir*.06,.08,.92),.57).x} ${point(clamp(ball+dir*.06,.08,.92),.57).y} ${point(clamp(ball+dir*.14,.08,.92),.45).x} ${point(clamp(ball+dir*.14,.08,.92),.45).y}" class="nxg-svg-route-dash"/><ellipse cx="${ballPt.x}" cy="${ballPt.y}" rx="12" ry="7" transform="rotate(-18 ${ballPt.x} ${ballPt.y})" class="nxg-svg-ball"/><g transform="translate(${targetLabel.x-44},${targetLabel.y-20})" filter="url(#nxgShadowExact-${esc(g.id)})"><rect width="88" height="40" rx="10" fill="#071a3b" stroke="#258cff" stroke-width="1.4"/><circle cx="20" cy="20" r="11" fill="#1688ff"/><text x="20" y="24" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">${esc((p?.team||ctx.offense.abbr).slice(0,3))}</text><text x="38" y="24" fill="#fff" font-size="11" font-weight="800">#${esc(playerNo)}</text></g>`:'';
+  const phase=g.status==='post'?(liveState(g).period>=5?'FINAL / OT':'FINAL'):g.status==='in'?downDistanceLabel(g):'PREGAME';
+  const legend=activePlay?`<div class="nxg-fieldlegend"><span><i class="off"></i>Offense (${esc(ctx.offense.abbr)})</span><span><i class="def"></i>Defense (${esc(ctx.defense.abbr)})</span><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div>`:'';
+  return `<section class="nxg-live-stage"><div class="nxg-fieldshell nxg-fieldshell-live nxg-fieldshell-exact"><div class="nxg-stadium-exact"><div class="nxg-stadium-lights"></div><div class="nxg-stadium-crowd"></div></div><div class="nxg-nfllive"><span>🏈</span><b>${g.status==='post'?'NFL FINAL':g.status==='in'?'NFL LIVE':'NFL PREVIEW'}</b></div><div class="nxg-fieldtag">${esc(phase)}</div><div class="nxg-fieldart-frame"><img class="nxg-fieldart-img" src="${NFL_FIELD_ART}" alt="The Sports Outpost football field"><div class="nxg-fieldart-shade"></div><svg class="nxg-fieldsvg" viewBox="0 0 1536 600" preserveAspectRatio="none" aria-label="NFL field visualization"><defs><filter id="nxgShadowExact-${esc(g.id)}"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity=".42"/></filter></defs>${liveMarks}</svg></div>${legend}</div></section>`;
 }
-
 
 function offenseSideHTML(g){
   const {offense, offenseGuide}=offenseContext(g); const ds=driveSummary(g); const log=playLogForGame(g);
@@ -1392,7 +1450,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const wx=weatherForGame(g), st=liveState(g), ctx=offenseContext(g);
   const activeTab=tab || state.gamecastTab || 'game', live=g.status==='in';
   const dateLabel=g.startTimeUTC?new Date(g.startTimeUTC).toLocaleDateString([], {weekday:'short', month:'short', day:'numeric', year:'numeric'}):`Week ${data().week}`;
-  const topLabel=live?(st.q||'LIVE'):g.status==='post'?'FINAL':'PREGAME';
+  const topLabel=live?(st.q||'LIVE'):g.status==='post'?(st.period>=5?'FINAL/OT':'FINAL'):'PREGAME';
   const displayClock=live?(st.clock||''):g.status==='post'?'':(g.time||'TBD');
   const scoreDots='<i></i><i></i><i></i>';
   const gameView=fieldOverlayLiveRedesignHTML(g,p);
@@ -1405,14 +1463,19 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const backTool=embedded
     ? `<button type="button" class="nxg-ghostbtn" data-nfl-slate-top>← Back to ${backLabel}</button>`
     : `<button type="button" class="nxg-ghostbtn" data-nfl-close-game>← Back to ${backLabel}</button>`;
-  const statusTool=live?`<span class="nxg-livepill"><span class="dot"></span>Live <span class="nxg-livebars"><i></i><i></i><i></i></span></span>`:`<span class="nxg-livepill nxg-previewpill"><span class="dot"></span>Game Preview</span>`;
-  const topbar=`<div class="nxg-topbar"><div class="nxg-tabs">${tabButton('game','Game View')}${tabButton('box','Box Score')}${tabButton('pbp','Play by Play')}</div><div class="nxg-tools">${statusTool}<button type="button" class="nxg-feedpill" data-nfl-gamecast-feed>TD Feed</button><button type="button" class="nxg-dotbtn" data-nfl-refresh-live title="Refresh live data">↻</button>${backTool}</div></div>`;
-  const scorebar=`<section class="nxg-scorebar ${live?'is-live':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(displayClock)}</div></div><div class="nxg-downchip"><span>${esc(g.status==='in'?downDistanceLabel(g):'Pregame')}</span><i></i><span>${esc(fieldPositionLabel(g))}</span><span class="arr">▲</span></div><div class="nxg-posstext">${ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
+  const statusTool=live?`<span class="nxg-livepill"><span class="dot"></span>Live <span class="nxg-livebars"><i></i><i></i><i></i></span></span>`:g.status==='post'?`<span class="nxg-livepill nxg-previewpill"><span class="dot"></span>Final</span>`:`<span class="nxg-livepill nxg-previewpill"><span class="dot"></span>Game Preview</span>`;
+  const intelOpen=String(state.intelOpenGame||'')===String(g.id);
+  const intelToggle=`<button type="button" class="nxg-intel-desktop-toggle ${intelOpen?'is-open':''}" data-nfl-intel-toggle="${esc(g.id)}">▦ ${intelOpen?'Hide Intel':'Game Intel'}</button>`;
+  const topbar=`<div class="nxg-topbar"><div class="nxg-tabs">${tabButton('game','Game View')}${tabButton('box','Box Score')}${tabButton('pbp','Play by Play')}</div><div class="nxg-tools">${statusTool}${intelToggle}<button type="button" class="nxg-feedpill" data-nfl-gamecast-feed>TD Feed</button><button type="button" class="nxg-dotbtn" data-nfl-refresh-live title="Refresh live data">↻</button>${backTool}</div></div>`;
+  const situationPrimary=live?downDistanceLabel(g):g.status==='post'?'FINAL':'Pregame';
+  const situationSecondary=live?fieldPositionLabel(g):g.status==='post'?(st.period>=5?'Overtime Complete':'Game Complete'):(g.time||'Kickoff');
+  const situationArrow=live?'<span class="arr">▲</span>':'';
+  const scorebar=`<section class="nxg-scorebar ${live?'is-live':g.status==='post'?'is-final':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(displayClock)}</div></div><div class="nxg-downchip"><span>${esc(situationPrimary)}</span><i></i><span>${esc(situationSecondary)}</span>${situationArrow}</div><div class="nxg-posstext">${live&&ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
 
   // Game View is the approved 1448×1086 composition.  It never switches to a
   // stacked/mobile layout; fitNflGamecastConcept uniformly scales this canvas.
   if(activeTab==='game'){
-    return `<article class="nxg-wrap nxg-concept ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-concept-viewport"><div class="nxg-concept-canvas">${topbar}${scorebar}<div class="nxg-gameview-modern">${gameView}</div></div></div></article>`;
+    return `<article class="nxg-wrap nxg-concept ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-concept-viewport"><div class="nxg-concept-canvas">${topbar}${scorebar}<div class="nxg-gameview-modern">${gameView}</div></div></div>${gameIntelDockHTML(g)}</article>`;
   }
 
   const body=activeTab==='box'?boxView:pbpView;
@@ -1533,15 +1596,17 @@ function wire(root){
   root.querySelectorAll('[data-nfl-prop-view]').forEach(b=>b.addEventListener('click',()=>{state.propView=b.dataset.nflPropView;render();}));
   root.querySelectorAll('[data-nfl-player]').forEach(b=>{const open=()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();};b.addEventListener('click',open);if(b.getAttribute('role')==='button')b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===b){e.preventDefault();open();}});});
   root.querySelectorAll('.nfl-mlb-prop-card[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.player=card.dataset.nflPlayer;state.mapFilter='ALL';render();}}));
-  root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab=b.dataset.nflOrigin==='live'?'live':'slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
-  root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
+  root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.intelOpenGame=null;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab=b.dataset.nflOrigin==='live'?'live':'slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
+  root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.intelOpenGame=null;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-expand-slate]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const id=String(b.dataset.nflExpandSlate);state.expandedSlate.has(id)?state.expandedSlate.delete(id):state.expandedSlate.add(id);render();document.querySelector(`[data-nfl-slate-card="${CSS.escape(id)}"]`)?.scrollIntoView({block:'nearest'});}));
   root.querySelectorAll('.ms-slate-cast[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.game=card.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}}));
-  root.querySelectorAll('[data-nfl-close-game]').forEach(b=>b.addEventListener('click',()=>{state.game=null;state.gamecastTab='game';render();}));
+  root.querySelectorAll('[data-nfl-close-game]').forEach(b=>b.addEventListener('click',()=>{state.game=null;state.intelOpenGame=null;state.gamecastTab='game';render();}));
   root.querySelectorAll('[data-nfl-gamecast-tab]').forEach(b=>b.addEventListener('click',()=>{state.gamecastTab=b.dataset.nflGamecastTab;render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-gamecast-feed]').forEach(b=>b.addEventListener('click',()=>selectTab('feed')));
   root.querySelectorAll('[data-nfl-refresh-live]').forEach(b=>b.addEventListener('click',async()=>{b.disabled=true;try{await refreshLiveNow();render();}finally{b.disabled=false;}}));
   root.querySelectorAll('[data-nfl-inline-tab]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.inlineTabs[String(b.dataset.nflInlineGame)]=b.dataset.nflInlineTab;render();const el=document.querySelector(`[data-nfl-inline-gamecast=\"${CSS.escape(String(b.dataset.nflInlineGame))}\"]`);el?.scrollIntoView({block:'start'});}));
+  root.querySelectorAll('[data-nfl-intel-toggle]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const id=String(b.dataset.nflIntelToggle||'');state.intelOpenGame=String(state.intelOpenGame||'')===id?null:id;render();}));
+  root.querySelectorAll('[data-nfl-intel-tab]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const id=String(b.dataset.nflIntelGame||'');state.intelOpenGame=id;state.intelTabs[id]=b.dataset.nflIntelTab||'drive';render();}));
   root.querySelectorAll('[data-nfl-slate-top]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-close-modal]').forEach(b=>b.addEventListener('click',()=>{state.player=null;state.mapFilter='ALL';render();}));
   root.querySelectorAll('[data-nfl-mapfilter]').forEach(b=>b.addEventListener('click',()=>{state.mapFilter=b.dataset.nflMapfilter;render();}));
@@ -1552,7 +1617,7 @@ function wire(root){
 
 export function selectTab(tab){
   if(!['radar','slate','live','feed','props','players','foryou'].includes(tab)) return;
-  state.tab=tab; state.game=null; state.player=null;
+  state.tab=tab; state.game=null; state.player=null; state.intelOpenGame=null;
   if(tab==='props'){state.prop='atd'; state.propView='board';}
   render(); window.scrollTo({top:0,behavior:'smooth'});
 }
