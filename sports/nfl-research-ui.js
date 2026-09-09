@@ -15,6 +15,7 @@ let indexes = null;
 let oddsData = null;
 let oddsLoadPromise = null;
 let oddsIndex = null;
+let oddsEventBound = false;
 
 const normTeam = t => ({LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'}[String(t||'').toUpperCase()] || String(t||'').toUpperCase());
 const nameKey = s => String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -53,15 +54,16 @@ async function loadResearch(){
 
 
 function buildOddsIndex(data){
-  const byPairName=new Map();
+  const byPairName=new Map(),byPair=new Map();
   for(const g of data?.games||[]){
     const pair=[normTeam(g.away),normTeam(g.home)].sort().join('|');
+    byPair.set(pair,g);
     for(const p of g.players||[]){
       const nk=nameKey(p.name); if(!nk) continue;
       byPairName.set(`${pair}|${nk}`,{game:g,player:p});
     }
   }
-  return {byPairName};
+  return {byPairName,byPair};
 }
 async function loadOdds(){
   if(oddsData) return oddsData;
@@ -80,12 +82,28 @@ async function loadOdds(){
   })();
   return oddsLoadPromise;
 }
+function findOddsGame(r){
+  if(!oddsIndex||!r) return null;
+  const team=normTeam(r.team),opp=normTeam(r?.matchup?.opponent||r?.opponent||'');
+  if(!team||!opp) return null;
+  const pair=[team,opp].sort().join('|');
+  return oddsIndex.byPair?.get(pair)||null;
+}
 function findOddsPlayer(r){
   if(!oddsIndex||!r) return null;
   const team=normTeam(r.team),opp=normTeam(r?.matchup?.opponent||r?.opponent||'');
   if(!team||!opp) return null;
   const pair=[team,opp].sort().join('|');
   return oddsIndex.byPairName.get(`${pair}|${nameKey(r.name)}`)||null;
+}
+
+function findPreviewWagerMeta(r){
+  if(typeof window==='undefined'||!r) return null;
+  const store=window.DW_NFL_WAGER_META||null; if(!store) return null;
+  const id=r.espnId!=null?String(r.espnId):'';
+  if(id&&store.byEspnId?.[id]) return store.byEspnId[id];
+  const key=`${normTeam(r.team)}|${nameKey(r.name)}`;
+  return store.byTeamName?.[key]||null;
 }
 
 function findResearch({id,name,team}={}){
@@ -452,9 +470,10 @@ function isNflSportsbookOffer(o){return !!o&&NFL_SPORTSBOOKS.test(String(o.book|
 function bestNflSportsbook(list){return [...(list||[])].filter(isNflSportsbookOffer).filter(x=>Number.isFinite(Number(x.price))).sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;}
 function propOddsOffer(r,key){
   const hit=findOddsPlayer(r); if(!hit) return null;
+  const game=hit.game||findOddsGame(r);
   const meta=NFL_PROP_META[key], slot=meta?.oddsKey ? hit.player?.odds?.[meta.oddsKey] : null;
   if(!slot) return null;
-  const common={source:'Sportsbook',gameId:hit.game?.gameId||null,eventId:hit.game?.fixtureId||null,startDateUTC:hit.game?.startDateUTC||null};
+  const common={source:'Sportsbook',gameId:game?.gameId||null,eventId:game?.fixtureId||null,startDateUTC:game?.startDateUTC||null};
   if(key==='atd'||key==='firstTd'){
     const best=bestNflSportsbook(slot.all)||(isNflSportsbookOffer(slot.best)?slot.best:null);
     return best?{line:.5,...best,...common}:null;
@@ -597,9 +616,16 @@ function nflPointSlateDate(utc){
 function propSlipHTML(r,ctx,team,opp,edge){
   const line=Number(ctx.line); if(!Number.isFinite(line)) return `<button class="cta tso-nfl-prop-disabled" type="button" disabled>Line unavailable</button>`;
   const wagerMarket=ctx.key==='atd'?'ATD':ctx.meta.market;
+  const preview=findPreviewWagerMeta(r);
+  const game=findOddsGame(r)||findOddsPlayer(r)?.game||preview?.game||null;
+  const gamePk=Number(ctx.offer?.gameId||game?.gameId||preview?.gameId||r.gameId)||null;
+  const eventId=ctx.offer?.eventId||game?.fixtureId||null;
+  const playerId=Number(r.espnId||preview?.playerId)||null;
+  const slateDate=nflPointSlateDate(ctx.offer?.startDateUTC||game?.startDateUTC||game?.startTimeUTC||preview?.startTimeUTC);
   const id=`${r.name}|${wagerMarket}|${fmtLine(line)}`;
-  const leg={id,kind:'prop',sport:'nfl',prop_key:ctx.key,side:'over',player:r.name,market:wagerMarket,line,pct:ctx.prob,grade:ctx.grade,game:`${team} vs ${opp||'DEF'}`,game_pk:Number(ctx.offer?.gameId||r.gameId)||null,event_id:ctx.offer?.eventId||null,player_id:r.espnId||r.gsisId||r.pfrId||null,price:ctx.offer?.price??null,book:ctx.offer?.book??null,link:ctx.offer?.link??null,line_source:ctx.lineSource,slate_date:nflPointSlateDate(ctx.offer?.startDateUTC||findOddsPlayer(r)?.game?.startDateUTC)};
+  const leg={id,kind:'prop',sport:'nfl',prop_key:ctx.key,side:'over',player:r.name,player_name:r.name,market:wagerMarket,line,pct:ctx.prob,grade:ctx.grade,game:`${team} vs ${opp||'DEF'}`,game_pk:gamePk,event_id:eventId,player_id:playerId,price:ctx.offer?.price??null,book:ctx.offer?.book??null,link:ctx.offer?.link??null,line_source:ctx.lineSource,slate_date:slateDate};
   const label=`Add ${fmtLine(line)} ${ctx.meta.label} to Slip`,on=slipHasLeg(id);
+  if(ctx.key==='atd' && (!gamePk||!playerId||!slateDate)) return `<button class="cta tso-nfl-prop-disabled" type="button" disabled>ATD wager metadata pending</button>`;
   return `<button class="add-leg cta ${on?'in-slip':''}" data-legid="${esc(id)}" data-leg="${encodeURIComponent(JSON.stringify(leg))}" data-cta-label="${esc(label)}">${on?'✓ In Slip':esc(label)}</button>`;
 }
 
@@ -706,4 +732,14 @@ export async function mountNflResearchUI(root){
   if(observer) observer.disconnect();
   observer=new MutationObserver(()=>scheduleEnhance());
   observer.observe(rootRef,{childList:true,subtree:true});
+  if(!oddsEventBound){
+    oddsEventBound=true;
+    window.addEventListener('dw-nfl-odds-updated',async()=>{
+      oddsData=null; oddsLoadPromise=null; oddsIndex=null;
+      await loadOdds();
+      const modal=rootRef?.querySelector?.('.ms-modal');
+      if(modal) delete modal.dataset.tsoMlbV72;
+      scheduleEnhance();
+    });
+  }
 }

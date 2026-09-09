@@ -357,7 +357,7 @@ function pointWagerLegForAtd(p){
   const playerId=Number(p?.espnId); const gamePk=Number(g?.id);
   if(!p||!g||!playerId||!gamePk||!Number.isFinite(Number(p.prob))) return null;
   const line=.5, pct=Number((Number(p.prob)*100).toFixed(1));
-  return {id:`${p.name}|ATD|0.5`,kind:'prop',sport:'nfl',prop_key:'atd',side:'over',player:p.name,market:'ATD',line,pct,grade:p.grade||gradeFor(p.prob),game:`${g.away.abbr} @ ${g.home.abbr}`,game_pk:gamePk,event_id:g.fixtureId||null,player_id:playerId,price:offer?.price??null,book:offer?.book??null,link:offer?.link??null,slate_date:nflOfficialSlateDate(g.startTimeUTC)};
+  return {id:`${p.name}|ATD|0.5`,kind:'prop',sport:'nfl',prop_key:'atd',side:'over',player:p.name,player_name:p.name,market:'ATD',line,pct,grade:p.grade||gradeFor(p.prob),game:`${g.away.abbr} @ ${g.home.abbr}`,game_pk:gamePk,event_id:g.fixtureId||null,player_id:playerId,price:offer?.price??null,book:offer?.book??null,link:offer?.link??null,slate_date:nflOfficialSlateDate(g.startTimeUTC)};
 }
 function slipHasLeg(id){
   try{return (JSON.parse(localStorage.getItem('dw_betslip')||'[]')||[]).some(l=>l?.id===id);}catch{return false;}
@@ -452,8 +452,8 @@ function oddsFreshnessLabel(){
 }
 
 function ensureNflLaunchStyles(){
-  if(document.getElementById('nfl-launch-ui-v82')) return;
-  const style=document.createElement('style'); style.id='nfl-launch-ui-v82';
+  if(document.getElementById('nfl-launch-ui-v83')) return;
+  const style=document.createElement('style'); style.id='nfl-launch-ui-v83';
   style.textContent=`
   #nflView .nfl-match-date{display:block;margin:4px 0 2px;color:#8fb7e8;font:800 8px 'JetBrains Mono',monospace;letter-spacing:.055em;text-transform:uppercase}
   #nflView .nfl-game-lines{display:block;margin-top:5px;color:#fbbf24;font:800 8px 'JetBrains Mono',monospace;white-space:normal}
@@ -488,6 +488,8 @@ function ensureNflLaunchStyles(){
      Let the identity lane size itself so odds never overlap the next player. */
   #nflView .nfl-match-threats{align-items:start!important}
   #nflView .nfl-team-board{min-width:0!important;overflow:hidden!important}
+  #nflView .nfl-team-board .nfl-slate-player{display:grid!important;grid-template-columns:50px minmax(0,1fr) 58px 64px!important;gap:8px!important;width:100%!important;box-sizing:border-box!important;min-height:96px!important;align-items:center!important;cursor:pointer!important}
+  #nflView .nfl-team-board .nfl-slate-player>*{min-width:0!important}
   #nflView .nfl-slate-player{min-height:96px!important;align-items:center!important}
   #nflView .nfl-slate-player-main{display:flex!important;flex-direction:column!important;justify-content:center!important;align-self:stretch!important;gap:3px!important;min-width:0!important;min-height:80px!important;padding:6px 0!important}
   #nflView .nfl-slate-player-name{height:auto!important;min-height:18px!important}
@@ -529,7 +531,7 @@ function ensureNflLaunchStyles(){
     #nflView .nfl-game-odds-cell{min-height:32px!important}
   }
   @media(max-width:430px){
-    #nflView .nfl-slate-player{grid-template-columns:34px minmax(0,1fr) 46px 42px!important;gap:5px!important;padding-left:7px!important;padding-right:7px!important}
+    #nflView .nfl-team-board .nfl-slate-player{grid-template-columns:34px minmax(0,1fr) 46px 46px!important;gap:5px!important;padding-left:7px!important;padding-right:7px!important}
     #nflView .nfl-slate-player-head{width:32px!important;height:32px!important}
     #nflView .nfl-slate-odds{gap:3px!important}
     #nflView .nfl-atd-wager-btn{height:21px!important;padding:0 6px!important;font-size:6px!important}
@@ -608,6 +610,21 @@ async function loadData(){
     state.data={games:FALLBACK_GAMES,players:FALLBACK_PLAYERS,week:1,generatedAt:null,researchGeneratedAt:null};
   }
   const dd=state.data;
+  // v83 — expose canonical slate/game IDs for companion NFL UI modules.
+  // Player-modal research objects do not always carry gameId/startTimeUTC,
+  // especially when a sportsbook has not posted that player's market yet.
+  // Keep a small read-only lookup sourced from the actual nfl.json slate so
+  // ATD legs created from the modal still receive valid wager metadata.
+  const gameMetaById=Object.fromEntries(dd.games.map(g=>[String(g.id),{gameId:String(g.id),startTimeUTC:g.startTimeUTC||null,away:g.away?.abbr||null,home:g.home?.abbr||null}]));
+  const wagerByEspnId={}, wagerByTeamName={};
+  for(const p of dd.players){
+    const gm=gameMetaById[String(p.gameId)]||null;
+    const meta={playerId:p.espnId||null,gameId:p.gameId||null,startTimeUTC:gm?.startTimeUTC||null,team:p.team||null,name:p.name||null,game:gm};
+    if(p.espnId) wagerByEspnId[String(p.espnId)]=meta;
+    wagerByTeamName[`${p.team}|${researchNameKey(p.name)}`]=meta;
+  }
+  window.DW_NFL_WAGER_META={byEspnId:wagerByEspnId,byTeamName:wagerByTeamName,games:gameMetaById};
+
   const firstTdRank=[...dd.players].map(p=>({p,prob:firstTdProbability(p)})).filter(x=>x.prob!=null).sort((a,b)=>b.prob-a.prob);
   window.DW_NFL_PREVIEW_SUMMARY={
     week:dd.week,
@@ -870,12 +887,16 @@ function nflSlateLeaderHTML(g,team,isHome=false){
 function nflSlatePlayerRowHTML(p,extra=false){
   const avatar=p.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy" decoding="async">`:`<span>${esc(initials(p.name))}</span>`;
   const grade=p.grade||gradeFor(p.prob||0);
-  return `<button type="button" class="nfl-slate-player ${extra?'is-extra':''}" data-nfl-player="${esc(p.id)}">
+  // A Slate player row contains its own Add ATD button, so the row itself must
+  // NOT be a <button>. Nested buttons are invalid HTML; browsers auto-close the
+  // outer button and spill the grade/edge cells outside the team board. That was
+  // the actual cause of the broken v81/v82 Slate layout.
+  return `<div class="nfl-slate-player ${extra?'is-extra':''}" data-nfl-player="${esc(p.id)}" role="button" tabindex="0" aria-label="Open ${esc(p.name)} player profile">
     <div class="nfl-slate-player-head">${avatar}</div>
     <div class="nfl-slate-player-main"><span class="nfl-slate-player-name"><strong>${esc(p.name)}</strong></span><span class="nfl-slate-player-meta">${esc(p.pos)} · ${p.usage}% snaps · ${p.rz} RZ opps</span><div class="nfl-slate-badges">${nflBadges(p)}</div><div class="nfl-slate-odds">${oddsChipHTML(p,'atd')||'<span class="nfl-odds-chip"><b>ATD</b><small>Odds pending</small></span>'}${oddsChipHTML(p,'firstTd')}${atdWagerButtonHTML(p,'Add ATD')}</div></div>
     <div class="nfl-slate-player-stat grade">${nflGradeRingHTML(p.prob||0,grade,'sm')}</div>
     <div class="nfl-slate-player-stat edge"><b>${p.edge}</b></div>
-  </button>`;
+  </div>`;
 }
 
 function nflThreatBoardHTML(g,team){
@@ -1510,7 +1531,7 @@ function wire(root){
   root.querySelector('#nflMlbPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value||'atd';state.propView='board';render();});
   root.querySelectorAll('[data-nfl-prop-key]').forEach(b=>b.addEventListener('click',()=>{state.prop=b.dataset.nflPropKey||'atd';state.propView='board';render();}));
   root.querySelectorAll('[data-nfl-prop-view]').forEach(b=>b.addEventListener('click',()=>{state.propView=b.dataset.nflPropView;render();}));
-  root.querySelectorAll('[data-nfl-player]').forEach(b=>b.addEventListener('click',()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();}));
+  root.querySelectorAll('[data-nfl-player]').forEach(b=>{const open=()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();};b.addEventListener('click',open);if(b.getAttribute('role')==='button')b.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target===b){e.preventDefault();open();}});});
   root.querySelectorAll('.nfl-mlb-prop-card[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.player=card.dataset.nflPlayer;state.mapFilter='ALL';render();}}));
   root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab=b.dataset.nflOrigin==='live'?'live':'slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));

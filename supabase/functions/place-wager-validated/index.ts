@@ -1,4 +1,5 @@
-// v81 — validates MLB Home Run and NFL Anytime TD point wagers at placement time.
+// v83 — validates MLB Home Run and NFL Anytime TD point wagers at placement time.
+// Preserves the wager preview's correlation_adjustment when forwarding to place_wager().
 // Fail closed: if a leg's live state cannot be verified right now, no wager is placed.
 // Uses Deno.serve so deployment has no remote stdlib dependency.
 
@@ -59,11 +60,11 @@ Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
   if (req.method !== 'POST') return jsonResponse({ error: 'POST only' }, 405);
 
-  let body: { stake?: number; legs?: any[] };
+  let body: { stake?: number; legs?: any[]; correlation_adjustment?: number };
   try { body = await req.json(); }
   catch { return jsonResponse({ error: 'invalid request body' }, 400); }
 
-  const { stake, legs } = body;
+  const { stake, legs, correlation_adjustment = 1 } = body;
   if (!Array.isArray(legs) || !legs.length) return jsonResponse({ error: 'at least one leg is required' }, 400);
   if (!Number.isFinite(Number(stake)) || Number(stake) <= 0) return jsonResponse({ error: 'stake must be positive' }, 400);
 
@@ -135,7 +136,7 @@ Deno.serve(async (req: Request) => {
       Authorization: authHeader,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ stake_amount: Number(stake), legs_json: legs }),
+    body: JSON.stringify({ stake_amount: Number(stake), legs_json: legs, correlation_adjustment }),
   });
   const text = await rpc.text();
   let data: any = null;

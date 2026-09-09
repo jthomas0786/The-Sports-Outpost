@@ -15224,7 +15224,7 @@ function renderBetslipBar(){
         ? 'Every leg has a live line — this opens the betslip already loaded.'
         : priced > 0
           ? `${priced} of ${betslip.length} legs have live lines; the rest will be skipped.`
-          : 'No live lines in this slate. Run fetch-odds.js for one-tap betslips.'}</div>
+          : 'No standard sportsbook lines are posted for these selections yet. TSO point wagers can still use the model probability.'}</div>
       <div class="bs-actions">
         <button class="bs-btn primary" id="bsBuild">${priced ? 'Place bet' : 'Send picks'}</button>
         <button class="bs-btn" id="bsText">Text GamblyBot</button>
@@ -15348,28 +15348,33 @@ function resolvePlayerForLeg(leg){
  *  leg's real player object can't be resolved — safer than silently
  *  mispricing off incomplete data. */
 function computeCombinedOdds(legs, houseEdge, maxMult){
-  // Step 1, exactly matching the server: shade each leg's OWN probability
-  // separately, multiply the resulting odds together. Unchanged from
-  // before correlation existed at all.
-  const naiveCombined = legs.reduce((acc, l) => acc * previewOdds(l.pct, houseEdge), 1);
+  // v83 — all-NFL ATD parlays get the house edge once at the JOINT level.
+  // The previous formula shaded every leg separately, so the same house edge
+  // compounded again with each touchdown leg and made a 3/4-leg parlay barely
+  // move. A one-leg ATD is unchanged; multi-leg ATD now scales naturally.
+  const allNflAtd = legs.length > 0 && legs.every(l => {
+    const market=String(l?.market||'').trim().toUpperCase();
+    const sport=String(l?.sport || (market==='ATD'?'nfl':'mlb')).toLowerCase();
+    return sport==='nfl' && market==='ATD' && Number(l?.pct)>0 && Number(l?.pct)<100;
+  });
+  if(allNflAtd){
+    const jointProb = legs.reduce((acc,l)=>acc*(Number(l.pct)/100),1);
+    const shadedJoint = Math.min(0.90, jointProb * (1 + houseEdge));
+    const multiplier = shadedJoint > 0 ? Math.min(1 / shadedJoint, maxMult) : 0;
+    return { multiplier, correlationAdjustment: 1 };
+  }
 
+  // Preserve the existing MLB HR calculation and its simulation correlation.
+  const naiveCombined = legs.reduce((acc, l) => acc * previewOdds(l.pct, houseEdge), 1);
   const players = legs.map(resolvePlayerForLeg);
   if(players.some(p => !p)){
     return { multiplier: Math.min(naiveCombined, maxMult), correlationAdjustment: 1 };
   }
-
   const naiveIndependentProb = players.reduce((acc, p) => acc * (simulatePlayer(p).hr.exact / 100), 1);
   const trueJointProb = jointHRProbability(players);
   const rawCorrelationAdjustment = naiveIndependentProb > 0 ? trueJointProb / naiveIndependentProb : 1;
-  // Same clamp place_wager() applies server-side (see wagering-schema.sql)
-  // — applied here too so an extreme correlation scenario can never make
-  // this preview diverge from what the server will actually compute.
   const correlationAdjustment = clamp(rawCorrelationAdjustment, 0.5, 2.0);
-
-  // Step 2, exactly matching the server: divide the per-leg combined odds
-  // by the correlation adjustment, THEN cap at the max multiplier.
   const multiplier = Math.min(naiveCombined / correlationAdjustment, maxMult);
-
   return { multiplier, correlationAdjustment };
 }
 
@@ -15509,7 +15514,7 @@ async function openWagerPanel(){
   panel.style.display = 'block';
   panel.innerHTML = `
     <div class="bs-wager-balance">Balance: <b>${balance}</b> pts</div>
-    <div class="bs-wager-disclaimer">These odds aren't real sportsbook lines — they're generated from The Sports Outpost's own ranking/probability model.</div>
+    <div class="bs-wager-disclaimer">TSO point-wager multipliers are model-derived and separate from sportsbook prices shown on the NFL cards.</div>
     <div class="bs-wager-row">
       <input type="number" id="wagerStake" min="1" max="${balance}" step="1" placeholder="Stake" value="${Math.min(50, balance) || ''}">
       <button class="bs-btn primary" id="wagerConfirm">Confirm</button>

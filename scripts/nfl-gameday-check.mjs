@@ -128,7 +128,7 @@ if(preview){
   preview.includes('nflKickoffDateLabel')?pass('NFL Slate kickoff weekday/date labels are wired'):fail('NFL Slate kickoff date labels are missing');
   preview.includes('nflKickoffTimeLabel')&&preview.includes('timeZoneName')?pass('Kickoff time uses viewer-local timezone abbreviation'):fail('Viewer-local kickoff timezone label is missing');
   preview.includes('gameOddsPanelHTML')?pass('Themed Game Odds panel is installed on NFL Slate'):fail('NFL Slate Game Odds panel is missing');
-  preview.includes('v82 — v81 added a fourth content lane')?pass('NFL Slate player rows are repaired for odds/wager content'):fail('NFL Slate player-row repair is missing');
+  preview.includes('Nested buttons are invalid HTML')&&preview.includes('role=\"button\" tabindex=\"0\"')?pass('NFL Slate player rows use valid non-nested interactive markup'):fail('NFL Slate still risks nested-button layout breakage');
   preview.includes('nflMlbPropSelect')?pass('NFL Props market uses the MLB-style dropdown'):fail('NFL Props dropdown is missing');
   preview.includes('atdWagerButtonHTML')?pass('NFL ATD Add-to-Slip controls are installed'):fail('NFL ATD Add-to-Slip controls are missing');
   /projected rush yds|projected rec yds|projected completions/i.test(preview)?warn('Legacy deterministic prop preview strings still exist'):pass('Legacy deterministic non-TD prop preview values removed');
@@ -137,6 +137,8 @@ if(preview){
 const indexHtml=await fs.readFile('index.html','utf8').catch(()=>null);
 if(indexHtml){
   indexHtml.includes("sport==='nfl' && market==='ATD'")?pass('Point wager panel accepts NFL ATD legs'):fail('Point wager panel is still HR-only');
+  indexHtml.includes('all-NFL ATD parlays get the house edge once')?pass('NFL ATD parlay preview uses joint-level house edge'):fail('NFL ATD parlay preview still compounds house edge per leg');
+  preview?.includes('DW_NFL_WAGER_META')&&researchUi?.includes('findPreviewWagerMeta')&&researchUi?.includes('player_name:r.name')?pass('NFL player-modal ATD legs inherit canonical slate wager metadata'):fail('NFL player-modal ATD wager metadata fallback is missing');
 }
 const settlement=await fs.readFile('settle-wagers.js','utf8').catch(()=>null);
 if(settlement){
@@ -146,6 +148,20 @@ const wagerMigration=await fs.readFile('supabase/migrations/20260909033000_enabl
 if(wagerMigration){
   wagerMigration.includes("v_leg_market := 'ATD'")?pass('NFL ATD wager database migration is present'):fail('NFL ATD wager migration is incomplete');
 }else warn('NFL ATD wager migration file is not present locally');
+
+
+const modalUi=await fs.readFile('sports/nfl-research-ui.js','utf8').catch(()=>null);
+if(modalUi){
+  modalUi.includes('function findOddsGame')&&modalUi.includes('game?.gameId')?pass('NFL player modal ATD slip resolves game metadata without requiring a posted ATD price'):fail('NFL player modal ATD slip can still lose game metadata when odds are pending');
+}
+const priceMigration=await fs.readFile('supabase/migrations/20260909045500_fix_nfl_atd_parlay_pricing.sql','utf8').catch(()=>null);
+if(priceMigration){
+  priceMigration.includes('v_all_nfl_atd')&&priceMigration.includes('v_joint_prob')?pass('NFL ATD server parlay pricing migration is present'):fail('NFL ATD server parlay pricing migration is incomplete');
+}else warn('NFL ATD v83 parlay pricing migration is not present locally');
+const wagerFn=await fs.readFile('supabase/functions/place-wager-validated/index.ts','utf8').catch(()=>null);
+if(wagerFn){
+  wagerFn.includes("/auth/v1/user")&&wagerFn.includes('version: 83')?pass('NFL wager Edge Function v83 authenticates inside the function'):fail('NFL wager Edge Function v83 auth hardening is missing');
+}
 
 const liveJs=await fs.readFile('sports/nfl/live.js','utf8').catch(()=>null);
 if(liveJs&&liveJs.includes('supabase.co/functions/v1/nfl-live'))
