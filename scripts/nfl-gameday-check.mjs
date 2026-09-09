@@ -61,8 +61,24 @@ if(odds){
     const markets=new Set(games.flatMap(g=>g.markets||[]));
     const count=games.reduce((n,g)=>n+(g.players||[]).length,0);
     count?pass(`${count} players have sportsbook props`):warn('Target game currently has no player prop rows');
-    ['atd','rushYds','recYds','receptions','passYds','passTds','completions']
-      .forEach(m=>markets.has(m)?pass(`market ${m}`):warn(`market ${m} not posted yet`));
+    const targetMarkets=['atd','rushYds','recYds','receptions','passYds','passTds','completions'];
+    for(const m of targetMarkets){
+      if(markets.has(m)){ pass(`market ${m}`); continue; }
+      const ds=games.map(g=>g?.marketDiagnostics?.[m]).filter(Boolean);
+      const raw=ds.reduce((n,d)=>n+(Number(d.rawRows)||0),0);
+      const sportsbook=ds.reduce((n,d)=>n+(Number(d.sportsbookRows)||0),0);
+      const excluded=ds.reduce((n,d)=>n+(Number(d.excludedRows)||0),0);
+      const rejectedSources=[...new Set(ds.flatMap(d=>Object.keys(d.excludedSources||{})))];
+      if(sportsbook>0){
+        fail(`market ${m}: ${sportsbook} sportsbook row(s) returned but none reached player output — parser regression`);
+      }else if(raw>0){
+        warn(`market ${m}: ${raw} raw row(s), but all ${excluded} were excluded non-sportsbook sources${rejectedSources.length?` (${rejectedSources.join(', ')})`:''}`);
+      }else if(ds.length){
+        warn(`market ${m}: ParlayAPI returned 0 rows for this matchup at the latest refresh`);
+      }else{
+        warn(`market ${m} not posted yet (rerun NFL Odds Refresh with v82 diagnostics)`);
+      }
+    }
     games.some(g=>g.gameLines?.moneyline||g.gameLines?.spread||g.gameLines?.total)
       ? pass('Game moneyline/spread/total present')
       : warn('Game lines not posted yet');
@@ -112,6 +128,7 @@ if(preview){
   preview.includes('nflKickoffDateLabel')?pass('NFL Slate kickoff weekday/date labels are wired'):fail('NFL Slate kickoff date labels are missing');
   preview.includes('nflKickoffTimeLabel')&&preview.includes('timeZoneName')?pass('Kickoff time uses viewer-local timezone abbreviation'):fail('Viewer-local kickoff timezone label is missing');
   preview.includes('gameOddsPanelHTML')?pass('Themed Game Odds panel is installed on NFL Slate'):fail('NFL Slate Game Odds panel is missing');
+  preview.includes('v82 — v81 added a fourth content lane')?pass('NFL Slate player rows are repaired for odds/wager content'):fail('NFL Slate player-row repair is missing');
   preview.includes('nflMlbPropSelect')?pass('NFL Props market uses the MLB-style dropdown'):fail('NFL Props dropdown is missing');
   preview.includes('atdWagerButtonHTML')?pass('NFL ATD Add-to-Slip controls are installed'):fail('NFL ATD Add-to-Slip controls are missing');
   /projected rush yds|projected rec yds|projected completions/i.test(preview)?warn('Legacy deterministic prop preview strings still exist'):pass('Legacy deterministic non-TD prop preview values removed');

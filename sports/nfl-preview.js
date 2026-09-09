@@ -452,8 +452,8 @@ function oddsFreshnessLabel(){
 }
 
 function ensureNflLaunchStyles(){
-  if(document.getElementById('nfl-launch-ui-v81')) return;
-  const style=document.createElement('style'); style.id='nfl-launch-ui-v81';
+  if(document.getElementById('nfl-launch-ui-v82')) return;
+  const style=document.createElement('style'); style.id='nfl-launch-ui-v82';
   style.textContent=`
   #nflView .nfl-match-date{display:block;margin:4px 0 2px;color:#8fb7e8;font:800 8px 'JetBrains Mono',monospace;letter-spacing:.055em;text-transform:uppercase}
   #nflView .nfl-game-lines{display:block;margin-top:5px;color:#fbbf24;font:800 8px 'JetBrains Mono',monospace;white-space:normal}
@@ -483,6 +483,20 @@ function ensureNflLaunchStyles(){
   #nflView .nfl-slate-player-stat.grade .nfl-grade-ring::before,#nflView .nfl-slate-player-stat.grade .nfl-grade-ring::after,#nflView .nfl-slate-player-stat.grade .sgr-l::before,#nflView .nfl-slate-player-stat.grade .sgr-l::after,#nflView .nfl-slate-player-stat.grade .sgr-gd2::before,#nflView .nfl-slate-player-stat.grade .sgr-gd2::after{display:none!important;content:none!important}
   #nflView .nfl-slate-player-stat.edge{display:grid!important;place-items:center!important;text-align:center!important}#nflView .nfl-slate-player-stat.edge b{display:block!important;width:100%!important;text-align:center!important;margin:0!important}
 
+  /* v82 — v81 added a fourth content lane (sportsbook odds + ATD wager) to a
+     Slate player row that was still hard-coded for three 20/17/20px rows.
+     Let the identity lane size itself so odds never overlap the next player. */
+  #nflView .nfl-match-threats{align-items:start!important}
+  #nflView .nfl-team-board{min-width:0!important;overflow:hidden!important}
+  #nflView .nfl-slate-player{min-height:96px!important;align-items:center!important}
+  #nflView .nfl-slate-player-main{display:flex!important;flex-direction:column!important;justify-content:center!important;align-self:stretch!important;gap:3px!important;min-width:0!important;min-height:80px!important;padding:6px 0!important}
+  #nflView .nfl-slate-player-name{height:auto!important;min-height:18px!important}
+  #nflView .nfl-slate-player-meta{line-height:1.25!important;min-height:14px!important}
+  #nflView .nfl-slate-badges{height:auto!important;min-height:18px!important;overflow:visible!important;flex-wrap:wrap!important;row-gap:3px!important}
+  #nflView .nfl-slate-odds{margin-top:1px!important;min-height:23px!important;align-items:center!important;row-gap:3px!important}
+  #nflView .nfl-slate-player-stat.grade,#nflView .nfl-slate-player-stat.edge{align-self:center!important}
+  #nflView .nfl-slate-wager,#nflView .nfl-atd-wager-btn{flex:0 0 auto!important}
+
   #nflView .nfl-mlb-prop-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px;border:1px solid rgba(45,127,255,.20);border-radius:10px;background:linear-gradient(180deg,rgba(8,31,67,.72),rgba(4,18,40,.70))}
   #nflView .nfl-mlb-prop-tabs{display:flex;gap:5px;flex-wrap:wrap;min-width:0}
   #nflView .nfl-mlb-prop-tab{padding:7px 10px;border:1px solid rgba(88,153,236,.24);border-radius:7px;background:#071933;color:#9bb8da;font:900 8px 'JetBrains Mono',monospace;text-transform:uppercase;cursor:pointer}
@@ -502,10 +516,23 @@ function ensureNflLaunchStyles(){
   #nflView .nfl-mlb-prop-odds{display:inline-flex;align-items:center;gap:6px;margin-top:7px;padding:5px 7px;border:1px solid rgba(34,197,94,.28);border-radius:6px;background:rgba(6,68,42,.18);font:900 8px 'JetBrains Mono',monospace;color:#67e8a5}#nflView .nfl-mlb-prop-odds b{font-size:11px;color:#fff}#nflView .nfl-mlb-prop-odds em{font-style:normal;color:#9eb6d2}
   #nflView .nfl-mlb-prop-grade{display:flex;flex-direction:column;align-items:center;gap:3px}#nflView .nfl-mlb-prop-grade>small{font:800 6px 'JetBrains Mono',monospace;color:#758faf;text-transform:uppercase;text-align:center}
   #nflView .nfl-td-odds{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}#nflView .nfl-td-odds .nfl-odds-chip{background:rgba(7,60,39,.28)}
+  @media(max-width:900px){
+    #nflView .nfl-match-threats{grid-template-columns:1fr!important}
+  }
   @media(max-width:760px){
     #nflView .nfl-mlb-prop-toolbar{padding:8px}#nflView .nfl-mlb-prop-tab{padding:6px 7px;font-size:7px}
     #nflView .nfl-mlb-prop-card{grid-template-columns:24px 56px minmax(0,1fr) 66px;gap:8px;padding:8px}#nflView .nfl-mlb-prop-avatar{width:54px;height:54px}#nflView .nfl-mlb-prop-market{grid-column:3/5;grid-row:2;border-left:0;border-top:1px solid rgba(89,144,213,.14);padding:7px 0 0}#nflView .nfl-mlb-prop-grade{grid-column:4;grid-row:1}#nflView .nfl-grade-ring-lg{width:62px;height:62px}#nflView .nfl-mlb-prop-name b{font-size:15px}#nflView .nfl-mlb-prop-detail{grid-template-columns:repeat(2,minmax(0,1fr))}
     #nflView .nfl-match-date{font-size:7px}#nflView .nfl-odds-chip{font-size:6px;padding:3px 5px}#nflView .nfl-mlb-prop-market-control{min-width:0;width:100%}#nflView .nfl-mlb-prop-select-wrap{min-width:0;flex:1}
+    #nflView .nfl-slate-player{min-height:100px!important}
+    #nflView .nfl-slate-player-main{min-height:84px!important;padding:5px 0!important}
+    #nflView .nfl-game-odds-grid{grid-template-columns:22px repeat(3,minmax(0,1fr))!important;gap:3px!important}
+    #nflView .nfl-game-odds-cell{min-height:32px!important}
+  }
+  @media(max-width:430px){
+    #nflView .nfl-slate-player{grid-template-columns:34px minmax(0,1fr) 46px 42px!important;gap:5px!important;padding-left:7px!important;padding-right:7px!important}
+    #nflView .nfl-slate-player-head{width:32px!important;height:32px!important}
+    #nflView .nfl-slate-odds{gap:3px!important}
+    #nflView .nfl-atd-wager-btn{height:21px!important;padding:0 6px!important;font-size:6px!important}
   }
   `;
   document.head.appendChild(style);

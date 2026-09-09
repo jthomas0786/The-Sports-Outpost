@@ -172,6 +172,27 @@ function parsePlayerMarket(rows, internalKey) {
   };
 }
 
+function blankMarketDiagnostics(){
+  return Object.fromEntries(CORE.map(k=>[k,{
+    rawRows:0,sportsbookRows:0,excludedRows:0,sportsbookSources:{},excludedSources:{}
+  }]));
+}
+function bumpSource(bucket,name){
+  const k=String(name||'Unknown').trim()||'Unknown';
+  bucket[k]=(bucket[k]||0)+1;
+}
+function diagRow(diag, internal, row){
+  const d=diag?.[internal]; if(!d) return;
+  d.rawRows++;
+  const source=cleanBook(row)||String(row?.bookmaker||'Unknown');
+  if(isNonSportsbook(row)){ d.excludedRows++; bumpSource(d.excludedSources,source); }
+  else { d.sportsbookRows++; bumpSource(d.sportsbookSources,source); }
+}
+function conciseSources(obj){
+  const a=Object.entries(obj||{}).sort((x,y)=>y[1]-x[1]||x[0].localeCompare(y[0]));
+  return a.length?a.map(([k,v])=>`${k}:${v}`).join(', '):'none';
+}
+
 function parseGameLines(event) {
   const books = event?.bookmakers || [];
   const rows = {h2h:[],spreads:[],totals:[]};
@@ -255,11 +276,17 @@ async function main() {
 
   const eventById = new Map(relevant.map(e=>[String(e.canonical_event_id||e.id||''),e]));
   const gameOddsById = new Map((Array.isArray(gameOdds)?gameOdds:[]).map(e=>[String(e.canonical_event_id||e.id||''),e]));
+  // Keep raw-vs-accepted counts per event/market. This lets us tell the
+  // difference between "ParlayAPI did not return ATD" and "ATD exists only
+  // at an exchange/DFS source that TSO intentionally refuses to label as a sportsbook."
+  const diagnosticsByEvent = new Map([...eventById.keys()].map(id=>[id,blankMarketDiagnostics()]));
   const groups = new Map();
   for (const r of (Array.isArray(props)?props:[])) {
-    if (!MARKET_MAP[r.market_key]) continue;
+    const internal=MARKET_MAP[r.market_key];
+    if (!internal) continue;
     const eid=String(r.canonical_event_id||r.event_id||'');
     if (!eventById.has(eid)) continue;
+    diagRow(diagnosticsByEvent.get(eid),internal,r);
     const label=splitPlayerLabel(r.player||r.player_name);
     const pk=`${eid}|${normName(label.name)}`;
     const p=groups.get(pk)||{eventId:eid,name:label.name,teamHint:label.team,byMarket:new Map()};
@@ -292,11 +319,22 @@ async function main() {
       away,home,awayName:event.away_team,homeName:event.home_team,
       startDateUTC:event.commence_time,status:'unplayed',venue:slateRec?.game?.venue||null,
       matchKey:`${away}-${home}`,markets,players,gameLines:go?parseGameLines(go):null,
+      marketDiagnostics:diagnosticsByEvent.get(eid)||blankMarketDiagnostics(),
     });
   }
 
+  // Persist and print diagnostics so a missing market can be debugged from a
+  // workflow log without exposing the API key or dumping the paid raw payload.
+  for(const g of outputGames){
+    console.log(`[odds diagnostic] ${g.away} @ ${g.home}`);
+    for(const k of CORE){
+      const d=g.marketDiagnostics?.[k]||{};
+      console.log(`  ${k}: raw=${d.rawRows||0} sportsbook=${d.sportsbookRows||0} excluded=${d.excludedRows||0} | books=${conciseSources(d.sportsbookSources)} | excludedSources=${conciseSources(d.excludedSources)}`);
+    }
+  }
+
   const result={
-    meta:{source:'parlayapi',sportKey:SPORT,books:[...books].sort(),markets:CORE,fetchedAt:new Date().toISOString(),sample:false,creditsEstimated:6,windowHours:24,note:'Live NFL game lines + player props from ParlayAPI. Sportsbook rows only for player cards; DFS/exchange rows are excluded from displayed best prices.'},
+    meta:{source:'parlayapi',sportKey:SPORT,books:[...books].sort(),markets:CORE,fetchedAt:new Date().toISOString(),sample:false,creditsEstimated:6,windowHours:24,diagnosticsVersion:1,note:'Live NFL game lines + player props from ParlayAPI. Sportsbook rows only for player cards; DFS/exchange rows are excluded from displayed best prices.'},
     games:outputGames.sort((a,b)=>String(a.startDateUTC).localeCompare(String(b.startDateUTC))),
   };
   if (!result.games.length) throw new Error('ParlayAPI returned data but no relevant NFL events could be normalized. Refusing to overwrite.');
