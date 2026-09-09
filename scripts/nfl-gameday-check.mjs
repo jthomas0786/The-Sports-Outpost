@@ -66,6 +66,26 @@ if(odds){
     games.some(g=>g.gameLines?.moneyline||g.gameLines?.spread||g.gameLines?.total)
       ? pass('Game moneyline/spread/total present')
       : warn('Game lines not posted yet');
+    const gamePrices=games.flatMap(g=>[
+      g.gameLines?.moneyline?.away?.price,g.gameLines?.moneyline?.home?.price,
+      g.gameLines?.spread?.away?.price,g.gameLines?.spread?.home?.price,
+      g.gameLines?.total?.over?.price,g.gameLines?.total?.under?.price,
+    ]).map(Number).filter(Number.isFinite);
+    const decimalLeak=gamePrices.filter(x=>x>1&&x<100);
+    decimalLeak.length?fail(`Game odds still contain decimal prices (${decimalLeak.slice(0,4).join(', ')})`):pass('Game odds are normalized to American prices');
+    const exchange=/^(novig|novig exchange|kalshi|polymarket|sporttrade|prophetx|prizepicks|underdog(?: fantasy)?|betr|sleeper|pick6|draftkings pick6)$/i;
+    const bad=[];
+    for(const g of games) for(const p of g.players||[]) for(const [market,slot] of Object.entries(p.odds||{})){
+      const offers=[];
+      if(slot?.best) offers.push(slot.best);
+      if(Array.isArray(slot?.all)) offers.push(...slot.all);
+      if(slot?.over?.best) offers.push(slot.over.best);
+      if(Array.isArray(slot?.over?.all)) offers.push(...slot.over.all);
+      if(slot?.under?.best) offers.push(slot.under.best);
+      if(Array.isArray(slot?.under?.all)) offers.push(...slot.under.all);
+      for(const o of offers) if(exchange.test(String(o?.book||'').trim())) bad.push(`${p.name} ${market} ${o.book}`);
+    }
+    bad.length?fail(`Exchange/DFS quotes leaked into sportsbook odds (${[...new Set(bad)].slice(0,4).join(', ')})`):pass('Player odds contain sportsbook quotes only (no Novig/DFS/exchange)');
   }
 }
 
@@ -90,8 +110,25 @@ if(preview){
   preview.includes('nflGradeRingHTML')?pass('MLB-style NFL grade progress rings are installed'):fail('NFL grade progress rings are missing');
   preview.includes('tdOddsHTML')?pass('TD Feed scorer odds are wired'):fail('TD Feed scorer odds are not wired');
   preview.includes('nflKickoffDateLabel')?pass('NFL Slate kickoff weekday/date labels are wired'):fail('NFL Slate kickoff date labels are missing');
+  preview.includes('nflKickoffTimeLabel')&&preview.includes('timeZoneName')?pass('Kickoff time uses viewer-local timezone abbreviation'):fail('Viewer-local kickoff timezone label is missing');
+  preview.includes('gameOddsPanelHTML')?pass('Themed Game Odds panel is installed on NFL Slate'):fail('NFL Slate Game Odds panel is missing');
+  preview.includes('nflMlbPropSelect')?pass('NFL Props market uses the MLB-style dropdown'):fail('NFL Props dropdown is missing');
+  preview.includes('atdWagerButtonHTML')?pass('NFL ATD Add-to-Slip controls are installed'):fail('NFL ATD Add-to-Slip controls are missing');
   /projected rush yds|projected rec yds|projected completions/i.test(preview)?warn('Legacy deterministic prop preview strings still exist'):pass('Legacy deterministic non-TD prop preview values removed');
 }
+
+const indexHtml=await fs.readFile('index.html','utf8').catch(()=>null);
+if(indexHtml){
+  indexHtml.includes("sport==='nfl' && market==='ATD'")?pass('Point wager panel accepts NFL ATD legs'):fail('Point wager panel is still HR-only');
+}
+const settlement=await fs.readFile('settle-wagers.js','utf8').catch(()=>null);
+if(settlement){
+  settlement.includes('decideNflAtd')?pass('NFL ATD settlement is installed'):fail('NFL ATD settlement is missing');
+}
+const wagerMigration=await fs.readFile('supabase/migrations/20260909033000_enable_nfl_atd_wagers.sql','utf8').catch(()=>null);
+if(wagerMigration){
+  wagerMigration.includes("v_leg_market := 'ATD'")?pass('NFL ATD wager database migration is present'):fail('NFL ATD wager migration is incomplete');
+}else warn('NFL ATD wager migration file is not present locally');
 
 const liveJs=await fs.readFile('sports/nfl/live.js','utf8').catch(()=>null);
 if(liveJs&&liveJs.includes('supabase.co/functions/v1/nfl-live'))

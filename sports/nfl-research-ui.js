@@ -447,13 +447,20 @@ function propVolume(r,key){
   if(key==='passYds'||key==='passTds'||key==='completions') return {label:'Attempts/G',player:Number(a.attempts)||0,def:Number(r?.matchup?.previousSeasonAllowed?.perGame?.attempts)||0};
   return {label:'TD/G',player:Number(a.tds)||0,def:Number(r?.matchup?.previousSeasonAllowed?.perGame?.tds)||0};
 }
+const NFL_SPORTSBOOKS=/^(bovada|caesars|draftkings|fanduel|fanatics|fliff|hard rock(?: bet)?|parx(?: casino)?|bet365|betmgm|espn bet|pinnacle|betrivers|pmu|unibet|sportsbet|rushbet)$/i;
+function isNflSportsbookOffer(o){return !!o&&NFL_SPORTSBOOKS.test(String(o.book||'').trim());}
+function bestNflSportsbook(list){return [...(list||[])].filter(isNflSportsbookOffer).filter(x=>Number.isFinite(Number(x.price))).sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;}
 function propOddsOffer(r,key){
   const hit=findOddsPlayer(r); if(!hit) return null;
   const meta=NFL_PROP_META[key], slot=meta?.oddsKey ? hit.player?.odds?.[meta.oddsKey] : null;
   if(!slot) return null;
-  if(key==='atd'||key==='firstTd') return slot.best?{line:.5,...slot.best,source:'Sportsbook',gameId:hit.game?.gameId||null,eventId:hit.game?.fixtureId||null}:null;
-  const best=slot.over?.best;
-  return best&&Number.isFinite(Number(slot.line))?{line:Number(slot.line),...best,source:'Sportsbook',gameId:hit.game?.gameId||null,eventId:hit.game?.fixtureId||null}:null;
+  const common={source:'Sportsbook',gameId:hit.game?.gameId||null,eventId:hit.game?.fixtureId||null,startDateUTC:hit.game?.startDateUTC||null};
+  if(key==='atd'||key==='firstTd'){
+    const best=bestNflSportsbook(slot.all)||(isNflSportsbookOffer(slot.best)?slot.best:null);
+    return best?{line:.5,...best,...common}:null;
+  }
+  const best=bestNflSportsbook(slot.over?.all)||(isNflSportsbookOffer(slot.over?.best)?slot.over.best:null);
+  return best&&Number.isFinite(Number(slot.line))?{line:Number(slot.line),...best,...common}:null;
 }
 function defaultResearchLine(key,seasonPg,recent){
   if(key==='atd'||key==='firstTd') return .5;
@@ -582,10 +589,16 @@ function propWhyHTML(r,ctx,pos,edge,snapPct,rzOpps){
 function slipHasLeg(id){
   try{return (JSON.parse(localStorage.getItem('dw_betslip')||'[]')||[]).some(l=>l?.id===id);}catch{return false;}
 }
+function nflPointSlateDate(utc){
+  if(!utc) return null;
+  const d=new Date(utc); if(!Number.isFinite(d.getTime())) return null;
+  try{const p=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));return `${p.year}-${p.month}-${p.day}`;}catch{return d.toISOString().slice(0,10);}
+}
 function propSlipHTML(r,ctx,team,opp,edge){
   const line=Number(ctx.line); if(!Number.isFinite(line)) return `<button class="cta tso-nfl-prop-disabled" type="button" disabled>Line unavailable</button>`;
-  const id=`${r.name}|${ctx.meta.market}|${fmtLine(line)}`;
-  const leg={id,kind:'prop',sport:'nfl',prop_key:ctx.key,side:'over',player:r.name,market:ctx.meta.market,line,pct:ctx.prob,grade:ctx.grade,game:`${team} vs ${opp||'DEF'}`,game_pk:Number(ctx.offer?.gameId)||null,event_id:ctx.offer?.eventId||null,player_id:r.espnId||r.gsisId||r.pfrId||null,price:ctx.offer?.price??null,book:ctx.offer?.book??null,link:ctx.offer?.link??null,line_source:ctx.lineSource};
+  const wagerMarket=ctx.key==='atd'?'ATD':ctx.meta.market;
+  const id=`${r.name}|${wagerMarket}|${fmtLine(line)}`;
+  const leg={id,kind:'prop',sport:'nfl',prop_key:ctx.key,side:'over',player:r.name,market:wagerMarket,line,pct:ctx.prob,grade:ctx.grade,game:`${team} vs ${opp||'DEF'}`,game_pk:Number(ctx.offer?.gameId||r.gameId)||null,event_id:ctx.offer?.eventId||null,player_id:r.espnId||r.gsisId||r.pfrId||null,price:ctx.offer?.price??null,book:ctx.offer?.book??null,link:ctx.offer?.link??null,line_source:ctx.lineSource,slate_date:nflPointSlateDate(ctx.offer?.startDateUTC||findOddsPlayer(r)?.game?.startDateUTC)};
   const label=`Add ${fmtLine(line)} ${ctx.meta.label} to Slip`,on=slipHasLeg(id);
   return `<button class="add-leg cta ${on?'in-slip':''}" data-legid="${esc(id)}" data-leg="${encodeURIComponent(JSON.stringify(leg))}" data-cta-label="${esc(label)}">${on?'✓ In Slip':esc(label)}</button>`;
 }

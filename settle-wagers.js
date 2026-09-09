@@ -1,44 +1,14 @@
 /**
- * settle-wagers.js — scheduled job that resolves pending wager legs against
- * real MLB game data, and settles whole wagers once every leg is decided.
+ * settle-wagers.js — settles supported TSO point-wager legs.
+ * v81 supports:
+ *   - MLB Home Run (existing behavior)
+ *   - NFL Anytime TD
  *
- * Run via GitHub Actions on a schedule (settle-wagers.yml). Uses the
- * Supabase service-role key — this bypasses RLS entirely, same as
- * send-push.js already does, since a scheduled job has no signed-in user
- * to act as.
- *
- * THE ONE THING THIS SCRIPT CANNOT GET WRONG: crediting a payout twice.
- * Every write that moves points is behind a conditional UPDATE (...&status
- * =eq.pending in the query string) with `Prefer: return=representation`,
- * and the script only proceeds to credit points if THAT SPECIFIC call
- * actually returned the updated row. If two runs somehow overlap, or this
- * job is accidentally triggered twice for the same window, the second run
- * finds nothing left in 'pending' state to transition, updates zero rows,
- * and correctly does nothing further. This is the same pattern
- * place_wager() uses inside a single SQL transaction (a conditional UPDATE
- * that only proceeds if it actually affected a row) — reimplemented here
- * as a sequence of REST calls since a scheduled job runs outside the
- * database and can't wrap everything in one transaction the way a SQL
- * function can.
- *
- * FIELD PATHS BELOW ARE VERIFIED, NOT GUESSED — copied directly from the
- * live app's own already-working parsing of this exact endpoint
- * (extractBoxSide() and playerHRResult() in index.html), not derived from
- * general knowledge of the MLB Stats API. Same endpoint the client already
- * polls every 20 seconds: v1.1/game/{gamePk}/feed/live.
- *
- * Env vars required (set as GitHub Actions secrets):
- *   SUPABASE_URL
- *   SUPABASE_SERVICE_ROLE_KEY
+ * Settlement remains idempotent: every leg/wager state transition uses a
+ * conditional PATCH from status=pending before any points can be credited.
  */
 
 const RAW_SUPABASE_URL = process.env.SUPABASE_URL;
-// Normalize away a trailing slash and any accidental /rest/v1 suffix — an
-// easy mistake to make when copying from Supabase's dashboard, since the
-// Connect dialog sometimes shows a full API URL rather than the bare
-// Project URL this script expects. Without this, the request below
-// doubles the path (.../rest/v1/rest/v1/...), which PostgREST rejects
-// with a 404 PGRST125 "Invalid path specified in request URL".
 const SUPABASE_URL = RAW_SUPABASE_URL ? RAW_SUPABASE_URL.replace(/\/rest\/v1\/?$/, '').replace(/\/+$/, '') : RAW_SUPABASE_URL;
 const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
@@ -61,43 +31,51 @@ async function sb(path, options = {}){
     const body = await res.text().catch(() => '');
     throw new Error(`Supabase ${options.method || 'GET'} ${path} -> ${res.status}: ${body}`);
   }
-  // 204 No Content (default PATCH/POST response without return=representation)
   if(res.status === 204) return null;
   const text = await res.text();
   return text ? JSON.parse(text) : null;
 }
 
-/** Same v1.1 live-feed endpoint the client already polls — cached per run
- *  so a slate with several pending legs on the same game only fetches it
- *  once, not once per leg. */
-const gameStateCache = new Map();
-async function fetchGameState(gamePk){
-  if(gameStateCache.has(gamePk)) return gameStateCache.get(gamePk);
+const mlbGameStateCache = new Map();
+async function fetchMlbGameState(gamePk){
+  if(mlbGameStateCache.has(gamePk)) return mlbGameStateCache.get(gamePk);
   const promise = (async () => {
     try{
       const res = await fetch(`https://statsapi.mlb.com/api/v1.1/game/${gamePk}/feed/live`);
       if(!res.ok) return null;
       return await res.json();
     }catch(e){
-      console.warn(`[settle] couldn't fetch game ${gamePk}:`, e.message);
+      console.warn(`[settle] couldn't fetch MLB game ${gamePk}:`, e.message);
       return null;
     }
   })();
-  gameStateCache.set(gamePk, promise);
+  mlbGameStateCache.set(gamePk, promise);
   return promise;
 }
 
-/** Mirrors playerHRResult() in index.html exactly — same field paths,
- *  verified against the app's own already-working extractBoxSide(). */
-function playerResultFromFeed(data, playerId){
-  const status = data?.gameData?.status;
-  const abstractState = status?.abstractGameState || null;   // "Preview" | "Live" | "Final"
-  const detailedState = status?.detailedState || null;       // e.g. "In Progress", "Postponed", "Final"
+let nflBoardPromise = null;
+async function fetchNflBoard(){
+  if(nflBoardPromise) return nflBoardPromise;
+  nflBoardPromise = (async () => {
+    try{
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/nfl-live`, {headers:{accept:'application/json'}});
+      if(!res.ok) return null;
+      return await res.json();
+    }catch(e){
+      console.warn('[settle] couldn\'t fetch NFL live board:', e.message);
+      return null;
+    }
+  })();
+  return nflBoardPromise;
+}
 
+function mlbPlayerResult(data, playerId){
+  const status = data?.gameData?.status;
+  const abstractState = status?.abstractGameState || null;
+  const detailedState = status?.detailedState || null;
   const teams = data?.liveData?.boxscore?.teams;
   const sides = [teams?.away, teams?.home].filter(Boolean);
   let hr = 0, appeared = false, found = false;
-
   for(const side of sides){
     const p = side?.players?.['ID' + playerId];
     const batting = p?.stats?.batting;
@@ -105,98 +83,110 @@ function playerResultFromFeed(data, playerId){
       found = true;
       if(batting?.atBats != null){
         appeared = true;
-        hr = Math.max(hr, batting.homeRuns ?? 0);
+        hr = Math.max(hr, Number(batting.homeRuns ?? 0) || 0);
       }
     }
   }
-
   return { abstractState, detailedState, hr, appeared, playerFound: found };
 }
 
-/** Resolves one pending leg against its game's current state, or leaves it
- *  alone if the game hasn't reached a decidable point yet. */
-function decideLeg(leg, feedData){
-  if(!feedData) return null;   // couldn't fetch the game this run — try again next time
-
-  const r = playerResultFromFeed(feedData, leg.player_id);
-
-  // A home run that's already happened is a confirmed win regardless of
-  // whether the game itself has finished yet.
-  if(r.hr >= 1) return { status: 'won', reason: `hit ${r.hr} HR` };
-
-  if(r.detailedState === 'Postponed' || r.detailedState === 'Cancelled'){
-    return { status: 'void', reason: `game ${r.detailedState.toLowerCase()}` };
-  }
-
+function decideMlbHr(leg, feedData){
+  if(!feedData) return null;
+  const r = mlbPlayerResult(feedData, leg.player_id);
+  if(r.hr >= 1) return { status:'won', reason:`hit ${r.hr} HR` };
+  if(/postponed|cancelled/i.test(r.detailedState || '')) return { status:'void', reason:`game ${String(r.detailedState).toLowerCase()}` };
   if(r.abstractState === 'Final'){
-    if(!r.playerFound || !r.appeared){
-      // Scratched from the lineup, or never got an at-bat (e.g. pinch-hit
-      // for before batting) — void rather than lost, same fairness
-      // treatment a real sportsbook applies to a player who didn't play.
-      return { status: 'void', reason: 'player did not appear in the box score' };
-    }
-    return { status: 'lost', reason: 'no HR, game final' };
+    if(!r.playerFound || !r.appeared) return { status:'void', reason:'player did not appear in the box score' };
+    return { status:'lost', reason:'no HR, game final' };
   }
-
-  return null;   // still in progress, no HR yet — leave pending
+  return null;
 }
 
-/** Credits points and logs the transaction. Only ever called after the
- *  caller's own conditional UPDATE confirmed THIS run is the one that
- *  transitioned the wager out of 'pending' — see settleWager() below. */
+const normName = s => String(s || '').toLowerCase().replace(/\./g,'').replace(/[^a-z0-9]+/g,' ').replace(/\s+/g,' ').trim();
+const statNum = v => {
+  if(v == null || v === '') return 0;
+  const n = Number(String(v).split('-')[0]);
+  return Number.isFinite(n) ? n : 0;
+};
+function nflPlayerTdCount(game, playerId){
+  const row = game?.playerStats?.byId?.[String(playerId)] || null;
+  const flat = row?.flat || {};
+  return { row, tds: statNum(flat.rushTds) + statNum(flat.recTds) };
+}
+function scoringTextShowsPlayer(game, playerName){
+  const needle = normName(playerName);
+  if(!needle || needle.length < 4) return false;
+  return (game?.scoringPlays || []).some(p => /touchdown|\btd\b/i.test(String(p?.text || p?.type || '')) && normName(p?.text).includes(needle));
+}
+function decideNflAtd(leg, game){
+  if(!game) return null;
+  const detail = String(game.statusDetail || '');
+  if(/postponed|cancelled/i.test(detail)) return { status:'void', reason:`game ${detail.toLowerCase()}` };
+
+  const stat = nflPlayerTdCount(game, leg.player_id);
+  if(stat.tds >= 1 || scoringTextShowsPlayer(game, leg.player_name)){
+    return { status:'won', reason:'scored a touchdown' };
+  }
+
+  if(game.status === 'post'){
+    // If ESPN never listed the player in any stat category, we cannot prove he
+    // participated. Void instead of grading a potentially inactive player as a loss.
+    if(!stat.row) return { status:'void', reason:'player did not appear in ESPN player stats' };
+    return { status:'lost', reason:'no touchdown, game final' };
+  }
+  return null;
+}
+
+function legKind(leg){
+  const sport = String(leg?.sport || 'mlb').toLowerCase();
+  const market = String(leg?.market || (sport === 'nfl' ? 'ATD' : 'HR')).toUpperCase();
+  if(sport === 'nfl' && /^(ATD|ANYTIME TD|ANYTIME TOUCHDOWN|ATD_0\.5\+)$/.test(market)) return 'nfl_atd';
+  if(sport === 'mlb' && /^(HR|HOME RUN|HR_0\.5\+)$/.test(market)) return 'mlb_hr';
+  return 'unsupported';
+}
+
 async function creditPoints(userId, amount, wagerId, type, note){
   const [existing] = await sb(`/point_balances?user_id=eq.${userId}&select=balance`) || [];
   if(existing){
     await sb(`/point_balances?user_id=eq.${userId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ balance: existing.balance + amount, updated_at: new Date().toISOString() }),
+      method:'PATCH',
+      body:JSON.stringify({ balance: existing.balance + amount, updated_at:new Date().toISOString() }),
     });
   }else{
     await sb('/point_balances', {
-      method: 'POST',
-      body: JSON.stringify({ user_id: userId, balance: amount, updated_at: new Date().toISOString() }),
+      method:'POST',
+      body:JSON.stringify({ user_id:userId, balance:amount, updated_at:new Date().toISOString() }),
     });
   }
   await sb('/point_transactions', {
-    method: 'POST',
-    body: JSON.stringify({ user_id: userId, type, amount, wager_id: wagerId, note }),
+    method:'POST',
+    body:JSON.stringify({ user_id:userId, type, amount, wager_id:wagerId, note }),
   });
 }
 
-/** Checks whether a wager's legs are all decided, and if so, settles the
- *  whole wager exactly once. Safe to call redundantly — the conditional
- *  UPDATE below is what actually guarantees the "exactly once" part. */
 async function trySettleWager(wagerId){
   const legs = await sb(`/wager_legs?wager_id=eq.${wagerId}&select=status`);
-  if(!legs.length || legs.some(l => l.status === 'pending')) return;   // still waiting on something
+  if(!legs.length || legs.some(l => l.status === 'pending')) return;
 
   const anyVoid = legs.some(l => l.status === 'void');
   const allWon = legs.every(l => l.status === 'won');
   const finalStatus = anyVoid ? 'void' : allWon ? 'won' : 'lost';
 
-  // The &status=eq.pending here is the entire double-credit guard: this
-  // only returns a row if THIS call is the one that actually flipped the
-  // wager out of pending. A second, redundant call (from an overlapping
-  // run, or this wager being reconsidered on a later run for any reason)
-  // finds nothing left to update and gets an empty array back.
   const updated = await sb(`/wagers?id=eq.${wagerId}&status=eq.pending`, {
-    method: 'PATCH',
-    headers: { Prefer: 'return=representation' },
-    body: JSON.stringify({ status: finalStatus, settled_at: new Date().toISOString() }),
+    method:'PATCH',
+    headers:{ Prefer:'return=representation' },
+    body:JSON.stringify({ status:finalStatus, settled_at:new Date().toISOString() }),
   });
   const wager = updated?.[0];
-  if(!wager) return;   // already settled by another run — do nothing further
+  if(!wager) return;
 
   if(finalStatus === 'won'){
     await creditPoints(wager.user_id, wager.potential_payout, wager.id, 'wager_won', 'wager settled — won');
-    console.log(`[settle] wager ${wagerId} WON — credited ${wager.potential_payout} pts to user ${wager.user_id}`);
+    console.log(`[settle] wager ${wagerId} WON — credited ${wager.potential_payout} pts`);
   }else if(finalStatus === 'void'){
     await creditPoints(wager.user_id, wager.stake, wager.id, 'wager_refunded', 'wager voided — stake refunded');
-    console.log(`[settle] wager ${wagerId} VOID — refunded ${wager.stake} pts to user ${wager.user_id}`);
+    console.log(`[settle] wager ${wagerId} VOID — refunded ${wager.stake} pts`);
   }else{
-    // Lost: no further action. The stake was already debited from the
-    // user's balance at placement time inside place_wager() — there's
-    // nothing left to move.
     console.log(`[settle] wager ${wagerId} LOST — no payout`);
   }
 }
@@ -207,22 +197,31 @@ async function main(){
     console.log('[settle] no pending legs — nothing to do');
     return;
   }
-  console.log(`[settle] ${pendingLegs.length} pending leg(s) across ${new Set(pendingLegs.map(l=>l.game_pk)).size} game(s)`);
+  console.log(`[settle] ${pendingLegs.length} pending leg(s)`);
+
+  const needNfl = pendingLegs.some(l => legKind(l) === 'nfl_atd');
+  const nflBoard = needNfl ? await fetchNflBoard() : null;
+  if(needNfl && !nflBoard) console.warn('[settle] NFL board unavailable; NFL legs will remain pending this run');
 
   const affectedWagerIds = new Set();
-
   for(const leg of pendingLegs){
-    const feedData = await fetchGameState(leg.game_pk);
-    const decision = decideLeg(leg, feedData);
-    if(!decision) continue;   // not decidable yet
+    const kind = legKind(leg);
+    let decision = null;
+    if(kind === 'mlb_hr'){
+      const feedData = await fetchMlbGameState(leg.game_pk);
+      decision = decideMlbHr(leg, feedData);
+    }else if(kind === 'nfl_atd'){
+      decision = decideNflAtd(leg, nflBoard?.games?.[String(leg.game_pk)] || null);
+    }else{
+      console.warn(`[settle] unsupported pending leg ${leg.id}: ${leg.sport || 'mlb'} ${leg.market}`);
+      continue;
+    }
+    if(!decision) continue;
 
-    // Same conditional-update guard as the wager-level settlement below —
-    // only proceed with anything downstream if this call actually
-    // transitioned this specific leg out of pending.
     const updated = await sb(`/wager_legs?id=eq.${leg.id}&status=eq.pending`, {
-      method: 'PATCH',
-      headers: { Prefer: 'return=representation' },
-      body: JSON.stringify({ status: decision.status, resolved_reason: decision.reason, settled_at: new Date().toISOString() }),
+      method:'PATCH',
+      headers:{ Prefer:'return=representation' },
+      body:JSON.stringify({ status:decision.status, resolved_reason:decision.reason, settled_at:new Date().toISOString() }),
     });
     if(updated?.[0]){
       console.log(`[settle] leg ${leg.id} (${leg.player_name}) -> ${decision.status}: ${decision.reason}`);
@@ -230,10 +229,7 @@ async function main(){
     }
   }
 
-  for(const wagerId of affectedWagerIds){
-    await trySettleWager(wagerId);
-  }
-
+  for(const wagerId of affectedWagerIds) await trySettleWager(wagerId);
   console.log(`[settle] done — ${affectedWagerIds.size} wager(s) touched this run`);
 }
 

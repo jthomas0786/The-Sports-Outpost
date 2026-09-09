@@ -286,9 +286,42 @@ function researchFreshnessLabel(){
 function nflKickoffDateLabel(utc){
   if(!utc) return '';
   const d=new Date(utc); if(!Number.isFinite(d.getTime())) return '';
-  try{return new Intl.DateTimeFormat('en-US',{timeZone:'America/New_York',weekday:'long',month:'numeric',day:'numeric'}).format(d);}catch{return d.toLocaleDateString([],{weekday:'long',month:'numeric',day:'numeric'});}
+  // Viewer-local by design. A Central user sees Wednesday, 9/9 while a user
+  // elsewhere sees the date that kickoff actually falls on in their own zone.
+  try{return new Intl.DateTimeFormat(undefined,{weekday:'long',month:'numeric',day:'numeric'}).format(d);}catch{return d.toLocaleDateString([],{weekday:'long',month:'numeric',day:'numeric'});}
 }
-function priceFmt(v){ const n=Number(v); return Number.isFinite(n)?(n>0?`+${Math.round(n)}`:`${Math.round(n)}`):'—'; }
+function nflKickoffTimeLabel(utc){
+  if(!utc) return 'TBD';
+  const d=new Date(utc); if(!Number.isFinite(d.getTime())) return 'TBD';
+  try{
+    const parts=new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit',timeZoneName:'short'}).formatToParts(d);
+    const time=parts.filter(x=>x.type==='hour'||x.type==='minute'||x.type==='dayPeriod').map((x,i,a)=>x.type==='minute'?`:${x.value}`:x.type==='dayPeriod'?` ${x.value}`:x.value).join('');
+    const zone=parts.find(x=>x.type==='timeZoneName')?.value||'';
+    return `${time}${zone?` ${zone}`:''}`.trim();
+  }catch{return d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});}
+}
+function nflOfficialSlateDate(utc){
+  if(!utc) return null;
+  const d=new Date(utc); if(!Number.isFinite(d.getTime())) return null;
+  try{
+    const parts=Object.fromEntries(new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d).filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }catch{return d.toISOString().slice(0,10);}
+}
+function broadcastLabel(g){
+  const x=String(g?.broadcast||'').trim();
+  return x && x!=='NFL' ? x : 'Broadcast TBD';
+}
+function priceFmt(v){ if(v==null||v==='') return '—'; const n=Number(v); return Number.isFinite(n)?(n>0?`+${Math.round(n)}`:`${Math.round(n)}`):'—'; }
+function americanOdds(v){
+  const n=Number(v); if(!Number.isFinite(n)) return null;
+  // /odds is requested in American format in v81, but normalize legacy cached
+  // decimal values too so a stale 2.65 never renders as "+3".
+  if(Math.abs(n)>=100 || n<=-100) return Math.round(n);
+  if(n>1 && n<100) return Math.round(n>=2 ? (n-1)*100 : -100/(n-1));
+  return Math.round(n);
+}
+function gamePriceFmt(v){ const n=americanOdds(v); return n==null?'—':(n>0?`+${n}`:`${n}`); }
 function fmtLine(v){ const n=Number(v); return Number.isFinite(n)?(Number.isInteger(n)?String(n):n.toFixed(1)):'—'; }
 function compactBook(name){
   const x=String(name||'').trim();
@@ -305,10 +338,34 @@ function buildPreviewOddsIndex(doc){
   }
   return {games,players};
 }
+const NFL_SPORTSBOOKS=/^(bovada|caesars|draftkings|fanduel|fanatics|fliff|hard rock(?: bet)?|parx(?: casino)?|bet365|betmgm|espn bet|pinnacle|betrivers|pmu|unibet|sportsbet|rushbet)$/i;
+function isSportsbookOffer(o){ return !!o && NFL_SPORTSBOOKS.test(String(o.book||'').trim()); }
+function bestByAmerican(list){
+  return [...(list||[])].filter(isSportsbookOffer).filter(x=>Number.isFinite(Number(x.price))).sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;
+}
 function bestPlayerOffer(p,prop){
   const slot=p?.odds?.[prop]; if(!slot) return null;
-  if(prop==='atd'||prop==='firstTd') return slot.best?{...slot.best,line:.5}:null;
-  const over=slot.over?.best; return over?{...over,line:Number(slot.line)}:null;
+  if(prop==='atd'||prop==='firstTd'){
+    const best=bestByAmerican(slot.all) || (isSportsbookOffer(slot.best)?slot.best:null);
+    return best?{...best,line:.5}:null;
+  }
+  const best=bestByAmerican(slot.over?.all) || (isSportsbookOffer(slot.over?.best)?slot.over.best:null);
+  return best?{...best,line:Number(slot.line)}:null;
+}
+function pointWagerLegForAtd(p){
+  const g=playerGame(p), offer=bestPlayerOffer(p,'atd');
+  const playerId=Number(p?.espnId); const gamePk=Number(g?.id);
+  if(!p||!g||!playerId||!gamePk||!Number.isFinite(Number(p.prob))) return null;
+  const line=.5, pct=Number((Number(p.prob)*100).toFixed(1));
+  return {id:`${p.name}|ATD|0.5`,kind:'prop',sport:'nfl',prop_key:'atd',side:'over',player:p.name,market:'ATD',line,pct,grade:p.grade||gradeFor(p.prob),game:`${g.away.abbr} @ ${g.home.abbr}`,game_pk:gamePk,event_id:g.fixtureId||null,player_id:playerId,price:offer?.price??null,book:offer?.book??null,link:offer?.link??null,slate_date:nflOfficialSlateDate(g.startTimeUTC)};
+}
+function slipHasLeg(id){
+  try{return (JSON.parse(localStorage.getItem('dw_betslip')||'[]')||[]).some(l=>l?.id===id);}catch{return false;}
+}
+function atdWagerButtonHTML(p,label='Add ATD to Slip'){
+  const leg=pointWagerLegForAtd(p); if(!leg) return '';
+  const on=slipHasLeg(leg.id);
+  return `<button type="button" class="add-leg nfl-atd-wager-btn ${on?'in-slip':''}" data-legid="${esc(leg.id)}" data-leg="${encodeURIComponent(JSON.stringify(leg))}" data-cta-label="${esc(label)}">${on?'✓ In Slip':esc(label)}</button>`;
 }
 function oddsChipHTML(p,prop='atd',label=null){
   const o=bestPlayerOffer(p,prop); if(!o) return '';
@@ -322,8 +379,22 @@ function gameLineSummary(g){
   const sp=Number(gl.spread?.line); if(Number.isFinite(sp)) parts.push(`${esc(g.home.abbr)} ${sp>0?'+':''}${fmtLine(sp)}`);
   const total=Number(gl.total?.line); if(Number.isFinite(total)) parts.push(`O/U ${fmtLine(total)}`);
   const awayMl=gl.moneyline?.away?.price,homeMl=gl.moneyline?.home?.price;
-  if(Number.isFinite(Number(awayMl))&&Number.isFinite(Number(homeMl))) parts.push(`ML ${esc(g.away.abbr)} ${priceFmt(awayMl)} · ${esc(g.home.abbr)} ${priceFmt(homeMl)}`);
+  if(Number.isFinite(Number(awayMl))&&Number.isFinite(Number(homeMl))) parts.push(`ML ${esc(g.away.abbr)} ${gamePriceFmt(awayMl)} · ${esc(g.home.abbr)} ${gamePriceFmt(homeMl)}`);
   return parts.join(' · ');
+}
+function signedLine(v){ const n=Number(v); return Number.isFinite(n)?`${n>0?'+':''}${fmtLine(n)}`:'—'; }
+function gameOddsCell(main,price,sub=''){
+  return `<div class="nfl-game-odds-cell"><b>${esc(main||'—')}</b>${price!=null?`<span>${gamePriceFmt(price)}</span>`:''}${sub?`<small>${esc(sub)}</small>`:''}</div>`;
+}
+function gameOddsPanelHTML(g){
+  const gl=g?.gameLines;
+  if(!gl) return `<div class="nfl-env-tile nfl-game-odds-tile"><div class="nfl-game-odds-title"><span>Game Odds</span><small>Sportsbook lines pending</small></div><div class="nfl-game-odds-empty">Odds will appear automatically when posted.</div></div>`;
+  const awaySpread=gl.spread?.away, homeSpread=gl.spread?.home, over=gl.total?.over, under=gl.total?.under;
+  const awayMl=gl.moneyline?.away, homeMl=gl.moneyline?.home;
+  const total=Number(gl.total?.line);
+  const awaySp=Number.isFinite(Number(awaySpread?.point))?awaySpread.point:(Number.isFinite(Number(gl.spread?.line))?-Number(gl.spread.line):null);
+  const homeSp=Number.isFinite(Number(homeSpread?.point))?homeSpread.point:gl.spread?.line;
+  return `<div class="nfl-env-tile nfl-game-odds-tile"><div class="nfl-game-odds-title"><span>Game Odds</span><small>Best available</small></div><div class="nfl-game-odds-grid"><div></div><em>Spread</em><em>Total</em><em>ML</em><strong>${esc(g.away.abbr)}</strong>${gameOddsCell(signedLine(awaySp),awaySpread?.price)}${gameOddsCell(Number.isFinite(total)?`O ${fmtLine(total)}`:'—',over?.price)}${gameOddsCell(gamePriceFmt(awayMl?.price),null)}<strong>${esc(g.home.abbr)}</strong>${gameOddsCell(signedLine(homeSp),homeSpread?.price)}${gameOddsCell(Number.isFinite(total)?`U ${fmtLine(total)}`:'—',under?.price)}${gameOddsCell(gamePriceFmt(homeMl?.price),null)}</div></div>`;
 }
 
 const NFL_RING_C=326.7;
@@ -381,14 +452,21 @@ function oddsFreshnessLabel(){
 }
 
 function ensureNflLaunchStyles(){
-  if(document.getElementById('nfl-launch-ui-v80')) return;
-  const style=document.createElement('style'); style.id='nfl-launch-ui-v80';
+  if(document.getElementById('nfl-launch-ui-v81')) return;
+  const style=document.createElement('style'); style.id='nfl-launch-ui-v81';
   style.textContent=`
   #nflView .nfl-match-date{display:block;margin:4px 0 2px;color:#8fb7e8;font:800 8px 'JetBrains Mono',monospace;letter-spacing:.055em;text-transform:uppercase}
   #nflView .nfl-game-lines{display:block;margin-top:5px;color:#fbbf24;font:800 8px 'JetBrains Mono',monospace;white-space:normal}
   #nflView .nfl-odds-chip{display:inline-flex;align-items:center;gap:5px;max-width:100%;padding:3px 6px;border:1px solid rgba(34,197,94,.24);border-radius:6px;background:rgba(8,68,43,.18);font:800 7px 'JetBrains Mono',monospace;white-space:nowrap;color:#b8c9df}
   #nflView .nfl-odds-chip b{color:#67e8a5}#nflView .nfl-odds-chip strong{color:#fff;font-size:8px}#nflView .nfl-odds-chip small{color:#86a2c5;font-size:7px}
   #nflView .nfl-leader-odds{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px}#nflView .nfl-slate-odds{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+  #nflView .nfl-atd-wager-btn{height:23px!important;width:auto!important;padding:0 8px!important;border:1px solid rgba(45,127,255,.48)!important;border-radius:6px!important;background:rgba(45,127,255,.10)!important;color:#a8d5ff!important;font:900 7px 'JetBrains Mono',monospace!important;white-space:nowrap!important;cursor:pointer!important}
+  #nflView .nfl-atd-wager-btn:hover{border-color:#2d7fff!important;background:rgba(45,127,255,.20)!important;color:#fff!important}#nflView .nfl-atd-wager-btn.in-slip{background:#22c55e!important;border-color:#22c55e!important;color:#061423!important}
+  #nflView .nfl-match-broadcast{display:block;margin-top:3px;color:#d9e9ff;font:800 8px 'JetBrains Mono',monospace;letter-spacing:.035em}
+  #nflView .nfl-game-odds-tile{padding:9px 10px!important;justify-content:flex-start!important;overflow:hidden}
+  #nflView .nfl-game-odds-title{display:flex;align-items:center;justify-content:space-between;width:100%;margin-bottom:6px}#nflView .nfl-game-odds-title>span{color:#8fa5c4;font:900 7px 'JetBrains Mono',monospace;letter-spacing:.07em;text-transform:uppercase}#nflView .nfl-game-odds-title small{color:#5f7da6;font:700 6px 'JetBrains Mono',monospace}
+  #nflView .nfl-game-odds-grid{width:100%;display:grid;grid-template-columns:25px repeat(3,minmax(0,1fr));gap:4px;align-items:stretch}#nflView .nfl-game-odds-grid>em{font:900 6px 'JetBrains Mono',monospace;color:#7895ba;text-align:center;text-transform:uppercase;font-style:normal;align-self:end}#nflView .nfl-game-odds-grid>strong{display:flex;align-items:center;color:#d7e9ff;font:900 7px 'JetBrains Mono',monospace}
+  #nflView .nfl-game-odds-cell{min-width:0;min-height:30px;padding:3px 2px;border:1px solid rgba(45,127,255,.20);border-radius:6px;background:linear-gradient(180deg,rgba(12,38,76,.88),rgba(7,24,51,.92));display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}#nflView .nfl-game-odds-cell b{color:#55a8ff!important;font:900 9px 'JetBrains Mono',monospace!important}#nflView .nfl-game-odds-cell span{margin-top:2px;color:#d8e6f7;font:800 6px 'JetBrains Mono',monospace}#nflView .nfl-game-odds-cell small{margin-top:1px;color:#7791b1;font:700 5px 'JetBrains Mono',monospace}#nflView .nfl-game-odds-empty{color:#7895ba;font:700 7px 'JetBrains Mono',monospace}
 
   #nflView .nfl-grade-ring{position:relative;display:inline-grid;place-items:center;flex:0 0 auto}
   #nflView .nfl-grade-ring-sm{width:48px;height:48px}#nflView .nfl-grade-ring-md{width:62px;height:62px}#nflView .nfl-grade-ring-lg{width:76px;height:76px}
@@ -398,7 +476,12 @@ function ensureNflLaunchStyles(){
   #nflView .nfl-grade-ring .sgr-l{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
   #nflView .nfl-grade-ring .sgr-gd2{font:800 13px 'Oswald',sans-serif;color:#fff}#nflView .nfl-grade-ring .sgr-pv{margin-top:2px;font:800 7px 'JetBrains Mono',monospace;color:currentColor}
   #nflView .nfl-grade-ring-sm .sgr-gd2{font-size:12px}#nflView .nfl-grade-ring-sm .sgr-pv{font-size:6px}
-  #nflView .nfl-slate-player-stat.grade{display:grid;place-items:center;min-width:54px}
+  #nflView .nfl-slate-player-stat.grade{display:grid!important;place-items:center!important;min-width:54px;background:none!important;border:0!important;box-shadow:none!important;padding:0!important}
+  #nflView .nfl-slate-player-stat.grade::before,#nflView .nfl-slate-player-stat.grade::after{display:none!important;content:none!important}
+  #nflView .nfl-slate-player-stat.grade .nfl-grade-ring .sgr-gd2{width:auto!important;height:auto!important;min-width:0!important;min-height:0!important;padding:0!important;border:0!important;border-radius:0!important;background:none!important;box-shadow:none!important;display:block!important}
+  #nflView .nfl-slate-player-stat.grade .nfl-grade-ring,#nflView .nfl-slate-player-stat.grade .nfl-grade-ring .sgr-l{border:0!important;outline:0!important;background:transparent!important;box-shadow:none!important}
+  #nflView .nfl-slate-player-stat.grade .nfl-grade-ring::before,#nflView .nfl-slate-player-stat.grade .nfl-grade-ring::after,#nflView .nfl-slate-player-stat.grade .sgr-l::before,#nflView .nfl-slate-player-stat.grade .sgr-l::after,#nflView .nfl-slate-player-stat.grade .sgr-gd2::before,#nflView .nfl-slate-player-stat.grade .sgr-gd2::after{display:none!important;content:none!important}
+  #nflView .nfl-slate-player-stat.edge{display:grid!important;place-items:center!important;text-align:center!important}#nflView .nfl-slate-player-stat.edge b{display:block!important;width:100%!important;text-align:center!important;margin:0!important}
 
   #nflView .nfl-mlb-prop-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 12px;padding:10px;border:1px solid rgba(45,127,255,.20);border-radius:10px;background:linear-gradient(180deg,rgba(8,31,67,.72),rgba(4,18,40,.70))}
   #nflView .nfl-mlb-prop-tabs{display:flex;gap:5px;flex-wrap:wrap;min-width:0}
@@ -406,6 +489,7 @@ function ensureNflLaunchStyles(){
   #nflView .nfl-mlb-prop-tab.active{border-color:#2d7fff;background:linear-gradient(180deg,#1788ff,#0b63d6);color:#fff;box-shadow:0 0 18px rgba(45,127,255,.16)}
   #nflView .nfl-mlb-prop-fresh{font:800 8px 'JetBrains Mono',monospace;color:#7e9fc6;white-space:nowrap}
   #nflView .nfl-mlb-prop-fresh b{color:#62dda0}
+  #nflView .nfl-mlb-prop-market-control{display:flex;align-items:center;gap:8px;min-width:260px}#nflView .nfl-mlb-prop-market-control>span{font:900 7px 'JetBrains Mono',monospace;color:#7896ba;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
   #nflView .nfl-mlb-prop-list{display:flex;flex-direction:column;gap:8px}
   #nflView .nfl-mlb-prop-card{width:100%;display:grid;grid-template-columns:34px 68px minmax(0,1fr) minmax(230px,.42fr) 82px;gap:12px;align-items:center;padding:10px 12px;border:1px solid rgba(89,144,213,.17);border-radius:11px;background:linear-gradient(180deg,rgba(6,25,55,.96),rgba(4,18,40,.96));color:#fff;text-align:left;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08);transition:border-color .15s,transform .15s}
   #nflView .nfl-mlb-prop-card:hover{border-color:rgba(45,127,255,.48);transform:translateY(-1px)}
@@ -421,7 +505,7 @@ function ensureNflLaunchStyles(){
   @media(max-width:760px){
     #nflView .nfl-mlb-prop-toolbar{padding:8px}#nflView .nfl-mlb-prop-tab{padding:6px 7px;font-size:7px}
     #nflView .nfl-mlb-prop-card{grid-template-columns:24px 56px minmax(0,1fr) 66px;gap:8px;padding:8px}#nflView .nfl-mlb-prop-avatar{width:54px;height:54px}#nflView .nfl-mlb-prop-market{grid-column:3/5;grid-row:2;border-left:0;border-top:1px solid rgba(89,144,213,.14);padding:7px 0 0}#nflView .nfl-mlb-prop-grade{grid-column:4;grid-row:1}#nflView .nfl-grade-ring-lg{width:62px;height:62px}#nflView .nfl-mlb-prop-name b{font-size:15px}#nflView .nfl-mlb-prop-detail{grid-template-columns:repeat(2,minmax(0,1fr))}
-    #nflView .nfl-match-date{font-size:7px}#nflView .nfl-odds-chip{font-size:6px;padding:3px 5px}
+    #nflView .nfl-match-date{font-size:7px}#nflView .nfl-odds-chip{font-size:6px;padding:3px 5px}#nflView .nfl-mlb-prop-market-control{min-width:0;width:100%}#nflView .nfl-mlb-prop-select-wrap{min-width:0;flex:1}
   }
   `;
   document.head.appendChild(style);
@@ -761,7 +845,7 @@ function nflSlatePlayerRowHTML(p,extra=false){
   const grade=p.grade||gradeFor(p.prob||0);
   return `<button type="button" class="nfl-slate-player ${extra?'is-extra':''}" data-nfl-player="${esc(p.id)}">
     <div class="nfl-slate-player-head">${avatar}</div>
-    <div class="nfl-slate-player-main"><span class="nfl-slate-player-name"><strong>${esc(p.name)}</strong></span><span class="nfl-slate-player-meta">${esc(p.pos)} · ${p.usage}% snaps · ${p.rz} RZ opps</span><div class="nfl-slate-badges">${nflBadges(p)}</div><div class="nfl-slate-odds">${oddsChipHTML(p,'atd')||'<span class="nfl-odds-chip"><b>ATD</b><small>Odds pending</small></span>'}${oddsChipHTML(p,'firstTd')}</div></div>
+    <div class="nfl-slate-player-main"><span class="nfl-slate-player-name"><strong>${esc(p.name)}</strong></span><span class="nfl-slate-player-meta">${esc(p.pos)} · ${p.usage}% snaps · ${p.rz} RZ opps</span><div class="nfl-slate-badges">${nflBadges(p)}</div><div class="nfl-slate-odds">${oddsChipHTML(p,'atd')||'<span class="nfl-odds-chip"><b>ATD</b><small>Odds pending</small></span>'}${oddsChipHTML(p,'firstTd')}${atdWagerButtonHTML(p,'Add ATD')}</div></div>
     <div class="nfl-slate-player-stat grade">${nflGradeRingHTML(p.prob||0,grade,'sm')}</div>
     <div class="nfl-slate-player-stat edge"><b>${p.edge}</b></div>
   </button>`;
@@ -788,19 +872,19 @@ function nflSlateMatchupCard(g){
   );
   const homeWp=num(g.id+'wp',43,64);
   const stateLabel=live?'Live':final?'Final':'Pregame';
-  const time=live?(st.label||'LIVE'):final?'FINAL':(g.time||'TBD');
+  const time=live?(st.label||'LIVE'):final?'FINAL':nflKickoffTimeLabel(g.startTimeUTC);
   const poss=possessionAbbr(g);
   const statusClass=live?'live':final?'final':'';
   return `<article class="nfl-match-card ${live?'is-live':final?'is-final':''} ${expanded?'is-expanded':''}" data-nfl-slate-card="${esc(g.id)}">
     <div class="nfl-match-head">
       <div class="nfl-match-team">${teamLogo(g.away)}<div class="nfl-match-team-copy"><small>${esc(g.away.abbr)}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div></div>
-      <div class="nfl-match-center"><span class="nfl-match-state ${statusClass}">${live?'<i></i>':''}${esc(stateLabel)}</span>${!live&&!final?`<span class="nfl-match-date">${esc(nflKickoffDateLabel(g.startTimeUTC))}</span>`:''}<span class="nfl-match-time">${esc(time)}</span><span class="nfl-match-venue">${esc(g.venue)}${g.city?` · ${esc(g.city)}`:''}</span>${live?`<button type="button" class="nfl-live-gamecast-btn" data-nfl-open-game="${esc(g.id)}" data-nfl-origin="live">Open Live Gamecast</button>`:''}</div>
+      <div class="nfl-match-center"><span class="nfl-match-state ${statusClass}">${live?'<i></i>':''}${esc(stateLabel)}</span>${!live&&!final?`<span class="nfl-match-date">${esc(nflKickoffDateLabel(g.startTimeUTC))}</span>`:''}<span class="nfl-match-time">${esc(time)}</span>${!live&&!final?`<span class="nfl-match-broadcast">${esc(broadcastLabel(g))}</span>`:''}<span class="nfl-match-venue">${esc(g.venue)}${g.city?` · ${esc(g.city)}`:''}</span>${live?`<button type="button" class="nfl-live-gamecast-btn" data-nfl-open-game="${esc(g.id)}" data-nfl-origin="live">Open Live Gamecast</button>`:''}</div>
       <div class="nfl-match-team home"><div class="nfl-match-team-copy"><small>${esc(g.home.abbr)}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home)}</div>
     </div>
     <div class="nfl-match-leaders">${nflSlateLeaderHTML(g,g.away,false)}${nflSlateLeaderHTML(g,g.home,true)}</div>
     <div class="nfl-match-env">
       <div class="nfl-env-tile"><span>Weather</span><b>${wx.ico} ${wx.temp}°</b><small>${esc(wx.cond)}</small></div>
-      <div class="nfl-env-tile venue"><span>Game Context</span><b>${esc(g.detail||`Week ${data().week}`)}</b><small>${esc(g.broadcast||'NFL')} · ${live?(poss?`${poss} possession`:'Possession updating'):'Kickoff matchup'}</small>${gameLineSummary(g)?`<em class="nfl-game-lines">${gameLineSummary(g)}</em>`:''}</div>
+      ${gameOddsPanelHTML(g)}
       <div class="nfl-env-tile edge"><span>TSO Game Edge</span><b>${gameEdge}</b><small>Best scoring matchup signal</small></div>
       <div class="nfl-env-tile ${live?'live':''}"><span>${live?'Live State':'Home Win Prob'}</span><b>${live?esc(downDistanceLabel(g)):`${homeWp}%`}</b><small>${live?esc(fieldPositionLabel(g)):`${esc(g.home.abbr)} modeled win probability`}</small></div>
     </div>
@@ -895,7 +979,7 @@ function feedHTML(){
 }
 
 function propToolbar(){
-  return `<div class="nfl-mlb-prop-toolbar"><div class="nfl-mlb-prop-tabs" role="tablist" aria-label="NFL player prop market">${Object.entries(PROPS).map(([id,label])=>`<button type="button" class="nfl-mlb-prop-tab ${state.prop===id?'active':''}" data-nfl-prop-key="${id}" role="tab">${esc(label)}</button>`).join('')}</div><div class="nfl-mlb-prop-fresh"><b>● LIVE ODDS</b> · ${esc(oddsFreshnessLabel())}</div></div>`;
+  return `<div class="prop-market-bar nfl-mlb-prop-toolbar"><div class="prop-market-control nfl-mlb-prop-market-control"><span class="prop-market-label">Player Prop</span><div class="prop-market-select-wrap nfl-mlb-prop-select-wrap"><select id="nflMlbPropSelect" class="prop-market-select nfl-mlb-prop-select" aria-label="NFL player prop market">${Object.entries(PROPS).map(([id,label])=>`<option value="${esc(id)}" ${state.prop===id?'selected':''}>${esc(label)}</option>`).join('')}</select></div></div><div class="nfl-mlb-prop-fresh"><b>● LIVE ODDS</b> · ${esc(oddsFreshnessLabel())}</div></div>`;
 }
 function propCardDetail(p,v,prop){
   if(prop==='atd'||prop==='firstTd') return [
@@ -912,13 +996,14 @@ function playerCard(p,prop,rank){
   const marketLabel=PROPS[prop]||prop;
   const marketMain=(prop==='atd'||prop==='firstTd')?v.main:(v.line!=null?`Over ${fmtLine(v.line)}`:`Proj ${fmtLine(v.projection)}`);
   const odds=offer?`<div class="nfl-mlb-prop-odds"><span>BEST ODDS</span><b>${priceFmt(offer.price)}</b><em>${esc(offer.book||'Sportsbook')}</em></div>`:`<div class="nfl-mlb-prop-odds" style="border-color:rgba(110,137,171,.18);background:rgba(8,25,49,.32);color:#7f9ab9"><span>ODDS</span><b style="font-size:9px">Not posted</b></div>`;
-  return `<button type="button" class="nfl-mlb-prop-card" data-nfl-player="${esc(p.id)}">
+  const wager=prop==='atd'?atdWagerButtonHTML(p,'Add ATD to Slip'):'';
+  return `<article class="nfl-mlb-prop-card" data-nfl-player="${esc(p.id)}" role="button" tabindex="0">
     <div class="nfl-mlb-prop-rank">${rank}</div>
     <div class="nfl-mlb-prop-avatar">${p.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy" decoding="async">`:`<span>${esc(initials(p.name))}</span>`}</div>
     <div class="nfl-mlb-prop-main"><div class="nfl-mlb-prop-name"><b>${esc(p.name)}</b><span>${esc(p.team)} · ${esc(p.pos)}</span></div><div class="nfl-mlb-prop-match">${esc(matchup)}</div><div class="nfl-mlb-prop-badges">${nflBadges(p)}</div><div class="nfl-mlb-prop-detail">${propCardDetail(p,v,prop).map(([l,x])=>`<span>${esc(l)}<b>${esc(x)}</b></span>`).join('')}</div></div>
-    <div class="nfl-mlb-prop-market"><span>${esc(marketLabel)}</span><strong>${esc(marketMain)}</strong><small>${prop==='atd'||prop==='firstTd'?`TSO model · ${p.rz} red-zone opps`:`TSO research projection ${fmtLine(v.projection)} · ${v.line!=null?`book line ${fmtLine(v.line)}`:'line pending'}`}</small>${odds}</div>
+    <div class="nfl-mlb-prop-market"><span>${esc(marketLabel)}</span><strong>${esc(marketMain)}</strong><small>${prop==='atd'||prop==='firstTd'?`TSO model · ${p.rz} red-zone opps`:`TSO research projection ${fmtLine(v.projection)} · ${v.line!=null?`book line ${fmtLine(v.line)}`:'line pending'}`}</small>${odds}${wager}</div>
     <div class="nfl-mlb-prop-grade">${nflGradeRingHTML(v.prob,grade,'lg')}<small>${prop==='atd'||prop==='firstTd'?'TD grade':'Over lean'}</small></div>
-  </button>`;
+  </article>`;
 }
 
 function propRadar(players){
@@ -1395,9 +1480,11 @@ function render(){
 
 function wire(root){
   root.querySelector('#nflPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value;if(state.prop==='allPlayers')state.propView='board';render();});
+  root.querySelector('#nflMlbPropSelect')?.addEventListener('change',e=>{state.prop=e.target.value||'atd';state.propView='board';render();});
   root.querySelectorAll('[data-nfl-prop-key]').forEach(b=>b.addEventListener('click',()=>{state.prop=b.dataset.nflPropKey||'atd';state.propView='board';render();}));
   root.querySelectorAll('[data-nfl-prop-view]').forEach(b=>b.addEventListener('click',()=>{state.propView=b.dataset.nflPropView;render();}));
   root.querySelectorAll('[data-nfl-player]').forEach(b=>b.addEventListener('click',()=>{state.player=b.dataset.nflPlayer;state.mapFilter='ALL';render();}));
+  root.querySelectorAll('.nfl-mlb-prop-card[tabindex]').forEach(card=>card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();state.player=card.dataset.nflPlayer;state.mapFilter='ALL';render();}}));
   root.querySelectorAll('[data-nfl-open-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflOpenGame;state.gamecastTab=b.dataset.nflOpenTab||'game';state.tab=b.dataset.nflOrigin==='live'?'live':'slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-game]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();state.game=b.dataset.nflGame;state.gamecastTab='game';state.tab='slate';render();window.scrollTo?.({top:0,behavior:'smooth'});}));
   root.querySelectorAll('[data-nfl-expand-slate]').forEach(b=>b.addEventListener('click',e=>{e.stopPropagation();const id=String(b.dataset.nflExpandSlate);state.expandedSlate.has(id)?state.expandedSlate.delete(id):state.expandedSlate.add(id);render();document.querySelector(`[data-nfl-slate-card="${CSS.escape(id)}"]`)?.scrollIntoView({block:'nearest'});}));

@@ -44,7 +44,8 @@ const MARKET_MAP = {
 };
 const API_MARKETS = Object.keys(MARKET_MAP);
 const CORE = Object.values(MARKET_MAP);
-const NON_SPORTSBOOK = new Set(['prizepicks','underdog','betr','sleeper','pick6','kalshi','polymarket']);
+const SPORTSBOOK_KEYS = new Set(['draftkings','fanduel','caesars','bovada','betmgm','fanatics','pinnacle','fliff','bet365','betrivers','hardrock','hardrockbet','parx','parxcasino','pmu','unibet','betriversca','sportsbetau','rushbet','espnbet']);
+const isNonSportsbook = r => !SPORTSBOOK_KEYS.has(bookKey(r));
 
 const TEAM_ABBR = new Map(Object.entries({
   'arizona cardinals':'ARI','atlanta falcons':'ATL','baltimore ravens':'BAL','buffalo bills':'BUF',
@@ -65,11 +66,24 @@ const normName = s => String(s ?? '').toLowerCase().replace(/\./g,'').replace(/\
 const cleanBook = r => String(r?.bookmaker_title || r?.bookmaker || '').trim();
 const bookKey = r => String(r?.bookmaker || r?.bookmaker_title || '').toLowerCase().replace(/[^a-z0-9]/g,'');
 const finite = v => Number.isFinite(Number(v)) ? Number(v) : null;
+const americanPrice = v => {
+  const n=finite(v); if(n==null) return null;
+  // Defensive normalization for cached/upstream decimal values. The request
+  // below also explicitly asks ParlayAPI for American odds.
+  if(Math.abs(n)>=100 || n<=-100) return Math.round(n);
+  if(n>1 && n<100) return Math.round(n>=2 ? (n-1)*100 : -100/(n-1));
+  return Math.round(n);
+};
 const teamAbbr = name => {
   const n = String(name ?? '').toLowerCase().trim();
   return TEAM_ABBR.get(n) || ALIASES.get(n) || String(name ?? '').toUpperCase().trim();
 };
 const pairKey = (a,b) => [a,b].sort().join('|');
+const splitPlayerLabel = raw => {
+  const text=String(raw??'').trim();
+  const m=text.match(/^(.*?)\s*\(([A-Z]{2,4})\)\s*$/i);
+  return m ? {name:m[1].trim(),team:teamAbbr(m[2])} : {name:text,team:null};
+};
 
 async function readJson(file, fallback=null) {
   try { return JSON.parse(await fs.readFile(file, 'utf8')); } catch { return fallback; }
@@ -135,8 +149,11 @@ function chooseLine(rows) {
 }
 
 function parsePlayerMarket(rows, internalKey) {
-  const filtered = rows.filter(r => !NON_SPORTSBOOK.has(bookKey(r)));
-  const source = filtered.length ? filtered : rows;
+  // Do not fall back to DFS/exchange quotes. A Novig exchange price is a real
+  // market observation, but it is not a sportsbook ATD price and should never
+  // be labeled as the site's 'best sportsbook' number.
+  const source = rows.filter(r => !isNonSportsbook(r));
+  if (!source.length) return null;
   if (internalKey === 'atd' || internalKey === 'firstTd') {
     const all = source.map(r => entry(r,'over')).filter(Boolean);
     const b = best(all);
@@ -160,13 +177,13 @@ function parseGameLines(event) {
   const rows = {h2h:[],spreads:[],totals:[]};
   for (const b of books) {
     const bk = String(b.key || b.title || '').toLowerCase();
-    if (NON_SPORTSBOOK.has(bk)) continue;
+    if (!SPORTSBOOK_KEYS.has(bk)) continue;
     for (const m of b.markets || []) {
       if (!rows[m.key]) continue;
       for (const o of m.outcomes || []) {
         rows[m.key].push({
           book:b.title||b.key||'Sportsbook', bookKey:b.key||null, name:o.name,
-          price:finite(o.price), point:finite(o.point), ts:b.last_update||m.last_update||null,
+          price:americanPrice(o.price), point:finite(o.point), ts:b.last_update||m.last_update||null,
         });
       }
     }
@@ -233,7 +250,7 @@ async function main() {
 
   const propParams = new URLSearchParams({markets:API_MARKETS.join(','),limit:'10000',maxAgeSec:'3600'});
   const props = await fetchJson(`${API}/sports/${SPORT}/props?${propParams}`);
-  const oddsParams = new URLSearchParams({regions:'us',markets:'h2h,spreads,totals',commenceTimeFrom:from,commenceTimeTo:to});
+  const oddsParams = new URLSearchParams({regions:'us',markets:'h2h,spreads,totals',oddsFormat:'american',commenceTimeFrom:from,commenceTimeTo:to});
   const gameOdds = await fetchJson(`${API}/sports/${SPORT}/odds?${oddsParams}`);
 
   const eventById = new Map(relevant.map(e=>[String(e.canonical_event_id||e.id||''),e]));
@@ -243,8 +260,10 @@ async function main() {
     if (!MARKET_MAP[r.market_key]) continue;
     const eid=String(r.canonical_event_id||r.event_id||'');
     if (!eventById.has(eid)) continue;
-    const pk=`${eid}|${normName(r.player||r.player_name)}`;
-    const p=groups.get(pk)||{eventId:eid,name:r.player||r.player_name,byMarket:new Map()};
+    const label=splitPlayerLabel(r.player||r.player_name);
+    const pk=`${eid}|${normName(label.name)}`;
+    const p=groups.get(pk)||{eventId:eid,name:label.name,teamHint:label.team,byMarket:new Map()};
+    if(!p.teamHint && label.team) p.teamHint=label.team;
     const arr=p.byMarket.get(r.market_key)||[]; arr.push(r); p.byMarket.set(r.market_key,arr); groups.set(pk,p);
   }
 
@@ -259,12 +278,12 @@ async function main() {
       if (p.eventId!==eid) continue;
       const odds={};
       for (const [apiKey,rows] of p.byMarket) {
-        for(const row of rows){const b=cleanBook(row);if(b)books.add(b);}
+        for(const row of rows){if(!isNonSportsbook(row)){const b=cleanBook(row);if(b)books.add(b);}}
         const internal=MARKET_MAP[apiKey]; const parsed=parsePlayerMarket(rows,internal); if(parsed) odds[internal]=parsed;
       }
       if (!Object.keys(odds).length) continue;
       const slatePlayer=slateRec?.playerByName?.get(normName(p.name));
-      players.push({name:p.name,playerId:slatePlayer?.id||slatePlayer?.espnId||null,team:slatePlayer?.team||null,odds});
+      players.push({name:slatePlayer?.name||p.name,playerId:slatePlayer?.id||slatePlayer?.espnId||null,team:slatePlayer?.team||p.teamHint||null,odds});
     }
     const markets=[...new Set(players.flatMap(p=>Object.keys(p.odds)))].sort();
     const go=gameOddsById.get(eid);
@@ -277,7 +296,7 @@ async function main() {
   }
 
   const result={
-    meta:{source:'parlayapi',sportKey:SPORT,books:[...books].sort(),markets:CORE,fetchedAt:new Date().toISOString(),sample:false,creditsEstimated:6,windowHours:24,note:'Live NFL game lines + player props from ParlayAPI. Sportsbook rows preferred over DFS/exchange rows.'},
+    meta:{source:'parlayapi',sportKey:SPORT,books:[...books].sort(),markets:CORE,fetchedAt:new Date().toISOString(),sample:false,creditsEstimated:6,windowHours:24,note:'Live NFL game lines + player props from ParlayAPI. Sportsbook rows only for player cards; DFS/exchange rows are excluded from displayed best prices.'},
     games:outputGames.sort((a,b)=>String(a.startDateUTC).localeCompare(String(b.startDateUTC))),
   };
   if (!result.games.length) throw new Error('ParlayAPI returned data but no relevant NFL events could be normalized. Refusing to overwrite.');
