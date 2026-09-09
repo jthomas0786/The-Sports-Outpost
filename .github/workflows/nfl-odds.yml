@@ -1,0 +1,62 @@
+name: NFL Odds Refresh
+
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force a paid refresh now'
+        type: boolean
+        default: true
+  schedule:
+    # Cheap hourly gate. The script calls the free /events endpoint first and
+    # only spends credits when an NFL kickoff is within 24h and the current odds
+    # file has reached its time-to-kickoff refresh threshold.
+    - cron: '7 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-odds-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Refresh NFL sportsbook odds
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          NFL_ODDS_FORCE: ${{ inputs.force == true && '1' || '0' }}
+        run: node scripts/nfl-odds-refresh.mjs
+
+      - name: Validate odds file when changed
+        run: |
+          if git diff --quiet -- slates/nfl-odds.json; then
+            echo "Odds file unchanged."
+            exit 0
+          fi
+          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi')process.exit(2);console.log('✓',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players')"
+
+      - name: Commit odds when changed
+        run: |
+          git config user.name 'TSO NFL Odds Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slates/nfl-odds.json
+          git diff --staged --quiet && echo "no odds changes" && exit 0
+          git commit -m "Refresh NFL odds"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1

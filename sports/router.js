@@ -131,7 +131,7 @@ async function swapView(active) {
       // v69 — source-backed NFL research presentation layer. This enhances
       // Slate rows and the Player Modal without changing TSO model outputs.
       try {
-        const researchUi = await import('./nfl-research-ui.js?v=72');
+        const researchUi = await import('./nfl-research-ui.js?v=79');
         await researchUi.mountNflResearchUI(nflView);
       } catch (researchError) {
         console.warn('[NFL research UI] enhancement unavailable:', researchError);

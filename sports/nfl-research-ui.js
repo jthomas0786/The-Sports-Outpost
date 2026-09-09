@@ -361,14 +361,14 @@ function fmtAmericanPrice(v){ const x=Number(v); return Number.isFinite(x)?(x>0?
 
 const NFL_PROP_META={
   atd:{button:'ATD',label:'Anytime TD',market:'ANYTIME TD',unit:'TD',oddsKey:'atd'},
-  firstTd:{button:'1ST TD',label:'First TD',market:'FIRST TD',unit:'TD',oddsKey:null},
+  firstTd:{button:'1ST TD',label:'First TD',market:'FIRST TD',unit:'TD',oddsKey:'firstTd'},
   rushYds:{button:'RUSH YDS',label:'Rushing Yards',market:'RUSHING YARDS',unit:'YDS',oddsKey:'rushYds'},
   recYds:{button:'REC YDS',label:'Receiving Yards',market:'RECEIVING YARDS',unit:'YDS',oddsKey:'recYds'},
   receptions:{button:'REC',label:'Receptions',market:'RECEPTIONS',unit:'REC',oddsKey:'receptions'},
   scrimYds:{button:'R+R YDS',label:'Rush + Rec Yards',market:'RUSH + REC YARDS',unit:'YDS',oddsKey:null},
-  passYds:{button:'PASS YDS',label:'Passing Yards',market:'PASSING YARDS',unit:'YDS',oddsKey:null},
+  passYds:{button:'PASS YDS',label:'Passing Yards',market:'PASSING YARDS',unit:'YDS',oddsKey:'passYds'},
   passTds:{button:'PASS TD',label:'Passing TDs',market:'PASSING TDS',unit:'TD',oddsKey:'passTds'},
-  completions:{button:'COMP',label:'Completions',market:'COMPLETIONS',unit:'COMP',oddsKey:null},
+  completions:{button:'COMP',label:'Completions',market:'COMPLETIONS',unit:'COMP',oddsKey:'completions'},
 };
 function propsForPosition(pos){
   if(pos==='QB') return ['atd','firstTd','passYds','passTds','completions','rushYds'];
@@ -451,9 +451,9 @@ function propOddsOffer(r,key){
   const hit=findOddsPlayer(r); if(!hit) return null;
   const meta=NFL_PROP_META[key], slot=meta?.oddsKey ? hit.player?.odds?.[meta.oddsKey] : null;
   if(!slot) return null;
-  if(key==='atd') return slot.best?{line:.5,...slot.best,source:'Sportsbook'}:null;
+  if(key==='atd'||key==='firstTd') return slot.best?{line:.5,...slot.best,source:'Sportsbook',gameId:hit.game?.gameId||null,eventId:hit.game?.fixtureId||null}:null;
   const best=slot.over?.best;
-  return best&&Number.isFinite(Number(slot.line))?{line:Number(slot.line),...best,source:'Sportsbook'}:null;
+  return best&&Number.isFinite(Number(slot.line))?{line:Number(slot.line),...best,source:'Sportsbook',gameId:hit.game?.gameId||null,eventId:hit.game?.fixtureId||null}:null;
 }
 function defaultResearchLine(key,seasonPg,recent){
   if(key==='atd'||key==='firstTd') return .5;
@@ -476,7 +476,7 @@ function propContext(r,key,{atd=0,firstTd=0,edge=50}={}){
     const prob=clampNum(atd,0,99); return {key,meta,line,projection:prob,prob,grade:r?.model?.atdGrade||gradeFromProbability(prob),seasonPg,recent,defense,offer,lineSource:offer?'Sportsbook':'TSO model'};
   }
   if(key==='firstTd'){
-    const prob=clampNum(firstTd,0,99); return {key,meta,line,projection:prob,prob,grade:prob>=18?'A':prob>=13?'B+':prob>=8?'B':'C',seasonPg,recent,defense,offer,lineSource:'TSO model'};
+    const prob=clampNum(firstTd,0,99); return {key,meta,line,projection:prob,prob,grade:prob>=18?'A':prob>=13?'B+':prob>=8?'B':'C',seasonPg,recent,defense,offer,lineSource:offer?'Sportsbook':'TSO model'};
   }
   const projection=researchProjection(key,seasonPg,recent);
   const scale=key==='receptions'?1.6:key==='passTds'?0.7:key==='completions'?3.5:Math.max(7,Math.abs(line)*.16);
@@ -585,7 +585,7 @@ function slipHasLeg(id){
 function propSlipHTML(r,ctx,team,opp,edge){
   const line=Number(ctx.line); if(!Number.isFinite(line)) return `<button class="cta tso-nfl-prop-disabled" type="button" disabled>Line unavailable</button>`;
   const id=`${r.name}|${ctx.meta.market}|${fmtLine(line)}`;
-  const leg={id,kind:'prop',player:r.name,market:ctx.meta.market,line,pct:ctx.prob,grade:ctx.grade,game:`${team} vs ${opp||'DEF'}`,player_id:r.espnId||r.gsisId||r.pfrId||null,price:ctx.offer?.price??null,book:ctx.offer?.book??null,link:ctx.offer?.link??null,line_source:ctx.lineSource};
+  const leg={id,kind:'prop',sport:'nfl',prop_key:ctx.key,side:'over',player:r.name,market:ctx.meta.market,line,pct:ctx.prob,grade:ctx.grade,game:`${team} vs ${opp||'DEF'}`,game_pk:Number(ctx.offer?.gameId)||null,event_id:ctx.offer?.eventId||null,player_id:r.espnId||r.gsisId||r.pfrId||null,price:ctx.offer?.price??null,book:ctx.offer?.book??null,link:ctx.offer?.link??null,line_source:ctx.lineSource};
   const label=`Add ${fmtLine(line)} ${ctx.meta.label} to Slip`,on=slipHasLeg(id);
   return `<button class="add-leg cta ${on?'in-slip':''}" data-legid="${esc(id)}" data-leg="${encodeURIComponent(JSON.stringify(leg))}" data-cta-label="${esc(label)}">${on?'✓ In Slip':esc(label)}</button>`;
 }
