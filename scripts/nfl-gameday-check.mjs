@@ -86,6 +86,11 @@ if(preview){
   /test game available for Gamecast preview/i.test(preview)
     ? fail('Production Live page still injects Test Game')
     : pass('Production Live page does not advertise/inject Test Game');
+  preview.includes("fetch('./slates/nfl-odds.json'")?pass('NFL Slate/Props load the live sportsbook odds file'):fail('NFL Slate/Props are not loading nfl-odds.json');
+  preview.includes('nflGradeRingHTML')?pass('MLB-style NFL grade progress rings are installed'):fail('NFL grade progress rings are missing');
+  preview.includes('tdOddsHTML')?pass('TD Feed scorer odds are wired'):fail('TD Feed scorer odds are not wired');
+  preview.includes('nflKickoffDateLabel')?pass('NFL Slate kickoff weekday/date labels are wired'):fail('NFL Slate kickoff date labels are missing');
+  /projected rush yds|projected rec yds|projected completions/i.test(preview)?warn('Legacy deterministic prop preview strings still exist'):pass('Legacy deterministic non-TD prop preview values removed');
 }
 
 const liveJs=await fs.readFile('sports/nfl/live.js','utf8').catch(()=>null);
