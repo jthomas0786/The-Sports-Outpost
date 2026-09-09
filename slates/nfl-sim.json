@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "engineVersion": "v86.0.0",
-  "generatedAt": "2026-09-09T17:16:54.480Z",
+  "generatedAt": "2026-09-09T22:00:35.126Z",
   "meta": {
     "automatic": true,
     "pollMinutes": 5,
@@ -24,7 +24,7 @@
       "games": 1,
       "totalIterations": 50000,
       "reasonCounts": {
-        "material input change": 1
+        "pregame 180m checkpoint": 1
       }
     }
   },
@@ -39,7 +39,7 @@
     {
       "schemaVersion": 1,
       "engineVersion": "v86.0.0",
-      "generatedAt": "2026-09-09T17:17:10.919Z",
+      "generatedAt": "2026-09-09T22:00:49.400Z",
       "game": {
         "gameId": "401872656",
         "away": {
@@ -439,9 +439,13 @@
           },
           "sportsbook": {
             "over": {
+              "rushYds": {
+                "line": 174.5,
+                "probability": 0
+              },
               "recYds": {
-                "line": 19.5,
-                "probability": 0.3647
+                "line": 149.5,
+                "probability": 0
               },
               "receptions": {
                 "line": 3.5,
@@ -449,9 +453,13 @@
               }
             },
             "under": {
+              "rushYds": {
+                "line": 174.5,
+                "probability": 1
+              },
               "recYds": {
-                "line": 19.5,
-                "probability": 0.6353
+                "line": 149.5,
+                "probability": 1
               },
               "receptions": {
                 "line": 3.5,
@@ -460,7 +468,8 @@
             },
             "markets": [
               "receptions",
-              "recYds"
+              "recYds",
+              "rushYds"
             ]
           }
         },
@@ -964,19 +973,28 @@
           },
           "sportsbook": {
             "over": {
+              "recYds": {
+                "line": 249.5,
+                "probability": 0
+              },
               "receptions": {
                 "line": 6.5,
                 "probability": 0.1471
               }
             },
             "under": {
+              "recYds": {
+                "line": 249.5,
+                "probability": 1
+              },
               "receptions": {
                 "line": 6.5,
                 "probability": 0.8529
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -1140,19 +1158,28 @@
           },
           "sportsbook": {
             "over": {
+              "rushYds": {
+                "line": 49.5,
+                "probability": 0.1591
+              },
               "receptions": {
                 "line": 1.5,
                 "probability": 0.379
               }
             },
             "under": {
+              "rushYds": {
+                "line": 49.5,
+                "probability": 0.8409
+              },
               "receptions": {
                 "line": 1.5,
                 "probability": 0.621
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "rushYds"
             ]
           }
         },
@@ -1316,6 +1343,10 @@
           },
           "sportsbook": {
             "over": {
+              "passYds": {
+                "line": 449.5,
+                "probability": 0.0153
+              },
               "passTds": {
                 "line": 1.5,
                 "probability": 0.1985
@@ -1323,9 +1354,17 @@
               "completions": {
                 "line": 20.5,
                 "probability": 0.527
+              },
+              "rushYds": {
+                "line": 25.5,
+                "probability": 0.4472
               }
             },
             "under": {
+              "passYds": {
+                "line": 449.5,
+                "probability": 0.9847
+              },
               "passTds": {
                 "line": 1.5,
                 "probability": 0.8015
@@ -1333,11 +1372,17 @@
               "completions": {
                 "line": 20.5,
                 "probability": 0.473
+              },
+              "rushYds": {
+                "line": 25.5,
+                "probability": 0.5528
               }
             },
             "markets": [
               "completions",
-              "passTds"
+              "passTds",
+              "passYds",
+              "rushYds"
             ]
           }
         },
@@ -1501,19 +1546,28 @@
           },
           "sportsbook": {
             "over": {
+              "recYds": {
+                "line": 149.5,
+                "probability": 0.0007
+              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.23
               }
             },
             "under": {
+              "recYds": {
+                "line": 149.5,
+                "probability": 0.9993
+              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.77
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -1678,8 +1732,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 59.5,
-                "probability": 0.4328
+                "line": 53.5,
+                "probability": 0.502
               },
               "receptions": {
                 "line": 5.5,
@@ -1688,8 +1742,8 @@
             },
             "under": {
               "recYds": {
-                "line": 59.5,
-                "probability": 0.5672
+                "line": 53.5,
+                "probability": 0.498
               },
               "receptions": {
                 "line": 5.5,
@@ -2038,19 +2092,28 @@
           },
           "sportsbook": {
             "over": {
+              "recYds": {
+                "line": 149.5,
+                "probability": 0.0004
+              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.1693
               }
             },
             "under": {
+              "recYds": {
+                "line": 149.5,
+                "probability": 0.9996
+              },
               "receptions": {
                 "line": 3.5,
                 "probability": 0.8307
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -2891,19 +2954,28 @@
           },
           "sportsbook": {
             "over": {
+              "recYds": {
+                "line": 149.5,
+                "probability": 0
+              },
               "receptions": {
                 "line": 2.5,
                 "probability": 0.2225
               }
             },
             "under": {
+              "recYds": {
+                "line": 149.5,
+                "probability": 1
+              },
               "receptions": {
                 "line": 2.5,
                 "probability": 0.7775
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -3067,19 +3139,28 @@
           },
           "sportsbook": {
             "over": {
+              "rushYds": {
+                "line": 2.5,
+                "probability": 0.1813
+              },
               "receptions": {
                 "line": 2.5,
                 "probability": 0.1759
               }
             },
             "under": {
+              "rushYds": {
+                "line": 2.5,
+                "probability": 0.8187
+              },
               "receptions": {
                 "line": 2.5,
                 "probability": 0.8241
               }
             },
             "markets": [
-              "receptions"
+              "receptions",
+              "rushYds"
             ]
           }
         },
@@ -3407,6 +3488,10 @@
           },
           "sportsbook": {
             "over": {
+              "passYds": {
+                "line": 449.5,
+                "probability": 0.0004
+              },
               "passTds": {
                 "line": 1.5,
                 "probability": 0.1749
@@ -3414,9 +3499,17 @@
               "completions": {
                 "line": 20.5,
                 "probability": 0.1821
+              },
+              "rushYds": {
+                "line": 4.5,
+                "probability": 0.3941
               }
             },
             "under": {
+              "passYds": {
+                "line": 449.5,
+                "probability": 0.9996
+              },
               "passTds": {
                 "line": 1.5,
                 "probability": 0.8251
@@ -3424,11 +3517,17 @@
               "completions": {
                 "line": 20.5,
                 "probability": 0.8179
+              },
+              "rushYds": {
+                "line": 4.5,
+                "probability": 0.6059
               }
             },
             "markets": [
               "completions",
-              "passTds"
+              "passTds",
+              "passYds",
+              "rushYds"
             ]
           }
         },
@@ -3593,8 +3692,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 9.5,
-                "probability": 0.4977
+                "line": 19.5,
+                "probability": 0.2362
               },
               "receptions": {
                 "line": 1.5,
@@ -3603,8 +3702,8 @@
             },
             "under": {
               "recYds": {
-                "line": 9.5,
-                "probability": 0.5023
+                "line": 19.5,
+                "probability": 0.7638
               },
               "receptions": {
                 "line": 1.5,
@@ -8571,10 +8670,10 @@
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
-        "checkpointMinutes": null,
-        "inputFingerprint": "82aca866",
-        "runAt": "2026-09-09T17:16:54.480Z",
+        "reason": "pregame 180m checkpoint",
+        "checkpointMinutes": 180,
+        "inputFingerprint": "49927c0c",
+        "runAt": "2026-09-09T22:00:35.126Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
