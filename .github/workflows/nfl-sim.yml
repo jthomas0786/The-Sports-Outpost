@@ -1,0 +1,58 @@
+name: NFL Simulation Manual Run
+
+on:
+  workflow_dispatch:
+    inputs:
+      game:
+        description: 'Optional game ID or pair, e.g. NE-SEA (blank = all due games)'
+        type: string
+        required: false
+        default: ''
+      force:
+        description: 'Force the selected simulation now'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-simulation-manual
+  cancel-in-progress: false
+
+jobs:
+  simulate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run NFL simulation
+        env:
+          NFL_SIM_FORCE: ${{ inputs.force == true && '1' || '0' }}
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+          GAME_INPUT: ${{ inputs.game }}
+        run: |
+          if [ -n "$GAME_INPUT" ]; then
+            node scripts/nfl-sim-auto.mjs --game "$GAME_INPUT"
+          else
+            node scripts/nfl-sim-auto.mjs
+          fi
+      - name: Commit simulation cache only when changed
+        run: |
+          git config user.name 'TSO NFL Simulation Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
+          [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
+          git diff --staged --quiet && echo "Simulation cache unchanged." && exit 0
+          git commit -m "Refresh NFL simulation cache"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1

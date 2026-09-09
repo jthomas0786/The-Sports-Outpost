@@ -2,8 +2,8 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { fileURLToPath } from 'node:url';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine.js';
+import { isHalftimeState } from '../sports/nfl/sim/auto.js';
 
 const ROOT = process.cwd();
 const arg=(flag,fallback=null)=>{const i=process.argv.indexOf(flag);return i>=0&&process.argv[i+1]!=null?process.argv[i+1]:fallback};
@@ -55,15 +55,17 @@ if(!games.length)throw new Error(GAME?`No NFL game matched --game ${GAME}`:'NFL 
 const results=[];
 for(const game of games){
   const liveGame=matchLive(game,liveBoard);
-  const iterations=ITER||(liveGame?.status==='in'?config.liveIterations:config.defaultIterations);
+  const iterations=ITER||(isHalftimeState(liveGame)?(config.halftimeIterations||config.automatic?.halftimeIterations||50000):liveGame?.status==='in'?(config.liveIterations||config.automatic?.liveIterations||15000):(config.defaultIterations||config.automatic?.pregameIterations||50000));
   const result=simulateGame({game,research,odds,liveGame,config,iterations,seed:SEED,includeSamples:false});
   results.push(stripPrivateSamples(result));
   const o=result.outcomes;
-  console.log(`✓ ${result.game.away.abbr} @ ${result.game.home.abbr}: ${iterations.toLocaleString()} sims | win ${result.game.away.abbr} ${(o.away.winProbability*100).toFixed(1)}% / ${result.game.home.abbr} ${(o.home.winProbability*100).toFixed(1)}% | avg ${o.away.score.mean}-${o.home.score.mean}`);
+  const phase=isHalftimeState(liveGame)?'HALFTIME':liveGame?.status==='in'?'LIVE':'PREGAME';
+  console.log(`✓ ${result.game.away.abbr} @ ${result.game.home.abbr}: ${iterations.toLocaleString()} sims [${phase}] | win ${result.game.away.abbr} ${(o.away.winProbability*100).toFixed(1)}% / ${result.game.home.abbr} ${(o.home.winProbability*100).toFixed(1)}% | avg ${o.away.score.mean}-${o.home.score.mean}`);
 }
 
 const payload={
-  schemaVersion:1,engineVersion:config.engineVersion,generatedAt:new Date().toISOString(),
+  schemaVersion:2,engineVersion:config.engineVersion,generatedAt:new Date().toISOString(),
+  meta:{automatic:false,probabilityBlend:config.probabilityBlend||null},
   source:{slate:path.relative(ROOT,SLATE),research:path.relative(ROOT,RESEARCH),odds:path.relative(ROOT,ODDS),live:NO_LIVE?null:LIVE_URL},
   gameCount:results.length,games:results,
 };

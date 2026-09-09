@@ -319,7 +319,11 @@ export function jointProbabilityFromResult(result, legs) {
 
 export function simulateGame({game,research,odds,liveGame=null,config,iterations,seed,includeSamples=false}) {
   const profile = buildGameProfile({game,research,odds,liveGame,config});
-  iterations = Math.max(100,Math.min(config.maxIterations||100000,Math.round(iterations || (liveGame?.status==='in'?config.liveIterations:config.defaultIterations))));
+  const liveDetail=`${liveGame?.statusDetail||''} ${liveGame?.detail||''}`.toLowerCase();
+  const liveClock=Number(liveGame?.clockMin), livePeriod=Number(liveGame?.period);
+  const atHalftime=liveGame?.status==='in' && (/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(liveDetail) || (livePeriod===2 && Number.isFinite(liveClock) && liveClock<=0.05));
+  const automaticDefault=atHalftime ? (config.halftimeIterations||config.automatic?.halftimeIterations||50000) : liveGame?.status==='in' ? (config.liveIterations||config.automatic?.liveIterations||15000) : (config.defaultIterations||config.automatic?.pregameIterations||50000);
+  iterations = Math.max(100,Math.min(config.maxIterations||100000,Math.round(iterations || automaticDefault)));
   const stateSig = `${profile.gameId}|${profile.live?.status||'pre'}|${profile.live?.period||0}|${profile.live?.clockMin??''}|${profile.currentScore.away}-${profile.currentScore.home}`;
   seed = Number.isFinite(Number(seed)) ? Number(seed) : hash32(stateSig);
   const rng = makeRng(seed);
@@ -356,7 +360,7 @@ export function simulateGame({game,research,odds,liveGame=null,config,iterations
       'Correlated Monte Carlo: team pace, scoring, game script and player usage are simulated in the same world.',
       'Live runs add current box-score stats to every world and simulate only the remaining game fraction.',
       'Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.',
-      'v85 is the simulation core. Calibration/backtesting and halftime parlay ranking are follow-on layers.'
+      'v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.'
     ]
   };
   if(includeSamples) result._samples={iterations,players:arrays,awayScores,homeScores};

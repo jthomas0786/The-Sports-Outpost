@@ -1,6 +1,6 @@
 {
-  "engineVersion": "v85.0.0",
-  "defaultIterations": 25000,
+  "engineVersion": "v86.0.0",
+  "defaultIterations": 50000,
   "liveIterations": 15000,
   "maxIterations": 100000,
   "league": {
@@ -19,16 +19,16 @@
     "maxScriptPassRateAdjustment": 0.12
   },
   "blend": {
-    "currentSeason": 0.50,
-    "last5": 0.30,
-    "previousSeason": 0.20,
+    "currentSeason": 0.5,
+    "last5": 0.3,
+    "previousSeason": 0.2,
     "noCurrentLast5": 0.45,
     "noCurrentPrevious": 0.55,
-    "matchupWeight": 0.20,
+    "matchupWeight": 0.2,
     "snapTrendWeight": 0.18,
     "marketAnchorWeightPregame": 0.78,
-    "marketAnchorWeightLive": 0.70,
-    "observedScoringWeightLive": 0.30
+    "marketAnchorWeightLive": 0.7,
+    "observedScoringWeightLive": 0.3
   },
   "clamps": {
     "matchupFactorMin": 0.88,
@@ -44,7 +44,7 @@
     "yardsPerCarryMin": 2.5,
     "yardsPerCarryMax": 7.5,
     "catchRateMin": 0.35,
-    "catchRateMax": 0.90
+    "catchRateMax": 0.9
   },
   "fallback": {
     "QB": {
@@ -85,10 +85,31 @@
     }
   },
   "depthRole": {
-    "QB": [1.0, 0.08, 0.03],
-    "RB": [1.0, 0.62, 0.34, 0.18],
-    "WR": [1.0, 0.88, 0.72, 0.47, 0.28, 0.16],
-    "TE": [1.0, 0.52, 0.26, 0.12]
+    "QB": [
+      1.0,
+      0.08,
+      0.03
+    ],
+    "RB": [
+      1.0,
+      0.62,
+      0.34,
+      0.18
+    ],
+    "WR": [
+      1.0,
+      0.88,
+      0.72,
+      0.47,
+      0.28,
+      0.16
+    ],
+    "TE": [
+      1.0,
+      0.52,
+      0.26,
+      0.12
+    ]
   },
   "trackedStats": [
     "passYds",
@@ -104,5 +125,28 @@
     "targets",
     "recTds",
     "tds"
-  ]
+  ],
+  "halftimeIterations": 50000,
+  "automatic": {
+    "enabled": true,
+    "pollMinutes": 5,
+    "pregameIterations": 50000,
+    "halftimeIterations": 50000,
+    "liveIterations": 15000,
+    "pregameCheckpointMinutes": [
+      180,
+      90,
+      15
+    ],
+    "materialChangeMinIntervalMinutes": 10,
+    "liveMinIntervalMinutes": 4,
+    "requireResearch": true,
+    "requireOddsGame": true
+  },
+  "probabilityBlend": {
+    "simulationWeight": 0.7,
+    "existingModelWeight": 0.3,
+    "lineTolerance": 0.01,
+    "note": "Initial v86 blend. Calibrate per market after enough completed-game results."
+  }
 }

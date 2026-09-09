@@ -4,9 +4,9 @@ import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
  * sports/nfl-preview.js — NFL product mock built from the MLB information
  * architecture. It uses slates/nfl.json for schedule/model data, nfl-research.json
  * for source-backed player context, nfl-odds.json for current sportsbook lines,
- * and the low-latency live feed for Gamecast/TD Feed. Non-TD prop cards are
- * research projections against real posted lines; they are not presented as
- * Monte Carlo probabilities.
+ * and the low-latency live feed for Gamecast/TD Feed. v86 also consumes
+ * slates/nfl-sim.json so TSO prop probabilities can blend the existing model /
+ * research lean with the latest correlated Monte Carlo simulation.
  */
 
 const state = {
@@ -20,6 +20,7 @@ const state = {
   data: null,
   research: null,
   odds: null,
+  sim: null,
   allSort: 'edge',
   gamecastTab: 'game',
   inlineTabs: {},
@@ -373,6 +374,56 @@ function buildPreviewOddsIndex(doc){
   }
   return {games,players};
 }
+
+function buildPreviewSimIndex(doc){
+  const games=new Map(),players=new Map();
+  for(const result of doc?.games||[]){
+    const gameId=String(result?.game?.gameId||'');
+    if(!gameId) continue;
+    games.set(gameId,result);
+    for(const p of result?.players||[]){
+      players.set(`${gameId}|${normNflTeam(p.team)}|${researchNameKey(p.name)}`,p);
+    }
+  }
+  return {games,players};
+}
+function matchPreviewSimPlayer(idx,gameId,p){
+  return idx?.players?.get(`${String(gameId)}|${normNflTeam(p?.team)}|${researchNameKey(p?.name)}`)||null;
+}
+function simBlendWeights(){
+  const b=state.sim?.meta?.probabilityBlend||{};
+  let sim=Number(b.simulationWeight),model=Number(b.existingModelWeight);
+  if(!Number.isFinite(sim)) sim=.70;
+  if(!Number.isFinite(model)) model=.30;
+  const total=Math.max(.0001,sim+model);
+  return {sim:sim/total,model:model/total,lineTolerance:Number.isFinite(Number(b.lineTolerance))?Number(b.lineTolerance):.01};
+}
+function blendModelSimulation(modelProb,simProb){
+  const m=Number(modelProb),sp=Number(simProb);
+  if(!Number.isFinite(sp)) return clamp(Number.isFinite(m)?m:.5,0,1);
+  if(!Number.isFinite(m)) return clamp(sp,0,1);
+  const w=simBlendWeights();
+  return clamp(sp*w.sim+m*w.model,0,1);
+}
+function simulationFreshnessLabel(){
+  const iso=state.sim?.generatedAt; if(!iso) return 'Simulation pending';
+  const mins=Math.max(0,Math.round((Date.now()-Date.parse(iso))/60000));
+  const age=mins<60?`${mins}m ago`:`${Math.round(mins/60)}h ago`;
+  return `Auto simulation updated ${age}`;
+}
+function simulationProjection(p,prop){
+  const key={rushYds:'rushYds',recYds:'recYds',receptions:'receptions',passYds:'passYds',passTds:'passTds',completions:'completions'}[prop];
+  const v=Number(p?.sim?.distributions?.[key]?.mean);
+  return Number.isFinite(v)?v:null;
+}
+function simulationOverProbability(p,prop,line){
+  const slot=p?.sim?.sportsbook?.over?.[prop];
+  if(!slot) return null;
+  const simLine=Number(slot.line), currentLine=Number(line), prob=Number(slot.probability);
+  if(!Number.isFinite(prob)||!Number.isFinite(simLine)||!Number.isFinite(currentLine)) return null;
+  const tol=simBlendWeights().lineTolerance;
+  return Math.abs(simLine-currentLine)<=tol?clamp(prob,0,1):null;
+}
 const NFL_SPORTSBOOKS=/^(bovada|caesars|draftkings|fanduel|fanatics|fliff|hard rock(?: bet)?|parx(?: casino)?|bet365|betmgm|espn bet|pinnacle|betrivers|pmu|unibet|sportsbet|rushbet)$/i;
 function isSportsbookOffer(o){ return !!o && NFL_SPORTSBOOKS.test(String(o.book||'').trim()); }
 function bestByAmerican(list){
@@ -582,14 +633,16 @@ async function loadData(){
     const r = await fetch('./slates/nfl.json',{cache:'no-cache'});
     if(!r.ok) throw new Error('NFL slate unavailable');
     const d = await r.json();
-    let research=null,odds=null;
+    let research=null,odds=null,sim=null;
     await Promise.all([
       (async()=>{try{const rr=await fetch('./slates/nfl-research.json',{cache:'no-cache'});if(rr.ok)research=await rr.json();}catch(_e){}})(),
       (async()=>{try{const or=await fetch('./slates/nfl-odds.json',{cache:'no-cache'});if(or.ok){const candidate=await or.json();if(candidate?.meta?.sample===false)odds=candidate;}}catch(_e){}})(),
+      (async()=>{try{const sr=await fetch('./slates/nfl-sim.json',{cache:'no-cache'});if(sr.ok){const candidate=await sr.json();if(Array.isArray(candidate?.games)&&String(candidate?.engineVersion||'').startsWith('v86'))sim=candidate;}}catch(_e){}})(),
     ]);
-    state.research=research; state.odds=odds;
+    state.research=research; state.odds=odds; state.sim=sim;
     const researchIdx=buildResearchIndexes(research);
     const oddsIdx=buildPreviewOddsIndex(odds);
+    const simIdx=buildPreviewSimIndex(sim);
     const games=(d.games||[]).map(g=>({
       id:String(g.gameId),
       away:{...g.away,abbr:g.away?.abbr||'AWY',name:g.away?.shortName||g.away?.name||'Away',fullName:g.away?.name||g.away?.shortName||'Away'},
@@ -605,8 +658,11 @@ async function loadData(){
     const players=[];
     for(const g of d.games||[]){
       for(const p of g.players||[]){
-        const atd=Number(p.props?.atd?.probability);
-        if(!Number.isFinite(atd)) continue;
+        const modelAtd=Number(p.props?.atd?.probability);
+        if(!Number.isFinite(modelAtd)) continue;
+        const simPlayer=matchPreviewSimPlayer(simIdx,String(g.gameId),p);
+        const simAtd=Number(simPlayer?.probabilities?.atd);
+        const atd=blendModelSimulation(modelAtd,Number.isFinite(simAtd)?simAtd:null);
         const inp=p.props?.atd?.inputs||{};
         const rzAllowed=Number(inp.oppRzTdRateAllowed);
         const oppFactor=Number(inp.oppRzDefFactor)||1;
@@ -617,7 +673,7 @@ async function loadData(){
         players.push({
           id:p.gsisId||p.espnId||p.name, espnId:p.espnId||rp?.espnId||null, gsisId:p.gsisId||rp?.gsisId||null,
           name:p.name, team:normNflTeam(p.team), pos:p.position||rp?.position||'SKILL', opp:normNflTeam(p.opponent||rp?.opponent||''),
-          edge, prob:atd, grade:p.props?.atd?.grade||gradeFor(atd), headshot:p.headshot||rp?.headshot||null,
+          edge, prob:atd, modelProb:modelAtd, simProb:Number.isFinite(simAtd)?simAtd:null, sim:simPlayer, simIterations:simIdx.games.get(String(g.gameId))?.iterations||null, grade:gradeFor(atd), headshot:p.headshot||rp?.headshot||null,
           usage:Number.isFinite(snap)?Math.round(snap*100):Math.round((Number(rp?.model?.snapShare)||0)*100)||num(p.name+'snap',58,88),
           rz:rzOpp||((Number(rp?.model?.rzTargets)||0)+(Number(rp?.model?.rzCarries)||0))||num(p.name+'rz',6,25), explosive:num(p.name+'exp',9,24),
           gamesPlayed:Number(p.stats?.gamesPlayed)||Number(rp?.previousSeason?.games)||17, tds:Number(p.stats?.tds)||Number(rp?.previousSeason?.totalTds)||0,
@@ -628,7 +684,7 @@ async function loadData(){
       }
     }
     players.sort((a,b)=>b.prob-a.prob);
-    state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null,researchGeneratedAt:research?.generatedAt||null,oddsFetchedAt:odds?.meta?.fetchedAt||null};
+    state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null,researchGeneratedAt:research?.generatedAt||null,oddsFetchedAt:odds?.meta?.fetchedAt||null,simGeneratedAt:sim?.generatedAt||null};
     startLivePolling(d,()=>{
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
@@ -813,20 +869,24 @@ function propValue(p,prop){
   const atd=Number(p.prob)||0;
   if(prop==='atd'){
     const offer=bestPlayerOffer(p,'atd');
-    return {main:`${Math.round(atd*100)}%`,sub:'Anytime TD probability',prob:atd,grade:p.grade||gradeFor(atd),projection:atd,line:.5,offer,recent:null,season:null,defense:null};
+    return {main:`${Math.round(atd*100)}%`,sub:'Anytime TD probability',prob:atd,modelProb:Number(p.modelProb),simProb:Number.isFinite(Number(p.simProb))?Number(p.simProb):null,simUsed:Number.isFinite(Number(p.simProb)),grade:p.grade||gradeFor(atd),projection:atd,line:.5,offer,recent:null,season:null,defense:null};
   }
   if(prop==='firstTd'){
     const prob=firstTdProbability(p)||.025,offer=bestPlayerOffer(p,'firstTd');
-    return {main:`${Math.round(prob*100)}%`,sub:'First TD probability',prob,grade:gradeForLean(prob),projection:prob,line:.5,offer,recent:null,season:null,defense:null};
+    return {main:`${Math.round(prob*100)}%`,sub:'First TD probability',prob,grade:gradeForLean(prob),projection:prob,line:.5,offer,recent:null,season:null,defense:null,simUsed:Number.isFinite(Number(p.simProb))};
   }
-  const recent=researchRecentAvg(p,prop),season=researchSeasonAvg(p,prop),defense=researchDefenseAvg(p,prop),projection=researchProjection(p,prop),offer=bestPlayerOffer(p,prop);
+  const recent=researchRecentAvg(p,prop),season=researchSeasonAvg(p,prop),defense=researchDefenseAvg(p,prop),researchProj=researchProjection(p,prop),offer=bestPlayerOffer(p,prop);
   const line=Number.isFinite(Number(offer?.line))?Number(offer.line):null;
-  if(!(projection>0)&&line==null) return {main:'—',sub:'Data pending',prob:0,grade:'—',projection:0,line:null,offer:null,recent,season,defense};
-  const prob=propLeanProbability(prop,projection,line),grade=gradeForLean(prob);
+  const simProj=simulationProjection(p,prop),w=simBlendWeights();
+  const projection=Number.isFinite(simProj)&&researchProj>0?+(simProj*w.sim+researchProj*w.model).toFixed(1):(Number.isFinite(simProj)?+simProj.toFixed(1):researchProj);
+  if(!(projection>0)&&line==null) return {main:'—',sub:'Data pending',prob:0,grade:'—',projection:0,line:null,offer:null,recent,season,defense,simUsed:false};
+  const modelProb=propLeanProbability(prop,researchProj||projection,line);
+  const simProb=line!=null?simulationOverProbability(p,prop,line):null;
+  const prob=blendModelSimulation(modelProb,simProb),grade=gradeForLean(prob);
   return {
     main:line!=null?`O ${fmtLine(line)}`:fmtLine(projection),
-    sub:offer?`${priceFmt(offer.price)} · ${compactBook(offer.book)}`:'TSO research projection',
-    prob,grade,projection,line,offer,recent,season,defense,
+    sub:offer?`${priceFmt(offer.price)} · ${compactBook(offer.book)}`:(Number.isFinite(simProj)?'TSO simulation projection':'TSO research projection'),
+    prob,modelProb,simProb,simUsed:Number.isFinite(simProb),grade,projection,line,offer,recent,season,defense,
   };
 }
 
@@ -1064,7 +1124,7 @@ function feedHTML(){
 }
 
 function propToolbar(){
-  return `<div class="prop-market-bar nfl-mlb-prop-toolbar"><div class="prop-market-control nfl-mlb-prop-market-control"><span class="prop-market-label">Player Prop</span><div class="prop-market-select-wrap nfl-mlb-prop-select-wrap"><select id="nflMlbPropSelect" class="prop-market-select nfl-mlb-prop-select" aria-label="NFL player prop market">${Object.entries(PROPS).map(([id,label])=>`<option value="${esc(id)}" ${state.prop===id?'selected':''}>${esc(label)}</option>`).join('')}</select></div></div><div class="nfl-mlb-prop-fresh"><b>● LIVE ODDS</b> · ${esc(oddsFreshnessLabel())}</div></div>`;
+  return `<div class="prop-market-bar nfl-mlb-prop-toolbar"><div class="prop-market-control nfl-mlb-prop-market-control"><span class="prop-market-label">Player Prop</span><div class="prop-market-select-wrap nfl-mlb-prop-select-wrap"><select id="nflMlbPropSelect" class="prop-market-select nfl-mlb-prop-select" aria-label="NFL player prop market">${Object.entries(PROPS).map(([id,label])=>`<option value="${esc(id)}" ${state.prop===id?'selected':''}>${esc(label)}</option>`).join('')}</select></div></div><div class="nfl-mlb-prop-fresh"><b>● LIVE ODDS</b> · ${esc(oddsFreshnessLabel())}<br><b>◆ TSO SIM</b> · ${esc(simulationFreshnessLabel())}</div></div>`;
 }
 function propCardDetail(p,v,prop){
   if(prop==='atd'||prop==='firstTd') return [
@@ -1086,7 +1146,7 @@ function playerCard(p,prop,rank){
     <div class="nfl-mlb-prop-rank">${rank}</div>
     <div class="nfl-mlb-prop-avatar">${p.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy" decoding="async">`:`<span>${esc(initials(p.name))}</span>`}</div>
     <div class="nfl-mlb-prop-main"><div class="nfl-mlb-prop-name"><b>${esc(p.name)}</b><span>${esc(p.team)} · ${esc(p.pos)}</span></div><div class="nfl-mlb-prop-match">${esc(matchup)}</div><div class="nfl-mlb-prop-badges">${nflBadges(p)}</div><div class="nfl-mlb-prop-detail">${propCardDetail(p,v,prop).map(([l,x])=>`<span>${esc(l)}<b>${esc(x)}</b></span>`).join('')}</div></div>
-    <div class="nfl-mlb-prop-market"><span>${esc(marketLabel)}</span><strong>${esc(marketMain)}</strong><small>${prop==='atd'||prop==='firstTd'?`TSO model · ${p.rz} red-zone opps`:`TSO research projection ${fmtLine(v.projection)} · ${v.line!=null?`book line ${fmtLine(v.line)}`:'line pending'}`}</small>${odds}${wager}</div>
+    <div class="nfl-mlb-prop-market"><span>${esc(marketLabel)}</span><strong>${esc(marketMain)}</strong><small>${prop==='atd'?(v.simUsed?`TSO blend · ${Math.round((p.simIterations||0)/1000)||50}K sim + model · ${p.rz} RZ opps`:`TSO model · ${p.rz} red-zone opps`):prop==='firstTd'?(v.simUsed?`TSO first-TD model · ATD sim-informed`:`TSO first-TD model · ${p.rz} red-zone opps`):(v.simUsed?`TSO blend · ${Math.round((p.simIterations||0)/1000)||50}K sim + research · book ${fmtLine(v.line)}`:`TSO research projection ${fmtLine(v.projection)} · ${v.line!=null?`book line ${fmtLine(v.line)}`:'line pending'}`)}</small>${odds}${wager}</div>
     <div class="nfl-mlb-prop-grade">${nflGradeRingHTML(v.prob,grade,'lg')}<small>${prop==='atd'||prop==='firstTd'?'TD grade':'Over lean'}</small></div>
   </article>`;
 }
@@ -1544,7 +1604,7 @@ function researchSnapshotHTML(p){
     ['Depth',depth],['Status',status],[`${state.research?.previousSeason||'Prev'} Yards`,seasonYds],[`${state.research?.previousSeason||'Prev'} TD`,prev.totalTds??'—'],
     ['Last 5 Yds/G',lastYds],['TD Games L5',last.tdGames??'—'],['Current Yards',currentYds],['RZ Opps',p.rz??'—']
   ];
-  return `${injuryDetail}<div class="ms-quality nfl-research-grid">${items.map(([l,v])=>`<div><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join('')}</div><div class="nfl-research-source">${esc(researchFreshnessLabel())} · ESPN roster/depth/injury + nflverse production · TSO model unchanged</div>`;
+  return `${injuryDetail}<div class="ms-quality nfl-research-grid">${items.map(([l,v])=>`<div><span>${esc(l)}</span><b>${esc(v)}</b></div>`).join('')}</div><div class="nfl-research-source">${esc(researchFreshnessLabel())} · ESPN roster/depth/injury + nflverse production · TSO probabilities use the latest simulation blend when available</div>`;
 }
 function playerResearchWhy(p){
   const r=p?.research, prev=r?.previousSeason, last=r?.last5?.avg;
@@ -1554,7 +1614,7 @@ function playerResearchWhy(p){
   const lastMetric=isQb?`${last?.passYds??'—'} pass yds/game`:`${last?.scrimmageYds??'—'} scrimmage yds/game`;
   const depth=r.depth?.rank?`${r.depth.position||p.pos}${r.depth.rank}`:p.pos;
   const status=r.injury?.status||r.rosterStatus||'Active';
-  return `${esc(p.name)} enters this matchup as ${esc(depth)} (${esc(status)}) with a ${p.edge} TSO Edge. The research baseline adds ${esc(seasonMetric)} from the previous season and ${esc(lastMetric)} over the latest five available games, alongside ${p.usage}% modeled snap share and ${p.rz} red-zone opportunities. TSO Edge/TD Grade remain model outputs; roster, depth, injury and historical production are source-backed research inputs.`;
+  return `${esc(p.name)} enters this matchup as ${esc(depth)} (${esc(status)}) with a ${p.edge} TSO Edge. The research baseline adds ${esc(seasonMetric)} from the previous season and ${esc(lastMetric)} over the latest five available games, alongside ${p.usage}% modeled snap share and ${p.rz} red-zone opportunities. TSO probabilities blend the existing model/research signal with the latest correlated simulation when available; roster, depth, injury and historical production remain source-backed research inputs.`;
 }
 
 function playerModal(p){
@@ -1582,7 +1642,7 @@ function render(){
   document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>btn.classList.toggle('is-active', btn.dataset.nflTab===state.tab));
   root.style.setProperty('--ms-accent','#f59e0b'); root.style.setProperty('--ms-accent2','#fbbf24');
   const p=state.player?data().players.find(x=>String(x.id)===String(state.player)):null;
-  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Live Engine.</b> Roster/depth/injury and historical production can refresh independently through nfl-research.json. TSO Edge/TD Grade stay model-driven. During games, score, clock, possession, field position, current drive, player box stats, team stats, touchdowns and play-by-play use the low-latency NFL live endpoint with nfl-live.json as a fallback; route/player tracking remains illustrative.</footer>`;
+  root.innerHTML=`${headerHTML()}<div class="ms-content">${contentHTML()}</div>${p?playerModal(p):''}<footer class="ms-preview-foot"><b>NFL Research + Simulation + Live Engine.</b> v86 blends the existing TSO model/research lean with the latest correlated Monte Carlo result when the sportsbook line matches the simulated line. Automatic 50K runs publish at key pregame checkpoints and halftime; live state continues through the low-latency NFL endpoint. Route/player tracking remains illustrative.</footer>`;
   wire(root);
   fitNflGamecastConcept(root);
   if(state.tab==='foryou') window.renderForYou?.(root.querySelector('#nflForYouHost'));

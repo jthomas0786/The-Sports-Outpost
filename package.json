@@ -2,12 +2,14 @@
   "name": "dinger-watch-slate-builder",
   "version": "1.0.0",
   "type": "module",
-  "description": "The Sports Outpost slate builders and NFL simulation engine",
+  "description": "The Sports Outpost slate builders and automatic NFL simulation engine",
   "scripts": {
     "build": "node build-slate.js",
     "build:tomorrow": "node -e \"const d=new Date();d.setDate(d.getDate()+1);console.log(d.toISOString().slice(0,10))\" | xargs -I{} node build-slate.js --date {}",
     "nfl:sim": "node scripts/nfl-simulate.mjs",
-    "nfl:sim:test": "node scripts/nfl-sim-selftest.mjs"
+    "nfl:sim:test": "node scripts/nfl-sim-selftest.mjs && node scripts/nfl-sim-auto-selftest.mjs",
+    "nfl:sim:auto": "node scripts/nfl-sim-auto.mjs",
+    "nfl:sim:auto:test": "node scripts/nfl-sim-auto-selftest.mjs"
   },
   "engines": {
     "node": ">=18"

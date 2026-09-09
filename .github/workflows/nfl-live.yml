@@ -2,10 +2,14 @@ name: NFL Live Snapshot
 
 on:
   workflow_dispatch:
+    inputs:
+      force_sim:
+        description: 'Also force an NFL simulation run now'
+        type: boolean
+        default: false
   schedule:
-    # GitHub Actions cron is a fallback source. For true near-real-time Gamecast,
-    # point window.DW_NFL_LIVE_ENDPOINT at a server/edge endpoint running the
-    # same scripts/nfl-live-poller.mjs normalization more frequently.
+    # This existing five-minute NFL heartbeat now powers BOTH the fallback live
+    # snapshot and v86's simulation gate, avoiding a second 24/7 cron workflow.
     - cron: '*/5 * * * *'
 
 permissions:
@@ -13,12 +17,14 @@ permissions:
 
 concurrency:
   group: nfl-live-snapshot
-  cancel-in-progress: true
+  # Do not cancel a run that happens to be executing a 50K checkpoint/halftime
+  # simulation. The next five-minute heartbeat can wait.
+  cancel-in-progress: false
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 18
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,16 +32,44 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Build NFL live snapshot
+
+      - name: Build NFL live fallback snapshot
         run: node scripts/nfl-live-poller.mjs
-      - name: Commit snapshot only when it changed
+
+      - name: Run v86 automatic NFL simulation gate
+        env:
+          NFL_SIM_FORCE: ${{ inputs.force_sim == true && '1' || '0' }}
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+        run: node scripts/nfl-sim-auto.mjs
+
+      - name: Validate simulation cache when present
         run: |
-          if git diff --quiet -- slates/nfl-live.json; then
-            echo "No live-state change to publish."
+          if [ ! -f slates/nfl-sim.json ]; then
+            echo "Simulation cache not generated yet — NFL inputs/checkpoint not ready."
             exit 0
           fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const sim=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          if(sim.engineVersion!=='v86.0.0') throw new Error(`unexpected engine ${sim.engineVersion}`);
+          if(sim.meta?.pregameIterations!==50000) throw new Error('pregame automation is not 50K');
+          if(sim.meta?.halftimeIterations!==50000) throw new Error('halftime automation is not 50K');
+          console.log(`✓ v86 simulation cache: ${sim.gameCount||0} game(s)`);
+          NODE
+
+      - name: Commit live/simulation outputs only when changed
+        run: |
           git config user.name "TSO NFL Live Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add slates/nfl-live.json
-          git commit -m "Update NFL live gamecast snapshot"
-          git push
+          [ -e slates/nfl-live.json ] && git add slates/nfl-live.json || true
+          [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
+          [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
+          git diff --staged --quiet && echo "No NFL live/simulation change to publish." && exit 0
+          git commit -m "Update NFL live and simulation state"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1
