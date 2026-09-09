@@ -289,6 +289,7 @@ const FALLBACK_PLAYERS = [
 
 function esc(s){ return String(s ?? '').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function finiteNumberOrNull(v){ if(v==null||v==='') return null; const n=Number(v); return Number.isFinite(n)?n:null; }
 function hash(str){ let x=2166136261; for(const c of String(str)){ x^=c.charCodeAt(0); x=Math.imul(x,16777619); } return Math.abs(x>>>0); }
 function num(seed,min,max,dec=0){ const v=min+(hash(seed)%10000)/9999*(max-min); return dec?+v.toFixed(dec):Math.round(v); }
 function initials(name){ return String(name).split(/\s+/).map(x=>x[0]).slice(0,2).join(''); }
@@ -399,9 +400,12 @@ function simBlendWeights(){
   return {sim:sim/total,model:model/total,lineTolerance:Number.isFinite(Number(b.lineTolerance))?Number(b.lineTolerance):.01};
 }
 function blendModelSimulation(modelProb,simProb){
-  const m=Number(modelProb),sp=Number(simProb);
-  if(!Number.isFinite(sp)) return clamp(Number.isFinite(m)?m:.5,0,1);
-  if(!Number.isFinite(m)) return clamp(sp,0,1);
+  // IMPORTANT: Number(null) === 0. A pending simulation is missing data, NOT a
+  // zero-percent result. Keep the research/model probability at full strength
+  // until a real simulation probability exists.
+  const m=finiteNumberOrNull(modelProb),sp=finiteNumberOrNull(simProb);
+  if(sp==null) return clamp(m!=null?m:.5,0,1);
+  if(m==null) return clamp(sp,0,1);
   const w=simBlendWeights();
   return clamp(sp*w.sim+m*w.model,0,1);
 }
@@ -490,7 +494,7 @@ function nflGradeRingHTML(probability,grade,size='md'){
   const disp=pct<10?pct.toFixed(1):Math.round(pct);
   return `<span class="sgr sgr-pct nfl-grade-ring nfl-grade-ring-${size}" style="color:${nflGradeColor(grade)}"><svg viewBox="0 0 120 120" class="sgr-svg" aria-hidden="true"><circle class="sgr-rt" cx="60" cy="60" r="52"/><circle class="sgr-rf" cx="60" cy="60" r="52" transform="rotate(-90 60 60)" stroke-dasharray="${NFL_RING_C}" stroke-dashoffset="${off}"/></svg><span class="sgr-l"><b class="sgr-gd2">${esc(grade)}</b><span class="sgr-pv">${disp}%</span></span></span>`;
 }
-function gradeForLean(p){ return p>=.64?'A':p>=.59?'A-':p>=.55?'B+':p>=.51?'B':p>=.47?'C+':'C'; }
+function gradeForLean(p){ return p>=.70?'A+':p>=.65?'A':p>=.61?'A-':p>=.57?'B+':p>=.54?'B':p>=.51?'B-':p>=.48?'C+':'C'; }
 function playerGame(p){ return data().games.find(g=>String(g.id)===String(p?.gameId))||null; }
 function researchRows(p){ const r=p?.research; return Array.isArray(r?.gameLog)&&r.gameLog.length?r.gameLog:(r?.last5?.gamesLog||[]); }
 function propGameStat(g,key){
@@ -661,8 +665,8 @@ async function loadData(){
         const modelAtd=Number(p.props?.atd?.probability);
         if(!Number.isFinite(modelAtd)) continue;
         const simPlayer=matchPreviewSimPlayer(simIdx,String(g.gameId),p);
-        const simAtd=Number(simPlayer?.probabilities?.atd);
-        const atd=blendModelSimulation(modelAtd,Number.isFinite(simAtd)?simAtd:null);
+        const simAtd=finiteNumberOrNull(simPlayer?.probabilities?.atd);
+        const atd=blendModelSimulation(modelAtd,simAtd);
         const inp=p.props?.atd?.inputs||{};
         const rzAllowed=Number(inp.oppRzTdRateAllowed);
         const oppFactor=Number(inp.oppRzDefFactor)||1;
@@ -869,11 +873,12 @@ function propValue(p,prop){
   const atd=Number(p.prob)||0;
   if(prop==='atd'){
     const offer=bestPlayerOffer(p,'atd');
-    return {main:`${Math.round(atd*100)}%`,sub:'Anytime TD probability',prob:atd,modelProb:Number(p.modelProb),simProb:Number.isFinite(Number(p.simProb))?Number(p.simProb):null,simUsed:Number.isFinite(Number(p.simProb)),grade:p.grade||gradeFor(atd),projection:atd,line:.5,offer,recent:null,season:null,defense:null};
+    const simProb=finiteNumberOrNull(p.simProb),modelProb=finiteNumberOrNull(p.modelProb);
+    return {main:`${Math.round(atd*100)}%`,sub:'Anytime TD probability',prob:atd,modelProb,simProb,simUsed:simProb!=null,grade:p.grade||gradeFor(atd),projection:atd,line:.5,offer,recent:null,season:null,defense:null};
   }
   if(prop==='firstTd'){
     const prob=firstTdProbability(p)||.025,offer=bestPlayerOffer(p,'firstTd');
-    return {main:`${Math.round(prob*100)}%`,sub:'First TD probability',prob,grade:gradeForLean(prob),projection:prob,line:.5,offer,recent:null,season:null,defense:null,simUsed:Number.isFinite(Number(p.simProb))};
+    return {main:`${Math.round(prob*100)}%`,sub:'First TD probability',prob,grade:gradeForLean(prob),projection:prob,line:.5,offer,recent:null,season:null,defense:null,simUsed:finiteNumberOrNull(p.simProb)!=null};
   }
   const recent=researchRecentAvg(p,prop),season=researchSeasonAvg(p,prop),defense=researchDefenseAvg(p,prop),researchProj=researchProjection(p,prop),offer=bestPlayerOffer(p,prop);
   const line=Number.isFinite(Number(offer?.line))?Number(offer.line):null;
@@ -1083,8 +1088,12 @@ function tdFeedEvents(){
       if(!isTouchdownScoringPlay(p)) continue;
       const q=Number(p.period)||0;
       const parts=String(p.clock||'').split(':');
-      const clockSec=parts.length===2?(Number(parts[0])*60+Number(parts[1])):9999;
-      out.push({g,p,order:q*100000+(9999-clockSec)});
+      const clockSec=parts.length===2?(Number(parts[0])*60+Number(parts[1])):900;
+      // TD Feed persists for the entire NFL week, so order across GAME dates,
+      // not merely by quarter/clock inside one game.
+      const gameStart=new Date(g.startTimeUTC||0).getTime();
+      const elapsedSec=Math.max(0,(Math.max(1,q)-1)*900+(900-Math.max(0,Math.min(900,clockSec))));
+      out.push({g,p,order:(Number.isFinite(gameStart)?gameStart:0)+elapsedSec*1000});
     }
   }
   return out.sort((a,b)=>b.order-a.order);
@@ -1163,9 +1172,11 @@ function propRadar(players){
 
 function propsHTML(){
   if(state.prop==='allPlayers') return propToolbar()+allPlayersHTML();
+  // NFL is a weekly product. Always rank the FULL Tuesday→Monday modeled pool.
+  // Sportsbook availability enriches a card; it must never hide an otherwise
+  // valid weekly player just because that book has not posted the market yet.
   const pool=data().players.map(p=>({p,v:propValue(p,state.prop)})).filter(x=>x.v.main!=='—');
-  const priced=pool.filter(x=>x.v.offer);
-  const scored=(priced.length?priced:pool).sort((a,b)=>b.v.prob-a.v.prob);
+  const scored=pool.sort((a,b)=>b.v.prob-a.v.prob);
   const cards=scored.slice(0,20).map((x,i)=>playerCard(x.p,state.prop,i+1)).filter(Boolean).join('');
   return `${propToolbar()}<div class="ms-list-head"><span>Top 20 · ${esc(PROPS[state.prop])}</span><small>MLB-style research cards · tap a player for the full modal</small></div><div class="nfl-mlb-prop-list">${cards||'<div class="nfl-live-empty"><b>No posted/player data for this market yet.</b><span>The card will appear automatically once a sportsbook line and/or research baseline is available.</span></div>'}</div>`;
 }

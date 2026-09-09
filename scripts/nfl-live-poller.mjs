@@ -13,6 +13,7 @@ import process from 'node:process';
 
 const ROOT=process.cwd();
 const OUT=path.join(ROOT,'slates','nfl-live.json');
+const SLATE=path.join(ROOT,'slates','nfl.json');
 const UA='TheSportsOutpost/1.0 (+https://thesportsoutpost.com)';
 const SCOREBOARD='https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100';
 const SUMMARY=id=>`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${encodeURIComponent(id)}`;
@@ -181,6 +182,8 @@ function mergeSummary(base,summary){
 
 async function main(){
   await fs.mkdir(path.dirname(OUT),{recursive:true});
+  let slate=null; try{slate=JSON.parse(await fs.readFile(SLATE,'utf8'));}catch(_e){}
+  const weekKey=String(slate?.slateId||[slate?.season,slate?.seasonType,slate?.week].filter(v=>v!=null).join('-w')||'unknown-week');
   const scoreboard=await getJson(SCOREBOARD); const events=scoreboard?.events||[]; const games={};
   const relevant=events.filter(e=>['pre','in','post'].includes(e?.status?.type?.state||e?.competitions?.[0]?.status?.type?.state));
   for(const event of relevant){
@@ -193,9 +196,12 @@ async function main(){
   const active=Object.values(games).filter(g=>g.status==='in').length;
   let existing=null; try{existing=JSON.parse(await fs.readFile(OUT,'utf8'));}catch(_e){}
   const hadLive=Object.values(existing?.games||{}).some(g=>g?.status==='in');
-  if(active===0 && !hadLive){ console.log('NFL live snapshot: no game in progress; existing live file left unchanged.'); return; }
-  const out={schemaVersion:3,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games};
+  const weekChanged=String(existing?.weekKey||'')!==weekKey;
+  // Between games, keep the accumulated weekly TD/box-score snapshot intact.
+  // The ONLY automatic reset boundary is a new weekly slate (Tuesday morning).
+  if(active===0 && !hadLive && !weekChanged){ console.log(`NFL live snapshot: ${weekKey} idle; weekly file preserved.`); return; }
+  const out={schemaVersion:4,weekKey,season:slate?.season??null,seasonType:slate?.seasonType??null,week:slate?.week??null,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games};
   await fs.writeFile(OUT,JSON.stringify(out,null,2)+'\n');
-  console.log(`NFL live snapshot: ${active} live / ${Object.keys(games).length} scoreboard games -> ${path.relative(ROOT,OUT)}`);
+  console.log(`NFL live snapshot: ${weekChanged?`weekly reset -> ${weekKey}; `:``}${active} live / ${Object.keys(games).length} scoreboard games -> ${path.relative(ROOT,OUT)}`);
 }
 main().catch(err=>{console.error(err);process.exitCode=1;});

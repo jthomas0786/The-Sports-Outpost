@@ -58,8 +58,12 @@ if(config.automatic?.enabled===false && !FORCE){console.log('NFL automatic simul
 const games=selectedGames(slate);
 if(!games.length){console.log(GAME?`No NFL game matched --game ${GAME}`:'NFL slate contains no games; nothing to simulate.');process.exit(0);}
 
-const existingById=new Map((existing?.games||[]).map(r=>[String(r?.game?.gameId||''),r]));
-const stateGames={...(stateDoc?.games||{})};
+const weekKey=String(slate?.slateId||[slate?.season,slate?.seasonType,slate?.week].filter(v=>v!=null).join('-w')||'unknown-week');
+const previousWeekKey=String(stateDoc?.weekKey||existing?.meta?.weekKey||'');
+const weekChanged=previousWeekKey!==weekKey;
+if(weekChanged) console.log(`↻ NFL simulation weekly rollover: ${previousWeekKey||"unkeyed"} → ${weekKey}`);
+const existingById=new Map((weekChanged?[]:(existing?.games||[])).map(r=>[String(r?.game?.gameId||''),r]));
+const stateGames=weekChanged?{}:{...(stateDoc?.games||{})};
 let runs=0,totalIterations=0;
 const touched=[];
 
@@ -95,7 +99,7 @@ if(DRY){
   console.log(`Dry run: ${touched.length} game(s) would run.`);
   process.exit(0);
 }
-if(!runs){
+if(!runs && !weekChanged){
   console.log('✓ NFL simulation cache is current — no automatic run required.');
   process.exit(0);
 }
@@ -113,13 +117,13 @@ const payload={
     halftimeIterations:config.automatic?.halftimeIterations||config.halftimeIterations||50000,
     liveIterations:config.automatic?.liveIterations||config.liveIterations||15000,
     pregameCheckpointMinutes:config.automatic?.pregameCheckpointMinutes||[180,90,15],
-    probabilityBlend:config.probabilityBlend||null,
+    probabilityBlend:config.probabilityBlend||null,weekKey,
     lastRun:{games:runs,totalIterations,reasonCounts:Object.fromEntries([...new Set(touched.map(x=>x.decision.reason))].map(reason=>[reason,touched.filter(x=>x.decision.reason===reason).length]))},
   },
   source:{slate:path.relative(ROOT,SLATE),research:path.relative(ROOT,RESEARCH),odds:path.relative(ROOT,ODDS),live:LIVE_URL},
   gameCount:merged.length,games:merged,
 };
-const nextState={schemaVersion:1,engineVersion:config.engineVersion,updatedAt:NOW.toISOString(),games:stateGames};
+const nextState={schemaVersion:2,engineVersion:config.engineVersion,weekKey,updatedAt:NOW.toISOString(),games:stateGames};
 await fs.mkdir(path.dirname(OUT),{recursive:true});
 await fs.mkdir(path.dirname(STATE),{recursive:true});
 await fs.writeFile(OUT,JSON.stringify(payload,null,2)+'\n');

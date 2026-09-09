@@ -9,17 +9,17 @@ name: Build NFL slate
 
 on:
   schedule:
-    # 12:00 UTC = 8am ET / 5am PT — after any overnight roster/inactive churn
-    # and well before a 1pm ET kickoff. GitHub cron is UTC and does NOT shift
-    # with daylight saving.
-    - cron: '0 12 * * *'
-    # Second pass 90 minutes before the Sunday early window, to pick up the
-    # official inactives that drop at T-90.
+    # NFL is a WEEKLY Tuesday→Monday product. The new weekly slate rolls once
+    # early Tuesday morning. 08:00 UTC is 03:00 Central during daylight time
+    # (02:00 Central in standard time — still safely after Monday Night Football).
+    - cron: '0 8 * * 2'
+    # Same-week Sunday refresh: updates roster/inactive context without creating
+    # a new slate/week. The slateId remains the same until the next Tuesday roll.
     - cron: '0 16 * * 0'
   workflow_dispatch:
     inputs:
       date:
-        description: 'Date to build (YYYY-MM-DD), blank = today'
+        description: 'Optional build date override (YYYY-MM-DD); blank = current NFL week'
         required: false
 
 permissions:
