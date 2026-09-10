@@ -130,11 +130,18 @@ async function swapView(active) {
         mod.selectTab(pendingTab);
         window.DW_nflPreviewPendingTab = null;
       }
-      // v69 — source-backed NFL research presentation layer. This enhances
-      // Slate rows and the Player Modal without changing TSO model outputs.
+      // Source-backed NFL research presentation layer enhances Slate rows and
+      // the Player Modal without changing TSO model outputs.
       try {
         const researchUi = await import('./nfl-research-ui.js?v=86.3');
         await researchUi.mountNflResearchUI(nflView);
+        // v89.1 adds sportsbook alternate-line selection underneath Player Prop.
+        try {
+          const altProps = await import('./nfl-alt-props-v891.js?v=89.1');
+          await altProps.mountNflAltPropsV891(nflView);
+        } catch (altPropError) {
+          console.warn('[NFL alternate props UI] enhancement unavailable:', altPropError);
+        }
       } catch (researchError) {
         console.warn('[NFL research UI] enhancement unavailable:', researchError);
       }
