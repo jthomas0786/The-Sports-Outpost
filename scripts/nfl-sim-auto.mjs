@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine.js';
+import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v861.js';
 import { decideAutomaticRun, nextAutomationState } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 
@@ -83,7 +83,10 @@ for(const game of games){
   const liveGame=matchLive(game,liveBoard);
   const prev=stateGames[gameId]||null;
   const old=existingById.get(gameId)||null;
-  const decision=decideAutomaticRun({game,research,odds,liveGame,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});
+  let decision=decideAutomaticRun({game,research,odds,liveGame,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});
+  if(!FORCE&&decision.phase==='pregame'&&old&&String(old.engineVersion||'')!==String(config.engineVersion||'')){
+    decision={...decision,run:true,reason:'simulation engine upgrade',iterations:Number(config.automatic?.pregameIterations||config.defaultIterations||50000),checkpointMinutes:null};
+  }
   const pair=`${game.away?.abbr||'AWY'} @ ${game.home?.abbr||'HME'}`;
   if(!decision.run){
     console.log(`· ${pair}: skip — ${decision.reason}`);
