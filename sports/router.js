@@ -121,9 +121,9 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      // v88.8 keeps the proven v88.6e NFL data/render pipeline and layers the
-      // field-angle/endzone/player refinement enhancer on top through a tiny wrapper.
-      const mod = await import('./nfl-preview-v888.js?v=88.8');
+      // v88.9 restores the native field/shell geometry and aligns endzone graphics
+      // to the actual perspective plane while preserving the proven v88.6e live pipeline.
+      const mod = await import('./nfl-preview-v889.js?v=88.9');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
