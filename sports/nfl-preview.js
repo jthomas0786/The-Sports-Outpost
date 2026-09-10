@@ -1,6 +1,7 @@
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.2';
+import { ensureNflGamecastUpgradeStyles, mountOrUpdateNflGamecastUpgrade } from './nfl/gamecast-live-upgrade.js?v=88.3';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -1750,7 +1751,7 @@ function bindLegacyNflNav(){
 }
 
 export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastUpgradeStyles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
@@ -1760,4 +1761,20 @@ export async function mount(){
   }
   render();
   requestAnimationFrame(()=>postRenderNflDemoSync(state,{openHalftimeParlayLab}));
+}
+
+
+// v88.3 smooth gamecast upgrade hook
+if(!globalThis.__TSO_V883_RENDER_PATCHED__){
+  const __tsoV883Render = render;
+  render = function(...args){
+    const out = __tsoV883Render.apply(this,args);
+    try{
+      requestAnimationFrame(()=>mountOrUpdateNflGamecastUpgrade({ state, root: document.getElementById('nflView') }));
+    }catch(err){
+      console.warn('TSO v88.3 gamecast upgrade skipped', err);
+    }
+    return out;
+  };
+  globalThis.__TSO_V883_RENDER_PATCHED__ = true;
 }
