@@ -1,5 +1,5 @@
-import { mountOrUpdateNflPlaystageV886D, renderNflPlaystageV886DHTML } from './nfl/playstage-v886d.js?v=88.6d';
-import { ensureNflPlaystageV886DStyles } from './nfl/gamecast-v886d-styles.js?v=88.6d';
+import { mountOrUpdateNflPlaystageV886E, renderNflPlaystageV886EHTML } from './nfl/playstage-v886e.js?v=88.6e';
+import { ensureNflPlaystageV886EStyles } from './nfl/gamecast-v886e-styles.js?v=88.6e';
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=88.4';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.5b';
@@ -1738,7 +1738,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const topLabel=live?(st.q||'LIVE'):g.status==='post'?(st.period>=5?'FINAL/OT':'FINAL'):'PREGAME';
   const displayClock=live?(st.clock||''):g.status==='post'?'':(g.time||'TBD');
   const scoreDots='<i></i><i></i><i></i>';
-  const gameView=renderNflPlaystageV886DHTML(g,{halftime:state.halftime,player:p});
+  const gameView=renderNflPlaystageV886EHTML(g,{halftime:state.halftime,player:p});
   const boxView=`<div>${espnCompleteBoxScoreHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>Full Box Score</span><span>The Sports Outpost</span></div></div>`;
   const pbpView=`<div class="nxg-card" style="padding:14px">${playByPlayHTML(g)}</div><div class="nxg-footerline"><span>NFL Gamecast</span><span>Play by Play</span><span>The Sports Outpost</span></div>`;
   const tabButton=(id,label)=> embedded
@@ -1919,7 +1919,7 @@ function bindLegacyNflNav(){
 }
 
 export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles(); ensureNflPlaystageV886DStyles();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles(); ensureNflPlaystageV886EStyles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
@@ -1956,7 +1956,7 @@ function __tsoV885MountFromDom(){
   try{
     const g=__tsoV885ResolveGameContext();
     if(!g) return;
-    mountOrUpdateNflPlaystageV886D(__tsoV885Root(), g, { halftime: typeof state!=='undefined' ? state?.halftime : null });
+    mountOrUpdateNflPlaystageV886E(__tsoV885Root(), g, { halftime: typeof state!=='undefined' ? state?.halftime : null });
   }catch(err){ console.warn('TSO v88.5 PlayStage mount failed', err); }
 }
 function __tsoV885InstallObserver(){
