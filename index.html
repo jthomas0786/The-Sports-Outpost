@@ -5518,7 +5518,7 @@ body.modal-open{ overflow:hidden; }
 
     <!-- ============ TOUCHDOWN WATCH (NFL) VIEW ============
          Self-contained NFL preview surface, rendered by sports/nfl-preview.js and toggled by
-         sports/router.js?v=88.6c on #nfl. Hidden by default so the MLB experience is
+         sports/router.js?v=88.6d on #nfl. Hidden by default so the MLB experience is
          completely unaffected. All classes are `nfl-` prefixed — no collisions. -->
     <div class="nfl-view sport-mock-view" id="nflView" hidden></div>
 
@@ -7573,7 +7573,7 @@ function renderSidebarSports(){
 window.renderSidebarSports = renderSidebarSports;
 
 /** Reliable NFL sub-page navigation. The request is stored globally before
- *  routing so sports/router.js?v=88.6c can honor it after the lazy NFL module mounts.
+ *  routing so sports/router.js?v=88.6d can honor it after the lazy NFL module mounts.
  *  If the module is already ready, the change happens immediately. */
 function openNflPreviewTab(tab){
   if(!tab) return;
@@ -22011,7 +22011,7 @@ document.addEventListener('visibilitychange', ()=>{
 </div>
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
-<script type="module" src="./sports/router.js?v=88.6c"></script>
+<script type="module" src="./sports/router.js?v=88.6d"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 
 <!-- Mobile debug console — completely inert for everyone else. Loads a

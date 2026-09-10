@@ -1,5 +1,5 @@
-import { mountOrUpdateNflPlaystageV886C, renderNflPlaystageV886CHTML } from './nfl/playstage-v886c.js?v=88.6c';
-import { ensureNflPlaystageV886CStyles } from './nfl/gamecast-v886c-styles.js?v=88.6c';
+import { mountOrUpdateNflPlaystageV886D, renderNflPlaystageV886DHTML } from './nfl/playstage-v886d.js?v=88.6d';
+import { ensureNflPlaystageV886DStyles } from './nfl/gamecast-v886d-styles.js?v=88.6d';
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=88.4';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.5b';
@@ -819,8 +819,12 @@ function liveState(g){
   return {live,period,q,clock,label};
 }
 function possessionAbbr(g){
-  const poss=g?.liveScore?.possession;
-  return poss==='home'?g.home.abbr:poss==='away'?g.away.abbr:null;
+  const poss=String(g?.liveScore?.possession??g?.possession??g?.hasBall??'').toUpperCase();
+  const away=String(g?.away?.abbr||'').toUpperCase();
+  const home=String(g?.home?.abbr||'').toUpperCase();
+  if(poss==='AWAY'||poss===away) return g.away.abbr;
+  if(poss==='HOME'||poss===home) return g.home.abbr;
+  return null;
 }
 function ballFieldPct(g){
   const live=g?.liveScore||{};
@@ -1734,7 +1738,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const topLabel=live?(st.q||'LIVE'):g.status==='post'?(st.period>=5?'FINAL/OT':'FINAL'):'PREGAME';
   const displayClock=live?(st.clock||''):g.status==='post'?'':(g.time||'TBD');
   const scoreDots='<i></i><i></i><i></i>';
-  const gameView=renderNflPlaystageV886CHTML(g,{halftime:state.halftime});
+  const gameView=renderNflPlaystageV886DHTML(g,{halftime:state.halftime,player:p});
   const boxView=`<div>${espnCompleteBoxScoreHTML(g)}<div class="nxg-footerline"><span>NFL Gamecast</span><span>Full Box Score</span><span>The Sports Outpost</span></div></div>`;
   const pbpView=`<div class="nxg-card" style="padding:14px">${playByPlayHTML(g)}</div><div class="nxg-footerline"><span>NFL Gamecast</span><span>Play by Play</span><span>The Sports Outpost</span></div>`;
   const tabButton=(id,label)=> embedded
@@ -1915,7 +1919,7 @@ function bindLegacyNflNav(){
 }
 
 export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles(); ensureNflPlaystageV886CStyles();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles(); ensureNflPlaystageV886DStyles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
@@ -1952,7 +1956,7 @@ function __tsoV885MountFromDom(){
   try{
     const g=__tsoV885ResolveGameContext();
     if(!g) return;
-    mountOrUpdateNflPlaystageV886C(__tsoV885Root(), g, { halftime: typeof state!=='undefined' ? state?.halftime : null });
+    mountOrUpdateNflPlaystageV886D(__tsoV885Root(), g, { halftime: typeof state!=='undefined' ? state?.halftime : null });
   }catch(err){ console.warn('TSO v88.5 PlayStage mount failed', err); }
 }
 function __tsoV885InstallObserver(){
