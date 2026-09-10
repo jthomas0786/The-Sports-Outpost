@@ -1,0 +1,20 @@
+function tdFeedPriceHTML(player,market,label){
+  if(!player) return '';
+  const offer=bestPlayerOffer(player,market);
+  if(!offer) return `<div class="nfl-td-price pending"><span>${esc(label)}</span><b>Odds pending</b></div>`;
+  return `<div class="nfl-td-price"><span>${esc(label)}</span><b>${esc(priceFmt(offer.price))}</b><em>${esc(compactBook(offer.book||'Sportsbook'))}</em></div>`;
+}
+function feedHTML(){
+  const feed=tdFeedEvents();
+  if(!feed.length){
+    const liveNow=data().games.some(g=>g.status==='in');
+    return `<div class="nfl-td-feed-modern"><div class="nfl-live-empty"><b>${liveNow?'No touchdowns yet.':'TD Feed is standing by.'}</b><span>${liveNow?'The first touchdown will appear here as soon as the live scoring play posts.':'Live touchdown events will populate here automatically once an NFL game begins.'}</span></div></div><div class="ms-preview-foot"><b>Live TD Feed.</b> Real scoring plays, player photos and stored pregame sportsbook prices.</div>`;
+  }
+  return `<div class="nfl-td-feed-modern">${feed.map(({g,p})=>{
+    const scorer=tdScorerForPlay(g,p); const first=firstTdPlayForGame(g,p);
+    const teamAbbr=normNflTeam(p.team||scorer?.team||''); const team=teamAbbr===g.away.abbr?g.away:g.home;
+    const photo=scorer?.headshot?`<img src="${esc(scorer.headshot)}" alt="${esc(scorer.name)}">`:(team?.logo?`<img class="team-logo" src="${esc(team.logo)}" alt="${esc(team.name)}">`:`<span>${esc(teamAbbr||'TD')}</span>`);
+    const atd=tdFeedPriceHTML(scorer,'atd','Pregame ATD'); const firstOdds=first?tdFeedPriceHTML(scorer,'firstTd','Pregame 1st TD'):'';
+    return `<article class="nfl-td-feed-card"><div class="nfl-td-feed-time">Q${esc(p.period||'?')}<br>${esc(p.clock||'')}</div><div class="nfl-td-feed-photo">${photo}</div><div class="nfl-td-feed-main"><div class="nfl-td-feed-name"><b>${esc(scorer?.name||team?.name||'Touchdown')}</b><span>${esc(teamAbbr||'TD')} · TOUCHDOWN</span></div><p>${esc(p.text||p.type||'Touchdown')}</p><div class="nfl-td-feed-score">${esc(g.away.abbr)} ${p.awayScore??scoreNum(g.away)} · ${esc(g.home.abbr)} ${p.homeScore??scoreNum(g.home)}</div></div><div class="nfl-td-feed-prices">${atd}${firstOdds}</div></article>`;
+  }).join('')}</div><div class="ms-preview-foot"><b>Live TD Feed.</b> Real touchdown scoring plays from Gamecast with player photo and latest stored pregame sportsbook price when available.</div>`;
+}

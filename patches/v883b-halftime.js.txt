@@ -1,0 +1,38 @@
+export function isHalftimeGameState(g){
+  if(!g) return false;
+  const status=String(g.status||g.liveScore?.status||'').toLowerCase();
+  if(status!=='in' && status!=='live') return false;
+  const detail=`${g.statusDetail||''} ${g.detail||''} ${g.liveScore?.statusDetail||''}`.toLowerCase();
+  if(/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)) return true;
+  const period=Number(g.liveScore?.period ?? g.period);
+  const clock=Number(g.liveScore?.clockMin ?? g.clockMin);
+  return period===2 && Number.isFinite(clock) && clock<=0.05;
+}
+const isHalf=b=>/half/i.test(String(b?.state?.statusDetail||'')) || (Number(b?.state?.period)===2&&Number(b?.state?.clockMin)<=.05);
+const readyBoards=doc=>(doc?.games||[]).filter(b=>isHalf(b)&&b.ready&&Array.isArray(b.candidates)&&b.candidates.length>=2);
+const halfBoards=doc=>(doc?.games||[]).filter(isHalf);
+function boardForGame(doc,g){
+  const gid=String(g?.id||g?.gameId||'');
+  return readyBoards(doc).find(b=>String(b?.gameId||'')===gid)||null;
+}
+
+export function halftimeBannerHTML(doc,liveGames=[]){
+  const half=halfBoards(doc),ready=readyBoards(doc),liveHalf=(liveGames||[]).filter(isHalftimeGameState);
+  if(!half.length&&!liveHalf.length)return '';
+  if(ready.length){
+    const candidates=ready.reduce((n,b)=>n+(b.candidates?.length||0),0);
+    return `<section class="tso-ht-banner"><div class="tso-ht-bolt">⚡</div><div class="tso-ht-banner-copy"><b>TSO Halftime Parlay Lab</b><span><strong>${ready.length} halftime game${ready.length===1?'':'s'} ready</strong> · 50,000 live simulations · ${candidates} qualified prop candidates</span></div><button type="button" data-nfl-halftime-open>Build Parlay</button></section>`;
+  }
+  return `<section class="tso-ht-banner pending"><div class="tso-ht-bolt">◐</div><div class="tso-ht-banner-copy"><b>Halftime Model Calculating</b><span>Halftime detected. TSO is waiting for the live sportsbook prop board, then runs the 50K same-world simulation automatically. No refresh required.</span></div></section>`;
+}
+
+export function halftimeGamecastBannerHTML(g,doc){
+  if(!isHalftimeGameState(g)) return '';
+  const board=boardForGame(doc,g);
+  if(board){
+    const count=board.candidates?.length||0;
+    return `<section class="tso-ht-gamecast-banner ready" data-tso-halftime-gamecast><div><strong>⚡ HALFTIME PARLAY LAB READY</strong><span>50K live simulation complete · ${count} qualified props</span></div><button type="button" data-nfl-halftime-open>Build Parlay</button></section>`;
+  }
+  return `<section class="tso-ht-gamecast-banner pending" data-tso-halftime-gamecast><div><strong>◐ HALFTIME MODEL CALCULATING</strong><span>Waiting for live sportsbook props → 50K simulation → candidate board</span></div><span class="tso-ht-gamecast-wait">AUTO</span></section>`;
+}
+

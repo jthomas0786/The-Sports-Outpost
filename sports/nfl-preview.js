@@ -1,3 +1,5 @@
+import { mountOrUpdateNflPlaystageV885 } from './nfl/playstage-v885.js?v=88.5';
+import { ensureNflPlaystageV885Styles } from './nfl/gamecast-v885-styles.js?v=88.5';
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=88.4';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.2';
@@ -1910,8 +1912,8 @@ function bindLegacyNflNav(){
   });
 }
 
-export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles();
+export async function mount(){ __tsoV885InstallObserver(); __tsoV885MountFromDom();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles(); ensureNflPlaystageV885Styles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
@@ -1921,4 +1923,41 @@ export async function mount(){
   }
   render();
   requestAnimationFrame(()=>postRenderNflDemoSync(state,{openHalftimeParlayLab}));
+}
+
+function __tsoV885ResolveGameContext(){
+  try{
+    if(typeof activeGame!=='undefined' && activeGame) return activeGame;
+    if(typeof selectedGame!=='undefined' && selectedGame) return selectedGame;
+    if(typeof state!=='undefined'){
+      if(state?.activeGame) return state.activeGame;
+      if(state?.selectedGame) return state.selectedGame;
+      if(state?.liveGame) return state.liveGame;
+    }
+    if(typeof data==='function'){
+      const payload=data();
+      const games=Array.isArray(payload?.games) ? payload.games : [];
+      return games.find(g=>String(g?.status||'').toLowerCase()==='in' || g?.isLive || g?.live) || games[0] || null;
+    }
+  }catch(_err){}
+  return null;
+}
+function __tsoV885Root(){
+  return document.querySelector('[data-nfl-root], .nfl-root, .nfl-page, .sports-page, main') || document.body;
+}
+function __tsoV885MountFromDom(){
+  if(typeof document==='undefined') return;
+  try{
+    const g=__tsoV885ResolveGameContext();
+    if(!g) return;
+    mountOrUpdateNflPlaystageV885(__tsoV885Root(), g, { halftime: typeof state!=='undefined' ? state?.halftime : null });
+  }catch(err){ console.warn('TSO v88.5 PlayStage mount failed', err); }
+}
+function __tsoV885InstallObserver(){
+  if(typeof document==='undefined' || globalThis.__TSO_V885_OBSERVER__) return;
+  const fire=()=>{ clearTimeout(globalThis.__TSO_V885_TICK__); globalThis.__TSO_V885_TICK__=setTimeout(__tsoV885MountFromDom, 60); };
+  const obs=new MutationObserver(fire);
+  obs.observe(document.body,{childList:true,subtree:true});
+  globalThis.__TSO_V885_OBSERVER__=obs;
+  fire();
 }
