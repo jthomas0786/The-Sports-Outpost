@@ -47,7 +47,7 @@ const MARKET_MAP = {
 };
 const API_MARKETS = Object.keys(MARKET_MAP);
 const CORE = Object.values(MARKET_MAP);
-const SPORTSBOOK_KEYS = new Set(['draftkings','fanduel','caesars','bovada','betmgm','fanatics','pinnacle','fliff','bet365','betrivers','hardrock','hardrockbet','parx','parxcasino','pmu','unibet','betriversca','sportsbetau','rushbet','espnbet']);
+const SPORTSBOOK_KEYS = new Set(['draftkings','fanduel','caesars','bovada','betmgm','fanatics','pinnacle','fliff','bet365','betrivers','hardrock','parx']);
 const SPORTSBOOK_QUERY=[...SPORTSBOOK_KEYS].join(',');
 const isNonSportsbook = r => !SPORTSBOOK_KEYS.has(bookKey(r));
 

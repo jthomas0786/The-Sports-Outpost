@@ -109,18 +109,24 @@ function gameIdOf(game,index=0){
 function liveTeams(index){
   const presets=[
     {
-      away:{abbr:'SEA',name:'Seattle Seahawks',score:17,record:'0-0'},
-      home:{abbr:'NE',name:'New England Patriots',score:13,record:'0-0'},
-      weather:{temp:67,summary:'Cloudy · 8 mph W'},
-      state:{period:2,clock:'06:42',clockMin:6.7,down:'3rd & 6',yardLine:'NE 41',statusDetail:'Q2 · 6:42',possession:'SEA'},
-      drive:{start:'SEA 25',plays:7,yards:34,result:'3rd & 6 at NE 41'}
+      away:{abbr:'NE',name:'New England Patriots',score:14,record:'0-0'},
+      home:{abbr:'SEA',name:'Seattle Seahawks',score:10,record:'0-0'},
+      weather:{temp:67,summary:'Partly Cloudy · 6 mph W'},
+      state:{period:3,clock:'09:21',clockMin:9.35,down:1,distance:10,downDistanceText:'1st & 10',yardLine:'SEA 42',yardFromOwn:58,statusDetail:'Q3 · 9:21',possessionSide:'away',possessionAbbr:'NE'},
+      drive:{start:'NE 31',plays:8,yards:54,time:'4:12',result:'1st & 10 at SEA 42'},
+      play:{id:'demo-ne-sea-play-1',title:'Pass Play',text:'Drake Maye drops back, looking right for Hunter Henry. Pressure coming from the left edge.',playerName:'Drake Maye',playerPos:'QB',playerNumber:'10',startYardLine:52},
+      featured:{name:'Drake Maye',position:'QB',number:'10',stats:{compAtt:'8/10',yards:'96',td:'0',qbr:'118.3'}},
+      winProbability:{away:0.68,home:0.32}
     },
     {
-      away:{abbr:'BAL',name:'Baltimore Ravens',score:10,record:'0-0'},
-      home:{abbr:'IND',name:'Indianapolis Colts',score:7,record:'0-0'},
+      away:{abbr:'BAL',name:'Baltimore Ravens',score:17,record:'0-0'},
+      home:{abbr:'IND',name:'Indianapolis Colts',score:14,record:'0-0'},
       weather:{temp:72,summary:'Indoor'},
-      state:{period:2,clock:'02:18',clockMin:2.3,down:'2nd & 4',yardLine:'IND 28',statusDetail:'Q2 · 2:18',possession:'BAL'},
-      drive:{start:'BAL 34',plays:9,yards:38,result:'2nd & 4 at IND 28'}
+      state:{period:2,clock:'01:42',clockMin:1.7,down:2,distance:4,downDistanceText:'2nd & 4',yardLine:'IND 28',yardFromOwn:72,statusDetail:'Q2 · 1:42',possessionSide:'away',possessionAbbr:'BAL'},
+      drive:{start:'BAL 34',plays:9,yards:38,time:'3:48',result:'2nd & 4 at IND 28'},
+      play:{id:'demo-bal-ind-play-1',title:'Run Play',text:'Lamar Jackson keeps it on the read option and cuts outside for six yards.',playerName:'Lamar Jackson',playerPos:'QB',playerNumber:'8',startYardLine:66},
+      featured:{name:'Lamar Jackson',position:'QB',number:'8',stats:{compAtt:'10/14',yards:'121',td:'1',qbr:'109.7'}},
+      winProbability:{away:0.59,home:0.41}
     }
   ];
   return presets[index%presets.length];
@@ -130,6 +136,8 @@ function decorateGameForDemo(game,index=0){
   const preset=liveTeams(index);
   const id=gameIdOf(game,index);
   const out=clone(game)||{};
+  const awayExisting=clone(out.away)||{};
+  const homeExisting=clone(out.home)||{};
   out.id=id;
   out.gameId=id;
   out.matchup=`${preset.away.abbr} @ ${preset.home.abbr}`;
@@ -139,28 +147,148 @@ function decorateGameForDemo(game,index=0){
   out.homeName=preset.home.name;
   out.awayScore=escNum(preset.away.score);
   out.homeScore=escNum(preset.home.score);
-  out.status='Live';
+  out.status='in';
   out.statusText='LIVE';
+  out.statusDetail=preset.state.statusDetail;
   out.status_detail=preset.state.statusDetail;
-  out.kickoff='7:20 PM';
-  out.weather={...(out.weather||{}),...preset.weather,wind:preset.weather.summary};
-  out.state={...(out.state||{}),...preset.state,isLive:true,status:'Live'};
-  out.live={...(out.live||{}),...preset.state,homeScore:preset.home.score,awayScore:preset.away.score,isLive:true,drive:preset.drive};
-  out.score={...(out.score||{}),home:preset.home.score,away:preset.away.score};
-  out.teams={
-    away:{...(out.teams?.away||{}),abbr:preset.away.abbr,name:preset.away.name,score:preset.away.score,record:preset.away.record},
-    home:{...(out.teams?.home||{}),abbr:preset.home.abbr,name:preset.home.name,score:preset.home.score,record:preset.home.record},
+  out.kickoff='8:20 PM';
+
+  out.away={
+    ...awayExisting,
+    abbr:preset.away.abbr,
+    name:preset.away.name.replace(/^New England /,'').replace(/^Baltimore /,''),
+    fullName:preset.away.name,
+    score:preset.away.score,
+    record:preset.away.record,
   };
-  out.drive={...(out.drive||{}),...preset.drive,possession:preset.state.possession};
+  out.home={
+    ...homeExisting,
+    abbr:preset.home.abbr,
+    name:preset.home.name.replace(/^Seattle /,'').replace(/^Indianapolis /,''),
+    fullName:preset.home.name,
+    score:preset.home.score,
+    record:preset.home.record,
+  };
+  out.score={...(out.score||{}),home:preset.home.score,away:preset.away.score};
+  out.weather={...(out.weather||{}),...preset.weather,wind:preset.weather.summary};
+  out.venue=out.venue||{name:index===0?'Lumen Field':'Lucas Oil Stadium',city:index===0?'Seattle':'Indianapolis'};
+
+  out.state={
+    ...(out.state||{}),
+    ...preset.state,
+    isLive:true,
+    status:'in',
+    possession:preset.state.possessionAbbr
+  };
+  out.live={
+    ...(out.live||{}),
+    ...preset.state,
+    homeScore:preset.home.score,
+    awayScore:preset.away.score,
+    isLive:true,
+    possession:preset.state.possessionAbbr,
+    drive:preset.drive
+  };
+  out.liveScore={
+    ...(out.liveScore||{}),
+    period:preset.state.period,
+    clockMin:preset.state.clockMin,
+    possession:preset.state.possessionSide,
+    yardFromOwn:preset.state.yardFromOwn,
+    isRedZone:preset.state.yardFromOwn>=80,
+    down:preset.state.down,
+    distance:preset.state.distance,
+    downDistanceText:preset.state.downDistanceText,
+    lastPlayText:preset.play.text,
+    winProbability:preset.winProbability,
+    currentDrive:{
+      id:`${id}-drive`,
+      playCount:preset.drive.plays,
+      plays:preset.drive.plays,
+      yards:preset.drive.yards,
+      elapsedDisplay:preset.drive.time,
+      time:preset.drive.time,
+      result:preset.drive.result
+    },
+    plays:[
+      {
+        id:preset.play.id,
+        text:preset.play.text,
+        shortText:preset.play.title,
+        type:preset.play.title,
+        period:preset.state.period,
+        clock:preset.state.clock
+      }
+    ],
+    playerStats:{byId:{}},
+    scoringPlays:[],
+    lastFetchedAt:Date.now(),
+  };
+
+  out.period=preset.state.period;
+  out.displayClock=preset.state.clock;
+  out.clockDisplay=preset.state.clock;
+  out.down=preset.state.down;
+  out.distance=preset.state.distance;
+  out.downDistance=preset.state.downDistanceText;
+  out.fieldPosition=preset.state.yardLine;
+  out.yardLine=preset.state.yardFromOwn;
+  out.possession=preset.state.possessionAbbr;
+  out.situation={
+    ...(out.situation||{}),
+    possession:preset.state.possessionAbbr,
+    downDistanceText:preset.state.downDistanceText,
+    shortText:preset.state.yardLine,
+    yardLine:preset.state.yardFromOwn,
+    distance:preset.state.distance,
+  };
+  out.currentPlay={
+    title:preset.play.title,
+    typeText:preset.play.title,
+    shortText:preset.play.title,
+    description:preset.play.text,
+    text:preset.play.text,
+    playerName:preset.play.playerName,
+    playerPos:preset.play.playerPos,
+    playerNumber:preset.play.playerNumber,
+    startYardLine:preset.play.startYardLine,
+  };
+  out.featuredPlayer={...(out.featuredPlayer||{}),...preset.featured};
+  out.winProb={away:preset.winProbability.away*100,home:preset.winProbability.home*100,history:[52,54,55,57,56,60,61,64,66,preset.winProbability.away*100]};
+
+  out.teams={
+    away:{...(out.teams?.away||{}),abbr:preset.away.abbr,name:preset.away.name,score:preset.away.score,record:preset.away.record,logo:out.away.logo||out.away.logoUrl||null},
+    home:{...(out.teams?.home||{}),abbr:preset.home.abbr,name:preset.home.name,score:preset.home.score,record:preset.home.record,logo:out.home.logo||out.home.logoUrl||null},
+  };
+  out.drive={
+    ...(out.drive||{}),
+    ...preset.drive,
+    possession:preset.state.possessionAbbr,
+    summary:index===0?[
+      {text:'6-yd rush',dd:'1st & 10',fp:'NE 14'},
+      {text:'12-yd pass',dd:'1st & 10',fp:'NE 26'},
+      {text:'4-yd rush',dd:'1st & 10',fp:'NE 30'},
+      {text:'Current Play',dd:preset.state.downDistanceText,fp:preset.state.yardLine,current:true},
+    ]:[
+      {text:'8-yd pass',dd:'1st & 10',fp:'BAL 42'},
+      {text:'11-yd run',dd:'1st & 10',fp:'IND 47'},
+      {text:'9-yd pass',dd:'2nd & 4',fp:'IND 28'},
+      {text:'Current Play',dd:preset.state.downDistanceText,fp:preset.state.yardLine,current:true},
+    ]
+  };
+  out.qbName=preset.play.playerName;
+  out.targetName=index===0?'Hunter Henry':'Zay Flowers';
+  out.halftimeState=preset.state.period===2 && preset.state.clockMin<=2 ? 'warming' : '';
+
   out.watchlist=Array.isArray(out.watchlist)&&out.watchlist.length?out.watchlist:[
-    {label:'ATD Leader',value:'J. Smith-Njigba 21%'},
-    {label:'Pass Leader',value:'Drake Maye 164 yds'},
-    {label:'Rush Leader',value:'K. Walker III 48 yds'},
+    {label:'ATD Leader',value:index===0?'Rhamondre Stevenson 27%':'Derrick Henry 31%'},
+    {label:'Pass Leader',value:preset.play.playerName+' 164 yds'},
+    {label:'Rush Leader',value:index===0?'R. Stevenson 48 yds':'D. Henry 61 yds'},
   ];
   out.intel=out.intel||{
-    pressure:'SEA +6%',
+    pressure:index===0?'SEA +6%':'BAL +8%',
     explosive:'3 plays 15+',
-    rz:'2 SEA RZ trips',
+    rz:index===0?'2 NE RZ trips':'2 BAL RZ trips',
   };
   return out;
 }
