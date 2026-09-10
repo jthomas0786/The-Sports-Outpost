@@ -1,7 +1,8 @@
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
-import { ensureHalftimeLabStyles, halftimeBannerHTML, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88';
+import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88.3b';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.2';
 import { ensureNflGamecastV883aStyles } from './nfl/gamecast-v883a-styles.js?v=88.3a';
+import { ensureNflGamecastV883bStyles } from './nfl/gamecast-v883b-styles.js?v=88.3b';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -702,6 +703,9 @@ async function loadData(){
       if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.tab==='feed' || state.game)) return;
       if(state.game && state.gamecastTab==='game'){
         const current=gameForId(state.game);
+        const halfNow=!!(current&&isHalftimeGameState(current));
+        const halfShown=!!root.querySelector('[data-tso-halftime-gamecast]');
+        if(halfNow!==halfShown){ requestAnimationFrame(()=>render()); return; }
         if(current && patchLiveGamecastDOM(root,current)) return;
       }
       if(state.tab==='slate' && !state.game && 'requestIdleCallback' in window){
@@ -1112,7 +1116,7 @@ function liveHTML(){
   const live=[...realLive,...(qaTest?[qaTest]:[])];
   const next=data().games.filter(g=>g.status==='pre').sort((a,b)=>new Date(a.startTimeUTC||0)-new Date(b.startTimeUTC||0))[0]||null;
   const rail=live.length?live.map(nflLivePreviewHTML).join(''):`<div class="nfl-live-empty"><b>No NFL game is live right now.</b><span>${next?`Next: ${esc(next.away.name)} at ${esc(next.home.name)} · ${esc(next.time||'TBD')}`:'The next live matchup will appear here automatically.'}</span></div>`;
-  return `<div class="nfl-live-page">${halftimeBannerHTML(state.halftime)}<div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} game${realLive.length===1?'':'s'} in progress`:'Waiting for kickoff'}</span></div><div class="nfl-live-rail">${rail}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any matchup for the full live Gamecast, Box Score and Play by Play.':'This page switches to live automatically when the game begins.'}${qaTest?' · QA test mode is enabled.':''}</div></div></div>`;
+  return `<div class="nfl-live-page">${halftimeBannerHTML(state.halftime,data().games)}<div class="nfl-live-rail-wrap"><div class="nfl-live-rail-label"><span>● Live Games</span><span>${realLive.length?`${realLive.length} game${realLive.length===1?'':'s'} in progress`:'Waiting for kickoff'}</span></div><div class="nfl-live-rail">${rail}</div></div><div class="nfl-live-helper"><svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div>${realLive.length?'Open any matchup for the full live Gamecast, Box Score and Play by Play.':'This page switches to live automatically when the game begins.'}${qaTest?' · QA test mode is enabled.':''}</div></div></div>`;
 }
 
 
@@ -1465,27 +1469,30 @@ function gameIntelDockHTML(g){
   return `<div class="nxg-intel-mobile-launch"><button type="button" data-nfl-intel-toggle="${esc(id)}">▦ Hide Game Intel</button></div><div class="nxg-intel-backdrop" data-nfl-intel-toggle="${esc(id)}"></div><section class="nxg-intel-dock" aria-label="Game Intel"><div class="nxg-intel-head"><div class="nxg-intel-title"><i></i><span>Game Intel</span><button type="button" class="nxg-intel-close" data-nfl-intel-toggle="${esc(id)}" aria-label="Close Game Intel">×</button></div><div class="nxg-intel-tabs">${tabs.map(([key,label])=>`<button type="button" class="nxg-intel-tab ${tab===key?'active':''}" data-nfl-intel-tab="${key}" data-nfl-intel-game="${esc(id)}">${label}</button>`).join('')}</div></div><div class="nxg-intel-body">${content}</div></section>`;
 }
 
-function v883aPlayYards(text){
+function v883bPlayYards(text){
   const s=String(text||'');
-  if(/no gain/i.test(s)) return 0;
-  const loss=s.match(/(?:loss of|for)\s+(\d+)\s+yards?/i);
-  if(/loss of/i.test(s) && loss) return -Number(loss[1]);
+  if(/no gain|two-minute warning|end of quarter|timeout/i.test(s)) return 0;
+  const loss=s.match(/loss of\s+(\d+)\s+yards?/i);
+  if(loss) return -Number(loss[1]);
   const m=s.match(/(?:for|gain(?:s|ed)?|penalty[, ]+)\s+(-?\d+)\s+yards?/i) || s.match(/(-?\d+)\s+yard(?:s)?\b/i);
   return m?Number(m[1]):0;
 }
-function v883aPlayTitle(play,text){
-  const s=String(text||play?.text||''); const y=Math.abs(v883aPlayYards(s));
+function v883bPlayTitle(play,text){
+  const s=String(text||play?.text||''); const y=Math.abs(v883bPlayYards(s));
+  if(/two-minute warning/i.test(s)) return 'Two-minute warning';
+  if(/timeout/i.test(s)) return 'Timeout';
   if(/penalty|false start|holding|offside|encroachment/i.test(s)) return y?`${y}-Yard Penalty`:'Penalty';
   if(/intercept/i.test(s)) return 'Interception';
   if(/fumble/i.test(s)) return 'Fumble';
   if(/sack/i.test(s)) return 'Sack';
   if(/punt/i.test(s)) return 'Punt';
   if(/field goal/i.test(s)) return 'Field Goal';
+  if(/touchdown/i.test(s)) return 'Touchdown';
   if(/pass|complete|incomplete/i.test(s)) return y?`${y}-Yard Pass`:'Pass';
   if(/rush|run|scramble/i.test(s)) return y?`${y}-Yard Rush`:'Rush';
   return play?.type||'Current Play';
 }
-function v883aPlayerForPlay(g,play){
+function v883bPlayerForPlay(g,play){
   const text=String(play?.text||play?.shortText||g?.liveScore?.lastPlayText||'');
   const team=normNflTeam(play?.team||possessionAbbr(g)||'');
   const pool=(data().players||[]).filter(p=>String(p.gameId)===String(g.id)&&(!team||p.team===team));
@@ -1500,7 +1507,7 @@ function v883aPlayerForPlay(g,play){
   for(const p of ranked){const last=norm(p.name).split(' ').at(-1)||'';if(last.length>=4&&new RegExp(`\\b${last}\\b`).test(low))return p;}
   return featuredPlayerForGame(g);
 }
-function v883aWinPct(g){
+function v883bWinPct(g){
   const wp=g?.liveScore?.winProbability;
   const poss=g?.liveScore?.possession;
   if(!wp||!poss) return null;
@@ -1508,57 +1515,108 @@ function v883aWinPct(g){
   if(!Number.isFinite(v)) return null;
   return Math.round((v<=1?v*100:v)*10)/10;
 }
-function v883aPlayStartPct(g,ballPct){
-  const last=(g?.liveScore?.plays||[]).at(-1);
-  const yards=v883aPlayYards(last?.text||g?.liveScore?.lastPlayText||'');
-  const dir=g?.liveScore?.possession==='home'?-1:1;
-  return clamp(ballPct-dir*yards,5,95);
+
+// Yard positions inside the PLAYABLE 100-yard field only. End zones are separate
+// DOM regions, so LOS / first-down / play-path overlays can never spill into them.
+function v883bPlayableYard(g){
+  const live=g?.liveScore||{};
+  const y=Number(live.yardFromOwn);
+  if(!Number.isFinite(y)||!live.possession) return 50;
+  const fromOwn=clamp(y,0,100);
+  return live.possession==='home' ? 100-fromOwn : fromOwn;
 }
-function v883aFieldPathStyle(start,end){
-  const left=Math.min(start,end),width=Math.max(1,Math.abs(end-start));
+function v883bFirstDownYard(g){
+  const live=g?.liveScore||{};
+  const ball=v883bPlayableYard(g);
+  const dist=Number(live.distance);
+  if(!Number.isFinite(dist)) return ball;
+  const dir=live.possession==='home'?-1:1;
+  return clamp(ball+dir*clamp(dist,0,30),0,100);
+}
+function v883bPlayStartYard(g,ball){
+  const last=(g?.liveScore?.plays||[]).at(-1);
+  const yards=v883bPlayYards(last?.text||g?.liveScore?.lastPlayText||'');
+  const dir=g?.liveScore?.possession==='home'?-1:1;
+  return clamp(ball-dir*yards,0,100);
+}
+function v883bPathStyle(start,end){
+  const left=Math.min(start,end),width=Math.max(.8,Math.abs(end-start));
   return `left:${left}%;width:${width}%;`;
 }
+function v883bFieldNumbers(){
+  return ['10','20','30','40','50','40','30','20','10'].map(v=>`<span>${v}</span>`).join('');
+}
+
 function fieldOverlayLiveRedesignHTML(g,p){
-  const live=g?.status==='in', ball=ballLeftPct(g), first=firstLeftPct(g), start=v883aPlayStartPct(g,ball);
+  const live=g?.status==='in';
+  const ball=v883bPlayableYard(g), first=v883bFirstDownYard(g), start=v883bPlayStartYard(g,ball);
   const ctx=offenseContext(g), ds=driveSummary(g), last=(g?.liveScore?.plays||[]).at(-1)||null;
-  const playText=last?.text||lastPlayLabel(g), playTitle=v883aPlayTitle(last,playText), playPlayer=v883aPlayerForPlay(g,last), line=livePlayerLine(g,playPlayer,0), wp=v883aWinPct(g);
-  const yards=v883aPlayYards(playText); const pathLeft=start>ball?' is-left':'';
+  const playText=last?.text||lastPlayLabel(g), playTitle=v883bPlayTitle(last,playText), playPlayer=v883bPlayerForPlay(g,last), line=livePlayerLine(g,playPlayer,0), wp=v883bWinPct(g);
+  const yards=v883bPlayYards(playText), pathLeft=start>ball?' is-left':'';
   const head=playPlayer?.headshot?`<img src="${esc(playPlayer.headshot)}" alt="">`:`<span>${esc(initials(playPlayer?.name||ctx.offense.abbr))}</span>`;
   const phase=g.status==='post'?(liveState(g).period>=5?'FINAL / OT':'FINAL'):live?downDistanceLabel(g):'PREGAME';
-  return `<section class="nxg-live-stage tso-espn-drive" data-v883a-drive data-game-id="${esc(g.id)}"><div class="tso-espn-drive-card">
-    <div class="tso-drive-head"><div class="tso-drive-titlewrap">${ctx.offense.logo?`<img class="tso-drive-teamlogo" src="${esc(ctx.offense.logo)}" alt="">`:''}<div><div class="tso-drive-title">Current Drive</div><div class="tso-drive-summary" data-v883a-drive-summary>${esc(ds.plays)} plays, ${esc(ds.yards)} yards, ${esc(ds.time)}</div></div></div><button class="tso-drive-expand" type="button" aria-label="Drive view">↗</button></div>
+  const awayLogo=g.away.logo?`<img src="${esc(g.away.logo)}" alt="${esc(g.away.name)}">`:'';
+  const homeLogo=g.home.logo?`<img src="${esc(g.home.logo)}" alt="${esc(g.home.name)}">`:'';
+  return `<section class="nxg-live-stage tso-espn-drive tso-espn-drive-v883b" data-v883b-drive data-game-id="${esc(g.id)}"><div class="tso-espn-drive-card">
+    <div class="tso-drive-head"><div class="tso-drive-titlewrap">${ctx.offense.logo?`<img class="tso-drive-teamlogo" src="${esc(ctx.offense.logo)}" alt="">`:''}<div><div class="tso-drive-title">Current Drive</div><div class="tso-drive-summary" data-v883b-drive-summary>${esc(ds.plays)} plays, ${esc(ds.yards)} yards, ${esc(ds.time)}</div></div></div><button class="tso-drive-expand" type="button" aria-label="Drive view">↗</button></div>
     <div class="tso-drive-rule"></div>
-    <div class="tso-play-state"><div class="tso-play-kind" data-v883a-play-kind>${esc(playTitle)}</div><div class="tso-situation"><div><span>Down:</span><strong data-v883a-down>${esc(downDistanceLabel(g))}</strong></div><div><span>Ball on:</span><strong data-v883a-ball-label>${esc(fieldPositionLabel(g))}</strong></div></div></div>
-    <div class="tso-flat-field" data-v883a-field>
-      <div class="tso-flat-endzone away">${g.away.logo?`<img src="${esc(g.away.logo)}" alt="${esc(g.away.name)}">`:''}<span>${esc(g.away.name)}</span></div>
-      <div class="tso-flat-endzone home">${g.home.logo?`<img src="${esc(g.home.logo)}" alt="${esc(g.home.name)}">`:''}<span>${esc(g.home.name)}</span></div>
-      <div class="tso-field-grid"></div>
-      <div class="tso-field-los" data-v883a-los style="left:${ball}%"></div><div class="tso-field-first" data-v883a-first style="left:${first}%"></div>
-      <div class="tso-field-path${pathLeft}" data-v883a-path style="${v883aFieldPathStyle(start,ball)}"></div><div class="tso-field-ball" data-v883a-ball style="left:${ball}%">🏈</div><div class="tso-field-yards" data-v883a-yards style="left:${clamp(ball+2,6,94)}%">${yards>0?'+':''}${yards} Yds</div>
-      <div class="tso-yardnumbers"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>40</span><span>30</span><span>20</span><span>10</span></div><span class="tso-field-side-label left">${esc(g.away.abbr)}</span><span class="tso-field-side-label right">${esc(g.home.abbr)}</span>
+    <div class="tso-play-state"><div class="tso-play-kind" data-v883b-play-kind>${esc(playTitle)}</div><div class="tso-situation"><div><span>Down:</span><strong data-v883b-down>${esc(downDistanceLabel(g))}</strong></div><div><span>Ball on:</span><strong data-v883b-ball-label>${esc(fieldPositionLabel(g))}</strong></div></div></div>
+
+    <div class="tso-3d-field-stage" data-v883b-field>
+      <div class="tso-3d-stadium-glow"></div>
+      <div class="tso-3d-field-plane">
+        <div class="tso-3d-endzone away">${awayLogo}<span>${esc(g.away.name)}</span></div>
+        <div class="tso-3d-playable">
+          <div class="tso-3d-grid"></div>
+          <div class="tso-3d-hash top"></div><div class="tso-3d-hash bottom"></div>
+          <div class="tso-3d-los" data-v883b-los style="left:${ball}%"></div>
+          <div class="tso-3d-first" data-v883b-first style="left:${first}%"></div>
+          <div class="tso-3d-path${pathLeft}" data-v883b-path style="${v883bPathStyle(start,ball)}"></div>
+          <div class="tso-3d-ball" data-v883b-ball style="left:${ball}%"><span>🏈</span></div>
+          <div class="tso-3d-yards" data-v883b-yards style="left:${clamp(ball+3,4,96)}%">${yards>0?'+':''}${yards} Yds</div>
+          <div class="tso-3d-yardnumbers top">${v883bFieldNumbers()}</div>
+          <div class="tso-3d-yardnumbers bottom">${v883bFieldNumbers()}</div>
+        </div>
+        <div class="tso-3d-endzone home">${homeLogo}<span>${esc(g.home.name)}</span></div>
+      </div>
+      <div class="tso-3d-field-legend"><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div>
     </div>
-    <div class="tso-play-card"><div><h3 data-v883a-play-title>${esc(playTitle)}</h3><p data-v883a-play-text>${esc(playText||'Live play information is updating.')}</p></div><div class="tso-play-side"><div class="tso-win-pct">Win % <strong data-v883a-win>${wp==null?'—':`${esc(ctx.offense.abbr)} ${wp}%`}</strong></div><div class="tso-last-tag">Last Play</div></div></div>
-    <div class="tso-play-player"><div class="tso-play-player-photo" data-v883a-player-photo>${head}</div><div class="tso-play-player-copy"><b data-v883a-player-name>${esc(playPlayer?.name||'Live Player')}</b><span data-v883a-player-meta>${esc(playPlayer?.team||ctx.offense.abbr)} · ${esc(playPlayer?.pos||'Player')}</span></div><div class="tso-play-player-stats"><div><b data-v883a-stat1>${esc(line.v1)}</b><span data-v883a-stat1-label>${esc(line.a)}</span></div><div><b data-v883a-stat2>${esc(line.v2)}</b><span data-v883a-stat2-label>${esc(line.b)}</span></div><div><b data-v883a-stat3>${esc(line.v3)}</b><span data-v883a-stat3-label>${esc(line.c)}</span></div></div></div>
-    <div class="tso-drive-footerline" data-v883a-footer>${esc(phase)} · ${esc(ctx.offense.abbr)} possession${ds.result?` · ${esc(ds.result)}`:''}</div>
+
+    <div class="tso-play-card"><div><h3 data-v883b-play-title>${esc(playTitle)}</h3><p data-v883b-play-text>${esc(playText||'Live play information is updating.')}</p></div><div class="tso-play-side"><div class="tso-win-pct">Win % <strong data-v883b-win>${wp==null?'—':`${esc(ctx.offense.abbr)} ${wp}%`}</strong></div><div class="tso-last-tag">Last Play</div></div></div>
+    <div class="tso-play-player"><div class="tso-play-player-photo" data-v883b-player-photo>${head}</div><div class="tso-play-player-copy"><b data-v883b-player-name>${esc(playPlayer?.name||'Live Player')}</b><span data-v883b-player-meta>${esc(playPlayer?.team||ctx.offense.abbr)} · ${esc(playPlayer?.pos||'Player')}</span></div><div class="tso-play-player-stats"><div><b data-v883b-stat1>${esc(line.v1)}</b><span data-v883b-stat1-label>${esc(line.a)}</span></div><div><b data-v883b-stat2>${esc(line.v2)}</b><span data-v883b-stat2-label>${esc(line.b)}</span></div><div><b data-v883b-stat3>${esc(line.v3)}</b><span data-v883b-stat3-label>${esc(line.c)}</span></div></div></div>
+    <div class="tso-drive-footerline" data-v883b-footer>${esc(phase)} · ${esc(ctx.offense.abbr)} possession${ds.result?` · ${esc(ds.result)}`:''}</div>
   </div></section>`;
 }
 
 function patchLiveGamecastDOM(root,g){
-  if(!root||!g||state.gamecastTab!=='game') return false;
-  const drive=root.querySelector('[data-v883a-drive]');
+  if(!root||!g||!state.game||state.gamecastTab!=='game') return false;
+  const drive=root.querySelector('[data-v883b-drive]');
   const scorebar=root.querySelector('.nxg-scorebar');
   if(!drive||!scorebar) return false;
-  const st=liveState(g),ctx=offenseContext(g),ball=ballLeftPct(g),first=firstLeftPct(g),start=v883aPlayStartPct(g,ball),ds=driveSummary(g),last=(g?.liveScore?.plays||[]).at(-1)||null;
-  const playText=last?.text||lastPlayLabel(g),playTitle=v883aPlayTitle(last,playText),playPlayer=v883aPlayerForPlay(g,last),line=livePlayerLine(g,playPlayer,0),wp=v883aWinPct(g),yards=v883aPlayYards(playText);
+
+  // Kill any stale v88.3 floating possession pill from a previously cached bundle.
+  root.querySelectorAll('#tso-nfl-possession-pill').forEach(el=>el.remove());
+
+  const st=liveState(g),ctx=offenseContext(g),ball=v883bPlayableYard(g),first=v883bFirstDownYard(g),start=v883bPlayStartYard(g,ball),ds=driveSummary(g),last=(g?.liveScore?.plays||[]).at(-1)||null;
+  const playText=last?.text||lastPlayLabel(g),playTitle=v883bPlayTitle(last,playText),playPlayer=v883bPlayerForPlay(g,last),line=livePlayerLine(g,playPlayer,0),wp=v883bWinPct(g),yards=v883bPlayYards(playText);
   const set=(sel,val)=>{const el=root.querySelector(sel);if(el&&el.textContent!==String(val))el.textContent=String(val)};
   set('[data-v883a-away-score]',scoreNum(g.away));set('[data-v883a-home-score]',scoreNum(g.home));set('[data-v883a-period]',st.q||'LIVE');set('[data-v883a-clock]',st.clock||'');
   set('[data-v883a-situation-primary]',downDistanceLabel(g));set('[data-v883a-situation-secondary]',fieldPositionLabel(g));set('[data-v883a-posstext]',ctx.poss?`${ctx.offense.abbr} has the ball`:'Possession updating');
-  root.querySelectorAll('[data-v883a-possession-football]').forEach(el=>el.remove());
-  if(ctx.poss){const name=root.querySelector(`[data-v883a-team-name="${ctx.poss}"]`);if(name){const s=document.createElement('span');s.dataset.v883aPossessionFootball='1';s.className='tso-possession-football';s.textContent='🏈';if(ctx.poss==='home')name.prepend(s);else name.append(s);}}
-  set('[data-v883a-drive-summary]',`${ds.plays} plays, ${ds.yards} yards, ${ds.time}`);set('[data-v883a-play-kind]',playTitle);set('[data-v883a-down]',downDistanceLabel(g));set('[data-v883a-ball-label]',fieldPositionLabel(g));set('[data-v883a-play-title]',playTitle);set('[data-v883a-play-text]',playText||'Live play information is updating.');set('[data-v883a-win]',wp==null?'—':`${ctx.offense.abbr} ${wp}%`);set('[data-v883a-player-name]',playPlayer?.name||'Live Player');set('[data-v883a-player-meta]',`${playPlayer?.team||ctx.offense.abbr} · ${playPlayer?.pos||'Player'}`);set('[data-v883a-stat1]',line.v1);set('[data-v883a-stat1-label]',line.a);set('[data-v883a-stat2]',line.v2);set('[data-v883a-stat2-label]',line.b);set('[data-v883a-stat3]',line.v3);set('[data-v883a-stat3-label]',line.c);set('[data-v883a-yards]',`${yards>0?'+':''}${yards} Yds`);
-  const los=root.querySelector('[data-v883a-los]'),fd=root.querySelector('[data-v883a-first]'),marker=root.querySelector('[data-v883a-ball]'),badge=root.querySelector('[data-v883a-yards]'),path=root.querySelector('[data-v883a-path]');
-  if(los)los.style.left=`${ball}%`;if(fd)fd.style.left=`${first}%`;if(marker)marker.style.left=`${ball}%`;if(badge)badge.style.left=`${clamp(ball+2,6,94)}%`;if(path){path.style.left=`${Math.min(start,ball)}%`;path.style.width=`${Math.max(1,Math.abs(ball-start))}%`;path.classList.toggle('is-left',start>ball);}
-  const photo=root.querySelector('[data-v883a-player-photo]');if(photo){const desired=playPlayer?.headshot||'';const img=photo.querySelector('img');if(desired&&(!img||img.getAttribute('src')!==desired))photo.innerHTML=`<img src="${esc(desired)}" alt="">`;else if(!desired&&!img)photo.textContent=initials(playPlayer?.name||ctx.offense.abbr);}
+
+  root.querySelectorAll('[data-v883a-possession-football],[data-v883b-possession-football]').forEach(el=>el.remove());
+  if(ctx.poss){
+    const name=root.querySelector(`[data-v883a-team-name="${ctx.poss}"],[data-v883b-team-name="${ctx.poss}"]`);
+    if(name){
+      const icon=document.createElement('span');icon.dataset.v883bPossessionFootball='1';icon.className='tso-possession-football';icon.textContent='🏈';
+      if(ctx.poss==='home') name.prepend(icon); else name.append(icon);
+    }
+  }
+
+  set('[data-v883b-drive-summary]',`${ds.plays} plays, ${ds.yards} yards, ${ds.time}`);set('[data-v883b-play-kind]',playTitle);set('[data-v883b-down]',downDistanceLabel(g));set('[data-v883b-ball-label]',fieldPositionLabel(g));set('[data-v883b-play-title]',playTitle);set('[data-v883b-play-text]',playText||'Live play information is updating.');set('[data-v883b-win]',wp==null?'—':`${ctx.offense.abbr} ${wp}%`);set('[data-v883b-player-name]',playPlayer?.name||'Live Player');set('[data-v883b-player-meta]',`${playPlayer?.team||ctx.offense.abbr} · ${playPlayer?.pos||'Player'}`);set('[data-v883b-stat1]',line.v1);set('[data-v883b-stat1-label]',line.a);set('[data-v883b-stat2]',line.v2);set('[data-v883b-stat2-label]',line.b);set('[data-v883b-stat3]',line.v3);set('[data-v883b-stat3-label]',line.c);set('[data-v883b-yards]',`${yards>0?'+':''}${yards} Yds`);set('[data-v883b-footer]',`${g.status==='post'?'FINAL':g.status==='in'?downDistanceLabel(g):'PREGAME'} · ${ctx.offense.abbr} possession${ds.result?` · ${ds.result}`:''}`);
+
+  const los=root.querySelector('[data-v883b-los]'),fd=root.querySelector('[data-v883b-first]'),marker=root.querySelector('[data-v883b-ball]'),badge=root.querySelector('[data-v883b-yards]'),path=root.querySelector('[data-v883b-path]');
+  if(los)los.style.left=`${ball}%`;if(fd)fd.style.left=`${first}%`;if(marker)marker.style.left=`${ball}%`;if(badge)badge.style.left=`${clamp(ball+3,4,96)}%`;if(path){path.style.left=`${Math.min(start,ball)}%`;path.style.width=`${Math.max(.8,Math.abs(ball-start))}%`;path.classList.toggle('is-left',start>ball);}
+  const photo=root.querySelector('[data-v883b-player-photo]');if(photo){const desired=playPlayer?.headshot||'';const img=photo.querySelector('img');if(desired&&(!img||img.getAttribute('src')!==desired))photo.innerHTML=`<img src="${esc(desired)}" alt="">`;else if(!desired&&!img)photo.textContent=initials(playPlayer?.name||ctx.offense.abbr);}
   return true;
 }
 
@@ -1684,7 +1742,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   // Game View is the approved 1448×1086 composition.  It never switches to a
   // stacked/mobile layout; fitNflGamecastConcept uniformly scales this canvas.
   if(activeTab==='game'){
-    return `<article class="nxg-wrap nxg-concept ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-concept-viewport"><div class="nxg-concept-canvas">${topbar}${scorebar}<div class="nxg-gameview-modern">${gameView}</div></div></div>${gameIntelDockHTML(g)}</article>`;
+    return `<article class="nxg-wrap nxg-concept ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-concept-viewport"><div class="nxg-concept-canvas">${topbar}${scorebar}${halftimeGamecastBannerHTML(g,state.halftime)}<div class="nxg-gameview-modern">${gameView}</div></div></div>${gameIntelDockHTML(g)}</article>`;
   }
 
   const body=activeTab==='box'?boxView:pbpView;
@@ -1843,12 +1901,12 @@ function bindLegacyNflNav(){
 }
 
 export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
       state.halftime=doc;
-      if(state.tab==='live'&&!state.game) requestAnimationFrame(()=>render());
+      if((state.tab==='live'&&!state.game)||(state.game&&state.gamecastTab==='game')) requestAnimationFrame(()=>render());
     });
   }
   render();

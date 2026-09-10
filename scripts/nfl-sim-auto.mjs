@@ -41,6 +41,11 @@ async function fetchLive(){
   }catch(e){console.warn(`⚠ NFL sim live feed unavailable (${e.message}); pregame automation can still run.`);return null;}
 }
 function matchLive(game,board){ return board?.games?.[String(game.gameId||game.id)]||null; }
+function halftimeLiveOddsReady(game,board){
+  const id=String(game?.gameId||game?.id||'');
+  const row=(board?.games||[]).find(g=>String(g?.gameId||'')===id);
+  return !!(row&&Array.isArray(row.players)&&row.players.length>0);
+}
 function selectedGames(slate){
   const games=slate?.games||[];
   if(!GAME) return games;
@@ -82,6 +87,10 @@ for(const game of games){
   const pair=`${game.away?.abbr||'AWY'} @ ${game.home?.abbr||'HME'}`;
   if(!decision.run){
     console.log(`· ${pair}: skip — ${decision.reason}`);
+    continue;
+  }
+  if(decision.phase==='halftime' && !halftimeLiveOddsReady(game,liveOdds)){
+    console.log(`· ${pair}: halftime detected — waiting for live sportsbook props before 50K candidate build`);
     continue;
   }
   console.log(`▶ ${pair}: ${decision.reason} — ${Number(decision.iterations).toLocaleString()} simulations`);

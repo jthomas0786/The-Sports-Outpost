@@ -37,6 +37,7 @@ jobs:
         run: node scripts/nfl-live-poller.mjs
 
       - name: Refresh v87 halftime sportsbook props when needed
+        continue-on-error: true
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
