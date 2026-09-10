@@ -32,11 +32,11 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Refresh NFL sportsbook odds
+      - name: Refresh NFL sportsbook odds + alternate lines
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_ODDS_FORCE: ${{ inputs.force == true && '1' || '0' }}
-        run: node scripts/nfl-odds-refresh.mjs
+        run: node scripts/nfl-odds-refresh-v891.mjs
 
       - name: Validate odds file when changed
         run: |
