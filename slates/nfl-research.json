@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-09-10T11:20:58.780Z",
+  "generatedAt": "2026-09-10T16:25:10.244Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -26,56 +26,35 @@
       "error": "404 Not Found",
       "rows": 0
     },
-    "nflverseCurrentWeekly": {
-      "ok": true,
-      "rows": 67
-    },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26612
-    },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 2955
-    },
     "nflverseCurrentRegular": {
       "ok": true,
       "rows": 67
     },
     "nflversePlayers": {
       "ok": true,
-      "rows": 24826
+      "rows": 24823
     },
-    "nflversePrevRegular": {
+    "nflverseCurrentWeekly": {
       "ok": true,
-      "rows": 2020
+      "rows": 67
     },
     "nflversePrevWeekly": {
       "ok": true,
       "rows": 19422
     },
+    "nflverseRosterCurrent": {
+      "ok": true,
+      "rows": 2963
+    },
+    "nflversePrevRegular": {
+      "ok": true,
+      "rows": 2020
+    },
+    "nflversePrevSnaps": {
+      "ok": true,
+      "rows": 26612
+    },
     "espnInjuries": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -89,7 +68,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:BUF": {
+    "espnRoster:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -103,6 +82,20 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -110,14 +103,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:BAL": {
+    "espnDepth:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -138,7 +124,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CHI": {
+    "espnRoster:BAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -159,13 +159,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CLE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -173,7 +166,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DET": {
+    "espnDepth:CLE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -187,7 +187,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:DET": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:CLE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -202,20 +223,6 @@
       ]
     },
     "espnRoster:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -243,14 +250,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:IND": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:GB": {
+    "espnDepth:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -271,6 +271,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:KC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -278,7 +285,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:KC": {
+    "espnRoster:IND": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -292,6 +299,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -299,21 +313,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -341,14 +341,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NO": {
+    "espnDepth:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
+    "espnRoster:MIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -362,7 +369,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:MIN": {
+    "espnDepth:NYG": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NO": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:NYJ": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -383,63 +411,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NYG": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:NYG": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:SF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:PIT": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -453,14 +425,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:SEA": {
+    "espnRoster:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SEA": {
+    "espnRoster:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -474,13 +446,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -488,7 +453,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:WSH": {
+    "espnRoster:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:SEA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -496,6 +468,34 @@
       ]
     },
     "espnRoster:TEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:SEA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:TB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -28941,7 +28941,7 @@
       "team": "ATL",
       "name": "Josh Thompson",
       "position": "G",
-      "jersey": "62",
+      "jersey": "67",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4682692.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -117018,7 +117018,7 @@
     {
       "espnId": "5160391",
       "gsisId": "00-0041411",
-      "pfrId": null,
+      "pfrId": "CoatMi00",
       "team": "CLE",
       "name": "Michael Coats Jr.",
       "position": "CB",
@@ -118916,7 +118916,7 @@
     {
       "espnId": "5081483",
       "gsisId": "00-0041385",
-      "pfrId": null,
+      "pfrId": "TuckNa00",
       "team": "CLE",
       "name": "Nadame Tucker",
       "position": "DE",
@@ -131509,7 +131509,7 @@
       "team": "DAL",
       "name": "James Mitchell",
       "position": "TE",
-      "jersey": "85",
+      "jersey": "84",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4361988.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -133827,7 +133827,7 @@
     {
       "espnId": "4431547",
       "gsisId": "00-0040933",
-      "pfrId": null,
+      "pfrId": "GillKe00",
       "team": "DAL",
       "name": "Kelvin Gilliam Jr.",
       "position": "DT",
@@ -134512,7 +134512,7 @@
       "team": "DAL",
       "name": "Laken Tomlinson",
       "position": "G",
-      "jersey": null,
+      "jersey": "75",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/2512477.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -155064,7 +155064,7 @@
       "team": "DEN",
       "name": "Taylor Rapp",
       "position": "S",
-      "jersey": null,
+      "jersey": "33",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4039007.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -172067,7 +172067,7 @@
       "team": "GB",
       "name": "Jonnu Smith",
       "position": "TE",
-      "jersey": "81",
+      "jersey": "18",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3054212.png",
       "rosterStatus": "Active",
       "active": true,
@@ -173019,7 +173019,7 @@
       "team": "GB",
       "name": "Kaleb Johnson",
       "position": "RB",
-      "jersey": "20",
+      "jersey": "26",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4819231.png",
       "rosterStatus": "Active",
       "active": true,
@@ -174381,7 +174381,7 @@
       "team": "GB",
       "name": "Kedon Slovis",
       "position": "QB",
-      "jersey": "12",
+      "jersey": "17",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4428512.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -175285,7 +175285,7 @@
       "team": "GB",
       "name": "Mark Redman",
       "position": "TE",
-      "jersey": "83",
+      "jersey": "86",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4431346.png",
       "rosterStatus": "Active",
       "active": true,
@@ -183766,12 +183766,12 @@
     },
     {
       "espnId": "4876378",
-      "gsisId": null,
+      "gsisId": "00-0041139",
       "pfrId": null,
       "team": "GB",
       "name": "Damon Bankston",
       "position": "RB",
-      "jersey": null,
+      "jersey": "37",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4876378.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -193155,7 +193155,7 @@
     {
       "espnId": "4433823",
       "gsisId": "00-0041124",
-      "pfrId": null,
+      "pfrId": "GerhGa01",
       "team": "HOU",
       "name": "Gavin Gerhardt",
       "position": "C",
@@ -200036,7 +200036,7 @@
     {
       "espnId": "4695400",
       "gsisId": "00-0041156",
-      "pfrId": null,
+      "pfrId": "GronMa00",
       "team": "HOU",
       "name": "Mark Gronowski",
       "position": "QB",
@@ -216117,7 +216117,7 @@
     {
       "espnId": "4746099",
       "gsisId": "00-0041252",
-      "pfrId": null,
+      "pfrId": "FletKe00",
       "team": "IND",
       "name": "Kenny Fletcher Jr.",
       "position": "TE",
@@ -271423,7 +271423,7 @@
       "team": "LAC",
       "name": "Caleb Murphy",
       "position": "LB",
-      "jersey": "33",
+      "jersey": "50",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4911489.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -290989,7 +290989,7 @@
     {
       "espnId": "4693208",
       "gsisId": "00-0041016",
-      "pfrId": null,
+      "pfrId": "GurdPa00",
       "team": "LV",
       "name": "Patrick Gurd",
       "position": "TE",
@@ -309500,7 +309500,7 @@
       "team": "MIN",
       "name": "DeeJay Dallas",
       "position": "RB",
-      "jersey": "20",
+      "jersey": "31",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4240631.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -315590,7 +315590,7 @@
       "team": "MIN",
       "name": "Jihad Ward",
       "position": "LB",
-      "jersey": null,
+      "jersey": "53",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3115914.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -315817,7 +315817,7 @@
       "team": "MIN",
       "name": "Kyle Van Noy",
       "position": "LB",
-      "jersey": "53",
+      "jersey": "17",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/16772.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -324005,7 +324005,7 @@
     {
       "espnId": "4676889",
       "gsisId": "00-0041323",
-      "pfrId": null,
+      "pfrId": "MontMy00",
       "team": "NE",
       "name": "Myles Montgomery",
       "position": "RB",
@@ -334980,7 +334980,7 @@
       "team": "NE",
       "name": "Elliott Davison",
       "position": "S",
-      "jersey": "35",
+      "jersey": "27",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4688366.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -366495,7 +366495,7 @@
     {
       "espnId": "4875981",
       "gsisId": "00-0041234",
-      "pfrId": null,
+      "pfrId": "VanDGe00",
       "team": "NYG",
       "name": "Geno VanDeMark",
       "position": "OL",
@@ -381314,7 +381314,7 @@
       "team": "NYJ",
       "name": "Trevin Wallace",
       "position": "LB",
-      "jersey": "32",
+      "jersey": "49",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4683815.png",
       "rosterStatus": "Active",
       "active": true,
@@ -381512,7 +381512,7 @@
       "team": "NYJ",
       "name": "Troy Reeder",
       "position": "LB",
-      "jersey": "51",
+      "jersey": "50",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3116177.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -382040,7 +382040,7 @@
       "team": "NYJ",
       "name": "Brant Banks",
       "position": "OT",
-      "jersey": "72",
+      "jersey": "75",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4426623.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -382548,7 +382548,7 @@
       "team": "NYJ",
       "name": "Blake Grupe",
       "position": "PK",
-      "jersey": "10",
+      "jersey": "39",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4259619.png",
       "rosterStatus": "Active",
       "active": true,
@@ -382775,7 +382775,7 @@
       "team": "NYJ",
       "name": "Al-Jay Henderson",
       "position": "RB",
-      "jersey": null,
+      "jersey": "36",
       "headshot": "https://a.espncdn.com/i/headshots/college-football/players/full/4599158.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -424746,7 +424746,7 @@
       "team": "SEA",
       "name": "Terrion Arnold",
       "position": "CB",
-      "jersey": "6",
+      "jersey": "17",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4592837.png",
       "rosterStatus": "News",
       "active": true,
@@ -458246,7 +458246,7 @@
     {
       "espnId": "4683096",
       "gsisId": "00-0041338",
-      "pfrId": null,
+      "pfrId": "FordCa02",
       "team": "TB",
       "name": "Caden Fordham",
       "position": "LB",
@@ -476181,7 +476181,7 @@
       "team": "TEN",
       "name": "Isaiah Oliver",
       "position": "S",
-      "jersey": null,
+      "jersey": "34",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3915437.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -483935,9 +483935,9 @@
       }
     },
     {
-      "espnId": "4875350",
+      "espnId": null,
       "gsisId": "00-0041180",
-      "pfrId": "MoorQu00",
+      "pfrId": null,
       "team": "WSH",
       "name": "Quentin Moore",
       "position": "TE",
