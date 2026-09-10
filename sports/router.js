@@ -121,9 +121,9 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      // v88.7 keeps the proven v88.6e NFL data/render pipeline and layers the
-      // concept-match player/field enhancer on top through a tiny wrapper.
-      const mod = await import('./nfl-preview-v887.js?v=88.7');
+      // v88.8 keeps the proven v88.6e NFL data/render pipeline and layers the
+      // field-angle/endzone/player refinement enhancer on top through a tiny wrapper.
+      const mod = await import('./nfl-preview-v888.js?v=88.8');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
