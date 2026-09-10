@@ -1,8 +1,8 @@
-import { mountOrUpdateNflPlaystageV885a as mountOrUpdateNflPlaystageV885 } from './nfl/playstage-v885a.js?v=88.5a';
+import { mountOrUpdateNflPlaystageV885a as mountOrUpdateNflPlaystageV885 } from './nfl/playstage-v885a.js?v=88.5b';
 import { ensureNflPlaystageV885Styles } from './nfl/gamecast-v885-styles.js?v=88.5';
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=88.4';
-import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.5a';
+import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.5b';
 import { ensureNflGamecastV883aStyles } from './nfl/gamecast-v883a-styles.js?v=88.3a';
 import { ensureNflGamecastV883bStyles } from './nfl/gamecast-v883b-styles.js?v=88.3b';
 import { ensureNflGamecastV884Styles } from './nfl/gamecast-v884-styles.js?v=88.4';
@@ -654,7 +654,7 @@ async function loadData(){
       (async()=>{try{const hr=await fetch('./slates/nfl-halftime.json',{cache:'no-cache'});if(hr.ok){const candidate=await hr.json();if(Array.isArray(candidate?.games))halftime=candidate;}}catch(_e){}})(),
     ]);
     state.research=research; state.odds=odds; state.sim=sim; state.halftime=halftime;
-  hydrateNflDemoState(state,{data:state.data,research,odds,sim,halftime});
+  
     const researchIdx=buildResearchIndexes(research);
     const oddsIdx=buildPreviewOddsIndex(odds);
     const simIdx=buildPreviewSimIndex(sim);
@@ -700,7 +700,8 @@ async function loadData(){
     }
     players.sort((a,b)=>b.prob-a.prob);
     state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null,researchGeneratedAt:research?.generatedAt||null,oddsFetchedAt:odds?.meta?.fetchedAt||null,simGeneratedAt:sim?.generatedAt||null};
-    startLivePolling(d,()=>{
+    hydrateNflDemoState(state,{data:state.data,research,odds,sim,halftime});
+    if(!NFL_DEMO_MODE) startLivePolling(d,()=>{
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
       if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.tab==='feed' || state.game)) return;
