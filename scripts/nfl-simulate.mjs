@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine.js';
+import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v861.js';
 import { isHalftimeState } from '../sports/nfl/sim/auto.js';
 
 const ROOT = process.cwd();
