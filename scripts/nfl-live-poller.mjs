@@ -93,6 +93,12 @@ function currentDrive(summary){
   const d=summary?.drives||{}; return normalizeDrive(d.current)||normalizeDrive((d.previous||[]).at?.(-1)||(d.previous||[])[(d.previous||[]).length-1]);
 }
 
+function parseWinProbability(summary){
+  const rows=Array.isArray(summary?.winprobability)?summary.winprobability:[]; const last=rows.at(-1);
+  const home=number(last?.homeWinPercentage); if(home==null)return null; const h=home>1?home/100:home;
+  return {home:h,away:Math.max(0,1-h),tie:number(last?.tiePercentage)};
+}
+
 function parsePlayerBox(summary){
   const out={byId:{},byName:{}};
   for(const teamBlock of summary?.boxscore?.players||[]){
@@ -177,7 +183,7 @@ function mergeSummary(base,summary){
     const faux={competitions:[headerComp],status:headerComp.status}; const fresh=baseLive(faux); if(fresh)base={...base,...fresh};
   }
   const drive=currentDrive(summary); const recent=recentPlays(summary); const players=parsePlayerBox(summary); const teams=parseTeamStats(summary);
-  return {...base,currentDrive:drive,plays:recent,playerStats:players,boxScore:parseFullBoxScore(summary),teamStats:teams,scoringPlays:scoringPlays(summary),lastPlayText:recent.at(-1)?.text||base.lastPlayText||null};
+  return {...base,currentDrive:drive,winProbability:parseWinProbability(summary),plays:recent,playerStats:players,boxScore:parseFullBoxScore(summary),teamStats:teams,scoringPlays:scoringPlays(summary),lastPlayText:recent.at(-1)?.text||base.lastPlayText||null};
 }
 
 async function main(){

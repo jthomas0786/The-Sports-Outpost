@@ -13,7 +13,7 @@
  * + pre-game win probability from the slate. Nothing breaks.
  */
 
-const POLL_MS = 10000; // 10s — low-latency primary endpoint, static file remains the fallback
+const POLL_MS = 2000; // v88.3a — fast live cadence; DOM patching keeps Gamecast smooth
 const STATIC_LIVE_URL = 'slates/nfl-live.json';
 const DEFAULT_LIVE_URL = 'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';
 const configuredLiveUrl = () => {
@@ -115,6 +115,7 @@ function sig(live) {
     live.clockMin != null ? Number(live.clockMin).toFixed(2) : '',
     live.possession, live.yardFromOwn != null ? Math.round(live.yardFromOwn) : '', live.isRedZone ? 1 : 0,
     live.down ?? '', live.distance ?? '', live.downDistanceText || '', live.lastPlayText || '',
+    live.winProbability?.home ?? '', live.winProbability?.away ?? '',
     drive.id || '', drive.playCount ?? '', drive.yards ?? '', drive.elapsedDisplay || '',
     recent.at(-1)?.id || '', recent.length, playerKeys.length, boxSig,
     live.lastFetchedAt || ''
@@ -151,6 +152,7 @@ async function tick() {
           possession: gl.possession, yardFromOwn: gl.yardFromOwn, isRedZone: gl.isRedZone,
           down: gl.down, distance: gl.distance, downDistanceText: gl.downDistanceText,
           lastPlayText: gl.lastPlayText,
+          winProbability: gl.winProbability || null,
           linescores: gl.linescores || null,
           currentDrive: gl.currentDrive || null,
           plays: Array.isArray(gl.plays) ? gl.plays : [],

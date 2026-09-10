@@ -15,7 +15,7 @@ const CORS = {
   "access-control-allow-origin": "*",
   "access-control-allow-methods": "GET,OPTIONS",
   "access-control-allow-headers": "authorization, x-client-info, apikey, content-type",
-  "cache-control": "public, max-age=8, s-maxage=8",
+  "cache-control": "public, max-age=1, s-maxage=1",
   "content-type": "application/json; charset=utf-8",
 };
 
@@ -165,6 +165,15 @@ function currentDrive(summary: any) {
     endText: dr.end?.text || dr.end?.shortText || null,
     plays: (dr.plays || []).map(play).filter((x: any) => x.text),
   };
+}
+
+function latestWinProbability(summary: any) {
+  const rows = Array.isArray(summary?.winprobability) ? summary.winprobability : [];
+  const last = rows.at(-1);
+  const home = n(last?.homeWinPercentage);
+  if (home == null) return null;
+  const h = home > 1 ? home / 100 : home;
+  return { home: h, away: Math.max(0, 1 - h), tie: n(last?.tiePercentage) };
 }
 
 function playerStats(summary: any) {
@@ -327,6 +336,7 @@ Deno.serve(async (req: Request) => {
             g = {
               ...g,
               currentDrive: currentDrive(summary),
+              winProbability: latestWinProbability(summary),
               plays,
               playerStats: playerStats(summary),
               boxScore: fullBoxScore(summary),
@@ -346,7 +356,7 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        schemaVersion: 3,
+        schemaVersion: 4,
         lastFetchedAt: Date.now(),
         generatedAt: new Date().toISOString(),
         games,

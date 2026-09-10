@@ -1,7 +1,7 @@
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.2';
-import { ensureNflGamecastUpgradeStyles, mountOrUpdateNflGamecastUpgrade } from './nfl/gamecast-live-upgrade.js?v=88.3';
+import { ensureNflGamecastV883aStyles } from './nfl/gamecast-v883a-styles.js?v=88.3a';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -700,8 +700,10 @@ async function loadData(){
       syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
       if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.tab==='feed' || state.game)) return;
-      // Gamecast/Live should update immediately. The heavier Slate refresh waits
-      // for an idle frame so live polling never fights the user's scrolling.
+      if(state.game && state.gamecastTab==='game'){
+        const current=gameForId(state.game);
+        if(current && patchLiveGamecastDOM(root,current)) return;
+      }
       if(state.tab==='slate' && !state.game && 'requestIdleCallback' in window){
         requestIdleCallback(()=>{ if(state.tab==='slate' && !state.game) render(); },{timeout:1200});
       }else{
@@ -1145,20 +1147,25 @@ function tdFeedEvents(){
   return out.sort((a,b)=>b.order-a.order);
 }
 function tdScorerForPlay(g,play){
-  const txt=String(play?.text||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ');
+  const raw=String(play?.text||play?.shortText||'');
+  const text=raw.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
   const team=normNflTeam(play?.team||'');
   const list=(data().players||[]).filter(p=>String(p.gameId)===String(g.id)&&(!team||p.team===team));
-  const ranked=[...list].sort((a,b)=>b.name.length-a.name.length);
-  for(const p of ranked){
-    const full=String(p.name||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-    if(full&&txt.includes(full)) return p;
+  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const ranked=[...list].sort((a,b)=>String(b.name||'').length-String(a.name||'').length);
+  const afterTo=/\bpass\b|\bcomplete/i.test(raw)?norm(raw.split(/\bto\b/i).slice(1).join(' to ')):'';
+  if(afterTo){
+    for(const p of ranked){const full=norm(p.name),last=full.split(' ').at(-1)||'';if((full&&afterTo.includes(full))||(last.length>=4&&new RegExp(`\\b${last}\\b`).test(afterTo)))return p;}
   }
-  for(const p of ranked){
-    const last=String(p.name||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').trim().split(/\s+/).at(-1)||'';
-    if(last.length>=4 && new RegExp(`\\b${last}\\b`).test(txt)) return p;
+  const runner=/\b(rush|run|scramble)\b/i.test(raw)?text:'';
+  if(runner){
+    for(const p of ranked){const full=norm(p.name),last=full.split(' ').at(-1)||'';if((full&&runner.includes(full))||(last.length>=4&&new RegExp(`\\b${last}\\b`).test(runner)))return p;}
   }
+  for(const p of ranked){const full=norm(p.name);if(full&&text.includes(full))return p;}
+  for(const p of ranked){const last=norm(p.name).split(' ').at(-1)||'';if(last.length>=4&&new RegExp(`\\b${last}\\b`).test(text))return p;}
   return null;
 }
+
 function firstTdPlayForGame(g,play){
   const tds=(g.liveScore?.scoringPlays||[]).filter(isTouchdownScoringPlay);
   return !!tds.length && String(tds[0]?.id||tds[0]?.text)===String(play?.id||play?.text);
@@ -1169,13 +1176,25 @@ function tdOddsHTML(g,play,player){
   const first=firstTdPlayForGame(g,play)?oddsChipHTML(player,'firstTd','Pregame 1st TD'):'';
   return (atd||first)?`<div class="nfl-td-odds">${atd}${first}</div>`:'';
 }
+function tdFeedPriceHTML(player,market,label){
+  if(!player) return '';
+  const offer=bestPlayerOffer(player,market);
+  if(!offer) return `<div class="nfl-td-price pending"><span>${esc(label)}</span><b>Odds pending</b></div>`;
+  return `<div class="nfl-td-price"><span>${esc(label)}</span><b>${esc(priceFmt(offer.price))}</b><em>${esc(compactBook(offer.book||'Sportsbook'))}</em></div>`;
+}
 function feedHTML(){
   const feed=tdFeedEvents();
   if(!feed.length){
     const liveNow=data().games.some(g=>g.status==='in');
-    return `<div class="ms-feed"><div class="nfl-live-empty"><b>${liveNow?'No touchdowns yet.':'TD Feed is standing by.'}</b><span>${liveNow?'The first touchdown will appear here as soon as ESPN posts the scoring play.':'Live touchdown events will populate here automatically once an NFL game begins.'}</span></div></div><div class="ms-preview-foot"><b>Live TD Feed.</b> Powered by the same low-latency game feed as Gamecast.</div>`;
+    return `<div class="nfl-td-feed-modern"><div class="nfl-live-empty"><b>${liveNow?'No touchdowns yet.':'TD Feed is standing by.'}</b><span>${liveNow?'The first touchdown will appear here as soon as the live scoring play posts.':'Live touchdown events will populate here automatically once an NFL game begins.'}</span></div></div><div class="ms-preview-foot"><b>Live TD Feed.</b> Real scoring plays, player photos and stored pregame sportsbook prices.</div>`;
   }
-  return `<div class="ms-feed">${feed.map(({g,p},i)=>{const scorer=tdScorerForPlay(g,p);return `<article><div class="ms-feed-time">Q${esc(p.period||'?')} ${esc(p.clock||'')}</div><span class="ms-team-token">${esc(p.team||'TD')}</span><div class="ms-feed-copy"><b>${esc(scorer?.name||p.team||'NFL')} TOUCHDOWN</b><span>${esc(p.text||p.type||'Touchdown')}</span><small>${esc(g.away.abbr)} ${p.awayScore??scoreNum(g.away)} · ${esc(g.home.abbr)} ${p.homeScore??scoreNum(g.home)}</small>${tdOddsHTML(g,p,scorer)}</div><div class="ms-feed-num">TD<strong>${feed.length-i}</strong></div></article>`;}).join('')}</div><div class="ms-preview-foot"><b>Live TD Feed.</b> Real touchdown scoring plays from Gamecast plus the scorer's latest stored pregame sportsbook price when available.</div>`;
+  return `<div class="nfl-td-feed-modern">${feed.map(({g,p})=>{
+    const scorer=tdScorerForPlay(g,p); const first=firstTdPlayForGame(g,p);
+    const teamAbbr=normNflTeam(p.team||scorer?.team||''); const team=teamAbbr===g.away.abbr?g.away:g.home;
+    const photo=scorer?.headshot?`<img src="${esc(scorer.headshot)}" alt="${esc(scorer.name)}">`:(team?.logo?`<img class="team-logo" src="${esc(team.logo)}" alt="${esc(team.name)}">`:`<span>${esc(teamAbbr||'TD')}</span>`);
+    const atd=tdFeedPriceHTML(scorer,'atd','Pregame ATD'); const firstOdds=first?tdFeedPriceHTML(scorer,'firstTd','Pregame 1st TD'):'';
+    return `<article class="nfl-td-feed-card"><div class="nfl-td-feed-time">Q${esc(p.period||'?')}<br>${esc(p.clock||'')}</div><div class="nfl-td-feed-photo">${photo}</div><div class="nfl-td-feed-main"><div class="nfl-td-feed-name"><b>${esc(scorer?.name||team?.name||'Touchdown')}</b><span>${esc(teamAbbr||'TD')} · TOUCHDOWN</span></div><p>${esc(p.text||p.type||'Touchdown')}</p><div class="nfl-td-feed-score">${esc(g.away.abbr)} ${p.awayScore??scoreNum(g.away)} · ${esc(g.home.abbr)} ${p.homeScore??scoreNum(g.home)}</div></div><div class="nfl-td-feed-prices">${atd}${firstOdds}</div></article>`;
+  }).join('')}</div><div class="ms-preview-foot"><b>Live TD Feed.</b> Real touchdown scoring plays from Gamecast with player photo and latest stored pregame sportsbook price when available.</div>`;
 }
 
 function propToolbar(){
@@ -1446,28 +1465,101 @@ function gameIntelDockHTML(g){
   return `<div class="nxg-intel-mobile-launch"><button type="button" data-nfl-intel-toggle="${esc(id)}">▦ Hide Game Intel</button></div><div class="nxg-intel-backdrop" data-nfl-intel-toggle="${esc(id)}"></div><section class="nxg-intel-dock" aria-label="Game Intel"><div class="nxg-intel-head"><div class="nxg-intel-title"><i></i><span>Game Intel</span><button type="button" class="nxg-intel-close" data-nfl-intel-toggle="${esc(id)}" aria-label="Close Game Intel">×</button></div><div class="nxg-intel-tabs">${tabs.map(([key,label])=>`<button type="button" class="nxg-intel-tab ${tab===key?'active':''}" data-nfl-intel-tab="${key}" data-nfl-intel-game="${esc(id)}">${label}</button>`).join('')}</div></div><div class="nxg-intel-body">${content}</div></section>`;
 }
 
-function fieldOverlayLiveRedesignHTML(g,p){
-  const activePlay=g?.status==='in';
-  const ball=ballLeftPct(g)/100, first=firstLeftPct(g)/100, target=routeTargetPct(g)/100;
-  const ctx=offenseContext(g), dir=target>ball?1:-1;
-  const topL=208, topR=1326, botL=6, botR=1530, topY=90, botY=528;
-  const topX=pct=>topL+(topR-topL)*pct, botX=pct=>botL+(botR-botL)*pct;
-  const point=(pct,yf)=>({x:topX(pct)+(botX(pct)-topX(pct))*yf,y:topY+(botY-topY)*yf});
-  const losA=point(ball,0), losB=point(ball,1), fdA=point(first,0), fdB=point(first,1);
-  const ballPt=point(ball,.72), targetPt=point(target,.40), ctrl=point(clamp(ball+dir*.12,.08,.92),.52);
-  const offDef=[];
-  const off=[[-.07,.75],[-.035,.67],[0,.74],[.035,.66],[.07,.75],[-.11,.82],[-.02,.84],[.055,.83],[-.15,.88],[.11,.88]];
-  const def=[[-.07,.58],[-.025,.55],[.025,.59],[.075,.55],[-.12,.62],[.12,.62],[-.045,.69],[.035,.69],[.105,.72],[-.105,.72],[-.18,.75]];
-  if(activePlay){
-    for(const [dx,y] of def){const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="10" class="nxg-svg-def"/>`)}
-    off.forEach(([dx,y],i)=>{const q=point(clamp(ball+dx,.09,.91),y);offDef.push(`<circle cx="${q.x}" cy="${q.y}" r="${i===1?11:10}" class="${i===1?'nxg-svg-qb':'nxg-svg-off'}"/>`)});
+function v883aPlayYards(text){
+  const s=String(text||'');
+  if(/no gain/i.test(s)) return 0;
+  const loss=s.match(/(?:loss of|for)\s+(\d+)\s+yards?/i);
+  if(/loss of/i.test(s) && loss) return -Number(loss[1]);
+  const m=s.match(/(?:for|gain(?:s|ed)?|penalty[, ]+)\s+(-?\d+)\s+yards?/i) || s.match(/(-?\d+)\s+yard(?:s)?\b/i);
+  return m?Number(m[1]):0;
+}
+function v883aPlayTitle(play,text){
+  const s=String(text||play?.text||''); const y=Math.abs(v883aPlayYards(s));
+  if(/penalty|false start|holding|offside|encroachment/i.test(s)) return y?`${y}-Yard Penalty`:'Penalty';
+  if(/intercept/i.test(s)) return 'Interception';
+  if(/fumble/i.test(s)) return 'Fumble';
+  if(/sack/i.test(s)) return 'Sack';
+  if(/punt/i.test(s)) return 'Punt';
+  if(/field goal/i.test(s)) return 'Field Goal';
+  if(/pass|complete|incomplete/i.test(s)) return y?`${y}-Yard Pass`:'Pass';
+  if(/rush|run|scramble/i.test(s)) return y?`${y}-Yard Rush`:'Rush';
+  return play?.type||'Current Play';
+}
+function v883aPlayerForPlay(g,play){
+  const text=String(play?.text||play?.shortText||g?.liveScore?.lastPlayText||'');
+  const team=normNflTeam(play?.team||possessionAbbr(g)||'');
+  const pool=(data().players||[]).filter(p=>String(p.gameId)===String(g.id)&&(!team||p.team===team));
+  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  const low=norm(text);
+  const afterTo=/\bpass\b|\bcomplete/i.test(text) ? norm(text.split(/\bto\b/i).slice(1).join(' to ')) : '';
+  const ranked=[...pool].sort((a,b)=>String(b.name).length-String(a.name).length);
+  if(afterTo){
+    for(const p of ranked){const n=norm(p.name);const last=n.split(' ').at(-1)||'';if((n&&afterTo.includes(n))||(last.length>=4&&new RegExp(`\\b${last}\\b`).test(afterTo)))return p;}
   }
-  const targetLabel=point(target,.37);
-  const playerNo=String(p?.id||'88').slice(-2);
-  const liveMarks=activePlay?`<line x1="${losA.x}" y1="${losA.y}" x2="${losB.x}" y2="${losB.y}" class="nxg-svg-los"/><line x1="${fdA.x}" y1="${fdA.y}" x2="${fdB.x}" y2="${fdB.y}" class="nxg-svg-first"/>${offDef.join('')}<path d="M ${ballPt.x} ${ballPt.y} Q ${ctrl.x} ${ctrl.y} ${targetPt.x} ${targetPt.y}" class="nxg-svg-route"/><path d="M ${ballPt.x} ${ballPt.y} Q ${point(clamp(ball+dir*.06,.08,.92),.57).x} ${point(clamp(ball+dir*.06,.08,.92),.57).y} ${point(clamp(ball+dir*.14,.08,.92),.45).x} ${point(clamp(ball+dir*.14,.08,.92),.45).y}" class="nxg-svg-route-dash"/><ellipse cx="${ballPt.x}" cy="${ballPt.y}" rx="12" ry="7" transform="rotate(-18 ${ballPt.x} ${ballPt.y})" class="nxg-svg-ball"/><g transform="translate(${targetLabel.x-44},${targetLabel.y-20})" filter="url(#nxgShadowExact-${esc(g.id)})"><rect width="88" height="40" rx="10" fill="#071a3b" stroke="#258cff" stroke-width="1.4"/><circle cx="20" cy="20" r="11" fill="#1688ff"/><text x="20" y="24" text-anchor="middle" fill="#fff" font-size="9" font-weight="800">${esc((p?.team||ctx.offense.abbr).slice(0,3))}</text><text x="38" y="24" fill="#fff" font-size="11" font-weight="800">#${esc(playerNo)}</text></g>`:'';
-  const phase=g.status==='post'?(liveState(g).period>=5?'FINAL / OT':'FINAL'):g.status==='in'?downDistanceLabel(g):'PREGAME';
-  const legend=activePlay?`<div class="nxg-fieldlegend"><span><i class="off"></i>Offense (${esc(ctx.offense.abbr)})</span><span><i class="def"></i>Defense (${esc(ctx.defense.abbr)})</span><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div>`:'';
-  return `<section class="nxg-live-stage"><div class="nxg-fieldshell nxg-fieldshell-live nxg-fieldshell-exact"><div class="nxg-stadium-exact"><div class="nxg-stadium-lights"></div><div class="nxg-stadium-crowd"></div></div><div class="nxg-nfllive"><span>🏈</span><b>${g.status==='post'?'NFL FINAL':g.status==='in'?'NFL LIVE':'NFL PREVIEW'}</b></div><div class="nxg-fieldtag">${esc(phase)}</div><div class="nxg-fieldart-frame"><img class="nxg-fieldart-img" src="${NFL_FIELD_ART}" alt="The Sports Outpost football field"><div class="nxg-fieldart-shade"></div><svg class="nxg-fieldsvg" viewBox="0 0 1536 600" preserveAspectRatio="none" aria-label="NFL field visualization"><defs><filter id="nxgShadowExact-${esc(g.id)}"><feDropShadow dx="0" dy="4" stdDeviation="6" flood-opacity=".42"/></filter></defs>${liveMarks}</svg></div>${legend}</div></section>`;
+  for(const p of ranked){const n=norm(p.name);if(n&&low.includes(n))return p;}
+  for(const p of ranked){const last=norm(p.name).split(' ').at(-1)||'';if(last.length>=4&&new RegExp(`\\b${last}\\b`).test(low))return p;}
+  return featuredPlayerForGame(g);
+}
+function v883aWinPct(g){
+  const wp=g?.liveScore?.winProbability;
+  const poss=g?.liveScore?.possession;
+  if(!wp||!poss) return null;
+  const v=Number(wp[poss]);
+  if(!Number.isFinite(v)) return null;
+  return Math.round((v<=1?v*100:v)*10)/10;
+}
+function v883aPlayStartPct(g,ballPct){
+  const last=(g?.liveScore?.plays||[]).at(-1);
+  const yards=v883aPlayYards(last?.text||g?.liveScore?.lastPlayText||'');
+  const dir=g?.liveScore?.possession==='home'?-1:1;
+  return clamp(ballPct-dir*yards,5,95);
+}
+function v883aFieldPathStyle(start,end){
+  const left=Math.min(start,end),width=Math.max(1,Math.abs(end-start));
+  return `left:${left}%;width:${width}%;`;
+}
+function fieldOverlayLiveRedesignHTML(g,p){
+  const live=g?.status==='in', ball=ballLeftPct(g), first=firstLeftPct(g), start=v883aPlayStartPct(g,ball);
+  const ctx=offenseContext(g), ds=driveSummary(g), last=(g?.liveScore?.plays||[]).at(-1)||null;
+  const playText=last?.text||lastPlayLabel(g), playTitle=v883aPlayTitle(last,playText), playPlayer=v883aPlayerForPlay(g,last), line=livePlayerLine(g,playPlayer,0), wp=v883aWinPct(g);
+  const yards=v883aPlayYards(playText); const pathLeft=start>ball?' is-left':'';
+  const head=playPlayer?.headshot?`<img src="${esc(playPlayer.headshot)}" alt="">`:`<span>${esc(initials(playPlayer?.name||ctx.offense.abbr))}</span>`;
+  const phase=g.status==='post'?(liveState(g).period>=5?'FINAL / OT':'FINAL'):live?downDistanceLabel(g):'PREGAME';
+  return `<section class="nxg-live-stage tso-espn-drive" data-v883a-drive data-game-id="${esc(g.id)}"><div class="tso-espn-drive-card">
+    <div class="tso-drive-head"><div class="tso-drive-titlewrap">${ctx.offense.logo?`<img class="tso-drive-teamlogo" src="${esc(ctx.offense.logo)}" alt="">`:''}<div><div class="tso-drive-title">Current Drive</div><div class="tso-drive-summary" data-v883a-drive-summary>${esc(ds.plays)} plays, ${esc(ds.yards)} yards, ${esc(ds.time)}</div></div></div><button class="tso-drive-expand" type="button" aria-label="Drive view">↗</button></div>
+    <div class="tso-drive-rule"></div>
+    <div class="tso-play-state"><div class="tso-play-kind" data-v883a-play-kind>${esc(playTitle)}</div><div class="tso-situation"><div><span>Down:</span><strong data-v883a-down>${esc(downDistanceLabel(g))}</strong></div><div><span>Ball on:</span><strong data-v883a-ball-label>${esc(fieldPositionLabel(g))}</strong></div></div></div>
+    <div class="tso-flat-field" data-v883a-field>
+      <div class="tso-flat-endzone away">${g.away.logo?`<img src="${esc(g.away.logo)}" alt="${esc(g.away.name)}">`:''}<span>${esc(g.away.name)}</span></div>
+      <div class="tso-flat-endzone home">${g.home.logo?`<img src="${esc(g.home.logo)}" alt="${esc(g.home.name)}">`:''}<span>${esc(g.home.name)}</span></div>
+      <div class="tso-field-grid"></div>
+      <div class="tso-field-los" data-v883a-los style="left:${ball}%"></div><div class="tso-field-first" data-v883a-first style="left:${first}%"></div>
+      <div class="tso-field-path${pathLeft}" data-v883a-path style="${v883aFieldPathStyle(start,ball)}"></div><div class="tso-field-ball" data-v883a-ball style="left:${ball}%">🏈</div><div class="tso-field-yards" data-v883a-yards style="left:${clamp(ball+2,6,94)}%">${yards>0?'+':''}${yards} Yds</div>
+      <div class="tso-yardnumbers"><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>40</span><span>30</span><span>20</span><span>10</span></div><span class="tso-field-side-label left">${esc(g.away.abbr)}</span><span class="tso-field-side-label right">${esc(g.home.abbr)}</span>
+    </div>
+    <div class="tso-play-card"><div><h3 data-v883a-play-title>${esc(playTitle)}</h3><p data-v883a-play-text>${esc(playText||'Live play information is updating.')}</p></div><div class="tso-play-side"><div class="tso-win-pct">Win % <strong data-v883a-win>${wp==null?'—':`${esc(ctx.offense.abbr)} ${wp}%`}</strong></div><div class="tso-last-tag">Last Play</div></div></div>
+    <div class="tso-play-player"><div class="tso-play-player-photo" data-v883a-player-photo>${head}</div><div class="tso-play-player-copy"><b data-v883a-player-name>${esc(playPlayer?.name||'Live Player')}</b><span data-v883a-player-meta>${esc(playPlayer?.team||ctx.offense.abbr)} · ${esc(playPlayer?.pos||'Player')}</span></div><div class="tso-play-player-stats"><div><b data-v883a-stat1>${esc(line.v1)}</b><span data-v883a-stat1-label>${esc(line.a)}</span></div><div><b data-v883a-stat2>${esc(line.v2)}</b><span data-v883a-stat2-label>${esc(line.b)}</span></div><div><b data-v883a-stat3>${esc(line.v3)}</b><span data-v883a-stat3-label>${esc(line.c)}</span></div></div></div>
+    <div class="tso-drive-footerline" data-v883a-footer>${esc(phase)} · ${esc(ctx.offense.abbr)} possession${ds.result?` · ${esc(ds.result)}`:''}</div>
+  </div></section>`;
+}
+
+function patchLiveGamecastDOM(root,g){
+  if(!root||!g||state.gamecastTab!=='game') return false;
+  const drive=root.querySelector('[data-v883a-drive]');
+  const scorebar=root.querySelector('.nxg-scorebar');
+  if(!drive||!scorebar) return false;
+  const st=liveState(g),ctx=offenseContext(g),ball=ballLeftPct(g),first=firstLeftPct(g),start=v883aPlayStartPct(g,ball),ds=driveSummary(g),last=(g?.liveScore?.plays||[]).at(-1)||null;
+  const playText=last?.text||lastPlayLabel(g),playTitle=v883aPlayTitle(last,playText),playPlayer=v883aPlayerForPlay(g,last),line=livePlayerLine(g,playPlayer,0),wp=v883aWinPct(g),yards=v883aPlayYards(playText);
+  const set=(sel,val)=>{const el=root.querySelector(sel);if(el&&el.textContent!==String(val))el.textContent=String(val)};
+  set('[data-v883a-away-score]',scoreNum(g.away));set('[data-v883a-home-score]',scoreNum(g.home));set('[data-v883a-period]',st.q||'LIVE');set('[data-v883a-clock]',st.clock||'');
+  set('[data-v883a-situation-primary]',downDistanceLabel(g));set('[data-v883a-situation-secondary]',fieldPositionLabel(g));set('[data-v883a-posstext]',ctx.poss?`${ctx.offense.abbr} has the ball`:'Possession updating');
+  root.querySelectorAll('[data-v883a-possession-football]').forEach(el=>el.remove());
+  if(ctx.poss){const name=root.querySelector(`[data-v883a-team-name="${ctx.poss}"]`);if(name){const s=document.createElement('span');s.dataset.v883aPossessionFootball='1';s.className='tso-possession-football';s.textContent='🏈';if(ctx.poss==='home')name.prepend(s);else name.append(s);}}
+  set('[data-v883a-drive-summary]',`${ds.plays} plays, ${ds.yards} yards, ${ds.time}`);set('[data-v883a-play-kind]',playTitle);set('[data-v883a-down]',downDistanceLabel(g));set('[data-v883a-ball-label]',fieldPositionLabel(g));set('[data-v883a-play-title]',playTitle);set('[data-v883a-play-text]',playText||'Live play information is updating.');set('[data-v883a-win]',wp==null?'—':`${ctx.offense.abbr} ${wp}%`);set('[data-v883a-player-name]',playPlayer?.name||'Live Player');set('[data-v883a-player-meta]',`${playPlayer?.team||ctx.offense.abbr} · ${playPlayer?.pos||'Player'}`);set('[data-v883a-stat1]',line.v1);set('[data-v883a-stat1-label]',line.a);set('[data-v883a-stat2]',line.v2);set('[data-v883a-stat2-label]',line.b);set('[data-v883a-stat3]',line.v3);set('[data-v883a-stat3-label]',line.c);set('[data-v883a-yards]',`${yards>0?'+':''}${yards} Yds`);
+  const los=root.querySelector('[data-v883a-los]'),fd=root.querySelector('[data-v883a-first]'),marker=root.querySelector('[data-v883a-ball]'),badge=root.querySelector('[data-v883a-yards]'),path=root.querySelector('[data-v883a-path]');
+  if(los)los.style.left=`${ball}%`;if(fd)fd.style.left=`${first}%`;if(marker)marker.style.left=`${ball}%`;if(badge)badge.style.left=`${clamp(ball+2,6,94)}%`;if(path){path.style.left=`${Math.min(start,ball)}%`;path.style.width=`${Math.max(1,Math.abs(ball-start))}%`;path.classList.toggle('is-left',start>ball);}
+  const photo=root.querySelector('[data-v883a-player-photo]');if(photo){const desired=playPlayer?.headshot||'';const img=photo.querySelector('img');if(desired&&(!img||img.getAttribute('src')!==desired))photo.innerHTML=`<img src="${esc(desired)}" alt="">`;else if(!desired&&!img)photo.textContent=initials(playPlayer?.name||ctx.offense.abbr);}
+  return true;
 }
 
 function offenseSideHTML(g){
@@ -1587,7 +1679,7 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const situationPrimary=live?downDistanceLabel(g):g.status==='post'?'FINAL':'Pregame';
   const situationSecondary=live?fieldPositionLabel(g):g.status==='post'?(st.period>=5?'Overtime Complete':'Game Complete'):(g.time||'Kickoff');
   const situationArrow=live?'<span class="arr">▲</span>':'';
-  const scorebar=`<section class="nxg-scorebar ${live?'is-live':g.status==='post'?'is-final':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b>${esc(g.away.name)}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period">${esc(topLabel)}</div><div class="nxg-clock">${esc(displayClock)}</div></div><div class="nxg-downchip"><span>${esc(situationPrimary)}</span><i></i><span>${esc(situationSecondary)}</span>${situationArrow}</div><div class="nxg-posstext">${live&&ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score">${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b>${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
+  const scorebar=`<section class="nxg-scorebar ${live?'is-live':g.status==='post'?'is-final':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b data-v883a-team-name="away">${esc(g.away.name)}${live&&ctx.poss==='away'?'<span data-v883a-possession-football class=\"tso-possession-football\">🏈</span>':''}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score" data-v883a-away-score>${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period" data-v883a-period>${esc(topLabel)}</div><div class="nxg-clock" data-v883a-clock>${esc(displayClock)}</div></div><div class="nxg-downchip"><span data-v883a-situation-primary>${esc(situationPrimary)}</span><i></i><span data-v883a-situation-secondary>${esc(situationSecondary)}</span>${situationArrow}</div><div class="nxg-posstext" data-v883a-posstext>${live&&ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score" data-v883a-home-score>${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b data-v883a-team-name="home">${live&&ctx.poss==='home'?'<span data-v883a-possession-football class=\"tso-possession-football\">🏈</span>':''}${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
 
   // Game View is the approved 1448×1086 composition.  It never switches to a
   // stacked/mobile layout; fitNflGamecastConcept uniformly scales this canvas.
@@ -1751,7 +1843,7 @@ function bindLegacyNflNav(){
 }
 
 export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastUpgradeStyles();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
@@ -1761,20 +1853,4 @@ export async function mount(){
   }
   render();
   requestAnimationFrame(()=>postRenderNflDemoSync(state,{openHalftimeParlayLab}));
-}
-
-
-// v88.3 smooth gamecast upgrade hook
-if(!globalThis.__TSO_V883_RENDER_PATCHED__){
-  const __tsoV883Render = render;
-  render = function(...args){
-    const out = __tsoV883Render.apply(this,args);
-    try{
-      requestAnimationFrame(()=>mountOrUpdateNflGamecastUpgrade({ state, root: document.getElementById('nflView') }));
-    }catch(err){
-      console.warn('TSO v88.3 gamecast upgrade skipped', err);
-    }
-    return out;
-  };
-  globalThis.__TSO_V883_RENDER_PATCHED__ = true;
 }
