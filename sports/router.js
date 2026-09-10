@@ -121,9 +121,9 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      // v88.9 restores the native field/shell geometry and aligns endzone graphics
-      // to the actual perspective plane while preserving the proven v88.6e live pipeline.
-      const mod = await import('./nfl-preview-v889.js?v=88.9');
+      // v89.0 uses the approved clean field image as the visible surface while the
+      // existing SVG field remains hidden as the gameplay geometry source.
+      const mod = await import('./nfl-preview-v890.js?v=89.0');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
