@@ -135,10 +135,11 @@ async function swapView(active) {
       try {
         const researchUi = await import('./nfl-research-ui.js?v=86.3');
         await researchUi.mountNflResearchUI(nflView);
-        // v89.1 adds sportsbook alternate-line selection underneath Player Prop.
+        // v89.2 makes the selected alternate sportsbook line the actual
+        // Add-to-Slip wager payload instead of leaving the CTA on the main line.
         try {
-          const altProps = await import('./nfl-alt-props-v891.js?v=89.1');
-          await altProps.mountNflAltPropsV891(nflView);
+          const altProps = await import('./nfl-alt-props-v892.js?v=89.2');
+          await altProps.mountNflAltPropsV892(nflView);
         } catch (altPropError) {
           console.warn('[NFL alternate props UI] enhancement unavailable:', altPropError);
         }
