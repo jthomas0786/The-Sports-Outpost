@@ -1,5 +1,5 @@
 {
-  "engineVersion": "v86.0.0",
+  "engineVersion": "v86.1.0",
   "defaultIterations": 50000,
   "liveIterations": 15000,
   "maxIterations": 100000,
@@ -85,47 +85,22 @@
     }
   },
   "depthRole": {
-    "QB": [
-      1,
-      0.08,
-      0.03
-    ],
-    "RB": [
-      1,
-      0.62,
-      0.34,
-      0.18
-    ],
-    "WR": [
-      1,
-      0.88,
-      0.72,
-      0.47,
-      0.28,
-      0.16
-    ],
-    "TE": [
-      1,
-      0.52,
-      0.26,
-      0.12
-    ]
+    "QB": [1,0.08,0.03],
+    "RB": [1,0.62,0.34,0.18],
+    "WR": [1,0.88,0.72,0.47,0.28,0.16],
+    "TE": [1,0.52,0.26,0.12]
   },
   "trackedStats": [
-    "passYds",
-    "completions",
-    "attempts",
-    "passTds",
-    "interceptions",
-    "rushYds",
-    "carries",
-    "rushTds",
-    "recYds",
-    "receptions",
-    "targets",
-    "recTds",
-    "tds"
+    "passYds","completions","attempts","passTds","interceptions","rushYds","carries","rushTds","recYds","receptions","targets","recTds","tds"
   ],
+  "quarters": {
+    "enabled": true,
+    "pregameOnly": true,
+    "baseShare": [1.04,0.98,0.99,0.99],
+    "teamPaceVolatility": 0.12,
+    "playerUsageVolatility": 0.1,
+    "note": "v86.1 quarter distributions are generated inside each pregame simulation world and constrained to that world's full-game totals."
+  },
   "halftimeIterations": 50000,
   "automatic": {
     "enabled": true,
@@ -133,11 +108,7 @@
     "pregameIterations": 50000,
     "halftimeIterations": 50000,
     "liveIterations": 15000,
-    "pregameCheckpointMinutes": [
-      180,
-      90,
-      15
-    ],
+    "pregameCheckpointMinutes": [180,90,15],
     "materialChangeMinIntervalMinutes": 10,
     "liveMinIntervalMinutes": 4,
     "requireResearch": true,
