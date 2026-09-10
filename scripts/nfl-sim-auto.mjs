@@ -93,6 +93,10 @@ for(const game of games){
     console.log(`· ${pair}: halftime detected — waiting for live sportsbook props before 50K candidate build`);
     continue;
   }
+  if(decision.phase==='halftime' && !halftimeLiveOddsReady(game,liveOdds)){
+    console.log(`· ${pair}: halftime 50K waiting for staged live sportsbook props`);
+    continue;
+  }
   console.log(`▶ ${pair}: ${decision.reason} — ${Number(decision.iterations).toLocaleString()} simulations`);
   if(DRY){
     touched.push({gameId,pair,decision});

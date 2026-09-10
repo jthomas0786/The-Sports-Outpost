@@ -36,12 +36,12 @@ jobs:
       - name: Build NFL live fallback snapshot
         run: node scripts/nfl-live-poller.mjs
 
-      - name: Refresh v87 halftime sportsbook props when needed
+      - name: Prefetch v88.4 Q2 / halftime sportsbook props
         continue-on-error: true
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
-        run: node scripts/nfl-halftime-odds-refresh.mjs
+        run: node scripts/nfl-halftime-window-refresh.mjs
 
       - name: Run v87 automatic NFL simulation / halftime candidate gate
         env:

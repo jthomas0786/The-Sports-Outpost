@@ -1,8 +1,9 @@
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
-import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui.js?v=88.3d';
+import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=88.4';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.2';
 import { ensureNflGamecastV883aStyles } from './nfl/gamecast-v883a-styles.js?v=88.3a';
 import { ensureNflGamecastV883bStyles } from './nfl/gamecast-v883b-styles.js?v=88.3b';
+import { ensureNflGamecastV884Styles } from './nfl/gamecast-v884-styles.js?v=88.4';
 
 /**
  * sports/nfl-preview.js — NFL product mock built from the MLB information
@@ -1547,6 +1548,15 @@ function v883bFieldNumbers(){
   return ['10','20','30','40','50','40','30','20','10'].map(v=>`<span>${v}</span>`).join('');
 }
 
+const V884_TEAM_COLORS={
+  ARI:['#97233F','#000000'],ATL:['#A71930','#000000'],BAL:['#241773','#111111'],BUF:['#00338D','#C60C30'],CAR:['#0085CA','#101820'],CHI:['#0B162A','#C83803'],CIN:['#FB4F14','#000000'],CLE:['#311D00','#FF3C00'],DAL:['#003594','#041E42'],DEN:['#FB4F14','#002244'],DET:['#0076B6','#B0B7BC'],GB:['#203731','#FFB612'],HOU:['#03202F','#A71930'],IND:['#002C5F','#A2AAAD'],JAX:['#006778','#101820'],KC:['#E31837','#FFB81C'],LV:['#000000','#A5ACAF'],LAC:['#0080C6','#FFC20E'],LA:['#003594','#FFA300'],MIA:['#008E97','#FC4C02'],MIN:['#4F2683','#FFC62F'],NE:['#002244','#C60C30'],NO:['#D3BC8D','#101820'],NYG:['#0B2265','#A71930'],NYJ:['#125740','#FFFFFF'],PHI:['#004C54','#A5ACAF'],PIT:['#101820','#FFB612'],SF:['#AA0000','#B3995D'],SEA:['#002244','#69BE28'],TB:['#D50A0A','#34302B'],TEN:['#0C2340','#4B92DB'],WAS:['#5A1414','#FFB612']
+};
+function v884EndzoneStyle(abbr){
+  const [a,b]=V884_TEAM_COLORS[String(abbr||'').toUpperCase()]||['#0d3e75','#092a52'];
+  return `--ez-primary:${a};--ez-secondary:${b};`;
+}
+function v884MarkerLeft(yard){return `clamp(16px, ${clamp(Number(yard)||0,0,100)}%, calc(100% - 16px))`;}
+
 function fieldOverlayLiveRedesignHTML(g,p){
   const live=g?.status==='in';
   const ball=v883bPlayableYard(g), first=v883bFirstDownYard(g), start=v883bPlayStartYard(g,ball);
@@ -1565,19 +1575,19 @@ function fieldOverlayLiveRedesignHTML(g,p){
     <div class="tso-3d-field-stage" data-v883b-field>
       <div class="tso-3d-stadium-glow"></div>
       <div class="tso-3d-field-plane">
-        <div class="tso-3d-endzone away">${awayLogo}<span>${esc(g.away.name)}</span></div>
+        <div class="tso-3d-endzone away" data-team="${esc(g.away.abbr)}" style="${v884EndzoneStyle(g.away.abbr)}">${awayLogo}<span>${esc(g.away.name)}</span></div>
         <div class="tso-3d-playable">
           <div class="tso-3d-grid"></div>
           <div class="tso-3d-hash top"></div><div class="tso-3d-hash bottom"></div>
           <div class="tso-3d-los" data-v883b-los style="left:${ball}%"></div>
           <div class="tso-3d-first" data-v883b-first style="left:${first}%"></div>
           <div class="tso-3d-path${pathLeft}" data-v883b-path style="${v883bPathStyle(start,ball)}"></div>
-          <div class="tso-3d-ball" data-v883b-ball style="left:${ball}%"><span>🏈</span></div>
-          <div class="tso-3d-yards" data-v883b-yards style="left:${clamp(ball+3,4,96)}%">${yards>0?'+':''}${yards} Yds</div>
+          <div class="tso-3d-ball" data-v883b-ball style="left:${v884MarkerLeft(ball)}"><span>🏈</span></div>
+          <div class="tso-3d-yards" data-v883b-yards style="left:${v884MarkerLeft(clamp(ball+3,4,96))}">${yards>0?'+':''}${yards} Yds</div>
           <div class="tso-3d-yardnumbers top">${v883bFieldNumbers()}</div>
           <div class="tso-3d-yardnumbers bottom">${v883bFieldNumbers()}</div>
         </div>
-        <div class="tso-3d-endzone home">${homeLogo}<span>${esc(g.home.name)}</span></div>
+        <div class="tso-3d-endzone home" data-team="${esc(g.home.abbr)}" style="${v884EndzoneStyle(g.home.abbr)}">${homeLogo}<span>${esc(g.home.name)}</span></div>
       </div>
       <div class="tso-3d-field-legend"><span><i class="los"></i>Line of Scrimmage</span><span><i class="fd"></i>First Down</span><span><i class="path"></i>Play Path</span></div>
     </div>
@@ -1603,11 +1613,11 @@ function patchLiveGamecastDOM(root,g){
   set('[data-v883a-away-score]',scoreNum(g.away));set('[data-v883a-home-score]',scoreNum(g.home));set('[data-v883a-period]',st.q||'LIVE');set('[data-v883a-clock]',st.clock||'');
   set('[data-v883a-situation-primary]',downDistanceLabel(g));set('[data-v883a-situation-secondary]',fieldPositionLabel(g));set('[data-v883a-posstext]',ctx.poss?`${ctx.offense.abbr} has the ball`:'Possession updating');
 
-  root.querySelectorAll('[data-v883a-possession-football],[data-v883b-possession-football]').forEach(el=>el.remove());
+  root.querySelectorAll('[data-v883a-possession-football],[data-v883b-possession-football],[data-v884-possession-football]').forEach(el=>el.remove());
   if(ctx.poss){
     const name=root.querySelector(`[data-v883a-team-name="${ctx.poss}"],[data-v883b-team-name="${ctx.poss}"]`);
     if(name){
-      const icon=document.createElement('span');icon.dataset.v883bPossessionFootball='1';icon.className='tso-possession-football';icon.textContent='🏈';
+      const icon=document.createElement('span');icon.dataset.v884PossessionFootball='1';icon.className='tso-possession-football';icon.textContent='🏈';
       if(ctx.poss==='home') name.prepend(icon); else name.append(icon);
     }
   }
@@ -1615,7 +1625,7 @@ function patchLiveGamecastDOM(root,g){
   set('[data-v883b-drive-summary]',`${ds.plays} plays, ${ds.yards} yards, ${ds.time}`);set('[data-v883b-play-kind]',playTitle);set('[data-v883b-down]',downDistanceLabel(g));set('[data-v883b-ball-label]',fieldPositionLabel(g));set('[data-v883b-play-title]',playTitle);set('[data-v883b-play-text]',playText||'Live play information is updating.');set('[data-v883b-win]',wp==null?'—':`${ctx.offense.abbr} ${wp}%`);set('[data-v883b-player-name]',playPlayer?.name||'Live Player');set('[data-v883b-player-meta]',`${playPlayer?.team||ctx.offense.abbr} · ${playPlayer?.pos||'Player'}`);set('[data-v883b-stat1]',line.v1);set('[data-v883b-stat1-label]',line.a);set('[data-v883b-stat2]',line.v2);set('[data-v883b-stat2-label]',line.b);set('[data-v883b-stat3]',line.v3);set('[data-v883b-stat3-label]',line.c);set('[data-v883b-yards]',`${yards>0?'+':''}${yards} Yds`);set('[data-v883b-footer]',`${g.status==='post'?'FINAL':g.status==='in'?downDistanceLabel(g):'PREGAME'} · ${ctx.offense.abbr} possession${ds.result?` · ${ds.result}`:''}`);
 
   const los=root.querySelector('[data-v883b-los]'),fd=root.querySelector('[data-v883b-first]'),marker=root.querySelector('[data-v883b-ball]'),badge=root.querySelector('[data-v883b-yards]'),path=root.querySelector('[data-v883b-path]');
-  if(los)los.style.left=`${ball}%`;if(fd)fd.style.left=`${first}%`;if(marker)marker.style.left=`${ball}%`;if(badge)badge.style.left=`${clamp(ball+3,4,96)}%`;if(path){path.style.left=`${Math.min(start,ball)}%`;path.style.width=`${Math.max(.8,Math.abs(ball-start))}%`;path.classList.toggle('is-left',start>ball);}
+  if(los)los.style.left=`${ball}%`;if(fd)fd.style.left=`${first}%`;if(marker)marker.style.left=v884MarkerLeft(ball);if(badge)badge.style.left=v884MarkerLeft(clamp(ball+3,4,96));if(path){path.style.left=`${Math.min(start,ball)}%`;path.style.width=`${Math.max(.8,Math.abs(ball-start))}%`;path.classList.toggle('is-left',start>ball);}
   const photo=root.querySelector('[data-v883b-player-photo]');if(photo){const desired=playPlayer?.headshot||'';const img=photo.querySelector('img');if(desired&&(!img||img.getAttribute('src')!==desired))photo.innerHTML=`<img src="${esc(desired)}" alt="">`;else if(!desired&&!img)photo.textContent=initials(playPlayer?.name||ctx.offense.abbr);}
   return true;
 }
@@ -1737,12 +1747,12 @@ function gamecastDashboardHTML(g,p,{embedded=false,tab=null}={}){
   const situationPrimary=live?downDistanceLabel(g):g.status==='post'?'FINAL':'Pregame';
   const situationSecondary=live?fieldPositionLabel(g):g.status==='post'?(st.period>=5?'Overtime Complete':'Game Complete'):(g.time||'Kickoff');
   const situationArrow=live?'<span class="arr">▲</span>':'';
-  const scorebar=`<section class="nxg-scorebar ${live?'is-live':g.status==='post'?'is-final':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b data-v883a-team-name="away">${esc(g.away.name)}${live&&ctx.poss==='away'?'<span data-v883a-possession-football class=\"tso-possession-football\">🏈</span>':''}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score" data-v883a-away-score>${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period" data-v883a-period>${esc(topLabel)}</div><div class="nxg-clock" data-v883a-clock>${esc(displayClock)}</div></div><div class="nxg-downchip"><span data-v883a-situation-primary>${esc(situationPrimary)}</span><i></i><span data-v883a-situation-secondary>${esc(situationSecondary)}</span>${situationArrow}</div><div class="nxg-posstext" data-v883a-posstext>${live&&ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score" data-v883a-home-score>${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b data-v883a-team-name="home">${live&&ctx.poss==='home'?'<span data-v883a-possession-football class=\"tso-possession-football\">🏈</span>':''}${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
+  const scorebar=`<section class="nxg-scorebar ${live?'is-live':g.status==='post'?'is-final':'is-pregame'}"><div class="nxg-teamblock away">${teamLogo(g.away,'nxg-teamlogo')}<div class="nxg-teamcopy"><small>${esc(teamLocation(g.away))}</small><b data-v883a-team-name="away">${esc(g.away.name)}${live&&ctx.poss==='away'?'<span data-v884-possession-football class=\"tso-possession-football\">🏈</span>':''}</b><span>${esc(record(g.away))}</span></div><div class="nxg-scorebox"><div class="nxg-score" data-v883a-away-score>${scoreNum(g.away)}</div><div class="nxg-score-dots">${scoreDots}</div></div></div><div class="nxg-centerblock"><div class="nxg-clockline"><div class="nxg-period" data-v883a-period>${esc(topLabel)}</div><div class="nxg-clock" data-v883a-clock>${esc(displayClock)}</div></div><div class="nxg-downchip"><span data-v883a-situation-primary>${esc(situationPrimary)}</span><i></i><span data-v883a-situation-secondary>${esc(situationSecondary)}</span>${situationArrow}</div><div class="nxg-posstext" data-v883a-posstext>${live&&ctx.poss?`${esc(ctx.offense.abbr)} has the ball`:(g.status==='post'?'Game complete':'Kickoff preview')}</div></div><div class="nxg-teamblock home"><div class="nxg-scorebox"><div class="nxg-score" data-v883a-home-score>${scoreNum(g.home)}</div><div class="nxg-score-dots">${scoreDots}</div></div><div class="nxg-teamcopy"><small>${esc(teamLocation(g.home))}</small><b data-v883a-team-name="home">${live&&ctx.poss==='home'?'<span data-v884-possession-football class=\"tso-possession-football\">🏈</span>':''}${esc(g.home.name)}</b><span>${esc(record(g.home))}</span></div>${teamLogo(g.home,'nxg-teamlogo')}</div><div class="nxg-weather"><div class="nxg-weather-top"><span class="nxg-weather-ico">${wx.ico}</span><strong>${wx.temp}°</strong></div><small>${esc(wx.cond)}</small><span>${esc(g.venue)}</span><span>${esc(g.city||teamLocation(g.home))}</span></div></section>`;
 
   // Game View is the approved 1448×1086 composition.  It never switches to a
   // stacked/mobile layout; fitNflGamecastConcept uniformly scales this canvas.
   if(activeTab==='game'){
-    return `<article class="nxg-wrap nxg-concept ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-concept-viewport"><div class="nxg-concept-canvas">${topbar}${scorebar}${halftimeGamecastBannerHTML(g,state.halftime)}<div class="nxg-gameview-modern">${gameView}</div></div></div>${gameIntelDockHTML(g)}</article>`;
+    return `<article class="nxg-wrap nxg-concept ${embedded?'nxg-embedded':''}" data-nfl-inline-gamecast="${esc(g.id)}"><div class="nxg-concept-viewport"><div class="nxg-concept-canvas">${topbar}${scorebar}${halftimeGamecastBannerHTML(g,state.halftime,data().games)}<div class="nxg-gameview-modern">${gameView}</div></div></div>${gameIntelDockHTML(g)}</article>`;
   }
 
   const body=activeTab==='box'?boxView:pbpView;
@@ -1901,7 +1911,7 @@ function bindLegacyNflNav(){
 }
 
 export async function mount(){
-  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles();
+  ensureNflGamecastConceptStyles(); ensureNflLaunchStyles(); ensureHalftimeLabStyles(); ensureNflGamecastV883aStyles(); ensureNflGamecastV883bStyles(); ensureNflGamecastV884Styles();
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
