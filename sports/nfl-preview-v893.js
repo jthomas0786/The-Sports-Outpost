@@ -1,8 +1,8 @@
-import * as basePreview from './nfl-preview-v890.js?v=89.14';
+import * as basePreview from './nfl-preview-v890.js?v=89.16';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
 import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8911.js?v=89.11';
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
-import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.15';
+import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.16';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
@@ -36,7 +36,7 @@ function arm(){
   // both previously mutated the same LOS/actors after v89.12 and created races.
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.14] scoreboard renderer unavailable:',e);}
-  try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.15] authoritative motion renderer unavailable:',e);}
+  try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.16] authoritative motion renderer unavailable:',e);}
   installReplayLabIfRequested();
   refreshQuarterCta();
   if(!quarterPollTimer) quarterPollTimer=setInterval(refreshQuarterCta,15000);
