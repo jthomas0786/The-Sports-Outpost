@@ -4,6 +4,7 @@ import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.10';
 import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.12';
+import { installNflGamecastAccuracyV8913 } from './nfl/gamecast-accuracy-v8913.js?v=89.13';
 
 let quarterPollTimer=null;
 
@@ -31,11 +32,11 @@ function arm(){
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastLiveFixV898();}catch(e){console.warn('[NFL Gamecast v89.8] live fix unavailable:',e);}
   try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.10] scoreboard guard unavailable:',e);}
-  // v89.12 runs after the legacy reenactment layer so it can reject null field
-  // position (Number(null) used to become SF 0), recover the spot from drive/play
-  // text during feed gaps, and animate the completed play from the previous LOS
-  // to the new LOS instead of repeatedly starting at the post-play spot.
+  // v89.12 owns live field-state continuity and completed-play movement.
   try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.12] field-state fix unavailable:',e);}
+  // v89.13 is the final accuracy authority: one shared LOS for lines/players,
+  // no null->0 scrimmage jumps, no stale route ghosts, and no duplicate player labels.
+  try{installNflGamecastAccuracyV8913();}catch(e){console.warn('[NFL Gamecast v89.13] accuracy fix unavailable:',e);}
   refreshQuarterCta();
   if(!quarterPollTimer) quarterPollTimer=setInterval(refreshQuarterCta,15000);
 }
