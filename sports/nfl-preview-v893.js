@@ -4,7 +4,14 @@ import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
 import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.15';
 
-let quarterPollTimer=null;
+let quarterPollTimer=null,replayLabPromise=null;
+
+async function installReplayLabIfRequested(){
+  if(typeof location==='undefined'||new URLSearchParams(location.search).get('nflReplayLab')!=='1')return;
+  if(!replayLabPromise)replayLabPromise=import('./nfl/gamecast-replay-lab-v8916.js?v=89.16');
+  try{const mod=await replayLabPromise;mod.installNflGamecastReplayLabV8916?.();}
+  catch(e){console.warn('[NFL Gamecast v89.16] Replay Lab unavailable:',e);}
+}
 
 async function refreshQuarterCta(){
   const banner=document.querySelector('[data-tso-quarter-banner]');
@@ -30,6 +37,7 @@ function arm(){
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.14] scoreboard renderer unavailable:',e);}
   try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.15] authoritative motion renderer unavailable:',e);}
+  installReplayLabIfRequested();
   refreshQuarterCta();
   if(!quarterPollTimer) quarterPollTimer=setInterval(refreshQuarterCta,15000);
 }
