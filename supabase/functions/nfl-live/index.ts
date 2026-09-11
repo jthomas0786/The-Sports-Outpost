@@ -65,9 +65,22 @@ function clockMin(display: unknown) {
 function competitor(c: any, side: string) {
   return (c?.competitors || []).find((x: any) => x.homeAway === side) || null;
 }
+function participant(x: any) {
+  const a = x?.athlete || x?.player || {};
+  return {
+    type: String(x?.type || x?.role || x?.participantType || ""),
+    id: a?.id != null ? String(a.id) : x?.athleteId != null ? String(x.athleteId) : null,
+    name: a?.displayName || a?.fullName || a?.shortName || x?.displayName || null,
+    position: a?.position?.abbreviation || x?.position?.abbreviation || x?.position || null,
+    jersey: a?.jersey || x?.jersey || null,
+    headshot: a?.headshot?.href || x?.headshot?.href || x?.headshot || null,
+    team: norm(x?.team?.abbreviation || a?.team?.abbreviation || ""),
+  };
+}
 
-// Preserve ESPN's exact per-play start/end coordinates. These are the source of
-// truth for the Gamecast pre-snap LOS and completed-play ending spot.
+// Preserve ESPN's exact per-play start/end coordinates and participant IDs.
+// These are the source of truth for pre-snap LOS, completed-play ending spot,
+// and the QB / runner / target / turnover actor shown by Gamecast.
 function play(p: any) {
   const s = p?.start || {};
   const e = p?.end || {};
@@ -98,6 +111,7 @@ function play(p: any) {
     type: p?.type?.text || p?.type?.abbreviation || null,
     homeScore: n(p?.homeScore),
     awayScore: n(p?.awayScore),
+    participants: (p?.participants || []).map(participant).filter((x: any) => x.id || x.name || x.type),
   };
 }
 
@@ -362,7 +376,7 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        schemaVersion: 5,
+        schemaVersion: 6,
         lastFetchedAt: Date.now(),
         generatedAt: new Date().toISOString(),
         games,
