@@ -1,5 +1,5 @@
 import { ensureNflGamecastV890Styles } from './nfl/gamecast-v890-styles.js?v=89.0';
-import { installNflGamecastV890Enhancer, enhanceNflGamecastV890Now } from './nfl/gamecast-v890-enhancer.js?v=89.0';
+import { installNflGamecastV890Enhancer, enhanceNflGamecastV890Now } from './nfl/gamecast-v890-enhancer.js?v=89.7b';
 
 let installed=false;
 let basePromise=null;
