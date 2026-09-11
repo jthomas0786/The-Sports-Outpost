@@ -23,7 +23,6 @@ const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .s
 
 function activeSport() {
   const requested = sportFromHash(location.hash);
-  // A sport is routable if it has a view at all — adapterReady only gates the pill.
   return isViewable(requested) ? requested : DEFAULT_SPORT;
 }
 
@@ -34,13 +33,6 @@ function comingSoonNote(sport) {
   return s.seasonStart ? `Launches ${s.seasonStart}` : 'Coming soon';
 }
 
-/**
- * Dropdown, not a bar — same underlying data and the same adapterReady/
- * uiReady gating as before, just presented as a trigger + menu instead of
- * a row of pills, to leave more header room. The trigger shows the
- * CURRENT sport's own brand + accent color, same as the pill it replaces
- * used to look once active.
- */
 function renderPills(active) {
   const host = document.getElementById('sportSwitch');
   if (!host) return;
@@ -117,9 +109,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      // v89.7 keeps the approved v89.0 field, v89.3 parlay modals, and loads
-      // the corrected live Gamecast stabilization/animation layer.
-      const mod = await import('./nfl-preview-v893.js?v=89.7');
+      const mod = await import('./nfl-preview-v893.js?v=89.7b');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
