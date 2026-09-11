@@ -1,5 +1,6 @@
 import * as basePreview from './nfl-preview-v890.js?v=89.10';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
+import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8911.js?v=89.11';
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.10';
 
@@ -23,6 +24,10 @@ async function refreshQuarterCta(){
 
 function arm(){
   try{mountNflParlayModalV893();}catch(e){console.warn('[NFL parlay modal v89.3] enhancement unavailable:',e);}
+  // Must install first: live.js polls every game on the slate, while only one
+  // Gamecast is visible. This gate prevents another game's 0-0/0:00 snapshot
+  // from reaching the visible field/scoreboard/animation listeners.
+  try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastLiveFixV898();}catch(e){console.warn('[NFL Gamecast v89.8] live fix unavailable:',e);}
   try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.10] scoreboard guard unavailable:',e);}
   refreshQuarterCta();
