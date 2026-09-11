@@ -13,8 +13,7 @@ on:
     paths:
       - '.github/workflows/nfl-live.yml'
   schedule:
-    # This existing five-minute NFL heartbeat now powers BOTH the fallback live
-    # snapshot and v86's simulation gate, avoiding a second 24/7 cron workflow.
+    # One heartbeat powers live state, halftime props and the simulation gate.
     - cron: '*/5 * * * *'
 
 permissions:
@@ -22,9 +21,9 @@ permissions:
 
 concurrency:
   group: nfl-live-snapshot
-  # Do not cancel a run that happens to be executing a 50K checkpoint/halftime
-  # simulation. The next five-minute heartbeat can wait.
-  cancel-in-progress: false
+  # Halftime is time-critical. A newer heartbeat should replace an older long
+  # pregame-upgrade run so the live halftime board is never stuck behind it.
+  cancel-in-progress: true
 
 jobs:
   refresh:
@@ -48,7 +47,61 @@ jobs:
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
         run: node scripts/nfl-halftime-window-refresh.mjs
 
-      - name: Run v87 automatic NFL simulation / halftime candidate gate
+      - name: Run priority Q2 / halftime simulation
+        id: priority_halftime
+        env:
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+        run: |
+          GAME_IDS=$(node - <<'NODE'
+          const fs=require('fs');
+          let live={games:{}};
+          try{live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));}catch{}
+          const ids=[];
+          for(const [id,g] of Object.entries(live.games||{})){
+            const status=String(g?.status||'').toLowerCase();
+            const detail=String(g?.statusDetail||'').toLowerCase();
+            const period=Number(g?.period);
+            const clock=Number(g?.clockMin);
+            const active=status==='in'||status==='live';
+            const inWindow=active && ((period===2 && Number.isFinite(clock) && clock<=5.05) || /half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail));
+            if(inWindow) ids.push(id);
+          }
+          process.stdout.write(ids.join(','));
+          NODE
+          )
+          echo "game_ids=$GAME_IDS" >> "$GITHUB_OUTPUT"
+          if [ -z "$GAME_IDS" ]; then
+            echo "No game is in the Q2/halftime priority window."
+            exit 0
+          fi
+          echo "Priority halftime game(s): $GAME_IDS"
+          node scripts/nfl-sim-auto.mjs --game "$GAME_IDS"
+
+      - name: Publish priority halftime state immediately
+        if: steps.priority_halftime.outputs.game_ids != ''
+        run: |
+          git config user.name "TSO NFL Live Bot"
+          git config user.email "actions@users.noreply.github.com"
+          [ -e slates/nfl-live.json ] && git add slates/nfl-live.json || true
+          [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
+          [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
+          [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
+          [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
+          [ -e slates/nfl-quarter.json ] && git add slates/nfl-quarter.json || true
+          if git diff --staged --quiet; then
+            echo "Priority halftime state already published."
+            exit 0
+          fi
+          git commit -m "Publish priority NFL halftime state"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "priority push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
+
+      - name: Run automatic NFL simulation / candidate gates
         env:
           NFL_SIM_FORCE: ${{ inputs.force_sim == true && '1' || '0' }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
@@ -70,7 +123,7 @@ jobs:
           console.log(`✓ ${sim.engineVersion} simulation cache: ${sim.gameCount||0} game(s)`);
           NODE
 
-      - name: Validate v87 halftime candidate board when present
+      - name: Validate halftime candidate board when present
         run: |
           if [ ! -f slates/nfl-halftime.json ]; then
             echo "No halftime candidate board yet."
@@ -79,11 +132,11 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const h=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
-          if(h.orchestrationVersion!=='v87.0.0') throw new Error('unexpected halftime orchestration version');
+          if(h.orchestrationVersion!=='v87.0.0') throw new Error(`unexpected halftime orchestration version ${h.orchestrationVersion}`);
           for(const g of h.games||[]){
             if(g.iterations!==50000) throw new Error('halftime board is not based on 50K simulations');
           }
-          console.log(`✓ v87 halftime board: ${h.gameCount||0} game(s)`);
+          console.log(`✓ halftime board: ${h.gameCount||0} game(s)`);
           NODE
 
       - name: Commit live/simulation outputs only when changed
