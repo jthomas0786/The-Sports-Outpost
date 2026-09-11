@@ -12,7 +12,7 @@ const MARKET_ALIASES={
 const SPORTSBOOK_KEYS={passYds:'passYds',passTds:'passTds',completions:'completions',rushYds:'rushYds',recYds:'recYds',receptions:'receptions'};
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
 const finite=v=>v!==null&&v!==''&&Number.isFinite(Number(v))?Number(v):null;
-const round=(v,d=4)=>Number.isFinite(Number(v))?Number(Number(v).toFixed(d)):null;
+const round=(v,d=4)=>v!==null&&v!==''&&Number.isFinite(Number(v))?Number(Number(v).toFixed(d)):null;
 
 export function normalizeMarket(value){
   const raw=String(value??'').trim().toLowerCase().replace(/&/g,'and').replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
