@@ -16,6 +16,7 @@
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
+import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 
 /** MLB-owned containers that must hide when another sport's view is showing. */
 const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .status-bar'];
@@ -162,6 +163,7 @@ function render() {
 }
 
 installMobileEdgeSwipeV894();
+installGamblyWebFallbackV895();
 window.DW_getSport = activeSport;
 window.addEventListener('hashchange', render);
 if (document.readyState === 'loading') {
