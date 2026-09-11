@@ -5,6 +5,7 @@ import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v861.js';
 import { decideAutomaticRun, nextAutomationState } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
+import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
 
 const ROOT=process.cwd();
 const arg=(flag,fallback=null)=>{const i=process.argv.indexOf(flag);return i>=0&&process.argv[i+1]!=null?process.argv[i+1]:fallback};
@@ -19,6 +20,7 @@ const OUT=path.resolve(ROOT,arg('--out','slates/nfl-sim.json'));
 const STATE=path.resolve(ROOT,arg('--state','slates/nfl-sim-state.json'));
 const LIVE_ODDS=path.resolve(ROOT,arg('--live-odds','slates/nfl-live-odds.json'));
 const HALFTIME_OUT=path.resolve(ROOT,arg('--halftime-out','slates/nfl-halftime.json'));
+const QUARTER_OUT=path.resolve(ROOT,arg('--quarter-out','slates/nfl-quarter.json'));
 const CONFIG=path.resolve(ROOT,arg('--config','sports/nfl/sim/config.json'));
 const GAME=arg('--game',null);
 const LIVE_URL=arg('--live-url',process.env.NFL_LIVE_ENDPOINT||'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live');
@@ -57,10 +59,10 @@ function selectedGames(slate){
   });
 }
 
-const [slate,research,odds,config,existing,stateDoc,liveBoard,liveOdds,halftimeExisting]=await Promise.all([
+const [slate,research,odds,config,existing,stateDoc,liveBoard,liveOdds,halftimeExisting,quarterExisting]=await Promise.all([
   read(SLATE,{games:[]}),read(RESEARCH,{players:[]}),read(ODDS,{games:[]}),read(CONFIG,null),
   read(OUT,{schemaVersion:2,games:[]}),read(STATE,{schemaVersion:1,games:{}}),fetchLive(),
-  read(LIVE_ODDS,{meta:null,games:[]}),read(HALFTIME_OUT,{schemaVersion:1,games:[]}),
+  read(LIVE_ODDS,{meta:null,games:[]}),read(HALFTIME_OUT,{schemaVersion:1,games:[]}),read(QUARTER_OUT,{schemaVersion:1,games:[]}),
 ]);
 if(!config) throw new Error(`NFL sim config missing: ${CONFIG}`);
 if(config.automatic?.enabled===false && !FORCE){console.log('NFL automatic simulation is disabled in config.');process.exit(0);}
@@ -74,7 +76,8 @@ if(weekChanged) console.log(`↻ NFL simulation weekly rollover: ${previousWeekK
 const existingById=new Map((weekChanged?[]:(existing?.games||[])).map(r=>[String(r?.game?.gameId||''),r]));
 const stateGames=weekChanged?{}:{...(stateDoc?.games||{})};
 const halftimeById=new Map((weekChanged?[]:(halftimeExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
-let halftimeTouched=false;
+const quarterById=new Map((weekChanged?[]:(quarterExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
+let halftimeTouched=false,quarterTouched=false;
 let runs=0,totalIterations=0;
 const touched=[];
 
@@ -96,23 +99,27 @@ for(const game of games){
     console.log(`· ${pair}: halftime detected — waiting for live sportsbook props before 50K candidate build`);
     continue;
   }
-  if(decision.phase==='halftime' && !halftimeLiveOddsReady(game,liveOdds)){
-    console.log(`· ${pair}: halftime 50K waiting for staged live sportsbook props`);
-    continue;
-  }
   console.log(`▶ ${pair}: ${decision.reason} — ${Number(decision.iterations).toLocaleString()} simulations`);
   if(DRY){
     touched.push({gameId,pair,decision});
     continue;
   }
   const needHalftimeSamples=decision.phase==='halftime';
-  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples});
-  let halftimeBoard=null;
+  const needQuarterSamples=decision.phase==='pregame'&&config.quarters?.enabled!==false;
+  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples||needQuarterSamples});
+  let halftimeBoard=null,quarterBoard=null;
   if(needHalftimeSamples){
     halftimeBoard=buildHalftimeBoard({result:raw,game,liveGame,liveOdds,config,generatedAt:NOW.toISOString()});
     halftimeById.set(gameId,halftimeBoard);
     halftimeTouched=true;
     console.log(`  ↳ halftime board: ${halftimeBoard.candidates.length} eligible candidate(s), ready=${halftimeBoard.ready}`);
+  }
+  if(needQuarterSamples){
+    quarterBoard=buildPregameQuarterBoard({result:raw,game,config,generatedAt:NOW.toISOString()});
+    quarterById.set(gameId,quarterBoard);
+    quarterTouched=true;
+    const readyQuarters=Object.values(quarterBoard.quarters||{}).filter(q=>q?.ready).length;
+    console.log(`  ↳ quarter board: ${readyQuarters}/4 quarter(s) ready for correlated parlay generation`);
   }
   const result=stripPrivateSamples(raw);
   result.automation={
@@ -120,6 +127,7 @@ for(const game of games){
     inputFingerprint:decision.fingerprint,runAt:NOW.toISOString(),probabilityBlend:config.probabilityBlend||null,
     halftimeCandidatesReady:halftimeBoard?.ready??null,
     halftimeCandidateCount:halftimeBoard?.candidates?.length??null,
+    quarterParlayReady:quarterBoard?.ready??null,
   };
   existingById.set(gameId,result);
   stateGames[gameId]=nextAutomationState({previousState:prev,decision,result,game,now:NOW});
@@ -161,6 +169,11 @@ const halftimePayload={
   schemaVersion:1,orchestrationVersion:'v87.0.0',engineVersion:config.engineVersion,weekKey,
   generatedAt:NOW.toISOString(),gameCount:halftimeGames.length,games:halftimeGames,
 };
+const quarterGames=[...quarterById.values()].filter(x=>slateIds.has(String(x?.gameId||'')));
+const quarterPayload={
+  schemaVersion:1,boardVersion:'v89.3',engineVersion:config.engineVersion,weekKey,
+  generatedAt:NOW.toISOString(),gameCount:quarterGames.length,games:quarterGames,
+};
 await fs.mkdir(path.dirname(OUT),{recursive:true});
 await fs.mkdir(path.dirname(STATE),{recursive:true});
 await fs.writeFile(OUT,JSON.stringify(payload,null,2)+'\n');
@@ -169,4 +182,8 @@ if(halftimeTouched||weekChanged){
   await fs.mkdir(path.dirname(HALFTIME_OUT),{recursive:true});
   await fs.writeFile(HALFTIME_OUT,JSON.stringify(halftimePayload,null,2)+'\n');
 }
-console.log(`✓ wrote ${path.relative(ROOT,OUT)} + ${path.relative(ROOT,STATE)}${halftimeTouched?' + '+path.relative(ROOT,HALFTIME_OUT):''} — ${runs} run(s), ${totalIterations.toLocaleString()} simulations`);
+if(quarterTouched||weekChanged){
+  await fs.mkdir(path.dirname(QUARTER_OUT),{recursive:true});
+  await fs.writeFile(QUARTER_OUT,JSON.stringify(quarterPayload,null,2)+'\n');
+}
+console.log(`✓ wrote ${path.relative(ROOT,OUT)} + ${path.relative(ROOT,STATE)}${halftimeTouched?' + '+path.relative(ROOT,HALFTIME_OUT):''}${quarterTouched?' + '+path.relative(ROOT,QUARTER_OUT):''} — ${runs} run(s), ${totalIterations.toLocaleString()} simulations`);
