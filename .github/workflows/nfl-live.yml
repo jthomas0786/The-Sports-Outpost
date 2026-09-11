@@ -8,27 +8,26 @@ on:
         type: boolean
         default: false
   push:
-    # Editing this workflow starts one immediate recovery run. Output-only bot
-    # commits do not match this path, so they cannot create a trigger loop.
+    # Editing this workflow starts one immediate recovery run. Bot output commits
+    # do not touch this path, so they cannot create a trigger loop.
     paths:
       - '.github/workflows/nfl-live.yml'
   schedule:
-    # One heartbeat powers live state, halftime props and the simulation gate.
     - cron: '*/5 * * * *'
 
 permissions:
   contents: write
 
-concurrency:
-  group: nfl-live-snapshot
-  # Halftime is time-critical. A newer heartbeat should replace an older long
-  # pregame-upgrade run so the live halftime board is never stuck behind it.
-  cancel-in-progress: true
-
 jobs:
-  refresh:
+  live_halftime_fast:
+    name: live + halftime fast path
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 8
+    concurrency:
+      group: nfl-live-halftime-fast
+      # A newer live snapshot is more valuable than an older one. This job is
+      # intentionally independent of the slower all-game simulation job.
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,7 +39,7 @@ jobs:
       - name: Build NFL live fallback snapshot
         run: node scripts/nfl-live-poller.mjs
 
-      - name: Prefetch v88.4 Q2 / halftime sportsbook props
+      - name: Prefetch Q2 / halftime sportsbook props
         continue-on-error: true
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
@@ -77,29 +76,55 @@ jobs:
           echo "Priority halftime game(s): $GAME_IDS"
           node scripts/nfl-sim-auto.mjs --game "$GAME_IDS"
 
-      - name: Publish priority halftime state immediately
-        if: steps.priority_halftime.outputs.game_ids != ''
+      - name: Validate halftime candidate board when present
+        run: |
+          if [ ! -f slates/nfl-halftime.json ]; then
+            echo "No halftime candidate board yet."
+            exit 0
+          fi
+          node - <<'NODE'
+          const fs=require('fs');
+          const h=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
+          if(h.orchestrationVersion!=='v87.0.0') throw new Error(`unexpected halftime orchestration version ${h.orchestrationVersion}`);
+          for(const g of h.games||[]){
+            if(g.iterations!==50000) throw new Error('halftime board is not based on 50K simulations');
+          }
+          console.log(`✓ halftime board: ${h.gameCount||0} game(s)`);
+          NODE
+
+      - name: Publish live and halftime outputs immediately
         run: |
           git config user.name "TSO NFL Live Bot"
           git config user.email "actions@users.noreply.github.com"
           [ -e slates/nfl-live.json ] && git add slates/nfl-live.json || true
           [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
-          [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
-          [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
           [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
-          [ -e slates/nfl-quarter.json ] && git add slates/nfl-quarter.json || true
-          if git diff --staged --quiet; then
-            echo "Priority halftime state already published."
-            exit 0
-          fi
-          git commit -m "Publish priority NFL halftime state"
+          git diff --staged --quiet && echo "No live/halftime change to publish." && exit 0
+          git commit -m "Update NFL live and halftime state"
           for attempt in 1 2 3 4 5; do
             if git push; then exit 0; fi
-            echo "priority push rejected — rebasing (attempt $attempt)"
+            echo "live/halftime push rejected — rebasing (attempt $attempt)"
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
             sleep $((attempt * 2))
           done
           exit 1
+
+  full_simulation:
+    name: full NFL simulation
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    concurrency:
+      group: nfl-full-simulation
+      # The 50K all-game refresh can take longer than one heartbeat. Never let a
+      # five-minute cron cancel it; the fast halftime job above remains unblocked.
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
       - name: Run automatic NFL simulation / candidate gates
         env:
@@ -123,37 +148,18 @@ jobs:
           console.log(`✓ ${sim.engineVersion} simulation cache: ${sim.gameCount||0} game(s)`);
           NODE
 
-      - name: Validate halftime candidate board when present
-        run: |
-          if [ ! -f slates/nfl-halftime.json ]; then
-            echo "No halftime candidate board yet."
-            exit 0
-          fi
-          node - <<'NODE'
-          const fs=require('fs');
-          const h=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
-          if(h.orchestrationVersion!=='v87.0.0') throw new Error(`unexpected halftime orchestration version ${h.orchestrationVersion}`);
-          for(const g of h.games||[]){
-            if(g.iterations!==50000) throw new Error('halftime board is not based on 50K simulations');
-          }
-          console.log(`✓ halftime board: ${h.gameCount||0} game(s)`);
-          NODE
-
-      - name: Commit live/simulation outputs only when changed
+      - name: Commit simulation outputs only when changed
         run: |
           git config user.name "TSO NFL Live Bot"
           git config user.email "actions@users.noreply.github.com"
-          [ -e slates/nfl-live.json ] && git add slates/nfl-live.json || true
           [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
           [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
-          [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
-          [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
           [ -e slates/nfl-quarter.json ] && git add slates/nfl-quarter.json || true
-          git diff --staged --quiet && echo "No NFL live/simulation change to publish." && exit 0
-          git commit -m "Update NFL live and simulation state"
+          git diff --staged --quiet && echo "No simulation change to publish." && exit 0
+          git commit -m "Update NFL simulation state"
           for attempt in 1 2 3 4 5; do
             if git push; then exit 0; fi
-            echo "push rejected — rebasing (attempt $attempt)"
+            echo "simulation push rejected — rebasing (attempt $attempt)"
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
             sleep $((attempt * 3))
           done
