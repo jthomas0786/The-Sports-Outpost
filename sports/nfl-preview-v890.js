@@ -9,10 +9,10 @@ async function loadBase(){
   if(!basePromise){
     basePromise=(async()=>{
       // sports/nfl-preview.js still imports live.js as ?v=78. Reload that exact
-      // URL before evaluating a fresh base-preview module so v89.9's stale-feed
-      // guard cannot be hidden behind the browser module/http cache.
+      // URL before evaluating a fresh base-preview module so the latest live
+      // poller cannot be hidden behind the browser module/http cache.
       try{await fetch(new URL('./nfl/live.js?v=78',import.meta.url),{cache:'reload'});}catch{}
-      const mod=await import('./nfl-preview.js?v=89.9');
+      const mod=await import('./nfl-preview.js?v=89.10');
       __V890_BASE__=mod;
       return mod;
     })();
