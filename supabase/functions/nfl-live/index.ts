@@ -3,9 +3,6 @@
 // Mirrors the data shape consumed by sports/nfl/live.js and falls back
 // between ESPN's site.api and site.web.api hosts.
 
-// Deno.serve is built into the Supabase Edge Runtime, so this function has
-// no remote module dependency to download during bundling.
-
 const SCOREBOARD =
   "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100";
 const SUMMARY = (id: string) =>
@@ -68,8 +65,12 @@ function clockMin(display: unknown) {
 function competitor(c: any, side: string) {
   return (c?.competitors || []).find((x: any) => x.homeAway === side) || null;
 }
+
+// Preserve ESPN's exact per-play start/end coordinates. These are the source of
+// truth for the Gamecast pre-snap LOS and completed-play ending spot.
 function play(p: any) {
   const s = p?.start || {};
+  const e = p?.end || {};
   return {
     id: String(p?.id ?? p?.sequenceNumber ?? ""),
     text: p?.text || p?.shortText || "",
@@ -80,7 +81,19 @@ function play(p: any) {
     distance: n(s.distance),
     downDistanceText: s.shortDownDistanceText || p?.shortDownDistanceText || null,
     yardLine: n(s.yardLine),
-    team: norm(p?.team?.abbreviation || ""),
+    startDown: n(s.down),
+    startDistance: n(s.distance),
+    startYardLine: n(s.yardLine),
+    startYardsToEndzone: n(s.yardsToEndzone),
+    startPossessionText: s.possessionText || s.shortDownDistanceText || null,
+    startTeam: norm(s.team?.abbreviation || p?.team?.abbreviation || ""),
+    endDown: n(e.down),
+    endDistance: n(e.distance),
+    endYardLine: n(e.yardLine),
+    endYardsToEndzone: n(e.yardsToEndzone),
+    endPossessionText: e.possessionText || e.shortDownDistanceText || null,
+    endTeam: norm(e.team?.abbreviation || ""),
+    team: norm(p?.team?.abbreviation || s.team?.abbreviation || ""),
     scoring: !!p?.scoringPlay,
     type: p?.type?.text || p?.type?.abbreviation || null,
     homeScore: n(p?.homeScore),
@@ -193,6 +206,7 @@ function playerStats(summary: any) {
           team,
           position: a.position?.abbreviation || "",
           jersey: a.jersey || null,
+          headshot: a.headshot?.href || null,
           categories: {},
           flat: {},
         };
@@ -239,9 +253,7 @@ function fullBoxScore(summary: any) {
     if (!abbr) continue;
     const sections = [];
     for (const cat of tb.statistics || []) {
-      const labels = (cat.labels || cat.descriptions || cat.keys || []).map((x: unknown) =>
-        String(x)
-      );
+      const labels = (cat.labels || cat.descriptions || cat.keys || []).map((x: unknown) => String(x));
       const rows = (cat.athletes || []).map((row: any) => {
         const a = row.athlete || {};
         return {
@@ -250,11 +262,7 @@ function fullBoxScore(summary: any) {
           jersey: a.jersey || null,
           position: a.position?.abbreviation || null,
           headshot: a.headshot?.href || null,
-          stats: Array.isArray(row.stats)
-            ? row.stats
-            : Array.isArray(row.statistics)
-            ? row.statistics
-            : [],
+          stats: Array.isArray(row.stats) ? row.stats : Array.isArray(row.statistics) ? row.statistics : [],
         };
       });
       sections.push({
@@ -324,11 +332,9 @@ Deno.serve(async (req: Request) => {
     await Promise.all(
       (board?.events || []).map(async (event: any) => {
         const id = String(event?.id || "");
-        let g = base(event);
+        let g: any = base(event);
         if (!id || !g) return;
 
-        // Summary is essential once the game is live/final. During pregame,
-        // scoreboard data is enough and keeps this endpoint fast.
         if (g.status === "in" || g.status === "post") {
           try {
             const summary = await json(SUMMARY(id));
@@ -356,7 +362,7 @@ Deno.serve(async (req: Request) => {
 
     return new Response(
       JSON.stringify({
-        schemaVersion: 4,
+        schemaVersion: 5,
         lastFetchedAt: Date.now(),
         generatedAt: new Date().toISOString(),
         games,
@@ -365,7 +371,7 @@ Deno.serve(async (req: Request) => {
     );
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: String((err as Error)?.message || err) }),
+      JSON.stringify({ error: String((err as Error)?.message || err), games: {} }),
       { status: 502, headers: CORS },
     );
   }

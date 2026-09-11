@@ -1,10 +1,8 @@
-import * as basePreview from './nfl-preview-v890.js?v=89.10';
+import * as basePreview from './nfl-preview-v890.js?v=89.14';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
 import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8911.js?v=89.11';
-import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
-import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.10';
-import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.12';
-import { installNflGamecastAccuracyV8913 } from './nfl/gamecast-accuracy-v8913.js?v=89.13';
+import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
+import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.14';
 
 let quarterPollTimer=null;
 
@@ -26,17 +24,12 @@ async function refreshQuarterCta(){
 
 function arm(){
   try{mountNflParlayModalV893();}catch(e){console.warn('[NFL parlay modal v89.3] enhancement unavailable:',e);}
-  // Must install first: live.js polls every game on the slate, while only one
-  // Gamecast is visible. This gate prevents another game's 0-0/0:00 snapshot
-  // from reaching the visible field/scoreboard/animation listeners.
+  // One active-game gate, one accepted-score renderer, one field renderer.
+  // v89.8 and v89.13 remain in history but are intentionally NOT installed;
+  // both previously mutated the same LOS/actors after v89.12 and created races.
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
-  try{installNflGamecastLiveFixV898();}catch(e){console.warn('[NFL Gamecast v89.8] live fix unavailable:',e);}
-  try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.10] scoreboard guard unavailable:',e);}
-  // v89.12 owns live field-state continuity and completed-play movement.
-  try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.12] field-state fix unavailable:',e);}
-  // v89.13 is the final accuracy authority: one shared LOS for lines/players,
-  // no null->0 scrimmage jumps, no stale route ghosts, and no duplicate player labels.
-  try{installNflGamecastAccuracyV8913();}catch(e){console.warn('[NFL Gamecast v89.13] accuracy fix unavailable:',e);}
+  try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.14] scoreboard renderer unavailable:',e);}
+  try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.14] authoritative field renderer unavailable:',e);}
   refreshQuarterCta();
   if(!quarterPollTimer) quarterPollTimer=setInterval(refreshQuarterCta,15000);
 }
