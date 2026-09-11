@@ -109,6 +109,109 @@ jobs:
           done
           exit 1
 
+  quarter_fast:
+    name: quarter boards fast publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    concurrency:
+      group: nfl-quarter-fast
+      # Finish the current 50K game before the next heartbeat starts another.
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build and publish each missing pregame quarter board
+        env:
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+        run: |
+          git config user.name "TSO NFL Quarter Bot"
+          git config user.email "actions@users.noreply.github.com"
+
+          # Keep the real week key so nfl-sim-auto preserves already-published
+          # quarter games, while sending its normal sim/state/halftime outputs to
+          # temporary files. This job owns only slates/nfl-quarter.json.
+          cp slates/nfl-sim-state.json /tmp/tso-quarter-state.json 2>/dev/null || true
+          cp slates/nfl-sim.json /tmp/tso-quarter-sim.json 2>/dev/null || true
+          cp slates/nfl-halftime.json /tmp/tso-quarter-halftime.json 2>/dev/null || true
+
+          if [ ! -s /tmp/tso-quarter-state.json ]; then
+            node - <<'NODE' >/tmp/tso-quarter-state.json
+          const fs=require('fs');
+          const s=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const weekKey=String(s?.slateId||[s?.season,s?.seasonType,s?.week].filter(v=>v!=null).join('-w')||'unknown-week');
+          process.stdout.write(JSON.stringify({schemaVersion:2,engineVersion:'v86.2.0',weekKey,games:{}},null,2));
+          NODE
+          fi
+
+          GAME_IDS=$(node - <<'NODE'
+          const fs=require('fs');
+          const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          let q={games:[]};
+          try{q=JSON.parse(fs.readFileSync('slates/nfl-quarter.json','utf8'));}catch{}
+          const ready=new Set((q.games||[]).filter(g=>g?.ready).map(g=>String(g?.gameId||'')));
+          const now=Date.now();
+          const ids=(slate.games||[])
+            .map(g=>({id:String(g?.gameId||g?.id||''),t:Date.parse(g?.startTimeUTC||g?.kickoff||'')}))
+            .filter(x=>x.id&&!ready.has(x.id)&&Number.isFinite(x.t)&&x.t>now+2*60*1000)
+            .sort((a,b)=>a.t-b.t)
+            .map(x=>x.id);
+          process.stdout.write(ids.join(' '));
+          NODE
+          )
+
+          if [ -z "$GAME_IDS" ]; then
+            echo "All upcoming pregame quarter boards are already published."
+            exit 0
+          fi
+
+          echo "Missing quarter boards: $GAME_IDS"
+          for GAME_ID in $GAME_IDS; do
+            echo "▶ Building 50K quarter board for $GAME_ID"
+            NFL_SIM_FORCE=1 node scripts/nfl-sim-auto.mjs \
+              --game "$GAME_ID" \
+              --out /tmp/tso-quarter-sim.json \
+              --state /tmp/tso-quarter-state.json \
+              --halftime-out /tmp/tso-quarter-halftime.json \
+              --quarter-out slates/nfl-quarter.json
+
+            if ! node - "$GAME_ID" <<'NODE'
+          const fs=require('fs');
+          const id=process.argv[2];
+          const q=JSON.parse(fs.readFileSync('slates/nfl-quarter.json','utf8'));
+          const g=(q.games||[]).find(x=>String(x?.gameId||'')===String(id));
+          if(!g?.ready) throw new Error(`quarter board ${id} is not ready`);
+          if(Number(g.iterations)!==50000) throw new Error(`quarter board ${id} is not 50K`);
+          console.log(`✓ ${id}: 50K quarter board ready`);
+          NODE
+            then
+              echo "Quarter board $GAME_ID did not become ready; leaving it unpublished for retry."
+              git checkout -- slates/nfl-quarter.json || true
+              continue
+            fi
+
+            git add slates/nfl-quarter.json
+            if git diff --staged --quiet; then
+              echo "No quarter change for $GAME_ID."
+              continue
+            fi
+            git commit -m "Publish NFL quarter board $GAME_ID"
+            for attempt in 1 2 3 4 5; do
+              if git push; then
+                echo "✓ Published quarter board $GAME_ID immediately"
+                break
+              fi
+              echo "quarter push rejected — rebasing (attempt $attempt)"
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+              sleep $((attempt * 2))
+              if [ "$attempt" = "5" ]; then exit 1; fi
+            done
+          done
+
   full_simulation:
     name: full NFL simulation
     runs-on: ubuntu-latest
@@ -154,7 +257,8 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
           [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
-          [ -e slates/nfl-quarter.json ] && git add slates/nfl-quarter.json || true
+          # Quarter boards are published game-by-game by quarter_fast so this
+          # slow all-game job can never hold the generator in Updating… again.
           git diff --staged --quiet && echo "No simulation change to publish." && exit 0
           git commit -m "Update NFL simulation state"
           for attempt in 1 2 3 4 5; do
