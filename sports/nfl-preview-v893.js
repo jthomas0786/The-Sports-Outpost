@@ -1,4 +1,4 @@
-import * as basePreview from './nfl-preview-v890.js?v=89.8';
+import * as basePreview from './nfl-preview-v890.js?v=89.9';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
 
