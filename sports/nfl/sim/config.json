@@ -1,5 +1,5 @@
 {
-  "engineVersion": "v86.1.0",
+  "engineVersion": "v86.2.0",
   "defaultIterations": 50000,
   "liveIterations": 15000,
   "maxIterations": 100000,
@@ -99,7 +99,12 @@
     "baseShare": [1.04,0.98,0.99,0.99],
     "teamPaceVolatility": 0.12,
     "playerUsageVolatility": 0.1,
-    "note": "v86.1 quarter distributions are generated inside each pregame simulation world and constrained to that world's full-game totals."
+    "candidateMinProbability": 0.54,
+    "candidateMaxProbability": 0.92,
+    "maxCandidatesPerQuarter": 24,
+    "balancedTargetProbability": 0.72,
+    "aggressiveTargetProbability": 0.60,
+    "note": "v86.2 retains exact candidate hit masks from each 50K pregame world so the browser Quarter Parlay Generator can calculate correlated joint hit rates."
   },
   "halftimeIterations": 50000,
   "automatic": {
