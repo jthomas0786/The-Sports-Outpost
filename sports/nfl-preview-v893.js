@@ -1,6 +1,7 @@
-import * as basePreview from './nfl-preview-v890.js?v=89.9';
+import * as basePreview from './nfl-preview-v890.js?v=89.10';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
+import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.10';
 
 let quarterPollTimer=null;
 
@@ -23,6 +24,7 @@ async function refreshQuarterCta(){
 function arm(){
   try{mountNflParlayModalV893();}catch(e){console.warn('[NFL parlay modal v89.3] enhancement unavailable:',e);}
   try{installNflGamecastLiveFixV898();}catch(e){console.warn('[NFL Gamecast v89.8] live fix unavailable:',e);}
+  try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.10] scoreboard guard unavailable:',e);}
   refreshQuarterCta();
   if(!quarterPollTimer) quarterPollTimer=setInterval(refreshQuarterCta,15000);
 }
