@@ -1,0 +1,39 @@
+name: NFL Gamecast Checks
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports/nfl/live.js'
+      - 'sports/nfl/gamecast-field-state-v8912.js'
+      - 'sports/nfl/gamecast-replay-lab-v8916.js'
+      - 'sports/nfl-preview-v893.js'
+      - 'scripts/nfl-v8915-gamecast-motion-selftest.mjs'
+      - 'scripts/nfl-v8916-live-personnel-selftest.mjs'
+      - 'scripts/nfl-v8916-replay-lab-selftest.mjs'
+      - '.github/workflows/nfl-gamecast-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gamecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax checks
+        run: |
+          node --check sports/nfl/live.js
+          node --check sports/nfl/gamecast-field-state-v8912.js
+          node --check sports/nfl/gamecast-replay-lab-v8916.js
+          node --check sports/nfl-preview-v893.js
+      - name: Motion planner tests
+        run: node scripts/nfl-v8915-gamecast-motion-selftest.mjs
+      - name: Live personnel tests
+        run: node scripts/nfl-v8916-live-personnel-selftest.mjs
+      - name: Replay Lab contract tests
+        run: node scripts/nfl-v8916-replay-lab-selftest.mjs
