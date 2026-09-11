@@ -1,0 +1,36 @@
+name: NFL Prop Model Checks
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports/nfl/sim/prop-probabilities-v8917.js'
+      - 'sports/nfl/prop-model-edge-v8917.js'
+      - 'sports/nfl-preview-v893.js'
+      - 'sports/router.js'
+      - 'scripts/nfl-v8917-prop-bridge-selftest.mjs'
+      - 'scripts/nfl-v8917-prop-ui-selftest.mjs'
+      - '.github/workflows/nfl-prop-model-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  prop-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax checks
+        run: |
+          node --check sports/nfl/sim/prop-probabilities-v8917.js
+          node --check sports/nfl/prop-model-edge-v8917.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/router.js
+      - name: Prop probability bridge tests
+        run: node scripts/nfl-v8917-prop-bridge-selftest.mjs
+      - name: Prop model UI tests
+        run: node scripts/nfl-v8917-prop-ui-selftest.mjs
