@@ -4,6 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
+      - 'sports/router.js'
       - 'sports/nfl/live.js'
       - 'sports/nfl/gamecast-field-state-v8912.js'
       - 'sports/nfl/gamecast-replay-lab-v8916.js'
@@ -27,6 +28,7 @@ jobs:
           node-version: 20
       - name: Syntax checks
         run: |
+          node --check sports/router.js
           node --check sports/nfl/live.js
           node --check sports/nfl/gamecast-field-state-v8912.js
           node --check sports/nfl/gamecast-replay-lab-v8916.js
