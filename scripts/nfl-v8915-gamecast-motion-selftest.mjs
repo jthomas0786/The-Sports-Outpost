@@ -6,6 +6,8 @@ assert.equal(T.fieldAbs('home', 40), 60);
 assert.equal(T.skillIndex({position:'QB'}, 'right'), 0);
 assert.equal(T.skillIndex({position:'RB'}, 'left'), 6);
 assert.equal(T.skillIndex({position:'WR'}, 'left'), 8);
+assert.equal(T.defensiveIndex({position:'CB'}, 'right'), 10);
+assert.equal(T.defensiveIndex({position:'LB'}, 'middle'), 5);
 assert.equal(T.targetLateral('right'), .80);
 
 function checkPlan(st, side, startOwn, endOwn) {
@@ -62,4 +64,22 @@ r=checkPlan({
 assert.equal(r.plan.gain,0);
 assert.notEqual(r.plan.targetEnd,r.end); // route still advances on an incompletion
 
-console.log('v89.15 motion-plan tests passed');
+r=checkPlan({
+  kind:'turnover',direction:'right',description:'Matthew Stafford pass intercepted by Fred Warner and returned 24 yards',resultYards:24,
+  passer:{name:'Matthew Stafford',position:'QB'},target:{name:'Puka Nacua',position:'WR'},turnoverPlayer:{name:'Fred Warner',position:'LB'}
+}, 'away', 44, 26);
+assert.equal(r.plan.pickIdx,6);
+assert.equal(r.plan.defense[r.plan.pickIdx].at(-1).abs,r.end);
+assert.equal(r.plan.ball.at(-1).abs,r.end);
+assert.ok(r.plan.catchAbs!==r.end); // catch then return, not a teleport to the final spot
+
+r=checkPlan({
+  kind:'turnover',direction:'left',description:'Kyren Williams left tackle for 8 yards, FUMBLES, recovered by defense and returned',resultYards:8,
+  runner:{name:'Kyren Williams',position:'RB'},turnoverPlayer:{name:'Nick Bosa',position:'DE'}
+}, 'home', 35, 18);
+assert.equal(r.plan.recoveryIdx,0);
+assert.equal(r.plan.defense[r.plan.recoveryIdx].at(-1).abs,r.end);
+assert.equal(r.plan.ball.at(-1).abs,r.end);
+assert.notEqual(r.plan.fumbleAbs,r.end);
+
+console.log('v89.16 motion-plan tests passed');
