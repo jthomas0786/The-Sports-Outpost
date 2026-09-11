@@ -15,6 +15,7 @@
  * class or DOM id is renamed or removed.
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js';
+import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
 
 /** MLB-owned containers that must hide when another sport's view is showing. */
 const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .status-bar'];
@@ -160,6 +161,7 @@ function render() {
   swapView(active).finally(() => window.renderSidebarSports?.());
 }
 
+installMobileEdgeSwipeV894();
 window.DW_getSport = activeSport;
 window.addEventListener('hashchange', render);
 if (document.readyState === 'loading') {
