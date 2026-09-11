@@ -1,5 +1,5 @@
 /**
- * v89.15 authoritative NFL Gamecast field renderer.
+ * v89.16 authoritative NFL Gamecast field renderer.
  *
  * Live state is owned by sports/nfl/live.js. This renderer never invents score,
  * clock, possession, LOS, or first-down state. It only visualizes the accepted
@@ -47,7 +47,7 @@ function patchLines(stage,snap,mode='current'){
   const abs=fieldAbs(side,los);if(abs==null)return;
   setBeam(lines,0,abs);
   const firstAbs=fieldAbs(side,first);setBeam(lines,4,firstAbs==null?abs:firstAbs);
-  svg.dataset.tsoAuthority='v89.15';
+  svg.dataset.tsoAuthority='v89.16';
 }
 function patchSituation(stage,snap){
   const st=stateOf(snap),live=snap?.liveScore||{};if(!st)return;
@@ -123,16 +123,28 @@ function skillIndex(player,direction='middle'){
   if(pos==='QB')return 0;if(['RB','HB','FB'].includes(pos))return 6;if(pos==='TE')return 7;
   if(direction==='left')return 8;if(direction==='right')return 10;return 9;
 }
+function defensiveIndex(player,direction='middle'){
+  const pos=String(player?.position||'').toUpperCase();
+  if(/^(CB|DB|S|FS|SS)$/.test(pos))return direction==='left'?7:direction==='right'?10:9;
+  if(/^(LB|ILB|OLB|MLB)$/.test(pos))return direction==='left'?4:direction==='right'?6:5;
+  if(/^(DL|DE|DT|NT|EDGE)$/.test(pos))return direction==='left'?0:direction==='right'?3:2;
+  return direction==='left'?7:direction==='right'?10:9;
+}
 function patchIdentity(stage,snap){
   const st=stateOf(snap),group=roleActors(stage);if(!st||!group)return;
-  for(const a of group.offense){ensureLabel(a,'');focus(a,false);delete a.dataset.tsoPlayer;}
+  for(const a of [...group.offense,...group.defense]){ensureLabel(a,'');focus(a,false);delete a.dataset.tsoPlayer;}
   const qb=st.passer;if(qb?.name){ensureLabel(group.offense[0],qb.name);group.offense[0].dataset.tsoPlayer=qb.name;focus(group.offense[0],st.kind==='sack');}
-  const involved=st.kind==='rush'?st.runner:st.kind==='pass'?st.target:null;
+  const desc=String(st.description||'');
+  const involved=st.kind==='rush'?st.runner:st.kind==='pass'?st.target:st.kind==='turnover'?(/intercept/i.test(desc)?st.target:st.runner):null;
   if(involved?.name){
     const idx=skillIndex(involved,st.direction);
     if(idx!==0||!qb?.name||String(involved.name).toLowerCase()!==String(qb.name).toLowerCase()){
       ensureLabel(group.offense[idx],involved.name);group.offense[idx].dataset.tsoPlayer=involved.name;focus(group.offense[idx],true);
     }else focus(group.offense[0],true);
+  }
+  if(st.turnoverPlayer?.name){
+    const idx=defensiveIndex(st.turnoverPlayer,st.direction),actor=group.defense[idx];
+    ensureLabel(actor,st.turnoverPlayer.name);actor.dataset.tsoPlayer=st.turnoverPlayer.name;focus(actor,true);
   }
 }
 
@@ -163,12 +175,14 @@ function animateBall(stage,path,opt){const b=ball(stage);if(!b)return null;b.hid
 function targetLateral(direction){return direction==='left' ? .20 : direction==='right' ? .80 : .50;}
 function startPath(pair){return pt(pair[0],pair[1],0);}
 function approachLat(from,to,factor){return clamp(from+(to-from)*factor,.12,.88);}
+function compressPath(path,maxOffset=.68){return normalizePath(path).map(p=>({...p,offset:p.offset*maxOffset}));}
 
 function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={}){
   const desc=String(st?.description||'').toLowerCase();
   const incomplete=!sack&&!interception&&/incomplete|no good/.test(desc);
   const gain=(end-los)*dir;
   const lat=targetLateral(st?.direction);
+  const returnLat=clamp(lat+(lat<.5?.12:lat>.5?-.12:.10),.18,.82);
   const targetIdx=st?.target?.name?skillIndex(st.target,st.direction):(st?.direction==='left'?8:st?.direction==='right'?10:9);
   const offense=Array(11),defense=Array(11);
   const qbStart=coords.off[0];
@@ -177,7 +191,8 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
   if(sack){
     offense[0]=[startPath(qbStart),pt(dropAbs,.50,.31),pt(setAbs,.50,.56),pt(end,.50,1)];
   }else{
-    offense[0]=[startPath(qbStart),pt(dropAbs,.50,.30),pt(setAbs,.50,.58),pt(climbAbs,.50,1)];
+    offense[0]=[startPath(qbStart),pt(dropAbs,.50,.30),pt(setAbs,.50,.58),pt(climbAbs,.50,interception?.72:1)];
+    if(interception)offense[0].push(pt(end,approachLat(.50,returnLat,.45),1));
   }
 
   const olLats=[.34,.405,.47,.535,.61];
@@ -187,24 +202,27 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
       startPath(start),
       pt(fwd(los,dir,-.75),clamp(olLats[i-1]+spread,.28,.67),.22),
       pt(fwd(los,dir,-.25),clamp(olLats[i-1]+spread*1.4,.27,.68),.62),
-      pt(fwd(los,dir,.10),clamp(olLats[i-1]+spread,.28,.67),1)
+      pt(fwd(los,dir,.10),clamp(olLats[i-1]+spread,.28,.67),interception?.74:1)
     ];
+    if(interception)offense[i].push(pt(end,approachLat(olLats[i-1],returnLat,.55),1));
   }
 
-  const visualDepth=incomplete?clamp(Math.max(7,Math.abs(gain)+5),7,14):gain;
-  const catchDepth=incomplete
-    ?visualDepth
+  const rawResult=Math.abs(num(st?.resultYards)??10);
+  const visualDepth=incomplete?clamp(Math.max(7,rawResult+5),7,14):gain;
+  const catchDepth=interception
+    ?clamp(rawResult>0?rawResult:10,7,16)
+    :incomplete?visualDepth
     :gain>=4?clamp(gain*.62,4,14):gain>=0?Math.max(1.25,gain):Math.max(-2.5,gain*.55);
   const catchAbs=fwd(los,dir,catchDepth);
-  const targetEnd=incomplete?catchAbs:end;
+  const targetEnd=incomplete||interception?catchAbs:end;
   const targetStart=coords.off[targetIdx];
   const stemDepth=clamp(Math.max(3.5,Math.abs(catchDepth)*.45),3.5,7.5);
   const stemAbs=fwd(los,dir,catchDepth<0?-1.0:stemDepth);
   offense[targetIdx]=[
     startPath(targetStart),
     pt(stemAbs,approachLat(targetStart[1],lat,.18),.30),
-    pt(catchAbs,approachLat(targetStart[1],lat,.72),.73),
-    pt(targetEnd,lat,1)
+    pt(catchAbs,approachLat(targetStart[1],lat,.72),interception?.64:.73),
+    interception?pt(end,approachLat(lat,returnLat,.76),1):pt(targetEnd,lat,1)
   ];
 
   const routeDefs=[
@@ -218,8 +236,8 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
     offense[idx]=[
       startPath(start),
       pt(fwd(los,dir,5.5),startLat,.34),
-      pt(fwd(los,dir,depth),approachLat(startLat,endLat,.7),.76),
-      pt(fwd(los,dir,depth+2),endLat,1)
+      pt(fwd(los,dir,depth),approachLat(startLat,endLat,.7),interception?.68:.76),
+      interception?pt(end,approachLat(endLat,returnLat,.62),1):pt(fwd(los,dir,depth+2),endLat,1)
     ];
   }
   if(targetIdx!==7){
@@ -227,8 +245,8 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
     offense[7]=[
       startPath(start),
       pt(fwd(los,dir,4.2),.67,.34),
-      pt(fwd(los,dir,8.5),.60,.74),
-      pt(fwd(los,dir,9.5),.57,1)
+      pt(fwd(los,dir,8.5),.60,interception?.68:.74),
+      interception?pt(end,approachLat(.60,returnLat,.58),1):pt(fwd(los,dir,9.5),.57,1)
     ];
   }
   if(targetIdx!==6){
@@ -237,7 +255,7 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
       startPath(start),
       pt(fwd(los,dir,-1.4),.55,.22),
       pt(fwd(los,dir,2.5),releaseLat,.62),
-      pt(fwd(los,dir,4.2),releaseLat,1)
+      interception?pt(end,approachLat(releaseLat,returnLat,.62),1):pt(fwd(los,dir,4.2),releaseLat,1)
     ];
   }
 
@@ -251,8 +269,9 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
       startPath(start),
       pt(fwd(los,dir,.25),dlLats[i],.16),
       pt(fwd(los,dir,-1.2),rushLat,.48),
-      pt(finishAbs,finishLat,1)
+      pt(finishAbs,finishLat,interception?.72:1)
     ];
+    if(interception)defense[i].push(pt(end,approachLat(finishLat,returnLat,.48),1));
   }
 
   const closeAbs=sack?end:targetEnd;
@@ -263,8 +282,9 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
       startPath(start),
       pt(fwd(los,dir,5.8+j*.4),lbLats[j],.30),
       pt(fwd(los,dir,Math.max(2,catchDepth*.55)),approachLat(lbLats[j],lat,.42),.66),
-      pt(closeAbs,approachLat(lbLats[j],lat,.76),1)
+      pt(closeAbs,approachLat(lbLats[j],lat,.76),interception?.76:1)
     ];
+    if(interception)defense[i].push(pt(end,approachLat(lat,returnLat,.62),1));
   }
 
   const dbLats=[.18,.39,.62,.82];
@@ -275,18 +295,21 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
       startPath(start),
       pt(fwd(los,dir,depth),dbLats[j],.32),
       pt(fwd(los,dir,Math.max(depth,catchDepth)),approachLat(dbLats[j],lat,isNear ? .56 : .22),.70),
-      pt(closeAbs,approachLat(dbLats[j],lat,isNear ? .88 : .48),1)
+      pt(closeAbs,approachLat(dbLats[j],lat,isNear ? .88 : .48),interception?.78:1)
     ];
+    if(interception)defense[i].push(pt(end,approachLat(dbLats[j],returnLat,.58),1));
   }
 
+  let pickIdx=null;
   if(interception){
-    const pickIdx=lat<.35?7:lat>.65?10:9;
-    const s=coords.def[pickIdx];
+    pickIdx=defensiveIndex(st?.turnoverPlayer,st?.direction);
+    const s=coords.def[pickIdx],returnMid=catchAbs+(end-catchAbs)*.48;
     defense[pickIdx]=[
       startPath(s),
-      pt(fwd(los,dir,Math.max(8,catchDepth+1.5)),approachLat(s[1],lat,.55),.52),
-      pt(catchAbs,lat,.80),
-      pt(catchAbs,lat,1)
+      pt(fwd(los,dir,Math.max(8,catchDepth+1.5)),approachLat(s[1],lat,.55),.45),
+      pt(catchAbs,lat,.64),
+      pt(returnMid,approachLat(lat,returnLat,.58),.80),
+      pt(end,returnLat,1)
     ];
   }
 
@@ -294,16 +317,19 @@ function buildPassPlan(st,los,dir,end,coords,{sack=false,interception=false}={})
   const ballPath=[
     pt(center[0],center[1],0),
     pt(qbStart[0],qbStart[1],.12),
-    pt(dropAbs,.50,.50)
+    pt(dropAbs,.50,interception?.43:.50)
   ];
   if(sack){
     ballPath.push(pt(end,.50,1));
+  }else if(interception){
+    ballPath.push(pt(catchAbs,lat,.64),pt(catchAbs+(end-catchAbs)*.48,approachLat(lat,returnLat,.58),.80),pt(end,returnLat,1));
   }else{
     ballPath.push(pt(catchAbs,lat,.80));
     ballPath.push(pt(targetEnd,lat,1));
   }
 
-  return {duration:sack?2450:2800,offense,defense,ball:ballPath,targetIdx,gain,lat,catchAbs,targetEnd};
+  const duration=interception?clamp(3000+Math.abs(end-catchAbs)*18,3000,3900):sack?2450:2800;
+  return {duration,offense,defense,ball:ballPath,targetIdx,pickIdx,gain,lat,returnLat,catchAbs,targetEnd};
 }
 
 function buildRushPlan(st,los,dir,end,coords){
@@ -413,6 +439,32 @@ function buildRushPlan(st,los,dir,end,coords){
   return {duration:clamp(2300+Math.max(0,gain)*22,2300,3100),offense,defense,ball:ballPath,runnerIdx,gain,lat};
 }
 
+function buildFumblePlan(st,los,dir,end,coords){
+  const rawGain=num(st?.resultYards),fumbleDepth=clamp(rawGain==null||Math.abs(rawGain)<.5?4:rawGain,-5,20);
+  const fumbleAbs=fwd(los,dir,fumbleDepth),lat=targetLateral(st?.direction);
+  const base=buildRushPlan({...st,kind:'rush'},los,dir,fumbleAbs,coords);
+  const recoveryIdx=defensiveIndex(st?.turnoverPlayer,st?.direction),returnLat=clamp(lat+(lat<.5?.10:lat>.5?-.10:.08),.18,.82);
+  const returnMid=fumbleAbs+(end-fumbleAbs)*.46;
+
+  base.offense=base.offense.map((path,i)=>{
+    const compressed=compressPath(path,.66),last=compressed.at(-1)||startPath(coords.off[i]);
+    if(i===base.runnerIdx)return [...compressed,pt(fumbleAbs,lat,1)];
+    return [...compressed,pt(end,approachLat(last.lat,returnLat,.68),1)];
+  });
+  base.defense=base.defense.map((path,i)=>{
+    if(i===recoveryIdx){
+      const s=coords.def[i];
+      return [startPath(s),pt(fwd(los,dir,2.5),approachLat(s[1],lat,.35),.28),pt(fumbleAbs,lat,.64),pt(returnMid,approachLat(lat,returnLat,.55),.81),pt(end,returnLat,1)];
+    }
+    const compressed=compressPath(path,.66),last=compressed.at(-1)||startPath(coords.def[i]);
+    return [...compressed,pt(end,approachLat(last.lat,returnLat,.56),1)];
+  });
+  const ballBase=compressPath(base.ball,.62);
+  base.ball=[...ballBase,pt(fumbleAbs,lat,.66),pt(returnMid,approachLat(lat,returnLat,.55),.82),pt(end,returnLat,1)];
+  base.duration=clamp(3000+Math.abs(end-fumbleAbs)*18,3000,3900);
+  return {...base,recoveryIdx,fumbleAbs,returnLat,turnover:true};
+}
+
 function buildOtherPlan(st,los,dir,end,coords){
   const gain=(end-los)*dir,lat=targetLateral(st?.direction),offense=Array(11),defense=Array(11);
   for(let i=0;i<11;i++){
@@ -434,7 +486,7 @@ function buildPlayPlan(st,los,dir,end,coords=formationCoords(los,dir)){
   if(st?.kind==='rush')return buildRushPlan(st,los,dir,end,coords);
   if(st?.kind==='turnover'){
     if(/intercept/.test(desc))return buildPassPlan(st,los,dir,end,coords,{interception:true});
-    return buildRushPlan(st,los,dir,end,coords);
+    if(/fumble/.test(desc))return buildFumblePlan(st,los,dir,end,coords);
   }
   return buildOtherPlan(st,los,dir,end,coords);
 }
@@ -506,16 +558,16 @@ function onLive(e){correct(e.detail,{animate:true});}
 export function installNflGamecastFieldStateV8912(){
   if(typeof document==='undefined')return null;
   if(observer)return observer;
-  const style=document.createElement('style');style.id='tso-gamecast-authority-v8915';style.textContent=`
+  const style=document.createElement('style');style.id='tso-gamecast-authority-v8916';style.textContent=`
     ${ROOT} .tso-ps886e__actor[hidden]{display:none!important}
     ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actor,
     ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__ball{will-change:left,top;transition:none!important}
-    ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actorGraphic{transform-origin:50% 92%;animation:tso-v8915-run-bob .34s linear infinite}
+    ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actorGraphic{transform-origin:50% 92%;animation:tso-v8916-run-bob .34s linear infinite}
     ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actor[data-tso-role="OL"] .tso-ps886e__actorGraphic,
-    ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actor[data-tso-role="DL"] .tso-ps886e__actorGraphic{animation:tso-v8915-trench-bob .46s ease-in-out infinite}
+    ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actor[data-tso-role="DL"] .tso-ps886e__actorGraphic{animation:tso-v8916-trench-bob .46s ease-in-out infinite}
     ${ROOT} .tso-ps886e__routes .ghost,${ROOT} .tso-ps886e__actor.ghost{display:none!important}
-    @keyframes tso-v8915-run-bob{0%,100%{transform:translateY(0) rotate(-.25deg)}50%{transform:translateY(-2px) rotate(.25deg)}}
-    @keyframes tso-v8915-trench-bob{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(1px) scaleY(.992)}}
+    @keyframes tso-v8916-run-bob{0%,100%{transform:translateY(0) rotate(-.25deg)}50%{transform:translateY(-2px) rotate(.25deg)}}
+    @keyframes tso-v8916-trench-bob{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(1px) scaleY(.992)}}
     @media(prefers-reduced-motion:reduce){
       ${ROOT}[data-tso-reenacting="1"] .tso-ps886e__actorGraphic{animation:none!important}
     }
@@ -527,5 +579,5 @@ export function installNflGamecastFieldStateV8912(){
 }
 export function correctNflGamecastFieldStateV8912Now(){correct(activeSnap());}
 export const __V8912_TEST__={
-  fieldAbs,fieldPoint,linePoint,skillIndex,targetLateral,formationCoords,buildPlayPlan,normalizePath,lastAnimatedByGame
+  fieldAbs,fieldPoint,linePoint,skillIndex,defensiveIndex,targetLateral,formationCoords,buildPlayPlan,buildFumblePlan,normalizePath,lastAnimatedByGame
 };
