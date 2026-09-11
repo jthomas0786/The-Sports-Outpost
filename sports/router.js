@@ -75,7 +75,7 @@ function renderPills(active) {
     btn.addEventListener('click', e => {
       e.stopPropagation();
       const key = btn.dataset.sport;
-      if (!SPORTS[key] || !SPORTS[key].adapterReady) return; // coming-soon: no-op, matches the old pill behavior
+      if (!SPORTS[key] || !SPORTS[key].adapterReady) return;
       closeSportDropdown();
       location.hash = key;
     });
@@ -86,10 +86,6 @@ function openSportDropdown() {
   sportDropdownOpen = true;
   document.getElementById('sportDdMenu')?.classList.add('open');
   document.getElementById('sportDdTrigger')?.classList.add('open');
-  // Closing on an outside click is the one piece of interaction a dropdown
-  // needs that a static bar never did — added once per open, removed on
-  // close, rather than a permanent document-level listener running at all
-  // times.
   document.addEventListener('click', closeSportDropdown, { once: true });
 }
 
@@ -111,8 +107,6 @@ async function swapView(active) {
 
   MLB_SELECTORS.forEach(sel => setVisible(document.querySelector(sel), showingMlb));
   setVisible(nflView, active === 'nfl');
-  // The legacy hidden NFL nav remains in the DOM for backwards compatibility,
-  // but the visible sidebar is now driven by the shared sport accordion.
   setVisible(document.getElementById('nflSideNav'), false);
 
   document.documentElement.setAttribute('data-sport', active);
@@ -123,22 +117,18 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      // v89.3 keeps the approved v89.0 field/gamecast and layers the centered
-      // halftime + pregame quarter parlay modal experience on top.
-      const mod = await import('./nfl-preview-v893.js?v=89.3');
+      // v89.7 keeps the approved v89.0 field, v89.3 parlay modals, and loads
+      // the corrected live Gamecast stabilization/animation layer.
+      const mod = await import('./nfl-preview-v893.js?v=89.7');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
         mod.selectTab(pendingTab);
         window.DW_nflPreviewPendingTab = null;
       }
-      // Source-backed NFL research presentation layer enhances Slate rows and
-      // the Player Modal without changing TSO model outputs.
       try {
         const researchUi = await import('./nfl-research-ui.js?v=86.3');
         await researchUi.mountNflResearchUI(nflView);
-        // v89.2 makes the selected alternate sportsbook line the actual
-        // Add-to-Slip wager payload instead of leaving the CTA on the main line.
         try {
           const altProps = await import('./nfl-alt-props-v892.js?v=89.2');
           await altProps.mountNflAltPropsV892(nflView);
