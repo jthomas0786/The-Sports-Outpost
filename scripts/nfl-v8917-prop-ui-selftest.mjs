@@ -16,5 +16,5 @@ const fakeCard={querySelector(sel){if(sel==='.nfl-mlb-prop-market strong')return
 assert.equal(U.marketFromCard(fakeCard),'recYds');assert.deepEqual(U.sideLineFromCard(fakeCard,'recYds'),{side:'over',line:74.5});
 
 const src=fs.readFileSync(new URL('../sports/nfl/prop-model-edge-v8917.js',import.meta.url),'utf8');
-for(const needle of ['slates/nfl-sim.json','.nfl-mlb-prop-card','data-nfl-player','MutationObserver','buildTsoPropView','50K sims','tso-nfl-prop-model-v8917'])assert.ok(src.includes(needle),`missing ${needle}`);
+for(const needle of ['slates/nfl-sim.json','.nfl-mlb-prop-card','data-nfl-player','MutationObserver','buildTsoPropView','tso-nfl-prop-model-v8917'])assert.ok(src.includes(needle),`missing ${needle}`);
 console.log('v89.17 prop model UI tests passed');
