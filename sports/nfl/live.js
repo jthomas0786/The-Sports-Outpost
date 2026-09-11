@@ -1,7 +1,7 @@
 /**
  * sports/nfl/live.js — authoritative in-browser NFL live snapshot builder.
- * v89.14: one accepted snapshot owns scoreboard, clock, possession, field state,
- * current play and the player identities used by Gamecast.
+ * v89.16: one accepted snapshot owns scoreboard, clock, possession, field state,
+ * exact turnover endpoints, current play and Gamecast player identities.
  */
 
 const POLL_MS=2000;
@@ -81,6 +81,21 @@ function findPlayerInText(gl,team,text){
   }
   return best;
 }
+function participantPlayer(gl,team,play,roleRe,{anyTeam=false}={}){
+  const rows=Array.isArray(play?.participants)?play.participants:[];
+  const hit=rows.find(x=>roleRe.test(String(x?.type||x?.role||x?.participantType||'')));if(!hit)return null;
+  const id=hit?.id!=null?String(hit.id):hit?.athleteId!=null?String(hit.athleteId):'';
+  const stored=id?gl?.playerStats?.byId?.[id]:null;
+  if(stored&&(!team||anyTeam||teamNorm(stored.team)===teamNorm(team)))return {...stored,headshot:stored?.headshot||''};
+  const name=String(hit?.name||hit?.displayName||hit?.athlete?.displayName||'').trim();
+  if(name){
+    const pool=anyTeam?candidatePlayers(gl,''):candidatePlayers(gl,team);
+    const match=pool.find(p=>String(p?.name||'').toLowerCase()===name.toLowerCase())||pool.find(p=>lastName(p?.name)===lastName(name));
+    if(match)return match;
+    return {id:id||null,name,team:teamNorm(hit?.team||team||''),position:String(hit?.position||hit?.athlete?.position?.abbreviation||''),jersey:String(hit?.jersey||hit?.athlete?.jersey||''),headshot:String(hit?.headshot||hit?.athlete?.headshot?.href||'')};
+  }
+  return null;
+}
 function qbForTeam(gl,team){return candidatePlayers(gl,team).find(p=>String(p.position||'').toUpperCase()==='QB')||null;}
 function afterTo(text){const s=String(text||'');const m=s.match(/\bto\s+(.+?)(?=\s+(?:to\s+[A-Z]{2,3}\s+\d+|for\s|at\s)|,|$)/i);return m?.[1]||'';}
 function playKind(text,type=''){
@@ -101,16 +116,26 @@ function playYards(txt){
 }
 function playDirection(text){const s=String(text||'').toLowerCase();if(/\bleft\b/.test(s))return'left';if(/\bright\b/.test(s))return'right';return'middle';}
 function exactOwnYard(yardsToEndzone){const n=finite(yardsToEndzone);return n==null?null:clamp(100-n,0,100);}
+function exactPlayEndFromOriginalOffense(play){
+  const y=finite(play?.endYardsToEndzone);if(y==null)return null;
+  const startTeam=teamNorm(play?.startTeam||play?.team||''),endTeam=teamNorm(play?.endTeam||'');
+  return startTeam&&endTeam&&startTeam!==endTeam?clamp(y,0,100):exactOwnYard(y);
+}
 
 function currentPlayFrom(gl,possession,g){
   const recent=Array.isArray(gl?.plays)?gl.plays:[];
   const p=recent.at(-1)||gl?.currentDrive?.plays?.at?.(-1)||null;if(!p)return null;
   const desc=p.text||p.shortText||gl.lastPlayText||'',kind=playKind(desc,p.type),playTeam=teamNorm(p?.team||gl?.currentDrive?.team||teamForSide(g,possession));
-  const passer=(kind==='pass'||kind==='sack')?(findPlayerInText(gl,playTeam,String(desc).split(/\bpass|\bsack/i)[0])||qbForTeam(gl,playTeam)):null;
-  const target=kind==='pass'?findPlayerInText(gl,playTeam,afterTo(desc)):null;
-  const runner=kind==='rush'?findPlayerInText(gl,playTeam,desc):null;
-  const featured=target||runner||passer||findPlayerInText(gl,playTeam,desc);
-  return {id:String(p.id||''),description:desc,playerName:featured?.name||'',playerPos:featured?.position||'',playerNo:featured?.jersey||'',headshot:featured?.headshot||'',team:playTeam,type:p.type||'',kind,resultYards:playYards(desc),yards:playYards(desc),targetName:target?.name||'',passer:playerRef(passer),target:playerRef(target),runner:playerRef(runner),direction:playDirection(desc),drivePlays:gl?.currentDrive?.playCount||gl?.currentDrive?.plays?.length||recent.length,driveYards:gl?.currentDrive?.yards||0,driveTime:gl?.currentDrive?.elapsedDisplay||''};
+  const interception=kind==='turnover'&&/intercept/i.test(desc),fumble=kind==='turnover'&&/fumble/i.test(desc);
+  const participantPasser=participantPlayer(gl,playTeam,p,/passer|passing|pass/i);
+  const participantTarget=participantPlayer(gl,playTeam,p,/receiver|receiving|target/i);
+  const participantRunner=participantPlayer(gl,playTeam,p,/rusher|rushing|runner/i);
+  const passer=(kind==='pass'||kind==='sack'||interception)?(participantPasser||findPlayerInText(gl,playTeam,String(desc).split(/\bpass|\bsack/i)[0])||qbForTeam(gl,playTeam)):null;
+  const target=(kind==='pass'||interception)?(participantTarget||findPlayerInText(gl,playTeam,afterTo(desc))):null;
+  const runner=(kind==='rush'||fumble)?(participantRunner||findPlayerInText(gl,playTeam,desc)):null;
+  const turnoverPlayer=kind==='turnover'?participantPlayer(gl,'',p,/interceptor|interception|recoverer|recovery/i,{anyTeam:true}):null;
+  const featured=turnoverPlayer||target||runner||passer||findPlayerInText(gl,playTeam,desc);
+  return {id:String(p.id||''),description:desc,playerName:featured?.name||'',playerPos:featured?.position||'',playerNo:featured?.jersey||'',headshot:featured?.headshot||'',team:playTeam,type:p.type||'',kind,resultYards:playYards(desc),yards:playYards(desc),targetName:target?.name||'',passer:playerRef(passer),target:playerRef(target),runner:playerRef(runner),turnoverPlayer:playerRef(turnoverPlayer),direction:playDirection(desc),drivePlays:gl?.currentDrive?.playCount||gl?.currentDrive?.plays?.length||recent.length,driveYards:gl?.currentDrive?.yards||0,driveTime:gl?.currentDrive?.elapsedDisplay||''};
 }
 
 function buildGamecastState(gl,possession,g,currentPlay){
@@ -121,30 +146,32 @@ function buildGamecastState(gl,possession,g,currentPlay){
   const kind=currentPlay?.kind||playKind(p?.text||gl?.lastPlayText||'',p?.type||'');
   const gain=finite(currentPlay?.resultYards)??playYards(p?.text||gl?.lastPlayText||'');
   const exactStart=exactOwnYard(p?.startYardsToEndzone);
-  const exactEndRaw=exactOwnYard(p?.endYardsToEndzone);
+  const exactEnd=exactPlayEndFromOriginalOffense(p);
   const startTeam=teamNorm(p?.startTeam||p?.team||playTeam),endTeam=teamNorm(p?.endTeam||'');
-  const turnover=kind==='turnover'||(startTeam&&endTeam&&startTeam!==endTeam);
+  const possessionChanged=!!(startTeam&&endTeam&&startTeam!==endTeam);
+  const turnover=kind==='turnover'||possessionChanged;
   let currentOwn=finite(gl?.yardFromOwn);if(currentOwn!=null)currentOwn=clamp(currentOwn,0,100);
   let startOwn=exactStart;
-  let endOwn=!turnover&&exactEndRaw!=null?exactEndRaw:null;
-  if(endOwn==null&&playSide===possession&&currentOwn!=null)endOwn=currentOwn;
-  if(startOwn==null&&endOwn!=null)startOwn=clamp(endOwn-gain,0,100);
-  if(startOwn==null&&currentOwn!=null)startOwn=clamp(currentOwn-gain,0,100);
+  let endOwn=exactEnd;
+  if(endOwn==null&&!turnover&&playSide===possession&&currentOwn!=null)endOwn=currentOwn;
+  if(startOwn==null&&endOwn!=null&&!turnover)startOwn=clamp(endOwn-gain,0,100);
+  if(startOwn==null&&currentOwn!=null&&!turnover)startOwn=clamp(currentOwn-gain,0,100);
   if(endOwn==null&&startOwn!=null)endOwn=clamp(startOwn+gain,0,100);
   const startDistance=finite(p?.startDistance??p?.distance)??finite(gl?.distance)??10;
   const preSnapFirstDown=startOwn==null?null:clamp(startOwn+Math.max(0,startDistance),0,100);
   const currentDistance=finite(gl?.distance);
   const currentFirstDown=currentOwn==null||currentDistance==null?null:clamp(currentOwn+Math.max(0,currentDistance),0,100);
   const qb=qbForTeam(gl,playTeam);
-  const passer=currentPlay?.passer||playerRef((kind==='pass'||kind==='sack')?(findPlayerInText(gl,playTeam,String(p?.text||'').split(/\bpass|\bsack/i)[0])||qb):qb);
-  const target=currentPlay?.target||playerRef(kind==='pass'?findPlayerInText(gl,playTeam,afterTo(p?.text||'')):null);
-  const runner=currentPlay?.runner||playerRef(kind==='rush'?findPlayerInText(gl,playTeam,p?.text||''):null);
+  const passer=currentPlay?.passer||playerRef((kind==='pass'||kind==='sack'||(kind==='turnover'&&/intercept/i.test(p?.text||'')))?(participantPlayer(gl,playTeam,p,/passer|passing|pass/i)||findPlayerInText(gl,playTeam,String(p?.text||'').split(/\bpass|\bsack/i)[0])||qb):qb);
+  const target=currentPlay?.target||playerRef((kind==='pass'||(kind==='turnover'&&/intercept/i.test(p?.text||'')))?(participantPlayer(gl,playTeam,p,/receiver|receiving|target/i)||findPlayerInText(gl,playTeam,afterTo(p?.text||''))):null);
+  const runner=currentPlay?.runner||playerRef((kind==='rush'||(kind==='turnover'&&/fumble/i.test(p?.text||'')))?(participantPlayer(gl,playTeam,p,/rusher|rushing|runner/i)||findPlayerInText(gl,playTeam,p?.text||'')):null);
+  const turnoverPlayer=currentPlay?.turnoverPlayer||playerRef(turnover?participantPlayer(gl,'',p,/interceptor|interception|recoverer|recovery/i,{anyTeam:true}):null);
   return {
     gameId:String(g?.gameId||g?.id||''),playId:String(p?.id||currentPlay?.id||''),description:String(p?.text||currentPlay?.description||gl?.lastPlayText||''),kind,direction:currentPlay?.direction||playDirection(p?.text||''),resultYards:gain,
     possession,playOffenseSide:playSide,offenseAbbr:playTeam,defenseAbbr:teamForSide(g,playSide==='away'?'home':playSide==='home'?'away':null),
     startYardFromOwn:startOwn,endYardFromOwn:endOwn,currentYardFromOwn:currentOwn,
     startDown:finite(p?.startDown??p?.down),startDistance,preSnapFirstDownYardFromOwn:preSnapFirstDown,currentFirstDownYardFromOwn:currentFirstDown,
-    passer:passer||playerRef(qb),runner,target,turnover,exactStart:exactStart!=null,exactEnd:exactEndRaw!=null&&!turnover
+    passer:passer||playerRef(qb),runner,target,turnoverPlayer,turnover,scoring:!!p?.scoring,touchdown:/touchdown/i.test(String(p?.text||'')),exactStart:exactStart!=null,exactEnd:exactEnd!=null
   };
 }
 
@@ -222,4 +249,4 @@ export async function refreshLiveNow(){await tick();}
 export function stopLivePolling(){if(_timer){clearInterval(_timer);_timer=null;}_slate=null;_onChange=null;_lastNotifySig={};_acceptedByGame.clear();}
 export function timeRemainingMin(period,clockMin){if(!period||period<1)return 60;if(period>=5){if(clockMin==null||clockMin<0)return 10;return Math.min(10,Math.max(0,clockMin));}const inQuarter=clockMin==null?15:Math.max(0,Math.min(15,clockMin));return(4-period)*15+inQuarter;}
 
-export const __LIVE_TEST__={playYards,playKind,playDirection,currentPlayFrom,buildGamecastState,candidatePlayers,findPlayerInText,exactOwnYard};
+export const __LIVE_TEST__={playYards,playKind,playDirection,currentPlayFrom,buildGamecastState,candidatePlayers,findPlayerInText,participantPlayer,exactOwnYard,exactPlayEndFromOriginalOffense};
