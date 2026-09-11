@@ -8,6 +8,7 @@ let observer=null;
 let rafId=0;
 let fieldObjectUrl='';
 let fieldPromise=null;
+const legacyPrepared=new WeakSet();
 
 const clean=v=>String(v||'').trim();
 
@@ -112,8 +113,17 @@ function restructureRoot(root){
 
 function run(){
   rafId=0;
-  enhanceNflGamecastV889Now();
-  document.querySelectorAll(ROOT_SELECTOR).forEach(restructureRoot);
+  const roots=[...document.querySelectorAll(ROOT_SELECTOR)];
+  // v88.8/v88.9 rebuild and unwrap the scene to create the upgraded player
+  // sprites. That legacy preparation is only needed once for a newly mounted
+  // PlayStage. Running it again for every childList mutation (including a clock
+  // text update) was wrapping/unwrapping the whole field every ~2 seconds and
+  // caused the one-frame black flash seen in the live recording.
+  if(roots.some(root=>!legacyPrepared.has(root))){
+    enhanceNflGamecastV889Now();
+    roots.forEach(root=>legacyPrepared.add(root));
+  }
+  roots.forEach(restructureRoot);
 }
 
 function schedule(){
