@@ -121,9 +121,9 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      // v89.0 uses the approved clean field image as the visible surface while the
-      // existing SVG field remains hidden as the gameplay geometry source.
-      const mod = await import('./nfl-preview-v890.js?v=89.0');
+      // v89.3 keeps the approved v89.0 field/gamecast and layers the centered
+      // halftime + pregame quarter parlay modal experience on top.
+      const mod = await import('./nfl-preview-v893.js?v=89.3');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
