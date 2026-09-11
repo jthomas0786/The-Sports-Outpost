@@ -8,11 +8,11 @@ export let __V890_BASE__=null;
 async function loadBase(){
   if(!basePromise){
     basePromise=(async()=>{
-      // nfl-preview.js historically imports live.js with ?v=78. Force that exact
-      // dependency URL through the network before importing the preview so an
-      // active browser cannot keep the pre-v89.7 poller from HTTP cache.
+      // sports/nfl-preview.js still imports live.js as ?v=78. Reload that exact
+      // URL before evaluating a fresh base-preview module so v89.9's stale-feed
+      // guard cannot be hidden behind the browser module/http cache.
       try{await fetch(new URL('./nfl/live.js?v=78',import.meta.url),{cache:'reload'});}catch{}
-      const mod=await import('./nfl-preview.js?v=89.7b');
+      const mod=await import('./nfl-preview.js?v=89.9');
       __V890_BASE__=mod;
       return mod;
     })();
