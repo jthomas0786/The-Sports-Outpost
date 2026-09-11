@@ -46,7 +46,7 @@ function onLive(e){
     // snapshot into the one visible Gamecast. Stop non-active game events before
     // animation/score listeners see them, and restore the active snapshot.
     const keep=byGame.get(active);
-    if(keep)window.__TSO_NFL_LIVE_LATEST__=keep;
+    window.__TSO_NFL_LIVE_LATEST__=keep||null;
     e.stopImmediatePropagation();
     schedule();
     return;
@@ -62,8 +62,15 @@ export function installNflGamecastActiveLiveV8911(){
   installed=true;
   // Capture listeners on Window run before the existing bubble listeners.
   window.addEventListener('tso:nfl-live-snapshot',onLive,true);
+  const active=activeId();
   const seed=window.__TSO_NFL_LIVE_LATEST__;
-  if(seed&&snapId(seed))byGame.set(snapId(seed),seed);
+  if(seed&&snapId(seed)){
+    const id=snapId(seed);
+    byGame.set(id,seed);
+    // Do not let the old score guard seed itself from whichever other slate
+    // game happened to be polled last before v89.11 mounted.
+    if(active&&id!==active)window.__TSO_NFL_LIVE_LATEST__=null;
+  }
   observer=new MutationObserver(schedule);
   observer.observe(document.getElementById('nflView')||document.body,{childList:true,subtree:true,characterData:true});
   schedule();
