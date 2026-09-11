@@ -1,4 +1,4 @@
-import * as basePreview from './nfl-preview.js?v=88.6e';
+import * as basePreview from './nfl-preview.js?v=89.7';
 import { ensureNflGamecastV890Styles } from './nfl/gamecast-v890-styles.js?v=89.0';
 import { installNflGamecastV890Enhancer, enhanceNflGamecastV890Now } from './nfl/gamecast-v890-enhancer.js?v=89.0';
 
