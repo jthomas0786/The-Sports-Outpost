@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v861.js';
+import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v8918.js';
 import { decideAutomaticRun, nextAutomationState } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
@@ -128,6 +128,7 @@ for(const game of games){
     halftimeCandidatesReady:halftimeBoard?.ready??null,
     halftimeCandidateCount:halftimeBoard?.candidates?.length??null,
     quarterParlayReady:quarterBoard?.ready??null,
+    liveModelVersion:result?.liveModel?.version||null,
   };
   existingById.set(gameId,result);
   stateGames[gameId]=nextAutomationState({previousState:prev,decision,result,game,now:NOW});
