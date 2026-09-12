@@ -10,6 +10,11 @@ on:
       - 'sports/nfl/halftime-*.js'
       - 'sports/nfl/live.js'
       - 'sports/nfl/td-scorer.js'
+      - 'sports/nfl/prop-watch.js'
+      - 'scripts/nfl-prop-watch-selftest.mjs'
+      - 'scripts/nfl-td-push-selftest.mjs'
+      - 'scripts/lib/nfl-touchdowns.mjs'
+      - 'sw.js'
       - 'scripts/nfl-td-scorer-selftest.mjs'
       - 'sports/nfl/sim/**'
       - 'scripts/nfl-v8920-flow-selftest.mjs'
@@ -37,6 +42,8 @@ jobs:
         run: |
           node scripts/nfl-v8920-flow-selftest.mjs
           node scripts/nfl-td-scorer-selftest.mjs
+          node scripts/nfl-prop-watch-selftest.mjs
+          node scripts/nfl-td-push-selftest.mjs
       - name: Simulation and halftime regressions
         run: |
           npm run nfl:sim:test

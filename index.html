@@ -1720,6 +1720,8 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-alert-avatar{ width:32px; height:32px; border-radius:50%; flex-shrink:0; object-fit:cover; border:1.5px solid var(--live-green); }
 .cc-alert-text{ min-width:0; overflow-wrap:anywhere; flex:1; font-family:'Oswald',sans-serif; font-size:12.5px; color:var(--text); }
 .cc-alert-text small{ display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); margin-top:1px; }
+.cc-prop-context{display:flex;flex-wrap:wrap;gap:4px 12px;margin-top:6px;font:11px/1.5 monospace;color:var(--text-muted)}
+.cc-prop-context b{color:var(--text)}
 .cc-alert-time{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
 .cc-player-link{ appearance:none; -webkit-appearance:none; width:100%; color:inherit; background:transparent; border:0; text-align:left; cursor:pointer; border-radius:8px; transition:background .14s ease, transform .14s ease; }
 .cc-player-link:hover,.cc-player-link:focus-visible{ background:rgba(45,127,255,.10); }
@@ -1760,7 +1762,12 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-trend-bar.loss{ background:var(--dark-gray, #3C4655); }
 
 @media (max-width:860px){
-  .cc-panel{ width:100vw; max-width:100vw; height:100vh; max-height:100vh; margin:0; border-radius:0; }
+  .cc-panel{ width:100%; max-width:100%; height:100dvh; max-height:100dvh; margin:0; border-radius:0; }
+  .cc-body{padding:14px 12px max(18px,env(safe-area-inset-bottom));min-height:0}
+  #ccFootballCol .cc-kpi-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+  #ccFootballCol .cc-nfl-alert{align-items:flex-start;min-height:44px}
+  #ccFootballCol .cc-alert-time{font-size:9px}
+  #ccFootballCol .cc-game-row{min-height:44px;gap:8px;flex-wrap:wrap}
 }
 
 body{
@@ -7586,6 +7593,7 @@ function openNflPreviewTab(tab){
   }
 }
 window.DW_openNflPreviewTab = openNflPreviewTab;
+if(new URLSearchParams(location.search).get('nfl-feed')==='td') window.DW_nflPreviewPendingTab='feed';
 
 /** Pure expand/collapse — toggles CSS classes on the clicked section (and
  *  closes any other open one) without rebuilding any innerHTML. */
@@ -12177,9 +12185,8 @@ function renderFirstInning(){
 // ============================================================================
 // ---------------------------------------------------------------- notifications
 // Uses the Web Notifications API, which needs three things: HTTPS, explicit user
-// permission, and the page to be open. There's no push server here, so nothing
-// fires with the tab fully closed — that would require a service worker plus a
-// backend to push to it.
+// permission, and device registration. GitHub push watchers deliver MLB home
+// runs and NFL touchdowns through the service worker when the app is closed.
 let notifyEnabled = false;
 
 /** localStorage throws in some sandboxed frames; never let that break the app. */
@@ -12222,6 +12229,7 @@ async function registerServiceWorker(){
   try{
     swRegistration = await navigator.serviceWorker.register('sw.js');
     navigator.serviceWorker.addEventListener('message', e => {
+      if(e.data?.type === 'open-nfl-td-feed') window.DW_openNflPreviewTab?.('feed');
       // The worker asks us to open the Feed when a notification is tapped.
       if(e.data?.type === 'open-feed'){
         activeTab = 'feed'; markFeedRead(); renderTabs(); renderList();
@@ -12367,9 +12375,7 @@ async function toggleNotifications(){
   }
 
   if(notifyEnabled){                       // turning off
-    notifyEnabled = false;
-    store.set('dw_notify', '0');
-    renderNotifyBtn();
+    disableNotifications();
     return;
   }
 
@@ -12380,12 +12386,12 @@ async function toggleNotifications(){
     notifyEnabled = true;
     store.set('dw_notify', '1');
     const bg = pushSupported();
-    new Notification('The Sports Outpost', {
+    try { new Notification('The Sports Outpost', {
       body: bg
         ? "Alerts are on. Background delivery activates once this device is registered."
-        : "You'll get a notification for every home run while this page is open.",
+        : "Home run and touchdown alerts are enabled for this device.",
       icon: NOTIFY_ICON, badge: NOTIFY_BADGE, tag: 'dw-test',
-    });
+    }); } catch {}
     // Actually register this device with the sender. Previously this only
     // created the browser-side subscription and then showed a copy-paste
     // modal, so the subscription never reached the push_subscriptions table
@@ -18939,7 +18945,7 @@ function disableNotifications(){
 
 // === PORTED FROM GITHUB: ensurePushRegistered ===
 async function ensurePushRegistered(showFallbackOnFailure = false){
-  if(!pushSupported()) return;
+  if(!notifyEnabled || !pushSupported()) return;
   const sub = await subscribeToPush();
   if(!sub) return;
 
@@ -19419,7 +19425,7 @@ function renderNotifyPop(){
   const pushLabel = notifyEnabled ? 'Turn off push alerts' : 'Turn on push alerts';
   pop.innerHTML = notifyPopHTML() + `
     <div class="notify-pop-foot">
-      <button id="notifyPushBtn">${pushLabel}</button>
+      <p style="font-size:12px;color:var(--text-muted)">MLB home runs + NFL touchdowns</p><button id="notifyPushBtn">${pushLabel}</button>
     </div>`;
   document.getElementById('notifyPushBtn')?.addEventListener('click', async (e) => {
     e.stopPropagation();
@@ -21986,7 +21992,7 @@ document.addEventListener('visibilitychange', ()=>{
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
 <script type="module" src="./sports/router.js?v=89.20.2"></script>
-<script type="module" src="./sports/nfl/command-center-client.js?v=89.20.1"></script>
+<script type="module" src="./sports/nfl/command-center-client.js?v=89.21"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 
 <!-- Mobile debug console — completely inert for everyone else. Loads a

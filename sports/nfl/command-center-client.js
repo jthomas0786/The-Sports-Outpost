@@ -1,4 +1,4 @@
-import { buildNflCommandCenter, renderNflCommandCenter } from './command-center.js?v=89.20.1';
+import { buildNflCommandCenter, renderNflCommandCenter } from './command-center.js?v=89.21';
 
 let inputs={},busy=false,lastResearch=0;
 const liveUrl=()=>window.DW_NFL_LIVE_ENDPOINT||window.TSO_NFL_LIVE_URL||'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';
@@ -20,13 +20,15 @@ async function refresh(){
   if(busy||document.hidden)return;
   busy=true;
   try{
-    const [remote,odds,research]=await Promise.all([
+    const [remote,odds,research,sim]=await Promise.all([
       get(liveUrl()),get('./slates/nfl-live-odds.json'),
       Date.now()-lastResearch>300000?get('./slates/nfl-research.json'):Promise.resolve(null),
+      get('./slates/nfl-sim.json'),
     ]);
     const live=remote?.games?remote:await get('./slates/nfl-live.json');
     if(live?.games)inputs.liveDoc=live;
     if(odds)inputs.odds=odds;
+    if(sim)inputs.sim=sim;
     if(research){inputs.research=research;lastResearch=Date.now();}
     render();
   }finally{busy=false;}

@@ -1,0 +1,8 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NFL Mobile Layout QA</title>
+<style>body{background:#151b28;color:white;font:16px system-ui}iframe{display:block;border:1px solid #888;height:800px;margin-top:16px}button,select{padding:12px}</style>
+<h1>NFL mobile layout check</h1><p>QA only. Synthetic watch scenarios are separate from the live application.</p>
+<label>Viewport <select id="width"><option>320</option><option selected>390</option><option>768</option></select></label>
+<button id="app">Live application</button><button id="fixture">Synthetic Prop Watches</button>
+<iframe id="mobile-app" title="Mobile app viewport" width="390" src="../index.html#nfl"></iframe>
+<script>const frame=document.getElementById('mobile-app');document.getElementById('width').onchange=e=>frame.width=e.target.value;document.getElementById('app').onclick=()=>frame.src='../index.html#nfl';document.getElementById('fixture').onclick=()=>frame.src='nfl-prop-watch.html';</script>
+</html>

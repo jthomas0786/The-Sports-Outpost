@@ -1,3 +1,4 @@
+import { propWatchModel, remainingGameText } from './prop-watch.js?v=89.21';
 import { normName, normTeam } from './sim/utils.js';
 
 const number=v=>v==null||v===''?null:Number.isFinite(Number(v))?Number(v):null;
@@ -37,7 +38,7 @@ function slateTouchdowns(doc){
   }
   return total;
 }
-export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,now=Date.now()}={}){
+export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,sim=null,now=Date.now()}={}){
   const alerts=[],games=[];
   let stale=false;
   for(const [gameId,live] of Object.entries(liveDoc?.games||{})){
@@ -75,7 +76,10 @@ export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,now=
         const current=number(flat[metric]),slot=op?.odds?.[metric],line=number(slot?.line);
         if(current==null||line==null||line<=0||current>=line||current/line<.8)continue;
         if(!freshOffer(slot?.over?.best,odds,now))continue;
-        add(p,'Prop watch',`${current} ${label} · line ${line} · ${Math.ceil(line-current)} to reach it`,2,`${metric}:${line}`);
+        const needed=Math.floor(line-current)+1;
+        const view=propWatchModel({sim,gameId,live,player:p,metric,current,line,price:slot.over.best.price,oppositePrice:freshOffer(slot?.under?.best,odds,now)?slot.under.best.price:null,now});
+        add(p,'Prop watch',`${current} ${label} · Over ${line} · ${needed} more to go over`,2,`${metric}:${line}`);
+        Object.assign(alerts.at(-1),{remaining:remainingGameText(live),model:view});
       }
       if(elapsed>=.25&&elapsed<.95){
         for(const key of ['targets','carries']){
@@ -91,7 +95,7 @@ export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,now=
 }
 export function renderNflCommandCenter(model){
   const {alerts=[],games=[]}=model||{};
-  const rows=alerts.map(a=>`<button type="button" class="cc-alert-row cc-nfl-alert" data-cc-nfl-game="${safe(a.gameId)}" style="width:100%;text-align:left;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line);cursor:pointer"><span class="cc-alert-avatar" style="display:grid;place-items:center;background:var(--panel2);font:700 10px monospace">${safe(a.team)}</span><span class="cc-alert-text">${safe(a.name)}<small>${safe(a.type)} · ${safe(a.detail)}</small><small>${safe(a.matchup)} · ${safe(a.state)}</small></span><span class="cc-alert-time">WATCH →</span></button>`).join('');
+  const rows=alerts.map(a=>`<button type="button" class="cc-alert-row cc-nfl-alert" data-cc-nfl-game="${safe(a.gameId)}" style="width:100%;text-align:left;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line);cursor:pointer"><span class="cc-alert-avatar" style="display:grid;place-items:center;background:var(--panel2);font:700 10px monospace">${safe(a.team)}</span><span class="cc-alert-text">${safe(a.name)}<small>${safe(a.type)} · ${safe(a.detail)}</small><small>${safe(a.matchup)} · ${safe(a.state)}</small>${a.type==='Prop watch'?`<small>${safe(a.remaining)}</small><span class="cc-prop-context">${a.model?`<span>TSO Over <b>${(a.model.tsoProbability*100).toFixed(1)}%</b></span><span>Edge <b>${a.model.edgePoints>=0?'+':''}${a.model.edgePoints.toFixed(1)} pp</b> vs ${a.model.edgeBasis==='fair-market'?'fair odds':'implied odds'}</span><span>Mean ${a.model.mean??'—'} · Median ${a.model.median??'—'}</span><span>${a.model.iterations?.toLocaleString()} sims · ${a.model.probabilityMethod==='exact-line'?'Matched line':'Estimated at new line'}</span>`:'<span>Near the line · waiting for an updated projection</span>'}</span>`:''}</span><span class="cc-alert-time">WATCH →</span></button>`).join('');
   const note=!model?.loaded?'Loading NFL live action…':model.stale?'Waiting for fresh game action. Older alerts are hidden.':games.length?'No active threats right now. Alerts appear as scoring opportunities and player usage develop.':'No live NFL games right now. Threat alerts appear during games.';
   return `<div class="cc-col-title">Football</div><div class="cc-kpi-row"><div class="cc-kpi-tile"><b>${games.length}</b><span>Live Now</span></div><div class="cc-kpi-tile" title="Touchdowns reported across the current NFL slate, including completed games"><b>${model?.touchdowns==null?'—':safe(model.touchdowns)}</b><span>Touchdowns</span></div><div class="cc-kpi-tile"><b>${alerts.filter(a=>a.type==='Touchdown watch'||a.type==='Red-zone opportunity').length}</b><span>Red-zone Watches</span></div><div class="cc-kpi-tile"><b>${alerts.filter(a=>a.type==='Prop watch').length}</b><span>Prop Watches</span></div></div><div class="cc-section"><div class="cc-section-label">Threat Alerts <span>${alerts.length||''}</span></div>${rows||`<div class="cc-empty-note">${note}</div>`}</div><div class="cc-section"><div class="cc-section-label">Live Games</div>${games.map(g=>`<button type="button" data-cc-nfl-game="${safe(g.gameId)}" class="cc-game-row" style="width:100%;background:transparent;color:inherit;border:0;cursor:pointer"><span class="teams">${safe(g.matchup)}</span><span class="state">${safe(g.score)} · ${safe(g.state)}</span></button>`).join('')||`<div class="cc-empty-note">${note}</div>`}</div>`;
 }

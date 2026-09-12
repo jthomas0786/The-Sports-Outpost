@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import fs from 'node:fs';
+import {touchdownDelta} from './lib/nfl-touchdowns.mjs';
+const now=Date.now(),state=new Map();
+const doc={games:{g:{status:'in',lastFetchedAt:now,awayAbbr:'SF',homeAbbr:'LA',scoringPlays:[]}}};
+assert.equal(touchdownDelta(doc,state,now).length,0);
+const td={id:'1',type:'Passing Touchdown',text:'Mike Evans 2 Yd pass from Brock Purdy (Kick)',team:'SF',period:3,clock:'11:03',awayScore:17,homeScore:7};
+doc.games.g.scoringPlays=[td,td];
+const events=touchdownDelta(doc,state,now+1000);assert.equal(events.length,1);assert.equal(events[0].scorer,'Mike Evans');
+assert.equal(touchdownDelta(doc,state,now+2000).length,0);
+assert.equal(touchdownDelta(doc,new Map(),now+2000).length,0,'cold start suppresses historical scores');
+doc.games.g.scoringPlays=[];touchdownDelta(doc,state,now+3000);doc.games.g.scoringPlays=[td];assert.equal(touchdownDelta(doc,state,now+4000).length,0,'correction does not duplicate');
+doc.games.g.scoringPlays.push({...td,id:'2',type:'Field Goal Good'});assert.equal(touchdownDelta(doc,state,now+5000).length,0);
+doc.games.g.lastFetchedAt=now+200000;doc.games.g.scoringPlays.push({...td,id:'3'});assert.equal(touchdownDelta(doc,state,now+200000).length,0,'gap establishes baseline');
+const handlers={},shown=[],memory=new Map(),messages=[];
+const cache={match:async k=>memory.get(k)?.clone(),put:async(k,v)=>memory.set(k,v)};
+const context={console,Date,Response,Set,Number,JSON,setTimeout,fetch:async()=>({ok:true,json:async()=>({homeRuns:[]})}),caches:{open:async()=>cache},clients:{matchAll:async()=>[{url:'https://example.com/index.html',focus:async()=>{},postMessage:m=>messages.push(m)}]},self:{addEventListener:(k,f)=>handlers[k]=f,registration:{showNotification:async(title,options)=>shown.push({title,options})},clients:{claim:async()=>{}},skipWaiting:()=>{}}};
+vm.runInNewContext(fs.readFileSync('sw.js','utf8'),context);
+async function push(payload){let task;handlers.push({data:{json:()=>payload},waitUntil:p=>task=p});await task;}
+await push(events[0]);assert.match(shown[0].title,/Mike Evans — TOUCHDOWN/);assert.equal(shown[0].options.data.sport,'nfl');
+await push(events[0]);assert.equal(shown.length,1,'worker persists dedup');
+await push({...events[0],key:'old',ts:now-121000});assert.equal(shown.length,1);
+await push({key:'mlb:1',batter:'MLB Player',half:'Top',inning:3,battingTeam:'NYY',opponent:'BOS'});assert.match(shown[1].title,/HOME RUN/);
+let click;handlers.notificationclick({notification:{close(){},data:{sport:'nfl'}},waitUntil:p=>click=p});await click;assert.equal(messages[0].type,'open-nfl-td-feed');
+console.log('TD push: scorer, cold-start/gap/correction dedup, stale suppression, worker display/click and MLB regression passed (no real devices contacted)');

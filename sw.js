@@ -37,8 +37,9 @@ async function rememberKey(key) {
   } catch {}
 }
 
+let pushQueue = Promise.resolve();
 self.addEventListener('push', event => {
-  event.waitUntil((async () => {
+  event.waitUntil(pushQueue = pushQueue.catch(() => {}).then(async () => {
     let hrs = [];
 
     // A payload is optional — use it if the sender included one, otherwise
@@ -66,6 +67,16 @@ self.addEventListener('push', event => {
     const fresh = hrs.filter(h => h.key && !seen.has(h.key)).slice(-5);
 
     for (const hr of fresh) {
+      if (hr.sport === 'nfl') {
+        if (!Number.isFinite(hr.ts) || Date.now()-hr.ts>120000 || hr.ts>Date.now()+60000) continue;
+        await self.registration.showNotification(`🏈 ${hr.scorer} — TOUCHDOWN`, {
+          body: `${hr.text}\n${hr.away} ${hr.awayScore} · ${hr.home} ${hr.homeScore} · Q${hr.period} ${hr.clock||''}`,
+          icon: ICON, badge: ICON, tag: hr.key,
+          data: { url: 'index.html#nfl', sport: 'nfl' }, vibrate: [200,100,200],
+        });
+        await rememberKey(hr.key);
+        continue;
+      }
       const bits = [];
       if (hr.exitVelo) bits.push(`${hr.exitVelo} mph`);
       if (hr.distance) bits.push(`${hr.distance} ft`);
@@ -82,7 +93,7 @@ self.addEventListener('push', event => {
       });
       await rememberKey(hr.key);
     }
-  })());
+  }));
 });
 
 self.addEventListener('notificationclick', event => {
@@ -99,12 +110,13 @@ self.addEventListener('notificationclick', event => {
     for (const c of all) {
       if (c.url.includes('index.html') && 'focus' in c) {
         await c.focus();
+        if (event.notification.data?.sport === 'nfl') c.postMessage({ type: 'open-nfl-td-feed' });
         if (isWatchAction && gamePk) c.postMessage({ type: 'watch-game', gamePk });
         return;
       }
     }
     if (clients.openWindow) {
-      const client = await clients.openWindow(event.notification.data?.url || 'index.html');
+      const client = await clients.openWindow(event.notification.data?.sport === 'nfl' ? 'index.html?nfl-feed=td#nfl' : (event.notification.data?.url || 'index.html'));
       // A freshly-opened window hasn't finished loading yet — postMessage
       // right away would land before this page's own message listener
       // exists to receive it. A short delay covers that without needing

@@ -1,0 +1,39 @@
+name: NFL Touchdown Push
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  push:
+    paths:
+      - '.github/workflows/nfl-td-push.yml'
+      - 'scripts/nfl-td-push.mjs'
+      - 'scripts/lib/nfl-touchdowns.mjs'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Observe only; do not contact devices'
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: nfl-touchdown-push
+  cancel-in-progress: true
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci --no-audit --no-fund
+      - name: Watch for new touchdowns
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MAX_TICKS: ${{ inputs.dry_run == true && '3' || '0' }}
+        run: node scripts/nfl-td-push.mjs ${{ inputs.dry_run == true && '--dry-run' || '' }}
