@@ -129,3 +129,51 @@ capture. The comparison and coverage counts are in `nfl-accuracy-validation.json
 This is a functionality and descriptive-error check on one game, not evidence
 of general accuracy, a tuned model, or a profitable betting strategy. Broader
 archived game coverage and a separate holdout set are required before tuning.
+
+## Batch discovery and coverage
+
+```sh
+# Audit the latest 100 live-file commits; export eligible archives, no simulations.
+node scripts/nfl-replay-corpus.mjs --ref origin/main --limit 100
+
+# Evaluate every eligible completed game at production simulation counts.
+node scripts/nfl-replay-corpus.mjs --ref origin/main --limit 100 --run
+
+# Diagnostic execution only; output is marked testIterations.
+node scripts/nfl-replay-corpus.mjs --run --iterations 100
+```
+
+The batch tool discovers game IDs from committed live snapshots. It pins the
+entire run to one Git commit, so bot updates arriving during a batch cannot mix
+source histories. Games without a recorded final are listed as ineligible,
+not silently dropped or assigned fabricated outcomes.
+
+For completed games it validates every archived frame against its available
+research and odds. It selects the earliest eligible pregame, halftime, and each
+live-quarter forecast, plus the latest valid final correction. Invalid early
+frames do not prevent selection of a later valid frame in the same phase.
+Forecasts after the first recorded final cannot enter the selected sample.
+Missing phases remain explicit gaps, including games with only pregame coverage.
+
+The individual replay CLI supports the same selection with `--representative`.
+It retains the original archive index for each simulation seed; it does not
+renumber a trimmed archive. Omitting the flag continues to simulate all frames.
+
+Outputs in `artifacts/nfl-replay/corpus/`:
+
+- `coverage.json`: pinned source head, all discovered games, readiness and phase
+  gaps, rejected-frame/import reasons, execution failures, and scored game count.
+- `<gameId>-archive.json`: the captured inputs for each ready game.
+- `<gameId>-report.json`: selected forecasts generated with the current model.
+- `accuracy.json`: pooled accuracy with separate game counts for every phase.
+
+Reports are generated afresh within a batch rather than pooling incompatible
+old reports. A simulation failure produces a recorded reason and a nonzero exit
+status; successful games can still have their accuracy results written. There
+are no changes to bot-owned production data or user-facing Command Center UI.
+
+The initial repository-wide inventory contained 16 games: two had recorded
+finals and fourteen had only pregame states. Both completed games had a valid
+pregame forecast; only one had live Q3 snapshots. Neither had a halftime capture.
+`nfl-corpus-validation.json` records the production-count batch validation.
+Two games are still insufficient for model tuning or a meaningful holdout study.

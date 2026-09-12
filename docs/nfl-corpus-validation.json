@@ -1,0 +1,245 @@
+{
+  "sourceHead": "9539439b81dd0a5f6d43baaf4649f789198105be",
+  "scannedCommits": 10,
+  "discoveredGames": 16,
+  "readyGames": 2,
+  "scoredGames": 2,
+  "testIterations": false,
+  "modelCodeSha256": "71c20e645bc0fd2af44738c1035da569180a8291a6bb86a3ed9faab6d937da17",
+  "configSha256": "33a07e6e0806c4d8d7dc676f8189b918a3908323b5d7f7e7b6bc944a337ccf54",
+  "failures": [],
+  "reports": [
+    {
+      "gameId": "401872656",
+      "sha256": "760deab081630c472db926faf11bc2c89ab15d0faa1def665532fd3d0113126a",
+      "archiveSha256": "598419fe1ecca1e47f5ed77a354e353f5f9dc8df1aa989dbc981717244df76cd",
+      "frames": [
+        {
+          "at": "2026-09-09T13:40:04.000Z",
+          "phase": "pregame",
+          "iterations": 50000
+        },
+        {
+          "at": "2026-09-11T06:11:10.000Z",
+          "phase": "final",
+          "iterations": 0
+        }
+      ]
+    },
+    {
+      "gameId": "401872657",
+      "sha256": "7618a8cbf8e5efe8b63b87d7d25ccaf79665f0be845f18a7d52086feabfe8b8b",
+      "archiveSha256": "67f0653d088de4e963dd47a6484073d9d537b77c7dd1e936b7d6ae8d127e3fa0",
+      "frames": [
+        {
+          "at": "2026-09-09T13:40:04.000Z",
+          "phase": "pregame",
+          "iterations": 50000
+        },
+        {
+          "at": "2026-09-11T02:16:30.000Z",
+          "phase": "live",
+          "iterations": 15000
+        },
+        {
+          "at": "2026-09-11T06:11:10.000Z",
+          "phase": "final",
+          "iterations": 0
+        }
+      ]
+    }
+  ],
+  "games": [
+    {
+      "gameId": "401872656",
+      "ready": true,
+      "reason": null,
+      "selectedBuckets": [
+        "pregame"
+      ],
+      "missingBuckets": [
+        "live:Q1",
+        "live:Q2",
+        "halftime",
+        "live:Q3",
+        "live:Q4"
+      ]
+    },
+    {
+      "gameId": "401872657",
+      "ready": true,
+      "reason": null,
+      "selectedBuckets": [
+        "pregame",
+        "live:Q3"
+      ],
+      "missingBuckets": [
+        "live:Q1",
+        "live:Q2",
+        "halftime",
+        "live:Q4"
+      ]
+    },
+    {
+      "gameId": "401872658",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872659",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872660",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872661",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872922",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872923",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872924",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872925",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872926",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872927",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872928",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872929",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872930",
+      "ready": false,
+      "reason": "No recorded final"
+    },
+    {
+      "gameId": "401872931",
+      "ready": false,
+      "reason": "No recorded final"
+    }
+  ],
+  "byPhase": {
+    "pregame": {
+      "gameCount": 2,
+      "forecastCount": 2,
+      "projections": {
+        "passYds": {
+          "observations": 6,
+          "mae": 96.45666666666665,
+          "rmse": 120.91388354251687,
+          "bias": 29.78999999999999,
+          "medianMae": 94.33333333333333,
+          "intervalObservations": 6,
+          "interval80Coverage": 0.3333333333333333
+        },
+        "rushYds": {
+          "observations": 16,
+          "mae": 13.620000000000001,
+          "rmse": 17.135412892603437,
+          "bias": -7.275,
+          "medianMae": 14.375,
+          "intervalObservations": 16,
+          "interval80Coverage": 0.5
+        },
+        "recYds": {
+          "observations": 32,
+          "mae": 15.270624999999997,
+          "rmse": 20.334795148955887,
+          "bias": -3.168124999999999,
+          "medianMae": 15.0625,
+          "intervalObservations": 32,
+          "interval80Coverage": 0.8125
+        },
+        "receptions": {
+          "observations": 32,
+          "mae": 1.400625,
+          "rmse": 1.9013235521604417,
+          "bias": -0.8912500000000001,
+          "medianMae": 1.5,
+          "intervalObservations": 32,
+          "interval80Coverage": 0.75
+        }
+      }
+    },
+    "live:Q3": {
+      "gameCount": 1,
+      "forecastCount": 1,
+      "projections": {
+        "passYds": {
+          "observations": 3,
+          "mae": 19.94666666666667,
+          "rmse": 25.717683928897383,
+          "bias": 11.280000000000001,
+          "medianMae": 18.333333333333332,
+          "intervalObservations": 3,
+          "interval80Coverage": 0.6666666666666666
+        },
+        "rushYds": {
+          "observations": 9,
+          "mae": 10.91888888888889,
+          "rmse": 12.693337272408352,
+          "bias": -0.5366666666666668,
+          "medianMae": 10.777777777777779,
+          "intervalObservations": 9,
+          "interval80Coverage": 0.5555555555555556
+        },
+        "recYds": {
+          "observations": 17,
+          "mae": 8.372941176470588,
+          "rmse": 10.878169179870406,
+          "bias": -1.5235294117647067,
+          "medianMae": 8.705882352941176,
+          "intervalObservations": 17,
+          "interval80Coverage": 0.8235294117647058
+        },
+        "receptions": {
+          "observations": 17,
+          "mae": 0.934705882352941,
+          "rmse": 1.222632165356656,
+          "bias": -0.5276470588235296,
+          "medianMae": 1,
+          "intervalObservations": 17,
+          "interval80Coverage": 0.8235294117647058
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Only two games have eligible pregame forecasts and finals.",
+    "Only one game has eligible Q3 coverage; neither has halftime captures.",
+    "Descriptive validation only; no model tuning or holdout performance claims."
+  ]
+}

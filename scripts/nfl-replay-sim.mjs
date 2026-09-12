@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
+import { analyzeReplayCoverage } from '../sports/nfl/sim/replay-coverage.js';
 import { simulateReplayFrame } from '../sports/nfl/sim/replay.js';
 import { archiveFromGit, option, writeReplayFile } from './lib/nfl-replay-io.mjs';
 
@@ -14,7 +15,10 @@ async function main(){
   const modelHash=createHash('sha256');
   for(const file of (await fs.readdir('sports/nfl/sim')).filter(f=>f.endsWith('.js')).sort()){modelHash.update(file);modelHash.update(await fs.readFile(path.join('sports/nfl/sim',file)));}
   const report={schemaVersion:1,gameId:archive.game.gameId,model:'Retrospective evaluation of the current engine using archived inputs',modelCodeSha256:modelHash.digest('hex'),seed:Number(option('seed',8922)),configSha256:createHash('sha256').update(configText).digest('hex'),archiveSha256:createHash('sha256').update(JSON.stringify(archive)).digest('hex'),testIterations:override!==null,frames:[],rejected:[],coverage:{}};
+  const representative=process.argv.includes('--representative')?analyzeReplayCoverage(archive):null;
+  if(representative){report.selection=representative;report.rejected.push(...representative.rejectedFrames);}
   for(let index=0;index<archive.frames.length;index++){
+    if(representative&&!representative.selectedIndices.includes(index))continue;
     try{
       const frame=simulateReplayFrame(archive,index,{config,seed:Number(option('seed',8922)),iterations:override===null?null:Number(override)});
       report.frames.push(frame);report.coverage[frame.phase]=(report.coverage[frame.phase]||0)+1;

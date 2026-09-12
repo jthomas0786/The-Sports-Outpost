@@ -22,9 +22,11 @@ jobs:
         run: |
           node scripts/nfl-replay-selftest.mjs
           node scripts/nfl-replay-accuracy-selftest.mjs
+          node scripts/nfl-replay-coverage-selftest.mjs
       - name: Replay CLI syntax
         run: |
           node --check scripts/nfl-replay.mjs
           node --check scripts/nfl-replay-sim.mjs
           node --check scripts/nfl-replay-accuracy.mjs
+          node --check scripts/nfl-replay-corpus.mjs
           node --check scripts/lib/nfl-replay-io.mjs

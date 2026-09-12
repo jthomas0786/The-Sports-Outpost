@@ -52,3 +52,19 @@ export function archiveFromGit({gameId,ref='origin/main',limit=100}){
   if(!archive.frames.length)throw new Error('No archived frames for this game');
   return archive;
 }
+
+export function discoverReplayGames({ref='origin/main',limit=100}={}){
+  if(!Number.isInteger(limit)||limit<1)throw new Error('History limit must be a positive integer');
+  const head=git('rev-parse','--verify',`${ref}^{commit}`).trim();
+  const commits=git('log',`-n${limit}`,'--format=%H','--first-parent',head,'--','slates/nfl-live.json').trim().split('\n').filter(Boolean);
+  const games=new Map();
+  for(const sha of commits){
+    const doc=read(sha,'slates/nfl-live.json');
+    for(const [gameId,live] of Object.entries(doc?.games||{})){
+      const record=games.get(gameId)||{gameId,away:live.awayAbbr||null,home:live.homeAbbr||null,states:[],captures:0};
+      if(!record.states.includes(live.status))record.states.push(live.status);
+      record.captures++;games.set(gameId,record);
+    }
+  }
+  return {head,limit,scannedCommits:commits.length,games:[...games.values()].sort((a,b)=>a.gameId.localeCompare(b.gameId))};
+}
