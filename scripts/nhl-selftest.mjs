@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import {normalizeScoreboard,mergeSummary,threats} from '../sports/nhl/data.js';
 import {simulateRegulation} from '../sports/nhl/sim.js';
+import {simulateFullGame} from '../sports/nhl/full-game.js';
+import {gradeForLean,gradeColor,gradeRingHTML,overProbability} from '../sports/nhl/grade.js';
 const now=Date.now();
 const event={id:'g',date:'2026-09-19T23:00Z',competitions:[{status:{type:{state:'in',shortDetail:'2nd'},period:2,displayClock:'10:00'},competitors:[{id:'1',homeAway:'away',score:'2',team:{abbreviation:'TOR',displayName:'Toronto'}},{id:'2',homeAway:'home',score:'1',team:{abbreviation:'MTL',displayName:'Montreal'},powerPlay:true}]}]};
 const doc=normalizeScoreboard({events:[event]},now);assert.equal(doc.games[0].away.score,2);assert.equal(doc.date,'2026-09-19');
@@ -27,9 +29,15 @@ for(let w=0;w<live.iterations;w++){
 }
 assert.equal(simulateRegulation({players:[]}).ready,false);assert.equal(simulateRegulation({players,status:'in',period:4}).ready,false);
 const injured=structuredClone(players);injured[0].active=false;const frozen=simulateRegulation({players:injured,iterations:100});assert.ok([...frozen.worlds[0].stats.sog].every(x=>x===4));
-const router=fs.readFileSync('sports/router.js','utf8'),view=fs.readFileSync('sports/nhl/view.js','utf8'),css=fs.readFileSync('sports/nhl/style.css','utf8'),mobile=fs.readFileSync('tests/nhl-mobile.html','utf8');
+const full=simulateFullGame({players,status:'pre',seasonType:2,lineupsConfirmed:true,iterations:250,seed:9});assert.equal(full.ready,true);assert.ok(Array.isArray(full.players[0].metrics.sog.distribution));assert.ok(full.players[0].metrics.sog.distribution.length>0);
+const dist={distribution:[[0,.2],[1,.3],[2,.5]],atLeastOne:.8};assert.equal(overProbability(dist,.5),.8);assert.equal(overProbability(dist,1.5),.5);
+for(const [p,g] of [[.70,'A+'],[.65,'A'],[.61,'A-'],[.57,'B+'],[.54,'B'],[.51,'B-'],[.48,'C+'],[.47,'C']])assert.equal(gradeForLean(p),g);
+assert.equal(gradeColor('A+'),'#22c55e');assert.equal(gradeColor('B'),'#f4c430');assert.equal(gradeColor('C+'),'#ff9f43');
+const ring=gradeRingHTML(.72,'A+','lg');assert.match(ring,/stroke-dasharray="326.7"/);assert.match(ring,/>A\+</);assert.match(ring,/>72%</);
+const router=fs.readFileSync('sports/router.js','utf8'),view=fs.readFileSync('sports/nhl/view.js','utf8'),css=fs.readFileSync('sports/nhl/style.css','utf8'),gradeCss=fs.readFileSync('sports/nhl/grade.css','utf8'),mobile=fs.readFileSync('tests/nhl-mobile.html','utf8');
 assert.ok(router.includes("setVisible(document.getElementById('nhlView'), active === 'nhl')"));
-for(const marker of ["slate:'NHL Slate'","live:'NHL Live'","feed:'Goal Feed'","props:'Props'",'hk-matchup-slate','hk-live-scorebar','hk-feed-card','hk-prop-card'])assert.ok(view.includes(marker),`missing NHL/NFL layout parity marker: ${marker}`);
+for(const marker of ["slate:'NHL Slate'","live:'NHL Live'","feed:'Goal Feed'","props:'Props'",'hk-matchup-slate','hk-live-scorebar','hk-feed-card','hk-prop-card','hk-prop-grade','gradeRingHTML'])assert.ok(view.includes(marker),`missing NHL/NFL layout parity marker: ${marker}`);
 for(const marker of ['@media(max-width:900px)','@media(max-width:620px)','.hk-matchup-slate','.hk-live-grid','.hk-feed-card','.hk-prop-card'])assert.ok(css.includes(marker),`missing NHL responsive layout rule: ${marker}`);
+for(const marker of ['.hk-grade-ring-lg','stroke:currentColor','width:76px','width:62px','.hk-prop-grade'])assert.ok(gradeCss.includes(marker),`missing NHL/NFL grade-ring parity rule: ${marker}`);
 for(const marker of ['data-tab="slate"','data-tab="live"','data-tab="feed"','data-tab="props"','320','390','768'])assert.ok(mobile.includes(marker),`missing NHL mobile QA control: ${marker}`);
-console.log('NHL: schedule, scorer IDs, shootout exclusion, box scores, stale/injury threats, 15K/50K worlds and NFL-layout parity passed');
+console.log('NHL: schedule, scorer IDs, shootout exclusion, box scores, stale/injury threats, 15K/50K worlds, NFL layout, grade thresholds and progress rings passed');
