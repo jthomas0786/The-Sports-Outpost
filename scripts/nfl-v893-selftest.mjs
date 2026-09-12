@@ -25,6 +25,7 @@ assert.match(auto,/nfl-quarter\.json/);
 assert.match(auto,/buildPregameQuarterBoard/);
 assert.match(auto,/needQuarterSamples/);
 assert.match(router,/nfl-preview-v893\.js\?v=89\.3/);
-assert.equal(cfg.engineVersion,'v86.2.0');
+assert.equal(cfg.defaultIterations,50000);
+assert.equal(cfg.automatic?.pregameIterations,50000);
 assert.equal(cfg.quarters?.candidateMinProbability,0.54);
 console.log('✓ v89.3 quarter + halftime modal self-test passed');
