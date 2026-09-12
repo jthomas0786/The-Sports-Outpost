@@ -1,5 +1,6 @@
 import {applyLineups,rosterURL,lineupLabel,lineupState,lineupReady} from './lineups.js?v=90.2';
 import {quoteFor} from './odds.js?v=90.1';
+import {gradeForLean,gradeRingHTML,overProbability} from './grade.js?v=90.4';
 import {API,getJSON,loadScoreboard,mergeSummary,freshGame,threats,text as esc,imageUrl} from './data.js?v=90.2';
 let research=null,odds=null,sim=null;
 let doc=null,tab='slate',gameId=null,market='sog',busy=false,error=false,timer=null;
@@ -8,12 +9,13 @@ const subtitles={
  slate:'Pregame matchup cards, lineup status and one-tap access to the full hockey Gamecast.',
  live:'Every NHL game in one live-first view with score, clock, recent plays and the full box score.',
  feed:'A goal stream built to match the NFL touchdown feed, with scorer context and stored pregame goal prices.',
- props:'Ranked hockey player markets with current stats, historical baselines, TSO projections and sportsbook prices.',
+ props:'Ranked hockey player markets with current stats, historical baselines, TSO projections, NFL-parity grades and sportsbook prices.',
 };
 const markets={atg:'Anytime Goal',sog:'Shots on Goal',points:'Points',assists:'Assists',blocks:'Blocked Shots',saves:'Goalie Saves'};
 function ensureStyle(){
- if(document.getElementById('nhl-layout-v903'))return;
- const link=document.createElement('link');link.id='nhl-layout-v903';link.rel='stylesheet';link.href='./sports/nhl/style.css?v=90.3';document.head.appendChild(link);
+ if(document.getElementById('nhl-layout-v904'))return;
+ document.getElementById('nhl-layout-v903')?.remove();
+ const link=document.createElement('link');link.id='nhl-layout-v904';link.rel='stylesheet';link.href='./sports/nhl/style.css?v=90.4';document.head.appendChild(link);
 }
 const empty=s=>`<div class="hk-empty"><b>${esc(s)}</b></div>`;
 const photo=p=>imageUrl(p?.photo)?`<img src="${esc(p.photo)}" alt="${esc(p.name||'Player')}" loading="lazy" decoding="async">`:'<span class="hk-avatar">🏒</span>';
@@ -50,16 +52,32 @@ function goals(){
  if(!rows.length){const liveNow=(doc?.games||[]).some(g=>g.status==='in');return `<div class="hk-feed">${empty(liveNow?'No goals yet. The first reported goal will appear here automatically.':'Goal Feed is standing by. Live scoring plays will populate here once an NHL game begins.')}</div>`;}
  return `<div class="hk-feed">${rows.map(({g,p})=>`<article class="hk-feed-card"><div class="hk-feed-time">P${esc(p.period||'?')}<br>${esc(p.clock||'')}</div><div class="hk-feed-photo">${photo(p.scorer)}</div><div class="hk-feed-main"><div class="hk-feed-name"><b>${esc(p.scorer?.name||'Goal')}</b><span>${esc(p.team||'NHL')} · GOAL${p.strength?` · ${esc(p.strength)}`:''}</span></div><p>${esc(p.text||'Goal')}</p><div class="hk-feed-score">${score({...g,away:{...g.away,score:p.awayScore},home:{...g.home,score:p.homeScore}})}</div></div><div class="hk-feed-prices">${atgPrice(g,p.scorer)}</div></article>`).join('')}</div>`;
 }
-function forecast(p){const game=sim?.games?.find(g=>g.gameId===p.game.id);if(!game?.ready||!Number.isFinite(Date.parse(game.generatedAt))||Date.now()-Date.parse(game.generatedAt)>120000||Date.parse(game.generatedAt)>Date.now()+60000)return '';
- const g=p.game;if(game.state!==lineupState(g)||!lineupReady(g))return '';
- const model=game.players?.find(x=>x.id===p.id)?.metrics?.[market==='atg'?'goals':market];return model?`${market==='atg'?'Goal chance '+(model.atLeastOne*100).toFixed(1)+'% · ':''}Mean ${model.mean.toFixed(2)} · Median ${model.median} · ${game.iterations.toLocaleString()} sims`:'';}
+function simulationMetric(p){
+ const game=sim?.games?.find(g=>g.gameId===p.game.id);
+ if(!game?.ready||!Number.isFinite(Date.parse(game.generatedAt))||Date.now()-Date.parse(game.generatedAt)>120000||Date.parse(game.generatedAt)>Date.now()+60000)return null;
+ const g=p.game;if(game.state!==lineupState(g)||!lineupReady(g))return null;
+ const metric=game.players?.find(x=>x.id===p.id)?.metrics?.[market==='atg'?'goals':market];
+ return metric?{game,metric}:null;
+}
+function forecast(p,state=simulationMetric(p)){
+ if(!state)return '';
+ const {game,metric}=state;
+ return `${market==='atg'?'Goal chance '+(metric.atLeastOne*100).toFixed(1)+'% · ':''}Mean ${metric.mean.toFixed(2)} · Median ${metric.median} · ${game.iterations.toLocaleString()} sims`;
+}
 function baseline(p){const history=research?.players?.[p.id];const key=market==='atg'?'goals':market;const rate=history?.rates?.[key];return rate==null?'Season baseline pending':`${history.season-1}–${String(history.season).slice(-2)} avg ${rate.toFixed(2)}/game (${history.games} GP)`;}
-function priceText(p){if(p.game.status!=='pre')return p.game.status==='post'?'Market closed':'Live odds pending';const q=quoteFor(odds,p.game.id,p.id,market);if(!q)return 'Odds pending';return `${q.book} · ${market==='atg'?'Goal':q.line} · ${market==='atg'?'Yes':'O'} ${priceFmt(q.over)} / ${market==='atg'?'No':'U'} ${priceFmt(q.under)}`;}
+function priceText(p,q=quoteFor(odds,p.game.id,p.id,market)){if(p.game.status!=='pre')return p.game.status==='post'?'Market closed':'Live odds pending';if(!q)return 'Odds pending';return `${q.book} · ${market==='atg'?'Goal':q.line} · ${market==='atg'?'Yes':'O'} ${priceFmt(q.over)} / ${market==='atg'?'No':'U'} ${priceFmt(q.under)}`;}
+function gradeState(p,state=simulationMetric(p)){
+ const q=quoteFor(odds,p.game.id,p.id,market),line=market==='atg'?.5:Number(q?.line);
+ const probability=state&&Number.isFinite(line)?overProbability(state.metric,line):null;
+ return {probability,grade:gradeForLean(probability),q,line};
+}
 function props(){
  const ps=(doc?.games||[]).flatMap(g=>g.players.map(p=>({...p,game:g}))).filter(p=>market==='saves'?p.position==='G':p.position!=='G');
- return `<div class="hk-prop-toolbar"><label>Player market<select id="hk-market">${Object.entries(markets).map(([k,v])=>`<option value="${k}" ${k===market?'selected':''}>${v}</option>`).join('')}</select></label><div class="hk-prop-note"><b>${ps.length}</b><span>players on this slate</span></div></div><div class="hk-list-head"><span>${esc(markets[market])}</span><small>NFL-style research cards · current game state, baseline, TSO model and best stored sportsbook price</small></div><div class="hk-prop-list">${ps.map((p,i)=>{
- const key=market==='atg'?'goals':market,model=forecast(p),book=priceText(p);
- return `<article class="hk-prop-card"><div class="hk-prop-rank">${i+1}</div><div class="hk-prop-avatar">${photo(p)}</div><div class="hk-prop-main"><div class="hk-prop-name"><b>${esc(p.name)}</b><span>${esc(p.team)} · ${esc(p.position)}</span></div><div class="hk-prop-match">${esc(p.game.away.abbr)} @ ${esc(p.game.home.abbr)} · ${esc(p.availability||'Status pending')}</div><div class="hk-prop-detail"><span>CURRENT<b>${esc(p.current?.[key]??'—')}</b></span><span>BASELINE<b>${esc(baseline(p))}</b></span><span>LINEUP<b>${esc(lineupLabel(p.game))}</b></span></div></div><div class="hk-prop-market"><span>${esc(markets[market])}</span><strong>${model?esc(model):'Projection pending'}</strong><small>${esc(book)}</small></div></article>`;
+ const ranked=ps.map(p=>{const state=simulationMetric(p);return {p,state,grade:gradeState(p,state)};}).sort((a,b)=>(b.grade.probability??-1)-(a.grade.probability??-1));
+ return `<div class="hk-prop-toolbar"><label>Player market<select id="hk-market">${Object.entries(markets).map(([k,v])=>`<option value="${k}" ${k===market?'selected':''}>${v}</option>`).join('')}</select></label><div class="hk-prop-note"><b>${ps.length}</b><span>players on this slate</span></div></div><div class="hk-list-head"><span>${esc(markets[market])}</span><small>Same NFL grade thresholds + progress rings · simulation probability vs sportsbook line when available</small></div><div class="hk-prop-list">${ranked.map(({p,state,grade},i)=>{
+ const key=market==='atg'?'goals':market,model=forecast(p,state),book=priceText(p,grade.q);
+ const ring=gradeRingHTML(grade.probability,grade.grade,'lg'),gradeNote=grade.probability==null?(market==='atg'?'Awaiting eligible simulation':'Needs eligible simulation + book line'):'TSO grade';
+ return `<article class="hk-prop-card"><div class="hk-prop-rank">${i+1}</div><div class="hk-prop-avatar">${photo(p)}</div><div class="hk-prop-main"><div class="hk-prop-name"><b>${esc(p.name)}</b><span>${esc(p.team)} · ${esc(p.position)}</span></div><div class="hk-prop-match">${esc(p.game.away.abbr)} @ ${esc(p.game.home.abbr)} · ${esc(p.availability||'Status pending')}</div><div class="hk-prop-detail"><span>CURRENT<b>${esc(p.current?.[key]??'—')}</b></span><span>BASELINE<b>${esc(baseline(p))}</b></span><span>LINEUP<b>${esc(lineupLabel(p.game))}</b></span></div></div><div class="hk-prop-market"><span>${esc(markets[market])}</span><strong>${model?esc(model):'Projection pending'}</strong><small>${esc(book)}</small></div><div class="hk-prop-grade">${ring}<small>${esc(gradeNote)}</small></div></article>`;
  }).join('')||empty('Player rosters are not available yet.')}</div>`;
 }
 function scorebar(g){return `<div class="hk-live-scorebar"><div class="hk-live-team">${teamLogo(g.away)}<div><small>${esc(g.away.abbr)}</small><b>${esc(g.away.name)}</b></div><strong>${esc(g.away.score??'—')}</strong></div><div class="hk-live-center"><span>${esc(statusText(g))}</span><b>${esc(periodText(g))}</b><small>${esc(lineupLabel(g))}</small></div><div class="hk-live-team home"><strong>${esc(g.home.score??'—')}</strong><div><small>${esc(g.home.abbr)}</small><b>${esc(g.home.name)}</b></div>${teamLogo(g.home)}</div></div>`;}
