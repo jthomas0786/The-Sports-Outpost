@@ -38,6 +38,9 @@ export function simulateFullGame(args={}){
   }
   for(const r of result.worlds)r.stats.points[w]=r.stats.goals[w]+r.stats.assists[w];
  }
- result.players=result.worlds.map(r=>({id:r.player.id,team:r.player.team,metrics:Object.fromEntries(Object.entries(r.stats).map(([key,array])=>{const values=[...array].sort((a,b)=>a-b);return [key,{mean:values.reduce((s,v)=>s+v,0)/iterations,median:values[Math.floor(iterations/2)],atLeastOne:values.filter(v=>v>0).length/iterations}];}))}));
+ result.players=result.worlds.map(r=>({id:r.player.id,team:r.player.team,metrics:Object.fromEntries(Object.entries(r.stats).map(([key,array])=>{
+  const values=[...array].sort((a,b)=>a-b),counts=new Map();for(const v of values)counts.set(v,(counts.get(v)||0)+1);
+  return [key,{mean:values.reduce((s,v)=>s+v,0)/iterations,median:values[Math.floor(iterations/2)],atLeastOne:values.filter(v=>v>0).length/iterations,distribution:[...counts].map(([value,count])=>[value,count/iterations])}];
+ }))}));
  return {...result,scope:'full-game-excluding-shootout',overtime,shootouts};
 }
