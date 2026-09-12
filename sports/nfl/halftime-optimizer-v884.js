@@ -32,10 +32,10 @@ function decodeBase64(b64){
   return null;
 }
 function maskFor(c){
-  if(c.__decodedMask)return c.__decodedMask;
-  const m=decodeBase64(c.worldMaskB64);
-  if(m)Object.defineProperty(c,'__decodedMask',{value:m,enumerable:false,configurable:true});
-  return m;
+  try { return decodeBase64(c.worldMaskB64); } catch { return null; }
+}
+function sameCandidate(a,b){
+  return !!b && ['id','gameId','playerId','market','side','line','price','book','worldMaskB64','worldMaskIterations','simProbability','bookFairProbability','edge'].every(k=>a[k]===b[k]);
 }
 function contradictory(a,b){
   return String(a.gameId)===String(b.gameId)&&String(a.playerId)===String(b.playerId)&&String(a.market)===String(b.market)&&String(a.side)!==String(b.side);
@@ -53,8 +53,9 @@ function gamePositiveMap(board){
 function exactGameJoint(board,legs){
   if(!legs.length)return null;
   const iterations=Number(board?.iterations)||Number(legs[0]?.worldMaskIterations)||0;
-  if(!(iterations>0))return null;
-  const masks=legs.map(maskFor);if(masks.some(x=>!x))return null;
+  if(!Number.isInteger(iterations)||iterations<=0)return null;
+  if(legs.some(c=>Number(c.worldMaskIterations)!==iterations))return null;
+  const masks=legs.map(maskFor);if(masks.some(x=>!x||x.length!==Math.ceil(iterations/8)))return null;
   const bytes=Math.ceil(iterations/8);let hits=0;
   for(let i=0;i<bytes;i++){
     let v=255;for(const m of masks)v&=(m[i]??0);
@@ -64,14 +65,19 @@ function exactGameJoint(board,legs){
   return hits/iterations;
 }
 export function evaluateCombination(legs,boardById){
-  if(!legs?.length)return null;
+  if(!legs?.length || new Set(legs.map(c=>c.id)).size!==legs.length)return null;
+  for(let i=0;i<legs.length;i++){
+    const c=legs[i],board=boardById.get(String(c.gameId));
+    if(!sameCandidate(c,board?.candidates?.find(x=>x.id===c.id)))return null;
+    if(legs.slice(0,i).some(x=>contradictory(x,c)))return null;
+  }
   const groups=new Map();
   for(const c of legs){const id=String(c.gameId),a=groups.get(id)||[];a.push(c);groups.set(id,a);}
   let joint=1,exact=true;
   for(const [gameId,glegs] of groups){
     const board=boardById.get(String(gameId));
     let gp=exactGameJoint(board,glegs);
-    if(gp==null){exact=false;gp=glegs.reduce((p,c)=>p*Number(c.simProbability||0),1);}
+    if(gp==null)return null;
     joint*=gp;
   }
   const independent=legs.reduce((p,c)=>p*Number(c.simProbability||0),1);
@@ -183,7 +189,7 @@ export function optimizeHalftimeParlay({
   for(const st of beam){
     if(requireEverySelectedGame&&st.games.size<activeGameIds.size)continue;
     const sig=signature(st.legs);if(excluded.has(sig))continue;
-    const ev=evaluateCombination(st.legs,boardById);if(!ev)continue;
+    const ev=evaluateCombination(st.legs,boardById);if(!ev||ev.jointProbability<=0)continue;
     if(mode==='correlated'&&active.length&&st.positiveLift<=0&&beam.some(x=>x.positiveLift>0))continue;
     finals.push({...st,signature:sig,evaluation:ev,score:finalScore(ev,mode,st.positiveLift)});
   }

@@ -236,7 +236,7 @@ async function tick(){
       g.currentPlay=currentPlay||g.currentPlay||null;
       g.liveScore={period:gl.period,clockMin:gl.clockMin,possession,yardFromOwn:gl.yardFromOwn,isRedZone:gl.isRedZone,down:gl.down,distance:gl.distance,downDistanceText:gl.downDistanceText,lastPlayText:gl.lastPlayText,currentPlay,gamecastState,winProbability:gl.winProbability||null,linescores:gl.linescores||null,currentDrive:gl.currentDrive||null,plays:Array.isArray(gl.plays)?gl.plays:[],playerStats:gl.playerStats||null,boxScore:gl.boxScore||null,teamStats:gl.teamStats||null,scoringPlays:Array.isArray(gl.scoringPlays)?gl.scoringPlays:[],lastFetchedAt:gl.lastFetchedAt||data.lastFetchedAt,source};
       rememberAccepted(g,gl);patchClockOnly(g,gl,possession);
-      const snap={gameId:String(g.gameId),away:g.away,home:g.home,possession,currentPlay,gamecastState,liveScore:g.liveScore,updatedAt:Date.now(),source};
+      const snap={gameId:String(g.gameId),status:g.status,statusDetail:g.statusDetail,away:g.away,home:g.home,possession,currentPlay,gamecastState,liveScore:g.liveScore,updatedAt:Date.now(),source};
       if(typeof window!=='undefined'){window.__TSO_NFL_LIVE_LATEST__=snap;window.dispatchEvent(new CustomEvent('tso:nfl-live-snapshot',{detail:snap}));}
       const sig=notifySig(gl,g,possession,currentPlay,gamecastState);if(_lastNotifySig[g.gameId]!==sig){_lastNotifySig[g.gameId]=sig;changed=true;}
     }

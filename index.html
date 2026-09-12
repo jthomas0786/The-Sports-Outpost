@@ -1718,7 +1718,7 @@ body.dw-booting > *:not(#splash):not(#gate){ visibility:hidden; }
 .cc-alert-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
 .cc-alert-row:first-of-type{ border-top:none; }
 .cc-alert-avatar{ width:32px; height:32px; border-radius:50%; flex-shrink:0; object-fit:cover; border:1.5px solid var(--live-green); }
-.cc-alert-text{ flex:1; font-family:'Oswald',sans-serif; font-size:12.5px; color:var(--text); }
+.cc-alert-text{ min-width:0; overflow-wrap:anywhere; flex:1; font-family:'Oswald',sans-serif; font-size:12.5px; color:var(--text); }
 .cc-alert-text small{ display:block; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); margin-top:1px; }
 .cc-alert-time{ font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-muted); white-space:nowrap; flex-shrink:0; }
 .cc-player-link{ appearance:none; -webkit-appearance:none; width:100%; color:inherit; background:transparent; border:0; text-align:left; cursor:pointer; border-radius:8px; transition:background .14s ease, transform .14s ease; }
@@ -11399,7 +11399,7 @@ let ccSeenThreatKeys = new Set();
  *  refreshes games) — flips the global trigger red the moment a threat
  *  exists that hasn't been marked seen yet, green otherwise. */
 function refreshCommandCenterAlertState(){
-  const current = computeThreatPlays();
+  const current = [...computeThreatPlays(),...(window.DW_NFL_COMMAND_CENTER?.alerts()||[]).map(a=>({_threatKey:a.key}))];
   const hasUnseen = current.some(p => !ccSeenThreatKeys.has(p._threatKey));
   document.getElementById('ccGlobalTrigger')?.classList.toggle('has-alert', hasUnseen);
 }
@@ -11409,8 +11409,10 @@ function refreshCommandCenterAlertState(){
  *  immediately reverts the trigger to green, matching "until the user
  *  clicks and reads the alert, then it goes back to green." */
 function markCommandCenterAlertsSeen(){
-  computeThreatPlays().forEach(p => ccSeenThreatKeys.add(p._threatKey));
-  document.getElementById('ccGlobalTrigger')?.classList.remove('has-alert');
+  const football=document.querySelector('#ccFootballCol')?.classList.contains('active');
+  if(football)(window.DW_NFL_COMMAND_CENTER?.alerts()||[]).forEach(a=>ccSeenThreatKeys.add(a.key));
+  else computeThreatPlays().forEach(p=>ccSeenThreatKeys.add(p._threatKey));
+  refreshCommandCenterAlertState();
 }
 
 function ccFindBatterForModal(playerId, playerName){
@@ -11555,41 +11557,10 @@ async function ccLoadBaseballWagerTrend(){
   `;
 }
 
-/** Football Command Center preview — mirrors the MLB dashboard structure with
- *  football-native KPIs and TSO matchup alerts. The NFL preview module exposes
- *  its already-connected Week 1 slate/ATD summary after it mounts; before that,
- *  this renders a conservative preview state rather than inventing live scores. */
+/** Live NFL opportunities share the same Command Center as MLB. */
 function ccBuildFootballHTML(){
-  const s = window.DW_NFL_PREVIEW_SUMMARY || {};
-  const games = s.gameCount ?? 16;
-  const modeled = s.playerCount ?? '—';
-  const top = s.topAtdPct != null ? `${s.topAtdPct}%` : '—';
-  const first = s.topFirstTdPct != null ? `${s.topFirstTdPct}%` : '—';
-  const signals = Array.isArray(s.signals) ? s.signals.slice(0,4) : [];
-  const signalHTML = signals.length
-    ? signals.map(p => `<div class="cc-alert-row">
-        ${p.headshot ? `<img class="cc-alert-avatar" src="${escapeHTML(p.headshot)}" alt="">` : `<span class="cc-alert-avatar" style="display:grid;place-items:center;background:var(--panel2);font:700 9px monospace">${escapeHTML((p.team||'NFL').slice(0,3))}</span>`}
-        <div class="cc-alert-text">${escapeHTML(p.name)}<small>TSO Edge ${p.edge} · ${escapeHTML(p.team)} · ${Math.round((p.prob||0)*100)}% ATD · ${Math.round((p.firstTd||0)*100)}% 1st TD</small></div>
-        <span class="cc-alert-time">SIGNAL</span>
-      </div>`).join('')
-    : `<div class="cc-empty-note">Open the NFL preview once to load the connected Week 1 player slate and TSO Signal list.</div>`;
-  return `
-    <div class="cc-col-title">Football</div>
-    <div class="cc-kpi-row">
-      <div class="cc-kpi-tile"><b>${games}</b><span>Week 1 Games</span></div>
-      <div class="cc-kpi-tile"><b>${modeled}</b><span>Modeled Players</span></div>
-      <div class="cc-kpi-tile"><b>${top}</b><span>Top ATD</span></div>
-      <div class="cc-kpi-tile"><b>${first}</b><span>Top First TD</span></div>
-    </div>
-    <div class="cc-section">
-      <div style="font-family:'Oswald',sans-serif; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.03em; color:var(--text-muted); margin-bottom:10px;">TSO Signal — Best Matchups</div>
-      ${signalHTML}
-    </div>
-    <div class="cc-section">
-      <div class="cc-empty-note">NFL Command Center is in preview mode. When live-event wiring is added, this block becomes red-zone alerts, scoring drives, possession swings and touchdown threats.</div>
-    </div>
-    <button class="cc-goto-btn" onclick="closeCommandCenter(); location.hash='#nfl'; setTimeout(()=>window.DW_openNflPreviewTab?.('props'),0);">Open NFL Props →</button>
-  `;
+  window.DW_NFL_COMMAND_CENTER?.refresh();
+  return window.DW_NFL_COMMAND_CENTER?.html() || '<div class="cc-col-title">Football</div><div class="cc-empty-note">Loading NFL live action…</div>';
 }
 
 /** Hockey and Basketball — no data pipeline exists for either sport at
@@ -11628,6 +11599,8 @@ function openCommandCenter(event, btn){
   baseballHost.innerHTML = ccBuildBaseballHTML();
   wireCommandCenterPlayerLinks(baseballHost);
   ccLoadBaseballWagerTrend();
+  const activeTab=backdrop.querySelector('.cc-tab.active')?.dataset.tab;
+  if(activeTab==='football')document.getElementById('ccFootballCol').innerHTML=ccBuildFootballHTML();
   backdrop.classList.add('is-open');
   markCommandCenterAlertsSeen();
 }
@@ -11860,6 +11833,7 @@ function switchCCTab(tabEl){
   // Rebuilt fresh every switch, not loaded once — Baseball/Football show
   // live data that can genuinely change while the panel sits open.
   CC_SPORT_BUILDERS[targetName]?.();
+  markCommandCenterAlertsSeen();
 }
 
 /** Prop Radar — the second view for any prop list, alongside the existing
@@ -22011,7 +21985,8 @@ document.addEventListener('visibilitychange', ()=>{
 </div>
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
-<script type="module" src="./sports/router.js?v=88.6e"></script>
+<script type="module" src="./sports/router.js?v=89.20"></script>
+<script type="module" src="./sports/nfl/command-center-client.js?v=89.20"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 
 <!-- Mobile debug console — completely inert for everyone else. Loads a

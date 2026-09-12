@@ -1,9 +1,9 @@
-import { optimizeHalftimeParlay, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=88.4';
+import { optimizeHalftimeParlay, evaluateCombination, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=89.20';
+import { halftimeBoardCurrent } from './halftime-validity.js?v=89.20';
 
 let pollTimer=null;
 let currentDoc=null;
 let currentLiveGames=new Map();
-let haveFullLiveSlate=false;
 let selectionInitialized=false;
 let autoSelectNewGames=true;
 let generated=null;
@@ -47,11 +47,10 @@ export function isHalftimeWarmupGameState(g,{thresholdMinutes=2}={}){
 }
 
 const boardIsHalf=b=>/half/i.test(String(b?.state?.statusDetail||''))||(Number(b?.state?.period)===2&&Number(b?.state?.clockMin)<=.05);
-const allReadyBoards=doc=>(doc?.games||[]).filter(b=>boardIsHalf(b)&&b.ready&&Array.isArray(b.candidates)&&b.candidates.length>=2);
+const allReadyBoards=doc=>(doc?.games||[]).filter(b=>boardIsHalf(b)&&halftimeBoardCurrent(b,currentLiveGames.get(String(b.gameId))));
 
 function syncLiveGames(games=[]){
   if(!Array.isArray(games))return;
-  if(games.length>1)haveFullLiveSlate=true;
   const incoming=new Set();
   for(const g of games){
     const id=gid(g);if(!id)continue;
@@ -60,7 +59,7 @@ function syncLiveGames(games=[]){
     else currentLiveGames.delete(id);
   }
   // When a complete slate is supplied, remove window games that are no longer present.
-  if(games.length>1){
+  if(games.length){
     for(const id of [...currentLiveGames.keys()])if(!incoming.has(id))currentLiveGames.delete(id);
   }
   refreshOpenDrawer();
@@ -74,19 +73,12 @@ function boardMap(doc){return new Map(allReadyBoards(doc).map(b=>[String(b.gameI
 function rollingEntries(doc=currentDoc){
   const bmap=boardMap(doc),out=[];
   for(const [id,g] of currentLiveGames){
+    if(!isHalftimeWarmupGameState(g))continue;
     const b=bmap.get(id)||null;
     const state=isHalftimeGameState(g)?(b?'ready':'halftime'):'warmup';
-    out.push({gameId:id,matchup:matchupOf(g),live:g,board:b,state,ready:!!b,candidates:b?.candidates?.length||0});
-  }
-  // Demo/fail-soft only: if we have never received the full live slate, keep orphan
-  // ready boards discoverable. Once the real slate is known, a game leaves the rolling
-  // pool when Q3 begins so stale halftime props are not offered after betting reopens.
-  const demoMode=doc?.demo===true || (typeof window!=='undefined' && !!window.__TSO_NFL_DEMO);
-  if(!haveFullLiveSlate||demoMode){
-    for(const [id,b] of bmap){
-      if(out.some(x=>x.gameId===id))continue;
-      out.push({gameId:id,matchup:b.matchup||id,live:null,board:b,state:'ready',ready:true,candidates:b.candidates?.length||0});
-    }
+    const cached=(doc?.games||[]).find(x=>String(x.gameId)===id);
+    const note=b?'':cached?.ready?'Game or odds changed · waiting for fresh picks':cached?.readiness?.hasLiveOdds===false?'Waiting for live sportsbook props':cached?.readiness?.hasSamples?'No qualifying picks yet':'Waiting for halftime projections';
+    out.push({gameId:id,matchup:matchupOf(g),live:g,board:b,state,note,ready:!!b,candidates:b?.candidates?.length||0});
   }
   return out.sort((a,b)=>{
     const rank={ready:0,halftime:1,warmup:2};
@@ -176,6 +168,7 @@ export function halftimeGamecastBannerHTML(g,doc,liveGames=[]){
 export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){
   if(pollTimer)return;
   const tick=async()=>{
+    refreshOpenDrawer();
     if(document.hidden||window.DW_SPORT!=='nfl')return;
     try{
       const r=await fetch(`./slates/nfl-halftime.json?t=${Date.now()}`,{cache:'no-store'});
@@ -202,7 +195,7 @@ function ensureSelection(entries){
 function gameRowsHTML(entries){
   return entries.map(x=>{
     const checked=uiState.selected.has(String(x.gameId));
-    const status=x.state==='ready'?`${x.candidates} qualified props · 50K complete`:x.state==='halftime'?'At halftime · candidate board calculating':`${formatClock(x.live)} · live props warming`;
+    const status=x.state==='ready'?`${x.candidates} qualified props · 50K complete`:x.state==='halftime'?x.note:`${formatClock(x.live)} · live props warming`;
     const badge=x.state==='ready'?'READY':x.state==='halftime'?'50K':'WARMUP';
     return `<label class="tso-ht-game ${x.state}"><input type="checkbox" data-ht-game="${esc(x.gameId)}" ${checked?'checked':''}><div><b>${esc(x.matchup)}</b><span>${esc(status)}</span></div><em>${badge}</em></label>`;
   }).join('');
@@ -241,6 +234,8 @@ function buildLeg(c,doc){
   return {id:`NFL-HT|${c.id}`,kind:'prop',sport:'nfl',source:'tso-halftime-parlay',live_generated:true,point_wager_eligible:false,prop_key:c.market,side:c.side||'over',player:c.name,player_name:c.name,market:c.market==='atd'?'Anytime TD':label,line:c.line,pct:Math.round(Number(c.simProbability||0)*100),probability:Number(c.simProbability||0),grade:c.grade||null,game:board?.matchup||'',game_pk:String(c.gameId),player_id:c.espnId||c.playerId,price:c.price??null,book:c.book||null,link:c.link||null,tso_edge:Number(c.edge||0),halftime:true};
 }
 function addToBetslip(result,doc){
+  const currentBoards=new Map(selectedReadyBoards(currentDoc).map(b=>[String(b.gameId),b]));
+  if(!evaluateCombination(result.legs,currentBoards)){generated=null;refreshOpenDrawer(true);return;}
   const legs=result.legs.map(c=>buildLeg(c,doc));let existing=[];try{existing=JSON.parse(localStorage.getItem('dw_betslip')||'[]')||[]}catch{}
   const ids=new Set(existing.map(l=>l?.id));
   if(typeof window.toggleLeg==='function'){for(const l of legs)if(!ids.has(l.id))window.toggleLeg(l);}else{for(const l of legs)if(!ids.has(l.id)){existing.push(l);ids.add(l.id);}localStorage.setItem('dw_betslip',JSON.stringify(existing));window.renderBetslipBar?.();window.syncAddButtons?.();}
@@ -279,6 +274,9 @@ function drawerLivebarHTML(doc){
 function refreshOpenDrawer(force=false){
   const drawer=document.getElementById('tsoHtDrawer');if(!drawer)return;
   const doc=currentDoc||{games:[]};
+  if(generated&&!generated.error&&!evaluateCombination(generated.legs,new Map(selectedReadyBoards(doc).map(b=>[String(b.gameId),b])))){
+    generated=null;history.clear();force=true;
+  }
   const livebar=drawer.querySelector('.tso-ht-livebar');if(livebar)livebar.innerHTML=drawerLivebarHTML(doc);
   const scroll=drawer.querySelector('.tso-ht-scroll');if(scroll&&(force||!generated)){scroll.innerHTML=controlsHTML(doc);wireDrawer(doc);}
 }

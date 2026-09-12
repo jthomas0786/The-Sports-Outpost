@@ -1,7 +1,7 @@
 import { mountOrUpdateNflPlaystageV886E, renderNflPlaystageV886EHTML } from './nfl/playstage-v886e.js?v=88.6e';
 import { ensureNflPlaystageV886EStyles } from './nfl/gamecast-v886e-styles.js?v=88.6e';
-import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=78';
-import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=88.4';
+import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=89.20';
+import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=89.20';
 import { getNflDemoMode, hydrateNflDemoState, postRenderNflDemoSync } from './nfl/demo-mode.js?v=88.5b';
 import { ensureNflGamecastV883aStyles } from './nfl/gamecast-v883a-styles.js?v=88.3a';
 import { ensureNflGamecastV883bStyles } from './nfl/gamecast-v883b-styles.js?v=88.3b';
@@ -1904,6 +1904,8 @@ function wire(root){
 export function selectTab(tab){
   if(!['radar','slate','live','feed','props','players','foryou'].includes(tab)) return;
   state.tab=tab; state.game=null; state.player=null; state.intelOpenGame=null;
+  const ccGame=window.DW_nflCommandCenterGame;
+  if(tab==='live'&&ccGame&&state.data?.games?.some(g=>String(g.id)===String(ccGame))){state.game=String(ccGame);state.gamecastTab='game';delete window.DW_nflCommandCenterGame;}
   if(tab==='props'){state.prop='atd'; state.propView='board';}
   render(); window.scrollTo({top:0,behavior:'smooth'});
 }

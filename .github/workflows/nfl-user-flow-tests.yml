@@ -1,0 +1,43 @@
+name: NFL Threat Alerts and Parlay Flow
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'index.html'
+      - 'sports/router.js'
+      - 'sports/nfl-preview*.js'
+      - 'sports/nfl/command-center*.js'
+      - 'sports/nfl/halftime-*.js'
+      - 'sports/nfl/live.js'
+      - 'sports/nfl/sim/**'
+      - 'scripts/nfl-v8920-flow-selftest.mjs'
+      - '.github/workflows/nfl-user-flow-tests.yml'
+permissions:
+  contents: read
+jobs:
+  nfl-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax
+        run: |
+          node --check sports/nfl/command-center.js
+          node --check sports/nfl/command-center-client.js
+          node --check sports/nfl/halftime-ui-v884.js
+          node --check sports/nfl/halftime-optimizer-v884.js
+          node --check sports/nfl/halftime-validity.js
+          node --check sports/nfl-preview.js
+      - name: NFL user flow replay tests
+        run: node scripts/nfl-v8920-flow-selftest.mjs
+      - name: Simulation and halftime regressions
+        run: |
+          npm run nfl:sim:test
+          npm run nfl:v89.18:test
+          node scripts/nfl-v8919-halftime-selftest.mjs
+          node scripts/nfl-v87-selftest.mjs
+          node scripts/nfl-v8917-prop-bridge-selftest.mjs
+          node scripts/nfl-v8917-prop-ui-selftest.mjs
