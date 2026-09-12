@@ -1,4 +1,4 @@
-import { buildNflCommandCenter, renderNflCommandCenter } from './command-center.js?v=89.20';
+import { buildNflCommandCenter, renderNflCommandCenter } from './command-center.js?v=89.20.1';
 
 let inputs={},busy=false,lastResearch=0;
 const liveUrl=()=>window.DW_NFL_LIVE_ENDPOINT||window.TSO_NFL_LIVE_URL||'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';

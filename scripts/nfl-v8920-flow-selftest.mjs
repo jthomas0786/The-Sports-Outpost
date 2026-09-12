@@ -49,6 +49,16 @@ const staleOdds=structuredClone(odds);staleOdds.games[0].players[0].odds.recYds.
 assert.equal(buildNflCommandCenter({liveDoc:{games:{g:base}},research,odds:staleOdds,now}).alerts.some(a=>a.type==='Prop watch'),false);
 assert.ok(!renderNflCommandCenter({...active,alerts:[{...active.alerts[0],name:'<script>alert(1)</script>'}]}).includes('<script>'));
 assert.ok(!/rerun|failed jobs|admin|Week 1|preview mode/i.test(renderNflCommandCenter(active)));
+const tdPlays=['Passing Touchdown','Rushing Touchdown','Interception Return Touchdown','Kickoff Return Touchdown','Field Goal Good','Safety','Extra Point Good'].map((type,i)=>({id:String(i),type}));
+const tdGame={...base,scoringPlays:[...tdPlays,tdPlays[0]]};
+assert.equal(run(tdGame).touchdowns,4,'offense, defense and returns count once; other scores and duplicate plays do not');
+assert.equal(run({...tdGame,scoringPlays:tdPlays.slice(1)}).touchdowns,3,'corrected scoring feed replaces the count');
+assert.equal(buildNflCommandCenter({liveDoc:{games:{g:tdGame,final:{...tdGame,status:'post',lastFetchedAt:now-86400000},pre:{status:'pre'}}},now}).touchdowns,8,'completed games stay in the slate total');
+assert.equal(run({...base,scoringPlays:[]}).touchdowns,0);
+assert.equal(run(base).touchdowns,null,'missing scoring data is not reported as zero');
+assert.equal(buildNflCommandCenter().touchdowns,null);
+assert.match(renderNflCommandCenter(run(tdGame)),/<b>4<\/b><span>Touchdowns<\/span>/);
+assert.match(renderNflCommandCenter(run(base)),/<b>—<\/b><span>Touchdowns<\/span>/);
 console.log('NFL v89.20 same-world, halftime validity, and live threat replay checks passed');
 
 // Actual engine -> halftime board -> browser optimizer bridge, including current
