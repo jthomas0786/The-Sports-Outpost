@@ -205,7 +205,8 @@ export function nextAutomationState({previousState=null,decision,result,game,now
   if(decision.checkpointMinutes!=null) out.checkpoints[String(decision.checkpointMinutes)]=stamp;
   if(decision.phase==='halftime'){
     out.halftimeRunAt=stamp;
-    out.halftimeCandidateAttempts=Number(prev.halftimeCandidateAttempts||0)+1;
+    // Missing sportsbook data must not consume the candidate retry budget.
+    out.halftimeCandidateAttempts=Number(prev.halftimeCandidateAttempts||0)+(result?.automation?.halftimeHasLiveOdds===false?0:1);
     out.halftimeCandidatesReady=result?.automation?.halftimeCandidatesReady===true;
     if(out.halftimeCandidatesReady){
       out.halftimeFingerprint=decision.fingerprint;

@@ -9,6 +9,9 @@ on:
       - 'sports/nfl/sim/engine.js'
       - 'sports/nfl/sim/profile.js'
       - 'sports/nfl/sim/auto.js'
+      - 'sports/nfl/sim/halftime.js'
+      - 'scripts/nfl-v8919-halftime-selftest.mjs'
+      - 'scripts/nfl-v87-selftest.mjs'
       - 'sports/nfl/sim/config.json'
       - 'scripts/nfl-sim-auto.mjs'
       - 'scripts/nfl-v8918-live-sim-selftest.mjs'
@@ -38,3 +41,9 @@ jobs:
         run: node scripts/nfl-v8918-live-sim-selftest.mjs
       - name: Quarter compatibility tests
         run: node scripts/nfl-v893-selftest.mjs
+      - name: Halftime execution and settled ATD tests
+        run: node scripts/nfl-v8919-halftime-selftest.mjs
+      - name: Halftime board and scheduler regression tests
+        run: |
+          node scripts/nfl-v87-selftest.mjs
+          node scripts/nfl-sim-auto-selftest.mjs

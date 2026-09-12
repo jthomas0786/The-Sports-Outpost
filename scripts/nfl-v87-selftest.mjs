@@ -56,7 +56,7 @@ const social=fs.readFileSync('social.js','utf8');
 assert.match(simAuto,/includeSamples:needHalftimeSamples/);
 assert.match(simAuto,/nfl-halftime\.json/);
 assert.match(auto,/halftimeCandidateAttempts/);
-assert.match(workflow,/nfl-halftime-odds-refresh\.mjs/);
+assert.match(workflow,/nfl-halftime-window-refresh\.mjs/);
 assert.match(workflow,/nfl-live-odds\.json/);
 assert.match(index,/Generate on Gambly/);
 assert.match(index,/Place Bet/);

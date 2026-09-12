@@ -152,7 +152,7 @@ export function buildHalftimeBoard({result,game,liveGame,liveOdds,config,generat
         if(price==null||line==null) continue;
         // A full-game ATD is already resolved once the player has scored. Never
         // surface a stale "anytime" live row as a fresh halftime candidate.
-        if(market==='atd' && Number(p?.current?.tds||0)>0) continue;
+        if(market==='atd' && (Number(p?.current?.rushTds||0)+Number(p?.current?.recTds||0)>0 || Number(p?.current?.tds||0)>0)) continue;
         const leg={playerId:String(p.playerId||''),market,side:side==='atd'?'over':side,line};
         const sim=evaluateLegFromArrays(sampleRec,leg,samples.iterations);
         if(sim==null) continue;
