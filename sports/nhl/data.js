@@ -27,10 +27,11 @@ export function mergeSummary(game,summary,now=Date.now()){
  for(const p of summary.plays||[]){
   if(!p.id||seen.has(String(p.id)))continue;seen.add(String(p.id));
   const period=num(p.period?.number),shootout=/shootout/i.test(`${p.type?.text||''} ${p.period?.displayValue||''} ${p.shotInfo?.text||''}`)||p.period?.type==='SO';
-  const scorer=p.participants?.find(x=>x.type==='scorer')?.athlete;
-  const play={id:String(p.id),text:p.text||'',period,clock:p.clock?.displayValue||'',team:[game.away,game.home].find(t=>t.id===String(p.team?.id))?.abbr||'',timestamp:p.wallclock||null,awayScore:num(p.awayScore),homeScore:num(p.homeScore),strength:p.strength?.text||'',shootout};
+  const participants=(p.participants||[]).map(x=>{const a=x.athlete||{};return {type:x.type||'',id:a.id!=null?String(a.id):'',name:a.displayName||a.fullName||'',photo:imageUrl(a.headshot?.href)};}).filter(x=>x.id||x.name);
+  const scorerRaw=p.participants?.find(x=>x.type==='scorer')?.athlete;
+  const play={id:String(p.id),type:p.type?.text||'',text:p.text||'',period,clock:p.clock?.displayValue||'',team:[game.away,game.home].find(t=>t.id===String(p.team?.id))?.abbr||'',timestamp:p.wallclock||null,awayScore:num(p.awayScore),homeScore:num(p.homeScore),strength:p.strength?.text||'',shootout,participants};
   next.plays.push(play);
-  if(p.scoringPlay&&p.type?.text==='Goal'&&!shootout)next.goals.push({...play,scorer:scorer?athlete(scorer,play.team,game.id):{name:'Scorer pending',photo:''}});
+  if(p.scoringPlay&&p.type?.text==='Goal'&&!shootout)next.goals.push({...play,scorer:scorerRaw?athlete(scorerRaw,play.team,game.id):{name:'Scorer pending',photo:''}});
  }
  next.plays=next.plays.slice(-40).reverse();next.goals.reverse();
  return next;
