@@ -27,5 +27,9 @@ for(let w=0;w<live.iterations;w++){
 }
 assert.equal(simulateRegulation({players:[]}).ready,false);assert.equal(simulateRegulation({players,status:'in',period:4}).ready,false);
 const injured=structuredClone(players);injured[0].active=false;const frozen=simulateRegulation({players:injured,iterations:100});assert.ok([...frozen.worlds[0].stats.sog].every(x=>x===4));
-assert.ok(fs.readFileSync('sports/router.js','utf8').includes("setVisible(document.getElementById('nhlView'), active === 'nhl')"));
-console.log('NHL: schedule, scorer IDs, shootout exclusion, box scores, stale/injury threats, 15K/50K and correlated regulation worlds passed');
+const router=fs.readFileSync('sports/router.js','utf8'),view=fs.readFileSync('sports/nhl/view.js','utf8'),css=fs.readFileSync('sports/nhl/style.css','utf8'),mobile=fs.readFileSync('tests/nhl-mobile.html','utf8');
+assert.ok(router.includes("setVisible(document.getElementById('nhlView'), active === 'nhl')"));
+for(const marker of ["slate:'NHL Slate'","live:'NHL Live'","feed:'Goal Feed'","props:'Props'",'hk-matchup-slate','hk-live-scorebar','hk-feed-card','hk-prop-card'])assert.ok(view.includes(marker),`missing NHL/NFL layout parity marker: ${marker}`);
+for(const marker of ['@media(max-width:900px)','@media(max-width:620px)','.hk-matchup-slate','.hk-live-grid','.hk-feed-card','.hk-prop-card'])assert.ok(css.includes(marker),`missing NHL responsive layout rule: ${marker}`);
+for(const marker of ['data-tab="slate"','data-tab="live"','data-tab="feed"','data-tab="props"','320','390','768'])assert.ok(mobile.includes(marker),`missing NHL mobile QA control: ${marker}`);
+console.log('NHL: schedule, scorer IDs, shootout exclusion, box scores, stale/injury threats, 15K/50K worlds and NFL-layout parity passed');
