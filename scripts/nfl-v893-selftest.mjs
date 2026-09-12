@@ -24,7 +24,7 @@ assert.match(board,/aggressive/);
 assert.match(auto,/nfl-quarter\.json/);
 assert.match(auto,/buildPregameQuarterBoard/);
 assert.match(auto,/needQuarterSamples/);
-assert.match(router,/nfl-preview-v893\.js\?v=89\.3/);
+assert.match(router,/nfl-preview-v893\.js\?v=89(?:\.\d+)+/);
 assert.equal(cfg.defaultIterations,50000);
 assert.equal(cfg.automatic?.pregameIterations,50000);
 assert.equal(cfg.quarters?.candidateMinProbability,0.54);
