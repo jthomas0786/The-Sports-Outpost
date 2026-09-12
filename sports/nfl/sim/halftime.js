@@ -9,7 +9,10 @@ export function impliedFromAmerican(price){
   return p>0 ? 100/(p+100) : (-p)/((-p)+100);
 }
 
-function finite(v){ const n=Number(v); return Number.isFinite(n)?n:null; }
+function finite(v){
+  if(v==null || typeof v==='boolean' || (typeof v==='string'&&!v.trim())) return null;
+  const n=Number(v); return Number.isFinite(n)?n:null;
+}
 function bestPrice(slot,side='over'){
   if(!slot) return null;
   if(side==='atd') return slot?.best || null;
@@ -38,15 +41,22 @@ function twoWayFair(side,sidePrice,otherPrice){
   const sum=a+b;
   return sum>0 ? a/sum : a;
 }
-function ageSeconds(offer,generatedAt){
-  const direct=finite(offer?.ageSeconds);
-  if(direct!=null) return direct;
-  const raw=offer?.ts;
-  let t=finite(raw);
-  if(t!=null && t<1e12) t*=1000;
-  if(t==null && raw) t=Date.parse(raw);
-  const now=Date.parse(generatedAt);
-  return Number.isFinite(t)&&Number.isFinite(now)?Math.max(0,(now-t)/1000):null;
+function timestampMs(value){
+  const n=finite(value);
+  if(n!=null) return n<1e12?n*1000:n;
+  return typeof value==='string'?Date.parse(value):NaN;
+}
+function ageSeconds(offer,generatedAt,fetchedAt){
+  const now=timestampMs(generatedAt),ts=timestampMs(offer?.ts);
+  const fetched=timestampMs(fetchedAt),direct=finite(offer?.ageSeconds);
+  const ages=[];
+  if(Number.isFinite(now)&&Number.isFinite(ts)) ages.push(Math.max(0,(now-ts)/1000));
+  if(direct!=null&&direct>=0){
+    // Stored age is measured at fetch time; it must keep aging in the cache.
+    const elapsed=Number.isFinite(now)&&Number.isFinite(fetched)?Math.max(0,(now-fetched)/1000):0;
+    ages.push(direct+elapsed);
+  }
+  return ages.length?Math.max(...ages):null;
 }
 function candidateGrade(prob,edge){
   if(prob>=.65&&edge>=.08) return 'A+';
@@ -160,15 +170,17 @@ export function buildHalftimeBoard({result,game,liveGame,liveOdds,config,generat
         if(market==='atd') fair=impliedFromAmerican(price);
         else{
           const other=side==='over'?bestPrice(slot,'under'):bestPrice(slot,'over');
-          fair=twoWayFair(side,price,finite(other?.price));
+          const otherAge=ageSeconds(other,generatedAt,liveOdds?.meta?.fetchedAt);
+          fair=twoWayFair(side,price,otherAge!=null&&otherAge<=maxAge?finite(other?.price):null);
         }
         if(fair==null) continue;
         const edge=sim-fair;
-        const age=ageSeconds(offer,generatedAt);
+        const age=ageSeconds(offer,generatedAt,liveOdds?.meta?.fetchedAt);
         const issues=[];
         if(sim<minProb) issues.push('simulation below minimum');
         if(edge<minEdge) issues.push('edge below minimum');
-        if(age!=null&&age>maxAge) issues.push('sportsbook price stale');
+        if(age==null) issues.push('sportsbook price freshness unknown');
+        else if(age>maxAge) issues.push('sportsbook price stale');
         const id=candidateId(gameId,p,market,side,line);
         const c={
           id,gameId,playerId:String(p.playerId||''),espnId:p.espnId||null,name:p.name,team:p.team,position:p.position,
