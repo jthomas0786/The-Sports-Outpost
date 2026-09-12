@@ -9,6 +9,8 @@ on:
       - 'sports/nfl/command-center*.js'
       - 'sports/nfl/halftime-*.js'
       - 'sports/nfl/live.js'
+      - 'sports/nfl/td-scorer.js'
+      - 'scripts/nfl-td-scorer-selftest.mjs'
       - 'sports/nfl/sim/**'
       - 'scripts/nfl-v8920-flow-selftest.mjs'
       - '.github/workflows/nfl-user-flow-tests.yml'
@@ -32,7 +34,9 @@ jobs:
           node --check sports/nfl/halftime-validity.js
           node --check sports/nfl-preview.js
       - name: NFL user flow replay tests
-        run: node scripts/nfl-v8920-flow-selftest.mjs
+        run: |
+          node scripts/nfl-v8920-flow-selftest.mjs
+          node scripts/nfl-td-scorer-selftest.mjs
       - name: Simulation and halftime regressions
         run: |
           npm run nfl:sim:test

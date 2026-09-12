@@ -1,3 +1,4 @@
+import { touchdownScorer } from './nfl/td-scorer.js?v=89.20.2';
 import { mountOrUpdateNflPlaystageV886E, renderNflPlaystageV886EHTML } from './nfl/playstage-v886e.js?v=88.6e';
 import { ensureNflPlaystageV886EStyles } from './nfl/gamecast-v886e-styles.js?v=88.6e';
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=89.20';
@@ -1160,23 +1161,7 @@ function tdFeedEvents(){
   return out.sort((a,b)=>b.order-a.order);
 }
 function tdScorerForPlay(g,play){
-  const raw=String(play?.text||play?.shortText||'');
-  const text=raw.toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-  const team=normNflTeam(play?.team||'');
-  const list=(data().players||[]).filter(p=>String(p.gameId)===String(g.id)&&(!team||p.team===team));
-  const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-  const ranked=[...list].sort((a,b)=>String(b.name||'').length-String(a.name||'').length);
-  const afterTo=/\bpass\b|\bcomplete/i.test(raw)?norm(raw.split(/\bto\b/i).slice(1).join(' to ')):'';
-  if(afterTo){
-    for(const p of ranked){const full=norm(p.name),last=full.split(' ').at(-1)||'';if((full&&afterTo.includes(full))||(last.length>=4&&new RegExp(`\\b${last}\\b`).test(afterTo)))return p;}
-  }
-  const runner=/\b(rush|run|scramble)\b/i.test(raw)?text:'';
-  if(runner){
-    for(const p of ranked){const full=norm(p.name),last=full.split(' ').at(-1)||'';if((full&&runner.includes(full))||(last.length>=4&&new RegExp(`\\b${last}\\b`).test(runner)))return p;}
-  }
-  for(const p of ranked){const full=norm(p.name);if(full&&text.includes(full))return p;}
-  for(const p of ranked){const last=norm(p.name).split(' ').at(-1)||'';if(last.length>=4&&new RegExp(`\\b${last}\\b`).test(text))return p;}
-  return null;
+  return touchdownScorer(g,play,data().players||[]);
 }
 
 function firstTdPlayForGame(g,play){
