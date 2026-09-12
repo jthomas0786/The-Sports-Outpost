@@ -30,10 +30,12 @@ for(let w=0;w<live.iterations;w++){
 assert.equal(simulateRegulation({players:[]}).ready,false);assert.equal(simulateRegulation({players,status:'in',period:4}).ready,false);
 const injured=structuredClone(players);injured[0].active=false;const frozen=simulateRegulation({players:injured,iterations:100});assert.ok([...frozen.worlds[0].stats.sog].every(x=>x===4));
 const full=simulateFullGame({players,status:'pre',seasonType:2,lineupsConfirmed:true,iterations:250,seed:9});assert.equal(full.ready,true);assert.ok(Array.isArray(full.players[0].metrics.sog.distribution));assert.ok(full.players[0].metrics.sog.distribution.length>0);
-const dist={distribution:[[0,.2],[1,.3],[2,.5]],atLeastOne:.8};assert.equal(overProbability(dist,.5),.8);assert.equal(overProbability(dist,1.5),.5);
+const dist={distribution:[[0,.2],[1,.3],[2,.5]],atLeastOne:.8};assert.equal(overProbability(dist,.5),.8);assert.equal(overProbability(dist,1.5),.5);assert.equal(overProbability(dist,null),null);
 for(const [p,g] of [[.70,'A+'],[.65,'A'],[.61,'A-'],[.57,'B+'],[.54,'B'],[.51,'B-'],[.48,'C+'],[.47,'C']])assert.equal(gradeForLean(p),g);
+assert.equal(gradeForLean(null),'—');assert.equal(gradeForLean(undefined),'—');
 assert.equal(gradeColor('A+'),'#22c55e');assert.equal(gradeColor('B'),'#f4c430');assert.equal(gradeColor('C+'),'#ff9f43');
 const ring=gradeRingHTML(.72,'A+','lg');assert.match(ring,/stroke-dasharray="326.7"/);assert.match(ring,/>A\+</);assert.match(ring,/>72%</);
+const pendingRing=gradeRingHTML(null,'—','lg');assert.match(pendingRing,/>—</);assert.doesNotMatch(pendingRing,/>0%</);
 const router=fs.readFileSync('sports/router.js','utf8'),view=fs.readFileSync('sports/nhl/view.js','utf8'),css=fs.readFileSync('sports/nhl/style.css','utf8'),gradeCss=fs.readFileSync('sports/nhl/grade.css','utf8'),mobile=fs.readFileSync('tests/nhl-mobile.html','utf8');
 assert.ok(router.includes("setVisible(document.getElementById('nhlView'), active === 'nhl')"));
 for(const marker of ["slate:'NHL Slate'","live:'NHL Live'","feed:'Goal Feed'","props:'Props'",'hk-matchup-slate','hk-live-scorebar','hk-feed-card','hk-prop-card','hk-prop-grade','gradeRingHTML'])assert.ok(view.includes(marker),`missing NHL/NFL layout parity marker: ${marker}`);
