@@ -40,10 +40,10 @@ export const SPORTS = {
     slateUnit: 'day',          primaryProp: 'atg',
     eventNoun: 'goal',         eventVerb: 'lit the lamp',
     matchupLabel: 'vs Goalie', lineupSource: 'goalie',
-    adapterReady: false,       seasonStart: '2026-09-29',
-    uiReady: false,
+    adapterReady: true,        seasonStart: null,
+    uiReady: true,
     slateUrl: './slates/nhl.json',
-    props: ['atg', 'sog', 'points', 'assists', 'blocks'],
+    props: ['atg', 'sog', 'points', 'assists', 'blocks', 'saves'],
   },
   nba: {
     brand: 'NBA',    short: 'NBA',      accent: '#a855f7',

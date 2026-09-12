@@ -14,7 +14,7 @@
  * toggle `hidden` on its containers vs the #nflView container. No existing CSS
  * class or DOM id is renamed or removed.
  */
-import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js';
+import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 
@@ -99,6 +99,11 @@ async function swapView(active) {
 
   MLB_SELECTORS.forEach(sel => setVisible(document.querySelector(sel), showingMlb));
   setVisible(nflView, active === 'nfl');
+  setVisible(document.getElementById('nhlView'), active === 'nhl');
+  if(active === 'nhl'){
+    try { await (await import('./nhl/view.js?v=90.0')).mount(); }
+    catch { document.getElementById('nhlView').textContent='Hockey is temporarily unavailable. Please try again shortly.'; }
+  }
   setVisible(document.getElementById('nflSideNav'), false);
 
   document.documentElement.setAttribute('data-sport', active);

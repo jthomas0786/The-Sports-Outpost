@@ -5311,6 +5311,7 @@ body.modal-open{ overflow:hidden; }
 /* v62 — standalone MLB Gamecast modal cleanup. */
 .mlb-live-gc-shell .gc-props-list{display:none!important}
 </style>
+<link rel="stylesheet" href="./sports/nhl/style.css?v=90.0">
 </head>
 <body class="dw-booting">
 
@@ -5528,6 +5529,7 @@ body.modal-open{ overflow:hidden; }
          sports/router.js?v=88.6e on #nfl. Hidden by default so the MLB experience is
          completely unaffected. All classes are `nfl-` prefixed — no collisions. -->
     <div class="nfl-view sport-mock-view" id="nflView" hidden></div>
+    <div id="nhlView" hidden></div>
 
 <footer>
   All game, roster, player, pitcher, and weather data is loaded from <b>slate.json</b>, rebuilt each morning by <code>build-slate.js</code> against the MLB Stats API and Open-Meteo. Because it is server-generated and served same-origin, it does not depend on the browser making cross-origin calls — and stats, trades, and injuries self-correct daily.
@@ -7503,7 +7505,7 @@ const sectionSub = document.getElementById('sectionSub');
 const SB_SPORTS = {
   mlb: { brand:'MLB', accent:'#22c55e', adapterReady:true, seasonStart:null },
   nfl: { brand:'NFL', accent:'#f59e0b', adapterReady:true, seasonStart:null },
-  nhl: { brand:'NHL', accent:'#38bdf8', adapterReady:false, seasonStart:'2026-09-29' },
+  nhl: { brand:'NHL', accent:'#38bdf8', adapterReady:true, seasonStart:null },
   nba: { brand:'NBA', accent:'#a855f7', adapterReady:false, seasonStart:'2026-10-20' },
 };
 const SB_SPORT_ORDER = ['mlb','nfl','nhl','nba'];
@@ -7543,6 +7545,8 @@ function renderSidebarSports(){
         <button type="button" class="sb-sub-item ${nflTab==='feed'?'is-active':''}" data-nfl-preview-tab="feed">TD Feed</button>
         <button type="button" class="sb-sub-item ${nflTab==='props'?'is-active':''}" data-nfl-preview-tab="props">Props</button>
       `;
+    } else if(key === 'nhl'){
+      panelInner = Object.entries({slate:'Slate',live:'Live',feed:'Goal Feed',props:'Props'}).map(([id,label])=>`<button type="button" class="sb-sub-item ${window.DW_nhlTab===id?'is-active':''}" data-nhl-tab="${id}">${label}</button>`).join('');
     } else {
       panelInner = `<div class="sb-soon-note">${s.brand} isn't connected yet — this section is ready and waiting.</div>`;
     }
@@ -7570,6 +7574,7 @@ function renderSidebarSports(){
       window.DW_selectTab?.(btn.dataset.mlbTab);
     });
   });
+  host.querySelectorAll('[data-nhl-tab]').forEach(btn=>btn.addEventListener('click',()=>{window.DW_nhlPendingTab=btn.dataset.nhlTab;if(location.hash!=='#nhl')location.hash='nhl';else window.DW_openNhlTab?.(btn.dataset.nhlTab);}));
   // NFL preview rows use a pending-tab handoff instead of a fixed timeout.
   // That makes Slate/Live reliable even when the NFL module has not finished
   // lazy-loading yet (or the browser is doing a cold network fetch).
@@ -11407,7 +11412,7 @@ let ccSeenThreatKeys = new Set();
  *  refreshes games) — flips the global trigger red the moment a threat
  *  exists that hasn't been marked seen yet, green otherwise. */
 function refreshCommandCenterAlertState(){
-  const current = [...computeThreatPlays(),...(window.DW_NFL_COMMAND_CENTER?.alerts()||[]).map(a=>({_threatKey:a.key}))];
+  const current = [...computeThreatPlays(),...[...(window.DW_NFL_COMMAND_CENTER?.alerts()||[]),...(window.DW_NHL_COMMAND_CENTER?.alerts()||[])].map(a=>({_threatKey:a.key}))];
   const hasUnseen = current.some(p => !ccSeenThreatKeys.has(p._threatKey));
   document.getElementById('ccGlobalTrigger')?.classList.toggle('has-alert', hasUnseen);
 }
@@ -11419,6 +11424,7 @@ function refreshCommandCenterAlertState(){
 function markCommandCenterAlertsSeen(){
   const football=document.querySelector('#ccFootballCol')?.classList.contains('active');
   if(football)(window.DW_NFL_COMMAND_CENTER?.alerts()||[]).forEach(a=>ccSeenThreatKeys.add(a.key));
+  else if(document.querySelector('#ccHockeyCol')?.classList.contains('active'))(window.DW_NHL_COMMAND_CENTER?.alerts()||[]).forEach(a=>ccSeenThreatKeys.add(a.key));
   else computeThreatPlays().forEach(p=>ccSeenThreatKeys.add(p._threatKey));
   refreshCommandCenterAlertState();
 }
@@ -11571,19 +11577,11 @@ function ccBuildFootballHTML(){
   return window.DW_NFL_COMMAND_CENTER?.html() || '<div class="cc-col-title">Football</div><div class="cc-empty-note">Loading NFL live action…</div>';
 }
 
-/** Hockey and Basketball — no data pipeline exists for either sport at
- *  all right now (confirmed: only sports/mlb/ and sports/nfl/ exist).
- *  Built as honest placeholders, not fake content, so they're ready to
- *  wire up the moment real data work happens — not a mockup pretending
- *  to be real. */
+/** Hockey uses the live NHL adapter; basketball remains a placeholder. */
 function ccBuildHockeyHTML(){
-  return `
-    <div class="cc-coming-soon">
-      <div class="icon"><img src="icon-hockey.png" alt="" style="width:48px; height:48px;"></div>
-      <h3>Hockey — Coming Soon</h3>
-      <p>NHL data isn't connected to The Sports Outpost yet. This section is ready and waiting for that work.</p>
-    </div>
-  `;
+  if(window.DW_NHL_COMMAND_CENTER){window.DW_NHL_COMMAND_CENTER.refresh();return window.DW_NHL_COMMAND_CENTER.html();}
+  import('./sports/nhl/view.js?v=90.0').then(m=>m.mount()).catch(()=>{});
+  return '<div class="cc-col-title">Hockey</div><div class="cc-empty-note">Loading hockey…</div>';
 }
 function ccBuildBasketballHTML(){
   return `
@@ -11608,6 +11606,7 @@ function openCommandCenter(event, btn){
   wireCommandCenterPlayerLinks(baseballHost);
   ccLoadBaseballWagerTrend();
   const activeTab=backdrop.querySelector('.cc-tab.active')?.dataset.tab;
+  if(activeTab==='hockey')document.getElementById('ccHockeyCol').innerHTML=ccBuildHockeyHTML();
   if(activeTab==='football')document.getElementById('ccFootballCol').innerHTML=ccBuildFootballHTML();
   backdrop.classList.add('is-open');
   markCommandCenterAlertsSeen();
@@ -21991,7 +21990,7 @@ document.addEventListener('visibilitychange', ()=>{
 </div>
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
-<script type="module" src="./sports/router.js?v=89.20.2"></script>
+<script type="module" src="./sports/router.js?v=90.0"></script>
 <script type="module" src="./sports/nfl/command-center-client.js?v=89.21"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 

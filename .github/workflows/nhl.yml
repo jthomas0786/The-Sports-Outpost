@@ -1,0 +1,47 @@
+name: NHL Data and Tests
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports/nhl/**'
+      - 'sports/registry.js'
+      - 'sports/router.js'
+      - 'scripts/nhl-*.mjs'
+      - '.github/workflows/nhl.yml'
+permissions:
+  contents: write
+concurrency:
+  group: nhl-data
+  cancel-in-progress: false
+jobs:
+  hockey:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: NHL regression scenarios
+        run: |
+          node --check sports/nhl/view.js
+          node scripts/nhl-selftest.mjs
+      - name: Refresh NHL slate
+        run: node scripts/nhl-refresh.mjs
+      - name: Publish NHL data only
+        run: |
+          git config user.name "TSO NHL Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add slates/nhl.json
+          git diff --staged --quiet && exit 0
+          git commit -m "Refresh NHL slate"
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main || exit 1
+            git push origin HEAD:main && exit 0
+            sleep 3
+          done
+          exit 1
