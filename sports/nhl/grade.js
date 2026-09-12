@@ -1,5 +1,8 @@
 // Shared NHL grade/ring behavior intentionally mirrors the NFL product.
 // Keep thresholds, colors, circumference and sizes in lockstep with NFL.
+if(typeof document!=='undefined'&&!document.getElementById('nhl-grade-rings-v904')){
+ const link=document.createElement('link');link.id='nhl-grade-rings-v904';link.rel='stylesheet';link.href='./sports/nhl/grade.css?v=90.4';document.head.appendChild(link);
+}
 export const NHL_RING_C=326.7;
 
 export function gradeForLean(probability){
