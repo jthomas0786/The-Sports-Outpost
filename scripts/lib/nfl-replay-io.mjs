@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 export const option=(name,fallback=null)=>{const i=process.argv.indexOf(`--${name}`);return i<0?fallback:process.argv[i+1]};
 export async function writeReplayFile(file,value){
   const out=path.resolve(file),root=path.resolve('artifacts/nfl-replay');
@@ -48,6 +49,21 @@ export function archiveFromGit({gameId,ref='origin/main',limit=100}){
     if(archive.frames.some(f=>f.at===at))continue;
     archive.frames.push({at,source:sha,liveGame:{...live,lastFetchedAt:observed}});
   }
+  for(const {file,frame} of capturedFrames(head,gameId)){
+    if(!archive.game)archive.game=frame.game;
+    if(archive.frames.some(f=>f.at===frame.at))continue;
+    const records=[];let damaged=false;
+    for(const kind of ['research','odds','liveOdds']){
+      const ref=frame.refs?.[kind];if(!ref)continue;
+      if(!/^[a-f0-9]{64}$/.test(ref)){damaged=true;break;}
+      const data=read(head,`history/nfl/inputs/${ref}.json`);
+      if(!data||createHash('sha256').update(JSON.stringify(data)).digest('hex')!==ref){damaged=true;break;}
+      records.push({kind,record:{availableAt:frame.at,source:`${head}:history/nfl/inputs/${ref}.json`,data}});
+    }
+    if(damaged){archive.skipped.push({source:file,reason:'Missing or damaged captured input'});continue;}
+    for(const {kind,record} of records)(archive[kind]??=[]).push(record);
+    archive.frames.push({at:frame.at,source:`${head}:${file}`,liveGame:frame.liveGame});
+  }
   archive.frames.sort((a,b)=>Date.parse(a.at)-Date.parse(b.at));
   if(!archive.frames.length)throw new Error('No archived frames for this game');
   return archive;
@@ -66,5 +82,16 @@ export function discoverReplayGames({ref='origin/main',limit=100}={}){
       record.captures++;games.set(gameId,record);
     }
   }
+  for(const {frame} of capturedFrames(head)){
+    const gameId=String(frame.gameId),record=games.get(gameId)||{gameId,away:frame.game.away.abbr,home:frame.game.home.abbr,states:[],captures:0};
+    if(!record.states.includes(frame.liveGame.status))record.states.push(frame.liveGame.status);
+    record.captures++;games.set(gameId,record);
+  }
   return {head,limit,scannedCommits:commits.length,games:[...games.values()].sort((a,b)=>a.gameId.localeCompare(b.gameId))};
+}
+
+function capturedFrames(head,gameId=null){
+  const prefix=gameId?`history/nfl/frames/${gameId}/`:'history/nfl/frames/';
+  const files=git('ls-tree','-r','--name-only',head,'--',prefix).trim().split('\n').filter(Boolean);
+  return files.map(file=>({file,frame:read(head,file)})).filter(({frame})=>frame?.schemaVersion===1&&frame.game&&frame.liveGame&&Number.isFinite(Date.parse(frame.at))).sort((a,b)=>Date.parse(a.frame.at)-Date.parse(b.frame.at));
 }

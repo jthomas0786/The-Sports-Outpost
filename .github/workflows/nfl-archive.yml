@@ -1,0 +1,45 @@
+name: NFL Historical Capture
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/nfl-archive.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+permissions:
+  contents: write
+concurrency:
+  group: nfl-historical-capture
+  cancel-in-progress: false
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Capture current game inputs without running simulations
+        env:
+          NFL_LIVE_CAPTURE_MODE: '1'
+          NFL_LIVE_OUT: ${{ runner.temp }}/nfl-archive-live.json
+        run: |
+          node scripts/nfl-live-poller.mjs
+          node scripts/nfl-capture.mjs
+      - name: Preserve immutable historical captures
+        run: |
+          git config user.name "TSO NFL Archive Bot"
+          git config user.email "actions@users.noreply.github.com"
+          if [ ! -d history/nfl ]; then exit 0; fi
+          git add history/nfl
+          if git diff --staged --quiet; then exit 0; fi
+          git commit -m "Archive NFL live game inputs"
+          for attempt in 1 2 3 4 5; do
+            if git push origin "HEAD:${GITHUB_REF_NAME}"; then exit 0; fi
+            git pull --rebase origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1

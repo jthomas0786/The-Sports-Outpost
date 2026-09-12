@@ -177,3 +177,44 @@ finals and fourteen had only pregame states. Both completed games had a valid
 pregame forecast; only one had live Q3 snapshots. Neither had a halftime capture.
 `nfl-corpus-validation.json` records the production-count batch validation.
 Two games are still insufficient for model tuning or a meaningful holdout study.
+
+## Ongoing live capture
+
+The `NFL Historical Capture` workflow runs independently on the five-minute
+GitHub Actions schedule. It performs no simulations or paid sportsbook requests.
+It polls ESPN through the existing live poller into a temporary file, then saves
+current game inputs under `history/nfl/`. The normal production poller's output
+path and idle behavior remain the default; capture mode explicitly opts into a
+temporary path and an up-to-date idle/pregame observation.
+
+Captures cover the last three pregame hours, live regulation/overtime, halftime,
+and finals. Unchanged pregame inputs are checkpointed at 15-minute intervals;
+changed live state or input documents produce new captures. Unchanged halftime
+and final states deduplicate. Final corrections produce new captures. A failed
+summary fetch or an observation older than two minutes is excluded rather than
+saved as a complete box score.
+
+Each frame stores its observed clock, score, possession, field position,
+player/team stats and scoring plays, plus references to the research, odds and
+cached live-odds documents present at capture time. Research/odds are filtered to
+the game, stored once by content hash, and shared by frames. Cached live odds
+are preserved for later evaluation; this does not imply quote freshness or
+tradability, and the current replay model continues to use its archived ordinary
+odds input. Missing research may be archived as missing evidence, but predictive
+replay will reject frames without a usable historical roster.
+
+Files are append-only: an existing capture is never overwritten. The archive
+job stages only `history/nfl/`, and push retries rebase onto the latest branch
+without force-pushing. It cannot replace bot-owned live, odds or simulation
+outputs. It does not cancel a running capture when a newer schedule is queued.
+The regular live simulation and user-facing Command Center workflows are unchanged.
+
+Git discovery and replay import both the older live-file history and these
+explicit captures. The timestamp on a referenced input means it was available
+when that frame was captured; later input revisions cannot rewrite earlier frames.
+
+A five-minute GitHub schedule is not a real-time guarantee: scheduler delays,
+API outages or a short halftime can still leave gaps. The coverage report remains
+the authority on what was actually captured. No missing historical halftime is
+backfilled with final statistics. The first new workflow run validates publishing;
+real halftime coverage can only be verified when an actual halftime is observed.

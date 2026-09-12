@@ -12,7 +12,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 const ROOT=process.cwd();
-const OUT=path.join(ROOT,'slates','nfl-live.json');
+const OUT=path.resolve(ROOT,process.env.NFL_LIVE_OUT||'slates/nfl-live.json');
 const SLATE=path.join(ROOT,'slates','nfl.json');
 const UA='TheSportsOutpost/1.0 (+https://thesportsoutpost.com)';
 const SCOREBOARD='https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100';
@@ -205,7 +205,7 @@ async function main(){
   const weekChanged=String(existing?.weekKey||'')!==weekKey;
   // Between games, keep the accumulated weekly TD/box-score snapshot intact.
   // The ONLY automatic reset boundary is a new weekly slate (Tuesday morning).
-  if(active===0 && !hadLive && !weekChanged){ console.log(`NFL live snapshot: ${weekKey} idle; weekly file preserved.`); return; }
+  if(active===0 && !hadLive && !weekChanged && process.env.NFL_LIVE_CAPTURE_MODE!=='1'){ console.log(`NFL live snapshot: ${weekKey} idle; weekly file preserved.`); return; }
   const out={schemaVersion:4,weekKey,season:slate?.season??null,seasonType:slate?.seasonType??null,week:slate?.week??null,lastFetchedAt:Date.now(),generatedAt:new Date().toISOString(),games};
   await fs.writeFile(OUT,JSON.stringify(out,null,2)+'\n');
   console.log(`NFL live snapshot: ${weekChanged?`weekly reset -> ${weekKey}; `:``}${active} live / ${Object.keys(games).length} scoreboard games -> ${path.relative(ROOT,OUT)}`);

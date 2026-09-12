@@ -6,6 +6,10 @@ on:
       - 'sports/nfl/sim/**'
       - 'scripts/nfl-replay*.mjs'
       - 'scripts/lib/nfl-*replay*.mjs'
+      - 'scripts/lib/nfl-capture.mjs'
+      - 'scripts/nfl-capture*.mjs'
+      - 'scripts/nfl-live-poller.mjs'
+      - '.github/workflows/nfl-archive.yml'
       - '.github/workflows/nfl-replay-tests.yml'
 permissions:
   contents: read
@@ -23,6 +27,7 @@ jobs:
           node scripts/nfl-replay-selftest.mjs
           node scripts/nfl-replay-accuracy-selftest.mjs
           node scripts/nfl-replay-coverage-selftest.mjs
+          node scripts/nfl-capture-selftest.mjs
       - name: Replay CLI syntax
         run: |
           node --check scripts/nfl-replay.mjs
