@@ -2,7 +2,7 @@
 
 The simulation replay evaluates the current model with inputs archived at each
 historical moment. It is not a recreation of the model version deployed then,
-and it is not yet a performance backtest or proof of predictive accuracy.
+and its descriptive accuracy scores are not proof of general predictive accuracy.
 
 ## Run
 
@@ -55,7 +55,7 @@ and future offer timestamps are rejected as an additional check.
 
 Historical odds are model comparison inputs, not a claim that a quote was still
 tradable. This runner does not calculate betting returns, apply transaction
-costs, or grade a strategy. Those belong to the next backtesting stage.
+costs, or grade a strategy. The separate accuracy scorer below evaluates forecasts.
 
 ## Visual summary replay
 
@@ -72,3 +72,60 @@ are marked incomplete and cannot enter the historical simulation runner.
 A completed ESPN summary alone cannot establish which player statistics,
 injuries, research priors, or sportsbook quotes were known at every past moment.
 Use recorded snapshots for predictive evaluation.
+
+## Accuracy scoring
+
+Grade saved forecasts after a final observation is available, without rerunning
+or modifying the forecasts:
+
+```sh
+node scripts/nfl-replay-accuracy.mjs --reports artifacts/nfl-replay/401872657-report.json
+node scripts/nfl-replay-accuracy-selftest.mjs
+```
+
+`--reports` accepts comma-separated report paths. Different games can be pooled
+only when both their model-code and configuration hashes are present and match.
+Duplicate games are rejected. Diagnostic iteration overrides require an explicit
+`--allow-test`, and the resulting accuracy output remains marked as test data.
+
+The scorer uses the latest recorded final correction as the outcome, but excludes
+any forecast at or after the first final observation. It checks game and team
+identity, matches players by ESPN ID or an unambiguous team/name match, and never
+fills a missing player or stat field with zero. Explicit zero values are graded.
+Final data flows into the scorer only; it never goes back into the simulator.
+
+Metrics, grouped by stat rather than mixing yards and counts:
+
+- MAE: average absolute error of the simulated mean, in that stat's units.
+- RMSE: square root of average squared error; larger misses receive more weight.
+- Bias: mean prediction minus actual. Positive means overprojection.
+- Median MAE: absolute error using the simulated median.
+- 80% interval coverage: fraction of actual results inside inclusive p10–p90.
+  Discrete outcomes mean nominal and observed coverage need not match exactly.
+- ATD Brier: average `(probability - outcome)^2`, ranging from 0 to 1; lower is
+  better. Passing TDs do not count. Already-scored ATD events are skipped. A
+  positive rushing/receiving TD establishes a hit; a miss requires explicit zero
+  for both fields. Missing TD categories therefore reduce eligible coverage.
+- Prop Over Brier: same binary score, with pushes excluded and probabilities
+  conditioned on no push: `pOver / (pOver + pUnder)`. Both simulation sides at
+  the same recorded line are required. Already-reached count thresholds are
+  skipped. Yardage can decrease, so yardage markets are not treated as settled.
+- Winner Brier: sum of squared errors across away win, home win, and tie; range
+  0–2, so do not directly compare it with binary Brier scores. Published rounded
+  probabilities are normalized to sum to one.
+- Probability bins: ten ranges with sample count, average predicted probability,
+  and observed hit rate. Sparse bins are descriptive, not evidence of calibration.
+
+All valid forecasts remain in `frames` for inspection. Phase summaries use only
+the earliest captured forecast per game and phase/live quarter, so frequent
+polling does not give a game more weight. Pregame, halftime, and each live quarter
+are separate. `gameCount` is shown separately from player/stat observations,
+which are correlated and are not independent games. Missing rows/fields, settled
+events, and pushes have exclusion counts on each frame.
+
+The first validation game had 3 usable forecasts: pregame and two Q3 snapshots.
+The summary uses pregame and the first Q3 snapshot; there was no real halftime
+capture. The comparison and coverage counts are in `nfl-accuracy-validation.json`.
+This is a functionality and descriptive-error check on one game, not evidence
+of general accuracy, a tuned model, or a profitable betting strategy. Broader
+archived game coverage and a separate holdout set are required before tuning.

@@ -1,0 +1,186 @@
+{
+  "gameId": "401872657",
+  "scoredGames": 1,
+  "forecastFrames": 3,
+  "selection": "Earliest archived forecast per game per phase or live quarter; no cross-phase pooling",
+  "sources": [
+    {
+      "file": "artifacts/nfl-replay/401872657-full-report.json",
+      "sha256": "e812dbaef3f2509c3aad3aade1b1211351fe6eb4862c2145ef9449363721adc9",
+      "modelCodeSha256": null,
+      "configSha256": "33a07e6e0806c4d8d7dc676f8189b918a3908323b5d7f7e7b6bc944a337ccf54"
+    }
+  ],
+  "byPhase": {
+    "pregame": {
+      "gameCount": 1,
+      "forecastCount": 1,
+      "projections": {
+        "passYds": {
+          "observations": 3,
+          "mae": 42.883333333333326,
+          "rmse": 66.12147230665693,
+          "bias": 34.21666666666666,
+          "medianMae": 41.333333333333336,
+          "intervalObservations": 3,
+          "interval80Coverage": 0.3333333333333333
+        },
+        "rushYds": {
+          "observations": 9,
+          "mae": 14.219999999999999,
+          "rmse": 18.325057526057954,
+          "bias": -6.2266666666666675,
+          "medianMae": 15.222222222222221,
+          "intervalObservations": 9,
+          "interval80Coverage": 0.4444444444444444
+        },
+        "recYds": {
+          "observations": 17,
+          "mae": 13.250588235294117,
+          "rmse": 16.91883704806047,
+          "bias": -2.2270588235294113,
+          "medianMae": 12.941176470588236,
+          "intervalObservations": 17,
+          "interval80Coverage": 0.8235294117647058
+        },
+        "receptions": {
+          "observations": 17,
+          "mae": 1.2958823529411765,
+          "rmse": 1.7831383437471071,
+          "bias": -0.7676470588235296,
+          "medianMae": 1.3529411764705883,
+          "intervalObservations": 17,
+          "interval80Coverage": 0.8235294117647058
+        }
+      },
+      "winner": {
+        "observations": 1,
+        "multiclassBrier": 0.57437928
+      },
+      "probabilities": {
+        "atd": {
+          "observations": 7,
+          "brier": 0.4466083342857144
+        }
+      }
+    },
+    "live:Q3": {
+      "gameCount": 1,
+      "forecastCount": 1,
+      "projections": {
+        "passYds": {
+          "observations": 3,
+          "mae": 19.53,
+          "rmse": 25.503433102231547,
+          "bias": 10.863333333333335,
+          "medianMae": 18,
+          "intervalObservations": 3,
+          "interval80Coverage": 0.6666666666666666
+        },
+        "rushYds": {
+          "observations": 9,
+          "mae": 10.973333333333336,
+          "rmse": 12.750837009563115,
+          "bias": -0.49777777777777693,
+          "medianMae": 10.777777777777779,
+          "intervalObservations": 9,
+          "interval80Coverage": 0.5555555555555556
+        },
+        "recYds": {
+          "observations": 17,
+          "mae": 8.373529411764707,
+          "rmse": 10.899964112191324,
+          "bias": -1.5888235294117643,
+          "medianMae": 8.882352941176471,
+          "intervalObservations": 17,
+          "interval80Coverage": 0.8235294117647058
+        },
+        "receptions": {
+          "observations": 17,
+          "mae": 0.9323529411764705,
+          "rmse": 1.224305325240303,
+          "bias": -0.5323529411764706,
+          "medianMae": 1.0588235294117647,
+          "intervalObservations": 17,
+          "interval80Coverage": 0.8235294117647058
+        }
+      },
+      "winner": {
+        "observations": 1,
+        "multiclassBrier": 0.4761788600000001
+      },
+      "probabilities": {
+        "rushYds:over": {
+          "observations": 4,
+          "brier": 0.24083462249999998
+        },
+        "recYds:over": {
+          "observations": 6,
+          "brier": 0.15099637666666668
+        },
+        "atd": {
+          "observations": 5,
+          "brier": 0.36899433
+        },
+        "receptions:over": {
+          "observations": 10,
+          "brier": 0.21746016399999996
+        },
+        "passYds:over": {
+          "observations": 2,
+          "brier": 0.38732213000000004
+        },
+        "passTds:over": {
+          "observations": 2,
+          "brier": 0.18701545000000003
+        },
+        "completions:over": {
+          "observations": 2,
+          "brier": 2.3120000000000192e-05
+        }
+      }
+    }
+  },
+  "frameCoverage": [
+    {
+      "at": "2026-09-09T13:40:04.000Z",
+      "bucket": "pregame",
+      "skipped": {
+        "missingPlayerRows": 24,
+        "missingStats": 178,
+        "missingAtdOutcome": 17,
+        "settledEvents": 0,
+        "pushes": 0
+      }
+    },
+    {
+      "at": "2026-09-11T02:16:30.000Z",
+      "bucket": "live:Q3",
+      "skipped": {
+        "missingPlayerRows": 24,
+        "missingStats": 178,
+        "missingAtdOutcome": 17,
+        "settledEvents": 6,
+        "pushes": 0
+      }
+    },
+    {
+      "at": "2026-09-11T02:34:09.000Z",
+      "bucket": "live:Q3",
+      "skipped": {
+        "missingPlayerRows": 24,
+        "missingStats": 178,
+        "missingAtdOutcome": 17,
+        "settledEvents": 9,
+        "pushes": 0
+      }
+    }
+  ],
+  "limitations": [
+    "Repeated player outcomes are dependent; observation counts are not independent game counts.",
+    "Missing player rows/stat fields are excluded, never imputed as zero.",
+    "ATD requires a known rushing or receiving TD, or explicit zero for both; passing TDs do not count.",
+    "Prop Brier scores condition on no push; pushes are excluded. Historical odds are not assumed tradable.",
+    "These are descriptive retrospective errors, not out-of-sample validation or betting returns."
+  ]
+}
