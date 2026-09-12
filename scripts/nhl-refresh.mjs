@@ -1,3 +1,4 @@
+import {applyLineups,rosterURL} from '../sports/nhl/lineups.js';
 import fs from 'node:fs/promises';
 import {API,getJSON,loadScoreboard,mergeSummary,athlete} from '../sports/nhl/data.js';
 const flag=name=>{const i=process.argv.indexOf(name);return i<0?null:process.argv[i+1];};
@@ -15,6 +16,11 @@ for(const game of doc.games){
    game.players.push(...rosters.get(team.id).map(p=>athlete(p,team.abbr,game.id)));
   }
  }
+ const evidence={};
+ if(game.status!=='pre'||Date.parse(game.startTime)-Date.now()<10800000){
+  await Promise.all([game.away,game.home].map(async t=>{try{evidence[t.id]=await getJSON(rosterURL(game,t));}catch{}}));
+ }
+ Object.assign(game,applyLineups(game,evidence));
 }
 await fs.mkdir(out.split('/').slice(0,-1).join('/')||'.',{recursive:true});
 await fs.writeFile(out,JSON.stringify(doc,null,2)+'\n');

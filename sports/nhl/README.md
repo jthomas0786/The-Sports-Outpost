@@ -21,3 +21,10 @@ Duplicate page-navigation strips have been removed; sidebar navigation remains. 
 `full-game.js` adds first-goal-wins overtime to the correlated regulation worlds. Regular-season overtime lasts five minutes; playoff overtime continues in 20-minute periods. Shootouts add no player goals, shots, assists, points or saves. The three-on-three shot-rate multiplier is an initial model assumption requiring calibration. Current goalie confirmation is required; preseason output is withheld because split-squad lineups and exhibition formats are not verified. Reference: https://www.nhl.com/kraken/news/nhl-overtime-shootouts-row-310366008.
 
 The UI displays full-game forecasts only when the simulation matches the live score, clock and box score and is at most two minutes old. Full-game edge calculations, recent-game weighting, empty-net strategy and calibrated performance remain future work.
+
+### v90.2 event lineup evidence
+Event roster entries (ESPN core event/competition/competitor roster) supply explicit scratch status. A season roster alone never confirms a lineup. Confirmation requires a complete, uniquely identified game roster whose active entries resolve to player records. Explicit starter flags, when supplied, are separate from the live on-ice goalie. No goalie is inferred from roster order, season saves, or previous starts. Missing starter evidence remains pending.
+
+The browser and refresh job check event rosters inside three hours of puck drop and during games. Projection eligibility requires fresh lineup evidence (10 minutes pregame, 2 minutes live) and exactly one identified goalie per team. A pulled or ambiguous goalie suspends new forecasts. The wrapper maps the current goalie into the existing engine's goalie slot while retaining every player's current totals; the Monte Carlo core is unchanged. Availability and goalie changes are included in the forecast state key. NHL preseason projections remain gated. ESPN may not supply pregame starter flags; this release does not claim those games are confirmed.
+
+Run `node scripts/nhl-lineups-selftest.mjs` for evidence and freshness regression scenarios.
