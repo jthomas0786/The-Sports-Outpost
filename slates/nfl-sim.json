@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
-  "engineVersion": "v86.2.0",
-  "generatedAt": "2026-09-12T01:07:59.497Z",
+  "engineVersion": "v89.18.0",
+  "generatedAt": "2026-09-12T05:44:51.851Z",
   "meta": {
     "automatic": true,
     "pollMinutes": 5,
@@ -24,7 +24,7 @@
       "games": 14,
       "totalIterations": 700000,
       "reasonCounts": {
-        "material input change": 14
+        "simulation engine upgrade": 14
       }
     }
   },
@@ -17046,8 +17046,8 @@
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:10:45.457Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:47:38.588Z",
       "game": {
         "gameId": "401872658",
         "away": {
@@ -25023,7 +25023,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -52272,13 +52273,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "e7ac1606",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "0487debd",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -52287,13 +52308,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:10:07.785Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:47:00.090Z",
       "game": {
         "gameId": "401872659",
         "away": {
@@ -60290,7 +60312,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -87539,13 +87562,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
         "inputFingerprint": "bbc469e2",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -87554,13 +87597,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:12:39.700Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:49:34.570Z",
       "game": {
         "gameId": "401872660",
         "away": {
@@ -95399,7 +95443,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -122072,13 +122117,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "6494ac44",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "f2712650",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -122087,13 +122152,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:11:23.055Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:48:16.592Z",
       "game": {
         "gameId": "401872661",
         "away": {
@@ -130529,7 +130595,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -158930,13 +158997,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
         "inputFingerprint": "fae15f40",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -158945,13 +159032,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:12:01.902Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:48:55.947Z",
       "game": {
         "gameId": "401872922",
         "away": {
@@ -167112,7 +167200,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -194937,13 +195026,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "90a3e4c4",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "6aed72a2",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -194952,13 +195061,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:08:52.013Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:45:44.549Z",
       "game": {
         "gameId": "401872923",
         "away": {
@@ -203089,7 +203199,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -230914,13 +231025,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "df5612b9",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "43739c47",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -230929,13 +231060,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:09:30.225Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:46:22.401Z",
       "game": {
         "gameId": "401872924",
         "away": {
@@ -238861,7 +238993,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -265534,13 +265667,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "4e3da32b",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "bb4ca341",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -265549,13 +265702,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:08:14.802Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:45:07.132Z",
       "game": {
         "gameId": "401872925",
         "away": {
@@ -273069,7 +273223,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -298590,13 +298745,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
         "inputFingerprint": "f8c79fdf",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -298605,13 +298780,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:15:19.723Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:52:14.150Z",
       "game": {
         "gameId": "401872926",
         "away": {
@@ -307157,7 +307333,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -336134,13 +336311,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
         "inputFingerprint": "05ecd3e2",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -336149,13 +336346,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:13:59.504Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:50:54.579Z",
       "game": {
         "gameId": "401872927",
         "away": {
@@ -344820,7 +345018,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -374373,13 +374572,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "3e5f37ef",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "b970c1fb",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -374388,13 +374607,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:13:18.599Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:50:13.511Z",
       "game": {
         "gameId": "401872928",
         "away": {
@@ -383241,7 +383461,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -413370,13 +413591,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "3ee15291",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "48a9b465",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -413385,13 +413626,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:14:40.544Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:51:34.262Z",
       "game": {
         "gameId": "401872929",
         "away": {
@@ -421916,7 +422158,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -450893,13 +451136,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
-        "inputFingerprint": "6c9819a5",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "inputFingerprint": "5d85e1f1",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -450908,13 +451171,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:15:58.576Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:52:53.269Z",
       "game": {
         "gameId": "401872930",
         "away": {
@@ -459114,7 +459378,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -486939,13 +487204,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
         "inputFingerprint": "33e7a8f5",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -486954,13 +487239,14 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     },
     {
       "schemaVersion": 1,
-      "engineVersion": "v86.2.0",
-      "generatedAt": "2026-09-12T01:16:37.864Z",
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-09-12T05:53:32.836Z",
       "game": {
         "gameId": "401872931",
         "away": {
@@ -495652,7 +495938,8 @@
         "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
         "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
         "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
-        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis."
+        "v86.1 adds Q1-Q4 player/stat distributions from every pregame simulation world, constrained to each world's full-game totals for correlated quarter-prop analysis.",
+        "v89.18 live calibration is armed; pregame simulations retain the established priors."
       ],
       "quarters": {
         "modelVersion": "v86.1.0",
@@ -525205,13 +525492,33 @@
           }
         }
       },
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": false,
+        "status": "pre",
+        "elapsed": 0,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 0,
+          "homeObserved": 0,
+          "awayProjected": null,
+          "homeProjected": null,
+          "modelPlaysPerTeam": 63.5
+        },
+        "matchedPlayers": 0,
+        "adjustedPlayers": 0,
+        "driveBonus": {
+          "away": 0,
+          "home": 0
+        }
+      },
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
+        "reason": "simulation engine upgrade",
         "checkpointMinutes": null,
         "inputFingerprint": "c8150055",
-        "runAt": "2026-09-12T01:07:59.497Z",
+        "runAt": "2026-09-12T05:44:51.851Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -525220,7 +525527,8 @@
         },
         "halftimeCandidatesReady": null,
         "halftimeCandidateCount": null,
-        "quarterParlayReady": true
+        "quarterParlayReady": true,
+        "liveModelVersion": "v89.18.0"
       }
     }
   ]
