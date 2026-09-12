@@ -1,5 +1,5 @@
 {
-  "engineVersion": "v86.2.0",
+  "engineVersion": "v89.18.0",
   "defaultIterations": 50000,
   "liveIterations": 15000,
   "maxIterations": 100000,
@@ -104,7 +104,23 @@
     "maxCandidatesPerQuarter": 24,
     "balancedTargetProbability": 0.72,
     "aggressiveTargetProbability": 0.60,
-    "note": "v86.2 retains exact candidate hit masks from each 50K pregame world so the browser Quarter Parlay Generator can calculate correlated joint hit rates."
+    "note": "v89.18 retains the existing 50K pregame quarter engine while live simulations use a dedicated in-game calibration layer."
+  },
+  "liveModel": {
+    "usageStartElapsed": 0.08,
+    "usageFullWeightElapsed": 0.7,
+    "usageMaxWeight": 0.72,
+    "touchdownUsageWeightMultiplier": 0.42,
+    "yardageUsageWeightMultiplier": 0.82,
+    "minimumPaceElapsed": 0.12,
+    "paceMaxWeight": 0.62,
+    "paceMin": 48,
+    "paceMax": 82,
+    "driveBonusMaxPoints": 2.8,
+    "currentSeasonWeightLive": 0.82,
+    "last5WeightLive": 0.12,
+    "previousSeasonWeightLive": 0.06,
+    "observedScoringWeightLive": 0.42
   },
   "halftimeIterations": 50000,
   "automatic": {
@@ -125,7 +141,7 @@
     "lineTolerance": 0.01,
     "note": "Initial v86 blend. Calibrate per market after enough completed-game results."
   },
-  "orchestrationVersion": "v87.0.0",
+  "orchestrationVersion": "v89.18.0",
   "halftime": {
     "candidateMinProbability": 0.53,
     "candidateMinEdge": 0.02,
