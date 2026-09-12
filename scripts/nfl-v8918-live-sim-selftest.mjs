@@ -50,6 +50,9 @@ assert.equal(prepared.summary.matchedPlayers,5);
 assert.equal(prepared.summary.adjustedPlayers,5);
 assert.ok(prepared.summary.driveBonus.home>1.5);
 assert.ok(prepared.summary.pace.modelPlaysPerTeam>55&&prepared.summary.pace.modelPlaysPerTeam<82);
+assert.ok(Math.abs(prepared.config.league.playsPerTeamByTeam.LA-prepared.summary.pace.homeProjected)<.01);
+assert.ok(Math.abs(prepared.config.league.playsPerTeamByTeam.SF-prepared.summary.pace.awayProjected)<.01);
+assert.notEqual(prepared.config.league.playsPerTeamByTeam.LA,prepared.config.league.playsPerTeamByTeam.SF,'each offense must retain its own observed pace');
 assert.equal(prepared.config.engineVersion,'v89.18.0');
 assert.equal(prepared.config.blend.currentSeason,.82);
 
@@ -67,6 +70,29 @@ assert.equal(result.liveModel.active,true);
 const simPuka=result.players.find(p=>p.espnId==='wr-la');
 assert.ok(simPuka.current.recYds>=118,'live totals must be retained in every world');
 assert.ok(simPuka.distributions.recYds.min>=118,'simulated final distribution cannot erase already-earned yards');
+
+// Distribution-level proof: with the same live totals and random seed, enabling the
+// calibration layer must materially change rest-of-game usage instead of only
+// decorating the result with live metadata.
+const uncalibratedConfig=structuredClone(config);
+uncalibratedConfig.liveModel.usageMaxWeight=0;
+uncalibratedConfig.liveModel.paceMaxWeight=0;
+const calibrated=simulateGame({game,research,odds,liveGame,config,iterations:4000,seed:91818});
+const uncalibrated=simulateGame({game,research,odds,liveGame,config:uncalibratedConfig,iterations:4000,seed:91818});
+const calibratedPuka=calibrated.players.find(p=>p.espnId==='wr-la');
+const uncalibratedPuka=uncalibrated.players.find(p=>p.espnId==='wr-la');
+assert.ok(calibratedPuka.distributions.targets.mean>uncalibratedPuka.distributions.targets.mean+.25,'hot target usage must raise the simulated rest-of-game target distribution');
+assert.ok(calibratedPuka.distributions.recYds.mean>uncalibratedPuka.distributions.recYds.mean+2,'hot receiving usage must raise the simulated final-yardage distribution');
+
+// Clock and game script remain core inputs after wrapping: less time must reduce
+// residual volume, and the trailing offense must become more pass-heavy.
+const lateGame={...liveGame,period:4,clockMin:2,awayScore:10,homeScore:24,possession:'away',yardFromOwn:25,isRedZone:false};
+const late=simulateGame({game,research,odds,liveGame:lateGame,config,iterations:4000,seed:91819});
+const latePuka=late.players.find(p=>p.espnId==='wr-la');
+assert.ok(latePuka.distributions.targets.mean-calibratedPuka.current.targets<calibratedPuka.distributions.targets.mean-calibratedPuka.current.targets,'late clock must reduce remaining player volume');
+const latePurdy=late.players.find(p=>p.espnId==='qb-sf');
+const lateStafford=late.players.find(p=>p.espnId==='qb-la');
+assert.ok(latePurdy.distributions.attempts.mean-latePurdy.current.attempts>lateStafford.distributions.attempts.mean-lateStafford.current.attempts,'trailing offense must receive the more pass-heavy remaining-game script');
 
 const liveDecision=decideAutomaticRun({game,research,odds,liveGame,previousState:null,existingResult:null,config,now:new Date('2026-09-12T01:30:00Z')});
 assert.equal(liveDecision.phase,'live');

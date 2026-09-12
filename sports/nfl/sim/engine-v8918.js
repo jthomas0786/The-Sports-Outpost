@@ -221,7 +221,18 @@ function adjustConfig(config,liveGame,game,elapsed){
     const prior=finite(next.league?.playsPerTeam,63.5);
     const away=teamObservedPlays(liveGame,game?.away?.abbr),home=teamObservedPlays(liveGame,game?.home?.abbr);
     const awayPace=paceProjection(away.plays,elapsed,prior,next),homePace=paceProjection(home.plays,elapsed,prior,next);
-    next.league={...(next.league||{}),playsPerTeam:round((awayPace+homePace)/2,3)};
+    const awayAbbr=normTeam(game?.away?.abbr),homeAbbr=normTeam(game?.home?.abbr);
+    next.league={
+      ...(next.league||{}),
+      // Keep the aggregate for old consumers while allowing the established core to
+      // use each offense's observed pace independently.
+      playsPerTeam:round((awayPace+homePace)/2,3),
+      playsPerTeamByTeam:{
+        ...(next.league?.playsPerTeamByTeam||{}),
+        ...(awayAbbr?{[awayAbbr]:round(awayPace,3)}:{}),
+        ...(homeAbbr?{[homeAbbr]:round(homePace,3)}:{}),
+      },
+    };
     return {config:next,pace:{prior,awayObserved:away.plays,homeObserved:home.plays,awayProjected:round(awayPace,2),homeProjected:round(homePace,2),modelPlaysPerTeam:next.league.playsPerTeam}};
   }
   return {config:next,pace:{prior:finite(next.league?.playsPerTeam,63.5),awayObserved:0,homeObserved:0,awayProjected:null,homeProjected:null,modelPlaysPerTeam:finite(next.league?.playsPerTeam,63.5)}};

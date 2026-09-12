@@ -229,7 +229,7 @@ function teamProfile(abbr, players, anchorPoints, config) {
     basePassRate:passRate,
     passTdShare:clamp(passTd/(passTd+rushTd), .35, .78),
     expectedPoints:anchorPoints,
-    playsPerGame:config.league.playsPerTeam,
+    playsPerGame:finite(config.league?.playsPerTeamByTeam?.[abbr], config.league.playsPerTeam),
   };
 }
 
