@@ -25,7 +25,8 @@ function depthFactor(player, config) {
 }
 
 function injuryFactor(player) {
-  const s = String(player.injury?.status || player.rosterStatus || player.model?.availability?.status || '').toLowerCase();
+  if (player.active === false) return 0;
+  const s = String(player.injury?.status || player.rosterStatus || player.availability || player.model?.availability?.status || '').toLowerCase();
   if (/out|injured reserve|\bir\b|suspend|inactive/.test(s)) return 0;
   if (/doubtful/.test(s)) return 0.25;
   if (/questionable/.test(s)) return 0.85;
@@ -95,6 +96,7 @@ function buildPlayer(player, config) {
   const base = {};
   for (const key of ['attempts','completions','passYds','passTds','carries','rushYds','rushTds','targets','receptions','recYds','recTds']) {
     base[key] = blendPlayerStat(player, key, config) * matchupFactor(player, key, config);
+    base[key] *= Math.max(0, finite(player.model?.liveReplacementScale?.[key], 1));
   }
   const attempts = Math.max(0.1, base.attempts || 0.1);
   const targets = Math.max(0.1, base.targets || 0.1);

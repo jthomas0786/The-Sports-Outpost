@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'sports/nfl/sim/engine-v8918.js'
+      - 'sports/nfl/sim/live-replacements.js'
       - 'sports/nfl/sim/engine-v861.js'
       - 'sports/nfl/sim/engine.js'
       - 'sports/nfl/sim/profile.js'
@@ -33,6 +34,7 @@ jobs:
       - name: Syntax checks
         run: |
           node --check sports/nfl/sim/engine-v8918.js
+          node --check sports/nfl/sim/live-replacements.js
           node --check sports/nfl/sim/auto.js
           node --check scripts/nfl-sim-auto.mjs
           node --check scripts/nfl-v8918-live-sim-selftest.mjs

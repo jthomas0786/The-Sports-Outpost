@@ -6,6 +6,7 @@ import {
   stripPrivateSamples,
 } from './engine-v861.js';
 import { clamp, finite, normName, normTeam, round } from './utils.js';
+import { calibrateLiveReplacements } from './live-replacements.js';
 
 const VERSION='v89.18.0';
 const LIVE_POSITIONS=new Set(['QB','RB','HB','FB','WR','TE']);
@@ -116,17 +117,25 @@ function calibratedRate(prior,observed,elapsed,key,config){
 }
 
 function applyLiveAvailability(player,row){
-  const status=String(row?.injury?.status||row?.status||row?.availability||'').trim();
+  if(typeof row?.active==='boolean')player.active=row.active;
+  const status=String(row?.injury?.status||row?.rosterStatus||row?.availability||row?.status||'').trim();
   if(!status)return player;
   player.injury={...(player.injury||{}),status};
   return player;
 }
 
-function adjustResearch(research,liveGame,config,elapsed){
+function adjustResearch(research,liveGame,config,elapsed,game){
   const next=clone(research)||{players:[]};
+  if(game){
+    const id=String(game.gameId||game.id),teams=[normTeam(game.away?.abbr),normTeam(game.home?.abbr)];
+    const exact=(next.players||[]).filter(p=>String(p.gameId)===id);
+    const teamRows=(next.players||[]).filter(p=>teams.includes(normTeam(p.team)));
+    next.players=exact.length?exact:teamRows.length?teamRows:clone(game.players||[]);
+  }
   const index=liveIndex(liveGame);
   let adjustedPlayers=0,matchedPlayers=0;
   for(const player of next.players||[]){
+    if(player.model)delete player.model.liveReplacementScale;
     if(!LIVE_POSITIONS.has(String(player?.position||'').toUpperCase()))continue;
     const row=rowForPlayer(player,index);
     if(!row)continue;
@@ -245,14 +254,15 @@ export function prepareLiveSimulationInputs({game,research,odds,liveGame=null,co
   if(status!=='in'){
     return {game,research,odds,liveGame,config:configResult.config,summary:{version:VERSION,active:false,status,elapsed:round(elapsed,4),pace:configResult.pace,matchedPlayers:0,adjustedPlayers:0,driveBonus:{away:0,home:0}}};
   }
-  const researchResult=adjustResearch(research,liveGame,configResult.config,elapsed);
+  const researchResult=adjustResearch(research,liveGame,configResult.config,elapsed,game);
   const oddsResult=adjustOdds(odds,game,liveGame,configResult.config);
+  const replacements=calibrateLiveReplacements({game,research:researchResult.research,originalResearch:research,odds:oddsResult.odds,liveGame,config:configResult.config});
   return {
     game,research:researchResult.research,odds:oddsResult.odds,liveGame,config:configResult.config,
     summary:{
       version:VERSION,active:true,status,elapsed:round(elapsed,4),period:finite(liveGame?.period,null),clockMin:finite(liveGame?.clockMin,null),
       possession:liveGame?.possession||null,yardFromOwn:finite(liveGame?.yardFromOwn,null),matchedPlayers:researchResult.matchedPlayers,adjustedPlayers:researchResult.adjustedPlayers,
-      pace:configResult.pace,driveBonus:{away:oddsResult.awayBonus,home:oddsResult.homeBonus},anchorAdjusted:oddsResult.adjusted,
+      pace:configResult.pace,driveBonus:{away:oddsResult.awayBonus,home:oddsResult.homeBonus},anchorAdjusted:oddsResult.adjusted,replacements,
     },
   };
 }

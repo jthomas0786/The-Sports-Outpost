@@ -107,3 +107,65 @@ const fp2=gameInputFingerprint({game,research,odds,liveGame:{...liveGame,possess
 assert.notEqual(fp1,fp2,'possession/field-position changes must trigger a new live-state fingerprint');
 
 console.log('v89.18 live simulation calibration tests passed');
+
+// Injured starters keep earned stats while eligible backups inherit future work.
+const replacementResearch=structuredClone(research);
+replacementResearch.players.push(
+ {gameId:game.gameId,espnId:'qb2-la',name:'Backup QB',team:'LA',position:'QB',depthRank:2,currentSeason:{perGame:{attempts:5,completions:3,passYds:30,passTds:.1,carries:1,rushYds:3}}},
+ {gameId:game.gameId,espnId:'rb2-la',name:'Backup RB',team:'LA',position:'RB',depthRank:2,currentSeason:{perGame:{carries:4,rushYds:16,rushTds:.1,targets:1,receptions:.7,recYds:5,recTds:.02}}},
+ {gameId:game.gameId,espnId:'wr2-la',name:'Backup WR',team:'LA',position:'WR',depthRank:2,currentSeason:{perGame:{targets:3,receptions:2,recYds:20,recTds:.1}}},
+ {gameId:game.gameId,espnId:'inactive-la',name:'Inactive RB',team:'LA',position:'RB',depthRank:3,active:false},
+);
+const injuryLive=structuredClone(liveGame);
+injuryLive.playerStats.byId['qb-la'].active=false;
+injuryLive.playerStats.byId['rb-la'].rosterStatus='Out';
+injuryLive.playerStats.byId['wr-la'].injury={status:'Out'};
+const savedResearch=JSON.stringify(replacementResearch),savedLive=JSON.stringify(injuryLive);
+const injuryArgs={game,research:replacementResearch,odds,liveGame:injuryLive,config};
+const injuryInputs=prepareLiveSimulationInputs(injuryArgs);
+const {buildGameProfile}=await import('../sports/nfl/sim/profile.js');
+const injuryProfile=buildGameProfile(injuryInputs);
+const healthyProfile=buildGameProfile(prepareLiveSimulationInputs({...injuryArgs,liveGame}));
+assert.equal(injuryProfile.homeTeam.qb.espnId,'qb2-la');
+assert.ok(injuryProfile.homeTeam.qb.base.attempts>20,'backup QB inherits starting workload');
+assert.equal(injuryProfile.homeTeam.qb.base.yardsPerAttempt,6,'backup keeps own efficiency');
+assert.ok(Math.abs(injuryProfile.homeTeam.basePassRate-healthyProfile.homeTeam.basePassRate)<.08,'injuries do not collapse team rush or pass volume');
+assert.ok(!injuryInputs.summary.replacements.adjustments.some(p=>p.playerId==='inactive-la'),'inactive teammate receives no redistributed work');
+assert.equal(JSON.stringify(replacementResearch),savedResearch);
+assert.equal(JSON.stringify(injuryLive),savedLive,'calibration never mutates source box scores');
+assert.deepEqual(prepareLiveSimulationInputs(injuryArgs).summary.replacements,injuryInputs.summary.replacements,'refreshing raw inputs does not compound workload');
+const healthySim=simulateGame({...injuryArgs,liveGame,iterations:2000,seed:8921});
+const injurySim=simulateGame({...injuryArgs,iterations:2000,seed:8921,includeSamples:true});
+for(const [id,key,current] of [['qb-la','passYds',231],['rb-la','rushYds',66],['wr-la','recYds',118]]){
+ assert.ok([...injurySim._samples.players.get(id).stats[key]].every(v=>v===current),'unavailable starter is frozen in every world');
+ const sample=injurySim._samples.players.get(id);
+ for(const [stat,values] of Object.entries(sample.stats)){
+  const earned=stat==='tds'?(sample.player.current.rushTds||0)+(sample.player.current.recTds||0):(sample.player.current[stat]||0);
+  assert.ok([...values].every(v=>v===earned),`${id} keeps only current ${stat}`);
+ }
+}
+for(const [id,key] of [['qb2-la','attempts'],['rb2-la','carries'],['wr2-la','targets']]){
+ const a=injurySim.players.find(p=>p.espnId===id),b=healthySim.players.find(p=>p.espnId===id);
+ assert.ok(a.distributions[key].mean>b.distributions[key].mean+1,`${id} future ${key} must materially increase`);
+}
+const samples=[...injurySim._samples.players.values()].filter(r=>r.player.team==='LA');
+for(let i=0;i<injurySim.iterations;i++){
+ const delta=k=>samples.reduce((sum,r)=>sum+r.stats[k][i]-(r.player.current[k]||0),0);
+ assert.equal(delta('targets'),delta('attempts'),'replacement targets and QB attempts remain in the same world');
+}
+const returned=structuredClone(injuryLive);
+returned.playerStats.byId['qb-la'].active=true;
+returned.playerStats.byId['rb-la'].rosterStatus='Active';
+returned.playerStats.byId['wr-la'].injury.status='Active';
+assert.equal(prepareLiveSimulationInputs({...injuryArgs,liveGame:returned}).summary.replacements.adjustments.length,0,'return to action removes replacement boosts');
+const noBackup={players:replacementResearch.players.filter(p=>p.team!=='LA'||p.espnId==='qb-la')};
+const missing=buildGameProfile(prepareLiveSimulationInputs({...injuryArgs,research:noBackup}));
+assert.equal(missing.homeTeam.qb,null,'missing eligible backup does not resurrect unavailable starter');
+const changedAvailability=structuredClone(research);changedAvailability.players[0].active=false;
+assert.notEqual(gameInputFingerprint({game,research,odds,liveGame,phase:'live'}),gameInputFingerprint({game,research:changedAvailability,odds,liveGame,phase:'live'}),'availability-only research changes trigger recalculation');
+console.log('Live injury replacements, return to play, workload balance and same-world allocation passed');
+const fallbackGame={...game,players:structuredClone(replacementResearch.players)};
+const fallbackBefore=JSON.stringify(fallbackGame);
+const fallbackInputs=prepareLiveSimulationInputs({...injuryArgs,game:fallbackGame,research:{players:[]}});
+assert.equal(buildGameProfile(fallbackInputs).homeTeam.qb.espnId,'qb2-la','slate roster fallback also respects live injuries');
+assert.equal(JSON.stringify(fallbackGame),fallbackBefore,'fallback roster is not mutated');

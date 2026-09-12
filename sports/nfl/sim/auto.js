@@ -39,7 +39,7 @@ function gameTeams(game){ return [normTeam(game?.away?.abbr),normTeam(game?.home
 function compactResearchPlayer(p){
   return {
     espnId:p?.espnId||null,gsisId:p?.gsisId||null,name:p?.name||null,team:normTeam(p?.team),opponent:normTeam(p?.opponent),position:p?.position||null,
-    depth:p?.depth||null,depthRank:p?.depthRank??null,injury:p?.injury||null,rosterStatus:p?.rosterStatus||null,
+    depth:p?.depth||null,depthRank:p?.depthRank??null,injury:p?.injury||null,rosterStatus:p?.rosterStatus||null,active:p?.active??null,availability:p?.availability||null,
     currentSeason:p?.currentSeason||null,last5:p?.last5||null,previousSeason:p?.previousSeason||null,
     snapTrend:p?.snapTrend||null,model:p?.model||null,matchup:p?.matchup||null,stats:p?.stats||null,props:p?.props||null,
   };
@@ -48,7 +48,7 @@ function compactResearchPlayer(p){
 function compactSlatePlayer(p){
   return {
     espnId:p?.espnId||null,gsisId:p?.gsisId||null,name:p?.name||null,team:normTeam(p?.team),opponent:normTeam(p?.opponent),position:p?.position||null,
-    depthRank:p?.depthRank??null,stats:p?.stats||null,props:p?.props||null,
+    depthRank:p?.depthRank??null,stats:p?.stats||null,props:p?.props||null,active:p?.active??null,injury:p?.injury||null,rosterStatus:p?.rosterStatus||null,availability:p?.availability||null,
   };
 }
 
