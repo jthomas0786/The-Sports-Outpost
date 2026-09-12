@@ -1,0 +1,27 @@
+name: NFL Historical Replay Checks
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports/nfl/sim/**'
+      - 'scripts/nfl-replay*.mjs'
+      - 'scripts/lib/nfl-*replay*.mjs'
+      - '.github/workflows/nfl-replay-tests.yml'
+permissions:
+  contents: read
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Historical input isolation and production halftime simulation
+        run: node scripts/nfl-replay-selftest.mjs
+      - name: Replay CLI syntax
+        run: |
+          node --check scripts/nfl-replay.mjs
+          node --check scripts/nfl-replay-sim.mjs
+          node --check scripts/lib/nfl-replay-io.mjs
