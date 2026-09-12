@@ -7669,31 +7669,8 @@ function renderTabs(){
   if(stale && stale.parentElement === document.body) stale.remove();
 
   const propActive = PROP_IDS.has(activeTab);
-  propTabsEl.innerHTML = PROP_TABS.map(t => {
-    if(t.dropdown){
-      // Props is one destination. Individual MLB markets live in the
-      // dropdown rendered by renderPropSubtabs(); tapping Props always opens HR.
-      return `<button class="prop-tab ${propActive?'active':''}" data-tab="${t.id}" aria-haspopup="false">${t.label}</button>`;
-    }
-    const badge = (t.id==='feed' && feedUnread>0 && activeTab!=='feed')
-      ? `<span class="tab-badge">${feedUnread>99?'99+':feedUnread}</span>`
-      : (t.id==='foryou' && foryouUnread>0 && activeTab!=='foryou')
-      ? `<span class="tab-badge">${foryouUnread>99?'99+':foryouUnread}</span>` : '';
-    const tabHtml = `<button class="prop-tab ${t.id===activeTab?'active':''}" data-tab="${t.id}">${t.label}${badge}</button>`;
-    // Chat sits between HR Feed and For You as a genuine 5th tab-row item —
-    // not a floating overlay — specifically so it shares the row's real
-    // flexbox spacing instead of a manually-computed midpoint that would
-    // need recalculating every time the tab count changes. Mobile-only via
-    // CSS; the desktop header keeps its own separate chat icon. Structured
-    // exactly like its siblings — real (visually-hidden-on-mobile) text
-    // content plus an icon-mask + ::after label, not a one-off custom
-    // element — so it renders through the same already-working mechanism
-    // instead of its own bespoke styling.
-    if(t.id === 'feed'){
-      return tabHtml + `<button class="prop-tab chat-tab" id="chatBtnMobile" aria-label="Chat">Chat<span class="chat-unread-dot"></span></button>`;
-    }
-    return tabHtml;
-  }).join('');
+  propTabsEl.innerHTML = ''; // Page navigation lives in the sidebar.
+  propTabsEl.hidden = true;
 
   const selectTab = id => {
     if(id === '__props__'){ activeTab = 'hr'; lastProp = 'hr'; }   // Props always opens on Home Runs
@@ -11580,7 +11557,7 @@ function ccBuildFootballHTML(){
 /** Hockey uses the live NHL adapter; basketball remains a placeholder. */
 function ccBuildHockeyHTML(){
   if(window.DW_NHL_COMMAND_CENTER){window.DW_NHL_COMMAND_CENTER.refresh();return window.DW_NHL_COMMAND_CENTER.html();}
-  import('./sports/nhl/view.js?v=90.0').then(m=>m.mount()).catch(()=>{});
+  import('./sports/nhl/view.js?v=90.1').then(m=>m.mount()).catch(()=>{});
   return '<div class="cc-col-title">Hockey</div><div class="cc-empty-note">Loading hockey…</div>';
 }
 function ccBuildBasketballHTML(){
@@ -21990,7 +21967,7 @@ document.addEventListener('visibilitychange', ()=>{
 </div>
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
-<script type="module" src="./sports/router.js?v=90.0"></script>
+<script type="module" src="./sports/router.js?v=90.1"></script>
 <script type="module" src="./sports/nfl/command-center-client.js?v=89.21"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 

@@ -18,7 +18,7 @@ concurrency:
 jobs:
   hockey:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,13 +30,22 @@ jobs:
         run: |
           node --check sports/nhl/view.js
           node scripts/nhl-selftest.mjs
+          node scripts/nhl-v901-selftest.mjs
       - name: Refresh NHL slate
         run: node scripts/nhl-refresh.mjs
+      - name: Update verified season research
+        run: node scripts/nhl-research.mjs
+      - name: Refresh sportsbook markets
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: node scripts/nhl-odds.mjs
+      - name: Simulate eligible full games
+        run: node scripts/nhl-simulate.mjs
       - name: Publish NHL data only
         run: |
           git config user.name "TSO NHL Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add slates/nhl.json
+          git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-sim.json
           git diff --staged --quiet && exit 0
           git commit -m "Refresh NHL slate"
           for attempt in 1 2 3 4 5; do

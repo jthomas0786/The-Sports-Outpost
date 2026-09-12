@@ -19,6 +19,8 @@ export function mergeSummary(game,summary,now=Date.now()){
  const keys={goals:'goals',assists:'assists',shotsTotal:'sog',blockedShots:'blocks',saves:'saves',shotsAgainst:'shotsAgainst',goalsAgainst:'goalsAgainst',timeOnIce:'toi'};
  for(const group of summary.boxscore?.players||[])for(const section of group.statistics||[])for(const row of section.athletes||[]){
   const p=athlete(row.athlete,group.team?.abbreviation,game.id),current={};
+  const onIce=(summary.onIce||[]).flatMap(t=>t.entries||[]).filter(e=>e.whereabouts?.id==='1').map(e=>String(e.athleteid));
+  p.confirmedStarter=p.position==='G'&&onIce.includes(p.id);
   for(const [i,key] of (section.keys||[]).entries())if(keys[key])current[keys[key]]=key==='timeOnIce'?row.stats?.[i]:num(row.stats?.[i]);
   if(current.goals!=null&&current.assists!=null)current.points=current.goals+current.assists;
   next.players.push({...p,current,availability:row.athlete?.scratched?'Scratched':'Reported in box score'});

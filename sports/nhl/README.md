@@ -11,3 +11,13 @@ Player markets: anytime goal, shots on goal, points, assists, blocked shots, and
 Next integrations: verified season and recent-game priors, confirmed lines/power-play units and starting goalies, overtime/empty-net rules, sportsbook markets and settlement rules, then calibrated full-game probability/edge UI and goal push notifications. NHL is not yet at feature parity with NFL.
 
 Run `node scripts/nhl-selftest.mjs`. Use `tests/nhl-mobile.html` for phone/tablet viewport checks against the deployed app.
+
+## v90.1
+
+Duplicate page-navigation strips have been removed; sidebar navigation remains. Market and game selectors remain in their pages. `nhl-research.mjs` collects last-completed-season ESPN statistics by explicit field name (not ambiguous labels). Histories are cached for one day, retain their season and sample size, and follow player IDs across team changes. Baselines are labeled historical averages rather than confirmed game projections.
+
+`nhl-odds.mjs` uses the existing server-side ParlayAPI key, free event discovery, and a throttled sportsbook-only props request within 24 hours of a game. Quotes require a unique home/away/time matchup and roster-name match. Stale or ambiguous quotes are hidden. Source reference: https://parlay-api.com/docs.
+
+`full-game.js` adds first-goal-wins overtime to the correlated regulation worlds. Regular-season overtime lasts five minutes; playoff overtime continues in 20-minute periods. Shootouts add no player goals, shots, assists, points or saves. The three-on-three shot-rate multiplier is an initial model assumption requiring calibration. Current goalie confirmation is required; preseason output is withheld because split-squad lineups and exhibition formats are not verified. Reference: https://www.nhl.com/kraken/news/nhl-overtime-shootouts-row-310366008.
+
+The UI displays full-game forecasts only when the simulation matches the live score, clock and box score and is at most two minutes old. Full-game edge calculations, recent-game weighting, empty-net strategy and calibrated performance remain future work.
