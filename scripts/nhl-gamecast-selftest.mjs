@@ -1,0 +1,19 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {eventKind,gamecastState,renderNhlGamecastHTML} from '../sports/nhl/gamecast.js';
+import {mergeSummary} from '../sports/nhl/data.js';
+
+const game={id:'g1',status:'in',period:2,clock:'11:42',detail:'2nd · 11:42',away:{id:'1',abbr:'TOR',name:'Toronto Maple Leafs',score:2,shots:21,powerPlay:true},home:{id:'2',abbr:'MTL',name:'Montreal Canadiens',score:1,shots:17,powerPlay:false},players:[],plays:[]};
+const rawPlay={id:'p1',type:{text:'Goal'},scoringPlay:true,period:{number:2},clock:{displayValue:'11:42'},team:{id:'1'},participants:[{type:'scorer',athlete:{id:'88',displayName:'William Nylander',headshot:{href:'https://example.com/88.png'}}}],text:'William Nylander scores',awayScore:3,homeScore:1};
+const merged=mergeSummary(game,{plays:[rawPlay],boxscore:{players:[]}},Date.now());
+assert.equal(merged.plays[0].type,'Goal');
+assert.equal(merged.plays[0].participants[0].name,'William Nylander');
+assert.equal(eventKind(merged.plays[0],merged),'goal');
+const state=gamecastState(merged);assert.equal(state.attacking,'away');assert.equal(state.ppSide,'away');assert.equal(state.featured.name,'William Nylander');
+const html=renderNhlGamecastHTML(merged);assert.match(html,/data-hk-gamecast/);assert.match(html,/Schematic event view/);assert.match(html,/William Nylander/);assert.match(html,/hk-gc-goal-flash right/);assert.match(html,/shot-right/);
+for(const [text,kind] of [['Carey Price Save','save'],['Auston Matthews Shot on Goal','shot'],['Blocked Shot','block'],['Faceoff won','faceoff'],['Minor Penalty','penalty'],['Body Hit','hit']])assert.equal(eventKind({text},{status:'in'}),kind);
+const view=fs.readFileSync('sports/nhl/view.js','utf8'),css=fs.readFileSync('sports/nhl/gamecast.css','utf8'),router=fs.readFileSync('sports/router.js','utf8');
+for(const marker of ['data-hk-gc-tab="game"','data-hk-gc-tab="box"','data-hk-gc-tab="pbp"','renderNhlGamecastHTML','gamecastTab'])assert.ok(view.includes(marker),`missing NHL Gamecast parity marker: ${marker}`);
+for(const marker of ['.hk-gc-rink-wrap','.hk-gc-player','.hk-gc-puck','.hk-gc-tabs','@media(max-width:620px)'])assert.ok(css.includes(marker),`missing NHL Gamecast style: ${marker}`);
+assert.ok(router.includes("./nhl/view.js?v=90.5"));
+console.log('NHL Gamecast: NFL-style tabs, event-driven rink, participant attribution, PP state and responsive layout passed');
