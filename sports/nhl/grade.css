@@ -1,5 +1,5 @@
 /* NFL-parity grade/progress-ring presentation for NHL. */
-#nhlView .hk-prop-card{grid-template-columns:30px 50px minmax(0,1fr) minmax(230px,.7fr) 82px}
+#nhlView .hk-prop-card{grid-template-columns:30px 50px minmax(0,1fr) minmax(230px,.7fr) 82px!important}
 #nhlView .hk-prop-grade{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0}
 #nhlView .hk-prop-grade>small{color:#7895ba;font:800 6px/1.25 'JetBrains Mono',monospace;text-align:center;text-transform:uppercase}
 #nhlView .hk-grade-ring{position:relative;display:inline-grid;place-items:center;flex:0 0 auto}
@@ -11,13 +11,13 @@
 #nhlView .hk-grade-ring .sgr-gd2{font:800 13px 'Oswald',sans-serif;color:#fff}#nhlView .hk-grade-ring .sgr-pv{margin-top:2px;font:800 7px 'JetBrains Mono',monospace;color:currentColor}
 #nhlView .hk-grade-ring-sm .sgr-gd2{font-size:12px}#nhlView .hk-grade-ring-sm .sgr-pv{font-size:6px}
 @media(max-width:900px){
- #nhlView .hk-prop-card{grid-template-columns:28px 46px minmax(0,1fr) 66px}
- #nhlView .hk-prop-market{grid-column:3/5;grid-row:2;border-left:0;border-top:1px solid rgba(93,145,210,.15);padding:7px 0 0}
- #nhlView .hk-prop-grade{grid-column:4;grid-row:1}
+ #nhlView .hk-prop-card{grid-template-columns:28px 46px minmax(0,1fr) 66px!important}
+ #nhlView .hk-prop-market{grid-column:3/5!important;grid-row:2!important;border-left:0;border-top:1px solid rgba(93,145,210,.15);padding:7px 0 0}
+ #nhlView .hk-prop-grade{grid-column:4!important;grid-row:1!important}
  #nhlView .hk-grade-ring-lg{width:62px;height:62px}
 }
 @media(max-width:620px){
- #nhlView .hk-prop-card{grid-template-columns:22px 42px minmax(0,1fr) 62px;gap:7px;padding:9px 7px}
- #nhlView .hk-prop-market{grid-column:3/5}
- #nhlView .hk-prop-grade{grid-column:4;grid-row:1}
+ #nhlView .hk-prop-card{grid-template-columns:22px 42px minmax(0,1fr) 62px!important;gap:7px;padding:9px 7px}
+ #nhlView .hk-prop-market{grid-column:3/5!important}
+ #nhlView .hk-prop-grade{grid-column:4!important;grid-row:1!important}
 }
