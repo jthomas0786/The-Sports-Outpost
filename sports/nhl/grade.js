@@ -6,6 +6,7 @@ if(typeof document!=='undefined'&&!document.getElementById('nhl-grade-rings-v904
 export const NHL_RING_C=326.7;
 
 export function gradeForLean(probability){
+ if(probability==null)return '—';
  const p=Number(probability);
  if(!Number.isFinite(p))return '—';
  return p>=.70?'A+':p>=.65?'A':p>=.61?'A-':p>=.57?'B+':p>=.54?'B':p>=.51?'B-':p>=.48?'C+':'C';
@@ -18,7 +19,7 @@ export function gradeColor(grade){
 
 export function overProbability(metric,line){
  const threshold=Number(line);
- if(!metric||!Number.isFinite(threshold))return null;
+ if(!metric||line==null||!Number.isFinite(threshold))return null;
  if(Array.isArray(metric.distribution)&&metric.distribution.length){
   const p=metric.distribution.reduce((sum,row)=>{
    const value=Number(row?.[0]),prob=Number(row?.[1]);
@@ -31,7 +32,7 @@ export function overProbability(metric,line){
 }
 
 export function gradeRingHTML(probability,grade=gradeForLean(probability),size='md'){
- const raw=Number(probability),has=Number.isFinite(raw),pct=Math.max(0,Math.min(100,(has?raw:0)*100));
+ const raw=probability==null?NaN:Number(probability),has=Number.isFinite(raw),pct=Math.max(0,Math.min(100,(has?raw:0)*100));
  const off=(NHL_RING_C*(1-pct/100)).toFixed(1),disp=has?(pct<10?pct.toFixed(1):Math.round(pct)):'—';
  const shownGrade=has?grade:'—';
  return `<span class="sgr sgr-pct hk-grade-ring hk-grade-ring-${size}" style="color:${gradeColor(shownGrade)}"><svg viewBox="0 0 120 120" class="sgr-svg" aria-hidden="true"><circle class="sgr-rt" cx="60" cy="60" r="52"/><circle class="sgr-rf" cx="60" cy="60" r="52" transform="rotate(-90 60 60)" stroke-dasharray="${NHL_RING_C}" stroke-dashoffset="${off}"/></svg><span class="sgr-l"><b class="sgr-gd2">${shownGrade}</b><span class="sgr-pv">${disp}${has?'%':''}</span></span></span>`;
