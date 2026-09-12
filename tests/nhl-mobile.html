@@ -1,8 +1,8 @@
 <!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NHL Mobile Layout QA</title>
-<style>body{background:#151b28;color:white;font:16px system-ui}iframe{display:block;border:1px solid #888;height:800px;margin-top:16px}button,select{padding:12px}</style>
-<h1>NHL mobile layout check</h1><p>QA only. The frame uses the production NHL view.</p>
+<style>body{background:#151b28;color:white;font:16px system-ui;margin:16px}iframe{display:block;border:1px solid #888;height:820px;margin-top:16px;max-width:100%}button,select{padding:11px 12px;margin:3px}</style>
+<h1>NHL layout parity check</h1><p>QA only. Compare every NHL page against the NFL shell at phone, tablet and desktop-content widths.</p>
 <label>Viewport <select id="width"><option>320</option><option selected>390</option><option>768</option></select></label>
-<button id="app">Live application</button>
-<iframe id="mobile-app" title="Mobile app viewport" width="390" src="../index.html#nhl"></iframe>
-<script>const frame=document.getElementById('mobile-app');document.getElementById('width').onchange=e=>frame.width=e.target.value;document.getElementById('app').onclick=()=>frame.src='../index.html#nhl';</script>
+<div><button id="app">Reload NHL</button><button data-tab="slate">Slate</button><button data-tab="live">Live</button><button data-tab="feed">Goal Feed</button><button data-tab="props">Props</button></div>
+<iframe id="mobile-app" title="NHL layout viewport" width="390" src="../index.html#nhl"></iframe>
+<script>const frame=document.getElementById('mobile-app');document.getElementById('width').onchange=e=>frame.width=e.target.value;document.getElementById('app').onclick=()=>frame.src='../index.html#nhl';document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{const open=()=>frame.contentWindow?.DW_openNhlTab?.(b.dataset.tab);try{open();}catch{}setTimeout(()=>{try{open();}catch{}},500);});</script>
 </html>
