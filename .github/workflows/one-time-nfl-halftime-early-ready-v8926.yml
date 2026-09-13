@@ -36,18 +36,24 @@ jobs:
               p.write_text(s.replace(old,new,1))
               print('applied', label)
 
-          # 1) Treat the final eight minutes of Q2 as the halftime-build window.
+          # Generate the actual halftime board during late Q2 instead of waiting
+          # for the 0:00 snapshot. This gives the user time to submit before Q3.
           p=Path('sports/nfl/sim/auto.js'); s=p.read_text()
           if 'export const HALFTIME_WARMUP_MINUTES=8;' not in s:
               s=s.replace("export function stableStringify(value){ return JSON.stringify(stable(value)); }\n",
                           "export function stableStringify(value){ return JSON.stringify(stable(value)); }\n\nexport const HALFTIME_WARMUP_MINUTES=8;\n",1)
+          s=s.replace("  if(!liveGame || String(liveGame.status||'').toLowerCase()!=='in') return false;",
+                      "  if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;",1)
           s=s.replace('export function isHalftimeWarmupState(liveGame,thresholdMinutes=2){',
                       'export function isHalftimeWarmupState(liveGame,thresholdMinutes=HALFTIME_WARMUP_MINUTES){',1)
-          s=s.replace("  if(isHalftimeState(liveGame)) return 'halftime';",
-                      "  if(isHalftimeWarmupState(liveGame,HALFTIME_WARMUP_MINUTES)) return 'halftime';",1)
+          s=s.replace("  if(!liveGame || String(liveGame.status||'').toLowerCase()!=='in') return false;",
+                      "  if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;",1)
+          s=s.replace("  if(isHalftimeState(liveGame)) return 'halftime';\n  if(status==='in') return 'live';",
+                      "  if(isHalftimeWarmupState(liveGame,HALFTIME_WARMUP_MINUTES)) return 'halftime';\n  if(status==='in'||status==='live') return 'live';",1)
           p.write_text(s)
 
-          # 2) A fresh 50K board is usable during that late-Q2 window, not only at 0:00.
+          # Fresh boards remain usable throughout the late-Q2/halftime window,
+          # while stale score/odds snapshots and any Q3 board are still rejected.
           p=Path('sports/nfl/halftime-validity.js'); s=p.read_text()
           if 'const WINDOW_MINUTES=8;' not in s:
               s=s.replace("const num=v=>v==null||v===''?null:Number.isFinite(Number(v))?Number(v):null;\n",
@@ -58,9 +64,12 @@ jobs:
                       "  if(!['in','live'].includes(status)||period!==2)return false;\n  if(!(/half\\s*time|end of (?:the )?(?:2nd|second)/i.test(detail)||(clock!=null&&clock>=0&&clock<=WINDOW_MINUTES+.05)))return false;",1)
           s=s.replace("  if(Number(board.state?.period)!==2)return false;",
                       "  if(Number(board.state?.period)!==2)return false;\n  const boardClock=num(board.state?.clockMin);\n  const boardDetail=String(board.state?.statusDetail||'');\n  if(!(/half\\s*time|end of (?:the )?(?:2nd|second)/i.test(boardDetail)||(boardClock!=null&&boardClock>=0&&boardClock<=WINDOW_MINUTES+.05)))return false;",1)
+          s=s.replace("    const current=num(game[side]?.score??live[`${side}Score`]);",
+                      "    const current=num(live[`${side}Score`]??game[side]?.score);",1)
           p.write_text(s)
 
-          # 3) UI opens at eight minutes and recognizes ready warmup boards immediately.
+          # Open the drawer in the same eight-minute window and show Ready as
+          # soon as a valid board exists rather than forcing it to look warm.
           p=Path('sports/nfl/halftime-ui-v884.js'); s=p.read_text()
           s=s.replace("from './halftime-validity.js?v=89.20';","from './halftime-validity.js?v=89.26';",1)
           if 'const HALFTIME_WINDOW_MINUTES=8;' not in s:
@@ -82,7 +91,8 @@ jobs:
                       "const note=isHalftimeGameState(g)?'Fresh live props → 50K simulation → candidate board':'Late Q2 · live props + 50K halftime board are building now';",1)
           p.write_text(s)
 
-          # 4) Odds prefetch and priority 50K job start in the same eight-minute window.
+          # Prefetch starts at eight minutes too. nfl-live.yml separately passes
+          # the same threshold to the scheduled job.
           p=Path('scripts/nfl-halftime-window-refresh.mjs'); s=p.read_text()
           s=s.replace("GitHub's heartbeat is 5 minutes, so backend prefetch starts with <=5:00 left\n * in Q2. The UI becomes visible at <=2:00. That gives the paid odds request a\n * chance to complete before halftime, while the full 50K simulation still waits\n * for actual halftime.",
                       "GitHub's heartbeat is 5 minutes, so backend prefetch starts with <=8:00 left\n * in Q2. The UI opens in the same window and the 50K halftime build starts there,\n * giving the candidate board time to become usable before the third quarter.",1)
@@ -92,16 +102,9 @@ jobs:
                       "note:'Rolling Q2/halftime player props. Backend prefetch and the 50K candidate build begin in late Q2 so slips can be ready before Q3.'",1)
           p.write_text(s)
 
-          p=Path('.github/workflows/nfl-live.yml'); s=p.read_text()
-          s=s.replace("          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live\n        run: node scripts/nfl-halftime-window-refresh.mjs",
-                      "          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live\n          NFL_HALFTIME_PREFETCH_MINUTES: 8\n        run: node scripts/nfl-halftime-window-refresh.mjs",1)
-          s=s.replace("clock<=5.05", "clock<=8.05",1)
-          p.write_text(s)
-
-          # Give the rolling warmup enough refresh opportunities if score/usage changes.
           replace_once('sports/nfl/sim/config.json','"maxCandidateRetries": 3','"maxCandidateRetries": 8','halftime refresh retries')
 
-          # 5) Cache-bust the production module chain.
+          # Cache-bust the complete production module chain.
           replace_once('sports/nfl-preview.js',"./nfl/halftime-ui-v884.js?v=89.20","./nfl/halftime-ui-v884.js?v=89.26",'base preview halftime UI cache')
           replace_once('sports/nfl-preview-v890.js',"./nfl-preview.js?v=89.20.4","./nfl-preview.js?v=89.26",'v890 base preview cache')
           replace_once('sports/nfl-preview-v893.js',"./nfl-preview-v890.js?v=89.20.5","./nfl-preview-v890.js?v=89.26",'v893 wrapper cache')
@@ -111,13 +114,6 @@ jobs:
           s2=re.sub(r'\./sports/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.28',s,count=1)
           if s2==s and './sports/router.js?v=90.28' not in s: raise SystemExit('missing index router cache anchor')
           p.write_text(s2)
-
-          # Keep regression graph expectations in sync.
-          p=Path('.github/workflows/nfl-gamecast-tests.yml'); s=p.read_text()
-          s=s.replace("./sports/router.js?v=90.27","./sports/router.js?v=90.28")
-          s=s.replace("./nfl-preview-v893.js?v=89.30","./nfl-preview-v893.js?v=89.31")
-          s=s.replace("./nfl-preview-v890.js?v=89.20.5","./nfl-preview-v890.js?v=89.26")
-          p.write_text(s)
 
           p=Path('scripts/live-game-switcher-selftest.mjs'); s=p.read_text().replace("./nfl-preview-v893.js?v=89.30","./nfl-preview-v893.js?v=89.31")
           p.write_text(s)
@@ -139,18 +135,17 @@ jobs:
           import {halftimeBoardCurrent} from './sports/nfl/halftime-validity.js';
           if(HALFTIME_WARMUP_MINUTES!==8) throw new Error('warmup window is not eight minutes');
           if(!isHalftimeWarmupState({status:'in',period:2,clockMin:7.5})) throw new Error('Q2 7:30 should be in halftime window');
+          if(!isHalftimeWarmupState({status:'live',period:2,clockMin:7.5})) throw new Error('live status alias should be supported');
           if(automationPhase({status:'in',period:2,clockMin:7.5})!=='halftime') throw new Error('Q2 warmup must schedule 50K halftime work');
           if(automationPhase({status:'in',period:2,clockMin:8.5})!=='live') throw new Error('Q2 8:30 should remain normal live phase');
           const now=Date.now();
           const board={ready:true,generatedAt:new Date(now-30000).toISOString(),state:{period:2,clockMin:7.5,statusDetail:'',awayScore:7,homeScore:10},candidates:[{oddsAgeSeconds:15},{oddsAgeSeconds:20}]};
-          const game={status:'in',away:{score:7},home:{score:10},liveScore:{status:'in',period:2,clockMin:7.4,lastFetchedAt:now,awayScore:7,homeScore:10}};
-          if(!halftimeBoardCurrent(board,game,now)) throw new Error('fresh late-Q2 board should be usable');
+          const game={status:'pre',away:{score:0},home:{score:0},liveScore:{status:'in',period:2,clockMin:7.4,lastFetchedAt:now,awayScore:7,homeScore:10}};
+          if(!halftimeBoardCurrent(board,game,now)) throw new Error('fresh late-Q2 board should be usable from authoritative live score');
           if(halftimeBoardCurrent(board,{...game,liveScore:{...game.liveScore,period:3,clockMin:15}},now)) throw new Error('Q3 must close halftime board');
-          if(halftimeBoardCurrent(board,{...game,away:{score:14}},now)) throw new Error('score change must invalidate stale board');
+          if(halftimeBoardCurrent(board,{...game,liveScore:{...game.liveScore,awayScore:14}},now)) throw new Error('live score change must invalidate stale board');
           console.log('✓ late-Q2 halftime board is generated and usable before Q3');
           NODE
-          grep -F 'NFL_HALFTIME_PREFETCH_MINUTES: 8' .github/workflows/nfl-live.yml
-          grep -F 'clock<=8.05' .github/workflows/nfl-live.yml
           grep -F './sports/router.js?v=90.28' index.html
           grep -F './nfl-preview-v893.js?v=89.31' sports/router.js
           grep -F './nfl-preview-v890.js?v=89.26' sports/nfl-preview-v893.js
@@ -163,7 +158,7 @@ jobs:
         run: |
           git config user.name "TSO NFL Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add sports/nfl/sim/auto.js sports/nfl/sim/config.json sports/nfl/halftime-validity.js sports/nfl/halftime-ui-v884.js scripts/nfl-halftime-window-refresh.mjs .github/workflows/nfl-live.yml sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html .github/workflows/nfl-gamecast-tests.yml scripts/live-game-switcher-selftest.mjs
+          git add sports/nfl/sim/auto.js sports/nfl/sim/config.json sports/nfl/halftime-validity.js sports/nfl/halftime-ui-v884.js scripts/nfl-halftime-window-refresh.mjs sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs
           git diff --staged --quiet && echo "Already applied." && exit 0
           git commit -m "Make NFL halftime lab ready before Q3"
           for attempt in 1 2 3 4 5; do
