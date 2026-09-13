@@ -1,4 +1,4 @@
-const STYLE_ID='tso-mlb-live-game-switcher-v905';
+const STYLE_ID='tso-mlb-live-game-switcher-v906';
 const HOST_ID='tsoMlbLiveGameSwitcher';
 const INLINE_ID='tsoMlbInlineGamecast';
 const MODAL_HOST_ID='tsoMlbModalLiveGameSwitcher';
@@ -14,7 +14,7 @@ function globalBinding(name){
 
 function ensureStyles(){
  if(document.getElementById(STYLE_ID))return;
- for(const id of ['tso-mlb-live-game-switcher-v901','tso-mlb-live-game-switcher-v902','tso-mlb-live-game-switcher-v903','tso-mlb-live-game-switcher-v904'])document.getElementById(id)?.remove();
+ for(const id of ['tso-mlb-live-game-switcher-v901','tso-mlb-live-game-switcher-v902','tso-mlb-live-game-switcher-v903','tso-mlb-live-game-switcher-v904','tso-mlb-live-game-switcher-v905'])document.getElementById(id)?.remove();
  const style=document.createElement('style');style.id=STYLE_ID;
  style.textContent=`
  html[data-sport="mlb"] .tso-mlb-live-switcher{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;margin:0 0 14px;padding:10px 12px;border:1px solid rgba(45,127,255,.30);border-radius:11px;background:linear-gradient(180deg,rgba(10,32,67,.96),rgba(5,19,43,.96));box-sizing:border-box;color:#edf6ff}
@@ -23,6 +23,7 @@ function ensureStyles(){
  html[data-sport="mlb"] .tso-mlb-live-switcher select:disabled{cursor:default;color:#9eb0c8;opacity:1}
  html[data-sport="mlb"] .tso-mlb-live-switcher-state{color:#54e58b;font:900 8px 'JetBrains Mono','Space Mono',monospace;text-transform:uppercase;white-space:nowrap;letter-spacing:.04em}
  html[data-sport="mlb"] .tso-mlb-live-switcher.is-idle .tso-mlb-live-switcher-state{color:#8b95a8}
+ html[data-sport="mlb"] .mlb-live-page .mlb-live-rail-wrap,html[data-sport="mlb"] .mlb-live-page .mlb-live-helper{display:none!important}
  html[data-sport="mlb"] #${INLINE_ID}{width:100%;margin:0 0 18px;scroll-margin-top:76px}
  html[data-sport="mlb"] #${INLINE_ID} .mlb-live-gc-shell{width:100%;max-width:none;margin:0;background:linear-gradient(180deg,rgba(7,25,53,.98),rgba(3,14,31,.98));border:1px solid rgba(45,127,255,.28);border-radius:14px;padding:12px;box-shadow:0 14px 40px rgba(0,0,0,.22)}
  html[data-sport="mlb"] #${INLINE_ID} .mlb-live-gc-top{margin-top:0}
