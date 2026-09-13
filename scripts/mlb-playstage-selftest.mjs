@@ -11,9 +11,9 @@ assert.deepEqual(t.hitTarget({result:{description:'Fly ball to left field'}},'fl
 assert.equal(t.endBase({result:{description:'Grounded to shortstop'}}),'first');
 assert.ok(t.playerImg(592450).includes('/people/592450/headshot/'));
 assert.ok(t.teamLogo(147).includes('/147.svg'));
-assert.deepEqual(t.DEF_POS.C,[50,88]);
-assert.deepEqual(t.BASE_POS.second,[50,49]);
-assert.deepEqual(t.DEF_POS.CF,[50,41]);
+assert.deepEqual(t.DEF_POS.C,[50,90]);
+assert.deepEqual(t.BASE_POS.second,[50,58]);
+assert.deepEqual(t.DEF_POS.CF,[50,40]);
 
 const src=fs.readFileSync(new URL('../sports/mlb/playstage-v901.js',import.meta.url),'utf8');
 for(const marker of [
