@@ -3,16 +3,19 @@ const CARD_CLASS='tso-player-static-shell';
 const BODY_CLASS='tso-player-modal-scroll-body';
 const ACTIONS_CLASS='tso-player-header-actions';
 const WATCH_CLASS='tso-player-watch-action';
+const CARD_SELECTOR='.modal > .player-card-v2,.ms-modal > .player-card-v2,.tso-nhl-modal-backdrop .player-card-v2';
 let installed=false,observer=null,queued=false;
 
 const imp=(el,prop,value)=>{if(el)el.style.setProperty(prop,value,'important');};
 const isMobile=()=>typeof matchMedia==='function'&&matchMedia('(max-width:680px)').matches;
+const modalShell=card=>card?.closest?.('.modal,.ms-modal')||null;
 
 function ensureStyle(){
  if(typeof document==='undefined'||document.getElementById(STYLE_ID))return;
  const style=document.createElement('style');
  style.id=STYLE_ID;
  style.textContent=`
+ .modal>.player-card-v2.${CARD_CLASS},
  .ms-modal>.player-card-v2.${CARD_CLASS},
  .tso-nhl-modal-backdrop .player-card-v2.${CARD_CLASS}{
    display:flex!important;
@@ -83,27 +86,38 @@ function isWatchButton(btn){
    .filter(Boolean).join(' ').toLowerCase();
  return btn?.matches?.('.watch-star[data-watch-id],button.watch-star')||/^[☆★⭐]$/.test(text)||/(watch\s*list|watchlist|favorite|favourite)/.test(meta);
 }
+
 function watchButton(card){
- const direct=card?.querySelector?.('.watch-star[data-watch-id],button.watch-star');
+ const direct=card?.querySelector?.(':scope > .hdr > .watch-star[data-watch-id],:scope > .hdr button.watch-star,.watch-star[data-watch-id],button.watch-star');
  if(direct)return direct;
- const modal=card?.closest?.('.ms-modal');
- const buttons=[...(modal||card)?.querySelectorAll?.('button')||[]];
+ const shell=modalShell(card);
+ const buttons=[...(shell||card)?.querySelectorAll?.('button')||[]];
  return buttons.find(isWatchButton)||null;
 }
 
 function resetActionButton(btn){
  if(!btn)return;
- for(const [prop,value] of [['position','relative'],['top','auto'],['right','auto'],['bottom','auto'],['left','auto'],['margin','0'],['transform','none']])imp(btn,prop,value);
+ for(const [prop,value] of [
+  ['position','relative'],['inset','auto'],['top','auto'],['right','auto'],['bottom','auto'],['left','auto'],
+  ['margin','0'],['transform','none'],['float','none']
+ ])imp(btn,prop,value);
 }
 
 function ensureActions(card,hdr){
  let actions=hdr.querySelector(`:scope > .${ACTIONS_CLASS}`);
  if(!actions){actions=document.createElement('div');actions.className=ACTIONS_CLASS;hdr.appendChild(actions);}
- const modal=card.closest('.ms-modal');
- const close=card.querySelector(':scope > .modal-close')||hdr.querySelector(':scope > .modal-close')||modal?.querySelector(':scope > .modal-close');
+ const shell=modalShell(card);
+ const close=card.querySelector(':scope > .modal-close')||hdr.querySelector(':scope > .modal-close')||shell?.querySelector(':scope > .modal-close');
  const watch=watchButton(card);
- if(watch){watch.classList.add(WATCH_CLASS);resetActionButton(watch);if(watch.parentElement!==actions)actions.appendChild(watch);}
- if(close){resetActionButton(close);if(close.parentElement!==actions)actions.appendChild(close);}
+ if(watch){
+   watch.classList.add(WATCH_CLASS);
+   resetActionButton(watch);
+   if(watch.parentElement!==actions)actions.appendChild(watch);
+ }
+ if(close){
+   resetActionButton(close);
+   if(close.parentElement!==actions)actions.appendChild(close);
+ }
  actions.dataset.hasWatch=watch?'1':'0';
  return actions;
 }
@@ -114,7 +128,9 @@ function ensureBody(card,hdr){
  let body=card.querySelector(`:scope > .${BODY_CLASS}`);
  if(body)return body;
  const nodes=[...card.children].filter(node=>node!==hdr);
- body=document.createElement('div');body.className=BODY_CLASS;hdr.after(body);
+ body=document.createElement('div');
+ body.className=BODY_CLASS;
+ hdr.after(body);
  for(const node of nodes){
    if(node.classList?.contains(ACTIONS_CLASS))continue;
    if(node.classList?.contains('modal-close'))continue;
@@ -134,7 +150,7 @@ function layoutHeader(card,hdr,actions){
  imp(hdr,'align-items','start');
  imp(hdr,'column-gap',mobile?'10px':'14px');
  imp(hdr,'row-gap',mobile?'10px':'8px');
- imp(hdr,'padding-right','0');
+ imp(hdr,'padding-right','18px');
  imp(hdr,'position','relative');
  imp(hdr,'top','auto');
 
@@ -142,37 +158,39 @@ function layoutHeader(card,hdr,actions){
    imp(hdr,'grid-template-columns','auto minmax(0,1fr) auto');
    if(avatar){imp(avatar,'grid-column','1');imp(avatar,'grid-row','1');}
    if(who){imp(who,'grid-column','2');imp(who,'grid-row','1');imp(who,'padding-right','0');}
-   if(actions){imp(actions,'grid-column','3');imp(actions,'grid-row','1');imp(actions,'min-width','84px');}
+   if(actions){imp(actions,'grid-column','3');imp(actions,'grid-row','1');imp(actions,'min-width','76px');}
    if(prop){
      imp(prop,'grid-column','1 / -1');imp(prop,'grid-row','2');imp(prop,'width','100%');imp(prop,'max-width','none');
    }
  }else{
-   imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) minmax(84px,max-content)');
+   imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) minmax(76px,max-content)');
    if(avatar){imp(avatar,'grid-column','1');imp(avatar,'grid-row','1');}
    if(who){imp(who,'grid-column','2');imp(who,'grid-row','1');imp(who,'padding-right','0');}
    if(prop){
      imp(prop,'grid-column','3');imp(prop,'grid-row','1');imp(prop,'width','100%');imp(prop,'max-width','232px');imp(prop,'justify-self','stretch');
    }
-   if(actions){imp(actions,'grid-column','4');imp(actions,'grid-row','1');imp(actions,'min-width','84px');}
+   if(actions){imp(actions,'grid-column','4');imp(actions,'grid-row','1');imp(actions,'min-width','76px');}
  }
 }
 
-function sizeShell(modal,card){
- const mobile=isMobile();
- const h=mobile?'calc(100dvh - 16px)':'calc(100dvh - 48px)';
- if(modal){
-   imp(modal,'display','flex');
-   imp(modal,'flex-direction','column');
-   imp(modal,'height',h);
-   imp(modal,'max-height',h);
-   imp(modal,'overflow','hidden');
+function sizeShell(shell,card){
+ if(shell){
+   shell.dataset.tsoStaticPlayerShell='1';
+   imp(shell,'display','flex');
+   imp(shell,'flex-direction','column');
+   imp(shell,'height','100%');
+   imp(shell,'max-height','100%');
+   imp(shell,'overflow','hidden');
+   imp(shell,'overflow-y','hidden');
+   imp(shell,'min-height','0');
  }
  imp(card,'display','flex');
  imp(card,'flex-direction','column');
  imp(card,'height','100%');
- imp(card,'overflow','hidden');
- imp(card,'min-height','0');
  imp(card,'max-height','100%');
+ imp(card,'min-height','0');
+ imp(card,'overflow','hidden');
+ imp(card,'overflow-y','hidden');
  imp(card,'flex','1 1 auto');
 }
 
@@ -181,17 +199,22 @@ function prepareCard(card){
  const hdr=card.querySelector(':scope > .hdr');
  if(!hdr)return;
  card.classList.add(CARD_CLASS);
- const modal=card.closest('.ms-modal');
- sizeShell(modal,card);
+ card.dataset.tsoStaticHeader='1';
+ const shell=modalShell(card);
+ sizeShell(shell,card);
  const actions=ensureActions(card,hdr);
  const body=ensureBody(card,hdr);
- imp(body,'flex','1 1 0%');imp(body,'height','0');imp(body,'min-height','0');imp(body,'overflow-y','auto');imp(body,'overflow-x','hidden');
+ imp(body,'flex','1 1 0%');
+ imp(body,'height','0');
+ imp(body,'min-height','0');
+ imp(body,'overflow-y','auto');
+ imp(body,'overflow-x','hidden');
  layoutHeader(card,hdr,actions);
 }
 
 function scan(){
  queued=false;
- document.querySelectorAll('.ms-modal .player-card-v2,.tso-nhl-modal-backdrop .player-card-v2').forEach(prepareCard);
+ document.querySelectorAll(CARD_SELECTOR).forEach(prepareCard);
 }
 function queue(){if(queued)return;queued=true;requestAnimationFrame(scan);}
 
@@ -205,4 +228,4 @@ export function installPlayerModalStickyHeaderV901(){
  queue();
 }
 
-export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={isWatchButton,watchButton,resetActionButton,ensureActions,ensureBody,layoutHeader,sizeShell,prepareCard};
+export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={CARD_SELECTOR,modalShell,isWatchButton,watchButton,resetActionButton,ensureActions,ensureBody,layoutHeader,sizeShell,prepareCard};
