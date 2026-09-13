@@ -711,7 +711,8 @@ async function loadData(){
         const halfNow=!!(current&&isHalftimeGameState(current));
         const halfShown=!!root.querySelector('[data-tso-halftime-gamecast]');
         if(halfNow!==halfShown){ requestAnimationFrame(()=>render()); return; }
-        if(current && root.querySelector('[data-tso-v886c-gamecast]')){ requestAnimationFrame(()=>render()); return; }
+        const legacyRebuild=current&&root.querySelector('[data-tso-v886c-gamecast]');
+        if(legacyRebuild) legacyRebuild.removeAttribute('data-tso-v886c-gamecast');
         if(current && patchLiveGamecastDOM(root,current)) return;
       }
       if(state.tab==='slate' && !state.game && 'requestIdleCallback' in window){
