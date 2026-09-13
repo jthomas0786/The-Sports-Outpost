@@ -7,6 +7,7 @@ const nhlCss=fs.readFileSync('sports/nhl/player-modal-v918.css','utf8');
 const nhlView=fs.readFileSync('sports/nhl/view-v906.js','utf8');
 const sticky=fs.readFileSync('sports/player-modal-sticky-header-v901.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
+const index=fs.readFileSync('index.html','utf8');
 
 for(const marker of [
   'tso-mlb-nfl-player-parity',
@@ -56,14 +57,18 @@ for(const marker of [
   'tso-player-watch-action',
   'overflow:hidden!important',
   'overflow-y:auto!important',
+  "height:0!important",
+  "flex:1 1 0%!important",
+  ".watch-star[data-watch-id]",
   "imp(hdr,'position','relative')",
-  "imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) auto')",
+  "imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) minmax(84px,max-content)')",
   "imp(prop,'grid-column','3')",
   "imp(actions,'grid-column','4')",
   "imp(prop,'grid-column','1 / -1')",
   'resetActionButton',
-  "['position','relative']",
-  "['right','auto']",
+  'sizeShell(modal,card)',
+  "calc(100dvh - 48px)",
+  "calc(100dvh - 16px)",
   "actions.appendChild(watch)",
   "actions.appendChild(close)",
   'ensureBody(card,hdr)',
@@ -77,7 +82,8 @@ assert.ok(nhlView.includes('installNhlPlayerModalV918'),'NHL view must install v
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'Router must cache-bust NHL v90.18');
 assert.ok(router.includes("./mlb/player-modal-parity-v901.js?v=90.2"),'Router must load hardened MLB NFL-parity modal');
 assert.ok(router.includes('installMlbPlayerModalParityV901'),'Router must install MLB modal parity enhancer');
-assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.4"),'Router must load static player header v90.4');
+assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.5"),'Router must load hardened static player header v90.5');
 assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install static player headers for all sports');
+assert.ok(index.includes('./sports/router.js?v=90.6'),'Outer page must cache-bust the router so clients actually receive the static-header runtime');
 
-console.log('Player modal parity: headers are non-scrolling in MLB/NFL/NHL, body content owns scrolling, and Watch List + Close use a dedicated action column.');
+console.log('Player modal parity: the outer cache chain is current; MLB/NFL/NHL headers are non-scrolling, body content owns scrolling, and Watch List + Close use a dedicated action column.');
