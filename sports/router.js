@@ -114,7 +114,7 @@ async function swapView(active) {
     try {
       const [liveSwitcher,playerParity] = await Promise.all([
         import('./mlb/live-game-switcher-v901.js?v=90.22'),
-        import('./mlb/player-modal-parity-v901.js?v=90.1')
+        import('./mlb/player-modal-parity-v901.js?v=90.2')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
