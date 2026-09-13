@@ -1,0 +1,71 @@
+/* NHL v90.6 — NFL-style one-column slate matchup boards. */
+#nhlView .hk-matchup-slate{grid-template-columns:minmax(0,1fr)!important;max-width:1180px;margin:0 auto;gap:18px!important}
+#nhlView .hk-matchup{width:100%;min-width:0}
+#nhlView .hk-slate-matchup-pools{border-top:1px solid rgba(75,126,186,.18);background:linear-gradient(180deg,rgba(4,18,38,.96),rgba(3,14,30,.98));cursor:default}
+#nhlView .hk-slate-featured-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px}
+#nhlView .hk-slate-team-board{min-width:0;border:1px solid rgba(45,127,255,.22);border-radius:11px;overflow:hidden;background:#06172e}
+#nhlView .hk-slate-team-head,#nhlView .hk-slate-full-head{min-height:52px;display:flex;align-items:center;gap:9px;padding:8px 10px;border-bottom:1px solid rgba(75,126,186,.16);background:rgba(5,21,43,.94)}
+#nhlView .hk-slate-team-head img,#nhlView .hk-slate-full-head img{width:36px;height:36px;object-fit:contain;flex:0 0 auto}
+#nhlView .hk-slate-team-head>span,#nhlView .hk-slate-full-head>span{width:36px;height:36px;border-radius:8px;display:grid;place-items:center;background:#08213d;color:#9dcfff;font:900 8px 'JetBrains Mono',monospace}
+#nhlView .hk-slate-team-head b,#nhlView .hk-slate-full-head b{display:block;color:#f7fbff;font:800 14px 'Oswald',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nhlView .hk-slate-team-head span,#nhlView .hk-slate-full-head span{display:block;margin-top:2px;color:#718fb4;font:800 6.5px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.035em}
+#nhlView .hk-slate-team-cols{display:grid;grid-template-columns:minmax(0,1fr) 116px 58px;gap:8px;padding:6px 9px;background:#041226;color:#58779c;font:900 6px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.04em}
+#nhlView .hk-slate-team-cols span:nth-child(2),#nhlView .hk-slate-team-cols span:nth-child(3){text-align:center}
+#nhlView .hk-slate-top-five{display:flex;flex-direction:column}
+#nhlView .hk-slate-player{display:grid;grid-template-columns:38px minmax(0,1fr) 116px 58px;gap:8px;align-items:center;min-width:0;min-height:66px;padding:7px 9px;border-top:1px solid rgba(75,126,186,.12)}
+#nhlView .hk-slate-top-five .hk-slate-player:first-child{border-top:0}
+#nhlView .hk-slate-player-photo{width:36px;height:36px;border-radius:8px;overflow:hidden;background:#0a2949;display:grid;place-items:center;color:#8fc9ff;font-size:16px}
+#nhlView .hk-slate-player-photo img{width:100%;height:100%;object-fit:contain}
+#nhlView .hk-slate-player-main{min-width:0}
+#nhlView .hk-slate-player-main b{display:block;color:#fff;font:700 13px/1.05 'Oswald',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nhlView .hk-slate-player-main span{display:block;margin-top:3px;color:#6f8fb4;font:700 6.5px/1.3 'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nhlView .hk-slate-player-model{text-align:center;min-width:0}
+#nhlView .hk-slate-player-model strong{display:block;color:#dcecff;font:900 8px/1.2 'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nhlView .hk-slate-player-model small{display:block;margin-top:3px;color:#6a89ad;font:700 6px/1.2 'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#nhlView .hk-slate-player-grade{display:grid;place-items:center;min-width:0}
+#nhlView .hk-slate-grade-fallback{width:48px;height:48px;border:5px solid rgba(116,145,183,.22);border-radius:50%;display:grid;place-items:center;color:#8b95a8;line-height:1}
+#nhlView .hk-slate-grade-fallback b{font:800 12px 'Oswald',sans-serif;color:#fff}
+#nhlView .hk-slate-grade-fallback small{font:800 6px 'JetBrains Mono',monospace}
+#nhlView .hk-slate-full-pools{border-top:1px solid rgba(75,126,186,.16)}
+#nhlView .hk-slate-full-pools>summary{list-style:none;min-height:43px;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:7px;cursor:pointer;background:#041226;color:#99c8f5;font:900 8px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.045em;user-select:none}
+#nhlView .hk-slate-full-pools>summary::-webkit-details-marker{display:none}
+#nhlView .hk-slate-full-pools>summary:hover{background:#061a34;color:#b9dcff}
+#nhlView .hk-slate-full-pools>summary i{font-style:normal;font-size:12px;transition:transform .16s ease}
+#nhlView .hk-slate-full-pools .open-label{display:none}
+#nhlView .hk-slate-full-pools[open] .closed-label{display:none}
+#nhlView .hk-slate-full-pools[open] .open-label{display:inline}
+#nhlView .hk-slate-full-pools[open]>summary i{transform:rotate(180deg)}
+#nhlView .hk-slate-full-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;padding:12px;border-top:1px solid rgba(75,126,186,.13);background:#031025}
+#nhlView .hk-slate-full-team{min-width:0;border:1px solid rgba(45,127,255,.18);border-radius:10px;overflow:hidden;background:#06162b}
+#nhlView .hk-slate-full-head{min-height:44px;padding:6px 9px}
+#nhlView .hk-slate-full-head img,#nhlView .hk-slate-full-head>span{width:30px;height:30px}
+#nhlView .hk-slate-full-list{max-height:520px;overflow:auto}
+#nhlView .hk-slate-player.compact{grid-template-columns:32px minmax(0,1fr) 108px 50px;min-height:56px;padding:6px 8px}
+#nhlView .hk-slate-player.compact .hk-slate-player-photo{width:30px;height:30px;border-radius:7px}
+#nhlView .hk-slate-player.compact .hk-grade-ring-sm{width:42px;height:42px}
+#nhlView .hk-slate-no-players{padding:16px;color:#6f8bad;font:700 8px/1.45 'JetBrains Mono',monospace;text-align:center}
+@media(max-width:900px){
+ #nhlView .hk-slate-featured-grid,#nhlView .hk-slate-full-grid{grid-template-columns:minmax(0,1fr)}
+ #nhlView .hk-slate-full-list{max-height:420px}
+}
+@media(max-width:620px){
+ #nhlView .hk-matchup-slate{gap:12px!important}
+ #nhlView .hk-slate-featured-grid{padding:8px;gap:8px}
+ #nhlView .hk-slate-team-cols{grid-template-columns:minmax(0,1fr) 96px 50px;padding:5px 7px}
+ #nhlView .hk-slate-player{grid-template-columns:34px minmax(0,1fr) 96px 50px;gap:6px;min-height:60px;padding:6px 7px}
+ #nhlView .hk-slate-player-photo{width:32px;height:32px}
+ #nhlView .hk-slate-player-main b{font-size:12px}
+ #nhlView .hk-slate-player-model strong{font-size:7px}
+ #nhlView .hk-slate-player-model small{font-size:5.5px}
+ #nhlView .hk-slate-full-grid{padding:8px;gap:8px}
+ #nhlView .hk-slate-player.compact{grid-template-columns:30px minmax(0,1fr) 90px 46px;gap:5px}
+ #nhlView .hk-slate-player.compact .hk-grade-ring-sm{width:38px;height:38px}
+}
+@media(max-width:390px){
+ #nhlView .hk-slate-team-cols{grid-template-columns:minmax(0,1fr) 78px 44px}
+ #nhlView .hk-slate-player{grid-template-columns:30px minmax(0,1fr) 78px 44px;padding:6px 5px;gap:5px}
+ #nhlView .hk-slate-player-photo{width:29px;height:29px}
+ #nhlView .hk-slate-player-main span{font-size:5.5px}
+ #nhlView .hk-slate-player-model small{display:none}
+ #nhlView .hk-slate-player.compact{grid-template-columns:28px minmax(0,1fr) 76px 42px}
+}
