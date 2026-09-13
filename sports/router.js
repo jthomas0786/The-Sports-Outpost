@@ -52,6 +52,7 @@ function renderPills(active) {
           .filter(Boolean).join(' ');
         return `<button type="button" class="${cls}" data-sport="${key}"${enabled ? '' : ' disabled'}>` +
           `<span class="sport-dd-item-name">${s.brand}</span>` +
+          `<span class="sport-dd-chevron">›</span>` +
           `${enabled ? '' : `<span class="sport-pill-soon">${comingSoonNote(key)}</span>`}` +
           `</button>`;
       }).join('') +
@@ -101,7 +102,7 @@ async function swapView(active) {
   setVisible(nflView, active === 'nfl');
   setVisible(document.getElementById('nhlView'), active === 'nhl');
   if(active === 'nhl'){
-    try { await (await import('./nhl/view-v906.js?v=90.6')).mount(); }
+    try { await (await import('./nhl/view-v906.js?v=90.6.1')).mount(); }
     catch { document.getElementById('nhlView').textContent='Hockey is temporarily unavailable. Please try again shortly.'; }
   }
   setVisible(document.getElementById('nflSideNav'), false);
