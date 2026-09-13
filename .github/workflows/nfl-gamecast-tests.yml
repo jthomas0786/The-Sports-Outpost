@@ -11,7 +11,11 @@ on:
       - 'sports/nfl/gamecast-field-state-v8912.js'
       - 'sports/nfl/gamecast-replay-lab-v8916.js'
       - 'sports/nfl-preview-v893.js'
+      - 'sports/nfl/quarter-parlay-ui-v893.js'
+      - 'sports/nfl/sim/quarter-board.js'
       - 'scripts/live-game-switcher-selftest.mjs'
+      - 'scripts/nfl-v893-selftest.mjs'
+      - 'scripts/nfl-quarter-selftest.mjs'
       - 'scripts/nfl-v8915-gamecast-motion-selftest.mjs'
       - 'scripts/nfl-v8916-live-personnel-selftest.mjs'
       - 'scripts/nfl-v8916-replay-lab-selftest.mjs'
@@ -38,8 +42,13 @@ jobs:
           node --check sports/nfl/gamecast-field-state-v8912.js
           node --check sports/nfl/gamecast-replay-lab-v8916.js
           node --check sports/nfl-preview-v893.js
+          node --check sports/nfl/quarter-parlay-ui-v893.js
       - name: Live game switcher tests
         run: node scripts/live-game-switcher-selftest.mjs
+      - name: Parlay generator contract tests
+        run: |
+          node scripts/nfl-v893-selftest.mjs
+          node scripts/nfl-quarter-selftest.mjs
       - name: Motion planner tests
         run: node scripts/nfl-v8915-gamecast-motion-selftest.mjs
       - name: Live personnel tests
