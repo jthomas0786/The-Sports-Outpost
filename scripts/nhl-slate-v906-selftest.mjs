@@ -31,7 +31,7 @@ const awayBoard=html.split('hk-slate-team-board')[1].split('</section>')[0];
 const awayTop=awayBoard.split('hk-slate-top-five')[1].split('hk-slate-rest')[0];
 const awayRest=awayBoard.split('hk-slate-rest')[1];
 assert.equal((awayTop.match(/hk-slate-player"/g)||[]).length,5,'exactly five featured skaters should be visible before expansion');
-assert.match(awayRest,/Six/,'player six should continue directly after the visible top five');
+assert.match(awayRest,new RegExp(ranked[5].name),'the actual sixth-ranked skater should continue directly after the visible top five');
 assert.match(awayRest,/Away Goalie/,'goalie should finish the same continued team list');
 assert.equal((html.match(/Model Star/g)||[]).length,1,'top-five players must not be duplicated in the expanded pool');
 const css='sports/nhl/slate-v906.css',fs=(await import('node:fs')).default,styles=fs.readFileSync(css,'utf8');
