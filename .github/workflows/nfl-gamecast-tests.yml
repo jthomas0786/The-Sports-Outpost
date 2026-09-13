@@ -10,6 +10,8 @@ on:
       - 'sports/nfl-preview-v890.js'
       - 'sports/nfl-preview-v893.js'
       - 'sports/nfl/live.js'
+      - 'sports/nfl/winprob.js'
+      - 'sports/nfl/playstage-v886e.js'
       - 'sports/nfl/live-game-switcher-v894.js'
       - 'sports/nfl/halftime-ui-v884.js'
       - 'sports/nfl/sim/auto.js'
@@ -65,6 +67,8 @@ jobs:
           node --check sports/nfl-preview-v890.js
           node --check sports/nfl-preview-v893.js
           node --check sports/nfl/live.js
+          node --check sports/nfl/winprob.js
+          node --check sports/nfl/playstage-v886e.js
           node --check sports/nfl/live-game-switcher-v894.js
           node --check sports/nfl/halftime-ui-v884.js
           node --check sports/nfl/sim/auto.js
@@ -91,10 +95,11 @@ jobs:
           node --check sports/nfl/gamecast-replay-lab-v8916.js
       - name: NFL Live stability graph
         run: |
-          grep -F './sports/router.js?v=90.30' index.html
-          grep -F "./nfl-preview-v893.js?v=89.33" sports/router.js
-          grep -F "./nfl-preview-v890.js?v=89.33" sports/nfl-preview-v893.js
-          grep -F "./nfl-preview.js?v=89.33" sports/nfl-preview-v890.js
+          grep -F './sports/router.js?v=90.31' index.html
+          grep -F "./nfl-preview-v893.js?v=89.34" sports/router.js
+          grep -F "./nfl-preview-v890.js?v=89.34" sports/nfl-preview-v893.js
+          grep -F "./nfl-preview.js?v=89.34" sports/nfl-preview-v890.js
+          grep -F "./nfl/playstage-v886e.js?v=89.34" sports/nfl-preview.js
           grep -F "./nfl/live-game-switcher-v894.js?v=89.32" sports/nfl-preview-v893.js
           grep -F "./nfl/halftime-ui-v884.js?v=89.33" sports/nfl-preview.js
           grep -F "./nfl/live.js?v=89.21" sports/nfl-preview.js
@@ -127,6 +132,21 @@ jobs:
           grep -F "removeAttribute('data-tso-v886c-gamecast')" sports/nfl-preview.js
           grep -F "loadDoc(false)" sports/nfl/quarter-parlay-ui-v893.js
           grep -F "data.renderSig" sports/nfl/live-game-switcher-v894.js || grep -F "dataset.renderSig" sports/nfl/live-game-switcher-v894.js
+      - name: Live win probability regression
+        run: |
+          node --input-type=module - <<'NODE'
+          import assert from 'node:assert/strict';
+          import {__V886E_TEST__ as T} from './sports/nfl/playstage-v886e.js';
+          import {liveWinProb} from './sports/nfl/winprob.js';
+          const game={status:'in',away:{abbr:'MIA',name:'Dolphins',score:13},home:{abbr:'LV',name:'Raiders',score:27},liveScore:{status:'in',period:4,clockMin:5+58/60,awayScore:13,homeScore:27,possession:'home',yardFromOwn:22}};
+          const model=liveWinProb(game),shown=T.winProb(game);
+          assert.ok(model.homePct>.90,`Raiders should be heavy favorite, got ${model.homePct}`);
+          assert.ok(shown.home>90&&shown.away<10,`display is reversed/stale: ${JSON.stringify(shown)}`);
+          assert.deepEqual(T.winProb({...game,liveScore:{...game.liveScore,winProbAway:7}}),{away:7,home:93});
+          console.log(`MIA 13 @ LV 27, Q4 5:58 => MIA ${shown.away}% / LV ${shown.home}%`);
+          NODE
+          grep -F "liveWinProb" sports/nfl/playstage-v886e.js
+          ! grep -F "winProbAway??g?.liveScore?.winProbAway??68" sports/nfl/playstage-v886e.js
       - name: Field position authority test
         run: |
           node --input-type=module - <<'NODE'
@@ -143,7 +163,7 @@ jobs:
           NODE
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.30' index.html
+          grep -F './sports/router.js?v=90.31' index.html
           grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v904.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v905.js?v=90.51" sports/router.js
