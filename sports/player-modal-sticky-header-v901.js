@@ -19,6 +19,7 @@ function ensureStyle(){
    flex-direction:column!important;
    flex:1 1 auto!important;
    width:100%!important;
+   height:100%!important;
    min-height:0!important;
    max-height:100%!important;
    overflow:hidden!important;
@@ -35,8 +36,9 @@ function ensureStyle(){
  .player-card-v2.${CARD_CLASS}>.${BODY_CLASS}{
    display:flex!important;
    flex-direction:column!important;
-   flex:1 1 auto!important;
+   flex:1 1 0%!important;
    min-height:0!important;
+   height:0!important;
    max-height:none!important;
    overflow-y:auto!important;
    overflow-x:hidden!important;
@@ -48,7 +50,7 @@ function ensureStyle(){
    align-items:flex-start!important;
    justify-content:flex-end!important;
    gap:8px!important;
-   min-width:40px!important;
+   min-width:84px!important;
    position:relative!important;
    z-index:5!important;
  }
@@ -79,9 +81,11 @@ function isWatchButton(btn){
  const text=String(btn?.textContent||'').trim();
  const meta=[btn?.getAttribute?.('aria-label'),btn?.getAttribute?.('title'),btn?.id,btn?.className,btn?.dataset?.action]
    .filter(Boolean).join(' ').toLowerCase();
- return /^[☆★⭐]$/.test(text)||/(watch\s*list|watchlist|favorite|favourite)/.test(meta);
+ return btn?.matches?.('.watch-star[data-watch-id],button.watch-star')||/^[☆★⭐]$/.test(text)||/(watch\s*list|watchlist|favorite|favourite)/.test(meta);
 }
 function watchButton(card){
+ const direct=card?.querySelector?.('.watch-star[data-watch-id],button.watch-star');
+ if(direct)return direct;
  const modal=card?.closest?.('.ms-modal');
  const buttons=[...(modal||card)?.querySelectorAll?.('button')||[]];
  return buttons.find(isWatchButton)||null;
@@ -138,19 +142,38 @@ function layoutHeader(card,hdr,actions){
    imp(hdr,'grid-template-columns','auto minmax(0,1fr) auto');
    if(avatar){imp(avatar,'grid-column','1');imp(avatar,'grid-row','1');}
    if(who){imp(who,'grid-column','2');imp(who,'grid-row','1');imp(who,'padding-right','0');}
-   if(actions){imp(actions,'grid-column','3');imp(actions,'grid-row','1');}
+   if(actions){imp(actions,'grid-column','3');imp(actions,'grid-row','1');imp(actions,'min-width','84px');}
    if(prop){
      imp(prop,'grid-column','1 / -1');imp(prop,'grid-row','2');imp(prop,'width','100%');imp(prop,'max-width','none');
    }
  }else{
-   imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) auto');
+   imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) minmax(84px,max-content)');
    if(avatar){imp(avatar,'grid-column','1');imp(avatar,'grid-row','1');}
    if(who){imp(who,'grid-column','2');imp(who,'grid-row','1');imp(who,'padding-right','0');}
    if(prop){
      imp(prop,'grid-column','3');imp(prop,'grid-row','1');imp(prop,'width','100%');imp(prop,'max-width','232px');imp(prop,'justify-self','stretch');
    }
-   if(actions){imp(actions,'grid-column','4');imp(actions,'grid-row','1');}
+   if(actions){imp(actions,'grid-column','4');imp(actions,'grid-row','1');imp(actions,'min-width','84px');}
  }
+}
+
+function sizeShell(modal,card){
+ const mobile=isMobile();
+ const h=mobile?'calc(100dvh - 16px)':'calc(100dvh - 48px)';
+ if(modal){
+   imp(modal,'display','flex');
+   imp(modal,'flex-direction','column');
+   imp(modal,'height',h);
+   imp(modal,'max-height',h);
+   imp(modal,'overflow','hidden');
+ }
+ imp(card,'display','flex');
+ imp(card,'flex-direction','column');
+ imp(card,'height','100%');
+ imp(card,'overflow','hidden');
+ imp(card,'min-height','0');
+ imp(card,'max-height','100%');
+ imp(card,'flex','1 1 auto');
 }
 
 function prepareCard(card){
@@ -159,12 +182,10 @@ function prepareCard(card){
  if(!hdr)return;
  card.classList.add(CARD_CLASS);
  const modal=card.closest('.ms-modal');
- if(modal){
-   imp(modal,'display','flex');imp(modal,'flex-direction','column');imp(modal,'overflow','hidden');
- }
- imp(card,'display','flex');imp(card,'flex-direction','column');imp(card,'overflow','hidden');imp(card,'min-height','0');imp(card,'max-height','100%');imp(card,'flex','1 1 auto');
+ sizeShell(modal,card);
  const actions=ensureActions(card,hdr);
- ensureBody(card,hdr);
+ const body=ensureBody(card,hdr);
+ imp(body,'flex','1 1 0%');imp(body,'height','0');imp(body,'min-height','0');imp(body,'overflow-y','auto');imp(body,'overflow-x','hidden');
  layoutHeader(card,hdr,actions);
 }
 
@@ -184,4 +205,4 @@ export function installPlayerModalStickyHeaderV901(){
  queue();
 }
 
-export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={isWatchButton,watchButton,resetActionButton,ensureActions,ensureBody,layoutHeader,prepareCard};
+export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={isWatchButton,watchButton,resetActionButton,ensureActions,ensureBody,layoutHeader,sizeShell,prepareCard};
