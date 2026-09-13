@@ -20,6 +20,8 @@ on:
       - 'sports/mlb/playstage-concept-v911.js'
       - 'sports/mlb/playstage-concept-v912.js'
       - 'sports/mlb/playstage-concept-v913.js'
+      - 'sports/mlb/playstage-concept-v914.js'
+      - 'images/mlb/playstage-field-v914.jpg'
       - 'sports/nfl/gamecast-field-state-v8912.js'
       - 'sports/nfl/gamecast-replay-lab-v8916.js'
       - 'sports/nfl-preview-v893.js'
@@ -63,13 +65,14 @@ jobs:
           node --check sports/mlb/playstage-concept-v911.js
           node --check sports/mlb/playstage-concept-v912.js
           node --check sports/mlb/playstage-concept-v913.js
+          node --check sports/mlb/playstage-concept-v914.js
           node --check sports/nfl/gamecast-field-state-v8912.js
           node --check sports/nfl/gamecast-replay-lab-v8916.js
           node --check sports/nfl-preview-v893.js
           node --check sports/nfl/quarter-parlay-ui-v893.js
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.19' index.html
+          grep -F './sports/router.js?v=90.20' index.html
           grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v904.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v905.js?v=90.51" sports/router.js
@@ -81,6 +84,7 @@ jobs:
           grep -F "./mlb/playstage-concept-v911.js?v=91.10" sports/router.js
           grep -F "./mlb/playstage-concept-v912.js?v=91.20" sports/router.js
           grep -F "./mlb/playstage-concept-v913.js?v=91.30" sports/router.js
+          grep -F "./mlb/playstage-concept-v914.js?v=91.40" sports/router.js
           grep -F "installMlbPlaystageConceptV904" sports/router.js
           grep -F "installMlbPlaystageConceptV905" sports/router.js
           grep -F "installMlbPlaystageConceptV906" sports/router.js
@@ -91,12 +95,15 @@ jobs:
           grep -F "installMlbPlaystageConceptV911" sports/router.js
           grep -F "installMlbPlaystageConceptV912" sports/router.js
           grep -F "installMlbPlaystageConceptV913" sports/router.js
+          grep -F "installMlbPlaystageConceptV914" sports/router.js
           grep -F 'ps909-scene' sports/mlb/playstage-concept-v909.js
           grep -F 'ps908-foreground' sports/mlb/playstage-concept-v908.js
           grep -F 'ps910-gloss' sports/mlb/playstage-concept-v910.js
           grep -F 'ps911-fieldfx' sports/mlb/playstage-concept-v911.js
           grep -F 'ps912-plate' sports/mlb/playstage-concept-v912.js
           grep -F 'ps913BatSwing' sports/mlb/playstage-concept-v913.js
+          grep -F 'ps914-field' sports/mlb/playstage-concept-v914.js
+          test -s images/mlb/playstage-field-v914.jpg
           grep -F 'Schematic reconstruction' sports/mlb/playstage-v901.js
       - name: Live game switcher tests
         run: node scripts/live-game-switcher-selftest.mjs
