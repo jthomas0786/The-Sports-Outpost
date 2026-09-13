@@ -1,0 +1,247 @@
+name: One-time NFL halftime generator repair v89.33
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-halftime-generator-v8933.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-live-halftime-fast
+  cancel-in-progress: true
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Repair halftime generator live sync and board refresh
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new, label):
+              p=Path(path); s=p.read_text()
+              if new in s:
+                  print(label, 'already applied'); return
+              if old not in s:
+                  raise SystemExit(f'missing anchor: {label}')
+              p.write_text(s.replace(old,new,1))
+              print('applied', label)
+
+          # The no-flash change intentionally stopped rebuilding the whole NFL page
+          # every five seconds. Keep the Halftime Lab in sync directly from the
+          # authoritative 2s live snapshot stream instead of relying on full renders.
+          replace_once(
+              'sports/nfl/halftime-ui-v884.js',
+              'let pollTimer=null;\n',
+              'let pollTimer=null,liveSnapshotSyncArmed=false;\n',
+              'halftime snapshot sync state')
+
+          old_sync="""function syncOneLiveGame(g){
+  const id=gid(g);if(!id)return;
+  if(isHalftimeWarmupGameState(g))currentLiveGames.set(id,g);else currentLiveGames.delete(id);
+  refreshOpenDrawer();
+}"""
+          new_sync="""function liveWindowKey(g){
+  if(!g)return '';
+  const live=g.liveScore||g,away=live.awayScore??g.away?.score??'',home=live.homeScore??g.home?.score??'';
+  return `${gid(g)}|${isHalftimeWarmupGameState(g)?1:0}|${isHalftimeGameState(g)?1:0}|${statusOf(g)}|${periodOf(g)}|${away}-${home}`;
+}
+function syncOneLiveGame(g){
+  const id=gid(g);if(!id)return;
+  const before=liveWindowKey(currentLiveGames.get(id));
+  if(isHalftimeWarmupGameState(g))currentLiveGames.set(id,g);else currentLiveGames.delete(id);
+  const after=liveWindowKey(currentLiveGames.get(id));
+  if(before!==after)refreshOpenDrawer(true);
+}
+function armLiveSnapshotSync(){
+  if(liveSnapshotSyncArmed||typeof window==='undefined')return;
+  liveSnapshotSyncArmed=true;
+  window.addEventListener('tso:nfl-live-snapshot',e=>syncOneLiveGame(e?.detail),true);
+  if(window.__TSO_NFL_LIVE_LATEST__)syncOneLiveGame(window.__TSO_NFL_LIVE_LATEST__);
+}"""
+          replace_once('sports/nfl/halftime-ui-v884.js',old_sync,new_sync,'direct live snapshot synchronization')
+          replace_once(
+              'sports/nfl/halftime-ui-v884.js',
+              "export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){\n  if(pollTimer)return;",
+              "export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){\n  armLiveSnapshotSync();\n  if(pollTimer)return;",
+              'arm snapshot sync with board poller')
+          replace_once(
+              'sports/nfl/halftime-ui-v884.js',
+              "export async function openHalftimeParlayLab({halftimeDoc=null}={}){\n  ensureHalftimeLabStyles();const doc=await latestDoc(halftimeDoc);currentDoc=doc;",
+              "export async function openHalftimeParlayLab({halftimeDoc=null}={}){\n  ensureHalftimeLabStyles();armLiveSnapshotSync();const doc=await latestDoc(halftimeDoc);currentDoc=doc;",
+              'arm snapshot sync when lab opens')
+
+          # A successful halftime board previously fingerprinted the live game and
+          # pregame odds only. New live sportsbook quotes therefore could not trigger
+          # a fresh 50K board, and the browser correctly rejected the old board after
+          # its ten-minute freshness window. Include live halftime quotes in the
+          # halftime fingerprint so every real quote refresh can rebuild the board.
+          replace_once(
+              'sports/nfl/sim/auto.js',
+              "export function gameInputFingerprint({game,research,odds,liveGame=null,phase='pregame'}){",
+              "export function gameInputFingerprint({game,research,odds,liveGame=null,liveOdds=null,phase='pregame'}){",
+              'halftime fingerprint live-odds input')
+
+          old_live="""  if(phase==='live'||phase==='halftime'){
+    payload.live={
+      status:liveGame?.status||null,statusDetail:liveGame?.statusDetail||null,period:liveGame?.period??null,clockMin:liveGame?.clockMin??null,
+      awayScore:liveGame?.awayScore??null,homeScore:liveGame?.homeScore??null,possession:liveGame?.possession??null,yardFromOwn:liveGame?.yardFromOwn??null,
+      down:liveGame?.down??null,distance:liveGame?.distance??null,lastPlayText:liveGame?.lastPlayText||null,
+      playerStats:liveGame?.playerStats||null,teamStats:liveGame?.teamStats||null,
+    };
+  }
+  return hash32(stableStringify(payload)).toString(16).padStart(8,'0');"""
+          new_live="""  if(phase==='live'||phase==='halftime'){
+    payload.live={
+      status:liveGame?.status||null,statusDetail:liveGame?.statusDetail||null,period:liveGame?.period??null,clockMin:liveGame?.clockMin??null,
+      awayScore:liveGame?.awayScore??null,homeScore:liveGame?.homeScore??null,possession:liveGame?.possession??null,yardFromOwn:liveGame?.yardFromOwn??null,
+      down:liveGame?.down??null,distance:liveGame?.distance??null,lastPlayText:liveGame?.lastPlayText||null,
+      playerStats:liveGame?.playerStats||null,teamStats:liveGame?.teamStats||null,
+    };
+  }
+  if(phase==='halftime'){
+    const gameId=String(game?.gameId||game?.id||'');
+    const liveOddsGame=(liveOdds?.games||[]).find(g=>String(g?.gameId||'')===gameId)||null;
+    payload.liveOdds=liveOddsGame?{
+      fetchedAt:liveOdds?.meta?.fetchedAt||null,
+      gameId,
+      players:(liveOddsGame.players||[]).map(p=>({name:normName(p?.name),team:normTeam(p?.team),odds:p?.odds||null}))
+        .sort((a,b)=>`${a.team}|${a.name}`.localeCompare(`${b.team}|${b.name}`)),
+    }:null;
+  }
+  return hash32(stableStringify(payload)).toString(16).padStart(8,'0');"""
+          replace_once('sports/nfl/sim/auto.js',old_live,new_live,'live sportsbook quotes in halftime fingerprint')
+          replace_once(
+              'sports/nfl/sim/auto.js',
+              "  game,research,odds,liveGame=null,previousState=null,existingResult=null,config,now=new Date(),force=false,",
+              "  game,research,odds,liveGame=null,liveOdds=null,previousState=null,existingResult=null,config,now=new Date(),force=false,",
+              'automation decision live-odds input')
+          replace_once(
+              'sports/nfl/sim/auto.js',
+              '  const fingerprint=gameInputFingerprint({game,research,odds,liveGame,phase});',
+              '  const fingerprint=gameInputFingerprint({game,research,odds,liveGame,liveOdds,phase});',
+              'automation decision live-odds fingerprint')
+          replace_once(
+              'scripts/nfl-sim-auto.mjs',
+              '  let decision=decideAutomaticRun({game,research,odds,liveGame,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});',
+              '  let decision=decideAutomaticRun({game,research,odds,liveGame,liveOdds,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});',
+              'simulation automation passes live odds')
+
+          # Lock the refresh behavior into the live-sim regression suite.
+          p=Path('scripts/nfl-v8918-live-sim-selftest.mjs'); s=p.read_text()
+          anchor="""assert.equal(halfDecision.phase,'halftime');
+assert.equal(halfDecision.iterations,50000);
+
+const fp1=gameInputFingerprint({game,research,odds,liveGame,phase:'live'});"""
+          insert="""assert.equal(halfDecision.phase,'halftime');
+assert.equal(halfDecision.iterations,50000);
+const halfOddsA={meta:{fetchedAt:'2026-09-12T01:29:00Z'},games:[{gameId:game.gameId,players:[{name:'Puka Nacua',team:'LA',odds:{recYds:{line:90.5,over:{best:{price:-110,ageSeconds:20}}}}}]}]};
+const halfOddsB=structuredClone(halfOddsA);halfOddsB.meta.fetchedAt='2026-09-12T01:33:00Z';
+const halfFpA=gameInputFingerprint({game,research,odds,liveGame:halftime,liveOdds:halfOddsA,phase:'halftime'});
+const halfFpB=gameInputFingerprint({game,research,odds,liveGame:halftime,liveOdds:halfOddsB,phase:'halftime'});
+assert.notEqual(halfFpA,halfFpB,'fresh halftime sportsbook quotes must change the candidate-board fingerprint');
+const halfRefresh=decideAutomaticRun({game,research,odds,liveGame:halftime,liveOdds:halfOddsB,previousState:{halftimeFingerprint:halfFpA,halftimeCandidateAttempts:1},existingResult:result,config,now:new Date('2026-09-12T01:34:00Z')});
+assert.equal(halfRefresh.run,true,'new halftime sportsbook quotes must rebuild the 50K candidate board');
+assert.equal(halfRefresh.phase,'halftime');
+
+const fp1=gameInputFingerprint({game,research,odds,liveGame,phase:'live'});"""
+          if insert not in s:
+              if anchor not in s: raise SystemExit('missing anchor: halftime refresh regression')
+              p.write_text(s.replace(anchor,insert,1))
+
+          # Cache-bust the full NFL module chain so an already-cached page cannot
+          # keep the old halftime module after reload.
+          replace_once('sports/nfl-preview.js',"./nfl/halftime-ui-v884.js?v=89.26","./nfl/halftime-ui-v884.js?v=89.33",'halftime UI cache')
+          replace_once('sports/nfl-preview-v890.js',"./nfl-preview.js?v=89.27","./nfl-preview.js?v=89.33",'base NFL preview cache')
+          replace_once('sports/nfl-preview-v893.js',"./nfl-preview-v890.js?v=89.27","./nfl-preview-v890.js?v=89.33",'NFL wrapper base cache')
+          replace_once('sports/router.js',"./nfl-preview-v893.js?v=89.32","./nfl-preview-v893.js?v=89.33",'NFL router cache')
+          replace_once('index.html','./sports/router.js?v=90.29','./sports/router.js?v=90.30','index router cache')
+
+          # Keep source-contract tests on the same cache graph.
+          p=Path('scripts/live-game-switcher-selftest.mjs'); s=p.read_text().replace("./nfl-preview-v893.js?v=89.32","./nfl-preview-v893.js?v=89.33"); p.write_text(s)
+          p=Path('.github/workflows/nfl-gamecast-tests.yml'); s=p.read_text()
+          s=s.replace('./sports/router.js?v=90.29','./sports/router.js?v=90.30')
+          s=s.replace('./nfl-preview-v893.js?v=89.32','./nfl-preview-v893.js?v=89.33')
+          s=s.replace('./nfl-preview-v890.js?v=89.27','./nfl-preview-v890.js?v=89.33')
+          s=s.replace('./nfl-preview.js?v=89.27','./nfl-preview.js?v=89.33')
+          p.write_text(s)
+          PY
+
+      - name: Validate generator repair
+        run: |
+          node --check sports/nfl/halftime-ui-v884.js
+          node --check sports/nfl/sim/auto.js
+          node --check scripts/nfl-sim-auto.mjs
+          node --check sports/nfl-preview.js
+          node --check sports/nfl-preview-v890.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/router.js
+          grep -F "window.addEventListener('tso:nfl-live-snapshot'" sports/nfl/halftime-ui-v884.js
+          grep -F "liveOdds=null" sports/nfl/sim/auto.js
+          grep -F "game,research,odds,liveGame,liveOdds" scripts/nfl-sim-auto.mjs
+          grep -F "./nfl/halftime-ui-v884.js?v=89.33" sports/nfl-preview.js
+          grep -F "./nfl-preview-v893.js?v=89.33" sports/router.js
+          grep -F './sports/router.js?v=90.30' index.html
+          node scripts/nfl-v8918-live-sim-selftest.mjs
+          node scripts/nfl-v8920-flow-selftest.mjs
+          node scripts/live-game-switcher-selftest.mjs
+
+      - name: Refresh current live and halftime inputs now
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+          NFL_HALFTIME_PREFETCH_MINUTES: 8
+        run: |
+          node scripts/nfl-live-poller.mjs
+          node scripts/nfl-halftime-window-refresh.mjs || echo "Live sportsbook refresh unavailable; keeping last valid quote cache."
+          GAME_IDS=$(node - <<'NODE'
+          const fs=require('fs');
+          let live={games:{}};try{live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));}catch{}
+          const ids=[];
+          for(const [id,g] of Object.entries(live.games||{})){
+            const status=String(g?.status||'').toLowerCase(),detail=String(g?.statusDetail||'').toLowerCase();
+            const period=Number(g?.period),clock=Number(g?.clockMin);
+            const active=status==='in'||status==='live';
+            if(active&&((period===2&&Number.isFinite(clock)&&clock<=8.05)||/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)))ids.push(id);
+          }
+          process.stdout.write(ids.join(','));
+          NODE
+          )
+          if [ -n "$GAME_IDS" ]; then
+            echo "Rebuilding current halftime board(s): $GAME_IDS"
+            NFL_SIM_FORCE=1 node scripts/nfl-sim-auto.mjs --game "$GAME_IDS" --live-file slates/nfl-live.json
+          else
+            echo "No game is currently inside the late-Q2/halftime window."
+          fi
+
+      - name: Commit repair and refreshed boards
+        run: |
+          git config user.name "TSO NFL Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl/halftime-ui-v884.js sports/nfl/sim/auto.js scripts/nfl-sim-auto.mjs scripts/nfl-v8918-live-sim-selftest.mjs sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs .github/workflows/nfl-gamecast-tests.yml
+          [ -e slates/nfl-live.json ] && git add slates/nfl-live.json || true
+          [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
+          [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
+          [ -e slates/nfl-sim.json ] && git add slates/nfl-sim.json || true
+          [ -e slates/nfl-sim-state.json ] && git add slates/nfl-sim-state.json || true
+          git diff --staged --quiet && echo "Already applied." && exit 0
+          git commit -m "Fix NFL halftime parlay generator readiness"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
