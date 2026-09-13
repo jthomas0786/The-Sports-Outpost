@@ -13,7 +13,7 @@ function ensureStyle(){
  html[data-sport="mlb"] #modalBody .${CARD_CLASS} .hdr{display:grid!important;grid-template-columns:auto minmax(0,1fr) 232px!important;align-items:start!important;column-gap:14px!important;row-gap:8px!important;padding-right:58px!important}
  html[data-sport="mlb"] #modalBody .${CARD_CLASS} .hdr>.ava-reticle{grid-column:1;grid-row:1}
  html[data-sport="mlb"] #modalBody .${CARD_CLASS} .hdr>.who{grid-column:2;grid-row:1;min-width:0;padding-right:6px}
- html[data-sport="mlb"] #modalBody .${CARD_CLASS} [data-tso-mlb-native-props="1"]{display:none!important}
+ html[data-sport="mlb"] #modalBody .${CARD_CLASS} [data-tso-mlb-native-props="1"],html[data-sport="mlb"] #modalBody .${CARD_CLASS} [data-tso-mlb-native-prop="1"]{display:none!important}
  html[data-sport="mlb"] #modalBody .${CARD_CLASS} .tso-mlb-parity-prop-control{grid-column:3;grid-row:1;width:232px;min-width:0;margin:0;align-self:start}
  html[data-sport="mlb"] #modalBody .${CARD_CLASS} .tso-mlb-parity-prop-label{display:block;margin:0 0 5px;color:#6f8daf;font:900 7px 'JetBrains Mono',monospace;letter-spacing:.08em;text-transform:uppercase}
  html[data-sport="mlb"] #modalBody .${CARD_CLASS} .tso-mlb-parity-prop-wrap{position:relative;width:100%}
@@ -61,14 +61,20 @@ function commonParent(nodes,limit){
  return null;
 }
 function propCandidates(card){
- return [...card.querySelectorAll('button,[role="tab"],[data-prop],[data-player-prop]')].filter(el=>PROP_LABELS.has(norm(el.textContent)));
+ return [...card.querySelectorAll('button,[role="tab"],[data-prop],[data-player-prop],[data-tab]')].filter(el=>PROP_LABELS.has(norm(el.textContent)));
 }
 function activeProp(el){return el.classList.contains('active')||el.classList.contains('on')||el.getAttribute('aria-selected')==='true'||el.getAttribute('aria-pressed')==='true';}
+function hideNativeProps(candidates,hdr,card){
+ const insideHdr=candidates.every(el=>hdr.contains(el));
+ const group=insideHdr?commonParent(candidates,hdr):commonParent(candidates,card);
+ if(group&&group!==hdr&&group!==card){group.dataset.tsoMlbNativeProps='1';return 'group';}
+ for(const el of candidates)el.dataset.tsoMlbNativeProp='1';
+ return 'individual';
+}
 function enhancePropControl(card){
  const hdr=card.querySelector('.hdr');if(!hdr)return;
  const candidates=propCandidates(card);if(candidates.length<2)return;
- const native=commonParent(candidates,hdr)||commonParent(candidates,card);if(!native)return;
- native.dataset.tsoMlbNativeProps='1';
+ hideNativeProps(candidates,hdr,card);
  let host=hdr.querySelector('.tso-mlb-parity-prop-control');
  if(!host){host=document.createElement('div');host.className='tso-mlb-parity-prop-control';hdr.appendChild(host);}
  const selected=candidates.find(activeProp)||candidates[0];
@@ -87,7 +93,7 @@ function enhanceRecentBars(card){
 }
 function enhanceCard(card){
  if(!card)return;
- card.classList.add(CARD_CLASS);
+ card.classList.add(CARD_CLASS,'tso-nfl-player-card-v70','tso-nfl-player-card-v72');
  enhancePropControl(card);
  enhanceRecentBars(card);
 }
@@ -102,4 +108,4 @@ export function installMlbPlayerModalParityV901(){
  document.addEventListener('click',e=>{if(e.target?.closest?.('#modalBody'))setTimeout(queue,0);},true);
  window.addEventListener('hashchange',queue);queue();
 }
-export const __MLB_PLAYER_MODAL_PARITY_V901_TEST__={norm,propCandidates,enhanceRecentBars};
+export const __MLB_PLAYER_MODAL_PARITY_V901_TEST__={norm,propCandidates,hideNativeProps,enhanceRecentBars};
