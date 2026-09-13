@@ -2,7 +2,7 @@ import {quoteFor} from './odds.js?v=90.1';
 import {gradeForLean,gradeRingHTML,overProbability} from './grade.js?v=90.4';
 
 let installed=false,hostRef=null,slate=null,research=null,sim=null,odds=null,loadPromise=null,activeBackdrop=null;
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 const pct=v=>v==null?'—':`${(Number(v)*100).toFixed(Number(v)<.1?1:0)}%`;
 const fmt=(v,d=2)=>v==null?'—':Number(v).toFixed(d);
@@ -112,7 +112,8 @@ async function openModal(ref){
  closeModal();const backdrop=document.createElement('div');backdrop.className='ms-modal-backdrop tso-mlb-backdrop tso-nhl-modal-backdrop';backdrop.innerHTML='<div class="ms-modal tso-mlb-player-shell" role="dialog" aria-modal="true"></div>';document.body.appendChild(backdrop);activeBackdrop=backdrop;document.body.classList.add('tso-nhl-modal-open');renderBody(backdrop,hit.game,hit.player,ref.market||marketsFor(hit.player)[0]);backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeModal();});
 }
 function refFromTarget(target){
- const row=target.closest?.('.hk-slate-player');if(row)return {id:row.dataset.hkPlayer,gameId:row.dataset.hkGame};
+ const row=target.closest?.('.hk-slate-player');
+ if(row){const gameId=row.dataset.hkGame||row.closest?.('.hk-matchup[data-hk-game]')?.dataset.hkGame||null,name=row.querySelector('.hk-slate-player-main b')?.textContent?.trim()||null;return {id:row.dataset.hkPlayer||null,gameId,name};}
  const card=target.closest?.('.hk-prop-card');if(card){const name=card.querySelector('.hk-prop-name b')?.textContent?.trim(),team=(card.querySelector('.hk-prop-name span')?.textContent||'').split('·')[0].trim();return {name,team,market:document.querySelector('#hk-market')?.value||null};}
  return null;
 }
