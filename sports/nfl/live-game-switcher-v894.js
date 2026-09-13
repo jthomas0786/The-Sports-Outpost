@@ -5,7 +5,7 @@ let slateGames=[];
 const liveOverrides=new Map();
 const authoritativeStatus=new Map();
 
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const normStatus=v=>{
  const s=String(v||'').trim().toLowerCase().replace(/[\s_-]+/g,'');
  if(['post','final','closed','complete','completed','gameover'].includes(s))return 'post';

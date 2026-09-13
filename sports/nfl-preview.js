@@ -1911,7 +1911,10 @@ export async function mount(){
   await loadData(); bindLegacyNflNav();
   if(!NFL_DEMO_MODE){
     startHalftimeBoardPolling(doc=>{
+      const boardSig=d=>(d?.games||[]).map(g=>[g?.gameId||'',g?.ready===true?1:0,g?.generatedAt||'',g?.state?.period??'',g?.state?.clockMin??'',g?.state?.awayScore??'',g?.state?.homeScore??'',g?.candidates?.length||0].join(':')).join('|');
+      const before=boardSig(state.halftime),after=boardSig(doc);
       state.halftime=doc;
+      if(before===after)return;
       if((state.tab==='live'&&!state.game)||(state.game&&state.gamecastTab==='game')) requestAnimationFrame(()=>render());
     });
   }
