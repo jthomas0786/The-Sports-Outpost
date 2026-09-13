@@ -1,0 +1,100 @@
+name: One-time NFL live stability v89.9
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-live-stability-v899.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply NFL live stability hotfix
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(path, old, new, label):
+              p=Path(path); s=p.read_text()
+              if new in s:
+                  print(label, 'already applied'); return
+              if old not in s:
+                  raise SystemExit(f'missing anchor: {label}')
+              p.write_text(s.replace(old,new,1))
+              print('applied', label)
+
+          replace_once(
+              'sports/nfl-preview.js',
+              "        if(current && root.querySelector('[data-tso-v886c-gamecast]')){ requestAnimationFrame(()=>render()); return; }",
+              "        const legacyRebuild=current&&root.querySelector('[data-tso-v886c-gamecast]');\n        if(legacyRebuild) legacyRebuild.removeAttribute('data-tso-v886c-gamecast');",
+              'stop full Gamecast rebuild on live poll')
+
+          replace_once(
+              'sports/nfl/quarter-parlay-ui-v893.js',
+              '  ensureStyles();close();const doc=await loadDoc(true);const games=pregameGames(doc);if(!games.length)return;',
+              '  ensureStyles();close();const doc=await loadDoc(false);const games=pregameGames(doc);if(!games.length)return;',
+              'use warmed quarter board cache')
+
+          replace_once(
+              'sports/nfl-preview-v890.js',
+              "      const mod=await import('./nfl-preview.js?v=89.20.2');",
+              "      const mod=await import('./nfl-preview.js?v=89.20.3');",
+              'base preview cache bust')
+
+          replace_once(
+              'sports/router.js',
+              "      const mod = await import('./nfl-preview-v893.js?v=89.23');",
+              "      const mod = await import('./nfl-preview-v893.js?v=89.24');",
+              'NFL preview cache bust')
+
+          p=Path('index.html'); s=p.read_text()
+          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.21',s,count=1)
+          if s2==s and './sports/router.js?v=90.21' not in s:
+              raise SystemExit('missing index router cache anchor')
+          p.write_text(s2)
+
+          replace_once(
+              '.github/workflows/nfl-gamecast-tests.yml',
+              "          grep -F './sports/router.js?v=90.20' index.html",
+              "          grep -F './sports/router.js?v=90.21' index.html",
+              'regression cache expectation')
+          PY
+      - name: Validate hotfix
+        run: |
+          node --check sports/nfl-preview.js
+          node --check sports/nfl-preview-v890.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/nfl/live-game-switcher-v894.js
+          node --check sports/nfl/gamecast-live-fix-v898.js
+          node --check sports/nfl/quarter-parlay-ui-v893.js
+          node --check sports/router.js
+          grep -F "removeAttribute('data-tso-v886c-gamecast')" sports/nfl-preview.js
+          grep -F "loadDoc(false)" sports/nfl/quarter-parlay-ui-v893.js
+          grep -F "./nfl-preview.js?v=89.20.3" sports/nfl-preview-v890.js
+          grep -F "./nfl-preview-v893.js?v=89.24" sports/router.js
+          grep -F './sports/router.js?v=90.21' index.html
+          node scripts/nfl-v893-selftest.mjs
+          node scripts/nfl-quarter-selftest.mjs
+          node scripts/nfl-v8915-gamecast-motion-selftest.mjs
+          node scripts/nfl-v8916-live-personnel-selftest.mjs
+      - name: Commit hotfix
+        run: |
+          git config user.name 'TSO NFL Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nfl-preview.js sports/nfl-preview-v890.js sports/router.js index.html sports/nfl/quarter-parlay-ui-v893.js .github/workflows/nfl-gamecast-tests.yml
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m 'Fix NFL Live flashing selector and quarter props latency'
+          git pull --rebase origin main
+          git push origin HEAD:main
