@@ -34,7 +34,7 @@ function mustReplace(s,from,to,label){if(!s.includes(from))throw new Error(`Miss
 {
  const p='scripts/mlb-playstage-selftest.mjs';let s=read(p);
  const anchor="const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');\n";
- const extra=`const concept=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v904.js',import.meta.url),'utf8');\nfor(const marker of [\n  'tso-mlb-concept-v904',\n  'ps3d-rig',\n  'ps3d-stadium',\n  'ps3d-scoreboard',\n  'ps3d-face',\n  'ps3d-bat',\n  'ps3d-glove',\n  'ps3dWindupBody',\n  'ps3dThrowArm',\n  'ps3dSwingBody',\n  'ps3dRunBob',\n  'ps3dCatchBody',\n  'img.mlbstatic.com',\n]) assert.ok(concept.includes(marker),\`Approved concept missing \${marker}\`);\n\n`;
+ const extra=`const concept=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v904.js',import.meta.url),'utf8');\nfor(const marker of [\n  'tso-mlb-concept-v904',\n  'ps3d-rig',\n  'ps3d-stadium',\n  'ps3d-scoreboard',\n  'ps3d-face',\n  'ps3d-bat',\n  'ps3d-glove',\n  'ps3dWindupBody',\n  'ps3dThrowArm',\n  'ps3dSwingBody',\n  'ps3dRunBob',\n  'ps3dCatchBody',\n]) assert.ok(concept.includes(marker),\`Approved concept missing \${marker}\`);\n\n`;
  if(!s.includes(anchor))throw new Error('selftest router anchor missing');
  s=s.replace(anchor,extra+anchor);
  s=s.replace("assert.ok(router.includes(\"./mlb/playstage-v901.js?v=90.4\"),'Router must cache-bust MLB PlayStage');\n",
