@@ -75,16 +75,6 @@ jobs:
           s=must_replace(s,'assert.deepEqual(t.BASE_POS.second,[50,49]);','assert.deepEqual(t.BASE_POS.second,[50,58]);','selftest second coordinate')
           s=must_replace(s,'assert.deepEqual(t.DEF_POS.CF,[50,41]);','assert.deepEqual(t.DEF_POS.CF,[50,40]);','selftest center coordinate')
           p.write_text(s)
-
-          p=Path('.github/workflows/nfl-gamecast-tests.yml')
-          s=p.read_text()
-          s=must_replace(s,"      - 'sports/mlb/playstage-concept-v913.js'","      - 'sports/mlb/playstage-concept-v913.js'\n      - 'sports/mlb/playstage-concept-v914.js'",'workflow path v914')
-          s=must_replace(s,'          node --check sports/mlb/playstage-concept-v913.js','          node --check sports/mlb/playstage-concept-v913.js\n          node --check sports/mlb/playstage-concept-v914.js','workflow syntax v914')
-          s=must_replace(s,"          grep -F './sports/router.js?v=90.19' index.html","          grep -F './sports/router.js?v=90.20' index.html",'workflow router cache')
-          s=must_replace(s,'          grep -F "./mlb/playstage-concept-v913.js?v=91.30" sports/router.js','          grep -F "./mlb/playstage-concept-v913.js?v=91.30" sports/router.js\n          grep -F "./mlb/playstage-concept-v914.js?v=91.40" sports/router.js','workflow import v914')
-          s=must_replace(s,'          grep -F "installMlbPlaystageConceptV913" sports/router.js','          grep -F "installMlbPlaystageConceptV913" sports/router.js\n          grep -F "installMlbPlaystageConceptV914" sports/router.js','workflow install v914')
-          s=must_replace(s,"          grep -F 'ps913BatSwing' sports/mlb/playstage-concept-v913.js","          grep -F 'ps913BatSwing' sports/mlb/playstage-concept-v913.js\n          grep -F 'ps914-field' sports/mlb/playstage-concept-v914.js\n          test -s images/mlb/playstage-field-v914.jpg",'workflow field asset')
-          p.write_text(s)
           PY
       - name: Local checks
         run: |
@@ -98,7 +88,8 @@ jobs:
         run: |
           git config user.name 'TSO MLB Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/mlb/playstage-v901.js sports/router.js index.html scripts/mlb-playstage-selftest.mjs .github/workflows/nfl-gamecast-tests.yml
+          git add sports/mlb/playstage-v901.js sports/router.js index.html scripts/mlb-playstage-selftest.mjs
+          if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Use approved realistic field in MLB Gamecast v914'
           git pull --rebase origin main
           git push origin HEAD:main
