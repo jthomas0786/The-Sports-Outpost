@@ -2,6 +2,7 @@ import * as basePreview from './nfl-preview-v890.js?v=89.20.5';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
 import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8911.js?v=89.11';
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
+import { installNflGamecastFieldPositionV8925 } from './nfl/gamecast-field-position-v8925.js?v=89.25';
 import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.16';
 import { installNflPropModelEdgeV8917 } from './nfl/prop-model-edge-v8917.js?v=89.17';
 import { installNflLiveGameSwitcherV894 } from './nfl/live-game-switcher-v894.js?v=89.9';
@@ -40,6 +41,7 @@ function arm(){
   // One active-game gate, one accepted-score renderer, one field renderer.
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
+  try{installNflGamecastFieldPositionV8925();}catch(e){console.warn('[NFL Gamecast v89.25] field position authority unavailable:',e);}
   try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.14] scoreboard renderer unavailable:',e);}
   try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.16] authoritative motion renderer unavailable:',e);}
   // v89.8 removes the legacy full-rebuild marker and preserves the field/actors
