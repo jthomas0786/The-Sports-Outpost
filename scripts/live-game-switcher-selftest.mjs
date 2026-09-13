@@ -4,6 +4,7 @@ import fs from 'node:fs';
 const nfl=fs.readFileSync('sports/nfl/live-game-switcher-v894.js','utf8');
 const mlb=fs.readFileSync('sports/mlb/live-game-switcher-v901.js','utf8');
 const wrapper=fs.readFileSync('sports/nfl-preview-v893.js','utf8');
+const possessionBall=fs.readFileSync('sports/nfl/gamecast-possession-ball-v8922.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
 const index=fs.readFileSync('index.html','utf8');
 
@@ -74,8 +75,13 @@ assert.ok(wrapper.includes("./nfl/live-game-switcher-v894.js?v=89.9"));
 assert.ok(wrapper.includes('installNflLiveGameSwitcherV894()'));
 assert.ok(wrapper.includes("./nfl/gamecast-stage-guard-v899.js?v=89.9"));
 assert.ok(wrapper.includes('installNflGamecastStageGuardV899()'));
+assert.ok(wrapper.includes("./nfl/gamecast-possession-ball-v8922.js?v=89.22"));
+assert.ok(wrapper.includes('installNflGamecastPossessionBallV8922()'));
+assert.ok(possessionBall.includes('.nxg-posstext{display:none!important}'));
+assert.ok(possessionBall.includes('nxg-possession-ball'));
+assert.ok(possessionBall.includes("snap.possession==='away'||snap.possession==='home'"));
 assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.22"));
-assert.ok(router.includes("./nfl-preview-v893.js?v=89.26"));
+assert.ok(router.includes("./nfl-preview-v893.js?v=89.27"));
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL live experience should remain untouched');
 
-console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard stays installed; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
+console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard and possession football stay installed; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
