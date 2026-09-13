@@ -8,7 +8,7 @@ function ensureStyle(){
  const style=document.createElement('style');
  style.id=STYLE_ID;
  style.textContent=`
- .ms-modal.tso-mlb-player-shell>.player-card-v2.${CARD_CLASS}:not([class*="tso-nhl-player-card"]){
+ .ms-modal>.player-card-v2.${CARD_CLASS}:not([class*="tso-nhl-player-card"]){
    max-height:100%!important;
    min-height:0!important;
    overflow-y:auto!important;
@@ -60,14 +60,16 @@ function ensureStyle(){
  document.head.appendChild(style);
 }
 
+function isWatchButton(btn){
+ const text=String(btn?.textContent||'').trim();
+ const meta=[btn?.getAttribute?.('aria-label'),btn?.getAttribute?.('title'),btn?.id,btn?.className,btn?.dataset?.action]
+   .filter(Boolean).join(' ').toLowerCase();
+ return /^[☆★⭐]$/.test(text)||/(watch\s*list|watchlist|favorite|favourite)/.test(meta);
+}
 function watchButton(card){
- const buttons=[...card.querySelectorAll('button')];
- return buttons.find(btn=>{
-   const text=String(btn.textContent||'').trim();
-   const meta=[btn.getAttribute('aria-label'),btn.getAttribute('title'),btn.id,btn.className,btn.dataset?.action]
-     .filter(Boolean).join(' ').toLowerCase();
-   return /^[☆★⭐]$/.test(text)||/(watch\s*list|watchlist|favorite|favourite)/.test(meta);
- })||null;
+ const modal=card?.closest?.('.ms-modal');
+ const buttons=[...(modal||card)?.querySelectorAll?.('button')||[]];
+ return buttons.find(isWatchButton)||null;
 }
 
 function prepareCard(card){
@@ -75,7 +77,7 @@ function prepareCard(card){
  const hdr=card.querySelector(':scope > .hdr');
  if(!hdr)return;
  card.classList.add(CARD_CLASS);
- const close=card.querySelector(':scope > .modal-close');
+ const close=card.querySelector(':scope > .modal-close')||card.closest('.ms-modal')?.querySelector(':scope > .modal-close');
  if(close&&close.parentElement!==hdr)hdr.appendChild(close);
  const watch=watchButton(card);
  if(watch){
@@ -99,4 +101,4 @@ export function installPlayerModalStickyHeaderV901(){
  queue();
 }
 
-export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={watchButton,prepareCard};
+export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={isWatchButton,watchButton,prepareCard};
