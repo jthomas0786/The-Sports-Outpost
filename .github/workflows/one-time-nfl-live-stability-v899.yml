@@ -1,4 +1,4 @@
-name: One-time NFL live stability v89.9
+name: One-time NFL PlayStage visibility guard v89.9
 
 on:
   workflow_dispatch:
@@ -20,75 +20,40 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Apply NFL live stability hotfix
+      - name: Bump production router cache
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-
-          def replace_once(path, old, new, label):
-              p=Path(path); s=p.read_text()
-              if new in s:
-                  print(label, 'already applied'); return
-              if old not in s:
-                  raise SystemExit(f'missing anchor: {label}')
-              p.write_text(s.replace(old,new,1))
-              print('applied', label)
-
-          replace_once(
-              'sports/nfl-preview.js',
-              "        if(current && root.querySelector('[data-tso-v886c-gamecast]')){ requestAnimationFrame(()=>render()); return; }",
-              "        const legacyRebuild=current&&root.querySelector('[data-tso-v886c-gamecast]');\n        if(legacyRebuild) legacyRebuild.removeAttribute('data-tso-v886c-gamecast');",
-              'stop full Gamecast rebuild on live poll')
-
-          replace_once(
-              'sports/nfl/quarter-parlay-ui-v893.js',
-              '  ensureStyles();close();const doc=await loadDoc(true);const games=pregameGames(doc);if(!games.length)return;',
-              '  ensureStyles();close();const doc=await loadDoc(false);const games=pregameGames(doc);if(!games.length)return;',
-              'use warmed quarter board cache')
-
-          replace_once(
-              'sports/nfl-preview-v890.js',
-              "      const mod=await import('./nfl-preview.js?v=89.20.2');",
-              "      const mod=await import('./nfl-preview.js?v=89.20.3');",
-              'base preview cache bust')
-
-          replace_once(
-              'sports/router.js',
-              "      const mod = await import('./nfl-preview-v893.js?v=89.23');",
-              "      const mod = await import('./nfl-preview-v893.js?v=89.24');",
-              'NFL preview cache bust')
-
           p=Path('index.html'); s=p.read_text()
-          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.21',s,count=1)
-          if s2==s and './sports/router.js?v=90.21' not in s:
+          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.22',s,count=1)
+          if s2==s and './sports/router.js?v=90.22' not in s:
               raise SystemExit('missing index router cache anchor')
           p.write_text(s2)
           PY
-      - name: Validate hotfix
+      - name: Validate PlayStage visibility guard
         run: |
-          node --check sports/nfl-preview.js
-          node --check sports/nfl-preview-v890.js
-          node --check sports/nfl-preview-v893.js
-          node --check sports/nfl/live-game-switcher-v894.js
-          node --check sports/nfl/gamecast-live-fix-v898.js
-          node --check sports/nfl/quarter-parlay-ui-v893.js
           node --check sports/router.js
-          grep -F "removeAttribute('data-tso-v886c-gamecast')" sports/nfl-preview.js
-          grep -F "loadDoc(false)" sports/nfl/quarter-parlay-ui-v893.js
-          grep -F "./nfl-preview.js?v=89.20.3" sports/nfl-preview-v890.js
-          grep -F "./nfl-preview-v893.js?v=89.24" sports/router.js
-          grep -F './sports/router.js?v=90.21' index.html
+          node --check sports/nfl-preview-v893.js
+          node --check sports/nfl/gamecast-stage-guard-v899.js
+          grep -F './sports/router.js?v=90.22' index.html
+          grep -F "./nfl-preview-v893.js?v=89.25" sports/router.js
+          grep -F "./nfl-preview-v890.js?v=89.20.4" sports/nfl-preview-v893.js
+          grep -F "gamecast-stage-guard-v899.js?v=89.9" sports/nfl-preview-v893.js
+          grep -F "installNflGamecastStageGuardV899" sports/nfl-preview-v893.js
+          grep -F 'data-tso-stage-art-ready' sports/nfl/gamecast-stage-guard-v899.js
+          grep -F 'tso-ps886e__actorGraphic>svg' sports/nfl/gamecast-stage-guard-v899.js
+          node scripts/live-game-switcher-selftest.mjs
           node scripts/nfl-v893-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
           node scripts/nfl-v8915-gamecast-motion-selftest.mjs
           node scripts/nfl-v8916-live-personnel-selftest.mjs
-      - name: Commit hotfix
+      - name: Commit cache bump
         run: |
           git config user.name 'TSO NFL Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/nfl-preview.js sports/nfl-preview-v890.js sports/router.js index.html sports/nfl/quarter-parlay-ui-v893.js
+          git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Fix NFL Live flashing selector and quarter props latency'
+          git commit -m 'Deploy NFL PlayStage visibility guard'
           git pull --rebase origin main
           git push origin HEAD:main
