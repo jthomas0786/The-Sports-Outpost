@@ -27,9 +27,9 @@ function itemFromCard(card){
  return {id,label:`${away} @ ${home} · ${detail||'LIVE'}`};
 }
 function collect(){
- for(const card of document.querySelectorAll('html[data-sport="mlb"] .slate-card.is-live[data-gid]')){
-  const item=itemFromCard(card);if(item.id)liveGames.set(item.id,item);
- }
+ const cards=[...document.querySelectorAll('html[data-sport="mlb"] .slate-card.is-live[data-gid]')];
+ if(cards.length||document.querySelector('html[data-sport="mlb"] .slate-list'))liveGames.clear();
+ for(const card of cards){const item=itemFromCard(card);if(item.id)liveGames.set(item.id,item);}
  return [...liveGames.values()];
 }
 function liveList(){return document.querySelector('html[data-sport="mlb"] .slate-list');}
@@ -54,10 +54,10 @@ function render(){
  if(list&&games.length){
   let host=document.getElementById(HOST_ID);if(!host){host=document.createElement('div');host.id=HOST_ID;host.className='tso-mlb-live-switcher';}
   if(host.nextElementSibling!==list)list.parentElement?.insertBefore(host,list);
-  const selected=currentGameId||games[0]?.id||'';host.innerHTML=markup(games,selected);wire(host);
- }
+  const selected=games.some(g=>g.id===currentGameId)?currentGameId:(games[0]?.id||'');host.innerHTML=markup(games,selected);wire(host);
+ }else document.getElementById(HOST_ID)?.remove();
  const modal=modalIsOpen();
- if(modal&&games.length&&currentGameId){
+ if(modal&&games.length&&currentGameId&&games.some(g=>g.id===currentGameId)){
   let host=document.getElementById(MODAL_HOST_ID);if(!host){host=document.createElement('div');host.id=MODAL_HOST_ID;host.className='tso-mlb-live-switcher';}
   const head=modal.querySelector('.modal-head');if(head&&host.nextElementSibling!==head)modal.insertBefore(host,head);
   host.innerHTML=markup(games,currentGameId);wire(host);
@@ -72,4 +72,4 @@ export function installMlbLiveGameSwitcherV901(){
  observer=new MutationObserver(queue);observer.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
  window.addEventListener('hashchange',queue);queue();
 }
-export const __MLB_LIVE_SWITCHER_V901_TEST__={itemFromCard,switchGame};
+export const __MLB_LIVE_SWITCHER_V901_TEST__={itemFromCard,switchGame,collect};
