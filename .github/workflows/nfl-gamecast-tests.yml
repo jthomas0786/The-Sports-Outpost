@@ -11,6 +11,10 @@ on:
       - 'sports/nfl-preview-v893.js'
       - 'sports/nfl/live.js'
       - 'sports/nfl/live-game-switcher-v894.js'
+      - 'sports/nfl/halftime-ui-v884.js'
+      - 'sports/nfl/sim/auto.js'
+      - 'scripts/nfl-sim-auto.mjs'
+      - 'scripts/nfl-v8918-live-sim-selftest.mjs'
       - 'sports/nfl/gamecast-live-fix-v898.js'
       - 'sports/nfl/gamecast-stage-guard-v899.js'
       - 'sports/nfl/gamecast-possession-ball-v8922.js'
@@ -62,6 +66,9 @@ jobs:
           node --check sports/nfl-preview-v893.js
           node --check sports/nfl/live.js
           node --check sports/nfl/live-game-switcher-v894.js
+          node --check sports/nfl/halftime-ui-v884.js
+          node --check sports/nfl/sim/auto.js
+          node --check scripts/nfl-sim-auto.mjs
           node --check sports/nfl/gamecast-live-fix-v898.js
           node --check sports/nfl/gamecast-stage-guard-v899.js
           node --check sports/nfl/gamecast-possession-ball-v8922.js
@@ -84,11 +91,12 @@ jobs:
           node --check sports/nfl/gamecast-replay-lab-v8916.js
       - name: NFL Live stability graph
         run: |
-          grep -F './sports/router.js?v=90.29' index.html
-          grep -F "./nfl-preview-v893.js?v=89.32" sports/router.js
-          grep -F "./nfl-preview-v890.js?v=89.27" sports/nfl-preview-v893.js
-          grep -F "./nfl-preview.js?v=89.27" sports/nfl-preview-v890.js
+          grep -F './sports/router.js?v=90.30' index.html
+          grep -F "./nfl-preview-v893.js?v=89.33" sports/router.js
+          grep -F "./nfl-preview-v890.js?v=89.33" sports/nfl-preview-v893.js
+          grep -F "./nfl-preview.js?v=89.33" sports/nfl-preview-v890.js
           grep -F "./nfl/live-game-switcher-v894.js?v=89.32" sports/nfl-preview-v893.js
+          grep -F "./nfl/halftime-ui-v884.js?v=89.33" sports/nfl-preview.js
           grep -F "./nfl/live.js?v=89.21" sports/nfl-preview.js
           grep -F "activeId!==gameId" sports/nfl/live.js
           grep -F "gamecast-live-fix-v898.js?v=89.8" sports/nfl-preview-v893.js
@@ -103,8 +111,11 @@ jobs:
           grep -F 'currentYardFromOwn=current' sports/nfl/gamecast-field-position-v8925.js
           grep -F "window.addEventListener('tso:nfl-live-snapshot',onLive,true)" sports/nfl/gamecast-field-position-v8925.js
           grep -F "window.addEventListener('tso:nfl-live-snapshot'" sports/nfl/live-game-switcher-v894.js
+          grep -F "window.addEventListener('tso:nfl-live-snapshot'" sports/nfl/halftime-ui-v884.js
           grep -F 'liveOverrides.delete(id)' sports/nfl/live-game-switcher-v894.js
           grep -F 'if(before===after)return;' sports/nfl-preview.js
+          grep -F 'liveOdds=null' sports/nfl/sim/auto.js
+          grep -F 'game,research,odds,liveGame,liveOdds' scripts/nfl-sim-auto.mjs
           grep -F 'nxg-posstext{display:none!important}' sports/nfl/gamecast-possession-ball-v8922.js
           grep -F 'background:none!important;border:0!important;border-radius:0!important' sports/nfl/gamecast-possession-ball-v8922.js
           grep -F 'nxg-team-name-line' sports/nfl/gamecast-possession-ball-v8922.js
@@ -132,7 +143,7 @@ jobs:
           NODE
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.29' index.html
+          grep -F './sports/router.js?v=90.30' index.html
           grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v904.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v905.js?v=90.51" sports/router.js
@@ -167,6 +178,10 @@ jobs:
           grep -F 'Schematic reconstruction' sports/mlb/playstage-v901.js
       - name: Live game switcher tests
         run: node scripts/live-game-switcher-selftest.mjs
+      - name: Live halftime generator tests
+        run: |
+          node scripts/nfl-v8918-live-sim-selftest.mjs
+          node scripts/nfl-v8920-flow-selftest.mjs
       - name: MLB PlayStage tests
         run: node scripts/mlb-playstage-selftest.mjs
       - name: Parlay generator contract tests
