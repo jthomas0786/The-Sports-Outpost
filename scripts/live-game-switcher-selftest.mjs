@@ -8,29 +8,37 @@ const router=fs.readFileSync('sports/router.js','utf8');
 
 for(const marker of [
   'tsoNflLiveGameSelect',
-  '.nfl-live-chip[data-nfl-open-game]',
+  './slates/nfl.json',
+  'itemFromSlate',
+  'preferredGame',
+  '.nfl-live-empty',
   '[data-nfl-inline-gamecast]',
-  '[data-nfl-close-game]',
-  'data-nfl-origin="live"',
+  'DW_nflCommandCenterGame',
+  "DW_nflPreviewSelectTab==='function'",
+  "DW_nflPreviewSelectTab('live')",
   '@media(max-width:680px)',
-  'cache.clear()',
-]) assert.ok(nfl.includes(marker),`NFL live switcher missing ${marker}`);
+  'GAMES ON SLATE',
+]) assert.ok(nfl.includes(marker),`NFL game selector missing ${marker}`);
+assert.ok(!nfl.includes('No live games available'),'NFL selector must remain useful when nothing is live');
 
 for(const marker of [
   'tsoMlbLiveGameSwitcher',
   'tsoMlbModalLiveGameSwitcher',
-  '.slate-card.is-live[data-gid]',
+  '.slate-card[data-gid]',
   '#modalOverlay.open #modalBody',
   '#modalBody #modalClose',
   'scrollIntoView',
+  'preferred(games)',
   '@media(max-width:680px)',
-  'liveGames.clear()',
-]) assert.ok(mlb.includes(marker),`MLB live switcher missing ${marker}`);
+  'GAMES ON SLATE',
+]) assert.ok(mlb.includes(marker),`MLB game selector missing ${marker}`);
+assert.ok(!mlb.includes('.slate-card.is-live[data-gid]'),'MLB selector must include pregame/final games too');
+assert.ok(!mlb.includes('No live games available'),'MLB selector must remain useful when nothing is live');
 
-assert.ok(wrapper.includes("./nfl/live-game-switcher-v894.js?v=89.4"));
+assert.ok(wrapper.includes("./nfl/live-game-switcher-v894.js?v=89.5"));
 assert.ok(wrapper.includes('installNflLiveGameSwitcherV894()'));
-assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.18"));
-assert.ok(router.includes("./nfl-preview-v893.js?v=89.21"));
+assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.19"));
+assert.ok(router.includes("./nfl-preview-v893.js?v=89.22"));
 assert.ok(router.includes("./nhl/view-v906.js?v=90.17"),'NHL live experience should remain untouched');
 
-console.log('Live game switchers: NHL-style selector wired into MLB and NFL without replacing either sport Gamecast');
+console.log('Game selectors: NHL full-slate behavior mirrored into MLB and NFL; live games preferred, selector remains visible when none are live');
