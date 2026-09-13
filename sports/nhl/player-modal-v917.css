@@ -1,0 +1,120 @@
+/* NHL v90.17 — isolated recent-game chart. No generic .bars/.b/.plot/.bar selectors. */
+.tso-nhl-rg-chart{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-columns:repeat(var(--tso-rg-count,5),minmax(0,1fr))!important;
+  gap:var(--tso-rg-gap,6px)!important;
+  width:100%!important;
+  height:132px!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  overflow:visible!important;
+  align-items:stretch!important;
+}
+.tso-nhl-rg-col{
+  box-sizing:border-box!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) 34px!important;
+  min-width:0!important;
+  width:100%!important;
+  max-width:none!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+}
+.tso-nhl-rg-plot{
+  box-sizing:border-box!important;
+  position:relative!important;
+  display:flex!important;
+  align-items:flex-end!important;
+  justify-content:center!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:100%!important;
+  min-height:0!important;
+  margin:0!important;
+  padding:18px 0 0!important;
+  overflow:visible!important;
+  border-bottom:1px solid rgba(120,176,239,.16)!important;
+}
+.tso-nhl-rg-bar{
+  box-sizing:border-box!important;
+  position:relative!important;
+  display:block!important;
+  flex:0 0 auto!important;
+  width:min(68%,72px)!important;
+  max-width:72px!important;
+  min-width:12px!important;
+  height:var(--tso-rg-height,5%)!important;
+  min-height:5px!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:5px 5px 1px 1px!important;
+  transform:none!important;
+  background:linear-gradient(180deg,#2d7fff 0%,#1754ad 100%)!important;
+  box-shadow:0 4px 12px rgba(20,63,132,.22)!important;
+}
+.tso-nhl-rg-col.is-hit .tso-nhl-rg-bar{
+  background:linear-gradient(180deg,#45e981 0%,#17944e 100%)!important;
+  box-shadow:0 0 13px rgba(62,227,122,.24)!important;
+}
+.tso-nhl-rg-col.is-big-hit .tso-nhl-rg-bar{
+  background:linear-gradient(180deg,#f5c842 0%,#bd8610 100%)!important;
+  box-shadow:0 0 13px rgba(245,200,66,.22)!important;
+}
+.tso-nhl-rg-value{
+  position:absolute!important;
+  left:50%!important;
+  top:-16px!important;
+  width:max-content!important;
+  max-width:none!important;
+  transform:translateX(-50%)!important;
+  margin:0!important;
+  padding:0!important;
+  color:#f3f8ff!important;
+  font:800 7px/1 'JetBrains Mono',monospace!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.55)!important;
+  z-index:2!important;
+}
+.tso-nhl-rg-labels{
+  box-sizing:border-box!important;
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:flex-start!important;
+  min-width:0!important;
+  padding-top:6px!important;
+  text-align:center!important;
+}
+.tso-nhl-rg-date{
+  color:#9cb4cf!important;
+  font:800 6.5px/1.2 'JetBrains Mono',monospace!important;
+  white-space:nowrap!important;
+}
+.tso-nhl-rg-opp{
+  margin-top:3px!important;
+  color:#708daa!important;
+  font:800 6px/1.2 'JetBrains Mono',monospace!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+/* Keep five-game views visually substantial; scale naturally as more games are shown. */
+.tso-nhl-rg-chart[data-count="5"] .tso-nhl-rg-bar{width:min(72%,76px)!important;max-width:76px!important}
+.tso-nhl-rg-chart[data-density="medium"] .tso-nhl-rg-bar{width:min(64%,52px)!important;max-width:52px!important}
+.tso-nhl-rg-chart[data-density="dense"] .tso-nhl-rg-bar{width:min(72%,30px)!important;max-width:30px!important;min-width:8px!important}
+@media(max-width:680px){
+  .tso-nhl-rg-chart{height:126px!important}
+  .tso-nhl-rg-chart[data-count="5"] .tso-nhl-rg-bar{width:min(68%,58px)!important;max-width:58px!important}
+  .tso-nhl-rg-chart[data-density="medium"] .tso-nhl-rg-bar{width:min(64%,40px)!important;max-width:40px!important}
+  .tso-nhl-rg-value{font-size:6.5px!important}
+}
+@media(max-width:390px){
+  .tso-nhl-rg-chart{height:120px!important}
+  .tso-nhl-rg-chart[data-count="5"] .tso-nhl-rg-bar{width:min(66%,46px)!important;max-width:46px!important}
+  .tso-nhl-rg-value,.tso-nhl-rg-date,.tso-nhl-rg-opp{font-size:5.5px!important}
+}
