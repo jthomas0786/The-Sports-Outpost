@@ -61,6 +61,9 @@ for(const marker of [
   "imp(prop,'grid-column','3')",
   "imp(actions,'grid-column','4')",
   "imp(prop,'grid-column','1 / -1')",
+  'resetActionButton',
+  "['position','relative']",
+  "['right','auto']",
   "actions.appendChild(watch)",
   "actions.appendChild(close)",
   'ensureBody(card,hdr)',
@@ -74,7 +77,7 @@ assert.ok(nhlView.includes('installNhlPlayerModalV918'),'NHL view must install v
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'Router must cache-bust NHL v90.18');
 assert.ok(router.includes("./mlb/player-modal-parity-v901.js?v=90.2"),'Router must load hardened MLB NFL-parity modal');
 assert.ok(router.includes('installMlbPlayerModalParityV901'),'Router must install MLB modal parity enhancer');
-assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.3"),'Router must load static player header v90.3');
+assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.4"),'Router must load static player header v90.4');
 assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install static player headers for all sports');
 
 console.log('Player modal parity: headers are non-scrolling in MLB/NFL/NHL, body content owns scrolling, and Watch List + Close use a dedicated action column.');
