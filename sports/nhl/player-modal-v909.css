@@ -1,0 +1,23 @@
+@import url('./player-modal-v908.css?v=90.8');
+/* NHL v90.9 — completes NFL modal parity with verified recent-game filters/charts. */
+.tso-nhl-player-card-v909 .bars-toolbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;min-width:0}
+.tso-nhl-player-card-v909 .filters,.tso-nhl-player-card-v909 .venue-filters{display:flex;align-items:center;gap:5px;min-width:0}
+.tso-nhl-player-card-v909 .chip{height:25px;padding:0 8px;border:1px solid rgba(120,176,239,.18);border-radius:7px;background:rgba(5,23,49,.48);color:#7898bc;font:900 6.5px 'JetBrains Mono',monospace;text-transform:uppercase;cursor:pointer}
+.tso-nhl-player-card-v909 .chip:hover{border-color:rgba(72,169,255,.46);color:#b8d9fa}.tso-nhl-player-card-v909 .chip.on{border-color:rgba(45,127,255,.62);background:rgba(45,127,255,.15);color:#9ed5ff}
+.tso-nhl-player-card-v909 .clear{margin:1px 0 8px;color:#708fae;font:700 7px/1.4 'JetBrains Mono',monospace}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars{height:128px;align-items:stretch;gap:6px!important}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars .b{display:grid;grid-template-rows:minmax(0,1fr) 27px;height:100%;min-width:0}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars .plot{position:relative;display:flex;align-items:flex-end;justify-content:center;min-height:0;border-bottom:1px solid rgba(120,176,239,.14)}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars .bar{position:relative;width:min(30px,72%);min-height:5px;border-radius:5px 5px 0 0;background:linear-gradient(180deg,rgba(45,127,255,.75),rgba(45,127,255,.24));box-shadow:none}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars .b.on .bar{background:linear-gradient(180deg,#3ee37a,#168a48);box-shadow:0 0 12px rgba(62,227,122,.22)}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars .bar .v{position:absolute;left:50%;top:-13px;transform:translateX(-50%);margin:0;color:#dfeeff;font:800 6px 'JetBrains Mono',monospace;white-space:nowrap}
+.tso-nhl-player-card-v909 .tso-nhl-line-marker{position:absolute;left:4%;right:4%;height:1px;border-top:1px dashed rgba(245,200,66,.62);pointer-events:none}
+.tso-nhl-player-card-v909 .xbottom{padding-top:5px;text-align:center;min-width:0}.tso-nhl-player-card-v909 .xd{color:#8aa7c5;font:800 5.8px 'JetBrains Mono',monospace;white-space:nowrap}.tso-nhl-player-card-v909 .xo{margin-top:2px;color:#6684a5;font:800 5.5px 'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tso-nhl-player-card-v909 .tso-nhl-history-bars+.tso-nfl-bar-caption i{background:#3ee37a}
+.tso-nhl-player-card-v909 .eng-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.tso-nhl-player-card-v909 .metrics .c-gold .v{color:#f5c842}
+.tso-nhl-player-card-v909 .ab-table tr.ab-hit td{background:rgba(22,163,74,.055)}.tso-nhl-player-card-v909 .ab-table tr.ab-hit td:first-child{box-shadow:inset 2px 0 0 rgba(62,227,122,.65)}
+.tso-nhl-player-card-v909 .ab-date{color:#fff;font:800 8px 'JetBrains Mono',monospace}.tso-nhl-player-card-v909 .ab-date.new:after{content:'LATEST';display:inline-flex;margin-left:5px;padding:2px 4px;border-radius:4px;background:rgba(45,127,255,.14);color:#70c7ff;font:900 5px 'JetBrains Mono',monospace;vertical-align:middle}.tso-nhl-player-card-v909 .ab-date small{display:block;margin-top:3px;color:#6f8dab;font:700 6px 'JetBrains Mono',monospace}
+#nhlView .hk-slate-player:focus-visible,#nhlView .hk-prop-card:focus-visible{outline:2px solid rgba(72,169,255,.82);outline-offset:-2px}
+@media(max-width:680px){.tso-nhl-player-card-v909 .bars-toolbar{align-items:flex-start;flex-direction:column}.tso-nhl-player-card-v909 .filters,.tso-nhl-player-card-v909 .venue-filters{width:100%;overflow-x:auto;scrollbar-width:none}.tso-nhl-player-card-v909 .filters::-webkit-scrollbar,.tso-nhl-player-card-v909 .venue-filters::-webkit-scrollbar{display:none}.tso-nhl-player-card-v909 .chip{flex:0 0 auto}.tso-nhl-player-card-v909 .tso-nhl-history-bars{gap:4px!important}.tso-nhl-player-card-v909 .tso-nhl-history-bars .bar{width:min(24px,75%)}.tso-nhl-player-card-v909 .eng-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:390px){.tso-nhl-player-card-v909 .tso-nhl-history-bars{height:112px}.tso-nhl-player-card-v909 .tso-nhl-history-bars .bar .v{font-size:5px}.tso-nhl-player-card-v909 .xd,.tso-nhl-player-card-v909 .xo{font-size:5px}.tso-nhl-player-card-v909 .eng-grid{grid-template-columns:1fr}}
