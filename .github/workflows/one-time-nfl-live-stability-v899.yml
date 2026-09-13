@@ -36,7 +36,8 @@ jobs:
               print('applied', label)
 
           replace_once('sports/router.js',"./nfl-preview-v893.js?v=89.27","./nfl-preview-v893.js?v=89.28",'NFL wrapper cache bust')
-          replace_once('scripts/live-game-switcher-selftest.mjs',"./nfl-preview-v893.js?v=89.26","./nfl-preview-v893.js?v=89.28",'selector cache expectation')
+          replace_once('scripts/live-game-switcher-selftest.mjs',"./nfl-preview-v893.js?v=89.27","./nfl-preview-v893.js?v=89.28",'selector cache expectation')
+          replace_once('scripts/live-game-switcher-selftest.mjs',"./nfl/gamecast-possession-ball-v8922.js?v=89.22","./nfl/gamecast-possession-ball-v8922.js?v=89.23",'possession module cache expectation')
 
           p=Path('index.html'); s=p.read_text()
           s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.25',s,count=1)
