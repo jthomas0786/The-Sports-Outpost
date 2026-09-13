@@ -37,11 +37,13 @@ cp=decideAutomaticRun({game,research,odds,config,now,existingResult:existing,pre
 assert.equal(cp.run,true);assert.equal(cp.checkpointMinutes,15);assert.equal(cp.iterations,50000);
 state=nextAutomationState({previousState:state,decision:cp,result:{iterations:50000,generatedAt:now.toISOString(),game:{currentScore:{away:0,home:0}}},game,now});
 
+// v89.26: late Q2 is now the real halftime build window. Do the 50K board
+// before the break so users have time to submit slips before the third quarter.
 const live={status:'in',period:2,clockMin:7.4,awayScore:10,homeScore:7,playerStats:{byId:{}}};
 now=new Date('2026-09-09T21:35:00-04:00');
 let ld=decideAutomaticRun({game,research,odds,liveGame:live,config,now,existingResult:existing,previousState:state});
-assert.equal(ld.run,true);assert.equal(ld.phase,'live');assert.equal(ld.iterations,15000);
-state=nextAutomationState({previousState:state,decision:ld,result:{iterations:15000,generatedAt:now.toISOString(),game:{currentScore:{away:10,home:7}}},game,now});
+assert.equal(ld.run,true);assert.equal(ld.phase,'halftime');assert.equal(ld.iterations,50000);
+state=nextAutomationState({previousState:state,decision:ld,result:{iterations:50000,generatedAt:now.toISOString(),game:{currentScore:{away:10,home:7}},automation:{halftimeCandidatesReady:true,halftimeHasLiveOdds:true}},game,now});
 
 const halftime={...live,period:2,clockMin:0,statusDetail:'Halftime',awayScore:13,homeScore:10};
 assert.equal(isHalftimeState(halftime),true);
@@ -98,5 +100,5 @@ assert.equal(pd.run,false);assert.equal(pd.phase,'post');
 
 console.log('✓ NFL automatic simulation scheduler self-test passed');
 console.log('  pregame checkpoints: 180m / 90m / 15m = 50,000 each');
-console.log('  halftime = 50,000 automatically; retries until candidate board is ready');
-console.log('  regular live refresh = 15,000 when state changes');
+console.log('  late Q2 + halftime = 50,000 automatically; retries until candidate board is ready');
+console.log('  regular live refresh = 15,000 when state changes outside the halftime window');
