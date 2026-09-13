@@ -1,16 +1,16 @@
-name: One-time MLB PlayStage v902 polish
+name: One-time MLB PlayStage finish
 
 on:
   push:
     paths:
       - '.github/workflows/one-time-mlb-playstage-v902-polish.yml'
-      - 'scripts/mlb-playstage-v902-polish.py'
+      - 'scripts/mlb-playstage-v903-finish.py'
 
 permissions:
   contents: write
 
 jobs:
-  polish:
+  finish:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,20 +19,20 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Apply PlayStage polish
-        run: python scripts/mlb-playstage-v902-polish.py
+      - name: Apply PlayStage finishing pass
+        run: python scripts/mlb-playstage-v903-finish.py
       - name: Syntax and regression
         run: |
           node --check sports/mlb/playstage-v901.js
           node --check sports/router.js
           node scripts/mlb-playstage-selftest.mjs
           node scripts/live-game-switcher-selftest.mjs
-      - name: Commit polished PlayStage
+      - name: Commit finished PlayStage
         run: |
           git config user.name 'TSO PlayStage Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add sports/mlb/playstage-v901.js sports/router.js scripts/mlb-playstage-selftest.mjs index.html
-          git commit -m 'Polish MLB PlayStage runner and fielding motion'
+          git commit -m 'Finish MLB PlayStage pitch and panel behavior'
           for i in 1 2 3 4 5 6; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             sleep $((i*2))
