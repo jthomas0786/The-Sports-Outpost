@@ -52,7 +52,6 @@ function renderPills(active) {
           .filter(Boolean).join(' ');
         return `<button type="button" class="${cls}" data-sport="${key}"${enabled ? '' : ' disabled'}>` +
           `<span class="sport-dd-item-name">${s.brand}</span>` +
-          `<span class="sport-dd-chevron">›</span>` +
           `${enabled ? '' : `<span class="sport-pill-soon">${comingSoonNote(key)}</span>`}` +
           `</button>`;
       }).join('') +
