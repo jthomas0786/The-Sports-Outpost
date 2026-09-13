@@ -49,8 +49,8 @@ jobs:
           node --check sports/nfl/quarter-parlay-ui-v893.js
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.9' index.html
-          grep -F "./mlb/playstage-v901.js?v=90.3" sports/router.js
+          grep -F './sports/router.js?v=90.10' index.html
+          grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
       - name: Live game switcher tests
         run: node scripts/live-game-switcher-selftest.mjs
       - name: MLB PlayStage tests
