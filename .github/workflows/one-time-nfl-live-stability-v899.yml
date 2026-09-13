@@ -1,4 +1,4 @@
-name: One-time NFL possession football v89.22
+name: One-time NFL possession football alignment v89.23
 
 on:
   workflow_dispatch:
@@ -20,38 +20,59 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Cache-bust NFL possession football
+      - name: Cache-bust aligned possession football
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
+
+          def replace_once(path, old, new, label):
+              p=Path(path); s=p.read_text()
+              if new in s:
+                  print(label, 'already applied'); return
+              if old not in s:
+                  raise SystemExit(f'missing anchor: {label}')
+              p.write_text(s.replace(old,new,1))
+              print('applied', label)
+
+          replace_once('sports/router.js',"./nfl-preview-v893.js?v=89.27","./nfl-preview-v893.js?v=89.28",'NFL wrapper cache bust')
+          replace_once('scripts/live-game-switcher-selftest.mjs',"./nfl-preview-v893.js?v=89.26","./nfl-preview-v893.js?v=89.28",'selector cache expectation')
+
           p=Path('index.html'); s=p.read_text()
-          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.24',s,count=1)
-          if s2==s and './sports/router.js?v=90.24' not in s:
+          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.25',s,count=1)
+          if s2==s and './sports/router.js?v=90.25' not in s:
               raise SystemExit('missing index router cache anchor')
           p.write_text(s2)
+
+          p=Path('.github/workflows/nfl-gamecast-tests.yml'); s=p.read_text()
+          s=s.replace('./sports/router.js?v=90.24','./sports/router.js?v=90.25')
+          s=s.replace('./nfl-preview-v893.js?v=89.27','./nfl-preview-v893.js?v=89.28')
+          s=s.replace('gamecast-possession-ball-v8922.js?v=89.22','gamecast-possession-ball-v8922.js?v=89.23')
+          p.write_text(s)
           PY
-      - name: Validate possession football layer
+      - name: Validate aligned possession football
         run: |
           node --check sports/nfl/gamecast-possession-ball-v8922.js
           node --check sports/nfl-preview-v893.js
           node --check sports/router.js
-          grep -F "gamecast-possession-ball-v8922.js?v=89.22" sports/nfl-preview-v893.js
+          grep -F "gamecast-possession-ball-v8922.js?v=89.23" sports/nfl-preview-v893.js
           grep -F "installNflGamecastPossessionBallV8922" sports/nfl-preview-v893.js
-          grep -F "./nfl-preview-v893.js?v=89.27" sports/router.js
-          grep -F './sports/router.js?v=90.24' index.html
-          grep -F 'nxg-possession-ball' sports/nfl/gamecast-possession-ball-v8922.js
-          grep -F 'nxg-posstext{display:none' sports/nfl/gamecast-possession-ball-v8922.js
+          grep -F "./nfl-preview-v893.js?v=89.28" sports/router.js
+          grep -F './sports/router.js?v=90.25' index.html
+          grep -F 'background:none!important;border:0!important;border-radius:0!important' sports/nfl/gamecast-possession-ball-v8922.js
+          grep -F "name.insertAdjacentElement('afterend',badge)" sports/nfl/gamecast-possession-ball-v8922.js
+          grep -F 'nxg-posstext{display:none!important}' sports/nfl/gamecast-possession-ball-v8922.js
+          node scripts/live-game-switcher-selftest.mjs
           node scripts/nfl-v893-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
           node scripts/nfl-v8915-gamecast-motion-selftest.mjs
           node scripts/nfl-v8916-live-personnel-selftest.mjs
-      - name: Commit cache bust
+      - name: Commit aligned possession football
         run: |
           git config user.name 'TSO NFL Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add index.html
+          git add sports/router.js index.html scripts/live-game-switcher-selftest.mjs .github/workflows/nfl-gamecast-tests.yml
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Cache-bust NFL possession football'
+          git commit -m 'Align NFL possession football with team name'
           git pull --rebase origin main
           git push origin HEAD:main
