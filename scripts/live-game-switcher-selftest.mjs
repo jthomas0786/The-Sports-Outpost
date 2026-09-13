@@ -5,6 +5,7 @@ const nfl=fs.readFileSync('sports/nfl/live-game-switcher-v894.js','utf8');
 const mlb=fs.readFileSync('sports/mlb/live-game-switcher-v901.js','utf8');
 const wrapper=fs.readFileSync('sports/nfl-preview-v893.js','utf8');
 const possessionBall=fs.readFileSync('sports/nfl/gamecast-possession-ball-v8922.js','utf8');
+const fieldPosition=fs.readFileSync('sports/nfl/gamecast-field-position-v8925.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
 const index=fs.readFileSync('index.html','utf8');
 
@@ -77,6 +78,12 @@ assert.ok(wrapper.includes("./nfl/gamecast-stage-guard-v899.js?v=89.9"));
 assert.ok(wrapper.includes('installNflGamecastStageGuardV899()'));
 assert.ok(wrapper.includes("./nfl/gamecast-possession-ball-v8922.js?v=89.24"));
 assert.ok(wrapper.includes('installNflGamecastPossessionBallV8922()'));
+assert.ok(wrapper.includes("./nfl/gamecast-field-position-v8925.js?v=89.25"));
+assert.ok(wrapper.includes('installNflGamecastFieldPositionV8925()'));
+assert.ok(wrapper.indexOf('installNflGamecastFieldPositionV8925()')<wrapper.indexOf('installNflGamecastFieldStateV8912()'),'Field position authority must run before the motion renderer');
+assert.ok(fieldPosition.includes('spotFromText'));
+assert.ok(fieldPosition.includes('currentYardFromOwn=current'));
+assert.ok(fieldPosition.includes("window.addEventListener('tso:nfl-live-snapshot',onLive,true)"));
 assert.ok(possessionBall.includes('.nxg-posstext{display:none!important}'));
 assert.ok(possessionBall.includes('background:none!important;border:0!important;border-radius:0!important'));
 assert.ok(possessionBall.includes('nxg-team-name-line'));
@@ -86,7 +93,7 @@ assert.ok(possessionBall.includes("root.querySelectorAll('.nxg-possession-ball')
 assert.ok(possessionBall.includes("const active=valid==='away'?away:valid==='home'?home:null"),'Possession renderer must select exactly one active team');
 assert.ok(possessionBall.includes("snap.possession==='away'||snap.possession==='home'"));
 assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.22"));
-assert.ok(router.includes("./nfl-preview-v893.js?v=89.29"));
+assert.ok(router.includes("./nfl-preview-v893.js?v=89.30"));
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL live experience should remain untouched');
 
-console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard stays installed; possession shows exactly one football aligned on the inside edge of the possessing team name; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
+console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard stays installed; field position authority repairs the live LOS before Chibi motion; possession shows exactly one football aligned on the inside edge of the possessing team name; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
