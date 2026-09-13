@@ -38,10 +38,12 @@ const summary={header:{season:{type:2},competitions:[{id:'401999999',date:'2026-
 const parsed=recentGameFromSummary(summary,{playerId:'p1',teamId:'1',season:2026,eventId:'401999999'});assert.equal(parsed.opponent,'HME');assert.equal(parsed.stats.points,2);assert.equal(parsed.stats.sog,4);assert.equal(parsed.result,'W');
 assert.equal(recentAverages([parsed]).points,2);
 
-const js=fs.readFileSync('sports/nhl/player-modal-v909.js','utf8'),css=fs.readFileSync('sports/nhl/player-modal-v909.css','utf8'),wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8'),router=fs.readFileSync('sports/router.js','utf8'),researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
+const js=fs.readFileSync('sports/nhl/player-modal-v909.js','utf8'),css=fs.readFileSync('sports/nhl/player-modal-v909.css','utf8'),visibility=fs.readFileSync('sports/nhl/player-modal-visibility-v910.css','utf8'),wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8'),router=fs.readFileSync('sports/router.js','utf8'),researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
 for(const marker of ['player-card-v2 tso-nfl-player-card-v70 tso-nfl-player-card-v72','TSO PROP VERDICT','Factors','Production Quality','Matchup Mix','Prop & Matchup Visuals','Recent Opportunities','Why','tsoNhlPropSelect','data-nhl-chart-range','data-nhl-chart-venue','Verified completed games','hk-slate-player','hk-prop-card'])assert.ok(js.includes(marker),`missing NFL-composition NHL modal marker: ${marker}`);
 for(const marker of ["@import url('./player-modal-v908.css?v=90.8')",'.bars-toolbar','.tso-nhl-history-bars','.tso-nhl-line-marker','@media(max-width:680px)','@media(max-width:390px)'])assert.ok(css.includes(marker),`missing NHL recent-form modal style: ${marker}`);
+for(const marker of ['.tso-nhl-scroll>.sec','height:auto!important','max-height:none!important','overflow-y:auto!important','content-visibility:visible!important'])assert.ok(visibility.includes(marker),`missing NHL modal visibility guard: ${marker}`);
 assert.ok(researchScript.includes('/eventlog?limit=100'));assert.ok(researchScript.includes('recentGameFromSummary'));
-assert.ok(wrapper.includes("./player-modal-v909.js?v=90.9"));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.9"));
-console.log('NHL player modal: literal NFL composition, verified L5/L10/H2H charts, prop re-keying, safe model gating, hockey tables and mobile layout passed');
+assert.ok(wrapper.includes("./player-modal-v909.js?v=90.9.1"));
+assert.ok(wrapper.includes('player-modal-visibility-v910.css?v=90.10'));
+assert.ok(router.includes("./nhl/view-v906.js?v=90.10"));
+console.log('NHL player modal: NFL composition, verified recent data, visible auto-sized sections, prop re-keying and mobile layout passed');
