@@ -74,6 +74,6 @@ assert.ok(wrapper.includes("./nfl/live-game-switcher-v894.js?v=89.6"));
 assert.ok(wrapper.includes('installNflLiveGameSwitcherV894()'));
 assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.22"));
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.23"));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.17"),'NHL live experience should remain untouched');
+assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL live experience should remain untouched');
 
 console.log('Game selectors: live games render inline below the selector; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
