@@ -43,23 +43,15 @@ jobs:
           node scripts/nfl-v8920-flow-selftest.mjs
           node scripts/live-game-switcher-selftest.mjs
 
-      - name: Trigger an immediate live halftime refresh
-        run: |
-          python3 - <<'PY'
-          from pathlib import Path
-          p=Path('.github/workflows/nfl-live.yml')
-          s=p.read_text()
-          marker='# v89.33 halftime generator readiness refresh'
-          if marker not in s:
-              s=s.replace('name: NFL Live Snapshot\n','name: NFL Live Snapshot\n\n'+marker+'\n',1)
-              p.write_text(s)
-          PY
-
-      - name: Commit repair
+      - name: Commit repair source only
         run: |
           git config user.name "TSO NFL Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add sports/nfl/halftime-ui-v884.js sports/nfl/sim/auto.js scripts/nfl-sim-auto.mjs scripts/nfl-v8918-live-sim-selftest.mjs sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs .github/workflows/nfl-gamecast-tests.yml .github/workflows/nfl-live.yml
+          # The patch script also aligns the Gamecast workflow locally for validation.
+          # Restore that workflow before the bot commit because GITHUB_TOKEN may not
+          # update workflow files. It is aligned separately after the source lands.
+          git restore .github/workflows/nfl-gamecast-tests.yml || true
+          git add sports/nfl/halftime-ui-v884.js sports/nfl/sim/auto.js scripts/nfl-sim-auto.mjs scripts/nfl-v8918-live-sim-selftest.mjs sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs
           git diff --staged --quiet && echo "Already applied." && exit 0
           git commit -m "Fix NFL halftime parlay generator readiness"
           for attempt in 1 2 3 4 5; do
