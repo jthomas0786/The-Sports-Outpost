@@ -3,6 +3,7 @@ import fs from 'node:fs';
 import {lineupState} from '../sports/nhl/lineups.js';
 import {eventIdFromLogItem,recentGameFromSummary,recentAverages} from '../sports/nhl/research.js';
 import {buildNhlPlayerContext,__NHL_PLAYER_MODAL_V911_TEST__} from '../sports/nhl/player-modal-v911.js';
+import {__NHL_PLAYER_MODAL_V912_TEST__} from '../sports/nhl/player-modal-v912.js';
 
 const now=Date.now();
 const player={id:'p1',name:'Test Skater',team:'AWY',position:'C',active:true,availability:'In game roster',current:{goals:0,sog:1,points:0,assists:0,blocks:0}};
@@ -33,6 +34,7 @@ const l15=__NHL_PLAYER_MODAL_V911_TEST__.rangeRows(ctx,game,player,{range:'15',v
 const season=__NHL_PLAYER_MODAL_V911_TEST__.rangeRows(ctx,game,player,{range:'s:2026',venue:'all'});assert.equal(season.length,4,'season filter must use the verified row season');
 const stale={...sim,games:[{...sim.games[0],generatedAt:new Date(now-180000).toISOString()}]};
 assert.equal(buildNhlPlayerContext({game,player,researchDoc:research,simDoc:stale,oddsDoc:odds,market:'atg'}).prob,null,'stale simulations must never leak a grade into the modal');
+assert.equal(typeof __NHL_PLAYER_MODAL_V912_TEST__.fmtDate,'function');
 
 const logItem={event:{$ref:'https://sports.core.api.espn.com/v2/sports/hockey/leagues/nhl/events/401999999'},teamId:'1',played:true};
 assert.equal(eventIdFromLogItem(logItem),'401999999');
@@ -40,12 +42,13 @@ const summary={header:{season:{type:2},competitions:[{id:'401999999',date:'2026-
 const parsed=recentGameFromSummary(summary,{playerId:'p1',teamId:'1',season:2026,eventId:'401999999'});assert.equal(parsed.opponent,'HME');assert.equal(parsed.stats.points,2);assert.equal(parsed.stats.sog,4);assert.equal(parsed.result,'W');
 assert.equal(recentAverages([parsed]).points,2);
 
-const js=fs.readFileSync('sports/nhl/player-modal-v911.js','utf8'),css=fs.readFileSync('sports/nhl/player-modal-v911.css','utf8'),visibility=fs.readFileSync('sports/nhl/player-modal-visibility-v910.css','utf8'),wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8'),router=fs.readFileSync('sports/router.js','utf8'),researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
-for(const marker of ['player-card-v2 tso-nfl-player-card-v70 tso-nfl-player-card-v72','TSO PROP VERDICT','Factors','Production Quality','Matchup Mix','Prop & Matchup Visuals','Recent Opportunities','Why','tsoNhlPropSelect','data-nhl-chart-range','data-nhl-chart-venue','Verified completed games','hk-slate-player','hk-prop-card',"['15','L15']","['30','L30']",'seasonRanges','tso-nhl-game-bar'])assert.ok(js.includes(marker),`missing MLB/NFL-composition NHL modal marker: ${marker}`);
-for(const marker of ["@import url('./player-modal-v909.css?v=90.9.1')",'.bars-toolbar','.tso-nhl-history-bars','.tso-nhl-game-bar','height:var(--nhl-bar-h)!important','.b.td2','.tso-nhl-line-marker','@media(max-width:680px)','@media(max-width:390px)'])assert.ok(css.includes(marker),`missing MLB/NFL recent-bar style: ${marker}`);
+const js=fs.readFileSync('sports/nhl/player-modal-v911.js','utf8'),parity=fs.readFileSync('sports/nhl/player-modal-v912.js','utf8'),css=fs.readFileSync('sports/nhl/player-modal-v912.css','utf8'),visibility=fs.readFileSync('sports/nhl/player-modal-visibility-v910.css','utf8'),wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8'),router=fs.readFileSync('sports/router.js','utf8'),researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
+for(const marker of ['player-card-v2 tso-nfl-player-card-v70 tso-nfl-player-card-v72','Factors','Production Quality','Matchup Mix','Prop & Matchup Visuals','Recent Opportunities','Why','tsoNhlPropSelect','data-nhl-chart-range','data-nhl-chart-venue','Verified completed games',"['15','L15']","['30','L30']",'seasonRanges','tso-nhl-game-bar'])assert.ok(js.includes(marker),`missing MLB/NFL-composition NHL modal marker: ${marker}`);
+for(const marker of ['installNhlPlayerModalV911','tso-nhl-player-card-v912','tsoNhlSlipHost',"sport:'nhl'",'window.toggleLeg','vd-honesty-row','normalizeDates'])assert.ok(parity.includes(marker),`missing NHL v90.12 parity behavior: ${marker}`);
+for(const marker of ["@import url('./player-modal-v911.css?v=90.11')",'padding:14px 24px 20px!important','min-height:137px!important','width:98px!important','width:100%!important','max-width:none!important','height:112px!important','.tso-nhl-line-marker{display:none!important','#tsoNhlSlipHost .cta','@media(max-width:680px)','@media(max-width:390px)'])assert.ok(css.includes(marker),`missing exact NFL dimension/style override: ${marker}`);
 for(const marker of ['.tso-nhl-scroll>.sec','height:auto!important','max-height:none!important','overflow-y:auto!important','content-visibility:visible!important'])assert.ok(visibility.includes(marker),`missing NHL modal visibility guard: ${marker}`);
 assert.ok(researchScript.includes('/eventlog?limit=100'));assert.ok(researchScript.includes('recentGameFromSummary'));assert.ok(researchScript.includes('.slice(0,30)'));assert.ok(researchScript.includes('played.slice(0,36)'));
-assert.ok(wrapper.includes("./player-modal-v911.js?v=90.11"));
+assert.ok(wrapper.includes("./player-modal-v912.js?v=90.12"));
 assert.ok(wrapper.includes('player-modal-visibility-v910.css?v=90.10'));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.11"));
-console.log('NHL player modal: MLB/NFL bars, L5/L10/L15/L30/season/H2H filters, 30-game verified history, visible sections and mobile layout passed');
+assert.ok(router.includes("./nhl/view-v906.js?v=90.12"));
+console.log('NHL player modal: exact NFL top-panel dimensions, full-width bars, functional slip CTA, verified recent filters and mobile layout passed');
