@@ -114,7 +114,7 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const liveSwitcher = await import('./mlb/live-game-switcher-v901.js?v=90.19');
+      const liveSwitcher = await import('./mlb/live-game-switcher-v901.js?v=90.20');
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
     } catch (e) {
       console.warn('[MLB Live] game switcher unavailable:', e);
