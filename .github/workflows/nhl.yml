@@ -53,11 +53,28 @@ jobs:
         run: |
           git config user.name "TSO NHL Bot"
           git config user.email "actions@users.noreply.github.com"
-          git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-sim.json
-          git diff --staged --quiet && exit 0
-          git commit -m "Refresh NHL slate"
+
+          # Preserve this run's generated files outside the worktree. If another
+          # queued NHL run publishes first, reset onto the newest main and put
+          # these regenerated files back rather than rebasing JSON against JSON.
+          tmpdir="$(mktemp -d)"
+          cp slates/nhl.json "$tmpdir/nhl.json"
+          cp slates/nhl-research.json "$tmpdir/nhl-research.json"
+          cp slates/nhl-odds.json "$tmpdir/nhl-odds.json"
+          cp slates/nhl-sim.json "$tmpdir/nhl-sim.json"
+
           for attempt in 1 2 3 4 5; do
-            git pull --rebase origin main || exit 1
+            git fetch origin main
+            git reset --hard origin/main
+            cp "$tmpdir/nhl.json" slates/nhl.json
+            cp "$tmpdir/nhl-research.json" slates/nhl-research.json
+            cp "$tmpdir/nhl-odds.json" slates/nhl-odds.json
+            cp "$tmpdir/nhl-sim.json" slates/nhl-sim.json
+            git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-sim.json
+            if git diff --staged --quiet; then
+              exit 0
+            fi
+            git commit -m "Refresh NHL slate"
             git push origin HEAD:main && exit 0
             sleep 3
           done
