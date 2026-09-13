@@ -1,4 +1,4 @@
-name: One-time NFL active game isolation v89.21
+name: One-time NFL possession football v89.22
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ permissions:
 jobs:
   apply:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 6
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,65 +20,38 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Isolate visible Gamecast to its selected game
+      - name: Cache-bust NFL possession football
         run: |
           python3 - <<'PY'
           from pathlib import Path
           import re
-
-          def replace_once(path, old, new, label):
-              p=Path(path); s=p.read_text()
-              if new in s:
-                  print(label, 'already applied'); return
-              if old not in s:
-                  raise SystemExit(f'missing anchor: {label}')
-              p.write_text(s.replace(old,new,1))
-              print('applied', label)
-
-          replace_once(
-              'sports/nfl/live.js',
-              "function patchClockOnly(g,gl,possession){\n  if(typeof document==='undefined')return;\n  const wrap=document.querySelector('#nflView:not([hidden]) .nxg-concept')||document.querySelector('#nflView:not([hidden])');if(!wrap)return;",
-              "function patchClockOnly(g,gl,possession){\n  if(typeof document==='undefined')return;\n  const wrap=document.querySelector('#nflView:not([hidden]) .nxg-concept[data-nfl-inline-gamecast]');if(!wrap)return;\n  const activeId=String(wrap.getAttribute('data-nfl-inline-gamecast')||''),gameId=String(g?.gameId||g?.id||'');\n  // live.js polls every live NFL game. Only the selected Gamecast may mutate the\n  // visible scoreboard/clock/possession text; otherwise the last polled matchup\n  // can leak its possession (for example BUF) into ATL @ PIT.\n  if(!activeId||!gameId||activeId!==gameId)return;",
-              'gate direct DOM patch to active game')
-
-          replace_once('sports/nfl-preview.js',"./nfl/live.js?v=89.20","./nfl/live.js?v=89.21",'live module cache bust')
-          replace_once('sports/nfl-preview-v890.js',"./nfl/live.js?v=78","./nfl/live.js?v=89.21",'forced live fetch cache bust')
-          replace_once('sports/nfl-preview-v890.js',"./nfl-preview.js?v=89.20.3","./nfl-preview.js?v=89.20.4",'base preview cache bust')
-          replace_once('sports/nfl-preview-v893.js',"./nfl-preview-v890.js?v=89.20.4","./nfl-preview-v890.js?v=89.20.5",'wrapper base cache bust')
-          replace_once('sports/router.js',"./nfl-preview-v893.js?v=89.25","./nfl-preview-v893.js?v=89.26",'NFL router cache bust')
-          replace_once('scripts/live-game-switcher-selftest.mjs',"./nfl-preview-v893.js?v=89.25","./nfl-preview-v893.js?v=89.26",'selector test cache expectation')
-
           p=Path('index.html'); s=p.read_text()
-          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.23',s,count=1)
-          if s2==s and './sports/router.js?v=90.23' not in s:
+          s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.24',s,count=1)
+          if s2==s and './sports/router.js?v=90.24' not in s:
               raise SystemExit('missing index router cache anchor')
           p.write_text(s2)
           PY
-      - name: Validate active game isolation
+      - name: Validate possession football layer
         run: |
-          node --check sports/nfl/live.js
-          node --check sports/nfl-preview.js
-          node --check sports/nfl-preview-v890.js
+          node --check sports/nfl/gamecast-possession-ball-v8922.js
           node --check sports/nfl-preview-v893.js
           node --check sports/router.js
-          grep -F "activeId!==gameId" sports/nfl/live.js
-          grep -F "./nfl/live.js?v=89.21" sports/nfl-preview.js
-          grep -F "./nfl/live.js?v=89.21" sports/nfl-preview-v890.js
-          grep -F "./nfl-preview.js?v=89.20.4" sports/nfl-preview-v890.js
-          grep -F "./nfl-preview-v890.js?v=89.20.5" sports/nfl-preview-v893.js
-          grep -F "./nfl-preview-v893.js?v=89.26" sports/router.js
-          grep -F './sports/router.js?v=90.23' index.html
-          node scripts/live-game-switcher-selftest.mjs
+          grep -F "gamecast-possession-ball-v8922.js?v=89.22" sports/nfl-preview-v893.js
+          grep -F "installNflGamecastPossessionBallV8922" sports/nfl-preview-v893.js
+          grep -F "./nfl-preview-v893.js?v=89.27" sports/router.js
+          grep -F './sports/router.js?v=90.24' index.html
+          grep -F 'nxg-possession-ball' sports/nfl/gamecast-possession-ball-v8922.js
+          grep -F 'nxg-posstext{display:none' sports/nfl/gamecast-possession-ball-v8922.js
           node scripts/nfl-v893-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
           node scripts/nfl-v8915-gamecast-motion-selftest.mjs
           node scripts/nfl-v8916-live-personnel-selftest.mjs
-      - name: Commit active game isolation
+      - name: Commit cache bust
         run: |
           git config user.name 'TSO NFL Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/nfl/live.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs
+          git add index.html
           if git diff --cached --quiet; then exit 0; fi
-          git commit -m 'Keep NFL live possession scoped to selected game'
+          git commit -m 'Cache-bust NFL possession football'
           git pull --rebase origin main
           git push origin HEAD:main
