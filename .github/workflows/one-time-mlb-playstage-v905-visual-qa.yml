@@ -1,0 +1,93 @@
+name: One-time MLB PlayStage v905 visual QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-playstage-v905-visual-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install headless browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install chromium
+      - name: Build real-feed PlayStage harness
+        run: |
+          GAME_PK=$(node --input-type=module - <<'NODE'
+          const dates=[1,2,3,4].map(n=>new Date(Date.now()-n*86400000).toISOString().slice(0,10));
+          let picked='';
+          for(const date of dates){
+            const r=await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}`);
+            const j=await r.json();
+            const games=(j.dates||[]).flatMap(d=>d.games||[]);
+            const g=games.find(x=>/final|completed|game over/i.test(x.status?.detailedState||''))||games[0];
+            if(g?.gamePk){picked=String(g.gamePk);break;}
+          }
+          if(!picked) process.exit(2);
+          console.log(picked);
+          NODE
+          )
+          echo "Using MLB game $GAME_PK"
+          cat > visual-qa.html <<EOF
+          <!doctype html>
+          <html lang="en" data-sport="mlb">
+          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PlayStage QA</title>
+          <style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial,sans-serif}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:720px}</style></head>
+          <body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div>
+          <script type="module">
+            import {installMlbPlaystageV901} from './sports/mlb/playstage-v901.js?v=qa';
+            import {installMlbPlaystageConceptV904} from './sports/mlb/playstage-concept-v904.js?v=qa';
+            import {installMlbPlaystageConceptV905} from './sports/mlb/playstage-concept-v905.js?v=qa';
+            installMlbPlaystageV901();
+            installMlbPlaystageConceptV904();
+            installMlbPlaystageConceptV905();
+          </script></body></html>
+          EOF
+      - name: Render v905 component
+        run: |
+          python3 -m http.server 4173 >/tmp/tso-qa-http.log 2>&1 &
+          SERVER_PID=$!
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1536,height:960},deviceScaleFactor:1});
+          page.on('console',m=>console.log('[browser]',m.type(),m.text()));
+          await page.goto('http://127.0.0.1:4173/visual-qa.html',{waitUntil:'domcontentloaded'});
+          await page.waitForSelector('.tso-mlb-playstage-v901.tso-mlb-concept-v905',{timeout:30000});
+          await page.waitForTimeout(3400);
+          const root=page.locator('.tso-mlb-playstage-v901');
+          await root.screenshot({path:'mlb-playstage-v905-qa.png'});
+          const stage=page.locator('.ps-stage');
+          await stage.screenshot({path:'mlb-playstage-v905-stage.png'});
+          const state=await page.evaluate(()=>({
+            concept:document.querySelector('.tso-mlb-playstage-v901')?.dataset?.approvedConcept,
+            chibis:document.querySelectorAll('.ps905-rig').length,
+            stadium:document.querySelectorAll('.ps905-stadium').length,
+            headshots:document.querySelectorAll('.ps-headshot img').length,
+            truth:document.querySelector('.ps-truth')?.textContent||''
+          }));
+          fs.writeFileSync('mlb-playstage-v905-qa.json',JSON.stringify(state,null,2));
+          console.log(state);
+          await browser.close();
+          NODE
+          kill $SERVER_PID || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mlb-playstage-v905-visual-qa
+          path: |
+            mlb-playstage-v905-qa.png
+            mlb-playstage-v905-stage.png
+            mlb-playstage-v905-qa.json
+          retention-days: 2
