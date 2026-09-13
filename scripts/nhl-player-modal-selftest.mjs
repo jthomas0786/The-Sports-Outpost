@@ -33,6 +33,7 @@ assert.equal(__NHL_PLAYER_MODAL_V911_TEST__.rangeRows(ctx,game,player,{range:'10
 assert.equal(typeof __NHL_PLAYER_MODAL_V912_TEST__.fmtDate,'function');
 assert.equal(typeof __NHL_PLAYER_MODAL_V913_TEST__.pendingProbability,'function');
 assert.equal(typeof __NHL_PLAYER_MODAL_V914_TEST__.useNflRecentBars,'function');
+assert.equal(typeof __NHL_PLAYER_MODAL_V914_TEST__.nflBarPaint,'function');
 
 const base=fs.readFileSync('sports/nhl/player-modal-v911.js','utf8');
 const parity=fs.readFileSync('sports/nhl/player-modal-v912.js','utf8');
@@ -45,9 +46,8 @@ const researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
 for(const marker of ['data-nhl-chart-range','data-nhl-chart-venue',"['15','L15']","['30','L30']",'tso-nhl-game-bar'])assert.ok(base.includes(marker),`missing base NHL player-modal marker: ${marker}`);
 for(const marker of ['tsoNhlSlipHost',"sport:'nhl'",'vd-honesty-row'])assert.ok(parity.includes(marker),`missing parity behavior: ${marker}`);
 for(const marker of ['pendingProbability','sportsbookPending','SPORTSBOOK'])assert.ok(guard.includes(marker),`missing pending guard: ${marker}`);
-for(const marker of ['useNflRecentBars',"bar.classList.remove('tso-nhl-game-bar')","bar.classList.add('bar')","bar.style.height=h",'data-nhl-chart-range','data-nhl-chart-venue'])assert.ok(nflBars.includes(marker),`missing v90.15 NFL bar renderer: ${marker}`);
-assert.ok(!nflBars.includes("setImp(bar,'max-width','none')"),'v90.15 must not keep NHL-specific bar geometry patches');
+for(const marker of ['useNflRecentBars',"bar.classList.remove('tso-nhl-game-bar')","imp(bar,'width','100%')","imp(bar,'max-width','none')","imp(bar,'flex','1 1 100%')","imp(plot,'justify-content','stretch')",'linear-gradient(180deg,#f5c842,#c99411)','linear-gradient(180deg,#3ee37a,#22c55e)','rgba(45,127,255,.55)'])assert.ok(nflBars.includes(marker),`missing v90.16 deterministic NFL bar geometry/paint: ${marker}`);
 assert.ok(researchScript.includes('.slice(0,30)'));
-assert.ok(wrapper.includes("./player-modal-v914.js?v=90.15"));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.15"));
-console.log('NHL player modal: recent-game chart now converts NHL bars to the actual NFL/MLB .bar markup after every render/filter change');
+assert.ok(wrapper.includes("./player-modal-v914.js?v=90.16"));
+assert.ok(router.includes("./nhl/view-v906.js?v=90.16"));
+console.log('NHL player modal: recent-game bars are deterministically full-column with NFL blue/green/gold styling after every render/filter change');
