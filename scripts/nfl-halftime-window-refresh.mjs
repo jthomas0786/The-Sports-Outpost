@@ -2,10 +2,9 @@
 /**
  * v88.4 rolling Q2/halftime sportsbook-prop prefetch.
  *
- * GitHub's heartbeat is 5 minutes, so backend prefetch starts with <=5:00 left
- * in Q2. The UI becomes visible at <=2:00. That gives the paid odds request a
- * chance to complete before halftime, while the full 50K simulation still waits
- * for actual halftime.
+ * GitHub's heartbeat is 5 minutes, so backend prefetch starts with <=8:00 left
+ * in Q2. The UI opens in the same window and the 50K halftime build starts there,
+ * giving the candidate board time to become usable before the third quarter.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -23,7 +22,7 @@ const NOW=Date.now();
 const MAX_AGE_SEC=Number(process.env.NFL_HALFTIME_ODDS_MAX_AGE_SEC||600);
 const RETRY_LIMIT=Number(process.env.NFL_HALFTIME_ODDS_RETRY_LIMIT||4);
 const GOOD_REFRESH_MIN=Number(process.env.NFL_HALFTIME_ODDS_REFRESH_MINUTES||4);
-const PREFETCH_MIN=Number(process.env.NFL_HALFTIME_PREFETCH_MINUTES||5);
+const PREFETCH_MIN=Number(process.env.NFL_HALFTIME_PREFETCH_MINUTES||8);
 
 const MARKET_MAP={
   player_anytime_td:'atd',player_rush_yds:'rushYds',player_rec_yds:'recYds',
@@ -132,7 +131,7 @@ async function main(){
   }
 
   const count=output.reduce((n,g)=>n+g.players.length,0),nextAttempts=sameIds?(attempts+1):1;
-  const payload={meta:{source:'parlayapi',mode:'halftime-window',sample:false,fetchedAt:new Date().toISOString(),gameIds:ids,prefetchMinutes:PREFETCH_MIN,maxAgeSec:MAX_AGE_SEC,creditsEstimated:3,attempts:nextAttempts,sportsbookRows,sportsbookPlayerCount:count,note:'v88.4 rolling Q2/halftime player props. Backend prefetch begins before halftime; 50K simulation still waits for official halftime.'},games:output};
+  const payload={meta:{source:'parlayapi',mode:'halftime-window',sample:false,fetchedAt:new Date().toISOString(),gameIds:ids,prefetchMinutes:PREFETCH_MIN,maxAgeSec:MAX_AGE_SEC,creditsEstimated:3,attempts:nextAttempts,sportsbookRows,sportsbookPlayerCount:count,note:'Rolling Q2/halftime player props. Backend prefetch and the 50K candidate build begin in late Q2 so slips can be ready before Q3.'},games:output};
   await fs.mkdir(path.dirname(OUT),{recursive:true});await fs.writeFile(OUT,JSON.stringify(payload,null,2)+'\n');
   console.log(`✓ NFL halftime window odds: ${output.length} game(s), ${count} sportsbook player(s), attempt ${nextAttempts} -> ${path.relative(ROOT,OUT)}`);
 }

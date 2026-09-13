@@ -1,5 +1,5 @@
 import { optimizeHalftimeParlay, evaluateCombination, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=89.20';
-import { halftimeBoardCurrent } from './halftime-validity.js?v=89.20';
+import { halftimeBoardCurrent } from './halftime-validity.js?v=89.26';
 
 let pollTimer=null;
 let currentDoc=null;
@@ -24,9 +24,10 @@ const fmtLine=v=>Number.isInteger(Number(v))?String(Number(v)):Number(v).toFixed
 const gid=g=>String(g?.id||g?.gameId||'');
 const periodOf=g=>Number(g?.liveScore?.period??g?.period);
 const clockOf=g=>Number(g?.liveScore?.clockMin??g?.clockMin);
-const statusOf=g=>String(g?.status||g?.liveScore?.status||'').toLowerCase();
+const statusOf=g=>String(g?.liveScore?.status||g?.status||'').toLowerCase();
 const detailOf=g=>`${g?.statusDetail||''} ${g?.detail||''} ${g?.liveScore?.statusDetail||''}`.toLowerCase();
 const matchupOf=g=>g?.matchup||`${g?.away?.abbr||g?.awayTeam||'AWY'} @ ${g?.home?.abbr||g?.homeTeam||'HOME'}`;
+const HALFTIME_WINDOW_MINUTES=8;
 
 export function isHalftimeGameState(g){
   if(!g)return false;
@@ -37,16 +38,16 @@ export function isHalftimeGameState(g){
   return p===2&&Number.isFinite(clock)&&clock<=0.05;
 }
 
-export function isHalftimeWarmupGameState(g,{thresholdMinutes=2}={}){
+export function isHalftimeWarmupGameState(g,{thresholdMinutes=HALFTIME_WINDOW_MINUTES}={}){
   if(!g)return false;
   if(isHalftimeGameState(g))return true;
   const status=statusOf(g);
   if(status!=='in'&&status!=='live')return false;
   const p=periodOf(g),clock=clockOf(g);
-  return p===2&&Number.isFinite(clock)&&clock>=0&&clock<=Number(thresholdMinutes||2);
+  return p===2&&Number.isFinite(clock)&&clock>=0&&clock<=Number(thresholdMinutes??HALFTIME_WINDOW_MINUTES);
 }
 
-const boardIsHalf=b=>/half/i.test(String(b?.state?.statusDetail||''))||(Number(b?.state?.period)===2&&Number(b?.state?.clockMin)<=.05);
+const boardIsHalf=b=>/half/i.test(String(b?.state?.statusDetail||''))||(Number(b?.state?.period)===2&&Number.isFinite(Number(b?.state?.clockMin))&&Number(b?.state?.clockMin)>=0&&Number(b?.state?.clockMin)<=HALFTIME_WINDOW_MINUTES+.05);
 const allReadyBoards=doc=>(doc?.games||[]).filter(b=>boardIsHalf(b)&&halftimeBoardCurrent(b,currentLiveGames.get(String(b.gameId))));
 
 function syncLiveGames(games=[]){
@@ -75,7 +76,7 @@ function rollingEntries(doc=currentDoc){
   for(const [id,g] of currentLiveGames){
     if(!isHalftimeWarmupGameState(g))continue;
     const b=bmap.get(id)||null;
-    const state=isHalftimeGameState(g)?(b?'ready':'halftime'):'warmup';
+    const state=b?'ready':isHalftimeGameState(g)?'halftime':'warmup';
     const cached=(doc?.games||[]).find(x=>String(x.gameId)===id);
     const note=b?'':cached?.ready?'Game or odds changed · waiting for fresh picks':cached?.readiness?.hasLiveOdds===false?'Waiting for live sportsbook props':cached?.readiness?.hasSamples?'No qualifying picks yet':'Waiting for halftime projections';
     out.push({gameId:id,matchup:matchupOf(g),live:g,board:b,state,note,ready:!!b,candidates:b?.candidates?.length||0});
@@ -148,7 +149,7 @@ export function halftimeBannerHTML(doc,liveGames=[]){
     const candidates=ready.reduce((n,x)=>n+x.candidates,0);
     return `<section class="tso-ht-banner"><div class="tso-ht-bolt">⚡</div><div class="tso-ht-banner-copy"><b>TSO Halftime Parlay Lab</b><span><strong>${ready.length} game${ready.length===1?'':'s'} ready</strong> · ${warming.length?`${warming.length} still warming · `:''}50,000 live simulations · ${candidates} qualified props · no game cap</span></div><button type="button" data-nfl-halftime-open>Open Lab</button></section>`;
   }
-  return `<section class="tso-ht-banner pending"><div class="tso-ht-bolt">◐</div><div class="tso-ht-banner-copy"><b>Halftime Parlay Lab Warming Up</b><span>${entries.length} game${entries.length===1?'':'s'} inside the Q2 two-minute/halftime window. Live props are being staged now so the 50K halftime model can finish faster.</span></div><button type="button" data-nfl-halftime-open>Open Lab</button></section>`;
+  return `<section class="tso-ht-banner pending"><div class="tso-ht-bolt">◐</div><div class="tso-ht-banner-copy"><b>Halftime Parlay Lab Warming Up</b><span>${entries.length} game${entries.length===1?'':'s'} inside the late-Q2/halftime window. Live props and the 50K model are running now so slips can be built before Q3 starts.</span></div><button type="button" data-nfl-halftime-open>Open Lab</button></section>`;
 }
 
 export function halftimeGamecastBannerHTML(g,doc,liveGames=[]){
@@ -161,7 +162,7 @@ export function halftimeGamecastBannerHTML(g,doc,liveGames=[]){
     return `<section class="tso-ht-gamecast-banner ready" data-tso-halftime-gamecast><div><strong>⚡ HALFTIME PARLAY LAB READY</strong><span>50K live simulation complete · ${count} qualified props · combine with every other ready halftime game</span></div><button type="button" data-nfl-halftime-open>Open Lab</button></section>`;
   }
   const phase=isHalftimeGameState(g)?'HALFTIME MODEL CALCULATING':'HALFTIME LAB WARMING UP';
-  const note=isHalftimeGameState(g)?'Live props staged → 50K simulation → candidate board':'Q2 two-minute window · staging live props before halftime';
+  const note=isHalftimeGameState(g)?'Fresh live props → 50K simulation → candidate board':'Late Q2 · live props + 50K halftime board are building now';
   return `<section class="tso-ht-gamecast-banner pending" data-tso-halftime-gamecast><div><strong>◐ ${phase}</strong><span>${note}</span></div><button type="button" data-nfl-halftime-open>Open Lab</button></section>`;
 }
 

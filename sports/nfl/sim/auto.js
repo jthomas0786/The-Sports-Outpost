@@ -10,8 +10,10 @@ function stable(value){
 
 export function stableStringify(value){ return JSON.stringify(stable(value)); }
 
+export const HALFTIME_WARMUP_MINUTES=8;
+
 export function isHalftimeState(liveGame){
-  if(!liveGame || String(liveGame.status||'').toLowerCase()!=='in') return false;
+  if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;
   const detail=`${liveGame.statusDetail||''} ${liveGame.detail||''}`.toLowerCase();
   if(/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)) return true;
   const period=Number(liveGame.period);
@@ -19,9 +21,9 @@ export function isHalftimeState(liveGame){
   return period===2 && Number.isFinite(clock) && clock<=0.05;
 }
 
-export function isHalftimeWarmupState(liveGame,thresholdMinutes=2){
+export function isHalftimeWarmupState(liveGame,thresholdMinutes=HALFTIME_WARMUP_MINUTES){
   if(isHalftimeState(liveGame)) return true;
-  if(!liveGame || String(liveGame.status||'').toLowerCase()!=='in') return false;
+  if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;
   const period=Number(liveGame.period),clock=Number(liveGame.clockMin),limit=Math.max(0,Number(thresholdMinutes)||0);
   return period===2 && Number.isFinite(clock) && clock>=0 && clock<=limit;
 }
@@ -29,8 +31,8 @@ export function isHalftimeWarmupState(liveGame,thresholdMinutes=2){
 export function automationPhase(liveGame){
   const status=String(liveGame?.status||'pre').toLowerCase();
   if(status==='post') return 'post';
-  if(isHalftimeState(liveGame)) return 'halftime';
-  if(status==='in') return 'live';
+  if(isHalftimeWarmupState(liveGame,HALFTIME_WARMUP_MINUTES)) return 'halftime';
+  if(status==='in'||status==='live') return 'live';
   return 'pregame';
 }
 
