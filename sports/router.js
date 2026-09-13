@@ -114,7 +114,7 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const liveSwitcher = await import('./mlb/live-game-switcher-v901.js?v=90.18');
+      const liveSwitcher = await import('./mlb/live-game-switcher-v901.js?v=90.19');
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
     } catch (e) {
       console.warn('[MLB Live] game switcher unavailable:', e);
@@ -123,7 +123,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview-v893.js?v=89.21');
+      const mod = await import('./nfl-preview-v893.js?v=89.22');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
