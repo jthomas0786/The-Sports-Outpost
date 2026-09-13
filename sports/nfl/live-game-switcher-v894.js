@@ -1,16 +1,25 @@
-const STYLE_ID='tso-nfl-live-game-switcher-v899';
+const STYLE_ID='tso-nfl-live-game-switcher-v8932';
 const HOST_ID='tsoNflLiveGameSwitcher';
 let installed=false,observer=null,raf=0,slatePromise=null,autoOpening=false;
 let slateGames=[];
 const liveOverrides=new Map();
+const authoritativeStatus=new Map();
 
-const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const normStatus=v=>{
+ const s=String(v||'').trim().toLowerCase().replace(/[\s_-]+/g,'');
+ if(['post','final','closed','complete','completed','gameover'].includes(s))return 'post';
+ if(['in','live','inprogress','inprogressgame','halftime'].includes(s))return 'in';
+ if(['pre','scheduled','created','preview'].includes(s))return 'pre';
+ return s;
+};
 
 function ensureStyles(){
  if(document.getElementById(STYLE_ID))return;
  document.getElementById('tso-nfl-live-game-switcher-v894')?.remove();
  document.getElementById('tso-nfl-live-game-switcher-v895')?.remove();
  document.getElementById('tso-nfl-live-game-switcher-v896')?.remove();
+ document.getElementById('tso-nfl-live-game-switcher-v899')?.remove();
  const style=document.createElement('style');style.id=STYLE_ID;
  style.textContent=`
  #nflView .tso-live-switcher{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 12px;padding:10px 12px;border:1px solid rgba(45,127,255,.22);border-radius:10px;background:rgba(4,17,37,.76);box-sizing:border-box;position:relative;z-index:40}
@@ -25,8 +34,9 @@ function ensureStyles(){
 }
 
 function kickoffLabel(g){
- if(g?.status==='in')return g.statusDetail||g.detail||g.time||'LIVE';
- if(g?.status==='post')return 'Final';
+ const status=normStatus(g?.status);
+ if(status==='in')return g.statusDetail||g.detail||g.time||'LIVE';
+ if(status==='post')return 'Final';
  if(g?.time)return String(g.time);
  const raw=g?.startTimeUTC||g?.date||g?.start;
  if(!raw)return 'Scheduled';
@@ -39,7 +49,7 @@ function itemFromSlate(g){
  const awayName=away.abbr||away.name||g?.awayAbbr||g?.awayName||'Away';
  const homeName=home.abbr||home.name||g?.homeAbbr||g?.homeName||'Home';
  const start=String(g?.startTimeUTC||g?.date||'');
- return {id,status:String(g?.status||''),start,awayName:String(awayName),homeName:String(homeName),label:`${awayName} @ ${homeName} · ${kickoffLabel(g)}`};
+ return {id,status:normStatus(g?.status),start,awayName:String(awayName),homeName:String(homeName),label:`${awayName} @ ${homeName} · ${kickoffLabel(g)}`};
 }
 function gameLabel(btn){
  const id=String(btn?.dataset?.nflOpenGame||'');
@@ -47,6 +57,30 @@ function gameLabel(btn){
  const clock=String(btn.querySelector('.nfl-live-clock')?.textContent||'LIVE').trim();
  const away=teams[0]||'Away',home=teams[1]||'Home';
  return {id,status:'in',start:'',awayName:away,homeName:home,label:`${away} @ ${home} · ${clock||'LIVE'}`};
+}
+function liveDetail(snap){
+ const p=Number(snap?.liveScore?.period),c=Number(snap?.liveScore?.clockMin);
+ if(/half/i.test(String(snap?.statusDetail||'')))return 'Halftime';
+ if(Number.isFinite(p)&&Number.isFinite(c)){
+  const m=Math.max(0,Math.floor(c)),sec=Math.max(0,Math.min(59,Math.round((c-m)*60)));
+  return `Q${p} ${m}:${String(sec).padStart(2,'0')}`;
+ }
+ return String(snap?.statusDetail||'LIVE').trim()||'LIVE';
+}
+function ingestLiveSnapshot(snap){
+ const id=String(snap?.gameId??snap?.id??'');if(!id)return;
+ const status=normStatus(snap?.status||snap?.liveScore?.status);
+ if(status)authoritativeStatus.set(id,status);
+ const base=slateGames.find(g=>g.id===id);
+ if(status!=='in'){
+  liveOverrides.delete(id);
+  queue();
+  return;
+ }
+ const away=String(snap?.away?.abbr||snap?.awayAbbr||base?.awayName||'Away');
+ const home=String(snap?.home?.abbr||snap?.homeAbbr||base?.homeName||'Home');
+ liveOverrides.set(id,{id,status:'in',start:base?.start||'',awayName:away,homeName:home,label:`${away} @ ${home} · ${liveDetail(snap)}`});
+ queue();
 }
 async function loadSlate(){
  if(slatePromise)return slatePromise;
@@ -58,17 +92,28 @@ async function loadSlate(){
 }
 function collect(){
  const root=document.getElementById('nflView');if(!root||root.hidden)return [];
- for(const btn of root.querySelectorAll('.nfl-live-chip[data-nfl-open-game]')){const item=gameLabel(btn);if(item.id)liveOverrides.set(item.id,item);}
+ for(const btn of root.querySelectorAll('.nfl-live-chip[data-nfl-open-game]')){
+  const item=gameLabel(btn);if(!item.id)continue;
+  const known=authoritativeStatus.get(item.id);
+  if(known!=='post'&&known!=='pre')liveOverrides.set(item.id,item);
+ }
  const current=root.querySelector('[data-nfl-inline-gamecast]')?.getAttribute('data-nfl-inline-gamecast');
  if(current){
   const away=String(root.querySelector('.nxg-teamblock:not(.home) .nxg-teamcopy b')?.textContent||'Away').trim();
   const home=String(root.querySelector('.nxg-teamblock.home .nxg-teamcopy b')?.textContent||'Home').trim();
   const detail=[root.querySelector('.nxg-period')?.textContent,root.querySelector('.nxg-clock')?.textContent].map(x=>String(x||'').trim()).filter(Boolean).join(' ');
   const base=slateGames.find(g=>g.id===String(current));
-  if(base?.status==='in'||!base)liveOverrides.set(String(current),{id:String(current),status:'in',start:base?.start||'',awayName:away,homeName:home,label:`${away} @ ${home} · ${detail||'LIVE'}`});
+  const known=authoritativeStatus.get(String(current))||normStatus(base?.status);
+  if(known==='in'||(!known&&!base))liveOverrides.set(String(current),{id:String(current),status:'in',start:base?.start||'',awayName:away,homeName:home,label:`${away} @ ${home} · ${detail||'LIVE'}`});
  }
  const base=slateGames.length?slateGames:[...liveOverrides.values()];
- return base.map(g=>liveOverrides.get(g.id)||g);
+ const seen=new Set(base.map(g=>g.id));
+ const all=[...base,...[...liveOverrides.values()].filter(g=>!seen.has(g.id))];
+ return all.map(g=>{
+  const status=authoritativeStatus.get(g.id)||normStatus(g.status);
+  if(status==='in')return {...g,...(liveOverrides.get(g.id)||{}),status:'in'};
+  return {...g,status};
+ });
 }
 function currentGame(){return String(document.querySelector('#nflView [data-nfl-inline-gamecast]')?.getAttribute('data-nfl-inline-gamecast')||'');}
 function liveLanding(){const root=document.getElementById('nflView');if(!root||root.hidden)return false;return !!root.querySelector('.nfl-live-chip[data-nfl-open-game],.nfl-live-empty');}
@@ -79,8 +124,8 @@ function liveAnchor(){
  const empty=root.querySelector('.nfl-live-empty');if(empty)return empty.parentElement||empty;
  return null;
 }
-function liveGames(games){return games.filter(g=>g.status==='in');}
-function nextGame(games){const now=Date.now();return games.filter(g=>g.status!=='post').map(g=>({g,t:Date.parse(g.start||'')})).filter(x=>Number.isFinite(x.t)&&x.t>now-60000).sort((a,b)=>a.t-b.t)[0]?.g||null;}
+function liveGames(games){return games.filter(g=>normStatus(g.status)==='in');}
+function nextGame(games){const now=Date.now();return games.filter(g=>!['post','in'].includes(normStatus(g.status))).map(g=>({g,t:Date.parse(g.start||'')})).filter(x=>Number.isFinite(x.t)&&x.t>now-60000).sort((a,b)=>a.t-b.t)[0]?.g||null;}
 function idleLabel(g){return g?`No games live · Next: ${g.awayName} @ ${g.homeName} · ${kickoffLabel(g)}`:'No games live · No upcoming games';}
 function preferredGame(games){return liveGames(games)[0]||null;}
 function openGame(id){
@@ -132,9 +177,11 @@ export function installNflLiveGameSwitcherV894(){
  ensureStyles();loadSlate();
  if(installed){queue();return;}
  installed=true;
- document.addEventListener('click',e=>{const b=e.target?.closest?.('.nfl-live-chip[data-nfl-open-game]');if(b){const item=gameLabel(b);if(item.id)liveOverrides.set(item.id,item);}},true);
+ document.addEventListener('click',e=>{const b=e.target?.closest?.('.nfl-live-chip[data-nfl-open-game]');if(b){const item=gameLabel(b),known=authoritativeStatus.get(item.id);if(item.id&&known!=='post'&&known!=='pre')liveOverrides.set(item.id,item);}},true);
+ window.addEventListener('tso:nfl-live-snapshot',e=>ingestLiveSnapshot(e.detail),true);
+ if(window.__TSO_NFL_LIVE_LATEST__)ingestLiveSnapshot(window.__TSO_NFL_LIVE_LATEST__);
  observer=new MutationObserver(muts=>{if(muts.some(m=>m.type==='childList'))queue();});
  observer.observe(document.getElementById('nflView')||document.body,{childList:true,subtree:true});
  window.addEventListener('hashchange',queue);queue();
 }
-export const __NFL_LIVE_SWITCHER_V894_TEST__={gameLabel,itemFromSlate,openGame,collect,preferredGame,liveGames,nextGame,idleLabel};
+export const __NFL_LIVE_SWITCHER_V894_TEST__={gameLabel,itemFromSlate,openGame,collect,preferredGame,liveGames,nextGame,idleLabel,normStatus,ingestLiveSnapshot};
