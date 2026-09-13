@@ -39,7 +39,8 @@ function fmtDate(v){
 }
 function normalizeDates(card){
  for(const el of card.querySelectorAll('.tso-nhl-history-bars .xd')){
-  const m=String(el.textContent||'').trim().match(/^(\d{1,2})[\/-](\d{1,2})$/);if(m)el.textContent=`${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
+  const raw=String(el.textContent||'').trim(),m=raw.match(/^(\d{1,2})[\/-](\d{1,2})$/);if(!m)continue;
+  const next=`${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;if(raw!==next)el.textContent=next;
  }
 }
 function decorateVerdict(card){
@@ -49,9 +50,10 @@ function decorateVerdict(card){
  const h=right.querySelector('h3'),p=right.querySelector('p');h?.classList.add('vd-head');p?.classList.add('vd-body');
  right.querySelector(':scope>span')?.classList.add('tso-nhl-verdict-kicker');
  const meta=selectedMeta(card),name=cleanPlayerName(card),last=name.split(/\s+/).at(-1)||name,{opponent}=subParts(card),prob=probability(card),pos=playerPosition(card),l5=headerStat(card,'L5 AVG'),season=headerStat(card,'SEASON AVG');
- if(p&&prob!=null)p.textContent=`${Math.round(prob*100)}% ${meta.label.toLowerCase()} probability for ${last}. ${pos||'NHL'} · ${season} season avg · ${l5} L5 avg · vs ${opponent||'opponent'}.`;
+ if(p&&prob!=null){const copy=`${Math.round(prob*100)}% ${meta.label.toLowerCase()} probability for ${last}. ${pos||'NHL'} · ${season} season avg · ${l5} L5 avg · vs ${opponent||'opponent'}.`;if(p.textContent!==copy)p.textContent=copy;}
  let row=right.querySelector('.vd-honesty-row');if(!row){row=document.createElement('div');row.className='vd-honesty-row';right.appendChild(row);}
- row.innerHTML=`<span class="pv-interval">${esc(meta.label)}</span><span class="pv-pa-note">TSO model</span><span class="pv-cal-label pv-cal-underconfident">TSO MODEL</span>`;
+ const sig=`${meta.key}|${meta.label}`,html=`<span class="pv-interval">${esc(meta.label)}</span><span class="pv-pa-note">TSO model</span><span class="pv-cal-label pv-cal-underconfident">TSO MODEL</span>`;
+ if(row.dataset.sig!==sig){row.dataset.sig=sig;row.innerHTML=html;}
 }
 function slipHasLeg(id){try{return (JSON.parse(localStorage.getItem('dw_betslip')||'[]')||[]).some(x=>x?.id===id);}catch{return false;}}
 function toggleLegLocal(leg){
@@ -74,7 +76,7 @@ async function renderSlip(card){
  const first=card.querySelector('.tso-nhl-scroll>.sec:first-child');if(!first)return;
  first.classList.add('tso-nhl-primary-sec');let host=first.querySelector('#tsoNhlSlipHost');
  if(!host){host=document.createElement('div');host.id='tsoNhlSlipHost';first.appendChild(host);}
- const meta=selectedMeta(card),line=meta.key==='atg'?.5:num(headerStat(card,'BOOK LINE')),prob=probability(card),gkey=grade(card),name=cleanPlayerName(card),pair=await resolveGamePlayer(card),sig=[name,meta.key,line,prob,gkey,pair?.g?.id||''].join('|');
+ const meta=selectedMeta(card),line=meta.key==='atg'?.5:num(headerStat(card,'BOOK LINE')),prob=probability(card),gkey=grade(card),name=cleanPlayerName(card),pair=await resolveGamePlayer(card),sig=[name,meta.key,line,prob,gkey,pair?.g?.id||'',slipHasLeg(`${name}|${meta.key==='atg'?'ATG':meta.label}|${line}`)].join('|');
  if(host.dataset.sig===sig)return;host.dataset.sig=sig;
  if(line==null){host.innerHTML='<button class="cta tso-nhl-slip-cta tso-nhl-prop-disabled" type="button" disabled>SPORTSBOOK LINE PENDING</button>';return;}
  if(prob==null){host.innerHTML='<button class="cta tso-nhl-slip-cta tso-nhl-prop-disabled" type="button" disabled>TSO SIGNAL PENDING</button>';return;}
@@ -86,10 +88,12 @@ async function renderSlip(card){
 function enhance(card){
  if(!card)return;card.classList.add('tso-nhl-player-card-v912');normalizeDates(card);decorateVerdict(card);renderSlip(card);
 }
-function scan(){document.querySelectorAll('.tso-nhl-player-card-v911').forEach(enhance);}
+let scanQueued=false;
+function scan(){scanQueued=false;document.querySelectorAll('.tso-nhl-player-card-v911').forEach(enhance);}
+function queueScan(){if(scanQueued)return;scanQueued=true;queueMicrotask(scan);}
 export function installNhlPlayerModalV912(host=document.getElementById('nhlView')){
  ensureStyle();installNhlPlayerModalV911(host);if(installed)return;installed=true;
- observer=new MutationObserver(()=>queueMicrotask(scan));observer.observe(document.body,{childList:true,subtree:true});
- document.addEventListener('change',e=>{if(e.target?.id==='tsoNhlPropSelect')setTimeout(scan,0);});scan();
+ observer=new MutationObserver(records=>{if(records.some(r=>[...r.addedNodes].some(n=>n.nodeType===1&&(n.matches?.('.tso-nhl-player-card-v911')||n.querySelector?.('.tso-nhl-player-card-v911')))))queueScan();});observer.observe(document.body,{childList:true,subtree:true});
+ document.addEventListener('change',e=>{if(e.target?.id==='tsoNhlPropSelect')setTimeout(queueScan,0);});queueScan();
 }
 export const __NHL_PLAYER_MODAL_V912_TEST__={cleanPlayerName,subParts,headerStat,selectedMeta,probability,fmtDate};
