@@ -55,7 +55,7 @@ function playerFromFeed(feed,side,person){
  return {id,name:person?.fullName||p.person?.fullName||'—',num:p.jerseyNumber||'',pos:p.position?.abbreviation||'',bats:p.person?.batSide?.code||'',throws:p.person?.pitchHand?.code||'',season,game};
 }
 function sideForTeam(feed,teamId){return String(feed?.gameData?.teams?.away?.id)===String(teamId)?'away':'home';}
-function offenseSide(feed){const half=String(feed?.liveData?.linescore?.inningHalf||feed?.liveData?.linescore?.isTopInning?'Top':'Bottom').toLowerCase();return half.includes('top')?'away':'home';}
+function offenseSide(feed){const ls=feed?.liveData?.linescore||{};const half=String(ls.inningHalf||'').toLowerCase();if(half.includes('top'))return'away';if(half.includes('bottom'))return'home';return ls.isTopInning?'away':'home';}
 function defenseSide(feed){return offenseSide(feed)==='away'?'home':'away';}
 function lineupIds(feed,side){return feed?.liveData?.boxscore?.teams?.[side]?.battingOrder||[];}
 function onDeckPerson(feed,side,batterId){
