@@ -48,7 +48,7 @@ function syncFieldReady(root){
 
 function healRoot(root){
   if(!root)return;
-  root.dataset.tsoStageGuard='89.9';
+  root.dataset.tsoStageGuard='89.9.1';
   syncFieldReady(root);
   root.querySelectorAll('.tso-ps886e__actor:not(.ghost)').forEach(actor=>{
     actor.style.removeProperty('display');
@@ -74,7 +74,8 @@ function run(){
 function schedule(){
   if(typeof document==='undefined')return;
   if(raf)return;
-  raf=requestAnimationFrame(run);
+  if(typeof requestAnimationFrame==='function')raf=requestAnimationFrame(run);
+  else queueMicrotask(run);
 }
 
 export function installNflGamecastStageGuardV899(){
