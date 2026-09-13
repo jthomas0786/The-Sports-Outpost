@@ -18,7 +18,7 @@ const src=fs.readFileSync(new URL('../sports/mlb/playstage-v901.js',import.meta.
 for(const marker of [
   'Schematic reconstruction · official MLB play data · not optical player tracking',
   'statsapi.mlb.com/api/v1.1/game',
-  'ps-chibi-batter',
+  'ps-batter',
   'ps-chibi-glove',
   'ps-chibi-bat',
   'animateBall',
