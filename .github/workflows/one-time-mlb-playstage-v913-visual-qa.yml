@@ -1,0 +1,66 @@
+name: One-time MLB PlayStage v913 visual QA
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-playstage-v913-visual-qa.yml'
+permissions:
+  contents: read
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install chromium
+      - name: Build harness
+        run: |
+          GAME_PK=$(node --input-type=module - <<'NODE'
+          for(const n of [1,2,3,4,5]){const date=new Date(Date.now()-n*86400000).toISOString().slice(0,10);const j=await (await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}`)).json();const games=(j.dates||[]).flatMap(d=>d.games||[]);const g=games.find(x=>/final|completed|game over/i.test(x.status?.detailedState||''))||games[0];if(g?.gamePk){console.log(g.gamePk);break;}}
+          NODE
+          )
+          test -n "$GAME_PK"
+          cat > visual-qa-v913.html <<EOF
+          <!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:720px}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div><script type="module">
+          import {installMlbPlaystageV901} from './sports/mlb/playstage-v901.js?v=qa913';
+          import {installMlbPlaystageConceptV904} from './sports/mlb/playstage-concept-v904.js?v=qa913';
+          import {installMlbPlaystageConceptV905} from './sports/mlb/playstage-concept-v905.js?v=qa913';
+          import {installMlbPlaystageConceptV906} from './sports/mlb/playstage-concept-v906.js?v=qa913';
+          import {installMlbPlaystageConceptV907} from './sports/mlb/playstage-concept-v907.js?v=qa913';
+          import {installMlbPlaystageConceptV908} from './sports/mlb/playstage-concept-v908.js?v=qa913';
+          import {installMlbPlaystageConceptV909} from './sports/mlb/playstage-concept-v909.js?v=qa913';
+          import {installMlbPlaystageConceptV910} from './sports/mlb/playstage-concept-v910.js?v=qa913';
+          import {installMlbPlaystageConceptV911} from './sports/mlb/playstage-concept-v911.js?v=qa913';
+          import {installMlbPlaystageConceptV912} from './sports/mlb/playstage-concept-v912.js?v=qa913';
+          import {installMlbPlaystageConceptV913} from './sports/mlb/playstage-concept-v913.js?v=qa913';
+          installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();installMlbPlaystageConceptV909();installMlbPlaystageConceptV910();installMlbPlaystageConceptV911();installMlbPlaystageConceptV912();installMlbPlaystageConceptV913();
+          </script></body></html>
+          EOF
+      - name: Render and validate
+        run: |
+          node --check sports/mlb/playstage-concept-v913.js
+          python3 -m http.server 4173 >/tmp/tso-v913-http.log 2>&1 & SERVER_PID=$!
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';import fs from 'node:fs';
+          const b=await chromium.launch({headless:true});const p=await b.newPage({viewport:{width:1536,height:960}});
+          await p.goto('http://127.0.0.1:4173/visual-qa-v913.html',{waitUntil:'domcontentloaded'});await p.waitForSelector('.tso-mlb-concept-v913',{timeout:30000});await p.waitForTimeout(3600);
+          const root=p.locator('.tso-mlb-playstage-v901'),stage=p.locator('.ps-stage');await root.screenshot({path:'mlb-playstage-v913-qa.png'});await stage.screenshot({path:'mlb-playstage-v913-stage.png'});
+          await p.evaluate(()=>document.querySelector('.ps-chibi.ps-batter')?.classList.add('ps-swing'));await p.waitForTimeout(320);await stage.screenshot({path:'mlb-playstage-v913-swing.png'});
+          const q=await p.evaluate(()=>({concept:document.querySelector('.tso-mlb-playstage-v901')?.dataset?.approvedConcept,bat:document.querySelectorAll('.ps912-bat').length,plate:document.querySelectorAll('.ps912-plate').length,box:document.querySelectorAll('.ps912-box').length,fieldfx:document.querySelectorAll('.ps911-fieldfx').length,rigs:document.querySelectorAll('.ps905-rig').length,headshots:document.querySelectorAll('.ps-headshot img').length,stageHeight:Math.round(document.querySelector('.ps-stage')?.getBoundingClientRect().height||0),centerHeight:Math.round(document.querySelector('.ps-center')?.getBoundingClientRect().height||0)}));fs.writeFileSync('mlb-playstage-v913-qa.json',JSON.stringify(q,null,2));if(q.concept!=='v913'||q.bat!==1||q.plate!==1||q.box!==1||q.fieldfx!==1||q.rigs<8||q.headshots<2||q.stageHeight<680||Math.abs(q.stageHeight-q.centerHeight)>3)process.exitCode=3;await b.close();
+          NODE
+          kill $SERVER_PID || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mlb-playstage-v913-visual-qa
+          path: |
+            mlb-playstage-v913-qa.png
+            mlb-playstage-v913-stage.png
+            mlb-playstage-v913-swing.png
+            mlb-playstage-v913-qa.json
+          retention-days: 2
