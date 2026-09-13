@@ -44,18 +44,4 @@ function mustReplace(s,from,to,label){if(!s.includes(from))throw new Error(`Miss
  write(p,s);
 }
 
-// Protect the outer cache chain and syntax in normal CI.
-{
- const p='.github/workflows/nfl-gamecast-tests.yml';let s=read(p);
- if(!s.includes("      - 'sports/mlb/playstage-concept-v904.js'")){
-  s=s.replace("      - 'sports/mlb/playstage-v901.js'\n","      - 'sports/mlb/playstage-v901.js'\n      - 'sports/mlb/playstage-concept-v904.js'\n");
- }
- s=s.replace("          node --check sports/mlb/playstage-v901.js\n","          node --check sports/mlb/playstage-v901.js\n          node --check sports/mlb/playstage-concept-v904.js\n");
- s=s.replace("grep -F './sports/router.js?v=90.10' index.html","grep -F './sports/router.js?v=90.11' index.html");
- if(!s.includes("grep -F \"./mlb/playstage-concept-v904.js?v=90.4\" sports/router.js")){
-  s=s.replace("          grep -F \"./mlb/playstage-v901.js?v=90.4\" sports/router.js\n","          grep -F \"./mlb/playstage-v901.js?v=90.4\" sports/router.js\n          grep -F \"./mlb/playstage-concept-v904.js?v=90.4\" sports/router.js\n");
- }
- write(p,s);
-}
-
 console.log('Applied approved MLB PlayStage concept v904 wiring');
