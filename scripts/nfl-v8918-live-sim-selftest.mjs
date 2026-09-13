@@ -101,6 +101,14 @@ const halftime={...liveGame,statusDetail:'Halftime',period:2,clockMin:0,possessi
 const halfDecision=decideAutomaticRun({game,research,odds,liveGame:halftime,previousState:null,existingResult:null,config,now:new Date('2026-09-12T01:30:00Z')});
 assert.equal(halfDecision.phase,'halftime');
 assert.equal(halfDecision.iterations,50000);
+const halfOddsA={meta:{fetchedAt:'2026-09-12T01:29:00Z'},games:[{gameId:game.gameId,players:[{name:'Puka Nacua',team:'LA',odds:{recYds:{line:90.5,over:{best:{price:-110,ageSeconds:20}}}}}]}]};
+const halfOddsB=structuredClone(halfOddsA);halfOddsB.meta.fetchedAt='2026-09-12T01:33:00Z';
+const halfFpA=gameInputFingerprint({game,research,odds,liveGame:halftime,liveOdds:halfOddsA,phase:'halftime'});
+const halfFpB=gameInputFingerprint({game,research,odds,liveGame:halftime,liveOdds:halfOddsB,phase:'halftime'});
+assert.notEqual(halfFpA,halfFpB,'fresh halftime sportsbook quotes must change the candidate-board fingerprint');
+const halfRefresh=decideAutomaticRun({game,research,odds,liveGame:halftime,liveOdds:halfOddsB,previousState:{halftimeFingerprint:halfFpA,halftimeCandidateAttempts:1},existingResult:result,config,now:new Date('2026-09-12T01:34:00Z')});
+assert.equal(halfRefresh.run,true,'new halftime sportsbook quotes must rebuild the 50K candidate board');
+assert.equal(halfRefresh.phase,'halftime');
 
 const fp1=gameInputFingerprint({game,research,odds,liveGame,phase:'live'});
 const fp2=gameInputFingerprint({game,research,odds,liveGame:{...liveGame,possession:'away',yardFromOwn:32},phase:'live'});

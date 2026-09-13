@@ -95,7 +95,7 @@ export function gameInputsReady({game,research,odds}){
   return {ready:true,reason:'ready',researchPlayers:researchPlayers.length,oddsGame:true};
 }
 
-export function gameInputFingerprint({game,research,odds,liveGame=null,phase='pregame'}){
+export function gameInputFingerprint({game,research,odds,liveGame=null,liveOdds=null,phase='pregame'}){
   const payload={
     phase,
     game:{
@@ -113,6 +113,16 @@ export function gameInputFingerprint({game,research,odds,liveGame=null,phase='pr
       down:liveGame?.down??null,distance:liveGame?.distance??null,lastPlayText:liveGame?.lastPlayText||null,
       playerStats:liveGame?.playerStats||null,teamStats:liveGame?.teamStats||null,
     };
+  }
+  if(phase==='halftime'){
+    const gameId=String(game?.gameId||game?.id||'');
+    const liveOddsGame=(liveOdds?.games||[]).find(g=>String(g?.gameId||'')===gameId)||null;
+    payload.liveOdds=liveOddsGame?{
+      fetchedAt:liveOdds?.meta?.fetchedAt||null,
+      gameId,
+      players:(liveOddsGame.players||[]).map(p=>({name:normName(p?.name),team:normTeam(p?.team),odds:p?.odds||null}))
+        .sort((a,b)=>`${a.team}|${a.name}`.localeCompare(`${b.team}|${b.name}`)),
+    }:null;
   }
   return hash32(stableStringify(payload)).toString(16).padStart(8,'0');
 }
@@ -136,11 +146,11 @@ function minutesSince(iso,now){
 }
 
 export function decideAutomaticRun({
-  game,research,odds,liveGame=null,previousState=null,existingResult=null,config,now=new Date(),force=false,
+  game,research,odds,liveGame=null,liveOdds=null,previousState=null,existingResult=null,config,now=new Date(),force=false,
 }){
   const auto=config?.automatic||{};
   const phase=automationPhase(liveGame);
-  const fingerprint=gameInputFingerprint({game,research,odds,liveGame,phase});
+  const fingerprint=gameInputFingerprint({game,research,odds,liveGame,liveOdds,phase});
   const ready=gameInputsReady({game,research,odds});
   const pregameIterations=Number(auto.pregameIterations||config?.defaultIterations||50000);
   const halftimeIterations=Number(auto.halftimeIterations||config?.halftimeIterations||50000);

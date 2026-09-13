@@ -12,7 +12,7 @@ async function loadBase(){
       // query string. Force-refresh that URL before loading a fresh base module
       // so a full page load always receives the current authoritative poller.
       try{await fetch(new URL('./nfl/live.js?v=89.21',import.meta.url),{cache:'reload'});}catch{}
-      const mod=await import('./nfl-preview.js?v=89.27');
+      const mod=await import('./nfl-preview.js?v=89.33');
       __V890_BASE__=mod;
       return mod;
     })();

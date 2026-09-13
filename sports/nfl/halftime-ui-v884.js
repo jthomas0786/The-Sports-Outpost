@@ -1,7 +1,7 @@
 import { optimizeHalftimeParlay, evaluateCombination, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=89.20';
 import { halftimeBoardCurrent } from './halftime-validity.js?v=89.26';
 
-let pollTimer=null;
+let pollTimer=null,liveSnapshotSyncArmed=false;
 let currentDoc=null;
 let currentLiveGames=new Map();
 let selectionInitialized=false;
@@ -65,10 +65,23 @@ function syncLiveGames(games=[]){
   }
   refreshOpenDrawer();
 }
+function liveWindowKey(g){
+  if(!g)return '';
+  const live=g.liveScore||g,away=live.awayScore??g.away?.score??'',home=live.homeScore??g.home?.score??'';
+  return `${gid(g)}|${isHalftimeWarmupGameState(g)?1:0}|${isHalftimeGameState(g)?1:0}|${statusOf(g)}|${periodOf(g)}|${away}-${home}`;
+}
 function syncOneLiveGame(g){
   const id=gid(g);if(!id)return;
+  const before=liveWindowKey(currentLiveGames.get(id));
   if(isHalftimeWarmupGameState(g))currentLiveGames.set(id,g);else currentLiveGames.delete(id);
-  refreshOpenDrawer();
+  const after=liveWindowKey(currentLiveGames.get(id));
+  if(before!==after)refreshOpenDrawer(true);
+}
+function armLiveSnapshotSync(){
+  if(liveSnapshotSyncArmed||typeof window==='undefined')return;
+  liveSnapshotSyncArmed=true;
+  window.addEventListener('tso:nfl-live-snapshot',e=>syncOneLiveGame(e?.detail),true);
+  if(window.__TSO_NFL_LIVE_LATEST__)syncOneLiveGame(window.__TSO_NFL_LIVE_LATEST__);
 }
 function boardMap(doc){return new Map(allReadyBoards(doc).map(b=>[String(b.gameId),b]));}
 function rollingEntries(doc=currentDoc){
@@ -167,6 +180,7 @@ export function halftimeGamecastBannerHTML(g,doc,liveGames=[]){
 }
 
 export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){
+  armLiveSnapshotSync();
   if(pollTimer)return;
   const tick=async()=>{
     refreshOpenDrawer();
@@ -283,7 +297,7 @@ function refreshOpenDrawer(force=false){
 }
 
 export async function openHalftimeParlayLab({halftimeDoc=null}={}){
-  ensureHalftimeLabStyles();const doc=await latestDoc(halftimeDoc);currentDoc=doc;
+  ensureHalftimeLabStyles();armLiveSnapshotSync();const doc=await latestDoc(halftimeDoc);currentDoc=doc;
   const entries=rollingEntries(doc);if(!entries.length)return;
   ensureSelection(entries);normalizeLegCount(doc);
   document.getElementById('tsoHtBackdrop')?.remove();document.getElementById('tsoHtDrawer')?.remove();
