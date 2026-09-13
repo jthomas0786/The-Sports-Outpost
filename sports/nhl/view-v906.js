@@ -1,6 +1,6 @@
 import * as base from './view.js?v=90.5';
 import {installNhlSlateV906} from './slate-v906.js?v=90.6.1';
-import {installNhlPlayerModalV914} from './player-modal-v914.js?v=90.14';
+import {installNhlPlayerModalV914} from './player-modal-v914.js?v=90.15';
 import {gradeForLean,gradeRingHTML} from './grade.js?v=90.4';
 
 function ensureNhlModalVisibilityV910(){
