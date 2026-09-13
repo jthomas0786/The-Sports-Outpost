@@ -12,6 +12,8 @@ on:
       - 'sports/mlb/playstage-v901.js'
       - 'sports/mlb/playstage-concept-v904.js'
       - 'sports/mlb/playstage-concept-v905.js'
+      - 'sports/mlb/playstage-concept-v906.js'
+      - 'sports/mlb/playstage-concept-v907.js'
       - 'sports/nfl/gamecast-field-state-v8912.js'
       - 'sports/nfl/gamecast-replay-lab-v8916.js'
       - 'sports/nfl-preview-v893.js'
@@ -47,18 +49,27 @@ jobs:
           node --check sports/mlb/playstage-v901.js
           node --check sports/mlb/playstage-concept-v904.js
           node --check sports/mlb/playstage-concept-v905.js
+          node --check sports/mlb/playstage-concept-v906.js
+          node --check sports/mlb/playstage-concept-v907.js
           node --check sports/nfl/gamecast-field-state-v8912.js
           node --check sports/nfl/gamecast-replay-lab-v8916.js
           node --check sports/nfl-preview-v893.js
           node --check sports/nfl/quarter-parlay-ui-v893.js
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.12' index.html
+          grep -F './sports/router.js?v=90.13' index.html
           grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v904.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v905.js?v=90.51" sports/router.js
+          grep -F "./mlb/playstage-concept-v906.js?v=90.60" sports/router.js
+          grep -F "./mlb/playstage-concept-v907.js?v=90.70" sports/router.js
           grep -F "installMlbPlaystageConceptV904" sports/router.js
           grep -F "installMlbPlaystageConceptV905" sports/router.js
+          grep -F "installMlbPlaystageConceptV906" sports/router.js
+          grep -F "installMlbPlaystageConceptV907" sports/router.js
+          grep -F 'ps907-scene' sports/mlb/playstage-concept-v907.js
+          grep -F 'ps907-backrig' sports/mlb/playstage-concept-v907.js
+          grep -F 'ps907-ump' sports/mlb/playstage-concept-v907.js
       - name: Live game switcher tests
         run: node scripts/live-game-switcher-selftest.mjs
       - name: MLB PlayStage tests
