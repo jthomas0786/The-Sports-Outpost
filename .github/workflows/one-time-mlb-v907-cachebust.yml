@@ -1,4 +1,4 @@
-name: One-time MLB v909 cache bust
+name: One-time MLB v910 cache bust
 
 on:
   workflow_dispatch:
@@ -23,8 +23,8 @@ jobs:
           from pathlib import Path
           p=Path('index.html')
           s=p.read_text()
-          old='./sports/router.js?v=90.14'
-          new='./sports/router.js?v=90.15'
+          old='./sports/router.js?v=90.15'
+          new='./sports/router.js?v=90.16'
           if new in s:
               print('already cache-busted')
           elif old in s:
@@ -39,6 +39,6 @@ jobs:
           git config user.name 'TSO MLB Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add index.html
-          git commit -m 'Cache-bust MLB Gamecast v909'
+          git commit -m 'Cache-bust MLB Gamecast v910'
           git pull --rebase origin main
           git push origin HEAD:main
