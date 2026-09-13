@@ -1,0 +1,100 @@
+name: One-time NFL live selector stability v89.32
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-live-selector-stability-v8932.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Stabilize NFL Live selector and polling renders
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          def replace_once(path, old, new, label):
+              p=Path(path); s=p.read_text()
+              if new in s:
+                  print(label, 'already applied'); return
+              if old not in s:
+                  raise SystemExit(f'missing anchor: {label}')
+              p.write_text(s.replace(old,new,1))
+              print('applied', label)
+
+          # The 5-second halftime fetch must not full-render the entire NFL view
+          # unless the published halftime board actually changed.
+          old="""    startHalftimeBoardPolling(doc=>{\n      state.halftime=doc;\n      if((state.tab==='live'&&!state.game)||(state.game&&state.gamecastTab==='game')) requestAnimationFrame(()=>render());\n    });"""
+          new="""    startHalftimeBoardPolling(doc=>{\n      const boardSig=d=>(d?.games||[]).map(g=>[g?.gameId||'',g?.ready===true?1:0,g?.generatedAt||'',g?.state?.period??'',g?.state?.clockMin??'',g?.state?.awayScore??'',g?.state?.homeScore??'',g?.candidates?.length||0].join(':')).join('|');\n      const before=boardSig(state.halftime),after=boardSig(doc);\n      state.halftime=doc;\n      if(before===after)return;\n      if((state.tab==='live'&&!state.game)||(state.game&&state.gamecastTab==='game')) requestAnimationFrame(()=>render());\n    });"""
+          replace_once('sports/nfl-preview.js',old,new,'suppress unchanged halftime re-render')
+
+          # Cache-bust the changed NFL production chain.
+          replace_once('sports/nfl-preview-v890.js',"./nfl-preview.js?v=89.26","./nfl-preview.js?v=89.27",'v890 base preview cache')
+          p=Path('sports/nfl-preview-v893.js'); s=p.read_text()
+          s=s.replace("./nfl-preview-v890.js?v=89.26","./nfl-preview-v890.js?v=89.27",1)
+          s=s.replace("./nfl/live-game-switcher-v894.js?v=89.9","./nfl/live-game-switcher-v894.js?v=89.32",1)
+          p.write_text(s)
+          replace_once('sports/router.js',"./nfl-preview-v893.js?v=89.31","./nfl-preview-v893.js?v=89.32",'router NFL cache')
+
+          p=Path('index.html'); s=p.read_text()
+          s2=re.sub(r'\./sports/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.29',s,count=1)
+          if s2==s and './sports/router.js?v=90.29' not in s: raise SystemExit('missing index router cache anchor')
+          p.write_text(s2)
+
+          # Fix the escaped quote entity in the selector hotfix.
+          p=Path('sports/nfl/live-game-switcher-v894.js'); s=p.read_text().replace("'&quot'","'&quot;'",1); p.write_text(s)
+
+          # Keep the selector contract test aligned and lock the final-game purge in.
+          p=Path('scripts/live-game-switcher-selftest.mjs'); s=p.read_text()
+          s=s.replace("  '@media(max-width:680px)',\n]) assert.ok(nfl.includes(marker)","  '@media(max-width:680px)',\n  'authoritativeStatus',\n  \"window.addEventListener('tso:nfl-live-snapshot'\",\n  'liveOverrides.delete(id)',\n  'normStatus',\n]) assert.ok(nfl.includes(marker)",1)
+          s=s.replace("./nfl/live-game-switcher-v894.js?v=89.9","./nfl/live-game-switcher-v894.js?v=89.32",1)
+          s=s.replace("./nfl-preview-v893.js?v=89.31","./nfl-preview-v893.js?v=89.32",1)
+          p.write_text(s)
+          PY
+
+      - name: Validate live-only selector and no-flash guard
+        run: |
+          node --check sports/nfl/live-game-switcher-v894.js
+          node --check sports/nfl-preview.js
+          node --check sports/nfl-preview-v890.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/router.js
+          grep -F "window.addEventListener('tso:nfl-live-snapshot'" sports/nfl/live-game-switcher-v894.js
+          grep -F "liveOverrides.delete(id)" sports/nfl/live-game-switcher-v894.js
+          grep -F "if(before===after)return;" sports/nfl-preview.js
+          grep -F "./nfl/live-game-switcher-v894.js?v=89.32" sports/nfl-preview-v893.js
+          grep -F "./nfl-preview-v890.js?v=89.27" sports/nfl-preview-v893.js
+          grep -F "./nfl-preview.js?v=89.27" sports/nfl-preview-v890.js
+          grep -F "./nfl-preview-v893.js?v=89.32" sports/router.js
+          grep -F './sports/router.js?v=90.29' index.html
+          node scripts/live-game-switcher-selftest.mjs
+          node scripts/nfl-v8920-flow-selftest.mjs
+
+      - name: Commit repair
+        run: |
+          git config user.name "TSO NFL Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl/live-game-switcher-v894.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs
+          git diff --staged --quiet && echo "Already applied." && exit 0
+          git commit -m "Fix NFL live selector finals and polling flash"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
