@@ -48,17 +48,6 @@ jobs:
           replace_once('sports/router.js',"./nfl-preview-v893.js?v=89.25","./nfl-preview-v893.js?v=89.26",'NFL router cache bust')
           replace_once('scripts/live-game-switcher-selftest.mjs',"./nfl-preview-v893.js?v=89.25","./nfl-preview-v893.js?v=89.26",'selector test cache expectation')
 
-          p=Path('.github/workflows/nfl-gamecast-tests.yml'); s=p.read_text()
-          s=s.replace("./sports/router.js?v=90.22","./sports/router.js?v=90.23")
-          s=s.replace("./nfl-preview-v893.js?v=89.25","./nfl-preview-v893.js?v=89.26")
-          s=s.replace("./nfl-preview-v890.js?v=89.20.4","./nfl-preview-v890.js?v=89.20.5")
-          marker="          grep -F \"data.renderSig\" sports/nfl/live-game-switcher-v894.js || grep -F \"dataset.renderSig\" sports/nfl/live-game-switcher-v894.js\n"
-          addition=marker+"          grep -F \"activeId!==gameId\" sports/nfl/live.js\n          grep -F \"./nfl/live.js?v=89.21\" sports/nfl-preview.js\n"
-          if 'activeId!==gameId' not in s:
-              if marker not in s: raise SystemExit('missing NFL graph marker')
-              s=s.replace(marker,addition,1)
-          p.write_text(s)
-
           p=Path('index.html'); s=p.read_text()
           s2=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.23',s,count=1)
           if s2==s and './sports/router.js?v=90.23' not in s:
@@ -88,7 +77,7 @@ jobs:
         run: |
           git config user.name 'TSO NFL Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/nfl/live.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs .github/workflows/nfl-gamecast-tests.yml
+          git add sports/nfl/live.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/live-game-switcher-selftest.mjs
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Keep NFL live possession scoped to selected game'
           git pull --rebase origin main
