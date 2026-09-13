@@ -183,7 +183,12 @@ function notifySig(gl,g,possession,currentPlay,gamecastState){
 function clockText(v){if(v==null||!Number.isFinite(Number(v)))return'';let s=Math.max(0,Math.round(Number(v)*60));const m=Math.floor(s/60);s%=60;return`${m}:${String(s).padStart(2,'0')}`;}
 function patchClockOnly(g,gl,possession){
   if(typeof document==='undefined')return;
-  const wrap=document.querySelector('#nflView:not([hidden]) .nxg-concept')||document.querySelector('#nflView:not([hidden])');if(!wrap)return;
+  const wrap=document.querySelector('#nflView:not([hidden]) .nxg-concept[data-nfl-inline-gamecast]');if(!wrap)return;
+  const activeId=String(wrap.getAttribute('data-nfl-inline-gamecast')||''),gameId=String(g?.gameId||g?.id||'');
+  // live.js polls every live NFL game. Only the selected Gamecast may mutate the
+  // visible scoreboard/clock/possession text; otherwise the last polled matchup
+  // can leak its possession (for example BUF) into ATL @ PIT.
+  if(!activeId||!gameId||activeId!==gameId)return;
   const scores=wrap.querySelectorAll('.nxg-score');
   if(scores[0]&&gl.awayScore!=null)scores[0].textContent=String(gl.awayScore);
   if(scores[1]&&gl.homeScore!=null)scores[1].textContent=String(gl.homeScore);
