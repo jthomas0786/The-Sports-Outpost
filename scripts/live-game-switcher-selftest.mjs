@@ -79,10 +79,14 @@ assert.ok(wrapper.includes("./nfl/gamecast-possession-ball-v8922.js?v=89.24"));
 assert.ok(wrapper.includes('installNflGamecastPossessionBallV8922()'));
 assert.ok(possessionBall.includes('.nxg-posstext{display:none!important}'));
 assert.ok(possessionBall.includes('background:none!important;border:0!important;border-radius:0!important'));
-assert.ok(possessionBall.includes("name.insertAdjacentElement('afterend',badge)"));
+assert.ok(possessionBall.includes('nxg-team-name-line'));
+assert.ok(possessionBall.includes("name.insertAdjacentElement('afterend',badge)"),'Away possession football must sit immediately inside/right of away team name');
+assert.ok(possessionBall.includes("name.insertAdjacentElement('beforebegin',badge)"),'Home possession football must sit immediately inside/left of home team name');
+assert.ok(possessionBall.includes("root.querySelectorAll('.nxg-possession-ball')"),'Possession renderer must clear all stale footballs before activating one');
+assert.ok(possessionBall.includes("const active=valid==='away'?away:valid==='home'?home:null"),'Possession renderer must select exactly one active team');
 assert.ok(possessionBall.includes("snap.possession==='away'||snap.possession==='home'"));
 assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.22"));
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.29"));
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL live experience should remain untouched');
 
-console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard and inline possession football stay installed; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
+console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard stays installed; possession shows exactly one football aligned on the inside edge of the possessing team name; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
