@@ -7,12 +7,13 @@ assert.equal(t.playKind({result:{eventType:'single'}}),'single');
 assert.equal(t.playKind({result:{eventType:'strikeout'}}),'strikeout');
 assert.equal(t.playKind({result:{eventType:'field_out',description:'Batter flies out to center fielder.'},hitData:{trajectory:'fly_ball'}}),'fly_out');
 assert.equal(t.playKind({result:{eventType:'field_out',description:'Batter grounds out, shortstop to first baseman.'},hitData:{trajectory:'ground_ball'}}),'ground_out');
-assert.deepEqual(t.hitTarget({result:{description:'Fly ball to left field'}},'fly_out'),[25,30]);
+assert.deepEqual(t.hitTarget({result:{description:'Fly ball to left field'}},'fly_out'),[27,45]);
 assert.equal(t.endBase({result:{description:'Grounded to shortstop'}}),'first');
 assert.ok(t.playerImg(592450).includes('/people/592450/headshot/'));
 assert.ok(t.teamLogo(147).includes('/147.svg'));
 assert.deepEqual(t.DEF_POS.C,[50,88]);
 assert.deepEqual(t.BASE_POS.second,[50,49]);
+assert.deepEqual(t.DEF_POS.CF,[50,41]);
 
 const src=fs.readFileSync(new URL('../sports/mlb/playstage-v901.js',import.meta.url),'utf8');
 for(const marker of [
@@ -59,10 +60,33 @@ for(const marker of [
   'ps3dCatchBody',
 ]) assert.ok(concept.includes(marker),`Approved concept missing ${marker}`);
 
+const conceptV905=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v905.js',import.meta.url),'utf8');
+for(const marker of [
+  'tso-mlb-concept-v905',
+  'ps905-stadium',
+  'ps905-grandstand',
+  'ps905-board-shell',
+  'ps905-rig',
+  'ps905WindupCore',
+  'ps905PitchArm',
+  'ps905SwingCore',
+  'ps905RunBob',
+  'ps905FieldGrounder',
+  'ps905TrackFly',
+  'ps905DpCore',
+  'ps905CatcherPop',
+  'ps905SlideCore',
+  'ps905TagCore',
+  'ps905-rounding',
+  'ps-chibi.ps-batter .ps905-mitt',
+]) assert.ok(conceptV905.includes(marker),`v905 concept missing ${marker}`);
+
 const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.4"),'Router must cache-bust MLB PlayStage');
 assert.ok(router.includes("./mlb/playstage-concept-v904.js?v=90.4"),'Router must load approved MLB concept');
+assert.ok(router.includes("./mlb/playstage-concept-v905.js?v=90.51"),'Router must load v905 MLB concept');
 assert.ok(router.includes('installMlbPlaystageV901'),'Router must install MLB PlayStage');
 assert.ok(router.includes('installMlbPlaystageConceptV904'),'Router must install approved MLB concept');
+assert.ok(router.includes('installMlbPlaystageConceptV905'),'Router must install v905 MLB concept');
 
 console.log('MLB PlayStage regression: game data, Chibi renderer, animations, Statcast metrics and router wiring OK');

@@ -118,7 +118,7 @@ async function swapView(active) {
         import('./mlb/player-modal-parity-v901.js?v=90.2'),
         import('./mlb/playstage-v901.js?v=90.4'),
         import('./mlb/playstage-concept-v904.js?v=90.4'),
-        import('./mlb/playstage-concept-v905.js?v=90.5')
+        import('./mlb/playstage-concept-v905.js?v=90.51')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();

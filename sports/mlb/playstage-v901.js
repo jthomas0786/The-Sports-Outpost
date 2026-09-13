@@ -7,7 +7,7 @@ let installed=false,observer=null,scanRaf=0;
 const TEAM_COLORS={
  ARI:['#a71930','#e3d4ad'],ATL:['#ce1141','#13274f'],BAL:['#df4601','#000000'],BOS:['#bd3039','#0c2340'],CHC:['#0e3386','#cc3433'],CHW:['#27251f','#c4ced4'],CIN:['#c6011f','#000000'],CLE:['#00385d','#e50022'],COL:['#33006f','#c4ced4'],DET:['#0c2340','#fa4616'],HOU:['#002d62','#eb6e1f'],KC:['#004687','#bd9b60'],LAA:['#ba0021','#003263'],LAD:['#005a9c','#ffffff'],MIA:['#00a3e0','#ef3340'],MIL:['#12284b','#ffc52f'],MIN:['#002b5c','#d31145'],NYM:['#002d72','#ff5910'],NYY:['#0c2340','#c4ced4'],ATH:['#003831','#efb21e'],OAK:['#003831','#efb21e'],PHI:['#e81828','#002d72'],PIT:['#27251f','#fdb827'],SD:['#2f241d','#ffc425'],SEA:['#0c2c56','#005c5c'],SF:['#fd5a1e','#27251f'],STL:['#c41e3a','#0c2340'],TB:['#092c5c','#8fbce6'],TEX:['#003278','#c0111f'],TOR:['#134a8e','#e8291c'],WSH:['#ab0003','#14225a']
 };
-const DEF_POS={P:[50,66],C:[50,88],'1B':[66,62],'2B':[58,51],SS:[42,51],'3B':[34,62],LF:[25,31],CF:[50,22],RF:[75,31]};
+const DEF_POS={P:[50,66],C:[50,88],'1B':[66,62],'2B':[58,51],SS:[42,51],'3B':[34,62],LF:[27,45],CF:[50,41],RF:[73,45]};
 const BASE_POS={home:[50,88],first:[66,68],second:[50,49],third:[34,68]};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const n=(v,d=0)=>Number.isFinite(Number(v))?Number(v):d;
@@ -89,8 +89,8 @@ function headline(kind){return({home_run:'Home Run',triple:'Triple',double:'Doub
 function isOutPlay(play){const k=playKind(play);return ['double_play','ground_out','fly_out','line_out','strikeout'].includes(k)||n(play?.count?.outs)<n(play?.about?.outs);}
 function hitTarget(play,kind){
  const c=play?.hitData?.coordinates||{};let x=pct(c.coordX),y=pct(c.coordY);
- if(x!=null&&y!=null){x=18+(x/250)*64;y=18+(y/250)*58;return[Math.max(14,Math.min(86,x)),Math.max(18,Math.min(75,y))];}
- const desc=String(play?.result?.description||'').toLowerCase();if(desc.includes('left field'))return[25,30];if(desc.includes('right field'))return[75,30];if(desc.includes('center'))return[50,22];if(desc.includes('shortstop'))return[42,51];if(desc.includes('second baseman'))return[58,51];if(desc.includes('third baseman'))return[34,62];if(desc.includes('first baseman'))return[66,62];if(kind==='ground_out'||kind==='ground_ball'||kind==='double_play')return[45,56];return[58,31];
+ if(x!=null&&y!=null){x=17+(x/250)*66;y=39+(y/250)*31;return[Math.max(13,Math.min(87,x)),Math.max(39,Math.min(72,y))];}
+ const desc=String(play?.result?.description||'').toLowerCase();if(desc.includes('left field'))return[27,45];if(desc.includes('right field'))return[73,45];if(desc.includes('center'))return[50,41];if(desc.includes('shortstop'))return[42,51];if(desc.includes('second baseman'))return[58,51];if(desc.includes('third baseman'))return[34,62];if(desc.includes('first baseman'))return[66,62];if(kind==='ground_out'||kind==='ground_ball'||kind==='double_play')return[45,56];return[58,44];
 }
 function nearestFielder(def,target){let best=null,dist=1e9;for(const p of def){const xy=DEF_POS[p.pos];if(!xy)continue;const d=Math.hypot(xy[0]-target[0],xy[1]-target[1]);if(d<dist){dist=d;best=p;}}return best;}
 function endBase(play){const runners=play?.runners||[];const move=runners.map(r=>r?.movement?.end).filter(Boolean).at(-1);if(move)return baseKey(move)||'first';const desc=String(play?.result?.description||'').toLowerCase();if(desc.includes('to second'))return'second';if(desc.includes('to third'))return'third';if(desc.includes('home'))return'home';return'first';}
