@@ -1,0 +1,88 @@
+/* NHL v90.10 — visibility/layout guard for NFL-parity player modal.
+   The NHL modal intentionally mirrors the NFL visual composition, but must not
+   inherit fixed section heights from the NFL runtime stylesheet. */
+.tso-nhl-modal-backdrop .ms-modal.tso-mlb-player-shell{
+  min-height:0!important;
+  overflow:hidden!important;
+}
+.tso-nhl-modal-backdrop .tso-nhl-player-card-v909{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:100%!important;
+  overflow:hidden!important;
+}
+.tso-nhl-player-card-v909>.hdr{
+  flex:0 0 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+.tso-nhl-player-card-v909>.tso-nhl-scroll{
+  display:flex!important;
+  flex-direction:column!important;
+  flex:1 1 auto!important;
+  min-height:0!important;
+  height:auto!important;
+  max-height:none!important;
+  overflow-y:auto!important;
+  overflow-x:hidden!important;
+  overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;
+}
+.tso-nhl-player-card-v909 .tso-nhl-scroll>.sec{
+  display:block!important;
+  flex:0 0 auto!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+  contain:none!important;
+  content-visibility:visible!important;
+}
+.tso-nhl-player-card-v909 .tso-nhl-scroll>.foot{
+  display:block!important;
+  flex:0 0 auto!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  overflow:visible!important;
+}
+/* Keep all substantive section bodies in normal flow. */
+.tso-nhl-player-card-v909 .sec>.tso-nhl-verdict,
+.tso-nhl-player-card-v909 .sec>.tso-nfl-chart-host,
+.tso-nhl-player-card-v909 .sec>.sec-h,
+.tso-nhl-player-card-v909 .sec>.eng-grid,
+.tso-nhl-player-card-v909 .sec>.blurb,
+.tso-nhl-player-card-v909 .sec>.metrics,
+.tso-nhl-player-card-v909 .sec>.grid-cap,
+.tso-nhl-player-card-v909 .sec>.hand-matchup,
+.tso-nhl-player-card-v909 .sec>.tso-nfl-split,
+.tso-nhl-player-card-v909 .sec>.tso-nfl-data-viz,
+.tso-nhl-player-card-v909 .sec>.ab-sum,
+.tso-nhl-player-card-v909 .sec>.tso-nfl-table-note,
+.tso-nhl-player-card-v909 .sec>.ab-scroll,
+.tso-nhl-player-card-v909 .sec>.why-intro,
+.tso-nhl-player-card-v909 .sec>.phead,
+.tso-nhl-player-card-v909 .sec>.fac-head,
+.tso-nhl-player-card-v909 .sec>.fac-row,
+.tso-nhl-player-card-v909 .sec>.fac-foot{
+  position:relative!important;
+  max-height:none!important;
+  visibility:visible!important;
+  opacity:1!important;
+}
+/* Preserve rounded section edges without clipping vertically growing content. */
+.tso-nhl-player-card-v909 .sec{border-radius:10px!important}
+.tso-nhl-player-card-v909 .ab-scroll{overflow-x:auto!important;overflow-y:visible!important}
+.tso-nhl-player-card-v909 .tso-nfl-data-viz{overflow:visible!important}
+.tso-nhl-player-card-v909 .matchup-mix-sec{overflow:visible!important}
+@media(max-width:680px){
+  .tso-nhl-modal-backdrop .ms-modal.tso-mlb-player-shell{max-height:calc(100dvh - 16px)!important}
+  .tso-nhl-player-card-v909>.tso-nhl-scroll{padding-bottom:max(16px,env(safe-area-inset-bottom))!important}
+}
