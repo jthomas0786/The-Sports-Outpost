@@ -97,12 +97,4 @@ s = must_replace(s, "assert.ok(router.includes(\"./mlb/playstage-concept-v904.js
 s = must_replace(s, "assert.ok(router.includes('installMlbPlaystageConceptV904'),'Router must install approved MLB concept');", "assert.ok(router.includes('installMlbPlaystageConceptV904'),'Router must install approved MLB concept');\nassert.ok(router.includes('installMlbPlaystageConceptV905'),'Router must install v905 MLB concept');", 'v905 installer assertion')
 p.write_text(s)
 
-# 5) Make future edits to v905 run the existing Gamecast regression workflow too.
-p = Path('.github/workflows/nfl-gamecast-tests.yml')
-s = p.read_text()
-s = must_replace(s, "      - 'sports/mlb/playstage-concept-v904.js'", "      - 'sports/mlb/playstage-concept-v904.js'\n      - 'sports/mlb/playstage-concept-v905.js'", 'v905 workflow path')
-s = must_replace(s, "grep -F './sports/router.js?v=90.11' index.html", "grep -F './sports/router.js?v=90.12' index.html", 'workflow router marker')
-s = must_replace(s, "          grep -F \"./mlb/playstage-concept-v904.js?v=90.4\" sports/router.js", "          grep -F \"./mlb/playstage-concept-v904.js?v=90.4\" sports/router.js\n          grep -F \"./mlb/playstage-concept-v905.js?v=90.51\" sports/router.js\n          grep -F \"installMlbPlaystageConceptV905\" sports/router.js", 'workflow v905 graph')
-p.write_text(s)
-
 print('Applied MLB PlayStage v905 depth/perspective polish, cache busts and regression coverage.')
