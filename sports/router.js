@@ -112,9 +112,18 @@ async function swapView(active) {
 
   if (typeof window.DW_reloadChatForSport === 'function') window.DW_reloadChatForSport();
 
+  if (active === 'mlb') {
+    try {
+      const liveSwitcher = await import('./mlb/live-game-switcher-v901.js?v=90.18');
+      liveSwitcher.installMlbLiveGameSwitcherV901?.();
+    } catch (e) {
+      console.warn('[MLB Live] game switcher unavailable:', e);
+    }
+  }
+
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview-v893.js?v=89.20.2');
+      const mod = await import('./nfl-preview-v893.js?v=89.21');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
