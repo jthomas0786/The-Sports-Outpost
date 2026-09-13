@@ -1,0 +1,69 @@
+name: One-time NFL player modal readability production deploy v86.4
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-player-modal-readability-v864-prod.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Apply already-validated readability patch
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import textwrap
+
+          # Reuse the exact transformation that already passed syntax/contract
+          # validation in the first one-time job. Then restore the permanent CI
+          # workflow before committing so this production deploy does not need
+          # GitHub Actions workflow-write permission.
+          src=Path('.github/workflows/one-time-nfl-player-modal-readability-v864.yml').read_text()
+          start="          python3 - <<'PY'\n"
+          end="\n          PY\n\n      - name: Validate upgraded modal"
+          a=src.index(start)+len(start)
+          b=src.index(end,a)
+          code=textwrap.dedent(src[a:b])
+          exec(compile(code,'readability-patch.py','exec'),{})
+          PY
+          git restore .github/workflows/nfl-gamecast-tests.yml
+
+      - name: Validate production files
+        run: |
+          node --check sports/nfl-research-ui.js
+          node --check sports/router.js
+          grep -F './nfl-research-ui.js?v=86.4' sports/router.js
+          grep -F './sports/router.js?v=90.32' index.html
+          grep -F 'How to read this:' sports/nfl-research-ui.js
+          grep -F 'Recent scoring' sports/nfl-research-ui.js
+          grep -F 'Season scoring' sports/nfl-research-ui.js
+          grep -F 'TDs allowed last season' sports/nfl-research-ui.js
+          grep -F "if(ctx.key==='atd'||ctx.key==='firstTd') return atdVisualsHTML" sports/nfl-research-ui.js
+          node scripts/live-game-switcher-selftest.mjs
+
+      - name: Commit production files only
+        run: |
+          git config user.name "TSO NFL UI Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl-research-ui.js sports/router.js index.html
+          git diff --staged --quiet && echo "Already applied." && exit 0
+          git commit -m "Make NFL player matchup modal easier to read"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
