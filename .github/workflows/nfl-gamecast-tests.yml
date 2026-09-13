@@ -8,12 +8,14 @@ on:
       - 'sports/nfl/live.js'
       - 'sports/nfl/live-game-switcher-v894.js'
       - 'sports/mlb/live-game-switcher-v901.js'
+      - 'sports/mlb/playstage-v901.js'
       - 'sports/nfl/gamecast-field-state-v8912.js'
       - 'sports/nfl/gamecast-replay-lab-v8916.js'
       - 'sports/nfl-preview-v893.js'
       - 'sports/nfl/quarter-parlay-ui-v893.js'
       - 'sports/nfl/sim/quarter-board.js'
       - 'scripts/live-game-switcher-selftest.mjs'
+      - 'scripts/mlb-playstage-selftest.mjs'
       - 'scripts/nfl-v893-selftest.mjs'
       - 'scripts/nfl-quarter-selftest.mjs'
       - 'scripts/nfl-v8915-gamecast-motion-selftest.mjs'
@@ -39,12 +41,15 @@ jobs:
           node --check sports/nfl/live.js
           node --check sports/nfl/live-game-switcher-v894.js
           node --check sports/mlb/live-game-switcher-v901.js
+          node --check sports/mlb/playstage-v901.js
           node --check sports/nfl/gamecast-field-state-v8912.js
           node --check sports/nfl/gamecast-replay-lab-v8916.js
           node --check sports/nfl-preview-v893.js
           node --check sports/nfl/quarter-parlay-ui-v893.js
       - name: Live game switcher tests
         run: node scripts/live-game-switcher-selftest.mjs
+      - name: MLB PlayStage tests
+        run: node scripts/mlb-playstage-selftest.mjs
       - name: Parlay generator contract tests
         run: |
           node scripts/nfl-v893-selftest.mjs
