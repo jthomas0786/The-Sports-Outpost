@@ -37,8 +37,11 @@ for(const marker of [
   'On Deck',
 ]) assert.ok(src.includes(marker),`PlayStage missing ${marker}`);
 
+
+for(const marker of ['runnerMoves','currentRunners','seedRunners','ps-runner','ps-windup','outBaseSequence','nearestFielderAt','getBoundingClientRect']) assert.ok(src.includes(marker),`PlayStage polish missing ${marker}`);
+
 const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');
-assert.ok(router.includes("./mlb/playstage-v901.js?v=90.2"),'Router must cache-bust MLB PlayStage');
+assert.ok(router.includes("./mlb/playstage-v901.js?v=90.3"),'Router must cache-bust MLB PlayStage');
 assert.ok(router.includes('installMlbPlaystageV901'),'Router must install MLB PlayStage');
 
 console.log('MLB PlayStage regression: game data, Chibi renderer, animations, Statcast metrics and router wiring OK');
