@@ -28,8 +28,10 @@ function gameLabel(btn){
 }
 function collect(){
  const root=document.getElementById('nflView');if(!root||root.hidden)return [];
- for(const btn of root.querySelectorAll('.nfl-live-chip[data-nfl-open-game]')){
-  const item=gameLabel(btn);if(item.id)cache.set(item.id,item);
+ const buttons=[...root.querySelectorAll('.nfl-live-chip[data-nfl-open-game]')];
+ if(buttons.length){
+  cache.clear();
+  for(const btn of buttons){const item=gameLabel(btn);if(item.id)cache.set(item.id,item);}
  }
  const current=root.querySelector('[data-nfl-inline-gamecast]')?.getAttribute('data-nfl-inline-gamecast');
  if(current&&!cache.has(String(current))){
@@ -85,4 +87,4 @@ export function installNflLiveGameSwitcherV894(){
  observer=new MutationObserver(queue);observer.observe(document.body,{childList:true,subtree:true,characterData:true});
  window.addEventListener('hashchange',queue);queue();
 }
-export const __NFL_LIVE_SWITCHER_V894_TEST__={gameLabel,openGame};
+export const __NFL_LIVE_SWITCHER_V894_TEST__={gameLabel,openGame,collect};
