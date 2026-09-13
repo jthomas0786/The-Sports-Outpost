@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - 'sports/router.js'
+      - 'sports/player-modal-sticky-header-v901.js'
       - 'sports/mlb/player-modal-parity-v901.js'
       - 'sports/nhl/player-modal-v918.js'
       - 'sports/nhl/player-modal-v918.css'
@@ -27,6 +28,7 @@ jobs:
       - name: Syntax checks
         run: |
           node --check sports/router.js
+          node --check sports/player-modal-sticky-header-v901.js
           node --check sports/mlb/player-modal-parity-v901.js
           node --check sports/nhl/player-modal-v918.js
       - name: Player modal parity regression
