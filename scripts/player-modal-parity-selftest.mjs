@@ -68,7 +68,7 @@ assert.ok(nhlView.includes('installNhlPlayerModalV918'),'NHL view must install v
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'Router must cache-bust NHL v90.18');
 assert.ok(router.includes("./mlb/player-modal-parity-v901.js?v=90.2"),'Router must load hardened MLB NFL-parity modal');
 assert.ok(router.includes('installMlbPlayerModalParityV901'),'Router must install MLB modal parity enhancer');
-assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.1"),'Router must load shared sticky player header');
+assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.2"),'Router must load shared sticky player header');
 assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install sticky player headers for all sports');
 
 console.log('Player modal parity: NFL remains source of truth; MLB/NHL bars align and MLB/NFL/NHL headers stay fixed with a reserved Watch List action gutter.');
