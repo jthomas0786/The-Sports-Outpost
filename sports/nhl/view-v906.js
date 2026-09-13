@@ -1,6 +1,6 @@
 import * as base from './view.js?v=90.5';
 import {installNhlSlateV906} from './slate-v906.js?v=90.6.1';
-import {installNhlPlayerModalV913} from './player-modal-v913.js?v=90.13';
+import {installNhlPlayerModalV914} from './player-modal-v914.js?v=90.14';
 import {gradeForLean,gradeRingHTML} from './grade.js?v=90.4';
 
 function ensureNhlModalVisibilityV910(){
@@ -17,6 +17,6 @@ export async function mount(){
  const result=await base.mount();
  ensureNhlModalVisibilityV910();
  installNhlSlateV906({gradeForLean,gradeRingHTML});
- installNhlPlayerModalV913(document.getElementById('nhlView'));
+ installNhlPlayerModalV914(document.getElementById('nhlView'));
  return result;
 }
