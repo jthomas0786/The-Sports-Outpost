@@ -4,6 +4,7 @@ import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
 import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.16';
 import { installNflPropModelEdgeV8917 } from './nfl/prop-model-edge-v8917.js?v=89.17';
+import { installNflLiveGameSwitcherV894 } from './nfl/live-game-switcher-v894.js?v=89.4';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
@@ -32,6 +33,7 @@ async function refreshQuarterCta(){
 
 function arm(){
   try{mountNflParlayModalV893();}catch(e){console.warn('[NFL parlay modal v89.3] enhancement unavailable:',e);}
+  try{installNflLiveGameSwitcherV894();}catch(e){console.warn('[NFL Live v89.4] game switcher unavailable:',e);}
   // One active-game gate, one accepted-score renderer, one field renderer.
   // v89.8 and v89.13 remain in history but are intentionally NOT installed;
   // both previously mutated the same LOS/actors after v89.12 and created races.
