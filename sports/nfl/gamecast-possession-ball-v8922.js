@@ -10,20 +10,27 @@ function ensureStyles(){
   style.id=STYLE_ID;
   style.textContent=`
   #nflView .nxg-concept .nxg-posstext{display:none!important}
-  #nflView .nxg-concept .nxg-teamcopy b{display:inline-block!important;vertical-align:middle!important}
-  #nflView .nxg-concept .nxg-possession-ball{
-    display:none!important;
+  #nflView .nxg-concept .nxg-teamcopy .nxg-team-name-line{
+    display:flex!important;align-items:center!important;gap:8px!important;
+    margin:0!important;padding:0!important;line-height:1!important;
+    color:inherit!important;font:inherit!important;white-space:nowrap!important;
+  }
+  #nflView .nxg-concept .nxg-teamblock.away .nxg-team-name-line{justify-content:flex-start!important}
+  #nflView .nxg-concept .nxg-teamblock.home .nxg-team-name-line{justify-content:flex-end!important}
+  #nflView .nxg-concept .nxg-teamcopy .nxg-team-name-line>b{
+    display:inline-block!important;margin:0!important;vertical-align:middle!important;
+  }
+  #nflView .nxg-concept .nxg-teamcopy .nxg-possession-ball{
+    display:none!important;flex:0 0 auto!important;
     width:27px!important;height:18px!important;
-    margin-left:8px!important;
-    vertical-align:middle!important;
+    margin:0!important;padding:0!important;vertical-align:middle!important;
     align-items:center!important;justify-content:center!important;
     background:none!important;border:0!important;border-radius:0!important;
-    padding:0!important;box-shadow:none!important;
-    opacity:1!important;pointer-events:none!important;
-    transform:none!important;
+    box-shadow:none!important;opacity:1!important;pointer-events:none!important;
+    transform:none!important;color:inherit!important;font:inherit!important;
   }
-  #nflView .nxg-concept .nxg-possession-ball.is-active{display:inline-flex!important}
-  #nflView .nxg-concept .nxg-possession-ball svg{
+  #nflView .nxg-concept .nxg-teamcopy .nxg-possession-ball.is-active{display:inline-flex!important}
+  #nflView .nxg-concept .nxg-teamcopy .nxg-possession-ball svg{
     display:block!important;width:27px!important;height:18px!important;overflow:visible!important;
     opacity:1!important;transform:rotate(-8deg)!important;
     filter:drop-shadow(0 2px 2px rgba(0,0,0,.38))!important;
@@ -31,8 +38,9 @@ function ensureStyles(){
   #nflView .nxg-concept .nxg-possession-ball .ball{fill:#8a4f20;stroke:#f4eee4;stroke-width:2.4}
   #nflView .nxg-concept .nxg-possession-ball .seam{fill:none;stroke:#f4eee4;stroke-width:2.2;stroke-linecap:round}
   @media(max-width:900px){
-    #nflView .nxg-concept .nxg-possession-ball{width:24px!important;height:16px!important;margin-left:6px!important}
-    #nflView .nxg-concept .nxg-possession-ball svg{width:24px!important;height:16px!important}
+    #nflView .nxg-concept .nxg-teamcopy .nxg-team-name-line{gap:6px!important}
+    #nflView .nxg-concept .nxg-teamcopy .nxg-possession-ball{width:24px!important;height:16px!important}
+    #nflView .nxg-concept .nxg-teamcopy .nxg-possession-ball svg{width:24px!important;height:16px!important}
   }
   `;
   document.head.appendChild(style);
@@ -41,12 +49,35 @@ function ensureStyles(){
 function activeRoot(){return document.querySelector(ROOT);}
 function snapId(s){return String(s?.gameId||s?.id||'');}
 
-function ensureBadge(block,side){
+function ensureNameLine(block,side){
   if(!block)return null;
   const copy=block.querySelector('.nxg-teamcopy');
-  const name=copy?.querySelector('b');
-  if(!copy||!name)return null;
-  let badge=copy.querySelector(`.nxg-possession-ball[data-side="${side}"]`);
+  if(!copy)return null;
+  let line=copy.querySelector(':scope > .nxg-team-name-line');
+  let name=line?.querySelector(':scope > b')||copy.querySelector(':scope > b');
+  if(!name)return null;
+  if(!line){
+    line=document.createElement('span');
+    line.className='nxg-team-name-line';
+    copy.insertBefore(line,name);
+    line.appendChild(name);
+  }
+  line.dataset.side=side;
+  return {copy,line,name};
+}
+
+function ensureBadge(block,side){
+  const parts=ensureNameLine(block,side);
+  if(!parts)return null;
+  const {copy,line,name}=parts;
+
+  /* Remove badges left behind by older possession layouts. A live remount can keep
+     old DOM nodes around briefly, so the current line owns exactly one football. */
+  copy.querySelectorAll('.nxg-possession-ball').forEach(el=>{
+    if(el.parentElement!==line||el.dataset.side!==side)el.remove();
+  });
+
+  let badge=line.querySelector(`:scope > .nxg-possession-ball[data-side="${side}"]`);
   if(!badge){
     badge=document.createElement('span');
     badge.className='nxg-possession-ball';
@@ -55,19 +86,33 @@ function ensureBadge(block,side){
     badge.setAttribute('aria-label',side==='away'?'Away team possession':'Home team possession');
     badge.innerHTML=footballSvg;
   }
-  if(name.nextSibling!==badge)name.insertAdjacentElement('afterend',badge);
+
+  /* "Inside" means toward midfield: after the away-team name, before the home-team name. */
+  if(side==='away'){
+    if(name.nextElementSibling!==badge)name.insertAdjacentElement('afterend',badge);
+  }else{
+    if(name.previousElementSibling!==badge)name.insertAdjacentElement('beforebegin',badge);
+  }
   return badge;
 }
 
 function applyPossession(root,side){
   if(!root)return;
+
+  /* Hard exclusivity: clear every current or stale possession football first. */
+  root.querySelectorAll('.nxg-possession-ball').forEach(el=>{
+    el.classList.remove('is-active');
+    el.removeAttribute('aria-current');
+  });
+
   const away=ensureBadge(root.querySelector('.nxg-teamblock.away'),'away');
   const home=ensureBadge(root.querySelector('.nxg-teamblock.home'),'home');
   const valid=side==='away'||side==='home'?side:'';
-  away?.classList.toggle('is-active',valid==='away');
-  home?.classList.toggle('is-active',valid==='home');
-  if(away)away.setAttribute('aria-current',valid==='away'?'true':'false');
-  if(home)home.setAttribute('aria-current',valid==='home'?'true':'false');
+  const active=valid==='away'?away:valid==='home'?home:null;
+  active?.classList.add('is-active');
+  active?.setAttribute('aria-current','true');
+  if(away&&away!==active)away.setAttribute('aria-current','false');
+  if(home&&home!==active)home.setAttribute('aria-current','false');
   root.dataset.possessionBall=valid||'none';
 }
 
@@ -94,7 +139,16 @@ function scan(){
   const root=activeRoot();if(!root)return;
   ensureBadge(root.querySelector('.nxg-teamblock.away'),'away');
   ensureBadge(root.querySelector('.nxg-teamblock.home'),'home');
-  if(!root.dataset.possessionBall)seedFromCurrent(root);
+  const live=window.__TSO_NFL_LIVE_LATEST__;
+  const id=String(root.getAttribute('data-nfl-inline-gamecast')||'');
+  if(id&&live&&snapId(live)===id&&(live.possession==='away'||live.possession==='home')){
+    applyPossession(root,live.possession);
+  }else if(!root.dataset.possessionBall){
+    seedFromCurrent(root);
+  }else{
+    /* Re-assert exclusivity after DOM mutations without changing the known side. */
+    applyPossession(root,root.dataset.possessionBall);
+  }
 }
 function queue(){if(!raf)raf=requestAnimationFrame(scan);}
 
