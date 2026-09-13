@@ -13,6 +13,7 @@ on:
       - 'sports/nfl/live-game-switcher-v894.js'
       - 'sports/nfl/gamecast-live-fix-v898.js'
       - 'sports/nfl/gamecast-stage-guard-v899.js'
+      - 'sports/nfl/gamecast-possession-ball-v8922.js'
       - 'sports/nfl/quarter-parlay-ui-v893.js'
       - 'sports/mlb/live-game-switcher-v901.js'
       - 'sports/mlb/playstage-v901.js'
@@ -62,6 +63,7 @@ jobs:
           node --check sports/nfl/live-game-switcher-v894.js
           node --check sports/nfl/gamecast-live-fix-v898.js
           node --check sports/nfl/gamecast-stage-guard-v899.js
+          node --check sports/nfl/gamecast-possession-ball-v8922.js
           node --check sports/nfl/quarter-parlay-ui-v893.js
           node --check sports/mlb/live-game-switcher-v901.js
           node --check sports/mlb/playstage-v901.js
@@ -80,8 +82,8 @@ jobs:
           node --check sports/nfl/gamecast-replay-lab-v8916.js
       - name: NFL Live stability graph
         run: |
-          grep -F './sports/router.js?v=90.23' index.html
-          grep -F "./nfl-preview-v893.js?v=89.26" sports/router.js
+          grep -F './sports/router.js?v=90.24' index.html
+          grep -F "./nfl-preview-v893.js?v=89.27" sports/router.js
           grep -F "./nfl-preview-v890.js?v=89.20.5" sports/nfl-preview-v893.js
           grep -F "./nfl/live.js?v=89.21" sports/nfl-preview.js
           grep -F "activeId!==gameId" sports/nfl/live.js
@@ -89,6 +91,10 @@ jobs:
           grep -F "installNflGamecastLiveFixV898" sports/nfl-preview-v893.js
           grep -F "gamecast-stage-guard-v899.js?v=89.9" sports/nfl-preview-v893.js
           grep -F "installNflGamecastStageGuardV899" sports/nfl-preview-v893.js
+          grep -F "gamecast-possession-ball-v8922.js?v=89.22" sports/nfl-preview-v893.js
+          grep -F "installNflGamecastPossessionBallV8922" sports/nfl-preview-v893.js
+          grep -F 'nxg-posstext{display:none!important}' sports/nfl/gamecast-possession-ball-v8922.js
+          grep -F 'nxg-possession-ball' sports/nfl/gamecast-possession-ball-v8922.js
           grep -F 'data-tso-stage-art-ready' sports/nfl/gamecast-stage-guard-v899.js
           grep -F 'tso-ps886e__actorGraphic>svg' sports/nfl/gamecast-stage-guard-v899.js
           grep -F "removeAttribute('data-tso-v886c-gamecast')" sports/nfl-preview.js
@@ -96,7 +102,7 @@ jobs:
           grep -F "data.renderSig" sports/nfl/live-game-switcher-v894.js || grep -F "dataset.renderSig" sports/nfl/live-game-switcher-v894.js
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.23' index.html
+          grep -F './sports/router.js?v=90.24' index.html
           grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v904.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v905.js?v=90.51" sports/router.js
