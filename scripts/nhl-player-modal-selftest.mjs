@@ -1,0 +1,22 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {buildNhlPlayerContext,__NHL_PLAYER_MODAL_TEST__} from '../sports/nhl/player-modal-v907.js';
+
+const game={id:'g1',status:'pre',startTime:'2026-10-10T23:00:00Z',venue:'Test Arena',away:{abbr:'AWY'},home:{abbr:'HME'}};
+const player={id:'p1',name:'Test Skater',team:'AWY',position:'C',availability:'In game roster',current:{goals:0,sog:1,points:0,assists:0,blocks:0}};
+const research={players:{p1:{season:2026,games:82,rates:{goals:.4,sog:3.2,points:.9,assists:.5,blocks:.7},shootingPct:.125}}};
+const sim={games:[{gameId:'g1',ready:true,players:[{id:'p1',metrics:{goals:{mean:.8,median:1,atLeastOne:.7,distribution:[[0,.3],[1,.5],[2,.2]]},sog:{mean:3.6,median:3,distribution:[[2,.2],[3,.3],[4,.3],[5,.2]]}}}]}]};
+const odds={quotes:[{gameId:'g1',playerId:'p1',market:'atg',line:.5,over:150,under:-180,book:'fanduel',ts:Date.now()}]};
+const ctx=buildNhlPlayerContext({game,player,researchDoc:research,simDoc:sim,oddsDoc:odds,market:'atg'});
+assert.equal(Math.round(ctx.prob*100),70,'ATG probability must come from simulated final-goal distribution');
+assert.equal(ctx.grade,'A+','NHL modal must use NFL grade thresholds');
+assert.equal(ctx.baseline,.4);assert.equal(ctx.mean,.8);assert.equal(ctx.line,.5);assert.ok(ctx.edge!=null,'current two-sided odds should produce no-vig TSO edge');
+assert.deepEqual(__NHL_PLAYER_MODAL_TEST__.marketsFor(player),['atg','sog','points','assists','blocks']);
+assert.deepEqual(__NHL_PLAYER_MODAL_TEST__.marketsFor({...player,position:'G'}),['saves']);
+const buckets=__NHL_PLAYER_MODAL_TEST__.bucketDistribution({distribution:[[0,.3],[1,.5],[2,.2]]},.5);assert.equal(buckets.length,3);assert.equal(buckets[1].over,true);
+const js=fs.readFileSync('sports/nhl/player-modal-v907.js','utf8'),css=fs.readFileSync('sports/nhl/player-modal-v907.css','utf8'),wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8'),router=fs.readFileSync('sports/router.js','utf8');
+for(const marker of ['player-card-v2 tso-nfl-player-card-v70 tso-nfl-player-card-v72','TSO PROP VERDICT','Prop Outlook','Outcome Distribution','Production Quality','Matchup','Why','tsoNhlPropSelect','hk-slate-player','hk-prop-card'])assert.ok(js.includes(marker),`missing NHL modal parity marker: ${marker}`);
+for(const marker of ['max-width:760px','grid-template-columns:auto minmax(0,1fr) 232px','.tso-nhl-verdict','.tso-nhl-dist-chart','@media(max-width:680px)','@media(max-width:390px)'])assert.ok(css.includes(marker),`missing NFL-parity NHL modal style: ${marker}`);
+assert.ok(wrapper.includes("./player-modal-v907.js?v=90.7"));
+assert.ok(router.includes("./nhl/view-v906.js?v=90.7"));
+console.log('NHL player modal: NFL shell, prop selector, sportsbook context, model charts, grades and mobile layout passed');
