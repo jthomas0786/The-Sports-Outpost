@@ -16,5 +16,5 @@ const view=fs.readFileSync('sports/nhl/view.js','utf8'),wrapper=fs.readFileSync(
 for(const marker of ['data-hk-gc-tab="game"','data-hk-gc-tab="box"','data-hk-gc-tab="pbp"','renderNhlGamecastHTML','gamecastTab'])assert.ok(view.includes(marker),`missing NHL Gamecast parity marker: ${marker}`);
 for(const marker of ['.hk-gc-rink-wrap','.hk-gc-player','.hk-gc-puck','.hk-gc-tabs','@media(max-width:620px)'])assert.ok(css.includes(marker),`missing NHL Gamecast style: ${marker}`);
 assert.ok(wrapper.includes("./view.js?v=90.5"));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.12"));
+assert.ok(router.includes("./nhl/view-v906.js?v=90.13"));
 console.log('NHL Gamecast: NFL-style tabs, event-driven rink, participant attribution, PP state and responsive layout passed');
