@@ -9,25 +9,30 @@ function ensureStyles(){
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
-  #nflView .nxg-concept .nxg-teamblock{position:relative!important}
   #nflView .nxg-concept .nxg-posstext{display:none!important}
+  #nflView .nxg-concept .nxg-teamcopy b{display:inline-block!important;vertical-align:middle!important}
   #nflView .nxg-concept .nxg-possession-ball{
-    position:absolute!important;top:17px!important;width:50px!important;height:50px!important;
-    border:4px solid #a86529!important;border-radius:50%!important;box-sizing:border-box!important;
-    display:flex!important;align-items:center!important;justify-content:center!important;
-    background:rgba(139,82,32,.04)!important;opacity:.62!important;z-index:7!important;
-    box-shadow:inset 0 0 0 1px rgba(255,190,105,.08)!important;pointer-events:none!important;
-    transition:opacity .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease!important;
+    display:none!important;
+    width:27px!important;height:18px!important;
+    margin-left:8px!important;
+    vertical-align:middle!important;
+    align-items:center!important;justify-content:center!important;
+    background:none!important;border:0!important;border-radius:0!important;
+    padding:0!important;box-shadow:none!important;
+    opacity:1!important;pointer-events:none!important;
+    transform:none!important;
   }
-  #nflView .nxg-concept .nxg-teamblock.away .nxg-possession-ball{right:105px!important}
-  #nflView .nxg-concept .nxg-teamblock.home .nxg-possession-ball{left:105px!important}
-  #nflView .nxg-concept .nxg-possession-ball svg{width:32px!important;height:22px!important;overflow:visible!important;opacity:0!important;transform:scale(.78)!important;transition:opacity .16s ease,transform .16s ease!important;filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+  #nflView .nxg-concept .nxg-possession-ball.is-active{display:inline-flex!important}
+  #nflView .nxg-concept .nxg-possession-ball svg{
+    display:block!important;width:27px!important;height:18px!important;overflow:visible!important;
+    opacity:1!important;transform:rotate(-8deg)!important;
+    filter:drop-shadow(0 2px 2px rgba(0,0,0,.38))!important;
+  }
   #nflView .nxg-concept .nxg-possession-ball .ball{fill:#8a4f20;stroke:#f4eee4;stroke-width:2.4}
   #nflView .nxg-concept .nxg-possession-ball .seam{fill:none;stroke:#f4eee4;stroke-width:2.2;stroke-linecap:round}
-  #nflView .nxg-concept .nxg-possession-ball.is-active{opacity:1!important;background:rgba(154,90,35,.16)!important;box-shadow:0 0 14px rgba(180,104,39,.26),inset 0 0 0 1px rgba(255,205,139,.14)!important;transform:scale(1.03)!important}
-  #nflView .nxg-concept .nxg-possession-ball.is-active svg{opacity:1!important;transform:scale(1)!important}
   @media(max-width:900px){
-    #nflView .nxg-concept .nxg-possession-ball{top:17px!important}
+    #nflView .nxg-concept .nxg-possession-ball{width:24px!important;height:16px!important;margin-left:6px!important}
+    #nflView .nxg-concept .nxg-possession-ball svg{width:24px!important;height:16px!important}
   }
   `;
   document.head.appendChild(style);
@@ -38,7 +43,10 @@ function snapId(s){return String(s?.gameId||s?.id||'');}
 
 function ensureBadge(block,side){
   if(!block)return null;
-  let badge=block.querySelector(`.nxg-possession-ball[data-side="${side}"]`);
+  const copy=block.querySelector('.nxg-teamcopy');
+  const name=copy?.querySelector('b');
+  if(!copy||!name)return null;
+  let badge=copy.querySelector(`.nxg-possession-ball[data-side="${side}"]`);
   if(!badge){
     badge=document.createElement('span');
     badge.className='nxg-possession-ball';
@@ -46,8 +54,8 @@ function ensureBadge(block,side){
     badge.setAttribute('role','img');
     badge.setAttribute('aria-label',side==='away'?'Away team possession':'Home team possession');
     badge.innerHTML=footballSvg;
-    block.appendChild(badge);
   }
+  if(name.nextSibling!==badge)name.insertAdjacentElement('afterend',badge);
   return badge;
 }
 
