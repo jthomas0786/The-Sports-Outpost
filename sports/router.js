@@ -15,7 +15,7 @@
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
-import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.1';
+import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.2';
 
 /** MLB-owned containers that must hide when another sport's view is showing. */
 const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .status-bar'];
@@ -50,7 +50,7 @@ function renderPills(active) {
         const cls = ['sport-dd-item', isActive ? 'active' : '', enabled ? '' : 'soon']
           .filter(Boolean).join(' ');
         return `<button type="button" class="${cls}" data-sport="${key}"${enabled ? '' : ' disabled'}>` +
-          `<span class="sport-dd-item-name">${activeInfo && key === active ? s.brand : s.brand}</span>` +
+          `<span class="sport-dd-item-name">${s.brand}</span>` +
           `${enabled ? '' : `<span class="sport-pill-soon">${comingSoonNote(key)}</span>`}` +
           `</button>`;
       }).join('') +
