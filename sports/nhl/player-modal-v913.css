@@ -1,0 +1,42 @@
+@import url('./player-modal-v912.css?v=90.12');
+/* NHL v90.13 — hard-lock recent-game bar geometry to NFL/MLB full-column bars. */
+.tso-nhl-player-card-v912 .tso-nhl-history-bars>.b{
+  position:relative!important;
+  display:grid!important;
+  grid-template-rows:minmax(0,1fr) 34px!important;
+  flex:1 1 0!important;
+  min-width:0!important;
+  height:100%!important;
+}
+.tso-nhl-player-card-v912 .tso-nhl-history-bars .plot{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  padding:18px 0 0!important;
+  border-bottom:1px solid rgba(120,176,239,.14)!important;
+  overflow:visible!important;
+}
+.tso-nhl-player-card-v912 .tso-nhl-history-bars .plot>.tso-nhl-game-bar{
+  position:absolute!important;
+  left:0!important;
+  right:0!important;
+  bottom:0!important;
+  width:auto!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:var(--nhl-bar-h)!important;
+  min-height:5px!important;
+  margin:0!important;
+  border-radius:5px 5px 0 0!important;
+}
+/* L5 should read exactly like NFL: five broad game columns, not five skinny sticks. */
+.tso-nhl-player-card-v912 .tso-nhl-history-bars[style*="gap:6px"]>.b .plot>.tso-nhl-game-bar{
+  left:0!important;
+  right:0!important;
+}
+@media(max-width:680px){
+  .tso-nhl-player-card-v912 .tso-nhl-history-bars .plot>.tso-nhl-game-bar{left:0!important;right:0!important}
+}
