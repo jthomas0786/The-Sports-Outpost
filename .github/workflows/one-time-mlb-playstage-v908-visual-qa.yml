@@ -1,0 +1,91 @@
+name: One-time MLB PlayStage v908 visual QA
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-playstage-v908-visual-qa.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install headless browser
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install chromium
+      - name: Build real-feed v908 PlayStage harness
+        run: |
+          GAME_PK=$(node --input-type=module - <<'NODE'
+          const dates=[1,2,3,4,5].map(n=>new Date(Date.now()-n*86400000).toISOString().slice(0,10));
+          let picked='';
+          for(const date of dates){
+            const r=await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}`);
+            const j=await r.json();
+            const games=(j.dates||[]).flatMap(d=>d.games||[]);
+            const g=games.find(x=>/final|completed|game over/i.test(x.status?.detailedState||''))||games[0];
+            if(g?.gamePk){picked=String(g.gamePk);break;}
+          }
+          if(!picked) process.exit(2);
+          console.log(picked);
+          NODE
+          )
+          cat > visual-qa-v908.html <<EOF
+          <!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>PlayStage v908 QA</title><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial,sans-serif}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:720px}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div><script type="module">
+          import {installMlbPlaystageV901} from './sports/mlb/playstage-v901.js?v=qa908';
+          import {installMlbPlaystageConceptV904} from './sports/mlb/playstage-concept-v904.js?v=qa908';
+          import {installMlbPlaystageConceptV905} from './sports/mlb/playstage-concept-v905.js?v=qa908';
+          import {installMlbPlaystageConceptV906} from './sports/mlb/playstage-concept-v906.js?v=qa908';
+          import {installMlbPlaystageConceptV907} from './sports/mlb/playstage-concept-v907.js?v=qa908';
+          import {installMlbPlaystageConceptV908} from './sports/mlb/playstage-concept-v908.js?v=qa908';
+          installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();
+          </script></body></html>
+          EOF
+      - name: Render v908 component and articulation states
+        run: |
+          python3 -m http.server 4173 >/tmp/tso-qa-http.log 2>&1 & SERVER_PID=$!
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright'; import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1536,height:960},deviceScaleFactor:1});
+          page.on('console',m=>console.log('[browser]',m.type(),m.text()));
+          await page.goto('http://127.0.0.1:4173/visual-qa-v908.html',{waitUntil:'domcontentloaded'});
+          await page.waitForSelector('.tso-mlb-playstage-v901.tso-mlb-concept-v908',{timeout:30000}); await page.waitForTimeout(3600);
+          const root=page.locator('.tso-mlb-playstage-v901'),stage=page.locator('.ps-stage');
+          await root.screenshot({path:'mlb-playstage-v908-qa.png'}); await stage.screenshot({path:'mlb-playstage-v908-stage.png'});
+          const clear=()=>document.querySelectorAll('.ps-chibi').forEach(el=>el.classList.remove('ps-windup','ps-throwing','ps-swing','ps-running','ps-catching','ps905-tracking','ps905-grounder','ps905-turn','ps905-catcher-throw','ps905-slide','ps905-tag','ps905-rounding','ps906-transfer'));
+          const snap=async(name,setup,delay=260)=>{await page.evaluate(clear);await page.evaluate(setup);await page.waitForTimeout(delay);await stage.screenshot({path:`mlb-playstage-v908-${name}.png`});};
+          await snap('pitch',()=>{document.querySelector('.ps-chibi.ps-pitcher')?.classList.add('ps-windup','ps-throwing');},280);
+          await snap('swing',()=>{document.querySelector('.ps-chibi.ps-batter')?.classList.add('ps-swing');},310);
+          await snap('fly-catch',()=>{document.querySelector('.ps-chibi[data-pos="CF"],.ps-chibi[data-pos="LF"],.ps-chibi[data-pos="RF"]')?.classList.add('ps-running','ps905-tracking','ps-catching');},340);
+          await snap('grounder-throw',()=>{document.querySelector('.ps-chibi[data-pos="SS"],.ps-chibi[data-pos="2B"],.ps-chibi[data-pos="3B"]')?.classList.add('ps905-grounder','ps-throwing','ps906-transfer');},350);
+          await snap('double-play',()=>{document.querySelector('.ps-chibi[data-pos="2B"],.ps-chibi[data-pos="SS"]')?.classList.add('ps905-turn','ps-throwing','ps906-transfer');},350);
+          await snap('catcher-throw',()=>{document.querySelector('.ps-chibi.ps-catcher')?.classList.add('ps905-catcher-throw','ps-throwing');},380);
+          const state=await page.evaluate(()=>({concept:document.querySelector('.tso-mlb-playstage-v901')?.dataset?.approvedConcept,scene:document.querySelectorAll('.ps907-scene').length,foreground:document.querySelectorAll('.ps908-foreground').length,batter:document.querySelectorAll('.ps908-batter').length,catcher:document.querySelectorAll('.ps908-catcher').length,umpire:document.querySelectorAll('.ps908-umpire').length,rigs:document.querySelectorAll('.ps905-rig').length,headshots:document.querySelectorAll('.ps-headshot img').length,live:!!document.querySelector('.ps-live'),weather:!!document.querySelector('.ps-weather'),right:!!document.querySelector('.ps-right'),truth:document.querySelector('.ps-truth')?.textContent||''}));
+          fs.writeFileSync('mlb-playstage-v908-qa.json',JSON.stringify(state,null,2)); console.log(state);
+          if(state.concept!=='v908'||state.scene!==1||state.foreground!==1||state.batter!==1||state.catcher!==1||state.umpire!==1||state.rigs<8||state.headshots<2||!state.live||!state.weather||!state.right) process.exitCode=3;
+          await browser.close();
+          NODE
+          kill $SERVER_PID || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mlb-playstage-v908-visual-qa
+          path: |
+            mlb-playstage-v908-qa.png
+            mlb-playstage-v908-stage.png
+            mlb-playstage-v908-pitch.png
+            mlb-playstage-v908-swing.png
+            mlb-playstage-v908-fly-catch.png
+            mlb-playstage-v908-grounder-throw.png
+            mlb-playstage-v908-double-play.png
+            mlb-playstage-v908-catcher-throw.png
+            mlb-playstage-v908-qa.json
+          retention-days: 2
