@@ -60,6 +60,7 @@ function ensureStyle(){
    bottom:auto!important;
    left:auto!important;
    margin:0!important;
+   transform:none!important;
    flex:0 0 auto!important;
  }
  .player-card-v2.${CARD_CLASS}>.hdr>.${ACTIONS_CLASS}>.${WATCH_CLASS}{order:1!important}
@@ -86,14 +87,19 @@ function watchButton(card){
  return buttons.find(isWatchButton)||null;
 }
 
+function resetActionButton(btn){
+ if(!btn)return;
+ for(const [prop,value] of [['position','relative'],['top','auto'],['right','auto'],['bottom','auto'],['left','auto'],['margin','0'],['transform','none']])imp(btn,prop,value);
+}
+
 function ensureActions(card,hdr){
  let actions=hdr.querySelector(`:scope > .${ACTIONS_CLASS}`);
  if(!actions){actions=document.createElement('div');actions.className=ACTIONS_CLASS;hdr.appendChild(actions);}
  const modal=card.closest('.ms-modal');
  const close=card.querySelector(':scope > .modal-close')||hdr.querySelector(':scope > .modal-close')||modal?.querySelector(':scope > .modal-close');
  const watch=watchButton(card);
- if(watch){watch.classList.add(WATCH_CLASS);if(watch.parentElement!==actions)actions.appendChild(watch);}
- if(close&&close.parentElement!==actions)actions.appendChild(close);
+ if(watch){watch.classList.add(WATCH_CLASS);resetActionButton(watch);if(watch.parentElement!==actions)actions.appendChild(watch);}
+ if(close){resetActionButton(close);if(close.parentElement!==actions)actions.appendChild(close);}
  actions.dataset.hasWatch=watch?'1':'0';
  return actions;
 }
@@ -178,4 +184,4 @@ export function installPlayerModalStickyHeaderV901(){
  queue();
 }
 
-export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={isWatchButton,watchButton,ensureActions,ensureBody,layoutHeader,prepareCard};
+export const __PLAYER_MODAL_STICKY_HEADER_V901_TEST__={isWatchButton,watchButton,resetActionButton,ensureActions,ensureBody,layoutHeader,prepareCard};
