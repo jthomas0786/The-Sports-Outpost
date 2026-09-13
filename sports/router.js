@@ -6,13 +6,11 @@
  *   adapterReady — the sport is blessed; its switcher pill is enabled.
  *   uiReady      — a view exists and can be rendered behind a #hash.
  *
- * So an unblessed-but-built sport (NFL right now) is reachable at #nfl for QA
- * and renders a "preview" banner, while its pill stays disabled so nobody is
- * routed there by accident.
+ * So an unblessed-but-built sport (NFL right now) is reachable at #hash and
+ * renders its preview while its pill can still remain disabled.
  *
  * View swapping is additive: the MLB experience keeps its exact DOM, and we only
- * toggle `hidden` on its containers vs the #nflView container. No existing CSS
- * class or DOM id is renamed or removed.
+ * toggle `hidden` on its containers vs the sport-specific view containers.
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
@@ -101,7 +99,7 @@ async function swapView(active) {
   setVisible(nflView, active === 'nfl');
   setVisible(document.getElementById('nhlView'), active === 'nhl');
   if(active === 'nhl'){
-    try { await (await import('./nhl/view-v906.js?v=90.17')).mount(); }
+    try { await (await import('./nhl/view-v906.js?v=90.18')).mount(); }
     catch { document.getElementById('nhlView').textContent='Hockey is temporarily unavailable. Please try again shortly.'; }
   }
   setVisible(document.getElementById('nflSideNav'), false);
@@ -114,10 +112,14 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const liveSwitcher = await import('./mlb/live-game-switcher-v901.js?v=90.22');
+      const [liveSwitcher,playerParity] = await Promise.all([
+        import('./mlb/live-game-switcher-v901.js?v=90.22'),
+        import('./mlb/player-modal-parity-v901.js?v=90.1')
+      ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
+      playerParity.installMlbPlayerModalParityV901?.();
     } catch (e) {
-      console.warn('[MLB Live] game switcher unavailable:', e);
+      console.warn('[MLB] enhancement unavailable:', e);
     }
   }
 
