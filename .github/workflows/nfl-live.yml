@@ -44,6 +44,7 @@ jobs:
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+          NFL_HALFTIME_PREFETCH_MINUTES: 8
         run: node scripts/nfl-halftime-window-refresh.mjs
 
       - name: Run priority Q2 / halftime simulation
@@ -62,7 +63,7 @@ jobs:
             const period=Number(g?.period);
             const clock=Number(g?.clockMin);
             const active=status==='in'||status==='live';
-            const inWindow=active && ((period===2 && Number.isFinite(clock) && clock<=5.05) || /half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail));
+            const inWindow=active && ((period===2 && Number.isFinite(clock) && clock<=8.05) || /half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail));
             if(inWindow) ids.push(id);
           }
           process.stdout.write(ids.join(','));
