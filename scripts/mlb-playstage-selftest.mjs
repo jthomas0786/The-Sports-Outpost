@@ -43,8 +43,26 @@ for(const marker of ['runnerMoves','currentRunners','seedRunners','ps-runner','p
 
 for(const marker of ['latestEvent','pitchInfo','wireStageTabs','data-ps-tab','data-ps-panel','boxRailHTML','fieldRailHTML']) assert.ok(src.includes(marker),`PlayStage finish missing ${marker}`);
 
+const concept=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v904.js',import.meta.url),'utf8');
+for(const marker of [
+  'tso-mlb-concept-v904',
+  'ps3d-rig',
+  'ps3d-stadium',
+  'ps3d-scoreboard',
+  'ps3d-face',
+  'ps3d-bat',
+  'ps3d-glove',
+  'ps3dWindupBody',
+  'ps3dThrowArm',
+  'ps3dSwingBody',
+  'ps3dRunBob',
+  'ps3dCatchBody',
+]) assert.ok(concept.includes(marker),`Approved concept missing ${marker}`);
+
 const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.4"),'Router must cache-bust MLB PlayStage');
+assert.ok(router.includes("./mlb/playstage-concept-v904.js?v=90.4"),'Router must load approved MLB concept');
 assert.ok(router.includes('installMlbPlaystageV901'),'Router must install MLB PlayStage');
+assert.ok(router.includes('installMlbPlaystageConceptV904'),'Router must install approved MLB concept');
 
 console.log('MLB PlayStage regression: game data, Chibi renderer, animations, Statcast metrics and router wiring OK');
