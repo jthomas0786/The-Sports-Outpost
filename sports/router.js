@@ -158,7 +158,7 @@ async function swapView(active) {
         window.DW_nflPreviewPendingTab = null;
       }
       try {
-        const researchUi = await import('./nfl-research-ui.js?v=86.3');
+        const researchUi = await import('./nfl-research-ui.js?v=86.4');
         await researchUi.mountNflResearchUI(nflView);
         try {
           const altProps = await import('./nfl-alt-props-v892.js?v=89.2');
