@@ -10,9 +10,11 @@ const palette=t=>COLORS[String(t?.abbr||'').toUpperCase()]||['#2d7fff','#9ed7ff'
 const kindText={goal:'Goal',shot:'Shot on goal',save:'Save',block:'Blocked shot',miss:'Missed shot',faceoff:'Faceoff',penalty:'Penalty',hit:'Hit',takeaway:'Takeaway',giveaway:'Giveaway',stoppage:'Stoppage',live:'Live play',pregame:'Pregame',intermission:'Intermission',final:'Final'};
 export function eventKind(play={},game={}){
  if(game.status==='pre')return 'pregame';if(game.status==='post')return 'final';
- const s=`${play.type||''} ${play.text||''}`.toLowerCase();
+ const type=String(play.type||'').trim().toLowerCase(),text=String(play.text||'').toLowerCase(),s=`${type} ${text}`;
  if(/intermission|end of.*period/.test(s))return 'intermission';
- if(/goal/.test(s))return 'goal';if(/blocked shot|shot blocked/.test(s))return 'block';if(/missed shot|shot missed/.test(s))return 'miss';if(/save/.test(s))return 'save';if(/shot/.test(s))return 'shot';if(/faceoff/.test(s))return 'faceoff';if(/penalty/.test(s))return 'penalty';if(/hit/.test(s))return 'hit';if(/takeaway/.test(s))return 'takeaway';if(/giveaway/.test(s))return 'giveaway';if(/stoppage|whistle/.test(s))return 'stoppage';return 'live';
+ if(/blocked shot|shot blocked/.test(s))return 'block';if(/missed shot|shot missed/.test(s))return 'miss';if(/save/.test(s))return 'save';
+ if(type==='goal'||type.endsWith(' goal')||/\b(scores|scored|goal by)\b/.test(text))return 'goal';
+ if(/shot on goal|\bshot\b/.test(s))return 'shot';if(/faceoff/.test(s))return 'faceoff';if(/penalty/.test(s))return 'penalty';if(/hit/.test(s))return 'hit';if(/takeaway/.test(s))return 'takeaway';if(/giveaway/.test(s))return 'giveaway';if(/stoppage|whistle/.test(s))return 'stoppage';return 'live';
 }
 const sideFor=(g,abbr)=>String(g?.away?.abbr)===String(abbr)?'away':String(g?.home?.abbr)===String(abbr)?'home':null;
 const preferredParticipant=(p={})=>{
@@ -50,9 +52,9 @@ function actor(g,side,i,pos,{featured=false,short=false,goalie=false}={}){
 function rinkSvg(){return `<svg class="hk-gc-rink" viewBox="0 0 1000 430" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="hkIce" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#effaff"/><stop offset=".55" stop-color="#e4f3f8"/><stop offset="1" stop-color="#d7eaf1"/></linearGradient></defs><rect class="ice" x="13" y="13" width="974" height="404" rx="55"/><rect class="board" x="13" y="13" width="974" height="404" rx="55"/><rect class="glass" x="22" y="22" width="956" height="386" rx="47"/><line class="red" x1="500" y1="20" x2="500" y2="410"/><line class="blue" x1="335" y1="20" x2="335" y2="410"/><line class="blue" x1="665" y1="20" x2="665" y2="410"/><circle class="thin" cx="500" cy="215" r="60"/><circle class="dot" cx="500" cy="215" r="6"/><circle class="thin" cx="205" cy="125" r="48"/><circle class="thin" cx="205" cy="305" r="48"/><circle class="thin" cx="795" cy="125" r="48"/><circle class="thin" cx="795" cy="305" r="48"/><circle class="dot" cx="205" cy="125" r="5"/><circle class="dot" cx="205" cy="305" r="5"/><circle class="dot" cx="795" cy="125" r="5"/><circle class="dot" cx="795" cy="305" r="5"/><path class="crease" d="M75 175 Q145 215 75 255Z"/><path class="crease" d="M925 175 Q855 215 925 255Z"/><path class="goal" d="M45 180 L75 180 L75 250 L45 250Z"/><path class="goal" d="M955 180 L925 180 L925 250 L955 250Z"/></svg>`;}
 function actors(g,s){
  const attack=s.attacking||'away',def=attack==='away'?'home':'away',aSpots=eventSpots(attack,s.kind),dSpots=eventSpots(def,['shot','save','goal','block','miss'].includes(s.kind)?'live':s.kind);
- const featuredSide=sideFor(g,s.play.team)||attack;let html='';
- for(let i=0;i<5;i++)html+=actor(g,attack,i,aSpots[i],{featured:i===0&&featuredSide===attack});
- for(let i=0;i<5;i++){const short=s.ppSide===attack&&i===4;html+=actor(g,def,i,dSpots[i],{featured:i===0&&featuredSide===def,short});}
+ const featuredSide=sideFor(g,s.play.team)||attack,shortSide=s.ppSide?(s.ppSide==='away'?'home':'away'):null;let html='';
+ for(let i=0;i<5;i++)html+=actor(g,attack,i,aSpots[i],{featured:i===0&&featuredSide===attack,short:shortSide===attack&&i===4});
+ for(let i=0;i<5;i++)html+=actor(g,def,i,dSpots[i],{featured:i===0&&featuredSide===def,short:shortSide===def&&i===4});
  html+=actor(g,'away','g',{x:7,y:50},{goalie:true});html+=actor(g,'home','g',{x:93,y:50},{goalie:true});return html;
 }
 function puck(s){
