@@ -6,9 +6,12 @@ on:
     paths:
       - 'sports/router.js'
       - 'sports/nfl/live.js'
+      - 'sports/nfl/live-game-switcher-v894.js'
+      - 'sports/mlb/live-game-switcher-v901.js'
       - 'sports/nfl/gamecast-field-state-v8912.js'
       - 'sports/nfl/gamecast-replay-lab-v8916.js'
       - 'sports/nfl-preview-v893.js'
+      - 'scripts/live-game-switcher-selftest.mjs'
       - 'scripts/nfl-v8915-gamecast-motion-selftest.mjs'
       - 'scripts/nfl-v8916-live-personnel-selftest.mjs'
       - 'scripts/nfl-v8916-replay-lab-selftest.mjs'
@@ -30,9 +33,13 @@ jobs:
         run: |
           node --check sports/router.js
           node --check sports/nfl/live.js
+          node --check sports/nfl/live-game-switcher-v894.js
+          node --check sports/mlb/live-game-switcher-v901.js
           node --check sports/nfl/gamecast-field-state-v8912.js
           node --check sports/nfl/gamecast-replay-lab-v8916.js
           node --check sports/nfl-preview-v893.js
+      - name: Live game switcher tests
+        run: node scripts/live-game-switcher-selftest.mjs
       - name: Motion planner tests
         run: node scripts/nfl-v8915-gamecast-motion-selftest.mjs
       - name: Live personnel tests
