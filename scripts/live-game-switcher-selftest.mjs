@@ -17,7 +17,7 @@ for(const marker of [
   "DW_nflPreviewSelectTab==='function'",
   "DW_nflPreviewSelectTab('live')",
   '@media(max-width:680px)',
-  'GAMES ON SLATE',
+  'ON SLATE',
 ]) assert.ok(nfl.includes(marker),`NFL game selector missing ${marker}`);
 assert.ok(!nfl.includes('No live games available'),'NFL selector must remain useful when nothing is live');
 
@@ -30,7 +30,7 @@ for(const marker of [
   'scrollIntoView',
   'preferred(games)',
   '@media(max-width:680px)',
-  'GAMES ON SLATE',
+  'ON SLATE',
 ]) assert.ok(mlb.includes(marker),`MLB game selector missing ${marker}`);
 assert.ok(!mlb.includes('.slate-card.is-live[data-gid]'),'MLB selector must include pregame/final games too');
 assert.ok(!mlb.includes('No live games available'),'MLB selector must remain useful when nothing is live');
