@@ -91,19 +91,20 @@ function possessionEP(yardFromOwn, isRedZone, remMin) {
  */
 export function liveWinProb(game) {
   const away = game.away || {}, home = game.home || {};
-  const awayScore = Number(away.score) || 0;
-  const homeScore = Number(home.score) || 0;
-  const status = game.status || '';
   const ls = game.liveScore || {};
+  const awayScore = Number(ls.awayScore ?? away.score) || 0;
+  const homeScore = Number(ls.homeScore ?? home.score) || 0;
+  const status = String(ls.status || game.status || '').toLowerCase();
+  const detail = String(ls.statusDetail || game.statusDetail || '');
   const pAwayPre = pregameAwayProb(game);
 
   // Final → winner takes all (a tie resolves to the pre-game prior).
-  if (status === 'post' || /Final|Game Over/i.test(game.statusDetail || '')) {
+  if (status === 'post' || /Final|Game Over/i.test(detail)) {
     const dec = awayScore === homeScore ? pAwayPre : (awayScore > homeScore ? 1 : 0);
     return { awayPct: dec, homePct: 1 - dec, projTotal: null };
   }
   // Not started → pre-game prior; project a neutral total from the full game.
-  if (status === 'pre' || !ls.period || ls.period < 1) {
+  if (!ls.period || ls.period < 1) {
     const proj = awayScore + homeScore + 0.74 * 60;
     return { awayPct: pAwayPre, homePct: 1 - pAwayPre, projTotal: proj };
   }
@@ -125,8 +126,11 @@ export function liveWinProb(game) {
 
   // Possession edge (away's perspective): +EP if away has the ball, -EP if home does.
   const ep = possessionEP(ls.yardFromOwn, ls.isRedZone, remMin);
-  const possessionEdge = ls.possession === 'away' ? +ep
-    : ls.possession === 'home' ? -ep : 0;
+  const possRaw=String(ls.possession ?? game.possession ?? '').toUpperCase();
+  const awayAbbr=String(away.abbr||away.code||'').toUpperCase(),homeAbbr=String(home.abbr||home.code||'').toUpperCase();
+  const possSide=possRaw==='AWAY'||possRaw===awayAbbr?'away':possRaw==='HOME'||possRaw===homeAbbr?'home':String(ls.possession||'').toLowerCase();
+  const possessionEdge = possSide === 'away' ? +ep
+    : possSide === 'home' ? -ep : 0;
 
   const awayLead = awayScore - homeScore;
   const edge = awayLead + priorEdge + possessionEdge;

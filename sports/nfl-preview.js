@@ -1,5 +1,5 @@
 import { touchdownScorer } from './nfl/td-scorer.js?v=89.20.2';
-import { mountOrUpdateNflPlaystageV886E, renderNflPlaystageV886EHTML } from './nfl/playstage-v886e.js?v=88.6e';
+import { mountOrUpdateNflPlaystageV886E, renderNflPlaystageV886EHTML } from './nfl/playstage-v886e.js?v=89.34';
 import { ensureNflPlaystageV886EStyles } from './nfl/gamecast-v886e-styles.js?v=88.6e';
 import { startLivePolling, refreshLiveNow } from './nfl/live.js?v=89.21';
 import { ensureHalftimeLabStyles, halftimeBannerHTML, halftimeGamecastBannerHTML, isHalftimeGameState, openHalftimeParlayLab, startHalftimeBoardPolling } from './nfl/halftime-ui-v884.js?v=89.33';

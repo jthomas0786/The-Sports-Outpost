@@ -1,5 +1,6 @@
 
 import { ensureNflPlaystageV886EStyles } from './gamecast-v886e-styles.js';
+import { liveWinProb } from './winprob.js?v=89.34';
 
 const TEAM_COLORS={NE:['#002244','#C60C30'],SEA:['#002244','#69BE28'],BUF:['#00338D','#C60C30'],KC:['#E31837','#FFB81C'],BAL:['#241773','#000000'],CIN:['#FB4F14','#000000'],DAL:['#003594','#041E42'],PHI:['#004C54','#A5ACAF'],SF:['#AA0000','#B3995D'],GB:['#203731','#FFB612'],DET:['#0076B6','#B0B7BC'],CHI:['#0B162A','#C83803'],PIT:['#101820','#FFB612'],NYG:['#0B2265','#A71930'],NYJ:['#125740','#FFFFFF'],MIA:['#008E97','#FC4C02'],TB:['#D50A0A','#34302B'],MIN:['#4F2683','#FFC62F'],NO:['#D3BC8D','#101820'],LAC:['#0080C6','#FFC20E'],DEN:['#FB4F14','#002244'],LV:['#000000','#A5ACAF'],ARI:['#97233F','#000000'],ATL:['#A71930','#000000'],CAR:['#0085CA','#101820'],CLE:['#311D00','#FF3C00'],HOU:['#03202F','#A71930'],IND:['#002C5F','#A2AAAD'],JAX:['#006778','#101820'],LA:['#003594','#FFA300'],TEN:['#0C2340','#4B92DB'],WAS:['#5A1414','#FFB612']};
 
@@ -70,7 +71,7 @@ function play(g,opts={}){
       {text:'4-yd rush',dd:'1st & 10',fp:'NE 30'},
       {text:'Current Play',dd:dd(g),fp:fp(g),current:true}
     ],
-    chart:Array.isArray(p.chart)&&p.chart.length?p.chart:[44,46,45,48,47,53,49,52,55,58,57,61,63,66,68]
+    chart:Array.isArray(p.chart)&&p.chart.length?p.chart:[]
   };
 }
 
@@ -298,7 +299,13 @@ function routeSvg(F){
 }
 
 function buildAvatar(head,n){return head?`<img src="${esc(head)}" alt="${esc(n)}">`:`<span class="init">${init(n)}</span>`}
-function winProb(g){const a=clamp(g?.winProbAway??g?.liveScore?.winProbAway??68,0,100);return{away:Math.round(a),home:Math.round(100-a)}}
+function probPct(v){const n=Number(v);return Number.isFinite(n)?clamp(n<=1?n*100:n,0,100):null}
+function winProb(g){
+  const explicit=probPct(g?.winProbAway??g?.liveScore?.winProbAway??g?.winProbability?.away??g?.liveScore?.winProbability?.away??g?.winProb?.away);
+  if(explicit!=null)return{away:Math.round(explicit),home:Math.round(100-explicit)};
+  try{const modeled=liveWinProb(g),a=probPct(modeled?.awayPct);if(a!=null)return{away:Math.round(a),home:Math.round(100-a)}}catch{}
+  return{away:50,home:50};
+}
 function chartPath(vals){return vals.map((v,i)=>`${i?'L':'M'}${(i*100/Math.max(1,vals.length-1)).toFixed(2)} ${(80-clamp(v,0,100)*.62).toFixed(2)}`).join(' ')}
 function halftime(h){if(h?.ready)return{t:'Halftime Lab Ready',s:`${h.games||h.gameCount||1} games loaded`};if(h?.warming||h?.eligibleGames?.length)return{t:'Halftime Lab Warming Up',s:'2:00 warning automation active'};return{t:'Halftime Lab Monitoring',s:'Auto-arms near the 2:00 mark in Q2'}}
 
@@ -335,7 +342,7 @@ export function renderNflPlaystageV886EHTML(game,opts={}){
       <article class="tso-ps886e__panel">
         <div class="tso-ps886e__title">Win Probability</div>
         <div class="tso-ps886e__wp"><span>${name(game,'away')} ${W.away}%</span><span>${W.home}% ${name(game,'home')}</span></div>
-        <div class="tso-ps886e__chart"><svg viewBox="0 0 100 80" preserveAspectRatio="none"><path d="${chartPath(P.chart)}" fill="none" stroke="#22afff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="96" cy="${80-clamp((P.chart||[]).slice(-1)[0]||50,0,100)*.62}" r="3.5" fill="#61c9ff"/></svg></div>
+        <div class="tso-ps886e__chart"><svg viewBox="0 0 100 80" preserveAspectRatio="none"><path d="${chartPath(P.chart?.length?P.chart:[W.away,W.away])}" fill="none" stroke="#22afff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/><circle cx="96" cy="${80-clamp(P.chart?.length?P.chart.slice(-1)[0]:W.away,0,100)*.62}" r="3.5" fill="#61c9ff"/></svg></div>
         <div class="tso-ps886e__axis"><span>1st</span><span>2nd</span><span>3rd</span><span>4th</span></div>
       </article>
       <article class="tso-ps886e__panel">
@@ -356,4 +363,4 @@ export function mountOrUpdateNflPlaystageV886E(root,game,opts={}){
   return {root,game,opts,directRenderer:true};
 }
 
-export const __V886E_TEST__={scenePoint,lineAt,fieldYardToAbs,ballState,yardLabel,FIELD,SCENE};
+export const __V886E_TEST__={scenePoint,lineAt,fieldYardToAbs,ballState,yardLabel,winProb,FIELD,SCENE};
