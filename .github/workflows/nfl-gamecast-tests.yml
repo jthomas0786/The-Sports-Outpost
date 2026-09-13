@@ -14,6 +14,7 @@ on:
       - 'sports/nfl/gamecast-live-fix-v898.js'
       - 'sports/nfl/gamecast-stage-guard-v899.js'
       - 'sports/nfl/gamecast-possession-ball-v8922.js'
+      - 'sports/nfl/gamecast-field-position-v8925.js'
       - 'sports/nfl/quarter-parlay-ui-v893.js'
       - 'sports/mlb/live-game-switcher-v901.js'
       - 'sports/mlb/playstage-v901.js'
@@ -64,6 +65,7 @@ jobs:
           node --check sports/nfl/gamecast-live-fix-v898.js
           node --check sports/nfl/gamecast-stage-guard-v899.js
           node --check sports/nfl/gamecast-possession-ball-v8922.js
+          node --check sports/nfl/gamecast-field-position-v8925.js
           node --check sports/nfl/quarter-parlay-ui-v893.js
           node --check sports/mlb/live-game-switcher-v901.js
           node --check sports/mlb/playstage-v901.js
@@ -82,8 +84,8 @@ jobs:
           node --check sports/nfl/gamecast-replay-lab-v8916.js
       - name: NFL Live stability graph
         run: |
-          grep -F './sports/router.js?v=90.26' index.html
-          grep -F "./nfl-preview-v893.js?v=89.29" sports/router.js
+          grep -F './sports/router.js?v=90.27' index.html
+          grep -F "./nfl-preview-v893.js?v=89.30" sports/router.js
           grep -F "./nfl-preview-v890.js?v=89.20.5" sports/nfl-preview-v893.js
           grep -F "./nfl/live.js?v=89.21" sports/nfl-preview.js
           grep -F "activeId!==gameId" sports/nfl/live.js
@@ -93,6 +95,11 @@ jobs:
           grep -F "installNflGamecastStageGuardV899" sports/nfl-preview-v893.js
           grep -F "gamecast-possession-ball-v8922.js?v=89.24" sports/nfl-preview-v893.js
           grep -F "installNflGamecastPossessionBallV8922" sports/nfl-preview-v893.js
+          grep -F "gamecast-field-position-v8925.js?v=89.25" sports/nfl-preview-v893.js
+          grep -F "installNflGamecastFieldPositionV8925" sports/nfl-preview-v893.js
+          grep -F 'spotFromText' sports/nfl/gamecast-field-position-v8925.js
+          grep -F 'currentYardFromOwn=current' sports/nfl/gamecast-field-position-v8925.js
+          grep -F "window.addEventListener('tso:nfl-live-snapshot',onLive,true)" sports/nfl/gamecast-field-position-v8925.js
           grep -F 'nxg-posstext{display:none!important}' sports/nfl/gamecast-possession-ball-v8922.js
           grep -F 'background:none!important;border:0!important;border-radius:0!important' sports/nfl/gamecast-possession-ball-v8922.js
           grep -F 'nxg-team-name-line' sports/nfl/gamecast-possession-ball-v8922.js
@@ -104,9 +111,23 @@ jobs:
           grep -F "removeAttribute('data-tso-v886c-gamecast')" sports/nfl-preview.js
           grep -F "loadDoc(false)" sports/nfl/quarter-parlay-ui-v893.js
           grep -F "data.renderSig" sports/nfl/live-game-switcher-v894.js || grep -F "dataset.renderSig" sports/nfl/live-game-switcher-v894.js
+      - name: Field position authority test
+        run: |
+          node --input-type=module - <<'NODE'
+          import {__V8925_TEST__ as T} from './sports/nfl/gamecast-field-position-v8925.js';
+          const snap={gameId:'bal-ind',away:{abbr:'BAL'},home:{abbr:'IND'},possession:'away',liveScore:{downDistanceText:'2nd & Goal at IND 4',distance:4},gamecastState:{possession:'away',playOffenseSide:'away',resultYards:2,startDistance:6}};
+          T.repairSnapshot(snap);
+          if(snap.gamecastState.currentYardFromOwn!==96)throw new Error(`expected BAL own-96, got ${snap.gamecastState.currentYardFromOwn}`);
+          if(snap.gamecastState.endYardFromOwn!==96)throw new Error('end spot did not follow current field position');
+          if(snap.gamecastState.startYardFromOwn!==94)throw new Error('play start did not back up by result yards');
+          const own={gameId:'bal-ind-2',away:{abbr:'BAL'},home:{abbr:'IND'},possession:'away',liveScore:{downDistanceText:'1st & 10 at BAL 38',distance:10},gamecastState:{possession:'away',playOffenseSide:'away',resultYards:0}};
+          T.repairSnapshot(own);
+          if(own.gamecastState.currentYardFromOwn!==38)throw new Error('own territory mapping failed');
+          console.log('NFL Chibi LOS follows actual territory: IND 4 => BAL own-96; BAL 38 => own-38');
+          NODE
       - name: MLB PlayStage deployment graph
         run: |
-          grep -F './sports/router.js?v=90.26' index.html
+          grep -F './sports/router.js?v=90.27' index.html
           grep -F "./mlb/playstage-v901.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v904.js?v=90.4" sports/router.js
           grep -F "./mlb/playstage-concept-v905.js?v=90.51" sports/router.js
