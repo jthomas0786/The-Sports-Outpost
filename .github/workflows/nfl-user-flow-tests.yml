@@ -17,6 +17,7 @@ on:
       - 'sw.js'
       - 'scripts/nfl-td-scorer-selftest.mjs'
       - 'sports/nfl/sim/**'
+      - 'scripts/nfl-sim-auto-selftest.mjs'
       - 'scripts/nfl-v8920-flow-selftest.mjs'
       - '.github/workflows/nfl-user-flow-tests.yml'
 permissions:
@@ -38,6 +39,7 @@ jobs:
           node --check sports/nfl/halftime-optimizer-v884.js
           node --check sports/nfl/halftime-validity.js
           node --check sports/nfl-preview.js
+          node --check scripts/nfl-sim-auto-selftest.mjs
       - name: NFL user flow replay tests
         run: |
           node scripts/nfl-v8920-flow-selftest.mjs
