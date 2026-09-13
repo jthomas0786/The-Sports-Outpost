@@ -50,25 +50,31 @@ assert.ok(!nhlCss.includes('58px'),'NHL parity layer must not reintroduce the ol
 assert.ok(!nhlCss.includes('46px'),'NHL parity layer must not reintroduce the old compact cap');
 
 for(const marker of [
-  'tso-player-sticky-shell',
+  'tso-player-static-shell',
+  'tso-player-modal-scroll-body',
+  'tso-player-header-actions',
   'tso-player-watch-action',
-  'position:sticky!important',
-  'top:0!important',
-  'padding-right:112px!important',
-  'right:58px!important',
-  'watchButton(card)',
-  "hdr.appendChild(watch)",
-  "hdr.appendChild(close)",
+  'overflow:hidden!important',
   'overflow-y:auto!important',
-  '@media(max-width:680px)',
-]) assert.ok(sticky.includes(marker),`Shared sticky player header missing ${marker}`);
+  "imp(hdr,'position','relative')",
+  "imp(hdr,'grid-template-columns','auto minmax(0,1fr) minmax(180px,232px) auto')",
+  "imp(prop,'grid-column','3')",
+  "imp(actions,'grid-column','4')",
+  "imp(prop,'grid-column','1 / -1')",
+  "actions.appendChild(watch)",
+  "actions.appendChild(close)",
+  'ensureBody(card,hdr)',
+  "window.addEventListener('resize',queue",
+]) assert.ok(sticky.includes(marker),`Shared static player header missing ${marker}`);
+assert.ok(!sticky.includes('position:sticky!important'),'Shared header must not rely on sticky positioning');
+assert.ok(!sticky.includes('right:58px!important'),'Watch List star must not be absolutely over the prop selector');
 
 assert.ok(nhlView.includes("player-modal-v918.js?v=90.18"),'NHL view must mount v90.18 parity modal');
 assert.ok(nhlView.includes('installNhlPlayerModalV918'),'NHL view must install v90.18 modal');
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'Router must cache-bust NHL v90.18');
 assert.ok(router.includes("./mlb/player-modal-parity-v901.js?v=90.2"),'Router must load hardened MLB NFL-parity modal');
 assert.ok(router.includes('installMlbPlayerModalParityV901'),'Router must install MLB modal parity enhancer');
-assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.2"),'Router must load shared sticky player header');
-assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install sticky player headers for all sports');
+assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.3"),'Router must load static player header v90.3');
+assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install static player headers for all sports');
 
-console.log('Player modal parity: NFL remains source of truth; MLB/NHL bars align and MLB/NFL/NHL headers stay fixed with a reserved Watch List action gutter.');
+console.log('Player modal parity: headers are non-scrolling in MLB/NFL/NHL, body content owns scrolling, and Watch List + Close use a dedicated action column.');
