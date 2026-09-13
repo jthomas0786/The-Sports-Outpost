@@ -1,3 +1,4 @@
+// v89.25 — authoritative live line-of-scrimmage repair for the NFL PlayStage.
 const ROOT='#nflView:not([hidden]) .nxg-concept[data-nfl-inline-gamecast]';
 const lastByGame=new Map();
 let installed=false;
