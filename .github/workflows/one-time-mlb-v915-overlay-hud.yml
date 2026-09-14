@@ -20,6 +20,7 @@ jobs:
       - name: Apply overlay HUD patch
         run: |
           python3 scripts/apply-mlb-v915-overlay-hud.py
+          python3 scripts/apply-mlb-v915-overlay-mobile-fit.py
           node --check sports/mlb/playstage-concept-v915.js
           node --check sports/router.js
           node scripts/mlb-playstage-selftest.mjs
