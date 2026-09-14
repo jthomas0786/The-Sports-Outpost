@@ -6,7 +6,8 @@ on:
     paths:
       - '.github/workflows/nfl-halftime-fast.yml'
   schedule:
-    # Offset from the top-of-hour GitHub Actions traffic spike.
+    # GitHub scheduled workflows have a practical 5-minute floor. Start early in Q2
+    # and keep the board warm so it is usable before the third quarter begins.
     - cron: '2-59/5 * * * *'
 
 permissions:
@@ -46,16 +47,34 @@ jobs:
           GAME_IDS=$(node - <<'NODE'
           const fs=require('fs');
           const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
-          const ids=[];
-          for(const [id,g] of Object.entries(live.games||{})){
-            const status=String(g?.status||'').toLowerCase();
-            const detail=`${g?.statusDetail||''} ${g?.clock||''}`.toLowerCase();
-            const period=Number(g?.period),clock=Number(g?.clockMin);
+
+          function rows(doc){
+            if(doc?.games && typeof doc.games==='object' && !Array.isArray(doc.games)) return Object.entries(doc.games);
+            if(Array.isArray(doc?.games)) return doc.games.map(g=>[String(g?.gameId||g?.id||''),g]);
+            if(Array.isArray(doc?.events)) return doc.events.map(g=>[String(g?.gameId||g?.id||''),g]);
+            return [];
+          }
+          function clockMinutes(g){
+            const direct=Number(g?.clockMin);
+            if(Number.isFinite(direct)) return direct;
+            const seconds=Number(g?.secondsRemaining ?? g?.status?.seconds ?? g?.seconds);
+            if(Number.isFinite(seconds)) return seconds/60;
+            const raw=String(g?.clock ?? g?.lastPlay?.clock ?? '').trim();
+            const m=raw.match(/^(\d{1,2}):(\d{2})$/);
+            return m ? Number(m[1])+Number(m[2])/60 : NaN;
+          }
+          function inWindow(g){
+            const status=String(g?.status ?? g?.state ?? g?.status?.state ?? '').toLowerCase();
+            const detail=`${g?.statusDetail||''} ${g?.status?.detail||''} ${g?.detail||''} ${g?.clock||''}`.toLowerCase();
+            const period=Number(g?.period ?? g?.status?.period ?? g?.lastPlay?.period);
+            const clock=clockMinutes(g);
             const half=/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
             const active=['in','live','halftime','half'].includes(status)||half;
-            if(half||(active&&period===2&&Number.isFinite(clock)&&clock<=10.05)) ids.push(id);
+            return half || (active && period===2 && Number.isFinite(clock) && clock>=0 && clock<=10.05);
           }
-          process.stdout.write(ids.join(','));
+
+          const ids=rows(live).filter(([,g])=>inWindow(g)).map(([id])=>id).filter(Boolean);
+          process.stdout.write([...new Set(ids)].join(','));
           NODE
           )
           echo "Halftime fast-path game ids: ${GAME_IDS:-none}"
@@ -69,16 +88,35 @@ jobs:
           const fs=require('fs');
           const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
           let ht={games:[]}; try{ht=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));}catch{}
-          const ids=[];
-          for(const [id,g] of Object.entries(live.games||{})){
-            const status=String(g?.status||'').toLowerCase();
-            const detail=`${g?.statusDetail||''} ${g?.clock||''}`.toLowerCase();
-            const period=Number(g?.period),clock=Number(g?.clockMin);
-            const half=/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
-            if(half||(['in','live','halftime','half'].includes(status)&&period===2&&Number.isFinite(clock)&&clock<=10.05)) ids.push(id);
+
+          function rows(doc){
+            if(doc?.games && typeof doc.games==='object' && !Array.isArray(doc.games)) return Object.entries(doc.games);
+            if(Array.isArray(doc?.games)) return doc.games.map(g=>[String(g?.gameId||g?.id||''),g]);
+            if(Array.isArray(doc?.events)) return doc.events.map(g=>[String(g?.gameId||g?.id||''),g]);
+            return [];
           }
-          for(const id of ids){
-            const b=(ht.games||[]).find(x=>String(x?.gameId||'')===id);
+          function clockMinutes(g){
+            const direct=Number(g?.clockMin);
+            if(Number.isFinite(direct)) return direct;
+            const seconds=Number(g?.secondsRemaining ?? g?.status?.seconds ?? g?.seconds);
+            if(Number.isFinite(seconds)) return seconds/60;
+            const raw=String(g?.clock ?? g?.lastPlay?.clock ?? '').trim();
+            const m=raw.match(/^(\d{1,2}):(\d{2})$/);
+            return m ? Number(m[1])+Number(m[2])/60 : NaN;
+          }
+          function inWindow(g){
+            const status=String(g?.status ?? g?.state ?? g?.status?.state ?? '').toLowerCase();
+            const detail=`${g?.statusDetail||''} ${g?.status?.detail||''} ${g?.detail||''} ${g?.clock||''}`.toLowerCase();
+            const period=Number(g?.period ?? g?.status?.period ?? g?.lastPlay?.period);
+            const clock=clockMinutes(g);
+            const half=/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
+            const active=['in','live','halftime','half'].includes(status)||half;
+            return half || (active && period===2 && Number.isFinite(clock) && clock>=0 && clock<=10.05);
+          }
+
+          const ids=rows(live).filter(([,g])=>inWindow(g)).map(([id])=>id).filter(Boolean);
+          for(const id of [...new Set(ids)]){
+            const b=(ht.games||[]).find(x=>String(x?.gameId||'')===String(id));
             if(!b?.ready) throw new Error(`halftime board ${id} not ready`);
             if(Number(b.iterations)!==50000) throw new Error(`halftime board ${id} not 50K`);
             if((b.candidates||[]).length<2) throw new Error(`halftime board ${id} has fewer than 2 props`);
