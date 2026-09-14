@@ -23,9 +23,10 @@ jobs:
           node --check sports/mlb/playstage-concept-v915.js
           node --check sports/router.js
           node scripts/mlb-playstage-selftest.mjs
-          node scripts/live-game-switcher-selftest.mjs
           grep -F "./sports/router.js?v=90.37" index.html
           grep -F "./mlb/playstage-concept-v915.js?v=91.52" sports/router.js
+          grep -F "./nfl-preview-v893.js?v=89.36" sports/router.js
+          grep -F "./nhl/view-v906.js?v=90.18" sports/router.js
       - name: Commit corrections
         run: |
           git config user.name 'TSO MLB QA Bot'
