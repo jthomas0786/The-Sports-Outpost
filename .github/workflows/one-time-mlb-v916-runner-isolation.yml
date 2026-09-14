@@ -1,0 +1,42 @@
+name: One-time MLB v916 runner isolation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v916-runner-isolation.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply runner isolation fix
+        run: python3 scripts/apply-mlb-v916-runner-isolation.py
+      - name: Validate MLB PlayStage
+        run: |
+          node --check sports/mlb/playstage-v901.js
+          node --check sports/router.js
+          node scripts/mlb-playstage-selftest.mjs
+          node scripts/mlb-playstage-v916-selftest.mjs
+          node scripts/mlb-v916-runner-isolation-selftest.mjs
+          grep -F "./mlb/playstage-v901.js?v=90.42" sports/router.js
+          grep -F "./sports/router.js?v=90.42" index.html
+      - name: Commit production fix
+        run: |
+          git config user.name 'TSO MLB v916 Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/mlb/playstage-v901.js sports/router.js index.html scripts/mlb-playstage-selftest.mjs scripts/mlb-playstage-v916-selftest.mjs
+          git commit -m 'mlb: isolate base runners from defensive actors'
+          git reset --hard HEAD
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
