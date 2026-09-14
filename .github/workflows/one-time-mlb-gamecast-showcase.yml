@@ -31,5 +31,6 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add qa/showcase/mlb-gamecast-desktop.png qa/showcase/mlb-gamecast-mobile.png qa/showcase/mlb-gamecast-home-run-simulation.gif qa/showcase/mlb-gamecast-home-run-simulation.mp4 qa/showcase/mlb-gamecast-home-run-simulation.webm qa/showcase/mlb-gamecast-showcase.json
           git commit -m 'qa: add MLB Gamecast desktop mobile and simulation showcase'
+          git reset --hard HEAD
           git pull --rebase origin main
           git push origin HEAD:main
