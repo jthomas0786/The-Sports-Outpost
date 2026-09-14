@@ -1,6 +1,6 @@
 const STYLE_ID='tso-mlb-playstage-concept-v915-style';
 const ROOT='.tso-mlb-playstage-v901';
-const FIELD_SRC='./images/mlb/playstage-field-v915.webp';
+const FIELD_SRC='./images/mlb/playstage-field-v914.jpg';
 let installed=false,observer=null,raf=0;
 
 function ensureStyles(){
@@ -8,7 +8,18 @@ function ensureStyles(){
   const s=document.createElement('style');
   s.id=STYLE_ID;
   s.textContent=`
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps914-field,
+/* v915 keeps the approved 4:3 v914 JPEG completely unchanged. The photograph is
+   the only stadium/field surface; DOM Chibis are transient live-play overlays. */
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-sky,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-lights,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-wall,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-grass,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-infield,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-infield-grass,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-mound,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-foul,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-base,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-home,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps907-scene,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps909-scene,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps908-atmosphere,
@@ -28,20 +39,25 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage{
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage:before,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage:after{display:none!important;content:none!important}
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps915-field{
-  position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center center;
-  display:block;z-index:1;pointer-events:none;user-select:none;filter:none!important;transform:none!important;
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps914-field{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  object-fit:contain!important;object-position:center center!important;display:block!important;
+  z-index:1!important;pointer-events:none!important;user-select:none!important;
+  filter:none!important;transform:none!important;image-rendering:auto!important;
 }
 
-/* The supplied field artwork already contains the complete defensive alignment,
-   batter, catcher and umpire. Idle DOM actors stay hidden so the approved image
-   is never duplicated or visually re-created. They appear only for live motion. */
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi{
+/* Every DOM actor is invisible at rest. Role classes such as ps-runner never
+   make an actor visible by themselves; only short-lived animation-state classes do. */
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-batter,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-catcher,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-pitcher,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-runner{
   opacity:0!important;pointer-events:none!important;transform:translate(-50%,-91%)!important;
-  transform-origin:50% 100%!important;transition:left .30s cubic-bezier(.2,.72,.2,1),top .30s cubic-bezier(.2,.72,.2,1),opacity .08s linear!important;
+  transform-origin:50% 100%!important;
+  transition:left .30s cubic-bezier(.2,.72,.2,1),top .30s cubic-bezier(.2,.72,.2,1),opacity .08s linear!important;
   filter:drop-shadow(0 4px 3px rgba(0,0,0,.48))!important;z-index:42!important;
 }
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-runner,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-windup,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-throwing,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-swing,
@@ -58,7 +74,8 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps906-transfer{opa
 
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi>.ps905-rig,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi>.ps907-backrig{
-  width:100%!important;height:100%!important;filter:saturate(1.04) contrast(1.03) drop-shadow(0 1px 1px rgba(0,0,0,.3))!important;
+  width:100%!important;height:100%!important;
+  filter:saturate(1.04) contrast(1.03) drop-shadow(0 1px 1px rgba(0,0,0,.3))!important;
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-batter{width:58px!important;height:82px!important;z-index:50!important}
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-catcher{width:50px!important;height:70px!important;z-index:48!important}
@@ -95,15 +112,16 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-balltrail{z-index:99!imp
   document.head.appendChild(s);
 }
 
-function addField(stage){
-  if(!stage||stage.querySelector(':scope>.ps915-field')) return;
-  stage.insertAdjacentHTML('afterbegin',`<img class="ps915-field" src="${FIELD_SRC}" alt="" aria-hidden="true" decoding="async" draggable="false">`);
+function ensureApprovedField(stage){
+  if(!stage) return;
+  if(stage.querySelector(':scope>.ps914-field')) return;
+  stage.insertAdjacentHTML('afterbegin',`<img class="ps914-field" src="${FIELD_SRC}" alt="" aria-hidden="true" decoding="async" draggable="false">`);
 }
 function enhance(root){
   if(!root) return;
   root.classList.add('tso-mlb-concept-v915');
   root.dataset.approvedConcept='v915';
-  addField(root.querySelector('.ps-stage'));
+  ensureApprovedField(root.querySelector('.ps-stage'));
 }
 function scan(){
   raf=0;
