@@ -3,28 +3,29 @@
     "source": "parlayapi",
     "mode": "halftime-window",
     "sample": false,
-    "fetchedAt": "2026-09-13T22:13:48.118Z",
+    "fetchedAt": "2026-09-14T01:29:26.593Z",
     "gameIds": [
-      "401872927"
+      "401872930"
     ],
     "prefetchMinutes": 8,
     "maxAgeSec": 600,
     "creditsEstimated": 3,
     "attempts": 1,
-    "sportsbookRows": 118,
-    "sportsbookPlayerCount": 29,
+    "sportsbookRows": 232,
+    "sportsbookPlayerCount": 39,
     "note": "Rolling Q2/halftime player props. Backend prefetch and the 50K candidate build begin in late Q2 so slips can be ready before Q3."
   },
   "games": [
     {
-      "fixtureId": "672a68c2c71058d1",
-      "gameId": "401872927",
-      "away": "GB",
-      "home": "MIN",
-      "startDateUTC": "2026-09-13T20:25:29Z",
-      "status": "halftime",
+      "fixtureId": "6e5750eff4da033f",
+      "gameId": "401872930",
+      "away": "DAL",
+      "home": "NYG",
+      "startDateUTC": "2026-09-14T00:24:50Z",
+      "status": "warmup",
       "markets": [
         "atd",
+        "completions",
         "passTds",
         "passYds",
         "recYds",
@@ -33,32 +34,181 @@
       ],
       "players": [
         {
-          "name": "Aaron Jones",
-          "playerId": "3042519",
-          "team": "MIN",
+          "name": "Braxton Berrios",
+          "playerId": "3123075",
+          "team": "NYG",
           "odds": {
             "atd": {
               "best": {
-                "book": "Bovada",
-                "price": 350,
+                "book": "DraftKings",
+                "price": 4000,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 234.7
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
               },
               "all": [
                 {
                   "book": "DraftKings",
-                  "price": 180,
+                  "price": 4000,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 2250,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
                 },
                 {
                   "book": "Bovada",
-                  "price": 350,
+                  "price": 2500,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 234.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 20.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Brevyn Spann-Ford",
+          "playerId": "4360967",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 1000,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "bet365",
+                  "price": 850,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 900,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 1000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 2.5,
+              "over": {
+                "best": {
+                  "book": "Fliff",
+                  "price": -170,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 331.9
+                },
+                "all": [
+                  {
+                    "book": "Fliff",
+                    "price": -170,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Fliff",
+                  "price": 110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 331.9
+                },
+                "all": [
+                  {
+                    "book": "Fliff",
+                    "price": 110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Calvin Austin III",
+          "playerId": "4243389",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 650,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 650,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cam Skattebo",
+          "playerId": "4696981",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "FanDuel",
+                "price": 110,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": -200,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -140,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
                 }
               ]
             },
@@ -66,86 +216,47 @@
               "line": 1.5,
               "over": {
                 "best": {
-                  "book": "DraftKings",
-                  "price": 150,
+                  "book": "Parx Casino",
+                  "price": 105,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
                 },
                 "all": [
                   {
-                    "book": "DraftKings",
-                    "price": 150,
+                    "book": "Caesars",
+                    "price": -114,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
                   },
                   {
                     "book": "Fliff",
-                    "price": 115,
+                    "price": -110,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
                   },
                   {
-                    "book": "Bovada",
-                    "price": 120,
+                    "book": "Parx Casino",
+                    "price": 105,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -155,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": -205,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
                   },
-                  {
-                    "book": "Fliff",
-                    "price": -180,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -155,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 6.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
                   {
                     "book": "Bovada",
                     "price": -120,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
                   }
                 ]
               },
@@ -154,37 +265,65 @@
                   "book": "Bovada",
                   "price": -110,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 14.9
                 },
                 "all": [
+                  {
+                    "book": "Caesars",
+                    "price": -114,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -145,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -136,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
                   {
                     "book": "Bovada",
                     "price": -110,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
                   }
                 ]
               }
             },
-            "rushYds": {
-              "line": 34.5,
+            "recYds": {
+              "line": 7.5,
               "over": {
                 "best": {
                   "book": "Bovada",
                   "price": -120,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
                 },
                 "all": [
                   {
                     "book": "Bovada",
                     "price": -120,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               },
@@ -193,197 +332,55 @@
                   "book": "Bovada",
                   "price": -110,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
                 },
                 "all": [
                   {
                     "book": "Bovada",
                     "price": -110,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Bo Melton",
-          "playerId": "4259305",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 2500,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 1200,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 2500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Chris Brooks",
-          "playerId": "3149687",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 350,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 234.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 310,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 350,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 234.7
-                }
-              ]
-            },
-            "recYds": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 130,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": 130,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -170,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -170,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "receptions": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -165,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -165,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 125,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": 125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               }
             },
             "rushYds": {
-              "line": 38.5,
+              "line": 49.5,
               "over": {
                 "best": {
                   "book": "Bovada",
-                  "price": -115,
+                  "price": -130,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
                 },
                 "all": [
                   {
                     "book": "Bovada",
-                    "price": -115,
+                    "price": -130,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               },
               "under": {
                 "best": {
                   "book": "Bovada",
-                  "price": -115,
+                  "price": 0,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
                 },
                 "all": [
                   {
                     "book": "Bovada",
-                    "price": -115,
+                    "price": 0,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               }
@@ -391,126 +388,469 @@
           }
         },
         {
-          "name": "Christian Watson",
-          "playerId": "4248528",
-          "team": "GB",
+          "name": "Camden Brown",
+          "playerId": "4808759",
+          "team": "DAL",
           "odds": {
             "atd": {
               "best": {
                 "book": "DraftKings",
-                "price": 230,
+                "price": 1700,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
               },
               "all": [
                 {
                   "book": "DraftKings",
-                  "price": 230,
+                  "price": 1700,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "CeeDee Lamb",
+          "playerId": "4241389",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 185,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 14.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 135,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -180,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 185,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 14.9
                 }
               ]
             },
             "receptions": {
-              "line": 6.5,
+              "line": 4.5,
               "over": {
                 "best": {
-                  "book": "Parx Casino",
-                  "price": 107,
+                  "book": "Caesars",
+                  "price": -115,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 568.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
                 },
                 "all": [
                   {
-                    "book": "DraftKings",
-                    "price": -150,
+                    "book": "Caesars",
+                    "price": -115,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -130,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
                   },
                   {
                     "book": "Fliff",
-                    "price": -170,
+                    "price": -115,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
                   },
                   {
                     "book": "Parx Casino",
-                    "price": 107,
+                    "price": -134,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 568.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
                   },
                   {
                     "book": "Bovada",
-                    "price": -150,
+                    "price": -115,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 10.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": 102,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": -113,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -105,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -135,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 102,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 10.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 43.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               },
               "under": {
                 "best": {
                   "book": "Bovada",
-                  "price": 115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": 110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": 110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Parx Casino",
-                    "price": -139,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 568.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 154.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
                   "price": -110,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
                 },
                 "all": [
                   {
                     "book": "Bovada",
                     "price": -110,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Chris Manhertz",
+          "playerId": "2531358",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 4500,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "bet365",
+                  "price": 4000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 4500,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 2700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -10000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 3500,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Dak Prescott",
+          "playerId": "2577417",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 850,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "bet365",
+                  "price": 575,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 850,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 600,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 550,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 650,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "completions": {
+              "line": 22.5,
+              "over": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": -104,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "BetMGM",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": -130,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 273.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -104,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Hard Rock Bet",
+                  "price": 100,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 273.9
+                },
+                "all": [
+                  {
+                    "book": "BetMGM",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": 100,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 273.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -122,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              }
+            },
+            "passTds": {
+              "line": 2.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": 220,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 281.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": 220,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 281.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -300,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 281.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -300,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 281.9
+                  }
+                ]
+              }
+            },
+            "passYds": {
+              "line": 214.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            },
+            "rushYds": {
+              "line": 18.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               },
@@ -519,16 +859,16 @@
                   "book": "Bovada",
                   "price": -120,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
                 },
                 "all": [
                   {
                     "book": "Bovada",
                     "price": -120,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
                   }
                 ]
               }
@@ -536,34 +876,236 @@
           }
         },
         {
-          "name": "DeeJay Dallas",
-          "playerId": "4240631",
-          "team": "MIN",
+          "name": "Dalen Cambre",
+          "playerId": "4570296",
+          "team": "NYG",
           "odds": {
             "atd": {
               "best": {
-                "book": "Bovada",
-                "price": 3300,
+                "book": "DraftKings",
+                "price": 2800,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
               },
               "all": [
                 {
                   "book": "DraftKings",
-                  "price": 2000,
+                  "price": 2800,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Darius Slayton",
+          "playerId": "3916945",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 900,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 900,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Fanatics",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "Fanatics",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Fanatics",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "Fanatics",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Darnell Mooney",
+          "playerId": "4040655",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 1000,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 950,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -1400,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
                 },
                 {
                   "book": "Bovada",
-                  "price": 3300,
+                  "price": 1000,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
                 }
               ]
+            },
+            "receptions": {
+              "line": 0.5,
+              "over": {
+                "best": {
+                  "book": "Fliff",
+                  "price": -160,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 331.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -170,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -160,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -165,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 54.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": 125,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 194.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": 105,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 54.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 5.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
             }
           }
         },
@@ -575,82 +1117,2284 @@
             "atd": {
               "best": {
                 "book": "FanDuel",
-                "price": 700,
+                "price": 950,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 19.7
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
               },
               "all": [
                 {
-                  "book": "FanDuel",
-                  "price": 700,
+                  "book": "Fanatics",
+                  "price": 475,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 19.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Gavin Bartholomew",
-          "playerId": "4708049",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "DraftKings",
-                "price": 3000,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 3000,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
                 },
                 {
-                  "book": "Bovada",
-                  "price": 3000,
+                  "book": "FanDuel",
+                  "price": 950,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
                 }
               ]
             }
           }
         },
         {
-          "name": "Jauan Jennings",
-          "playerId": "3886598",
-          "team": "MIN",
+          "name": "Devin Singletary",
+          "playerId": "4040761",
+          "team": "NYG",
           "odds": {
             "atd": {
               "best": {
-                "book": "Bovada",
-                "price": 900,
+                "book": "bet365",
+                "price": 1000,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
               },
               "all": [
                 {
-                  "book": "DraftKings",
-                  "price": 380,
+                  "book": "bet365",
+                  "price": 1000,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 850,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -2500,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
                 },
                 {
                   "book": "Bovada",
                   "price": 900,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 0.5,
+              "over": {
+                "best": {
+                  "book": "Fliff",
+                  "price": 100,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 331.9
+                },
+                "all": [
+                  {
+                    "book": "Fliff",
+                    "price": 100,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Fliff",
+                  "price": -160,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 331.9
+                },
+                "all": [
+                  {
+                    "book": "Fliff",
+                    "price": -160,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Emari Demercado",
+          "playerId": "4362478",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 700,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "bet365",
+                  "price": 450,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 430,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -800,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "George Pickens",
+          "playerId": "4426354",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 320,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "bet365",
+                  "price": 150,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 310,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Fanatics",
+                  "price": 165,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 160,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 150,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 320,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 4.5,
+              "over": {
+                "best": {
+                  "book": "FanDuel",
+                  "price": -158,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "bet365",
+                    "price": -160,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -161,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "FanDuel",
+                    "price": -158,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": -160,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": 126,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "bet365",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": 126,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "FanDuel",
+                    "price": 118,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 60.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Hunter Luepke",
+          "playerId": "4383396",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1400,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1400,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 950,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -2500,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 1400,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Isaiah Likely",
+          "playerId": "4361050",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 600,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 600,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Fanatics",
+                  "price": 340,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -550,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 550,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 4.5,
+              "over": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": 140,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": 124,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": 140,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": 100,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -200,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": 148,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": -162,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -195,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -160,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 148,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Israel Abanikanda",
+          "playerId": "4429202",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1700,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Jake Ferguson",
+          "playerId": "4242355",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 700,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 650,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 280,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -425,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -145,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 20.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": -154,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -175,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -155,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -165,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -145,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 20.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": 130,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 194.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": 117,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": 130,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": 100,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": 110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 20.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 14.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Javonte Williams",
+          "playerId": "4361579",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 137,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 135,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Fanatics",
+                  "price": -140,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": -140,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -150,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 137,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": 138,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": 137,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": 130,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 138,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": 135,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 10.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": -170,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 194.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": -182,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -170,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -205,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -190,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -175,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 10.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 5.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Jaxson Dart",
+          "playerId": "4689114",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 400,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 20.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 225,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 220,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 400,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 20.9
+                }
+              ]
+            },
+            "completions": {
+              "line": 18.5,
+              "over": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -127,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": -135,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 273.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": 100,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": 100,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": 100,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 273.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -108,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              }
+            },
+            "passTds": {
+              "line": 0.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -205,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 54.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -205,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 54.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": 155,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 54.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": 155,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 54.9
+                  }
+                ]
+              }
+            },
+            "passYds": {
+              "line": 171.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            },
+            "rushYds": {
+              "line": 43.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Jaydon Blue",
+          "playerId": null,
+          "team": null,
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 450,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 450,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Jonathan Mingo",
+          "playerId": "4426485",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 3000,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1800,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 1700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -5000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 3000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "KaVontae Turpin",
+          "playerId": "3676833",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1200,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "bet365",
+                  "price": 750,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "DraftKings",
+                  "price": 1200,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Fanatics",
+                  "price": 750,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 750,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 650,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 1200,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": 170,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 20.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": 105,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": 150,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": 170,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 20.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": -140,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -140,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -240,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -225,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 20.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 7.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": 165,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": 165,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -220,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -220,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            },
+            "rushYds": {
+              "line": 0.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": 165,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 32.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": 165,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 32.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -220,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 32.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -220,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 32.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Luke Schoonmaker",
+          "playerId": "4372096",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1800,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1800,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Fanatics",
+                  "price": 1300,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 1000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -3000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 1600,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Malachi Fields",
+          "playerId": "4682648",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 700,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 700,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -800,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 600,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": 140,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 14.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": 111,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 123,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": 140,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Caesars",
+                  "price": -145,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "Caesars",
+                    "price": -145,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -165,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -165,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -185,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Malik Davis",
+          "playerId": "4240603",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 750,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 750,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Malik Nabers",
+          "playerId": "4595348",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 360,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 360,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 190,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 275,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 5.5,
+              "over": {
+                "best": {
+                  "book": "FanDuel",
+                  "price": 128,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "bet365",
+                    "price": 125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Caesars",
+                    "price": 107,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": 115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "FanDuel",
+                    "price": 128,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": 115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -105,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 32.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -125,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 32.9
+                },
+                "all": [
+                  {
+                    "book": "bet365",
+                    "price": -160,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Caesars",
+                    "price": -139,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "DraftKings",
+                    "price": -155,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
+                  {
+                    "book": "FanDuel",
+                    "price": -172,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -175,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -125,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 32.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 50.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 46.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 46.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 46.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 46.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Marquez Valdes-Scantling",
+          "playerId": null,
+          "team": null,
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1400,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1400,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Najee Harris",
+          "playerId": "4241457",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 450,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 450,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 0.5,
+              "over": {
+                "best": {
+                  "book": "Fanatics",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "Fanatics",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Fanatics",
+                  "price": -110,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "Fanatics",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Odell Beckham Jr.",
+          "playerId": "16733",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1300,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1300,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 900,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 750,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 1200,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 20.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": 295,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "FanDuel",
+                    "price": 168,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": 170,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 273.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 295,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "FanDuel",
+                  "price": -230,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                "all": [
+                  {
+                    "book": "FanDuel",
+                    "price": -230,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 156.9
+                  },
+                  {
+                    "book": "Hard Rock Bet",
+                    "price": -240,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 273.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -480,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 2.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 581.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 581.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Patrick Ricard",
+          "playerId": "2975417",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 5000,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 5000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 4000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 14.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Ryan Flournoy",
+          "playerId": "5083754",
+          "team": "DAL",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 650,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 550,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": 350,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 650,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            },
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "Parx Casino",
+                  "price": 118,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": 110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": 118,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -110,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 10.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -150,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Fliff",
+                    "price": -130,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
+                  {
+                    "book": "Parx Casino",
+                    "price": -155,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 42.9
+                  },
+                  {
+                    "book": "Bovada",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 10.9
+                  }
+                ]
+              }
+            },
+            "recYds": {
+              "line": 16.5,
+              "over": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 46.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 46.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "Bovada",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 46.9
+                },
+                "all": [
+                  {
+                    "book": "Bovada",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 46.9
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "name": "Theo Johnson",
+          "playerId": "4429148",
+          "team": "NYG",
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "DraftKings",
+                "price": 1000,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 42.9
+              },
+              "all": [
+                {
+                  "book": "DraftKings",
+                  "price": 1000,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "FanDuel",
+                  "price": 550,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -1300,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 800,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
                 }
               ]
             },
@@ -661,937 +3405,62 @@
                   "book": "Fliff",
                   "price": -170,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 331.9
                 },
                 "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -215,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
+                  },
                   {
                     "book": "Fliff",
                     "price": -170,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -185,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 140,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": 110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 140,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 5.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Jayden Reed",
-          "playerId": "4362249",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 550,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 275,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 550,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 1.5,
-              "over": {
-                "best": {
-                  "book": "Fliff",
-                  "price": 140,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Caesars",
-                    "price": 109,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 553.7
-                  },
-                  {
-                    "book": "DraftKings",
-                    "price": 125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": 140,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Parx Casino",
-                    "price": 100,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 397.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
                   },
                   {
                     "book": "Bovada",
                     "price": -175,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
                   }
                 ]
               },
               "under": {
                 "best": {
-                  "book": "Bovada",
-                  "price": 135,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Caesars",
-                    "price": -143,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 553.7
-                  },
-                  {
-                    "book": "DraftKings",
-                    "price": -165,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": -220,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Parx Casino",
-                    "price": -129,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 397.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 135,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 10.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Jonnu Smith",
-          "playerId": "3054212",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "DraftKings",
-                "price": 1700,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
-              },
-              "all": [
-                {
                   "book": "DraftKings",
-                  "price": 1700,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 1700,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Fliff",
-                  "price": 120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": 120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -185,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 135,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": 135,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -175,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -175,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Jordan Addison",
-          "playerId": "4429205",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 650,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 245,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 650,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 1.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -105,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Fliff",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 15.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Jordan Love",
-          "playerId": "4036378",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "DraftKings",
-                "price": 1700,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 1700,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 1400,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "passTds": {
-              "line": 2.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "passYds": {
-              "line": 299.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "rushYds": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Jordan Mason",
-          "playerId": "4360569",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 400,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 360,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 400,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "recYds": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 180,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": 180,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -240,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -240,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "receptions": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
                   "price": 155,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 194.9
                 },
                 "all": [
                   {
-                    "book": "Bovada",
+                    "book": "DraftKings",
                     "price": 155,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -205,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -205,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "rushYds": {
-              "line": 31.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Josh Oliver",
-          "playerId": "3921690",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 1700,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 850,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 1700,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 150,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": 125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 194.9
                   },
                   {
                     "book": "Fliff",
-                    "price": -105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 150,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Fliff",
-                  "price": -145,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": -165,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": -145,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -200,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
                     "price": 110,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -145,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
+                    "ts": 1789349360065,
+                    "ageSeconds": 331.9
+                  },
                   {
                     "book": "Bovada",
-                    "price": -145,
+                    "price": 135,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 14.9
                   }
                 ]
               }
@@ -1599,1144 +3468,102 @@
           }
         },
         {
-          "name": "Josh Whyle",
-          "playerId": "4360086",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 3000,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 2500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 3000,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Justin Jefferson",
-          "playerId": "4262921",
-          "team": "MIN",
+          "name": "Thomas Fidone II",
+          "playerId": "4590292",
+          "team": "NYG",
           "odds": {
             "atd": {
               "best": {
                 "book": "DraftKings",
-                "price": 160,
+                "price": 3500,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 160,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 8.5,
-              "over": {
-                "best": {
-                  "book": "DraftKings",
-                  "price": 110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 95.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -130,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  },
-                  {
-                    "book": "DraftKings",
-                    "price": 110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 95.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Fliff",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  },
-                  {
-                    "book": "DraftKings",
-                    "price": -150,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 95.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 115.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Kaleb Johnson",
-          "playerId": "4819231",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 900,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 600,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 900,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Fliff",
-                  "price": 525,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": 525,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Fliff",
-                  "price": -1595,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -1595,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 6.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -125,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 540.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 540.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -105,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 540.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 540.7
-                  }
-                ]
-              }
-            },
-            "rushYds": {
-              "line": 6.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -105,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 540.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 540.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -125,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 540.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 540.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Kyler Murray",
-          "playerId": "3917315",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "DraftKings",
-                "price": 285,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 285,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "MarShawn Lloyd",
-          "playerId": "4429023",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "DraftKings",
-                "price": 390,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 37.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 390,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 275,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "DraftKings",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -200,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 150,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 150,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 0.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 105,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": 105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -135,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -135,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "rushYds": {
-              "line": 25.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Mark Redman",
-          "playerId": null,
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 6600,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 234.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 2500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 6600,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 234.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Matthew Golden",
-          "playerId": "4701936",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 600,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 300,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 600,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 2.5,
-              "over": {
-                "best": {
-                  "book": "DraftKings",
-                  "price": 130,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": 130,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": 105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -155,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "DraftKings",
-                    "price": -175,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 37.7
-                  },
-                  {
-                    "book": "Fliff",
-                    "price": -165,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -155,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 18.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Max Bredeson",
-          "playerId": "4878695",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 5500,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
+                "ts": 1789349360065,
+                "ageSeconds": 156.9
               },
               "all": [
                 {
                   "book": "DraftKings",
                   "price": 3500,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 5500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 156.9
                 }
               ]
             }
           }
         },
         {
-          "name": "Myles Price",
-          "playerId": "4430656",
-          "team": "MIN",
+          "name": "Tyrone Tracy Jr.",
+          "playerId": "4360516",
+          "team": "NYG",
           "odds": {
             "atd": {
               "best": {
                 "book": "Bovada",
-                "price": 4500,
+                "price": 1200,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
               },
               "all": [
                 {
                   "book": "DraftKings",
-                  "price": 1700,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 4500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Skyy Moore",
-          "playerId": "4430191",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 2500,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 1600,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 2500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "T.J. Hockenson",
-          "playerId": "4036133",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 850,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 425,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
                   "price": 850,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 42.9
+                },
+                {
+                  "book": "Hard Rock Bet",
+                  "price": -650,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 69.9
+                },
+                {
+                  "book": "Bovada",
+                  "price": 1200,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
                 }
               ]
             },
             "receptions": {
-              "line": 4.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -125,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -185,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Fliff",
-                  "price": 120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": 120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -105,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 34.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -110,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -110,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Tai Felton",
-          "playerId": "4565185",
-          "team": "MIN",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 2200,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 1500,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 2200,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            }
-          }
-        },
-        {
-          "name": "Tucker Kraft",
-          "playerId": "4572680",
-          "team": "GB",
-          "odds": {
-            "atd": {
-              "best": {
-                "book": "Bovada",
-                "price": 400,
-                "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
-              },
-              "all": [
-                {
-                  "book": "DraftKings",
-                  "price": 220,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 37.7
-                },
-                {
-                  "book": "Bovada",
-                  "price": 400,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                }
-              ]
-            },
-            "receptions": {
-              "line": 3.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": 120,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": 120,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Fliff",
-                  "price": -125,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 195.7
-                },
-                "all": [
-                  {
-                    "book": "Fliff",
-                    "price": -125,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 195.7
-                  },
-                  {
-                    "book": "Bovada",
-                    "price": -155,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "recYds": {
-              "line": 67.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              }
-            }
-          }
-        },
-        {
-          "name": "Carson Wentz",
-          "playerId": "2573079",
-          "team": "MIN",
-          "odds": {
-            "passTds": {
               "line": 1.5,
               "over": {
                 "best": {
-                  "book": "Bovada",
-                  "price": -110,
+                  "book": "Fanatics",
+                  "price": -150,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 568.9
                 },
                 "all": [
                   {
-                    "book": "Bovada",
-                    "price": -110,
+                    "book": "Fanatics",
+                    "price": -150,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 568.9
                   }
                 ]
               },
               "under": {
                 "best": {
-                  "book": "Bovada",
-                  "price": -120,
+                  "book": "Fanatics",
+                  "price": 110,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 568.9
                 },
                 "all": [
                   {
-                    "book": "Bovada",
-                    "price": -120,
+                    "book": "Fanatics",
+                    "price": 110,
                     "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 80.7
-                  }
-                ]
-              }
-            },
-            "passYds": {
-              "line": 197.5,
-              "over": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
-                  }
-                ]
-              },
-              "under": {
-                "best": {
-                  "book": "Bovada",
-                  "price": -115,
-                  "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 172.7
-                },
-                "all": [
-                  {
-                    "book": "Bovada",
-                    "price": -115,
-                    "link": null,
-                    "ts": 1789337617581,
-                    "ageSeconds": 172.7
+                    "ts": 1789349360065,
+                    "ageSeconds": 568.9
                   }
                 ]
               }
@@ -2744,7 +3571,7 @@
           }
         },
         {
-          "name": "Minnesota Def/ST",
+          "name": "Dallas Cowboys Def/ST",
           "playerId": null,
           "team": null,
           "odds": {
@@ -2753,18 +3580,89 @@
                 "book": "Bovada",
                 "price": 1300,
                 "link": null,
-                "ts": 1789337617581,
-                "ageSeconds": 80.7
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
               },
               "all": [
                 {
                   "book": "Bovada",
                   "price": 1300,
                   "link": null,
-                  "ts": 1789337617581,
-                  "ageSeconds": 80.7
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
                 }
               ]
+            }
+          }
+        },
+        {
+          "name": "New York Giants Def/ST",
+          "playerId": null,
+          "team": null,
+          "odds": {
+            "atd": {
+              "best": {
+                "book": "Bovada",
+                "price": 1100,
+                "link": null,
+                "ts": 1789349360065,
+                "ageSeconds": 10.9
+              },
+              "all": [
+                {
+                  "book": "Bovada",
+                  "price": 1100,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 10.9
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cameron Skattebo",
+          "playerId": null,
+          "team": null,
+          "odds": {
+            "receptions": {
+              "line": 1.5,
+              "over": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": -120,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 462.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -120,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 462.9
+                  }
+                ]
+              },
+              "under": {
+                "best": {
+                  "book": "DraftKings",
+                  "price": -115,
+                  "link": null,
+                  "ts": 1789349360065,
+                  "ageSeconds": 462.9
+                },
+                "all": [
+                  {
+                    "book": "DraftKings",
+                    "price": -115,
+                    "link": null,
+                    "ts": 1789349360065,
+                    "ageSeconds": 462.9
+                  }
+                ]
+              }
             }
           }
         }
