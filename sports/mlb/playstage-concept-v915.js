@@ -1,6 +1,7 @@
 const STYLE_ID='tso-mlb-playstage-concept-v915-style';
 const ROOT='.tso-mlb-playstage-v901';
-const FIELD_SRC='./images/mlb/playstage-field-v914.jpg';
+const FIELD_SRC='./field-bg.jpg';
+const FALLBACK_ASPECT='1536 / 1025';
 let installed=false,observer=null,raf=0;
 
 function ensureStyles(){
@@ -8,8 +9,8 @@ function ensureStyles(){
   const s=document.createElement('style');
   s.id=STYLE_ID;
   s.textContent=`
-/* v915 keeps the approved 4:3 v914 JPEG completely unchanged. The photograph is
-   the only stadium/field surface; DOM Chibis are transient live-play overlays. */
+/* v915 uses the user-approved field-bg.jpg as the only stadium/field surface.
+   The image is never cropped, filtered, transformed, or visually reconstructed. */
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-sky,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-lights,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-wall,
@@ -34,7 +35,7 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps907-ump{display:none!impo
 
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-center{min-height:0!important;background:#020914!important}
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage{
-  width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:4/3!important;
+  width:100%!important;height:auto!important;min-height:0!important;aspect-ratio:${FALLBACK_ASPECT}!important;
   overflow:hidden!important;background:#020914!important;isolation:isolate!important;perspective:none!important;
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage:before,
@@ -112,10 +113,21 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-balltrail{z-index:99!imp
   document.head.appendChild(s);
 }
 
+function applyNativeAspect(stage,img){
+  if(!stage||!img||!img.naturalWidth||!img.naturalHeight) return;
+  stage.style.setProperty('aspect-ratio',`${img.naturalWidth} / ${img.naturalHeight}`,'important');
+}
 function ensureApprovedField(stage){
   if(!stage) return;
-  if(stage.querySelector(':scope>.ps914-field')) return;
-  stage.insertAdjacentHTML('afterbegin',`<img class="ps914-field" src="${FIELD_SRC}" alt="" aria-hidden="true" decoding="async" draggable="false">`);
+  let img=stage.querySelector(':scope>.ps914-field');
+  if(!img){
+    stage.insertAdjacentHTML('afterbegin',`<img class="ps914-field" src="${FIELD_SRC}" alt="" aria-hidden="true" decoding="async" draggable="false">`);
+    img=stage.querySelector(':scope>.ps914-field');
+  }else if(img.getAttribute('src')!==FIELD_SRC){
+    img.setAttribute('src',FIELD_SRC);
+  }
+  if(img.complete&&img.naturalWidth) applyNativeAspect(stage,img);
+  else img.addEventListener('load',()=>applyNativeAspect(stage,img),{once:true});
 }
 function enhance(root){
   if(!root) return;
@@ -138,4 +150,4 @@ export function installMlbPlaystageConceptV915(){
   window.addEventListener('hashchange',queue);
   queue();
 }
-export const __MLB_PLAYSTAGE_CONCEPT_V915_TEST__={STYLE_ID,ROOT,FIELD_SRC};
+export const __MLB_PLAYSTAGE_CONCEPT_V915_TEST__={STYLE_ID,ROOT,FIELD_SRC,FALLBACK_ASPECT};
