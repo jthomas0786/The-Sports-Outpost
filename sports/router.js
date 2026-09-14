@@ -114,7 +114,7 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920] = await Promise.all([
+      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920,conceptV921] = await Promise.all([
         import('./mlb/live-game-switcher-v901.js?v=90.22'),
         import('./mlb/player-modal-parity-v901.js?v=90.2'),
         import('./mlb/playstage-v901.js?v=90.45'),
@@ -132,7 +132,8 @@ async function swapView(active) {
         import('./mlb/playstage-concept-v915.js?v=91.55'),
         import('./mlb/playstage-concept-v916.js?v=91.60'),
         import('./mlb/playstage-concept-v917.js?v=91.72'),
-        import('./mlb/playstage-concept-v920-mobile.js?v=92.00')
+        import('./mlb/playstage-concept-v920-mobile.js?v=92.00'),
+        import('./mlb/playstage-concept-v921-mobile.js?v=92.10')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
@@ -152,6 +153,7 @@ async function swapView(active) {
       conceptV916.installMlbPlaystageConceptV916?.();
       conceptV917.installMlbPlaystageConceptV917?.();
       conceptV920.installMlbPlaystageConceptV920Mobile?.();
+      conceptV921.installMlbPlaystageConceptV921Mobile?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
     }

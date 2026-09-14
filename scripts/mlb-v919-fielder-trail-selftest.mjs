@@ -28,6 +28,6 @@ assert.ok(concept.includes('stroke:#2d7fff!important'),'trajectory must use Spor
 assert.ok(concept.includes('ps-trajectory-head'),'moving ball glow styling must exist');
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.45"),'router must cache-bust v919 core');
 assert.ok(router.includes("./mlb/playstage-concept-v917.js?v=91.72"),'router must cache-bust v919 trajectory styles');
-assert.ok(index.includes('./sports/router.js?v=90.46'),'index must cache-bust v919 router');
+assert.ok(index.includes('./sports/router.js?v=90.47'),'index must cache-bust v919 router');
 
 console.log('MLB v919 regression: outfielder stays playable + solid glowing trail follows ball', {landing,fielder});

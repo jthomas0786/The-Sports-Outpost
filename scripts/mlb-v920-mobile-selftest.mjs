@@ -17,7 +17,7 @@ assert.ok(mobile.includes('.ps-weather{display:block!important;width:52px'),'mob
 assert.ok(mobile.includes('.ps914-field{inset:0!important;width:100%!important;height:100%!important;object-fit:contain'),'approved field must fit its mobile stage without crop');
 assert.ok(router.includes("./mlb/playstage-concept-v920-mobile.js?v=92.00"),'router must load v920 mobile layer');
 assert.ok(router.includes('installMlbPlaystageConceptV920Mobile'),'router must install v920 mobile layer');
-assert.ok(index.includes('./sports/router.js?v=90.46'),'index must cache-bust v920 router');
+assert.ok(index.includes('./sports/router.js?v=90.47'),'index must cache-bust v920 router');
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.36"),'NFL import must remain unchanged');
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL import must remain unchanged');
 console.log('MLB v920 mobile regression: full-width field + OUTS/COUNT/BASES + innings + Live/Box OK');

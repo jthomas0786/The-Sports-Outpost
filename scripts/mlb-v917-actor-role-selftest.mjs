@@ -65,5 +65,5 @@ assert.ok(concept.includes('background:linear-gradient(90deg,var(--c2) 0 10%,var
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.45"),'router must cache-bust strict-role MLB PlayStage');
 assert.ok(router.includes("./mlb/playstage-concept-v917.js?v=91.72"),'router must load v917 visual layer');
 assert.ok(router.includes('installMlbPlaystageConceptV917'),'router must install v917 visual layer');
-assert.ok(index.includes('./sports/router.js?v=90.46'),'index must cache-bust v917 router');
+assert.ok(index.includes('./sports/router.js?v=90.47'),'index must cache-bust v917 router');
 console.log('MLB v917 actor-role regression: 9 defenders locked; only batter + true runners may run bases');
