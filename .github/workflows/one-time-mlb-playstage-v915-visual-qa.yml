@@ -96,7 +96,36 @@ jobs:
           });
           fs.writeFileSync('qa/mlb-playstage-v915-current.json',JSON.stringify(q,null,2));
           console.log(q);
-          if(q.concept!=='v915'||q.fieldSrc!=='./field-bg.jpg'||q.fieldNatural[0]!==1536||q.fieldNatural[1]!==1025||q.objectFit!=='contain'||Math.abs(q.stageAspect-q.imageAspect)>.005||q.idleVisible.length)process.exitCode=3;
+          if(q.concept!=='v915'||q.fieldSrc!=='./field-bg.jpg'||q.fieldNatural[0]!==1536||q.fieldNatural[1]!==1024||q.objectFit!=='contain'||Math.abs(q.stageAspect-q.imageAspect)>.005||q.idleVisible.length)process.exitCode=3;
+
+          await p.setViewportSize({width:390,height:844});
+          await p.reload({waitUntil:'domcontentloaded'});
+          await p.waitForSelector('.tso-mlb-concept-v915',{timeout:30000});
+          await p.waitForFunction(()=>{const i=document.querySelector('.ps914-field');return i?.complete&&i.naturalWidth>0&&i.getAttribute('src')==='./field-bg.jpg'},{timeout:30000});
+          await p.waitForTimeout(1200);
+          await p.locator('.tso-mlb-playstage-v901').screenshot({path:'qa/mlb-playstage-v915-mobile.png'});
+          const mobile=await p.evaluate(()=>{
+            const root=document.querySelector('.tso-mlb-playstage-v901');
+            const stage=document.querySelector('.ps-stage');
+            const field=document.querySelector('.ps914-field');
+            const rr=root?.getBoundingClientRect(),sr=stage?.getBoundingClientRect();
+            const actors=[...document.querySelectorAll('.ps-chibi')];
+            return {
+              viewport:innerWidth,
+              docWidth:document.documentElement.scrollWidth,
+              rootLeft:rr?.left??0,
+              rootRight:rr?.right??0,
+              rootWidth:rr?.width??0,
+              stageWidth:sr?.width??0,
+              stageAspect:sr?.height?sr.width/sr.height:0,
+              imageAspect:field?.naturalHeight?field.naturalWidth/field.naturalHeight:0,
+              fieldNatural:[field?.naturalWidth||0,field?.naturalHeight||0],
+              idleVisible:actors.filter(e=>parseFloat(getComputedStyle(e).opacity)>.01).length
+            };
+          });
+          fs.writeFileSync('qa/mlb-playstage-v915-mobile.json',JSON.stringify(mobile,null,2));
+          console.log({mobile});
+          if(mobile.docWidth>mobile.viewport+1||mobile.rootLeft<-1||mobile.rootRight>mobile.viewport+1||mobile.stageWidth>mobile.rootWidth+1||mobile.fieldNatural[0]!==1536||mobile.fieldNatural[1]!==1024||Math.abs(mobile.stageAspect-mobile.imageAspect)>.005||mobile.idleVisible)process.exitCode=4;
           await b.close();
           NODE
           kill $SERVER_PID || true
@@ -104,6 +133,10 @@ jobs:
         run: |
           git config user.name 'TSO MLB QA Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add qa/mlb-playstage-v915-current.png qa/mlb-playstage-v915-stage.png qa/mlb-playstage-v915-current.json
+          git add qa/mlb-playstage-v915-current.png qa/mlb-playstage-v915-stage.png qa/mlb-playstage-v915-current.json qa/mlb-playstage-v915-mobile.png qa/mlb-playstage-v915-mobile.json
           git commit -m 'qa: capture corrected MLB PlayStage v915' || exit 0
-          git push origin HEAD:main
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
