@@ -1,0 +1,50 @@
+name: One-time MLB v918 hit trajectory
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v918-hit-trajectory.yml'
+      - 'scripts/apply-mlb-v918-hit-trajectory.py'
+      - 'scripts/mlb-v918-hit-trajectory-selftest.mjs'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply MLB landing projection and trajectory
+        run: python3 scripts/apply-mlb-v918-hit-trajectory.py
+      - name: Validate MLB Gamecast
+        run: |
+          node --check sports/mlb/playstage-v901.js
+          node --check sports/mlb/playstage-concept-v917.js
+          node --check sports/router.js
+          node scripts/mlb-playstage-selftest.mjs
+          node scripts/mlb-playstage-v916-selftest.mjs
+          node scripts/mlb-v916-runner-isolation-selftest.mjs
+          node scripts/mlb-v917-actor-role-selftest.mjs
+          node scripts/mlb-v918-hit-trajectory-selftest.mjs
+          grep -F "./mlb/playstage-v901.js?v=90.44" sports/router.js
+          grep -F "./mlb/playstage-concept-v917.js?v=91.71" sports/router.js
+          grep -F "./sports/router.js?v=90.44" index.html
+          grep -F "./nfl-preview-v893.js?v=89.36" sports/router.js
+          grep -F "./nhl/view-v906.js?v=90.18" sports/router.js
+      - name: Commit production update
+        run: |
+          git config user.name 'TSO MLB v918 Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/mlb/playstage-v901.js sports/mlb/playstage-concept-v917.js sports/router.js index.html scripts/mlb-playstage-selftest.mjs scripts/mlb-playstage-v916-selftest.mjs scripts/mlb-v916-runner-isolation-selftest.mjs scripts/mlb-v917-actor-role-selftest.mjs
+          git commit -m 'mlb: project hit distance and draw trajectory'
+          git reset --hard HEAD
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
