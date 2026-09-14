@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/nfl-halftime-fast.yml'
   schedule:
+    # v89.1: official halftime status must stay in the 50K board window.
     - cron: '2-59/5 * * * *'
 
 permissions:
