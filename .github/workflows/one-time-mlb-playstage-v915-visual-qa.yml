@@ -4,6 +4,9 @@ on:
   push:
     paths:
       - '.github/workflows/one-time-mlb-playstage-v915-visual-qa.yml'
+      - 'sports/mlb/playstage-concept-v915.js'
+      - 'sports/router.js'
+      - 'field-bg.jpg'
 permissions:
   contents: write
 jobs:
@@ -34,6 +37,7 @@ jobs:
           NODE
           )
           test -n "$GAME_PK"
+          test -f field-bg.jpg
           cat > visual-qa-v915.html <<EOF
           <!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:720px}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div><script type="module">
           import {installMlbPlaystageV901} from './sports/mlb/playstage-v901.js?v=qa915';
@@ -56,15 +60,16 @@ jobs:
         run: |
           mkdir -p qa
           node --check sports/mlb/playstage-concept-v915.js
+          node scripts/mlb-playstage-selftest.mjs
           python3 -m http.server 4173 >/tmp/tso-v915-http.log 2>&1 & SERVER_PID=$!
           node --input-type=module - <<'NODE'
           import { chromium } from 'playwright';import fs from 'node:fs';
           const b=await chromium.launch({headless:true});
-          const p=await b.newPage({viewport:{width:1536,height:1000},deviceScaleFactor:1});
+          const p=await b.newPage({viewport:{width:1536,height:1100},deviceScaleFactor:1});
           p.on('console',m=>console.log('[browser]',m.type(),m.text()));
           await p.goto('http://127.0.0.1:4173/visual-qa-v915.html',{waitUntil:'domcontentloaded'});
           await p.waitForSelector('.tso-mlb-concept-v915',{timeout:30000});
-          await p.waitForFunction(()=>{const i=document.querySelector('.ps914-field');return i?.complete&&i.naturalWidth>0},{timeout:30000});
+          await p.waitForFunction(()=>{const i=document.querySelector('.ps914-field');return i?.complete&&i.naturalWidth>0&&i.getAttribute('src')==='./field-bg.jpg'},{timeout:30000});
           await p.waitForTimeout(2500);
           const root=p.locator('.tso-mlb-playstage-v901');
           const stage=p.locator('.ps-stage');
@@ -75,18 +80,23 @@ jobs:
             const idleVisible=actors.filter(e=>parseFloat(getComputedStyle(e).opacity)>.01).map(e=>e.className);
             const root=document.querySelector('.tso-mlb-playstage-v901');
             const field=document.querySelector('.ps914-field');
+            const stage=document.querySelector('.ps-stage');
+            const r=stage?.getBoundingClientRect();
             return {
               concept:root?.dataset?.approvedConcept,
               fieldSrc:field?.getAttribute('src'),
               fieldNatural:[field?.naturalWidth||0,field?.naturalHeight||0],
-              stageBox:(()=>{const r=document.querySelector('.ps-stage')?.getBoundingClientRect();return r?[Math.round(r.width),Math.round(r.height)]:[0,0]})(),
+              objectFit:getComputedStyle(field).objectFit,
+              stageBox:r?[Math.round(r.width),Math.round(r.height)]:[0,0],
+              stageAspect:r&&r.height?r.width/r.height:0,
+              imageAspect:field?.naturalHeight?field.naturalWidth/field.naturalHeight:0,
               idleActorCount:actors.length,
               idleVisible
             };
           });
           fs.writeFileSync('qa/mlb-playstage-v915-current.json',JSON.stringify(q,null,2));
           console.log(q);
-          if(q.concept!=='v915'||!q.fieldSrc?.endsWith('/images/mlb/playstage-field-v914.jpg')||q.fieldNatural[0]!==1536||q.fieldNatural[1]!==1024||Math.abs(q.stageBox[0]/q.stageBox[1]-4/3)>.02||q.idleVisible.length)process.exitCode=3;
+          if(q.concept!=='v915'||q.fieldSrc!=='./field-bg.jpg'||q.fieldNatural[0]!==1536||q.fieldNatural[1]!==1025||q.objectFit!=='contain'||Math.abs(q.stageAspect-q.imageAspect)>.005||q.idleVisible.length)process.exitCode=3;
           await b.close();
           NODE
           kill $SERVER_PID || true
@@ -95,5 +105,5 @@ jobs:
           git config user.name 'TSO MLB QA Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add qa/mlb-playstage-v915-current.png qa/mlb-playstage-v915-stage.png qa/mlb-playstage-v915-current.json
-          git commit -m 'qa: capture MLB PlayStage v915' || exit 0
+          git commit -m 'qa: capture corrected MLB PlayStage v915' || exit 0
           git push origin HEAD:main
