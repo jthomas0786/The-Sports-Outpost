@@ -44,14 +44,16 @@ now=new Date('2026-09-09T21:35:00-04:00');
 let ld=decideAutomaticRun({game,research,odds,liveGame:live,config,now,existingResult:existing,previousState:state});
 assert.equal(ld.run,true);assert.equal(ld.phase,'halftime');assert.equal(ld.iterations,50000);
 state=nextAutomationState({previousState:state,decision:ld,result:{iterations:50000,generatedAt:now.toISOString(),game:{currentScore:{away:10,home:7}},automation:{halftimeCandidatesReady:true,halftimeHasLiveOdds:true}},game,now});
+assert.equal(state.halftimeCandidateAttempts,0,'successful halftime board must reset candidate retry count');
+assert.equal(state.halftimeAttemptFingerprint,undefined,'successful halftime board must clear failed-attempt fingerprint');
 
 const halftime={...live,period:2,clockMin:0,statusDetail:'Halftime',awayScore:13,homeScore:10};
 assert.equal(isHalftimeState(halftime),true);
 now=new Date('2026-09-09T22:05:00-04:00');
 let hd=decideAutomaticRun({game,research,odds,liveGame:halftime,config,now,existingResult:existing,previousState:state});
 assert.equal(hd.run,true);assert.equal(hd.phase,'halftime');assert.equal(hd.iterations,50000);
-// v87: an empty halftime candidate board must retry instead of permanently
-// marking halftime complete after the first 50K simulation.
+
+// An empty candidate board retries for this exact live/odds fingerprint.
 state=nextAutomationState({
   previousState:state,
   decision:hd,
@@ -59,10 +61,12 @@ state=nextAutomationState({
     iterations:50000,
     generatedAt:now.toISOString(),
     game:{currentScore:{away:13,home:10}},
-    automation:{halftimeCandidatesReady:false},
+    automation:{halftimeCandidatesReady:false,halftimeHasLiveOdds:true},
   },
   game,now
 });
+assert.equal(state.halftimeCandidateAttempts,1);
+assert.equal(state.halftimeAttemptFingerprint,hd.fingerprint);
 hd=decideAutomaticRun({
   game,research,odds,liveGame:halftime,config,
   now:new Date(now.getTime()+5*60000),
@@ -71,6 +75,27 @@ hd=decideAutomaticRun({
 assert.equal(hd.run,true);
 assert.match(hd.reason,/halftime candidate retry/);
 assert.equal(hd.iterations,50000);
+
+// Exhaustion is scoped only to that exact fingerprint. A new score/clock/odds
+// state must immediately receive a clean retry budget instead of getting stuck.
+const maxRetries=Number(config?.halftime?.maxCandidateRetries??3);
+const exhausted={...state,halftimeCandidateAttempts:maxRetries,halftimeAttemptFingerprint:hd.fingerprint};
+let blocked=decideAutomaticRun({
+  game,research,odds,liveGame:halftime,config,
+  now:new Date(now.getTime()+6*60000),
+  existingResult:existing,previousState:exhausted
+});
+assert.equal(blocked.run,false);
+assert.match(blocked.reason,/retries exhausted/);
+const changedHalftime={...halftime,clockMin:0,awayScore:16,homeScore:10};
+let changed=decideAutomaticRun({
+  game,research,odds,liveGame:changedHalftime,config,
+  now:new Date(now.getTime()+7*60000),
+  existingResult:existing,previousState:exhausted
+});
+assert.equal(changed.run,true,'changed halftime inputs must reset the retry budget');
+assert.equal(changed.reason,'halftime');
+assert.equal(changed.iterations,50000);
 
 // Once the live sportsbook candidate board is ready, the same halftime state
 // is complete and must NOT fire another 50K run.
@@ -82,10 +107,11 @@ state=nextAutomationState({
     iterations:50000,
     generatedAt:retryNow.toISOString(),
     game:{currentScore:{away:13,home:10}},
-    automation:{halftimeCandidatesReady:true},
+    automation:{halftimeCandidatesReady:true,halftimeHasLiveOdds:true},
   },
   game,now:retryNow
 });
+assert.equal(state.halftimeCandidateAttempts,0);
 hd=decideAutomaticRun({
   game,research,odds,liveGame:halftime,config,
   now:new Date(retryNow.getTime()+5*60000),
@@ -100,5 +126,6 @@ assert.equal(pd.run,false);assert.equal(pd.phase,'post');
 
 console.log('✓ NFL automatic simulation scheduler self-test passed');
 console.log('  pregame checkpoints: 180m / 90m / 15m = 50,000 each');
-console.log('  late Q2 + halftime = 50,000 automatically; retries until candidate board is ready');
+console.log('  late Q2 + halftime = 50,000 automatically; retries are scoped per live/odds fingerprint');
+console.log('  changed halftime score/clock/odds resets retry budget; READY resets attempts to zero');
 console.log('  regular live refresh = 15,000 when state changes outside the halftime window');
