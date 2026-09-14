@@ -29,8 +29,8 @@ if(metadata.end?.defense!==9) throw new Error(`v916 defender count changed: ${JS
 const startById=new Map((metadata.start?.defenderState||[]).map(x=>[String(x.id),x]));
 const misplaced=(metadata.end?.defenderState||[]).filter(x=>{const start=startById.get(String(x.id));return !start||x.opacity<=.01||Math.hypot(x.left-start.left,x.top-start.top)>.75;});
 if(misplaced.length) throw new Error(`Defenders left defensive positions after scoring play: ${JSON.stringify(misplaced)}`);
-const homeIntruders=(metadata.end?.defenderState||[]).filter(x=>Math.hypot(x.left-50,x.top-90)<8);
-if(homeIntruders.length) throw new Error(`Defenders entered home-plate scoring path: ${JSON.stringify(homeIntruders)}`);
+const homeIntruders=(metadata.end?.defenderState||[]).filter(x=>x.role!=='C'&&Math.hypot(x.left-50,x.top-90)<8);
+if(homeIntruders.length) throw new Error(`Non-catcher defenders entered home-plate scoring path: ${JSON.stringify(homeIntruders)}`);
 metadata.defenderIsolation={passed:true,checked:metadata.end.defenderState.length};
 fs.writeFileSync(path.join(outDir,'mlb-gamecast-showcase.json'),JSON.stringify(metadata,null,2));
 """
