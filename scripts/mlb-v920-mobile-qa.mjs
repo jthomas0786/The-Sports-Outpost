@@ -32,7 +32,6 @@ try{
   await page.waitForTimeout(1200);
   report=await page.evaluate(()=>{
     const q=s=>document.querySelector(s),qa=s=>[...document.querySelectorAll(s)];
-    const rect=s=>{const r=q(s)?.getBoundingClientRect();return r?{x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom}:null};
     const visibleTabs=qa('.ps-right-tabs [data-ps-tab]').filter(x=>getComputedStyle(x).display!=='none').map(x=>({id:x.dataset.psTab,text:x.textContent.trim()}));
     const boxes=qa('.ps-bottom-box').map(x=>({label:x.querySelector('label')?.textContent.trim(),...(()=>{const r=x.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height,b:r.bottom}})()}));
     const inning=(q('.ps-inning')?.textContent||'').replace(/\s+/g,' ').trim();
@@ -43,7 +42,7 @@ try{
   if(report.mobileLayout!=='v920'||report.gridDisplay!=='block') throw new Error(`v920 mobile layout not active: ${JSON.stringify(report)}`);
   if(!(report.stage?.w>=370&&Math.abs(report.field.w-report.stage.w)<2&&Math.abs(report.field.h-report.stage.h)<2&&report.field.fit==='contain')) throw new Error(`field does not fit mobile stage: ${JSON.stringify(report)}`);
   if(JSON.stringify(report.visibleTabs)!==JSON.stringify([{id:'live',text:'Live'},{id:'box',text:'Box'}])) throw new Error(`expected only Live/Box buttons: ${JSON.stringify(report.visibleTabs)}`);
-  if(/OUT|\d\s*-\s*\d/.test(report.inning)||report.baseMiniDisplay!=='none') throw new Error(`header still contains count/outs/bases: ${JSON.stringify({inning:report.inning,base:report.baseMiniDisplay})}`);
+  if(/OUT|\d\s*-\s*\d/.test(report.inning)||!['none','missing'].includes(report.baseMiniDisplay)) throw new Error(`header still contains count/outs/bases: ${JSON.stringify({inning:report.inning,base:report.baseMiniDisplay})}`);
   if(!(report.weather?.w<=54)) throw new Error(`weather is still too wide: ${JSON.stringify(report.weather)}`);
   const byLabel=Object.fromEntries(report.boxes.map(x=>[x.label,x]));
   if(!byLabel.Outs||!byLabel.Count||!byLabel.Bases) throw new Error(`missing mobile state boxes: ${JSON.stringify(report.boxes)}`);
