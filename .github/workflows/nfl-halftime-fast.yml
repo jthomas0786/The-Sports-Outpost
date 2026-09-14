@@ -27,15 +27,11 @@ jobs:
         with:
           node-version: 20
 
-      - name: Apply official-halftime state hotfix
+      - name: Validate halftime scheduler and phase logic
         run: |
-          if grep -q "if(!liveGame || !\['in','live'\].includes" sports/nfl/sim/auto.js; then
-            node scripts/apply-nfl-halftime-state-hotfix-v891.mjs
-          else
-            echo 'Halftime state hotfix already present.'
-          fi
           node --check sports/nfl/sim/auto.js
           node --check scripts/nfl-halftime-window-refresh.mjs
+          node scripts/nfl-sim-auto-selftest.mjs
           node --input-type=module <<'NODE'
           import {automationPhase,isHalftimeWarmupState} from './sports/nfl/sim/auto.js';
           const ok=(v,m)=>{if(!v) throw new Error(m)};
@@ -55,7 +51,7 @@ jobs:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
           NFL_HALFTIME_PREFETCH_MINUTES: 10
-        run: node scripts/nfl-halftime-window-refresh.mjs
+        run: node scripts/nfl-halftime-window-refresh.mjs --live-file slates/nfl-live.json
 
       - name: Detect halftime-window games
         id: window
@@ -87,9 +83,8 @@ jobs:
       - name: Build every current halftime 50K board
         if: steps.window.outputs.ids != ''
         env:
-          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
           NFL_SIM_FORCE: 1
-        run: node scripts/nfl-sim-auto.mjs --game "${{ steps.window.outputs.ids }}"
+        run: node scripts/nfl-sim-auto.mjs --game "${{ steps.window.outputs.ids }}" --live-file slates/nfl-live.json
 
       - name: Verify current halftime boards
         if: steps.window.outputs.ids != ''
@@ -100,12 +95,19 @@ jobs:
           const fs=require('fs');
           const ids=String(process.env.IDS||'').split(',').filter(Boolean);
           const ht=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
           for(const id of ids){
             const b=(ht.games||[]).find(x=>String(x?.gameId||'')===String(id));
+            const g=live?.games?.[String(id)];
             if(!b?.ready) throw new Error(`halftime board ${id} not ready`);
             if(Number(b.iterations)!==50000) throw new Error(`halftime board ${id} is not 50K`);
             if((b.candidates||[]).length<2) throw new Error(`halftime board ${id} has fewer than 2 props`);
-            console.log(`✓ ${id}: READY · ${b.candidates.length} props · 50K`);
+            if(!g) throw new Error(`live snapshot ${id} missing`);
+            if(Number(b?.state?.period)!==2) throw new Error(`halftime board ${id} is not a Q2/halftime state`);
+            if(Number(b?.state?.awayScore)!==Number(g?.awayScore)||Number(b?.state?.homeScore)!==Number(g?.homeScore)){
+              throw new Error(`halftime board ${id} score does not match authoritative live snapshot`);
+            }
+            console.log(`✓ ${id}: READY · ${b.candidates.length} props · 50K · score ${g.awayScore}-${g.homeScore} matches live snapshot`);
           }
           NODE
 
@@ -113,11 +115,11 @@ jobs:
         run: |
           git config user.name 'TSO NFL Halftime Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/nfl/sim/auto.js scripts/nfl-halftime-window-refresh.mjs slates/nfl-live.json
+          git add sports/nfl/sim/auto.js scripts/nfl-halftime-window-refresh.mjs scripts/nfl-sim-auto-selftest.mjs slates/nfl-live.json
           [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
           [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
           git diff --staged --quiet && echo 'No halftime change to publish.' && exit 0
-          git commit -m 'Fix NFL official halftime board generation'
+          git commit -m 'Refresh NFL halftime board from authoritative snapshot'
           for attempt in 1 2 3 4 5; do
             if git push; then exit 0; fi
             git pull --rebase --autostash origin main || exit 1
