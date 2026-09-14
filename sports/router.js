@@ -11,7 +11,7 @@
  *
  * View swapping is additive: the MLB experience keeps its exact DOM, and we only
  * toggle `hidden` on its containers vs the sport-specific view containers.
- * MLB v915 QA note: desktop geometry is intentionally preserved on mobile and scaled as one unit.
+ * MLB v915 QA note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
@@ -129,7 +129,7 @@ async function swapView(active) {
         import('./mlb/playstage-concept-v912.js?v=91.20'),
         import('./mlb/playstage-concept-v913.js?v=91.30'),
         import('./mlb/playstage-concept-v914.js?v=91.40'),
-        import('./mlb/playstage-concept-v915.js?v=91.54')
+        import('./mlb/playstage-concept-v915.js?v=91.55')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
