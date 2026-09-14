@@ -43,23 +43,24 @@ async function chooseGame(){
 }
 
 const picked=await chooseGame();
-const harness=path.join(root,'mlb-v916-simulation.html');
+const harness=path.join(root,'mlb-v917-simulation.html');
 fs.writeFileSync(harness,`<!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1256px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:0}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="${picked.gamePk}"><div class="mlb-live-gc-shell"></div></div><script type="module">
-import {installMlbPlaystageV901} from '/sports/mlb/playstage-v901.js?v=sim916';
-import {installMlbPlaystageConceptV904} from '/sports/mlb/playstage-concept-v904.js?v=sim916';
-import {installMlbPlaystageConceptV905} from '/sports/mlb/playstage-concept-v905.js?v=sim916';
-import {installMlbPlaystageConceptV906} from '/sports/mlb/playstage-concept-v906.js?v=sim916';
-import {installMlbPlaystageConceptV907} from '/sports/mlb/playstage-concept-v907.js?v=sim916';
-import {installMlbPlaystageConceptV908} from '/sports/mlb/playstage-concept-v908.js?v=sim916';
-import {installMlbPlaystageConceptV909} from '/sports/mlb/playstage-concept-v909.js?v=sim916';
-import {installMlbPlaystageConceptV910} from '/sports/mlb/playstage-concept-v910.js?v=sim916';
-import {installMlbPlaystageConceptV911} from '/sports/mlb/playstage-concept-v911.js?v=sim916';
-import {installMlbPlaystageConceptV912} from '/sports/mlb/playstage-concept-v912.js?v=sim916';
-import {installMlbPlaystageConceptV913} from '/sports/mlb/playstage-concept-v913.js?v=sim916';
-import {installMlbPlaystageConceptV914} from '/sports/mlb/playstage-concept-v914.js?v=sim916';
-import {installMlbPlaystageConceptV915} from '/sports/mlb/playstage-concept-v915.js?v=sim916';
-import {installMlbPlaystageConceptV916} from '/sports/mlb/playstage-concept-v916.js?v=sim916';
-installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();installMlbPlaystageConceptV909();installMlbPlaystageConceptV910();installMlbPlaystageConceptV911();installMlbPlaystageConceptV912();installMlbPlaystageConceptV913();installMlbPlaystageConceptV914();installMlbPlaystageConceptV915();installMlbPlaystageConceptV916();
+import {installMlbPlaystageV901} from '/sports/mlb/playstage-v901.js?v=sim917';
+import {installMlbPlaystageConceptV904} from '/sports/mlb/playstage-concept-v904.js?v=sim917';
+import {installMlbPlaystageConceptV905} from '/sports/mlb/playstage-concept-v905.js?v=sim917';
+import {installMlbPlaystageConceptV906} from '/sports/mlb/playstage-concept-v906.js?v=sim917';
+import {installMlbPlaystageConceptV907} from '/sports/mlb/playstage-concept-v907.js?v=sim917';
+import {installMlbPlaystageConceptV908} from '/sports/mlb/playstage-concept-v908.js?v=sim917';
+import {installMlbPlaystageConceptV909} from '/sports/mlb/playstage-concept-v909.js?v=sim917';
+import {installMlbPlaystageConceptV910} from '/sports/mlb/playstage-concept-v910.js?v=sim917';
+import {installMlbPlaystageConceptV911} from '/sports/mlb/playstage-concept-v911.js?v=sim917';
+import {installMlbPlaystageConceptV912} from '/sports/mlb/playstage-concept-v912.js?v=sim917';
+import {installMlbPlaystageConceptV913} from '/sports/mlb/playstage-concept-v913.js?v=sim917';
+import {installMlbPlaystageConceptV914} from '/sports/mlb/playstage-concept-v914.js?v=sim917';
+import {installMlbPlaystageConceptV915} from '/sports/mlb/playstage-concept-v915.js?v=sim917';
+import {installMlbPlaystageConceptV916} from '/sports/mlb/playstage-concept-v916.js?v=sim917';
+import {installMlbPlaystageConceptV917} from '/sports/mlb/playstage-concept-v917.js?v=sim917';
+installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();installMlbPlaystageConceptV909();installMlbPlaystageConceptV910();installMlbPlaystageConceptV911();installMlbPlaystageConceptV912();installMlbPlaystageConceptV913();installMlbPlaystageConceptV914();installMlbPlaystageConceptV915();installMlbPlaystageConceptV916();installMlbPlaystageConceptV917();
 </script></body></html>`);
 
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.jpg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml'};
@@ -95,29 +96,34 @@ const patchFeed=async route=>{
 };
 
 const browser=await chromium.launch({headless:true});
-const videoDir=path.join('/tmp','tso-mlb-v916-sim');
+const videoDir=path.join('/tmp','tso-mlb-v917-sim');
 fs.rmSync(videoDir,{recursive:true,force:true});fs.mkdirSync(videoDir,{recursive:true});
-let metadata={gamePk:picked.gamePk,selectedRunnerCount:picked.runnerCount};
+let metadata={simulationVersion:'v917',gamePk:picked.gamePk,selectedRunnerCount:picked.runnerCount};
 try{
   const ctx=await browser.newContext({viewport:{width:1280,height:900},recordVideo:{dir:videoDir,size:{width:1280,height:900}}});
   const page=await ctx.newPage();
   await page.route('https://statsapi.mlb.com/api/v1.1/game/**/feed/live?language=en',patchFeed);
-  await page.goto('http://127.0.0.1:4173/mlb-v916-simulation.html',{waitUntil:'domcontentloaded'});
-  await page.waitForSelector('.tso-mlb-concept-v916',{timeout:30000});
+  await page.goto('http://127.0.0.1:4173/mlb-v917-simulation.html',{waitUntil:'domcontentloaded'});
+  await page.waitForSelector('.tso-mlb-concept-v917',{timeout:30000});
   await page.waitForFunction(()=>{
     const root=document.querySelector('.tso-mlb-playstage-v901');
     const actors=[...document.querySelectorAll('.ps-chibi')];
-    const defense=actors.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner'));
-    return root?.dataset?.fieldActors==='v916'&&defense.length===9&&actors.some(x=>x.classList.contains('ps-batter'));
+    const defense=actors.filter(x=>x.dataset.actorKind==='defender');
+    const runners=actors.filter(x=>x.dataset.actorKind==='runner');
+    const batter=actors.filter(x=>x.dataset.actorKind==='batter');
+    return root?.dataset?.actorRoles==='v917'&&defense.length===9&&batter.length===1&&runners.length===2;
   },{timeout:30000});
   metadata.start=await page.evaluate(()=>{
-    const a=[...document.querySelectorAll('.ps-chibi')];
+    const a=[...document.querySelectorAll('.ps-chibi')],take=x=>({id:x.dataset.playerId||'',kind:x.dataset.actorKind||'',role:x.dataset.actorRole||'',team:x.dataset.team||'',base:x.dataset.base||'',left:parseFloat(x.style.left)||0,top:parseFloat(x.style.top)||0,opacity:parseFloat(getComputedStyle(x).opacity)||0,c1:getComputedStyle(x).getPropertyValue('--c1').trim(),c2:getComputedStyle(x).getPropertyValue('--c2').trim()});
+    const defenders=a.filter(x=>x.dataset.actorKind==='defender'),runners=a.filter(x=>x.dataset.actorKind==='runner'),batters=a.filter(x=>x.dataset.actorKind==='batter');
     return {
-      defense:a.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner')).length,
-      defenderState:a.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner')).map(x=>({id:x.dataset.playerId||'',role:x.dataset.actorRole||x.dataset.pos||'',left:parseFloat(x.style.left)||0,top:parseFloat(x.style.top)||0,opacity:parseFloat(getComputedStyle(x).opacity)||0})),
-      batter:a.filter(x=>x.classList.contains('ps-batter')).length,
-      runners:a.filter(x=>x.classList.contains('ps-runner')).length,
+      defense:defenders.length,defenderState:defenders.map(take),
+      batter:batters.length,batterState:batters.map(take),
+      runners:runners.length,runnerState:runners.map(take),
+      offensiveActors:runners.length+batters.length,
       visible:a.filter(x=>parseFloat(getComputedStyle(x).opacity)>.01).length,
+      labels:a.map(x=>(x.querySelector('.ps-actor-label b')?.textContent||'').trim()),
+      teams:[...new Set(a.map(x=>x.dataset.team).filter(Boolean))],
       headline:(document.querySelector('.ps-play-banner b')?.textContent||'').trim(),
       description:(document.querySelector('.ps-play-banner span:last-child')?.textContent||'').trim(),
       metrics:[...document.querySelectorAll('.ps-metric b')].map(x=>(x.textContent||'').trim())
@@ -125,8 +131,9 @@ try{
   });
   await page.waitForTimeout(7800);
   metadata.end=await page.evaluate(()=>{
-    const a=[...document.querySelectorAll('.ps-chibi')];
-    return {defense:a.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner')).length,defenderState:a.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner')).map(x=>({id:x.dataset.playerId||'',role:x.dataset.actorRole||x.dataset.pos||'',left:parseFloat(x.style.left)||0,top:parseFloat(x.style.top)||0,opacity:parseFloat(getComputedStyle(x).opacity)||0})),batter:a.filter(x=>x.classList.contains('ps-batter')).length,runners:a.filter(x=>x.classList.contains('ps-runner')).length,visible:a.filter(x=>parseFloat(getComputedStyle(x).opacity)>.01).length};
+    const a=[...document.querySelectorAll('.ps-chibi')],take=x=>({id:x.dataset.playerId||'',kind:x.dataset.actorKind||'',role:x.dataset.actorRole||'',team:x.dataset.team||'',left:parseFloat(x.style.left)||0,top:parseFloat(x.style.top)||0,opacity:parseFloat(getComputedStyle(x).opacity)||0});
+    const defenders=a.filter(x=>x.dataset.actorKind==='defender'),runners=a.filter(x=>x.dataset.actorKind==='runner'),batters=a.filter(x=>x.dataset.actorKind==='batter');
+    return {defense:defenders.length,defenderState:defenders.map(take),batter:batters.length,batterState:batters.map(take),runners:runners.length,runnerState:runners.map(take),visible:a.filter(x=>parseFloat(getComputedStyle(x).opacity)>.01).length};
   });
   const video=page.video();
   await page.unrouteAll({behavior:'ignoreErrors'});
@@ -140,14 +147,21 @@ try{
   fs.rmSync(harness,{force:true});
 }
 
-if(metadata.start?.defense!==9||metadata.start?.batter!==1||metadata.start?.visible<10) throw new Error(`v916 actor validation failed: ${JSON.stringify(metadata)}`);
-if(metadata.end?.defense!==9) throw new Error(`v916 defender count changed: ${JSON.stringify(metadata.end)}`);
-const startById=new Map((metadata.start?.defenderState||[]).map(x=>[String(x.id),x]));
-const misplaced=(metadata.end?.defenderState||[]).filter(x=>{const start=startById.get(String(x.id));return !start||x.opacity<=.01||Math.hypot(x.left-start.left,x.top-start.top)>.75;});
+if(metadata.start?.defense!==9||metadata.start?.batter!==1||metadata.start?.runners!==2||metadata.start?.offensiveActors!==3) throw new Error(`v917 actor validation failed: ${JSON.stringify(metadata.start)}`);
+if(metadata.start.labels.filter(x=>x==='2B').length!==1) throw new Error(`Expected exactly one defensive 2B label: ${JSON.stringify(metadata.start.labels)}`);
+if(metadata.start.labels.filter(x=>x==='RUN').length!==2||metadata.start.labels.filter(x=>x==='BAT').length!==1) throw new Error(`Offensive labels must be RUN/RUN/BAT: ${JSON.stringify(metadata.start.labels)}`);
+if(metadata.start.teams.length!==2) throw new Error(`Expected two team identities: ${JSON.stringify(metadata.start.teams)}`);
+const defColors=new Set((metadata.start.defenderState||[]).map(x=>`${x.c1}|${x.c2}`));
+const offColors=new Set([...(metadata.start.runnerState||[]),...(metadata.start.batterState||[])].map(x=>`${x.c1}|${x.c2}`));
+if(defColors.size!==1||offColors.size!==1||[...defColors][0]===[...offColors][0]) throw new Error(`Offense/defense team colors are not distinct: ${JSON.stringify({def:[...defColors],off:[...offColors]})}`);
+if(metadata.end?.defense!==9) throw new Error(`v917 defender count changed: ${JSON.stringify(metadata.end)}`);
+const startByRole=new Map((metadata.start?.defenderState||[]).map(x=>[String(x.role),x]));
+const misplaced=(metadata.end?.defenderState||[]).filter(x=>{const start=startByRole.get(String(x.role));return !start||x.opacity<=.01||Math.hypot(x.left-start.left,x.top-start.top)>.75;});
 if(misplaced.length) throw new Error(`Defenders left defensive positions after scoring play: ${JSON.stringify(misplaced)}`);
 const homeIntruders=(metadata.end?.defenderState||[]).filter(x=>x.role!=='C'&&Math.hypot(x.left-50,x.top-90)<8);
 if(homeIntruders.length) throw new Error(`Non-catcher defenders entered home-plate scoring path: ${JSON.stringify(homeIntruders)}`);
-metadata.defenderIsolation={passed:true,checked:metadata.end.defenderState.length};
+metadata.actorRoleIsolation={passed:true,defendersChecked:metadata.end.defenderState.length,offensiveRunners:metadata.start.runners,batter:metadata.start.batter,expectedScorers:3};
+metadata.teamColorSeparation={passed:true,defense:[...defColors][0],offense:[...offColors][0]};
 fs.writeFileSync(path.join(outDir,'mlb-gamecast-showcase.json'),JSON.stringify(metadata,null,2));
 
 const webm=path.join(outDir,'mlb-gamecast-home-run-simulation.webm');
@@ -157,4 +171,4 @@ let r=spawnSync('ffmpeg',['-y','-i',webm,'-vf','fps=10,scale=960:-1:flags=lanczo
 if(r.status!==0) throw new Error('GIF conversion failed');
 r=spawnSync('ffmpeg',['-y','-i',webm,'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',mp4],{stdio:'inherit'});
 if(r.status!==0) throw new Error('MP4 conversion failed');
-console.log('MLB v916 simulation complete',metadata);
+console.log('MLB v917 simulation complete',metadata);
