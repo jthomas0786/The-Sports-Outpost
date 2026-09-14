@@ -163,9 +163,9 @@ function matchupText(r){
 }
 
 function ensureStyles(){
-  if(document.getElementById('tso-nfl-research-ui-v866')) return;
+  if(document.getElementById('tso-nfl-research-ui-v867')) return;
   const style=document.createElement('style');
-  style.id='tso-nfl-research-ui-v866';
+  style.id='tso-nfl-research-ui-v867';
   style.textContent=`
     /* v86.2 selected-prop sportsbook odds */
     .tso-nfl-prop-odds-strip{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:10px 0 2px;padding:0}
@@ -433,7 +433,7 @@ function ensureStyles(){
   @media(max-width:480px){.tso-nfl-atd-outlook{grid-template-columns:1fr}.tso-nfl-atd-outlook .tso-nfl-role-ring{margin:0 auto}.tso-nfl-read-list,.tso-nfl-atd-facts{grid-template-columns:1fr}.tso-nfl-matchup-verdict{flex-direction:column;gap:5px}}
 
   .tso-nfl-player-card-v70 .tso-nfl-matchup-strip,.tso-nfl-player-card-v72 .tso-nfl-matchup-strip{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px;margin:10px 0 14px;padding:14px 16px;border:1px solid rgba(120,176,239,.14);border-radius:12px;background:rgba(4,17,38,.38)}
-  .tso-nfl-matchup-person{display:flex;align-items:center;gap:12px;min-width:0}.tso-nfl-matchup-person.opponent{justify-content:flex-start}
+  .tso-nfl-matchup-person{display:flex;align-items:center;gap:12px;min-width:0}.tso-nfl-matchup-person.opponent{justify-content:flex-end}.tso-nfl-matchup-person.opponent .tso-nfl-matchup-copy{order:1;align-items:flex-end;text-align:right}.tso-nfl-matchup-person.opponent .tso-nfl-matchup-avatar{order:2}
   .tso-nfl-matchup-avatar{width:76px;height:76px;flex:0 0 76px;display:grid;place-items:center}.tso-nfl-matchup-avatar.player{border-radius:50%;overflow:hidden;background:rgba(16,34,64,.75);border:1px solid rgba(120,176,239,.22)}.tso-nfl-matchup-avatar.team{border-radius:12px;background:transparent;border:0;overflow:visible}
   .tso-nfl-matchup-avatar img,.tso-nfl-matchup-avatar .hm-img,.tso-nfl-matchup-avatar .tso-nfl-matchup-photo{display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;object-fit:contain!important}.tso-nfl-matchup-avatar.player img,.tso-nfl-matchup-avatar.player .hm-img{object-fit:cover!important;border-radius:50%!important}
   .tso-nfl-matchup-copy{display:flex;flex-direction:column;gap:5px;min-width:0}.tso-nfl-matchup-copy b{font:800 17px/1.05 'Satoshi','Inter',sans-serif;color:#f4f7ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tso-nfl-matchup-copy span{width:max-content;max-width:100%;padding:3px 7px;border:1px solid rgba(45,127,255,.36);border-radius:999px;background:rgba(45,127,255,.09);font:700 9px/1 'JetBrains Mono',monospace;color:#8fc3ff;white-space:nowrap}
