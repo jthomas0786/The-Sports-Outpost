@@ -42,8 +42,8 @@ assert.ok(core.includes('class="ps-trajectory"'),'stage must include trajectory 
 assert.ok(core.includes('animateHitBall(root,[50,86],target,play,kind'),'batted-ball animation must draw trajectory');
 assert.ok(core.includes('fieldTarget=defensiveHitTarget(play,kind,target)'),'fielder target must be independent of landing target');
 assert.ok(concept.includes('stroke:#2d7fff!important'),'trajectory must use Sports Outpost blue');
-assert.ok(concept.includes('@keyframes psTrajectoryDraw'),'trajectory must animate');
-assert.ok(router.includes("./mlb/playstage-v901.js?v=90.44"),'router must cache-bust v918 core');
-assert.ok(router.includes("./mlb/playstage-concept-v917.js?v=91.71"),'router must cache-bust trajectory styles');
-assert.ok(index.includes('./sports/router.js?v=90.44'),'index must cache-bust router');
+assert.ok(core.includes('requestAnimationFrame(frame)'),'trajectory must animate in lockstep with the moving ball');
+assert.ok(router.includes("./mlb/playstage-v901.js?v=90.45"),'router must cache-bust v918 core');
+assert.ok(router.includes("./mlb/playstage-concept-v917.js?v=91.72"),'router must cache-bust trajectory styles');
+assert.ok(index.includes('./sports/router.js?v=90.45'),'index must cache-bust router');
 console.log('MLB v918 regression: actual-distance landing projection + blue trajectory line OK', {right,rightWall,left,center});

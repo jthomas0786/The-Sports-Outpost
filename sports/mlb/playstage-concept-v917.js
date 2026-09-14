@@ -45,36 +45,38 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-chibi[data-actor-kind="d
   border-radius:4px!important;
   padding:1px 3px!important;
 }
-/* v918 trajectory: actual hit direction + distance projected over the approved field. */
+/* v919 trajectory: solid glow grows directly behind the moving ball. */
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory{
   position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
-  z-index:46!important;pointer-events:none!important;overflow:visible!important;opacity:1!important;
+  z-index:29!important;pointer-events:none!important;overflow:visible!important;opacity:1!important;
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-flight,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-glow{
   fill:none!important;stroke-linecap:round!important;stroke-linejoin:round!important;
-  vector-effect:non-scaling-stroke!important;stroke-dasharray:1!important;stroke-dashoffset:1!important;opacity:0;
+  vector-effect:non-scaling-stroke!important;opacity:0;transition:opacity .18s ease;
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-glow{
-  stroke:rgba(45,127,255,.34)!important;stroke-width:5!important;filter:blur(2px) drop-shadow(0 0 7px rgba(45,127,255,.75))!important;
+  stroke:rgba(45,127,255,.42)!important;stroke-width:7!important;filter:blur(2.2px) drop-shadow(0 0 9px rgba(45,127,255,.9))!important;
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-flight{
-  stroke:#2d7fff!important;stroke-width:2.4!important;filter:drop-shadow(0 0 4px rgba(45,127,255,.95))!important;
-}
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-landing{
-  fill:#2d7fff!important;stroke:#dbeafe!important;stroke-width:.35!important;vector-effect:non-scaling-stroke!important;
-  filter:drop-shadow(0 0 5px rgba(45,127,255,1))!important;opacity:0;
+  stroke:#2d7fff!important;stroke-width:2.8!important;filter:drop-shadow(0 0 5px rgba(45,127,255,1))!important;
 }
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-flight,
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-glow{
-  animation:psTrajectoryDraw var(--ps-traj-ms,900ms) cubic-bezier(.18,.7,.2,1) forwards,psTrajectoryFade .7s ease 3.1s forwards!important;
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-glow{opacity:1!important;}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-head{
+  fill:rgba(45,127,255,.24)!important;stroke:#8fc0ff!important;stroke-width:.6!important;vector-effect:non-scaling-stroke!important;
+  filter:drop-shadow(0 0 4px #2d7fff) drop-shadow(0 0 10px rgba(45,127,255,.98))!important;opacity:0;
 }
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-landing{
-  animation:psTrajectoryLand .24s ease var(--ps-traj-ms,900ms) forwards,psTrajectoryFade .7s ease 3.1s forwards!important;
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-landing{
+  fill:#2d7fff!important;stroke:#e8f2ff!important;stroke-width:.38!important;vector-effect:non-scaling-stroke!important;
+  filter:drop-shadow(0 0 6px rgba(45,127,255,1))!important;opacity:0;
 }
-@keyframes psTrajectoryDraw{0%{stroke-dashoffset:1;opacity:0}8%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
-@keyframes psTrajectoryLand{0%{opacity:0;transform:scale(.35);transform-origin:center}70%{opacity:1;transform:scale(1.55);transform-origin:center}100%{opacity:1;transform:scale(1);transform-origin:center}}
-@keyframes psTrajectoryFade{to{opacity:.22}}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-complete .ps-trajectory-landing{animation:psTrajectoryLandV919 .28s ease both;}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-fading .ps-trajectory-flight,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-fading .ps-trajectory-glow,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-fading .ps-trajectory-landing{opacity:.18!important;transition:opacity .7s ease!important;}
+@keyframes psTrajectoryLandV919{0%{transform:scale(.45);transform-origin:center}65%{transform:scale(1.55);transform-origin:center}100%{transform:scale(1);transform-origin:center}}
+
 
 `;
   document.head.appendChild(s);
