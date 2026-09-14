@@ -12,9 +12,11 @@ import process from 'node:process';
 import { isHalftimeState, isHalftimeWarmupState } from '../sports/nfl/sim/auto.js';
 
 const ROOT=process.cwd();
+const arg=(flag,fallback=null)=>{const i=process.argv.indexOf(flag);return i>=0&&process.argv[i+1]!=null?process.argv[i+1]:fallback};
 const API=process.env.PARLAY_API_BASE||'https://parlay-api.com/v1';
 const KEY=process.env.PARLAY_API_KEY||'';
 const LIVE_URL=process.env.NFL_LIVE_ENDPOINT||'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';
+const LIVE_FILE=arg('--live-file',process.env.NFL_HALFTIME_LIVE_FILE||null);
 const SLATE=path.join(ROOT,'slates','nfl.json');
 const OUT=path.join(ROOT,'slates','nfl-live-odds.json');
 const SPORT='americanfootball_nfl';
@@ -22,6 +24,7 @@ const NOW=Date.now();
 const MAX_AGE_SEC=Number(process.env.NFL_HALFTIME_ODDS_MAX_AGE_SEC||600);
 const RETRY_LIMIT=Number(process.env.NFL_HALFTIME_ODDS_RETRY_LIMIT||4);
 const GOOD_REFRESH_MIN=Number(process.env.NFL_HALFTIME_ODDS_REFRESH_MINUTES||4);
+const EMPTY_RETRY_COOLDOWN_MIN=Number(process.env.NFL_HALFTIME_EMPTY_RETRY_COOLDOWN_MINUTES||4);
 const PREFETCH_MIN=Number(process.env.NFL_HALFTIME_PREFETCH_MINUTES||8);
 
 const MARKET_MAP={
@@ -52,6 +55,11 @@ async function fetchJson(url,auth=true){
   }finally{clearTimeout(t);}
 }
 async function fetchLive(){
+  if(LIVE_FILE){
+    const file=path.resolve(ROOT,LIVE_FILE),snapshot=await read(file,null);
+    if(!snapshot)throw new Error(`NFL live snapshot unreadable: ${file}`);
+    return snapshot;
+  }
   const r=await fetch(LIVE_URL,{headers:{accept:'application/json','cache-control':'no-cache'}});
   if(!r.ok)throw new Error(`NFL live ${r.status}`);return r.json();
 }
@@ -94,7 +102,15 @@ async function main(){
   const sameIds=JSON.stringify((existing?.meta?.gameIds||[]).map(String).sort())===JSON.stringify(ids);
   const ageMin=(NOW-Date.parse(existing?.meta?.fetchedAt||0))/60000,coverage=Number(existing?.meta?.sportsbookPlayerCount||0),attempts=Number(existing?.meta?.attempts||0);
   if(sameIds&&coverage>0&&ageMin<GOOD_REFRESH_MIN){console.log(`NFL halftime window odds: usable cache ${ageMin.toFixed(1)}m old; paid refresh skipped.`);return;}
-  if(sameIds&&coverage===0&&attempts>=RETRY_LIMIT){console.log(`NFL halftime window odds: ${attempts} empty retries already attempted; paid refresh capped.`);return;}
+  // Empty sportsbook responses are capped only for a short cooldown. The old
+  // behavior permanently stopped refreshing after RETRY_LIMIT attempts for the
+  // same game IDs, which could strand a game in WARMING even after props appeared.
+  if(sameIds&&coverage===0&&attempts>=RETRY_LIMIT&&ageMin<EMPTY_RETRY_COOLDOWN_MIN){
+    console.log(`NFL halftime window odds: ${attempts} empty retries reached; retry cooldown ${ageMin.toFixed(1)}/${EMPTY_RETRY_COOLDOWN_MIN}m.`);return;
+  }
+  if(sameIds&&coverage===0&&attempts>=RETRY_LIMIT){
+    console.log(`NFL halftime window odds: empty retry cooldown elapsed; reopening sportsbook refresh for current game(s).`);
+  }
 
   const from=new Date(NOW-6*3600_000).toISOString(),to=new Date(NOW+2*3600_000).toISOString();
   const events=await fetchJson(`${API}/sports/${SPORT}/events?commenceTimeFrom=${encodeURIComponent(from)}&commenceTimeTo=${encodeURIComponent(to)}`);
