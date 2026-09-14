@@ -5,7 +5,7 @@ on:
     paths:
       - '.github/workflows/one-time-mlb-gamecast-showcase.yml'
       - 'scripts/mlb-v916-simulation.mjs'
-      - 'scripts/apply-mlb-v918-simulation.py'
+      - 'scripts/apply-mlb-v919-simulation.py'
       - 'sports/mlb/playstage-v901.js'
       - 'sports/mlb/playstage-concept-v917.js'
 permissions:
@@ -27,16 +27,16 @@ jobs:
           sudo apt-get install -y ffmpeg
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install chromium
-      - name: Upgrade recorder to v918 trajectory QA
-        run: python3 scripts/apply-mlb-v918-simulation.py
-      - name: Capture v918 three-run homer simulation
+      - name: Upgrade recorder to v919 fielder and trail QA
+        run: python3 scripts/apply-mlb-v919-simulation.py
+      - name: Capture v919 three-run homer simulation
         run: node scripts/mlb-v916-simulation.mjs
-      - name: Commit verified v918 simulation
+      - name: Commit verified v919 simulation
         run: |
           git config user.name 'TSO MLB Showcase Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add scripts/mlb-v916-simulation.mjs qa/showcase/mlb-gamecast-home-run-simulation.gif qa/showcase/mlb-gamecast-home-run-simulation.mp4 qa/showcase/mlb-gamecast-home-run-simulation.webm qa/showcase/mlb-gamecast-showcase.json
-          git commit -m 'qa: verify MLB v918 landing and trajectory'
+          git commit -m 'qa: verify MLB v919 fielder and ball trail'
           git reset --hard HEAD
           for attempt in 1 2 3 4; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
