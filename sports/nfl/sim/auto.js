@@ -185,9 +185,13 @@ export function decideAutomaticRun({
   if(phase==='halftime'){
     const already=prev.halftimeFingerprint===fingerprint;
     if(already) return {run:false,phase,reason:'halftime 50K + candidate board already complete',fingerprint,iterations:0,ready};
-    const attempts=Number(prev.halftimeCandidateAttempts||0);
+    // Candidate retries belong to one exact live/odds fingerprint. A new score,
+    // clock state, or sportsbook snapshot gets a fresh retry budget instead of
+    // inheriting exhausted attempts from an older board.
+    const sameAttemptFingerprint=prev.halftimeAttemptFingerprint===fingerprint;
+    const attempts=sameAttemptFingerprint?Number(prev.halftimeCandidateAttempts||0):0;
     const maxAttempts=Number(config?.halftime?.maxCandidateRetries??3);
-    if(attempts>=maxAttempts) return {run:false,phase,reason:'halftime candidate retries exhausted',fingerprint,iterations:0,ready};
+    if(attempts>=maxAttempts) return {run:false,phase,reason:'halftime candidate retries exhausted for current inputs',fingerprint,iterations:0,ready};
     return {run:true,phase,reason:attempts?('halftime candidate retry '+(attempts+1)):'halftime',fingerprint,iterations:halftimeIterations,checkpointMinutes:null,ready};
   }
 
@@ -235,13 +239,23 @@ export function nextAutomationState({previousState=null,decision,result,game,now
   if(decision.checkpointMinutes!=null) out.checkpoints[String(decision.checkpointMinutes)]=stamp;
   if(decision.phase==='halftime'){
     out.halftimeRunAt=stamp;
-    // Missing sportsbook data must not consume the candidate retry budget.
-    out.halftimeCandidateAttempts=Number(prev.halftimeCandidateAttempts||0)+(result?.automation?.halftimeHasLiveOdds===false?0:1);
-    out.halftimeCandidatesReady=result?.automation?.halftimeCandidatesReady===true;
-    if(out.halftimeCandidatesReady){
+    const candidatesReady=result?.automation?.halftimeCandidatesReady===true;
+    const hasLiveOdds=result?.automation?.halftimeHasLiveOdds!==false;
+    out.halftimeCandidatesReady=candidatesReady;
+    if(candidatesReady){
+      // A successful READY board completes this fingerprint and resets the retry
+      // budget. Later live/odds changes must never inherit these old attempts.
       out.halftimeFingerprint=decision.fingerprint;
+      out.halftimeCandidateAttempts=0;
+      delete out.halftimeAttemptFingerprint;
     }else{
       delete out.halftimeFingerprint;
+      const sameAttemptFingerprint=prev.halftimeAttemptFingerprint===decision.fingerprint;
+      const priorAttempts=sameAttemptFingerprint?Number(prev.halftimeCandidateAttempts||0):0;
+      out.halftimeAttemptFingerprint=decision.fingerprint;
+      // Missing sportsbook data does not consume candidate attempts; as soon as
+      // fresh props arrive their changed fingerprint receives a clean budget.
+      out.halftimeCandidateAttempts=priorAttempts+(hasLiveOdds?1:0);
     }
     out.halftimeGameStateKey=`${result?.game?.currentScore?.away??''}-${result?.game?.currentScore?.home??''}`;
   }
