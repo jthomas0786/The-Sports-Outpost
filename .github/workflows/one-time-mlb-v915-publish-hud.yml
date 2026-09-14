@@ -1,0 +1,40 @@
+name: One-time MLB v915 publish validated HUD
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v915-publish-hud.yml'
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply exact visually validated patch
+        run: |
+          python3 scripts/apply-mlb-v915-overlay-hud.py
+          python3 scripts/apply-mlb-v915-overlay-mobile-fit.py
+          node --check sports/mlb/playstage-concept-v915.js
+          node --check sports/router.js
+          node scripts/mlb-playstage-selftest.mjs
+          grep -F "./sports/router.js?v=90.40" index.html
+          grep -F "./mlb/playstage-concept-v915.js?v=91.55" sports/router.js
+      - name: Commit and push cleanly
+        run: |
+          git config user.name 'TSO MLB Layout Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/mlb/playstage-concept-v915.js sports/router.js index.html scripts/mlb-playstage-selftest.mjs
+          git commit -m 'mlb: move Gamecast HUD onto field and make mobile readable'
+          git reset --hard HEAD
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
