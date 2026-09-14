@@ -62,8 +62,8 @@ assert.ok(src.includes("defenderActor(root,receiver.pos,receiver.id)"),'throw re
 assert.ok(src.includes('finally{await restoreDefense(root,s,240);}'),'all plays must restore all nine defensive positions');
 assert.ok(concept.includes('data-actor-kind="runner"'),'v917 must style offense by explicit actor kind');
 assert.ok(concept.includes('background:linear-gradient(90deg,var(--c2) 0 10%,var(--c1) 10% 90%,var(--c2) 90%)'),'v917 jerseys must visibly use team colors');
-assert.ok(router.includes("./mlb/playstage-v901.js?v=90.43"),'router must cache-bust strict-role MLB PlayStage');
-assert.ok(router.includes("./mlb/playstage-concept-v917.js?v=91.70"),'router must load v917 visual layer');
+assert.ok(router.includes("./mlb/playstage-v901.js?v=90.44"),'router must cache-bust strict-role MLB PlayStage');
+assert.ok(router.includes("./mlb/playstage-concept-v917.js?v=91.71"),'router must load v917 visual layer');
 assert.ok(router.includes('installMlbPlaystageConceptV917'),'router must install v917 visual layer');
-assert.ok(index.includes('./sports/router.js?v=90.43'),'index must cache-bust v917 router');
+assert.ok(index.includes('./sports/router.js?v=90.44'),'index must cache-bust v917 router');
 console.log('MLB v917 actor-role regression: 9 defenders locked; only batter + true runners may run bases');

@@ -45,6 +45,37 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-chibi[data-actor-kind="d
   border-radius:4px!important;
   padding:1px 3px!important;
 }
+/* v918 trajectory: actual hit direction + distance projected over the approved field. */
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory{
+  position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+  z-index:46!important;pointer-events:none!important;overflow:visible!important;opacity:1!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-flight,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-glow{
+  fill:none!important;stroke-linecap:round!important;stroke-linejoin:round!important;
+  vector-effect:non-scaling-stroke!important;stroke-dasharray:1!important;stroke-dashoffset:1!important;opacity:0;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-glow{
+  stroke:rgba(45,127,255,.34)!important;stroke-width:5!important;filter:blur(2px) drop-shadow(0 0 7px rgba(45,127,255,.75))!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-flight{
+  stroke:#2d7fff!important;stroke-width:2.4!important;filter:drop-shadow(0 0 4px rgba(45,127,255,.95))!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory-landing{
+  fill:#2d7fff!important;stroke:#dbeafe!important;stroke-width:.35!important;vector-effect:non-scaling-stroke!important;
+  filter:drop-shadow(0 0 5px rgba(45,127,255,1))!important;opacity:0;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-flight,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-glow{
+  animation:psTrajectoryDraw var(--ps-traj-ms,900ms) cubic-bezier(.18,.7,.2,1) forwards,psTrajectoryFade .7s ease 3.1s forwards!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v917 .ps-trajectory.is-active .ps-trajectory-landing{
+  animation:psTrajectoryLand .24s ease var(--ps-traj-ms,900ms) forwards,psTrajectoryFade .7s ease 3.1s forwards!important;
+}
+@keyframes psTrajectoryDraw{0%{stroke-dashoffset:1;opacity:0}8%{opacity:1}100%{stroke-dashoffset:0;opacity:1}}
+@keyframes psTrajectoryLand{0%{opacity:0;transform:scale(.35);transform-origin:center}70%{opacity:1;transform:scale(1.55);transform-origin:center}100%{opacity:1;transform:scale(1);transform-origin:center}}
+@keyframes psTrajectoryFade{to{opacity:.22}}
+
 `;
   document.head.appendChild(s);
 }
