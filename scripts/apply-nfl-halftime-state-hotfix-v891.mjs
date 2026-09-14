@@ -1,15 +1,9 @@
 #!/usr/bin/env node
 import fs from 'node:fs';
 
-function replaceOrThrow(file, oldText, newText){
-  const src=fs.readFileSync(file,'utf8');
-  if(!src.includes(oldText)) throw new Error(`${file}: hotfix anchor not found`);
-  fs.writeFileSync(file,src.replace(oldText,newText));
-}
-
-replaceOrThrow(
-  'sports/nfl/sim/auto.js',
-`export function isHalftimeState(liveGame){
+const file='sports/nfl/sim/auto.js';
+const src=fs.readFileSync(file,'utf8');
+const oldText=`export function isHalftimeState(liveGame){
   if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;
   const detail=\`${'${liveGame.statusDetail||\'\'}'} ${'${liveGame.detail||\'\'}'}\`.toLowerCase();
   if(/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)) return true;
@@ -32,8 +26,8 @@ export function automationPhase(liveGame){
   if(status==='in'||status==='live') return 'live';
   return 'pregame';
 }
-`,
-`function livePeriod(liveGame){
+`;
+const newText=`function livePeriod(liveGame){
   return Number(liveGame?.period ?? liveGame?.quarter ?? liveGame?.status?.period);
 }
 function liveClockMinutes(liveGame){
@@ -74,33 +68,13 @@ export function automationPhase(liveGame){
   if(status==='in'||status==='live') return 'live';
   return 'pregame';
 }
-`
-);
+`;
 
-replaceOrThrow(
-  'scripts/nfl-halftime-window-refresh.mjs',
-`const ids=Object.entries(liveGames)
-  .filter(([,g])=>{
-    const status=String(g?.status||'');
-    const q=Number(g?.quarter);
-    const clock=Number(g?.clockMin);
-    return (status==='in'||status==='live') && q===2 && Number.isFinite(clock) && clock<=START_MIN && clock>=0;
-  })
-  .map(([id])=>String(id));`,
-`const ids=Object.entries(liveGames)
-  .filter(([,g])=>{
-    const status=String(g?.status ?? g?.state ?? g?.status?.state ?? '').toLowerCase();
-    const detail=\`${'${g?.statusDetail||\'\'}'} ${'${g?.status?.detail||\'\'}'} ${'${g?.detail||\'\'}'} ${'${g?.clock||\'\'}'}\`.toLowerCase();
-    const q=Number(g?.quarter ?? g?.period ?? g?.status?.period);
-    const direct=Number(g?.clockMin);
-    const seconds=Number(g?.secondsRemaining ?? g?.status?.seconds ?? g?.seconds);
-    const raw=String(g?.clock ?? g?.lastPlay?.clock ?? '').trim();
-    const m=raw.match(/^(\\d{1,2}):(\\d{2})$/);
-    const clock=Number.isFinite(direct)?direct:Number.isFinite(seconds)?seconds/60:m?Number(m[1])+Number(m[2])/60:NaN;
-    const halftime=status==='halftime'||status==='half'||/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
-    return halftime || ((status==='in'||status==='live') && q===2 && Number.isFinite(clock) && clock<=START_MIN && clock>=0);
-  })
-  .map(([id])=>String(id));`
-);
-
-console.log('✓ applied NFL official-halftime state hotfix');
+if(src.includes(newText)){
+  console.log('✓ NFL official-halftime state hotfix already present');
+}else if(src.includes(oldText)){
+  fs.writeFileSync(file,src.replace(oldText,newText));
+  console.log('✓ applied NFL official-halftime state hotfix');
+}else{
+  throw new Error(`${file}: halftime hotfix anchor not found`);
+}
