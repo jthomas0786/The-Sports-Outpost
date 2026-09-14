@@ -27,11 +27,12 @@ jobs:
           grep -F "./mlb/playstage-concept-v915.js?v=91.52" sports/router.js
           grep -F "./nfl-preview-v893.js?v=89.36" sports/router.js
           grep -F "./nhl/view-v906.js?v=90.18" sports/router.js
-      - name: Commit corrections
+      - name: Commit production corrections
         run: |
           git config user.name 'TSO MLB QA Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/mlb/playstage-concept-v915.js sports/router.js scripts/mlb-playstage-selftest.mjs index.html .github/workflows/one-time-mlb-playstage-v915-visual-qa.yml
+          git restore .github/workflows/one-time-mlb-playstage-v915-visual-qa.yml
+          git add sports/mlb/playstage-concept-v915.js sports/router.js scripts/mlb-playstage-selftest.mjs index.html
           git diff --staged --quiet && exit 0
           git commit -m 'Finish MLB v915 approved field mobile scaling'
           for i in 1 2 3; do
