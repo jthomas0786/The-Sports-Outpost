@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/one-time-mlb-v917-actor-role-lock.yml'
-      - 'scripts/apply-mlb-v917-actor-role-lock.py'
+      - 'scripts/apply-mlb-v917-actor-role-lock-v2.py'
       - 'scripts/mlb-v917-actor-role-selftest.mjs'
       - 'sports/mlb/playstage-concept-v917.js'
 permissions:
@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: 22
       - name: Apply strict MLB actor roles
-        run: python3 scripts/apply-mlb-v917-actor-role-lock.py
+        run: python3 scripts/apply-mlb-v917-actor-role-lock-v2.py
       - name: Validate MLB Gamecast
         run: |
           node --check sports/mlb/playstage-v901.js
