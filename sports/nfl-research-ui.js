@@ -163,9 +163,9 @@ function matchupText(r){
 }
 
 function ensureStyles(){
-  if(document.getElementById('tso-nfl-research-ui-v864')) return;
+  if(document.getElementById('tso-nfl-research-ui-v865')) return;
   const style=document.createElement('style');
-  style.id='tso-nfl-research-ui-v864';
+  style.id='tso-nfl-research-ui-v865';
   style.textContent=`
     /* v86.2 selected-prop sportsbook odds */
     .tso-nfl-prop-odds-strip{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:10px 0 2px;padding:0}
@@ -830,8 +830,10 @@ function matchupVerdict(playerRate,defenseRate,name='Player'){
 function propMatchupHTML(r,ctx,name,pos,edge,snapPct,playerPhoto,opponentPhoto,opp){
   const last=String(name||'Player').split(' ').slice(-1)[0]||'Player';
   const posGroup=r?.matchup?.positionGroup||pos||'position group';
-  const playerImg=playerPhoto?`<img src="${esc(playerPhoto)}" alt="${esc(name)}">`:`<span>${esc(last.slice(0,1))}</span>`;
-  const oppImg=opponentPhoto?`<img src="${esc(opponentPhoto)}" alt="${esc(opp)}">`:`<span>${esc(opp||'DEF')}</span>`;
+  // playerPhoto/opponentPhoto are already-rendered safe HTML fragments built by enhancePlayerModal.
+  // Do not treat them as image URLs or they become a literal <img ...> string inside src.
+  const playerImg=playerPhoto||`<span>${esc(last.slice(0,1))}</span>`;
+  const oppImg=opponentPhoto||`<span>${esc(opp||'DEF')}</span>`;
   const isTd=ctx.key==='atd'||ctx.key==='firstTd';
   const recent=Number(ctx.recent),season=Number(ctx.seasonPg),defense=Number(ctx.defense);
   const recentText=Number.isFinite(recent)?fmt1(recent):'—';
