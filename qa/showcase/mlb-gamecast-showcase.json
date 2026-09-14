@@ -1,5 +1,5 @@
 {
-  "simulationVersion": "v918",
+  "simulationVersion": "v919",
   "gamePk": "822928",
   "selectedRunnerCount": 2,
   "start": {
@@ -186,15 +186,30 @@
   },
   "trajectory": {
     "active": true,
-    "path": "M 50 86 Q 67.66658858994244 3 85.33317717988487 23.433900340141776",
-    "glowPath": "M 50 86 Q 67.66658858994244 3 85.33317717988487 23.433900340141776",
+    "path": "M 50 86 Q 63.81855292780328 21.078587064589044 77.63710585560656 19.439530650939354",
+    "glowPath": "M 50 86 Q 63.81855292780328 21.078587064589044 77.63710585560656 19.439530650939354",
     "stroke": "rgb(45, 127, 255)",
-    "strokeWidth": "2.4px",
+    "strokeWidth": "2.8px",
+    "strokeDasharray": "none",
     "landing": {
       "x": 85.33317717988487,
       "y": 23.433900340141776
     },
-    "landingOpacity": 0
+    "landingOpacity": 0,
+    "head": {
+      "x": 77.63710585560656,
+      "y": 19.439530650939354,
+      "opacity": 1
+    },
+    "ball": {
+      "x": 77.6371,
+      "y": 19.4395,
+      "opacity": 1
+    },
+    "rightFielder": {
+      "x": 75.99949557699655,
+      "y": 43.20565999040266
+    }
   },
   "end": {
     "defense": 9,
@@ -304,7 +319,10 @@
       "y": 23.433900340141776
     },
     "deepRight": true,
-    "trajectoryBlue": true
+    "trajectoryBlue": true,
+    "solidTrail": true,
+    "glowFollowsBall": true,
+    "rightFielderPlayable": true
   },
   "actorRoleIsolation": {
     "passed": true,
