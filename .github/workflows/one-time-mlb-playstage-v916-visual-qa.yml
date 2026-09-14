@@ -1,0 +1,136 @@
+name: One-time MLB PlayStage v916 visual QA
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-playstage-v916-visual-qa.yml'
+permissions:
+  contents: write
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install chromium
+      - name: Build v916 harness
+        run: |
+          GAME_PK=$(node --input-type=module - <<'NODE'
+          for(const n of [1,2,3,4,5]){
+            const date=new Date(Date.now()-n*86400000).toISOString().slice(0,10);
+            const j=await (await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}`)).json();
+            const games=(j.dates||[]).flatMap(d=>d.games||[]);
+            const g=games.find(x=>/final|completed|game over/i.test(x.status?.detailedState||''))||games[0];
+            if(g?.gamePk){console.log(g.gamePk);break;}
+          }
+          NODE
+          )
+          test -n "$GAME_PK"
+          cat > visual-qa-v916.html <<EOF
+          <!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:0}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div><script type="module">
+          import {installMlbPlaystageV901} from './sports/mlb/playstage-v901.js?v=qa916';
+          import {installMlbPlaystageConceptV904} from './sports/mlb/playstage-concept-v904.js?v=qa916';
+          import {installMlbPlaystageConceptV905} from './sports/mlb/playstage-concept-v905.js?v=qa916';
+          import {installMlbPlaystageConceptV906} from './sports/mlb/playstage-concept-v906.js?v=qa916';
+          import {installMlbPlaystageConceptV907} from './sports/mlb/playstage-concept-v907.js?v=qa916';
+          import {installMlbPlaystageConceptV908} from './sports/mlb/playstage-concept-v908.js?v=qa916';
+          import {installMlbPlaystageConceptV909} from './sports/mlb/playstage-concept-v909.js?v=qa916';
+          import {installMlbPlaystageConceptV910} from './sports/mlb/playstage-concept-v910.js?v=qa916';
+          import {installMlbPlaystageConceptV911} from './sports/mlb/playstage-concept-v911.js?v=qa916';
+          import {installMlbPlaystageConceptV912} from './sports/mlb/playstage-concept-v912.js?v=qa916';
+          import {installMlbPlaystageConceptV913} from './sports/mlb/playstage-concept-v913.js?v=qa916';
+          import {installMlbPlaystageConceptV914} from './sports/mlb/playstage-concept-v914.js?v=qa916';
+          import {installMlbPlaystageConceptV915} from './sports/mlb/playstage-concept-v915.js?v=qa916';
+          import {installMlbPlaystageConceptV916} from './sports/mlb/playstage-concept-v916.js?v=qa916';
+          installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();installMlbPlaystageConceptV909();installMlbPlaystageConceptV910();installMlbPlaystageConceptV911();installMlbPlaystageConceptV912();installMlbPlaystageConceptV913();installMlbPlaystageConceptV914();installMlbPlaystageConceptV915();installMlbPlaystageConceptV916();
+          </script></body></html>
+          EOF
+      - name: Render desktop and mobile field actors
+        run: |
+          mkdir -p qa
+          node --check sports/mlb/playstage-v901.js
+          node --check sports/mlb/playstage-concept-v916.js
+          node scripts/mlb-playstage-v916-selftest.mjs
+          python3 -m http.server 4173 >/tmp/tso-v916-http.log 2>&1 & SERVER_PID=$!
+          node --input-type=module - <<'NODE'
+          import { chromium } from 'playwright';
+          import fs from 'node:fs';
+          const browser=await chromium.launch({headless:true});
+          const page=await browser.newPage({viewport:{width:1536,height:1100},deviceScaleFactor:1});
+          const patchFeed=async route=>{
+            const response=await route.fetch();
+            const feed=await response.json();
+            const ls=feed?.liveData?.linescore||{};
+            const away=feed?.liveData?.boxscore?.teams?.away;
+            const home=feed?.liveData?.boxscore?.teams?.home;
+            const ids=(away?.battingOrder||[]).map(Number).filter(Boolean);
+            const people=ids.map(id=>away?.players?.[`ID${id}`]?.person).filter(Boolean);
+            if(people.length>=4){
+              ls.inningHalf='Top';ls.isTopInning=true;ls.inningState='Top';
+              ls.offense={...(ls.offense||{}),batter:people[0],onDeck:people[3],first:people[1],second:null,third:people[2]};
+              let pitch=ls?.defense?.pitcher;
+              if(!pitch){pitch=Object.values(home?.players||{}).find(p=>p?.position?.abbreviation==='P')?.person;}
+              const play=feed?.liveData?.plays?.currentPlay||feed?.liveData?.plays?.allPlays?.at?.(-1);
+              if(play){
+                play.matchup={...(play.matchup||{}),batter:people[0],pitcher:pitch||play.matchup?.pitcher};
+                play.result={...(play.result||{}),eventType:'strikeout',event:'Strikeout',description:`${people[0].fullName} strikes out.`};
+                play.runners=[];
+                play.playEndTime='2099-01-01T00:00:00Z';
+                feed.liveData.plays.currentPlay=play;
+              }
+            }
+            feed.gameData.status={...(feed.gameData.status||{}),detailedState:'In Progress'};
+            await route.fulfill({status:response.status(),headers:response.headers(),contentType:'application/json',body:JSON.stringify(feed)});
+          };
+          await page.route('https://statsapi.mlb.com/api/v1.1/game/**/feed/live?language=en',patchFeed);
+          const inspect=()=>{
+            const actors=[...document.querySelectorAll('.ps-chibi')];
+            const defense=actors.filter(e=>!e.classList.contains('ps-batter')&&!e.classList.contains('ps-runner'));
+            const batter=actors.filter(e=>e.classList.contains('ps-batter'));
+            const runners=actors.filter(e=>e.classList.contains('ps-runner'));
+            const visible=actors.filter(e=>parseFloat(getComputedStyle(e).opacity)>.5);
+            const labels=actors.filter(e=>e.querySelector(':scope > .ps-actor-label'));
+            const root=document.querySelector('.tso-mlb-playstage-v901');
+            const labelFont=parseFloat(getComputedStyle(document.querySelector('.ps-actor-label')||document.body).fontSize);
+            return {viewport:innerWidth,docWidth:document.documentElement.scrollWidth,fieldActors:root?.dataset?.fieldActors,defense:defense.length,batter:batter.length,runners:runners.length,total:actors.length,visible:visible.length,labels:labels.length,labelFont,roles:actors.map(e=>e.dataset.actorRole)};
+          };
+          await page.goto('http://127.0.0.1:4173/visual-qa-v916.html',{waitUntil:'domcontentloaded'});
+          await page.waitForSelector('.tso-mlb-concept-v916',{timeout:30000});
+          await page.waitForFunction(()=>document.querySelectorAll('.ps-chibi').length>=12,{timeout:30000});
+          await page.waitForTimeout(1200);
+          const desktop=await page.evaluate(inspect);
+          await page.locator('.tso-mlb-playstage-v901').screenshot({path:'qa/mlb-playstage-v916-desktop.png'});
+          if(desktop.fieldActors!=='v916'||desktop.defense!==9||desktop.batter!==1||desktop.runners!==2||desktop.visible!==desktop.total||desktop.labels!==desktop.total)process.exitCode=3;
+          await page.setViewportSize({width:390,height:844});
+          await page.reload({waitUntil:'domcontentloaded'});
+          await page.waitForSelector('.tso-mlb-concept-v916',{timeout:30000});
+          await page.waitForFunction(()=>document.querySelectorAll('.ps-chibi').length>=12,{timeout:30000});
+          await page.waitForTimeout(1000);
+          const mobile=await page.evaluate(inspect);
+          await page.locator('.tso-mlb-playstage-v901').screenshot({path:'qa/mlb-playstage-v916-mobile.png'});
+          if(mobile.docWidth>mobile.viewport+1||mobile.defense!==9||mobile.batter!==1||mobile.runners!==2||mobile.visible!==mobile.total||mobile.labels!==mobile.total||mobile.labelFont<7)process.exitCode=4;
+          fs.writeFileSync('qa/mlb-playstage-v916.json',JSON.stringify({desktop,mobile},null,2));
+          console.log({desktop,mobile});
+          await browser.close();
+          NODE
+          kill $SERVER_PID || true
+      - name: Commit v916 QA media
+        run: |
+          git config user.name 'TSO MLB v916 QA Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add qa/mlb-playstage-v916-desktop.png qa/mlb-playstage-v916-mobile.png qa/mlb-playstage-v916.json
+          git commit -m 'qa: verify MLB v916 full field actors' || exit 0
+          git reset --hard HEAD
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
