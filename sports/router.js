@@ -11,7 +11,7 @@
  *
  * View swapping is additive: the MLB experience keeps its exact DOM, and we only
  * toggle `hidden` on its containers vs the sport-specific view containers.
- * MLB v915 QA note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
+ * MLB v916 field-actors note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
@@ -114,7 +114,7 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915] = await Promise.all([
+      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916] = await Promise.all([
         import('./mlb/live-game-switcher-v901.js?v=90.22'),
         import('./mlb/player-modal-parity-v901.js?v=90.2'),
         import('./mlb/playstage-v901.js?v=90.4'),
@@ -129,7 +129,8 @@ async function swapView(active) {
         import('./mlb/playstage-concept-v912.js?v=91.20'),
         import('./mlb/playstage-concept-v913.js?v=91.30'),
         import('./mlb/playstage-concept-v914.js?v=91.40'),
-        import('./mlb/playstage-concept-v915.js?v=91.55')
+        import('./mlb/playstage-concept-v915.js?v=91.55'),
+        import('./mlb/playstage-concept-v916.js?v=91.60')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
@@ -146,6 +147,7 @@ async function swapView(active) {
       conceptV913.installMlbPlaystageConceptV913?.();
       conceptV914.installMlbPlaystageConceptV914?.();
       conceptV915.installMlbPlaystageConceptV915?.();
+      conceptV916.installMlbPlaystageConceptV916?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
     }
