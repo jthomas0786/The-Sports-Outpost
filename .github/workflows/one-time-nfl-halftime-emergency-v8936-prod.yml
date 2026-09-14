@@ -1,0 +1,79 @@
+name: One-time NFL halftime recovery production deploy v89.36
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-halftime-emergency-v8936-prod.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Apply halftime production recovery
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          p=Path('sports/nfl/halftime-ui-v884.js'); s=p.read_text()
+          old="""const periodOf=g=>Number(g?.liveScore?.period??g?.period);\nconst clockOf=g=>Number(g?.liveScore?.clockMin??g?.clockMin);\nconst statusOf=g=>String(g?.liveScore?.status||g?.status||'').toLowerCase();\nconst detailOf=g=>`${g?.statusDetail||''} ${g?.detail||''} ${g?.liveScore?.statusDetail||''}`.toLowerCase();\n"""
+          new="""const periodOf=g=>Number(g?.liveScore?.period??g?.period);\nconst clockOf=g=>{\n  const minute=Number(g?.liveScore?.clockMin??g?.clockMin);\n  if(Number.isFinite(minute))return minute;\n  const raw=String(g?.liveScore?.clock??g?.clock??'').trim().toLowerCase();\n  if(/half\\s*time|halftime/.test(raw))return 0;\n  const m=raw.match(/^(\\d{1,2}):(\\d{2})$/);\n  return m?(Number(m[1])+Number(m[2])/60):NaN;\n};\nconst statusOf=g=>String(g?.liveScore?.status||g?.status||'').toLowerCase();\nconst detailOf=g=>`${g?.status||''} ${g?.liveScore?.status||''} ${g?.statusDetail||''} ${g?.detail||''} ${g?.liveScore?.statusDetail||''} ${g?.clock||''} ${g?.liveScore?.clock||''}`.toLowerCase();\nconst liveish=s=>['in','live','halftime','half'].includes(String(s||'').toLowerCase());\n"""
+          if old in s:s=s.replace(old,new,1)
+          elif 'const liveish=' not in s:raise SystemExit('halftime helper anchor missing')
+          old2="""export function isHalftimeGameState(g){\n  if(!g)return false;\n  const status=statusOf(g);\n  if(status!=='in'&&status!=='live')return false;\n  if(/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detailOf(g)))return true;\n  const p=periodOf(g),clock=clockOf(g);\n  return p===2&&Number.isFinite(clock)&&clock<=0.05;\n}\n\nexport function isHalftimeWarmupGameState(g,{thresholdMinutes=HALFTIME_WINDOW_MINUTES}={}){\n  if(!g)return false;\n  if(isHalftimeGameState(g))return true;\n  const status=statusOf(g);\n  if(status!=='in'&&status!=='live')return false;\n  const p=periodOf(g),clock=clockOf(g);\n  return p===2&&Number.isFinite(clock)&&clock>=0&&clock<=Number(thresholdMinutes??HALFTIME_WINDOW_MINUTES);\n}\n"""
+          new2="""export function isHalftimeGameState(g){\n  if(!g)return false;\n  const halfText=/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detailOf(g));\n  if(halfText)return true;\n  const status=statusOf(g),p=periodOf(g),clock=clockOf(g);\n  if(!liveish(status))return false;\n  return p===2&&Number.isFinite(clock)&&clock<=0.05;\n}\n\nexport function isHalftimeWarmupGameState(g,{thresholdMinutes=HALFTIME_WINDOW_MINUTES}={}){\n  if(!g)return false;\n  if(isHalftimeGameState(g))return true;\n  const status=statusOf(g);\n  if(!liveish(status))return false;\n  const p=periodOf(g),clock=clockOf(g);\n  return p===2&&Number.isFinite(clock)&&clock>=0&&clock<=Number(thresholdMinutes??HALFTIME_WINDOW_MINUTES);\n}\n"""
+          if old2 in s:s=s.replace(old2,new2,1)
+          elif 'if(!liveish(status))return false;' not in s:raise SystemExit('halftime state anchor missing')
+          s=s.replace("./halftime-validity.js?v=89.26","./halftime-validity.js?v=89.36",1)
+          p.write_text(s)
+
+          Path('sports/nfl/halftime-validity.js').write_text("""// Halftime boards remain usable through halftime when the score/state still match.\nconst num=v=>v==null||v===''?null:Number.isFinite(Number(v))?Number(v):null;\nconst WINDOW_MINUTES=8,MAX_BOARD_AGE_MS=35*60*1000,MAX_LIVE_AGE_MS=15*60*1000,MAX_ODDS_TOTAL_AGE_SECONDS=35*60;\nfunction clockMinutes(live,game){const direct=num(live?.clockMin??game?.clockMin);if(direct!=null)return direct;const raw=String(live?.clock??game?.clock??'').trim().toLowerCase();if(/half\\s*time|halftime/.test(raw))return 0;const m=raw.match(/^(\\d{1,2}):(\\d{2})$/);return m?Number(m[1])+Number(m[2])/60:null;}\nfunction halfText(game,live){return /half\\s*time|halftime|end of (?:the )?(?:2nd|second)/i.test(`${game?.status||''} ${live?.status||''} ${game?.statusDetail||game?.detail||''} ${live?.statusDetail||''} ${game?.clock||''} ${live?.clock||''}`)}\nexport function halftimeBoardCurrent(board,game,now=Date.now()){if(!board?.ready||!game)return false;const live=game.liveScore||game,status=String(live.status||game.status||'').toLowerCase(),period=num(live.period??game.period),clock=clockMinutes(live,game),isHalf=halfText(game,live),liveish=['in','live','halftime','half'].includes(status);if(!isHalf&&!liveish)return false;if(!isHalf&&period!==2)return false;if(!isHalf&&!(clock!=null&&clock>=0&&clock<=WINDOW_MINUTES+.05))return false;const generated=Date.parse(board.generatedAt||'');if(!Number.isFinite(generated)||now-generated>MAX_BOARD_AGE_MS||generated>now+60000)return false;const liveStamp=num(live.lastFetchedAt??game.lastFetchedAt);if(liveStamp!=null&&(now-liveStamp>MAX_LIVE_AGE_MS||liveStamp>now+60000))return false;if(Number(board.state?.period)!==2)return false;const boardClock=num(board.state?.clockMin),boardDetail=String(board.state?.statusDetail||'');if(!(/half\\s*time|halftime|end of (?:the )?(?:2nd|second)/i.test(boardDetail)||(boardClock!=null&&boardClock>=0&&boardClock<=WINDOW_MINUTES+.05)))return false;for(const side of ['away','home']){const current=num(live[`${side}Score`]??game[side]?.score);if(current==null||current!==num(board.state?.[`${side}Score`]))return false;}const elapsed=Math.max(0,(now-generated)/1000);return (board.candidates||[]).length>=2&&board.candidates.every(c=>{const age=num(c.oddsAgeSeconds);return age!=null&&age>=0&&age+elapsed<=MAX_ODDS_TOTAL_AGE_SECONDS;});}\n""")
+
+          p=Path('sports/nfl/playstage-v886e.js'); s=p.read_text()
+          old="function halftime(h){if(h?.ready)return{t:'Halftime Lab Ready',s:`${h.games||h.gameCount||1} games loaded`};if(h?.warming||h?.eligibleGames?.length)return{t:'Halftime Lab Warming Up',s:'2:00 warning automation active'};return{t:'Halftime Lab Monitoring',s:'Auto-arms near the 2:00 mark in Q2'}}"
+          new="""function gameId(g){return String(g?.id||g?.gameId||'')}\nfunction gameAtHalftime(g){const live=g?.liveScore||g||{},detail=`${g?.status||''} ${live?.status||''} ${g?.statusDetail||''} ${live?.statusDetail||''} ${g?.clock||''} ${live?.clock||''}`.toLowerCase();if(/half\\s*time|halftime|end of (?:the )?(?:2nd|second)/.test(detail))return true;return Number(live?.period??g?.period)===2&&Number(live?.clockMin??g?.clockMin)<=.05;}\nfunction halftime(h,g){const id=gameId(g),board=(h?.games||[]).find(x=>String(x?.gameId||x?.id||'')===id);if(board?.ready)return{t:'Halftime Lab Ready',s:`${board?.candidates?.length||0} qualified props · 50K complete`};if(gameAtHalftime(g))return{t:'Halftime Lab Calculating',s:'Live props + 50K board refreshing now'};if(h?.ready)return{t:'Halftime Lab Ready',s:`${h.games||h.gameCount||1} games loaded`};if(h?.warming||h?.eligibleGames?.length)return{t:'Halftime Lab Warming Up',s:'Late-Q2 automation active'};return{t:'Halftime Lab Monitoring',s:'Auto-arms in late Q2'};}"""
+          if old in s:s=s.replace(old,new,1)
+          elif 'function gameAtHalftime' not in s:raise SystemExit('playstage halftime anchor missing')
+          s=s.replace('H=halftime(opts.halftime),poss=F.poss','H=halftime(opts.halftime,game),poss=F.poss',1)
+          p.write_text(s)
+
+          p=Path('sports/nfl-preview.js'); s=p.read_text().replace("./nfl/playstage-v886e.js?v=89.34","./nfl/playstage-v886e.js?v=89.36",1).replace("./nfl/halftime-ui-v884.js?v=89.33","./nfl/halftime-ui-v884.js?v=89.36",1); p.write_text(s)
+          p=Path('sports/nfl-preview-v890.js'); s=p.read_text().replace("./nfl-preview.js?v=89.34","./nfl-preview.js?v=89.36",1); p.write_text(s)
+          p=Path('sports/nfl-preview-v893.js'); s=p.read_text().replace("./nfl-preview-v890.js?v=89.34","./nfl-preview-v890.js?v=89.36",1); p.write_text(s)
+          p=Path('sports/router.js'); s=p.read_text().replace("./nfl-preview-v893.js?v=89.34","./nfl-preview-v893.js?v=89.36",1); p.write_text(s)
+          p=Path('index.html'); s=p.read_text(); s=re.sub(r'\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.36',s,count=1); p.write_text(s)
+          PY
+      - name: Validate production files
+        run: |
+          node --check sports/nfl/halftime-ui-v884.js
+          node --check sports/nfl/halftime-validity.js
+          node --check sports/nfl/playstage-v886e.js
+          node --check sports/nfl-preview.js
+          grep -F './nfl/halftime-ui-v884.js?v=89.36' sports/nfl-preview.js
+          grep -F './nfl/playstage-v886e.js?v=89.36' sports/nfl-preview.js
+          grep -F './nfl-preview.js?v=89.36' sports/nfl-preview-v890.js
+          grep -F './nfl-preview-v890.js?v=89.36' sports/nfl-preview-v893.js
+          grep -F './nfl-preview-v893.js?v=89.36' sports/router.js
+          grep -F './sports/router.js?v=90.36' index.html
+      - name: Commit production files only
+        run: |
+          git config user.name 'TSO NFL UI Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nfl/halftime-ui-v884.js sports/nfl/halftime-validity.js sports/nfl/playstage-v886e.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html
+          git diff --staged --quiet && echo 'No production change needed.' && exit 0
+          git commit -m 'Keep NFL halftime generator available through halftime'
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt*2))
+          done
+          exit 1
