@@ -1,0 +1,199 @@
+name: One-time NFL halftime state hotfix v89.1
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-halftime-state-hotfix-v891.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  hotfix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fix halftime phase detection and prefetch window
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('sports/nfl/sim/auto.js')
+          s=p.read_text()
+          old="""export function isHalftimeState(liveGame){
+  if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;
+  const detail=`${liveGame.statusDetail||''} ${liveGame.detail||''}`.toLowerCase();
+  if(/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)) return true;
+  const period=Number(liveGame.period);
+  const clock=Number(liveGame.clockMin);
+  return period===2 && Number.isFinite(clock) && clock<=0.05;
+}
+
+export function isHalftimeWarmupState(liveGame,thresholdMinutes=HALFTIME_WARMUP_MINUTES){
+  if(isHalftimeState(liveGame)) return true;
+  if(!liveGame || !['in','live'].includes(String(liveGame.status||'').toLowerCase())) return false;
+  const period=Number(liveGame.period),clock=Number(liveGame.clockMin),limit=Math.max(0,Number(thresholdMinutes)||0);
+  return period===2 && Number.isFinite(clock) && clock>=0 && clock<=limit;
+}
+
+export function automationPhase(liveGame){
+  const status=String(liveGame?.status||'pre').toLowerCase();
+  if(status==='post') return 'post';
+  if(isHalftimeWarmupState(liveGame,HALFTIME_WARMUP_MINUTES)) return 'halftime';
+  if(status==='in'||status==='live') return 'live';
+  return 'pregame';
+}
+"""
+          new="""function livePeriod(liveGame){
+  return Number(liveGame?.period ?? liveGame?.quarter ?? liveGame?.status?.period);
+}
+function liveClockMinutes(liveGame){
+  const direct=Number(liveGame?.clockMin);
+  if(Number.isFinite(direct)) return direct;
+  const seconds=Number(liveGame?.secondsRemaining ?? liveGame?.status?.seconds ?? liveGame?.seconds);
+  if(Number.isFinite(seconds)) return seconds/60;
+  const raw=String(liveGame?.clock ?? liveGame?.lastPlay?.clock ?? '').trim();
+  const m=raw.match(/^(\\d{1,2}):(\\d{2})$/);
+  return m ? Number(m[1])+Number(m[2])/60 : NaN;
+}
+
+export function isHalftimeState(liveGame){
+  if(!liveGame) return false;
+  const status=String(liveGame.status ?? liveGame.state ?? liveGame.status?.state ?? '').toLowerCase();
+  const detail=`${liveGame.statusDetail||''} ${liveGame.status?.detail||''} ${liveGame.detail||''} ${liveGame.clock||''}`.toLowerCase();
+  if(status==='halftime'||status==='half') return true;
+  if(/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)) return true;
+  const active=['in','live'].includes(status);
+  const period=livePeriod(liveGame);
+  const clock=liveClockMinutes(liveGame);
+  return active && period===2 && Number.isFinite(clock) && clock<=0.05;
+}
+
+export function isHalftimeWarmupState(liveGame,thresholdMinutes=HALFTIME_WARMUP_MINUTES){
+  if(isHalftimeState(liveGame)) return true;
+  if(!liveGame) return false;
+  const status=String(liveGame.status ?? liveGame.state ?? liveGame.status?.state ?? '').toLowerCase();
+  if(!['in','live'].includes(status)) return false;
+  const period=livePeriod(liveGame),clock=liveClockMinutes(liveGame),limit=Math.max(0,Number(thresholdMinutes)||0);
+  return period===2 && Number.isFinite(clock) && clock>=0 && clock<=limit;
+}
+
+export function automationPhase(liveGame){
+  const status=String(liveGame?.status ?? liveGame?.state ?? liveGame?.status?.state ?? 'pre').toLowerCase();
+  if(['post','final','closed'].includes(status)) return 'post';
+  if(isHalftimeWarmupState(liveGame,HALFTIME_WARMUP_MINUTES)) return 'halftime';
+  if(status==='in'||status==='live') return 'live';
+  return 'pregame';
+}
+"""
+          if old not in s:
+            raise SystemExit('auto.js halftime detection anchor not found')
+          p.write_text(s.replace(old,new))
+
+          p=Path('scripts/nfl-halftime-window-refresh.mjs')
+          s=p.read_text()
+          old="""const ids=Object.entries(liveGames)
+  .filter(([,g])=>{
+    const status=String(g?.status||'');
+    const q=Number(g?.quarter);
+    const clock=Number(g?.clockMin);
+    return (status==='in'||status==='live') && q===2 && Number.isFinite(clock) && clock<=START_MIN && clock>=0;
+  })
+  .map(([id])=>String(id));"""
+          new="""const ids=Object.entries(liveGames)
+  .filter(([,g])=>{
+    const status=String(g?.status ?? g?.state ?? g?.status?.state ?? '').toLowerCase();
+    const detail=`${g?.statusDetail||''} ${g?.status?.detail||''} ${g?.detail||''} ${g?.clock||''}`.toLowerCase();
+    const q=Number(g?.quarter ?? g?.period ?? g?.status?.period);
+    const direct=Number(g?.clockMin);
+    const seconds=Number(g?.secondsRemaining ?? g?.status?.seconds ?? g?.seconds);
+    const raw=String(g?.clock ?? g?.lastPlay?.clock ?? '').trim();
+    const m=raw.match(/^(\\d{1,2}):(\\d{2})$/);
+    const clock=Number.isFinite(direct)?direct:Number.isFinite(seconds)?seconds/60:m?Number(m[1])+Number(m[2])/60:NaN;
+    const halftime=status==='halftime'||status==='half'||/half\\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
+    return halftime || ((status==='in'||status==='live') && q===2 && Number.isFinite(clock) && clock<=START_MIN && clock>=0);
+  })
+  .map(([id])=>String(id));"""
+          if old not in s:
+            raise SystemExit('halftime-window-refresh anchor not found')
+          p.write_text(s.replace(old,new))
+          PY
+
+      - name: Regression test halftime state handling
+        run: |
+          node --input-type=module <<'NODE'
+          import {automationPhase,isHalftimeState,isHalftimeWarmupState} from './sports/nfl/sim/auto.js';
+          const assert=(v,m)=>{if(!v) throw new Error(m)};
+          assert(automationPhase({status:'halftime',period:2,clockMin:0})==='halftime','explicit halftime status must build halftime board');
+          assert(automationPhase({status:'half',quarter:2,clock:'0:00'})==='halftime','half alias must build halftime board');
+          assert(isHalftimeState({status:'in',period:2,clockMin:0})===true,'Q2 0:00 must be halftime');
+          assert(isHalftimeWarmupState({status:'in',quarter:2,clock:'7:30'})===true,'late Q2 must warm halftime board');
+          assert(automationPhase({status:'in',quarter:3,clock:'15:00'})==='live','Q3 must be live, not halftime');
+          console.log('✓ halftime state + warmup regression passed');
+          NODE
+          node --check sports/nfl/sim/auto.js
+          node --check scripts/nfl-halftime-window-refresh.mjs
+
+      - name: Refresh live state and build any current halftime board now
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+          NFL_HALFTIME_PREFETCH_MINUTES: 10
+          NFL_SIM_FORCE: 1
+        run: |
+          node scripts/nfl-live-poller.mjs
+          node scripts/nfl-halftime-window-refresh.mjs || true
+          GAME_IDS=$(node - <<'NODE'
+          const fs=require('fs');
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const games=live?.games&&typeof live.games==='object'?Object.entries(live.games):[];
+          const clockMin=g=>{
+            const d=Number(g?.clockMin); if(Number.isFinite(d)) return d;
+            const s=Number(g?.secondsRemaining ?? g?.status?.seconds ?? g?.seconds); if(Number.isFinite(s)) return s/60;
+            const m=String(g?.clock ?? g?.lastPlay?.clock ?? '').trim().match(/^(\d{1,2}):(\d{2})$/);
+            return m?Number(m[1])+Number(m[2])/60:NaN;
+          };
+          const ids=games.filter(([,g])=>{
+            const st=String(g?.status ?? g?.state ?? g?.status?.state ?? '').toLowerCase();
+            const detail=`${g?.statusDetail||''} ${g?.status?.detail||''} ${g?.detail||''} ${g?.clock||''}`.toLowerCase();
+            const q=Number(g?.period ?? g?.quarter ?? g?.status?.period);
+            const c=clockMin(g);
+            const half=st==='halftime'||st==='half'||/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
+            return half || ((st==='in'||st==='live') && q===2 && Number.isFinite(c) && c<=10.05 && c>=0);
+          }).map(([id])=>id);
+          process.stdout.write(ids.join(','));
+          NODE
+          )
+          echo "Current halftime-window games: ${GAME_IDS:-none}"
+          if [ -n "$GAME_IDS" ]; then
+            node scripts/nfl-sim-auto.mjs --game "$GAME_IDS"
+            node - <<'NODE'
+            const fs=require('fs');
+            const h=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
+            for(const b of h.games||[]) console.log(`${b.gameId}: ready=${b.ready} candidates=${(b.candidates||[]).length} iterations=${b.iterations}`);
+            NODE
+          fi
+
+      - name: Commit production fix and any freshly built board
+        run: |
+          git config user.name 'TSO NFL Halftime Hotfix'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nfl/sim/auto.js scripts/nfl-halftime-window-refresh.mjs slates/nfl-live.json
+          [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
+          [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
+          git diff --staged --quiet && echo 'No production change to publish.' && exit 0
+          git commit -m 'Fix NFL official halftime board generation'
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt*2))
+          done
+          exit 1
