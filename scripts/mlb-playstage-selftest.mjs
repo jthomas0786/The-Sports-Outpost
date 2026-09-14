@@ -60,16 +60,20 @@ assert.ok(!conceptV915.includes('playstage-field-v914.jpg'),'v915 must not fall 
 assert.ok(conceptV915.includes('applyNativeAspect'),'v915 must size the stage from the approved image dimensions');
 assert.ok(conceptV915.includes("img.setAttribute('src',FIELD_SRC)"),'v915 must replace the field node created by v914');
 assert.ok(conceptV915.includes('object-fit:contain!important'),'v915 must preserve the entire approved image');
-assert.ok(conceptV915.includes('/* v915 responsive shell:'),'v915 must include responsive Gamecast shell');
-assert.ok(conceptV915.includes('@media(max-width:900px)'),'v915 must collapse the three-column shell for tablets/mobile');
-assert.ok(conceptV915.includes('@media(max-width:620px)'),'v915 must include phone-specific scaling');
+assert.ok(conceptV915.includes('const DESIGN_WIDTH=1440'),'v915 must keep one fixed desktop composition for proportional scaling');
+assert.ok(conceptV915.includes('/* v915 proportional desktop/mobile shell */'),'v915 must scale the desktop composition instead of reflowing it');
+assert.ok(conceptV915.includes('grid-template-columns:205px minmax(0,1fr) 205px!important'),'v915 must preserve the three-column Gamecast shell');
+assert.ok(conceptV915.includes('v915-ondeck-card'),'v915 must compact the On Deck card to a name strip');
+assert.ok(conceptV915.includes('v915-primary-card'),'v915 must compact At Bat and Pitching cards');
+assert.ok(conceptV915.includes('applyGamecastScale'),'v915 must proportionally scale the whole Gamecast on small screens');
+assert.ok(!conceptV915.includes('grid-template-columns:minmax(0,1fr)!important'),'v915 must not stack the Gamecast vertically on mobile');
 assert.ok(conceptV915.includes('.ps-chibi.ps-runner{\n  opacity:0!important'),'runner role alone must remain hidden while idle');
 
 const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.4"),'Router must cache-bust MLB PlayStage');
 assert.ok(router.includes("./mlb/playstage-concept-v904.js?v=90.4"),'Router must load approved MLB concept');
 assert.ok(router.includes("./mlb/playstage-concept-v905.js?v=90.51"),'Router must load v905 MLB concept');
-assert.ok(router.includes("./mlb/playstage-concept-v915.js?v=91.52"),'Router must load the corrected v915 field layer');
+assert.ok(router.includes("./mlb/playstage-concept-v915.js?v=91.53"),'Router must load the corrected v915 field layer');
 assert.ok(router.includes('installMlbPlaystageV901'),'Router must install MLB PlayStage');
 assert.ok(router.includes('installMlbPlaystageConceptV904'),'Router must install approved MLB concept');
 assert.ok(router.includes('installMlbPlaystageConceptV905'),'Router must install v905 MLB concept');

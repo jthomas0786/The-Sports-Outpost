@@ -2,7 +2,9 @@ const STYLE_ID='tso-mlb-playstage-concept-v915-style';
 const ROOT='.tso-mlb-playstage-v901';
 const FIELD_SRC='./field-bg.jpg';
 const FALLBACK_ASPECT='1536 / 1024';
+const DESIGN_WIDTH=1440;
 let installed=false,observer=null,raf=0;
+const scaleWatchers=new WeakMap();
 
 function ensureStyles(){
   if(document.getElementById(STYLE_ID)) return;
@@ -97,70 +99,88 @@ html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-truth{z-index:98!importa
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-ball,
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-balltrail{z-index:99!important}
 
-@media(max-width:620px){
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-batter{width:46px!important;height:65px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-catcher{width:40px!important;height:56px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-pitcher{width:37px!important;height:54px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="1B"],html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="3B"]{width:31px!important;height:45px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="2B"],html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="SS"]{width:29px!important;height:42px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="LF"],html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="CF"],html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi[data-pos="RF"]{width:20px!important;height:29px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi.ps-runner{width:32px!important;height:46px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-play-banner{max-width:64%!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-callout{width:82%!important}
+/* v915 proportional desktop/mobile shell */
+html[data-sport="mlb"] .ps915-scale-frame{
+  position:relative!important;width:100%!important;max-width:100%!important;
+  min-height:0!important;overflow:hidden!important;
 }
-/* v915 responsive shell: preserve the approved field composition while the entire Gamecast fits the viewport. */
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915{
-  width:100%!important;max-width:100%!important;min-width:0!important;overflow:hidden!important;
+  width:${DESIGN_WIDTH}px!important;min-width:${DESIGN_WIDTH}px!important;max-width:${DESIGN_WIDTH}px!important;
+  transform-origin:0 0!important;overflow:hidden!important;
 }
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-top,
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-grid,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-top{
+  min-height:72px!important;grid-template-columns:minmax(100px,.55fr) minmax(410px,1.45fr) minmax(280px,.9fr)!important;
+  gap:12px!important;padding:9px 14px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-grid{
+  grid-template-columns:205px minmax(0,1fr) 205px!important;
+  min-height:0!important;align-items:start!important;
+}
 html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-left,
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-center,
-html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-right{min-width:0!important;max-width:100%!important}
-@media(max-width:900px){
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-top{grid-template-columns:minmax(0,1fr)!important;gap:8px!important;padding:10px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-live{justify-self:stretch!important;justify-content:center!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-score{width:100%!important;min-width:0!important;grid-template-columns:minmax(0,1fr) auto 54px auto minmax(0,1fr)!important;gap:6px!important;padding:8px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team{min-width:0!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team img{width:34px!important;height:34px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team b{font-size:clamp(14px,4.5vw,19px)!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-score-num{font-size:30px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-weather{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:6px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-weather-block,
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-venue-block{min-width:0!important;padding-left:8px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-grid{grid-template-columns:minmax(0,1fr)!important;min-height:0!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-center{grid-row:1!important;width:100%!important;min-width:0!important;overflow:hidden!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-left,
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-right{width:100%!important;min-width:0!important;border-left:0!important;border-right:0!important;border-top:1px solid #18395e!important;display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;padding:8px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-left .ps-card,
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-right .ps-card{min-width:0!important;margin:0!important}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-right{
+  min-width:0!important;width:auto!important;padding:6px!important;
 }
-@media(max-width:620px){
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915{border-radius:10px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-top{padding:7px!important;gap:6px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-score{grid-template-columns:minmax(0,1fr) auto 44px auto minmax(0,1fr)!important;gap:4px!important;padding:6px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team{gap:5px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team img{width:28px!important;height:28px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team b{font-size:clamp(12px,4vw,16px)!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-team small{font-size:8px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-score-num{font-size:25px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-inning{font-size:9px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-weather{grid-template-columns:minmax(0,1fr)!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-weather-block,
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-venue-block{border-left:0!important;border-top:1px solid #193657!important;padding:6px 0 0!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-left,
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-right{grid-template-columns:minmax(0,1fr)!important;padding:7px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage{width:100%!important;max-width:100%!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-play-banner{left:5px!important;top:5px!important;max-width:58%!important;padding:5px 7px!important;gap:5px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-play-banner .ball{font-size:14px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-play-banner b{font-size:12px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-play-banner span{font-size:8px!important;line-height:1.2!important;margin-top:2px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-metrics{right:5px!important;top:5px!important;max-width:40%!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-metric{padding:4px 5px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-metric span{font-size:6.5px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-metric b{font-size:11px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-callout{left:6px!important;right:6px!important;transform:none!important;width:auto!important;max-width:none!important;bottom:6px!important;padding:5px 7px!important;font-size:10px!important}
-  html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-truth{display:none!important}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-center{
+  min-width:0!important;width:auto!important;height:auto!important;align-self:start!important;overflow:hidden!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-stage{
+  width:100%!important;max-width:none!important;margin:0!important;
+}
+
+/* At Bat / Pitching are deliberately compact so the approved field dominates. */
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card{
+  padding:6px!important;margin-bottom:6px!important;border-radius:9px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-card-title{
+  gap:5px!important;font-size:8px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-card-title img{
+  width:16px!important;height:16px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-player{
+  grid-template-columns:50px minmax(0,1fr)!important;gap:7px!important;margin-top:5px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-headshot{
+  height:58px!important;border-radius:6px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-player h3{
+  font-size:15px!important;line-height:1!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-player .meta{
+  margin-top:3px!important;font-size:8px!important;line-height:1.25!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-statrow{
+  margin-top:5px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-stat{
+  padding-top:5px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-stat b{
+  font-size:13px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-primary-card .ps-stat span{
+  margin-top:3px!important;font-size:7px!important;
+}
+
+/* On Deck is only a small label + player name. */
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card{
+  display:flex!important;align-items:center!important;gap:7px!important;
+  padding:6px 8px!important;margin-bottom:6px!important;min-height:30px!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .ps-card-title{
+  flex:0 0 auto!important;font-size:7px!important;gap:0!important;white-space:nowrap!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .ps-card-title img,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .ps-headshot,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .meta,
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .ps-statrow{
+  display:none!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .ps-player{
+  display:block!important;min-width:0!important;margin:0!important;
+}
+html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .v915-ondeck-card .ps-player h3{
+  margin:0!important;font-size:13px!important;line-height:1!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;
 }
 
 @media(prefers-reduced-motion:reduce){html[data-sport="mlb"] ${ROOT}.tso-mlb-concept-v915 .ps-chibi{transition:none!important}}
@@ -184,11 +204,44 @@ function ensureApprovedField(stage){
   if(img.complete&&img.naturalWidth) applyNativeAspect(stage,img);
   else img.addEventListener('load',()=>applyNativeAspect(stage,img),{once:true});
 }
+function markInfoCards(root){
+  root.querySelectorAll('.ps-card').forEach(card=>{
+    const title=(card.querySelector('.ps-card-title')?.textContent||'').trim().toLowerCase();
+    card.classList.toggle('v915-atbat-card',title.includes('at bat'));
+    card.classList.toggle('v915-pitcher-card',title.includes('pitching'));
+    card.classList.toggle('v915-ondeck-card',title.includes('on deck'));
+    card.classList.toggle('v915-primary-card',title.includes('at bat')||title.includes('pitching'));
+  });
+}
+function applyGamecastScale(root){
+  const frame=root?.parentElement;
+  if(!root||!frame) return;
+  frame.classList.add('ps915-scale-frame');
+  const available=Math.max(1,frame.clientWidth||DESIGN_WIDTH);
+  const scale=Math.min(1,available/DESIGN_WIDTH);
+  const rendered=DESIGN_WIDTH*scale;
+  const gap=Math.max(0,(available-rendered)/2);
+  root.style.transform=`scale(${scale})`;
+  root.style.marginLeft=`${gap/scale}px`;
+  root.dataset.ps915Scale=scale.toFixed(4);
+  frame.style.height=`${Math.ceil(root.offsetHeight*scale)}px`;
+}
+function wireScale(root){
+  if(!scaleWatchers.has(root)&&typeof ResizeObserver!=='undefined'){
+    const ro=new ResizeObserver(()=>requestAnimationFrame(()=>applyGamecastScale(root)));
+    ro.observe(root);
+    scaleWatchers.set(root,ro);
+  }
+  requestAnimationFrame(()=>applyGamecastScale(root));
+}
+
 function enhance(root){
   if(!root) return;
   root.classList.add('tso-mlb-concept-v915');
   root.dataset.approvedConcept='v915';
   ensureApprovedField(root.querySelector('.ps-stage'));
+  markInfoCards(root);
+  wireScale(root);
 }
 function scan(){
   raf=0;
@@ -203,6 +256,7 @@ export function installMlbPlaystageConceptV915(){
   observer=new MutationObserver(queue);
   observer.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['class','data-play-id','data-player-id']});
   window.addEventListener('hashchange',queue);
+  window.addEventListener('resize',queue,{passive:true});
   queue();
 }
-export const __MLB_PLAYSTAGE_CONCEPT_V915_TEST__={STYLE_ID,ROOT,FIELD_SRC,FALLBACK_ASPECT};
+export const __MLB_PLAYSTAGE_CONCEPT_V915_TEST__={STYLE_ID,ROOT,FIELD_SRC,FALLBACK_ASPECT,DESIGN_WIDTH};
