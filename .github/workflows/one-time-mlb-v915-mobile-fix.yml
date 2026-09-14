@@ -16,15 +16,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Apply v915 unified Gamecast patch
+      - name: Apply v915 desktop-parity mobile lock
         run: python3 scripts/apply-mlb-v915-mobile.py
       - name: Validate regressions
         run: |
           node --check sports/mlb/playstage-concept-v915.js
           node --check sports/router.js
           node scripts/mlb-playstage-selftest.mjs
-          grep -F "./sports/router.js?v=90.38" index.html
-          grep -F "./mlb/playstage-concept-v915.js?v=91.53" sports/router.js
+          grep -F "./sports/router.js?v=90.39" index.html
+          grep -F "./mlb/playstage-concept-v915.js?v=91.54" sports/router.js
           grep -F "./nfl-preview-v893.js?v=89.36" sports/router.js
           grep -F "./nhl/view-v906.js?v=90.18" sports/router.js
       - name: Commit production corrections
@@ -33,7 +33,7 @@ jobs:
           git config user.email 'actions@users.noreply.github.com'
           git add sports/mlb/playstage-concept-v915.js sports/router.js scripts/mlb-playstage-selftest.mjs index.html
           git diff --staged --quiet && exit 0
-          git commit -m 'Compact MLB v915 rails and preserve desktop layout on mobile'
+          git commit -m 'Lock MLB v915 desktop geometry on mobile'
           for i in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             sleep 2
