@@ -125,11 +125,17 @@ i2,n=re.subn(r'\./sports/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90
 if n!=1: raise SystemExit('index router import not found')
 index.write_text(i2)
 
-# Keep existing MLB regression version checks current.
+# Keep existing MLB regression version checks current and remove the obsolete
+# hard-coded shallow-left-field pixel assertion.
 for name in ['scripts/mlb-playstage-selftest.mjs','scripts/mlb-playstage-v916-selftest.mjs','scripts/mlb-v916-runner-isolation-selftest.mjs','scripts/mlb-v917-actor-role-selftest.mjs']:
     p=Path(name)
     if not p.exists(): continue
     t=p.read_text().replace('playstage-v901.js?v=90.43','playstage-v901.js?v=90.44').replace('sports/router.js?v=90.43','sports/router.js?v=90.44').replace('playstage-concept-v917.js?v=91.70','playstage-concept-v917.js?v=91.71')
+    if name.endswith('mlb-playstage-selftest.mjs'):
+        old_assert="assert.deepEqual(t.hitTarget({result:{description:'Fly ball to left field'}},'fly_out'),[27,45]);"
+        new_assert="const leftFly=t.hitTarget({result:{description:'Fly ball to left field'}},'fly_out'); assert.ok(leftFly[0]<50&&leftFly[1]<60,'left-field fallback must stay left and in the outfield');"
+        if old_assert not in t: raise SystemExit('legacy shallow hitTarget assertion missing')
+        t=t.replace(old_assert,new_assert,1)
     p.write_text(t)
 
 print('Applied MLB v918 distance/spray projection and blue trajectory line')
