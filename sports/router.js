@@ -11,6 +11,7 @@
  *
  * View swapping is additive: the MLB experience keeps its exact DOM, and we only
  * toggle `hidden` on its containers vs the sport-specific view containers.
+ * MLB v915 QA note: desktop geometry is intentionally preserved on mobile and scaled as one unit.
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
