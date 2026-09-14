@@ -1,0 +1,43 @@
+name: One-time MLB v921 mobile polish
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v921-mobile.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply MLB v921 mobile polish
+        run: python scripts/apply-mlb-v921-mobile-polish.py
+      - name: Validate MLB v921 mobile polish
+        run: |
+          node --check sports/mlb/playstage-concept-v921-mobile.js
+          node --check sports/router.js
+          node scripts/mlb-v921-mobile-selftest.mjs
+          node scripts/mlb-v920-mobile-selftest.mjs
+          node scripts/mlb-v919-fielder-trail-selftest.mjs
+          node scripts/mlb-v916-runner-isolation-selftest.mjs
+          grep -F "./mlb/playstage-concept-v921-mobile.js?v=92.10" sports/router.js
+          grep -F "./sports/router.js?v=90.47" index.html
+      - name: Commit production update
+        run: |
+          git config user.name 'TSO MLB v921 Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/router.js index.html scripts/*.mjs
+          git commit -m 'mlb: polish mobile Gamecast controls and scoreboard'
+          git reset --hard HEAD
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
