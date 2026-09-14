@@ -4,6 +4,8 @@ on:
   push:
     paths:
       - '.github/workflows/one-time-mlb-gamecast-showcase.yml'
+      - 'scripts/mlb-gamecast-showcase.mjs'
+      - 'sports/mlb/playstage-concept-v916.js'
 permissions:
   contents: write
 jobs:
@@ -23,14 +25,14 @@ jobs:
           sudo apt-get install -y ffmpeg
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install chromium
-      - name: Capture desktop mobile and simulation
+      - name: Capture desktop mobile and v916 simulation
         run: node scripts/mlb-gamecast-showcase.mjs
       - name: Commit showcase media
         run: |
           git config user.name 'TSO MLB Showcase Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add qa/showcase/mlb-gamecast-desktop.png qa/showcase/mlb-gamecast-mobile.png qa/showcase/mlb-gamecast-home-run-simulation.gif qa/showcase/mlb-gamecast-home-run-simulation.mp4 qa/showcase/mlb-gamecast-home-run-simulation.webm qa/showcase/mlb-gamecast-showcase.json
-          git commit -m 'qa: add MLB Gamecast desktop mobile and simulation showcase'
+          git commit -m 'qa: refresh MLB v916 Gamecast simulation showcase'
           git reset --hard HEAD
           git pull --rebase origin main
           git push origin HEAD:main
