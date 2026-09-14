@@ -54,5 +54,5 @@ assert(conceptSrc.includes('opacity:.97!important'),'v916 must keep idle field a
 assert(conceptSrc.includes('@media(max-width:720px)'),'v916 must include phone actor sizing');
 assert(router.includes("playstage-concept-v916.js?v=91.60"),'router must load v916');
 assert(router.includes('installMlbPlaystageConceptV916'),'router must install v916');
-assert(index.includes('./sports/router.js?v=90.45'),'index must cache-bust the v916 router');
+assert(index.includes('./sports/router.js?v=90.46'),'index must cache-bust the v916 router');
 console.log('MLB PlayStage v916 selftest: 9 defenders + batter + occupied runners OK');
