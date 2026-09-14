@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/one-time-mlb-gamecast-showcase.yml'
       - 'scripts/mlb-v916-simulation.mjs'
+      - 'sports/mlb/playstage-v901.js'
       - 'sports/mlb/playstage-concept-v916.js'
 permissions:
   contents: write
@@ -25,14 +26,16 @@ jobs:
           sudo apt-get install -y ffmpeg
           npm install --no-save --package-lock=false playwright@1.55.0
           npx playwright install chromium
+      - name: Add defender-position guard
+        run: python3 scripts/apply-mlb-v916-simulation-defender-guard.py
       - name: Capture v916 simulation
         run: node scripts/mlb-v916-simulation.mjs
-      - name: Commit simulation media
+      - name: Commit simulation media and guard
         run: |
           git config user.name 'TSO MLB Showcase Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add qa/showcase/mlb-gamecast-home-run-simulation.gif qa/showcase/mlb-gamecast-home-run-simulation.mp4 qa/showcase/mlb-gamecast-home-run-simulation.webm qa/showcase/mlb-gamecast-showcase.json
-          git commit -m 'qa: refresh MLB v916 field-actor simulation'
+          git add scripts/mlb-v916-simulation.mjs qa/showcase/mlb-gamecast-home-run-simulation.gif qa/showcase/mlb-gamecast-home-run-simulation.mp4 qa/showcase/mlb-gamecast-home-run-simulation.webm qa/showcase/mlb-gamecast-showcase.json
+          git commit -m 'qa: verify MLB v916 defender isolation in simulation'
           git reset --hard HEAD
           git pull --rebase origin main
           git push origin HEAD:main
