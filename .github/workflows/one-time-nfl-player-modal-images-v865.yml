@@ -1,0 +1,76 @@
+name: One-time NFL player modal image repair v86.5
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-player-modal-images-v865.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Repair player and opponent images
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          path=Path('sports/nfl-research-ui.js')
+          s=path.read_text()
+
+          old='''  const playerImg=playerPhoto?`<img src="${esc(playerPhoto)}" alt="${esc(name)}">`:`<span>${esc(last.slice(0,1))}</span>`;\n  const oppImg=opponentPhoto?`<img src="${esc(opponentPhoto)}" alt="${esc(opp)}">`:`<span>${esc(opp||'DEF')}</span>`;'''
+          new='''  // playerPhoto/opponentPhoto are already-rendered safe HTML fragments built by enhancePlayerModal.\n  // Do not treat them as image URLs or they become a literal <img ...> string inside src.\n  const playerImg=playerPhoto||`<span>${esc(last.slice(0,1))}</span>`;\n  const oppImg=opponentPhoto||`<span>${esc(opp||'DEF')}</span>`;'''
+          if old not in s:
+            raise SystemExit('Expected broken image wrapper block not found')
+          s=s.replace(old,new,1)
+          s=s.replace('tso-nfl-research-ui-v864','tso-nfl-research-ui-v865')
+          path.write_text(s)
+
+          router=Path('sports/router.js')
+          rs=router.read_text()
+          if './nfl-research-ui.js?v=86.4' not in rs:
+            raise SystemExit('Expected NFL research UI v86.4 import not found')
+          router.write_text(rs.replace('./nfl-research-ui.js?v=86.4','./nfl-research-ui.js?v=86.5',1))
+
+          index=Path('index.html')
+          ix=index.read_text()
+          if './sports/router.js?v=90.32' not in ix:
+            raise SystemExit('Expected router v90.32 not found')
+          index.write_text(ix.replace('./sports/router.js?v=90.32','./sports/router.js?v=90.33',1))
+          PY
+
+      - name: Validate repaired modal
+        run: |
+          node --check sports/nfl-research-ui.js
+          node --check sports/router.js
+          grep -F 'const playerImg=playerPhoto||' sports/nfl-research-ui.js
+          grep -F 'const oppImg=opponentPhoto||' sports/nfl-research-ui.js
+          grep -F './nfl-research-ui.js?v=86.5' sports/router.js
+          grep -F './sports/router.js?v=90.33' index.html
+          ! grep -F 'src="${esc(playerPhoto)}"' sports/nfl-research-ui.js
+          ! grep -F 'src="${esc(opponentPhoto)}"' sports/nfl-research-ui.js
+
+      - name: Commit production repair
+        run: |
+          git config user.name "TSO NFL UI Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl-research-ui.js sports/router.js index.html
+          git diff --staged --quiet && echo "Already applied." && exit 0
+          git commit -m "Fix NFL player modal images"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
