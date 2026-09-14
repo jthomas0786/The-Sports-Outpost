@@ -38,55 +38,38 @@ for(const marker of [
   'On Deck',
 ]) assert.ok(src.includes(marker),`PlayStage missing ${marker}`);
 
-
 for(const marker of ['runnerMoves','currentRunners','seedRunners','ps-runner','ps-windup','outBaseSequence','nearestFielderAt','getBoundingClientRect']) assert.ok(src.includes(marker),`PlayStage polish missing ${marker}`);
-
-
 for(const marker of ['latestEvent','pitchInfo','wireStageTabs','data-ps-tab','data-ps-panel','boxRailHTML','fieldRailHTML']) assert.ok(src.includes(marker),`PlayStage finish missing ${marker}`);
 
 const concept=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v904.js',import.meta.url),'utf8');
 for(const marker of [
-  'tso-mlb-concept-v904',
-  'ps3d-rig',
-  'ps3d-stadium',
-  'ps3d-scoreboard',
-  'ps3d-face',
-  'ps3d-bat',
-  'ps3d-glove',
-  'ps3dWindupBody',
-  'ps3dThrowArm',
-  'ps3dSwingBody',
-  'ps3dRunBob',
-  'ps3dCatchBody',
+  'tso-mlb-concept-v904','ps3d-rig','ps3d-stadium','ps3d-scoreboard','ps3d-face','ps3d-bat','ps3d-glove',
+  'ps3dWindupBody','ps3dThrowArm','ps3dSwingBody','ps3dRunBob','ps3dCatchBody',
 ]) assert.ok(concept.includes(marker),`Approved concept missing ${marker}`);
 
 const conceptV905=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v905.js',import.meta.url),'utf8');
 for(const marker of [
-  'tso-mlb-concept-v905',
-  'ps905-stadium',
-  'ps905-grandstand',
-  'ps905-board-shell',
-  'ps905-rig',
-  'ps905WindupCore',
-  'ps905PitchArm',
-  'ps905SwingCore',
-  'ps905RunBob',
-  'ps905FieldGrounder',
-  'ps905TrackFly',
-  'ps905DpCore',
-  'ps905CatcherPop',
-  'ps905SlideCore',
-  'ps905TagCore',
-  'ps905-rounding',
-  'ps-chibi.ps-batter .ps905-mitt',
+  'tso-mlb-concept-v905','ps905-stadium','ps905-grandstand','ps905-board-shell','ps905-rig','ps905WindupCore',
+  'ps905PitchArm','ps905SwingCore','ps905RunBob','ps905FieldGrounder','ps905TrackFly','ps905DpCore','ps905CatcherPop',
+  'ps905SlideCore','ps905TagCore','ps905-rounding','ps-chibi.ps-batter .ps905-mitt',
 ]) assert.ok(conceptV905.includes(marker),`v905 concept missing ${marker}`);
+
+const conceptV915=fs.readFileSync(new URL('../sports/mlb/playstage-concept-v915.js',import.meta.url),'utf8');
+assert.ok(conceptV915.includes("const FIELD_SRC='./field-bg.jpg'"),'v915 must use the approved field-bg.jpg');
+assert.ok(!conceptV915.includes('playstage-field-v914.jpg'),'v915 must not fall back to the old v914 field artwork');
+assert.ok(conceptV915.includes('applyNativeAspect'),'v915 must size the stage from the approved image dimensions');
+assert.ok(conceptV915.includes("img.setAttribute('src',FIELD_SRC)"),'v915 must replace the field node created by v914');
+assert.ok(conceptV915.includes('object-fit:contain!important'),'v915 must preserve the entire approved image');
+assert.ok(conceptV915.includes('.ps-chibi.ps-runner{\n  opacity:0!important'),'runner role alone must remain hidden while idle');
 
 const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.4"),'Router must cache-bust MLB PlayStage');
 assert.ok(router.includes("./mlb/playstage-concept-v904.js?v=90.4"),'Router must load approved MLB concept');
 assert.ok(router.includes("./mlb/playstage-concept-v905.js?v=90.51"),'Router must load v905 MLB concept');
+assert.ok(router.includes("./mlb/playstage-concept-v915.js?v=91.51"),'Router must load the corrected v915 field layer');
 assert.ok(router.includes('installMlbPlaystageV901'),'Router must install MLB PlayStage');
 assert.ok(router.includes('installMlbPlaystageConceptV904'),'Router must install approved MLB concept');
 assert.ok(router.includes('installMlbPlaystageConceptV905'),'Router must install v905 MLB concept');
+assert.ok(router.includes('installMlbPlaystageConceptV915'),'Router must install v915 after the established concept stack');
 
-console.log('MLB PlayStage regression: game data, Chibi renderer, animations, Statcast metrics and router wiring OK');
+console.log('MLB PlayStage regression: game data, Chibi renderer, approved field-bg.jpg, native aspect, animations and router wiring OK');
