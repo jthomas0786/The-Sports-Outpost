@@ -45,12 +45,10 @@ jobs:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
           NFL_HALFTIME_PREFETCH_MINUTES: 8
-        run: node scripts/nfl-halftime-window-refresh.mjs
+        run: node scripts/nfl-halftime-window-refresh.mjs --live-file slates/nfl-live.json
 
       - name: Run priority Q2 / halftime simulation
         id: priority_halftime
-        env:
-          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
         run: |
           GAME_IDS=$(node - <<'NODE'
           const fs=require('fs');
@@ -75,7 +73,7 @@ jobs:
             exit 0
           fi
           echo "Priority halftime game(s): $GAME_IDS"
-          node scripts/nfl-sim-auto.mjs --game "$GAME_IDS"
+          node scripts/nfl-sim-auto.mjs --game "$GAME_IDS" --live-file slates/nfl-live.json
 
       - name: Validate halftime candidate board when present
         run: |
