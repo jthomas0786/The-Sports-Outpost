@@ -39,7 +39,7 @@ jobs:
           test -n "$GAME_PK"
           test -f field-bg.jpg
           cat > visual-qa-v915.html <<EOF
-          <!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:720px}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div><script type="module">
+          <!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:0}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="$GAME_PK"><div class="mlb-live-gc-shell"></div></div><script type="module">
           import {installMlbPlaystageV901} from './sports/mlb/playstage-v901.js?v=qa915';
           import {installMlbPlaystageConceptV904} from './sports/mlb/playstage-concept-v904.js?v=qa915';
           import {installMlbPlaystageConceptV905} from './sports/mlb/playstage-concept-v905.js?v=qa915';
@@ -81,38 +81,62 @@ jobs:
             const root=document.querySelector('.tso-mlb-playstage-v901');
             const field=document.querySelector('.ps914-field');
             const stage=document.querySelector('.ps-stage');
-            const r=stage?.getBoundingClientRect();
+            const center=document.querySelector('.ps-center');
+            const left=document.querySelector('.ps-left');
+            const right=document.querySelector('.ps-right');
+            const atBat=document.querySelector('.v915-atbat-card');
+            const pitcher=document.querySelector('.v915-pitcher-card');
+            const onDeck=document.querySelector('.v915-ondeck-card');
+            const r=stage?.getBoundingClientRect(),cr=center?.getBoundingClientRect();
+            const lr=left?.getBoundingClientRect(),rr=right?.getBoundingClientRect();
             return {
               concept:root?.dataset?.approvedConcept,
+              scale:Number(root?.dataset?.ps915Scale||0),
               fieldSrc:field?.getAttribute('src'),
               fieldNatural:[field?.naturalWidth||0,field?.naturalHeight||0],
               objectFit:getComputedStyle(field).objectFit,
               stageBox:r?[Math.round(r.width),Math.round(r.height)]:[0,0],
               stageAspect:r&&r.height?r.width/r.height:0,
               imageAspect:field?.naturalHeight?field.naturalWidth/field.naturalHeight:0,
+              centerGap:r&&cr?Math.round(cr.height-r.height):999,
+              columns:lr&&cr&&rr?[Math.round(lr.width),Math.round(cr.width),Math.round(rr.width)]:[0,0,0],
+              sameRow:!!(lr&&cr&&rr&&Math.abs(lr.top-cr.top)<1&&Math.abs(rr.top-cr.top)<1&&lr.right<=cr.left+1&&cr.right<=rr.left+1),
+              atBatHeight:Math.round(atBat?.getBoundingClientRect().height||0),
+              pitcherHeight:Math.round(pitcher?.getBoundingClientRect().height||0),
+              onDeckHeight:Math.round(onDeck?.getBoundingClientRect().height||0),
+              onDeckName:(onDeck?.querySelector('.ps-player h3')?.textContent||'').trim(),
+              onDeckHeadshot:getComputedStyle(onDeck?.querySelector('.ps-headshot')||document.body).display,
               idleActorCount:actors.length,
               idleVisible
             };
           });
           fs.writeFileSync('qa/mlb-playstage-v915-current.json',JSON.stringify(q,null,2));
           console.log(q);
-          if(q.concept!=='v915'||q.fieldSrc!=='./field-bg.jpg'||q.fieldNatural[0]!==1536||q.fieldNatural[1]!==1024||q.objectFit!=='contain'||Math.abs(q.stageAspect-q.imageAspect)>.005||q.idleVisible.length)process.exitCode=3;
+          if(q.concept!=='v915'||q.fieldSrc!=='./field-bg.jpg'||q.fieldNatural[0]!==1536||q.fieldNatural[1]!==1024||q.objectFit!=='contain'||Math.abs(q.stageAspect-q.imageAspect)>.005||Math.abs(q.scale-1)>.001||!q.sameRow||q.centerGap>2||!q.atBatHeight||q.atBatHeight>150||!q.pitcherHeight||q.pitcherHeight>150||!q.onDeckHeight||q.onDeckHeight>55||!q.onDeckName||q.onDeckHeadshot!=='none'||q.idleVisible.length)process.exitCode=3;
 
           await p.setViewportSize({width:390,height:844});
           await p.reload({waitUntil:'domcontentloaded'});
           await p.waitForSelector('.tso-mlb-concept-v915',{timeout:30000});
-          await p.waitForFunction(()=>{const i=document.querySelector('.ps914-field');return i?.complete&&i.naturalWidth>0&&i.getAttribute('src')==='./field-bg.jpg'},{timeout:30000});
+          await p.waitForFunction(()=>{const r=document.querySelector('.tso-mlb-playstage-v901'),i=document.querySelector('.ps914-field');return i?.complete&&i.naturalWidth>0&&i.getAttribute('src')==='./field-bg.jpg'&&Number(r?.dataset?.ps915Scale)>0&&Number(r?.dataset?.ps915Scale)<1},{timeout:30000});
           await p.waitForTimeout(1200);
           await p.locator('.tso-mlb-playstage-v901').screenshot({path:'qa/mlb-playstage-v915-mobile.png'});
           const mobile=await p.evaluate(()=>{
             const root=document.querySelector('.tso-mlb-playstage-v901');
             const stage=document.querySelector('.ps-stage');
             const field=document.querySelector('.ps914-field');
+            const left=document.querySelector('.ps-left');
+            const center=document.querySelector('.ps-center');
+            const right=document.querySelector('.ps-right');
+            const atBat=document.querySelector('.v915-atbat-card');
+            const pitcher=document.querySelector('.v915-pitcher-card');
+            const onDeck=document.querySelector('.v915-ondeck-card');
             const rr=root?.getBoundingClientRect(),sr=stage?.getBoundingClientRect();
+            const lr=left?.getBoundingClientRect(),cr=center?.getBoundingClientRect(),xr=right?.getBoundingClientRect();
             const actors=[...document.querySelectorAll('.ps-chibi')];
             return {
               viewport:innerWidth,
               docWidth:document.documentElement.scrollWidth,
+              scale:Number(root?.dataset?.ps915Scale||0),
               rootLeft:rr?.left??0,
               rootRight:rr?.right??0,
               rootWidth:rr?.width??0,
@@ -120,12 +144,16 @@ jobs:
               stageAspect:sr?.height?sr.width/sr.height:0,
               imageAspect:field?.naturalHeight?field.naturalWidth/field.naturalHeight:0,
               fieldNatural:[field?.naturalWidth||0,field?.naturalHeight||0],
+              sameRow:!!(lr&&cr&&xr&&Math.abs(lr.top-cr.top)<1&&Math.abs(xr.top-cr.top)<1&&lr.right<=cr.left+1&&cr.right<=xr.left+1),
+              columns:lr&&cr&&xr?[lr.width,cr.width,xr.width]:[0,0,0],
+              cardScale:atBat&&pitcher&&onDeck?[atBat.getBoundingClientRect().height,pitcher.getBoundingClientRect().height,onDeck.getBoundingClientRect().height]:[0,0,0],
               idleVisible:actors.filter(e=>parseFloat(getComputedStyle(e).opacity)>.01).length
             };
           });
           fs.writeFileSync('qa/mlb-playstage-v915-mobile.json',JSON.stringify(mobile,null,2));
           console.log({mobile});
-          if(mobile.docWidth>mobile.viewport+1||mobile.rootLeft<-1||mobile.rootRight>mobile.viewport+1||mobile.stageWidth>mobile.rootWidth+1||mobile.fieldNatural[0]!==1536||mobile.fieldNatural[1]!==1024||Math.abs(mobile.stageAspect-mobile.imageAspect)>.005||mobile.idleVisible)process.exitCode=4;
+          const expectedScale=366/1440;
+          if(mobile.docWidth>mobile.viewport+1||mobile.rootLeft<-1||mobile.rootRight>mobile.viewport+1||Math.abs(mobile.scale-expectedScale)>.01||mobile.stageWidth>mobile.rootWidth+1||mobile.fieldNatural[0]!==1536||mobile.fieldNatural[1]!==1024||Math.abs(mobile.stageAspect-mobile.imageAspect)>.005||!mobile.sameRow||mobile.columns.some(v=>v<=0)||mobile.cardScale.some(v=>v<=0)||mobile.idleVisible)process.exitCode=4;
           await b.close();
           NODE
           kill $SERVER_PID || true
@@ -134,7 +162,7 @@ jobs:
           git config user.name 'TSO MLB QA Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add qa/mlb-playstage-v915-current.png qa/mlb-playstage-v915-stage.png qa/mlb-playstage-v915-current.json qa/mlb-playstage-v915-mobile.png qa/mlb-playstage-v915-mobile.json
-          git commit -m 'qa: capture corrected MLB PlayStage v915' || exit 0
+          git commit -m 'qa: verify compact MLB v915 desktop-mobile parity' || exit 0
           git reset --hard HEAD
           for i in 1 2 3; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
