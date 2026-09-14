@@ -163,9 +163,9 @@ function matchupText(r){
 }
 
 function ensureStyles(){
-  if(document.getElementById('tso-nfl-research-ui-v865')) return;
+  if(document.getElementById('tso-nfl-research-ui-v866')) return;
   const style=document.createElement('style');
-  style.id='tso-nfl-research-ui-v865';
+  style.id='tso-nfl-research-ui-v866';
   style.textContent=`
     /* v86.2 selected-prop sportsbook odds */
     .tso-nfl-prop-odds-strip{display:flex;align-items:stretch;gap:8px;flex-wrap:wrap;margin:10px 0 2px;padding:0}
@@ -432,6 +432,14 @@ function ensureStyles(){
   @media(max-width:760px){.tso-nfl-player-card-v70 .tso-nfl-easy-kpis,.tso-nfl-player-card-v72 .tso-nfl-easy-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-nfl-player-card-v70 .tso-nfl-atd-easy,.tso-nfl-player-card-v72 .tso-nfl-atd-easy{grid-template-columns:1fr}.tso-nfl-atd-outlook{grid-template-columns:96px 1fr}.tso-nfl-read-list{grid-template-columns:1fr 1fr}}
   @media(max-width:480px){.tso-nfl-atd-outlook{grid-template-columns:1fr}.tso-nfl-atd-outlook .tso-nfl-role-ring{margin:0 auto}.tso-nfl-read-list,.tso-nfl-atd-facts{grid-template-columns:1fr}.tso-nfl-matchup-verdict{flex-direction:column;gap:5px}}
 
+  .tso-nfl-player-card-v70 .tso-nfl-matchup-strip,.tso-nfl-player-card-v72 .tso-nfl-matchup-strip{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:24px;margin:10px 0 14px;padding:14px 16px;border:1px solid rgba(120,176,239,.14);border-radius:12px;background:rgba(4,17,38,.38)}
+  .tso-nfl-matchup-person{display:flex;align-items:center;gap:12px;min-width:0}.tso-nfl-matchup-person.opponent{justify-content:flex-start}
+  .tso-nfl-matchup-avatar{width:76px;height:76px;flex:0 0 76px;display:grid;place-items:center}.tso-nfl-matchup-avatar.player{border-radius:50%;overflow:hidden;background:rgba(16,34,64,.75);border:1px solid rgba(120,176,239,.22)}.tso-nfl-matchup-avatar.team{border-radius:12px;background:transparent;border:0;overflow:visible}
+  .tso-nfl-matchup-avatar img,.tso-nfl-matchup-avatar .hm-img,.tso-nfl-matchup-avatar .tso-nfl-matchup-photo{display:block;width:100%!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0!important;border:0!important;border-radius:0!important;background:transparent!important;object-fit:contain!important}.tso-nfl-matchup-avatar.player img,.tso-nfl-matchup-avatar.player .hm-img{object-fit:cover!important;border-radius:50%!important}
+  .tso-nfl-matchup-copy{display:flex;flex-direction:column;gap:5px;min-width:0}.tso-nfl-matchup-copy b{font:800 17px/1.05 'Satoshi','Inter',sans-serif;color:#f4f7ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tso-nfl-matchup-copy span{width:max-content;max-width:100%;padding:3px 7px;border:1px solid rgba(45,127,255,.36);border-radius:999px;background:rgba(45,127,255,.09);font:700 9px/1 'JetBrains Mono',monospace;color:#8fc3ff;white-space:nowrap}
+  .tso-nfl-matchup-vs{font:900 11px/1 'JetBrains Mono',monospace;letter-spacing:.12em;color:#7f8ba1;text-align:center}
+  @media(max-width:640px){.tso-nfl-player-card-v70 .tso-nfl-matchup-strip,.tso-nfl-player-card-v72 .tso-nfl-matchup-strip{gap:10px;padding:11px 10px}.tso-nfl-matchup-person{gap:8px}.tso-nfl-matchup-avatar{width:54px;height:54px;flex-basis:54px}.tso-nfl-matchup-copy b{font-size:13px}.tso-nfl-matchup-copy span{font-size:7px;padding:3px 5px}.tso-nfl-matchup-vs{font-size:9px}}
+
   `;
   document.head.appendChild(style);
 }
@@ -548,12 +556,13 @@ function ringSVG(pct,max=65){
 function pctText(v){ const x=Number(v); return Number.isFinite(x)?`${Math.round(x*100)}%`:'—'; }
 function opponentLogo(root,opp){
   const code=normTeam(opp);
-  for(const head of root.querySelectorAll('.nfl-team-board-head,.nfl-match-team')){
+  for(const head of root.querySelectorAll('.nfl-team-board-head,.nfl-match-team,.nfl-team,.nxg-team')){
     const txt=(head.textContent||'').toUpperCase();
     if(!txt.includes(code)) continue;
     const img=head.querySelector('img'); if(img?.src) return img.src;
   }
-  return null;
+  const espnCode=String(code||'').toLowerCase();
+  return espnCode ? `https://a.espncdn.com/i/teamlogos/nfl/500/${espnCode}.png` : null;
 }
 function clampNum(v,a,b){ return Math.max(a,Math.min(b,Number(v)||0)); }
 function roundHalf(v){ const x=Number(v); return Number.isFinite(x)?Math.round(x*2)/2:null; }
@@ -843,7 +852,7 @@ function propMatchupHTML(r,ctx,name,pos,edge,snapPct,playerPhoto,opponentPhoto,o
   const read=matchupVerdict(recent,defense,last);
 
   if(isTd){
-    return `<div class="hm-compare tso-nfl-clear-matchup-head"><div class="hm-side"><div class="hm-headshot">${playerImg}</div><div class="hm-name">${esc(name)}</div><div class="hm-hand-badge hm-bat">${esc(depthLabel(r,pos))} · ${snapText} snaps</div></div><div class="hm-vs">VS</div><div class="hm-side"><div class="hm-headshot">${oppImg}</div><div class="hm-name">${esc(opp||'Opponent')}</div><div class="hm-hand-badge hm-pitch">vs ${esc(posGroup)}</div></div></div>
+    return `<div class="tso-nfl-matchup-strip"><div class="tso-nfl-matchup-person"><div class="tso-nfl-matchup-avatar player">${playerImg}</div><div class="tso-nfl-matchup-copy"><b>${esc(name)}</b><span>${esc(depthLabel(r,pos))} · ${snapText} snaps</span></div></div><div class="tso-nfl-matchup-vs">VS</div><div class="tso-nfl-matchup-person opponent"><div class="tso-nfl-matchup-avatar team">${oppImg}</div><div class="tso-nfl-matchup-copy"><b>${esc(opp||'Opponent')}</b><span>vs ${esc(posGroup)}</span></div></div></div>
     <div class="tso-nfl-howto">How to read this: <b>player numbers</b> are scoring rates. <b>${esc(opp||'Opponent')} allowed</b> is previous-season TDs allowed per game to the ${esc(posGroup)} group. Higher allowed TD/G is better for ${esc(last)}.</div>
     <div class="tso-nfl-easy-kpis">
       <div><span>Recent scoring</span><b>${recentText} TD/G</b><small>${esc(last)} · last 5</small></div>
@@ -855,7 +864,7 @@ function propMatchupHTML(r,ctx,name,pos,edge,snapPct,playerPhoto,opponentPhoto,o
   }
 
   const unit=esc(ctx.meta?.unit||'stat');
-  return `<div class="hm-compare tso-nfl-clear-matchup-head"><div class="hm-side"><div class="hm-headshot">${playerImg}</div><div class="hm-name">${esc(name)}</div><div class="hm-hand-badge hm-bat">${esc(depthLabel(r,pos))} · ${snapText} snaps</div></div><div class="hm-vs">VS</div><div class="hm-side"><div class="hm-headshot">${oppImg}</div><div class="hm-name">${esc(opp||'Opponent')}</div><div class="hm-hand-badge hm-pitch">vs ${esc(posGroup)}</div></div></div>
+  return `<div class="tso-nfl-matchup-strip"><div class="tso-nfl-matchup-person"><div class="tso-nfl-matchup-avatar player">${playerImg}</div><div class="tso-nfl-matchup-copy"><b>${esc(name)}</b><span>${esc(depthLabel(r,pos))} · ${snapText} snaps</span></div></div><div class="tso-nfl-matchup-vs">VS</div><div class="tso-nfl-matchup-person opponent"><div class="tso-nfl-matchup-avatar team">${oppImg}</div><div class="tso-nfl-matchup-copy"><b>${esc(opp||'Opponent')}</b><span>vs ${esc(posGroup)}</span></div></div></div>
   <div class="tso-nfl-howto">Player averages and opponent allowance are shown separately so you can see what each number represents.</div>
   <div class="tso-nfl-easy-kpis">
     <div><span>Last 5 avg</span><b>${recentText}</b><small>${unit}/G · recent form</small></div>
