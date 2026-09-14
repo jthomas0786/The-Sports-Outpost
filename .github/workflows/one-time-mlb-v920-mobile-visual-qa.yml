@@ -1,0 +1,38 @@
+name: One-time MLB v920 mobile visual QA
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v920-mobile-visual-qa.yml'
+      - 'scripts/mlb-v920-mobile-qa.mjs'
+permissions:
+  contents: write
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install chromium
+      - name: Run MLB v920 mobile visual QA
+        run: node scripts/mlb-v920-mobile-qa.mjs
+      - name: Commit QA evidence
+        run: |
+          git config user.name 'TSO MLB v920 QA Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add qa/mlb-playstage-v920-mobile.png qa/mlb-playstage-v920-mobile.json
+          git commit -m 'qa: verify MLB v920 mobile layout'
+          git reset --hard HEAD
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
