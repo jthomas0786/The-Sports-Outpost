@@ -1,29 +1,6 @@
-// Shared by the drawer and replay tests. Never infer a live window from an old board.
+// Halftime boards remain usable through halftime when the score/state still match.
 const num=v=>v==null||v===''?null:Number.isFinite(Number(v))?Number(v):null;
-const WINDOW_MINUTES=8;
-export function halftimeBoardCurrent(board,game,now=Date.now()){
-  if(!board?.ready||!game)return false;
-  const live=game.liveScore||game;
-  const status=String(live.status||game.status||'').toLowerCase();
-  const period=num(live.period),clock=num(live.clockMin);
-  const detail=`${game.statusDetail||game.detail||''} ${live.statusDetail||''}`;
-  if(!['in','live'].includes(status)||period!==2)return false;
-  if(!(/half\s*time|end of (?:the )?(?:2nd|second)/i.test(detail)||(clock!=null&&clock>=0&&clock<=WINDOW_MINUTES+.05)))return false;
-  const generated=Date.parse(board.generatedAt||'');
-  if(!Number.isFinite(generated)||now-generated>600000||generated>now+60000)return false;
-  const liveStamp=num(live.lastFetchedAt);
-  if(liveStamp==null||now-liveStamp>360000||liveStamp>now+60000)return false;
-  if(Number(board.state?.period)!==2)return false;
-  const boardClock=num(board.state?.clockMin);
-  const boardDetail=String(board.state?.statusDetail||'');
-  if(!(/half\s*time|end of (?:the )?(?:2nd|second)/i.test(boardDetail)||(boardClock!=null&&boardClock>=0&&boardClock<=WINDOW_MINUTES+.05)))return false;
-  for(const side of ['away','home']){
-    const current=num(live[`${side}Score`]??game[side]?.score);
-    if(current==null||current!==num(board.state?.[`${side}Score`]))return false;
-  }
-  const elapsed=(now-generated)/1000;
-  return (board.candidates||[]).length>=2 && board.candidates.every(c=>{
-    const age=num(c.oddsAgeSeconds);
-    return age!=null&&age>=0&&age+Math.max(0,elapsed)<=600;
-  });
-}
+const WINDOW_MINUTES=8,MAX_BOARD_AGE_MS=35*60*1000,MAX_LIVE_AGE_MS=15*60*1000,MAX_ODDS_TOTAL_AGE_SECONDS=35*60;
+function clockMinutes(live,game){const direct=num(live?.clockMin??game?.clockMin);if(direct!=null)return direct;const raw=String(live?.clock??game?.clock??'').trim().toLowerCase();if(/half\s*time|halftime/.test(raw))return 0;const m=raw.match(/^(\d{1,2}):(\d{2})$/);return m?Number(m[1])+Number(m[2])/60:null;}
+function halfText(game,live){return /half\s*time|halftime|end of (?:the )?(?:2nd|second)/i.test(`${game?.status||''} ${live?.status||''} ${game?.statusDetail||game?.detail||''} ${live?.statusDetail||''} ${game?.clock||''} ${live?.clock||''}`)}
+export function halftimeBoardCurrent(board,game,now=Date.now()){if(!board?.ready||!game)return false;const live=game.liveScore||game,status=String(live.status||game.status||'').toLowerCase(),period=num(live.period??game.period),clock=clockMinutes(live,game),isHalf=halfText(game,live),liveish=['in','live','halftime','half'].includes(status);if(!isHalf&&!liveish)return false;if(!isHalf&&period!==2)return false;if(!isHalf&&!(clock!=null&&clock>=0&&clock<=WINDOW_MINUTES+.05))return false;const generated=Date.parse(board.generatedAt||'');if(!Number.isFinite(generated)||now-generated>MAX_BOARD_AGE_MS||generated>now+60000)return false;const liveStamp=num(live.lastFetchedAt??game.lastFetchedAt);if(liveStamp!=null&&(now-liveStamp>MAX_LIVE_AGE_MS||liveStamp>now+60000))return false;if(Number(board.state?.period)!==2)return false;const boardClock=num(board.state?.clockMin),boardDetail=String(board.state?.statusDetail||'');if(!(/half\s*time|halftime|end of (?:the )?(?:2nd|second)/i.test(boardDetail)||(boardClock!=null&&boardClock>=0&&boardClock<=WINDOW_MINUTES+.05)))return false;for(const side of ['away','home']){const current=num(live[`${side}Score`]??game[side]?.score);if(current==null||current!==num(board.state?.[`${side}Score`]))return false;}const elapsed=Math.max(0,(now-generated)/1000);return (board.candidates||[]).length>=2&&board.candidates.every(c=>{const age=num(c.oddsAgeSeconds);return age!=null&&age>=0&&age+elapsed<=MAX_ODDS_TOTAL_AGE_SECONDS;});}

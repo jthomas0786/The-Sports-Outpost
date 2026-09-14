@@ -307,11 +307,13 @@ function winProb(g){
   return{away:50,home:50};
 }
 function chartPath(vals){return vals.map((v,i)=>`${i?'L':'M'}${(i*100/Math.max(1,vals.length-1)).toFixed(2)} ${(80-clamp(v,0,100)*.62).toFixed(2)}`).join(' ')}
-function halftime(h){if(h?.ready)return{t:'Halftime Lab Ready',s:`${h.games||h.gameCount||1} games loaded`};if(h?.warming||h?.eligibleGames?.length)return{t:'Halftime Lab Warming Up',s:'2:00 warning automation active'};return{t:'Halftime Lab Monitoring',s:'Auto-arms near the 2:00 mark in Q2'}}
+function gameId(g){return String(g?.id||g?.gameId||'')}
+function gameAtHalftime(g){const live=g?.liveScore||g||{},detail=`${g?.status||''} ${live?.status||''} ${g?.statusDetail||''} ${live?.statusDetail||''} ${g?.clock||''} ${live?.clock||''}`.toLowerCase();if(/half\s*time|halftime|end of (?:the )?(?:2nd|second)/.test(detail))return true;return Number(live?.period??g?.period)===2&&Number(live?.clockMin??g?.clockMin)<=.05;}
+function halftime(h,g){const id=gameId(g),board=(h?.games||[]).find(x=>String(x?.gameId||x?.id||'')===id);if(board?.ready)return{t:'Halftime Lab Ready',s:`${board?.candidates?.length||0} qualified props · 50K complete`};if(gameAtHalftime(g))return{t:'Halftime Lab Calculating',s:'Live props + 50K board refreshing now'};if(h?.ready)return{t:'Halftime Lab Ready',s:`${h.games||h.gameCount||1} games loaded`};if(h?.warming||h?.eligibleGames?.length)return{t:'Halftime Lab Warming Up',s:'Late-Q2 automation active'};return{t:'Halftime Lab Monitoring',s:'Auto-arms in late Q2'};}
 
 export function renderNflPlaystageV886EHTML(game,opts={}){
   ensureNflPlaystageV886EStyles();
-  const F=formation(game,opts),P=F.P,W=winProb(game),H=halftime(opts.halftime),poss=F.poss;
+  const F=formation(game,opts),P=F.P,W=winProb(game),H=halftime(opts.halftime,game),poss=F.poss;
   const ballP=scenePoint(fieldYardToAbs(F.ball.fy),F.ball.lat);
   const offenseSide=poss,defenseSide=poss==='away'?'home':'away';
   const actors=[

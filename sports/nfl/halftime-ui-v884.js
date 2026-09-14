@@ -1,5 +1,5 @@
 import { optimizeHalftimeParlay, evaluateCombination, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=89.20';
-import { halftimeBoardCurrent } from './halftime-validity.js?v=89.26';
+import { halftimeBoardCurrent } from './halftime-validity.js?v=89.36';
 
 let pollTimer=null,liveSnapshotSyncArmed=false;
 let currentDoc=null;
@@ -23,18 +23,26 @@ const pct=(v,d=1)=>Number.isFinite(Number(v))?`${(Number(v)*100).toFixed(d)}%`:'
 const fmtLine=v=>Number.isInteger(Number(v))?String(Number(v)):Number(v).toFixed(1);
 const gid=g=>String(g?.id||g?.gameId||'');
 const periodOf=g=>Number(g?.liveScore?.period??g?.period);
-const clockOf=g=>Number(g?.liveScore?.clockMin??g?.clockMin);
+const clockOf=g=>{
+  const minute=Number(g?.liveScore?.clockMin??g?.clockMin);
+  if(Number.isFinite(minute))return minute;
+  const raw=String(g?.liveScore?.clock??g?.clock??'').trim().toLowerCase();
+  if(/half\s*time|halftime/.test(raw))return 0;
+  const m=raw.match(/^(\d{1,2}):(\d{2})$/);
+  return m?(Number(m[1])+Number(m[2])/60):NaN;
+};
 const statusOf=g=>String(g?.liveScore?.status||g?.status||'').toLowerCase();
-const detailOf=g=>`${g?.statusDetail||''} ${g?.detail||''} ${g?.liveScore?.statusDetail||''}`.toLowerCase();
+const detailOf=g=>`${g?.status||''} ${g?.liveScore?.status||''} ${g?.statusDetail||''} ${g?.detail||''} ${g?.liveScore?.statusDetail||''} ${g?.clock||''} ${g?.liveScore?.clock||''}`.toLowerCase();
+const liveish=s=>['in','live','halftime','half'].includes(String(s||'').toLowerCase());
 const matchupOf=g=>g?.matchup||`${g?.away?.abbr||g?.awayTeam||'AWY'} @ ${g?.home?.abbr||g?.homeTeam||'HOME'}`;
 const HALFTIME_WINDOW_MINUTES=8;
 
 export function isHalftimeGameState(g){
   if(!g)return false;
-  const status=statusOf(g);
-  if(status!=='in'&&status!=='live')return false;
-  if(/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detailOf(g)))return true;
-  const p=periodOf(g),clock=clockOf(g);
+  const halfText=/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detailOf(g));
+  if(halfText)return true;
+  const status=statusOf(g),p=periodOf(g),clock=clockOf(g);
+  if(!liveish(status))return false;
   return p===2&&Number.isFinite(clock)&&clock<=0.05;
 }
 
@@ -42,7 +50,7 @@ export function isHalftimeWarmupGameState(g,{thresholdMinutes=HALFTIME_WINDOW_MI
   if(!g)return false;
   if(isHalftimeGameState(g))return true;
   const status=statusOf(g);
-  if(status!=='in'&&status!=='live')return false;
+  if(!liveish(status))return false;
   const p=periodOf(g),clock=clockOf(g);
   return p===2&&Number.isFinite(clock)&&clock>=0&&clock<=Number(thresholdMinutes??HALFTIME_WINDOW_MINUTES);
 }
