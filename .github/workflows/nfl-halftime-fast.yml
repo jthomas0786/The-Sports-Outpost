@@ -1,0 +1,103 @@
+name: NFL Halftime Fast Path
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/nfl-halftime-fast.yml'
+  schedule:
+    # Offset from the top-of-hour GitHub Actions traffic spike.
+    - cron: '2-59/5 * * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  halftime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    concurrency:
+      group: nfl-halftime-dedicated-fast
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Refresh authoritative NFL live snapshot
+        run: node scripts/nfl-live-poller.mjs
+
+      - name: Prefetch sportsbook props from 10:00 Q2 onward
+        continue-on-error: true
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+          NFL_HALFTIME_PREFETCH_MINUTES: 10
+        run: node scripts/nfl-halftime-window-refresh.mjs
+
+      - name: Build every late-Q2 or halftime 50K board
+        env:
+          NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
+          NFL_SIM_FORCE: 1
+        run: |
+          GAME_IDS=$(node - <<'NODE'
+          const fs=require('fs');
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const ids=[];
+          for(const [id,g] of Object.entries(live.games||{})){
+            const status=String(g?.status||'').toLowerCase();
+            const detail=`${g?.statusDetail||''} ${g?.clock||''}`.toLowerCase();
+            const period=Number(g?.period),clock=Number(g?.clockMin);
+            const half=/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
+            const active=['in','live','halftime','half'].includes(status)||half;
+            if(half||(active&&period===2&&Number.isFinite(clock)&&clock<=10.05)) ids.push(id);
+          }
+          process.stdout.write(ids.join(','));
+          NODE
+          )
+          echo "Halftime fast-path game ids: ${GAME_IDS:-none}"
+          if [ -n "$GAME_IDS" ]; then
+            node scripts/nfl-sim-auto.mjs --game "$GAME_IDS"
+          fi
+
+      - name: Verify eligible boards when a game is in window
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          let ht={games:[]}; try{ht=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));}catch{}
+          const ids=[];
+          for(const [id,g] of Object.entries(live.games||{})){
+            const status=String(g?.status||'').toLowerCase();
+            const detail=`${g?.statusDetail||''} ${g?.clock||''}`.toLowerCase();
+            const period=Number(g?.period),clock=Number(g?.clockMin);
+            const half=/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
+            if(half||(['in','live','halftime','half'].includes(status)&&period===2&&Number.isFinite(clock)&&clock<=10.05)) ids.push(id);
+          }
+          for(const id of ids){
+            const b=(ht.games||[]).find(x=>String(x?.gameId||'')===id);
+            if(!b?.ready) throw new Error(`halftime board ${id} not ready`);
+            if(Number(b.iterations)!==50000) throw new Error(`halftime board ${id} not 50K`);
+            if((b.candidates||[]).length<2) throw new Error(`halftime board ${id} has fewer than 2 props`);
+            console.log(`✓ ${id}: READY · ${b.candidates.length} props · 50K`);
+          }
+          NODE
+
+      - name: Publish live and halftime outputs immediately
+        run: |
+          git config user.name 'TSO NFL Halftime Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slates/nfl-live.json
+          [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
+          [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
+          git diff --staged --quiet && echo 'No halftime/live change to publish.' && exit 0
+          git commit -m 'Refresh NFL halftime fast path'
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt*2))
+          done
+          exit 1
