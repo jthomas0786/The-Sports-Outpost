@@ -18,7 +18,7 @@ assert.ok(src.includes('finally{await restoreDefense(root,s,240);}'),'every comp
 const fn=src.match(/async function animateRunnerMoves\([\s\S]*?\nfunction outBaseSequence/ )?.[0]||'';
 assert.ok(fn,'animateRunnerMoves block must exist');
 assert.ok(!fn.includes('const el=actor(root,m.id)'),'generic actor lookup is forbidden inside base-running animation');
-assert.ok(router.includes("./mlb/playstage-v901.js?v=90.42")||router.includes("./mlb/playstage-v901.js?v=90.43"),'router must cache-bust isolated MLB PlayStage');
-assert.ok(index.includes('./sports/router.js?v=90.42')||index.includes('./sports/router.js?v=90.43'),'index must cache-bust the updated router');
+assert.ok(router.includes("./mlb/playstage-v901.js?v=90.43")||router.includes("./mlb/playstage-v901.js?v=90.43"),'router must cache-bust isolated MLB PlayStage');
+assert.ok(index.includes('./sports/router.js?v=90.43')||index.includes('./sports/router.js?v=90.43'),'index must cache-bust the updated router');
 
 console.log('MLB v916/v917 runner isolation regression: defenders cannot run bases or disappear at home');
