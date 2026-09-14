@@ -1,0 +1,74 @@
+name: One-time NFL player modal team logo right v86.7
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-player-modal-team-logo-right-v867.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Align opponent team logo to the right
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p=Path('sports/nfl-research-ui.js')
+          s=p.read_text()
+          s=s.replace("tso-nfl-research-ui-v866","tso-nfl-research-ui-v867")
+
+          old=".tso-nfl-matchup-person{display:flex;align-items:center;gap:12px;min-width:0}.tso-nfl-matchup-person.opponent{justify-content:flex-start}"
+          new=".tso-nfl-matchup-person{display:flex;align-items:center;gap:12px;min-width:0}.tso-nfl-matchup-person.opponent{justify-content:flex-end}.tso-nfl-matchup-person.opponent .tso-nfl-matchup-copy{order:1;align-items:flex-end;text-align:right}.tso-nfl-matchup-person.opponent .tso-nfl-matchup-avatar{order:2}"
+          if old not in s:
+            raise SystemExit('Opponent matchup alignment anchor not found')
+          s=s.replace(old,new,1)
+          p.write_text(s)
+
+          router=Path('sports/router.js')
+          r=router.read_text()
+          if "./nfl-research-ui.js?v=86.6" not in r:
+            raise SystemExit('Expected NFL research UI cache version 86.6 not found')
+          router.write_text(r.replace("./nfl-research-ui.js?v=86.6","./nfl-research-ui.js?v=86.7",1))
+
+          index=Path('index.html')
+          ix=index.read_text()
+          if './sports/router.js?v=90.34' not in ix:
+            raise SystemExit('Expected router cache version 90.34 not found')
+          index.write_text(ix.replace('./sports/router.js?v=90.34','./sports/router.js?v=90.35',1))
+          PY
+
+      - name: Validate production files
+        run: |
+          node --check sports/nfl-research-ui.js
+          node --check sports/router.js
+          grep -F 'tso-nfl-research-ui-v867' sports/nfl-research-ui.js
+          grep -F 'opponent .tso-nfl-matchup-avatar{order:2}' sports/nfl-research-ui.js
+          grep -F "./nfl-research-ui.js?v=86.7" sports/router.js
+          grep -F './sports/router.js?v=90.35' index.html
+
+      - name: Commit production repair
+        run: |
+          git config user.name "TSO NFL UI Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl-research-ui.js sports/router.js index.html
+          git diff --staged --quiet && echo "Already applied." && exit 0
+          git commit -m "Align NFL opponent team logo to the right"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
