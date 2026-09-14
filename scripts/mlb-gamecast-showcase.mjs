@@ -18,21 +18,41 @@ const usefulHit=p=>{
   const h=eventHitData(p)||{};
   return h.launchSpeed!=null||h.launchAngle!=null||h.totalDistance!=null;
 };
+const preExistingRunnerCount=p=>{
+  const batterId=String(p?.matchup?.batter?.id||'');
+  const ids=new Set();
+  for(const r of p?.runners||[]){
+    const id=String(r?.details?.runner?.id||r?.details?.runner?.person?.id||'');
+    const start=String(r?.movement?.start||'').toLowerCase();
+    if(id&&id!==batterId&&start&&start!=='home'&&start!=='score') ids.add(id);
+  }
+  return ids.size;
+};
 
 async function findGame(){
-  let fallback=null;
-  for(const n of Array.from({length:14},(_,i)=>i+1)){
+  let twoRunnerHr=null,oneRunnerHr=null,soloHr=null,fallback=null;
+  for(const n of Array.from({length:30},(_,i)=>i+1)){
     const date=new Date(Date.now()-n*86400000).toISOString().slice(0,10);
     const sched=await (await fetch(`https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${date}`)).json();
     for(const g of (sched.dates||[]).flatMap(d=>d.games||[])){
       try{
         const feed=await (await fetch(`https://statsapi.mlb.com/api/v1.1/game/${g.gamePk}/feed/live?language=en`)).json();
         const plays=feed?.liveData?.plays?.allPlays||[];
-        if(plays.some(p=>isHr(p)&&usefulHit(p))) return {gamePk:String(g.gamePk),preferred:'home_run'};
-        if(!fallback&&plays.some(usefulHit)) fallback={gamePk:String(g.gamePk),preferred:'hit'};
+        for(const p of plays){
+          if(!isHr(p)||!usefulHit(p)) continue;
+          const runners=preExistingRunnerCount(p);
+          const pick={gamePk:String(g.gamePk),preferred:'home_run',runnerCount:runners};
+          if(runners>=2&&!twoRunnerHr) twoRunnerHr=pick;
+          else if(runners===1&&!oneRunnerHr) oneRunnerHr=pick;
+          else if(!soloHr) soloHr=pick;
+        }
+        if(twoRunnerHr) return twoRunnerHr;
+        if(!fallback&&plays.some(usefulHit)) fallback={gamePk:String(g.gamePk),preferred:'hit',runnerCount:0};
       }catch{}
     }
   }
+  if(oneRunnerHr) return oneRunnerHr;
+  if(soloHr) return soloHr;
   if(fallback) return fallback;
   throw new Error('No recent MLB game with usable hit data found');
 }
@@ -40,20 +60,21 @@ async function findGame(){
 const picked=await findGame();
 const harness=path.join(root,'mlb-gamecast-showcase.html');
 fs.writeFileSync(harness,`<!doctype html><html lang="en" data-sport="mlb"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>html,body{margin:0;background:#020814;color:#fff;font-family:Arial}body{padding:12px}#tsoMlbInlineGamecast{width:min(1512px,calc(100vw - 24px));margin:auto}.mlb-live-gc-shell{min-height:0}</style></head><body><div id="tsoMlbInlineGamecast" data-game-pk="${picked.gamePk}"><div class="mlb-live-gc-shell"></div></div><script type="module">
-import {installMlbPlaystageV901} from '/sports/mlb/playstage-v901.js?v=showcase';
-import {installMlbPlaystageConceptV904} from '/sports/mlb/playstage-concept-v904.js?v=showcase';
-import {installMlbPlaystageConceptV905} from '/sports/mlb/playstage-concept-v905.js?v=showcase';
-import {installMlbPlaystageConceptV906} from '/sports/mlb/playstage-concept-v906.js?v=showcase';
-import {installMlbPlaystageConceptV907} from '/sports/mlb/playstage-concept-v907.js?v=showcase';
-import {installMlbPlaystageConceptV908} from '/sports/mlb/playstage-concept-v908.js?v=showcase';
-import {installMlbPlaystageConceptV909} from '/sports/mlb/playstage-concept-v909.js?v=showcase';
-import {installMlbPlaystageConceptV910} from '/sports/mlb/playstage-concept-v910.js?v=showcase';
-import {installMlbPlaystageConceptV911} from '/sports/mlb/playstage-concept-v911.js?v=showcase';
-import {installMlbPlaystageConceptV912} from '/sports/mlb/playstage-concept-v912.js?v=showcase';
-import {installMlbPlaystageConceptV913} from '/sports/mlb/playstage-concept-v913.js?v=showcase';
-import {installMlbPlaystageConceptV914} from '/sports/mlb/playstage-concept-v914.js?v=showcase';
-import {installMlbPlaystageConceptV915} from '/sports/mlb/playstage-concept-v915.js?v=showcase';
-installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();installMlbPlaystageConceptV909();installMlbPlaystageConceptV910();installMlbPlaystageConceptV911();installMlbPlaystageConceptV912();installMlbPlaystageConceptV913();installMlbPlaystageConceptV914();installMlbPlaystageConceptV915();
+import {installMlbPlaystageV901} from '/sports/mlb/playstage-v901.js?v=showcase916';
+import {installMlbPlaystageConceptV904} from '/sports/mlb/playstage-concept-v904.js?v=showcase916';
+import {installMlbPlaystageConceptV905} from '/sports/mlb/playstage-concept-v905.js?v=showcase916';
+import {installMlbPlaystageConceptV906} from '/sports/mlb/playstage-concept-v906.js?v=showcase916';
+import {installMlbPlaystageConceptV907} from '/sports/mlb/playstage-concept-v907.js?v=showcase916';
+import {installMlbPlaystageConceptV908} from '/sports/mlb/playstage-concept-v908.js?v=showcase916';
+import {installMlbPlaystageConceptV909} from '/sports/mlb/playstage-concept-v909.js?v=showcase916';
+import {installMlbPlaystageConceptV910} from '/sports/mlb/playstage-concept-v910.js?v=showcase916';
+import {installMlbPlaystageConceptV911} from '/sports/mlb/playstage-concept-v911.js?v=showcase916';
+import {installMlbPlaystageConceptV912} from '/sports/mlb/playstage-concept-v912.js?v=showcase916';
+import {installMlbPlaystageConceptV913} from '/sports/mlb/playstage-concept-v913.js?v=showcase916';
+import {installMlbPlaystageConceptV914} from '/sports/mlb/playstage-concept-v914.js?v=showcase916';
+import {installMlbPlaystageConceptV915} from '/sports/mlb/playstage-concept-v915.js?v=showcase916';
+import {installMlbPlaystageConceptV916} from '/sports/mlb/playstage-concept-v916.js?v=showcase916';
+installMlbPlaystageV901();installMlbPlaystageConceptV904();installMlbPlaystageConceptV905();installMlbPlaystageConceptV906();installMlbPlaystageConceptV907();installMlbPlaystageConceptV908();installMlbPlaystageConceptV909();installMlbPlaystageConceptV910();installMlbPlaystageConceptV911();installMlbPlaystageConceptV912();installMlbPlaystageConceptV913();installMlbPlaystageConceptV914();installMlbPlaystageConceptV915();installMlbPlaystageConceptV916();
 </script></body></html>`);
 
 const mime={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.mjs':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.json':'application/json','.jpg':'image/jpeg','.jpeg':'image/jpeg','.png':'image/png','.svg':'image/svg+xml','.webp':'image/webp'};
@@ -75,8 +96,8 @@ const patchFeed=async route=>{
   const response=await route.fetch();
   const feed=await response.json();
   const plays=feed?.liveData?.plays?.allPlays||[];
-  const preferred=[...plays].reverse().find(p=>isHr(p)&&usefulHit(p));
-  const target=preferred||[...plays].reverse().find(usefulHit)||plays.at(-1);
+  const ranked=[...plays].reverse().filter(p=>isHr(p)&&usefulHit(p)).sort((a,b)=>preExistingRunnerCount(b)-preExistingRunnerCount(a));
+  const target=ranked[0]||[...plays].reverse().find(usefulHit)||plays.at(-1);
   if(target){
     if(!target.hitData){
       const h=eventHitData(target);
@@ -89,24 +110,43 @@ const patchFeed=async route=>{
 };
 
 async function ready(page){
-  await page.waitForSelector('.tso-mlb-concept-v915',{timeout:30000});
-  await page.waitForFunction(()=>{const f=document.querySelector('.ps914-field');return f?.complete&&f.naturalWidth>0&&f.getAttribute('src')==='./field-bg.jpg'},{timeout:30000});
+  await page.waitForSelector('.tso-mlb-concept-v916',{timeout:30000});
+  await page.waitForFunction(()=>{
+    const f=document.querySelector('.ps914-field');
+    const root=document.querySelector('.tso-mlb-playstage-v901');
+    const actors=[...document.querySelectorAll('.ps-chibi')];
+    const defense=actors.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner'));
+    return f?.complete&&f.naturalWidth>0&&f.getAttribute('src')==='./field-bg.jpg'&&root?.dataset?.fieldActors==='v916'&&defense.length===9;
+  },{timeout:30000});
 }
 async function inspect(page){
-  return page.evaluate(()=>({
-    viewport:innerWidth,
-    docWidth:document.documentElement.scrollWidth,
-    headline:(document.querySelector('.ps-play-banner b')?.textContent||'').trim(),
-    description:(document.querySelector('.ps-play-banner span:last-child')?.textContent||'').trim(),
-    metrics:[...document.querySelectorAll('.ps-metric b')].map(x=>(x.textContent||'').trim()),
-    field:[document.querySelector('.ps914-field')?.naturalWidth||0,document.querySelector('.ps914-field')?.naturalHeight||0],
-    fonts:{
-      atBat:parseFloat(getComputedStyle(document.querySelector('.v915-atbat-card .ps-player h3')).fontSize),
-      pitcher:parseFloat(getComputedStyle(document.querySelector('.v915-pitcher-card .ps-player h3')).fontSize),
-      event:parseFloat(getComputedStyle(document.querySelector('.ps-play-banner b')).fontSize),
-      metric:parseFloat(getComputedStyle(document.querySelector('.ps-metric b')).fontSize)
-    }
-  }));
+  return page.evaluate(()=>{
+    const actors=[...document.querySelectorAll('.ps-chibi')];
+    const defense=actors.filter(x=>!x.classList.contains('ps-batter')&&!x.classList.contains('ps-runner'));
+    const runners=actors.filter(x=>x.classList.contains('ps-runner'));
+    const batter=actors.filter(x=>x.classList.contains('ps-batter'));
+    const visible=actors.filter(x=>parseFloat(getComputedStyle(x).opacity)>.01);
+    return {
+      viewport:innerWidth,
+      docWidth:document.documentElement.scrollWidth,
+      headline:(document.querySelector('.ps-play-banner b')?.textContent||'').trim(),
+      description:(document.querySelector('.ps-play-banner span:last-child')?.textContent||'').trim(),
+      metrics:[...document.querySelectorAll('.ps-metric b')].map(x=>(x.textContent||'').trim()),
+      field:[document.querySelector('.ps914-field')?.naturalWidth||0,document.querySelector('.ps914-field')?.naturalHeight||0],
+      fieldActors:document.querySelector('.tso-mlb-playstage-v901')?.dataset?.fieldActors||'',
+      defense:defense.length,
+      batter:batter.length,
+      runners:runners.length,
+      visible:visible.length,
+      labels:document.querySelectorAll('.ps916-tag').length,
+      fonts:{
+        atBat:parseFloat(getComputedStyle(document.querySelector('.v915-atbat-card .ps-player h3')).fontSize),
+        pitcher:parseFloat(getComputedStyle(document.querySelector('.v915-pitcher-card .ps-player h3')).fontSize),
+        event:parseFloat(getComputedStyle(document.querySelector('.ps-play-banner b')).fontSize),
+        metric:parseFloat(getComputedStyle(document.querySelector('.ps-metric b')).fontSize)
+      }
+    };
+  });
 }
 
 const browser=await chromium.launch({headless:true});
@@ -133,15 +173,19 @@ try{
   const page=await ctx.newPage();
   await page.route('https://statsapi.mlb.com/api/v1.1/game/**/feed/live?language=en',patchFeed);
   await page.goto('http://127.0.0.1:4173/mlb-gamecast-showcase.html',{waitUntil:'domcontentloaded'});
-  await ready(page);await page.waitForTimeout(6800);
+  await ready(page);await page.waitForTimeout(7600);
   const video=page.video();
+  const v=await inspect(page);
   await page.close();
   const videoPath=await video.path();
   await ctx.close();
   fs.copyFileSync(videoPath,path.join(outDir,'mlb-gamecast-home-run-simulation.webm'));
 
-  fs.writeFileSync(path.join(outDir,'mlb-gamecast-showcase.json'),JSON.stringify({gamePk:picked.gamePk,preferred:picked.preferred,desktop:d,mobile:m},null,2));
+  fs.writeFileSync(path.join(outDir,'mlb-gamecast-showcase.json'),JSON.stringify({gamePk:picked.gamePk,preferred:picked.preferred,selectedRunnerCount:picked.runnerCount,desktop:d,mobile:m,simulation:v},null,2));
   const metricsPopulated=d.metrics.some(x=>x&&x!=='—');
+  for(const [name,x] of [['desktop',d],['mobile',m],['simulation',v]]){
+    if(x.fieldActors!=='v916'||x.defense!==9||x.batter!==1||x.visible<10||x.labels<10) throw new Error(`${name} v916 actors failed: ${JSON.stringify(x)}`);
+  }
   if(!d.headline||!m.headline||!metricsPopulated||m.docWidth>m.viewport+1||m.fonts.atBat<10||m.fonts.pitcher<10||m.fonts.event<11||m.fonts.metric<9) throw new Error(`Showcase QA failed: ${JSON.stringify({d,m})}`);
 } finally {
   await browser.close();
@@ -156,4 +200,4 @@ let r=spawnSync('ffmpeg',['-y','-i',webm,'-vf','fps=10,scale=960:-1:flags=lanczo
 if(r.status!==0) throw new Error('GIF conversion failed');
 r=spawnSync('ffmpeg',['-y','-i',webm,'-c:v','libx264','-pix_fmt','yuv420p','-movflags','+faststart',mp4],{stdio:'inherit'});
 if(r.status!==0) throw new Error('MP4 conversion failed');
-console.log('MLB Gamecast showcase capture complete',picked);
+console.log('MLB Gamecast v916 showcase capture complete',picked);
