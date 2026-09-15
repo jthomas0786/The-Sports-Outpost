@@ -17,7 +17,7 @@ import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPrevie
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
-import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=90.5';
+import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=90.6';
 
 /** MLB-owned containers that must hide when another sport's view is showing. */
 const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .status-bar'];
@@ -171,7 +171,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview-v893.js?v=89.38');
+      const mod = await import('./nfl-preview-v893.js?v=89.39');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {

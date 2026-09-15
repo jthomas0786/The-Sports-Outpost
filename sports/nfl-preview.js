@@ -688,7 +688,7 @@ async function loadData(){
         const rp=matchResearchPlayer(researchIdx,p);
         players.push({
           id:p.gsisId||p.espnId||p.name, espnId:p.espnId||rp?.espnId||null, gsisId:p.gsisId||rp?.gsisId||null,
-          name:p.name, team:normNflTeam(p.team), pos:p.position||rp?.position||'SKILL', opp:normNflTeam(p.opponent||rp?.opponent||''),
+          name:p.name, team:normNflTeam(p.team), pos:p.position||rp?.position||'SKILL', opp:(normNflTeam(p.team)===normNflTeam(g.away?.abbr)?normNflTeam(g.home?.abbr):normNflTeam(p.team)===normNflTeam(g.home?.abbr)?normNflTeam(g.away?.abbr):normNflTeam(p.opponent||rp?.opponent||'')),
           edge, prob:atd, modelProb:modelAtd, simProb:Number.isFinite(simAtd)?simAtd:null, sim:simPlayer, simIterations:simIdx.games.get(String(g.gameId))?.iterations||null, grade:gradeFor(atd), headshot:p.headshot||rp?.headshot||null,
           usage:Number.isFinite(snap)?Math.round(snap*100):Math.round((Number(rp?.model?.snapShare)||0)*100)||num(p.name+'snap',58,88),
           rz:rzOpp||((Number(rp?.model?.rzTargets)||0)+(Number(rp?.model?.rzCarries)||0))||num(p.name+'rz',6,25), explosive:num(p.name+'exp',9,24),
