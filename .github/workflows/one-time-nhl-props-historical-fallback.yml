@@ -1,0 +1,50 @@
+name: One-time NHL Props Historical Fallback
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nhl-props-historical-fallback.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Apply NHL Props fallback
+        run: python scripts/apply-nhl-props-historical-fallback.py
+      - name: Validate NHL Props and regressions
+        run: |
+          node --check sports/nhl/props-model.js
+          node --check sports/nhl/view.js
+          node --check sports/nhl/view-v906.js
+          node --check sports/router.js
+          node scripts/nhl-props-baseline-selftest.mjs
+          node scripts/nhl-selftest.mjs
+          node scripts/nhl-v901-selftest.mjs
+          node scripts/nhl-lineups-selftest.mjs
+          node scripts/nhl-gamecast-selftest.mjs
+          node scripts/nhl-slate-v906-selftest.mjs
+          node scripts/nhl-player-modal-selftest.mjs
+      - name: Publish NHL Props fix
+        run: |
+          git config user.name 'TSO NHL Props Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nhl/view.js sports/nhl/view-v906.js sports/router.js index.html .github/workflows/nhl.yml sports/nhl/README.md
+          git diff --staged --quiet && echo 'No NHL Props changes to publish.' && exit 0
+          git commit -m 'Fix NHL Props historical grades and data fallback'
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then exit 0; fi
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt * 2))
+          done
+          exit 1
