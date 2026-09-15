@@ -22,6 +22,17 @@ function rowsFor(live){
   }
   return rows;
 }
+function mapWatchlist(watchlist,research){
+  const rp=research?.players||[];
+  return (watchlist||[]).map(w=>{
+    const id=String(w.player_id??w.id??'');
+    const name=w.player_name||w.name||'Player',team=normTeam(w.team||'');
+    const p=rp.find(x=>String(x.espnId||x.id||x.playerId||'')===id)||rp.find(x=>normName(x.name)===normName(name)&&(!team||normTeam(x.team)===team));
+    const opponent=normTeam(p?.opponent||p?.opp||'');
+    const atd=number(p?.model?.atdProbability??p?.atdProbability??p?.prob);
+    return {id,name:p?.name||name,team:normTeam(p?.team||team),position:p?.position||p?.pos||'',headshot:p?.headshot||'',opponent,atd};
+  });
+}
 // Count scoring events, not player TD credits (a passing TD has two credits).
 function slateTouchdowns(doc){
   if(!doc?.games)return null;
@@ -38,7 +49,7 @@ function slateTouchdowns(doc){
   }
   return total;
 }
-export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,sim=null,now=Date.now()}={}){
+export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,sim=null,watchlist=[],now=Date.now()}={}){
   const alerts=[],games=[];
   let stale=false;
   for(const [gameId,live] of Object.entries(liveDoc?.games||{})){
@@ -91,11 +102,12 @@ export function buildNflCommandCenter({liveDoc=null,research=null,odds=null,sim=
       }
     }
   }
-  return {loaded:!!liveDoc,stale,games,touchdowns:slateTouchdowns(liveDoc),alerts:alerts.sort((a,b)=>b.priority-a.priority||a.key.localeCompare(b.key))};
+  return {loaded:!!liveDoc,stale,games,touchdowns:slateTouchdowns(liveDoc),alerts:alerts.sort((a,b)=>b.priority-a.priority||a.key.localeCompare(b.key)),watchlist:mapWatchlist(watchlist,research)};
 }
 export function renderNflCommandCenter(model){
-  const {alerts=[],games=[]}=model||{};
+  const {alerts=[],games=[],watchlist=[]}=model||{};
   const rows=alerts.map(a=>`<button type="button" class="cc-alert-row cc-nfl-alert" data-cc-nfl-game="${safe(a.gameId)}" style="width:100%;text-align:left;color:inherit;background:transparent;border:0;border-bottom:1px solid var(--line);cursor:pointer"><span class="cc-alert-avatar" style="display:grid;place-items:center;background:var(--panel2);font:700 10px monospace">${safe(a.team)}</span><span class="cc-alert-text">${safe(a.name)}<small>${safe(a.type)} · ${safe(a.detail)}</small><small>${safe(a.matchup)} · ${safe(a.state)}</small>${a.type==='Prop watch'?`<small>${safe(a.remaining)}</small><span class="cc-prop-context">${a.model?`<span>TSO Over <b>${(a.model.tsoProbability*100).toFixed(1)}%</b></span><span>Edge <b>${a.model.edgePoints>=0?'+':''}${a.model.edgePoints.toFixed(1)} pp</b> vs ${a.model.edgeBasis==='fair-market'?'fair odds':'implied odds'}</span><span>Mean ${a.model.mean??'—'} · Median ${a.model.median??'—'}</span><span>${a.model.iterations?.toLocaleString()} sims · ${a.model.probabilityMethod==='exact-line'?'Matched line':'Estimated at new line'}</span>`:'<span>Near the line · waiting for an updated projection</span>'}</span>`:''}</span><span class="cc-alert-time">WATCH →</span></button>`).join('');
+  const watchRows=watchlist.map(p=>`<button type="button" class="cc-nfl-watch-row" data-cc-nfl-watch-player="${safe(p.id)}" data-cc-nfl-watch-name="${safe(p.name)}"><span class="cc-nfl-watch-avatar">${p.headshot?`<img src="${safe(p.headshot)}" alt="">`:safe(p.team||'NFL')}</span><span class="cc-nfl-watch-copy"><b>${safe(p.name)}</b><small>${safe([p.team,p.position].filter(Boolean).join(' · '))}${p.opponent?` · vs ${safe(p.opponent)}`:''}${p.atd!=null?` · ${(p.atd*100).toFixed(0)}% ATD`:''}</small></span><span class="cc-nfl-watch-star">★</span></button>`).join('');
   const note=!model?.loaded?'Loading NFL live action…':model.stale?'Waiting for fresh game action. Older alerts are hidden.':games.length?'No active threats right now. Alerts appear as scoring opportunities and player usage develop.':'No live NFL games right now. Threat alerts appear during games.';
-  return `<div class="cc-col-title">Football</div><div class="cc-kpi-row"><div class="cc-kpi-tile"><b>${games.length}</b><span>Live Now</span></div><div class="cc-kpi-tile" title="Touchdowns reported across the current NFL slate, including completed games"><b>${model?.touchdowns==null?'—':safe(model.touchdowns)}</b><span>Touchdowns</span></div><div class="cc-kpi-tile"><b>${alerts.filter(a=>a.type==='Touchdown watch'||a.type==='Red-zone opportunity').length}</b><span>Red-zone Watches</span></div><div class="cc-kpi-tile"><b>${alerts.filter(a=>a.type==='Prop watch').length}</b><span>Prop Watches</span></div></div><div class="cc-section"><div class="cc-section-label">Threat Alerts <span>${alerts.length||''}</span></div>${rows||`<div class="cc-empty-note">${note}</div>`}</div><div class="cc-section"><div class="cc-section-label">Live Games</div>${games.map(g=>`<button type="button" data-cc-nfl-game="${safe(g.gameId)}" class="cc-game-row" style="width:100%;background:transparent;color:inherit;border:0;cursor:pointer"><span class="teams">${safe(g.matchup)}</span><span class="state">${safe(g.score)} · ${safe(g.state)}</span></button>`).join('')||`<div class="cc-empty-note">${note}</div>`}</div>`;
+  return `<div class="cc-col-title">Football</div><div class="cc-kpi-row"><div class="cc-kpi-tile"><b>${games.length}</b><span>Live Now</span></div><div class="cc-kpi-tile" title="Touchdowns reported across the current NFL slate, including completed games"><b>${model?.touchdowns==null?'—':safe(model.touchdowns)}</b><span>Touchdowns</span></div><div class="cc-kpi-tile"><b>${alerts.filter(a=>a.type==='Touchdown watch'||a.type==='Red-zone opportunity').length}</b><span>Red-zone Watches</span></div><div class="cc-kpi-tile"><b>${alerts.filter(a=>a.type==='Prop watch').length}</b><span>Prop Watches</span></div></div><div class="cc-section"><div class="cc-section-label">NFL Watchlist <span>${watchlist.length||''}</span></div>${watchRows||'<div class="cc-empty-note">Star a player anywhere in NFL to add them here. NFL and MLB watchlists stay separate.</div>'}</div><div class="cc-section"><div class="cc-section-label">Threat Alerts <span>${alerts.length||''}</span></div>${rows||`<div class="cc-empty-note">${note}</div>`}</div><div class="cc-section"><div class="cc-section-label">Live Games</div>${games.map(g=>`<button type="button" data-cc-nfl-game="${safe(g.gameId)}" class="cc-game-row" style="width:100%;background:transparent;color:inherit;border:0;cursor:pointer"><span class="teams">${safe(g.matchup)}</span><span class="state">${safe(g.score)} · ${safe(g.state)}</span></button>`).join('')||`<div class="cc-empty-note">${note}</div>`}</div>`;
 }
