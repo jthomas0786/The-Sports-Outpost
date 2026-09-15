@@ -1,0 +1,40 @@
+name: One-time MLB v925 browser QA
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v925-browser-qa.yml'
+      - 'scripts/mlb-v925-browser-qa.mjs'
+      - 'sports/mlb/playstage-v901.js'
+      - 'sports/mlb/live-game-switcher-v901.js'
+      - 'sports/mlb/playstage-concept-v924-desktop-fit.js'
+permissions:
+  contents: write
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium
+        run: |
+          npm install --no-save --package-lock=false playwright@1.55.0
+          npx playwright install chromium
+      - name: Run MLB v925 browser QA
+        run: node scripts/mlb-v925-browser-qa.mjs
+      - name: Commit QA proof
+        run: |
+          git config user.name 'TSO MLB v925 QA Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add qa/mlb-v925-desktop-stable.png qa/mlb-v925-browser-qa.json
+          git commit -m 'qa: verify MLB v925 desktop stability' || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
