@@ -36,12 +36,17 @@ assert.equal(split[1].players.find(p=>p.id==='4024123').propsEligible,true,'conf
 assert.equal(split.flatMap(g=>g.players).filter(p=>p.id==='4024123'&&p.propsEligible!==false).length,1,'player must be Props-eligible once per daily slate');
 
 const wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8');
-const guard=fs.readFileSync('sports/nhl/props-daily-guard-v919.js','utf8');
-assert.ok(wrapper.includes('installNhlPropsDailyGuardV919'),'NHL wrapper must install daily Props guard');
-for(const marker of ['g.slateDate!==doc.date','p.propsEligible===false','.hk-prop-card','preferredMatchups'])assert.ok(guard.includes(marker),`missing defensive Props safeguard: ${marker}`);
+const guard=fs.readFileSync('sports/nhl/props-daily-guard-v920.js','utf8');
+const compat=fs.readFileSync('sports/nhl/props-daily-guard-v919.js','utf8');
+assert.ok(wrapper.includes('installNhlPropsDailyGuardV920'),'NHL wrapper must install the non-blocking Props guard');
+assert.ok(wrapper.indexOf('installNhlPropsDailyGuardV920(host)')<wrapper.indexOf('await base.mount()'),'Props guard must be armed before the large base render begins');
+assert.ok(compat.includes('props-daily-guard-v920.js?v=90.20'),'cached v919 wrapper must forward to the freeze-safe guard after revalidation');
+for(const marker of ["PAGE_SIZE=60","g?.slateDate||easternDate","p.propsEligible===false","nhlPropsProcessedV920","addedNodes",".hk-prop-list","if(!list.isConnected)return","rank&&rank.textContent!==next","count&&count.textContent!==totalText","content-visibility:auto","Show ${next} more"])assert.ok(guard.includes(marker),`missing freeze-safe defensive Props safeguard: ${marker}`);
+assert.ok(!guard.includes('new MutationObserver(run)'),'Props observer must not rerun on its own rank/count mutations');
 
-console.log('✓ NHL daily slate date + player dedupe regression passed');
+console.log('✓ NHL daily slate + freeze-safe Props regression passed');
 console.log('  ✓ one Eastern-time date survives multi-day ESPN responses');
 console.log('  ✓ UTC rollover does not leak late-night games into the next slate');
 console.log('  ✓ duplicate roster rows collapse and one same-day matchup owns Props eligibility');
-console.log('  ✓ renderer guard honors generated slate date + Props eligibility');
+console.log('  ✓ Props observer ignores its own DOM edits and is armed before render');
+console.log('  ✓ only 60 unique cards stay live initially; Show More restores additional rows on demand');

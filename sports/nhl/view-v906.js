@@ -1,7 +1,7 @@
 import * as base from './view.js?v=90.5&props=1';
 import {installNhlSlateV906} from './slate-v906.js?v=90.6.1';
 import {installNhlPlayerModalV918} from './player-modal-v918.js?v=90.18';
-import {installNhlPropsDailyGuardV919} from './props-daily-guard-v919.js?v=90.19';
+import {installNhlPropsDailyGuardV920} from './props-daily-guard-v920.js?v=90.20';
 import {gradeForLean,gradeRingHTML} from './grade.js?v=90.4';
 
 function ensureNhlModalVisibilityV910(){
@@ -15,10 +15,11 @@ function ensureNhlModalVisibilityV910(){
 
 export const selectTab=base.selectTab;
 export async function mount(){
+ const host=document.getElementById('nhlView');
+ installNhlPropsDailyGuardV920(host);
  const result=await base.mount();
  ensureNhlModalVisibilityV910();
  installNhlSlateV906({gradeForLean,gradeRingHTML});
- installNhlPlayerModalV918(document.getElementById('nhlView'));
- installNhlPropsDailyGuardV919(document.getElementById('nhlView'));
+ installNhlPlayerModalV918(host);
  return result;
 }
