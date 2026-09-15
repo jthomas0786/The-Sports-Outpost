@@ -15,7 +15,9 @@ for(const marker of [
 ]) assert.ok((marker.includes('width:')||marker.includes('desktopFit')||marker.includes('v924FooterGap')?fit:play).includes(marker),`v924 missing ${marker}`);
 
 assert.ok(router.includes("./mlb/playstage-v901.js?v=90.46"),'playstage cache bust missing');
-assert.ok(router.includes("./mlb/playstage-concept-v924-desktop-fit.js?v=92.40"),'v924 layer missing');
+const fitImport=router.match(/\.\/mlb\/playstage-concept-v924-desktop-fit\.js\?v=(\d+)\.(\d+)/);
+assert.ok(fitImport,'v924 layer missing');
+assert.ok(Number(fitImport[1])>92||(Number(fitImport[1])===92&&Number(fitImport[2])>=40),'v924 fit cache must remain at 92.40 or newer');
 assert.ok(router.includes('installMlbPlaystageConceptV924DesktopFit'),'v924 install missing');
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.37"),'NFL live hotfix must remain');
 const outer=index.match(/\.\/sports\/router\.js\?v=(\d+)\.(\d+)/);
