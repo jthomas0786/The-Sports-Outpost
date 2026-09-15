@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "appearance-reference-stars-08",
+  "checkedAt": "2026-09-15",
+  "referencePolicy": {
+    "sourcePriority": "Current official DallasCowboys.com roster/player headshot pages",
+    "visualRule": "Inspect the cited current official headshot before rendering. Never infer complexion, hair, facial hair, or facial features from a player's name.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {"background":"transparent","camera":"three-quarter front","lighting":"soft stadium key plus cool rim","footAnchor":"bottom-center","uniformSet":"Dallas white/silver/royal-blue","numberAccuracy":"required"}
+  },
+  "players": [
+    {"slug":"malik-hooker","name":"Malik Hooker","position":"S","number":"24","height":"6-1","weightLbs":215,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/malik-hooker/","officialImageLabel":"Hooker_Malik-HS23","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Veteran safety build: balanced/strong defensive-back proportions; preserve #24.","Prioritize stance, backpedal, deep-zone read, break-on-ball, open-field tackle, pass breakup, interception, return and forced-fumble reaction; no invented named celebration."]},
+    {"slug":"israel-abanikanda","name":"Israel Abanikanda","position":"RB","number":"25","height":"5-10","weightLbs":217,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/israel-abanikanda/","officialImageLabel":"Israel Abanikanda HS","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Running-back build: compact/powerful athletic frame; preserve current #25.","Prioritize stance, handoff receive, downhill run, cut, juke, stiff-arm, catch, pass protection, tackled reaction and generic first-down/touchdown celebration."]},
+    {"slug":"daron-bland","name":"DaRon Bland","position":"CB","number":"26","height":"6-2","weightLbs":202,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/daron-bland/","officialImageLabel":"daron-bland-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Cornerback build: tall/lean athletic frame; preserve #26.","Prioritize press stance, backpedal, man coverage, zone break, pass breakup, interception, ball-secure return and pick-six reaction. Do not assign a named signature celebration without a verified repeatable source."]},
+    {"slug":"shavon-revel-jr","name":"Shavon Revel Jr.","position":"CB","number":"28","height":"6-2","weightLbs":198,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/shavon-revel-jr/","officialImageLabel":"Shavon Revel HS","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Cornerback build: long/lean athletic frame; preserve #28.","Prioritize press stance, backpedal, man cover, zone break, tackle, pass breakup, interception, return and forced-fumble reaction; generic defensive celebration only."]},
+    {"slug":"hunter-luepke","name":"Hunter Luepke","position":"FB","number":"30","height":"6-1","weightLbs":250,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/hunter-luepke/","officialImageLabel":"hunter-luepke-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Fullback build: thick/strong blocker-runner proportions; preserve current #30 after the 2026 number change.","Prioritize stance, lead block, handoff receive, power run, catch, pass protect, tackled reaction and generic first-down/touchdown celebration; no invented named signature."]}
+  ],
+  "verification": {
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "notes": [
+      "Current official Dallas roster and player pages verify Malik Hooker #24 (6-1, 215), Israel Abanikanda #25 (5-10, 217), DaRon Bland #26 (6-2, 202), Shavon Revel Jr. #28 (6-2, 198), and Hunter Luepke #30 (6-1, 250).",
+      "Official Dallas player pages expose current headshot image labels for all five; renderers must visually inspect those headshots rather than infer appearance traits.",
+      "Dallas official 2026 number coverage confirms Abanikanda at #25 and Luepke's move to #30.",
+      "No player-specific named celebration was added because no repeatable signature was verified for this batch."
+    ]
+  },
+  "qa": {"referenceCount":5,"expectedReferenceCount":5,"numberAccuracyRequired":true,"transparentBackgroundRequired":true,"appearanceInferenceFromNameAllowed":false,"status":"pass"}
+}
