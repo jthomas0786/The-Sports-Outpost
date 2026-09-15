@@ -28,12 +28,12 @@ jobs:
           index = Path('index.html')
           html = index.read_text()
 
-          if "chibi-preview-private-v901.js?v=90.2" not in router:
-              raise SystemExit('private chibi preview is not wired at router v90.2')
+          if "chibi-preview-private-v901.js?v=" not in router:
+              raise SystemExit('private chibi preview is not wired in the current router')
           if "installNflChibiPreviewPrivateV901" not in router:
               raise SystemExit('private chibi preview installer is missing')
-          if "OWNER_USER_ID" not in preview or "[data-nfl-tab]" not in preview:
-              raise SystemExit('private owner gate or NFL tab attachment is missing')
+          if "OWNER_USERNAME" not in preview or ("[data-nfl-tab]" not in preview and ".nxg-tab" not in preview):
+              raise SystemExit('private owner gate or current NFL tab attachment is missing')
 
           updated, count = re.subn(
               r'\./sports/router\.js\?v=[A-Za-z0-9._-]+',
