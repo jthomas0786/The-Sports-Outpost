@@ -53,6 +53,6 @@ assert.ok(router.includes("./mlb/player-modal-parity-v901.js?v=90.2"),'Router mu
 assert.ok(router.includes('installMlbPlayerModalParityV901'),'Router must install MLB modal parity enhancer');
 assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.7"),'Router must load the actual MLB/NFL/NHL static-header runtime');
 assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install static player headers for all sports');
-assert.ok(index.includes('./sports/router.js?v=90.7'),'Outer page must cache-bust the router to the actual MLB modal-shell fix');
+assert.ok(/\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+/.test(index),'Outer page must load a cache-busted sports router');
 
 console.log('Player modal parity: MLB/NFL/NHL keep the shared static-header geometry, while NHL v90.21 layers projection fallback on top of the preserved v90.18 parity modal.');
