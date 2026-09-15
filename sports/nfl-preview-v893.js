@@ -9,6 +9,7 @@ import { installNflLiveGameSwitcherV894 } from './nfl/live-game-switcher-v894.js
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
 import { installNflGamecastStageGuardV899 } from './nfl/gamecast-stage-guard-v899.js?v=89.9';
 import { installNflGamecastPossessionBallV8922 } from './nfl/gamecast-possession-ball-v8922.js?v=89.24';
+import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-sync-v907.js?v=90.7';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
@@ -38,6 +39,7 @@ async function refreshQuarterCta(){
 function arm(){
   try{mountNflParlayModalV893();}catch(e){console.warn('[NFL parlay modal v89.3] enhancement unavailable:',e);}
   try{installNflLiveGameSwitcherV894();}catch(e){console.warn('[NFL Live v89.9] game switcher unavailable:',e);}
+  try{installNflPlayerModalSlateSyncV907();}catch(e){console.warn('[NFL modal slate sync v90.7] unavailable:',e);}
   // One active-game gate, one accepted-score renderer, one field renderer.
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
