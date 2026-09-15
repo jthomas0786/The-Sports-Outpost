@@ -1,0 +1,42 @@
+name: One-time MLB v924 desktop fit
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v924-desktop-fit.yml'
+      - 'scripts/apply-mlb-v924-desktop-fit.py'
+      - 'scripts/mlb-v924-desktop-selftest.mjs'
+      - 'sports/mlb/playstage-concept-v924-desktop-fit.js'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply MLB v924 desktop fit
+        run: python3 scripts/apply-mlb-v924-desktop-fit.py
+      - name: Validate MLB v924 desktop fit
+        run: |
+          node --check sports/mlb/playstage-v901.js
+          node --check sports/mlb/playstage-concept-v924-desktop-fit.js
+          node scripts/mlb-playstage-selftest.mjs
+          node scripts/mlb-v923-desktop-tabs-selftest.mjs
+          node scripts/mlb-v924-desktop-selftest.mjs
+      - name: Commit production update
+        run: |
+          git config user.name 'TSO MLB v924 Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/mlb/playstage-v901.js sports/router.js index.html
+          git commit -m 'mlb: widen desktop Gamecast and stop idle poll rerenders' || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
