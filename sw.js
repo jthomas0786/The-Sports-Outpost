@@ -4,15 +4,9 @@
  * Runs independently of any open page, which is what makes notifications work
  * when the app is closed. It cannot poll on its own — browsers don't permit
  * that — so it sleeps until the push service wakes it.
- *
- * Deliberate design choice: pushes carry NO payload. Encrypting a Web Push
- * payload requires aes128gcm + ECDH key agreement, which is a lot of fragile
- * hand-rolled crypto. Instead the push is a bare "wake up" signal and the
- * worker fetches the actual home run from latest-hr.json. Simpler, and the
- * data is always current at display time rather than whenever it was queued.
  */
 
-const VERSION = 'dw-sw-v1';
+const VERSION = 'dw-sw-v2';
 const LATEST_URL = 'latest-hr.json';
 const ICON = 'icon-192.png';
 
@@ -42,8 +36,6 @@ self.addEventListener('push', event => {
   event.waitUntil(pushQueue = pushQueue.catch(() => {}).then(async () => {
     let hrs = [];
 
-    // A payload is optional — use it if the sender included one, otherwise
-    // fetch. cache:'no-store' matters here or we'd re-show a stale homer.
     try {
       if (event.data) {
         const parsed = event.data.json();
@@ -61,18 +53,31 @@ self.addEventListener('push', event => {
       } catch {}
     }
 
-    if (!hrs.length) return;   // nothing to say — stay silent rather than show a placeholder
+    if (!hrs.length) return;
 
     const seen = await seenKeys();
     const fresh = hrs.filter(h => h.key && !seen.has(h.key)).slice(-5);
 
     for (const hr of fresh) {
+      if (hr.sport === 'nfl' && hr.kind === 'watchlist') {
+        if (!Number.isFinite(hr.ts) || Date.now()-hr.ts>120000 || hr.ts>Date.now()+60000) continue;
+        const score = hr.awayScore!=null&&hr.homeScore!=null ? `${hr.away} ${hr.awayScore} · ${hr.home} ${hr.homeScore}` : `${hr.away||''} @ ${hr.home||''}`;
+        const gameState = hr.period ? `Q${hr.period}${hr.clock?` ${hr.clock}`:''}` : '';
+        await self.registration.showNotification(`⭐ ${hr.playerName}`, {
+          body: [hr.text, hr.totals, [score,gameState].filter(Boolean).join(' · ')].filter(Boolean).join('\n'),
+          icon: ICON, badge: ICON, tag: hr.key,
+          data: { url: 'index.html#nfl', sport: 'nfl', kind: 'watchlist', gameId: hr.gameId, playerId: hr.playerId },
+          vibrate: [160,80,160],
+        });
+        await rememberKey(hr.key);
+        continue;
+      }
       if (hr.sport === 'nfl') {
         if (!Number.isFinite(hr.ts) || Date.now()-hr.ts>120000 || hr.ts>Date.now()+60000) continue;
         await self.registration.showNotification(`🏈 ${hr.scorer} — TOUCHDOWN`, {
           body: `${hr.text}\n${hr.away} ${hr.awayScore} · ${hr.home} ${hr.homeScore} · Q${hr.period} ${hr.clock||''}`,
           icon: ICON, badge: ICON, tag: hr.key,
-          data: { url: 'index.html#nfl', sport: 'nfl' }, vibrate: [200,100,200],
+          data: { url: 'index.html#nfl', sport: 'nfl', kind: 'touchdown' }, vibrate: [200,100,200],
         });
         await rememberKey(hr.key);
         continue;
@@ -99,28 +104,21 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const isWatchAction = event.action === 'watch';
-  const gamePk = event.notification.data?.gamePk;
+  const data = event.notification.data || {};
+  const gamePk = data.gamePk;
   event.waitUntil((async () => {
     const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
-    // Focus an existing tab rather than piling up new ones, then hand off
-    // the Watch action to it — the service worker has no access to any of
-    // the page's own state (openRadarGamecastModal, the live games list,
-    // etc.), so it can only ask the real page to act on this, not do it
-    // directly the way it can with clients.openWindow.
     for (const c of all) {
       if (c.url.includes('index.html') && 'focus' in c) {
         await c.focus();
-        if (event.notification.data?.sport === 'nfl') c.postMessage({ type: 'open-nfl-td-feed' });
+        if (data.sport === 'nfl' && data.kind !== 'watchlist') c.postMessage({ type: 'open-nfl-td-feed' });
         if (isWatchAction && gamePk) c.postMessage({ type: 'watch-game', gamePk });
         return;
       }
     }
     if (clients.openWindow) {
-      const client = await clients.openWindow(event.notification.data?.sport === 'nfl' ? 'index.html?nfl-feed=td#nfl' : (event.notification.data?.url || 'index.html'));
-      // A freshly-opened window hasn't finished loading yet — postMessage
-      // right away would land before this page's own message listener
-      // exists to receive it. A short delay covers that without needing
-      // the page itself to expose a "ready" signal back to the worker.
+      const nflTarget = data.kind === 'watchlist' ? 'index.html#nfl' : 'index.html?nfl-feed=td#nfl';
+      const client = await clients.openWindow(data.sport === 'nfl' ? nflTarget : (data.url || 'index.html'));
       if (isWatchAction && gamePk && client) {
         setTimeout(() => client.postMessage({ type: 'watch-game', gamePk }), 2500);
       }
