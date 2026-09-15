@@ -185,6 +185,11 @@ export function installMlbLiveGameSwitcherV901(){
   if(!select)return;
   switchGame(select.value);
  });
+ document.addEventListener('change',e=>{
+  const select=e.target?.closest?.(`#${HOST_ID} select`);
+  if(!select)return;
+  switchGame(select.value);
+ });
  document.addEventListener('click',e=>{
   if(e.target?.closest?.('.notify-watch-btn'))return;
   const live=e.target?.closest?.('[data-live-game-pk]');
