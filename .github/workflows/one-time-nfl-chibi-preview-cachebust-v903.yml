@@ -1,4 +1,4 @@
-name: One-time NFL Chibi Preview cache bust v90.3
+name: One-time NFL Chibi Preview cache bust v90.5
 
 on:
   push:
@@ -22,9 +22,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify private Chibi Preview wiring and bust outer router cache
+      - name: Validate and publish outer router cache bust
+        shell: bash
         run: |
-          python - <<'PY'
+          set -euo pipefail
+          git config user.name 'tso-fix-bot'
+          git config user.email 'actions@github.com'
+
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+
+            python - <<'PY'
           from pathlib import Path
           import re
 
@@ -33,10 +42,10 @@ jobs:
           index = Path('index.html')
           html = index.read_text()
 
-          required_router = "./nfl/chibi-preview-private-v901.js?v=90.3"
+          required_router = "./nfl/chibi-preview-private-v901.js?v=90.5"
           if required_router not in router:
-              raise SystemExit('router is not wired to Chibi Preview v90.3')
-          for marker in ("OWNER_USERNAME = 'justcallme_jt'", ".from('profiles')", '.nxg-tabs', '.nxg-tab'):
+              raise SystemExit('router is not wired to Chibi Preview v90.5')
+          for marker in ("OWNER_USERNAME = 'justcallme_jt'", "DW_getCurrentSocialUsername", '.ms-head-actions', 'nfl-chibi-preview-trigger'):
               if marker not in preview:
                   raise SystemExit(f'Chibi Preview validation marker missing: {marker}')
 
@@ -45,7 +54,7 @@ jobs:
           if not match:
               raise SystemExit('index router cache marker missing')
           current = match.group(2)
-          target = current if current.endswith('-chibi3') else current + '-chibi3'
+          target = current if current.endswith('-chibi5') else current + '-chibi5'
           html2, count = re.subn(pattern, lambda m: m.group(1) + target, html, count=1)
           if count != 1:
               raise SystemExit('expected exactly one outer router cache marker')
@@ -53,16 +62,19 @@ jobs:
           print(f'Outer router cache: {current} -> {target}')
           PY
 
-      - name: Commit cache bust if changed
-        run: |
-          git config user.name 'tso-fix-bot'
-          git config user.email 'actions@github.com'
-          git add index.html
-          git diff --staged --quiet && echo 'no cache-bust change needed' && exit 0
-          git commit -m 'NFL Chibi Preview: bust outer router cache'
-          for attempt in 1 2 3 4 5; do
-            if git push; then exit 0; fi
-            git pull --rebase --autostash origin main
+            git add index.html
+            if git diff --staged --quiet; then
+              echo 'outer cache marker already current'
+              exit 0
+            fi
+            git commit -m 'NFL Chibi Preview: publish header visibility v905'
+            if git push origin HEAD:main; then
+              echo "published on attempt $attempt"
+              exit 0
+            fi
+            echo "main advanced during publish; retrying from latest main"
             sleep $((attempt * 2))
           done
+
+          echo '::error::could not publish cache bust after 5 attempts'
           exit 1
