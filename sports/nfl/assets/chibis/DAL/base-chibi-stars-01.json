@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-01",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {
+      "slug": "dak-prescott",
+      "name": "Dak Prescott",
+      "position": "QB",
+      "number": "4",
+      "height": "6-2",
+      "weightLbs": 230,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/dak-prescott/",
+      "officialImageLabel": "Prescott_Dak-HS23",
+      "baseAsset": "DAL/dak-prescott/base/dal_dak-prescott_base_v001",
+      "rigArchetype": "qb-sturdy-athletic",
+      "neutralPose": "balanced upright football-ready stance; shoulders relaxed; hands naturally in front of torso",
+      "productionNotes": ["Preserve #4 and captain-compatible chest layout.", "Keep throwing shoulder/arm proportions stable across dropback and throw clips.", "No player-specific named celebration is assigned in this phase."],
+      "qa": ["official-headshot-reviewed-before-render", "number-4-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "ceedee-lamb",
+      "name": "CeeDee Lamb",
+      "position": "WR",
+      "number": "88",
+      "height": "6-2",
+      "weightLbs": 198,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/ceedee-lamb/",
+      "officialImageLabel": "CeeDee_Lamb-HS23",
+      "baseAsset": "DAL/ceedee-lamb/base/dal_ceedee-lamb_base_v001",
+      "rigArchetype": "wr-lean-athletic",
+      "neutralPose": "relaxed receiver-ready stance with athletic forward balance and hands free",
+      "productionNotes": ["Preserve #88.", "Keep lean receiver silhouette and limb proportions consistent through route/catch clips.", "Historical nose-wipe first-down celebration remains reserved for the later signature-sequences phase; base asset must support face-level right/left hand articulation without changing identity."],
+      "qa": ["official-headshot-reviewed-before-render", "number-88-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "george-pickens",
+      "name": "George Pickens",
+      "position": "WR",
+      "number": "3",
+      "height": "6-3",
+      "weightLbs": 205,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/george-pickens/",
+      "officialImageLabel": "george-pickens-hs",
+      "baseAsset": "DAL/george-pickens/base/dal_george-pickens_base_v001",
+      "rigArchetype": "wr-tall-long-limbed",
+      "neutralPose": "tall receiver-ready stance with long-limbed athletic balance and relaxed hands",
+      "productionNotes": ["Preserve #3.", "Retain tall/long-limbed silhouette relative to other Dallas receivers while fitting the shared Gamecast character box.", "Celebrations remain generic until a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-3-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "von-miller",
+      "name": "Von Miller",
+      "position": "EDGE",
+      "number": "40",
+      "height": "6-3",
+      "weightLbs": 245,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/von-miller/",
+      "officialImageLabel": "von miller hs 2026",
+      "baseAsset": "DAL/von-miller/base/dal_von-miller_base_v001",
+      "rigArchetype": "edge-compact-powerful",
+      "neutralPose": "compact veteran edge-rusher stance with low athletic center and relaxed hands",
+      "productionNotes": ["Preserve current Dallas #40.", "Keep powerful veteran edge silhouette with enough shoulder/hip articulation for speed and power rushes.", "DeSoto Shuffle remains reserved for the later signature-sequences phase; base rig must support the dance footwork without foot-anchor drift."],
+      "qa": ["official-headshot-reviewed-before-render", "number-40-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "brandon-aubrey",
+      "name": "Brandon Aubrey",
+      "position": "K",
+      "number": "17",
+      "height": "6-3",
+      "weightLbs": 218,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/brandon-aubrey/",
+      "officialImageLabel": "brandon-aubrey-hs",
+      "baseAsset": "DAL/brandon-aubrey/base/dal_brandon-aubrey_base_v001",
+      "rigArchetype": "kicker-lean-athletic",
+      "neutralPose": "upright lean-athletic stance with balanced plant-leg posture and relaxed kicking leg",
+      "productionNotes": ["Preserve #17 and captain-compatible chest layout.", "Rig hips, plant knee and kicking leg for full approach/follow-through without scale or anchor changes.", "Keep made-kick reaction subtle; no invented named signature."],
+      "qa": ["official-headshot-reviewed-before-render", "number-17-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    }
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This batch establishes reusable base assets/specifications only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-15",
+    "officialRosterSource": "https://www.dallascowboys.com/team/rosters",
+    "notes": ["Current official Dallas pages confirm Prescott #4, Lamb #88, Pickens #3, Miller #40 and Aubrey #17 for the 2026 roster context.", "Current official player pages/headshot labels are recorded for visual review before rendering.", "No MLB or NHL integration files are part of this batch."]
+  }
+}
