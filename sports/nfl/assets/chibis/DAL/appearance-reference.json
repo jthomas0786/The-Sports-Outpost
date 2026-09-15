@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "appearance-reference-stars-01",
+  "referencePolicy": {
+    "sourcePriority": "Current official DallasCowboys.com player roster/headshot page",
+    "visualRule": "Artists/generators must inspect the cited current official headshot before rendering. Do not infer skin tone, hair, facial hair, or facial features from a name or stale asset.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {"background":"transparent","camera":"three-quarter front","lighting":"soft stadium key plus cool rim","footAnchor":"bottom-center","uniformSet":"Dallas white/silver/royal-blue","numberAccuracy":"required"}
+  },
+  "players": [
+    {
+      "slug":"dak-prescott","name":"Dak Prescott","position":"QB","number":"4","height":"6-2","weightLbs":230,
+      "officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/dak-prescott/",
+      "officialImageLabel":"Prescott_Dak-HS23",
+      "appearanceStatus":"reference-locked",
+      "renderNotes":["Use current official headshot as the sole authority for complexion and visible face/hair details.","QB build: sturdy/athletic; preserve #4 and captain-compatible chest layout."]
+    },
+    {
+      "slug":"ceedee-lamb","name":"CeeDee Lamb","position":"WR","number":"88","height":"6-2","weightLbs":198,
+      "officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/ceedee-lamb/",
+      "officialImageLabel":"CeeDee_Lamb-HS23",
+      "appearanceStatus":"reference-locked",
+      "renderNotes":["Use current official headshot as the sole authority for complexion and visible face/hair details.","WR build: lean/athletic; preserve #88.","Reserve dedicated historical nose-wipe first-down sequence; do not substitute a generic celebration when that signature override is requested."]
+    },
+    {
+      "slug":"george-pickens","name":"George Pickens","position":"WR","number":"3","height":"6-3","weightLbs":205,
+      "officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/george-pickens/career",
+      "officialImageLabel":"george-pickens-hs",
+      "appearanceStatus":"reference-locked",
+      "renderNotes":["Use current official headshot as the sole authority for complexion and visible face/hair details.","WR build: tall/long-limbed; preserve #3.","Keep touchdown celebration generic until a specific repeatable current signature is verified."]
+    },
+    {
+      "slug":"von-miller","name":"Von Miller","position":"EDGE","number":"40",
+      "officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/",
+      "appearanceStatus":"reference-locked-number-and-roster; headshot-visual-review-required-before-render",
+      "renderNotes":["Current Dallas official roster/number coverage confirms #40 for 2026.","EDGE build: compact/powerful veteran rusher.","Reserve dedicated DeSoto Shuffle sack-celebration sequence.","Before base-chibi generation, visually inspect the current official Dallas roster headshot for complexion, hair, facial hair and face shape; do not infer those attributes here."]
+    }
+  ],
+  "verification": {
+    "checkedAt":"2026-09-15",
+    "officialFacts":["Dak Prescott: QB #4, 6-2, 230 on current Dallas roster page.","CeeDee Lamb: WR #88, 6-2, 198 on current Dallas roster page.","George Pickens: WR #3, 6-3, 205 on current Dallas roster page.","Dallas official Sep. 2026 number update confirms Von Miller #40."],
+    "nextBatch":"appearance-reference-stars-02"
+  }
+}
