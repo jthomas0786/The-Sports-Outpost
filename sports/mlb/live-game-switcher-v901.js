@@ -121,13 +121,24 @@ function paint(host,games){
  host.classList.toggle('is-idle',active.length===0);
  if(active.length){
   if(!active.some(g=>g.id===currentGameId))currentGameId=active[0].id;
-  host.innerHTML=`<label><span>Game</span><select>${active.map(g=>`<option value="${esc(g.id)}" ${g.id===currentGameId?'selected':''}>${esc(g.label)}</option>`).join('')}</select></label><span class="tso-mlb-live-switcher-state">● ${active.length} LIVE</span>`;
-  host.querySelector('select')?.addEventListener('change',e=>switchGame(e.target.value));
+  const signature=active.map(g=>`${g.id}:${g.label}`).join('|');
+  let select=host.querySelector('select');
+  if(host.dataset.gameSignature!==signature||!select){
+   host.innerHTML=`<label><span>Game</span><select>${active.map(g=>`<option value="${esc(g.id)}">${esc(g.label)}</option>`).join('')}</select></label><span class="tso-mlb-live-switcher-state">● ${active.length} LIVE</span>`;
+   host.dataset.gameSignature=signature;
+   select=host.querySelector('select');
+  }
+  const state=host.querySelector('.tso-mlb-live-switcher-state');
+  if(state)state.textContent=`● ${active.length} LIVE`;
+  if(select&&document.activeElement!==select&&select.value!==currentGameId)select.value=currentGameId;
  }else{
+  const next=nextGame(games),signature=`idle:${idleLabel(next)}`;
   currentGameId='';
   removeInlineGamecast();
-  const next=nextGame(games);
-  host.innerHTML=`<label><span>Game</span><select disabled><option>${esc(idleLabel(next))}</option></select></label><span class="tso-mlb-live-switcher-state">Waiting for first pitch</span>`;
+  if(host.dataset.gameSignature!==signature||!host.querySelector('select')){
+   host.innerHTML=`<label><span>Game</span><select disabled><option>${esc(idleLabel(next))}</option></select></label><span class="tso-mlb-live-switcher-state">Waiting for first pitch</span>`;
+   host.dataset.gameSignature=signature;
+  }
  }
 }
 
@@ -164,6 +175,11 @@ export function installMlbLiveGameSwitcherV901(){
  // Normal Live/Radar/Slate interactions now stay in-page. The existing
  // notification Watch paths (.notify-watch-btn and service-worker watch-game)
  // are intentionally NOT intercepted, so they remain the only modal launchers.
+ document.addEventListener('change',e=>{
+  const select=e.target?.closest?.(`#${HOST_ID} select`);
+  if(!select)return;
+  switchGame(select.value);
+ });
  document.addEventListener('click',e=>{
   if(e.target?.closest?.('.notify-watch-btn'))return;
   const live=e.target?.closest?.('[data-live-game-pk]');

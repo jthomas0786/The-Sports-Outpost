@@ -115,7 +115,7 @@ async function swapView(active) {
   if (active === 'mlb') {
     try {
       const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920,conceptV921,conceptV922,conceptV923,conceptV924] = await Promise.all([
-        import('./mlb/live-game-switcher-v901.js?v=90.22'),
+        import('./mlb/live-game-switcher-v901.js?v=90.23'),
         import('./mlb/player-modal-parity-v901.js?v=90.2'),
         import('./mlb/playstage-v901.js?v=90.46'),
         import('./mlb/playstage-concept-v904.js?v=90.4'),
@@ -159,6 +159,7 @@ async function swapView(active) {
       conceptV921.installMlbPlaystageConceptV921Mobile?.();
       conceptV922.installMlbPlaystageConceptV922Desktop?.();
       conceptV923.installMlbPlaystageConceptV923DesktopTabs?.();
+      conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
       conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
