@@ -1,0 +1,100 @@
+name: One-time mobile swipe-anywhere nav publish v91.1
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-mobile-swipe-anywhere-v911.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-mobile-swipe-anywhere-v911
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Publish full-screen mobile swipe-right nav
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'tso-fix-bot'
+          git config user.email 'actions@github.com'
+
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+
+            python - <<'PY'
+          from pathlib import Path
+          import re
+
+          gesture_path = Path('sports/mobile-edge-swipe-v894.js')
+          router_path = Path('sports/router.js')
+          index_path = Path('index.html')
+
+          gesture = gesture_path.read_text()
+          required = (
+              "detail:{source:'screen-swipe'}",
+              "dx>0&&ax>ay*1.2",
+              "dx>=OPEN_DISTANCE",
+              "e.touches.length!==1",
+              "blockingOverlayOpen()",
+          )
+          for marker in required:
+              if marker not in gesture:
+                  raise SystemExit(f'mobile swipe marker missing: {marker}')
+          if 'EDGE_PX' in gesture or 't.clientX>EDGE_PX' in gesture:
+              raise SystemExit('edge-only swipe restriction is still present')
+
+          router = router_path.read_text()
+          pattern = r"(\./mobile-edge-swipe-v894\.js\?v=)[A-Za-z0-9._-]+"
+          router2, count = re.subn(pattern, r"\g<1>91.1", router, count=1)
+          if count != 1:
+              raise SystemExit('router mobile swipe import marker missing')
+          router_path.write_text(router2)
+
+          html = index_path.read_text()
+          outer_pattern = r'(\./sports/router\.js\?v=)([A-Za-z0-9._-]+)'
+          match = re.search(outer_pattern, html)
+          if not match:
+              raise SystemExit('index router cache marker missing')
+          current = match.group(2)
+          target = current if current.endswith('-swipeany911') else current + '-swipeany911'
+          html2, count = re.subn(outer_pattern, lambda m: m.group(1) + target, html, count=1)
+          if count != 1:
+              raise SystemExit('expected exactly one outer router cache marker')
+          index_path.write_text(html2)
+          print(f'Outer router cache: {current} -> {target}')
+
+          assert "./mobile-edge-swipe-v894.js?v=91.1" in router_path.read_text()
+          assert '-swipeany911' in index_path.read_text()
+          PY
+
+            node --check sports/mobile-edge-swipe-v894.js
+            node --check sports/router.js
+
+            git add sports/mobile-edge-swipe-v894.js sports/router.js index.html
+            if git diff --staged --quiet; then
+              echo 'v91.1 swipe-anywhere publish already applied'
+              exit 0
+            fi
+            git commit -m 'Mobile: publish swipe-anywhere side nav v911'
+            if git push origin HEAD:main; then
+              echo "published on attempt $attempt"
+              exit 0
+            fi
+            echo "main advanced during publish; retrying from latest main"
+            sleep $((attempt * 2))
+          done
+
+          echo '::error::could not publish v91.1 after 5 attempts'
+          exit 1
