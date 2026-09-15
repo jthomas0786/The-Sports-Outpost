@@ -27,7 +27,9 @@ assert.ok(router.includes("./mlb/playstage-concept-v923-desktop-tabs.js?v=92.30"
 assert.ok(router.includes('installMlbPlaystageConceptV923DesktopTabs'),'router must install v923 desktop tabs');
 assert.ok(router.includes("./mlb/playstage-concept-v920-mobile.js?v=92.00"),'v920 mobile must remain');
 assert.ok(router.includes("./mlb/playstage-concept-v921-mobile.js?v=92.10"),'v921 mobile must remain');
-assert.ok(index.includes('./sports/router.js?v=90.50'),'index must cache-bust v923 router');
+const outer=index.match(/\.\/sports\/router\.js\?v=(\d+)\.(\d+)/);
+assert.ok(outer,'index router cache marker missing');
+assert.ok(Number(outer[1])>90||(Number(outer[1])===90&&Number(outer[2])>=50),'index must retain v923-or-newer router cache bust');
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.37"),'NFL v900 must remain untouched');
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL must remain untouched');
 
