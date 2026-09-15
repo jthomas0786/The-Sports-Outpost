@@ -161,6 +161,7 @@ async function swapView(active) {
       conceptV923.installMlbPlaystageConceptV923DesktopTabs?.();
       conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
       conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
+      conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
     }
