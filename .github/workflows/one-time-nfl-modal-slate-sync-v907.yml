@@ -1,0 +1,68 @@
+name: One-time NFL modal slate sync cache bust v90.7
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-nfl-modal-slate-sync-v907.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-modal-slate-sync-v907
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Publish outer router cache bust
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'tso-fix-bot'
+          git config user.email 'actions@github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python - <<'PY'
+          from pathlib import Path
+          import re
+          router=Path('sports/router.js').read_text()
+          if "./nfl-preview-v893.js?v=89.40" not in router:
+              raise SystemExit('router is not loading NFL preview v89.40')
+          if "./nfl-research-ui.js?v=86.8" not in router:
+              raise SystemExit('router is not loading NFL research UI v86.8')
+          preview=Path('sports/nfl-preview-v893.js').read_text()
+          if "player-modal-slate-sync-v907.js?v=90.7" not in preview:
+              raise SystemExit('NFL preview is missing modal slate sync v90.7')
+          index=Path('index.html')
+          html=index.read_text()
+          pat=r'(\./sports/router\.js\?v=)([A-Za-z0-9._-]+)'
+          m=re.search(pat,html)
+          if not m: raise SystemExit('index router cache marker missing')
+          current=m.group(2)
+          target=current if current.endswith('-modal907') else current+'-modal907'
+          html2,n=re.subn(pat,lambda x:x.group(1)+target,html,count=1)
+          if n!=1: raise SystemExit('expected one router cache marker')
+          index.write_text(html2)
+          print(f'outer router cache: {current} -> {target}')
+          PY
+            git add index.html
+            if git diff --staged --quiet; then
+              echo 'outer cache already current'
+              exit 0
+            fi
+            git commit -m 'NFL: publish player modal slate sync v907'
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          echo '::error::could not publish modal cache bust after 5 attempts'
+          exit 1
