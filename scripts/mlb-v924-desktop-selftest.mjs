@@ -18,6 +18,8 @@ assert.ok(router.includes("./mlb/playstage-v901.js?v=90.46"),'playstage cache bu
 assert.ok(router.includes("./mlb/playstage-concept-v924-desktop-fit.js?v=92.40"),'v924 layer missing');
 assert.ok(router.includes('installMlbPlaystageConceptV924DesktopFit'),'v924 install missing');
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.37"),'NFL live hotfix must remain');
-assert.ok(index.includes('./sports/router.js?v=90.51'),'outer cache bust missing');
+const outer=index.match(/\.\/sports\/router\.js\?v=(\d+)\.(\d+)/);
+assert.ok(outer,'outer cache bust missing');
+assert.ok(Number(outer[1])>90||(Number(outer[1])===90&&Number(outer[2])>=51),'v924-or-newer outer cache bust missing');
 assert.ok(!fit.includes('@media(max-width:720px)'),'v924 must not touch mobile');
 console.log('MLB v924 regression passed: full-width desktop fit, border containment, tight footer, stable 5s polling');
