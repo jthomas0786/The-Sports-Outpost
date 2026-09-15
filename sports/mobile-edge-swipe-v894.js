@@ -1,7 +1,6 @@
 let installed=false;
 
 const MAX_WIDTH=1023;
-const EDGE_PX=30;
 const OPEN_DISTANCE=64;
 const LOCK_DISTANCE=14;
 const MAX_VERTICAL=84;
@@ -36,7 +35,7 @@ function openSidebar(){
   backdrop.classList.add('is-open');
   hamburger?.setAttribute('aria-expanded','true');
   document.body.style.overflow='hidden';
-  window.dispatchEvent(new CustomEvent('tso:mobile-nav-open',{detail:{source:'edge-swipe'}}));
+  window.dispatchEvent(new CustomEvent('tso:mobile-nav-open',{detail:{source:'screen-swipe'}}));
   return true;
 }
 
@@ -61,7 +60,8 @@ export function installMobileEdgeSwipeV894(){
   document.addEventListener('touchstart',e=>{
     if(!mobileViewport()||drawerOpen()||blockingOverlayOpen()||e.touches.length!==1){reset();return;}
     const t=e.touches[0];
-    if(t.clientX>EDGE_PX){reset();return;}
+    // Start anywhere on the mobile viewport. Direction locking below prevents
+    // normal vertical scrolling or taps from accidentally opening the drawer.
     gesture={
       x0:t.clientX,
       y0:t.clientY,
@@ -87,8 +87,8 @@ export function installMobileEdgeSwipeV894(){
       else gesture.cancelled=true;
     }
     if(gesture.horizontal){
-      // Once the gesture has clearly declared itself as a rightward edge swipe,
-      // stop the page from horizontally/vertically drifting under the finger.
+      // Only suppress page drift after the touch has clearly become a
+      // deliberate rightward swipe. Vertical scrolling remains native.
       e.preventDefault();
     }
   },{passive:false});
@@ -107,7 +107,8 @@ export function installMobileEdgeSwipeV894(){
 
   document.addEventListener('touchcancel',reset,{passive:true});
 
-  // Nice matching gesture while the drawer is open: swipe it left to dismiss.
+  // Keep the existing matching gesture while the drawer is open: swipe it
+  // left from inside the drawer to dismiss it.
   let closeGesture=null;
   document.addEventListener('touchstart',e=>{
     if(!mobileViewport()||!drawerOpen()||e.touches.length!==1){closeGesture=null;return;}
@@ -142,6 +143,7 @@ export function installMobileEdgeSwipeV894(){
 
   document.addEventListener('touchcancel',()=>{closeGesture=null;},{passive:true});
 
+  // Keep the legacy names for compatibility with any callers that already use them.
   window.DW_openMobileNavFromEdge=openSidebar;
   window.DW_closeMobileNavFromSwipe=closeSidebar;
 }
