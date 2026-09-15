@@ -17,7 +17,7 @@ import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPrevie
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=89.4';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
-import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=90.1';
+import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=90.2';
 
 /** MLB-owned containers that must hide when another sport's view is showing. */
 const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .status-bar'];
