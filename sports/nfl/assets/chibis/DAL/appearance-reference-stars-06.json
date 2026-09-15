@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "appearance-reference-stars-06",
+  "checkedAt": "2026-09-15",
+  "referencePolicy": {
+    "sourcePriority": "Current official DallasCowboys.com roster/player headshot pages",
+    "visualRule": "Inspect the cited current official headshot before rendering. Never infer complexion, hair, facial hair, or facial features from a player's name.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {"background":"transparent","camera":"three-quarter front","lighting":"soft stadium key plus cool rim","footAnchor":"bottom-center","uniformSet":"Dallas white/silver/royal-blue","numberAccuracy":"required"}
+  },
+  "players": [
+    {"slug":"bryan-anger","name":"Bryan Anger","position":"P","number":"5","officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/bryan-anger/","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Veteran punter build: tall/lean athletic; preserve #5.","Prioritize catch-snap, punt, directional-punt, coffin-corner, holder and restrained teammate-reaction poses; no invented signature celebration."]},
+    {"slug":"caelen-carson","name":"Caelen Carson","position":"CB","number":"21","officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/caelen-carson/","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Cornerback build: lean/athletic; preserve #21.","Prioritize press stance, backpedal, hip turn, break-on-ball, pass breakup, interception and open-field tackle; generic turnover reaction only."]},
+    {"slug":"ameer-speed","name":"Ameer Speed","position":"CB","number":"23","officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/ameer-speed/","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Tall/long cornerback archetype; preserve current #23.","Prioritize press, long-stride recovery, high-point pass breakup, interception, gunner sprint and tackle; no invented signature celebration."]},
+    {"slug":"ajani-cornelius","name":"Ajani Cornelius","position":"OL","number":"65","officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/ajani-cornelius/","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Large offensive-line build; preserve #65 and consistent Dallas line proportions.","Prioritize stance, kick slide, independent hand strike, drive block, combo block, recovery and teammate celebration; no solo signature invented."]},
+    {"slug":"brevyn-spann-ford","name":"Brevyn Spann-Ford","position":"TE","number":"89","officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/brevyn-spann-ford/","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Tall/strong tight-end archetype; preserve #89.","Prioritize inline stance, release, route, catch, contested catch, run-after-catch, seal block and touchdown reaction; generic celebration until a repeatable signature is verified."]}
+  ],
+  "verification": {
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "officialRosterSnapshotSource": "https://www.dallascowboys.com/news/cowboys-release-initial-53-man-roster-for-2026-season",
+    "numberSource": "https://www.dallascowboys.com/news/zero-to-100-here-s-your-2026-dallas-cowboys-roster",
+    "notes": [
+      "All five players are represented in the Dallas 2026 active-roster scaffold.",
+      "Ameer Speed's current #23 is explicitly confirmed by Dallas' 2026 numerical-roster coverage.",
+      "No player-specific named celebration was added in this batch because none was required or verified for these five players."
+    ]
+  },
+  "qa": {
+    "referenceCount": 5,
+    "expectedReferenceCount": 5,
+    "numberAccuracyRequired": true,
+    "transparentBackgroundRequired": true,
+    "appearanceInferenceFromNameAllowed": false,
+    "status": "pass"
+  }
+}
