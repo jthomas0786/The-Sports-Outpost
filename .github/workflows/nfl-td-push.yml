@@ -1,4 +1,4 @@
-name: NFL Touchdown Push
+name: NFL Live Push
 on:
   schedule:
     - cron: '0 */4 * * *'
@@ -7,6 +7,7 @@ on:
       - '.github/workflows/nfl-td-push.yml'
       - 'scripts/nfl-td-push.mjs'
       - 'scripts/lib/nfl-touchdowns.mjs'
+      - 'scripts/lib/nfl-watchlist-events.mjs'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -28,7 +29,7 @@ jobs:
         with:
           node-version: 20
       - run: npm ci --no-audit --no-fund
-      - name: Watch for new touchdowns
+      - name: Watch touchdowns and NFL watchlist events
         env:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
