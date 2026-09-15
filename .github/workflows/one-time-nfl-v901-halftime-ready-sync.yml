@@ -1,0 +1,58 @@
+name: One-time NFL v901 halftime Ready sync
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-v901-halftime-ready-sync.yml'
+      - 'scripts/apply-nfl-v901-halftime-ready-sync.py'
+      - 'scripts/nfl-v901-halftime-ready-sync-selftest.mjs'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply NFL halftime Ready sync
+        run: python3 scripts/apply-nfl-v901-halftime-ready-sync.py
+      - name: Validate NFL halftime Ready sync
+        run: |
+          node --check sports/nfl/halftime-ui-v884.js
+          node --check sports/nfl/halftime-validity.js
+          node --check sports/nfl-preview.js
+          node scripts/nfl-v901-halftime-ready-sync-selftest.mjs
+          node scripts/nfl-v900-stale-live-selftest.mjs
+      - name: Verify current published halftime board when present
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {halftimeBoardCurrent} from './sports/nfl/halftime-validity.js';
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const ht=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
+          const rows=Object.entries(live?.games||{}).map(([id,g])=>({id,gameId:id,status:g.status,statusDetail:g.statusDetail,period:g.period,clockMin:g.clockMin,away:{abbr:g.awayAbbr,score:g.awayScore},home:{abbr:g.homeAbbr,score:g.homeScore},liveScore:{...g,lastFetchedAt:g.lastFetchedAt??live.lastFetchedAt}}));
+          const current=rows.filter(g=>/half/i.test(String(g.statusDetail||''))||((g.status==='in'||g.status==='live')&&Number(g.period)===2&&Number(g.clockMin)<=.05));
+          if(!current.length){console.log('No game currently at halftime; synthetic regression already passed.');process.exit(0);}
+          for(const g of current){
+            const b=(ht.games||[]).find(x=>String(x.gameId)===String(g.gameId));
+            if(!b?.ready) throw new Error(`current halftime board ${g.gameId} is not ready`);
+            if(!halftimeBoardCurrent(b,g,Date.now())) throw new Error(`current halftime board ${g.gameId} is ready but UI validity rejected it`);
+            console.log(`✓ ${g.gameId}: UI will accept READY · ${b.candidates?.length||0} props · ${b.iterations} worlds`);
+          }
+          NODE
+      - name: Commit production fix
+        run: |
+          git config user.name 'TSO NFL Halftime Ready Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nfl/halftime-ui-v884.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/nfl-v900-stale-live-selftest.mjs scripts/live-game-switcher-selftest.mjs
+          git commit -m 'nfl: unlock ready halftime lab from published live snapshot' || exit 0
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            sleep $((attempt*2))
+          done
+          exit 1
