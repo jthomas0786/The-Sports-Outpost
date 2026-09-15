@@ -35,12 +35,7 @@ jobs:
 
           getter = "window.DW_getCurrentSocialUsername = () => currentUser?.username || '';"
           if getter not in social:
-              social, n = re.subn(
-                  r"(let currentUser = null;[^\n]*\n)",
-                  r"\1" + getter + "\n",
-                  social,
-                  count=1,
-              )
+              social, n = re.subn(r"(let currentUser = null;[^\n]*\n)", r"\1" + getter + "\n", social, count=1)
               if n != 1:
                   raise SystemExit('currentUser declaration not found in social.js')
           social_p.write_text(social)
@@ -55,46 +50,24 @@ jobs:
               r"\}",
               re.S,
           )
-          replacement = """async function resolveOwnerAccess() {
-  const username = window.DW_getCurrentSocialUsername?.();
-  return normalizeUsername(username) === OWNER_USERNAME;
-}"""
+          replacement = "async function resolveOwnerAccess() {\n  const username = window.DW_getCurrentSocialUsername?.();\n  return normalizeUsername(username) === OWNER_USERNAME;\n}"
           preview, n = old.subn(replacement, preview, count=1)
           if n != 1:
               raise SystemExit('existing Chibi owner resolver not found')
 
           install_old = "export function installNflChibiPreviewPrivateV901() {\n  refreshAccess();"
-          install_new = """export function installNflChibiPreviewPrivateV901() {
-  refreshAccess();
-  let authRetries = 0;
-  const authRetryTimer = setInterval(() => {
-    if (ownerAllowed || ++authRetries >= 15) {
-      clearInterval(authRetryTimer);
-      return;
-    }
-    refreshAccess();
-  }, 1000);"""
+          install_new = "export function installNflChibiPreviewPrivateV901() {\n  refreshAccess();\n  let authRetries = 0;\n  const authRetryTimer = setInterval(() => {\n    if (ownerAllowed || ++authRetries >= 15) {\n      clearInterval(authRetryTimer);\n      return;\n    }\n    refreshAccess();\n  }, 1000);"
           if install_old not in preview:
               raise SystemExit('Chibi installer entry not found')
           preview = preview.replace(install_old, install_new, 1)
           preview_p.write_text(preview)
 
-          router, n = re.subn(
-              r"(chibi-preview-private-v901\.js\?v=)[A-Za-z0-9._-]+",
-              r"\g<1>90.4",
-              router,
-              count=1,
-          )
+          router, n = re.subn(r"(chibi-preview-private-v901\.js\?v=)[A-Za-z0-9._-]+", r"\g<1>90.4", router, count=1)
           if n != 1:
               raise SystemExit('Chibi router import not found')
           router_p.write_text(router)
 
-          index, n = re.subn(
-              r"(\./sports/router\.js\?v=)[A-Za-z0-9._-]+",
-              r"\g<1>90.56",
-              index,
-              count=1,
-          )
+          index, n = re.subn(r"(\./sports/router\.js\?v=)[A-Za-z0-9._-]+", r"\g<1>90.56", index, count=1)
           if n != 1:
               raise SystemExit('outer router marker not found')
           index_p.write_text(index)
