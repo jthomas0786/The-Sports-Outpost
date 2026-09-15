@@ -54,7 +54,7 @@ jobs:
       # game is final, probe the next week and use it when ESPN has games there.
       - name: Resolve current or upcoming NFL week
         run: |
-          node <<'NODE'
+          node --input-type=commonjs <<'NODE'
           const { appendFileSync } = require('node:fs');
           const UA = 'okhttp/4.12.0';
           const base = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
@@ -97,7 +97,7 @@ jobs:
       - name: Skip catch-up when primary weekly roll already succeeded
         if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 2'
         run: |
-          node <<'NODE'
+          node --input-type=commonjs <<'NODE'
           const { existsSync, readFileSync, appendFileSync } = require('node:fs');
           const shortType = { '1': 'pre', '2': 'reg', '3': 'post' }[String(process.env.NFL_SEASON_TYPE)] || 'reg';
           let fresh = false;
