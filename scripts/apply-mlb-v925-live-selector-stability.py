@@ -1,4 +1,5 @@
 from pathlib import Path
+import re
 
 p=Path('sports/mlb/live-game-switcher-v901.js')
 s=p.read_text()
@@ -65,4 +66,16 @@ if old2 not in s:
 else:
     s=s.replace(old2,new2,1)
 p.write_text(s)
-print('Applied stable MLB live game selector: preserved select DOM + delegated change handler')
+
+router=Path('sports/router.js')
+r=router.read_text()
+r2,n=re.subn(r"\./mlb/live-game-switcher-v901\.js\?v=[A-Za-z0-9._-]+","./mlb/live-game-switcher-v901.js?v=90.23",r,count=1)
+if n!=1: raise SystemExit('MLB live switcher router cache marker missing')
+router.write_text(r2)
+
+index=Path('index.html')
+i=index.read_text()
+i2,n=re.subn(r'\./sports/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.52',i,count=1)
+if n!=1: raise SystemExit('outer router cache marker missing')
+index.write_text(i2)
+print('Applied stable MLB live game selector + cache bust')
