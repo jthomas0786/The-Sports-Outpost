@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/nfl-halftime-fast.yml'
   schedule:
-    # v89.1: official halftime status must stay in the 50K board window. Urgent live refresh 2026-09-15 retry.
+    # Official halftime must stay in the 50K board window; late Q2 remains prewarm only.
     - cron: '2-59/5 * * * *'
 
 permissions:
@@ -31,7 +31,9 @@ jobs:
         run: |
           node --check sports/nfl/sim/auto.js
           node --check scripts/nfl-halftime-window-refresh.mjs
+          node --check sports/nfl/halftime-validity.js
           node scripts/nfl-sim-auto-selftest.mjs
+          node scripts/nfl-halftime-readiness-selftest.mjs
           node --input-type=module <<'NODE'
           import {automationPhase,isHalftimeWarmupState} from './sports/nfl/sim/auto.js';
           const ok=(v,m)=>{if(!v) throw new Error(m)};
@@ -81,7 +83,7 @@ jobs:
             const detail=`${g?.statusDetail||''} ${g?.status?.detail||''} ${g?.detail||''} ${g?.clock||''}`.toLowerCase();
             const q=Number(g?.period ?? g?.quarter ?? g?.status?.period);
             const c=clockMinutes(g);
-            const half=st==='halftime'||st==='half'||/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail);
+            const half=g?.isHalftime===true||st==='halftime'||st==='half'||/half\s*time|halftime|end of (?:the )?2nd|end of second/.test(detail)||((st==='in'||st==='live')&&q===2&&Number.isFinite(c)&&c<=0.05);
             return half || ((st==='in'||st==='live') && q===2 && Number.isFinite(c) && c>=0 && c<=10.05);
           }).map(([id])=>id);
           process.stdout.write([...new Set(ids)].join(','));
@@ -101,14 +103,16 @@ jobs:
         env:
           IDS: ${{ steps.window.outputs.ids }}
         run: |
-          node - <<'NODE'
-          const fs=require('fs');
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          import {halftimeBoardCurrent,isOfficialHalftimeState} from './sports/nfl/halftime-validity.js';
           const ids=String(process.env.IDS||'').split(',').filter(Boolean);
           const ht=JSON.parse(fs.readFileSync('slates/nfl-halftime.json','utf8'));
           const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
           for(const id of ids){
             const b=(ht.games||[]).find(x=>String(x?.gameId||'')===String(id));
-            const g=live?.games?.[String(id)];
+            const raw=live?.games?.[String(id)];
+            const g=raw?{gameId:String(id),...raw}:null;
             if(!b?.ready) throw new Error(`halftime board ${id} not ready`);
             if(Number(b.iterations)!==50000) throw new Error(`halftime board ${id} is not 50K`);
             if((b.candidates||[]).length<2) throw new Error(`halftime board ${id} has fewer than 2 props`);
@@ -117,7 +121,10 @@ jobs:
             if(Number(b?.state?.awayScore)!==Number(g?.awayScore)||Number(b?.state?.homeScore)!==Number(g?.homeScore)){
               throw new Error(`halftime board ${id} score does not match authoritative live snapshot`);
             }
-            console.log(`✓ ${id}: READY · ${b.candidates.length} props · 50K · score ${g.awayScore}-${g.homeScore} matches live snapshot`);
+            if(isOfficialHalftimeState(g)&&!halftimeBoardCurrent(b,g,Date.now())){
+              throw new Error(`halftime board ${id} would not unlock READY against the authoritative halftime snapshot`);
+            }
+            console.log(`✓ ${id}: READY · ${b.candidates.length} props · 50K · score ${g.awayScore}-${g.homeScore} matches live snapshot${isOfficialHalftimeState(g)?' · official halftime gate passed':''}`);
           }
           NODE
 
@@ -125,7 +132,7 @@ jobs:
         run: |
           git config user.name 'TSO NFL Halftime Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/nfl/sim/auto.js scripts/nfl-halftime-window-refresh.mjs scripts/nfl-sim-auto-selftest.mjs slates/nfl-live.json
+          git add sports/nfl/sim/auto.js scripts/nfl-halftime-window-refresh.mjs scripts/nfl-sim-auto-selftest.mjs scripts/nfl-halftime-readiness-selftest.mjs sports/nfl/halftime-validity.js slates/nfl-live.json
           [ -e slates/nfl-live-odds.json ] && git add slates/nfl-live-odds.json || true
           [ -e slates/nfl-halftime.json ] && git add slates/nfl-halftime.json || true
           git diff --staged --quiet && echo 'No halftime change to publish.' && exit 0
