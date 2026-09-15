@@ -1,25 +1,11 @@
 const OWNER_USERNAME = 'justcallme_jt';
-const SUPABASE_URL = 'https://hjhfbhpuuxnrexddplxd.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInJlZiI6ImhqaGZiaHB1dXhucmV4ZGRwbHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY5ODQsImV4cCI6MjEwMjA3Mjk4NH0.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
 
 let ownerAllowed = false;
-let authClientPromise = null;
 let refreshPromise = null;
 let observer = null;
 
 function normalizeUsername(value) {
   return String(value || '').trim().replace(/^@/, '').toLowerCase();
-}
-
-async function getAuthClient() {
-  if (!authClientPromise) {
-    authClientPromise = import('https://esm.sh/@supabase/supabase-js@2').then(({ createClient }) =>
-      createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-        auth: { persistSession: true, autoRefreshToken: false, detectSessionInUrl: false }
-      })
-    );
-  }
-  return authClientPromise;
 }
 
 async function resolveOwnerAccess() {
@@ -32,6 +18,8 @@ function ensureStyles() {
   const s = document.createElement('style');
   s.id = 'nflChibiPreviewStyle';
   s.textContent = `
+    .nfl-chibi-preview-trigger{display:inline-flex;align-items:center;justify-content:center;width:auto!important;min-width:max-content;height:auto!important;min-height:34px;padding:8px 11px!important;border:1px solid var(--line,rgba(45,127,255,.26))!important;border-radius:9px!important;background:var(--panel,#081A40)!important;color:var(--white,#e2e8f0)!important;font:800 10px 'JetBrains Mono',monospace!important;letter-spacing:.04em;line-height:1!important;cursor:pointer;white-space:nowrap;opacity:1!important}
+    .nfl-chibi-preview-trigger:hover{border-color:var(--accent,#2d7fff)!important;box-shadow:0 0 0 1px rgba(45,127,255,.18)}
     .nfl-chibi-private-backdrop{position:fixed;inset:0;z-index:100000;background:rgba(2,7,18,.86);backdrop-filter:blur(8px);display:flex;align-items:flex-start;justify-content:center;padding:72px 18px 30px;overflow:auto}
     .nfl-chibi-private{width:min(980px,100%);background:var(--night,#080C18);border:1px solid var(--line,rgba(45,127,255,.22));border-radius:18px;box-shadow:0 24px 80px rgba(0,0,0,.55);padding:20px;position:relative}
     .nfl-chibi-private h2{font:800 24px 'Cabinet Grotesk',sans-serif;margin:4px 0 5px}
@@ -49,10 +37,12 @@ function ensureStyles() {
   document.head.appendChild(s);
 }
 
-function findNflTabRow(root) {
-  // The current NFL Gamecast uses .nxg-tabs/.nxg-tab; older NFL surfaces used
-  // data-nfl-tab and .nfl-tabs. Support both so the private control survives
-  // Gamecast remounts and future tab-shell upgrades.
+function findNflActionHost(root) {
+  // Prefer the main NFL header so the private control stays visible on Props,
+  // Slate, Live, Players, and Gamecast. Fall back to the Gamecast/legacy tab
+  // strips for older shells.
+  const headerActions = root.querySelector('.ms-head-actions');
+  if (headerActions) return headerActions;
   const realTab = root.querySelector('[data-nfl-tab], .nxg-tab');
   if (realTab?.parentElement) return realTab.parentElement;
   return root.querySelector('.nxg-tabs,.nfl-tabs,.nfl-preview-tabs,.nfl-nav,[role="tablist"]');
@@ -69,21 +59,17 @@ function installButton(root) {
     return;
   }
   if (document.getElementById('nflChibiPreviewBtn')) return;
-  const tabs = findNflTabRow(root);
-  if (!tabs) return;
+  const host = findNflActionHost(root);
+  if (!host) return;
 
-  const exemplar = tabs.querySelector('[data-nfl-tab], .nxg-tab, button');
   const b = document.createElement('button');
   b.id = 'nflChibiPreviewBtn';
   b.type = 'button';
-  b.className = exemplar?.className || 'nfl-tab';
-  b.classList.remove('active');
-  b.removeAttribute('data-nfl-tab');
-  b.removeAttribute('data-tab');
+  b.className = 'nfl-chibi-preview-trigger';
   b.setAttribute('data-private-chibi-preview', 'true');
   b.textContent = 'Chibi Preview';
   b.addEventListener('click', openPreview);
-  tabs.appendChild(b);
+  host.appendChild(b);
 }
 
 async function openPreview() {
