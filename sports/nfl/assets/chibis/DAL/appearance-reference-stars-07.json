@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "appearance-reference-stars-07",
+  "checkedAt": "2026-09-15",
+  "referencePolicy": {
+    "sourcePriority": "Current official DallasCowboys.com roster/player headshot pages",
+    "visualRule": "Inspect the cited current official headshot before rendering. Never infer complexion, hair, facial hair, or facial features from a player's name.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {"background":"transparent","camera":"three-quarter front","lighting":"soft stadium key plus cool rim","footAnchor":"bottom-center","uniformSet":"Dallas white/silver/royal-blue","numberAccuracy":"required"}
+  },
+  "players": [
+    {"slug":"alijah-clark","name":"Alijah Clark","position":"S","number":"11","height":"6-1","weightLbs":200,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/alijah-clark/","officialImageLabel":"2025_HS_alijah_clark","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Safety build: lean/athletic; preserve #11.","Prioritize stance, backpedal, deep-zone read, break-on-ball, open-field tackle, pass breakup, interception and special-teams pursuit; no invented signature celebration."]},
+    {"slug":"markquese-bell","name":"Markquese Bell","position":"S","number":"14","height":"6-2","weightLbs":215,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/markquese-bell/","officialImageLabel":"markquese-bell-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Safety build: tall/strong defensive-back proportions; preserve #14.","Prioritize backpedal, downhill trigger, coverage break, wrap tackle, pass breakup, interception and forced-fumble reaction; generic teammate/turnover celebration only."]},
+    {"slug":"sam-howell","name":"Sam Howell","position":"QB","number":"16","height":"6-1","weightLbs":225,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/sam-howell/","officialImageLabel":"Sam Howell HS 2025","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Quarterback build: sturdy/compact athletic; preserve #16.","Prioritize pre-snap, dropback, short throw, deep throw, rollout, scramble, slide, sack reaction, kneel and spike; no invented named celebration."]},
+    {"slug":"jonathan-mingo","name":"Jonathan Mingo","position":"WR","number":"18","height":"6-2","weightLbs":225,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/jonathan-mingo/","officialImageLabel":"jonathan-mingo-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Receiver build: strong/broad athletic frame; preserve current #18.","Prioritize stance, release, route break, catch, contested catch, run-after-catch, stalk block and first-down/touchdown reaction; keep celebration generic unless a repeatable signature is later verified."]},
+    {"slug":"ryan-flournoy","name":"Ryan Flournoy","position":"WR","number":"19","height":"6-1","weightLbs":205,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/ryan-flournoy/","officialImageLabel":"ryan-flournoy-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Receiver build: muscular/athletic; preserve #19.","Prioritize release, route run, catch, contested catch, run-after-catch, blocking and special-teams coverage; generic first-down/touchdown reaction only unless a repeatable signature is verified."]}
+  ],
+  "verification": {
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "officialRosterSnapshotSource": "https://www.dallascowboys.com/news/zero-to-100-here-s-your-2026-dallas-cowboys-roster",
+    "notes": [
+      "All five players are represented in the Dallas 2026 active-roster scaffold and current official Dallas roster coverage.",
+      "Current official player pages verify Alijah Clark #11, Markquese Bell #14, Sam Howell #16, Jonathan Mingo #18 and Ryan Flournoy #19 plus listed build measurements.",
+      "Official Dallas player pages expose current headshot image labels for all five; renderers must visually inspect those headshots rather than infer appearance traits.",
+      "No player-specific named celebration was added because no repeatable signature was required or verified for this batch."
+    ]
+  },
+  "qa": {
+    "referenceCount": 5,
+    "expectedReferenceCount": 5,
+    "numberAccuracyRequired": true,
+    "transparentBackgroundRequired": true,
+    "appearanceInferenceFromNameAllowed": false,
+    "status": "pass"
+  }
+}
