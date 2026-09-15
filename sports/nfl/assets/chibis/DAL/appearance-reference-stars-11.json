@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "appearance-reference-stars-11",
+  "checkedAt": "2026-09-15",
+  "referencePolicy": {
+    "sourcePriority": "Current official DallasCowboys.com roster/player headshot pages",
+    "visualRule": "Inspect the cited current official headshot before rendering. Never infer complexion, hair, facial hair, or facial features from a player's name.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {"background":"transparent","camera":"three-quarter front","lighting":"soft stadium key plus cool rim","footAnchor":"bottom-center","uniformSet":"Dallas white/silver/royal-blue","numberAccuracy":"required"}
+  },
+  "players": [
+    {"slug":"malachi-lawrence","name":"Malachi Lawrence","position":"OLB","number":"57","height":"6-4","weightLbs":253,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/malachi-lawrence/","officialImageLabel":"Malachi Lawrence HS","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Edge/OLB build: tall, explosive pass-rush frame; preserve #57.","Prioritize stance, edge rush, pursuit, tackle, sack, forced fumble, recovery, pass breakup and teammate celebration; no invented named celebration."]},
+    {"slug":"tyrus-wheat","name":"Tyrus Wheat","position":"OLB","number":"59","height":"6-2","weightLbs":260,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/tyrus-wheat/","officialImageLabel":"tyrus-wheat-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Edge/OLB build: compact, powerful pass-rush proportions; preserve current official roster #59.","Prioritize stance, edge rush, pursuit, tackle, sack, forced fumble, recovery, pass breakup and special-teams pursuit; no invented named celebration."]},
+    {"slug":"tyler-guyton","name":"Tyler Guyton","position":"T","number":"60","height":"6-7","weightLbs":325,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/tyler-guyton/","officialImageLabel":"tyler-guyton-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Tackle build: exceptionally tall, broad, athletic offensive-line proportions; preserve #60.","Prioritize stance, pass set, kick slide, run block, reach block, double-team, pancake, recovery and fumble recovery; teammate celebration only, with no invented solo signature."]}
+  ],
+  "verification": {
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "notes": ["Current official Dallas player pages verify Malachi Lawrence #57 (6-4, 253), Tyrus Wheat #59 (6-2, 260), and Tyler Guyton #60 (6-7, 325).","Official Dallas player pages expose current headshot image labels for all three; renderers must visually inspect those headshots rather than infer appearance traits.","Tyrus Wheat's current summary page is authoritative for #59; an older/stale splits page may still display his prior #90, so production must use #59.","No player-specific named celebration was added because no repeatable signature was verified for this batch."]
+  },
+  "qa": {"referenceCount":3,"expectedReferenceCount":3,"numberAccuracyRequired":true,"transparentBackgroundRequired":true,"appearanceInferenceFromNameAllowed":false,"status":"pass"}
+}
