@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-04",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to the shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"bryan-anger","name":"Bryan Anger","position":"P","number":"5","height":"6-3","weightLbs":214,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/bryan-anger/","officialImageLabel":"bryan-anger-hs","baseAsset":"DAL/bryan-anger/base/dal_bryan-anger_base_v001","rigArchetype":"specialist-punter-tall","neutralPose":"upright specialist stance with relaxed shoulders, balanced feet and hands ready to receive the long snap","productionNotes":["Preserve #5.","Keep the 6-3/214 specialist silhouette and sufficient hip/leg range for catch-snap, punt, directional-punt, coffin-corner and fake-punt clips.","No named signature celebration is assigned without verification."],"qa":["official-headshot-reviewed-before-render","number-5-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"alijah-clark","name":"Alijah Clark","position":"S","number":"11","height":"6-1","weightLbs":200,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/alijah-clark/","officialImageLabel":"2025_HS_alijah_clark","baseAsset":"DAL/alijah-clark/base/dal_alijah-clark_base_v001","rigArchetype":"s-athletic","neutralPose":"athletic safety stance with square hips, light knee bend and balanced hands ready for coverage or downhill trigger","productionNotes":["Preserve #11.","Retain the 6-1/200 safety silhouette through backpedal, deep-zone, break-on-ball, tackle and turnover clips.","Use generic defensive celebration unless a repeatable player-specific signature is verified."],"qa":["official-headshot-reviewed-before-render","number-11-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"caleb-downs","name":"Caleb Downs","position":"DB/S","number":"13","height":"6-0","weightLbs":210,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/caleb-downs/","officialImageLabel":"Caleb Downs HS","baseAsset":"DAL/caleb-downs/base/dal_caleb-downs_base_v001","rigArchetype":"s-compact-power-athletic","neutralPose":"compact powerful safety stance with centered feet, low hips and relaxed hands ready for coverage, blitz or tackle","productionNotes":["Preserve #13.","Keep the 6-0/210 compact powerful defensive-back build rather than stretching him to a generic safety rig.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-13-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"markquese-bell","name":"Markquese Bell","position":"S","number":"14","height":"6-2","weightLbs":215,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/markquese-bell/","officialImageLabel":"markquese-bell-hs","baseAsset":"DAL/markquese-bell/base/dal_markquese-bell_base_v001","rigArchetype":"s-long-physical","neutralPose":"long physical safety stance with strong base, light forward balance and hands relaxed for coverage or contact","productionNotes":["Preserve #14.","Retain the 6-2/215 long physical safety silhouette through deep-zone, break-on-ball, tackle and turnover clips.","No named signature celebration is assigned without verification."],"qa":["official-headshot-reviewed-before-render","number-14-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"sam-howell","name":"Sam Howell","position":"QB","number":"16","height":"6-1","weightLbs":225,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/sam-howell/","officialImageLabel":"Sam Howell HS 2025","baseAsset":"DAL/sam-howell/base/dal_sam-howell_base_v001","rigArchetype":"qb-compact-sturdy","neutralPose":"compact quarterback ready stance with balanced base, relaxed throwing arm and hands prepared for pre-snap or dropback transition","productionNotes":["Preserve #16.","Keep the 6-1/225 compact sturdy quarterback build across dropback, short/deep throw, scramble, slide and sack-reaction clips.","Use generic quarterback/team celebration unless a repeatable player-specific signature is verified."],"qa":["official-headshot-reviewed-before-render","number-16-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This batch establishes reusable base assets/specifications only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-15",
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "notes": ["Current official Dallas roster/player pages were rechecked immediately before this batch for roster identity, jersey number, listed build and official headshot label.","Bryan Anger is #5 at 6-3/214; Alijah Clark is #11 at 6-1/200; Caleb Downs is #13 at 6-0/210; Markquese Bell is #14 at 6-2/215; Sam Howell is #16 at 6-1/225 on current official Dallas pages.","Appearance traits are not encoded from names; the cited current official headshots remain the visual authority at render time.","No unverified named celebration was introduced.","No MLB or NHL integration files are part of this batch."]
+  }
+}
