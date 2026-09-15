@@ -22,7 +22,9 @@ assert.ok(router.includes("./mlb/playstage-concept-v920-mobile.js?v=92.00"),'v92
 assert.ok(router.includes("./mlb/playstage-concept-v921-mobile.js?v=92.10"),'v921 mobile layer must remain installed');
 assert.ok(router.includes("./mlb/playstage-concept-v922-desktop.js?v=92.20"),'router must load v922 desktop layer');
 assert.ok(router.includes('installMlbPlaystageConceptV922Desktop'),'router must install v922 desktop layer');
-assert.ok(index.includes('./sports/router.js?v=90.49'),'index must cache-bust v922 router');
+const cache=index.match(/\.\/sports\/router\.js\?v=(\d+)\.(\d+)/);
+assert.ok(cache,'outer router cache marker must exist');
+assert.ok(Number(cache[1])>90||(Number(cache[1])===90&&Number(cache[2])>=49),`outer router cache must be >=90.49, got ${cache[1]}.${cache[2]}`);
 assert.ok(router.includes("./nfl-preview-v893.js?v=89.37"),'NFL v900 live fix must remain untouched');
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL must remain untouched');
 
