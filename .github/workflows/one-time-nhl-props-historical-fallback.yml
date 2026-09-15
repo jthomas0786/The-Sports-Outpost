@@ -5,6 +5,7 @@ on:
   push:
     paths:
       - '.github/workflows/one-time-nhl-props-historical-fallback.yml'
+      - 'scripts/apply-nhl-props-historical-fallback.py'
 
 permissions:
   contents: write
