@@ -1,9 +1,8 @@
 # .github/workflows/nfl-slate.yml
 #
-# Rebuilds slates/nfl.json (Touchdown Watch) and commits it, so GitHub Pages
-# serves it same-origin next to index.html. Deliberately separate from
-# daily-slate.yml: the MLB build must never be blocked by an NFL failure, and
-# vice versa. Each job commits only the files it owns.
+# Rebuilds the weekly NFL slate plus the synchronized research file consumed by
+# the player modal. Publishing both together prevents a fresh slate from being
+# paired with stale previous-week matchup context.
 
 name: Build NFL slate
 
@@ -23,8 +22,6 @@ on:
       date:
         description: 'Optional build date override (YYYY-MM-DD); blank = current NFL week'
         required: false
-  # Rebuild immediately whenever this workflow logic itself is repaired/changed.
-  # The generated slate commit does not touch this path, so this cannot loop.
   push:
     paths:
       - '.github/workflows/nfl-slate.yml'
@@ -33,25 +30,23 @@ permissions:
   contents: write
 
 concurrency:
-  # Two overlapping runs would both try to commit slates/nfl.json.
   group: nfl-slate
   cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      # ESPN's bare scoreboard can continue reporting the just-completed week on
-      # Tuesday morning. Resolve the target explicitly: when every current-week
-      # game is final, probe the next week and use it when ESPN has games there.
       - name: Resolve current or upcoming NFL week
         run: |
           node --input-type=module <<'NODE'
@@ -117,7 +112,6 @@ jobs:
           }
           NODE
 
-      # No npm install needed — the adapter uses only Node's built-in fetch.
       - name: Build the NFL slate
         if: env.RUN_NFL_BUILD != 'false'
         run: |
@@ -128,7 +122,7 @@ jobs:
             node build-slate.js --sport nfl --season "$NFL_SEASON" --seasontype "$NFL_SEASON_TYPE" --week "$NFL_WEEK" --out slates/nfl.json --verbose
           fi
 
-      - name: Sanity check output
+      - name: Sanity check slate output
         if: env.RUN_NFL_BUILD != 'false'
         run: |
           cat > /tmp/check-nfl.mjs << 'SCRIPT_EOF'
@@ -161,20 +155,14 @@ jobs:
             console.error(`::error::builder returned ${s.season} week ${s.week}; expected ${process.env.NFL_SEASON} week ${process.env.NFL_WEEK}`);
             process.exit(1);
           }
-          // A Tuesday weekly roll must not silently republish a fully completed
-          // slate when ESPN already exposed the upcoming week.
           if (s.games.length && s.games.every(g => g.status === 'post') && process.env.GITHUB_EVENT_NAME !== 'workflow_dispatch') {
             console.error('::error::refusing to publish an all-final weekly slate');
             process.exit(1);
           }
-
-          // An empty slate is legitimate in the offseason / on a bye day, but a
-          // slate with games and no graded players means the roster join broke.
           if (s.games.length && players === 0) {
             console.error('::error::' + s.games.length + ' games but 0 graded players — roster/depth join failed.');
             process.exit(1);
           }
-          // Guard the AZ/ARI-style abbreviation mismatch that silently empties a team.
           const staffed = new Set(s.games.flatMap(g => (g.players || []).map(p => p.team)));
           const empty = s.games.flatMap(g => [g.away.abbr, g.home.abbr]).filter(a => !staffed.has(a));
           if (empty.length) {
@@ -185,20 +173,54 @@ jobs:
           SCRIPT_EOF
           node /tmp/check-nfl.mjs
 
+      - name: Build synchronized NFL research data
+        if: env.RUN_NFL_BUILD != 'false'
+        run: node scripts/nfl-research.mjs
+
+      - name: Verify slate and player-modal matchup alignment
+        if: env.RUN_NFL_BUILD != 'false'
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync } from 'node:fs';
+          const slate=JSON.parse(readFileSync('slates/nfl.json','utf8'));
+          const research=JSON.parse(readFileSync('slates/nfl-research.json','utf8'));
+          const aliases={LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'};
+          const nt=v=>aliases[String(v||'').toUpperCase()]||String(v||'').toUpperCase();
+          const nn=v=>String(v||'').toLowerCase().replace(/\./g,'').replace(/['’]/g,'').replace(/\s+(jr|sr|ii|iii|iv|v)\b/g,'').replace(/[^a-z0-9]+/g,' ').trim();
+          const expected=new Map();
+          for(const g of slate.games||[]){
+            const away=nt(g.away?.abbr),home=nt(g.home?.abbr);
+            for(const p of g.players||[]){
+              const team=nt(p.team);
+              const opp=team===away?home:team===home?away:nt(p.opponent);
+              expected.set(`${team}|${nn(p.name)}`,opp);
+            }
+          }
+          let matched=0;const bad=[];
+          for(const p of research.players||[]){
+            const key=`${nt(p.team)}|${nn(p.name)}`;
+            if(!expected.has(key)) continue;
+            matched++;
+            const want=expected.get(key),got=nt(p.matchup?.opponent);
+            if(want!==got) bad.push(`${p.name}: ${got||'none'} != ${want}`);
+          }
+          if(!matched){console.error('::error::research file matched zero current-slate players');process.exit(1);}
+          if(bad.length){console.error('::error::stale NFL research matchup context: '+bad.slice(0,12).join('; '));process.exit(1);}
+          console.log(`✓ ${matched} current-slate research players match week ${slate.week} opponents`);
+          NODE
+
       - name: Commit if changed
         if: env.RUN_NFL_BUILD != 'false'
         run: |
           git config user.name  'slate-bot'
           git config user.email 'actions@github.com'
 
-          # NFL owns only slates/nfl.json. MLB model-logs are intentionally
-          # excluded so NFL refreshes can never rewrite calibration-history.json.
-          git add slates/nfl.json
+          # Publish the weekly slate and the player-modal research context in the
+          # same commit so the UI can never see a new week with an old opponent.
+          git add slates/nfl.json slates/nfl-research.json
           git diff --staged --quiet && echo "no changes" && exit 0
-          git commit -m "nfl slate: $(date -u +%Y-%m-%d)"
+          git commit -m "nfl slate + research: $(date -u +%Y-%m-%d)"
 
-          # push.yml auto-commits every few minutes, so the checkout can go stale
-          # while the build runs. Rebase onto whatever arrived and retry.
           for attempt in 1 2 3 4 5; do
             if git push; then
               echo "pushed on attempt $attempt"
@@ -206,7 +228,7 @@ jobs:
             fi
             echo "push rejected — rebasing onto remote (attempt $attempt)"
             git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || {
-              echo "::error::rebase failed — resolve the conflict in slates/nfl.json manually"
+              echo "::error::rebase failed — resolve NFL slate/research conflict manually"
               exit 1
             }
             sleep $((attempt * 3))
