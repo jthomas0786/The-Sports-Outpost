@@ -20,11 +20,13 @@ assert.ok(base.includes('isFreshNflLiveGame(g)'),'NFL Live landing must filter s
 assert.ok(base.includes('NFL_LIVE_STALE_MS=8*60*60*1000'),'base Live page must have stale-live TTL');
 assert.ok(switcher.includes("auth==='in'||isFreshLiveCandidate(g)"),'authoritative live status must override age guard');
 assert.ok(switcher.includes("return {...g,status:'post'}"),'stale unverified live selector entry must be removed from active games');
-assert.ok(v890.includes("import('./nfl-preview.js?v=89.37')"),'fresh base preview must be cache-busted');
-assert.ok(wrapper.includes("./nfl-preview-v890.js?v=89.37"),'NFL wrapper base import must be cache-busted');
-assert.ok(wrapper.includes("./nfl/live-game-switcher-v894.js?v=89.37"),'NFL live switcher must be cache-busted');
-assert.ok(router.includes("./nfl-preview-v893.js?v=89.37"),'router must load stale-live fix');
-assert.ok(index.includes('./sports/router.js?v=90.48'),'index must cache-bust router');
+assert.ok(v890.includes("import('./nfl-preview.js?v=89.38')")||v890.includes("import('./nfl-preview.js?v=89.37')"),'fresh base preview must remain cache-busted');
+assert.ok(wrapper.includes("./nfl-preview-v890.js?v=89.38")||wrapper.includes("./nfl-preview-v890.js?v=89.37"),'NFL wrapper base import must remain cache-busted');
+assert.ok(wrapper.includes("./nfl/live-game-switcher-v894.js?v=89.37"),'NFL live switcher stale-live fix must remain cache-busted');
+assert.ok(router.includes("./nfl-preview-v893.js?v=89.38")||router.includes("./nfl-preview-v893.js?v=89.37"),'router must retain stale-live fix or newer NFL build');
+const outer=index.match(/\.\/sports\/router\.js\?v=(\d+)\.(\d+)/);
+assert.ok(outer,'index router cache marker missing');
+assert.ok(Number(outer[1])>90||(Number(outer[1])===90&&Number(outer[2])>=48),'index must retain stale-live cache bust or newer');
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL must remain untouched');
 assert.ok(router.includes('./mlb/playstage-concept-v921-mobile.js?v=92.10'),'MLB v921 must remain installed');
 
