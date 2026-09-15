@@ -10,6 +10,7 @@ on:
       - 'sports/mlb/player-modal-parity-v901.js'
       - 'sports/nhl/player-modal-v918.js'
       - 'sports/nhl/player-modal-v918.css'
+      - 'sports/nhl/player-modal-v921.js'
       - 'sports/nhl/view-v906.js'
       - 'scripts/player-modal-parity-selftest.mjs'
       - '.github/workflows/player-modal-parity.yml'
@@ -32,5 +33,6 @@ jobs:
           node --check sports/player-modal-sticky-header-v901.js
           node --check sports/mlb/player-modal-parity-v901.js
           node --check sports/nhl/player-modal-v918.js
+          node --check sports/nhl/player-modal-v921.js
       - name: Player modal parity regression
         run: node scripts/player-modal-parity-selftest.mjs
