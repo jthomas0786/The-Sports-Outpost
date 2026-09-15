@@ -6,7 +6,7 @@ on:
     paths:
       - '.github/workflows/nfl-halftime-fast.yml'
   schedule:
-    # v89.1: official halftime status must stay in the 50K board window. Urgent live refresh 2026-09-15.
+    # v89.1: official halftime status must stay in the 50K board window. Urgent live refresh 2026-09-15 retry.
     - cron: '2-59/5 * * * *'
 
 permissions:
@@ -51,7 +51,17 @@ jobs:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_LIVE_ENDPOINT: https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live
           NFL_HALFTIME_PREFETCH_MINUTES: 10
-        run: node scripts/nfl-halftime-window-refresh.mjs --live-file slates/nfl-live.json
+        run: |
+          ok=0
+          for attempt in 1 2 3 4 5 6; do
+            echo "Halftime sportsbook refresh attempt $attempt/6"
+            if node scripts/nfl-halftime-window-refresh.mjs --live-file slates/nfl-live.json; then
+              ok=1
+              break
+            fi
+            sleep $((attempt * 2))
+          done
+          [ "$ok" -eq 1 ]
 
       - name: Detect halftime-window games
         id: window
