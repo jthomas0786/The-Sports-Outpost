@@ -1,11 +1,11 @@
-import * as basePreview from './nfl-preview-v890.js?v=89.36';
+import * as basePreview from './nfl-preview-v890.js?v=89.37';
 import { mountNflParlayModalV893 } from './nfl/quarter-parlay-ui-v893.js?v=89.3';
 import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8911.js?v=89.11';
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
 import { installNflGamecastFieldPositionV8925 } from './nfl/gamecast-field-position-v8925.js?v=89.25';
 import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.16';
 import { installNflPropModelEdgeV8917 } from './nfl/prop-model-edge-v8917.js?v=89.17';
-import { installNflLiveGameSwitcherV894 } from './nfl/live-game-switcher-v894.js?v=89.32';
+import { installNflLiveGameSwitcherV894 } from './nfl/live-game-switcher-v894.js?v=89.37';
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
 import { installNflGamecastStageGuardV899 } from './nfl/gamecast-stage-guard-v899.js?v=89.9';
 import { installNflGamecastPossessionBallV8922 } from './nfl/gamecast-possession-ball-v8922.js?v=89.24';

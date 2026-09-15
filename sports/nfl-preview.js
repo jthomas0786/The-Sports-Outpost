@@ -1121,8 +1121,17 @@ function nflLivePreviewHTML(g){
     <div class="nfl-live-openhint">Open full Gamecast →</div>
   </button>`;
 }
+const NFL_LIVE_STALE_MS=8*60*60*1000;
+function nflLiveKickoffMs(g){
+  return Date.parse(g?.startTimeUTC||g?.startDateUTC||g?.date||g?.start||'');
+}
+function isFreshNflLiveGame(g,now=Date.now()){
+  if(g?.status!=='in') return false;
+  const kickoff=nflLiveKickoffMs(g);
+  return !Number.isFinite(kickoff)||now-kickoff<=NFL_LIVE_STALE_MS;
+}
 function liveHTML(){
-  const realLive=data().games.filter(g=>g.status==='in');
+  const realLive=data().games.filter(g=>isFreshNflLiveGame(g));
   const qaTest=(typeof window!=='undefined' && window.DW_NFL_TEST_MODE===true) ? testLiveGame() : null;
   const live=[...realLive,...(qaTest?[qaTest]:[])];
   const next=data().games.filter(g=>g.status==='pre').sort((a,b)=>new Date(a.startTimeUTC||0)-new Date(b.startTimeUTC||0))[0]||null;
