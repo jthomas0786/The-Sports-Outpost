@@ -3,6 +3,7 @@ const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 const TABLE='nfl_watchlist';
 const STYLE_ID='tso-nfl-watchlist-v910-style';
 const norm=s=>String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let clientPromise=null,catalogPromise=null,rows=[],loaded=false,installed=false,observer=null,decorateQueued=false;
 
 function client(){
@@ -23,7 +24,7 @@ function ensureStyle(){
   #ccFootballCol .cc-nfl-watch-row:last-child{border-bottom:0}
   #ccFootballCol .cc-nfl-watch-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--panel2);border:1px solid var(--line);font:800 9px monospace;color:#9ec8ff}
   #ccFootballCol .cc-nfl-watch-avatar img{width:100%;height:100%;object-fit:cover}
-  #ccFootballCol .cc-nfl-watch-copy{min-width:0}.cc-nfl-watch-copy b{display:block}.cc-nfl-watch-copy small{display:block;color:var(--mute);margin-top:2px}
+  #ccFootballCol .cc-nfl-watch-copy{min-width:0}#ccFootballCol .cc-nfl-watch-copy b{display:block}#ccFootballCol .cc-nfl-watch-copy small{display:block;color:var(--mute);margin-top:2px}
   #ccFootballCol .cc-nfl-watch-star{color:#facc15;font-size:18px}
   `;document.head.appendChild(s);
 }
@@ -70,7 +71,7 @@ export async function toggleNflWatchPlayer(player){
   const list=await getNflWatchlist();return list.some(r=>String(r.player_id)===id)?removeNflWatchPlayer(id):addNflWatchPlayer(player);
 }
 export async function refreshNflWatchlist(){
-  const list=await getNflWatchlist({force:true});updateButtons();
+  const list=await getNflWatchlist({force:true});updateButtons();queueDecorate();
   try{window.dispatchEvent(new CustomEvent('tso:nfl-watchlist-changed',{detail:{players:list}}));}catch{}
   return list;
 }
@@ -94,9 +95,33 @@ function eligibleNameNode(el){
   const cls=String(el.closest('[class]')?.className||'');
   return /(player|person|threat|leader|feed|modal|card|slate|prop|scorer|name)/i.test(cls)||el.matches('h1,h2,h3,h4,strong,b');
 }
+function commandSection(){
+  const host=document.getElementById('ccFootballCol');if(!host)return null;
+  let section=host.querySelector('[data-nfl-watchlist-section]');
+  if(!section){
+    section=[...host.querySelectorAll('.cc-section')].find(s=>/^NFL Watchlist/i.test(String(s.querySelector('.cc-section-label')?.textContent||'')))||null;
+    if(section)section.dataset.nflWatchlistSection='1';
+  }
+  if(!section){
+    section=document.createElement('div');section.className='cc-section';section.dataset.nflWatchlistSection='1';
+    const kpi=host.querySelector('.cc-kpi-row');if(kpi)kpi.insertAdjacentElement('afterend',section);else host.prepend(section);
+  }
+  return section;
+}
+function renderCommandCenter(catalog){
+  const section=commandSection();if(!section)return;
+  const body=rows.map(w=>{
+    const p=catalog.byId.get(String(w.player_id))||catalog.byName.get(norm(w.player_name))||{};
+    const name=p.name||w.player_name||'Player',team=p.team||w.team||'',pos=p.position||'',head=p.headshot||'',matchup=p.matchup||'';
+    return `<button type="button" class="cc-nfl-watch-row" data-cc-nfl-watch-player="${esc(w.player_id)}" data-cc-nfl-watch-name="${esc(name)}"><span class="cc-nfl-watch-avatar">${head?`<img src="${esc(head)}" alt="">`:esc(team||'NFL')}</span><span class="cc-nfl-watch-copy"><b>${esc(name)}</b><small>${esc([team,pos,matchup].filter(Boolean).join(' · '))}</small></span><span class="cc-nfl-watch-star">★</span></button>`;
+  }).join('');
+  const html=`<div class="cc-section-label">NFL Watchlist <span>${rows.length||''}</span></div>${body||'<div class="cc-empty-note">Star a player anywhere in NFL to add them here. MLB watchlist players stay in MLB.</div>'}`;
+  if(section.innerHTML!==html)section.innerHTML=html;
+  if(!section.dataset.nflWatchBound){section.dataset.nflWatchBound='1';section.addEventListener('click',e=>{const b=e.target.closest('[data-cc-nfl-watch-player]');if(!b)return;window.DW_nflWatchlistTarget={id:b.dataset.ccNflWatchPlayer,name:b.dataset.ccNflWatchName};window.closeCommandCenter?.();window.DW_openNflPreviewTab?.('props');});}
+}
 async function decorateNow(){
-  decorateQueued=false;const root=document.getElementById('nflView');if(!root||root.hidden)return;
-  ensureStyle();const catalog=await loadCatalog();if(!loaded)await getNflWatchlist();
+  decorateQueued=false;ensureStyle();const catalog=await loadCatalog();if(!loaded)await getNflWatchlist();renderCommandCenter(catalog);
+  const root=document.getElementById('nflView');if(!root||root.hidden)return;
   const nodes=root.querySelectorAll('h1,h2,h3,h4,strong,b,[class*="name"],[class*="player"]');
   for(const el of nodes){
     if(!eligibleNameNode(el))continue;const player=findPlayerForName(el.textContent,catalog);if(!player)continue;
