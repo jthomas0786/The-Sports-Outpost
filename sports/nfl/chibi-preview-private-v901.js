@@ -23,25 +23,8 @@ async function getAuthClient() {
 }
 
 async function resolveOwnerAccess() {
-  try {
-    const client = await getAuthClient();
-    const { data: sessionData } = await client.auth.getSession();
-    const userId = sessionData?.session?.user?.id;
-    if (!userId) return false;
-
-    // Authorize from the canonical profiles row, not editable user_metadata and
-    // not a hard-coded auth UUID. This keeps the private preview tied to the
-    // signed-in @justcallme_jt profile even if the account/session is refreshed.
-    const { data: profile, error } = await client
-      .from('profiles')
-      .select('username')
-      .eq('id', userId)
-      .maybeSingle();
-    if (error || !profile) return false;
-    return normalizeUsername(profile.username) === OWNER_USERNAME;
-  } catch {
-    return false;
-  }
+  const username = window.DW_getCurrentSocialUsername?.();
+  return normalizeUsername(username) === OWNER_USERNAME;
 }
 
 function ensureStyles() {
@@ -172,6 +155,14 @@ async function refreshAccess() {
 
 export function installNflChibiPreviewPrivateV901() {
   refreshAccess();
+  let authRetries = 0;
+  const authRetryTimer = setInterval(() => {
+    if (ownerAllowed || ++authRetries >= 15) {
+      clearInterval(authRetryTimer);
+      return;
+    }
+    refreshAccess();
+  }, 1000);
   if (!observer) {
     observer = new MutationObserver(() => syncUi());
     observer.observe(document.body, { childList: true, subtree: true });

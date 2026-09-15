@@ -23,6 +23,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 let sb = null;                 // Supabase client
 let currentUser = null;        // { id, username, avatar_seed }
+window.DW_getCurrentSocialUsername = () => currentUser?.username || '';
 let socialReady = false;
 let profileError = null;   // surfaced in the UI when a profile can't be made
 let schemaMissing = false; // true when the SQL schema hasn't been installed
