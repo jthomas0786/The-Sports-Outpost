@@ -1,6 +1,7 @@
 name: One-time NHL Props Historical Fallback
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - '.github/workflows/one-time-nhl-props-historical-fallback.yml'
