@@ -1,0 +1,68 @@
+name: One-time NFL Chibi Preview cache bust v90.3
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-nfl-chibi-preview-cachebust-v903.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-chibi-preview-cachebust-v903
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify private Chibi Preview wiring and bust outer router cache
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          router = Path('sports/router.js').read_text()
+          preview = Path('sports/nfl/chibi-preview-private-v901.js').read_text()
+          index = Path('index.html')
+          html = index.read_text()
+
+          required_router = "./nfl/chibi-preview-private-v901.js?v=90.3"
+          if required_router not in router:
+              raise SystemExit('router is not wired to Chibi Preview v90.3')
+          for marker in ("OWNER_USERNAME = 'justcallme_jt'", ".from('profiles')", '.nxg-tabs', '.nxg-tab'):
+              if marker not in preview:
+                  raise SystemExit(f'Chibi Preview validation marker missing: {marker}')
+
+          pattern = r'(\./sports/router\.js\?v=)([A-Za-z0-9._-]+)'
+          match = re.search(pattern, html)
+          if not match:
+              raise SystemExit('index router cache marker missing')
+          current = match.group(2)
+          target = current if current.endswith('-chibi3') else current + '-chibi3'
+          html2, count = re.subn(pattern, lambda m: m.group(1) + target, html, count=1)
+          if count != 1:
+              raise SystemExit('expected exactly one outer router cache marker')
+          index.write_text(html2)
+          print(f'Outer router cache: {current} -> {target}')
+          PY
+
+      - name: Commit cache bust if changed
+        run: |
+          git config user.name 'tso-fix-bot'
+          git config user.email 'actions@github.com'
+          git add index.html
+          git diff --staged --quiet && echo 'no cache-bust change needed' && exit 0
+          git commit -m 'NFL Chibi Preview: bust outer router cache'
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            git pull --rebase --autostash origin main
+            sleep $((attempt * 2))
+          done
+          exit 1
