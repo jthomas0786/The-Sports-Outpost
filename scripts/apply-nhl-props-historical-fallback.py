@@ -66,13 +66,13 @@ p.write_text(s)
 # Bust the wrapper and router imports so production immediately receives the new base renderer.
 p=ROOT/'sports/nhl/view-v906.js'
 s=p.read_text()
-s,n=re.subn(r"import \{mountNhl as mountBase\} from './view\.js\?v=[^']+';", "import {mountNhl as mountBase} from './view.js?v=90.6';", s, count=1)
+s,n=re.subn(r"import \* as base from './view\.js\?v=[^']+';", "import * as base from './view.js?v=90.6';", s, count=1)
 if n!=1: raise SystemExit('view-v906 base import marker missing')
 p.write_text(s)
 
 p=ROOT/'sports/router.js'
 s=p.read_text()
-s,n=re.subn(r"import \{mountNhl\} from './nhl/view-v906\.js\?v=[^']+';", "import {mountNhl} from './nhl/view-v906.js?v=90.19';", s, count=1)
+s,n=re.subn(r"import\('./nhl/view-v906\.js\?v=[^']+'\)", "import('./nhl/view-v906.js?v=90.19')", s, count=1)
 if n!=1: raise SystemExit('router NHL import marker missing')
 p.write_text(s)
 
