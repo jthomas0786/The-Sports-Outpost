@@ -1,4 +1,4 @@
-name: One-time NFL Chibi Preview cache bust v90.5
+name: One-time NFL Chibi Preview + current matchup publish v90.6
 
 on:
   push:
@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate and publish outer router cache bust
+      - name: Publish side-nav Chibi Preview and current-matchup modal data
         shell: bash
         run: |
           set -euo pipefail
@@ -37,37 +37,97 @@ jobs:
           from pathlib import Path
           import re
 
-          router = Path('sports/router.js').read_text()
-          preview = Path('sports/nfl/chibi-preview-private-v901.js').read_text()
-          index = Path('index.html')
-          html = index.read_text()
+          private_path = Path('sports/nfl/chibi-preview-private-v901.js')
+          core_path = Path('sports/nfl-preview.js')
+          v890_path = Path('sports/nfl-preview-v890.js')
+          v893_path = Path('sports/nfl-preview-v893.js')
+          router_path = Path('sports/router.js')
+          index_path = Path('index.html')
 
-          required_router = "./nfl/chibi-preview-private-v901.js?v=90.5"
-          if required_router not in router:
-              raise SystemExit('router is not wired to Chibi Preview v90.5')
-          for marker in ("OWNER_USERNAME = 'justcallme_jt'", "DW_getCurrentSocialUsername", '.ms-head-actions', 'nfl-chibi-preview-trigger'):
-              if marker not in preview:
-                  raise SystemExit(f'Chibi Preview validation marker missing: {marker}')
+          private = private_path.read_text()
+          for marker in (
+              "OWNER_USERNAME = 'justcallme_jt'",
+              "document.getElementById('sbSportAccordion')",
+              'data-nfl-preview-tab="props"',
+              'galleryHTML',
+              'refreshOpenPlayerModal',
+              'CURRENT REFERENCE',
+          ):
+              if marker not in private:
+                  raise SystemExit(f'private Chibi Preview marker missing: {marker}')
 
+          core = core_path.read_text()
+          old_opp = "name:p.name, team:normNflTeam(p.team), pos:p.position||rp?.position||'SKILL', opp:normNflTeam(p.opponent||rp?.opponent||''),"
+          new_opp = "name:p.name, team:normNflTeam(p.team), pos:p.position||rp?.position||'SKILL', opp:(normNflTeam(p.team)===normNflTeam(g.away?.abbr)?normNflTeam(g.home?.abbr):normNflTeam(p.team)===normNflTeam(g.home?.abbr)?normNflTeam(g.away?.abbr):normNflTeam(p.opponent||rp?.opponent||'')),"
+          if old_opp in core:
+              core = core.replace(old_opp, new_opp, 1)
+          elif new_opp not in core:
+              raise SystemExit('NFL player opponent construction marker not found')
+          core_path.write_text(core)
+
+          v890 = v890_path.read_text()
+          if "./nfl-preview.js?v=89.38" in v890:
+              v890 = v890.replace("./nfl-preview.js?v=89.38", "./nfl-preview.js?v=89.39", 1)
+          elif "./nfl-preview.js?v=89.39" not in v890:
+              raise SystemExit('v890 base preview cache marker missing')
+          v890_path.write_text(v890)
+
+          v893 = v893_path.read_text()
+          if "./nfl-preview-v890.js?v=89.38" in v893:
+              v893 = v893.replace("./nfl-preview-v890.js?v=89.38", "./nfl-preview-v890.js?v=89.39", 1)
+          elif "./nfl-preview-v890.js?v=89.39" not in v893:
+              raise SystemExit('v893 base preview cache marker missing')
+          v893_path.write_text(v893)
+
+          router = router_path.read_text()
+          replacements = (
+              ("./nfl/chibi-preview-private-v901.js?v=90.5", "./nfl/chibi-preview-private-v901.js?v=90.6"),
+              ("./nfl-preview-v893.js?v=89.38", "./nfl-preview-v893.js?v=89.39"),
+          )
+          for old, new in replacements:
+              if old in router:
+                  router = router.replace(old, new, 1)
+              elif new not in router:
+                  raise SystemExit(f'router cache marker missing: {old}')
+          router_path.write_text(router)
+
+          html = index_path.read_text()
           pattern = r'(\./sports/router\.js\?v=)([A-Za-z0-9._-]+)'
           match = re.search(pattern, html)
           if not match:
               raise SystemExit('index router cache marker missing')
           current = match.group(2)
-          target = current if current.endswith('-chibi5') else current + '-chibi5'
+          target = current if current.endswith('-nflmodal6') else current + '-nflmodal6'
           html2, count = re.subn(pattern, lambda m: m.group(1) + target, html, count=1)
           if count != 1:
               raise SystemExit('expected exactly one outer router cache marker')
-          index.write_text(html2)
+          index_path.write_text(html2)
           print(f'Outer router cache: {current} -> {target}')
+
+          # Static regression assertions: the source-level opponent must be game-derived,
+          # the owner-only control must live in the sidebar accordion, and all cache hops
+          # must point at the new code on a cold or warm browser load.
+          core2 = core_path.read_text()
+          router2 = router_path.read_text()
+          assert "normNflTeam(g.away?.abbr)?normNflTeam(g.home?.abbr)" in core2
+          assert "./nfl/chibi-preview-private-v901.js?v=90.6" in router2
+          assert "./nfl-preview-v893.js?v=89.39" in router2
+          assert "./nfl-preview.js?v=89.39" in v890_path.read_text()
+          assert "./nfl-preview-v890.js?v=89.39" in v893_path.read_text()
           PY
 
-            git add index.html
+            node --check sports/nfl/chibi-preview-private-v901.js
+            node --check sports/nfl-preview.js
+            node --check sports/nfl-preview-v890.js
+            node --check sports/nfl-preview-v893.js
+            node --check sports/router.js
+
+            git add sports/nfl/chibi-preview-private-v901.js sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html
             if git diff --staged --quiet; then
-              echo 'outer cache marker already current'
+              echo 'v90.6 publish already applied'
               exit 0
             fi
-            git commit -m 'NFL Chibi Preview: publish header visibility v905'
+            git commit -m 'NFL: publish Chibi side-nav and current matchup v906'
             if git push origin HEAD:main; then
               echo "published on attempt $attempt"
               exit 0
@@ -76,5 +136,5 @@ jobs:
             sleep $((attempt * 2))
           done
 
-          echo '::error::could not publish cache bust after 5 attempts'
+          echo '::error::could not publish v90.6 after 5 attempts'
           exit 1
