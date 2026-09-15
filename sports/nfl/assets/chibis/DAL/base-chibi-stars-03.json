@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-03",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to the shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {
+      "slug": "demarvion-overshown",
+      "name": "DeMarvion Overshown",
+      "position": "LB",
+      "number": "0",
+      "height": "6-3",
+      "weightLbs": 235,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/demarvion-overshown/",
+      "officialImageLabel": "demarvion-overshown-hs",
+      "baseAsset": "DAL/demarvion-overshown/base/dal_demarvion-overshown_base_v001",
+      "rigArchetype": "lb-long-athletic",
+      "neutralPose": "long athletic linebacker stance with balanced hips, light knee bend and relaxed pursuit-ready hands",
+      "productionNotes": ["Preserve #0.", "Keep the 6-3/235 long athletic linebacker silhouette through read, pursuit, coverage, blitz and tackle clips.", "Use generic turnover/defensive celebration until a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-0-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "p-j-locke",
+      "name": "P.J. Locke",
+      "position": "S",
+      "number": "1",
+      "height": "5-10",
+      "weightLbs": 205,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/p-j-locke/",
+      "officialImageLabel": "PJ Locke HS 2025",
+      "baseAsset": "DAL/p-j-locke/base/dal_p-j-locke_base_v001",
+      "rigArchetype": "s-compact-veteran",
+      "neutralPose": "compact safety stance with square hips, light forward balance and hands relaxed for coverage or downhill trigger",
+      "productionNotes": ["Preserve #1.", "Retain compact 5-10/205 safety proportions and enough hip/shoulder range for backpedal, break-on-ball, tackle and special-teams coverage.", "No named signature celebration is assigned without verification."],
+      "qa": ["official-headshot-reviewed-before-render", "number-1-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "cobie-durant",
+      "name": "Cobie Durant",
+      "position": "CB",
+      "number": "2",
+      "height": "5-11",
+      "weightLbs": 187,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/cobie-durant/",
+      "officialImageLabel": "Cobie Durant HS 2025",
+      "baseAsset": "DAL/cobie-durant/base/dal_cobie-durant_base_v001",
+      "rigArchetype": "cb-quick-compact",
+      "neutralPose": "quick corner stance with light knee bend, centered feet, relaxed hands and hips prepared for press or backpedal",
+      "productionNotes": ["Preserve #2.", "Maintain the 5-11/187 quick corner silhouette through press, backpedal, break-on-ball, interception and return clips.", "Use generic turnover celebration unless a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-2-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "donovan-ezeiruaku",
+      "name": "Donovan Ezeiruaku",
+      "position": "OLB/EDGE",
+      "number": "6",
+      "height": "6-2",
+      "weightLbs": 255,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/donovan-ezeiruaku/",
+      "officialImageLabel": "2025_HS_donovan_ezeiruaku",
+      "baseAsset": "DAL/donovan-ezeiruaku/base/dal_donovan-ezeiruaku_base_v001",
+      "rigArchetype": "edge-lean-bendy",
+      "neutralPose": "lean edge-rusher stance with forward-loaded balance, flexible hips and relaxed hands ready for get-off",
+      "productionNotes": ["Preserve #6.", "Retain lean/bendy 6-2/255 edge proportions and shoulder/hip mobility for get-off, bend, cross-chop, strip-sack and edge-set actions.", "Keep celebration generic unless a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-6-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "rashan-gary",
+      "name": "Rashan Gary",
+      "position": "OLB/EDGE",
+      "number": "7",
+      "height": "6-5",
+      "weightLbs": 275,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/rashan-gary/",
+      "officialImageLabel": "Rashan Gary HS 2025",
+      "baseAsset": "DAL/rashan-gary/base/dal_rashan-gary_base_v001",
+      "rigArchetype": "edge-large-explosive",
+      "neutralPose": "large explosive edge stance with broad shoulders, strong base and forward-loaded hands ready for speed-to-power",
+      "productionNotes": ["Preserve #7.", "Do not normalize away the 6-5/275 large explosive edge silhouette; retain mass and reach across rush, edge-set, tackle and forced-fumble clips.", "Use generic sack/defensive celebration until a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-7-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    }
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This batch establishes reusable base assets/specifications only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-15",
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "officialInitial53Source": "https://www.dallascowboys.com/news/cowboys-release-initial-53-man-roster-for-2026-season",
+    "notes": ["Current official Dallas roster/player pages were rechecked before this batch for roster identity, number, build and current official headshot labels.", "DeMarvion Overshown is #0 at 6-3/235; P.J. Locke is #1 at 5-10/205; Cobie Durant is #2 at 5-11/187 on current official Dallas pages.", "The current official Dallas roster lists Donovan Ezeiruaku as #6 at 6-2/255 and Rashan Gary as #7 at 6-5/275; their previously locked official Dallas headshot records remain the visual authority before rendering.", "No unverified named player celebration was introduced.", "No MLB or NHL integration files are part of this batch."]
+  }
+}
