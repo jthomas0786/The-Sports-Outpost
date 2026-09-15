@@ -1,0 +1,65 @@
+name: One-time Chibi Preview cache bust
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-chibi-preview-cache-bust.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify private preview and force fresh outer router
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          router = Path('sports/router.js').read_text()
+          preview = Path('sports/nfl/chibi-preview-private-v901.js').read_text()
+          index = Path('index.html')
+          html = index.read_text()
+
+          if "chibi-preview-private-v901.js?v=90.2" not in router:
+              raise SystemExit('private chibi preview is not wired at router v90.2')
+          if "installNflChibiPreviewPrivateV901" not in router:
+              raise SystemExit('private chibi preview installer is missing')
+          if "OWNER_USER_ID" not in preview or "[data-nfl-tab]" not in preview:
+              raise SystemExit('private owner gate or NFL tab attachment is missing')
+
+          updated, count = re.subn(
+              r'\./sports/router\.js\?v=[A-Za-z0-9._-]+',
+              './sports/router.js?v=90.52',
+              html,
+              count=1,
+          )
+          if count != 1:
+              raise SystemExit('index router cache marker not found')
+          index.write_text(updated)
+          print('Forced index.html -> sports/router.js?v=90.52')
+          PY
+
+      - name: Commit cache bust
+        run: |
+          git config user.name 'TSO Chibi Preview Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git diff --staged --quiet && echo 'No cache-bust change needed' && exit 0
+          git commit -m 'Cache-bust private NFL Chibi Preview'
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            sleep $((attempt * 2))
+          done
+          echo '::error::could not push Chibi Preview cache bust'
+          exit 1
