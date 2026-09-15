@@ -1,6 +1,7 @@
 import {applyLineups,rosterURL,lineupLabel,lineupState,lineupReady} from './lineups.js?v=90.2';
 import {quoteFor} from './odds.js?v=90.1';
 import {gradeForLean,gradeRingHTML,overProbability} from './grade.js?v=90.4';
+import {historicalPropProjection,historicalSourceLabel,propLine} from './props-model.js?v=90.1';
 import {renderNhlGamecastHTML} from './gamecast.js?v=90.5';
 import {API,getJSON,loadScoreboard,mergeSummary,freshGame,threats,text as esc,imageUrl} from './data.js?v=90.5';
 let research=null,odds=null,sim=null;
@@ -60,24 +61,43 @@ function simulationMetric(p){
  const metric=game.players?.find(x=>x.id===p.id)?.metrics?.[market==='atg'?'goals':market];
  return metric?{game,metric}:null;
 }
-function forecast(p,state=simulationMetric(p)){
+function projectionState(p){
+ const simulated=simulationMetric(p);
+ if(simulated)return {...simulated,source:'simulation',historical:null};
+ const historical=historicalPropProjection(research?.players?.[p.id],market,research?.currentSeason);
+ return historical?{game:null,metric:historical.metric,source:'historical',historical}:null;
+}
+function forecast(p,state=projectionState(p)){
  if(!state)return '';
  const {game,metric}=state;
- return `${market==='atg'?'Goal chance '+(metric.atLeastOne*100).toFixed(1)+'% · ':''}Mean ${metric.mean.toFixed(2)} · Median ${metric.median} · ${game.iterations.toLocaleString()} sims`;
+ if(state.source==='simulation')return `${market==='atg'?'Goal chance '+(metric.atLeastOne*100).toFixed(1)+'% · ':''}Mean ${metric.mean.toFixed(2)} · Median ${metric.median} · ${game.iterations.toLocaleString()} sims`;
+ const source=historicalSourceLabel(state.historical);
+ return market==='atg'?`Baseline goal chance ${(metric.atLeastOne*100).toFixed(1)}% · ${source}`:`Historical model · Mean ${metric.mean.toFixed(2)} · Median ${metric.median} · ${source}`;
 }
-function baseline(p){const history=research?.players?.[p.id];const key=market==='atg'?'goals':market;const rate=history?.rates?.[key];return rate==null?'Season baseline pending':`${history.season-1}–${String(history.season).slice(-2)} avg ${rate.toFixed(2)}/game (${history.games} GP)`;}
-function priceText(p,q=quoteFor(odds,p.game.id,p.id,market)){if(p.game.status!=='pre')return p.game.status==='post'?'Market closed':'Live odds pending';if(!q)return 'Odds pending';return `${q.book} · ${market==='atg'?'Goal':q.line} · ${market==='atg'?'Yes':'O'} ${priceFmt(q.over)} / ${market==='atg'?'No':'U'} ${priceFmt(q.under)}`;}
-function gradeState(p,state=simulationMetric(p)){
- const q=quoteFor(odds,p.game.id,p.id,market),line=market==='atg'?.5:Number(q?.line);
- const probability=state&&Number.isFinite(line)?overProbability(state.metric,line):null;
- return {probability,grade:gradeForLean(probability),q,line};
+function baseline(p){const history=research?.players?.[p.id];const key=market==='atg'?'goals':market;const rate=history?.rates?.[key];return rate==null?'Season baseline pending':`${history.season-1}–${String(history.season).slice(-2)} avg ${Number(rate).toFixed(2)}/game (${history.games} GP)`;}
+function priceText(p,q=quoteFor(odds,p.game.id,p.id,market)){
+ if(p.game.status==='post')return 'Market closed';
+ if(q)return `${q.book} · ${market==='atg'?'Goal':q.line} · ${market==='atg'?'Yes':'O'} ${priceFmt(q.over)} / ${market==='atg'?'No':'U'} ${priceFmt(q.under)}`;
+ const picked=propLine(market,null),label=market==='atg'?'Goal 0.5':`O ${picked.line}`;
+ if(!Number.isFinite(picked.line))return p.game.status==='in'?'Live odds pending':'Odds pending';
+ return `TSO reference ${label} · ${p.game.status==='in'?'live sportsbook odds pending':'sportsbook odds pending'}`;
+}
+function gradeState(p,state=projectionState(p)){
+ const q=quoteFor(odds,p.game.id,p.id,market),picked=propLine(market,q);
+ const probability=state&&Number.isFinite(picked.line)?overProbability(state.metric,picked.line):null;
+ return {probability,grade:gradeForLean(probability),q,line:picked.line,referenceLine:picked.reference,source:state?.source||null,historical:state?.historical||null,game:state?.game||null};
 }
 function props(){
  const ps=(doc?.games||[]).flatMap(g=>g.players.map(p=>({...p,game:g}))).filter(p=>market==='saves'?p.position==='G':p.position!=='G');
- const ranked=ps.map(p=>{const state=simulationMetric(p);return {p,state,grade:gradeState(p,state)};}).sort((a,b)=>(b.grade.probability??-1)-(a.grade.probability??-1));
- return `<div class="hk-prop-toolbar"><label>Player market<select id="hk-market">${Object.entries(markets).map(([k,v])=>`<option value="${k}" ${k===market?'selected':''}>${v}</option>`).join('')}</select></label><div class="hk-prop-note"><b>${ps.length}</b><span>players on this slate</span></div></div><div class="hk-list-head"><span>${esc(markets[market])}</span><small>Same NFL grade thresholds + progress rings · simulation probability vs sportsbook line when available</small></div><div class="hk-prop-list">${ranked.map(({p,state,grade},i)=>{
+ const ranked=ps.map(p=>{const state=projectionState(p);return {p,state,grade:gradeState(p,state)};}).sort((a,b)=>(b.grade.probability??-1)-(a.grade.probability??-1));
+ return `<div class="hk-prop-toolbar"><label>Player market<select id="hk-market">${Object.entries(markets).map(([k,v])=>`<option value="${k}" ${k===market?'selected':''}>${v}</option>`).join('')}</select></label><div class="hk-prop-note"><b>${ps.length}</b><span>players on this slate</span></div></div><div class="hk-list-head"><span>${esc(markets[market])}</span><small>Same NFL grade thresholds + progress rings · confirmed simulations when ready · verified 2025–26 historical fallback · sportsbook lines when listed</small></div><div class="hk-prop-list">${ranked.map(({p,state,grade},i)=>{
  const key=market==='atg'?'goals':market,model=forecast(p,state),book=priceText(p,grade.q);
- const ring=gradeRingHTML(grade.probability,grade.grade,'lg'),gradeNote=grade.probability==null?(market==='atg'?'Awaiting eligible simulation':'Needs eligible simulation + book line'):'TSO grade';
+ const ring=gradeRingHTML(grade.probability,grade.grade,'lg');
+ let gradeNote='Historical baseline pending';
+ if(grade.probability!=null){
+  const pct=(grade.probability*100).toFixed(grade.probability<.1?1:0)+'%';
+  gradeNote=grade.source==='simulation'?`TSO grade · ${pct} model hit · ${grade.game.iterations.toLocaleString()} sims${grade.referenceLine?' · TSO reference line':''}`:`TSO grade · ${pct} model hit · ${historicalSourceLabel(grade.historical)} · ${grade.referenceLine?'TSO reference line':'sportsbook line'}`;
+ }
  return `<article class="hk-prop-card"><div class="hk-prop-rank">${i+1}</div><div class="hk-prop-avatar">${photo(p)}</div><div class="hk-prop-main"><div class="hk-prop-name"><b>${esc(p.name)}</b><span>${esc(p.team)} · ${esc(p.position)}</span></div><div class="hk-prop-match">${esc(p.game.away.abbr)} @ ${esc(p.game.home.abbr)} · ${esc(p.availability||'Status pending')}</div><div class="hk-prop-detail"><span>CURRENT<b>${esc(p.current?.[key]??'—')}</b></span><span>BASELINE<b>${esc(baseline(p))}</b></span><span>LINEUP<b>${esc(lineupLabel(p.game))}</b></span></div></div><div class="hk-prop-market"><span>${esc(markets[market])}</span><strong>${model?esc(model):'Projection pending'}</strong><small>${esc(book)}</small></div><div class="hk-prop-grade">${ring}<small>${esc(gradeNote)}</small></div></article>`;
  }).join('')||empty('Player rosters are not available yet.')}</div>`;
 }

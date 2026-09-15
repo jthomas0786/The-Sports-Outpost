@@ -28,3 +28,8 @@ Event roster entries (ESPN core event/competition/competitor roster) supply expl
 The browser and refresh job check event rosters inside three hours of puck drop and during games. Projection eligibility requires fresh lineup evidence (10 minutes pregame, 2 minutes live) and exactly one identified goalie per team. A pulled or ambiguous goalie suspends new forecasts. The wrapper maps the current goalie into the existing engine's goalie slot while retaining every player's current totals; the Monte Carlo core is unchanged. Availability and goalie changes are included in the forecast state key. NHL preseason projections remain gated. ESPN may not supply pregame starter flags; this release does not claim those games are confirmed.
 
 Run `node scripts/nhl-lineups-selftest.mjs` for evidence and freshness regression scenarios.
+
+
+## Props historical fallback
+
+NHL Props keep the strict lineup-confirmed simulation as the highest-confidence projection. When that simulation is not eligible, the Props page grades from verified 2025–26 regular-season player rates. Preseason games are excluded from the active-season blend. The 2026–27 regular season remains at 0% weight through five completed games, blends linearly from games 6–19, and becomes the full baseline at 20 completed regular-season games. If a sportsbook line is unavailable, the UI uses a clearly labeled TSO reference line for the grade and explicitly says sportsbook odds are pending.
