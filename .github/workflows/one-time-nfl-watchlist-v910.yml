@@ -1,0 +1,68 @@
+name: One-time NFL watchlist v91.0
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-nfl-watchlist-v910.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-watchlist-v910
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Publish outer router cache bust
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'tso-fix-bot'
+          git config user.email 'actions@github.com'
+          for attempt in 1 2 3 4 5; do
+            git fetch origin main
+            git reset --hard origin/main
+            python - <<'PY'
+          from pathlib import Path
+          import re
+          router=Path('sports/router.js').read_text()
+          watch=Path('sports/nfl/watchlist-v910.js').read_text()
+          if "./nfl/watchlist-v910.js?v=91.0" not in router or 'installNflWatchlistV910();' not in router:
+              raise SystemExit('router is not wired to NFL watchlist v91.0')
+          if "TABLE='nfl_watchlist'" not in watch:
+              raise SystemExit('NFL watchlist is not isolated to nfl_watchlist')
+          index=Path('index.html')
+          html=index.read_text()
+          pat=r'(\./sports/router\.js\?v=)([A-Za-z0-9._-]+)'
+          m=re.search(pat,html)
+          if not m:
+              raise SystemExit('index router cache marker missing')
+          current=m.group(2)
+          target=current if current.endswith('-nflwatch910') else current+'-nflwatch910'
+          html2,n=re.subn(pat,lambda x:x.group(1)+target,html,count=1)
+          if n!=1:
+              raise SystemExit('expected one outer router marker')
+          index.write_text(html2)
+          print(f'outer router cache: {current} -> {target}')
+          PY
+            git add index.html
+            if git diff --staged --quiet; then
+              echo 'outer cache already current'
+              exit 0
+            fi
+            git commit -m 'NFL: publish watchlist v91.0'
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 2))
+          done
+          echo '::error::could not publish watchlist cache bust after 5 attempts'
+          exit 1
