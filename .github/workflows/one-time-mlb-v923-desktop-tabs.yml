@@ -1,0 +1,41 @@
+name: One-time MLB v923 desktop Gamecast layout
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-mlb-v923-desktop-tabs.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply MLB v923 desktop Gamecast layout
+        run: python3 scripts/apply-mlb-v923-desktop-tabs.py
+      - name: Validate MLB v923 desktop Gamecast layout
+        run: |
+          node --check sports/mlb/playstage-concept-v923-desktop-tabs.js
+          node --check sports/router.js
+          node scripts/mlb-v923-desktop-tabs-selftest.mjs
+          node scripts/mlb-v922-desktop-selftest.mjs
+          grep -F "./mlb/playstage-concept-v923-desktop-tabs.js?v=92.30" sports/router.js
+          grep -F "./sports/router.js?v=90.50" index.html
+      - name: Commit production update
+        run: |
+          git config user.name 'TSO MLB v923 Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/router.js index.html scripts/mlb-v922-desktop-selftest.mjs
+          git commit -m 'mlb: restructure desktop Gamecast navigation and footer'
+          git reset --hard HEAD
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
