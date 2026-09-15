@@ -10,6 +10,13 @@ def replace_between(text,start,end,replacement):
     if b<0: raise SystemExit(f'missing end marker: {end}')
     return text[:a]+replacement+text[b:]
 
+def append_cache_suffix(text,pattern,suffix,label):
+    m=re.search(pattern,text)
+    if not m: raise SystemExit(f'{label} cache marker missing')
+    current=m.group(0)
+    if suffix in current:return text
+    return text[:m.start()]+current+suffix+text[m.end():]
+
 # Wire the historical fallback into the base NHL props renderer.
 p=ROOT/'sports/nhl/view.js'
 s=p.read_text()
@@ -63,24 +70,20 @@ function props(){
 s=replace_between(s,'function forecast(','function scorebar(',replacement)
 p.write_text(s)
 
-# Bust the wrapper and router imports so production immediately receives the new base renderer.
+# Cache-bust with additive query flags so legacy regression prefixes remain valid.
 p=ROOT/'sports/nhl/view-v906.js'
 s=p.read_text()
-s,n=re.subn(r"import \* as base from './view\.js\?v=[^']+';", "import * as base from './view.js?v=90.6';", s, count=1)
-if n!=1: raise SystemExit('view-v906 base import marker missing')
+s=append_cache_suffix(s,r"\./view\.js\?v=[^']+",'&props=1','view-v906 base import')
 p.write_text(s)
 
 p=ROOT/'sports/router.js'
 s=p.read_text()
-s,n=re.subn(r"import\('./nhl/view-v906\.js\?v=[^']+'\)", "import('./nhl/view-v906.js?v=90.19')", s, count=1)
-if n!=1: raise SystemExit('router NHL import marker missing')
+s=append_cache_suffix(s,r"\./nhl/view-v906\.js\?v=[^']+",'&props=1','router NHL import')
 p.write_text(s)
 
-# Bust the outer router import without depending on the current cache version.
 p=ROOT/'index.html'
 s=p.read_text()
-s,n=re.subn(r'(\./sports/router\.js\?v=)[^"\']+', r'\g<1>90.52', s, count=1)
-if n!=1: raise SystemExit('index router import marker missing')
+s=append_cache_suffix(s,r"\./sports/router\.js\?v=[^\"']+",'&nhlprops=1','index router import')
 p.write_text(s)
 
 # Put the fallback regression in the normal NHL workflow.
