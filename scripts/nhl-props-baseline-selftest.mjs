@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import {currentSeasonWeight,historicalPropProjection,propLine} from '../sports/nhl/props-model.js';
 import {overProbability} from '../sports/nhl/grade.js';
+import {historicalModalFallback} from '../sports/nhl/player-modal-v921.js';
 
 const base={
   season:2026,
@@ -49,8 +50,20 @@ const atg=historicalPropProjection(base,'atg',2027);
 const atgHit=overProbability(atg.metric,.5);
 assert.ok(atgHit>0&&atgHit<1);
 
+const modalFallback=historicalModalFallback(base,'sog',2027,null);
+assert.ok(modalFallback,'player modal must get the same verified fallback as the Props list');
+assert.equal(modalFallback.source,'historical');
+assert.equal(modalFallback.referenceLine,true);
+assert.equal(modalFallback.line,2.5);
+assert.equal(modalFallback.grade.length>0,true);
+assert.ok(modalFallback.probability>0&&modalFallback.probability<1);
+const modalBook=historicalModalFallback(base,'sog',2027,{line:3.5});
+assert.equal(modalBook.referenceLine,false,'real sportsbook line must replace the TSO reference line in the modal');
+assert.equal(modalBook.line,3.5);
+
 console.log('✓ NHL historical Props fallback regression passed');
 console.log('  ✓ 2025–26 baseline drives grades before enough 2026–27 regular-season games');
 console.log('  ✓ preseason is excluded from current-season weighting');
 console.log('  ✓ current regular season blends after 5 GP and is full-weight at 20 GP');
 console.log('  ✓ sportsbook lines override clearly separated TSO reference lines');
+console.log('  ✓ player modal uses the same historical fallback and never invents a sportsbook line');

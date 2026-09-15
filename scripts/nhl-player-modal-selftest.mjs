@@ -6,6 +6,7 @@ import {__NHL_PLAYER_MODAL_V912_TEST__} from '../sports/nhl/player-modal-v912.js
 import {__NHL_PLAYER_MODAL_V913_TEST__} from '../sports/nhl/player-modal-v913.js';
 import {__NHL_PLAYER_MODAL_V917_TEST__} from '../sports/nhl/player-modal-v917.js';
 import {__NHL_PLAYER_MODAL_V918_TEST__} from '../sports/nhl/player-modal-v918.js';
+import {__NHL_PLAYER_MODAL_V921_TEST__} from '../sports/nhl/player-modal-v921.js';
 
 const now=Date.now();
 const player={id:'p1',name:'Test Skater',team:'AWY',position:'C',active:true,availability:'In game roster',current:{goals:0,sog:1,points:0,assists:0,blocks:0}};
@@ -35,6 +36,7 @@ assert.equal(typeof __NHL_PLAYER_MODAL_V912_TEST__.fmtDate,'function');
 assert.equal(typeof __NHL_PLAYER_MODAL_V913_TEST__.pendingProbability,'function');
 assert.equal(typeof __NHL_PLAYER_MODAL_V917_TEST__.isolateRecentChart,'function');
 assert.equal(typeof __NHL_PLAYER_MODAL_V918_TEST__.enhance,'function');
+assert.equal(typeof __NHL_PLAYER_MODAL_V921_TEST__.historicalModalFallback,'function');
 assert.equal(__NHL_PLAYER_MODAL_V917_TEST__.density(5),'light');
 assert.equal(__NHL_PLAYER_MODAL_V917_TEST__.density(10),'medium');
 assert.equal(__NHL_PLAYER_MODAL_V917_TEST__.density(30),'dense');
@@ -46,6 +48,7 @@ const isolatedJs=fs.readFileSync('sports/nhl/player-modal-v917.js','utf8');
 const isolatedCss=fs.readFileSync('sports/nhl/player-modal-v917.css','utf8');
 const nflParityJs=fs.readFileSync('sports/nhl/player-modal-v918.js','utf8');
 const nflParityCss=fs.readFileSync('sports/nhl/player-modal-v918.css','utf8');
+const fallbackJs=fs.readFileSync('sports/nhl/player-modal-v921.js','utf8');
 const wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
 const researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
@@ -59,7 +62,8 @@ assert.ok(!isolatedJs.includes("classList.add('bar')"),'v90.17 must never re-att
 for(const marker of ['installNhlPlayerModalV917','tso-nhl-player-card-v918','player-modal-v918.css?v=90.18'])assert.ok(nflParityJs.includes(marker),`missing v90.18 parity marker: ${marker}`);
 for(const marker of ['width:100%!important','max-width:none!important','min-width:0!important','justify-content:stretch!important','height:112px!important'])assert.ok(nflParityCss.includes(marker),`missing v90.18 NFL bar geometry: ${marker}`);
 assert.ok(!/width:min\([^\n]+76px/.test(nflParityCss),'v90.18 must not cap L5 bars');
+for(const marker of ['historicalPropProjection','propLine','buildNhlPlayerContext','Historical fallback','TSO reference','installNhlPlayerModalV921'])assert.ok(fallbackJs.includes(marker),`missing v90.21 modal fallback marker: ${marker}`);
 assert.ok(researchScript.includes('.slice(0,30)'));
-assert.ok(wrapper.includes("./player-modal-v918.js?v=90.18"));
+assert.ok(wrapper.includes("./player-modal-v921.js?v=90.21"));
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"));
-console.log('NHL player modal: v90.18 keeps the isolated renderer but makes recent-game bars fill the same full game columns as NFL');
+console.log('NHL player modal: v90.21 keeps the v90.18 NFL-parity chart geometry and adds the same simulation-first / verified historical fallback used by NHL Props');
