@@ -65,6 +65,12 @@ function ensureStyles(){
   document.head.appendChild(s);
 }
 
+function settleFooterGap(root,footer,banner,target=8){
+  const scale=Math.max(.05,Number(root.dataset.ps915Scale)||1);
+  const gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
+  const current=parseFloat(footer.style.marginTop)||0;
+  footer.style.marginTop=`${current+((target-gap)/scale)}px`;
+}
 function tighten(root){
   if(!root||!window.matchMedia(MQ).matches) return;
   const footer=root.querySelector('.v923-game-footer');
@@ -73,12 +79,17 @@ function tighten(root){
   footer.style.marginTop='0px';
   requestAnimationFrame(()=>{
     if(!footer.isConnected||!banner.isConnected) return;
-    const gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
-    if(gap>14){
-      const scale=Math.max(.05,Number(root.dataset.ps915Scale)||1);
-      footer.style.marginTop=`-${Math.ceil((gap-12)/scale)}px`;
-    }
-    root.dataset.v924FooterGap=String(Math.round(footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom));
+    let gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
+    if(gap>14||gap<6) settleFooterGap(root,footer,banner,8);
+    requestAnimationFrame(()=>{
+      if(!footer.isConnected||!banner.isConnected) return;
+      gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
+      if(gap>14||gap<6) settleFooterGap(root,footer,banner,8);
+      requestAnimationFrame(()=>{
+        if(!footer.isConnected||!banner.isConnected) return;
+        root.dataset.v924FooterGap=String(Math.round(footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom));
+      });
+    });
   });
 }
 
