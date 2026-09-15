@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "appearance-reference-stars-10",
+  "checkedAt": "2026-09-15",
+  "referencePolicy": {
+    "sourcePriority": "Current official DallasCowboys.com roster/player headshot pages",
+    "visualRule": "Inspect the cited current official headshot before rendering. Never infer complexion, hair, facial hair, or facial features from a player's name.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {"background":"transparent","camera":"three-quarter front","lighting":"soft stadium key plus cool rim","footAnchor":"bottom-center","uniformSet":"Dallas white/silver/royal-blue","numberAccuracy":"required"}
+  },
+  "players": [
+    {"slug":"shemar-james","name":"Shemar James","position":"LB","number":"50","height":"6-1","weightLbs":235,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/shemar-james/","officialImageLabel":"2025_HS_shemar_james","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Linebacker build: compact, powerful athletic frame; preserve #50.","Prioritize stance, read, drop coverage, blitz, tackle, sack, pass breakup, interception, return and forced-fumble actions; no invented named celebration."]},
+    {"slug":"tyler-booker","name":"Tyler Booker","position":"G","number":"52","height":"6-5","weightLbs":330,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/tyler-booker/","officialImageLabel":"2025_HS_tyler_booker","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Guard build: tall, broad, heavy/powerful interior-line proportions; preserve #52.","Prioritize stance, pass set, run block, pull, double-team, pancake, recovery and fumble recovery; teammate celebration only, with no invented solo signature."]},
+    {"slug":"dee-winters","name":"Dee Winters","position":"LB","number":"53","height":"5-11","weightLbs":227,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/dee-winters/","officialImageLabel":"dee winters hs 2025","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Linebacker build: compact, fast pursuit proportions; preserve #53.","Prioritize stance, read, drop coverage, blitz, tackle, sack, pass breakup, interception, return and forced-fumble actions; no invented named celebration."]},
+    {"slug":"jaishawn-barham","name":"Jaishawn Barham","position":"LB","number":"55","height":"6-2","weightLbs":240,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/jaishawn-barham/","officialImageLabel":"Jaishawn Barham HS","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Linebacker build: sturdy, explosive rookie frame; preserve #55.","Prioritize stance, read, drop coverage, blitz, tackle, sack, pass breakup, interception, return and forced-fumble actions; no invented named celebration."]},
+    {"slug":"cooper-beebe","name":"Cooper Beebe","position":"C","number":"56","height":"6-3","weightLbs":320,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/cooper-beebe/","officialImageLabel":"cooper-beebe-hs","appearanceStatus":"reference-locked","renderNotes":["Use the current official Dallas headshot as sole visual authority for complexion and visible face/hair details.","Center build: broad, heavy/powerful interior-line proportions; preserve #56.","Prioritize stance, snap, pass block, run block, pull, double-team, pancake and fumble recovery; teammate celebration only and no invented solo signature."]}
+  ],
+  "verification": {
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "notes": ["Current official Dallas player pages verify Shemar James #50 (6-1, 235), Tyler Booker #52 (6-5, 330), Dee Winters #53 (5-11, 227), Jaishawn Barham #55 (6-2, 240), and Cooper Beebe #56 (6-3, 320).","Official Dallas player pages expose current headshot image labels for all five; renderers must visually inspect those headshots rather than infer appearance traits.","All five are present in the current Dallas active-roster scaffold and current official roster coverage.","No player-specific named celebration was added because no repeatable signature was verified for this batch."]
+  },
+  "qa": {"referenceCount":5,"expectedReferenceCount":5,"numberAccuracyRequired":true,"transparentBackgroundRequired":true,"appearanceInferenceFromNameAllowed":false,"status":"pass"}
+}
