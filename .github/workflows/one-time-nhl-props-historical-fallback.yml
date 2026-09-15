@@ -41,7 +41,10 @@ jobs:
         run: |
           git config user.name 'TSO NHL Props Bot'
           git config user.email 'actions@users.noreply.github.com'
-          git add sports/nhl/view.js sports/nhl/view-v906.js sports/router.js index.html .github/workflows/nhl.yml sports/nhl/README.md
+          # The Actions token cannot update workflow files. Publish the tested
+          # production/runtime files here; nhl.yml is updated directly through
+          # the connected GitHub integration after this run succeeds.
+          git add sports/nhl/view.js sports/nhl/view-v906.js sports/router.js index.html sports/nhl/README.md
           git diff --staged --quiet && echo 'No NHL Props changes to publish.' && exit 0
           git commit -m 'Fix NHL Props historical grades and data fallback'
           for attempt in 1 2 3 4 5; do
