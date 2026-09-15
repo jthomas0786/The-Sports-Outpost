@@ -1,0 +1,106 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-02",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {
+      "slug": "javonte-williams",
+      "name": "Javonte Williams",
+      "position": "RB",
+      "number": "33",
+      "height": "5-10",
+      "weightLbs": 222,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/javonte-williams/",
+      "officialImageLabel": "javonte-williams-hs",
+      "baseAsset": "DAL/javonte-williams/base/dal_javonte-williams_base_v001",
+      "rigArchetype": "rb-compact-powerful",
+      "neutralPose": "compact balanced runner-ready stance with low center of gravity, relaxed hands and stable hips",
+      "productionNotes": ["Preserve #33.", "Maintain compact powerful lower-body proportions through carry, cut, contact-balance and receiving clips.", "Use generic score/first-down reactions until a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-33-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "jake-ferguson",
+      "name": "Jake Ferguson",
+      "position": "TE",
+      "number": "87",
+      "height": "6-5",
+      "weightLbs": 250,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/jake-ferguson/",
+      "officialImageLabel": "jake-ferguson-hs",
+      "baseAsset": "DAL/jake-ferguson/base/dal_jake-ferguson_base_v001",
+      "rigArchetype": "te-tall-strong",
+      "neutralPose": "tall balanced tight-end stance with strong torso, relaxed hands and receiver-ready forward balance",
+      "productionNotes": ["Preserve #87.", "Keep tall strong TE silhouette and shoulder/hand reach consistent across block, release and catch clips.", "Use generic catch/score celebration until a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-87-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "quinnen-williams",
+      "name": "Quinnen Williams",
+      "position": "DT",
+      "number": "92",
+      "height": "6-3",
+      "weightLbs": 303,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/quinnen-williams/",
+      "officialImageLabel": "Quinnen Williams HS",
+      "baseAsset": "DAL/quinnen-williams/base/dal_quinnen-williams_base_v001",
+      "rigArchetype": "dt-thick-explosive",
+      "neutralPose": "thick explosive interior-defender stance with broad base, low hips and relaxed powerful hands",
+      "productionNotes": ["Preserve #92 and captain-compatible chest layout.", "Retain dense interior-power silhouette with shoulder, elbow and hip range for shed and rush actions.", "Use generic sack/turnover reaction until a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-92-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "kavontae-turpin",
+      "name": "KaVontae Turpin",
+      "position": "WR/RET",
+      "number": "9",
+      "height": "5-7",
+      "weightLbs": 158,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/kavontae-turpin/",
+      "officialImageLabel": "Turpin_KaVontae-HS23",
+      "baseAsset": "DAL/kavontae-turpin/base/dal_kavontae-turpin_base_v001",
+      "rigArchetype": "returner-compact-speed",
+      "neutralPose": "compact light-footed speed stance with slight forward lean, relaxed arms and centered balance",
+      "productionNotes": ["Preserve #9.", "Do not normalize away his materially smaller 5-7/158 build; retain recognizable compact speed silhouette inside the shared Gamecast box.", "Rig hips, ankles and shoulders for return acceleration, sharp open-field cuts and receiving actions; no invented named celebration."],
+      "qa": ["official-headshot-reviewed-before-render", "number-9-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "daron-bland",
+      "name": "DaRon Bland",
+      "position": "CB",
+      "number": "26",
+      "height": "6-2",
+      "weightLbs": 202,
+      "officialHeadshotPage": "https://www.dallascowboys.com/team/players-roster/daron-bland/",
+      "officialImageLabel": "daron-bland-hs",
+      "baseAsset": "DAL/daron-bland/base/dal_daron-bland_base_v001",
+      "rigArchetype": "cb-tall-athletic",
+      "neutralPose": "tall athletic defensive-back stance with light knee bend, square hips and hands relaxed near frame",
+      "productionNotes": ["Preserve #26.", "Maintain tall athletic CB proportions through backpedal, hip turn, break-on-ball and interception-return clips.", "Use generic turnover celebration unless a repeatable player-specific signature is verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-26-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    }
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This batch establishes reusable base assets/specifications only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-15",
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "notes": ["Current official Dallas player pages were rechecked before this batch for roster identity, number, build and current headshot labels where exposed.", "Javonte Williams is #33 at 5-10/222; KaVontae Turpin is #9 at 5-7/158; DaRon Bland is #26 at 6-2/202; Quinnen Williams is #92 at 6-3/303.", "Jake Ferguson remains the current Dallas tight end reference for this batch; his existing locked appearance record remains authoritative for visual rendering.", "No MLB or NHL integration files are part of this batch."]
+  }
+}
