@@ -114,10 +114,10 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920,conceptV921,conceptV922,conceptV923] = await Promise.all([
+      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920,conceptV921,conceptV922,conceptV923,conceptV924] = await Promise.all([
         import('./mlb/live-game-switcher-v901.js?v=90.22'),
         import('./mlb/player-modal-parity-v901.js?v=90.2'),
-        import('./mlb/playstage-v901.js?v=90.45'),
+        import('./mlb/playstage-v901.js?v=90.46'),
         import('./mlb/playstage-concept-v904.js?v=90.4'),
         import('./mlb/playstage-concept-v905.js?v=90.51'),
         import('./mlb/playstage-concept-v906.js?v=90.60'),
@@ -135,7 +135,8 @@ async function swapView(active) {
         import('./mlb/playstage-concept-v920-mobile.js?v=92.00'),
         import('./mlb/playstage-concept-v921-mobile.js?v=92.10'),
         import('./mlb/playstage-concept-v922-desktop.js?v=92.20'),
-        import('./mlb/playstage-concept-v923-desktop-tabs.js?v=92.30')
+        import('./mlb/playstage-concept-v923-desktop-tabs.js?v=92.30'),
+        import('./mlb/playstage-concept-v924-desktop-fit.js?v=92.40')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
@@ -158,6 +159,7 @@ async function swapView(active) {
       conceptV921.installMlbPlaystageConceptV921Mobile?.();
       conceptV922.installMlbPlaystageConceptV922Desktop?.();
       conceptV923.installMlbPlaystageConceptV923DesktopTabs?.();
+      conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
     }

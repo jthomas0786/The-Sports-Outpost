@@ -221,7 +221,16 @@ async function update(target,state){
  if(!target?.isConnected)return teardown(target);const gamePk=gamePkFor(target)||state.gamePk;if(!gamePk)return;state.gamePk=gamePk;
  state.abort?.abort();state.abort=new AbortController();
  try{const feed=await fetchFeed(gamePk,state.abort.signal);if(!target.isConnected)return;const slate=gameFromGlobals(gamePk);const snap=currentState(feed,slate);const shell=legacyShell(target);if(!shell)return;let root=shell.querySelector(`.${ROOT_CLASS}`);const id=playId(snap.play);const shouldAnimate=id&&id!==state.lastPlayId;
- shell.innerHTML=rootHTML(snap,{prePlay:shouldAnimate,panel:state.panel||'live'});root=shell.querySelector(`.${ROOT_CLASS}`);wireStageTabs(root,state);state.lastPlayId=id;if(shouldAnimate)setTimeout(()=>animatePlay(root,snap),120);
+ const mustRender=!root||!!shouldAnimate;
+ if(mustRender){
+   shell.innerHTML=rootHTML(snap,{prePlay:shouldAnimate,panel:state.panel||'live'});
+   root=shell.querySelector(`.${ROOT_CLASS}`);
+   wireStageTabs(root,state);
+   if(shouldAnimate)setTimeout(()=>animatePlay(root,snap),120);
+ }else if(root){
+   root.dataset.lastPollAt=String(Date.now());
+ }
+ if(id)state.lastPlayId=id;
  const live=!/final|game over|completed/i.test(String(snap.status||''));clearTimeout(state.timer);state.timer=setTimeout(()=>update(target,state),live?5000:30000);
  }catch(e){if(e?.name==='AbortError')return;clearTimeout(state.timer);state.timer=setTimeout(()=>update(target,state),10000);console.warn('[MLB PlayStage]',e);}
 }
