@@ -1,6 +1,6 @@
 import {applyLineups,rosterURL} from '../sports/nhl/lineups.js';
 import fs from 'node:fs/promises';
-import {API,getJSON,loadScoreboard,mergeSummary,athlete} from '../sports/nhl/data.js';
+import {API,getJSON,loadScoreboard,mergeSummary,athlete,dedupeSlatePlayers} from '../sports/nhl/data.js';
 const flag=name=>{const i=process.argv.indexOf(name);return i<0?null:process.argv[i+1];};
 const out=flag('--out')||'slates/nhl.json';
 const doc=await loadScoreboard(flag('--date'));
@@ -22,6 +22,7 @@ for(const game of doc.games){
  }
  Object.assign(game,applyLineups(game,evidence));
 }
+dedupeSlatePlayers(doc.games);
 await fs.mkdir(out.split('/').slice(0,-1).join('/')||'.',{recursive:true});
 await fs.writeFile(out,JSON.stringify(doc,null,2)+'\n');
-console.log(`NHL ${doc.date}: ${doc.games.length} games, ${doc.games.reduce((n,g)=>n+g.players.length,0)} player entries`);
+console.log(`NHL ${doc.date}: ${doc.games.length} games, ${doc.games.reduce((n,g)=>n+g.players.length,0)} player entries, ${doc.games.reduce((n,g)=>n+g.players.filter(p=>p.propsEligible!==false).length,0)} Props-eligible`);

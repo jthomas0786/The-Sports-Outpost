@@ -2,17 +2,40 @@ export const API='https://site.api.espn.com/apis/site/v2/sports/hockey/nhl';
 export const num=v=>v==null||v===''||v==='--'?null:Number.isFinite(Number(v))?Number(v):null;
 export const text=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export const imageUrl=u=>/^https:\/\//.test(String(u||''))?u:'';
-export const easternDate=(now=Date.now())=>new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(now);
+export const normalizeSlateDate=value=>{const m=String(value??'').trim().match(/^(\d{4})-?(\d{2})-?(\d{2})$/);return m?`${m[1]}-${m[2]}-${m[3]}`:'';};
+export const easternDate=(value=Date.now())=>{const date=value instanceof Date?value:new Date(value);return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(Number.isNaN(date.getTime())?new Date():date);};
+const playerKey=p=>p?.id?`${p.team||''}:${p.id}`:`${p?.team||''}:${String(p?.name||'').trim().toLowerCase()}`;
+const propsCandidateScore=(p,g)=>Number(Boolean(g?.status==='in'||g?.status==='post'))*8+Number(Boolean(p?.lineupConfirmed))*6+Number(Boolean(p?.confirmedStarter||p?.currentGoalie))*4+Number(p?.active!==false)+Number(Boolean(p?.current&&Object.values(p.current).some(v=>v!=null)))*5;
+export function dedupeSlatePlayers(games=[]){
+ for(const game of games){
+  const unique=new Map();
+  for(const p of game.players||[]){const key=playerKey(p);if(!key)continue;const prev=unique.get(key);if(!prev||propsCandidateScore(p,game)>propsCandidateScore(prev,game))unique.set(key,p);}
+  game.players=[...unique.values()];
+  for(const p of game.players)p.propsEligible=true;
+ }
+ const chosen=new Map();
+ for(const game of games){
+  for(const p of game.players||[]){
+   const key=playerKey(p);if(!key)continue;const prev=chosen.get(key);
+   if(!prev){chosen.set(key,{p,game});continue;}
+   if(propsCandidateScore(p,game)>propsCandidateScore(prev.p,prev.game)){prev.p.propsEligible=false;chosen.set(key,{p,game});}
+   else p.propsEligible=false;
+  }
+ }
+ return games;
+}
 export function athlete(a,team,gameId){return {id:String(a.id),gameId,team,name:a.displayName||a.fullName||'Player',position:a.position?.abbreviation||'',photo:imageUrl(a.headshot?.href),active:a.active!==false&&!a.scratched&&!/^(out|injured reserve|suspended)$/i.test(a.injuries?.[0]?.status||''),availability:a.scratched?'Scratched':a.injuries?.[0]?.status||'Lineup unconfirmed'};}
-export function normalizeScoreboard(doc,now=Date.now()){
- const games=(doc.events||[]).map(e=>{
+export function normalizeScoreboard(doc,now=Date.now(),requestedDate=null){
+ const events=doc.events||[],requested=normalizeSlateDate(requestedDate),feedDate=normalizeSlateDate(doc.day?.date||doc.date),firstDate=events.find(e=>Number.isFinite(Date.parse(e?.date)))?.date;
+ const slateDate=requested||feedDate||(firstDate?easternDate(firstDate):easternDate(now));
+ const games=events.map(e=>{
   const c=e.competitions?.[0];if(!c)return null;
   const team=side=>{const t=c.competitors?.find(t=>t.homeAway===side);return t?{id:String(t.id),abbr:t.team?.abbreviation||'',name:t.team?.displayName||'',logo:imageUrl(t.team?.logo),score:num(t.score),shots:num(t.statistics?.find(s=>s.name==='shotsTotal')?.displayValue),powerPlay:t.powerPlay===true}:null;};
   const away=team('away'),home=team('home');if(!away||!home)return null;
-  const status=c.status||e.status||{};
-  return {id:String(e.id),startTime:e.date,away,home,status:status.type?.state||'pre',detail:status.type?.shortDetail||'',period:num(status.period),clock:status.displayClock||'',seasonType:e.season?.type??doc.season?.type??null,venue:c.venue?.fullName||'',fetchedAt:now,players:[],goals:[],plays:[]};
- }).filter(Boolean);
- return {sport:'nhl',schemaVersion:1,generatedAt:new Date(now).toISOString(),season:doc.leagues?.[0]?.season?.displayName||'',date:games[0]?.startTime?easternDate(new Date(games[0].startTime)):easternDate(now),games};
+  const status=c.status||e.status||{},gameDate=e.date?easternDate(e.date):'';
+  return {id:String(e.id),startTime:e.date,slateDate:gameDate,away,home,status:status.type?.state||'pre',detail:status.type?.shortDetail||'',period:num(status.period),clock:status.displayClock||'',seasonType:e.season?.type??doc.season?.type??null,venue:c.venue?.fullName||'',fetchedAt:now,players:[],goals:[],plays:[]};
+ }).filter(g=>g&&g.slateDate===slateDate);
+ return {sport:'nhl',schemaVersion:1,generatedAt:new Date(now).toISOString(),season:doc.leagues?.[0]?.season?.displayName||'',date:slateDate,games};
 }
 export function mergeSummary(game,summary,now=Date.now()){
  const next={...game,players:[],goals:[],plays:[],summaryAt:now,onIce:summary.onIce||[]};
@@ -37,7 +60,7 @@ export function mergeSummary(game,summary,now=Date.now()){
  return next;
 }
 export async function getJSON(url){const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!r.ok)throw new Error(`Hockey feed HTTP ${r.status}`);return r.json();}
-export async function loadScoreboard(date=null){return normalizeScoreboard(await getJSON(`${API}/scoreboard${date?'?dates='+date.replaceAll('-',''):''}`));}
+export async function loadScoreboard(date=null){const selected=normalizeSlateDate(date);return normalizeScoreboard(await getJSON(`${API}/scoreboard${selected?'?dates='+selected.replaceAll('-',''):''}`),Date.now(),selected||null);}
 export function freshGame(g,now=Date.now()){return g.status==='in'&&Number.isFinite(g.fetchedAt)&&now-g.fetchedAt<=120000&&g.fetchedAt<=now+60000;}
 export function threats(doc,now=Date.now()){
  const alerts=[];
