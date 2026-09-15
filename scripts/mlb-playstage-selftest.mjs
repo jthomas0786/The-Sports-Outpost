@@ -76,7 +76,7 @@ assert.ok(conceptV915.includes('position:relative!important;width:100%!important
 assert.ok(conceptV915.includes('.ps-chibi.ps-runner{\n  opacity:0!important'),'runner role alone must remain hidden while idle');
 
 const router=fs.readFileSync(new URL('../sports/router.js',import.meta.url),'utf8');
-assert.ok(router.includes("./mlb/playstage-v901.js?v=90.45"),'Router must cache-bust MLB PlayStage');
+assert.ok(router.includes("./mlb/playstage-v901.js?v=90.46"),'Router must cache-bust MLB PlayStage');
 assert.ok(router.includes("./mlb/playstage-concept-v904.js?v=90.4"),'Router must load approved MLB concept');
 assert.ok(router.includes("./mlb/playstage-concept-v905.js?v=90.51"),'Router must load v905 MLB concept');
 assert.ok(router.includes("./mlb/playstage-concept-v915.js?v=91.55"),'Router must load the corrected v915 field layer');
