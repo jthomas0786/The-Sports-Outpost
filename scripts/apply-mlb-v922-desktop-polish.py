@@ -29,7 +29,11 @@ router.write_text(s)
 
 index=Path('index.html')
 i=index.read_text()
-i2,n=re.subn(r'\./sports/router\.js\?v=[A-Za-z0-9._-]+','./sports/router.js?v=90.49',i,count=1)
-if n!=1:
+pat=r'\./sports/router\.js\?v=(\d+)\.(\d+)'
+m=re.search(pat,i)
+if not m:
     raise SystemExit('index router cache marker missing')
-index.write_text(i2)
+current=(int(m.group(1)),int(m.group(2)))
+if current < (90,49):
+    i=re.sub(pat,'./sports/router.js?v=90.49',i,count=1)
+index.write_text(i)
