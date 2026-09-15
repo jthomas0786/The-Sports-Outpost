@@ -7,13 +7,16 @@ on:
       - 'sports/router.js'
       - 'sports/nfl-preview*.js'
       - 'sports/nfl/command-center*.js'
+      - 'sports/nfl/watchlist-*.js'
       - 'sports/nfl/halftime-*.js'
       - 'sports/nfl/live.js'
       - 'sports/nfl/td-scorer.js'
       - 'sports/nfl/prop-watch.js'
       - 'scripts/nfl-prop-watch-selftest.mjs'
       - 'scripts/nfl-td-push-selftest.mjs'
+      - 'scripts/nfl-watchlist-push-selftest.mjs'
       - 'scripts/lib/nfl-touchdowns.mjs'
+      - 'scripts/lib/nfl-watchlist-events.mjs'
       - 'sw.js'
       - 'scripts/nfl-td-scorer-selftest.mjs'
       - 'sports/nfl/sim/**'
@@ -35,10 +38,13 @@ jobs:
         run: |
           node --check sports/nfl/command-center.js
           node --check sports/nfl/command-center-client.js
+          node --check sports/nfl/watchlist-v910.js
           node --check sports/nfl/halftime-ui-v884.js
           node --check sports/nfl/halftime-optimizer-v884.js
           node --check sports/nfl/halftime-validity.js
           node --check sports/nfl-preview.js
+          node --check scripts/nfl-td-push.mjs
+          node --check scripts/lib/nfl-watchlist-events.mjs
           node --check scripts/nfl-sim-auto-selftest.mjs
       - name: NFL user flow replay tests
         run: |
@@ -46,6 +52,7 @@ jobs:
           node scripts/nfl-td-scorer-selftest.mjs
           node scripts/nfl-prop-watch-selftest.mjs
           node scripts/nfl-td-push-selftest.mjs
+          node scripts/nfl-watchlist-push-selftest.mjs
       - name: Simulation and halftime regressions
         run: |
           npm run nfl:sim:test
