@@ -1,26 +1,14 @@
-const OWNER_USER_ID = '0fef34ee-da55-4abb-aced-98f26a177113';
-const SUPABASE_REF = 'hjhfbhpuuxnrexddplxd';
+const OWNER_USERNAME = 'justcallme_jt';
 const SUPABASE_URL = 'https://hjhfbhpuuxnrexddplxd.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaGZiaHB1dXhucmV4ZGRwbHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY5ODQsImV4cCI6MjEwMjA3Mjk4NH0.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJIUzI1NiIsInR5cCI6IkpXVCJ9';
 
 let ownerAllowed = false;
 let authClientPromise = null;
 let refreshPromise = null;
 let observer = null;
 
-function sessionUserIdFromStorage() {
-  try {
-    const exact = `sb-${SUPABASE_REF}-auth-token`;
-    const keys = [exact, ...Object.keys(localStorage).filter(k => k.includes(SUPABASE_REF) && k.includes('auth-token'))];
-    for (const key of [...new Set(keys)]) {
-      const raw = localStorage.getItem(key);
-      if (!raw) continue;
-      const parsed = JSON.parse(raw);
-      const id = parsed?.user?.id || parsed?.currentSession?.user?.id || parsed?.session?.user?.id;
-      if (id) return id;
-    }
-  } catch {}
-  return '';
+function normalizeUsername(value) {
+  return String(value || '').trim().replace(/^@/, '').toLowerCase();
 }
 
 async function getAuthClient() {
@@ -35,12 +23,22 @@ async function getAuthClient() {
 }
 
 async function resolveOwnerAccess() {
-  const storedId = sessionUserIdFromStorage();
-  if (storedId) return storedId === OWNER_USER_ID;
   try {
     const client = await getAuthClient();
-    const { data } = await client.auth.getSession();
-    return data?.session?.user?.id === OWNER_USER_ID;
+    const { data: sessionData } = await client.auth.getSession();
+    const userId = sessionData?.session?.user?.id;
+    if (!userId) return false;
+
+    // Authorize from the canonical profiles row, not editable user_metadata and
+    // not a hard-coded auth UUID. This keeps the private preview tied to the
+    // signed-in @justcallme_jt profile even if the account/session is refreshed.
+    const { data: profile, error } = await client
+      .from('profiles')
+      .select('username')
+      .eq('id', userId)
+      .maybeSingle();
+    if (error || !profile) return false;
+    return normalizeUsername(profile.username) === OWNER_USERNAME;
   } catch {
     return false;
   }
@@ -69,9 +67,12 @@ function ensureStyles() {
 }
 
 function findNflTabRow(root) {
-  const realTab = root.querySelector('[data-nfl-tab]');
+  // The current NFL Gamecast uses .nxg-tabs/.nxg-tab; older NFL surfaces used
+  // data-nfl-tab and .nfl-tabs. Support both so the private control survives
+  // Gamecast remounts and future tab-shell upgrades.
+  const realTab = root.querySelector('[data-nfl-tab], .nxg-tab');
   if (realTab?.parentElement) return realTab.parentElement;
-  return root.querySelector('.nfl-tabs,.nfl-preview-tabs,.nfl-nav,[role="tablist"]');
+  return root.querySelector('.nxg-tabs,.nfl-tabs,.nfl-preview-tabs,.nfl-nav,[role="tablist"]');
 }
 
 function removePrivateUi() {
@@ -88,12 +89,14 @@ function installButton(root) {
   const tabs = findNflTabRow(root);
   if (!tabs) return;
 
-  const exemplar = tabs.querySelector('[data-nfl-tab], button');
+  const exemplar = tabs.querySelector('[data-nfl-tab], .nxg-tab, button');
   const b = document.createElement('button');
   b.id = 'nflChibiPreviewBtn';
   b.type = 'button';
   b.className = exemplar?.className || 'nfl-tab';
+  b.classList.remove('active');
   b.removeAttribute('data-nfl-tab');
+  b.removeAttribute('data-tab');
   b.setAttribute('data-private-chibi-preview', 'true');
   b.textContent = 'Chibi Preview';
   b.addEventListener('click', openPreview);
