@@ -1,0 +1,123 @@
+name: One-time Chibi Preview owner session v904
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-chibi-owner-session-v904.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Use existing signed-in social profile for Chibi access
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          social_p = Path('social.js')
+          preview_p = Path('sports/nfl/chibi-preview-private-v901.js')
+          router_p = Path('sports/router.js')
+          index_p = Path('index.html')
+
+          social = social_p.read_text()
+          preview = preview_p.read_text()
+          router = router_p.read_text()
+          index = index_p.read_text()
+
+          getter = "window.DW_getCurrentSocialUsername = () => currentUser?.username || '';"
+          if getter not in social:
+              social, n = re.subn(
+                  r"(let currentUser = null;[^\n]*\n)",
+                  r"\1" + getter + "\n",
+                  social,
+                  count=1,
+              )
+              if n != 1:
+                  raise SystemExit('currentUser declaration not found in social.js')
+          social_p.write_text(social)
+
+          old = re.compile(
+              r"async function resolveOwnerAccess\(\) \{\n"
+              r"  try \{\n"
+              r"    const client = await getAuthClient\(\);.*?"
+              r"  \} catch \{\n"
+              r"    return false;\n"
+              r"  \}\n"
+              r"\}",
+              re.S,
+          )
+          replacement = """async function resolveOwnerAccess() {
+  const username = window.DW_getCurrentSocialUsername?.();
+  return normalizeUsername(username) === OWNER_USERNAME;
+}"""
+          preview, n = old.subn(replacement, preview, count=1)
+          if n != 1:
+              raise SystemExit('existing Chibi owner resolver not found')
+
+          install_old = "export function installNflChibiPreviewPrivateV901() {\n  refreshAccess();"
+          install_new = """export function installNflChibiPreviewPrivateV901() {
+  refreshAccess();
+  let authRetries = 0;
+  const authRetryTimer = setInterval(() => {
+    if (ownerAllowed || ++authRetries >= 15) {
+      clearInterval(authRetryTimer);
+      return;
+    }
+    refreshAccess();
+  }, 1000);"""
+          if install_old not in preview:
+              raise SystemExit('Chibi installer entry not found')
+          preview = preview.replace(install_old, install_new, 1)
+          preview_p.write_text(preview)
+
+          router, n = re.subn(
+              r"(chibi-preview-private-v901\.js\?v=)[A-Za-z0-9._-]+",
+              r"\g<1>90.4",
+              router,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit('Chibi router import not found')
+          router_p.write_text(router)
+
+          index, n = re.subn(
+              r"(\./sports/router\.js\?v=)[A-Za-z0-9._-]+",
+              r"\g<1>90.56",
+              index,
+              count=1,
+          )
+          if n != 1:
+              raise SystemExit('outer router marker not found')
+          index_p.write_text(index)
+          print('Chibi Preview now uses the app social session; cache chain -> chibi 90.4 / router 90.56')
+          PY
+
+          node --check social.js
+          node --check sports/nfl/chibi-preview-private-v901.js
+          node --check sports/router.js
+
+      - name: Commit owner-session fix
+        run: |
+          git config user.name 'TSO Chibi Preview Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add social.js sports/nfl/chibi-preview-private-v901.js sports/router.js index.html
+          git diff --staged --quiet && echo 'No owner-session change needed' && exit 0
+          git commit -m 'Fix private NFL Chibi Preview owner session v904'
+          for attempt in 1 2 3 4 5; do
+            if git push; then
+              exit 0
+            fi
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+            sleep $((attempt * 2))
+          done
+          echo '::error::could not push owner-session fix'
+          exit 1
