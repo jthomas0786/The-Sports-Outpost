@@ -1,5 +1,5 @@
 import { optimizeHalftimeParlay, evaluateCombination, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=89.20';
-import { halftimeBoardCurrent } from './halftime-validity.js?v=89.36';
+import { halftimeBoardCurrent } from './halftime-validity.js?v=89.38';
 
 let pollTimer=null,liveSnapshotSyncArmed=false;
 let currentDoc=null;
@@ -187,6 +187,24 @@ export function halftimeGamecastBannerHTML(g,doc,liveGames=[]){
   return `<section class="tso-ht-gamecast-banner pending" data-tso-halftime-gamecast><div><strong>◐ ${phase}</strong><span>${note}</span></div><button type="button" data-nfl-halftime-open>Open Lab</button></section>`;
 }
 
+function publishedLiveGames(doc){
+  const rows=doc?.games&&typeof doc.games==='object'?Object.entries(doc.games):[];
+  return rows.map(([id,g])=>({
+    id:String(id),gameId:String(id),
+    status:g?.status||'',statusDetail:g?.statusDetail||'',detail:g?.detail||'',
+    period:g?.period,clockMin:g?.clockMin,clock:g?.clock||'',lastFetchedAt:g?.lastFetchedAt??doc?.lastFetchedAt??null,
+    away:{abbr:g?.awayAbbr||'AWY',score:g?.awayScore},home:{abbr:g?.homeAbbr||'HOME',score:g?.homeScore},
+    liveScore:{...g,lastFetchedAt:g?.lastFetchedAt??doc?.lastFetchedAt??null}
+  }));
+}
+async function fetchPublishedLiveGames(){
+  try{
+    const r=await fetch(`./slates/nfl-live.json?t=${Date.now()}`,{cache:'no-store'});
+    if(!r.ok)return [];
+    return publishedLiveGames(await r.json());
+  }catch{return [];}
+}
+
 export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){
   armLiveSnapshotSync();
   if(pollTimer)return;
@@ -194,7 +212,11 @@ export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){
     refreshOpenDrawer();
     if(document.hidden||window.DW_SPORT!=='nfl')return;
     try{
-      const r=await fetch(`./slates/nfl-halftime.json?t=${Date.now()}`,{cache:'no-store'});
+      const [r,published]=await Promise.all([
+        fetch(`./slates/nfl-halftime.json?t=${Date.now()}`,{cache:'no-store'}),
+        fetchPublishedLiveGames()
+      ]);
+      if(published.length)syncLiveGames(published);
       if(!r.ok)return;
       const d=await r.json();if(!Array.isArray(d?.games))return;
       currentDoc=d;onUpdate?.(d);refreshOpenDrawer();
@@ -204,7 +226,11 @@ export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){
 }
 async function latestDoc(fallback){
   try{
-    const r=await fetch(`./slates/nfl-halftime.json?t=${Date.now()}`,{cache:'no-store'});
+    const [r,published]=await Promise.all([
+      fetch(`./slates/nfl-halftime.json?t=${Date.now()}`,{cache:'no-store'}),
+      fetchPublishedLiveGames()
+    ]);
+    if(published.length)syncLiveGames(published);
     if(r.ok){const d=await r.json();if(Array.isArray(d?.games)){currentDoc=d;return d;}}
   }catch{}
   return currentDoc||fallback||{games:[]};

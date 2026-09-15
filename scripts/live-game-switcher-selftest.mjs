@@ -97,7 +97,7 @@ assert.ok(possessionBall.includes("root.querySelectorAll('.nxg-possession-ball')
 assert.ok(possessionBall.includes("const active=valid==='away'?away:valid==='home'?home:null"),'Possession renderer must select exactly one active team');
 assert.ok(possessionBall.includes("snap.possession==='away'||snap.possession==='home'"));
 assert.ok(router.includes("./mlb/live-game-switcher-v901.js?v=90.22"));
-assert.ok(router.includes("./nfl-preview-v893.js?v=89.37"));
+assert.ok(router.includes("./nfl-preview-v893.js?v=89.38"));
 assert.ok(router.includes("./nhl/view-v906.js?v=90.18"),'NHL live experience should remain untouched');
 
 console.log('Game selectors: live games render inline below the selector; NFL PlayStage guard stays installed; field position authority repairs the live LOS before Chibi motion; possession shows exactly one football aligned on the inside edge of the possessing team name; redundant MLB Live preview rail is hidden; idle state shows the next matchup; MLB Gamecast modal remains reserved for notification Watch actions');
