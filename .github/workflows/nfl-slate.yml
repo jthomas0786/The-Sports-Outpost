@@ -9,10 +9,12 @@ name: Build NFL slate
 
 on:
   schedule:
-    # NFL is a WEEKLY Tuesday→Monday product. The new weekly slate rolls once
-    # early Tuesday morning. 08:00 UTC is 03:00 Central during daylight time
-    # (02:00 Central in standard time — still safely after Monday Night Football).
+    # NFL is a WEEKLY Tuesday→Monday product. Primary roll is 08:00 UTC Tuesday
+    # (03:00 Central during daylight time). A 08:30 UTC catch-up protects against
+    # GitHub delaying/dropping a top-of-hour scheduled run; it skips automatically
+    # when the correct weekly slate already exists.
     - cron: '0 8 * * 2'
+    - cron: '30 8 * * 2'
     # Same-week Sunday refresh: updates roster/inactive context without creating
     # a new slate/week. The slateId remains the same until the next Tuesday roll.
     - cron: '0 16 * * 0'
@@ -21,6 +23,11 @@ on:
       date:
         description: 'Optional build date override (YYYY-MM-DD); blank = current NFL week'
         required: false
+  # Rebuild immediately whenever this workflow logic itself is repaired/changed.
+  # The generated slate commit does not touch this path, so this cannot loop.
+  push:
+    paths:
+      - '.github/workflows/nfl-slate.yml'
 
 permissions:
   contents: write
@@ -42,18 +49,87 @@ jobs:
         with:
           node-version: '20'
 
-      # No npm install needed — the adapter uses only Node's built-in fetch.
+      # ESPN's bare scoreboard can continue reporting the just-completed week on
+      # Tuesday morning. Resolve the target explicitly: when every current-week
+      # game is final, probe the next week and use it when ESPN has games there.
+      - name: Resolve current or upcoming NFL week
+        run: |
+          node <<'NODE'
+          const { appendFileSync } = require('node:fs');
+          const UA = 'okhttp/4.12.0';
+          const base = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard';
+          const get = async (url) => {
+            const r = await fetch(url, { headers: { 'User-Agent': UA } });
+            if (!r.ok) throw new Error(`ESPN ${r.status} for ${url}`);
+            return r.json();
+          };
 
+          const current = await get(base);
+          const season = current.leagues?.[0]?.season || {};
+          let year = Number(season.year || new Date().getUTCFullYear());
+          let type = Number(season.type?.id || 2);
+          let week = Number(season.week || 1);
+          let events = Array.isArray(current.events) ? current.events : [];
+
+          const isFinal = (event) => {
+            const status = event?.status?.type || event?.competitions?.[0]?.status?.type || {};
+            return status.completed === true || String(status.state || '').toLowerCase() === 'post';
+          };
+          const allFinal = events.length > 0 && events.every(isFinal);
+
+          if (allFinal && week > 0) {
+            const candidate = week + 1;
+            const nextUrl = `${base}?dates=${year}&seasontype=${type}&week=${candidate}`;
+            const next = await get(nextUrl);
+            if (Array.isArray(next.events) && next.events.length > 0) {
+              week = candidate;
+              events = next.events;
+              console.log(`Current ESPN week is fully final; advancing build target to week ${week}.`);
+            } else {
+              console.log(`Current week ${week} is final, but ESPN has no week ${candidate} games yet; keeping week ${week}.`);
+            }
+          }
+
+          appendFileSync(process.env.GITHUB_ENV, `NFL_SEASON=${year}\nNFL_SEASON_TYPE=${type}\nNFL_WEEK=${week}\nRUN_NFL_BUILD=true\n`);
+          console.log(`Resolved NFL target: season=${year} seasontype=${type} week=${week} (${events.length} games)`);
+          NODE
+
+      - name: Skip catch-up when primary weekly roll already succeeded
+        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 2'
+        run: |
+          node <<'NODE'
+          const { existsSync, readFileSync, appendFileSync } = require('node:fs');
+          const shortType = { '1': 'pre', '2': 'reg', '3': 'post' }[String(process.env.NFL_SEASON_TYPE)] || 'reg';
+          let fresh = false;
+          if (existsSync('slates/nfl.json')) {
+            try {
+              const s = JSON.parse(readFileSync('slates/nfl.json', 'utf8'));
+              fresh = Number(s.season) === Number(process.env.NFL_SEASON)
+                && Number(s.week) === Number(process.env.NFL_WEEK)
+                && String(s.seasonType) === shortType;
+            } catch {}
+          }
+          if (fresh) {
+            console.log(`Primary roll already produced ${process.env.NFL_SEASON} ${shortType} week ${process.env.NFL_WEEK}; catch-up is a no-op.`);
+            appendFileSync(process.env.GITHUB_ENV, 'RUN_NFL_BUILD=false\n');
+          } else {
+            console.log('Primary roll is missing/stale; catch-up will rebuild the weekly slate.');
+          }
+          NODE
+
+      # No npm install needed — the adapter uses only Node's built-in fetch.
       - name: Build the NFL slate
+        if: env.RUN_NFL_BUILD != 'false'
         run: |
           mkdir -p slates
           if [ -n "${{ inputs.date }}" ]; then
-            node build-slate.js --sport nfl --date "${{ inputs.date }}" --out slates/nfl.json --verbose
+            node build-slate.js --sport nfl --season "$NFL_SEASON" --seasontype "$NFL_SEASON_TYPE" --week "$NFL_WEEK" --date "${{ inputs.date }}" --out slates/nfl.json --verbose
           else
-            node build-slate.js --sport nfl --out slates/nfl.json --verbose
+            node build-slate.js --sport nfl --season "$NFL_SEASON" --seasontype "$NFL_SEASON_TYPE" --week "$NFL_WEEK" --out slates/nfl.json --verbose
           fi
 
       - name: Sanity check output
+        if: env.RUN_NFL_BUILD != 'false'
         run: |
           cat > /tmp/check-nfl.mjs << 'SCRIPT_EOF'
           import { readFileSync } from 'node:fs';
@@ -81,6 +157,17 @@ jobs:
           console.log('  status: ' + JSON.stringify(byStatus));
           console.log('  confidence: ' + JSON.stringify(s.rosters?.dataConfidence || {}));
 
+          if (Number(s.season) !== Number(process.env.NFL_SEASON) || Number(s.week) !== Number(process.env.NFL_WEEK)) {
+            console.error(`::error::builder returned ${s.season} week ${s.week}; expected ${process.env.NFL_SEASON} week ${process.env.NFL_WEEK}`);
+            process.exit(1);
+          }
+          // A Tuesday weekly roll must not silently republish a fully completed
+          // slate when ESPN already exposed the upcoming week.
+          if (s.games.length && s.games.every(g => g.status === 'post') && process.env.GITHUB_EVENT_NAME !== 'workflow_dispatch') {
+            console.error('::error::refusing to publish an all-final weekly slate');
+            process.exit(1);
+          }
+
           // An empty slate is legitimate in the offseason / on a bye day, but a
           // slate with games and no graded players means the roster join broke.
           if (s.games.length && players === 0) {
@@ -99,6 +186,7 @@ jobs:
           node /tmp/check-nfl.mjs
 
       - name: Commit if changed
+        if: env.RUN_NFL_BUILD != 'false'
         run: |
           git config user.name  'slate-bot'
           git config user.email 'actions@github.com'
