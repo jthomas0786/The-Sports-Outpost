@@ -34,15 +34,24 @@ try{
  await page.waitForFunction(()=>document.querySelectorAll('.ps-chibi[data-actor-kind="defender"]').length===9,{timeout:30000});
  await page.waitForTimeout(700);
  await page.evaluate(()=>{window.__v925Root=document.querySelector('.tso-mlb-playstage-v901');});
- const before=await page.evaluate(()=>{const q=s=>document.querySelector(s),r=e=>{const x=e.getBoundingClientRect();return{x:x.x,y:x.y,w:x.width,h:x.height,right:x.right,bottom:x.bottom}};const root=q('.tso-mlb-playstage-v901'),center=q('.ps-center'),stage=q('.ps-stage'),footer=q('.v923-game-footer'),banner=q('.ps-play-banner');return{root:r(root),center:r(center),stage:r(stage),footer:r(footer),banner:r(banner),docWidth:document.documentElement.scrollWidth,viewport:innerWidth,fit:root.dataset.desktopFit,gap:footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom};});
+ const before=await page.evaluate(()=>{const q=s=>document.querySelector(s),r=e=>{const x=e.getBoundingClientRect();return{x:x.x,y:x.y,w:x.width,h:x.height,right:x.right,bottom:x.bottom}};const root=q('.tso-mlb-playstage-v901'),center=q('.ps-center'),stage=q('.ps-stage'),footer=q('.v923-game-footer'),banner=q('.ps-play-banner');return{root:r(root),center:r(center),stage:r(stage),footer:r(footer),banner:r(banner),docWidth:document.documentElement.scrollWidth,viewport:innerWidth,fit:root.dataset.desktopFit,gapMode:root.dataset.footerGapMode||'',inlineFooterMarginTop:footer.style.marginTop||'',gap:footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom};});
  if(before.fit!=='v924')throw new Error('v924 fit layer missing');
+ if(before.gapMode!=='structural')throw new Error(`structural footer spacing mode missing ${JSON.stringify(before)}`);
+ if(before.inlineFooterMarginTop)throw new Error(`runtime footer margin write detected ${JSON.stringify(before)}`);
  if(before.docWidth>before.viewport+1)throw new Error(`horizontal overflow ${JSON.stringify(before)}`);
  if(before.center.w<before.root.w*.96||before.stage.w<before.root.w*.96)throw new Error(`field is not using full inner width ${JSON.stringify(before)}`);
  if(before.footer.right>before.root.right+1||before.footer.x<before.root.x-1||before.footer.bottom>before.root.bottom+1)throw new Error(`footer escapes root border ${JSON.stringify(before)}`);
- if(before.gap>24)throw new Error(`wasted vertical gap remains ${JSON.stringify(before)}`);
- await page.waitForTimeout(5600);
- const poll=await page.evaluate(()=>({same:window.__v925Root===document.querySelector('.tso-mlb-playstage-v901'),lastPoll:document.querySelector('.tso-mlb-playstage-v901')?.dataset.lastPollAt||'',fit:document.querySelector('.tso-mlb-playstage-v901')?.dataset.desktopFit||''}));
- if(!poll.same||!poll.lastPoll)throw new Error(`5-second poll replaced Gamecast root ${JSON.stringify(poll)}`);
+ if(before.gap>24||before.gap<2)throw new Error(`Live At-Bat/footer gap is not clean ${JSON.stringify(before)}`);
+ const gapSamples=[];
+ for(let i=0;i<28;i++){
+   gapSamples.push(await page.evaluate(()=>{const root=document.querySelector('.tso-mlb-playstage-v901'),footer=document.querySelector('.v923-game-footer'),banner=document.querySelector('.ps-play-banner');return{gap:footer&&banner?footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom:null,same:root===window.__v925Root,inline:footer?.style?.marginTop||'',mode:root?.dataset?.footerGapMode||''};}));
+   await page.waitForTimeout(200);
+ }
+ if(gapSamples.some(x=>!x.same||x.gap==null||x.inline||x.mode!=='structural'))throw new Error(`footer/root mutated during live polling ${JSON.stringify(gapSamples)}`);
+ const gaps=gapSamples.map(x=>x.gap),gapJitter=Math.max(...gaps)-Math.min(...gaps);
+ if(gapJitter>3)throw new Error(`Live At-Bat/footer gap jumps during polling (${gapJitter.toFixed(2)}px) ${JSON.stringify(gaps)}`);
+ const poll=await page.evaluate(()=>({same:window.__v925Root===document.querySelector('.tso-mlb-playstage-v901'),lastPoll:document.querySelector('.tso-mlb-playstage-v901')?.dataset.lastPollAt||'',fit:document.querySelector('.tso-mlb-playstage-v901')?.dataset.desktopFit||'',gapMode:document.querySelector('.tso-mlb-playstage-v901')?.dataset.footerGapMode||''}));
+ if(!poll.same||!poll.lastPoll||poll.gapMode!=='structural')throw new Error(`5-second poll destabilized Gamecast ${JSON.stringify(poll)}`);
  await page.screenshot({path:path.join(out,'mlb-v925-desktop-stable.png'),fullPage:true});
  await page.close();
 
@@ -58,6 +67,6 @@ try{
  await sel.waitForTimeout(250);
  const selector=await sel.evaluate(()=>{const s=document.querySelector('#tsoMlbLiveGameSwitcher select');return{same:s===window.__v925Select,value:s?.value,game:document.querySelector('#tsoMlbInlineGamecast')?.dataset.gamePk,options:s?.options?.length||0};});
  if(!selector.same||selector.value!=='1002'||selector.game!=='1002'||selector.options!==2)throw new Error(`game dropdown is unstable ${JSON.stringify(selector)}`);
- fs.writeFileSync(path.join(out,'mlb-v925-browser-qa.json'),JSON.stringify({layout:before,poll,selector},null,2));
- console.log('MLB v925 browser QA passed',JSON.stringify({layout:before,poll,selector}));
+ fs.writeFileSync(path.join(out,'mlb-v925-browser-qa.json'),JSON.stringify({layout:before,gapJitter,gapSamples,poll,selector},null,2));
+ console.log('MLB v925 browser QA passed',JSON.stringify({layout:before,gapJitter,poll,selector}));
 } finally {await browser.close();await new Promise(r=>server.close(r));fs.rmSync(layoutHarness,{force:true});fs.rmSync(selectorHarness,{force:true});}
