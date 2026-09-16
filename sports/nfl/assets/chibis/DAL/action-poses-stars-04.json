@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-04",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"Rashan Gary","slug":"rashan-gary","number":"7","position":"EDGE","priority":"starter","poses":[
+      {"action":"idle","silhouette":"powerful edge reset with shoulders square and hands relaxed","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"forward-loaded edge stance with explosive first-step posture","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"rush","silhouette":"compact get-off into controlled pass-rush track","durationMs":580,"loop":true,"eventTags":["pass_rush"]},
+      {"action":"speed-rush","silhouette":"low outside arc with reduced shoulder and balanced corner","durationMs":620,"loop":false,"eventTags":["pass_rush","speed_rush"]},
+      {"action":"power-rush","silhouette":"strong long-arm drive with hips under pads","durationMs":680,"loop":false,"eventTags":["pass_rush","power_rush"]},
+      {"action":"shed-block","silhouette":"violent but controlled hand clear into pursuit posture","durationMs":600,"loop":false,"eventTags":["block_shed"]},
+      {"action":"tackle","silhouette":"square wrap-and-drive finish with safe head placement","durationMs":730,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"sack","silhouette":"controlled quarterback close and wrap with readable finish","durationMs":820,"loop":false,"eventTags":["sack"]},
+      {"action":"pressure","silhouette":"closing rush stride with hands active in throwing lane","durationMs":620,"loop":false,"eventTags":["qb_pressure"]},
+      {"action":"forced-fumble","silhouette":"rush finish with visible strip path toward exposed football","durationMs":820,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"fumble-recovery","silhouette":"low secure scoop transitioning into protected possession","durationMs":800,"loop":false,"eventTags":["fumble_recovery"]},
+      {"action":"celebrate","silhouette":"generic high-energy defensive acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Alijah Clark","slug":"alijah-clark","number":"11","position":"S","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"compact safety reset with balanced feet","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"low two-way safety stance ready for run or pass","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"backpedal","silhouette":"smooth square pedal with shoulders level","durationMs":600,"loop":true,"eventTags":["coverage"]},
+      {"action":"deep-zone","silhouette":"controlled depth gain with hips open and vision inside","durationMs":650,"loop":true,"eventTags":["deep_zone"]},
+      {"action":"break-on-ball","silhouette":"sharp plant and downhill drive toward catch point","durationMs":560,"loop":false,"eventTags":["coverage_break"]},
+      {"action":"tackle","silhouette":"compact wrap finish with safe head placement","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"timed hand attack through receiver catch window","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"secure two-hand catch into immediate possession tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"open-field turnover return with protected ball carriage","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"legal wrap-and-punch finish with visible ball target","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic defensive acknowledgment; no named signature asserted","durationMs":1350,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Caleb Downs","slug":"caleb-downs","number":"13","position":"S","priority":"starter","poses":[
+      {"action":"idle","silhouette":"athletic safety reset with relaxed hands and balanced base","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"low versatile safety stance prepared to trigger downhill","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"backpedal","silhouette":"controlled square pedal with eyes inside","durationMs":600,"loop":true,"eventTags":["coverage"]},
+      {"action":"deep-zone","silhouette":"fluid depth gain with hips open and field vision maintained","durationMs":650,"loop":true,"eventTags":["deep_zone"]},
+      {"action":"break-on-ball","silhouette":"decisive plant and explosive downhill angle","durationMs":550,"loop":false,"eventTags":["coverage_break"]},
+      {"action":"tackle","silhouette":"square wrap with controlled drive through finish","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"timed hand-through-ball disruption at catch point","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"clean hands catch transitioning immediately to possession","durationMs":760,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"athletic turnover return with high-and-tight ball carriage","durationMs":590,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"controlled tackle path with clear punch at exposed ball","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"confident generic rookie defensive impact acknowledgment; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Markquese Bell","slug":"markquese-bell","number":"14","position":"S","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"upright safety reset with compact athletic base","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"balanced safety stance with run-support preload","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"backpedal","silhouette":"controlled pedal with quiet upper body","durationMs":600,"loop":true,"eventTags":["coverage"]},
+      {"action":"deep-zone","silhouette":"smooth depth gain maintaining inside vision","durationMs":650,"loop":true,"eventTags":["deep_zone"]},
+      {"action":"break-on-ball","silhouette":"hard plant into direct pursuit angle","durationMs":560,"loop":false,"eventTags":["coverage_break"]},
+      {"action":"tackle","silhouette":"physical but safe wrap finish with feet driving","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"late hand attack through catch window","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"secure catch with immediate ball tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"direct turnover return with football protected","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"wrap tackle with controlled ball punch","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic defensive/special-teams acknowledgment; no named signature asserted","durationMs":1350,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Sam Howell","slug":"sam-howell","number":"16","position":"QB","priority":"backup","poses":[
+      {"action":"idle","silhouette":"relaxed quarterback reset with ball-ready hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"pre-snap","silhouette":"balanced shotgun-ready posture scanning defense","durationMs":700,"loop":true,"eventTags":["pre_snap","qb_ready"]},
+      {"action":"dropback","silhouette":"compact controlled drop with ball at chest carriage","durationMs":650,"loop":false,"eventTags":["dropback"]},
+      {"action":"throw-short","silhouette":"quick compact release with front shoulder on target","durationMs":720,"loop":false,"eventTags":["pass_attempt","short_pass"]},
+      {"action":"throw-deep","silhouette":"full weight-transfer throwing motion with high release","durationMs":860,"loop":false,"eventTags":["pass_attempt","deep_pass"]},
+      {"action":"scramble","silhouette":"quarterback run posture with football secured high and tight","durationMs":600,"loop":true,"eventTags":["qb_scramble"]},
+      {"action":"slide","silhouette":"feet-first controlled slide preserving projected ground anchor","durationMs":760,"loop":false,"eventTags":["qb_slide","play_end"]},
+      {"action":"sack-reaction","silhouette":"controlled contact reaction protecting ball and avoiding limb clipping","durationMs":800,"loop":false,"eventTags":["sacked","play_end"]},
+      {"action":"kneel","silhouette":"one-knee victory-formation finish with football secured","durationMs":700,"loop":false,"eventTags":["kneel"]},
+      {"action":"spike","silhouette":"clear downward football spike immediately after play reset","durationMs":720,"loop":false,"eventTags":["spike"]},
+      {"action":"first-down-celebration","silhouette":"restrained generic first-down acknowledgment; no named signature asserted","durationMs":1200,"loop":false,"eventTags":["first_down","celebration"]},
+      {"action":"touchdown-celebration","silhouette":"team-facing generic touchdown acknowledgment; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["touchdown","celebration"]}
+    ]}
+  ],
+  "verification": {
+    "checkedAt":"2026-09-16",
+    "officialRosterSource":"https://www.dallascowboys.com/team/players-roster/",
+    "officialRosterSnapshotSource":"https://www.dallascowboys.com/news/zero-to-100-here-s-your-2026-dallas-cowboys-roster",
+    "notes":[
+      "Dallas official 2026 roster material was rechecked immediately before production.",
+      "Official current material confirms Gary #7 EDGE, Clark #11 S, Downs #13 S, Bell #14 S and Howell #16 QB on the Dallas roster.",
+      "Locked official-current-headshot references remain the sole authority for visible appearance and skin tone.",
+      "No named player-specific signature celebration is asserted in this batch."
+    ]
+  },
+  "qa": {
+    "requirements":[
+      "Every pose action must exist in the player's roster.json action inventory.",
+      "Locked face, skin tone, hair/facial hair, jersey number, scale and foot anchor may not drift between actions.",
+      "Ball-possession transitions must remain continuous.",
+      "Contact poses must avoid impossible limb intersections.",
+      "Transparent alpha edges must remain clean at Gamecast scale.",
+      "Quarterback throw and ball-release geometry must remain readable and consistent across short/deep actions."
+    ],
+    "status":"specified"
+  }
+}
