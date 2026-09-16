@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-05",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"Jonathan Mingo","slug":"jonathan-mingo","number":"18","position":"WR","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"balanced receiver reset with relaxed hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"split receiver stance with forward-ready weight","durationMs":700,"loop":true,"eventTags":["pre_snap","receiver_ready"]},
+      {"action":"release","silhouette":"compact first-step release clearing press leverage","durationMs":520,"loop":false,"eventTags":["route_release"]},
+      {"action":"route-run","silhouette":"upright accelerating route stride with readable hip turn","durationMs":600,"loop":true,"eventTags":["route"]},
+      {"action":"catch","silhouette":"two-hand catch into immediate chest tuck","durationMs":720,"loop":false,"eventTags":["reception"]},
+      {"action":"contested-catch","silhouette":"strong elevated catch point with ball secured away from defender","durationMs":820,"loop":false,"eventTags":["reception","contested_catch"]},
+      {"action":"run-after-catch","silhouette":"powerful forward run with high-and-tight ball carriage","durationMs":590,"loop":true,"eventTags":["yards_after_catch"]},
+      {"action":"juke","silhouette":"single hard plant and lateral cut while maintaining ball security","durationMs":650,"loop":false,"eventTags":["juke"]},
+      {"action":"block","silhouette":"legal receiver stalk-block posture with hands inside","durationMs":700,"loop":true,"eventTags":["run_block"]},
+      {"action":"tackled","silhouette":"controlled contact fall retaining football through play end","durationMs":800,"loop":false,"eventTags":["tackled","play_end"]},
+      {"action":"first-down-celebration","silhouette":"generic confident first-down acknowledgment; no named signature asserted","durationMs":1250,"loop":false,"eventTags":["first_down","celebration"]},
+      {"action":"touchdown-celebration","silhouette":"generic team-facing touchdown acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["touchdown","celebration"]}
+    ]},
+    {"name":"Ryan Flournoy","slug":"ryan-flournoy","number":"19","position":"WR","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"athletic receiver reset with balanced feet","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"compact receiver stance ready for release","durationMs":700,"loop":true,"eventTags":["pre_snap","receiver_ready"]},
+      {"action":"release","silhouette":"quick first two steps with shoulders clear of press","durationMs":520,"loop":false,"eventTags":["route_release"]},
+      {"action":"route-run","silhouette":"efficient route stride with crisp change-of-direction posture","durationMs":590,"loop":true,"eventTags":["route"]},
+      {"action":"catch","silhouette":"clean hands catch transitioning immediately to tuck","durationMs":710,"loop":false,"eventTags":["reception"]},
+      {"action":"contested-catch","silhouette":"strong hands at elevated catch point with controlled landing","durationMs":820,"loop":false,"eventTags":["reception","contested_catch"]},
+      {"action":"run-after-catch","silhouette":"accelerating open-field stride with ball protected","durationMs":580,"loop":true,"eventTags":["yards_after_catch"]},
+      {"action":"juke","silhouette":"sharp lateral plant with torso balanced over hips","durationMs":640,"loop":false,"eventTags":["juke"]},
+      {"action":"block","silhouette":"square stalk-block with legal inside hand placement","durationMs":700,"loop":true,"eventTags":["run_block"]},
+      {"action":"tackled","silhouette":"controlled wrap-contact reaction maintaining ball security","durationMs":800,"loop":false,"eventTags":["tackled","play_end"]},
+      {"action":"first-down-celebration","silhouette":"generic energetic first-down acknowledgment; no named signature asserted","durationMs":1250,"loop":false,"eventTags":["first_down","celebration"]},
+      {"action":"touchdown-celebration","silhouette":"generic high-energy touchdown acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["touchdown","celebration"]}
+    ]},
+    {"name":"Caelen Carson","slug":"caelen-carson","number":"21","position":"CB","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"compact corner reset with light feet","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"press-stance","silhouette":"low press alignment with patient hands","durationMs":700,"loop":true,"eventTags":["pre_snap","press_coverage"]},
+      {"action":"backpedal","silhouette":"smooth square pedal with quiet shoulders","durationMs":600,"loop":true,"eventTags":["coverage"]},
+      {"action":"man-cover","silhouette":"trail-phase sprint with hips opened toward receiver","durationMs":590,"loop":true,"eventTags":["man_coverage"]},
+      {"action":"zone-break","silhouette":"decisive plant and drive toward ball trajectory","durationMs":560,"loop":false,"eventTags":["zone_break"]},
+      {"action":"tackle","silhouette":"square wrap finish with safe head placement","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"timed hand-through-ball disruption at catch point","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"secure two-hand catch into immediate possession tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"open-field turnover return with high-and-tight carriage","durationMs":590,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"legal wrap-and-punch finish with visible ball target","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic defensive acknowledgment; no named signature asserted","durationMs":1350,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Ameer Speed","slug":"ameer-speed","number":"23","position":"CB","priority":"special-teams-rotation","poses":[
+      {"action":"idle","silhouette":"tall corner reset with relaxed athletic base","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"press-stance","silhouette":"long-lever press alignment with controlled forward lean","durationMs":700,"loop":true,"eventTags":["pre_snap","press_coverage"]},
+      {"action":"backpedal","silhouette":"controlled long-stride pedal maintaining level shoulders","durationMs":610,"loop":true,"eventTags":["coverage"]},
+      {"action":"man-cover","silhouette":"long-stride trail phase with hips opened toward receiver","durationMs":590,"loop":true,"eventTags":["man_coverage"]},
+      {"action":"zone-break","silhouette":"high-to-low plant into direct ball pursuit angle","durationMs":570,"loop":false,"eventTags":["zone_break"]},
+      {"action":"tackle","silhouette":"controlled wrap tackle using length without limb clipping","durationMs":750,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"extended-arm ball disruption with body under control","durationMs":710,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"high-point two-hand catch transitioning to protected tuck","durationMs":770,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"long-stride turnover return with football secured","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"wrap-and-punch finish with visible ball target","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic defensive/special-teams acknowledgment; no named signature asserted","durationMs":1350,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Malik Hooker","slug":"malik-hooker","number":"24","position":"S","priority":"starter","poses":[
+      {"action":"idle","silhouette":"veteran safety reset with balanced base and relaxed hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"patient two-way safety stance with eyes inside","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"backpedal","silhouette":"smooth controlled pedal with shoulders square","durationMs":600,"loop":true,"eventTags":["coverage"]},
+      {"action":"deep-zone","silhouette":"fluid depth gain with hips open and field vision maintained","durationMs":650,"loop":true,"eventTags":["deep_zone"]},
+      {"action":"break-on-ball","silhouette":"decisive downhill plant toward catch point","durationMs":560,"loop":false,"eventTags":["coverage_break"]},
+      {"action":"tackle","silhouette":"veteran square wrap finish with safe head placement","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"timed hand attack through receiver catch window","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"secure two-hand takeaway transitioning to possession tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"controlled turnover return with ball protected high and tight","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"legal wrap tackle with controlled punch at exposed ball","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic veteran defensive acknowledgment; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]}
+  ],
+  "verification": {
+    "checkedAt":"2026-09-16",
+    "officialRosterSource":"https://www.dallascowboys.com/team/players-roster/",
+    "notes":[
+      "Dallas official current roster/player pages were rechecked immediately before production.",
+      "Official current pages confirm Mingo #18 WR, Flournoy #19 WR, Carson #21 CB, Speed #23 CB and Hooker #24 S.",
+      "Locked official-current-headshot references remain the sole authority for visible appearance and skin tone.",
+      "No named player-specific signature celebration is asserted in this batch."
+    ]
+  },
+  "qa": {
+    "requirements":[
+      "Every pose action must exist in the player's roster.json action inventory.",
+      "Locked face, skin tone, hair/facial hair, jersey number, scale and foot anchor may not drift between actions.",
+      "Ball-possession transitions must remain continuous.",
+      "Contact poses must avoid impossible limb intersections.",
+      "Transparent alpha edges must remain clean at Gamecast scale."
+    ],
+    "status":"specified"
+  }
+}
