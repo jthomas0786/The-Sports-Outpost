@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-11",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"Quinnen Williams","slug":"quinnen-williams","number":"92","position":"DT","priority":"primary-star","poses":[
+      {"action":"idle","silhouette":"compact elite interior defender reset with broad base and relaxed hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"low explosive three-technique stance with hips loaded and hands ready","durationMs":680,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"rush","silhouette":"violent first-step interior get-off with compact hand carriage and forward hip drive","durationMs":580,"loop":true,"eventTags":["pass_rush"]},
+      {"action":"bull-rush","silhouette":"square power drive with hips under pads and both hands inside blocker frame","durationMs":680,"loop":false,"eventTags":["pass_rush","interior_power"]},
+      {"action":"swim-move","silhouette":"tight lateral clear into arm-over finish without losing foot anchor readability","durationMs":620,"loop":false,"eventTags":["pass_rush","block_shed"]},
+      {"action":"shed-block","silhouette":"controlled two-hand discard into pursuit lane with believable blocker clearance","durationMs":600,"loop":false,"eventTags":["block_shed"]},
+      {"action":"run-stop","silhouette":"square gap-control finish with low hips, wide base and wrap-ready arms","durationMs":720,"loop":false,"eventTags":["run_stop","tackle"]},
+      {"action":"tackle","silhouette":"safe wrap-and-drive finish preserving clear two-character contact silhouette","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"sack","silhouette":"interior close-and-wrap quarterback finish with controlled descent","durationMs":820,"loop":false,"eventTags":["sack"]},
+      {"action":"pressure","silhouette":"closing interior rush stride with balanced reach and no impossible limb overlap","durationMs":620,"loop":false,"eventTags":["qb_pressure"]},
+      {"action":"forced-fumble","silhouette":"wrap-and-punch finish with explicit ball-target path and recoverable transition","durationMs":820,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"fumble-recovery","silhouette":"low two-hand scoop into chest-secured possession before rising","durationMs":800,"loop":false,"eventTags":["fumble_recovery"]},
+      {"action":"celebrate","silhouette":"confident defensive-impact acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Kenny Clark","slug":"kenny-clark","number":"97","position":"DT","priority":"veteran-starter","poses":[
+      {"action":"idle","silhouette":"veteran interior anchor reset with low center of gravity and wide stable feet","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"powerful nose/interior stance with weight centered for run or pass read","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"rush","silhouette":"compact interior surge with short efficient steps and active inside hands","durationMs":600,"loop":true,"eventTags":["pass_rush"]},
+      {"action":"bull-rush","silhouette":"heavy two-hand power fit with hips driving through a stable base","durationMs":700,"loop":false,"eventTags":["pass_rush","interior_power"]},
+      {"action":"shed-block","silhouette":"veteran lockout-and-discard with shoulders square to pursuit lane","durationMs":620,"loop":false,"eventTags":["block_shed"]},
+      {"action":"tackle","silhouette":"low wrap tackle with controlled momentum and readable contact envelope","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"sack","silhouette":"short-area power close with secure wrap and balanced finish","durationMs":840,"loop":false,"eventTags":["sack"]},
+      {"action":"pressure","silhouette":"pocket-collapse finish with hands active and body under control","durationMs":640,"loop":false,"eventTags":["qb_pressure"]},
+      {"action":"forced-fumble","silhouette":"secure wrap paired with clear legal punch path toward football","durationMs":840,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"fumble-recovery","silhouette":"wide-base drop and two-arm cover securing ball under torso","durationMs":820,"loop":false,"eventTags":["fumble_recovery"]},
+      {"action":"celebrate","silhouette":"restrained veteran defensive celebration; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"LT Overton","slug":"lt-overton","number":"99","position":"DT","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"athletic defensive-front reset with narrower base and relaxed active hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"balanced multiposition front stance loaded for interior or widened rush","durationMs":680,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"rush","silhouette":"quick first-step penetration with shoulders reduced and feet underneath frame","durationMs":560,"loop":true,"eventTags":["pass_rush"]},
+      {"action":"bull-rush","silhouette":"athletic power conversion from speed into inside-hand leverage","durationMs":660,"loop":false,"eventTags":["pass_rush","interior_power"]},
+      {"action":"shed-block","silhouette":"fast hand-clear into lateral pursuit with hips staying underneath torso","durationMs":590,"loop":false,"eventTags":["block_shed"]},
+      {"action":"tackle","silhouette":"mobile wrap tackle with controlled stride-to-contact transition","durationMs":710,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"sack","silhouette":"athletic close from penetration lane into secure quarterback wrap","durationMs":800,"loop":false,"eventTags":["sack"]},
+      {"action":"pressure","silhouette":"long closing stride with controlled reach and readable quarterback-space boundary","durationMs":610,"loop":false,"eventTags":["qb_pressure"]},
+      {"action":"forced-fumble","silhouette":"closing tackle with visible ball-targeting hand and stable contact geometry","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"fumble-recovery","silhouette":"athletic scoop with both hands securing football before acceleration","durationMs":780,"loop":false,"eventTags":["fumble_recovery"]},
+      {"action":"celebrate","silhouette":"generic high-energy defensive acknowledgment; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]}
+  ],
+  "verification": {
+    "checkedAt":"2026-09-16",
+    "officialRosterSource":"https://www.dallascowboys.com/team/players-roster/",
+    "officialRosterTransactionSource":"https://www.dallascowboys.com/news/cowboys-release-initial-53-man-roster-for-2026-season",
+    "notes":["Current official Dallas roster context was rechecked immediately before production.","Current Dallas sources identify Quinnen Williams #92, Kenny Clark #97 and LT Overton #99 as defensive tackles on the 2026 roster.","Current official player headshots remain the sole authority for visible appearance and skin tone; no trait is inferred from a name.","No unverified named signature celebration was introduced.","This batch closes the Dallas action-pose specification phase at 53/53 according to project tracking; signature-sequences is next."]
+  },
+  "qa": {
+    "requirements":["Every pose action must exist in the player's roster.json action inventory.","Locked face, skin tone, hair/facial hair, jersey number, scale and foot anchor may not drift between actions.","Interior-line contact poses must avoid impossible limb intersections and preserve believable leverage.","Forced-fumble and recovery transitions must preserve football continuity.","Transparent alpha edges must remain clean at Gamecast scale.","Named signature concepts require verified source authority."],
+    "status":"specified"
+  }
+}
