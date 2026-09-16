@@ -5,7 +5,10 @@ on:
     paths:
       - '.github/workflows/one-time-mlb-v924-footer-gap-polish.yml'
       - 'scripts/apply-mlb-v924-footer-gap-polish.py'
+      - 'scripts/mlb-v924-desktop-selftest.mjs'
       - 'scripts/mlb-v925-live-selector-selftest.mjs'
+      - 'scripts/mlb-v926-footer-stability-selftest.mjs'
+      - 'scripts/mobile-swipe-anywhere-selftest.mjs'
 permissions:
   contents: write
 jobs:
@@ -21,17 +24,19 @@ jobs:
           node-version: 22
       - name: Apply footer gap polish
         run: python3 scripts/apply-mlb-v924-footer-gap-polish.py
-      - name: Validate footer gap polish
+      - name: Validate shared navigation and MLB footer stability
         run: |
           node --check sports/mlb/playstage-concept-v924-desktop-fit.js
+          node scripts/mobile-swipe-anywhere-selftest.mjs
           node scripts/mlb-v924-desktop-selftest.mjs
           node scripts/mlb-v925-live-selector-selftest.mjs
+          node scripts/mlb-v926-footer-stability-selftest.mjs
       - name: Commit production polish
         run: |
           git config user.name 'TSO MLB v924 Polish Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add sports/mlb/playstage-concept-v924-desktop-fit.js sports/router.js index.html
-          git commit -m 'mlb: settle desktop footer gap after scaling' || exit 0
+          git commit -m 'mlb: stabilize desktop footer spacing' || exit 0
           for attempt in 1 2 3 4; do
             git pull --rebase origin main && git push origin HEAD:main && exit 0
             sleep 2
