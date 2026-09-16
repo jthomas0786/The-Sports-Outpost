@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-06",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"Israel Abanikanda","slug":"israel-abanikanda","number":"25","position":"RB","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"compact running-back reset with ball-side hand relaxed","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"balanced two-point backfield stance with weight ready downhill","durationMs":700,"loop":true,"eventTags":["pre_snap","runner_ready"]},
+      {"action":"handoff-receive","silhouette":"secure belly-pocket exchange with eyes pressing frontside","durationMs":560,"loop":false,"eventTags":["handoff"]},
+      {"action":"run","silhouette":"north-south acceleration with high-and-tight ball carriage","durationMs":580,"loop":true,"eventTags":["rush"]},
+      {"action":"cut","silhouette":"single decisive plant and downhill redirect without foot sliding","durationMs":620,"loop":false,"eventTags":["cut"]},
+      {"action":"juke","silhouette":"compact lateral displacement with shoulders selling opposite leverage","durationMs":650,"loop":false,"eventTags":["juke"]},
+      {"action":"stiff-arm","silhouette":"legal open-hand extension while ball stays protected away from contact","durationMs":700,"loop":false,"eventTags":["stiff_arm"]},
+      {"action":"catch","silhouette":"two-hand backfield catch flowing into immediate tuck","durationMs":700,"loop":false,"eventTags":["reception"]},
+      {"action":"pass-protect","silhouette":"square blitz pickup with inside hands and anchored hips","durationMs":700,"loop":true,"eventTags":["pass_protection"]},
+      {"action":"tackled","silhouette":"controlled wrap-contact fall retaining football through ground contact","durationMs":800,"loop":false,"eventTags":["tackled","play_end"]},
+      {"action":"first-down-celebration","silhouette":"generic composed first-down acknowledgment; no named signature asserted","durationMs":1250,"loop":false,"eventTags":["first_down","celebration"]},
+      {"action":"touchdown-celebration","silhouette":"generic teammate-facing touchdown acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["touchdown","celebration"]}
+    ]},
+    {"name":"Shavon Revel Jr.","slug":"shavon-revel-jr","number":"28","position":"CB","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"long corner reset with light feet and relaxed hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"press-stance","silhouette":"low patient press alignment using length without overreaching","durationMs":700,"loop":true,"eventTags":["pre_snap","press_coverage"]},
+      {"action":"backpedal","silhouette":"controlled pedal with level shoulders and feet under frame","durationMs":610,"loop":true,"eventTags":["coverage"]},
+      {"action":"man-cover","silhouette":"long-stride trail phase with hips opened toward receiver","durationMs":590,"loop":true,"eventTags":["man_coverage"]},
+      {"action":"zone-break","silhouette":"decisive plant and drive toward ball trajectory","durationMs":570,"loop":false,"eventTags":["zone_break"]},
+      {"action":"tackle","silhouette":"square wrap finish with safe head placement and no limb clipping","durationMs":750,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"length-driven hand-through-ball disruption at catch point","durationMs":710,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"high-point two-hand takeaway transitioning into possession tuck","durationMs":770,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"long-stride turnover return with ball secured high and tight","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"legal wrap-and-punch finish with visible ball target","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic defensive acknowledgment; no named signature asserted","durationMs":1350,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]},
+    {"name":"Hunter Luepke","slug":"hunter-luepke","number":"30","position":"FB","priority":"starter-role","poses":[
+      {"action":"idle","silhouette":"powerful fullback reset with square shoulders","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"compact backfield stance ready to lead or release","durationMs":700,"loop":true,"eventTags":["pre_snap","fullback_ready"]},
+      {"action":"lead-block","silhouette":"low-leverage lead fit with inside hands and driving base","durationMs":720,"loop":false,"eventTags":["lead_block","run_block"]},
+      {"action":"handoff-receive","silhouette":"secure downhill exchange with elbows closing around football","durationMs":560,"loop":false,"eventTags":["handoff"]},
+      {"action":"run","silhouette":"compact power stride with ball high and tight","durationMs":600,"loop":true,"eventTags":["rush"]},
+      {"action":"catch","silhouette":"soft two-hand catch into immediate protected tuck","durationMs":700,"loop":false,"eventTags":["reception"]},
+      {"action":"pass-protect","silhouette":"square blitz pickup with low hips and legal inside hand placement","durationMs":720,"loop":true,"eventTags":["pass_protection"]},
+      {"action":"tackled","silhouette":"controlled contact fall with football secured through play end","durationMs":820,"loop":false,"eventTags":["tackled","play_end"]},
+      {"action":"first-down-celebration","silhouette":"generic physical first-down acknowledgment; no named signature asserted","durationMs":1250,"loop":false,"eventTags":["first_down","celebration"]},
+      {"action":"touchdown-celebration","silhouette":"generic team-facing touchdown acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["touchdown","celebration"]}
+    ]},
+    {"name":"Emari Demercado","slug":"emari-demercado","number":"31","position":"RB","priority":"rotation","poses":[
+      {"action":"idle","silhouette":"compact runner reset with balanced feet","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"ready backfield stance with forward-loaded hips","durationMs":700,"loop":true,"eventTags":["pre_snap","runner_ready"]},
+      {"action":"handoff-receive","silhouette":"clean mesh-point exchange into immediate ball clamp","durationMs":560,"loop":false,"eventTags":["handoff"]},
+      {"action":"run","silhouette":"efficient accelerating stride with football protected","durationMs":570,"loop":true,"eventTags":["rush"]},
+      {"action":"cut","silhouette":"quick one-foot plant into sharp lane redirect","durationMs":610,"loop":false,"eventTags":["cut"]},
+      {"action":"juke","silhouette":"fast lateral fake with torso staying over base","durationMs":640,"loop":false,"eventTags":["juke"]},
+      {"action":"stiff-arm","silhouette":"controlled open-hand separation with ball protected opposite contact","durationMs":690,"loop":false,"eventTags":["stiff_arm"]},
+      {"action":"catch","silhouette":"two-hand receiving posture transitioning fluidly upfield","durationMs":690,"loop":false,"eventTags":["reception"]},
+      {"action":"pass-protect","silhouette":"balanced blitz pickup with inside hands and anchored feet","durationMs":700,"loop":true,"eventTags":["pass_protection"]},
+      {"action":"tackled","silhouette":"controlled wrap reaction preserving possession","durationMs":800,"loop":false,"eventTags":["tackled","play_end"]},
+      {"action":"first-down-celebration","silhouette":"generic energetic first-down acknowledgment; no named signature asserted","durationMs":1250,"loop":false,"eventTags":["first_down","celebration"]},
+      {"action":"touchdown-celebration","silhouette":"generic energetic touchdown acknowledgment; no named signature asserted","durationMs":1450,"loop":false,"eventTags":["touchdown","celebration"]}
+    ]},
+    {"name":"Jalen Thompson","slug":"jalen-thompson","number":"34","position":"S","priority":"starter","poses":[
+      {"action":"idle","silhouette":"veteran safety reset with balanced base and relaxed hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+      {"action":"stance","silhouette":"patient two-way safety stance with eyes inside","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+      {"action":"backpedal","silhouette":"smooth controlled pedal with shoulders square","durationMs":600,"loop":true,"eventTags":["coverage"]},
+      {"action":"deep-zone","silhouette":"fluid depth gain with hips open and field vision maintained","durationMs":650,"loop":true,"eventTags":["deep_zone"]},
+      {"action":"break-on-ball","silhouette":"decisive downhill plant and drive toward catch point","durationMs":560,"loop":false,"eventTags":["coverage_break"]},
+      {"action":"tackle","silhouette":"square veteran wrap finish with safe head placement","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+      {"action":"pass-breakup","silhouette":"timed hand attack through receiver catch window","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+      {"action":"interception","silhouette":"secure two-hand takeaway transitioning to possession tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+      {"action":"return","silhouette":"controlled turnover return with football protected high and tight","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+      {"action":"forced-fumble","silhouette":"legal wrap tackle with controlled punch at exposed ball","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+      {"action":"celebrate","silhouette":"generic veteran defensive acknowledgment; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+    ]}
+  ],
+  "verification": {
+    "checkedAt":"2026-09-16",
+    "officialRosterSource":"https://www.dallascowboys.com/team/players-roster/",
+    "notes":[
+      "Dallas official current roster/player pages were rechecked immediately before production.",
+      "Official current pages confirm Abanikanda #25 RB, Revel #28 CB, Luepke #30 FB, Demercado #31 RB and Thompson #34 S.",
+      "Locked official-current-headshot references remain the sole authority for visible appearance and skin tone.",
+      "No named player-specific signature celebration is asserted in this batch."
+    ]
+  },
+  "qa": {
+    "requirements":[
+      "Every pose action must exist in the player's roster.json action inventory.",
+      "Locked face, skin tone, hair/facial hair, jersey number, scale and foot anchor may not drift between actions.",
+      "Ball-possession transitions must remain continuous.",
+      "Contact poses must avoid impossible limb intersections.",
+      "Transparent alpha edges must remain clean at Gamecast scale."
+    ],
+    "status":"specified"
+  }
+}
