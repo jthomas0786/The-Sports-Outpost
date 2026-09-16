@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-03",
+  "season": 2026,
+  "purpose": "Runtime-neutral preload, cache, lifecycle, and recovery contract for the Dallas realistic 3D chibi library. This batch prepares production Gamecast consumption without modifying shared NFL runtime code or any MLB/NHL behavior.",
+  "dependsOn": ["./roster.json", "./gamecast-integration-01.json", "./gamecast-integration-02.json", "./signature-sequences-stars-01.json"],
+  "preloadPolicy": {
+    "initial": [
+      "Resolve only active DAL participants for the selected game from the authoritative Gamecast participant set.",
+      "Preload each resolved participant base asset before optional actions.",
+      "Preload only roster.json-listed actions likely for the player's participant role; never preload an archetype superset absent from roster.json.",
+      "Preload verified signature assets only for CeeDee Lamb and Von Miller and only from signature-sequences-stars-01.json."
+    ],
+    "priority": ["visible participant base", "current-play requested action", "next safe fallback action", "verified signature for eligible player", "remaining role-likely actions"],
+    "assetProbeOrder": ["webp", "png"],
+    "dedupeKey": "DAL:<player-slug>:<asset-kind>:<action-or-signature>:v001",
+    "crossTeamGuard": "A preload request is rejected unless canonical roster resolution returns team DAL."
+  },
+  "cachePolicy": {
+    "scope": "selected NFL game",
+    "immutableAssetKey": "resolved asset URL + versioned animation key",
+    "reuse": "Reuse decoded Dallas assets across plays in the same selected game; never re-decode solely because polling returned the same event.",
+    "eviction": [
+      "Evict transient action references after game change.",
+      "Release decoded Dallas assets when leaving the selected NFL game unless another active NFL Gamecast consumer holds the same immutable key.",
+      "Never evict or mutate MLB/NHL caches from Dallas lifecycle cleanup."
+    ],
+    "failureMemoization": "Memoize a missing candidate for the current immutable version during the selected game so repeated polling does not hammer the same missing URL; continue fallback resolution."
+  },
+  "lifecycle": {
+    "gameSelect": "Clear prior-game Dallas transient bindings, establish the new selected-game scope, then preload visible DAL participant bases.",
+    "playStart": "Resolve canonical participants and warm requested action candidates before transition selection when possible.",
+    "playUpdate": "Apply gamecast-integration-02 fingerprint and ordering guards; identical polling payloads cannot restart animation or duplicate preload work.",
+    "playEnd": "Return animated players to locked bottom-center anchors, release transient possession, retain reusable decoded assets for the selected game.",
+    "gameEnd": "Allow the final animation to settle, then release transient state; cache cleanup follows consumer-reference rules.",
+    "routeExit": "Destroy Dallas transient bindings/listeners and release unreferenced Dallas decoded assets without touching other sport namespaces."
+  },
+  "renderReadiness": {
+    "baseRequired": true,
+    "actionRequired": false,
+    "signatureRequired": false,
+    "rule": "A missing optional action or signature never blocks the existing Gamecast presentation. If base is unavailable, retain the existing non-chibi presentation for that player.",
+    "swapRule": "Do not swap a lower-priority fallback for a newly decoded higher-priority asset mid-animation unless the next event/transition boundary selects it; avoid visible popping."
+  },
+  "appearanceAndGeometryInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "Dallas appearance-reference lock sourced from current official player headshots; never infer skin tone or visible appearance from a name",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "continuity": "Base, action, and verified-signature assets for a player must preserve identity, uniform geometry, number, scale, camera, lighting, and anchor."
+  },
+  "signaturePreloadRoutes": [
+    {"playerKey":"DAL:ceedee-lamb","verifiedSignature":"nose-wipe","warmWhen":["receiver is active participant","first_down event resolves"],"neverRename":true},
+    {"playerKey":"DAL:von-miller","verifiedSignature":"desoto-shuffle","warmWhen":["pass rusher is active participant","sack/tackle_for_loss/impact_defensive_play resolves"],"neverRename":true}
+  ],
+  "telemetryContract": {
+    "namespace": "nfl.chibi.DAL",
+    "events": ["preload_hit", "preload_miss", "asset_decode_ok", "asset_decode_fail", "fallback_selected", "signature_selected", "cross_team_reject", "stale_event_reject"],
+    "privacy": "Record canonical roster slug/action keys and technical status only; no user-identifying data.",
+    "nonBlocking": "Telemetry failure must never block rendering or animation selection."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-visible-base-first","input":{"selectedGame":true,"team":"DAL","visibleParticipant":true},"expect":{"basePreloadPriority":1,"crossTeamAsset":false}},
+    {"id":"dal-action-after-base","input":{"baseDecoded":true,"requestedAction":"catch","actionInRosterInventory":true},"expect":{"actionMayWarm":true,"baseRemainsFallback":true}},
+    {"id":"dal-inventory-guard","input":{"requestedAction":"unsupported-archetype-action","actionInRosterInventory":false},"expect":{"preloadRequested":false,"assetLookup":false}},
+    {"id":"dal-poll-dedupe","input":{"sameEventFingerprint":true,"sameAssetKey":true},"expect":{"duplicateDecode":false,"animationRestart":false}},
+    {"id":"dal-missing-memoized","input":{"candidate404":true,"sameImmutableVersion":true,"repeatedPoll":true},"expect":{"repeatedCandidateFetch":false,"fallbackContinues":true}},
+    {"id":"dal-lamb-signature-warm","input":{"player":"CeeDee Lamb","event":"first_down"},"expect":{"verifiedSignature":"nose-wipe","inventedSignature":false}},
+    {"id":"dal-miller-signature-warm","input":{"player":"Von Miller","event":"sack"},"expect":{"verifiedSignature":"desoto-shuffle","inventedSignature":false}},
+    {"id":"dal-mid-animation-decode","input":{"fallbackAlreadyAnimating":true,"preferredAssetFinishesDecode":true},"expect":{"midAnimationPop":false,"preferredEligibleAtNextBoundary":true}},
+    {"id":"dal-route-exit-isolation","input":{"leaveNFLGamecast":true,"mlbCachePresent":true,"nhlCachePresent":true},"expect":{"dallasTransientDestroyed":true,"mlbCacheTouched":false,"nhlCacheTouched":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Preload selection remains roster.json-authoritative and team-isolated.",
+      "Repeated polling cannot duplicate decode work or restart active animation.",
+      "Missing optional assets fail soft and do not blank Gamecast.",
+      "Failure memoization avoids repeated missing-file probes within the same immutable version/game scope.",
+      "Verified named signatures remain limited to Lamb nose-wipe and Miller DeSoto Shuffle.",
+      "Appearance, number, camera, lighting, scale, alpha, and foot-anchor locks remain invariant.",
+      "Lifecycle cleanup is scoped to NFL Dallas chibi state and cannot mutate MLB/NHL caches or renderers.",
+      "This batch is metadata-only and introduces no shared runtime behavior change."
+    ]
+  }
+}
