@@ -23,7 +23,7 @@ function ensureStyles(){
   }
   html[data-sport="mlb"] ${ROOT}.tso-mlb-desktop-v924 .ps-stage{
     width:100%!important;max-width:100%!important;min-width:0!important;
-    margin:0 0 66px!important;box-sizing:border-box!important;
+    margin:0 0 72px!important;box-sizing:border-box!important;
   }
   html[data-sport="mlb"] ${ROOT}.tso-mlb-desktop-v924 .ps914-field{
     width:100%!important;height:100%!important;max-width:100%!important;object-fit:contain!important;
@@ -65,43 +65,17 @@ function ensureStyles(){
   document.head.appendChild(s);
 }
 
-function settleFooterGap(root,footer,banner,target=8){
-  const scale=Math.max(.05,Number(root.dataset.ps915Scale)||1);
-  const gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
-  const current=parseFloat(footer.style.marginTop)||0;
-  footer.style.setProperty('margin-top',`${current+((target-gap)/scale)}px`,'important');
-}
-function tighten(root){
-  if(!root||!window.matchMedia(MQ).matches) return;
-  const footer=root.querySelector('.v923-game-footer');
-  const banner=root.querySelector('.ps-play-banner');
-  if(!footer||!banner) return;
-  footer.style.setProperty('margin-top','0px','important');
-  requestAnimationFrame(()=>{
-    if(!footer.isConnected||!banner.isConnected) return;
-    let gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
-    if(gap>14||gap<6) settleFooterGap(root,footer,banner,8);
-    requestAnimationFrame(()=>{
-      if(!footer.isConnected||!banner.isConnected) return;
-      gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
-      if(gap>14||gap<6) settleFooterGap(root,footer,banner,8);
-      requestAnimationFrame(()=>{
-        if(!footer.isConnected||!banner.isConnected) return;
-        root.dataset.v924FooterGap=String(Math.round(footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom));
-      });
-    });
-  });
-}
 
 function enhance(root){
   if(!root) return;
   if(window.matchMedia(MQ).matches){
     root.classList.add('tso-mlb-desktop-v924');
     root.dataset.desktopFit='v924';
-    tighten(root);
+    root.dataset.footerGapMode='structural';
   }else{
     root.classList.remove('tso-mlb-desktop-v924');
     delete root.dataset.desktopFit;
+    delete root.dataset.footerGapMode;
   }
 }
 function scan(){raf=0;if(document.documentElement.getAttribute('data-sport')!=='mlb')return;document.querySelectorAll(ROOT).forEach(enhance);}

@@ -138,7 +138,7 @@ async function swapView(active) {
         import('./mlb/playstage-concept-v921-mobile.js?v=92.10'),
         import('./mlb/playstage-concept-v922-desktop.js?v=92.20'),
         import('./mlb/playstage-concept-v923-desktop-tabs.js?v=92.30'),
-        import('./mlb/playstage-concept-v924-desktop-fit.js?v=92.42')
+        import('./mlb/playstage-concept-v924-desktop-fit.js?v=92.43')
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
@@ -161,9 +161,6 @@ async function swapView(active) {
       conceptV921.installMlbPlaystageConceptV921Mobile?.();
       conceptV922.installMlbPlaystageConceptV922Desktop?.();
       conceptV923.installMlbPlaystageConceptV923DesktopTabs?.();
-      conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
-      conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
-      conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
       conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
