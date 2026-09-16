@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "signature-sequences",
+  "batch": "signature-sequences-stars-01",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; no camera jump during signature sequence",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; preserve world anchor through dance/gesture travel",
+    "scale": "reuse locked player-specific base-chibi proportions; no celebration rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry and current roster number remain locked across every frame",
+    "naming": "dal_<player-slug>_signature_<signature-slug>_v001",
+    "delivery": ["transparent WebP/PNG key poses", "animation timing metadata", "Gamecast event tags", "blend-in/blend-out markers"]
+  },
+  "sequences": [
+    {
+      "name": "CeeDee Lamb",
+      "slug": "ceedee-lamb",
+      "number": "88",
+      "position": "WR",
+      "signature": "nose-wipe",
+      "trigger": ["first_down"],
+      "sourceAuthority": {
+        "status": "recognized-project-signature",
+        "concept": "historical nose-wipe first-down celebration",
+        "supportingOfficialReference": "https://www.dallascowboys.com/photos/photo-gallery-happy-88-day",
+        "note": "Project requirements explicitly recognize Lamb's historical nose-wipe first-down concept. Dallas' official gallery independently documents Lamb celebrating after a first down; do not reinterpret the gesture into a different named celebration."
+      },
+      "animation": {
+        "durationMs": 1500,
+        "loop": false,
+        "blendInMs": 140,
+        "blendOutMs": 180,
+        "rootMotion": "minimal; settle upright after play, keep both feet near the shared bottom-center anchor",
+        "beats": [
+          {"atMs":0,"pose":"first-down-reset","direction":"rise from play-end posture into relaxed upright receiver stance; ball may remain secured if the preceding Gamecast state carries possession"},
+          {"atMs":280,"pose":"hand-lift","direction":"bring the gesture hand naturally toward face level with elbow compact and shoulders relaxed"},
+          {"atMs":560,"pose":"nose-wipe-pass","direction":"perform the recognizable brief nose-wipe gesture across the lower nose area; preserve facial identity and avoid exaggerated arm travel"},
+          {"atMs":920,"pose":"gesture-clear","direction":"hand clears face cleanly; chin and eyes remain forward with confident first-down demeanor"},
+          {"atMs":1220,"pose":"receiver-reset","direction":"return hand to relaxed position and settle into reusable post-play stance"}
+        ],
+        "eventTags": ["first_down","signature_celebration","nose_wipe"],
+        "blendFrom": ["catch","run-after-catch","tackled","first-down-celebration"],
+        "blendTo": ["post_play_idle","huddle_return"]
+      },
+      "qa": ["number-88-locked","official-headshot-identity-locked","transparent-alpha-clean","face-unobscured-before-and-after-gesture","no-foot-anchor-drift","gesture-readable-at-gamecast-scale","no-invented-secondary-signature"]
+    },
+    {
+      "name": "Von Miller",
+      "slug": "von-miller",
+      "number": "40",
+      "position": "EDGE",
+      "signature": "desoto-shuffle",
+      "trigger": ["sack","tackle_for_loss","impact_defensive_play"],
+      "sourceAuthority": {
+        "status": "verified-named-signature",
+        "concept": "DeSoto Shuffle",
+        "officialReference": "https://www.nfl.com/_amp/von-miller-if-i-sack-cam-newton-i-ll-go-superman-0ap1000000092193",
+        "currentDallasReference": "https://www.dallascowboys.com/news/von-miller-cowboys-agree-to-terms-on-deal",
+        "note": "NFL.com explicitly identifies the DeSoto Shuffle as Miller's usual celebration; Dallas' Aug. 16, 2026 signing announcement verifies his current Cowboys context and DeSoto, Texas roots."
+      },
+      "animation": {
+        "durationMs": 1900,
+        "loop": false,
+        "blendInMs": 150,
+        "blendOutMs": 200,
+        "rootMotion": "contained dance footwork around the same world anchor; lateral travel must resolve back to bottom-center",
+        "beats": [
+          {"atMs":0,"pose":"sack-finish-rise","direction":"transition cleanly from sack/tackle finish into upright celebration posture without teleporting feet"},
+          {"atMs":300,"pose":"shuffle-load","direction":"soft knee bend, shoulders loose, weight centered for recognizable dance entry"},
+          {"atMs":560,"pose":"shuffle-step-one","direction":"compact rhythmic side step with coordinated shoulder/arm groove; keep silhouette athletic rather than cartoonish"},
+          {"atMs":900,"pose":"shuffle-step-two","direction":"reverse/continue the rhythmic foot pattern with controlled hip and shoulder timing while retaining player identity"},
+          {"atMs":1260,"pose":"shuffle-accent","direction":"brief confident dance accent at the sequence peak; no unrelated pelvic-thrust variant or invented flourish"},
+          {"atMs":1580,"pose":"shuffle-resolve","direction":"bring feet back under the shared anchor and reduce arm motion"},
+          {"atMs":1780,"pose":"defender-reset","direction":"settle into reusable post-play defender stance"}
+        ],
+        "eventTags": ["sack","tackle_for_loss","signature_celebration","desoto_shuffle"],
+        "blendFrom": ["sack","tackle","pressure","forced-fumble","celebrate"],
+        "blendTo": ["post_play_idle","defense_huddle_return"]
+      },
+      "qa": ["number-40-locked","official-headshot-identity-locked","transparent-alpha-clean","bottom-center-anchor-restored","dance-readable-at-gamecast-scale","no-impossible-limb-intersections","no-unverified-variant-added"]
+    }
+  ],
+  "verification": {
+    "checkedAt": "2026-09-16",
+    "rules": [
+      "Only named signatures already recognized by project requirements or supported by authoritative sourcing are included.",
+      "No signature is inferred from player name, personality, position, hometown, or generic celebration footage.",
+      "Appearance remains governed by the locked current official headshot references from earlier Dallas phases."
+    ]
+  },
+  "qa": {
+    "requirements": [
+      "Sequence entry and exit must blend with existing action-pose keys without scale or anchor pops.",
+      "Uniform number, face, skin tone, hair/facial-hair reference and body proportions remain unchanged through every beat.",
+      "Transparent alpha edges remain clean during fast hand/foot motion.",
+      "Signature event tags must not replace generic fallback celebrations for players without verified signatures."
+    ],
+    "status": "specified"
+  }
+}
