@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-02",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {
+      "name":"Javonte Williams","slug":"javonte-williams","number":"33","position":"RB","priority":"star",
+      "poses":[
+        {"action":"stance","silhouette":"compact balanced runner stance with low center of gravity","durationMs":700,"loop":true,"eventTags":["pre_snap","runner_ready"]},
+        {"action":"handoff-receive","silhouette":"two-hand pocket receive into immediate secure tuck","durationMs":520,"loop":false,"eventTags":["handoff"]},
+        {"action":"run","silhouette":"powerful forward run with high-and-tight ball carriage","durationMs":600,"loop":true,"eventTags":["rush"]},
+        {"action":"cut","silhouette":"low outside-foot plant with hips redirecting cleanly","durationMs":480,"loop":false,"eventTags":["run_cut"]},
+        {"action":"juke","silhouette":"compact lateral sell and decisive opposite-foot exit","durationMs":520,"loop":false,"eventTags":["evaded_tackle"]},
+        {"action":"stiff-arm","silhouette":"ball secured away from contact with legal open-hand extension","durationMs":600,"loop":false,"eventTags":["broken_tackle"]},
+        {"action":"catch","silhouette":"running-back outlet catch into immediate tuck","durationMs":620,"loop":false,"eventTags":["reception"]},
+        {"action":"pass-protect","silhouette":"square low base with hands inside and stable contact posture","durationMs":700,"loop":true,"eventTags":["pass_protection"]},
+        {"action":"tackled","silhouette":"controlled contact finish with ball protected through ground transition","durationMs":760,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"first-down-celebration","silhouette":"restrained chain-moving acknowledgment; no invented named signature","durationMs":1200,"loop":false,"eventTags":["first_down","celebration"]},
+        {"action":"touchdown-celebration","silhouette":"generic player-safe score reaction pending verified repeatable signature","durationMs":1600,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name":"Jake Ferguson","slug":"jake-ferguson","number":"87","position":"TE","priority":"star",
+      "poses":[
+        {"action":"stance","silhouette":"tall balanced tight-end stance with receiver-ready forward preload","durationMs":700,"loop":true,"eventTags":["pre_snap","te_ready"]},
+        {"action":"release","silhouette":"controlled release off line with strong first two steps","durationMs":540,"loop":false,"eventTags":["route_start"]},
+        {"action":"route-run","silhouette":"long-stride route posture with head tracking leverage","durationMs":640,"loop":true,"eventTags":["route"]},
+        {"action":"catch","silhouette":"strong hands catch away from frame followed by secure tuck","durationMs":650,"loop":false,"eventTags":["reception"]},
+        {"action":"contested-catch","silhouette":"high-point extension with stable two-foot landing","durationMs":900,"loop":false,"eventTags":["reception","contested_target"]},
+        {"action":"run-after-catch","silhouette":"upright power stride with ball protected from pursuit","durationMs":640,"loop":true,"eventTags":["yards_after_catch"]},
+        {"action":"run-block","silhouette":"legal inline drive-block posture with hands inside defender frame","durationMs":760,"loop":true,"eventTags":["run_block"]},
+        {"action":"pass-block","silhouette":"balanced pass-protection base with controlled hand strike","durationMs":760,"loop":true,"eventTags":["pass_protection"]},
+        {"action":"tackled","silhouette":"controlled contact reaction preserving ball security","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"first-down-celebration","silhouette":"generic tight-end first-down acknowledgment; no named signature","durationMs":1200,"loop":false,"eventTags":["first_down","celebration"]},
+        {"action":"touchdown-celebration","silhouette":"team-facing score reaction pending separately verified signature","durationMs":1600,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name":"KaVontae Turpin","slug":"kavontae-turpin","number":"9","position":"WR/KR","priority":"star-returner",
+      "poses":[
+        {"action":"stance","silhouette":"compact light-footed receiver stance with speed preload","durationMs":680,"loop":true,"eventTags":["pre_snap","receiver_ready"]},
+        {"action":"release","silhouette":"explosive low first steps into route acceleration","durationMs":500,"loop":false,"eventTags":["route_start"]},
+        {"action":"route-run","silhouette":"compact high-cadence sprint with stable head tracking","durationMs":580,"loop":true,"eventTags":["route"]},
+        {"action":"catch","silhouette":"hands catch into immediate compact tuck","durationMs":600,"loop":false,"eventTags":["reception"]},
+        {"action":"run-after-catch","silhouette":"high-cadence acceleration with ball high-and-tight","durationMs":580,"loop":true,"eventTags":["yards_after_catch"]},
+        {"action":"kick-return","silhouette":"vertical return acceleration from secured kickoff catch","durationMs":600,"loop":true,"eventTags":["kick_return"]},
+        {"action":"punt-return","silhouette":"secured punt transition into compact open-field sprint","durationMs":600,"loop":true,"eventTags":["punt_return"]},
+        {"action":"juke","silhouette":"sharp low lateral plant preserving compact speed silhouette","durationMs":480,"loop":false,"eventTags":["evaded_tackle"]},
+        {"action":"tackled","silhouette":"controlled contact fall with ball secured","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"first-down-celebration","silhouette":"high-energy generic acknowledgment without invented named signature","durationMs":1200,"loop":false,"eventTags":["first_down","celebration"]},
+        {"action":"touchdown-celebration","silhouette":"dynamic returner score reaction; no named signature assigned without verification","durationMs":1650,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name":"Brandon Aubrey","slug":"brandon-aubrey","number":"17","position":"K","priority":"star-specialist",
+      "poses":[
+        {"action":"approach","silhouette":"measured angled kicking approach with consistent stride geometry","durationMs":700,"loop":false,"eventTags":["kick_approach"]},
+        {"action":"field-goal","silhouette":"clean plant, full leg swing and balanced follow-through","durationMs":900,"loop":false,"eventTags":["field_goal_attempt"]},
+        {"action":"extra-point","silhouette":"repeatable compact place-kick motion with balanced finish","durationMs":850,"loop":false,"eventTags":["extra_point_attempt"]},
+        {"action":"kickoff","silhouette":"long approach into powerful kickoff follow-through","durationMs":1050,"loop":false,"eventTags":["kickoff"]},
+        {"action":"onside-kick","silhouette":"shortened approach and controlled contact path","durationMs":850,"loop":false,"eventTags":["onside_kick"]},
+        {"action":"celebrate","silhouette":"subtle made-kick team acknowledgment; no invented named signature","durationMs":1200,"loop":false,"eventTags":["made_kick","celebration"]}
+      ]
+    },
+    {
+      "name":"Quinnen Williams","slug":"quinnen-williams","number":"92","position":"DT","priority":"star",
+      "poses":[
+        {"action":"stance","silhouette":"low explosive interior stance with broad stable base","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"rush","silhouette":"explosive interior get-off with compact powerful hands","durationMs":580,"loop":true,"eventTags":["pass_rush"]},
+        {"action":"bull-rush","silhouette":"square power drive with hips under pads and hands inside","durationMs":680,"loop":false,"eventTags":["pass_rush","interior_power"]},
+        {"action":"swim-move","silhouette":"compact lateral clear with arm-over finish and balanced feet","durationMs":620,"loop":false,"eventTags":["pass_rush","block_shed"]},
+        {"action":"shed-block","silhouette":"violent-but-controlled hand clear into pursuit lane","durationMs":600,"loop":false,"eventTags":["block_shed"]},
+        {"action":"run-stop","silhouette":"square gap-control finish with low hips and wrap posture","durationMs":720,"loop":false,"eventTags":["run_stop","tackle"]},
+        {"action":"tackle","silhouette":"safe wrap finish preserving readable contact silhouette","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"sack","silhouette":"interior close-and-wrap quarterback finish","durationMs":820,"loop":false,"eventTags":["sack"]},
+        {"action":"pressure","silhouette":"closing interior rush stride with controlled reach","durationMs":620,"loop":false,"eventTags":["qb_pressure"]},
+        {"action":"forced-fumble","silhouette":"wrap/punch finish with clear ball-targeting path","durationMs":820,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"fumble-recovery","silhouette":"low secure scoop into protected possession","durationMs":800,"loop":false,"eventTags":["fumble_recovery"]},
+        {"action":"celebrate","silhouette":"generic defensive impact celebration; no named signature assigned","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    }
+  ],
+  "verification":{"checkedAt":"2026-09-16","officialRosterSource":"https://www.dallascowboys.com/team/players-roster/","notes":["Current official Dallas roster/2026 team reporting rechecked before production.","Official 2026 Dallas coverage identifies Williams as RB1, Turpin as a core returner, Aubrey as a Pro Bowl-caliber specialist, Ferguson as a returning Pro Bowl tight end, and Quinnen Williams as a current Dallas defensive cornerstone.","No new named player-specific signature celebration is asserted in this batch."]},
+  "qa":{"requirements":["Pose names must map to roster.json action inventory.","Locked face, skin tone, hair/facial hair, jersey number, scale and foot anchor may not drift between actions.","Ball-possession transitions must remain continuous.","Contact poses must avoid impossible limb intersections.","Transparent alpha edges must remain clean at Gamecast scale."],"status":"specified"}
+}
