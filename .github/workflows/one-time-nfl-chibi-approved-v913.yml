@@ -1,0 +1,34 @@
+name: One-time NFL approved chibi concept v91.3
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-chibi-approved-v913.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply approved concept guard
+        run: python scripts/apply-nfl-chibi-approved-v913.py
+      - name: Validate approved concept guard
+        run: node scripts/nfl-chibi-approved-v913-selftest.mjs
+      - name: Commit production fix
+        run: |
+          git config user.name 'TSO NFL Chibi Approved Concept Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/router.js index.html sports/nfl/chibi-preview-approved-concept-v913.js
+          git commit -m 'nfl: restore approved 3D chibi direction' || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
