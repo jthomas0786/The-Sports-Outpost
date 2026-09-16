@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-02",
+  "season": 2026,
+  "purpose": "Production binding and state-transition contract that turns the Dallas event-resolution rules from gamecast-integration-01 into deterministic Gamecast animation selections while remaining runtime-neutral in this batch.",
+  "dependsOn": ["./roster.json", "./gamecast-integration-01.json", "./signature-sequences-stars-01.json"],
+  "bindingContract": {
+    "playerKey": "DAL:<canonical roster slug>",
+    "playKey": "<game-id>:<play-id>",
+    "animationKey": "dal_<player-slug>_<action>_v001",
+    "signatureKey": "dal_<player-slug>_signature_<signature>_v001",
+    "assetProbeOrder": ["webp", "png"],
+    "requiredState": ["playKey", "playerKey", "event", "selectedAction", "possessionOwner", "worldAnchor", "startedAt"],
+    "teamIsolation": "Reject any player binding whose canonical roster team is not DAL."
+  },
+  "transitionPolicy": {
+    "newPlay": "Clear transient animation, signature, possession-transfer and impact state before selecting the first event for the new playKey.",
+    "samePlay": "Blend only between actions belonging to the same canonical player unless the event explicitly transfers possession or identifies a second participant.",
+    "repeatedEvent": "Do not restart an identical animation for the same player/event fingerprint while it is already active.",
+    "outOfOrderEvent": "Ignore an event whose sequence/timestamp precedes the accepted state for the current playKey unless marked as an authoritative correction.",
+    "authoritativeCorrection": "Reset transient state for the corrected play and resolve again from the corrected event payload.",
+    "playEnd": "Blend to player idle/base, release transient ball ownership, and return root motion to the locked bottom-center foot anchor.",
+    "gameChange": "Destroy Dallas transient bindings before resolving a different game; never carry animation state across games."
+  },
+  "participantRoles": {
+    "passer": ["dropback", "throw-short", "throw-deep", "scramble"],
+    "receiver": ["catch", "contested-catch", "run", "tackled", "first-down-celebration", "touchdown-celebration"],
+    "rusher": ["handoff-receive", "run", "tackled", "first-down-celebration", "touchdown-celebration"],
+    "tackler": ["break-on-ball", "tackle", "forced-fumble", "celebrate"],
+    "passRusher": ["rush", "pressure", "sack", "forced-fumble", "celebrate"],
+    "interceptor": ["interception", "return", "tackled", "celebrate"],
+    "blocker": ["stance", "pass-block", "run-block", "pull-block", "second-level-block"],
+    "kicker": ["kickoff", "field-goal", "extra-point"],
+    "punter": ["punt", "directional-punt"],
+    "returner": ["kick-return", "punt-return", "run", "tackled"]
+  },
+  "possessionPolicy": {
+    "acquireOn": ["handoff-receive", "catch", "interception", "fumble-recovery", "kick-return", "punt-return"],
+    "retainThrough": ["run", "scramble", "return", "first-down-celebration", "touchdown-celebration"],
+    "releaseOn": ["throw-short", "throw-deep", "fumble", "playEnd"],
+    "visualRule": "The football remains attached to the established possession hand/socket until an explicit transfer or release event; animation fallback must not duplicate or teleport the ball."
+  },
+  "signaturePolicy": {
+    "verifiedOnly": true,
+    "routes": [
+      {"playerKey":"DAL:ceedee-lamb","trigger":"first_down","signature":"nose-wipe","fallback":["first-down-celebration","idle"]},
+      {"playerKey":"DAL:von-miller","trigger":"sack|tackle_for_loss|impact_defensive_play","signature":"desoto-shuffle","fallback":["celebrate","sack","tackle","idle"]}
+    ],
+    "guard": "No other player or event may receive a named signature unless a later verified signature manifest explicitly adds it."
+  },
+  "renderInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official headshot lock stored by the Dallas appearance-reference phase; never infer appearance from name",
+    "background": "transparent alpha",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale; no action-driven rescaling",
+    "footAnchor": "bottom-center between planted feet; root motion returns here",
+    "uniformNumber": "roster.json current number; invariant across base/action/signature assets"
+  },
+  "fallbackPolicy": {
+    "order": ["verified signature", "requested roster action", "position-safe roster action", "player base", "existing non-chibi Gamecast presentation"],
+    "missingFile": "Continue down fallback order without blanking the scene.",
+    "unknownPlayer": "Do not substitute a similarly named Dallas player; retain existing non-chibi Gamecast presentation.",
+    "unknownEvent": "Prefer idle/base only for a resolved Dallas player; otherwise retain existing non-chibi Gamecast presentation."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-lamb-first-down","input":{"player":"CeeDee Lamb","event":"first_down"},"expect":{"preferred":"nose-wipe","fallback":"first-down-celebration","anchorRestored":true}},
+    {"id":"dal-miller-sack","input":{"player":"Von Miller","event":"sack"},"expect":{"preferred":"desoto-shuffle","fallback":"celebrate|sack","anchorRestored":true}},
+    {"id":"dal-repeated-event","input":{"samePlay":true,"samePlayer":true,"sameEventFingerprint":true},"expect":{"animationRestart":false}},
+    {"id":"dal-new-play-reset","input":{"playKeyChanges":true},"expect":{"transientStateCleared":true,"possessionReevaluated":true}},
+    {"id":"dal-cross-team-guard","input":{"team":"PHI","playerNameCollision":true},"expect":{"dallasBinding":false,"crossResolve":false}},
+    {"id":"dal-missing-action-file","input":{"resolvedDallasPlayer":true,"requestedActionFileMissing":true},"expect":{"sceneBlanked":false,"fallbackContinues":true}},
+    {"id":"dal-out-of-order","input":{"eventOlderThanAcceptedState":true,"authoritativeCorrection":false},"expect":{"eventIgnored":true}},
+    {"id":"dal-correction","input":{"eventOlderThanAcceptedState":true,"authoritativeCorrection":true},"expect":{"transientStateReset":true,"eventReResolved":true}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "All animation selection remains filtered by roster.json action inventory.",
+      "Named signatures are limited to the two verified Dallas routes already approved.",
+      "Repeated polling cannot continuously restart the same animation fingerprint.",
+      "New-play, game-change, and authoritative-correction paths clear stale transient state.",
+      "Possession continuity survives action fallback without ball duplication.",
+      "Missing assets fail soft and never blank Gamecast.",
+      "Cross-team identity collisions cannot resolve into Dallas assets.",
+      "No MLB or NHL renderer, selector, state path, or asset is referenced or changed by this contract."
+    ]
+  }
+}
