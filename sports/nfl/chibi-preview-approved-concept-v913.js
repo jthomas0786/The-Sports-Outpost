@@ -33,7 +33,7 @@ function ensureStyles(){
     .tso-approved-pending{width:min(650px,100%);min-height:260px;border:1px dashed #2d7fff66;border-radius:16px;background:radial-gradient(circle at 50% 35%,#2d7fff18,transparent 58%),#061020;display:grid;place-content:center;gap:10px;text-align:center;padding:32px}
     .tso-approved-pending b{font:800 19px 'Cabinet Grotesk';color:#f8fafc}
     .tso-approved-pending span{color:#8b95a8;line-height:1.55;max-width:520px}
-    #nflChibiDetailModal .chibi-preview-badge,#nflChibiDetailModal .chibi-live-qa{--legacy-flat-preview-disabled:1}
+    #nflChibiDetailModal .chibi-live-qa{visibility:hidden!important}
     @media(max-width:620px){.tso-approved-chibi--hero img{max-height:460px}.tso-approved-badge{left:12px;top:12px}}
   `;
   document.head.appendChild(style);
