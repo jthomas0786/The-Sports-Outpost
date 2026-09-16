@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-04",
+  "season": 2026,
+  "purpose": "Production render-composition, layering, transition, and accessibility contract for Dallas realistic 3D chibis in NFL Gamecast. Metadata-only: no shared NFL runtime or MLB/NHL behavior is modified.",
+  "dependsOn": ["./roster.json", "./gamecast-integration-01.json", "./gamecast-integration-02.json", "./gamecast-integration-03.json", "./signature-sequences-stars-01.json"],
+  "composition": {
+    "coordinateSpace": "Gamecast field-local normalized coordinates resolved by the NFL scene before chibi placement",
+    "footAnchor": "bottom-center between planted feet is the only player-to-field placement anchor",
+    "zOrder": ["field", "field markings", "behind-player effects", "chibi shadow/contact patch", "chibi body", "football when player-occluded", "front-player effects", "Gamecast labels/UI"],
+    "scaleRule": "Use the player-specific locked scale from Dallas appearance/base specifications; perspective may affect scene projection but must not mutate identity proportions.",
+    "alphaRule": "All chibi frames remain transparent-alpha assets; no baked field, crowd, halo rectangle, matte fringe, or team-logo backdrop.",
+    "shadowRule": "Runtime shadow/contact treatment is scene-owned and subtle; never bake opaque shadows into transparent source assets."
+  },
+  "orientation": {
+    "default": "Preserve the approved shared three-quarter Gamecast camera presentation.",
+    "mirrorEligibility": "Only action metadata explicitly marked mirror-safe may be horizontally mirrored for field direction.",
+    "numberGuard": "Never mirror rasterized jersey numerals, wordmarks, helmet marks, or asymmetric identity details into an incorrect orientation; use an authored opposite-facing asset when mirroring would corrupt them.",
+    "ballHandGuard": "Ball hand, throwing arm, catching geometry, and contact side must remain semantically correct after orientation resolution."
+  },
+  "transitionPolicy": {
+    "baseToAction": "Blend from the current anchored base/idle state at an event boundary without teleporting the planted-foot anchor.",
+    "actionToAction": "Prefer authored compatible transition points; otherwise settle through the shortest neutral anchored pose before the next action.",
+    "actionToBase": "Return to the same player-specific anchor and scale after the action completes.",
+    "signatureEntry": "Verified signatures may begin only from their declared event-compatible entry state.",
+    "signatureExit": "Verified signatures settle back to the canonical anchor before another play-owned animation begins.",
+    "pollingRule": "A repeated event fingerprint never restarts or re-times an active transition."
+  },
+  "footballContinuity": {
+    "singleAuthority": "Exactly one visible football authority exists during a possession animation: scene ball or chibi-attached ball, never both.",
+    "handoff": "Transfer ball authority only at authored possession/contact boundaries.",
+    "pass": "Release the chibi-attached football at the authored throw-release marker before scene flight takes authority.",
+    "catch": "Scene flight yields to the receiver-attached ball at the authored secure-catch marker.",
+    "fumble": "Player-attached authority ends at the authored loose-ball marker; scene ball then owns motion until recovery.",
+    "recovery": "Recovery transfers scene-ball authority to the recovering player's authored possession marker."
+  },
+  "collisionAndOcclusion": {
+    "contact": "Use authored contact markers and participant roles from roster-authoritative actions; do not stretch, slide, or rescale a chibi to force contact.",
+    "multiPlayer": "Resolve each player's foot anchor independently, then use scene depth for natural overlap.",
+    "labelOcclusion": "Player labels and critical score/down UI remain above chibis; chibis must not become an input-blocking overlay.",
+    "edgeSafety": "If an animation would clip the Gamecast viewport, adjust scene framing/field-local placement within allowed bounds rather than deforming the asset."
+  },
+  "verifiedSignatureComposition": [
+    {"playerKey":"DAL:ceedee-lamb","signature":"nose-wipe","event":"first_down","rules":["Use only the verified historical sequence metadata.","Preserve Lamb identity/number/scale and bottom-center anchor.","Do not relabel or extend the sequence into an invented named celebration."]},
+    {"playerKey":"DAL:von-miller","signature":"desoto-shuffle","event":"sack_or_verified_eligible_defensive_event","rules":["Use only the verified DeSoto Shuffle sequence metadata.","Keep root motion within the authored signature envelope and settle to the canonical anchor.","Do not substitute an invented dance name or unrelated celebration."]}
+  ],
+  "reducedMotion": {
+    "respectPreference": true,
+    "behavior": "When Gamecast reduced-motion mode is active, render the event's most informative authored key pose at the canonical anchor instead of playing the full motion sequence.",
+    "signatures": "Verified signatures reduce to a representative authored pose without repeated dance/gesture loops.",
+    "continuity": "Possession state, football authority, uniform number, identity, scale, and event meaning remain intact."
+  },
+  "fallbacks": {
+    "missingAction": "Keep the player's decoded base asset and existing non-chibi Gamecast event presentation; never show a broken-image placeholder.",
+    "missingBase": "Retain existing non-chibi Gamecast presentation for that participant.",
+    "decodeFailure": "Memoize according to gamecast-integration-03 and continue the safe fallback chain.",
+    "signatureFailure": "Fall back to the roster-authorized generic event action; never invent or approximate a named signature."
+  },
+  "appearanceAndGeometryInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Dallas player headshot lock; skin tone and visible appearance are never inferred from name",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "identityContinuity": "Base, action, reduced-motion pose, and verified signature must depict the same locked player identity."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-anchor-transition","input":{"baseAnchor":[0.50,1.00],"actionStarts":true},"expect":{"anchorTeleport":false,"scaleMutation":false}},
+    {"id":"dal-no-double-ball-catch","input":{"event":"catch","sceneBallVisible":true,"secureCatchMarker":true},"expect":{"sceneBallVisibleAfterMarker":false,"playerBallAuthority":true,"doubleBall":false}},
+    {"id":"dal-pass-release","input":{"event":"pass","throwReleaseMarker":true},"expect":{"playerBallAuthority":false,"sceneBallFlightAuthority":true}},
+    {"id":"dal-fumble-transfer","input":{"event":"fumble","looseBallMarker":true},"expect":{"playerBallAuthority":false,"sceneBallAuthority":true}},
+    {"id":"dal-number-mirror-guard","input":{"requestedFacing":"opposite","rasterMirrorWouldReverseNumber":true},"expect":{"rawRasterMirror":false,"authoredFacingRequired":true}},
+    {"id":"dal-reduced-motion","input":{"reducedMotion":true,"event":"touchdown"},"expect":{"fullLoop":false,"representativeKeyPose":true,"eventMeaningPreserved":true}},
+    {"id":"dal-lamb-signature-composition","input":{"player":"CeeDee Lamb","event":"first_down","signatureEligible":true},"expect":{"signature":"nose-wipe","inventedSignature":false,"anchorReturnsCanonical":true}},
+    {"id":"dal-miller-signature-composition","input":{"player":"Von Miller","event":"sack","signatureEligible":true},"expect":{"signature":"desoto-shuffle","inventedSignature":false,"anchorReturnsCanonical":true}},
+    {"id":"dal-missing-signature-soft-fail","input":{"verifiedSignatureAssetMissing":true,"genericRosterActionAvailable":true},"expect":{"brokenPlaceholder":false,"genericRosterActionSelected":true,"inventedSignature":false}},
+    {"id":"dal-ui-layer-safety","input":{"chibiOverlapsPlayerLabel":true},"expect":{"labelAboveChibi":true,"inputBlockingOverlay":false}},
+    {"id":"dal-sport-isolation","input":{"composeDallasChibi":true,"mlbRendererPresent":true,"nhlRendererPresent":true},"expect":{"mlbRendererMutation":false,"nhlRendererMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Composition preserves transparent alpha, locked camera/lighting/scale, and bottom-center foot anchors.",
+      "Orientation cannot reverse jersey numbers or asymmetric identity details.",
+      "Possession animations maintain exactly one visible football authority.",
+      "Transitions do not restart on repeated polling or teleport anchors.",
+      "Reduced-motion behavior preserves event meaning and player identity.",
+      "Named signatures remain limited to verified Dallas concepts already recorded in signature metadata.",
+      "Fallbacks fail soft and never create broken-image UI.",
+      "Layering cannot obscure critical Gamecast UI or intercept unrelated input.",
+      "Contract is Dallas/NFL namespaced and cannot mutate MLB/NHL renderers.",
+      "This batch is metadata-only and introduces no unrelated runtime behavior change."
+    ]
+  }
+}
