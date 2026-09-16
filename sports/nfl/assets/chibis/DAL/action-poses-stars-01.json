@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-01",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {
+      "name": "CeeDee Lamb",
+      "slug": "ceedee-lamb",
+      "number": "88",
+      "position": "WR",
+      "priority": "franchise-star",
+      "poses": [
+        {"action":"stance","silhouette":"balanced two-point receiver stance, slight forward preload","durationMs":700,"loop":true,"eventTags":["pre_snap","receiver_ready"]},
+        {"action":"release","silhouette":"explosive first two steps with compact arm drive","durationMs":520,"loop":false,"eventTags":["snap","route_start"]},
+        {"action":"route-run","silhouette":"forward sprint with receiver head/eyes tracking leverage","durationMs":620,"loop":true,"eventTags":["route","target_build"]},
+        {"action":"cut","silhouette":"low center of gravity, hard outside-foot plant and shoulder sell","durationMs":460,"loop":false,"eventTags":["route_break"]},
+        {"action":"catch","silhouette":"hands extended to ball then secure immediately to frame","durationMs":620,"loop":false,"eventTags":["reception"]},
+        {"action":"contested-catch","silhouette":"elevated high-point catch with protected ball and stable landing","durationMs":900,"loop":false,"eventTags":["reception","contested_target"]},
+        {"action":"run-after-catch","silhouette":"ball secured high-and-tight with aggressive forward lean","durationMs":620,"loop":true,"eventTags":["yards_after_catch"]},
+        {"action":"juke","silhouette":"single sharp lateral plant, torso sells opposite direction","durationMs":520,"loop":false,"eventTags":["evaded_tackle"]},
+        {"action":"tackled","silhouette":"controlled contact reaction protecting head, limbs and ball silhouette","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"first-down-celebration","silhouette":"historical nose-wipe gesture after upright first-down reset","durationMs":1500,"loop":false,"eventTags":["first_down","signature_celebration"],"signature":"nose-wipe","verification":"recognized project signature concept; preserve recognizable gesture without exaggeration"},
+        {"action":"touchdown-celebration","silhouette":"confident receiver score reaction using generic player-safe celebration until a distinct named TD signature is separately verified","durationMs":1700,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name": "Dak Prescott",
+      "slug": "dak-prescott",
+      "number": "4",
+      "position": "QB",
+      "priority": "franchise-star",
+      "poses": [
+        {"action":"pre-snap","silhouette":"upright shotgun command posture, hands ready and eyes scanning","durationMs":900,"loop":true,"eventTags":["pre_snap","qb_ready"]},
+        {"action":"dropback","silhouette":"compact controlled drop with ball at chest and shoulders square","durationMs":700,"loop":false,"eventTags":["pass_drop"]},
+        {"action":"throw-short","silhouette":"quick compact release with front-side transfer","durationMs":620,"loop":false,"eventTags":["pass_attempt","short_pass"]},
+        {"action":"throw-deep","silhouette":"full kinetic-chain release, high finish and rear-foot transfer","durationMs":820,"loop":false,"eventTags":["pass_attempt","deep_pass"]},
+        {"action":"scramble","silhouette":"two-hand ball transition into tucked quarterback run","durationMs":620,"loop":true,"eventTags":["qb_scramble"]},
+        {"action":"slide","silhouette":"feet-first controlled slide with ball protected to torso","durationMs":780,"loop":false,"eventTags":["qb_slide","play_end"]},
+        {"action":"sack-reaction","silhouette":"controlled wrap/contact collapse with ball security","durationMs":760,"loop":false,"eventTags":["sack","play_end"]},
+        {"action":"kneel","silhouette":"victory-formation receive and immediate single-knee finish","durationMs":700,"loop":false,"eventTags":["kneel"]},
+        {"action":"spike","silhouette":"upright post-snap spike with clear downward ball release","durationMs":650,"loop":false,"eventTags":["spike"]},
+        {"action":"first-down-celebration","silhouette":"restrained quarterback first-down acknowledgment; no invented named signature","durationMs":1200,"loop":false,"eventTags":["first_down","celebration"]},
+        {"action":"touchdown-celebration","silhouette":"team-facing quarterback score celebration; no invented named signature","durationMs":1600,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name": "George Pickens",
+      "slug": "george-pickens",
+      "number": "3",
+      "position": "WR",
+      "priority": "star",
+      "poses": [
+        {"action":"stance","silhouette":"tall balanced receiver stance with explosive forward preload","durationMs":700,"loop":true,"eventTags":["pre_snap","receiver_ready"]},
+        {"action":"release","silhouette":"powerful release with long first stride and active hands","durationMs":540,"loop":false,"eventTags":["snap","route_start"]},
+        {"action":"route-run","silhouette":"long-stride sprint preserving head and shoulder tracking","durationMs":640,"loop":true,"eventTags":["route"]},
+        {"action":"catch","silhouette":"strong hands catch away from body followed by immediate tuck","durationMs":650,"loop":false,"eventTags":["reception"]},
+        {"action":"contested-catch","silhouette":"high-point extension with defender-safe separation and balanced landing","durationMs":920,"loop":false,"eventTags":["reception","contested_target"]},
+        {"action":"run-after-catch","silhouette":"long-stride acceleration with ball protected outside traffic","durationMs":640,"loop":true,"eventTags":["yards_after_catch"]},
+        {"action":"juke","silhouette":"one decisive lateral cut without cartoon over-rotation","durationMs":520,"loop":false,"eventTags":["evaded_tackle"]},
+        {"action":"block","silhouette":"legal receiver stalk-block posture with hands inside frame","durationMs":760,"loop":true,"eventTags":["receiver_block"]},
+        {"action":"tackled","silhouette":"controlled contact fall maintaining ball security","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"first-down-celebration","silhouette":"confident generic chain-moving acknowledgment; no named signature assigned","durationMs":1250,"loop":false,"eventTags":["first_down","celebration"]},
+        {"action":"touchdown-celebration","silhouette":"expressive star-receiver celebration slot; remain generic until a specific named signature is verified","durationMs":1700,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name": "Von Miller",
+      "slug": "von-miller",
+      "number": "40",
+      "position": "EDGE",
+      "priority": "star",
+      "poses": [
+        {"action":"stance","silhouette":"edge two-point/loaded stance with forward pressure posture","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"rush","silhouette":"explosive get-off with low pad level and compact arm drive","durationMs":560,"loop":true,"eventTags":["pass_rush"]},
+        {"action":"speed-rush","silhouette":"outside arc acceleration with shoulder dip and balanced lean","durationMs":620,"loop":false,"eventTags":["pass_rush","edge_speed"]},
+        {"action":"power-rush","silhouette":"square contact drive with hands inside and stable base","durationMs":680,"loop":false,"eventTags":["pass_rush","edge_power"]},
+        {"action":"shed-block","silhouette":"compact hand clear and lateral disengage into pursuit","durationMs":600,"loop":false,"eventTags":["block_shed"]},
+        {"action":"tackle","silhouette":"safe wrap tackle with head placement outside target line","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"sack","silhouette":"quarterback wrap/finish pose designed to blend directly into celebration","durationMs":820,"loop":false,"eventTags":["sack"]},
+        {"action":"pressure","silhouette":"extended closing stride with controlled reach and no contact finish","durationMs":620,"loop":false,"eventTags":["qb_pressure"]},
+        {"action":"forced-fumble","silhouette":"tackle/punch finish with clear ball-targeting arm path","durationMs":820,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"fumble-recovery","silhouette":"low secure scoop into protected two-hand possession","durationMs":800,"loop":false,"eventTags":["fumble_recovery"]},
+        {"action":"celebrate","silhouette":"DeSoto Shuffle sack celebration sequence entry pose","durationMs":1900,"loop":false,"eventTags":["sack","signature_celebration"],"signature":"desoto-shuffle","verification":"historically documented named Von Miller sack celebration"}
+      ]
+    },
+    {
+      "name": "DaRon Bland",
+      "slug": "daron-bland",
+      "number": "26",
+      "position": "CB",
+      "priority": "star",
+      "poses": [
+        {"action":"press-stance","silhouette":"balanced corner press posture, feet under hips and hands ready","durationMs":700,"loop":true,"eventTags":["pre_snap","coverage_ready"]},
+        {"action":"backpedal","silhouette":"compact hips-low pedal with eyes through receiver","durationMs":600,"loop":true,"eventTags":["coverage"]},
+        {"action":"man-cover","silhouette":"trail/hip-phase running posture with head tracking","durationMs":620,"loop":true,"eventTags":["man_coverage"]},
+        {"action":"zone-break","silhouette":"plant-and-drive downhill toward target point","durationMs":540,"loop":false,"eventTags":["zone_break"]},
+        {"action":"tackle","silhouette":"controlled wrap finish with outside head placement","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"pass-breakup","silhouette":"near-hand ball disruption without receiver-body clipping","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+        {"action":"interception","silhouette":"hands catch at chest/high-point then immediate possession tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+        {"action":"return","silhouette":"defensive return sprint with ball high-and-tight","durationMs":620,"loop":true,"eventTags":["interception_return"]},
+        {"action":"forced-fumble","silhouette":"wrap/punch technique with visible ball attack","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"celebrate","silhouette":"turnover/defensive-play celebration without invented named signature","durationMs":1500,"loop":false,"eventTags":["turnover","celebration"]}
+      ]
+    }
+  ],
+  "qa": {
+    "requirements": [
+      "All pose names must map to each player's roster.json action inventory.",
+      "No pose may alter locked face, skin tone, hair/facial-hair reference, jersey number, camera scale, or foot anchor.",
+      "Catch/interception poses must preserve ball ownership continuity into run/return loops.",
+      "Contact poses must avoid impossible limb intersections and preserve readable silhouettes at Gamecast scale.",
+      "Signature names are allowed only when verified or explicitly recognized by project requirements."
+    ],
+    "status": "specified"
+  }
+}
