@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-05",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to the shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"jonathan-mingo","name":"Jonathan Mingo","position":"WR","number":"18","height":"6-2","weightLbs":225,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/jonathan-mingo/","officialImageLabel":"jonathan-mingo-hs","baseAsset":"DAL/jonathan-mingo/base/dal_jonathan-mingo_base_v001","rigArchetype":"wr-big-bodied-power","neutralPose":"balanced receiver stance with athletic knee bend, relaxed hands and shoulders prepared for release or blocking transition","productionNotes":["Preserve #18.","Keep the 6-2/225 big-bodied receiver silhouette distinct from lighter WR rigs, with enough shoulder/hip range for release, route-run, contested-catch, run-after-catch and block clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-18-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"ryan-flournoy","name":"Ryan Flournoy","position":"WR","number":"19","height":"6-1","weightLbs":205,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/ryan-flournoy/","officialImageLabel":"ryan-flournoy-hs","baseAsset":"DAL/ryan-flournoy/base/dal_ryan-flournoy_base_v001","rigArchetype":"wr-athletic-balanced","neutralPose":"balanced receiver stance with light forward load, relaxed hands and centered feet ready for release or route transition","productionNotes":["Preserve #19.","Retain the 6-1/205 athletic receiver build across release, route-run, catch, contested-catch, run-after-catch, juke and block clips.","Use generic receiver/team celebration unless a repeatable player-specific signature is verified."],"qa":["official-headshot-reviewed-before-render","number-19-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"caelen-carson","name":"Caelen Carson","position":"CB","number":"21","height":"6-0","weightLbs":198,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/caelen-carson/","officialImageLabel":"caelen-carson-hs","baseAsset":"DAL/caelen-carson/base/dal_caelen-carson_base_v001","rigArchetype":"cb-balanced-physical","neutralPose":"compact corner stance with low hips, light feet and hands ready for press, backpedal or break-on-ball transition","productionNotes":["Preserve #21.","Keep the 6-0/198 corner silhouette compact and physical without inflating him to a safety build; preserve lateral range for man-cover, zone-break and turnover clips.","No named signature celebration is assigned without verification."],"qa":["official-headshot-reviewed-before-render","number-21-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"ameer-speed","name":"Ameer Speed","position":"CB","number":"23","height":"6-3","weightLbs":215,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/ameer-speed/","officialImageLabel":"ameer speed hs","baseAsset":"DAL/ameer-speed/base/dal_ameer-speed_base_v001","rigArchetype":"cb-tall-long","neutralPose":"tall corner stance with long relaxed arms, balanced hips and light forward posture ready for press or backpedal","productionNotes":["Preserve #23.","Retain the unusually tall 6-3/215 corner proportions and long limb silhouette through press-stance, backpedal, man-cover, tackle and interception clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-23-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"malik-hooker","name":"Malik Hooker","position":"S","number":"24","height":"6-1","weightLbs":215,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/malik-hooker/","officialImageLabel":"Hooker_Malik-HS23","baseAsset":"DAL/malik-hooker/base/dal_malik-hooker_base_v001","rigArchetype":"s-veteran-physical","neutralPose":"strong veteran safety stance with square hips, balanced feet and relaxed hands ready for deep-zone or downhill trigger","productionNotes":["Preserve #24.","Keep the 6-1/215 physical safety build stable across backpedal, deep-zone, break-on-ball, tackle, pass-breakup, interception and return clips.","Use generic defensive/team celebration unless a repeatable player-specific signature is verified; do not invent a named signature."],"qa":["official-headshot-reviewed-before-render","number-24-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This batch establishes reusable base assets/specifications only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-15",
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "notes": ["Current official Dallas roster/player pages were rechecked immediately before this batch for roster identity, jersey number, listed build and official headshot label.","Jonathan Mingo is #18 at 6-2/225; Ryan Flournoy is #19 at 6-1/205; Caelen Carson is #21 at 6-0/198; Ameer Speed is #23 at 6-3/215; Malik Hooker is #24 at 6-1/215 on current official Dallas pages.","Appearance traits are not encoded from names; the cited current official headshots remain the visual authority at render time.","No unverified named celebration was introduced.","No MLB or NHL integration files are part of this batch."]
+  }
+}
