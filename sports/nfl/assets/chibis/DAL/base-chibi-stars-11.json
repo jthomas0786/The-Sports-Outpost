@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-11",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to the shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"quinnen-williams","name":"Quinnen Williams","position":"DT","number":"92","height":"6-3","weightLbs":303,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/quinnen-williams/","officialImageLabel":"quinnen-williams-hs","baseAsset":"DAL/quinnen-williams/base/dal_quinnen-williams_base_v001","rigArchetype":"dt-elite-interior-power","neutralPose":"compact explosive interior-defender stance with low hips, broad stable base and relaxed hands prepared for first-step rush, anchor or shed transition","productionNotes":["Preserve current #92.","Retain the current official headshot identity and listed build; do not infer complexion, hair or facial details from name or prior-team imagery.","Keep dense interior-line proportions distinct from edge-rusher rigs while preserving explosive shoulder, hip and hand articulation for rush, shed, tackle and sack clips.","Team-captain status does not imply an invented named celebration; use only verified player-specific sequences in the later signature phase."],"qa":["official-headshot-reviewed-before-render","number-92-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"kenny-clark","name":"Kenny Clark","position":"DT","number":"97","height":"6-3","weightLbs":314,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/kenny-clark/","officialImageLabel":"kenny-clark-hs","baseAsset":"DAL/kenny-clark/base/dal_kenny-clark_base_v001","rigArchetype":"dt-veteran-anchor-power","neutralPose":"powerful veteran interior stance with low center of gravity, wide stable base and hands relaxed for anchor, bull-rush or block-shed transition","productionNotes":["Preserve current #97.","Retain the official 6-3/314 veteran defensive-tackle silhouette and current Dallas headshot identity.","Keep reusable rig compatible with interior rush, power rush, anchor, shed-block, tackle, sack, pressure, forced-fumble and recovery clips.","Captain status is presentation metadata only; no named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-97-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"lt-overton","name":"LT Overton","position":"DT","number":"99","height":"6-3","weightLbs":274,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/lt-overton/","officialImageLabel":"lt-overton-hs","baseAsset":"DAL/lt-overton/base/dal_lt-overton_base_v001","rigArchetype":"dt-athletic-multiposition-rush","neutralPose":"athletic defensive-front stance with balanced forward load, active hands and slightly narrower base prepared for interior or widened pass-rush transition","productionNotes":["Preserve current #99.","Retain the official 6-3/274 lighter, athletic defensive-front silhouette so he remains visibly distinct from Dallas' 300-plus-pound interior anchors.","Keep hip, shoulder, elbow and ankle range suitable for interior rush, widened alignment, power/speed transition, shed, tackle and sack clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-99-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This final Dallas base batch completes base specifications for all 53 active-roster players; action poses remain the next phase."
+  },
+  "verification": {
+    "checkedAt": "2026-09-16",
+    "officialRosterSource": "https://www.dallascowboys.com/team/players-roster/",
+    "officialRosterFeature": "https://www.dallascowboys.com/news/zero-to-100-here-s-your-2026-dallas-cowboys-roster",
+    "officialTransactionContext": "https://www.dallascowboys.com/news/cowboys-release-initial-53-man-roster-for-2026-season",
+    "notes": ["Current official Dallas roster and Zero-to-100 roster feature were rechecked immediately before this batch for roster identity, jersey number, listed build and current visual reference.","Quinnen Williams is #92; Kenny Clark is #97 at 6-3/314; LT Overton is #99 at 6-3/274 on current official Dallas sources.","Appearance traits are never inferred from names; current official headshots remain the visual authority.","No unverified named celebration was introduced.","This closes Dallas base-chibi specification at 53/53 without touching MLB or NHL integration files."]
+  }
+}
