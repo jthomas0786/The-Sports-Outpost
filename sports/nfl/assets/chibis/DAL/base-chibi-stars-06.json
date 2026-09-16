@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "season": 2026,
+  "batch": "base-chibi-stars-06",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front",
+    "lighting": "soft stadium key plus cool rim",
+    "footAnchor": "bottom-center",
+    "scaleRule": "Normalize standing height to the shared Gamecast character box while preserving player-specific build differences.",
+    "uniform": "Dallas white/silver/royal-blue; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only after visual inspection of the cited current official Dallas headshot. Never infer appearance from name.",
+    "reuseRule": "Base mesh/material rig is the authoritative neutral player asset from which action poses and animation clips are derived; do not redraw identity between actions.",
+    "animationNaming": "dal_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"israel-abanikanda","name":"Israel Abanikanda","position":"RB","number":"25","height":"5-10","weightLbs":217,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/israel-abanikanda/","officialImageLabel":"Israel Abanikanda HS","baseAsset":"DAL/israel-abanikanda/base/dal_israel-abanikanda_base_v001","rigArchetype":"rb-compact-explosive","neutralPose":"compact running-back stance with centered hips, slight forward load and relaxed hands ready for handoff, route or protection transition","productionNotes":["Preserve current #25.","Keep the 5-10/217 compact power-speed silhouette distinct from taller backs while retaining hip/shoulder range for run, cut, juke, stiff-arm, catch and pass-protect clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-25-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"shavon-revel-jr","name":"Shavon Revel Jr.","position":"CB","number":"28","height":"6-2","weightLbs":198,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/shavon-revel-jr/","officialImageLabel":"Shavon Revel HS","baseAsset":"DAL/shavon-revel-jr/base/dal_shavon-revel-jr_base_v001","rigArchetype":"cb-tall-long","neutralPose":"tall corner stance with low athletic hips, long relaxed arms and light feet prepared for press, backpedal or break-on-ball transition","productionNotes":["Preserve #28.","Retain the 6-2/198 long corner silhouette without inflating him to a safety build; preserve lateral range and long-limb identity across coverage, tackle and turnover clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-28-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"hunter-luepke","name":"Hunter Luepke","position":"FB","number":"30","height":"6-1","weightLbs":250,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/hunter-luepke/","officialImageLabel":"hunter-luepke-hs","baseAsset":"DAL/hunter-luepke/base/dal_hunter-luepke_base_v001","rigArchetype":"fb-power-blocker","neutralPose":"square fullback stance with powerful base, slight forward lean and hands relaxed for lead-block, carry or receiving transition","productionNotes":["Preserve current #30 after the 2026 number change.","Keep the 6-1/250 dense fullback build visibly heavier through shoulders, torso and legs than the halfback rigs while retaining mobility for lead-block, run, catch and pass-protect clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-30-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"emari-demercado","name":"Emari Demercado","position":"RB","number":"31","height":"5-9","weightLbs":215,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/emari-demercado/","officialImageLabel":"Emari Demercado HS","baseAsset":"DAL/emari-demercado/base/dal_emari-demercado_base_v001","rigArchetype":"rb-low-center-balanced","neutralPose":"low balanced running-back stance with compact base, slight forward load and hands ready for handoff, route or protection transition","productionNotes":["Preserve #31.","Retain the 5-9/215 low-center-of-gravity build and compact limb proportions across run, cut, juke, stiff-arm, catch and pass-protect clips.","No named signature celebration is assigned without verified repeatable footage."],"qa":["official-headshot-reviewed-before-render","number-31-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jalen-thompson","name":"Jalen Thompson","position":"S","number":"34","height":"5-11","weightLbs":190,"officialHeadshotPage":"https://www.dallascowboys.com/team/players-roster/jalen-thompson/","officialImageLabel":"Jalen Thompson HS 2025","baseAsset":"DAL/jalen-thompson/base/dal_jalen-thompson_base_v001","rigArchetype":"s-compact-range","neutralPose":"compact veteran safety stance with balanced hips, light feet and relaxed hands ready for deep-zone or downhill trigger","productionNotes":["Preserve #34.","Keep the 5-11/190 safety silhouette lighter and more range-oriented than the heavier safety rigs while retaining stable proportions for backpedal, break-on-ball, tackle and interception clips.","Use generic defensive/team celebration unless a repeatable player-specific signature is verified; do not invent a named signature."],"qa":["official-headshot-reviewed-before-render","number-34-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/DAL/roster.json action inventory",
+    "phaseBoundary": "This batch establishes reusable base assets/specifications only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-15",
+    "officialRosterSource": "https://www.dallascowboys.com/team/rosters",
+    "notes": ["Current official Dallas roster/player pages were rechecked immediately before this batch for roster identity, jersey number, listed build and official headshot label.","Israel Abanikanda is #25 at 5-10/217; Shavon Revel Jr. is #28 at 6-2/198; Hunter Luepke is #30 at 6-1/250; Emari Demercado is #31 at 5-9/215; Jalen Thompson is #34 at 5-11/190 on current official Dallas pages.","Appearance traits are not encoded from names; the cited current official headshots remain the visual authority at render time.","No unverified named celebration was introduced.","No MLB or NHL integration files are part of this batch."]
+  }
+}
