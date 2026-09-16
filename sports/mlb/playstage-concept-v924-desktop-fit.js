@@ -69,14 +69,14 @@ function settleFooterGap(root,footer,banner,target=8){
   const scale=Math.max(.05,Number(root.dataset.ps915Scale)||1);
   const gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
   const current=parseFloat(footer.style.marginTop)||0;
-  footer.style.marginTop=`${current+((target-gap)/scale)}px`;
+  footer.style.setProperty('margin-top',`${current+((target-gap)/scale)}px`,'important');
 }
 function tighten(root){
   if(!root||!window.matchMedia(MQ).matches) return;
   const footer=root.querySelector('.v923-game-footer');
   const banner=root.querySelector('.ps-play-banner');
   if(!footer||!banner) return;
-  footer.style.marginTop='0px';
+  footer.style.setProperty('margin-top','0px','important');
   requestAnimationFrame(()=>{
     if(!footer.isConnected||!banner.isConnected) return;
     let gap=footer.getBoundingClientRect().top-banner.getBoundingClientRect().bottom;
