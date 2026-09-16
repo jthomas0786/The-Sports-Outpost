@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "action-poses",
+  "batch": "action-poses-stars-03",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked official-current-headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Dallas current uniform geometry with current roster number locked across frames",
+    "naming": "dal_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {
+      "name":"DeMarvion Overshown","slug":"demarvion-overshown","number":"0","position":"LB","priority":"starter",
+      "poses":[
+        {"action":"idle","silhouette":"athletic upright reset with hands relaxed inside shoulder width","durationMs":900,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"balanced linebacker stance with light forward preload","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"read","silhouette":"square shuffle with eyes and shoulders tracking backfield flow","durationMs":620,"loop":true,"eventTags":["defensive_read"]},
+        {"action":"drop-coverage","silhouette":"controlled hip-open drop maintaining vision toward quarterback","durationMs":650,"loop":true,"eventTags":["coverage_drop"]},
+        {"action":"blitz","silhouette":"decisive downhill acceleration through interior or edge lane","durationMs":580,"loop":true,"eventTags":["blitz"]},
+        {"action":"tackle","silhouette":"safe square wrap with head clear and feet driving through finish","durationMs":760,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"sack","silhouette":"controlled quarterback close-and-wrap with readable finish","durationMs":820,"loop":false,"eventTags":["sack"]},
+        {"action":"pass-breakup","silhouette":"late hand-through catch point without illegal body collision","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+        {"action":"interception","silhouette":"two-hand secure catch transitioning immediately to possession","durationMs":760,"loop":false,"eventTags":["interception"]},
+        {"action":"return","silhouette":"athletic turnover return with high-and-tight ball carriage","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+        {"action":"forced-fumble","silhouette":"secure tackle path with clear punch/rake at exposed football","durationMs":820,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"celebrate","silhouette":"generic defensive impact acknowledgment; no invented named signature","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    },
+    {
+      "name":"P.J. Locke","slug":"p-j-locke","number":"1","position":"S","priority":"rotation",
+      "poses":[
+        {"action":"idle","silhouette":"compact safety reset with balanced feet and relaxed hands","durationMs":900,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"low two-way safety stance prepared for run or pass","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"backpedal","silhouette":"smooth square pedal with shoulders level and feet under frame","durationMs":600,"loop":true,"eventTags":["coverage"]},
+        {"action":"deep-zone","silhouette":"controlled depth gain with hips opened and vision inside","durationMs":650,"loop":true,"eventTags":["deep_zone"]},
+        {"action":"break-on-ball","silhouette":"sharp plant and downhill drive toward catch point","durationMs":560,"loop":false,"eventTags":["coverage_break"]},
+        {"action":"tackle","silhouette":"compact wrap finish with head clear and stable foot anchor","durationMs":740,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"pass-breakup","silhouette":"timed hand attack through receiver catch window","durationMs":700,"loop":false,"eventTags":["pass_breakup"]},
+        {"action":"interception","silhouette":"secure hands catch with immediate possession tuck","durationMs":760,"loop":false,"eventTags":["interception"]},
+        {"action":"return","silhouette":"open-field turnover return with protected ball carriage","durationMs":600,"loop":true,"eventTags":["turnover_return"]},
+        {"action":"forced-fumble","silhouette":"legal wrap-and-punch finish with visible ball target","durationMs":800,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"celebrate","silhouette":"restrained defensive acknowledgment without named signature","durationMs":1350,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    },
+    {
+      "name":"Cobie Durant","slug":"cobie-durant","number":"2","position":"CB","priority":"starter",
+      "poses":[
+        {"action":"idle","silhouette":"light-footed corner reset with compact ready posture","durationMs":900,"loop":true,"eventTags":["idle"]},
+        {"action":"press-stance","silhouette":"balanced press alignment with patient hands and inside leverage","durationMs":700,"loop":true,"eventTags":["pre_snap","press_coverage"]},
+        {"action":"backpedal","silhouette":"quick controlled pedal with chest quiet and hips ready to turn","durationMs":580,"loop":true,"eventTags":["coverage"]},
+        {"action":"man-cover","silhouette":"trail/mirror stride maintaining legal receiver spacing","durationMs":600,"loop":true,"eventTags":["man_coverage"]},
+        {"action":"zone-break","silhouette":"vision-driven plant and burst toward target window","durationMs":560,"loop":false,"eventTags":["zone_break"]},
+        {"action":"tackle","silhouette":"controlled perimeter wrap with safe head placement","durationMs":730,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"pass-breakup","silhouette":"extended near-hand disruption at catch point","durationMs":690,"loop":false,"eventTags":["pass_breakup"]},
+        {"action":"interception","silhouette":"receiver-like hands secure football away from frame","durationMs":760,"loop":false,"eventTags":["interception"]},
+        {"action":"return","silhouette":"compact high-cadence interception return with ball secured","durationMs":580,"loop":true,"eventTags":["turnover_return"]},
+        {"action":"forced-fumble","silhouette":"perimeter tackle with controlled ball punch","durationMs":790,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"celebrate","silhouette":"generic turnover/coverage celebration; no named signature asserted","durationMs":1400,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    },
+    {
+      "name":"Bryan Anger","slug":"bryan-anger","number":"5","position":"P","priority":"specialist",
+      "poses":[
+        {"action":"idle","silhouette":"upright specialist reset with kicking leg loose and balanced","durationMs":950,"loop":true,"eventTags":["idle"]},
+        {"action":"catch-snap","silhouette":"clean two-hand punt snap receive centered over stable base","durationMs":500,"loop":false,"eventTags":["punt_snap"]},
+        {"action":"punt","silhouette":"repeatable drop, plant and full punting-leg follow-through","durationMs":1050,"loop":false,"eventTags":["punt"]},
+        {"action":"directional-punt","silhouette":"controlled directional drop with target-side follow-through","durationMs":1050,"loop":false,"eventTags":["directional_punt"]},
+        {"action":"coffin-corner","silhouette":"precision shortened power path with balanced sideline-target finish","durationMs":1050,"loop":false,"eventTags":["coffin_corner_punt"]},
+        {"action":"fake-punt","silhouette":"snap secure into controlled rollout/ball-carry transition","durationMs":850,"loop":false,"eventTags":["fake_punt"]},
+        {"action":"celebrate","silhouette":"subtle successful-punt acknowledgment; no invented named signature","durationMs":1200,"loop":false,"eventTags":["special_teams_play","celebration"]}
+      ]
+    },
+    {
+      "name":"Donovan Ezeiruaku","slug":"donovan-ezeiruaku","number":"6","position":"EDGE","priority":"starter",
+      "poses":[
+        {"action":"idle","silhouette":"athletic edge reset with hands relaxed and weight centered","durationMs":900,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"explosive edge stance with forward-loaded first-step posture","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"rush","silhouette":"fast get-off into compact pass-rush track","durationMs":580,"loop":true,"eventTags":["pass_rush"]},
+        {"action":"speed-rush","silhouette":"low cornering arc with outside shoulder reduced cleanly","durationMs":620,"loop":false,"eventTags":["pass_rush","speed_rush"]},
+        {"action":"power-rush","silhouette":"square long-arm/power drive with hips under pads","durationMs":680,"loop":false,"eventTags":["pass_rush","power_rush"]},
+        {"action":"shed-block","silhouette":"compact hand clear into balanced pursuit lane","durationMs":600,"loop":false,"eventTags":["block_shed"]},
+        {"action":"tackle","silhouette":"safe wrap-and-drive finish with clear contact silhouette","durationMs":730,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"sack","silhouette":"controlled quarterback close with wrap finish and no limb clipping","durationMs":820,"loop":false,"eventTags":["sack"]},
+        {"action":"pressure","silhouette":"closing rush stride with hands active in throwing lane","durationMs":620,"loop":false,"eventTags":["qb_pressure"]},
+        {"action":"forced-fumble","silhouette":"rush finish with clear strip path toward exposed football","durationMs":820,"loop":false,"eventTags":["forced_fumble"]},
+        {"action":"fumble-recovery","silhouette":"low secure scoop into protected possession posture","durationMs":800,"loop":false,"eventTags":["fumble_recovery"]},
+        {"action":"celebrate","silhouette":"high-energy generic edge-rusher impact reaction; no named signature assigned","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    }
+  ],
+  "verification": {
+    "checkedAt":"2026-09-16",
+    "officialRosterSource":"https://www.dallascowboys.com/team/players-roster/",
+    "officialDepthChartSource":"https://www.dallascowboys.com/team/depth-chart",
+    "notes":[
+      "Current Dallas official roster and depth chart were rechecked immediately before production.",
+      "Official current roster confirms Overshown #0 LB, Locke #1 S, Durant #2 CB, Anger #5 P and Ezeiruaku #6 OLB/EDGE remain active Dallas players.",
+      "Locked official-current-headshot references remain the sole authority for visible appearance and skin tone.",
+      "No named player-specific signature celebration is asserted in this batch."
+    ]
+  },
+  "qa": {
+    "requirements":[
+      "Every pose action must exist in the player's roster.json action inventory.",
+      "Locked face, skin tone, hair/facial hair, jersey number, scale and foot anchor may not drift between actions.",
+      "Ball-possession transitions must remain continuous.",
+      "Contact poses must avoid impossible limb intersections.",
+      "Transparent alpha edges must remain clean at Gamecast scale.",
+      "Punt ball/drop geometry must remain physically readable at Gamecast scale."
+    ],
+    "status":"specified"
+  }
+}
