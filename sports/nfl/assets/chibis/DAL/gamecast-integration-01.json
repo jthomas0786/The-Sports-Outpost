@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-01",
+  "season": 2026,
+  "purpose": "Runtime-neutral contract for resolving Dallas Gamecast play events into the approved realistic 3D chibi asset library without changing NFL, MLB, or NHL rendering code in this batch.",
+  "authoritativeInputs": {
+    "roster": "./roster.json",
+    "actionInventory": "roster.json players[].actions",
+    "signatures": "./signature-sequences-stars-01.json",
+    "assetRoot": "./<player-slug>/",
+    "rule": "Never request an action absent from that player's roster.json action inventory."
+  },
+  "assetContract": {
+    "baseCandidates": ["base/dal_<player-slug>_base_v001.webp", "base/dal_<player-slug>_base_v001.png"],
+    "actionCandidates": ["actions/<action>/dal_<player-slug>_<action>_v001.webp", "actions/<action>/dal_<player-slug>_<action>_v001.png"],
+    "signatureCandidates": ["signatures/<signature>/dal_<player-slug>_signature_<signature>_v001.webp", "signatures/<signature>/dal_<player-slug>_signature_<signature>_v001.png"],
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet",
+    "camera": "locked shared three-quarter Gamecast angle",
+    "lighting": "locked neutral stadium key/fill/rim rig",
+    "appearance": "locked official-current-headshot reference; never infer skin tone or visible appearance from name",
+    "uniform": "current Dallas geometry and roster number locked across base, actions, and signatures"
+  },
+  "resolutionOrder": [
+    "verified player signature when event trigger exactly matches signature metadata",
+    "player-specific action from roster.json inventory",
+    "position-safe fallback action from this manifest that also exists in roster.json inventory",
+    "player base chibi",
+    "no asset; retain existing Gamecast non-chibi fallback"
+  ],
+  "eventMap": {
+    "pre_snap": ["pre-snap", "stance", "idle"],
+    "snap": ["snap", "stance", "idle"],
+    "pass_attempt_short": ["throw-short", "dropback", "stance", "idle"],
+    "pass_attempt_deep": ["throw-deep", "dropback", "stance", "idle"],
+    "qb_scramble": ["scramble", "run", "idle"],
+    "reception": ["catch", "contested-catch", "idle"],
+    "rush": ["run", "handoff-receive", "idle"],
+    "first_down": ["first-down-celebration", "celebrate", "idle"],
+    "touchdown": ["touchdown-celebration", "celebrate", "idle"],
+    "tackle": ["tackle", "tackled", "idle"],
+    "sack": ["sack", "tackle", "celebrate", "idle"],
+    "pressure": ["pressure", "rush", "idle"],
+    "pass_breakup": ["pass-breakup", "break-on-ball", "idle"],
+    "interception": ["interception", "catch", "return", "idle"],
+    "forced_fumble": ["forced-fumble", "tackle", "idle"],
+    "fumble_recovery": ["fumble-recovery", "recover-fumble", "idle"],
+    "field_goal": ["field-goal", "kick", "idle"],
+    "extra_point": ["extra-point", "field-goal", "idle"],
+    "kickoff": ["kickoff", "kick-return", "idle"],
+    "punt": ["punt", "directional-punt", "punt-return", "idle"],
+    "kneel": ["kneel", "idle"],
+    "spike": ["spike", "idle"]
+  },
+  "verifiedSignatureRouting": [
+    {
+      "player": "CeeDee Lamb",
+      "slug": "ceedee-lamb",
+      "number": "88",
+      "events": ["first_down"],
+      "signature": "nose-wipe",
+      "sequenceSource": "signature-sequences-stars-01.json",
+      "fallback": ["first-down-celebration", "idle"]
+    },
+    {
+      "player": "Von Miller",
+      "slug": "von-miller",
+      "number": "40",
+      "events": ["sack", "tackle_for_loss", "impact_defensive_play"],
+      "signature": "desoto-shuffle",
+      "sequenceSource": "signature-sequences-stars-01.json",
+      "fallback": ["celebrate", "sack", "tackle", "idle"]
+    }
+  ],
+  "runtimeRules": {
+    "identityKey": "team + normalized player name; roster slug is canonical once matched",
+    "teamGuard": "Only resolve this manifest for DAL players; never cross-resolve same-name players from another team.",
+    "possessionContinuity": "Keep ball attached to the established possession hand through catch/run/return transitions until the play state releases possession.",
+    "anchorContinuity": "Blend action transitions around the same bottom-center world anchor; signature root motion must resolve to that anchor.",
+    "staleStateGuard": "A new play id resets transient action/signature state before resolving the next event.",
+    "missingAssetBehavior": "Fail soft through resolutionOrder; never hide the existing Gamecast scene because a chibi file is missing.",
+    "signatureGuard": "Do not synthesize, rename, or infer signatures. Only verifiedSignatureRouting may invoke named signatures."
+  },
+  "qa": {
+    "checks": [
+      "Every event-map candidate is filtered against roster.json before asset lookup.",
+      "All 53 Dallas roster players can fall back to base without requiring a star-only path.",
+      "CeeDee Lamb first_down prefers nose-wipe and gracefully falls back when signature frames are absent.",
+      "Von Miller sack/TFL/impact events prefer DeSoto Shuffle and gracefully fall back when signature frames are absent.",
+      "Unknown events and unknown players do not break or blank Gamecast.",
+      "No MLB or NHL path, selector, state, asset, or renderer is referenced by this manifest.",
+      "Transparent alpha, camera, lighting, scale, foot anchor, uniform number, and locked appearance remain invariant across transitions."
+    ],
+    "status": "specified"
+  }
+}
