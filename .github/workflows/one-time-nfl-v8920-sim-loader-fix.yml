@@ -36,11 +36,12 @@ jobs:
           node --check sports/router.js
       - name: Run All Players regression
         run: node scripts/nfl-all-players-controls-v8921-selftest.mjs
-      - name: Run current simulation and 2+ TD regressions
-        run: |
-          node scripts/nfl-v8920-sim-loader-selftest.mjs
-          node scripts/nfl-v8918-two-plus-td-selftest.mjs
-          node scripts/nfl-v8919-native-two-plus-selftest.mjs
+      - name: Run simulation loader regression
+        run: node scripts/nfl-v8920-sim-loader-selftest.mjs
+      - name: Run 2+ TD engine regression
+        run: node scripts/nfl-v8918-two-plus-td-selftest.mjs
+      - name: Run native 2+ TD UI regression
+        run: node scripts/nfl-v8919-native-two-plus-selftest.mjs
       - name: Commit production cache bust
         run: |
           git config user.name 'TSO NFL UI Fix Bot'
