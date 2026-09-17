@@ -738,10 +738,16 @@ function lineResult(value,ctx){
   return Number(value)>Number(ctx.line);
 }
 function selectedPropLabel(ctx){ return `${ctx.meta.label}${ctx.key==='atd'||ctx.key==='firstTd'?'':` · O ${fmtLine(ctx.line)}`}`; }
-function propHeaderStats(r,ctx,snapPct,rzOpps){
+function propHeaderStats(r,ctx,snapPct,rzOpps,twoPlusTd=null){
   const seasonTotal=propSeasonTotal(r,ctx.key),vol=propVolume(r,ctx.key);
-  if(ctx.key==='atd'||ctx.key==='firstTd') return [
-    [ctx.key==='atd'?`${ctx.prob}%`:`${ctx.prob}%`,ctx.meta.button],
+  if(ctx.key==='atd') return [
+    [`${ctx.prob}%`,ctx.meta.button],
+    [Number.isFinite(Number(twoPlusTd))?`${Number(twoPlusTd).toFixed(1)}%`:'—','2+ TD'],
+    [rzOpps||'—','RZ Opps'],
+    [Number.isFinite(ctx.defense)?fmt1(ctx.defense):'—','Opp TD/G']
+  ];
+  if(ctx.key==='firstTd') return [
+    [`${ctx.prob}%`,ctx.meta.button],
     [r?.last5?.tdGames??'—','TD Games L5'],
     [rzOpps||'—','RZ Opps'],
     [Number.isFinite(ctx.defense)?fmt1(ctx.defense):'—','Opp TD/G']
@@ -781,7 +787,10 @@ function propVerdictHTML(r,ctx,name,edge,snapPct,rzOpps){
   const col=gradeColor(ctx.grade),last=name.split(' ').slice(-1)[0];
   const source=ctx.offer?`${ctx.offer.book||'Book'} ${fmtAmericanPrice(ctx.offer.price)}`:ctx.lineSource;
   let body;
-  if(ctx.key==='atd'||ctx.key==='firstTd') body=`${ctx.prob}% ${ctx.meta.label.toLowerCase()} probability for ${last}. ${depthLabel(r,r.position)} · ${snapPct||'—'}% snap baseline · ${rzOpps||'—'} red-zone opportunities · ${fmt1(ctx.defense)} TD/g allowed by the matchup position group.`;
+  if(ctx.key==='atd'||ctx.key==='firstTd'){
+    const multi=ctx.key==='atd'&&Number.isFinite(Number(ctx.twoPlusTd))?` · ${Number(ctx.twoPlusTd).toFixed(1)}% chance for 2+ TDs.`:'';
+    body=`${ctx.prob}% ${ctx.meta.label.toLowerCase()} probability for ${last}. ${depthLabel(r,r.position)} · ${snapPct||'—'}% snap baseline · ${rzOpps||'—'} red-zone opportunities · ${fmt1(ctx.defense)} TD/g allowed by the matchup position group.${multi}`;
+  }
   else body=`${last} projects for ${fmt1(ctx.projection)} ${ctx.meta.unit.toLowerCase()} against an over line of ${fmtLine(ctx.line)}. L5: ${fmt1(ctx.recent)} · season: ${fmt1(ctx.seasonPg)} · ${r?.matchup?.opponent||'opponent'} allowed: ${fmt1(ctx.defense)} ${ctx.meta.unit.toLowerCase()}/game.`;
   const tag=ctx.key==='atd'||ctx.key==='firstTd'?`${ctx.prob}% ${ctx.meta.button}`:`${ctx.prob}% OVER`;
   return `<div class="verdict"><div class="ring" style="color:${col}">${ringSVG(ctx.prob,100)}<div class="ring-c"><div class="ring-g">${esc(ctx.grade)}</div><div class="ring-tag">${esc(tag)}</div></div></div><div class="vd-right" style="color:${col}"><div class="vd-head">${gradeHeadline(ctx.grade)}</div><div class="vd-body">${esc(body)}</div><div class="vd-honesty-row"><span class="pv-interval">${esc(selectedPropLabel(ctx))}</span><span class="pv-pa-note">${esc(source)}</span><span class="pv-cal-label pv-cal-underconfident">${ctx.key==='atd'||ctx.key==='firstTd'?'TSO model':'Research lean'}</span></div></div></div>`;
@@ -967,6 +976,9 @@ function enhanceModal(root){
   const scoring=sectionByTitle(modal,'Scoring Outlook');
   const usage=sectionByTitle(modal,'Usage & Efficiency');
   const atd=numeric(textMetric(scoring,'Anytime TD'),Number(r?.model?.atdProbability||0)*100);
+  const canonicalAtd=findPreviewPropResult(r,'atd');
+  const twoPlusRaw=Number(canonicalAtd?.twoPlusTd);
+  const twoPlusTd=Number.isFinite(twoPlusRaw)?clampNum(twoPlusRaw<=1?twoPlusRaw*100:twoPlusRaw,0,100):null;
   const firstTd=numeric(textMetric(scoring,'First TD'),0);
   const rzOpps=numeric(textMetric(scoring,'RZ Opportunities'),(Number(r?.model?.rzTargets)||0)+(Number(r?.model?.rzCarries)||0));
   let snapPct=numeric(textMetric(usage,'Snap Share'),Number(r?.model?.snapShare||0)*100);
@@ -1009,10 +1021,11 @@ function enhanceModal(root){
 
   const renderSelectedProp=()=>{
     const ctx=propContext(r,selected,{atd,firstTd,edge});
+    if(selected==='atd'&&twoPlusTd!=null) ctx.twoPlusTd=twoPlusTd;
     const propSelect=modal.querySelector('#tsoNflPropSelect'); if(propSelect) propSelect.value=selected;
     const subEl=modal.querySelector('#tsoNflPropSub');
     if(subEl) subEl.innerHTML=`${esc(selectedPropLabel(ctx))} · vs ${esc(opp||'DEF')} · ${esc(team)} ${esc(pos)}${r.jersey?` #${esc(r.jersey)}`:''}`;
-    const hs=propHeaderStats(r,ctx,snapPct,rzOpps);
+    const hs=propHeaderStats(r,ctx,snapPct,rzOpps,twoPlusTd);
     const hsEl=modal.querySelector('#tsoNflHeaderStats'); if(hsEl) hsEl.innerHTML=hs.map(([v,l])=>`<div><b>${esc(v)}</b><small>${esc(l)}</small></div>`).join('');
     const oddsEl=modal.querySelector('#tsoNflPropOdds'); if(oddsEl) oddsEl.innerHTML=propOddsStripHTML(ctx);
     const verdict=modal.querySelector('#tsoNflVerdict'); if(verdict) verdict.innerHTML=propVerdictHTML(r,ctx,name,edge,snapPct,rzOpps);

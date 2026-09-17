@@ -767,6 +767,7 @@ async function loadData(){
       modelProb:finiteNumberOrNull(v.modelProb),
       simProb:finiteNumberOrNull(v.simProb),
       simUsed:!!v.simUsed,
+      twoPlusTd:prop==='atd'?twoPlusTdProbability(player):null,
       offer:o?{
         line:finiteNumberOrNull(o.line),
         price:finiteNumberOrNull(o.price),
@@ -930,6 +931,13 @@ function firstTdProbability(p){
   const rz=clamp((Number(p?.rz)||8)/24,0,1.35);
   const roleShare=clamp(.17 + usage*.10 + rz*.12, .20, .43);
   return clamp(atd*roleShare,.015,.22);
+}
+
+function twoPlusTdProbability(p){
+  const two=finiteNumberOrNull(p?.sim?.probabilities?.twoPlusTd);
+  const atd=finiteNumberOrNull(p?.sim?.probabilities?.atd);
+  if(two==null) return null;
+  return clamp(two,0,atd==null?1:atd);
 }
 
 function propValue(p,prop){
@@ -1209,7 +1217,13 @@ function propToolbar(){
   return `<div class="prop-market-bar nfl-mlb-prop-toolbar"><div class="prop-market-control nfl-mlb-prop-market-control"><span class="prop-market-label">Player Prop</span><div class="prop-market-select-wrap nfl-mlb-prop-select-wrap"><select id="nflMlbPropSelect" class="prop-market-select nfl-mlb-prop-select" aria-label="NFL player prop market">${Object.entries(PROPS).map(([id,label])=>`<option value="${esc(id)}" ${state.prop===id?'selected':''}>${esc(label)}</option>`).join('')}</select></div></div><div class="nfl-mlb-prop-fresh"><b>● LIVE ODDS</b> · ${esc(oddsFreshnessLabel())}<br><b>◆ TSO SIM</b> · ${esc(simulationFreshnessLabel())}</div></div>`;
 }
 function propCardDetail(p,v,prop){
-  if(prop==='atd'||prop==='firstTd') return [
+  if(prop==='atd'){
+    const two=twoPlusTdProbability(p);
+    return [
+      ['SNAP',`${p.usage}%`],['RZ OPPS',p.rz],['2+ TD',two==null?'—':`${(two*100).toFixed(1)}%`],['TSO EDGE',p.edge],
+    ];
+  }
+  if(prop==='firstTd') return [
     ['SNAP',`${p.usage}%`],['RZ OPPS',p.rz],['TSO EDGE',p.edge],
   ];
   return [
@@ -1222,13 +1236,15 @@ function playerCard(p,prop,rank){
   const matchup=[`vs ${p.opp||'DEF'}`,date,g?.time].filter(Boolean).join(' · ');
   const marketLabel=PROPS[prop]||prop;
   const marketMain=(prop==='atd'||prop==='firstTd')?v.main:(v.line!=null?`Over ${fmtLine(v.line)}`:`Proj ${fmtLine(v.projection)}`);
+  const twoPlus=prop==='atd'?twoPlusTdProbability(p):null;
+  const twoPlusInline=twoPlus==null?'':`<span class="nfl-mlb-two-plus-inline" style="display:inline-flex;align-items:center;gap:5px;width:max-content;margin-top:6px;padding:4px 7px;border:1px solid rgba(245,158,11,.42);border-radius:999px;background:rgba(245,158,11,.11);color:#fbbf24;font:900 8px 'JetBrains Mono',monospace">2+ TD <b style="color:#fff">${(twoPlus*100).toFixed(1)}%</b></span>`;
   const odds=offer?`<div class="nfl-mlb-prop-odds"><span>BEST ODDS</span><b>${priceFmt(offer.price)}</b><em>${esc(offer.book||'Sportsbook')}</em></div>`:`<div class="nfl-mlb-prop-odds" style="border-color:rgba(110,137,171,.18);background:rgba(8,25,49,.32);color:#7f9ab9"><span>ODDS</span><b style="font-size:9px">Sportsbook pending</b></div>`;
   const wager=prop==='atd'?atdWagerButtonHTML(p,'Add ATD to Slip'):'';
   return `<article class="nfl-mlb-prop-card" data-nfl-player="${esc(p.id)}" role="button" tabindex="0">
     <div class="nfl-mlb-prop-rank">${rank}</div>
     <div class="nfl-mlb-prop-avatar">${p.headshot?`<img src="${esc(p.headshot)}" alt="" loading="lazy" decoding="async">`:`<span>${esc(initials(p.name))}</span>`}</div>
     <div class="nfl-mlb-prop-main"><div class="nfl-mlb-prop-name"><b>${esc(p.name)}</b><span>${esc(p.team)} · ${esc(p.pos)}</span></div><div class="nfl-mlb-prop-match">${esc(matchup)}</div><div class="nfl-mlb-prop-badges">${nflBadges(p)}</div><div class="nfl-mlb-prop-detail">${propCardDetail(p,v,prop).map(([l,x])=>`<span>${esc(l)}<b>${esc(x)}</b></span>`).join('')}</div></div>
-    <div class="nfl-mlb-prop-market"><span>${esc(marketLabel)}</span><strong>${esc(marketMain)}</strong><small>${prop==='atd'?(v.simUsed?`TSO blend · ${Math.round((p.simIterations||0)/1000)||50}K sim + model · ${p.rz} RZ opps`:`TSO model · ${p.rz} red-zone opps`):prop==='firstTd'?(v.simUsed?`TSO first-TD model · ATD sim-informed`:`TSO first-TD model · ${p.rz} red-zone opps`):(v.simUsed?`TSO blend · ${Math.round((p.simIterations||0)/1000)||50}K sim + research · book ${fmtLine(v.line)}`:`TSO research projection ${fmtLine(v.projection)} · ${v.line!=null?`book line ${fmtLine(v.line)}`:'line pending'}`)}</small>${odds}${wager}</div>
+    <div class="nfl-mlb-prop-market"><span>${esc(marketLabel)}</span><strong>${esc(marketMain)}</strong>${twoPlusInline}<small>${prop==='atd'?(v.simUsed?`TSO blend · ${Math.round((p.simIterations||0)/1000)||50}K sim + model · ${p.rz} RZ opps`:`TSO model · ${p.rz} red-zone opps`):prop==='firstTd'?(v.simUsed?`TSO first-TD model · ATD sim-informed`:`TSO first-TD model · ${p.rz} red-zone opps`):(v.simUsed?`TSO blend · ${Math.round((p.simIterations||0)/1000)||50}K sim + research · book ${fmtLine(v.line)}`:`TSO research projection ${fmtLine(v.projection)} · ${v.line!=null?`book line ${fmtLine(v.line)}`:'line pending'}`)}</small>${odds}${wager}</div>
     <div class="nfl-mlb-prop-grade">${nflGradeRingHTML(v.prob,grade,'lg')}<small>${prop==='atd'||prop==='firstTd'?'TD grade':'Over lean'}</small></div>
   </article>`;
 }

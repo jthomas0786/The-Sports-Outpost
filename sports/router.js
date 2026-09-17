@@ -170,7 +170,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview-v893.js?v=89.41');
+      const mod = await import('./nfl-preview-v893.js?v=89.42');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
@@ -178,7 +178,7 @@ async function swapView(active) {
         window.DW_nflPreviewPendingTab = null;
       }
       try {
-        const researchUi = await import('./nfl-research-ui.js?v=86.8');
+        const researchUi = await import('./nfl-research-ui.js?v=86.9');
         await researchUi.mountNflResearchUI(nflView);
         try {
           const altProps = await import('./nfl-alt-props-v892.js?v=89.2');
