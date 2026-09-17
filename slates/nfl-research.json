@@ -2,16 +2,28 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-09-17T04:54:09.091Z",
+  "generatedAt": "2026-09-17T11:42:28.484Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
     "tso": "Existing slates/nfl.json model fields"
   },
   "sourceHealth": {
+    "nflverseSchedule": {
+      "ok": true,
+      "rows": 7548
+    },
     "nflverseRosterCurrent": {
       "ok": true,
-      "rows": 2968
+      "rows": 2978
+    },
+    "nflverseCurrentWeekly": {
+      "ok": true,
+      "rows": 1118
+    },
+    "nflverseCurrentSnaps": {
+      "ok": true,
+      "rows": 1492
     },
     "espnTeams": {
       "ok": true,
@@ -21,9 +33,9 @@
       ],
       "rows": 32
     },
-    "nflverseCurrentSnaps": {
+    "nflversePrevSnaps": {
       "ok": true,
-      "rows": 1492
+      "rows": 26612
     },
     "nflverseCurrentRegular": {
       "ok": true,
@@ -33,25 +45,13 @@
       "ok": true,
       "rows": 2020
     },
-    "nflverseCurrentWeekly": {
-      "ok": true,
-      "rows": 1118
-    },
     "nflversePlayers": {
       "ok": true,
       "rows": 24824
     },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26612
-    },
     "nflversePrevWeekly": {
       "ok": true,
       "rows": 19422
-    },
-    "nflverseSchedule": {
-      "ok": true,
-      "rows": 7548
     },
     "espnInjuries": {
       "ok": true,
@@ -67,56 +67,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CAR": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:BAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -130,7 +88,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CAR": {
+    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -151,6 +109,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -158,7 +123,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DEN": {
+    "espnDepth:BAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:BUF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -172,6 +165,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:CLE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -179,7 +179,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DET": {
+    "espnDepth:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -200,14 +200,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CLE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:GB": {
+    "espnDepth:DET": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -228,7 +221,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:HOU": {
+    "espnRoster:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -242,14 +235,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:IND": {
+    "espnDepth:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:JAX": {
+    "espnDepth:IND": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -263,28 +256,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:JAX": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:KC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LV": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:KC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -298,28 +277,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:KC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LV": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -333,14 +298,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
+    "espnDepth:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:MIA": {
+    "espnRoster:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LV": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -354,14 +340,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NYG": {
+    "espnDepth:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -375,7 +354,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:MIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:NE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -396,13 +389,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -410,14 +396,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PHI": {
+    "espnRoster:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PIT": {
+    "espnRoster:MIA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -431,7 +417,56 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:SEA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:PIT": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:PHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:TB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:PIT": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:TEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -452,48 +487,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:SEA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:TB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:TB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:TEN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:TEN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -502,6 +495,13 @@
       ]
     },
     "espnRoster:WSH": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -9212,7 +9212,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 6,
-      "age": 28,
+      "age": 29,
       "depth": {
         "rank": 6,
         "position": "WR",
@@ -11797,7 +11797,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 3,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "DE",
@@ -12058,7 +12058,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 8,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": null,
         "position": "DE",
@@ -38860,7 +38860,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 4,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": 1,
         "position": "WR",
@@ -43020,7 +43020,7 @@
       "team": "BAL",
       "name": "Nick Vannett",
       "position": "TE",
-      "jersey": "83",
+      "jersey": "87",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/2576399.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -47576,7 +47576,7 @@
       "team": "BAL",
       "name": "Chuma Edoga",
       "position": "G",
-      "jersey": "55",
+      "jersey": "62",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3701582.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -50282,7 +50282,7 @@
       "team": "BAL",
       "name": "AJ Arcuri",
       "position": "OT",
-      "jersey": "61",
+      "jersey": "68",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4046707.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -81002,7 +81002,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 3,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -99598,7 +99598,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 0,
-      "age": 21,
+      "age": 22,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -103849,7 +103849,7 @@
       "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 2,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -106171,7 +106171,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 0,
-      "age": 22,
+      "age": 23,
       "depth": {
         "rank": null,
         "position": "S",
@@ -109325,7 +109325,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 10,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": 2,
         "position": "RB",
@@ -112062,7 +112062,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 3,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": 3,
         "position": "TE",
@@ -115817,7 +115817,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 3,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -119173,7 +119173,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 2,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": null,
         "position": "G",
@@ -122763,7 +122763,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 10,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": 1,
         "position": "QB",
@@ -135094,7 +135094,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 2,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -137027,7 +137027,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 9,
-      "age": 29,
+      "age": 30,
       "depth": {
         "rank": null,
         "position": "P",
@@ -142171,7 +142171,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 5,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": 2,
         "position": "QB",
@@ -201707,7 +201707,7 @@
       "team": "GB",
       "name": "Eric Johnson II",
       "position": "DT",
-      "jersey": null,
+      "jersey": "74",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4050971.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -203502,7 +203502,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 5,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": null,
         "position": "G",
@@ -212462,7 +212462,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 0,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": 3,
         "position": "TE",
@@ -215008,7 +215008,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 3,
-      "age": 26,
+      "age": 27,
       "depth": {
         "rank": 5,
         "position": "WR",
@@ -216090,7 +216090,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": 8,
         "position": "WR",
@@ -220286,7 +220286,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 8,
-      "age": 29,
+      "age": 30,
       "depth": {
         "rank": null,
         "position": "G",
@@ -224916,7 +224916,7 @@
       "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 9,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": null,
         "position": "S",
@@ -229580,7 +229580,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 2,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": 3,
         "position": "QB",
@@ -239848,7 +239848,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 3,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -256314,7 +256314,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 7,
-      "age": 29,
+      "age": 30,
       "depth": {
         "rank": null,
         "position": "LS",
@@ -259081,7 +259081,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 10,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": 1,
         "position": "QB",
@@ -283833,7 +283833,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 5,
-      "age": 27,
+      "age": 28,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -284292,7 +284292,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 5,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -287173,7 +287173,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
-      "age": 22,
+      "age": 23,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -287231,7 +287231,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 2,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -288298,7 +288298,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 2,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -299289,7 +299289,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 4,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": 6,
         "position": "WR",
@@ -307712,7 +307712,7 @@
       "team": "LAC",
       "name": "Marquez Valdes-Scantling",
       "position": "WR",
-      "jersey": null,
+      "jersey": "11",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3051738.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -325595,7 +325595,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 0,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "S",
@@ -336863,7 +336863,7 @@
       "team": "MIA",
       "name": "Cal Adomitis",
       "position": "LS",
-      "jersey": null,
+      "jersey": "43",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4240719.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -345752,7 +345752,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 7,
-      "age": 27,
+      "age": 28,
       "depth": {
         "rank": 4,
         "position": "RB",
@@ -349422,7 +349422,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 7,
-      "age": 29,
+      "age": 30,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -354250,7 +354250,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 9,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": null,
         "position": "OT",
@@ -355244,7 +355244,7 @@
       "team": "MIN",
       "name": "Jerome Ford",
       "position": "RB",
-      "jersey": null,
+      "jersey": "34",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4372019.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -361715,7 +361715,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 10,
-      "age": 32,
+      "age": 33,
       "depth": {
         "rank": 3,
         "position": "WR",
@@ -365811,7 +365811,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": 7,
         "position": "WR",
@@ -368450,7 +368450,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 2,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": null,
         "position": "DT",
@@ -371886,7 +371886,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 0,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "OT",
@@ -424930,7 +424930,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 7,
-      "age": 31,
+      "age": 32,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -426857,7 +426857,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 2,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "S",
@@ -439788,7 +439788,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 7,
-      "age": 27,
+      "age": 28,
       "depth": {
         "rank": null,
         "position": "DE",
@@ -478336,7 +478336,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 4,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "S",
@@ -495249,7 +495249,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 9,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": null,
         "position": "PK",
@@ -502199,7 +502199,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 7,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": 4,
         "position": "QB",
@@ -505361,7 +505361,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": 10,
         "position": "WR",
@@ -542854,7 +542854,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
-      "age": 26,
+      "age": 27,
       "depth": {
         "rank": null,
         "position": "DT",
@@ -544634,7 +544634,7 @@
       "team": "WSH",
       "name": "Austin Keys",
       "position": "LB",
-      "jersey": null,
+      "jersey": "53",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4429185.png",
       "rosterStatus": "Practice Squad",
       "active": true,
