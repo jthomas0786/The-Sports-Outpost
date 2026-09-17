@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-10",
+  "season": 2026,
+  "purpose": "Dallas Gamecast integration closure contract: end-to-end readiness, deterministic fail-safe behavior and handoff into final team QA without changing shared MLB/NHL runtime.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json","./gamecast-integration-05.json","./gamecast-integration-06.json","./gamecast-integration-07.json","./gamecast-integration-08.json","./gamecast-integration-09.json"],
+  "productionReadiness": {
+    "eligibility": "A Dallas chibi may render only when stable DAL player identity, roster-authoritative action eligibility and a release-gated asset all resolve for the same season snapshot.",
+    "eventAuthority": "Authoritative Gamecast play truth owns player role, action, football possession and correction state; polling cadence and file presence cannot manufacture events.",
+    "identityAuthority": "Appearance remains locked to the player's current official Dallas headshot reference and current roster number; never infer skin tone or visible appearance from name.",
+    "assetFailure": "Any unresolved, corrupt, stale or ineligible chibi asset degrades to the existing non-chibi Gamecast presentation without guessing another player or appearance.",
+    "signatureAuthority": "Only verified signature concepts on the Dallas allowlist may render, once per authoritative event key, and they remain interruptible by newer or corrected play truth.",
+    "namespace": "All caches, event keys, asset paths and state are scoped NFL/DAL so Dallas integration cannot mutate MLB or NHL behavior."
+  },
+  "endToEndInvariants": {
+    "style": "approved realistic 3D chibi",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet; no accumulated root-motion drift across sequences",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number; never mirrored",
+    "football": "exactly one visual football authority at any instant",
+    "timeline": "one monotonic play-scoped clock; polling arrival time never drives animation progress",
+    "participantLimit": "respect the bounded Gamecast chibi scene participant policy and retain existing Gamecast for overflow",
+    "accessibility": "reduced-motion mode preserves event meaning and identity while suppressing nonessential flourish"
+  },
+  "signatureAllowlist": [
+    {"player":"CeeDee Lamb","concept":"nose-wipe first-down celebration","events":["first_down"],"verified":true,"maxStartsPerEventKey":1},
+    {"player":"Von Miller","concept":"DeSoto Shuffle","events":["sack","tackle_for_loss"],"verified":true,"maxStartsPerEventKey":1}
+  ],
+  "qaHandoff": {
+    "nextPhase": "qa",
+    "requiredEvidence": [
+      "roster.json resolves all 53 Dallas player identities and authoritative action inventories",
+      "all 53 appearance-reference locks remain tied to official headshot evidence rather than name inference",
+      "all 53 base-chibi specifications preserve canonical visual invariants",
+      "all 53 players have position-appropriate action-pose specifications",
+      "the two verified Dallas signature sequences remain allowlisted and no invented named signature exists",
+      "all ten Gamecast integration contracts remain internally compatible",
+      "missing/corrupt/stale assets always preserve existing non-chibi Gamecast",
+      "no Dallas integration contract introduces MLB/NHL mutation or dependency"
+    ],
+    "completionRule": "Dallas must not advance to PHI until final QA explicitly passes the complete Dallas asset/integration inventory."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-e2e-catch-first-down","input":{"team":"DAL","identityResolved":true,"actionEligible":"catch","event":"first_down","assetReleaseGated":true},"expect":{"chibiEligible":true,"footballAuthorityCountAtAnyInstant":1,"canonicalAnchorRecovered":true}},
+    {"id":"dal-e2e-lamb-signature","input":{"player":"CeeDee Lamb","event":"first_down","sameEventKeyObserved":5},"expect":{"noseWipeStarts":1,"inventedSignature":false}},
+    {"id":"dal-e2e-miller-signature","input":{"player":"Von Miller","event":"sack","sameEventKeyObserved":4},"expect":{"deSotoShuffleStarts":1,"inventedSignature":false}},
+    {"id":"dal-e2e-unverified-signature","input":{"player":"Dallas Player","namedSignature":"unsourced celebration"},"expect":{"namedSignatureRendered":false,"safeEligibleActionFallback":true}},
+    {"id":"dal-e2e-number-mismatch","input":{"assetNumberMatchesRoster":false},"expect":{"assetReleaseEligible":false,"baseGamecastRetained":true}},
+    {"id":"dal-e2e-appearance-unresolved","input":{"officialHeadshotLockResolved":false},"expect":{"appearanceGuessed":false,"playerAssetRendered":false}},
+    {"id":"dal-e2e-correction","input":{"renderedRevision":7,"authoritativeRevision":8,"footballOwnerChanged":true},"expect":{"staleAnimationCleared":true,"footballAuthorityCountAtAnyInstant":1,"correctedTruthRebuilt":true}},
+    {"id":"dal-e2e-reduced-motion","input":{"prefersReducedMotion":true,"event":"touchdown"},"expect":{"eventMeaningPreserved":true,"nonessentialFlourishSuppressed":true}},
+    {"id":"dal-e2e-scene-overflow","input":{"eligibleParticipants":7},"expect":{"boundedChibiScene":true,"overflowUsesExistingGamecast":true}},
+    {"id":"dal-e2e-cross-team","input":{"requestedTeam":"DAL","resolvedTeam":"PHI"},"expect":{"dalAssetRendered":false,"identityGuessed":false}},
+    {"id":"dal-e2e-cross-sport","input":{"dallasIntegrationActive":true},"expect":{"mlbMutation":false,"nhlMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Production eligibility requires matching Dallas identity, roster action inventory and release-gated asset.",
+      "Official-headshot appearance locks, current numbers and approved realistic 3D style remain invariant.",
+      "Foot anchors, camera, lighting, scale and transparent alpha remain consistent across end-to-end sequences.",
+      "Football ownership remains singular through actions, handoffs, corrections and failures.",
+      "Repeated polling cannot replay actions or verified signatures.",
+      "Unverified named celebrations cannot enter production routing.",
+      "All failure modes retain the existing non-chibi Gamecast rather than guessing identity or appearance.",
+      "Dallas state remains isolated from MLB/NHL runtime and metadata.",
+      "Final Dallas QA is the only permitted gate before moving to Philadelphia roster-scaffold work."
+    ]
+  }
+}
