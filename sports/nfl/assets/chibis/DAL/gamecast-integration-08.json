@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-08",
+  "season": 2026,
+  "purpose": "Dallas NFL Gamecast deterministic multi-participant choreography, interruption and authoritative-event reconciliation contract.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json","./gamecast-integration-05.json","./gamecast-integration-06.json","./gamecast-integration-07.json"],
+  "choreography": {
+    "authority": "Authoritative play participants and roles determine which Dallas chibis enter a scene; roster.json remains the action-inventory authority.",
+    "roleOrder": ["ball_carrier_or_passer","primary_receiver_or_target","primary_defender","supporting_participants"],
+    "maxActivePrincipals": 4,
+    "overflow": "Participants beyond the principal budget remain represented by existing Gamecast UI rather than spawning unverified or visually colliding chibis.",
+    "sharedClock": "All principals use one play-scoped animation clock so contact, ball transfer and completion beats remain synchronized.",
+    "contactRule": "Contact poses may overlap only at authored contact points; silhouettes must not interpenetrate through heads, torsos or planted legs.",
+    "depthRule": "Stable role-derived depth ordering is retained through an animation unless an authored crossing explicitly swaps depth.",
+    "anchorRule": "Each player returns to or resolves from the locked bottom-center foot anchor; no correction may accumulate root-motion drift across plays."
+  },
+  "interruptions": {
+    "newPlay": "A newer authoritative play cancels unfinished non-signature choreography from the prior play after a short safe blend-out.",
+    "correction": "An authoritative correction invalidates participant/action bindings and rebuilds from corrected truth rather than visually reversing a completed action.",
+    "possessionChange": "Football authority transfers exactly once at the authored event boundary; interrupted scenes cannot leave a detached or duplicate football.",
+    "signatureProtection": "Verified signatures may finish only while their triggering event remains authoritative; correction or new-play invalidation cancels them cleanly.",
+    "polling": "Repeated snapshots of the same event key never restart choreography or signatures."
+  },
+  "eventReconciliation": {
+    "playKey": "gameId/driveId/playId",
+    "eventKey": "playKey/eventType/participantId/authoritativeRevision",
+    "revisionRule": "A higher authoritative revision replaces prior bindings for the same play; lower or equal stale revisions cannot mutate rendered state.",
+    "participantRule": "Resolve by stable player identity plus DAL team namespace; jersey number alone is never an identity key.",
+    "unknownParticipant": "If a participant cannot be roster-authoritatively resolved, retain base Gamecast presentation and do not guess an asset.",
+    "unknownAction": "If the resolved player's roster action inventory lacks the routed action, use the player's safe base/idle fallback without creating eligibility from disk contents."
+  },
+  "signatureAllowlist": [
+    {"player":"CeeDee Lamb","concept":"nose-wipe first-down celebration","events":["first_down"],"verified":true,"interruptible":true},
+    {"player":"Von Miller","concept":"DeSoto Shuffle","events":["sack","tackle_for_loss"],"verified":true,"interruptible":true}
+  ],
+  "visualInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Dallas headshot lock; never infer skin tone or visible appearance from name",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale projected consistently across principals",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "mirroring": "Never mirror an asset in a way that reverses jersey numbers, lettering or identity-specific visible details."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-choreo-pass-catch","input":{"roles":["passer","receiver"],"footballAuthorities":["passer","receiver"]},"expect":{"sharedClock":true,"footballAuthorityCountAtAnyInstant":1}},
+    {"id":"dal-choreo-tackle-contact","input":{"roles":["ball_carrier","primary_defender"],"authoredContact":true},"expect":{"contactSynchronized":true,"invalidTorsoInterpenetration":false}},
+    {"id":"dal-choreo-overflow","input":{"principalCandidates":6},"expect":{"activeChibiPrincipals":4,"baseGamecastRepresentsOverflow":true}},
+    {"id":"dal-choreo-repeat-poll","input":{"sameEventKeyObserved":3},"expect":{"animationStarts":1}},
+    {"id":"dal-choreo-new-play-interrupt","input":{"priorAnimationActive":true,"newAuthoritativePlay":true},"expect":{"priorBlendOut":true,"rootMotionCarriedForward":false}},
+    {"id":"dal-choreo-correction","input":{"revision":2,"priorRevision":1,"participantChanged":true},"expect":{"bindingsRebuilt":true,"reversePlayback":false}},
+    {"id":"dal-choreo-stale-revision","input":{"revision":1,"renderedRevision":2},"expect":{"stateMutation":false}},
+    {"id":"dal-choreo-unknown-player","input":{"team":"DAL","rosterResolved":false},"expect":{"assetGuessed":false,"baseGamecastRetained":true}},
+    {"id":"dal-choreo-lamb-corrected-away","input":{"player":"CeeDee Lamb","signature":"nose-wipe first-down celebration","triggerInitiallyAuthoritative":true,"triggerCorrectedAway":true},"expect":{"signatureCancelledCleanly":true,"signatureRestarted":false}},
+    {"id":"dal-choreo-miller-repeat-sack","input":{"player":"Von Miller","signature":"DeSoto Shuffle","sameEventKeyObserved":2},"expect":{"signatureStarts":1}},
+    {"id":"dal-choreo-cross-sport-isolation","input":{"dallasChoreographyActive":true},"expect":{"mlbMutation":false,"nhlMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Multi-player scenes are deterministic and bounded to authored principal roles.",
+      "Football ownership remains singular through synchronized transfer and interruption.",
+      "New plays and authoritative corrections cannot leak stale root motion, participants or signatures.",
+      "Unknown players/actions fall back safely without guessed identity or disk-derived eligibility.",
+      "Only verified Dallas signature concepts are routed.",
+      "Visual identity, number, camera, lighting, scale, alpha and foot-anchor locks remain unchanged.",
+      "No MLB/NHL runtime or metadata dependency is introduced."
+    ]
+  }
+}
