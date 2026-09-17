@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-02",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"cooper-dejean","name":"Cooper DeJean","position":"DB","number":"33","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/cooper-dejean/","baseAsset":"PHI/cooper-dejean/base/phi_cooper-dejean_base_v001","rigArchetype":"db-athletic-reactive","neutralPose":"balanced defensive-back read stance with light knee bend, relaxed hands and square stable feet","productionNotes":["Preserve #33.","Maintain official-headshot identity and athletic build through press, backpedal, coverage, tackle and interception clips.","Do not assign a named signature celebration in this phase."],"qa":["official-headshot-reviewed-before-render","number-33-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"quinyon-mitchell","name":"Quinyon Mitchell","position":"CB","number":"27","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/quinyon-mitchell/","baseAsset":"PHI/quinyon-mitchell/base/phi_quinyon-mitchell_base_v001","rigArchetype":"cb-quick-fluid","neutralPose":"compact cornerback press-ready stance with forward balance, loose shoulders and stable plant feet","productionNotes":["Preserve #27.","Keep quick cornerback silhouette and headshot-authoritative identity stable through backpedal, break, tackle and interception motion.","No named signature is asserted without later verification."],"qa":["official-headshot-reviewed-before-render","number-27-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"dallas-goedert","name":"Dallas Goedert","position":"TE","number":"88","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/dallas-goedert/","baseAsset":"PHI/dallas-goedert/base/phi_dallas-goedert_base_v001","rigArchetype":"te-tall-strong","neutralPose":"balanced tight-end stance with tall strong frame, relaxed hands and stable ground contact","productionNotes":["Preserve #88.","Retain tall/strong tight-end proportions within the shared Gamecast silhouette envelope across release, route, catch and block actions.","No player-specific named celebration is assigned without verification."],"qa":["official-headshot-reviewed-before-render","number-88-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"lane-johnson","name":"Lane Johnson","position":"T","number":"65","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/lane-johnson/","baseAsset":"PHI/lane-johnson/base/phi_lane-johnson_base_v001","rigArchetype":"ot-tall-powerful","neutralPose":"broad offensive-tackle ready stance with balanced hips, relaxed hands and both feet firmly anchored","productionNotes":["Preserve #65.","Maintain tall/broad line proportions without changing common head scale, camera or anchor geometry.","Rig shoulders, elbows, hips and knees for pass block, run block and pull actions; avoid invented solo celebrations."],"qa":["official-headshot-reviewed-before-render","number-65-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jordan-mailata","name":"Jordan Mailata","position":"T","number":"68","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jordan-mailata/","baseAsset":"PHI/jordan-mailata/base/phi_jordan-mailata_base_v001","rigArchetype":"ot-exceptional-size-power","neutralPose":"wide stable tackle stance with low athletic center, relaxed hands and symmetric ground contact","productionNotes":["Preserve #68.","Communicate exceptional official build while retaining the common production camera, head scale, character box and foot anchor.","Rig for pass block, run block and pull without scale pumping or anchor drift; avoid invented named celebrations."],"qa":["official-headshot-reviewed-before-render","number-68-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five identities and jersey numbers are cross-checked against the locked current PHI roster/reference set.","Appearance remains current-official-headshot authoritative; no skin tone, hair, facial hair or facial features are inferred from names.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
