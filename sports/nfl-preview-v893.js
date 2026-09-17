@@ -4,7 +4,7 @@ import { installNflGamecastActiveLiveV8911 } from './nfl/gamecast-active-live-v8
 import { installNflGamecastScoreGuardV8910 } from './nfl/gamecast-score-guard-v8910.js?v=89.14';
 import { installNflGamecastFieldPositionV8925 } from './nfl/gamecast-field-position-v8925.js?v=89.25';
 import { installNflGamecastFieldStateV8912 } from './nfl/gamecast-field-state-v8912.js?v=89.16';
-import { installNflPropModelEdgeV8917 } from './nfl/prop-model-edge-v8917.js?v=89.17';
+import { installNflPropModelEdgeV8918 } from './nfl/prop-model-edge-v8918.js?v=89.18';
 import { installNflLiveGameSwitcherV894 } from './nfl/live-game-switcher-v894.js?v=89.37';
 import { installNflGamecastLiveFixV898 } from './nfl/gamecast-live-fix-v898.js?v=89.8';
 import { installNflGamecastStageGuardV899 } from './nfl/gamecast-stage-guard-v899.js?v=89.9';
@@ -53,7 +53,7 @@ function arm(){
   // field/stadium and base player sprites remain visible until the clean field art
   // and refined Chibis are confirmed loaded, so a live remount can never be blank.
   try{installNflGamecastStageGuardV899();}catch(e){console.warn('[NFL Gamecast v89.9] stage visibility guard unavailable:',e);}
-  installNflPropModelEdgeV8917().catch(e=>console.warn('[NFL Prop Model v89.17] simulation edge UI unavailable:',e));
+  installNflPropModelEdgeV8918().catch(e=>console.warn('[NFL Prop Model v89.18] simulation + 2+ TD UI unavailable:',e));
   installReplayLabIfRequested();
   refreshQuarterCta();
   if(!quarterPollTimer) quarterPollTimer=setInterval(refreshQuarterCta,15000);
