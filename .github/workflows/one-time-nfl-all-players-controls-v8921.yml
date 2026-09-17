@@ -1,0 +1,57 @@
+name: One-time NFL All Players controls v89.21
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apply-nfl-all-players-controls-v8921.py'
+      - 'scripts/nfl-all-players-controls-v8921-selftest.mjs'
+      - '.github/workflows/one-time-nfl-all-players-controls-v8921.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-all-players-controls-v8921
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git pull --rebase origin main
+      - name: Apply All Players controls fix
+        run: python3 scripts/apply-nfl-all-players-controls-v8921.py
+      - name: Validate syntax
+        run: |
+          node --check sports/nfl-preview.js
+          node --check sports/nfl-preview-v890.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/router.js
+      - name: Run All Players regression
+        run: node scripts/nfl-all-players-controls-v8921-selftest.mjs
+      - name: Run current NFL simulation regressions
+        run: |
+          node scripts/nfl-v8920-sim-loader-selftest.mjs
+          node scripts/nfl-v8919-native-two-plus-selftest.mjs
+          node scripts/nfl-v8918-two-plus-td-selftest.mjs
+      - name: Commit production fix
+        run: |
+          if git diff --quiet; then
+            echo 'No production changes required.'
+            exit 0
+          fi
+          git config user.name 'TSO NFL UI Fix Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/nfl-v8919-native-two-plus-selftest.mjs
+          git commit -m 'nfl: fix All Players filters and search'
+          git push origin HEAD:main
