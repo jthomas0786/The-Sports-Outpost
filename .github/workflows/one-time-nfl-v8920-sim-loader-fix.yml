@@ -1,0 +1,50 @@
+name: One-time NFL v89.20 simulation loader fix
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/apply-nfl-v8920-sim-loader-fix.py'
+      - 'scripts/nfl-v8920-sim-loader-selftest.mjs'
+      - '.github/workflows/one-time-nfl-v8920-sim-loader-fix.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git rebase origin/main || true
+      - name: Apply simulation loader fix
+        run: python scripts/apply-nfl-v8920-sim-loader-fix.py
+      - name: Validate syntax
+        run: |
+          node --check sports/nfl-preview.js
+          node --check sports/nfl-research-ui.js
+          node --check sports/nfl-preview-v890.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/router.js
+      - name: Run loader regression
+        run: node scripts/nfl-v8920-sim-loader-selftest.mjs
+      - name: Run 2+ TD regressions
+        run: |
+          node scripts/nfl-v8918-two-plus-td-selftest.mjs
+          node scripts/nfl-v8919-native-two-plus-selftest.mjs
+      - name: Commit production fix
+        run: |
+          git config user.name 'TSO NFL Simulation Fix Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nfl-preview.js sports/nfl-research-ui.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html scripts/nfl-v8919-native-two-plus-selftest.mjs
+          git commit -m 'nfl: accept current sim cache and fix 2+ TD null handling' || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
