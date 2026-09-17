@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-04",
+  "season": 2026,
+  "purpose": "Dallas final resilience and release-candidate QA gate: validate production behavior under rapid live-event churn, viewport changes, asset failures and authoritative corrections while preserving personalized identity and existing Gamecast truth.",
+  "inputs": [
+    "DAL/roster.json",
+    "DAL appearance-reference/base-chibi/action-pose specifications",
+    "DAL signature sequence specifications",
+    "DAL/gamecast-integration-01.json through DAL/gamecast-integration-10.json",
+    "DAL/qa-01.json through DAL/qa-03.json"
+  ],
+  "releaseCandidateContract": {
+    "activeRosterCount": 53,
+    "style": "realistic 3D chibi",
+    "identityAuthority": "current official headshot lock plus DAL/roster.json identity and number",
+    "renderLocks": ["canonical camera family", "canonical lighting family", "stable player scale", "stable foot anchor", "transparent background", "unmirrored readable uniform identity"],
+    "eventAuthority": "authoritative NFL Gamecast play revision",
+    "footballAuthority": "single visible authoritative football",
+    "verifiedNamedSignatures": [
+      {"player":"CeeDee Lamb","slug":"ceedee-lamb","event":"first-down","sequence":"nose-wipe"},
+      {"player":"Von Miller","slug":"von-miller","event":"sack","sequence":"desoto-shuffle"}
+    ],
+    "fallback": "Existing non-personalized Gamecast remains authoritative and usable whenever personalized assets are missing, invalid, late or undecodable."
+  },
+  "stressScenarios": [
+    {"id":"rapid-play-churn","required":"Back-to-back authoritative plays preempt completed/stale choreography cleanly; no participant, celebration or football state leaks into the next play."},
+    {"id":"poll-burst","required":"Repeated identical polls are idempotent and cannot restart action clips, duplicate footballs or reconsume signatures."},
+    {"id":"late-asset-decode","required":"A personalized asset resolving after its authoritative play revision is stale cannot appear over the newer scene."},
+    {"id":"asset-decode-failure","required":"Decode failure removes only the affected personalized layer and preserves text, score, field state and authoritative event truth."},
+    {"id":"viewport-reflow","required":"Desktop-to-mobile and orientation changes reproject the active scene without changing player identity, scale class, football ownership or play revision."},
+    {"id":"background-resume","required":"Returning from a hidden/background tab reconstructs current authoritative state rather than replaying elapsed celebrations."},
+    {"id":"correction-during-celebration","required":"A correction immediately invalidates an in-flight generic or verified signature celebration if its qualifying truth no longer exists."},
+    {"id":"participant-overflow","required":"Scenes beyond the authored participant budget preserve principal identities and authoritative information through deterministic fallback."}
+  ],
+  "qaChecks": [
+    {"id":"identity-never-degrades-cross-player","assert":"Performance or asset pressure may reduce animation richness but can never substitute another player's face, number, skin-tone lock or personalized sequence."},
+    {"id":"appearance-provenance-hard-gate","assert":"Personalized rendering remains blocked when official-headshot appearance provenance is unresolved; no name-based appearance inference is permitted."},
+    {"id":"render-lock-stress","assert":"Camera, lighting, scale, foot anchor, alpha and number-orientation locks survive scene interruption, viewport reflow and fallback transitions."},
+    {"id":"single-authoritative-revision","assert":"Only the newest accepted authoritative revision may own personalized choreography for a play key."},
+    {"id":"single-football-stress","assert":"Rapid pass/catch/fumble/recovery transitions never produce duplicate authoritative footballs, including during correction or fallback."},
+    {"id":"signature-correction-safety","assert":"CeeDee Lamb nose-wipe and Von Miller DeSoto Shuffle are removed/preempted when a newer authoritative revision removes the qualifying first down or sack."},
+    {"id":"signature-no-poll-replay","assert":"Repeated polls, rerenders, viewport changes and background resume cannot replay an already-consumed verified signature."},
+    {"id":"reduced-motion-equivalence","assert":"Reduced-motion mode communicates the same resolved player/event truth without requiring full motion and without altering signature qualification semantics."},
+    {"id":"fallback-data-independence","assert":"Personalized rendering failure cannot mutate score, down, distance, possession, clock, play text or other authoritative Gamecast data."},
+    {"id":"namespace-isolation","assert":"All Dallas chibi runtime keys, QA state and fallback behavior remain NFL/DAL scoped and cannot write MLB, NHL or another NFL team's state."}
+  ],
+  "acceptanceFixtures": [
+    {"id":"dal-qa-04-two-play-preemption","assert":"A Lamb catch followed immediately by the next snap clears prior catch/celebration state before rendering the new play."},
+    {"id":"dal-qa-04-poll-burst","assert":"Twenty identical snapshots of one authoritative revision yield one action consumption and at most one eligible celebration."},
+    {"id":"dal-qa-04-late-decode","assert":"A late decoded player frame from revision N is discarded after revision N+1 owns the scene."},
+    {"id":"dal-qa-04-decode-fallback","assert":"A corrupt personalized frame falls back without hiding or altering authoritative Gamecast content."},
+    {"id":"dal-qa-04-mobile-reflow","assert":"Active player identities, foot anchors and football ownership remain coherent through responsive reprojection."},
+    {"id":"dal-qa-04-background-resume","assert":"Resume reconstructs the current play and does not replay elapsed Lamb nose-wipe, Miller DeSoto Shuffle or generic celebrations."},
+    {"id":"dal-qa-04-lamb-correction","assert":"A first-down correction to short-of-line-to-gain preempts an in-flight Lamb nose-wipe and marks no stale signature consumption on corrected truth."},
+    {"id":"dal-qa-04-miller-correction","assert":"A sack correction removing Miller as qualifying sacker preempts DeSoto Shuffle and reconstructs the corrected participants."},
+    {"id":"dal-qa-04-football-correction","assert":"A catch corrected to incompletion clears receiver ownership with no duplicate or lingering football."},
+    {"id":"dal-qa-04-reduced-motion","assert":"Reduced-motion presentation preserves player/event identity and authoritative result while suppressing unnecessary motion."},
+    {"id":"dal-qa-04-cross-player-failure","assert":"Failure of one Dallas personalized asset never causes another Dallas player's appearance, number or signature to render in its place."},
+    {"id":"dal-qa-04-mlb-nhl-isolation","assert":"Executing all stress, correction and fallback fixtures performs no write to MLB or NHL assets, caches, state or behavior."}
+  ],
+  "releaseDisposition": "release-candidate-resilience-gate-specified",
+  "next": "Continue Dallas QA with qa-05; do not begin Philadelphia until Dallas quality work is explicitly closed in project.json."
+}
