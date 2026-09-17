@@ -2,23 +2,6 @@ from pathlib import Path
 import re
 
 
-def replace_once(path, old, new, label):
-    p = Path(path)
-    s = p.read_text()
-    if old not in s:
-        raise SystemExit(f'{label}: marker missing')
-    p.write_text(s.replace(old, new, 1))
-
-
-def regex_replace_once(path, pattern, repl, label):
-    p = Path(path)
-    s = p.read_text()
-    s2, n = re.subn(pattern, repl, s, count=1)
-    if n != 1:
-        raise SystemExit(f'{label}: expected exactly one match, got {n}')
-    p.write_text(s2)
-
-
 def bump_query(path, pattern, label):
     p = Path(path)
     s = p.read_text()
@@ -61,10 +44,15 @@ research.write_text(r)
 # Keep the prior native 2+ TD regression useful after routine cache bumps.
 test = Path('scripts/nfl-v8919-native-two-plus-selftest.mjs')
 t = test.read_text()
-t = re.sub(r"assert\.ok\(v890\.includes\('\./nfl-preview\.js\?v=89\.40'\)\);", "assert.ok(/\\.\\/nfl-preview\\.js\\?v=89\\.\\d+/.test(v890));", t, count=1)
-t = re.sub(r"assert\.ok\(v893\.includes\('\./nfl-preview-v890\.js\?v=89\.40'\)\);", "assert.ok(/\\.\\/nfl-preview-v890\\.js\\?v=89\\.\\d+/.test(v893));", t, count=1)
-t = re.sub(r"assert\.ok\(router\.includes\('\./nfl-preview-v893\.js\?v=89\.42'\)\);", "assert.ok(/\\.\\/nfl-preview-v893\\.js\\?v=89\\.\\d+/.test(router));", t, count=1)
-t = re.sub(r"assert\.ok\(router\.includes\('\./nfl-research-ui\.js\?v=86\.9'\)\);", "assert.ok(/\\.\\/nfl-research-ui\\.js\\?v=86\\.\\d+/.test(router));", t, count=1)
+replacements = {
+    "assert.ok(v890.includes('./nfl-preview.js?v=89.40'));": "assert.ok(/\\.\\/nfl-preview\\.js\\?v=89\\.\\d+/.test(v890));",
+    "assert.ok(v893.includes('./nfl-preview-v890.js?v=89.40'));": "assert.ok(/\\.\\/nfl-preview-v890\\.js\\?v=89\\.\\d+/.test(v893));",
+    "assert.ok(router.includes('./nfl-preview-v893.js?v=89.42'));": "assert.ok(/\\.\\/nfl-preview-v893\\.js\\?v=89\\.\\d+/.test(router));",
+    "assert.ok(router.includes('./nfl-research-ui.js?v=86.9'));": "assert.ok(/\\.\\/nfl-research-ui\\.js\\?v=86\\.\\d+/.test(router));",
+}
+for old, new in replacements.items():
+    if old in t:
+        t = t.replace(old, new, 1)
 test.write_text(t)
 
 # Cache-bust the entire NFL import chain and the outer router so deployed
