@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "appearance-reference-02",
+  "referencePolicy": {
+    "sourcePriority": "Current official PhiladelphiaEagles.com player roster/headshot page",
+    "visualRule": "Artists/generators must inspect the cited current official headshot before rendering. Never infer skin tone, hair, facial hair, facial features, or other visible appearance from a player's name, biography, position, or stale asset.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {
+      "background": "transparent",
+      "camera": "three-quarter front; match approved Dallas production camera",
+      "lighting": "soft stadium key plus cool rim; match approved Dallas production lighting",
+      "scale": "match approved Dallas Gamecast scale",
+      "footAnchor": "bottom-center ground-contact anchor",
+      "uniformSet": "Philadelphia current uniform treatment",
+      "numberAccuracy": "required; re-check official roster before final render",
+      "animationNaming": "phi_<player-slug>_<action>_v001"
+    }
+  },
+  "players": [
+    {"slug":"jordan-davis","name":"Jordan Davis","position":"DT","number":"90","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jordan-davis/","officialImageLabel":"Davis_Jordan","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot as sole visual authority for complexion, face, hair and facial-hair details.","Preserve #90 and his official broad interior-DL build while retaining the common chibi head ratio, camera and foot anchor.","Prioritize stance, rush, shed-block, tackle, fumble-recovery and generic defensive celebration."]},
+    {"slug":"jihaad-campbell","name":"Jihaad Campbell","position":"LB","number":"11","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jihaad-campbell/","officialImageLabel":"jihaad","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding any visible appearance details; do not infer from name or biography.","Preserve #11 and an athletic linebacker silhouette within the approved Dallas-derived scale envelope.","Prioritize stance, read, drop-coverage, blitz, tackle and generic defensive celebration."]},
+    {"slug":"jake-elliott","name":"Jake Elliott","position":"K","number":"4","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jake-elliott/","officialImageLabel":"Elliott_Jake","appearanceStatus":"reference-locked","renderNotes":["Use only the current official headshot to establish visible appearance details.","Preserve #4; specialist scale must remain consistent with the shared Gamecast ground plane and foot anchor.","Prioritize approach, field-goal, extra-point, kickoff and generic successful-kick reaction."]},
+    {"slug":"jalyx-hunt","name":"Jalyx Hunt","position":"OLB","number":"58","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jalyx-hunt/","officialImageLabel":"Hunt_Jalyx","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as the sole visual authority for complexion and visible face/hair details.","Preserve #58 and an athletic edge-rusher silhouette without changing common camera, lighting or anchor geometry.","Prioritize stance, rush, shed-block, tackle, sack and generic defensive celebration; do not encode a named signature celebration in this appearance phase."]},
+    {"slug":"nolan-smith-jr","name":"Nolan Smith Jr.","position":"OLB","number":"3","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/nolan-smith/","officialImageLabel":"Smith_Nolan","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding complexion, face, hair or facial-hair details.","Preserve #3 and a quick/athletic edge-rusher build at the approved common Gamecast scale.","Prioritize stance, rush, shed-block, tackle, sack and generic defensive celebration until signature research is separately verified."]},
+    {"slug":"will-shipley","name":"Will Shipley","position":"RB","number":"28","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/will-shipley/","officialImageLabel":"Shipley_Will","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot as the sole source of visible appearance truth.","Preserve #28 and an athletic RB silhouette while matching the Dallas production head/body ratio and foot anchor.","Prioritize stance, handoff-receive, run, catch and generic score celebration."]},
+    {"slug":"moro-ojomo","name":"Moro Ojomo","position":"DT","number":"97","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/moro-ojomo/","officialImageLabel":"Ojomo_Moro","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority; never infer appearance from biographical information.","Preserve #97 and an interior-DL power silhouette without changing the common camera or foot-anchor geometry.","Prioritize stance, rush, shed-block, tackle, fumble-recovery and generic defensive celebration."]},
+    {"slug":"cam-jurgens","name":"Cam Jurgens","position":"C/G","number":"51","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/cam-jurgens/","officialImageLabel":"Jurgens_Cam","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding any visible appearance details.","Preserve #51 and a broad offensive-line build while retaining the approved common head scale, camera and ground anchor.","Prioritize stance, pass-block, run-block, pull and recover-fumble; no invented solo celebration."]},
+    {"slug":"kelee-ringo","name":"Kelee Ringo","position":"CB","number":"7","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/kelee-ringo/","officialImageLabel":"Ringo_Kelee","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority for complexion and visible face/hair details.","Preserve current #7 and an athletic cornerback silhouette at the approved Gamecast scale.","Prioritize press-stance, backpedal, coverage, tackle, interception and generic turnover celebration."]},
+    {"slug":"andrew-mukuba","name":"Andrew Mukuba","position":"S","number":"24","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/andrew-mukuba/","officialImageLabel":"Mukuba_Andrew","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding complexion, face, hair or facial-hair details; biography is not an appearance source.","Preserve #24 and an athletic safety silhouette while matching the shared camera, lighting, scale and bottom-center foot anchor.","Prioritize stance, backpedal, deep-zone, tackle, interception and generic turnover celebration."]}
+  ],
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterPage": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "lockedCount": 10,
+    "cumulativeLockedCount": 20,
+    "rosterCrossCheck": "All ten players are present in PHI/roster.json and their current official Eagles player pages were verified for this batch. Current jersey numbers are locked to the 2026 roster snapshot and must be rechecked at final render time.",
+    "appearanceSafety": "A reference lock establishes the current official team headshot as source of truth. No skin tone, hair, facial-hair or facial-feature value is guessed or encoded from a name.",
+    "signatureSafety": "No named player-specific celebration is asserted by this batch. Signature research remains a later phase and requires a verifiable source."
+  }
+}
