@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-09",
+  "season": 2026,
+  "purpose": "Dallas NFL Gamecast animation sequencing, scene handoff and deterministic recovery contract for production chibi playback.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json","./gamecast-integration-05.json","./gamecast-integration-06.json","./gamecast-integration-07.json","./gamecast-integration-08.json"],
+  "sequenceController": {
+    "authority": "Authoritative Gamecast play truth plus roster.json action inventory determines every sequence; file presence never grants action eligibility.",
+    "states": ["idle","anticipation","primary_action","result_hold","verified_signature","recovery"],
+    "transitionRule": "Transitions occur only at authored blend windows or authoritative interruption boundaries; polling refreshes cannot advance a sequence twice.",
+    "resultHold": "Use a short bounded result hold so completed catches, tackles, sacks and scores read clearly without blocking the next authoritative play.",
+    "recovery": "Every sequence resolves to the player's canonical bottom-center foot anchor and neutral orientation before ownership returns to idle.",
+    "newPlayPreemption": "A newer authoritative play preempts result holds and nonessential recovery after a safe blend, while preserving identity and football truth.",
+    "clock": "Use one monotonic play-scoped clock shared with multi-participant choreography; never derive animation progress from polling arrival time."
+  },
+  "handoff": {
+    "samePlayer": "When one player owns consecutive authored actions, preserve the rendered identity instance and blend between eligible clips rather than despawn/respawn.",
+    "participantChange": "Outgoing principals finish or blend out before incoming principals claim the same visual lane unless an authored contact/transfer overlap requires both.",
+    "football": "Football ownership is transferred at one authoritative authored boundary and is never duplicated during scene handoff.",
+    "camera": "Scene handoff cannot alter the shared locked Gamecast camera, player-specific scale projection or stadium lighting rig.",
+    "signature": "A verified signature may follow its qualifying result only once per authoritative event key and must yield immediately to correction or newer-play truth."
+  },
+  "deterministicRecovery": {
+    "assetDecodeFailure": "Keep the existing non-chibi Gamecast representation; do not substitute another player's asset or synthesize appearance.",
+    "missingAction": "Use that resolved player's safe base/idle asset only when roster-authoritative identity is available.",
+    "midSequenceFailure": "Release football ownership back to authoritative Gamecast state, clear transient root motion and remove the failed chibi at a safe frame boundary.",
+    "correction": "Invalidate sequence state for the corrected play, clear consumed signature/event markers for invalidated revisions only, and rebuild from corrected truth.",
+    "reconnect": "After visibility/network recovery, reconstruct only the latest authoritative play state; do not replay intermediate polling snapshots.",
+    "crossTeam": "A DAL sequence can resolve only DAL roster identities; stable player id plus team namespace is required."
+  },
+  "signatureAllowlist": [
+    {"player":"CeeDee Lamb","concept":"nose-wipe first-down celebration","events":["first_down"],"verified":true,"maxStartsPerEventKey":1},
+    {"player":"Von Miller","concept":"DeSoto Shuffle","events":["sack","tackle_for_loss"],"verified":true,"maxStartsPerEventKey":1}
+  ],
+  "visualInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Dallas headshot lock; never infer skin tone or visible appearance from name",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "mirroring": "Never mirror jersey numbers, lettering or identity-specific visible details."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-sequence-repeat-poll","input":{"sameEventKeyObserved":4,"pollIntervalsMs":[800,1100,900,1200]},"expect":{"primaryActionStarts":1,"timelineDrivenByPollArrival":false}},
+    {"id":"dal-sequence-consecutive-player-actions","input":{"samePlayer":true,"eligibleActions":["catch","run_after_catch"]},"expect":{"identityRespawn":false,"authoredBlend":true}},
+    {"id":"dal-sequence-new-play-preempts-hold","input":{"resultHoldActive":true,"newAuthoritativePlay":true},"expect":{"safeBlendOut":true,"nextPlayBlocked":false}},
+    {"id":"dal-sequence-football-handoff","input":{"outgoingOwner":"passer","incomingOwner":"receiver"},"expect":{"footballAuthorityCountAtAnyInstant":1}},
+    {"id":"dal-sequence-decode-failure","input":{"assetDecodeFailed":true},"expect":{"otherPlayerSubstituted":false,"baseGamecastRetained":true}},
+    {"id":"dal-sequence-correction-rebuild","input":{"renderedRevision":1,"authoritativeRevision":2},"expect":{"staleSequenceCleared":true,"correctedTruthRebuilt":true}},
+    {"id":"dal-sequence-reconnect","input":{"missedPollingSnapshots":5,"latestAuthoritativePlayAvailable":true},"expect":{"intermediateAnimationsReplayed":false,"latestStateReconstructed":true}},
+    {"id":"dal-sequence-lamb-signature-once","input":{"player":"CeeDee Lamb","event":"first_down","sameEventKeyObserved":3},"expect":{"noseWipeStarts":1}},
+    {"id":"dal-sequence-miller-signature-interrupt","input":{"player":"Von Miller","event":"sack","signatureActive":true,"newAuthoritativePlay":true},"expect":{"deSotoShuffleStarts":1,"safeInterrupt":true}},
+    {"id":"dal-sequence-cross-team-identity","input":{"requestedTeam":"DAL","resolvedTeam":"PHI"},"expect":{"dalAssetResolved":false,"identityGuessed":false}},
+    {"id":"dal-sequence-cross-sport-isolation","input":{"dallasSequenceControllerActive":true},"expect":{"mlbMutation":false,"nhlMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Sequence progression is deterministic and independent of polling cadence.",
+      "Consecutive actions preserve player identity without visual respawn flicker.",
+      "Every sequence returns to canonical foot anchor without accumulating root motion.",
+      "Football authority remains singular through handoffs, failures and interruptions.",
+      "Decode/missing-action recovery never guesses identity or appearance.",
+      "Only verified Dallas signature concepts can enter the signature state.",
+      "Camera, lighting, scale, number, alpha and official-headshot appearance locks remain invariant.",
+      "No MLB/NHL runtime or metadata dependency is introduced."
+    ]
+  }
+}
