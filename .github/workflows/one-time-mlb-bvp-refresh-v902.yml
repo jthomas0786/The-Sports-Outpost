@@ -1,0 +1,67 @@
+name: One-time MLB BvP current-slate refresh v90.2
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-mlb-bvp-refresh-v902.yml'
+permissions:
+  contents: write
+jobs:
+  rebuild-current-slate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git rebase origin/main || true
+      - name: Resolve current MLB date
+        id: slate-date
+        run: |
+          TARGET_DATE="$(TZ=America/Chicago date +%F)"
+          echo "date=$TARGET_DATE" >> "$GITHUB_OUTPUT"
+          echo "Refreshing MLB slate for $TARGET_DATE"
+      - name: Build MLB slate with repaired BvP source
+        run: node build-slate.js --date "${{ steps.slate-date.outputs.date }}" --out slate.json --verbose
+      - name: Attach current odds and betslip links
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          if [ -z "$ODDS_API_KEY" ]; then
+            echo "ODDS_API_KEY not set — keeping slate without refreshed odds"
+          else
+            node fetch-odds.js --slate slate.json
+          fi
+      - name: Enrich with Statcast
+        run: |
+          pip install --quiet pybaseball pandas
+          python enrich-statcast.py --slate slate.json
+      - name: Verify BvP output and JSON
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const s=JSON.parse(fs.readFileSync('slate.json','utf8'));
+          let batters=0,history=0;
+          for(const g of s.games||[]) for(const side of ['away','home']) for(const p of g?.[side]?.lineup||[]){batters++;if(p?.vsPitcher&&Number(p.vsPitcher.pa||p.vsPitcher.ab||0)>0)history++;}
+          console.log(`BvP verification: ${history}/${batters} batters have real head-to-head history`);
+          const zeroWarning=(s.warnings||[]).some(w=>/Zero batter-vs-starter matchups/i.test(w));
+          if(history===0||zeroWarning){console.error('::error::BvP source still returned zero usable matchups');process.exit(1);}
+          NODE
+      - name: Commit refreshed current slate
+        run: |
+          git config user.name 'TSO MLB BvP Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slate.json model-logs/
+          git diff --staged --quiet && echo 'no slate changes' && exit 0
+          git commit -m "slate: refresh BvP ${{ steps.slate-date.outputs.date }}"
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            sleep $((attempt * 3))
+          done
+          exit 1
