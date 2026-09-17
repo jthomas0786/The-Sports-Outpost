@@ -1,0 +1,49 @@
+name: One-time MLB BvP history v90.2
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sports/mlb/player-modal-bvp-v902.js'
+      - 'scripts/apply-mlb-bvp-history-v902.py'
+      - 'scripts/mlb-player-modal-bvp-v902-selftest.mjs'
+      - '.github/workflows/one-time-mlb-bvp-history-v902.yml'
+permissions:
+  contents: write
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git rebase origin/main || true
+      - name: Apply BvP source and routing patch
+        run: python scripts/apply-mlb-bvp-history-v902.py
+      - name: Check MLB BvP syntax
+        run: |
+          node --check sports/mlb/player-modal-bvp-v902.js
+          node --check sports/mlb/adapter.js
+          node --check sports/router.js
+      - name: Run MLB BvP regression
+        run: node scripts/mlb-player-modal-bvp-v902-selftest.mjs
+      - name: Run shared player modal regression
+        run: node scripts/player-modal-parity-selftest.mjs
+      - name: Run MLB live selector regression
+        run: node scripts/mlb-v925-live-selector-selftest.mjs
+      - name: Commit production BvP wiring
+        run: |
+          git config user.name 'TSO MLB BvP Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/mlb/adapter.js sports/router.js index.html
+          git commit -m 'mlb: deploy conditional batter pitcher history' || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
