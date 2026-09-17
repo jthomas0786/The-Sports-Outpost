@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-09",
+  "purpose": "Final Dallas release-candidate gate before team completion. Validate that the complete 53-player Gamecast chibi library behaves as one coherent production asset set under authoritative live-play truth without relaxing visual identity, animation, signature, or cross-sport isolation rules.",
+  "releaseGate": {
+    "rosterIdentity": [
+      "Exactly 53 roster identities must resolve through the Dallas roster snapshot and player namespaces with no duplicate slug or cross-player alias.",
+      "Uniform number displayed by an asset must agree with the roster-authoritative player identity; stale-number assets fail closed to a safe generic Dallas presentation rather than displaying the wrong player.",
+      "Personalized appearance assets are eligible only when their appearance-reference provenance is locked to a current official headshot; skin tone or visible appearance is never inferred from name or roster metadata."
+    ],
+    "visualContinuity": [
+      "Approved realistic 3D chibi proportions, camera angle, lighting direction, scale, transparent background, and canonical foot anchor remain invariant across idle, action, celebration, recovery, resize, reconnect, and reduced-motion paths.",
+      "Transparent edges must remain clean at production compositing scale with no matte halo, opaque rectangle, clipped extremity, or ground-anchor jump.",
+      "A player returning from any action or celebration must recover to the same canonical anchor and scale used before the sequence."
+    ],
+    "gamecastTruth": [
+      "Authoritative play identity and revision supersede cached or previously rendered event state.",
+      "Repeated polling of an unchanged play is idempotent and cannot restart an animation or celebration.",
+      "Late asset decode, background-tab resume, reconnect, viewport resize, or stale promise completion cannot resurrect a superseded play.",
+      "Only one football owner is visually authoritative at a time; ownership transfers or clears deterministically when play truth changes.",
+      "Missing, malformed, stale, or ineligible personalized assets degrade locally without blocking Gamecast or substituting another player's likeness."
+    ],
+    "signatures": [
+      {
+        "player": "CeeDee Lamb",
+        "concept": "nose-wipe first-down celebration",
+        "eligibility": "Authoritative play credits CeeDee Lamb with the qualifying first down and the verified signature asset is available.",
+        "correctionRule": "Immediately preempt if authoritative correction removes Lamb, removes the first down, or changes the credited player."
+      },
+      {
+        "player": "Von Miller",
+        "concept": "DeSoto Shuffle",
+        "eligibility": "Authoritative play credits Von Miller with the qualifying sack and the verified signature asset is available.",
+        "correctionRule": "Immediately preempt if authoritative correction removes Miller, removes the sack, or changes the credited player."
+      }
+    ],
+    "signaturePolicy": "No other Dallas animation may be labeled or routed as a named player-specific signature without verified source-backed metadata.",
+    "isolation": "Dallas chibi QA and runtime metadata remain under the NFL/DAL asset namespace and must not alter MLB or NHL rendering, routing, polling, Gamecast state, or asset behavior."
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-qa09-01","scenario":"53-player namespace sweep","expect":"Every roster identity resolves uniquely to its own Dallas player namespace and roster-authoritative action inventory."},
+    {"id":"dal-qa09-02","scenario":"appearance provenance failure for one player","expect":"Only that player's personalized likeness is suppressed; no inferred appearance or teammate substitution occurs."},
+    {"id":"dal-qa09-03","scenario":"stale uniform-number asset","expect":"Wrong-number personalized asset is rejected and safe fallback preserves correct event identity."},
+    {"id":"dal-qa09-04","scenario":"rapid pass-catch-tackle-first-down sequence with repeated polls","expect":"Actions advance once in authoritative order, football ownership is singular, and unchanged polls do not replay frames."},
+    {"id":"dal-qa09-05","scenario":"CeeDee Lamb qualifying first down followed by authoritative correction","expect":"Nose-wipe may begin only for the qualifying Lamb event and is preempted immediately after correction."},
+    {"id":"dal-qa09-06","scenario":"Von Miller qualifying sack followed by authoritative correction","expect":"DeSoto Shuffle may begin only for the qualifying Miller sack and is preempted immediately after correction."},
+    {"id":"dal-qa09-07","scenario":"invented or unverified named celebration request","expect":"Named-signature routing is rejected; ordinary event-appropriate celebration/fallback remains available."},
+    {"id":"dal-qa09-08","scenario":"late decode from superseded play after new play starts","expect":"Late result is discarded and cannot steal participant, football, anchor, or animation authority."},
+    {"id":"dal-qa09-09","scenario":"resize plus background-tab resume during contact sequence","expect":"Players reproject without identity swap, clipping, scale drift, anchor jump, or duplicate animation restart."},
+    {"id":"dal-qa09-10","scenario":"reduced-motion production path","expect":"Same authoritative event/player/signature eligibility decisions are preserved while motion is reduced."},
+    {"id":"dal-qa09-11","scenario":"transparent compositing sweep","expect":"No opaque backgrounds, edge halos, clipped limbs/equipment, or inconsistent ground contacts appear across representative offensive, defensive, and special-teams actions."},
+    {"id":"dal-qa09-12","scenario":"cross-sport regression boundary","expect":"No MLB or NHL files, routes, polling behavior, Gamecast state, or asset namespaces are changed by this Dallas QA batch."}
+  ],
+  "completionCriteria": [
+    "All 53 Dallas identities pass namespace, number, appearance-provenance, action-inventory, anchor, alpha, and deterministic playback gates.",
+    "CeeDee Lamb nose-wipe and Von Miller DeSoto Shuffle remain the only verified named Dallas signature concepts.",
+    "Corrections, repeated polling, late decode, reconnect, resize, resume, and reduced-motion paths preserve authoritative event truth.",
+    "No MLB/NHL behavior or files are modified."
+  ]
+}
