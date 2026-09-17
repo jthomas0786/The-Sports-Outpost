@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-01",
+  "season": 2026,
+  "purpose": "Production-readiness audit for the completed Dallas realistic 3D chibi specification and Gamecast contracts before Dallas is allowed to advance toward final completion.",
+  "scope": {
+    "rosterExpected": 53,
+    "appearanceReferencesExpected": 53,
+    "baseChibisExpected": 53,
+    "actionPosePlayersExpected": 53,
+    "verifiedSignatureSequencesExpected": 2,
+    "gamecastIntegrationContractsExpected": 10
+  },
+  "qualityGates": [
+    {"id":"roster-authority","requirement":"Every production player identity and action inventory resolves through DAL/roster.json; no superseded or non-active player may become Gamecast-eligible merely because an asset folder exists."},
+    {"id":"appearance-provenance","requirement":"All 53 appearance locks must be tied to a current official headshot/reference. Skin tone, hair, facial hair and other visible traits must never be inferred from a name."},
+    {"id":"uniform-identity","requirement":"Player number and Dallas uniform identity must match the roster snapshot and remain readable without mirroring in every authored orientation."},
+    {"id":"style-consistency","requirement":"All production assets retain the approved realistic 3D chibi proportions, camera family, lighting family, scale and transparent-background treatment."},
+    {"id":"foot-anchor","requirement":"Idle, action and celebration sequences preserve the canonical foot anchor and do not visibly jump when Gamecast changes clips."},
+    {"id":"action-inventory","requirement":"Each player's production action set is position-appropriate and is a subset of the authoritative action inventory in roster.json."},
+    {"id":"alpha-integrity","requirement":"Production renders must have true transparent backgrounds with clean silhouette edges and no baked stadium, matte fringe or opaque canvas."},
+    {"id":"animation-naming","requirement":"Action and sequence names use the canonical Gamecast naming vocabulary and resolve deterministically across base, action and celebration assets."},
+    {"id":"football-authority","requirement":"Gamecast choreography permits exactly one authoritative football owner/flight state at a time and reconciles corrections without duplicate balls."},
+    {"id":"polling-stability","requirement":"Repeated live polling cannot restart an already-consumed animation or signature celebration for the same authoritative play revision."},
+    {"id":"fallback-safety","requirement":"Missing, undecodable or ineligible chibi assets degrade to an eligible generic/action asset or the existing non-chibi Gamecast presentation without affecting live game truth."},
+    {"id":"cross-sport-isolation","requirement":"Dallas/NFL chibi state, cache keys, telemetry and fallbacks are namespaced so MLB and NHL behavior cannot be changed by this library."}
+  ],
+  "signatureAudit": [
+    {"player":"CeeDee Lamb","slug":"ceedee-lamb","event":"first-down","sequence":"nose-wipe","status":"verified-existing-concept","qa":"Named signature is permitted only for the historically recognized nose-wipe first-down concept already approved for this project; ordinary first downs may fall back safely when the signature asset is unavailable."},
+    {"player":"Von Miller","slug":"von-miller","event":"sack","sequence":"desoto-shuffle","status":"verified-existing-concept","qa":"Named signature is permitted only for the recognized DeSoto Shuffle concept already approved for this project; sack truth must not depend on celebration playback."}
+  ],
+  "acceptanceFixtures": [
+    {"id":"dal-qa-01-roster-count","assert":"Authoritative Dallas snapshot contains exactly 53 active-53 player records before release eligibility is granted."},
+    {"id":"dal-qa-01-player-folder-coverage","assert":"Each authoritative active-53 slug has a player production namespace and no missing player may be silently substituted with another player's identity."},
+    {"id":"dal-qa-01-appearance-lock-coverage","assert":"All 53 players have an official-current-headshot appearance reference lock before their personalized base chibi can pass QA."},
+    {"id":"dal-qa-01-number-guard","assert":"A render whose jersey number disagrees with the authoritative roster record is rejected rather than displayed as that player."},
+    {"id":"dal-qa-01-action-guard","assert":"An action absent from the player's roster.json inventory cannot become eligible through an archetype superset."},
+    {"id":"dal-qa-01-anchor-continuity","assert":"Idle-to-action-to-celebration transitions preserve the canonical ground/foot anchor within the production tolerance."},
+    {"id":"dal-qa-01-alpha","assert":"Opaque-background or visible matte-fringe renders fail release eligibility."},
+    {"id":"dal-qa-01-lamb-signature","assert":"A qualifying CeeDee Lamb first down may route to nose-wipe once for the authoritative play revision; repeated polling cannot replay it."},
+    {"id":"dal-qa-01-miller-signature","assert":"A qualifying Von Miller sack may route to desoto-shuffle once for the authoritative play revision; the sack remains correct if the celebration asset fails."},
+    {"id":"dal-qa-01-unknown-signature","assert":"No other named player-specific signature is accepted without verified source metadata."},
+    {"id":"dal-qa-01-correction","assert":"An authoritative play correction invalidates stale animation ownership, football state and signature-consumption state before reconstruction."},
+    {"id":"dal-qa-01-cross-sport","assert":"NFL Dallas chibi QA/release state cannot mutate MLB or NHL runtime namespaces, assets, caches or presentation."}
+  ],
+  "releasePolicy": {
+    "failClosedForIdentity": true,
+    "failOpenToExistingGamecast": true,
+    "noInventedSignatures": true,
+    "noCrossSportWrites": true,
+    "requireAuthoritativeRosterInventory": true
+  },
+  "result": "qa-contract-specified",
+  "next": "Continue Dallas QA with qa-02; do not start Philadelphia until Dallas QA is fully closed."
+}
