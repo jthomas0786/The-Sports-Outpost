@@ -28,13 +28,16 @@ jobs:
         run: python scripts/apply-nfl-v8920-sim-loader-fix.py
       - name: Apply All Players controls fix
         run: python scripts/apply-nfl-all-players-controls-v8921.py
-      - name: Validate syntax
+      - name: Check NFL preview syntax
+        run: node --check sports/nfl-preview.js
+      - name: Check NFL research syntax
+        run: node --check sports/nfl-research-ui.js
+      - name: Check NFL wrapper syntax
         run: |
-          node --check sports/nfl-preview.js
-          node --check sports/nfl-research-ui.js
           node --check sports/nfl-preview-v890.js
           node --check sports/nfl-preview-v893.js
-          node --check sports/router.js
+      - name: Check router syntax
+        run: node --check sports/router.js
       - name: Run All Players regression
         run: node scripts/nfl-all-players-controls-v8921-selftest.mjs
       - name: Run simulation and 2+ TD regressions
