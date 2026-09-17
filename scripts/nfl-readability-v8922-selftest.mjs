@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
 
+// v89.22 validation trigger
 const read=p=>fs.readFileSync(p,'utf8');
 const css=read('sports/nfl/readability-v8922.js');
 const wrapper=read('sports/nfl-preview-v893.js');
