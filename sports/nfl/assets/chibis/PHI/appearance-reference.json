@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "appearance-reference-01",
+  "referencePolicy": {
+    "sourcePriority": "Current official PhiladelphiaEagles.com player roster/headshot page",
+    "visualRule": "Artists/generators must inspect the cited current official headshot before rendering. Do not infer skin tone, hair, facial hair, or facial features from a name, biography, position, or stale asset.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {
+      "background": "transparent",
+      "camera": "three-quarter front; match approved Dallas production camera",
+      "lighting": "soft stadium key plus cool rim; match approved Dallas production lighting",
+      "scale": "match approved Dallas Gamecast scale",
+      "footAnchor": "bottom-center ground-contact anchor",
+      "uniformSet": "Philadelphia current uniform treatment",
+      "numberAccuracy": "required; re-check official roster before final render",
+      "animationNaming": "phi_<player-slug>_<action>_v001"
+    }
+  },
+  "players": [
+    {"slug":"jalen-hurts","name":"Jalen Hurts","position":"QB","number":"1","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jalen-hurts/","officialImageLabel":"Hurts_Jalen","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole authority for complexion and visible face/hair details.","QB build must remain athletic and recognizable without exaggerating body mass.","Preserve #1; prioritize pre-snap, dropback, throw, scramble and generic score celebration. Do not assign a named signature celebration without separate verification."]},
+    {"slug":"saquon-barkley","name":"Saquon Barkley","position":"RB","number":"26","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/saquon-barkley/","officialImageLabel":"Barkley_Saquon3","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole authority for complexion and visible face/hair details.","RB build should read powerful/athletic while retaining approved chibi proportions.","Preserve #26; prioritize handoff receive, run, cut, catch and generic score celebration until a repeatable named signature is verified."]},
+    {"slug":"devonta-smith","name":"DeVonta Smith","position":"WR","number":"6","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/devonta-smith/","officialImageLabel":"Smith_DeVonta","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole authority for complexion and visible face/hair details.","WR silhouette should remain lean/athletic and consistent with official listed build rather than generic receiver bulk.","Preserve #6; prioritize release, route-run, catch and generic score celebration until a repeatable named signature is verified."]},
+    {"slug":"jalen-carter","name":"Jalen Carter","position":"DT","number":"98","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jalen-carter/","officialImageLabel":"Carter_Jalen","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole authority for complexion and visible face/hair details.","Interior defensive-line build should read broad/powerful while keeping the same camera, head scale and foot anchor as skill players.","Preserve #98; prioritize stance, rush, shed, tackle, fumble recovery and generic defensive celebration."]},
+    {"slug":"zack-baun","name":"Zack Baun","position":"LB","number":"53","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/zack-baun/","appearanceStatus":"reference-locked","renderNotes":["Visually inspect the current official Eagles headshot before encoding any complexion, hair, facial-hair or facial-feature details.","LB build should read athletic/physical without changing approved Dallas-derived chibi scale.","Preserve #53; prioritize read, coverage drop, blitz, tackle and generic defensive celebration."]},
+    {"slug":"cooper-dejean","name":"Cooper DeJean","position":"DB","number":"33","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/cooper-dejean/","appearanceStatus":"reference-locked","renderNotes":["Visually inspect the current official Eagles headshot before encoding any complexion, hair, facial-hair or facial-feature details.","DB build should remain athletic with consistent head/body ratio and ground anchor.","Preserve #33; prioritize press stance, backpedal, coverage, tackle, interception and generic turnover celebration."]},
+    {"slug":"quinyon-mitchell","name":"Quinyon Mitchell","position":"CB","number":"27","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/quinyon-mitchell/","appearanceStatus":"reference-locked","renderNotes":["Visually inspect the current official Eagles headshot before encoding any complexion, hair, facial-hair or facial-feature details.","CB build should remain quick/athletic with no appearance inference from name or position.","Preserve #27; prioritize press, backpedal, break-on-ball, tackle, interception and generic turnover celebration."]},
+    {"slug":"dallas-goedert","name":"Dallas Goedert","position":"TE","number":"88","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/dallas-goedert/","appearanceStatus":"reference-locked","renderNotes":["Visually inspect the current official Eagles headshot before encoding any complexion, hair, facial-hair or facial-feature details.","TE build should read tall/strong while remaining inside the approved Gamecast silhouette envelope.","Preserve #88; prioritize release, route-run, catch, block and generic score celebration."]},
+    {"slug":"lane-johnson","name":"Lane Johnson","position":"T","number":"65","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/lane-johnson/","appearanceStatus":"reference-locked","renderNotes":["Visually inspect the current official Eagles headshot before encoding any complexion, hair, facial-hair or facial-feature details.","Tackle build should read tall/broad/powerful without changing camera or foot-anchor geometry.","Preserve #65; prioritize stance, pass block, run block, pull and teammate reaction rather than invented solo celebrations."]},
+    {"slug":"jordan-mailata","name":"Jordan Mailata","position":"T","number":"68","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jordan-mailata/","appearanceStatus":"reference-locked","renderNotes":["Visually inspect the current official Eagles headshot before encoding any complexion, hair, facial-hair or facial-feature details.","Tackle build should communicate exceptional size while retaining the common production camera, head scale and bottom-center foot anchor.","Preserve #68; prioritize stance, pass block, run block, pull and teammate reaction rather than invented solo celebrations."]}
+  ],
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterPage": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "lockedCount": 10,
+    "rosterCrossCheck": "All ten players are present on the current official Philadelphia active roster snapshot used by PHI/roster.json; jersey numbers are locked to that snapshot and must be rechecked at render time.",
+    "appearanceSafety": "Reference lock means the official current headshot page is established as the source of truth. It does not authorize guessing traits that are not visibly confirmed from that headshot.",
+    "signatureSafety": "No named Philadelphia player-specific celebration is asserted by this batch. Signature research remains a later phase and requires a verifiable source."
+  }
+}
