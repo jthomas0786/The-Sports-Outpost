@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-07",
+  "season": 2026,
+  "purpose": "Dallas NFL Gamecast production release-gating, asset-integrity and runtime rollback contract.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json","./gamecast-integration-05.json","./gamecast-integration-06.json"],
+  "releaseGate": {
+    "inventory": "Every routed Dallas player/action must resolve through roster.json; supersets on disk never create runtime eligibility.",
+    "identity": "Release is blocked if an asset disagrees with the locked official-headshot appearance reference, current uniform number, approved realistic 3D chibi proportions, camera, lighting, scale or foot anchor.",
+    "alpha": "Production frames require clean transparent alpha with no matte halo, clipped silhouette, stray pixels or opaque background.",
+    "signatures": "Named signature routing is allowlisted only for verified concepts already recorded in Dallas signature metadata.",
+    "fallback": "A failed chibi release gate falls back to the existing non-chibi Gamecast presentation; it never blocks play data."
+  },
+  "assetIntegrity": {
+    "manifestKey": "team/player/action/version",
+    "versionRule": "Runtime references immutable versioned assets; replacement art increments version rather than mutating a consumed cache identity.",
+    "dimensions": "Validate expected canvas dimensions and bottom-center foot-anchor coordinates before publishing.",
+    "decode": "Validate successful browser decode and nonzero alpha bounds before an asset becomes preload-eligible.",
+    "football": "Possession-bearing frames are checked against the single-football-authority rules from integration-04.",
+    "crossTeamGuard": "Dallas manifests cannot resolve another team's player folder even if slugs or jersey numbers collide."
+  },
+  "runtimeCanary": {
+    "scope": "Enable Dallas chibis independently from other NFL teams and independently from MLB/NHL presentation.",
+    "healthSignals": ["asset_resolve_success","asset_fallback_rate","animation_completion","signature_completion","decode_failure","authoritative_correction"],
+    "rollback": "If identity, decode, animation ownership or football-authority invariants fail, disable the Dallas chibi layer and retain existing Gamecast data/UI without clearing unrelated caches.",
+    "recovery": "Re-enable only after a new manifest/version passes the same release gate; do not hot-patch a consumed immutable asset key."
+  },
+  "signatureAllowlist": [
+    {"player":"CeeDee Lamb","concept":"nose-wipe first-down celebration","events":["first_down"],"verified":true},
+    {"player":"Von Miller","concept":"DeSoto Shuffle","events":["sack","tackle_for_loss"],"verified":true}
+  ],
+  "identityGuards": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Dallas headshot lock; never infer skin tone or visible appearance from name",
+    "camera": "shared locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale projected scene-wide",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number"
+  },
+  "acceptanceFixtures": [
+    {"id":"dal-release-roster-authority","input":{"assetOnDisk":true,"actionInRosterInventory":false},"expect":{"runtimeEligible":false}},
+    {"id":"dal-release-number-mismatch","input":{"assetNumberMatchesRoster":false},"expect":{"releaseBlocked":true,"nonChibiGamecastAvailable":true}},
+    {"id":"dal-release-alpha-halo","input":{"transparentBackground":true,"matteHaloDetected":true},"expect":{"releaseBlocked":true}},
+    {"id":"dal-release-decode-failure","input":{"browserDecode":false},"expect":{"preloadEligible":false,"fallbackAvailable":true}},
+    {"id":"dal-release-cross-team-slug","input":{"team":"DAL","resolvedAssetTeam":"PHI"},"expect":{"resolutionRejected":true}},
+    {"id":"dal-release-double-football","input":{"footballAuthorityCount":2},"expect":{"releaseBlocked":true}},
+    {"id":"dal-release-lamb-allowlist","input":{"player":"CeeDee Lamb","signature":"nose-wipe first-down celebration","event":"first_down"},"expect":{"signatureEligible":true}},
+    {"id":"dal-release-miller-allowlist","input":{"player":"Von Miller","signature":"DeSoto Shuffle","event":"sack"},"expect":{"signatureEligible":true}},
+    {"id":"dal-release-invented-signature","input":{"signatureVerified":false,"signatureNamed":true},"expect":{"signatureEligible":false}},
+    {"id":"dal-canary-rollback-isolation","input":{"dallasChibiInvariantFailure":true},"expect":{"dallasChibiDisabled":true,"baseGamecastRetained":true,"mlbMutation":false,"nhlMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Roster inventory remains the sole action-eligibility authority.",
+      "Identity, number, alpha, dimensions, decode and foot-anchor integrity are release gates.",
+      "Only verified Dallas signature concepts are allowlisted.",
+      "Runtime rollback removes only the Dallas chibi enhancement and preserves base Gamecast.",
+      "Immutable asset versions prevent stale cache identity from silently changing art.",
+      "No MLB/NHL runtime, cache or metadata dependency is introduced."
+    ]
+  }
+}
