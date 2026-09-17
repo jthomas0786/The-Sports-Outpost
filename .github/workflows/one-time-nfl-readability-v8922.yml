@@ -1,0 +1,53 @@
+name: One-time NFL readability v89.22
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'sports/nfl/readability-v8922.js'
+      - 'sports/nfl-preview-v893.js'
+      - 'scripts/apply-nfl-readability-v8922.py'
+      - 'scripts/nfl-readability-v8922-selftest.mjs'
+      - '.github/workflows/one-time-nfl-readability-v8922.yml'
+permissions:
+  contents: write
+jobs:
+  validate-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git rebase origin/main || true
+      - name: Apply production cache bust
+        run: python scripts/apply-nfl-readability-v8922.py
+      - name: Check NFL readability syntax
+        run: |
+          node --check sports/nfl/readability-v8922.js
+          node --check sports/nfl-preview-v893.js
+          node --check sports/router.js
+      - name: Run NFL readability regression
+        run: node scripts/nfl-readability-v8922-selftest.mjs
+      - name: Run All Players regression
+        run: node scripts/nfl-all-players-controls-v8921-selftest.mjs
+      - name: Run simulation and 2+ TD regressions
+        run: |
+          node scripts/nfl-v8920-sim-loader-selftest.mjs
+          node scripts/nfl-v8918-two-plus-td-selftest.mjs
+          node scripts/nfl-v8919-native-two-plus-selftest.mjs
+      - name: Commit production cache bust
+        run: |
+          git config user.name 'TSO NFL Readability Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/router.js index.html
+          git commit -m 'nfl: deploy readability pass' || exit 0
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
