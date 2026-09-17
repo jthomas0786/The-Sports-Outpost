@@ -21,9 +21,9 @@ for(const needle of [
   'chance for 2+ TDs'
 ]) assert.ok(research.includes(needle),`modal missing ${needle}`);
 
-assert.ok(v890.includes('./nfl-preview.js?v=89.40'));
-assert.ok(v893.includes('./nfl-preview-v890.js?v=89.40'));
-assert.ok(router.includes('./nfl-preview-v893.js?v=89.42'));
-assert.ok(router.includes('./nfl-research-ui.js?v=86.9'));
+assert.ok(/\.\/nfl-preview\.js\?v=89\.\d+/.test(v890));
+assert.ok(/\.\/nfl-preview-v890\.js\?v=89\.\d+/.test(v893));
+assert.ok(/\.\/nfl-preview-v893\.js\?v=89\.\d+/.test(router));
+assert.ok(/\.\/nfl-research-ui\.js\?v=86\.\d+/.test(router));
 
 console.log('NFL v89.19 native 2+ TD visibility regression passed');

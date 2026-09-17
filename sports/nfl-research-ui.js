@@ -977,7 +977,7 @@ function enhanceModal(root){
   const usage=sectionByTitle(modal,'Usage & Efficiency');
   const atd=numeric(textMetric(scoring,'Anytime TD'),Number(r?.model?.atdProbability||0)*100);
   const canonicalAtd=findPreviewPropResult(r,'atd');
-  const twoPlusRaw=Number(canonicalAtd?.twoPlusTd);
+  const twoPlusRaw=canonicalAtd?.twoPlusTd==null?NaN:Number(canonicalAtd.twoPlusTd);
   const twoPlusTd=Number.isFinite(twoPlusRaw)?clampNum(twoPlusRaw<=1?twoPlusRaw*100:twoPlusRaw,0,100):null;
   const firstTd=numeric(textMetric(scoring,'First TD'),0);
   const rzOpps=numeric(textMetric(scoring,'RZ Opportunities'),(Number(r?.model?.rzTargets)||0)+(Number(r?.model?.rzCarries)||0));

@@ -651,7 +651,7 @@ async function loadData(){
     await Promise.all([
       (async()=>{try{const rr=await fetch('./slates/nfl-research.json',{cache:'no-cache'});if(rr.ok)research=await rr.json();}catch(_e){}})(),
       (async()=>{try{const or=await fetch('./slates/nfl-odds.json',{cache:'no-cache'});if(or.ok){const candidate=await or.json();if(candidate?.meta?.sample===false)odds=candidate;}}catch(_e){}})(),
-      (async()=>{try{const sr=await fetch('./slates/nfl-sim.json',{cache:'no-cache'});if(sr.ok){const candidate=await sr.json();if(Array.isArray(candidate?.games)&&String(candidate?.engineVersion||'').startsWith('v86'))sim=candidate;}}catch(_e){}})(),
+      (async()=>{try{const sr=await fetch('./slates/nfl-sim.json',{cache:'no-cache'});if(sr.ok){const candidate=await sr.json();if(Array.isArray(candidate?.games)&&Number(candidate?.schemaVersion)>=2&&candidate.games.some(g=>Array.isArray(g?.players)))sim=candidate;}}catch(_e){}})(),
       (async()=>{try{const hr=await fetch('./slates/nfl-halftime.json',{cache:'no-cache'});if(hr.ok){const candidate=await hr.json();if(Array.isArray(candidate?.games))halftime=candidate;}}catch(_e){}})(),
     ]);
     state.research=research; state.odds=odds; state.sim=sim; state.halftime=halftime;
