@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-03",
+  "season": 2026,
+  "purpose": "Dallas visual-continuity and event-truth QA gate: validate that personalized realistic-3D chibi assets remain visually stable and semantically correct across full Gamecast play lifecycles before Dallas can close.",
+  "inputs": [
+    "DAL/roster.json",
+    "DAL appearance-reference/base-chibi/action-pose specifications",
+    "DAL signature sequence specifications",
+    "DAL/gamecast-integration-01.json through DAL/gamecast-integration-10.json",
+    "DAL/qa-01.json",
+    "DAL/qa-02.json"
+  ],
+  "visualContinuityContract": {
+    "activeRosterCount": 53,
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "identitySource": "current official headshot lock only",
+    "numberSource": "DAL/roster.json",
+    "cameraRule": "Use the canonical Dallas camera family for base, action and celebration frames; never mirror a personalized render when that would mirror the uniform number or identity details.",
+    "lightingRule": "Preserve the canonical Dallas key/fill/rim relationship across an action sequence so a player does not appear to change complexion or material response between frames.",
+    "scaleRule": "Player scale is stable within a scene except authored perspective changes; scale may not be used to imply identity or position.",
+    "footAnchorRule": "Ground-contact anchor remains continuous from entry through action, celebration and recovery.",
+    "alphaRule": "Production frames retain clean transparent alpha without baked stadium/background pixels or edge halos.",
+    "footballRule": "At most one authoritative football is visible and its owner/location follows play truth rather than animation timing."
+  },
+  "eventTruthMatrix": [
+    {"event":"pass-complete","required":"QB throw resolves to eligible receiver catch/run-after-catch; football ownership transfers once at catch truth."},
+    {"event":"pass-incomplete","required":"No receiver possession celebration; ball becomes non-owned at authoritative incompletion."},
+    {"event":"interception","required":"Possession transfers to the resolved defender once; offensive personalized celebration is suppressed."},
+    {"event":"rush","required":"Ball carrier uses roster-authorized run family and retains football until tackle, score, fumble or play end."},
+    {"event":"fumble","required":"Carrier ownership clears at fumble truth and recovery is assigned only after authoritative recovery identity resolves."},
+    {"event":"sack","required":"QB sack reaction and resolved defender sack action share one play clock; Von Miller may route to DeSoto Shuffle only when he is the authoritative qualifying sacker."},
+    {"event":"first-down","required":"Generic first-down recovery is default; CeeDee Lamb may route to nose-wipe only when he is the authoritative qualifying player and the revision has not consumed it."},
+    {"event":"touchdown","required":"Only authoritative scorer receives personalized scoring celebration; teammates may use generic eligible celebration without stealing scorer identity."},
+    {"event":"field-goal-extra-point","required":"Kicker action resolves from authoritative attempt result; made/missed truth is never inferred from animation completion."},
+    {"event":"punt-kick-return","required":"Specialist and returner actions remain roster-authorized and football ownership transfers from kick flight to resolved returner only when return truth exists."}
+  ],
+  "qaChecks": [
+    {"id":"headshot-identity-stability","assert":"Every personalized sequence keeps the same official-headshot-derived visible identity across base, action and celebration frames; no frame may infer or substitute appearance from a name."},
+    {"id":"complexion-lighting-stability","assert":"Lighting changes cannot materially alter the locked skin-tone appearance between adjacent frames; appearance is evaluated under the canonical lighting family."},
+    {"id":"uniform-number-legibility","assert":"Visible jersey numbers agree with roster.json and are never horizontally mirrored to fabricate an opposite-facing pose."},
+    {"id":"camera-scale-anchor","assert":"Camera family, player scale and foot anchor remain within authored tolerances through action handoffs and recovery."},
+    {"id":"alpha-edge-quality","assert":"Transparent frames have clean silhouette edges with no opaque rectangle, stadium remnant or avoidable fringe halo."},
+    {"id":"event-truth-first","assert":"Animation selection, possession and celebration always derive from authoritative Gamecast event truth; animation timing cannot change a play result."},
+    {"id":"correction-preemption","assert":"A newer authoritative revision preempts stale choreography before any stale score, turnover, first-down or signature celebration can complete."},
+    {"id":"signature-qualification","assert":"CeeDee Lamb nose-wipe and Von Miller DeSoto Shuffle require matching player plus qualifying event plus unconsumed authoritative revision; no name-only routing is allowed."},
+    {"id":"generic-celebration-safety","assert":"Players without a verified named signature use eligible generic celebrations only; metadata must not promote a generic motion to an invented named signature."},
+    {"id":"fallback-identity-safety","assert":"Missing, invalid or undecodable personalized assets fall back without ever borrowing another player's face, number or signature."},
+    {"id":"cross-team-sport-isolation","assert":"Dallas QA keys and fallback paths remain NFL/DAL scoped and cannot mutate another NFL team or MLB/NHL state."}
+  ],
+  "acceptanceFixtures": [
+    {"id":"dal-qa-03-complete-catch","assert":"Dak Prescott completion to CeeDee Lamb transfers one football exactly once and preserves both player identities through recovery."},
+    {"id":"dal-qa-03-incompletion","assert":"An incompletion cannot accidentally trigger catch, first-down or scorer celebration from a prior optimistic frame."},
+    {"id":"dal-qa-03-interception","assert":"Authoritative interception suppresses stale offensive possession and reconstructs defender ownership without duplicate footballs."},
+    {"id":"dal-qa-03-fumble-correction","assert":"A corrected fumble recovery invalidates the stale recovery player before the corrected personalized action renders."},
+    {"id":"dal-qa-03-lamb-qualified","assert":"CeeDee Lamb nose-wipe is eligible only on a qualifying authoritative Lamb first-down revision and only once for that revision."},
+    {"id":"dal-qa-03-lamb-not-qualified","assert":"A Lamb target, catch without first down, teammate first down or repeated poll cannot route to nose-wipe."},
+    {"id":"dal-qa-03-miller-qualified","assert":"Von Miller DeSoto Shuffle is eligible only when Miller is the authoritative qualifying sacker and only once for that revision."},
+    {"id":"dal-qa-03-miller-not-qualified","assert":"A Miller pressure, assisted non-qualifying event, teammate sack or repeated poll cannot route to DeSoto Shuffle."},
+    {"id":"dal-qa-03-number-orientation","assert":"Opposite-direction movement uses an authored orientation strategy and never mirrors readable jersey identity incorrectly."},
+    {"id":"dal-qa-03-alpha","assert":"Representative base/action/celebration frames satisfy transparent-background and clean-edge requirements."},
+    {"id":"dal-qa-03-missing-player-asset","assert":"A missing personalized asset uses safe Gamecast fallback and never substitutes a different Dallas player."},
+    {"id":"dal-qa-03-mlb-nhl-isolation","assert":"Executing every Dallas QA/fallback path performs no write to MLB or NHL assets, caches, state or behavior."}
+  ],
+  "releaseDisposition": "qa-gate-specified",
+  "next": "Continue Dallas QA with qa-04; do not begin Philadelphia until Dallas quality work is explicitly closed in project.json."
+}
