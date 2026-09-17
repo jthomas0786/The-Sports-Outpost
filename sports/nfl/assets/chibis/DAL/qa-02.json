@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-02",
+  "season": 2026,
+  "purpose": "Second Dallas production-readiness gate: verify that roster authority, player namespaces, authored action coverage and Gamecast fallback behavior remain internally consistent before final Dallas closure.",
+  "inputs": [
+    "DAL/roster.json",
+    "DAL appearance-reference/base-chibi/action-pose specifications",
+    "DAL signature sequence specifications",
+    "DAL/gamecast-integration-01.json through DAL/gamecast-integration-10.json",
+    "DAL/qa-01.json"
+  ],
+  "coverageContract": {
+    "activeRosterCount": 53,
+    "requiredPlayerNamespaces": 53,
+    "requiredAppearanceLocks": 53,
+    "requiredBaseChibiSpecs": 53,
+    "requiredActionPosePlayerSpecs": 53,
+    "verifiedNamedSignatures": [
+      {"player":"CeeDee Lamb","slug":"ceedee-lamb","event":"first-down","sequence":"nose-wipe"},
+      {"player":"Von Miller","slug":"von-miller","event":"sack","sequence":"desoto-shuffle"}
+    ],
+    "gamecastIntegrationContracts": 10
+  },
+  "qaChecks": [
+    {"id":"namespace-bijection","assert":"The authoritative 53 active roster slugs map one-to-one to Dallas player namespaces; no production identity may alias another player's folder."},
+    {"id":"inventory-subset","assert":"Every Gamecast-eligible action for a player must be present in that player's roster.json action inventory even when an archetype contains additional authored poses."},
+    {"id":"appearance-lock-required","assert":"A personalized render is ineligible unless its appearance specification is locked to a current official headshot; unresolved appearance must fall back without guessing skin tone or visible traits."},
+    {"id":"number-lock-required","assert":"The visible uniform number must agree with roster.json for the resolved player identity; mismatch fails closed for personalized display."},
+    {"id":"render-invariants","assert":"Base, action and celebration assets preserve realistic 3D chibi style, canonical camera family, lighting family, scale, transparent alpha and foot anchor."},
+    {"id":"action-transition-integrity","assert":"Position actions transition through authored start/contact/recovery states without identity swaps, anchor jumps or duplicate football ownership."},
+    {"id":"signature-allowlist","assert":"Only the two project-verified Dallas named signatures are eligible by name; all other celebrations remain generic/team/player-specific only when independently verified and recorded."},
+    {"id":"signature-truth-independence","assert":"Failure or absence of a signature asset can never change the authoritative first-down, sack, touchdown or other play result."},
+    {"id":"poll-replay-guard","assert":"The same authoritative play revision cannot consume an action or signature twice because of repeated polling, reconnect or rerender."},
+    {"id":"correction-rebuild","assert":"An authoritative correction clears stale animation, participant and football state before deterministic reconstruction from corrected truth."},
+    {"id":"bounded-scene","assert":"Participant overflow degrades deterministically to principal chibis plus existing Gamecast presentation rather than overcrowding or dropping authoritative event information."},
+    {"id":"cross-sport-regression","assert":"All QA state, asset keys, caches and fallbacks remain under NFL/DAL namespaces and cannot mutate MLB or NHL behavior."}
+  ],
+  "failureMatrix": [
+    {"condition":"player namespace missing","behavior":"Use existing non-personalized Gamecast representation; never substitute another Dallas player."},
+    {"condition":"appearance provenance unresolved","behavior":"Do not render a guessed personalized chibi; use safe fallback."},
+    {"condition":"jersey number mismatch","behavior":"Reject personalized asset and preserve authoritative text/data presentation."},
+    {"condition":"action not roster-authorized","behavior":"Route to nearest eligible generic action or existing Gamecast presentation."},
+    {"condition":"signature asset unavailable","behavior":"Preserve play truth and use eligible generic celebration/recovery."},
+    {"condition":"asset decode/alpha failure","behavior":"Fail open to existing Gamecast without affecting live state."},
+    {"condition":"authoritative correction","behavior":"Invalidate stale scene state and reconstruct once from corrected revision."}
+  ],
+  "acceptanceFixtures": [
+    {"id":"dal-qa-02-53-bijection","assert":"Exactly 53 authoritative active roster identities are expected and each resolves uniquely."},
+    {"id":"dal-qa-02-no-cross-player-fallback","assert":"A missing asset for one player can never display another player's face, number or personalized animation."},
+    {"id":"dal-qa-02-unverified-appearance","assert":"Missing official-headshot provenance blocks personalized rendering rather than triggering name-based appearance inference."},
+    {"id":"dal-qa-02-action-subset","assert":"Archetype-only actions absent from a player's roster inventory are rejected."},
+    {"id":"dal-qa-02-foot-anchor","assert":"Base-to-action-to-recovery keeps the same canonical ground contact within production tolerance."},
+    {"id":"dal-qa-02-football-singleton","assert":"Pass, catch, fumble and recovery choreography never renders two authoritative footballs."},
+    {"id":"dal-qa-02-lamb-allowlist","assert":"CeeDee Lamb first-down nose-wipe is eligible once per qualifying authoritative revision."},
+    {"id":"dal-qa-02-miller-allowlist","assert":"Von Miller DeSoto Shuffle is eligible once per qualifying authoritative sack revision."},
+    {"id":"dal-qa-02-other-signature-denied","assert":"An unverified named signature for any other Dallas player is denied by the release gate."},
+    {"id":"dal-qa-02-reconnect","assert":"Reconnect reconstructs the current scene without replaying already-consumed celebrations."},
+    {"id":"dal-qa-02-correction","assert":"Corrected participant or play result invalidates stale personalized choreography before reconstruction."},
+    {"id":"dal-qa-02-mlb-nhl-isolation","assert":"Dallas QA and fallback paths perform no writes to MLB or NHL assets, caches, state or runtime behavior."}
+  ],
+  "result": "qa-coverage-contract-specified",
+  "next": "Continue Dallas QA with qa-03; do not begin Philadelphia until Dallas quality work is explicitly closed in project.json."
+}
