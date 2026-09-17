@@ -1,0 +1,32 @@
+name: One-time MLB BvP live-source check v90.2
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-mlb-bvp-source-check-v902.yml'
+jobs:
+  verify-live-bvp:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build current slate from live MLB sources
+        run: node build-slate.js --date "$(TZ=America/Chicago date +%F)" --out /tmp/bvp-slate.json --verbose
+      - name: Verify real BvP samples exist
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const s=JSON.parse(fs.readFileSync('/tmp/bvp-slate.json','utf8'));
+          const found=[];
+          for(const g of s.games||[]) for(const side of ['away','home']){
+            const opp=g?.[side==='away'?'home':'away'];
+            for(const p of g?.[side]?.lineup||[]){
+              if(p?.vsPitcher&&Number(p.vsPitcher.pa||p.vsPitcher.ab||0)>0) found.push({batter:p.name,pitcher:opp?.pitcher?.name||opp?.probablePitcherName,history:p.vsPitcher});
+            }
+          }
+          console.log(JSON.stringify({date:s.date,historyCount:found.length,samples:found.slice(0,12)},null,2));
+          if(!found.length)process.exit(1);
+          NODE
