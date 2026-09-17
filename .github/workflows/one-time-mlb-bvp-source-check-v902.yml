@@ -1,49 +1,116 @@
-name: One-time MLB BvP live-source check v90.2
+name: MLB BvP live-source guard v90.2
 on:
   push:
     branches: [main]
     paths:
       - '.github/workflows/one-time-mlb-bvp-source-check-v902.yml'
+      - 'sports/mlb/adapter.js'
+      - 'sports/mlb/player-modal-bvp-v902.js'
+      - 'scripts/mlb-player-modal-bvp-v902-selftest.mjs'
+permissions:
+  contents: write
 jobs:
   verify-live-bvp:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
+
+      - name: Rebase onto latest main
+        run: |
+          git fetch origin main
+          git rebase origin/main || true
+
+      - name: Fix BvP debug flag at the data-pipeline source
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('sports/mlb/adapter.js')
+          s=p.read_text()
+          marker="const VERBOSE = process.argv.includes('--verbose');\n"
+          definition="const DEBUG_H2H = process.argv.includes('--debug-h2h');\n"
+          if definition not in s:
+              if marker not in s:
+                  raise SystemExit('MLB adapter VERBOSE marker missing')
+              s=s.replace(marker, marker+definition, 1)
+              p.write_text(s)
+          if s.count('const DEBUG_H2H') != 1:
+              raise SystemExit('DEBUG_H2H must be defined exactly once')
+          PY
+          node --check sports/mlb/adapter.js
+
       - name: Probe known Bryan Reynolds vs Kyle Harrison response shapes
         run: |
           node - <<'NODE'
           const urls={
             statsSeason:'https://statsapi.mlb.com/api/v1/people/668804/stats?stats=vsPlayer&opposingPlayerId=690986&group=hitting&gameType=R&season=2026&sportId=1',
-            statsTotal:'https://statsapi.mlb.com/api/v1/people/668804/stats?stats=vsPlayerTotal&opposingPlayerId=690986&group=hitting&gameType=R&sportId=1',
-            hydrateSeason:'https://statsapi.mlb.com/api/v1/people/668804?hydrate=stats(group=[hitting],type=[vsPlayer],opposingPlayerId=690986,season=2026,sportId=1)',
-            hydrateCareer:'https://statsapi.mlb.com/api/v1/people/668804?hydrate=stats(group=[hitting],type=[vsPlayer],opposingPlayerId=690986,sportId=1)'
+            statsTotal:'https://statsapi.mlb.com/api/v1/people/668804/stats?stats=vsPlayerTotal&opposingPlayerId=690986&group=hitting&gameType=R&sportId=1'
           };
           for(const [name,url] of Object.entries(urls)){
-            try{
-              const r=await fetch(url);const text=await r.text();
-              console.log(`PROBE ${name} status=${r.status} bytes=${text.length}`);
-              console.log(text.slice(0,1800));
-            }catch(e){console.log(`PROBE ${name} ERROR ${e.message}`)}
+            const r=await fetch(url); const data=await r.json();
+            const splits=(data?.stats||[]).flatMap(x=>x?.splits||[]);
+            const pa=splits.reduce((n,x)=>n+Number(x?.stat?.plateAppearances||0),0);
+            console.log(`PROBE ${name} status=${r.status} splits=${splits.length} PA=${pa}`);
+            if(!r.ok) process.exit(1);
           }
           NODE
-      - name: Build current slate from live MLB sources
-        run: node build-slate.js --date "$(TZ=America/Chicago date +%F)" --out /tmp/bvp-slate.json --verbose --debug-h2h
-      - name: Verify real BvP samples exist
+
+      - name: Build current MLB slate with BvP history
+        run: node build-slate.js --date "$(TZ=America/Chicago date +%F)" --out slate.json --verbose --debug-h2h
+
+      - name: Attach odds and betslip links
+        continue-on-error: true
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          if [ -z "$ODDS_API_KEY" ]; then
+            echo "ODDS_API_KEY not set — preserving BvP build without odds refresh"
+          else
+            node fetch-odds.js --slate slate.json
+          fi
+
+      - name: Enrich with Statcast
+        continue-on-error: true
+        run: |
+          pip install --quiet pybaseball pandas
+          python enrich-statcast.py --slate slate.json
+
+      - name: Verify real BvP samples and modal contract
         run: |
           node - <<'NODE'
           const fs=require('fs');
-          const s=JSON.parse(fs.readFileSync('/tmp/bvp-slate.json','utf8'));
+          const s=JSON.parse(fs.readFileSync('slate.json','utf8'));
           const found=[];
           for(const g of s.games||[]) for(const side of ['away','home']){
             const opp=g?.[side==='away'?'home':'away'];
             for(const p of g?.[side]?.lineup||[]){
-              if(p?.vsPitcher&&Number(p.vsPitcher.pa||p.vsPitcher.ab||0)>0) found.push({batter:p.name,pitcher:opp?.pitcher?.name||opp?.probablePitcherName,history:p.vsPitcher});
+              if(p?.vsPitcher&&Number(p.vsPitcher.pa||p.vsPitcher.ab||0)>0){
+                found.push({batter:p.name,pitcher:opp?.pitcher?.name||opp?.probablePitcherName,history:p.vsPitcher});
+              }
             }
           }
-          console.log(JSON.stringify({date:s.date,historyCount:found.length,samples:found.slice(0,12)},null,2));
-          if(!found.length)process.exit(1);
+          const reynolds=found.find(x=>x.batter==='Bryan Reynolds'&&x.pitcher==='Kyle Harrison');
+          console.log(JSON.stringify({date:s.date,historyCount:found.length,reynolds,samples:found.slice(0,12)},null,2));
+          if(!found.length) throw new Error('No real BvP samples reached slate.json');
+          if(!reynolds) throw new Error('Bryan Reynolds vs Kyle Harrison history missing from current slate');
+          if(Number(reynolds.history.pa)!==7 || Number(reynolds.history.ab)!==6) throw new Error('Reynolds/Harrison career BvP sample is not the expected 7 PA / 6 AB');
           NODE
+          node scripts/mlb-player-modal-bvp-v902-selftest.mjs
+
+      - name: Commit fixed pipeline and refreshed production slate
+        run: |
+          git config user.name 'TSO MLB BvP Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/mlb/adapter.js slate.json model-logs/
+          git diff --staged --quiet && echo "no changes" && exit 0
+          git commit -m 'mlb: restore batter-vs-pitcher history data'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main && git push origin HEAD:main && exit 0
+            sleep $((attempt * 3))
+          done
+          exit 1
