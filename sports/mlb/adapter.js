@@ -384,41 +384,48 @@ async function fetchPlatoonSplits(playerId, group = 'hitting') {
  */
 async function fetchHeadToHead(batterId, pitcherId, debug = false) {
   if (!batterId || !pitcherId) return null;
-  const url = `${MLB}/people/${batterId}/stats`
-    + `?stats=vsPlayer&opposingPlayerId=${pitcherId}&group=hitting&gameType=R`;
-  const data = await getJSON(url).catch(() => null);
+  const base = `${MLB}/people/${batterId}/stats`;
+  const totalUrl = `${base}?stats=vsPlayerTotal&opposingPlayerId=${pitcherId}&group=hitting&gameType=R&sportId=1`;
+  const seasonUrl = `${base}?stats=vsPlayer&opposingPlayerId=${pitcherId}&group=hitting&gameType=R&season=${SEASON}&sportId=1`;
+  const [totalData, seasonData] = await Promise.all([
+    getJSON(totalUrl).catch(() => null),
+    getJSON(seasonUrl).catch(() => null),
+  ]);
 
-  // IMPORTANT: vsPlayer can return one split PER SEASON they've faced each
-  // other, not one aggregated total. Reading only splits[0] silently drops
-  // every season but the first returned — which, depending on how the API
-  // orders results and whether it implicitly scopes to the current season
-  // when none is given, can make a real multi-year history read as "no data"
-  // for everyone. This was unverified against the live API (no network access
-  // in the build environment here), so it's handled defensively: sum across
-  // every split returned rather than trusting index 0 alone.
-  const splits = data?.stats?.[0]?.splits ?? [];
+  // Prefer the block with the largest actual PA sample. When vsPlayerTotal is
+  // supported this is the career aggregate; if that endpoint is unavailable,
+  // the season-scoped vsPlayer response still gives a truthful fallback.
+  const blocks = [...(totalData?.stats ?? []), ...(seasonData?.stats ?? [])];
+  const blockPA = block => (block?.splits ?? []).reduce(
+    (t, sp) => t + (num(sp.stat?.plateAppearances) ?? 0), 0
+  );
+  const candidates = blocks
+    .map(block => ({ block, pa: blockPA(block) }))
+    .filter(x => x.pa > 0)
+    .sort((x, y) => y.pa - x.pa);
+  const chosen = candidates[0]?.block ?? null;
+  const splits = chosen?.splits ?? [];
   if (debug) {
+    const type = chosen?.type?.displayName || chosen?.type?.code || chosen?.type?.name || 'none';
     console.log(`    [h2h debug] batter ${batterId} vs pitcher ${pitcherId}: ` +
-      `${splits.length} split(s) — ` +
-      JSON.stringify(splits.map(sp => ({ season: sp.season, pa: sp.stat?.plateAppearances }))));
+      `${splits.length} split(s), source=${type}, PA=${candidates[0]?.pa ?? 0}`);
   }
   if (!splits.length) return null;
 
-  const sum = (key) => splits.reduce((t, sp) => t + (num(sp.stat?.[key]) ?? 0), 0);
+  const sum = key => splits.reduce((t, sp) => t + (num(sp.stat?.[key]) ?? 0), 0);
   const pa = sum('plateAppearances');
   if (!pa) return null;
-
   const ab = sum('atBats'), h = sum('hits');
+  const typeText = [chosen?.type?.displayName, chosen?.type?.code, chosen?.type?.name]
+    .filter(Boolean).join(' ');
   return {
     pa, ab, h,
     hr: sum('homeRuns'), rbi: sum('rbi'), bb: sum('baseOnBalls'), so: sum('strikeOuts'),
     doubles: sum('doubles'), triples: sum('triples'),
-    // Rate stats must be recomputed from the summed counts, not averaged
-    // across splits — averaging AVG values directly would be wrong whenever
-    // the seasons had different numbers of at-bats.
     avg: ab ? +(h / ab).toFixed(3) : null,
     slg: ab ? +(sum('totalBases') / ab).toFixed(3) : null,
     obp: pa ? +((h + sum('baseOnBalls') + sum('hitByPitch')) / pa).toFixed(3) : null,
+    scope: /total/i.test(typeText) ? 'career' : 'season',
   };
 }
 

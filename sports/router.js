@@ -117,9 +117,10 @@ async function swapView(active) {
 
   if (active === 'mlb') {
     try {
-      const [liveSwitcher,playerParity,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920,conceptV921,conceptV922,conceptV923,conceptV924] = await Promise.all([
+      const [liveSwitcher,playerParity,playerBvp,playstage,concept,conceptV905,conceptV906,conceptV907,conceptV908,conceptV909,conceptV910,conceptV911,conceptV912,conceptV913,conceptV914,conceptV915,conceptV916,conceptV917,conceptV920,conceptV921,conceptV922,conceptV923,conceptV924] = await Promise.all([
         import('./mlb/live-game-switcher-v901.js?v=90.23'),
         import('./mlb/player-modal-parity-v901.js?v=90.2'),
+        import('./mlb/player-modal-bvp-v902.js?v=90.3'),
         import('./mlb/playstage-v901.js?v=90.46'),
         import('./mlb/playstage-concept-v904.js?v=90.4'),
         import('./mlb/playstage-concept-v905.js?v=90.51'),
@@ -143,6 +144,7 @@ async function swapView(active) {
       ]);
       liveSwitcher.installMlbLiveGameSwitcherV901?.();
       playerParity.installMlbPlayerModalParityV901?.();
+      playerBvp.installMlbPlayerModalBvpV902?.();
       playstage.installMlbPlaystageV901?.();
       concept.installMlbPlaystageConceptV904?.();
       conceptV905.installMlbPlaystageConceptV905?.();
