@@ -41,6 +41,7 @@ function todayEastern() {
 }
 const DATE = arg('--date', todayEastern());
 const VERBOSE = process.argv.includes('--verbose');
+const DEBUG_H2H = process.argv.includes('--debug-h2h');
 const OUT = arg('--out', 'public/slate.json');
 const CONCURRENCY = 6; // be a polite API citizen
 
