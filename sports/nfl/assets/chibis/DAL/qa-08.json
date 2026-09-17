@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-08",
+  "season": 2026,
+  "purpose": "Dallas release-candidate completeness and degradation QA: prove the 53-player personalized library can enter Gamecast production without identity leakage, animation dead ends, signature invention, presentation-driven event truth, or cross-sport side effects.",
+  "inputs": ["DAL/roster.json", "DAL appearance-reference/base-chibi/action-pose specifications", "DAL signature sequence specifications", "DAL/gamecast-integration-01.json through DAL/gamecast-integration-10.json", "DAL/qa-01.json through DAL/qa-07.json"],
+  "qualityContract": {
+    "activeRosterCount": 53,
+    "style": "realistic 3D chibi",
+    "appearanceAuthority": "current official headshot-derived appearance lock only; never infer visible appearance from player name",
+    "identityAuthority": "DAL/roster.json player slug plus current uniform number",
+    "actionAuthority": "DAL/roster.json action inventory",
+    "renderLocks": ["canonical camera angle", "canonical lighting", "stable player scale", "canonical foot anchor", "transparent background", "unmirrored readable uniform number"],
+    "verifiedNamedSignatures": [
+      {"player":"CeeDee Lamb","slug":"ceedee-lamb","event":"first-down","sequence":"nose-wipe"},
+      {"player":"Von Miller","slug":"von-miller","event":"sack","sequence":"desoto-shuffle"}
+    ],
+    "releaseRule": "Personalized chibis are an enhancement layer only. Any missing, stale, invalid, unauthorized or undecodable personalized asset must fail closed to the established Gamecast presentation while authoritative NFL event truth remains intact.",
+    "isolationRule": "Dallas QA may read only NFL/Dallas chibi presentation inputs and must not mutate MLB/NHL files, routes, caches or stores."
+  },
+  "qaChecks": [
+    {"id":"roster-release-closure","assert":"Exactly 53 active Dallas roster identities are addressable and every personalized player key resolves uniquely to its own roster slug, current uniform number and appearance provenance."},
+    {"id":"action-terminal-coverage","assert":"Every roster-authorized action has a deterministic terminal or recovery state so Gamecast cannot strand a chibi between plays."},
+    {"id":"missing-action-fallback","assert":"A missing production asset for an otherwise authorized action fails locally to safe Gamecast presentation and never substitutes an action from another player or archetype."},
+    {"id":"appearance-fail-closed","assert":"Missing or invalid official-headshot appearance provenance suppresses personalization for that player rather than guessing skin tone, hair, facial features or other visible appearance."},
+    {"id":"number-fail-closed","assert":"A current-number mismatch suppresses the personalized render; no stale or teammate number may be shown as a fallback."},
+    {"id":"animation-name-stability","assert":"Production animation names remain deterministic across cold cache, warm cache, reconnect and corrected-event replay and cannot alias two semantic actions."},
+    {"id":"anchor-recovery","assert":"Every action and signature returns to the canonical foot anchor or is cleanly preempted before the next accepted event; no accumulated root-motion drift survives play boundaries."},
+    {"id":"alpha-release-quality","assert":"Representative base, action and signature assets composite with transparent backgrounds and no matte fringe, opaque rectangle or clipped silhouette at canonical Gamecast scale."},
+    {"id":"signature-registry-closed","assert":"Only CeeDee Lamb nose-wipe for his authoritative first down and Von Miller DeSoto Shuffle for his authoritative sack are named Dallas signatures; all other named signature requests fail closed."},
+    {"id":"event-truth-precedence","assert":"Authoritative play revisions, possession and participant identity always override animation state, cached assets, celebration state and prior polling results."},
+    {"id":"resource-degradation","assert":"Decode failure, cache eviction, visibility resume, resize and reduced-motion mode preserve event semantics and leave no orphaned football, participant or celebration state."},
+    {"id":"cross-sport-regression-boundary","assert":"The complete qa-08 matrix requires no MLB/NHL behavior change and performs no cross-sport state writes."}
+  ],
+  "acceptanceFixtures": [
+    {"id":"dal-qa-08-all-player-addressability","assert":"A roster sweep resolves 53 unique player identities with no duplicate slug/number binding and no appearance borrowed between players."},
+    {"id":"dal-qa-08-action-recovery-sweep","assert":"Representative offensive, defensive and special-teams actions all terminate or recover at canonical anchor without dead-end animation state."},
+    {"id":"dal-qa-08-missing-asset","assert":"Deleting one fixture asset from the simulated manifest suppresses only that personalized action and preserves authoritative Gamecast output."},
+    {"id":"dal-qa-08-invalid-appearance","assert":"A player with failed headshot provenance renders no guessed personalized appearance while event text/state remains correct."},
+    {"id":"dal-qa-08-stale-number","assert":"A stale jersey-number fixture is rejected rather than rendered or silently remapped to a teammate."},
+    {"id":"dal-qa-08-correction-during-signature","assert":"An authoritative correction immediately cancels Lamb nose-wipe or Miller DeSoto Shuffle when its qualifying event no longer exists."},
+    {"id":"dal-qa-08-unknown-signature","assert":"An unsourced named celebration request is rejected and cannot be persisted into the Dallas signature registry."},
+    {"id":"dal-qa-08-cache-reconnect","assert":"Cold load, warm cache and reconnect produce equivalent identity, action, anchor, football-ownership and signature eligibility semantics."},
+    {"id":"dal-qa-08-reduced-motion","assert":"Reduced-motion presentation changes movement intensity only; identity, event truth, action eligibility and signature qualification remain equivalent."},
+    {"id":"dal-qa-08-resume-resize","assert":"Background resume plus viewport resize reconstructs current accepted play from canonical coordinates without stale participants or transform drift."},
+    {"id":"dal-qa-08-football-cleanup","assert":"Every terminal, preemption, correction and fallback path leaves at most one football owner and no orphan football sprite."},
+    {"id":"dal-qa-08-mlb-nhl-isolation","assert":"Executing the full release matrix changes no MLB/NHL code/data and reads no MLB/NHL state as a Dallas fallback."}
+  ],
+  "releaseDisposition": "release-candidate-completeness-gate-specified",
+  "next": "Continue Dallas QA with qa-09; do not begin Philadelphia until Dallas quality work is explicitly closed in project.json."
+}
