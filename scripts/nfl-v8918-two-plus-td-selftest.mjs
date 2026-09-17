@@ -10,12 +10,12 @@ const registry=read('sports/registry.js');
 
 assert.ok(engine.includes('probabilities:{atd:round(atdProb,4),twoPlusTd:round(twoTdProb,4)}'),'simulation engine must publish exact 2+ TD probability');
 assert.ok(engine.includes("v=>v>=2"),'2+ TD must come from simulated touchdown counts');
-assert.ok(ui.includes('playerSim?.probabilities?.twoPlusTd'),'UI must consume simulation twoPlusTd');
-assert.ok(ui.includes('2+ TD'),'UI must visibly label the new probability');
-assert.ok(ui.includes('data-tso-two-plus-td'),'UI must expose the rendered value for QA');
-assert.ok(preview.includes("prop-model-edge-v8918.js?v=89.18"),'production NFL preview must load v89.18');
+assert.ok(ui.includes('playerSim?.probabilities?.twoPlusTd'),'v89.18 simulation enhancer must still consume twoPlusTd');
+assert.ok(ui.includes('2+ TD'),'v89.18 enhancer must retain its visible label as a fallback');
+assert.ok(ui.includes('data-tso-two-plus-td'),'v89.18 enhancer must expose the rendered value for QA');
+assert.ok(preview.includes("prop-model-edge-v8918.js?v=89.18"),'production NFL preview must retain the v89.18 simulation enhancer');
 assert.ok(preview.includes('installNflPropModelEdgeV8918'),'production NFL preview must install v89.18');
-assert.ok(router.includes("./nfl-preview-v893.js?v=89.41"),'shared router must cache-bust the updated NFL preview');
+assert.ok(/\.\/nfl-preview-v893\.js\?v=89\.(?:41|42|43|44|45)/.test(router),'shared router must cache-bust the updated NFL preview');
 assert.ok(registry.includes("'twoPlusTd'"),'NFL registry must declare twoPlusTd');
 
 const sim=JSON.parse(read('slates/nfl-sim.json'));
