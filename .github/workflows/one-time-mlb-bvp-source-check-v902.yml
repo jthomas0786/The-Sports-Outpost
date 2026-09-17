@@ -13,8 +13,25 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+      - name: Probe known Bryan Reynolds vs Kyle Harrison response shapes
+        run: |
+          node - <<'NODE'
+          const urls={
+            statsSeason:'https://statsapi.mlb.com/api/v1/people/668804/stats?stats=vsPlayer&opposingPlayerId=690986&group=hitting&gameType=R&season=2026&sportId=1',
+            statsTotal:'https://statsapi.mlb.com/api/v1/people/668804/stats?stats=vsPlayerTotal&opposingPlayerId=690986&group=hitting&gameType=R&sportId=1',
+            hydrateSeason:'https://statsapi.mlb.com/api/v1/people/668804?hydrate=stats(group=[hitting],type=[vsPlayer],opposingPlayerId=690986,season=2026,sportId=1)',
+            hydrateCareer:'https://statsapi.mlb.com/api/v1/people/668804?hydrate=stats(group=[hitting],type=[vsPlayer],opposingPlayerId=690986,sportId=1)'
+          };
+          for(const [name,url] of Object.entries(urls)){
+            try{
+              const r=await fetch(url);const text=await r.text();
+              console.log(`PROBE ${name} status=${r.status} bytes=${text.length}`);
+              console.log(text.slice(0,1800));
+            }catch(e){console.log(`PROBE ${name} ERROR ${e.message}`)}
+          }
+          NODE
       - name: Build current slate from live MLB sources
-        run: node build-slate.js --date "$(TZ=America/Chicago date +%F)" --out /tmp/bvp-slate.json --verbose
+        run: node build-slate.js --date "$(TZ=America/Chicago date +%F)" --out /tmp/bvp-slate.json --verbose --debug-h2h
       - name: Verify real BvP samples exist
         run: |
           node - <<'NODE'
