@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "appearance-reference-04",
+  "referencePolicy": {
+    "sourcePriority": "Current official PhiladelphiaEagles.com player roster/headshot page",
+    "visualRule": "Artists/generators must inspect the cited current official headshot before rendering. Never infer skin tone, hair, facial hair, facial features, or other visible appearance from a player's name, biography, position, nickname, or stale asset.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {
+      "background": "transparent",
+      "camera": "three-quarter front; match approved Dallas production camera",
+      "lighting": "soft stadium key plus cool rim; match approved Dallas production lighting",
+      "scale": "match approved Dallas Gamecast scale",
+      "footAnchor": "bottom-center ground-contact anchor",
+      "uniformSet": "Philadelphia current uniform treatment",
+      "numberAccuracy": "required; re-check official roster before final render",
+      "animationNaming": "phi_<player-slug>_<action>_v001"
+    }
+  },
+  "players": [
+    {"slug":"dallas-goedert","name":"Dallas Goedert","position":"TE","number":"88","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/dallas-goedert/","officialImageLabel":"Goedert_Dallas","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot as sole visual authority for complexion, face, hair and facial-hair details.","Preserve #88 and his official 6-5, 256-pound tight-end build while retaining the common chibi head ratio, camera and bottom-center foot anchor.","Prioritize stance, release, route-run, catch, block and generic score celebration until signature research is separately verified."]},
+    {"slug":"jonathan-greenard","name":"Jonathan Greenard","position":"OLB","number":"52","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jonathan-greenard/","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority for visible appearance details.","Preserve #52 and an athletic edge-rusher silhouette at the shared Dallas-derived Gamecast scale.","Prioritize stance, rush, shed-block, tackle, sack and generic defensive celebration; no named signature is asserted here."]},
+    {"slug":"e-j-jenkins","name":"E.J. Jenkins","position":"TE","number":"84","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/e-j-jenkins/","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding complexion, face, hair or facial-hair details.","Preserve #84 and his official tall tight-end build while retaining common head/body ratio, camera and ground anchor.","Prioritize stance, release, route-run, catch, block and generic score celebration."]},
+    {"slug":"lane-johnson","name":"Lane Johnson","position":"T","number":"65","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/lane-johnson/","officialImageLabel":"Johnson_Lane","appearanceStatus":"reference-locked","renderNotes":["Use only the current official headshot to establish complexion and visible face/hair/facial-hair details.","Preserve #65 and his official 6-6, 325-pound tackle build while retaining the approved common chibi head scale and foot anchor.","Prioritize stance, pass-block, run-block, pull and recover-fumble; do not invent a solo named celebration."]},
+    {"slug":"fred-johnson","name":"Fred Johnson","position":"T","number":"74","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/fred-johnson/","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot as the sole source of visible appearance truth.","Preserve #74 and his official 6-7, 326-pound tackle build while matching Dallas production camera, scale and anchor.","Prioritize stance, pass-block, run-block, pull and recover-fumble; no named signature is asserted here."]},
+    {"slug":"jonathan-jones","name":"Jonathan Jones","position":"CB","number":"31","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jonathan-jones/","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority; never infer appearance from biography or name.","Preserve current #31 and his official defensive-back build while retaining common production camera, scale and anchor.","Prioritize press-stance, backpedal, coverage, tackle, interception and generic turnover celebration."]},
+    {"slug":"drew-kendall","name":"Drew Kendall","position":"C/G","number":"66","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/drew-kendall/","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding any visible appearance details.","Preserve #66 and his official 6-4, 308-pound interior-line build within the approved common scale and ground plane.","Prioritize stance, pass-block, run-block, pull and recover-fumble; do not invent a named celebration."]},
+    {"slug":"willie-lampkin","name":"Willie Lampkin","position":"C/G","number":"61","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/willie-lampkin/","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority for complexion and visible face/hair details.","Preserve #61 and his official compact interior-line build without changing common camera, lighting, scale or foot-anchor geometry.","Prioritize stance, pass-block, run-block, pull and recover-fumble."]},
+    {"slug":"makai-lemon","name":"Makai Lemon","position":"WR","number":"9","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/makai-lemon/","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding complexion, face, hair or facial-hair details; never infer appearance from biography or name.","Preserve #9 and his official 5-11, 192-pound receiver build while retaining the approved common chibi head scale and foot anchor.","Prioritize stance, release, route-run, catch and generic score celebration; roster action inventory remains authoritative for Gamecast even when return-specialist poses are added later."]},
+    {"slug":"jordan-mailata","name":"Jordan Mailata","position":"T","number":"68","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jordan-mailata/","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority for complexion and visible face/hair/facial-hair details.","Preserve #68 and his official exceptionally large 6-8, 365-pound tackle build while matching the shared camera, lighting, chibi head ratio and bottom-center foot anchor.","Prioritize stance, pass-block, run-block, pull and recover-fumble; no named signature is asserted here."]}
+  ],
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterPage": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionsPage": "https://www.philadelphiaeagles.com/team/transactions/",
+    "lockedCount": 10,
+    "cumulativeLockedCount": 40,
+    "rosterCrossCheck": "All ten players are present in PHI/roster.json and on the current official Philadelphia active roster. The official roster page confirms current numbers: Goedert 88, Greenard 52, Jenkins 84, Lane Johnson 65, Fred Johnson 74, Jonathan Jones 31, Kendall 66, Lampkin 61, Lemon 9 and Mailata 68. Numbers must be rechecked again at final render time.",
+    "appearanceSafety": "A reference lock establishes the current official team headshot as source of truth. No skin tone, hair, facial-hair or facial-feature value is guessed or encoded from a name, nickname, biography, heritage, or position.",
+    "signatureSafety": "No named player-specific celebration is asserted by this batch. Signature research remains a later phase and requires a verifiable source."
+  }
+}
