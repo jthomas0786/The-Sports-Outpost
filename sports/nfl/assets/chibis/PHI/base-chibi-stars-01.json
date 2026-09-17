@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-01",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "The neutral base mesh, materials, textures and rig binding are authoritative for all later action poses and animation clips; player identity must not be redrawn between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {
+      "slug": "jalen-hurts",
+      "name": "Jalen Hurts",
+      "position": "QB",
+      "number": "1",
+      "officialHeadshotPage": "https://www.philadelphiaeagles.com/team/players-roster/jalen-hurts/",
+      "baseAsset": "PHI/jalen-hurts/base/phi_jalen-hurts_base_v001",
+      "rigArchetype": "qb-athletic-power",
+      "neutralPose": "balanced upright quarterback-ready stance; shoulders relaxed; hands naturally ready in front of torso",
+      "productionNotes": ["Preserve #1 and captain-compatible chest layout.", "Keep throwing shoulder, hips and lower-body proportions stable across dropback, throw and scramble clips.", "Do not assign a named signature celebration in this phase."],
+      "qa": ["official-headshot-reviewed-before-render", "number-1-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "saquon-barkley",
+      "name": "Saquon Barkley",
+      "position": "RB",
+      "number": "26",
+      "officialHeadshotPage": "https://www.philadelphiaeagles.com/team/players-roster/saquon-barkley/",
+      "baseAsset": "PHI/saquon-barkley/base/phi_saquon-barkley_base_v001",
+      "rigArchetype": "rb-power-athletic",
+      "neutralPose": "compact balanced runner-ready stance with low athletic center, relaxed hands and stable plant feet",
+      "productionNotes": ["Preserve #26 and captain-compatible chest layout.", "Retain powerful running-back silhouette while fitting the shared Gamecast box.", "Rig shoulders, hips and knees for handoff, cut, catch and acceleration without anchor drift; no invented named signature."],
+      "qa": ["official-headshot-reviewed-before-render", "number-26-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "devonta-smith",
+      "name": "DeVonta Smith",
+      "position": "WR",
+      "number": "6",
+      "officialHeadshotPage": "https://www.philadelphiaeagles.com/team/players-roster/devonta-smith/",
+      "baseAsset": "PHI/devonta-smith/base/phi_devonta-smith_base_v001",
+      "rigArchetype": "wr-lean-fluid",
+      "neutralPose": "relaxed receiver-ready stance with light forward balance, free hands and stable ground contact",
+      "productionNotes": ["Preserve #6 and captain-compatible chest layout.", "Keep the lean receiver silhouette and limb proportions stable through release, route and catch clips.", "No player-specific named celebration is assigned without later verification."],
+      "qa": ["official-headshot-reviewed-before-render", "number-6-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "jalen-carter",
+      "name": "Jalen Carter",
+      "position": "DT",
+      "number": "98",
+      "officialHeadshotPage": "https://www.philadelphiaeagles.com/team/players-roster/jalen-carter/",
+      "baseAsset": "PHI/jalen-carter/base/phi_jalen-carter_base_v001",
+      "rigArchetype": "dt-broad-explosive",
+      "neutralPose": "broad interior-defender stance with low center of gravity, relaxed hands and square stable feet",
+      "productionNotes": ["Preserve #98.", "Maintain broad/powerful interior-line silhouette without altering the common head scale or camera.", "Rig shoulders, elbows, hips and knees for rush, shed, tackle and fumble-recovery actions; celebrations remain generic until verified."],
+      "qa": ["official-headshot-reviewed-before-render", "number-98-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    },
+    {
+      "slug": "zack-baun",
+      "name": "Zack Baun",
+      "position": "LB",
+      "number": "53",
+      "officialHeadshotPage": "https://www.philadelphiaeagles.com/team/players-roster/zack-baun/",
+      "baseAsset": "PHI/zack-baun/base/phi_zack-baun_base_v001",
+      "rigArchetype": "lb-athletic-physical",
+      "neutralPose": "balanced linebacker read stance with athletic knee bend, square shoulders and hands ready",
+      "productionNotes": ["Preserve #53 and captain-compatible chest layout.", "Maintain athletic linebacker proportions across read, coverage, blitz and tackle clips.", "No named signature celebration is asserted in this phase."],
+      "qa": ["official-headshot-reviewed-before-render", "number-53-visible-and-correct", "transparent-alpha-clean", "bottom-center-foot-anchor", "identity-stable-across-actions"]
+    }
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset", "shared skeleton/rig binding", "material/texture identity lock", "player-scale metadata", "foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["PHI/roster.json remains the authoritative active-roster/action inventory; this batch does not fabricate the currently open 53rd roster slot.", "Current official Philadelphia sources were rechecked before production specification.", "Appearance references remain headshot-authoritative; this specification does not encode guessed skin tone, hair, facial hair or facial features.", "No MLB or NHL integration files are part of this batch."]
+  }
+}
