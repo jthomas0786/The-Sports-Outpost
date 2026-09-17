@@ -3,36 +3,40 @@ import assert from 'node:assert/strict';
 
 const read=p=>fs.readFileSync(p,'utf8');
 const preview=read('sports/nfl-preview.js');
-const v890=read('sports/nfl-preview-v890.js');
+const controller=read('sports/nfl/all-players-controls-v8921.js');
 const v893=read('sports/nfl-preview-v893.js');
 const router=read('sports/router.js');
 const index=read('index.html');
 
+assert.ok(preview.includes('id="nflAllSort"'),'base All Players sort control must remain');
+assert.ok(preview.includes('id="nflSearch"'),'base All Players search input must remain');
+
 for(const needle of [
-  "allSearch: ''",
-  "allTeam: 'ALL'",
-  "allPosition: 'ALL'",
-  'function allPlayerMatchesFilters(p)',
-  'function applyAllPlayersFilters(root)',
+  "const FILTER_STATE={search:'',team:'ALL',position:'ALL'}",
+  "p==='HB'||p==='FB'?'RB':p",
   'id="nflAllTeam"',
   'id="nflAllPosition"',
-  'id="nflSearch"',
-  'id="nflAllClear"',
-  "state.allSearch=search.value;applyAllPlayersFilters(root);",
-  "state.allTeam=e.target.value||'ALL';applyAllPlayersFilters(root);",
-  "state.allPosition=e.target.value||'ALL';applyAllPlayersFilters(root);",
+  '#nflAllClear',
+  "FILTER_STATE.search=e.target.value||''",
+  "FILTER_STATE.team=e.target.value||'ALL'",
+  "FILTER_STATE.position=e.target.value||'ALL'",
   "card.style.display=visible?'':'none'",
-  'applyAllPlayersFilters(root);'
-]) assert.ok(preview.includes(needle),`missing All Players control wiring: ${needle}`);
+  '#nflAllList .nfl-mlb-prop-card[hidden]{display:none!important}',
+  'rank.textContent=String(shown)',
+  'No players match those filters.',
+  'new MutationObserver(()=>schedule(root))',
+  "queueMicrotask(()=>schedule(root))"
+]) assert.ok(controller.includes(needle),`All Players controller missing ${needle}`);
 
-assert.ok(!preview.includes("c.hidden=!c.textContent.toLowerCase().includes(q)"),'legacy textContent-only DOM search must be removed');
-assert.ok(preview.includes("p?.name,p?.team,p?.pos,p?.opp"),'search must match player, team, position and opponent metadata');
-assert.ok(preview.includes("p==='HB'||p==='FB'?'RB':p"),'HB/FB must group into RB for position filtering');
-assert.ok(preview.includes("empty.hidden=shown!==0"),'empty state must track filtered results');
-assert.ok(preview.includes("rank.textContent=String(shown)"),'visible ranks must renumber after filtering');
+assert.ok(controller.includes("card.dataset.tsoAllTeam=m.team"),'team metadata must be normalized per card');
+assert.ok(controller.includes("card.dataset.tsoAllPosition=m.position"),'position metadata must be normalized per card');
+assert.ok(controller.includes("const hay=[card.dataset.tsoAllName,card.dataset.tsoAllTeam,card.dataset.tsoAllPosition,card.textContent]"),'search must cover player/team/position plus rendered metadata');
+assert.ok(controller.includes("root.addEventListener('input'"),'search must use persistent delegated input handling');
+assert.ok(controller.includes("root.addEventListener('change'"),'filters/sort must use persistent delegated change handling');
+assert.ok(controller.includes("observer.observe(root,{childList:true,subtree:true})"),'controller must survive NFL rerenders');
 
-assert.ok(/\.\/nfl-preview\.js\?v=89\.\d+/.test(v890),'base preview cache bust missing');
-assert.ok(/\.\/nfl-preview-v890\.js\?v=89\.\d+/.test(v893),'wrapper preview cache bust missing');
+assert.ok(v893.includes("./nfl/all-players-controls-v8921.js?v=89.21"),'production wrapper must import the All Players controller');
+assert.ok(v893.includes('installNflAllPlayersControlsV8921();'),'production wrapper must install the All Players controller');
 assert.ok(/\.\/nfl-preview-v893\.js\?v=89\.\d+/.test(router),'router NFL cache bust missing');
 assert.ok(/\.\/sports\/router\.js\?v=\d+\.\d+/.test(index),'outer router cache bust missing');
 
