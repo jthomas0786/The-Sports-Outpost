@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "appearance-reference-06",
+  "referencePolicy": {
+    "sourcePriority": "Current official PhiladelphiaEagles.com player roster/headshot page",
+    "visualRule": "Artists/generators must inspect the cited current official headshot before rendering. Never infer skin tone, hair, facial hair, facial features, or other visible appearance from a player's name, biography, position, nickname, heritage, or stale asset.",
+    "style": "realistic 3D chibi; adult football proportions; recognizable at Gamecast scale",
+    "render": {
+      "background": "transparent",
+      "camera": "three-quarter front; match approved Dallas production camera",
+      "lighting": "soft stadium key plus cool rim; match approved Dallas production lighting",
+      "scale": "match approved Dallas Gamecast scale",
+      "footAnchor": "bottom-center ground-contact anchor",
+      "uniformSet": "Philadelphia current uniform treatment",
+      "numberAccuracy": "required; re-check official roster before final render",
+      "animationNaming": "phi_<player-slug>_<action>_v001"
+    }
+  },
+  "players": [
+    {"slug":"tyler-steen","name":"Tyler Steen","position":"G","number":"56","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/tyler-steen/","officialImageLabel":"Steen_Tyler","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot as sole visual authority for complexion, face, hair and facial-hair details.","Preserve #56 and his current official 6-6, 321-pound guard build while retaining the common chibi head ratio, camera and bottom-center foot anchor.","Prioritize idle, stance, pass-block, run-block, pull and recover-fumble; no named signature is asserted here."]},
+    {"slug":"jeremiah-trotter-jr","name":"Jeremiah Trotter Jr.","position":"LB","number":"54","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jeremiah-trotter-jr/","officialImageLabel":"Trotter Jr._Jeremiah","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority for visible appearance details; family identity, nickname and biography are not appearance sources.","Preserve #54 and his current official 6-0, 225-pound linebacker build while matching the Dallas-derived scale and ground anchor.","Prioritize idle, stance, read, drop-coverage, blitz, tackle and generic defensive celebration; do not convert Axe Man Jr. or any nickname into an unverified signature sequence."]},
+    {"slug":"rocco-underwood","name":"Rocco Underwood","position":"LS","number":"41","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/rocco-underwood/","officialImageLabel":"cropped_Underwood_Rocco","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official headshot before encoding complexion, face, hair or facial-hair details.","Preserve #41 and his current official 6-3, 231-pound long-snapper build without changing common camera, lighting, scale or foot-anchor geometry.","Prioritize idle, stance, long-snap-punt, long-snap-field-goal, coverage and tackle; no named signature is asserted here."]},
+    {"slug":"dontayvion-wicks","name":"Dontayvion Wicks","position":"WR","number":"13","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/dontayvion-wicks/","officialImageLabel":"Wicks_Dontayvion","appearanceStatus":"reference-locked","renderNotes":["Use the current official Eagles headshot as sole visual authority; do not reuse prior-team imagery when a current Eagles headshot exists.","Preserve #13 and his current official 6-1, 206-pound receiver build while retaining the approved production camera, scale and bottom-center foot anchor.","Prioritize idle, stance, release, route-run, catch and generic score celebration; named signature research remains separate."]},
+    {"slug":"riq-woolen","name":"Riq Woolen","position":"CB","number":"2","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/riq-woolen/","officialImageLabel":"Woolen_Riq","appearanceStatus":"reference-locked","renderNotes":["Inspect the current official Eagles headshot as the sole source of visible appearance truth; prior-team imagery is secondary and must not override it.","Preserve #2 and his current official 6-4, 210-pound cornerback build while matching the shared camera, lighting, chibi head ratio and foot anchor.","Prioritize idle, press-stance, backpedal, coverage, tackle, interception and generic turnover celebration; no named signature is asserted here."]},
+    {"slug":"byron-young","name":"Byron Young","position":"DT","number":"94","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/byron-young/","officialImageLabel":"Young_Byron","appearanceStatus":"reference-locked","renderNotes":["Use the current official headshot as sole visual authority for complexion and visible face, hair and facial-hair details.","Preserve #94 and his current official 6-3, 292-pound defensive-tackle build while retaining the common Gamecast camera, scale and bottom-center ground anchor.","Prioritize idle, stance, rush, shed-block, tackle, fumble-recovery and generic defensive celebration; no named signature is asserted here."]}
+  ],
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterPage": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionsPage": "https://www.philadelphiaeagles.com/team/transactions/",
+    "lockedCount": 6,
+    "uniqueCumulativeLockedCount": 52,
+    "auditNote": "A uniqueness audit of appearance-reference-01 through appearance-reference-05 found four repeated player entries (Quinyon Mitchell, Dallas Goedert, Lane Johnson and Jordan Mailata), so the prior tracker value of 50 represented batch-entry progress rather than 50 unique players. This batch locks the six previously unreferenced active players and brings unique active-roster coverage to 52 of 52.",
+    "rosterCrossCheck": "All six players are present in PHI/roster.json and their current official Eagles player pages were verified for this batch. Current numbers are Steen 56, Trotter 54, Underwood 41, Wicks 13, Woolen 2 and Young 94. Numbers must be rechecked again at final render time.",
+    "appearanceSafety": "A reference lock establishes the current official team headshot as source of truth. No skin tone, hair, facial-hair or facial-feature value is guessed or encoded from a name, nickname, biography, heritage, position, or prior-team image.",
+    "signatureSafety": "No named player-specific celebration is asserted by this batch. Signature research remains a later phase and requires a verifiable source."
+  }
+}
