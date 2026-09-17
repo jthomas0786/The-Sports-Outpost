@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "team": "DAL",
+  "phase": "qa",
+  "batch": "qa-07",
+  "season": 2026,
+  "purpose": "Dallas final visual-identity and live-event concurrency QA: stress personalized chibi rendering across simultaneous role participants, authoritative revisions, viewport changes and asset failures while proving that identity, action eligibility, football ownership and verified signatures remain deterministic.",
+  "inputs": ["DAL/roster.json", "DAL appearance-reference/base-chibi/action-pose specifications", "DAL signature sequence specifications", "DAL/gamecast-integration-01.json through DAL/gamecast-integration-10.json", "DAL/qa-01.json through DAL/qa-06.json"],
+  "qualityContract": {
+    "activeRosterCount": 53,
+    "style": "realistic 3D chibi",
+    "appearanceAuthority": "current official headshot-derived appearance lock only; never infer visible appearance from player name",
+    "identityAuthority": "DAL/roster.json player slug plus current uniform number",
+    "actionAuthority": "DAL/roster.json action inventory",
+    "renderLocks": ["canonical camera angle", "canonical lighting", "stable player scale", "canonical foot anchor", "transparent background", "unmirrored readable uniform number"],
+    "verifiedNamedSignatures": [
+      {"player":"CeeDee Lamb","slug":"ceedee-lamb","event":"first-down","sequence":"nose-wipe"},
+      {"player":"Von Miller","slug":"von-miller","event":"sack","sequence":"desoto-shuffle"}
+    ],
+    "concurrencyRule": "Each rendered participant retains its own roster identity and appearance lock; scene orchestration may not borrow another player's face, number, action state, anchor or personalized cache entry.",
+    "failureBoundary": "Personalized rendering remains presentation-only; authoritative NFL Gamecast truth survives every QA failure and no MLB/NHL state is read as an identity fallback or mutated."
+  },
+  "qaChecks": [
+    {"id":"multi-participant-identity","assert":"Quarterback, receiver, blocker and defender can coexist in one bounded scene without player slug, official-headshot appearance, uniform number or personalized cache cross-contamination."},
+    {"id":"football-single-owner","assert":"At every animation instant the football has at most one authoritative visual owner; pass, catch, interception, fumble and recovery transfers cannot duplicate the ball."},
+    {"id":"revision-during-contact","assert":"An authoritative correction arriving during tackle/contact immediately preempts obsolete motion and reconstructs from the newest accepted revision without residual collision state."},
+    {"id":"viewport-reprojection","assert":"Resize/orientation changes reproject all participants from canonical scene coordinates while preserving relative scale, foot anchors and camera intent rather than accumulating transforms."},
+    {"id":"late-asset-resolution","assert":"A personalized asset that finishes decoding after its event revision is obsolete is discarded and cannot flash into the current scene."},
+    {"id":"identity-failure-is-local","assert":"Failure of one participant's appearance/number/provenance gate suppresses only that personalized participant; remaining verified participants and authoritative event text continue normally."},
+    {"id":"action-inventory-closure","assert":"Every personalized action chosen during concurrent playback is present in that exact player's DAL/roster.json action inventory; physical archetype supersets never expand runtime eligibility."},
+    {"id":"signature-exclusivity","assert":"Only verified qualifying events may route named signatures: CeeDee Lamb nose-wipe on his authoritative first down and Von Miller DeSoto Shuffle on his authoritative sack."},
+    {"id":"signature-scene-priority","assert":"A verified signature never steals football ownership, replaces higher-priority authoritative play motion, or blocks a newer accepted revision."},
+    {"id":"transparent-composite","assert":"Representative overlapping chibis retain clean transparent alpha with no opaque matte, halo or rectangular canvas exposure under Gamecast compositing."},
+    {"id":"deterministic-replay","assert":"Given the same accepted event revision, roster snapshot and asset versions, cold start, warm cache and reconnect resolve identical player identities, eligible actions, ownership and signature eligibility."},
+    {"id":"cross-sport-isolation","assert":"All qa-07 execution remains inside NFL/Dallas presentation state and requires zero MLB/NHL file, route, cache or store mutation."}
+  ],
+  "acceptanceFixtures": [
+    {"id":"dal-qa-07-pass-scene","assert":"QB-to-WR completion with blocker and defender resolves four distinct Dallas identities, legal actions, stable anchors and exactly one football transfer to the receiver."},
+    {"id":"dal-qa-07-interception-correction","assert":"Catch animation corrected to interception cancels receiver ownership and reconstructs the defender outcome without duplicate football or stale receiver recovery."},
+    {"id":"dal-qa-07-contact-correction","assert":"Correction during tackle contact clears obsolete collision/root motion before the corrected event settles."},
+    {"id":"dal-qa-07-resize","assert":"Mid-play viewport resize preserves participant ordering, canonical scale relationships and foot anchors without drift."},
+    {"id":"dal-qa-07-late-decode","assert":"Delayed asset decode from a superseded play revision is ignored and never flashes into the active scene."},
+    {"id":"dal-qa-07-one-player-failure","assert":"One participant failing headshot provenance or number validation falls back locally without substituting another Dallas player's appearance."},
+    {"id":"dal-qa-07-unauthorized-concurrent-action","assert":"A concurrent participant request for an action outside that player's roster inventory fails closed while other eligible participants continue."},
+    {"id":"dal-qa-07-lamb-signature","assert":"CeeDee Lamb nose-wipe can run only after his accepted first-down event and is preemptible by a newer authoritative revision."},
+    {"id":"dal-qa-07-miller-signature","assert":"Von Miller DeSoto Shuffle can run only after his accepted sack and is preemptible by a newer authoritative revision."},
+    {"id":"dal-qa-07-no-invented-signature","assert":"Any named Dallas celebration outside the verified signature registry is rejected rather than inferred or invented."},
+    {"id":"dal-qa-07-cold-warm-reconnect","assert":"Cold, warm and reconnect runs of the same fixture produce equivalent identity/action/football/signature semantics."},
+    {"id":"dal-qa-07-mlb-nhl-isolation","assert":"Executing every qa-07 fixture changes no MLB/NHL code or data and performs no cross-sport state writes."}
+  ],
+  "releaseDisposition": "concurrency-and-visual-identity-gate-specified",
+  "next": "Continue Dallas QA with qa-08; do not begin Philadelphia until Dallas quality work is explicitly closed in project.json."
+}
