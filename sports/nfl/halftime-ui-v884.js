@@ -1,7 +1,7 @@
 import { optimizeHalftimeParlay, evaluateCombination, marketLabel, formatAmerican } from './halftime-optimizer-v884.js?v=89.20';
 import { halftimeBoardCurrent } from './halftime-validity.js?v=89.38';
 
-let pollTimer=null,liveSnapshotSyncArmed=false;
+let pollTimer=null,liveSnapshotSyncArmed=false,openClickGuardArmed=false;
 let currentDoc=null;
 let currentLiveGames=new Map();
 let selectionInitialized=false;
@@ -332,10 +332,27 @@ function refreshOpenDrawer(force=false){
 
 export async function openHalftimeParlayLab({halftimeDoc=null}={}){
   ensureHalftimeLabStyles();armLiveSnapshotSync();const doc=await latestDoc(halftimeDoc);currentDoc=doc;
-  const entries=rollingEntries(doc);if(!entries.length)return;
+  // Always open the Lab. A transient live-feed gap must never make the CTA look dead.
+  // controlsHTML() already renders a useful "no game in window yet" state when empty.
+  const entries=rollingEntries(doc);
   ensureSelection(entries);normalizeLegCount(doc);
   document.getElementById('tsoHtBackdrop')?.remove();document.getElementById('tsoHtDrawer')?.remove();
   const back=document.createElement('div');back.id='tsoHtBackdrop';back.className='tso-ht-backdrop';back.addEventListener('click',closeLab);
   const drawer=document.createElement('section');drawer.id='tsoHtDrawer';drawer.className='tso-ht-drawer';drawer.innerHTML=`<header class="tso-ht-head"><div class="tso-ht-head-main"><div class="tso-ht-kicker">⚡ Rolling Sunday Window · 50K Per Ready Game</div><h2>Halftime Parlay Lab</h2><p>Starts warming at 2:00 left in Q2. Select every game you want. There is no arbitrary game or leg cap; TSO evaluates same-game legs in the same simulated worlds and combines separate games afterward.</p></div><button class="tso-ht-close" type="button" aria-label="Close">×</button></header><div class="tso-ht-livebar">${drawerLivebarHTML(doc)}</div><div class="tso-ht-scroll">${controlsHTML(doc)}</div>`;
   document.body.append(back,drawer);drawer.querySelector('.tso-ht-close')?.addEventListener('click',closeLab);wireDrawer(doc);
 }
+export function installHalftimeOpenGuard(){
+  if(openClickGuardArmed||typeof document==='undefined')return;
+  openClickGuardArmed=true;
+  // Capture-phase delegation survives every NFL render/enhancer replacement.
+  // It also owns the click before legacy per-node listeners can fire twice.
+  document.addEventListener('click',e=>{
+    const raw=e?.target;
+    const btn=raw?.closest?.('[data-nfl-halftime-open]');
+    if(!btn)return;
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    openHalftimeParlayLab().catch(err=>console.warn('[NFL Halftime Lab] open failed:',err));
+  },true);
+}
+installHalftimeOpenGuard();
