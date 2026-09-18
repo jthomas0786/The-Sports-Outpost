@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "action-poses",
+  "batch": "action-poses-09",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig matching approved Dallas production",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked current official PhiladelphiaEagles.com headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Philadelphia current uniform geometry with current roster number locked across frames",
+    "naming": "phi_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"Johnny Mundt","slug":"johnny-mundt","number":"83","position":"TE","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/johnny-mundt/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"release","durationMs":560,"loop":false,"eventTags":["route_release"]},{"action":"route-run","durationMs":640,"loop":true,"eventTags":["route"]},{"action":"catch","durationMs":740,"loop":false,"eventTags":["reception"]},{"action":"block","durationMs":760,"loop":true,"eventTags":["run_block","pass_protection"]},{"action":"celebrate","durationMs":1400,"loop":false,"eventTags":["touchdown","celebration"]}]},
+    {"name":"Moro Ojomo","slug":"moro-ojomo","number":"97","position":"DT","priority":"starter","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/moro-ojomo/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"rush","durationMs":650,"loop":false,"eventTags":["pass_rush"]},{"action":"shed-block","durationMs":680,"loop":false,"eventTags":["block_shed"]},{"action":"tackle","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},{"action":"fumble-recovery","durationMs":820,"loop":false,"eventTags":["fumble_recovery","turnover"]},{"action":"celebrate","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}]},
+    {"name":"Cole Payton","slug":"cole-payton","number":"18","position":"QB","priority":"developmental","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/cole-payton/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"pre-snap","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"dropback","durationMs":760,"loop":false,"eventTags":["dropback"]},{"action":"throw","durationMs":780,"loop":false,"eventTags":["pass_attempt"]},{"action":"scramble","durationMs":650,"loop":true,"eventTags":["qb_scramble","rush"]},{"action":"celebrate","durationMs":1400,"loop":false,"eventTags":["touchdown","celebration"]}]},
+    {"name":"Kelee Ringo","slug":"kelee-ringo","number":"7","position":"CB","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/kelee-ringo/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"press-stance","durationMs":700,"loop":true,"eventTags":["pre_snap","press"]},{"action":"backpedal","durationMs":620,"loop":true,"eventTags":["coverage"]},{"action":"coverage","durationMs":650,"loop":true,"eventTags":["coverage"]},{"action":"tackle","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},{"action":"interception","durationMs":820,"loop":false,"eventTags":["interception","turnover"]},{"action":"celebrate","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}]},
+    {"name":"Ty Robinson","slug":"ty-robinson","number":"95","position":"DT","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/ty-robinson/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"rush","durationMs":650,"loop":false,"eventTags":["pass_rush"]},{"action":"shed-block","durationMs":680,"loop":false,"eventTags":["block_shed"]},{"action":"tackle","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},{"action":"fumble-recovery","durationMs":820,"loop":false,"eventTags":["fumble_recovery","turnover"]},{"action":"celebrate","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}]}
+  ],
+  "signatureResearch": {
+    "checkedAt": "2026-09-18",
+    "officialSource": "PhiladelphiaEagles.com current player pages and 2026 roster material",
+    "result": "No repeatable named player-specific signature celebration was verified in official team material for this batch, so only generic celebration actions are specified and no named signature was invented."
+  },
+  "qa": {
+    "playerCount": 5,
+    "rosterActionContract": "Every delivered action exactly matches each player's authoritative PHI/roster.json inventory.",
+    "numberCheck": "#83 Mundt, #97 Ojomo, #18 Payton, #7 Ringo and #95 Robinson match current official Philadelphia player material checked 2026-09-18.",
+    "appearanceCheck": "Every player points to a current official Eagles headshot page; visible traits and skin tone must be matched from that image at render time and never inferred from name.",
+    "consistencyCheck": "Dallas-approved realistic 3D camera, neutral stadium lighting, player-specific scale, transparent alpha, projected foot anchor and deterministic naming remain unchanged."
+  }
+}
