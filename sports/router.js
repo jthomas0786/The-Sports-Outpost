@@ -172,7 +172,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview-v893.js?v=89.52');
+      const mod = await import('./nfl-preview-v893.js?v=89.53');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
