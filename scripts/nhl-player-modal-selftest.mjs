@@ -53,7 +53,7 @@ const wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
 const researchScript=fs.readFileSync('scripts/nhl-research.mjs','utf8');
 
-for(const marker of ['data-nhl-chart-range','data-nhl-chart-venue',"['15','L15']","['30','L30']",'tso-nhl-game-bar'])assert.ok(base.includes(marker),`missing base NHL player-modal marker: ${marker}`);
+for(const marker of ['data-nhl-chart-range','data-nhl-chart-venue',"['15','L15']","['30','L30']",'tso-nhl-game-bar','openNhlPlayerModal','window.DW_openNhlPlayerModal=openNhlPlayerModal'])assert.ok(base.includes(marker),`missing base NHL player-modal marker: ${marker}`);
 for(const marker of ['tsoNhlSlipHost',"sport:'nhl'",'vd-honesty-row'])assert.ok(parity.includes(marker),`missing parity behavior: ${marker}`);
 for(const marker of ['pendingProbability','sportsbookPending','SPORTSBOOK'])assert.ok(guard.includes(marker),`missing pending guard: ${marker}`);
 for(const marker of ['tso-nhl-rg-chart','tso-nhl-rg-col','tso-nhl-rg-plot','tso-nhl-rg-bar','--tso-rg-height','dataset.density'])assert.ok(isolatedJs.includes(marker),`missing isolated chart renderer marker: ${marker}`);
@@ -64,6 +64,7 @@ for(const marker of ['width:100%!important','max-width:none!important','min-widt
 assert.ok(!/width:min\([^\n]+76px/.test(nflParityCss),'v90.18 must not cap L5 bars');
 for(const marker of ['historicalPropProjection','propLine','buildNhlPlayerContext','Historical fallback','TSO reference','installNhlPlayerModalV921'])assert.ok(fallbackJs.includes(marker),`missing v90.21 modal fallback marker: ${marker}`);
 assert.ok(researchScript.includes('.slice(0,30)'));
-assert.ok(wrapper.includes("./player-modal-v921.js?v=90.21"));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.18"));
-console.log('NHL player modal: v90.21 keeps the v90.18 NFL-parity chart geometry and adds the same simulation-first / verified historical fallback used by NHL Props');
+assert.ok(wrapper.includes("./player-modal-v921.js?v=90.22"),'launch wrapper must cache-bust the v90.21 modal layer');
+assert.ok(wrapper.includes("./launch-v922.js?v=90.22"),'launch wrapper must install v90.22 surface controller');
+assert.ok(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'router must use the launch-ready NHL wrapper');
+console.log('NHL player modal: v90.21 model logic, v90.18 NFL-parity chart geometry and v90.22 canonical launch wiring passed');
