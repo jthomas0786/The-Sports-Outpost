@@ -44,9 +44,9 @@ function gradeRing(prob){
 }
 function playerRow(player,game){
  const p=playerProfile(player,game.id),availability=player.availability||'Status pending';
- return `<div class="hk-slate-player"><div class="hk-slate-player-photo">${playerPhoto(player)}</div><div class="hk-slate-player-main"><b>${esc(player.name||'Player')}</b><span>${esc(player.position||'—')} · ${esc(availability)}</span></div><div class="hk-slate-player-model"><strong>${esc(p.primary)}</strong><small>${esc(p.secondary)}</small></div><div class="hk-slate-player-grade">${gradeRing(p.prob)}</div></div>`;
+ return `<div class="hk-slate-player" data-hk-player="${esc(player.id||'')}" data-hk-game="${esc(game.id)}"><div class="hk-slate-player-photo">${playerPhoto(player)}</div><div class="hk-slate-player-main"><b>${esc(player.name||'Player')}</b><span>${esc(player.position||'—')} · ${esc(availability)}</span></div><div class="hk-slate-player-model"><strong>${esc(p.primary)}</strong><small>${esc(p.secondary)}</small></div><div class="hk-slate-player-grade">${gradeRing(p.prob)}</div></div>`;
 }
-function teamPlayers(game,team){return (game.players||[]).filter(p=>String(p.team).toUpperCase()===String(team.abbr).toUpperCase());}
+function teamPlayers(game,team){return (game.players||[]).filter(p=>String(p.team).toUpperCase()===String(team.abbr).toUpperCase()&&p.propsEligible!==false);}
 function goaliesFor(all){return all.filter(p=>p.position==='G'&&p.active!==false).sort((a,b)=>Number(b.confirmedStarter)-Number(a.confirmedStarter)||Number(b.currentGoalie)-Number(a.currentGoalie)||String(a.name||'').localeCompare(String(b.name||'')));}
 function teamBoard(game,team){
  const all=teamPlayers(game,team),ranked=rankNhlSlatePlayers(all,game.id,research,sim),top=ranked.slice(0,5),rest=[...ranked.slice(5),...goaliesFor(all)];
