@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-08",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"quinyon-mitchell","name":"Quinyon Mitchell","position":"CB","number":"27","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/quinyon-mitchell/","baseAsset":"PHI/quinyon-mitchell/base/phi_quinyon-mitchell_base_v001","rigArchetype":"cornerback-balanced-coverage","neutralPose":"balanced defensive-back ready stance with light knee bend, loose hands and square stable feet","productionNotes":["Preserve #27.","Use the current official Eagles headshot as sole authority for visible identity traits.","Rig hips, shoulders and hands for press, backpedal, coverage, tackle and interception actions without scale or anchor drift; no named signature celebration is asserted here."],"qa":["official-headshot-reviewed-before-render","number-27-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"smael-mondon-jr","name":"Smael Mondon Jr.","position":"LB","number":"42","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/smael-mondon/","baseAsset":"PHI/smael-mondon-jr/base/phi_smael-mondon-jr_base_v001","rigArchetype":"linebacker-athletic-space","neutralPose":"balanced linebacker read stance with compact knee bend, relaxed hands and stable plant feet","productionNotes":["Preserve #42.","Use current official headshot as sole visual identity authority; do not derive appearance from biography.","Rig torso, hips and arms for read, drop-coverage, blitz and tackle clips while retaining approved camera, scale and foot anchor."],"qa":["official-headshot-reviewed-before-render","number-42-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"elijah-moore","name":"Elijah Moore","position":"WR","number":"19","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/elijah-moore/","baseAsset":"PHI/elijah-moore/base/phi_elijah-moore_base_v001","rigArchetype":"wide-receiver-compact-route","neutralPose":"relaxed receiver-ready stance with light knee bend, loose hands and stable ground contact","productionNotes":["Preserve #19.","Maintain current-official-headshot identity across release, route-run, catch and celebration clips.","Rig shoulders, hands, hips and knees for receiver actions without camera, scale or foot-anchor drift; do not invent a named signature celebration."],"qa":["official-headshot-reviewed-before-render","number-19-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"micah-morris","name":"Micah Morris","position":"G","number":"76","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/micah-morris/","baseAsset":"PHI/micah-morris/base/phi_micah-morris_base_v001","rigArchetype":"interior-line-large-power","neutralPose":"balanced interior-line stance with controlled knee bend, broad base and stable plant feet","productionNotes":["Preserve #76.","Use current official headshot as sole visual identity authority and preserve official player-specific build proportions within shared Gamecast scale.","Rig torso, shoulders, hips and hands for pass-block, run-block, pull and recovery actions without identity or foot-anchor drift."],"qa":["official-headshot-reviewed-before-render","number-76-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"andrew-mukuba","name":"Andrew Mukuba","position":"S","number":"24","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/andrew-mukuba/","baseAsset":"PHI/andrew-mukuba/base/phi_andrew-mukuba_base_v001","rigArchetype":"safety-range-athletic","neutralPose":"balanced safety ready stance with light knee bend, relaxed hands and stable ground contact","productionNotes":["Preserve #24.","Use current official Eagles headshot as sole authority for visible identity traits; biography is not an appearance source.","Rig hips, shoulders and hands for backpedal, deep-zone, tackle and interception clips while preserving camera, scale and bottom-center anchor; no named signature celebration is asserted."],"qa":["official-headshot-reviewed-before-render","number-24-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-18",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five players are drawn from the locked current PHI active-roster snapshot and retain its current jersey numbers.","Official Philadelphia player pages/headshots were rechecked for this batch before specification.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names or biography.","Position-appropriate rig requirements align with roster.json action inventories.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
