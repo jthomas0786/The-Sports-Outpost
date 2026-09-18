@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-03",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"markel-bell","name":"Markel Bell","position":"T","number":"72","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/markel-bell/","baseAsset":"PHI/markel-bell/base/phi_markel-bell_base_v001","rigArchetype":"ot-tall-powerful","neutralPose":"broad offensive-tackle ready stance with balanced hips, relaxed hands and stable ground contact","productionNotes":["Preserve #72.","Use the current official headshot as the sole visual authority for identity traits.","Rig shoulders, elbows, hips and knees for pass block, run block and pull actions without anchor drift."],"qa":["official-headshot-reviewed-before-render","number-72-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"tank-bigsby","name":"Tank Bigsby","position":"RB","number":"8","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/tank-bigsby/","baseAsset":"PHI/tank-bigsby/base/phi_tank-bigsby_base_v001","rigArchetype":"rb-compact-power","neutralPose":"compact running-back two-point stance with slight forward lean, loose hands and balanced plant feet","productionNotes":["Preserve #8.","Keep official-headshot identity and player-specific build stable through handoff, run and catch clips.","Do not assign a named signature celebration without later source verification."],"qa":["official-headshot-reviewed-before-render","number-8-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"hollywood-brown","name":"Hollywood Brown","position":"WR","number":"0","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/hollywood-brown/","baseAsset":"PHI/hollywood-brown/base/phi_hollywood-brown_base_v001","rigArchetype":"wr-quick-fluid","neutralPose":"light receiver stance with relaxed shoulders, slight knee bend and neutral forward balance","productionNotes":["Preserve #0.","Maintain official-headshot-authoritative identity and receiver build across release, route and catch actions.","No named signature celebration is asserted in this phase."],"qa":["official-headshot-reviewed-before-render","number-0-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jihaad-campbell","name":"Jihaad Campbell","position":"LB","number":"11","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jihaad-campbell/","baseAsset":"PHI/jihaad-campbell/base/phi_jihaad-campbell_base_v001","rigArchetype":"lb-athletic-range","neutralPose":"balanced linebacker read stance with athletic knee bend, hands loose and weight centered over stable feet","productionNotes":["Preserve #11.","Keep official-headshot identity and athletic linebacker proportions stable through read, coverage, blitz and tackle motion.","Avoid invented player-specific celebration labels."],"qa":["official-headshot-reviewed-before-render","number-11-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"michael-carter-ii","name":"Michael Carter II","position":"DB","number":"35","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/michael-carter-ii/","baseAsset":"PHI/michael-carter-ii/base/phi_michael-carter-ii_base_v001","rigArchetype":"db-quick-reactive","neutralPose":"compact defensive-back press-ready stance with loose shoulders, forward balance and stable plant feet","productionNotes":["Preserve #35.","Maintain official-headshot identity through backpedal, coverage, tackle and interception clips.","Do not invent a named signature celebration."],"qa":["official-headshot-reviewed-before-render","number-35-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five identities and jersey numbers are cross-checked against the locked current PHI roster/reference set.","Appearance remains current-official-headshot authoritative; no skin tone, hair, facial hair or facial features are inferred from names.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
