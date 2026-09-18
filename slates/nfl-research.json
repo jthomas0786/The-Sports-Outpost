@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-09-18T04:44:44.522Z",
+  "generatedAt": "2026-09-18T11:15:58.508Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -15,7 +15,23 @@
     },
     "nflverseCurrentSnaps": {
       "ok": true,
-      "rows": 1492
+      "rows": 1585
+    },
+    "nflverseCurrentWeekly": {
+      "ok": true,
+      "rows": 1190
+    },
+    "nflversePrevRegular": {
+      "ok": true,
+      "rows": 2020
+    },
+    "nflverseCurrentRegular": {
+      "ok": true,
+      "rows": 1123
+    },
+    "nflverseRosterCurrent": {
+      "ok": true,
+      "rows": 2978
     },
     "espnTeams": {
       "ok": true,
@@ -24,22 +40,6 @@
         "site.api.espn.com: 403 Forbidden"
       ],
       "rows": 32
-    },
-    "nflverseCurrentRegular": {
-      "ok": true,
-      "rows": 1123
-    },
-    "nflversePrevRegular": {
-      "ok": true,
-      "rows": 2020
-    },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 2978
-    },
-    "nflverseCurrentWeekly": {
-      "ok": true,
-      "rows": 1190
     },
     "nflversePrevSnaps": {
       "ok": true,
@@ -60,6 +60,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:ARI": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -67,7 +74,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:ARI": {
+    "espnDepth:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -88,28 +95,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CAR": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CIN": {
+    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -123,21 +109,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ATL": {
+    "espnDepth:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -151,21 +123,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:CIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:CLE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -179,7 +158,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DEN": {
+    "espnRoster:BUF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:DAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -193,7 +193,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DAL": {
+    "espnRoster:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -214,13 +214,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -228,14 +221,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:HOU": {
+    "espnRoster:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:IND": {
+    "espnRoster:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -256,7 +249,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:JAX": {
+    "espnRoster:IND": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -270,7 +263,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:KC": {
+    "espnRoster:JAX": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -284,35 +277,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:LV": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:MIA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:MIA": {
+    "espnRoster:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -326,21 +291,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -354,7 +319,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NE": {
+    "espnDepth:MIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:MIA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:LA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:MIA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -368,21 +361,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:NE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:NO": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:NO": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -396,7 +382,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:NYG": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:NO": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYJ": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:NYJ": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -410,14 +424,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PIT": {
+    "espnRoster:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PHI": {
+    "espnDepth:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -438,14 +452,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NYJ": {
+    "espnRoster:SEA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -459,7 +466,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SEA": {
+    "espnRoster:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -473,13 +480,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -487,14 +487,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:WSH": {
+    "espnRoster:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TEN": {
+    "espnDepth:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -7374,7 +7374,7 @@
       "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 3,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": 4,
         "position": "TE",
@@ -43094,7 +43094,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
-      "age": 23,
+      "age": 24,
       "depth": {
         "rank": 5,
         "position": "TE",
@@ -58116,7 +58116,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 8,
-      "age": 28,
+      "age": 29,
       "depth": {
         "rank": 3,
         "position": "RB",
@@ -59942,10 +59942,10 @@
         }
       ],
       "snapTrend": {
-        "games": 3,
-        "avgOffensePct": 8.3,
+        "games": 4,
+        "avgOffensePct": 9.3,
         "lastOffensePct": 0,
-        "avgOffenseSnaps": 5
+        "avgOffenseSnaps": 6
       },
       "matchup": {
         "opponent": "DET",
@@ -63854,7 +63854,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -64916,7 +64916,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -65126,7 +65126,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -65722,7 +65722,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -68208,7 +68208,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -68924,7 +68924,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -69802,10 +69802,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
-        "avgOffensePct": 49,
+        "games": 3,
+        "avgOffensePct": 33.7,
         "lastOffensePct": 96,
-        "avgOffenseSnaps": 36.5
+        "avgOffenseSnaps": 25
       },
       "matchup": null
     },
@@ -69934,7 +69934,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -70066,7 +70066,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -181351,10 +181351,10 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 3,
-        "avgOffensePct": 3,
+        "games": 4,
+        "avgOffensePct": 2.8,
         "lastOffensePct": 2,
-        "avgOffenseSnaps": 1.7
+        "avgOffenseSnaps": 1.5
       },
       "matchup": {
         "opponent": "BUF",
@@ -182129,10 +182129,10 @@
         }
       ],
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 12.8,
+        "games": 5,
+        "avgOffensePct": 10.2,
         "lastOffensePct": 11,
-        "avgOffenseSnaps": 7.5
+        "avgOffenseSnaps": 6
       },
       "matchup": {
         "opponent": "BUF",
@@ -184513,7 +184513,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -184645,7 +184645,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -184678,7 +184678,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -185262,7 +185267,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -185837,9 +185842,9 @@
       "gameLog": null,
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 38.8,
+        "avgOffensePct": 56,
         "lastOffensePct": 31,
-        "avgOffenseSnaps": 24.8
+        "avgOffenseSnaps": 35.8
       },
       "matchup": null
     },
@@ -188824,7 +188829,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -274583,7 +274593,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 7,
-      "age": 28,
+      "age": 29,
       "depth": {
         "rank": null,
         "position": "S",
@@ -302589,7 +302599,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 1,
-      "age": 24,
+      "age": 25,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -309054,7 +309064,7 @@
       "team": "LAC",
       "name": "Marquez Valdes-Scantling",
       "position": "WR",
-      "jersey": "11",
+      "jersey": "13",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3051738.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -337456,7 +337466,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 7,
-      "age": 27,
+      "age": 28,
       "depth": {
         "rank": null,
         "position": "LB",
@@ -338205,7 +338215,7 @@
       "team": "MIA",
       "name": "Cal Adomitis",
       "position": "LS",
-      "jersey": "43",
+      "jersey": "45",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4240719.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -372626,7 +372636,7 @@
       "name": "Riley Wilson",
       "position": "LB",
       "jersey": "51",
-      "headshot": "https://a.espncdn.com/i/headshots/college-football/players/full/4613029.png",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4613029.png",
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
@@ -384637,7 +384647,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 5,
-      "age": 26,
+      "age": 27,
       "depth": {
         "rank": 6,
         "position": "RB",
@@ -409819,7 +409829,7 @@
       "name": "Jarrod Gray",
       "position": "OT",
       "jersey": "79",
-      "headshot": null,
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/5360470.png",
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": 0,
@@ -523054,7 +523064,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 8,
-      "age": 30,
+      "age": 31,
       "depth": {
         "rank": null,
         "position": "C",
@@ -547473,7 +547483,7 @@
       "team": "WSH",
       "name": "Marvin Jones Jr.",
       "position": "LB",
-      "jersey": null,
+      "jersey": "59",
       "headshot": "https://a.espncdn.com/i/headshots/college-football/players/full/4685425.png",
       "rosterStatus": "Practice Squad",
       "active": true,
