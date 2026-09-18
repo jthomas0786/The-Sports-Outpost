@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "signature-sequences",
+  "batch": "signature-sequences-02",
+  "season": 2026,
+  "purpose": "Reusable, source-verified signature football sequences for Philadelphia Gamecast stars. Named celebrations are not invented; this batch encodes only moves explicitly supported by authoritative Eagles/NFL material.",
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve approved Dallas camera without cuts or jumps",
+    "lighting": "shared neutral stadium key/fill/rim rig; identical approved Dallas production lighting",
+    "background": "transparent alpha",
+    "anchor": "bottom-center ground-contact anchor; airborne/assisted motion resolves to the same projected world anchor",
+    "scale": "reuse locked player-specific PHI base-chibi proportions; no sequence rescaling",
+    "appearance": "reuse locked current official Philadelphia Eagles headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Philadelphia current uniform geometry and current roster number remain locked across every frame",
+    "naming": "phi_<player-slug>_signature_<signature-slug>_v001",
+    "delivery": ["transparent WebP/PNG key poses", "animation timing metadata", "Gamecast event tags", "blend-in/blend-out markers"]
+  },
+  "sequences": [
+    {
+      "name": "Jalen Hurts",
+      "slug": "jalen-hurts",
+      "number": "1",
+      "position": "QB",
+      "signature": "brotherly-shove",
+      "classification": "verified-team-signature-football-move-not-celebration",
+      "trigger": ["qb_sneak", "goal_line_qb_sneak", "short_yardage_qb_sneak"],
+      "sourceAuthority": {
+        "status": "verified-nfl-named-play",
+        "officialCurrentPlayerReference": "https://www.philadelphiaeagles.com/team/players-roster/jalen-hurts/",
+        "officialLeagueReference": "https://www.nfl.com/videos/eagles-deploy-brotherly-shove-to-give-hurts-second-rushing-td-of-mnf",
+        "officialSuperBowlReference": "https://www.nfl.com/videos/first-td-of-super-bowl-lix-philly-s-tush-push-generates-hurts-score",
+        "note": "NFL material explicitly identifies Philadelphia's Brotherly Shove/Tush Push with Hurts as the ball carrier. This is encoded as a signature team football move centered on Hurts, not mislabeled as a player celebration."
+      },
+      "animation": {
+        "durationMs": 1180,
+        "loop": false,
+        "blendInMs": 90,
+        "blendOutMs": 150,
+        "rootMotion": "Gamecast supplies short-yardage forward displacement; Hurts rig preserves the bottom-center projected anchor until snap, then resolves cleanly to the post-play anchor after the compact surge",
+        "beats": [
+          {"atMs": 0, "pose": "under-center-sneak-ready", "direction": "compact under-center stance with low hips and stable feet; preserve #1, face, proportions and ball relationship"},
+          {"atMs": 170, "pose": "snap-secure", "direction": "secure the snap immediately at the torso with shoulders lowered for short-yardage leverage"},
+          {"atMs": 350, "pose": "line-surge-entry", "direction": "drive behind the interior line with compact forward lean; avoid exaggerated horizontal launch"},
+          {"atMs": 560, "pose": "assisted-shove-drive", "direction": "sell the recognizable teammate-assisted forward surge through torso compression and leg drive; teammate force is event-layered and must not distort Hurts' rig"},
+          {"atMs": 790, "pose": "goal-line-extension", "direction": "maintain secure ball position while finishing the surge; only extend if Gamecast marks the play as a score/line-to-gain conversion"},
+          {"atMs": 980, "pose": "pile-resolve", "direction": "settle safely from the push with no limb intersection, scale pop or foot teleport"}
+        ],
+        "eventTags": ["qb_sneak", "brotherly_shove", "tush_push", "signature_move", "short_yardage"],
+        "blendFrom": ["under_center", "qb_sneak_ready", "goal_line_ready"],
+        "blendTo": ["post_play_idle", "touchdown_celebrate_generic", "offense_huddle_return"]
+      },
+      "qa": ["number-1-locked", "official-current-headshot-identity-locked", "transparent-alpha-clean", "ball-security-maintained", "assisted-motion-no-rig-distortion", "anchor-restored", "not-labeled-as-celebration"]
+    },
+    {
+      "name": "DeVonta Smith",
+      "slug": "devonta-smith",
+      "number": "6",
+      "position": "WR",
+      "signature": "sideline-toe-tap",
+      "classification": "verified-player-specific-signature-football-move-not-celebration",
+      "trigger": ["sideline_catch", "end_zone_boundary_catch", "toe_tap_catch"],
+      "sourceAuthority": {
+        "status": "verified-official-team-player-described-signature-skill",
+        "officialCurrentPlayerReference": "https://www.philadelphiaeagles.com/team/players-roster/devonta-smith/",
+        "officialTeamReference": "https://www.philadelphiaeagles.com/news/morning-roundup-eagles-celebrate-lane-johnson-with-special-td",
+        "officialTeamReelReference": "https://www.philadelphiaeagles.com/video/toyota-player-of-the-week-devonta-smith-week-16-2022-season",
+        "note": "Philadelphia's official coverage quotes Smith describing sideline awareness/toe tapping as 'kind of my thing,' and later team video calls out his repeated sideline dance. The asset is therefore a verified signature receiving skill, not a named touchdown celebration."
+      },
+      "animation": {
+        "durationMs": 1040,
+        "loop": false,
+        "blendInMs": 100,
+        "blendOutMs": 140,
+        "rootMotion": "route locomotion supplies approach; animation controls catch, toe drag/tap and balance while the final planted foot resolves to the projected sideline/end-zone anchor",
+        "beats": [
+          {"atMs": 0, "pose": "boundary-route-arrival", "direction": "enter from route locomotion with lean receiver proportions and #6 locked; eyes track the event-layer ball"},
+          {"atMs": 190, "pose": "hands-catch-window", "direction": "form a natural catch window without obscuring the face unnecessarily; secure the ball before boundary footwork"},
+          {"atMs": 390, "pose": "first-foot-control", "direction": "place the first foot inside the boundary with controlled ankle/knee flexion and no foot sliding"},
+          {"atMs": 560, "pose": "second-toe-tap-drag", "direction": "bring the second foot down into the recognizable precise toe-tap/toe-drag silhouette while maintaining possession"},
+          {"atMs": 760, "pose": "boundary-balance", "direction": "counterbalance upper body over the legal catch plane; keep limbs readable and avoid clipping"},
+          {"atMs": 900, "pose": "catch-resolve", "direction": "finish into possession/post-catch state or touchdown settle according to event result"}
+        ],
+        "eventTags": ["sideline_catch", "toe_tap", "toe_drag", "signature_move", "boundary_control"],
+        "blendFrom": ["route", "catch", "jump_catch", "sideline_route"],
+        "blendTo": ["run_after_catch", "possession_down", "touchdown_celebrate_generic", "post_play_idle"]
+      },
+      "qa": ["number-6-locked", "official-current-headshot-identity-locked", "transparent-alpha-clean", "ball-security-maintained", "both-feet-readable-at-gamecast-scale", "boundary-anchor-clean", "no-foot-slide", "not-labeled-as-celebration"]
+    }
+  ],
+  "verification": {
+    "checkedAt": "2026-09-18",
+    "rules": [
+      "Current player identity, appearance and number remain governed by the locked 2026 PHI roster/headshot references.",
+      "A named celebration is only encoded when authoritative evidence supports that exact celebration.",
+      "A repeatable iconic football move may be encoded as a signature sequence but must not be mislabeled as a celebration.",
+      "Generic celebration fallbacks remain available and are not replaced by these event-specific signature moves."
+    ]
+  },
+  "qa": {
+    "requirements": [
+      "Sequence entry/exit blends with PHI action-pose keys without camera, lighting, scale or anchor pops.",
+      "Uniform number, face, skin tone, hair/facial-hair reference and body proportions remain unchanged through every beat.",
+      "Transparent alpha edges remain clean during fast feet, hands, ball interaction and assisted motion.",
+      "Gamecast only triggers each signature when the matching play context exists."
+    ],
+    "status": "specified"
+  }
+}
