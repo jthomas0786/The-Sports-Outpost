@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-01",
+  "season": 2026,
+  "purpose": "Runtime-neutral contract for resolving Philadelphia NFL Gamecast events into the approved realistic 3D chibi library while preserving existing NFL fallbacks and leaving MLB/NHL behavior untouched.",
+  "authoritativeInputs": {
+    "roster": "./roster.json",
+    "actionInventory": "roster.json players[].actions",
+    "signatureSources": ["./signature-sequences-01.json", "./signature-sequences-02.json"],
+    "assetRoot": "./<player-slug>/",
+    "rule": "Never request an action absent from that player's roster.json action inventory."
+  },
+  "assetContract": {
+    "baseCandidates": ["base/phi_<player-slug>_base_v001.webp", "base/phi_<player-slug>_base_v001.png"],
+    "actionCandidates": ["actions/<action>/phi_<player-slug>_<action>_v001.webp", "actions/<action>/phi_<player-slug>_<action>_v001.png"],
+    "signatureCandidates": ["signatures/<signature>/phi_<player-slug>_signature_<signature>_v001.webp", "signatures/<signature>/phi_<player-slug>_signature_<signature>_v001.png"],
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions resolve to projected world anchor",
+    "camera": "locked approved Dallas three-quarter Gamecast angle",
+    "lighting": "locked approved Dallas neutral stadium key/fill/rim rig",
+    "appearance": "locked current official Eagles headshot reference; never infer skin tone or visible appearance from name",
+    "uniform": "current Philadelphia geometry and roster number locked across base, actions and signatures"
+  },
+  "resolutionOrder": [
+    "verified player signature when event trigger exactly matches verified signature metadata",
+    "player-specific action filtered through roster.json inventory",
+    "position-safe fallback that also exists in roster.json inventory",
+    "player base chibi",
+    "existing Gamecast non-chibi fallback"
+  ],
+  "eventMap": {
+    "pre_snap": ["pre-snap", "stance", "idle"],
+    "pass_attempt": ["throw", "dropback", "idle"],
+    "qb_scramble": ["scramble", "idle"],
+    "reception": ["catch", "idle"],
+    "rush": ["run", "handoff-receive", "idle"],
+    "touchdown": ["celebrate", "idle"],
+    "tackle": ["tackle", "idle"],
+    "sack": ["sack", "tackle", "celebrate", "idle"],
+    "pressure": ["rush", "blitz", "idle"],
+    "coverage": ["coverage", "backpedal", "deep-zone", "drop-coverage", "idle"],
+    "interception": ["interception", "catch", "idle"],
+    "fumble_recovery": ["fumble-recovery", "recover-fumble", "idle"],
+    "field_goal": ["field-goal", "idle"],
+    "extra_point": ["extra-point", "field-goal", "idle"],
+    "kickoff": ["kickoff", "idle"],
+    "punt": ["punt", "directional-punt", "idle"],
+    "long_snap": ["long-snap-punt", "long-snap-field-goal", "stance", "idle"]
+  },
+  "verifiedSignatureRouting": [
+    {"player":"Nolan Smith Jr.","slug":"nolan-smith-jr","number":"3","events":["sack"],"signature":"dice-roll-celebration","source":"signature-sequences-01.json","fallback":["sack","celebrate","idle"]},
+    {"player":"Saquon Barkley","slug":"saquon-barkley","number":"26","events":["hurdle","broken_tackle_airborne","highlight_run_after_catch"],"signature":"reverse-hurdle","source":"signature-sequences-01.json","fallback":["run","catch","idle"]},
+    {"player":"Jalen Hurts","slug":"jalen-hurts","number":"1","events":["qb_sneak","goal_line_qb_sneak","short_yardage_qb_sneak"],"signature":"brotherly-shove","source":"signature-sequences-02.json","fallback":["scramble","idle"]},
+    {"player":"DeVonta Smith","slug":"devonta-smith","number":"6","events":["sideline_catch","end_zone_boundary_catch","toe_tap_catch"],"signature":"sideline-toe-tap","source":"signature-sequences-02.json","fallback":["catch","celebrate","idle"]}
+  ],
+  "runtimeRules": {
+    "identityKey": "team + canonical roster slug",
+    "teamGuard": "Resolve this manifest only for PHI roster identities; never cross-resolve same-name players from another team.",
+    "rosterVacancyGuard": "The current official snapshot contains 52 active players and one open roster slot; never fabricate a 53rd identity.",
+    "inventoryGuard": "Filter every candidate against the matched player's authoritative roster.json actions before lookup.",
+    "possessionContinuity": "Keep the football attached through catch/run/scramble/signature transitions until play state releases possession.",
+    "anchorContinuity": "Blend around the same bottom-center world anchor; airborne and assisted signatures must resolve to that anchor.",
+    "staleStateGuard": "A new play id clears transient action/signature state before the next event resolves.",
+    "missingAssetBehavior": "Fail soft through resolutionOrder; missing chibi files must never blank or hide the existing Gamecast scene.",
+    "signatureGuard": "Only the four source-verified routes above may invoke named PHI signatures; do not synthesize or infer signatures."
+  },
+  "qa": {
+    "checks": [
+      "All 52 active PHI players have a deterministic base fallback path.",
+      "Every event candidate is filtered against roster.json before asset lookup.",
+      "All four verified signature routes preserve their source classification; football moves are not mislabeled as celebrations.",
+      "Nolan Smith sack can prefer dice-roll and fail softly to generic sack/celebrate.",
+      "Saquon Barkley reverse-hurdle only triggers for matching airborne highlight context.",
+      "Jalen Hurts Brotherly Shove only triggers for matching sneak context.",
+      "DeVonta Smith toe-tap only triggers for matching boundary-catch context.",
+      "Unknown events, players, or absent physical files retain the existing Gamecast fallback.",
+      "Camera, lighting, player scale, foot anchor, transparent alpha, current uniform number and locked official-headshot appearance remain invariant.",
+      "No MLB or NHL path, state, selector, asset or renderer is referenced."
+    ],
+    "status": "specified"
+  }
+}
