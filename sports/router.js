@@ -104,7 +104,7 @@ async function swapView(active) {
   setVisible(nflView, active === 'nfl');
   setVisible(document.getElementById('nhlView'), active === 'nhl');
   if(active === 'nhl'){
-    try { await (await import('./nhl/view-v906.js?v=90.18&props=1&slate=2')).mount(); }
+    try { await (await import('./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1')).mount(); }
     catch { document.getElementById('nhlView').textContent='Hockey is temporarily unavailable. Please try again shortly.'; }
   }
   setVisible(document.getElementById('nflSideNav'), false);
