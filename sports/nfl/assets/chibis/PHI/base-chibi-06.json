@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-06",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"e-j-jenkins","name":"E.J. Jenkins","position":"TE","number":"84","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/e-j-jenkins/","baseAsset":"PHI/e-j-jenkins/base/phi_e-j-jenkins_base_v001","rigArchetype":"tight-end-balanced-receiver-blocker","neutralPose":"balanced tight-end ready stance with relaxed hands, light knee bend and stable ground contact","productionNotes":["Preserve #84.","Use the current official headshot as the sole authority for visible identity traits.","Rig shoulders, hands, hips and knees for release, route-run, catch and block actions while keeping identity geometry and foot anchor stable; no invented named signature."],"qa":["official-headshot-reviewed-before-render","number-84-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"fred-johnson","name":"Fred Johnson","position":"T","number":"74","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/fred-johnson/","baseAsset":"PHI/fred-johnson/base/phi_fred-johnson_base_v001","rigArchetype":"tackle-long-power","neutralPose":"wide balanced tackle stance with controlled knee bend, square shoulders and stable plant feet","productionNotes":["Preserve #74.","Maintain current-official-headshot identity and player-specific tackle build across pass-block, run-block, pull and recovery actions.","Keep common Gamecast camera, head scale and bottom-center anchor; no named celebration is asserted."],"qa":["official-headshot-reviewed-before-render","number-74-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jonathan-jones","name":"Jonathan Jones","position":"CB","number":"31","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jonathan-jones/","baseAsset":"PHI/jonathan-jones/base/phi_jonathan-jones_base_v001","rigArchetype":"cornerback-compact-athletic","neutralPose":"balanced defensive-back ready stance with light knee bend, loose hands and square stable feet","productionNotes":["Preserve #31.","Keep official-headshot identity stable through press, backpedal, coverage, tackle and interception clips.","Rig for rapid hip turn and ball-tracking poses without scale or foot-anchor drift; do not invent a named signature celebration."],"qa":["official-headshot-reviewed-before-render","number-31-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"cam-jurgens","name":"Cam Jurgens","position":"C/G","number":"51","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/cam-jurgens/","baseAsset":"PHI/cam-jurgens/base/phi_cam-jurgens_base_v001","rigArchetype":"interior-line-athletic-power","neutralPose":"balanced interior-line stance with compact leverage, controlled knee bend and stable ground contact","productionNotes":["Preserve #51.","Use current official headshot for all visible identity traits and preserve player-specific interior-line build.","Rig torso, shoulders, hips and hands for pass-block, run-block, pull and fumble-recovery actions while maintaining the approved shared camera and anchor."],"qa":["official-headshot-reviewed-before-render","number-51-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"drew-kendall","name":"Drew Kendall","position":"C/G","number":"66","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/drew-kendall/","baseAsset":"PHI/drew-kendall/base/phi_drew-kendall_base_v001","rigArchetype":"interior-line-balanced-power","neutralPose":"balanced interior-line stance with square shoulders, athletic knee bend and stable plant feet","productionNotes":["Preserve #66.","Maintain current-official-headshot identity and player-specific build through blocking and recovery actions.","Use the shared Dallas-approved production camera, lighting, scale and foot anchor; no player-specific named celebration is claimed."],"qa":["official-headshot-reviewed-before-render","number-66-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five players are drawn from the locked current PHI active-roster snapshot and retain its current jersey numbers.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names.","Position-appropriate rig requirements align with roster.json action inventories.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
