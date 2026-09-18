@@ -9,6 +9,7 @@ on:
       - 'sports/registry.js'
       - 'sports/router.js'
       - 'scripts/nhl-*.mjs'
+      - 'scripts/player-modal-parity-selftest.mjs'
       - '.github/workflows/nhl.yml'
 permissions:
   contents: write
@@ -50,6 +51,7 @@ jobs:
           node scripts/nhl-gamecast-selftest.mjs
           node scripts/nhl-slate-v906-selftest.mjs
           node scripts/nhl-player-modal-selftest.mjs
+          node scripts/player-modal-parity-selftest.mjs
           node scripts/nhl-launch-v922-selftest.mjs
       - name: Refresh NHL slate
         run: node scripts/nhl-refresh.mjs
