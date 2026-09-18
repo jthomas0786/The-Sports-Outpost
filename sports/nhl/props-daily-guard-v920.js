@@ -1,5 +1,5 @@
 const SLATE_TIME_ZONE='America/New_York';
-const PAGE_SIZE=60;
+const PAGE_SIZE=1000;
 let preferredPromise=null;
 
 const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
