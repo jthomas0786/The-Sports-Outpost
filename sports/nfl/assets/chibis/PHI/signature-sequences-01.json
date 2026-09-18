@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "signature-sequences",
+  "batch": "signature-sequences-01",
+  "season": 2026,
+  "purpose": "Reusable, source-verified player-specific sequences for Philadelphia Gamecast. This batch distinguishes a verified celebration from an iconic signature football move and does not invent named signatures.",
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve the approved Dallas camera and avoid camera jumps",
+    "lighting": "shared neutral stadium key/fill/rim rig; identical approved Dallas production lighting",
+    "background": "transparent alpha",
+    "anchor": "bottom-center ground-contact anchor; any intentional airborne motion must resolve to the same projected world anchor",
+    "scale": "reuse locked player-specific PHI base-chibi proportions; no sequence rescaling",
+    "appearance": "reuse locked current official Philadelphia Eagles headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Philadelphia current uniform geometry and current roster number remain locked across every frame",
+    "naming": "phi_<player-slug>_signature_<signature-slug>_v001",
+    "delivery": ["transparent WebP/PNG key poses", "animation timing metadata", "Gamecast event tags", "blend-in/blend-out markers"]
+  },
+  "sequences": [
+    {
+      "name": "Nolan Smith Jr.",
+      "slug": "nolan-smith-jr",
+      "number": "3",
+      "position": "OLB",
+      "signature": "dice-roll-celebration",
+      "classification": "verified-player-specific-celebration",
+      "trigger": ["sack"],
+      "sourceAuthority": {
+        "status": "verified-official-team-highlight",
+        "officialCurrentPlayerReference": "https://www.philadelphiaeagles.com/team/players-roster/nolan-smith/",
+        "officialCelebrationReference": "https://www.philadelphiaeagles.com/video/highlight-eagles-ravens-nolan-smith-jr-caps-his-sack-of-lamar-jackson-with-dice-roll-celebration",
+        "sourceDate": "2024-12-01",
+        "note": "Philadelphia's official highlight explicitly describes Smith capping his sack of Lamar Jackson with a dice-roll celebration. The asset name stays descriptive to that verified footage and does not claim a broader nickname or unsupported ritual."
+      },
+      "animation": {
+        "durationMs": 1650,
+        "loop": false,
+        "blendInMs": 140,
+        "blendOutMs": 190,
+        "rootMotion": "minimal; rise from sack finish and perform the compact dice-roll gesture over the same bottom-center world anchor",
+        "beats": [
+          {"atMs": 0, "pose": "sack-finish-rise", "direction": "transition from the existing sack finish into a balanced upright defender stance without foot teleporting"},
+          {"atMs": 280, "pose": "dice-cup-load", "direction": "bring both hands together naturally near the torso as if gathering dice; elbows remain compact and silhouette readable"},
+          {"atMs": 600, "pose": "dice-shake", "direction": "brief controlled two-hand shake gesture with shoulders relaxed; preserve face visibility and current player proportions"},
+          {"atMs": 900, "pose": "dice-roll-release", "direction": "hands move down and slightly forward in a concise rolling release; no exaggerated floor travel or invented flourish"},
+          {"atMs": 1220, "pose": "roll-read", "direction": "brief downward glance/settle that sells the dice-roll concept while feet remain planted near the anchor"},
+          {"atMs": 1460, "pose": "defender-reset", "direction": "return cleanly to reusable post-play defender stance"}
+        ],
+        "eventTags": ["sack", "signature_celebration", "dice_roll"],
+        "blendFrom": ["sack", "pressure", "tackle", "celebrate"],
+        "blendTo": ["post_play_idle", "defense_huddle_return"]
+      },
+      "qa": ["number-3-locked", "official-current-headshot-identity-locked", "transparent-alpha-clean", "face-readable", "no-foot-anchor-drift", "gesture-readable-at-gamecast-scale", "no-unverified-secondary-signature"]
+    },
+    {
+      "name": "Saquon Barkley",
+      "slug": "saquon-barkley",
+      "number": "26",
+      "position": "RB",
+      "signature": "reverse-hurdle",
+      "classification": "verified-iconic-signature-football-move-not-celebration",
+      "trigger": ["hurdle", "broken_tackle_airborne", "highlight_run_after_catch"],
+      "sourceAuthority": {
+        "status": "verified-official-team-iconic-play",
+        "officialCurrentPlayerReference": "https://www.philadelphiaeagles.com/team/players-roster/saquon-barkley/",
+        "officialPlayReference": "https://www.philadelphiaeagles.com/video/highlight-saquon-barkley-leaps-backwards-over-jaguars-defender",
+        "officialRecognitionReference": "https://www.philadelphiaeagles.com/news/saquon-barkley-wins-best-play-with-iconic-reverse-hurdle",
+        "sourceDate": "2024-11-03",
+        "recognitionDate": "2025-07-16",
+        "note": "The Eagles officially describe the backwards/reverse hurdle and later call it iconic while documenting its ESPY Best Play win. It is intentionally classified as a signature football move, not mislabeled as a celebration."
+      },
+      "animation": {
+        "durationMs": 1250,
+        "loop": false,
+        "blendInMs": 110,
+        "blendOutMs": 160,
+        "rootMotion": "event-driven airborne arc supplied by Gamecast locomotion; chibi animation controls body orientation and hurdle pose while landing resolves to the projected run-path foot anchor",
+        "beats": [
+          {"atMs": 0, "pose": "run-load", "direction": "enter from existing run-after-catch/run locomotion with ball secured and player-specific proportions locked"},
+          {"atMs": 210, "pose": "reverse-hurdle-launch", "direction": "plant and lift into the recognizable backwards hurdle entry; keep motion athletic and grounded in the verified play rather than cartoon exaggeration"},
+          {"atMs": 480, "pose": "reverse-hurdle-apex", "direction": "hips rise over the obstacle plane as torso rotates/back-leans through the iconic airborne silhouette; maintain secure ball control"},
+          {"atMs": 760, "pose": "reverse-hurdle-descent", "direction": "bring legs back toward landing alignment while preserving the backwards-hurdle read and avoiding limb intersections"},
+          {"atMs": 980, "pose": "athletic-landing", "direction": "absorb landing with bent knees at the projected run-path anchor; no scale pop or foot slide"},
+          {"atMs": 1120, "pose": "run-recovery", "direction": "blend immediately back into reusable run-after-catch locomotion"}
+        ],
+        "eventTags": ["hurdle", "signature_move", "reverse_hurdle", "highlight_play"],
+        "blendFrom": ["run", "run-after-catch", "cut", "break-tackle"],
+        "blendTo": ["run-after-catch", "run", "tackled", "post_play_idle"]
+      },
+      "qa": ["number-26-locked", "official-current-headshot-identity-locked", "transparent-alpha-clean", "ball-security-maintained", "airborne-silhouette-readable", "landing-anchor-restored", "no-impossible-limb-intersections", "not-labeled-as-celebration"]
+    }
+  ],
+  "verification": {
+    "checkedAt": "2026-09-18",
+    "currentRosterAuthority": "https://www.philadelphiaeagles.com/news/eagles-announce-initial-53-man-roster-2026-season",
+    "rules": [
+      "Current 2026 player identity and number must remain consistent with the PHI roster snapshot and official current player page.",
+      "A celebration is only named when official or otherwise authoritative evidence supports the gesture.",
+      "An iconic football move may be encoded as a signature sequence for Gamecast but must not be mislabeled as a celebration.",
+      "Appearance remains governed by locked current official headshot references from the earlier PHI appearance phase."
+    ]
+  },
+  "qa": {
+    "requirements": [
+      "Sequence entry and exit blend with PHI action-pose keys without camera, scale, lighting, or anchor pops.",
+      "Uniform number, face, skin tone, hair/facial-hair reference and body proportions remain unchanged through every beat.",
+      "Transparent alpha edges remain clean during fast hand, leg and airborne motion.",
+      "Signature event tags never replace generic fallback celebrations/actions for players without verified signatures."
+    ],
+    "status": "specified"
+  }
+}
