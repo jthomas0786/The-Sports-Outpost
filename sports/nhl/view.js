@@ -3,7 +3,7 @@ import {quoteFor} from './odds.js?v=90.1';
 import {gradeForLean,gradeRingHTML,overProbability} from './grade.js?v=90.4';
 import {historicalPropProjection,historicalSourceLabel,propLine} from './props-model.js?v=90.1';
 import {renderNhlGamecastHTML} from './gamecast.js?v=90.5';
-import {API,getJSON,loadScoreboard,mergeSummary,freshGame,threats,text as esc,imageUrl} from './data.js?v=90.5';
+import {API,getJSON,loadScoreboard,mergeSummary,freshGame,threats,dedupeSlatePlayers,text as esc,imageUrl} from './data.js?v=90.22';
 let research=null,odds=null,sim=null;
 let doc=null,tab='slate',gameId=null,market='sog',gamecastTab='game',busy=false,error=false,timer=null;
 const tabs={slate:'NHL Slate',live:'NHL Live',feed:'Goal Feed',props:'Props'};
@@ -88,7 +88,7 @@ function gradeState(p,state=projectionState(p)){
  return {probability,grade:gradeForLean(probability),q,line:picked.line,referenceLine:picked.reference,source:state?.source||null,historical:state?.historical||null,game:state?.game||null};
 }
 function props(){
- const ps=(doc?.games||[]).flatMap(g=>g.players.map(p=>({...p,game:g}))).filter(p=>market==='saves'?p.position==='G':p.position!=='G');
+ const ps=(doc?.games||[]).flatMap(g=>(g.players||[]).filter(p=>p.propsEligible!==false).map(p=>({...p,game:g}))).filter(p=>market==='saves'?p.position==='G':p.position!=='G');
  const ranked=ps.map(p=>{const state=projectionState(p);return {p,state,grade:gradeState(p,state)};}).sort((a,b)=>(b.grade.probability??-1)-(a.grade.probability??-1));
  return `<div class="hk-prop-toolbar"><label>Player market<select id="hk-market">${Object.entries(markets).map(([k,v])=>`<option value="${k}" ${k===market?'selected':''}>${v}</option>`).join('')}</select></label><div class="hk-prop-note"><b>${ps.length}</b><span>players on this slate</span></div></div><div class="hk-list-head"><span>${esc(markets[market])}</span><small>Same NFL grade thresholds + progress rings · confirmed simulations when ready · verified 2025–26 historical fallback · sportsbook lines when listed</small></div><div class="hk-prop-list">${ranked.map(({p,state,grade},i)=>{
  const key=market==='atg'?'goals':market,model=forecast(p,state),book=priceText(p,grade.q);
@@ -121,7 +121,7 @@ export async function refresh(){if(busy||document.hidden)return;busy=true;try{
   if(g.status!=='pre'||Date.parse(g.startTime)-Date.now()<10800000)await Promise.all([g.away,g.home].map(async t=>{try{evidence[t.id]=await getJSON(rosterURL(g,t));}catch{}}));
   Object.assign(g,applyLineups(g,evidence));
  }
- doc=next;error=false;
+ dedupeSlatePlayers(next.games);doc=next;error=false;
  }catch{error=true;}finally{busy=false;render();}}
 export async function mount(){ensureStyle();if(!doc){try{doc=await getJSON('./slates/nhl.json');}catch{error=true;}}selectTab(window.DW_nhlPendingTab||tab);window.DW_nhlPendingTab=null;render();if(!timer){refresh();timer=setInterval(()=>{if(location.hash==='#nhl'||document.getElementById('ccHockeyCol')?.classList.contains('active'))refresh();},30000);}}
 window.DW_NHL_COMMAND_CENTER={html:commandCenterHTML,alerts:()=>threats(doc),refresh:()=>mount()};
