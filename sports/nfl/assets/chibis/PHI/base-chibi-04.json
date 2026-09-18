@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-04",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"darius-cooper","name":"Darius Cooper","position":"WR","number":"80","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/darius-cooper/","baseAsset":"PHI/darius-cooper/base/phi_darius-cooper_base_v001","rigArchetype":"wr-balanced-athletic","neutralPose":"balanced receiver-ready stance with light forward lean, relaxed shoulders and stable plant feet","productionNotes":["Preserve #80.","Use the current official headshot as the sole visual authority for identity traits.","Rig shoulders, hips, knees and hands for release, route-run and catch actions without anchor drift; no invented named signature."],"qa":["official-headshot-reviewed-before-render","number-80-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"britain-covey","name":"Britain Covey","position":"WR","number":"85","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/britain-covey/","baseAsset":"PHI/britain-covey/base/phi_britain-covey_base_v001","rigArchetype":"wr-compact-quick","neutralPose":"compact receiver-ready stance with quick-foot balance, loose hands and stable ground contact","productionNotes":["Preserve #85.","Maintain current-official-headshot identity and player-specific build across receiver actions.","Do not assign a named signature celebration without later source verification."],"qa":["official-headshot-reviewed-before-render","number-85-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"andy-dalton","name":"Andy Dalton","position":"QB","number":"14","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/andy-dalton/","baseAsset":"PHI/andy-dalton/base/phi_andy-dalton_base_v001","rigArchetype":"qb-pocket-balanced","neutralPose":"upright quarterback-ready stance with balanced feet, relaxed shoulders and hands naturally prepared for the snap","productionNotes":["Preserve #14.","Keep official-headshot identity and quarterback build stable through pre-snap, dropback, throw and scramble clips.","No named signature celebration is asserted in this phase."],"qa":["official-headshot-reviewed-before-render","number-14-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jordan-davis","name":"Jordan Davis","position":"DT","number":"90","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jordan-davis/","baseAsset":"PHI/jordan-davis/base/phi_jordan-davis_base_v001","rigArchetype":"dt-massive-power","neutralPose":"broad low interior-defender stance with centered weight, relaxed hands and square stable feet","productionNotes":["Preserve #90.","Preserve official player-specific build while retaining the common Gamecast head scale, camera and foot anchor.","Rig shoulders, elbows, hips and knees for rush, shed-block, tackle and fumble-recovery actions; celebrations remain generic unless verified."],"qa":["official-headshot-reviewed-before-render","number-90-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"arnold-ebiketie","name":"Arnold Ebiketie","position":"OLB","number":"17","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/arnold-ebiketie/","baseAsset":"PHI/arnold-ebiketie/base/phi_arnold-ebiketie_base_v001","rigArchetype":"edge-athletic-power","neutralPose":"balanced edge-defender two-point stance with athletic knee bend, hands loose and forward-ready weight","productionNotes":["Preserve #17.","Maintain current-official-headshot identity and edge-defender proportions through rush, shed, tackle and sack actions.","Do not invent a player-specific named celebration."],"qa":["official-headshot-reviewed-before-render","number-17-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five players are drawn from the locked current PHI active-roster snapshot and retain its current jersey numbers.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
