@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-03",
+  "season": 2026,
+  "purpose": "Runtime-neutral preload, cache, lifecycle, and recovery contract for Philadelphia's approved realistic 3D chibi library, preserving existing Gamecast fallback and all non-NFL namespaces.",
+  "dependsOn": ["./roster.json", "./gamecast-integration-01.json", "./gamecast-integration-02.json", "./signature-sequences-01.json", "./signature-sequences-02.json"],
+  "preloadPolicy": {
+    "initial": ["Resolve only active PHI participants for the selected game from the authoritative Gamecast participant set.", "Preload each resolved participant base asset before optional actions.", "Preload only roster.json-listed actions likely for the participant role; never warm an archetype superset absent from roster.json.", "Preload verified signature assets only for the four source-verified Philadelphia routes."],
+    "priority": ["visible participant base", "current-play requested action", "next safe fallback action", "verified signature for eligible player/event", "remaining role-likely actions"],
+    "assetProbeOrder": ["webp", "png"],
+    "dedupeKey": "PHI:<player-slug>:<asset-kind>:<action-or-signature>:v001",
+    "crossTeamGuard": "Reject preload unless canonical roster resolution returns PHI.",
+    "openRosterSlotGuard": "The 52-player snapshot has one open slot; no preload key or placeholder may be generated for an absent 53rd identity."
+  },
+  "cachePolicy": {
+    "scope": "selected NFL game",
+    "immutableAssetKey": "resolved asset URL + versioned animation key",
+    "reuse": "Reuse decoded Philadelphia assets across plays in the same selected game; identical polling must not trigger re-decode.",
+    "failureMemoization": "Memoize a missing candidate for the current immutable version/game scope and continue fallback without repeated missing-file probes.",
+    "eviction": ["Evict transient action references after game change.", "Release decoded PHI assets when leaving the selected NFL game unless another active NFL consumer holds the immutable key.", "Never evict or mutate MLB/NHL caches from Philadelphia lifecycle cleanup."]
+  },
+  "lifecycle": {
+    "gameSelect": "Clear prior-game PHI transient bindings, establish the selected-game scope, then preload visible Philadelphia participant bases.",
+    "playStart": "Resolve canonical participants and warm roster-authorized requested actions before transition selection when practical.",
+    "playUpdate": "Apply gamecast-integration-02 fingerprint/order guards; repeated payloads cannot restart animation or duplicate preload work.",
+    "playEnd": "Return players to locked projected foot anchors, release transient possession, and retain reusable decoded assets for the selected game.",
+    "gameEnd": "Allow the final animation to settle, then release transient state; cache cleanup follows consumer-reference rules.",
+    "routeExit": "Destroy PHI transient bindings/listeners and release unreferenced PHI decoded assets without touching MLB/NHL namespaces."
+  },
+  "renderReadiness": {
+    "baseRequired": true,
+    "actionRequired": false,
+    "signatureRequired": false,
+    "rule": "Missing optional action/signature never blocks Gamecast. If base is unavailable, retain the existing non-chibi presentation for that player.",
+    "swapRule": "A newly decoded higher-priority asset cannot replace an already-running fallback mid-animation; it becomes eligible at the next event/transition boundary."
+  },
+  "appearanceAndGeometryInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Eagles headshot locks from appearance-reference phase; never infer skin tone or visible appearance from a name",
+    "camera": "shared locked Dallas-approved three-quarter Gamecast angle",
+    "lighting": "shared Dallas-approved neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet; airborne actions return to projected world anchor",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "continuity": "Base, action and verified-signature assets preserve identity, uniform geometry, number, scale, camera, lighting and anchor."
+  },
+  "signaturePreloadRoutes": [
+    {"playerKey":"PHI:nolan-smith-jr","verifiedSignature":"dice-roll-celebration","warmWhen":["pass rusher active", "sack resolves"],"neverRename":true},
+    {"playerKey":"PHI:saquon-barkley","verifiedSignature":"reverse-hurdle","warmWhen":["rusher/receiver active", "hurdle or supported airborne highlight resolves"],"classification":"signature football move","neverRename":true},
+    {"playerKey":"PHI:jalen-hurts","verifiedSignature":"brotherly-shove","warmWhen":["quarterback active", "supported short-yardage QB sneak resolves"],"classification":"signature football move","neverRename":true},
+    {"playerKey":"PHI:devonta-smith","verifiedSignature":"sideline-toe-tap","warmWhen":["receiver active", "supported boundary/toe-tap catch resolves"],"classification":"signature football move","neverRename":true}
+  ],
+  "telemetryContract": {
+    "namespace": "nfl.chibi.PHI",
+    "events": ["preload_hit", "preload_miss", "asset_decode_ok", "asset_decode_fail", "fallback_selected", "signature_selected", "cross_team_reject", "stale_event_reject"],
+    "privacy": "Record canonical roster slug/action keys and technical status only; no user-identifying data.",
+    "nonBlocking": "Telemetry failure never blocks rendering or animation selection."
+  },
+  "acceptanceFixtures": [
+    {"id":"phi-visible-base-first","input":{"selectedGame":true,"team":"PHI","visibleParticipant":true},"expect":{"basePreloadPriority":1,"crossTeamAsset":false}},
+    {"id":"phi-inventory-guard","input":{"requestedAction":"unsupported-archetype-action","actionInRosterInventory":false},"expect":{"preloadRequested":false,"assetLookup":false}},
+    {"id":"phi-poll-dedupe","input":{"sameEventFingerprint":true,"sameAssetKey":true},"expect":{"duplicateDecode":false,"animationRestart":false}},
+    {"id":"phi-missing-memoized","input":{"candidate404":true,"sameImmutableVersion":true,"repeatedPoll":true},"expect":{"repeatedCandidateFetch":false,"fallbackContinues":true}},
+    {"id":"phi-smith-signature-warm","input":{"player":"Nolan Smith Jr.","event":"sack"},"expect":{"verifiedSignature":"dice-roll-celebration","inventedSignature":false}},
+    {"id":"phi-barkley-signature-warm","input":{"player":"Saquon Barkley","event":"hurdle"},"expect":{"verifiedSignature":"reverse-hurdle","classification":"signature football move"}},
+    {"id":"phi-hurts-signature-warm","input":{"player":"Jalen Hurts","event":"qb_sneak"},"expect":{"verifiedSignature":"brotherly-shove","classification":"signature football move"}},
+    {"id":"phi-devonta-signature-warm","input":{"player":"DeVonta Smith","event":"toe_tap_catch"},"expect":{"verifiedSignature":"sideline-toe-tap","classification":"signature football move"}},
+    {"id":"phi-open-slot","input":{"requestedRosterIndex":53,"identityMissing":true},"expect":{"preloadKeyCreated":false,"placeholderCreated":false}},
+    {"id":"phi-mid-animation-decode","input":{"fallbackAlreadyAnimating":true,"preferredAssetFinishesDecode":true},"expect":{"midAnimationPop":false,"preferredEligibleAtNextBoundary":true}},
+    {"id":"phi-route-exit-isolation","input":{"leaveNFLGamecast":true,"mlbCachePresent":true,"nhlCachePresent":true},"expect":{"philadelphiaTransientDestroyed":true,"mlbCacheTouched":false,"nhlCacheTouched":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": ["Preload remains roster.json-authoritative and team-isolated.", "Repeated polling cannot duplicate decode work or restart active animation.", "Missing optional assets fail soft and never blank Gamecast.", "Failure memoization avoids repeated missing-file probes within one immutable version/game scope.", "Named signatures remain limited to the four source-verified PHI routes and move classifications remain accurate.", "Appearance, number, camera, lighting, scale, alpha and foot-anchor locks remain invariant.", "The legitimate open roster slot cannot create a synthetic identity or preload.", "Lifecycle cleanup is NFL/PHI scoped and cannot mutate MLB/NHL caches or renderers.", "This metadata-only batch introduces no shared runtime behavior change."]
+  }
+}
