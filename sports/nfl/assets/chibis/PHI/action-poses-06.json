@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "action-poses",
+  "batch": "action-poses-06",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig matching approved Dallas production",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked current official PhiladelphiaEagles.com headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Philadelphia current uniform geometry with current roster number locked across frames",
+    "naming": "phi_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"E.J. Jenkins","slug":"e-j-jenkins","number":"84","position":"TE","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/ej-jenkins/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"release","durationMs":540,"loop":false,"eventTags":["route_release"]},{"action":"route-run","durationMs":620,"loop":true,"eventTags":["route"]},{"action":"catch","durationMs":720,"loop":false,"eventTags":["reception"]},{"action":"block","durationMs":760,"loop":true,"eventTags":["run_block","pass_protection"]},{"action":"celebrate","durationMs":1400,"loop":false,"eventTags":["touchdown","celebration"]}]},
+    {"name":"Fred Johnson","slug":"fred-johnson","number":"74","position":"T","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/fred-johnson/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"pass-block","durationMs":760,"loop":true,"eventTags":["pass_protection"]},{"action":"run-block","durationMs":760,"loop":true,"eventTags":["run_block"]},{"action":"pull","durationMs":700,"loop":false,"eventTags":["pull_block"]},{"action":"recover-fumble","durationMs":820,"loop":false,"eventTags":["fumble_recovery"]}]},
+    {"name":"Jonathan Jones","slug":"jonathan-jones","number":"31","position":"CB","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/jonathan-jones/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"press-stance","durationMs":700,"loop":true,"eventTags":["pre_snap","press"]},{"action":"backpedal","durationMs":620,"loop":true,"eventTags":["coverage"]},{"action":"coverage","durationMs":650,"loop":true,"eventTags":["coverage"]},{"action":"tackle","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},{"action":"interception","durationMs":820,"loop":false,"eventTags":["interception","turnover"]},{"action":"celebrate","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}]},
+    {"name":"Cam Jurgens","slug":"cam-jurgens","number":"51","position":"C/G","priority":"starter","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/cam-jurgens/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"pass-block","durationMs":760,"loop":true,"eventTags":["pass_protection"]},{"action":"run-block","durationMs":760,"loop":true,"eventTags":["run_block"]},{"action":"pull","durationMs":700,"loop":false,"eventTags":["pull_block"]},{"action":"recover-fumble","durationMs":820,"loop":false,"eventTags":["fumble_recovery"]}]},
+    {"name":"Drew Kendall","slug":"drew-kendall","number":"66","position":"C/G","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/drew-kendall/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"pass-block","durationMs":760,"loop":true,"eventTags":["pass_protection"]},{"action":"run-block","durationMs":760,"loop":true,"eventTags":["run_block"]},{"action":"pull","durationMs":700,"loop":false,"eventTags":["pull_block"]},{"action":"recover-fumble","durationMs":820,"loop":false,"eventTags":["fumble_recovery"]}]}
+  ],
+  "signatureResearch": {"checkedAt":"2026-09-18","officialSource":"PhiladelphiaEagles.com current roster/player and 2026 team material","result":"No repeatable named player-specific signature celebration was verified for this batch; generic celebration slots are retained only where the authoritative action inventory calls for one."},
+  "qa": {"playerCount":5,"rosterActionContract":"Every delivered action is contained in each player's authoritative PHI/roster.json inventory.","numberCheck":"#84 Jenkins, #74 Fred Johnson, #31 Jonathan Jones, #51 Jurgens and #66 Kendall match the current official Philadelphia roster page on 2026-09-18.","appearanceCheck":"Each player points to a current official Eagles player/headshot page; visible traits must be inspected there before rendering and never inferred from name.","consistencyCheck":"Dallas-approved camera, lighting, player-specific scale, transparent alpha, foot anchor and deterministic naming remain unchanged."}
+}
