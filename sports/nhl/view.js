@@ -123,7 +123,7 @@ export async function refresh(){if(busy||document.hidden)return;busy=true;try{
  }
  dedupeSlatePlayers(next.games);doc=next;error=false;
  }catch{error=true;}finally{busy=false;render();}}
-export async function mount(){ensureStyle();if(!doc){try{doc=await getJSON('./slates/nhl.json');}catch{error=true;}}selectTab(window.DW_nhlPendingTab||tab);window.DW_nhlPendingTab=null;render();if(!timer){refresh();timer=setInterval(()=>{if(location.hash==='#nhl'||document.getElementById('ccHockeyCol')?.classList.contains('active'))refresh();},30000);}}
+export async function mount(){ensureStyle();if(!doc){try{doc=await getJSON('./slates/nhl.json');}catch{error=true;}}selectTab(window.DW_nhlPendingTab||tab);window.DW_nhlPendingTab=null;render();if(!timer){refresh();timer=setInterval(()=>{if(location.hash==='#nhl'||document.getElementById('ccHockeyCol')?.classList.contains('active'))refresh();},10000);}}
 window.DW_NHL_COMMAND_CENTER={html:commandCenterHTML,alerts:()=>threats(doc),refresh:()=>mount()};
 window.DW_openNhlTab=next=>{window.DW_nhlPendingTab=next;if(location.hash!=='#nhl')location.hash='nhl';else selectTab(next);};
 document.addEventListener('click',e=>{const gc=e.target.closest('[data-hk-gc-tab]');if(gc){gamecastTab=gc.dataset.hkGcTab;render();return;}const b=e.target.closest('[data-hk-game]');if(!b)return;gameId=b.dataset.hkGame;gamecastTab='game';window.closeCommandCenter?.();window.DW_openNhlTab('live');});
