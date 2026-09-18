@@ -9,6 +9,7 @@ const MARKETS={atg:'Anytime Goal',sog:'Shots on Goal',points:'Points',assists:'A
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
+function ensureStyle(){if(document.getElementById('nhl-launch-v922-css'))return;const l=document.createElement('link');l.id='nhl-launch-v922-css';l.rel='stylesheet';l.href='./sports/nhl/launch-v922.css?v=90.22';document.head.appendChild(l);}
 
 async function getJSON(path){
  const r=await fetch(path+'?v=90.22-'+Date.now(),{cache:'no-store'});
@@ -238,7 +239,7 @@ function onKey(e){
  const card=e.target.closest?.('#nhlView .hk-matchup[data-hk-launch-modal]');if(card){e.preventDefault();openGameModal(card.dataset.hkLaunchModal);}
 }
 export async function installNhlLaunchV922(){
- await loadDocs().catch(()=>null);wrapCommandCenter();
+ ensureStyle();await loadDocs().catch(()=>null);wrapCommandCenter();
  if(!installed){
    installed=true;document.addEventListener('click',onClick,true);document.addEventListener('input',onInput,true);document.addEventListener('change',onChange,true);document.addEventListener('keydown',onKey,true);
    observer=new MutationObserver(rs=>{if(rs.some(r=>r.type==='childList'&&[...r.addedNodes].some(n=>n.nodeType===1)))queue();});observer.observe(document.body,{childList:true,subtree:true});
