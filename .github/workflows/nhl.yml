@@ -30,7 +30,9 @@ jobs:
         run: |
           node --check sports/nhl/view.js
           node --check sports/nhl/view-v906.js
+          node --check sports/nhl/launch-v922.js
           node --check sports/nhl/props-daily-guard-v919.js
+          node --check sports/nhl/props-daily-guard-v920.js
           node --check sports/nhl/props-model.js
           node --check sports/nhl/gamecast.js
           node --check sports/nhl/slate-v906.js
@@ -39,6 +41,7 @@ jobs:
           node --check sports/nhl/player-modal-v913.js
           node --check sports/nhl/player-modal-v917.js
           node --check sports/nhl/player-modal-v918.js
+          node --check sports/nhl/player-modal-v921.js
           node scripts/nhl-selftest.mjs
           node scripts/nhl-daily-slate-selftest.mjs
           node scripts/nhl-props-baseline-selftest.mjs
@@ -47,6 +50,7 @@ jobs:
           node scripts/nhl-gamecast-selftest.mjs
           node scripts/nhl-slate-v906-selftest.mjs
           node scripts/nhl-player-modal-selftest.mjs
+          node scripts/nhl-launch-v922-selftest.mjs
       - name: Refresh NHL slate
         run: node scripts/nhl-refresh.mjs
       - name: Update verified season research
@@ -57,6 +61,8 @@ jobs:
         run: node scripts/nhl-odds.mjs
       - name: Simulate eligible full games
         run: node scripts/nhl-simulate.mjs
+      - name: Verify refreshed launch slate
+        run: node scripts/nhl-launch-v922-selftest.mjs
       - name: Publish NHL data only
         run: |
           git config user.name "TSO NHL Bot"
