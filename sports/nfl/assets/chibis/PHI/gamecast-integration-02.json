@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-02",
+  "season": 2026,
+  "purpose": "Production binding and state-transition contract that turns Philadelphia event-resolution rules into deterministic Gamecast animation selections while preserving the existing non-chibi fallback and team isolation.",
+  "dependsOn": ["./roster.json", "./gamecast-integration-01.json", "./signature-sequences-01.json", "./signature-sequences-02.json"],
+  "bindingContract": {
+    "playerKey": "PHI:<canonical roster slug>",
+    "playKey": "<game-id>:<play-id>",
+    "animationKey": "phi_<player-slug>_<action>_v001",
+    "signatureKey": "phi_<player-slug>_signature_<signature>_v001",
+    "assetProbeOrder": ["webp", "png"],
+    "requiredState": ["playKey", "playerKey", "event", "selectedAction", "possessionOwner", "worldAnchor", "startedAt"],
+    "teamIsolation": "Reject any player binding whose canonical roster team is not PHI."
+  },
+  "transitionPolicy": {
+    "newPlay": "Clear transient animation, signature, possession-transfer and impact state before selecting the first event for the new playKey.",
+    "samePlay": "Blend only between actions belonging to the same canonical player unless the event explicitly transfers possession or identifies a second participant.",
+    "repeatedEvent": "Do not restart an identical animation for the same player/event fingerprint while it is already active.",
+    "outOfOrderEvent": "Ignore an event whose sequence/timestamp precedes accepted state for the current playKey unless marked as an authoritative correction.",
+    "authoritativeCorrection": "Reset transient state for the corrected play and resolve again from the corrected event payload.",
+    "playEnd": "Blend to player idle/base, release transient ball ownership, and return root motion to the locked bottom-center foot anchor.",
+    "gameChange": "Destroy Philadelphia transient bindings before resolving a different game; never carry animation state across games."
+  },
+  "participantRoles": {
+    "passer": ["dropback", "throw", "scramble", "idle"],
+    "receiver": ["catch", "run", "celebrate", "idle"],
+    "rusher": ["handoff-receive", "run", "celebrate", "idle"],
+    "tackler": ["tackle", "forced-fumble", "celebrate", "idle"],
+    "passRusher": ["rush", "blitz", "sack", "forced-fumble", "celebrate", "idle"],
+    "interceptor": ["interception", "catch", "run", "celebrate", "idle"],
+    "blocker": ["stance", "pass-block", "run-block", "idle"],
+    "kicker": ["kickoff", "field-goal", "extra-point", "idle"],
+    "punter": ["punt", "directional-punt", "idle"],
+    "longSnapper": ["long-snap-punt", "long-snap-field-goal", "stance", "idle"]
+  },
+  "possessionPolicy": {
+    "acquireOn": ["handoff-receive", "catch", "interception", "fumble-recovery", "recover-fumble"],
+    "retainThrough": ["run", "scramble", "celebrate"],
+    "releaseOn": ["throw", "fumble", "playEnd"],
+    "visualRule": "The football remains attached to the established possession hand/socket until an explicit transfer or release event; fallback must not duplicate or teleport the ball."
+  },
+  "signaturePolicy": {
+    "verifiedOnly": true,
+    "routes": [
+      {"playerKey":"PHI:nolan-smith-jr","trigger":"sack","signature":"dice-roll-celebration","fallback":["sack","celebrate","idle"]},
+      {"playerKey":"PHI:saquon-barkley","trigger":"hurdle|broken_tackle_airborne|highlight_run_after_catch","signature":"reverse-hurdle","fallback":["run","catch","idle"]},
+      {"playerKey":"PHI:jalen-hurts","trigger":"qb_sneak|goal_line_qb_sneak|short_yardage_qb_sneak","signature":"brotherly-shove","fallback":["scramble","idle"]},
+      {"playerKey":"PHI:devonta-smith","trigger":"sideline_catch|end_zone_boundary_catch|toe_tap_catch","signature":"sideline-toe-tap","fallback":["catch","celebrate","idle"]}
+    ],
+    "guard": "No other player or event may receive a named signature unless a later source-verified signature manifest explicitly adds it."
+  },
+  "renderInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Eagles headshot lock from the appearance-reference phase; never infer appearance from name",
+    "background": "transparent alpha",
+    "camera": "shared locked Dallas-approved three-quarter Gamecast angle",
+    "lighting": "shared Dallas-approved neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale; no action-driven rescaling",
+    "footAnchor": "bottom-center between planted feet; airborne actions return to projected world anchor",
+    "uniformNumber": "roster.json current number; invariant across base/action/signature assets"
+  },
+  "fallbackPolicy": {
+    "order": ["verified signature", "requested roster action", "position-safe roster action", "player base", "existing non-chibi Gamecast presentation"],
+    "missingFile": "Continue down fallback order without blanking the scene.",
+    "unknownPlayer": "Do not substitute a similarly named Philadelphia player; retain existing non-chibi Gamecast presentation.",
+    "unknownEvent": "Prefer idle/base only for a resolved Philadelphia player; otherwise retain existing non-chibi Gamecast presentation.",
+    "openRosterSlot": "The official snapshot has 52 active identities and one open slot; never synthesize a placeholder player."
+  },
+  "acceptanceFixtures": [
+    {"id":"phi-smith-sack","input":{"player":"Nolan Smith Jr.","event":"sack"},"expect":{"preferred":"dice-roll-celebration","fallback":"sack|celebrate","anchorRestored":true}},
+    {"id":"phi-barkley-hurdle","input":{"player":"Saquon Barkley","event":"hurdle"},"expect":{"preferred":"reverse-hurdle","fallback":"run|catch","anchorRestored":true}},
+    {"id":"phi-hurts-sneak","input":{"player":"Jalen Hurts","event":"qb_sneak"},"expect":{"preferred":"brotherly-shove","fallback":"scramble|idle","anchorRestored":true}},
+    {"id":"phi-devonta-boundary","input":{"player":"DeVonta Smith","event":"toe_tap_catch"},"expect":{"preferred":"sideline-toe-tap","fallback":"catch|celebrate","anchorRestored":true}},
+    {"id":"phi-repeated-event","input":{"samePlay":true,"samePlayer":true,"sameEventFingerprint":true},"expect":{"animationRestart":false}},
+    {"id":"phi-new-play-reset","input":{"playKeyChanges":true},"expect":{"transientStateCleared":true,"possessionReevaluated":true}},
+    {"id":"phi-cross-team-guard","input":{"team":"DAL","playerNameCollision":true},"expect":{"philadelphiaBinding":false,"crossResolve":false}},
+    {"id":"phi-open-roster-slot","input":{"requestedRosterIndex":53,"identityMissing":true},"expect":{"placeholderCreated":false,"fallbackToExistingGamecast":true}},
+    {"id":"phi-missing-action-file","input":{"resolvedPhiladelphiaPlayer":true,"requestedActionFileMissing":true},"expect":{"sceneBlanked":false,"fallbackContinues":true}},
+    {"id":"phi-out-of-order","input":{"eventOlderThanAcceptedState":true,"authoritativeCorrection":false},"expect":{"eventIgnored":true}},
+    {"id":"phi-correction","input":{"eventOlderThanAcceptedState":true,"authoritativeCorrection":true},"expect":{"transientStateReset":true,"eventReResolved":true}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "All animation selection remains filtered by roster.json action inventory.",
+      "Named signatures are limited to the four source-verified Philadelphia routes.",
+      "Signature football moves remain classified as moves rather than fabricated celebrations.",
+      "Repeated polling cannot continuously restart the same animation fingerprint.",
+      "New-play, game-change and authoritative-correction paths clear stale transient state.",
+      "Possession continuity survives action fallback without ball duplication.",
+      "Missing assets fail soft and never blank Gamecast.",
+      "Cross-team identity collisions cannot resolve into Philadelphia assets.",
+      "The open 53rd roster slot cannot create a synthetic identity.",
+      "No MLB or NHL renderer, selector, state path or asset is referenced or changed by this contract."
+    ]
+  }
+}
