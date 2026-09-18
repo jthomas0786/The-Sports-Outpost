@@ -159,7 +159,12 @@ function sortAndFilterProps(){
 function installPropsControls(){
  const toolbar=document.querySelector('#nhlView .hk-prop-toolbar');if(!toolbar)return;
  let host=document.getElementById('hkLaunchPropsControls');
- if(!host){host=document.createElement('section');host.id='hkLaunchPropsControls';host.className='hk-launch-props-controls';toolbar.after(host);}
+ // Do not rebuild an already-mounted control bar. The launch observer watches
+ // child-list changes, and replacing this innerHTML on every scan detached the
+ // search field while a user was typing. A real NHL page rerender removes the
+ // whole host, so the next scan still rebuilds controls from fresh slate data.
+ if(host)return;
+ host=document.createElement('section');host.id='hkLaunchPropsControls';host.className='hk-launch-props-controls';toolbar.after(host);
  const rows=[...document.querySelectorAll('#nhlView .hk-prop-card')].map(cardInfo);
  const teams=[...new Set(rows.map(r=>r.team).filter(Boolean))].sort(),pos=[...new Set(rows.map(r=>r.pos).filter(Boolean))].sort(),games=[...new Set(rows.map(r=>r.match).filter(Boolean))].sort();
  const market=document.querySelector('#nhlView #hk-market')?.value||'sog';

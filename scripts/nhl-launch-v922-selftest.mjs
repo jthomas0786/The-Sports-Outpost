@@ -64,6 +64,7 @@ assert(slateUi.includes('data-hk-game='),'Slate player rows must carry exact gam
 assert.equal(Number((propsGuard.match(/const PAGE_SIZE=(\d+);/)||[])[1])>=1000,true,'Props guard must expose the complete launch-day pool rather than cap it at 60');
 assert(wrapper.includes("import {installNhlLaunchV922} from './launch-v922.js?v=90.22'"),'production NHL wrapper must import launch controller');
 assert(wrapper.includes('await installNhlLaunchV922(host);'),'production NHL wrapper must install launch controller');
+assert(launch.includes('if(host)return;'),'launch Props controls must stay mounted across observer scans so typing cannot detach the input');
 assert(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'router must point at launch build');
 assert(index.includes("./sports/nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'Command Center lazy-load must use the full launch build');
 assert(index.includes('sports/router.js?v=90.62'),'index must cache-bust the launch router');
