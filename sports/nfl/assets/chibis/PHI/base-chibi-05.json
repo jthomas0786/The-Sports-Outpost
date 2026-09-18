@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-05",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"jake-elliott","name":"Jake Elliott","position":"K","number":"4","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jake-elliott/","baseAsset":"PHI/jake-elliott/base/phi_jake-elliott_base_v001","rigArchetype":"kicker-balanced-specialist","neutralPose":"upright specialist-ready stance with relaxed shoulders, balanced plant foot and stable ground contact","productionNotes":["Preserve #4.","Use the current official headshot as the sole visual authority for identity traits.","Rig hips, knees and kicking leg for approach, field-goal, extra-point and kickoff actions without foot-anchor drift; no invented named signature."],"qa":["official-headshot-reviewed-before-render","number-4-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"a-j-epenesa","name":"A.J. Epenesa","position":"OLB","number":"57","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/a-j-epenesa/","baseAsset":"PHI/a-j-epenesa/base/phi_a-j-epenesa_base_v001","rigArchetype":"edge-tall-power","neutralPose":"balanced edge-defender stance with controlled forward lean, athletic knee bend and stable plant feet","productionNotes":["Preserve #57.","Maintain current-official-headshot identity and player-specific edge build across rush, shed, tackle and sack actions.","Do not assign a named signature celebration without later source verification."],"qa":["official-headshot-reviewed-before-render","number-57-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"marcus-epps","name":"Marcus Epps","position":"S","number":"29","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/marcus-epps/","baseAsset":"PHI/marcus-epps/base/phi_marcus-epps_base_v001","rigArchetype":"safety-balanced-athletic","neutralPose":"balanced safety-ready stance with light knee bend, loose hands and square stable feet","productionNotes":["Preserve #29.","Keep official-headshot identity stable through backpedal, deep-zone, tackle and interception clips.","No named signature celebration is asserted in this phase."],"qa":["official-headshot-reviewed-before-render","number-29-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jonathan-greenard","name":"Jonathan Greenard","position":"OLB","number":"52","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jonathan-greenard/","baseAsset":"PHI/jonathan-greenard/base/phi_jonathan-greenard_base_v001","rigArchetype":"edge-athletic-power","neutralPose":"balanced two-point edge stance with athletic knee bend, loose hands and forward-ready weight","productionNotes":["Preserve #52.","Preserve official player-specific build while retaining the common Gamecast head scale, camera and foot anchor.","Rig shoulders, hips and knees for rush, shed-block, tackle and sack actions; celebrations remain generic unless verified."],"qa":["official-headshot-reviewed-before-render","number-52-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jalyx-hunt","name":"Jalyx Hunt","position":"OLB","number":"58","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jalyx-hunt/","baseAsset":"PHI/jalyx-hunt/base/phi_jalyx-hunt_base_v001","rigArchetype":"edge-athletic-length","neutralPose":"athletic edge-defender two-point stance with controlled forward lean, loose hands and stable ground contact","productionNotes":["Preserve #58.","Maintain current-official-headshot identity and edge-defender proportions through rush, shed, tackle and sack actions.","Do not invent a player-specific named celebration."],"qa":["official-headshot-reviewed-before-render","number-58-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five players are drawn from the locked current PHI active-roster snapshot and retain its current jersey numbers.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
