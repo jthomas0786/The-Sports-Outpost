@@ -5526,7 +5526,7 @@ body.modal-open{ overflow:hidden; }
 
     <!-- ============ TOUCHDOWN WATCH (NFL) VIEW ============
          Self-contained NFL preview surface, rendered by sports/nfl-preview.js and toggled by
-         sports/router.js?v=90.61 on #nfl. Hidden by default so the MLB experience is
+         sports/router.js?v=90.62 on #nfl. Hidden by default so the MLB experience is
          completely unaffected. All classes are `nfl-` prefixed — no collisions. -->
     <div class="nfl-view sport-mock-view" id="nflView" hidden></div>
     <div id="nhlView" hidden></div>
@@ -7505,7 +7505,7 @@ const sectionSub = document.getElementById('sectionSub');
 const SB_SPORTS = {
   mlb: { brand:'MLB', accent:'#22c55e', adapterReady:true, seasonStart:null },
   nfl: { brand:'NFL', accent:'#f59e0b', adapterReady:true, seasonStart:null },
-  nhl: { brand:'NHL', accent:'#38bdf8', adapterReady:true, seasonStart:null },
+  nhl: { brand:'NHL', accent:'#38bdf8', adapterReady:true, seasonStart:'2026-09-19' },
   nba: { brand:'NBA', accent:'#a855f7', adapterReady:false, seasonStart:'2026-10-20' },
 };
 const SB_SPORT_ORDER = ['mlb','nfl','nhl','nba'];
@@ -11557,7 +11557,7 @@ function ccBuildFootballHTML(){
 /** Hockey uses the live NHL adapter; basketball remains a placeholder. */
 function ccBuildHockeyHTML(){
   if(window.DW_NHL_COMMAND_CENTER){window.DW_NHL_COMMAND_CENTER.refresh();return window.DW_NHL_COMMAND_CENTER.html();}
-  import('./sports/nhl/view.js?v=90.1').then(m=>m.mount()).catch(()=>{});
+  import('./sports/nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1').then(m=>m.mount()).catch(()=>{});
   return '<div class="cc-col-title">Hockey</div><div class="cc-empty-note">Loading hockey…</div>';
 }
 function ccBuildBasketballHTML(){
