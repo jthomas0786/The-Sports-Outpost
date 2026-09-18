@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-11",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"rocco-underwood","name":"Rocco Underwood","position":"LS","number":"41","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/rocco-underwood/","baseAsset":"PHI/rocco-underwood/base/phi_rocco-underwood_base_v001","rigArchetype":"long-snap-specialist","neutralPose":"balanced long-snap specialist ready stance with stable feet and relaxed hands","productionNotes":["Preserve current official #41.","Use the current official Eagles headshot as sole visual identity authority.","Rig shoulders, hips, hands and knees for long-snap-punt, long-snap-field-goal, coverage and tackle actions without camera, scale or anchor drift; no named signature celebration is asserted."],"qa":["official-headshot-reviewed-before-render","number-41-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"dontayvion-wicks","name":"Dontayvion Wicks","position":"WR","number":"13","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/dontayvion-wicks/","baseAsset":"PHI/dontayvion-wicks/base/phi_dontayvion-wicks_base_v001","rigArchetype":"wide-receiver-route-catch","neutralPose":"balanced receiver ready stance with light knee bend, relaxed hands and stable feet","productionNotes":["Preserve #13.","Use the current official Eagles headshot as sole visual identity authority.","Rig shoulders, hands, hips and knees for release, route-run, catch and celebration clips without identity or foot-anchor drift; signature research belongs to the signature-sequences phase and no named signature is asserted here."],"qa":["official-headshot-reviewed-before-render","number-13-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"riq-woolen","name":"Riq Woolen","position":"CB","number":"2","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/riq-woolen/","baseAsset":"PHI/riq-woolen/base/phi_riq-woolen_base_v001","rigArchetype":"cornerback-press-cover-ballhawk","neutralPose":"balanced cornerback press-ready stance with light knee bend, loose hands and stable ground contact","productionNotes":["Preserve #2.","Use the current official Eagles headshot as sole authority for visible identity traits and preserve official player-specific build within shared Gamecast scale.","Rig hips, shoulders and hands for press-stance, backpedal, coverage, tackle, interception and celebration actions without identity or anchor drift; no named signature celebration is asserted."],"qa":["official-headshot-reviewed-before-render","number-2-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"byron-young","name":"Byron Young","position":"DT","number":"94","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/byron-young/","baseAsset":"PHI/byron-young/base/phi_byron-young_base_v001","rigArchetype":"defensive-tackle-power-rush","neutralPose":"compact defensive-line ready stance with broad stable base, controlled knee bend and ready hands","productionNotes":["Preserve #94.","Use the current official Eagles headshot as sole visual identity authority.","Rig torso, shoulders, hips and hands for rush, shed-block, tackle, fumble-recovery and celebration actions without camera, scale or foot-anchor drift; no named signature celebration is asserted."],"qa":["official-headshot-reviewed-before-render","number-94-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch closes unique-player reusable base coverage for the 52-player active snapshot; action poses and signature sequences remain separate phases."
+  },
+  "verification": {
+    "checkedAt": "2026-09-18",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["Fresh official roster/player-page checks confirm Underwood #41, Wicks #13, Woolen #2 and Young #94 on the current active roster.","A unique-player audit found these four roster members had no prior production baseAsset specification; earlier batch counts included duplicate player specifications, so this batch closes actual unique coverage at 52/52 rather than relying on raw batch-entry totals.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names or biography.","Position-appropriate rig requirements align with roster.json action inventories.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
