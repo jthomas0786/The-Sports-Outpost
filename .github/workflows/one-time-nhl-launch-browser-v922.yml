@@ -1,0 +1,37 @@
+name: One-time NHL Launch Browser QA v90.22
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nhl-launch-browser-v922.yml'
+      - 'tests/nhl-launch-browser-v922.spec.js'
+permissions:
+  contents: read
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install browser test runtime
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local production server
+        run: |
+          python3 -m http.server 4173 >/tmp/nhl-browser-server.log 2>&1 &
+          echo $! >/tmp/nhl-browser-server.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/nhl-browser-server.log
+          exit 1
+      - name: Exercise NHL launch in Chromium
+        run: npx playwright test tests/nhl-launch-browser-v922.spec.js --reporter=line --workers=1
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/nhl-browser-server.log || true
