@@ -6,7 +6,7 @@ let gameModalId=null, liveBypass=false, goalBaseline=false;
 const goalSeen=new Set();
 const filters={q:'',team:'ALL',pos:'ALL',game:'ALL',sort:'model'};
 const MARKETS={atg:'Anytime Goal',sog:'Shots on Goal',points:'Points',assists:'Assists',blocks:'Blocked Shots',saves:'Goalie Saves'};
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 function ensureStyle(){if(document.getElementById('nhl-launch-v922-css'))return;const l=document.createElement('link');l.id='nhl-launch-v922-css';l.rel='stylesheet';l.href='./sports/nhl/launch-v922.css?v=90.22';document.head.appendChild(l);}
@@ -138,6 +138,16 @@ function cardInfo(card){
 function fillSelect(sel,values,current,allLabel){
  if(!sel)return;sel.innerHTML='<option value="ALL">All '+allLabel+'</option>'+values.map(v=>'<option value="'+esc(v)+'" '+(String(v)===String(current)?'selected':'')+'>'+esc(v)+'</option>').join('');
 }
+function setPropsMarketState(market){
+ for(const btn of document.querySelectorAll('#hkLaunchPropsControls [data-hk-launch-market]'))btn.classList.toggle('active',btn.dataset.hkLaunchMarket===market);
+}
+function resetPropsControls(){
+ const host=document.getElementById('hkLaunchPropsControls');if(!host)return;
+ const search=host.querySelector('#hkLaunchSearch');if(search)search.value='';
+ for(const id of ['hkLaunchTeam','hkLaunchPos','hkLaunchGame']){const sel=host.querySelector('#'+id);if(sel)sel.value='ALL';}
+ const sort=host.querySelector('#hkLaunchSort');if(sort)sort.value='model';
+ sortAndFilterProps();
+}
 function sortAndFilterProps(){
  const list=document.querySelector('#nhlView .hk-prop-list');if(!list)return;
  let rows=[...list.querySelectorAll('.hk-prop-card')].map(cardInfo);
@@ -159,11 +169,10 @@ function sortAndFilterProps(){
 function installPropsControls(){
  const toolbar=document.querySelector('#nhlView .hk-prop-toolbar');if(!toolbar)return;
  let host=document.getElementById('hkLaunchPropsControls');
- // Do not rebuild an already-mounted control bar. The launch observer watches
- // child-list changes, and replacing this innerHTML on every scan detached the
- // search field while a user was typing. A real NHL page rerender removes the
- // whole host, so the next scan still rebuilds controls from fresh slate data.
- if(host)return;
+ // Keep the mounted control bar stable so observer scans never detach the
+ // search field while a user is typing. A real tab rebuild removes the host,
+ // so the next scan still creates controls from the fresh slate data.
+ if(host){setPropsMarketState(document.querySelector('#nhlView #hk-market')?.value||'sog');return;}
  host=document.createElement('section');host.id='hkLaunchPropsControls';host.className='hk-launch-props-controls';toolbar.after(host);
  const rows=[...document.querySelectorAll('#nhlView .hk-prop-card')].map(cardInfo);
  const teams=[...new Set(rows.map(r=>r.team).filter(Boolean))].sort(),pos=[...new Set(rows.map(r=>r.pos).filter(Boolean))].sort(),games=[...new Set(rows.map(r=>r.match).filter(Boolean))].sort();
@@ -225,8 +234,15 @@ function onClick(e){
  const player=e.target.closest?.('[data-hk-launch-player]');if(player){e.preventDefault();e.stopImmediatePropagation();openPlayer(player);return;}
  const live=e.target.closest?.('[data-hk-launch-live]');if(live){e.preventDefault();e.stopImmediatePropagation();openLive(live.dataset.hkLaunchLive);return;}
  const details=e.target.closest?.('[data-hk-launch-details]');if(details){e.preventDefault();e.stopImmediatePropagation();openGameModal(details.dataset.hkLaunchDetails);return;}
- const market=e.target.closest?.('[data-hk-launch-market]');if(market){const select=document.querySelector('#nhlView #hk-market');if(select){select.value=market.dataset.hkLaunchMarket;select.dispatchEvent(new Event('change',{bubbles:true}));}return;}
- if(e.target.closest?.('#hkLaunchClear')){Object.assign(filters,{q:'',team:'ALL',pos:'ALL',game:'ALL',sort:'model'});installPropsControls();return;}
+ const market=e.target.closest?.('[data-hk-launch-market]');if(market){
+   const select=document.querySelector('#nhlView #hk-market');
+   if(select){
+     const value=market.dataset.hkLaunchMarket;select.value=value;setPropsMarketState(value);select.dispatchEvent(new Event('change',{bubbles:true}));
+     requestAnimationFrame(()=>{setPropsMarketState(select.value||value);sortAndFilterProps();});
+   }
+   return;
+ }
+ if(e.target.closest?.('#hkLaunchClear')){Object.assign(filters,{q:'',team:'ALL',pos:'ALL',game:'ALL',sort:'model'});resetPropsControls();return;}
  const card=e.target.closest?.('#nhlView .hk-matchup[data-hk-launch-modal]');if(card&&!e.target.closest?.('.hk-slate-player')){e.preventDefault();e.stopImmediatePropagation();openGameModal(card.dataset.hkLaunchModal);}
 }
 function onInput(e){if(e.target.id!=='hkLaunchSearch')return;filters.q=e.target.value;sortAndFilterProps();}
