@@ -4,14 +4,14 @@
   "season": 2026,
   "seasonType": "reg",
   "week": 2,
-  "lastFetchedAt": 1789702121461,
-  "generatedAt": "2026-09-18T03:28:41.461Z",
+  "lastFetchedAt": 1789708640431,
+  "generatedAt": "2026-09-18T05:17:20.431Z",
   "games": {
     "401872932": {
-      "status": "in",
-      "statusDetail": "0:49 - 4th",
-      "period": 4,
-      "clockMin": 0.8166666666666667,
+      "status": "post",
+      "statusDetail": "Final",
+      "period": 0,
+      "clockMin": null,
       "awayScore": 31,
       "homeScore": 41,
       "awayAbbr": "DET",
@@ -22,7 +22,7 @@
       "down": null,
       "distance": null,
       "downDistanceText": null,
-      "lastPlayText": " J.Allen kneels to DET 22 for -1 yards.",
+      "lastPlayText": "END GAME",
       "linescores": {
         "away": [
           0,
@@ -40,13 +40,13 @@
       "currentDrive": {
         "id": "40187293218",
         "team": "BUF",
-        "description": "3 plays, 14 yards, 0:53",
-        "result": null,
-        "playCount": 3,
-        "yards": 14,
-        "elapsedDisplay": "0:53",
+        "description": "4 plays, 13 yards, 1:42",
+        "result": "End of Game",
+        "playCount": 4,
+        "yards": 13,
+        "elapsedDisplay": "1:42",
         "startText": "DET 36",
-        "endText": null,
+        "endText": "DET 22",
         "plays": [
           {
             "id": "4018729324379",
@@ -114,7 +114,7 @@
           },
           {
             "id": "4018729324464",
-            "text": " J.Allen kneels to DET 21 for -1 yards.",
+            "text": "J.Allen kneels to DET 21 for -1 yards.",
             "shortText": null,
             "period": 4,
             "clock": "1:28",
@@ -143,15 +143,111 @@
             "type": "Rush",
             "homeScore": 41,
             "awayScore": 31
+          },
+          {
+            "id": "4018729324508",
+            "text": " J.Allen kneels to DET 23 for -1 yards.",
+            "shortText": null,
+            "period": 4,
+            "clock": "0:11",
+            "down": 3,
+            "distance": 12,
+            "downDistanceText": "3rd & 12",
+            "yardLine": 78,
+            "team": "",
+            "scoring": false,
+            "type": "Rush",
+            "homeScore": 41,
+            "awayScore": 31
+          },
+          {
+            "id": "4018729324530",
+            "text": "END GAME",
+            "shortText": null,
+            "period": 4,
+            "clock": "0:00",
+            "down": 0,
+            "distance": 0,
+            "downDistanceText": null,
+            "yardLine": 77,
+            "team": "",
+            "scoring": false,
+            "type": "End of Game",
+            "homeScore": 41,
+            "awayScore": 31
           }
         ]
       },
       "winProbability": {
-        "home": 0.999,
-        "away": 0.0010000000000000009,
+        "home": 1,
+        "away": 0,
         "tie": 0
       },
       "plays": [
+        {
+          "id": "4018729323849",
+          "text": "(Shotgun) J.Goff pass incomplete short right to A.St. Brown (D.Walker).",
+          "shortText": null,
+          "period": 4,
+          "clock": "7:41",
+          "down": 3,
+          "distance": 10,
+          "downDistanceText": "3rd & 10",
+          "yardLine": 90,
+          "team": "",
+          "scoring": false,
+          "type": "Pass Incompletion",
+          "homeScore": 34,
+          "awayScore": 24
+        },
+        {
+          "id": "4018729323872",
+          "text": "J.Fox punts 51 yards to BUF 39, Center-H.Hatten. G.Dortch ran ob at BUF 39 for no gain.",
+          "shortText": null,
+          "period": 4,
+          "clock": "7:36",
+          "down": 4,
+          "distance": 10,
+          "downDistanceText": "4th & 10",
+          "yardLine": 90,
+          "team": "",
+          "scoring": false,
+          "type": "Punt",
+          "homeScore": 34,
+          "awayScore": 24
+        },
+        {
+          "id": "4018729323888",
+          "text": "Official Timeout at 07:28.",
+          "shortText": null,
+          "period": 4,
+          "clock": "7:28",
+          "down": 1,
+          "distance": 10,
+          "downDistanceText": "1st & 10",
+          "yardLine": 39,
+          "team": "",
+          "scoring": false,
+          "type": "Official Timeout",
+          "homeScore": 34,
+          "awayScore": 24
+        },
+        {
+          "id": "4018729323903",
+          "text": "J.Cook left tackle to BUF 41 for 2 yards (C.Clark).",
+          "shortText": null,
+          "period": 4,
+          "clock": "7:28",
+          "down": 1,
+          "distance": 10,
+          "downDistanceText": "1st & 10",
+          "yardLine": 39,
+          "team": "",
+          "scoring": false,
+          "type": "Rush",
+          "homeScore": 34,
+          "awayScore": 24
+        },
         {
           "id": "4018729323932",
           "text": "(Shotgun) J.Cook left guard to BUF 42 for 1 yard (C.Izien).",
@@ -506,7 +602,7 @@
         },
         {
           "id": "4018729324464",
-          "text": " J.Allen kneels to DET 21 for -1 yards.",
+          "text": "J.Allen kneels to DET 21 for -1 yards.",
           "shortText": null,
           "period": 4,
           "clock": "1:28",
@@ -537,98 +633,34 @@
           "awayScore": 31
         },
         {
-          "id": "4018729324379",
-          "text": "J.Bates kicks onside 12 yards from DET 35 to DET 47. K.Shakir to DET 36 for 11 yards (J.Saylors).",
+          "id": "4018729324508",
+          "text": " J.Allen kneels to DET 23 for -1 yards.",
           "shortText": null,
           "period": 4,
-          "clock": "1:42",
+          "clock": "0:11",
+          "down": 3,
+          "distance": 12,
+          "downDistanceText": "3rd & 12",
+          "yardLine": 78,
+          "team": "",
+          "scoring": false,
+          "type": "Rush",
+          "homeScore": 41,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729324530",
+          "text": "END GAME",
+          "shortText": null,
+          "period": 4,
+          "clock": "0:00",
           "down": 0,
           "distance": 0,
           "downDistanceText": null,
-          "yardLine": 65,
+          "yardLine": 77,
           "team": "",
           "scoring": false,
-          "type": "Kickoff",
-          "homeScore": 41,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729324402",
-          "text": "J.Cook right guard to DET 35 for 1 yard (M.Rodriguez; T.Williams).",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:39",
-          "down": 1,
-          "distance": 10,
-          "downDistanceText": "1st & 10",
-          "yardLine": 64,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
-          "homeScore": 41,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729324413",
-          "text": "Timeout #2 by DET at 01:33.",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:33",
-          "down": 2,
-          "distance": 9,
-          "downDistanceText": "2nd & 9",
-          "yardLine": 65,
-          "team": "",
-          "scoring": false,
-          "type": "Timeout",
-          "homeScore": 41,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729324424",
-          "text": "J.Cook left tackle to DET 38 for -3 yards (T.Lacy, T.Williams).PENALTY on DET-T.Lacy, Face Mask, 15 yards, enforced at DET 35 - No Play.",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:33",
-          "down": 2,
-          "distance": 9,
-          "downDistanceText": "2nd & 9",
-          "yardLine": 65,
-          "team": "",
-          "scoring": false,
-          "type": "Penalty",
-          "homeScore": 41,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729324464",
-          "text": " J.Allen kneels to DET 21 for -1 yards.",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:28",
-          "down": 1,
-          "distance": 10,
-          "downDistanceText": "1st & 10",
-          "yardLine": 80,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
-          "homeScore": 41,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729324486",
-          "text": " J.Allen kneels to DET 22 for -1 yards.",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:49",
-          "down": 2,
-          "distance": 11,
-          "downDistanceText": "2nd & 11",
-          "yardLine": 79,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
+          "type": "End of Game",
           "homeScore": 41,
           "awayScore": 31
         }
@@ -668,6 +700,7 @@
                 "TD": "4",
                 "INT": "0",
                 "SACKS": "4-38",
+                "QBR": "71.3",
                 "RTG": "130.0"
               },
               "rushing": {
@@ -894,12 +927,13 @@
                 "TD": "3",
                 "INT": "0",
                 "SACKS": "2-5",
+                "QBR": "91.2",
                 "RTG": "121.4"
               },
               "rushing": {
-                "CAR": "13",
-                "YDS": "70",
-                "AVG": "5.4",
+                "CAR": "14",
+                "YDS": "69",
+                "AVG": "4.9",
                 "TD": "2",
                 "LONG": "14"
               },
@@ -914,8 +948,8 @@
               "passYds": "248",
               "passTds": "3",
               "interceptions": "0",
-              "carries": "13",
-              "rushYds": "70",
+              "carries": "14",
+              "rushYds": "69",
               "rushTds": "2"
             }
           },
@@ -2064,6 +2098,7 @@
                 "TD": "4",
                 "INT": "0",
                 "SACKS": "4-38",
+                "QBR": "71.3",
                 "RTG": "130.0"
               },
               "rushing": {
@@ -2734,12 +2769,13 @@
                 "TD": "3",
                 "INT": "0",
                 "SACKS": "2-5",
+                "QBR": "91.2",
                 "RTG": "121.4"
               },
               "rushing": {
-                "CAR": "13",
-                "YDS": "70",
-                "AVG": "5.4",
+                "CAR": "14",
+                "YDS": "69",
+                "AVG": "4.9",
                 "TD": "2",
                 "LONG": "14"
               },
@@ -2754,8 +2790,8 @@
               "passYds": "248",
               "passTds": "3",
               "interceptions": "0",
-              "carries": "13",
-              "rushYds": "70",
+              "carries": "14",
+              "rushYds": "69",
               "rushTds": "2"
             }
           },
@@ -3485,6 +3521,7 @@
                   "TD",
                   "INT",
                   "SACKS",
+                  "QBR",
                   "RTG"
                 ],
                 "rows": [
@@ -3501,6 +3538,7 @@
                       "4",
                       "0",
                       "4-38",
+                      "71.3",
                       "130.0"
                     ]
                   }
@@ -3512,6 +3550,7 @@
                   "4",
                   "0",
                   "4-38",
+                  "--",
                   "130.0"
                 ]
               },
@@ -4252,6 +4291,7 @@
                   "TD",
                   "INT",
                   "SACKS",
+                  "QBR",
                   "RTG"
                 ],
                 "rows": [
@@ -4268,6 +4308,7 @@
                       "3",
                       "0",
                       "2-5",
+                      "91.2",
                       "121.4"
                     ]
                   }
@@ -4279,6 +4320,7 @@
                   "3",
                   "0",
                   "2-5",
+                  "--",
                   "121.4"
                 ]
               },
@@ -4314,9 +4356,9 @@
                     "position": null,
                     "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3918298.png",
                     "stats": [
-                      "13",
-                      "70",
-                      "5.4",
+                      "14",
+                      "69",
+                      "4.9",
                       "2",
                       "14"
                     ]
@@ -4337,9 +4379,9 @@
                   }
                 ],
                 "totals": [
-                  "35",
-                  "204",
-                  "5.8",
+                  "36",
+                  "203",
+                  "5.6",
                   "3",
                   "35"
                 ]
@@ -5081,13 +5123,13 @@
           "thirdDownEff": "4-11"
         },
         "BUF": {
-          "totalYards": "447",
+          "totalYards": "446",
           "passingYards": "243",
-          "rushingYards": "204",
+          "rushingYards": "203",
           "turnovers": "0",
           "firstDowns": "34",
-          "timeOfPossession": "32:56",
-          "thirdDownEff": "9-11"
+          "timeOfPossession": "33:45",
+          "thirdDownEff": "9-12"
         }
       },
       "scoringPlays": [
@@ -5202,7 +5244,7 @@
           "type": "Passing Touchdown"
         }
       ],
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872933": {
       "status": "pre",
@@ -5224,7 +5266,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872934": {
       "status": "pre",
@@ -5246,7 +5288,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872935": {
       "status": "pre",
@@ -5268,7 +5310,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872936": {
       "status": "pre",
@@ -5290,7 +5332,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872937": {
       "status": "pre",
@@ -5312,7 +5354,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872938": {
       "status": "pre",
@@ -5334,7 +5376,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872939": {
       "status": "pre",
@@ -5356,7 +5398,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872940": {
       "status": "pre",
@@ -5378,7 +5420,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872941": {
       "status": "pre",
@@ -5400,7 +5442,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640430
     },
     "401872942": {
       "status": "pre",
@@ -5422,7 +5464,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121461
+      "lastFetchedAt": 1789708640430
     },
     "401872943": {
       "status": "pre",
@@ -5444,7 +5486,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121461
+      "lastFetchedAt": 1789708640430
     },
     "401872944": {
       "status": "pre",
@@ -5466,7 +5508,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640430
     },
     "401872945": {
       "status": "pre",
@@ -5488,7 +5530,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121461
+      "lastFetchedAt": 1789708640430
     },
     "401872946": {
       "status": "pre",
@@ -5510,7 +5552,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121460
+      "lastFetchedAt": 1789708640429
     },
     "401872947": {
       "status": "pre",
@@ -5532,7 +5574,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1789702121461
+      "lastFetchedAt": 1789708640430
     }
   }
 }
