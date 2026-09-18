@@ -15,6 +15,6 @@ for(const [text,kind] of [['Carey Price Save','save'],['Auston Matthews Shot on 
 const view=fs.readFileSync('sports/nhl/view.js','utf8'),wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8'),css=fs.readFileSync('sports/nhl/gamecast.css','utf8'),router=fs.readFileSync('sports/router.js','utf8');
 for(const marker of ['data-hk-gc-tab="game"','data-hk-gc-tab="box"','data-hk-gc-tab="pbp"','renderNhlGamecastHTML','gamecastTab'])assert.ok(view.includes(marker),`missing NHL Gamecast parity marker: ${marker}`);
 for(const marker of ['.hk-gc-rink-wrap','.hk-gc-player','.hk-gc-puck','.hk-gc-tabs','@media(max-width:620px)'])assert.ok(css.includes(marker),`missing NHL Gamecast style: ${marker}`);
-assert.ok(wrapper.includes("./view.js?v=90.5"));
-assert.ok(router.includes("./nhl/view-v906.js?v=90.18"));
-console.log('NHL Gamecast: NFL-style tabs, event-driven rink, participant attribution, PP state and responsive layout passed');
+assert.ok(wrapper.includes("./view.js?v=90.22&props=2&launch=1"),'wrapper must use launch-ready NHL base view');
+assert.ok(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'router must use launch-ready NHL wrapper');
+console.log('NHL Gamecast: NFL-style tabs, event-driven rink, participant attribution, PP state, responsive layout and launch routing passed');
