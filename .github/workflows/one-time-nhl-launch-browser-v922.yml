@@ -1,11 +1,15 @@
 name: One-time NHL Launch Browser QA v90.22
-# fresh-head validation trigger 2026-09-18 18:08CT stable-props-final
+# launch-browser validation follows every NHL runtime/UI change on main
 on:
   workflow_dispatch:
   push:
     paths:
       - '.github/workflows/one-time-nhl-launch-browser-v922.yml'
       - 'tests/nhl-launch-browser-v922.spec.js'
+      - 'sports/nhl/**'
+      - 'scripts/nhl-*.mjs'
+      - 'sports/router.js'
+      - 'index.html'
 permissions:
   contents: read
 jobs:
