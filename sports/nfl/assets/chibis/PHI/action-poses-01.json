@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "action-poses",
+  "batch": "action-poses-01",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig matching approved Dallas production",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked current official PhiladelphiaEagles.com headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Philadelphia current uniform geometry with current roster number locked across frames",
+    "naming": "phi_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {
+      "name": "Jalen Hurts", "slug": "jalen-hurts", "number": "1", "position": "QB", "priority": "franchise-star",
+      "appearanceRef": "https://www.philadelphiaeagles.com/team/players-roster/jalen-hurts/",
+      "poses": [
+        {"action":"idle","silhouette":"relaxed upright quarterback reset with hands near torso","durationMs":900,"loop":true,"eventTags":["idle"]},
+        {"action":"pre-snap","silhouette":"balanced shotgun command posture, hands ready and eyes scanning","durationMs":900,"loop":true,"eventTags":["pre_snap","qb_ready"]},
+        {"action":"dropback","silhouette":"compact controlled drop with ball at chest and shoulders square","durationMs":700,"loop":false,"eventTags":["pass_drop"]},
+        {"action":"throw","silhouette":"full quarterback release with stable front-side transfer and high finish","durationMs":720,"loop":false,"eventTags":["pass_attempt"]},
+        {"action":"scramble","silhouette":"two-hand ball transition into protected quarterback run","durationMs":620,"loop":true,"eventTags":["qb_scramble"]},
+        {"action":"celebrate","silhouette":"restrained team-facing score acknowledgment; no named signature assigned","durationMs":1500,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name": "Saquon Barkley", "slug": "saquon-barkley", "number": "26", "position": "RB", "priority": "franchise-star",
+      "appearanceRef": "https://www.philadelphiaeagles.com/team/players-roster/saquon-barkley/",
+      "poses": [
+        {"action":"idle","silhouette":"balanced running-back reset with compact athletic posture","durationMs":850,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"two-point backfield stance with forward preload","durationMs":700,"loop":true,"eventTags":["pre_snap","rb_ready"]},
+        {"action":"handoff-receive","silhouette":"secure mesh-point pocket closing immediately around ball","durationMs":560,"loop":false,"eventTags":["handoff"]},
+        {"action":"run","silhouette":"powerful forward acceleration with ball high-and-tight and stable head level","durationMs":620,"loop":true,"eventTags":["rush"]},
+        {"action":"catch","silhouette":"hands receive away from frame then immediate secure tuck","durationMs":620,"loop":false,"eventTags":["reception"]},
+        {"action":"celebrate","silhouette":"generic score reaction preserving player likeness; no named signature assigned","durationMs":1600,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name": "DeVonta Smith", "slug": "devonta-smith", "number": "6", "position": "WR", "priority": "star",
+      "appearanceRef": "https://www.philadelphiaeagles.com/team/players-roster/devonta-smith/",
+      "poses": [
+        {"action":"idle","silhouette":"upright receiver reset preserving locked lean build","durationMs":850,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"balanced two-point receiver stance with slight forward preload","durationMs":700,"loop":true,"eventTags":["pre_snap","receiver_ready"]},
+        {"action":"release","silhouette":"quick first two steps with compact hand action and no exaggerated stride","durationMs":520,"loop":false,"eventTags":["snap","route_start"]},
+        {"action":"route-run","silhouette":"smooth receiver sprint with head and shoulders tracking leverage","durationMs":620,"loop":true,"eventTags":["route"]},
+        {"action":"catch","silhouette":"clean hands catch away from body followed by immediate possession tuck","durationMs":640,"loop":false,"eventTags":["reception"]},
+        {"action":"celebrate","silhouette":"confident generic receiver score reaction; no named signature assigned","durationMs":1600,"loop":false,"eventTags":["touchdown","celebration"]}
+      ]
+    },
+    {
+      "name": "Jalen Carter", "slug": "jalen-carter", "number": "98", "position": "DT", "priority": "star",
+      "appearanceRef": "https://www.philadelphiaeagles.com/team/players-roster/jalen-carter/",
+      "poses": [
+        {"action":"idle","silhouette":"broad interior-defender reset preserving locked base proportions","durationMs":850,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"loaded interior defensive-line stance with low pad level","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"rush","silhouette":"explosive interior get-off with compact hands and forward pressure","durationMs":580,"loop":true,"eventTags":["pass_rush"]},
+        {"action":"shed-block","silhouette":"controlled hand clear and lateral disengage into pursuit","durationMs":600,"loop":false,"eventTags":["block_shed"]},
+        {"action":"tackle","silhouette":"safe wrap finish with head placement outside target line","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"fumble-recovery","silhouette":"low secure scoop transitioning into protected two-hand possession","durationMs":800,"loop":false,"eventTags":["fumble_recovery"]},
+        {"action":"celebrate","silhouette":"generic defensive impact celebration; no named signature assigned","durationMs":1500,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    },
+    {
+      "name": "Zack Baun", "slug": "zack-baun", "number": "53", "position": "LB", "priority": "star",
+      "appearanceRef": "https://www.philadelphiaeagles.com/team/players-roster/zack-baun/",
+      "poses": [
+        {"action":"idle","silhouette":"balanced linebacker reset with athletic ready posture","durationMs":850,"loop":true,"eventTags":["idle"]},
+        {"action":"stance","silhouette":"square second-level stance with knees loaded and hands ready","durationMs":700,"loop":true,"eventTags":["pre_snap","defender_ready"]},
+        {"action":"read","silhouette":"controlled lateral key-read posture maintaining square shoulders","durationMs":620,"loop":true,"eventTags":["run_read"]},
+        {"action":"drop-coverage","silhouette":"smooth zone drop with hips open and eyes toward quarterback","durationMs":620,"loop":true,"eventTags":["coverage"]},
+        {"action":"blitz","silhouette":"decisive downhill acceleration with compact arm drive","durationMs":580,"loop":false,"eventTags":["blitz","pass_rush"]},
+        {"action":"tackle","silhouette":"controlled wrap tackle with outside head placement","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},
+        {"action":"celebrate","silhouette":"generic defensive-play acknowledgment; no named signature assigned","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}
+      ]
+    }
+  ],
+  "signatureResearch": {
+    "checkedAt": "2026-09-18",
+    "officialSource": "PhiladelphiaEagles.com current player pages, highlights and news",
+    "result": "No repeatable named player-specific signature celebration was established from the official material reviewed for these five players. Generic celebration slots are retained rather than inventing named signatures."
+  },
+  "qa": {
+    "playerCount": 5,
+    "rosterActionContract": "Every delivered action is contained in each player's authoritative PHI/roster.json inventory.",
+    "numberCheck": "#1 Hurts, #26 Barkley, #6 Smith, #98 Carter and #53 Baun match the current PHI roster snapshot.",
+    "appearanceCheck": "Each player points to the locked current official Eagles headshot page; production must visually inspect it before rendering visible traits.",
+    "consistencyCheck": "Dallas-approved camera, lighting, scale, transparent alpha, anchor and deterministic naming are unchanged."
+  }
+}
