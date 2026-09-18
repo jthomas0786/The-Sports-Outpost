@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-07",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"willie-lampkin","name":"Willie Lampkin","position":"C/G","number":"61","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/willie-lampkin/","baseAsset":"PHI/willie-lampkin/base/phi_willie-lampkin_base_v001","rigArchetype":"interior-line-compact-power","neutralPose":"balanced interior-line stance with compact leverage, controlled knee bend and stable plant feet","productionNotes":["Preserve #61.","Use the current official headshot as the sole authority for visible identity traits; preserve his official player-specific build without deriving appearance from biography.","Rig torso, shoulders, hips and hands for pass-block, run-block, pull and recovery actions while retaining shared camera, scale and anchor."],"qa":["official-headshot-reviewed-before-render","number-61-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"makai-lemon","name":"Makai Lemon","position":"WR","number":"9","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/makai-lemon/","baseAsset":"PHI/makai-lemon/base/phi_makai-lemon_base_v001","rigArchetype":"wide-receiver-balanced-route","neutralPose":"relaxed receiver-ready stance with light knee bend, loose hands and stable ground contact","productionNotes":["Preserve #9.","Maintain current-official-headshot identity across release, route-run, catch and celebration clips.","Rig shoulders, hands, hips and knees for receiver actions without camera, scale or foot-anchor drift; no named signature celebration is asserted in this base phase."],"qa":["official-headshot-reviewed-before-render","number-9-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"braden-mann","name":"Braden Mann","position":"P","number":"10","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/braden-mann/","baseAsset":"PHI/braden-mann/base/phi_braden-mann_base_v001","rigArchetype":"punter-specialist-athletic","neutralPose":"upright specialist-ready stance with relaxed arms, balanced feet and clean ground contact","productionNotes":["Preserve #10.","Use current official headshot as sole visual identity authority.","Rig catching hands, plant leg and kicking leg for catch-snap, punt, directional-punt and coffin-corner clips while preserving identity geometry and bottom-center anchor."],"qa":["official-headshot-reviewed-before-render","number-10-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"tanner-mckee","name":"Tanner McKee","position":"QB","number":"16","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/tanner-mckee/","baseAsset":"PHI/tanner-mckee/base/phi_tanner-mckee_base_v001","rigArchetype":"quarterback-tall-pocket","neutralPose":"balanced quarterback ready stance with relaxed throwing arm, slight knee bend and stable feet","productionNotes":["Preserve #16.","Keep current-official-headshot identity and official player-specific build stable through pre-snap, dropback, throw and scramble clips.","Rig throwing shoulder, elbow, wrist, hips and feet for clean quarterback mechanics without changing approved Gamecast camera or anchor; no named signature celebration is claimed."],"qa":["official-headshot-reviewed-before-render","number-16-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"mac-mcwilliams","name":"Mac McWilliams","position":"CB","number":"22","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/mac-mcwilliams/","baseAsset":"PHI/mac-mcwilliams/base/phi_mac-mcwilliams_base_v001","rigArchetype":"cornerback-compact-athletic","neutralPose":"balanced defensive-back ready stance with light knee bend, loose hands and square stable feet","productionNotes":["Preserve #22.","Keep current-official-headshot identity stable through press, backpedal, coverage, tackle and interception clips.","Rig for rapid hip turn, ball tracking and interception poses without scale or foot-anchor drift; do not invent a named signature celebration."],"qa":["official-headshot-reviewed-before-render","number-22-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-17",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five players are drawn from the locked current PHI active-roster snapshot and retain its current jersey numbers.","Official Philadelphia player pages were rechecked for this batch before specification.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names.","Position-appropriate rig requirements align with roster.json action inventories.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
