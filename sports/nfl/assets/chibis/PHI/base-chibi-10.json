@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "season": 2026,
+  "batch": "base-chibi-10",
+  "assetType": "production-base-chibi-spec",
+  "styleContract": {
+    "style": "realistic 3D chibi",
+    "background": "transparent",
+    "camera": "three-quarter front; identical approved Dallas production camera",
+    "lighting": "soft stadium key plus cool rim; identical approved Dallas production lighting",
+    "footAnchor": "bottom-center ground-contact anchor",
+    "scaleRule": "Normalize standing height to the shared NFL Gamecast character box while preserving official player-specific build differences.",
+    "uniform": "Current Philadelphia uniform treatment; current jersey number required; no invented accessories.",
+    "appearanceRule": "Render complexion, hair, facial hair and visible facial traits only from visual inspection of the cited current official Philadelphia headshot. Never infer appearance from name, biography, position or heritage.",
+    "reuseRule": "Neutral base mesh, materials, textures and rig binding are authoritative for later action clips; identity geometry must remain stable between actions.",
+    "animationNaming": "phi_<player-slug>_<action>_v001"
+  },
+  "players": [
+    {"slug":"will-shipley","name":"Will Shipley","position":"RB","number":"28","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/will-shipley/","baseAsset":"PHI/will-shipley/base/phi_will-shipley_base_v001","rigArchetype":"running-back-balanced-run-receive","neutralPose":"balanced running-back ready stance with light knee bend, relaxed hands and stable ground contact","productionNotes":["Preserve #28.","Use the current official Eagles headshot as sole authority for visible identity traits.","Rig shoulders, elbows, hips and knees for handoff-receive, run, catch and celebration actions without camera, scale or anchor drift; no named signature celebration is asserted here."],"qa":["official-headshot-reviewed-before-render","number-28-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"devonta-smith","name":"DeVonta Smith","position":"WR","number":"6","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/devonta-smith/","baseAsset":"PHI/devonta-smith/base/phi_devonta-smith_base_v001","rigArchetype":"wide-receiver-route-catch","neutralPose":"balanced receiver ready stance with light knee bend, relaxed hands and stable feet","productionNotes":["Preserve #6.","Use the current official Eagles headshot as sole visual identity authority; preserve official player-specific build within shared Gamecast scale.","Rig shoulders, hands, hips and knees for release, route-run, catch and celebration clips without identity or foot-anchor drift. Signature research belongs to the signature-sequences phase; no named signature is asserted here."],"qa":["official-headshot-reviewed-before-render","number-6-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"nolan-smith-jr","name":"Nolan Smith Jr.","position":"OLB","number":"3","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/nolan-smith/","baseAsset":"PHI/nolan-smith-jr/base/phi_nolan-smith-jr_base_v001","rigArchetype":"edge-rusher-speed-power","neutralPose":"compact edge-defender ready stance with controlled knee bend, loose hands and balanced ground contact","productionNotes":["Preserve #3.","Use the current official Eagles headshot as sole authority for visible identity traits.","Rig torso, shoulders, hips and hands for rush, shed-block, tackle, sack and celebration actions while retaining approved camera, scale and foot anchor; no named signature celebration is asserted here."],"qa":["official-headshot-reviewed-before-render","number-3-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"tyler-steen","name":"Tyler Steen","position":"G","number":"56","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/tyler-steen/","baseAsset":"PHI/tyler-steen/base/phi_tyler-steen_base_v001","rigArchetype":"interior-offensive-line-power-mobility","neutralPose":"balanced offensive-line stance with broad stable base, controlled knee bend and ready hands","productionNotes":["Preserve #56.","Use the current official Eagles headshot as sole visual identity authority and preserve official player-specific build proportions within shared Gamecast scale.","Rig torso, shoulders, hips and hands for pass-block, run-block, pull and fumble-recovery actions without identity, scale or foot-anchor drift."],"qa":["official-headshot-reviewed-before-render","number-56-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]},
+    {"slug":"jeremiah-trotter-jr","name":"Jeremiah Trotter Jr.","position":"LB","number":"54","officialHeadshotPage":"https://www.philadelphiaeagles.com/team/players-roster/jeremiah-trotter-jr/","baseAsset":"PHI/jeremiah-trotter-jr/base/phi_jeremiah-trotter-jr_base_v001","rigArchetype":"linebacker-read-cover-blitz","neutralPose":"balanced linebacker ready stance with light knee bend, loose hands and square stable feet","productionNotes":["Preserve #54.","Use the current official Eagles headshot as sole authority for visible identity traits; biography and family references are not appearance sources.","Rig hips, shoulders and hands for read, drop-coverage, blitz, tackle and celebration actions without scale or anchor drift. Do not convert the official-page nickname Axe Man Jr. into a named signature animation without separate celebration evidence."],"qa":["official-headshot-reviewed-before-render","number-54-visible-and-correct","transparent-alpha-clean","bottom-center-foot-anchor","identity-stable-across-actions"]}
+  ],
+  "gamecastContract": {
+    "requiredOutputsPerPlayer": ["neutral base asset","shared skeleton/rig binding","material/texture identity lock","player-scale metadata","foot-anchor metadata"],
+    "futureActionSource": "sports/nfl/assets/chibis/PHI/roster.json action inventory",
+    "phaseBoundary": "This batch specifies five reusable production base chibis only; action poses and signature sequences are not marked complete here."
+  },
+  "verification": {
+    "checkedAt": "2026-09-18",
+    "officialRosterSource": "https://www.philadelphiaeagles.com/team/players-roster/",
+    "officialTransactionSource": "https://www.philadelphiaeagles.com/team/transactions/",
+    "notes": ["All five players are drawn from the locked current PHI active-roster snapshot and retain its current jersey numbers.","Official Philadelphia player pages/headshots were freshly rechecked where indexed for this batch; roster.json remains authoritative for batch membership and action inventory.","Appearance remains current-official-headshot authoritative; no complexion, hair, facial hair or facial features are inferred from names or biography.","Position-appropriate rig requirements align with roster.json action inventories.","No named signature celebration is invented in this base phase.","No MLB or NHL integration files are modified by this batch."]
+  }
+}
