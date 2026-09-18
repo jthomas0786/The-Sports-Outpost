@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "action-poses",
+  "batch": "action-poses-10",
+  "season": 2026,
+  "productionContract": {
+    "style": "approved realistic 3D chibi",
+    "camera": "three-quarter Gamecast hero angle; preserve player-facing direction per action",
+    "lighting": "shared neutral stadium key/fill/rim rig matching approved Dallas production",
+    "background": "transparent alpha",
+    "anchor": "bottom-center between planted feet; airborne actions retain projected ground anchor",
+    "scale": "player-specific body proportions from locked base chibi; no per-action rescaling",
+    "appearance": "reuse locked current official PhiladelphiaEagles.com headshot appearance and skin tone; never infer appearance from name",
+    "uniform": "Philadelphia current uniform geometry with current roster number locked across frames",
+    "naming": "phi_<player-slug>_<action>_v001",
+    "delivery": ["transparent WebP/PNG key pose", "animation metadata", "Gamecast event tags"]
+  },
+  "players": [
+    {"name":"Will Shipley","slug":"will-shipley","number":"28","position":"RB","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/will-shipley/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"handoff-receive","durationMs":620,"loop":false,"eventTags":["handoff"]},{"action":"run","durationMs":620,"loop":true,"eventTags":["rush"]},{"action":"catch","durationMs":740,"loop":false,"eventTags":["reception"]},{"action":"celebrate","durationMs":1400,"loop":false,"eventTags":["touchdown","celebration"]}]},
+    {"name":"Tyler Steen","slug":"tyler-steen","number":"56","position":"G","priority":"starter","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/tyler-steen/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"pass-block","durationMs":760,"loop":true,"eventTags":["pass_protection"]},{"action":"run-block","durationMs":760,"loop":true,"eventTags":["run_block"]},{"action":"pull","durationMs":720,"loop":false,"eventTags":["pull_block"]},{"action":"recover-fumble","durationMs":820,"loop":false,"eventTags":["fumble_recovery"]}]},
+    {"name":"Jeremiah Trotter Jr.","slug":"jeremiah-trotter-jr","number":"54","position":"LB","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/jeremiah-trotter-jr/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"read","durationMs":620,"loop":true,"eventTags":["read"]},{"action":"drop-coverage","durationMs":650,"loop":true,"eventTags":["coverage"]},{"action":"blitz","durationMs":650,"loop":false,"eventTags":["blitz"]},{"action":"tackle","durationMs":720,"loop":false,"eventTags":["tackle","play_end"]},{"action":"celebrate","durationMs":1450,"loop":false,"eventTags":["defensive_play","celebration"]}]},
+    {"name":"Rocco Underwood","slug":"rocco-underwood","number":"41","position":"LS","priority":"specialist","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/rocco-underwood/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"long-snap-punt","durationMs":620,"loop":false,"eventTags":["punt_snap"]},{"action":"long-snap-field-goal","durationMs":620,"loop":false,"eventTags":["field_goal_snap","extra_point_snap"]},{"action":"coverage","durationMs":650,"loop":true,"eventTags":["kick_coverage","punt_coverage"]},{"action":"tackle","durationMs":720,"loop":false,"eventTags":["special_teams_tackle","play_end"]}]},
+    {"name":"Dontayvion Wicks","slug":"dontayvion-wicks","number":"13","position":"WR","priority":"rotation","appearanceRef":"https://www.philadelphiaeagles.com/team/players-roster/dontayvion-wicks/","poses":[{"action":"idle","durationMs":850,"loop":true,"eventTags":["idle"]},{"action":"stance","durationMs":700,"loop":true,"eventTags":["pre_snap"]},{"action":"release","durationMs":560,"loop":false,"eventTags":["route_release"]},{"action":"route-run","durationMs":640,"loop":true,"eventTags":["route"]},{"action":"catch","durationMs":740,"loop":false,"eventTags":["reception"]},{"action":"celebrate","durationMs":1400,"loop":false,"eventTags":["touchdown","celebration"]}]}
+  ],
+  "signatureResearch": {
+    "checkedAt": "2026-09-18",
+    "officialSource": "PhiladelphiaEagles.com current player pages and 2026 roster material",
+    "result": "No repeatable named player-specific signature celebration was verified in official team material for this batch. Jeremiah Trotter Jr.'s Axe Man Jr. is documented as a nickname, not a celebration, so it is not encoded as a signature sequence."
+  },
+  "qa": {
+    "playerCount": 5,
+    "rosterActionContract": "Every delivered action exactly matches each player's authoritative PHI/roster.json inventory.",
+    "numberCheck": "#28 Shipley, #56 Steen, #54 Trotter, #41 Underwood and #13 Wicks match current official Philadelphia player material checked 2026-09-18.",
+    "appearanceCheck": "Every player points to a current official Eagles headshot page; visible traits and skin tone must be matched from that image at render time and never inferred from name.",
+    "consistencyCheck": "Dallas-approved realistic 3D camera, neutral stadium lighting, player-specific scale, transparent alpha, projected foot anchor and deterministic naming remain unchanged."
+  }
+}
