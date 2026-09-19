@@ -1,147 +1,119 @@
 from pathlib import Path
 import re
 
-
-def read(path):
-    return Path(path).read_text()
-
-
-def write(path, text):
+def read(path): return Path(path).read_text()
+def write(path,text):
+    Path(path).parent.mkdir(parents=True,exist_ok=True)
     Path(path).write_text(text)
-
-
-def replace_once(text, old, new, label):
-    count = text.count(old)
-    if count != 1:
-        raise SystemExit(f'{label}: expected exactly one match, found {count}')
-    return text.replace(old, new, 1)
-
-
-def regex_once(text, pattern, repl, label, flags=0):
-    out, n = re.subn(pattern, repl, text, count=1, flags=flags)
-    if n != 1:
-        raise SystemExit(f'{label}: expected exactly one regex match, found {n}')
+def one(text,pattern,repl,label,flags=0):
+    out,n=re.subn(pattern,repl,text,count=1,flags=flags)
+    if n!=1: raise SystemExit(f'{label}: expected 1 match, found {n}')
     return out
 
+# Base: simulation-only row path + native Bet Style/Prop controls.
+p='sports/nfl/player-prop-tool-v926.js'; s=read(p)
+s=one(s,r"const state=\{mode:'picks',game:'ALL',market:'ALL',team:'ALL',search:'',sort:'edge',sortDir:'desc',positions:new Set\(POSITIONS\),color:true,minProb:0\.52,filtersOpen:false\};",
+      "const state={mode:'tsoPick',game:'ALL',market:'ALL',team:'ALL',search:'',sort:'edge',sortDir:'desc',positions:new Set(POSITIONS),color:true,minProb:0.52,filtersOpen:false};",'state')
+build=r'''function buildRows(docs){
+  const oIndex=buildOddsIndex(docs.odds),sIndex=buildSimIndex(docs.sim);const rows=[];
+  for(const g of docs.slate?.games||[]){
+    if(g.status&&g.status!=='pre')continue;
+    const og=oIndex.get(String(g.gameId))||oIndex.get(`${team(g.away?.abbr)}-${team(g.home?.abbr)}`),sg=sIndex.get(String(g.gameId));
+    for(const p of g.players||[]){
+      if(!POSITIONS.includes(String(p.position||'').toUpperCase()))continue;
+      const op=matchOddsPlayer(og,p);if(!op?.odds)continue;const sp=matchSimPlayer(sg,p);
+      for(const [key,meta] of Object.entries(MARKET_META)){
+        const om=op.odds?.[key];if(!om)continue;if(meta.positions&&!meta.positions.includes(String(p.position||'').toUpperCase()))continue;
+        const line=key==='atd'?0.5:num(om.line);if(line==null)continue;const dist=sp?.distributions?.[meta.stat]||null;
+        const proj=key==='atd'?num(sp?.probabilities?.atd):num(dist?.mean),overProb=simProbability(sp,key,line,'over'),underProb=simProbability(sp,key,line,'under');
+        let side='over',prob=overProb;if(key!=='atd'&&underProb!=null&&(overProb==null||underProb>overProb)){side='under';prob=underProb;}
+        const offer=key==='atd'?om.best:om?.[side]?.best,price=num(offer?.price),implied=impliedFromAmerican(price),edge=prob!=null&&implied!=null?prob-implied:null,pos=String(p.position||'').toUpperCase();
+        rows.push({id:`${g.gameId}|${p.gsisId||p.espnId||p.name}|${key}`,gameId:String(g.gameId),game:`${g.away?.abbr} @ ${g.home?.abbr}`,kickoff:g.startTimeUTC,playerId:String(p.gsisId||p.espnId||p.name),espnId:p.espnId||null,gsisId:p.gsisId||null,name:p.name,team:team(p.team),opp:team(p.opponent),position:pos,headshot:p.headshot||'',market:key,marketLabel:meta.short,line,side,book:offer?.book||'',price,proj,prob,edge,l10Avg:num(dist?.median),l5:null,l10:null,h2h:null,defRank:null,defTotal:null,defValue:null,matchup:'SIM',matchupTone:'neutral'});
+      }
+    }
+  }
+  return rows;
+}
+'''
+s=one(s,r"function buildRows\(docs\)\{.*?\n\}\nfunction rowsForDocs",build+"function rowsForDocs",'buildRows',re.S)
+qual=r'''function qualify(row){if(!state.positions.has(row.position))return false;if(state.game!=='ALL'&&row.gameId!==state.game)return false;if(state.market!=='ALL'&&row.market!==state.market)return false;if(state.team!=='ALL'&&row.team!==state.team)return false;if(state.search){const q=norm(state.search);if(!norm(`${row.name} ${row.team} ${row.opp} ${row.position} ${row.marketLabel} ${row.game}`).includes(q))return false;}return true;}
+'''
+s=one(s,r"function qualify\(row\)\{.*?\}\nfunction sortRows",qual+"function sortRows",'qualify',re.S)
+controls=r'''function controlsHtml(docs,rows){const games=[...new Map((docs.slate?.games||[]).filter(g=>!g.status||g.status==='pre').map(g=>[String(g.gameId),g])).values()],teams=[...new Set(rows.map(r=>r.team))].sort(),styles=[['tsoPick','TSO Pick'],['safest','Safest'],['bestEdge','Best Edge'],['balanced','Balanced'],['aggressive','Aggressive'],['correlated','Correlated'],['longshot','Longshot']];return`<div class="nfl-ppt-toolbar"><div class="nfl-ppt-selects"><label><span>Bet Style</span><select id="nflPptMode" data-nfl-ppt-authority-select="94.5">${styles.map(([v,l])=>`<option value="${v}" ${state.mode===v?'selected':''}>${l}</option>`).join('')}</select></label><label><span>Game</span><select id="nflPptGame"><option value="ALL">All Games</option>${games.map(g=>`<option value="${esc(g.gameId)}" ${state.game===String(g.gameId)?'selected':''}>${esc(g.away?.abbr)} @ ${esc(g.home?.abbr)}</option>`).join('')}</select></label><label><span>Prop</span><select id="nflPptMarket"><option value="ALL">All Props</option>${Object.entries(MARKET_META).map(([k,m])=>`<option value="${k}" ${state.market===k?'selected':''}>${esc(m.label)}</option>`).join('')}</select></label></div><div class="nfl-ppt-positions">${POSITIONS.map(p=>`<button type="button" data-nfl-ppt-pos="${p}" class="${state.positions.has(p)?'active':''}">${p}</button>`).join('')}</div><div class="nfl-ppt-actions"><button type="button" id="nflPptGuide">Quick Guide</button><button type="button" id="nflPptColor" class="toggle ${state.color?'on':''}"><span>Color Cells</span><i></i></button><button type="button" id="nflPptFilters">Filters ⚙</button><button type="button" id="nflPptRefresh">Refresh ↻</button></div></div><div class="nfl-ppt-filter-panel" id="nflPptFilterPanel" ${state.filtersOpen?'':'hidden'}><label>Search<input id="nflPptSearch" type="search" value="${esc(state.search)}" placeholder="Player, team, matchup…"></label><label>Team<select id="nflPptTeam"><option value="ALL">All Teams</option>${teams.map(t=>`<option value="${t}" ${state.team===t?'selected':''}>${t}</option>`).join('')}</select></label><label>Min Cov Prob<select id="nflPptMin"><option value="0.50" ${state.minProb===.5?'selected':''}>50%</option><option value="0.52" ${state.minProb===.52?'selected':''}>52%</option><option value="0.55" ${state.minProb===.55?'selected':''}>55%</option><option value="0.60" ${state.minProb===.6?'selected':''}>60%</option></select></label><button type="button" id="nflPptClear">Clear Filters</button></div>`;}
+'''
+s=one(s,r"function controlsHtml\(docs,rows\)\{.*?\nfunction headerHtml",controls+"\nfunction headerHtml",'controls',re.S)
+s=s.replace('MODEL PROB','COV PROB')
+s=s.replace("Object.assign(state,{game:'ALL',market:'ALL',team:'ALL',search:'',mode:'picks',sort:'edge',sortDir:'desc',minProb:.52,filtersOpen:true});","Object.assign(state,{game:'ALL',market:'ALL',team:'ALL',search:'',sort:'edge',sortDir:'desc',minProb:.52,filtersOpen:true});")
+s=s.replace("if(t.id==='nflPptMode')state.mode=t.value;else if(t.id==='nflPptGame')state.game=t.value;","if(t.id==='nflPptMode')return;else if(t.id==='nflPptGame')state.game=t.value;")
+s=one(s,r"export const __NFL_PLAYER_PROP_TOOL_V926_TEST__=\{([^}]*)\};",r"export const __NFL_PLAYER_PROP_TOOL_V926_TEST__={\1,getCachedDocs:()=>cache};",'export')
+write(p,s)
 
-# 1) Make v94.4 the single authority for Bet Style + period columns.
-p = 'sports/nfl/player-prop-tool-build-period-v940.js'
-s = read(p)
-s = replace_once(s, "const VERSION='94.2';", "const VERSION='94.4';", 'v940 version')
-s = replace_once(s, "player-prop-tool-build-period-v940.css?v=94.2", "player-prop-tool-build-period-v940.css?v=94.4", 'v940 css cache')
-s = replace_once(s, "let patchTimers=[];\nconst tableSnapshots=new WeakMap();", "let patchTimers=[];\nlet applyGeneration=0;\nconst tableSnapshots=new WeakMap();", 'apply generation state')
-s = replace_once(s, "const market=String(row?.dataset?.nflPptSimMarket||row?.dataset?.snapshotMarket||'');", "const market=String(row?.dataset?.snapshotMarket||row?.dataset?.nflPptSimMarket||'');", 'stable market identity')
-s = replace_once(s, "for(const item of snap.rows){item.row.innerHTML=item.html;restoreRowDataset(item.row,item.data);item.row.hidden=false;tbody?.appendChild(item.row);}", "for(const item of snap.rows){item.row.innerHTML=item.html;restoreRowDataset(item.row,item.data);tbody?.appendChild(item.row);}", 'preserve row visibility during restore')
-s = replace_once(s, "if(filterState.positions?.size&&d.snapshotPosition&&!filterState.positions.has(d.snapshotPosition))return false;", "if(filterState.positions&&d.snapshotPosition&&!filterState.positions.has(d.snapshotPosition))return false;", 'position filter authority')
+# Snapshot: explicit ready event, no View semantics, authority eligibility respected.
+p='sports/nfl/player-prop-tool-snapshot-v928.js'; s=read(p)
+s=s.replace("./player-prop-tool-v926.js?v=92.7","./player-prop-tool-v926.js?v=94.5").replace("  state.mode='all';\n","").replace("  setValue('#nflPptMode',state.mode);\n","")
+s=s.replace("Object.assign(state,{game:'ALL',market:'ALL',team:'ALL',search:'',mode:'picks',sort:'edge',sortDir:'desc',minProb:.52,filtersOpen:true});","Object.assign(state,{game:'ALL',market:'ALL',team:'ALL',search:'',sort:'edge',sortDir:'desc',minProb:.52,filtersOpen:true});")
+sq=r'''function qualifies(row){const d=row.dataset;if(d.nflPptAuthorityEligible==='0')return false;if(!state.positions.has(d.snapshotPosition))return false;if(state.game!=='ALL'){const gameKey=gameKeyById.get(String(state.game));if(gameKey&&d.snapshotGame!==gameKey)return false;}if(state.market!=='ALL'&&d.snapshotMarket!==state.market)return false;if(state.team!=='ALL'&&d.snapshotTeam!==state.team)return false;if(state.search&&!(d.snapshotSearch||'').includes(norm(state.search)))return false;const prob=d.snapshotProb===''?null:Number(d.snapshotProb);if(prob!=null&&Number(state.minProb)>0&&prob<Number(state.minProb))return false;return true;}
+'''
+s=one(s,r"function qualifies\(row\)\{.*?\n\}\nfunction sortValue",sq+"function sortValue",'snapshot qualify',re.S)
+s=s.replace("  if(t.id==='nflPptMode')state.mode=t.value;\n  else if(t.id==='nflPptGame')state.game=t.value;","  if(t.id==='nflPptMode')return;\n  else if(t.id==='nflPptGame')state.game=t.value;")
+s=s.replace("  tool.dataset.nflPptSnapshotRows=String(tool.querySelectorAll('.nfl-ppt-table tbody tr[data-nfl-ppt-row]').length);\n  applySnapshot({reorder:true});","  tool.dataset.nflPptSnapshotRows=String(tool.querySelectorAll('.nfl-ppt-table tbody tr[data-nfl-ppt-row]').length);\n  document.dispatchEvent(new CustomEvent('tso:nfl-player-prop-snapshot-ready',{detail:{tool}}));\n  applySnapshot({reorder:true});")
+s=s.replace("  window.addEventListener('hashchange',onHashChange);\n}","  window.addEventListener('hashchange',onHashChange);\n  window.__TSO_NFL_PROP_SNAPSHOT_V928__={apply:(options={})=>applySnapshot(options),decorateRow,requestApply};\n}")
+write(p,s)
 
-period_header_fn = "function patchPeriodHeaders(table,label){\n  const heads=[...table.querySelectorAll('thead tr:nth-child(2) th')],labels=['PLAYER','TSO LINE','SIM LEAN','SIM MEAN','SIM MED','SIM PROB','SIM EDGE','P10','P25','P75','P90','RANGE','RUNS'];heads.forEach((th,i)=>{if(labels[i])th.textContent=labels[i];if(i!==0)th.removeAttribute('data-sort');});\n  const groups=[...table.querySelectorAll('.nfl-ppt-groups th')];if(groups[1])groups[1].textContent=`${label} · 50K SIM PROJECTION + VALUE`;if(groups[2])groups[2].textContent='SIM DISTRIBUTION';if(groups[3])groups[3].textContent='SIM RANGE + SAMPLE';\n}"
-full_and_period = "function patchFullHeaders(table){\n  const heads=[...table.querySelectorAll('thead tr:nth-child(2) th')],labels=['PLAYER','CONSENSUS','PICK','SIM MEAN','SIM MED','SIM PROB','SIM EDGE','P10','P25','P75','P90','RANGE','RUNS'];\n  heads.forEach((th,i)=>{if(labels[i])th.textContent=labels[i];});\n  const groups=[...table.querySelectorAll('.nfl-ppt-groups th')];if(groups[1])groups[1].textContent='50K SPORTSBOOK PICK + VALUE';if(groups[2])groups[2].textContent='SIM DISTRIBUTION';if(groups[3])groups[3].textContent='SIM RANGE + SAMPLE';\n  table.dataset.nflPptBuildVersion=VERSION;\n}\n" + period_header_fn
-s = replace_once(s, period_header_fn, full_and_period, 'authoritative full headers')
+# Remove stale writers at source.
+stubs={
+'sports/nfl/player-prop-tool-sim-v939.js':"export function installNflPlayerPropToolSimV939(){return false;}\nexport const __NFL_PLAYER_PROP_TOOL_SIM_V939_TEST__={compatibilityOnly:true};\n",
+'sports/nfl/player-prop-tool-controls-v933.js':"export function installNflPlayerPropToolControlsV933(){return false;}\nexport const __NFL_PLAYER_PROP_TOOL_CONTROLS_V933_TEST__={compatibilityOnly:true};\n",
+'sports/nfl/player-prop-tool-build-period-v940.js':"export function installNflPlayerPropToolBuildPeriodV940(){return false;}\nexport const __NFL_PLAYER_PROP_TOOL_BUILD_PERIOD_V940_TEST__={compatibilityOnly:true};\n",
+'sports/nfl/player-prop-tool-reference-v941.js':"export function installNflPlayerPropToolReferenceV941(){return false;}\nexport const __NFL_PLAYER_PROP_TOOL_REFERENCE_V941_TEST__={compatibilityOnly:true};\n"}
+for path,text in stubs.items(): write(path,text)
 
-s = replace_once(s,
-"async function applyFullBuild(table){\n  const snap=restoreFull(table),sim=await readSim();if(!table.isConnected)return false;",
-"async function applyFullBuild(table,generation){\n  const sim=await readSim();if(!table.isConnected||generation!==applyGeneration)return false;\n  const snap=restoreFull(table);patchFullHeaders(table);",
-'full async race guard')
-s = replace_once(s,
-"async function applyPeriodBuild(table){\n  const snap=restoreFull(table),sim=await readSim();if(!table.isConnected||period==='full')return applyFullBuild(table);",
-"async function applyPeriodBuild(table,generation){\n  const sim=await readSim();if(!table.isConnected||generation!==applyGeneration)return false;if(period==='full')return applyFullBuild(table,generation);\n  const snap=restoreFull(table);",
-'period async race guard')
-s = replace_once(s,
-"function updateCount(tool){if(!tool)return;const rows=[...tool.querySelectorAll('tbody tr[data-nfl-ppt-row]')],count=tool.querySelector('.nfl-ppt-head-stat b');if(count)count.textContent=String(rows.filter(r=>!r.hidden).length);}",
-"function updateCount(tool){if(!tool)return;const rows=[...tool.querySelectorAll('tbody tr[data-nfl-ppt-row]')],visible=rows.filter(r=>!r.hidden).length,count=tool.querySelector('.nfl-ppt-head-stat b');if(count)count.textContent=String(visible);const empty=tool.querySelector('.nfl-ppt-snapshot-empty');if(empty)empty.hidden=visible!==0;}",
-'count + empty state sync')
+# Production wrapper: only v94.5 authority owns table data/columns.
+p='sports/nfl-preview-v893.js'; s=read(p)
+s=s.replace("./nfl/player-prop-tool-v926.js?v=92.7","./nfl/player-prop-tool-v926.js?v=94.5").replace("./nfl/player-prop-tool-snapshot-v928.js?v=93.2","./nfl/player-prop-tool-snapshot-v928.js?v=94.5")
+for pat in [r"import \{ installNflPlayerPropToolSimV939 \}.*?\n",r"import \{ installNflPlayerPropToolControlsV933 \}.*?\n",r"import \{ installNflPlayerPropToolBuildPeriodV940 \}.*?\n",r"import \{ installNflPlayerPropToolReferenceV941 \}.*?\n"]:
+    s=re.sub(pat,'',s)
+if "installNflPlayerPropToolAuthorityV945" not in s:
+    s=s.replace("import { installNflPlayerPropToolUxV930 } from './nfl/player-prop-tool-ux-v930.js?v=93.7';\n","import { installNflPlayerPropToolUxV930 } from './nfl/player-prop-tool-ux-v930.js?v=93.7';\nimport { installNflPlayerPropToolAuthorityV945 } from './nfl/player-prop-tool-authority-v945.js?v=94.5';\n")
+for call in ['installNflPlayerPropToolSimV939();','installNflPlayerPropToolControlsV933();','installNflPlayerPropToolBuildPeriodV940();','installNflPlayerPropToolReferenceV941();']:
+    s=s.replace('    '+call+'\n','')
+s=s.replace("    installNflPlayerPropToolUxV930();\n","    installNflPlayerPropToolUxV930();\n    installNflPlayerPropToolAuthorityV945();\n")
+s=re.sub(r"\[NFL Player Prop Tool v[0-9.]+\]","[NFL Player Prop Tool v94.5]",s)
+write(p,s)
 
-old_select = "function patchBetStyleSelect(tool){\n  const select=tool.querySelector('#nflPptMode');if(!select)return false;\n  const current=[...select.options].map(o=>o.value).join('|'),wanted=BUILD_STYLES.map(x=>x[0]).join('|');\n  if(select.dataset.nflPptBuildStyle!==VERSION||current!==wanted){select.innerHTML=BUILD_STYLES.map(([value,label])=>`<option value=\"${value}\">${label}</option>`).join('');select.dataset.nflPptBuildStyle=VERSION;}\n  select.value=buildStyle;select.setAttribute('aria-label','Bet Style');select.title=STYLE_COPY[buildStyle]||'';\n  const label=select.closest('label'),span=label?.querySelector(':scope > span');if(span)span.textContent='Bet Style';\n  if(label)label.title=STYLE_COPY[buildStyle]||'';\n  return true;\n}"
-new_select = "function patchBetStyleSelect(tool){\n  let select=tool.querySelector('#nflPptMode');if(!select)return false;\n  const current=[...select.options].map(o=>o.value).join('|'),wanted=BUILD_STYLES.map(x=>x[0]).join('|');\n  if(select.dataset.nflPptBuildStyle!==VERSION||current!==wanted){\n    const replacement=select.cloneNode(false);\n    replacement.innerHTML=BUILD_STYLES.map(([value,label])=>`<option value=\"${value}\">${label}</option>`).join('');\n    replacement.dataset.nflPptBuildStyle=VERSION;replacement.removeAttribute('data-nfl-ppt-mode');select.replaceWith(replacement);select=replacement;\n  }\n  select.value=buildStyle;select.setAttribute('aria-label','Bet Style');select.title=STYLE_COPY[buildStyle]||'';\n  const label=select.closest('label'),span=label?.querySelector(':scope > span');if(span)span.textContent='Bet Style';\n  if(label)label.title=STYLE_COPY[buildStyle]||'';\n  return true;\n}"
-s = replace_once(s, old_select, new_select, 'replace legacy View select node')
+# Cache bust.
+p='sports/router.js'; s=read(p); s=one(s,r"import\('\./nfl-preview-v893\.js\?v=[^']+'\)","import('./nfl-preview-v893.js?v=94.5')",'router'); write(p,s)
+p='index.html'; s=read(p); m=re.search(r'\./sports/router\.js\?v=(\d+)\.(\d+)',s)
+if not m: raise SystemExit('index router marker missing')
+s=one(s,r'\./sports/router\.js\?v=(\d+)\.(\d+)',f'./sports/router.js?v={m.group(1)}.{int(m.group(2))+1}','index'); write(p,s)
 
-s = replace_once(s,
-"async function applyCurrent(){\n  const tool=document.getElementById(TOOL_ID),table=tool?.querySelector('.nfl-ppt-table');if(!tool||!table||table.dataset.nflPptSimV939!=='93.9')return false;saveSnapshot(table);tool.dataset.nflPptBuildStyle=buildStyle;tool.dataset.nflPptPeriod=period;return period==='full'?applyFullBuild(table):applyPeriodBuild(table);\n}",
-"async function applyCurrent(){\n  const tool=document.getElementById(TOOL_ID),table=tool?.querySelector('.nfl-ppt-table');if(!tool||!table||table.dataset.nflPptSimV939!=='93.9')return false;const generation=++applyGeneration;saveSnapshot(table);tool.dataset.nflPptBuildStyle=buildStyle;tool.dataset.nflPptPeriod=period;return period==='full'?applyFullBuild(table,generation):applyPeriodBuild(table,generation);\n}",
-'applyCurrent generation')
-s = s.replace('[NFL Player Prop Tool v94.2]', '[NFL Player Prop Tool v94.4]')
+# Static regression.
+write('scripts/nfl-player-prop-tool-v945-selftest.mjs',r'''import fs from'node:fs';import assert from'node:assert/strict';
+const base=fs.readFileSync('sports/nfl/player-prop-tool-v926.js','utf8'),snap=fs.readFileSync('sports/nfl/player-prop-tool-snapshot-v928.js','utf8'),auth=fs.readFileSync('sports/nfl/player-prop-tool-authority-v945.js','utf8'),preview=fs.readFileSync('sports/nfl-preview-v893.js','utf8'),router=fs.readFileSync('sports/router.js','utf8');
+assert.ok(preview.includes('installNflPlayerPropToolAuthorityV945'));for(const x of['installNflPlayerPropToolSimV939','installNflPlayerPropToolControlsV933','installNflPlayerPropToolBuildPeriodV940','installNflPlayerPropToolReferenceV941'])assert.ok(!preview.includes(x));
+assert.ok(base.includes('<span>Bet Style</span><select id="nflPptMode"'));assert.ok(base.includes('<span>Prop</span><select id="nflPptMarket"'));assert.ok(!base.includes('<span>Week</span><select id="nflPptWeek"'));assert.ok(base.includes('getCachedDocs:()=>cache'));
+assert.ok(snap.includes('tso:nfl-player-prop-snapshot-ready'));assert.ok(snap.includes("d.nflPptAuthorityEligible==='0'"));
+assert.ok(auth.includes("const HEADERS=['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H']"));assert.ok(!auth.includes('fetch('));assert.ok(!auth.includes('MutationObserver')&&!auth.includes('setInterval(')&&!auth.includes('setTimeout('));assert.ok(auth.includes('base?.getCachedDocs?.()'));assert.ok(router.includes('nfl-preview-v893.js?v=94.5'));console.log('✓ NFL Player Prop Tool v94.5 single authority passed');
+''')
 
-old_click = "function onClickCapture(event){\n  const periodButton=event.target.closest?.(`#${TOOL_ID} [data-nfl-ppt-period]`);if(periodButton){period=PERIODS.some(x=>x[0]===periodButton.dataset.nflPptPeriod)?periodButton.dataset.nflPptPeriod:'full';const tool=document.getElementById(TOOL_ID);patchPeriodBar(tool);applyCurrent();return;}\n  if(event.target.closest?.(`#${TOOL_ID} #nflPptRefresh`)){simCache=null;simPromise=null;tableSnapshots.delete(document.querySelector(`#${TOOL_ID} .nfl-ppt-table`));schedulePatch();return;}\n  if(event.target.closest?.(`#${TOOL_ID}`))setTimeout(schedulePatch,0);\n}\nfunction onInputCapture(event){if(event.target.closest?.(`#${TOOL_ID}`))setTimeout(schedulePatch,0);}"
-new_click = "function onClickCapture(event){\n  const periodButton=event.target.closest?.(`#${TOOL_ID} [data-nfl-ppt-period]`);if(periodButton){period=PERIODS.some(x=>x[0]===periodButton.dataset.nflPptPeriod)?periodButton.dataset.nflPptPeriod:'full';const tool=document.getElementById(TOOL_ID);patchPeriodBar(tool);applyCurrent();return;}\n  if(event.target.closest?.(`#${TOOL_ID} #nflPptRefresh`)){simCache=null;simPromise=null;tableSnapshots.delete(document.querySelector(`#${TOOL_ID} .nfl-ppt-table`));schedulePatch();return;}\n  if(event.target.closest?.(`#${TOOL_ID} [data-nfl-ppt-pos], #${TOOL_ID} [data-nfl-ppt-reset], #${TOOL_ID} #nflPptRetry`))setTimeout(schedulePatch,0);\n}\nfunction onInputCapture(event){if(event.target.closest?.(`#${TOOL_ID} #nflPptSearch`))setTimeout(schedulePatch,0);}"
-s = replace_once(s, old_click, new_click, 'remove generic click rerender')
-write(p, s)
+# Browser regression catches even transient stale-header flashes.
+write('tests/nfl-player-prop-tool-authority-v945.spec.js',r'''import{test,expect}from'@playwright/test';test.setTimeout(180000);const B='http://127.0.0.1:4173/index.html#nfl',H=['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'];
+async function open(page,v={width:1440,height:900}){await page.setViewportSize(v);await page.goto(B,{waitUntil:'domcontentloaded'});await page.waitForSelector('#nflPlayerPropToolBtn',{timeout:45000});await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptAuthority==='94.5',{timeout:15000});}
+async function heads(page){return page.locator('#nflPlayerPropTool thead tr:nth-child(2) th').allTextContents().then(a=>a.map(x=>x.trim()));}
+test('v94.5 never flashes retired headers during video sequence',async({page})=>{await open(page);await expect.poll(()=>heads(page)).toEqual(H);await page.evaluate(()=>{window.__hs=[];const t=document.querySelector('#nflPlayerPropTool thead'),f=()=>window.__hs.push([...t.querySelectorAll('tr:nth-child(2) th')].map(x=>x.textContent.trim()).join('|'));f();window.__ho=new MutationObserver(f);window.__ho.observe(t,{subtree:true,childList:true,characterData:true});});const props=await page.locator('#nflPptMarket option').evaluateAll(o=>o.map(x=>x.value).filter(x=>x!=='ALL'));if(props[0])await page.locator('#nflPptMarket').selectOption(props[0]);for(const style of await page.locator('#nflPptMode option').evaluateAll(o=>o.map(x=>x.value))){await page.locator('#nflPptMode').selectOption(style);await expect.poll(()=>heads(page)).toEqual(H);}for(const period of['q1','full','2h','full']){const b=page.locator(`[data-nfl-ppt-period="${period}"]`);if(await b.count()){await b.click();await expect.poll(()=>heads(page)).toEqual(H);}}const states=await page.evaluate(()=>{window.__ho?.disconnect();return window.__hs});for(const x of states)expect(x).toBe(H.join('|'));});
+test('style and period use frozen four-file snapshot only',async({page})=>{const P=['/slates/nfl.json','/slates/nfl-odds.json','/slates/nfl-sim.json','/slates/nfl-research.json'],c=new Map(P.map(x=>[x,0]));page.on('request',r=>{try{const p=new URL(r.url()).pathname;if(c.has(p))c.set(p,c.get(p)+1)}catch{}});await open(page);await expect.poll(()=>[...c.values()].reduce((a,b)=>a+b,0),{timeout:15000}).toBe(4);for(const s of['safest','bestEdge','balanced','aggressive','correlated','longshot'])if(await page.locator(`#nflPptMode option[value="${s}"]`).count())await page.locator('#nflPptMode').selectOption(s);for(const p of['q1','q2','q3','q4','1h','2h','full']){const b=page.locator(`[data-nfl-ppt-period="${p}"]`);if(await b.count())await b.click()}await page.waitForTimeout(400);expect([...c.values()].reduce((a,b)=>a+b,0)).toBe(4);});
+test('mobile remains horizontally contained',async({page})=>{await open(page,{width:390,height:844});await expect.poll(()=>heads(page)).toEqual(H);const m=await page.evaluate(()=>{const w=document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap'),d=document.documentElement;return{scroll:w.scrollWidth>w.clientWidth,body:d.scrollWidth-d.clientWidth}});expect(m.scroll).toBe(true);expect(m.body).toBeLessThanOrEqual(3);});
+''')
+write('tests/nfl-player-prop-tool-build-period-v940.spec.js',"export * from './nfl-player-prop-tool-authority-v945.spec.js';\n")
+write('tests/nfl-player-prop-tool-clean-v944.spec.js',"export * from './nfl-player-prop-tool-authority-v945.spec.js';\n")
 
-
-# 2) Install v94.4 before the snapshot legacy handler and remove the v94.1
-# reference layer from fresh production entirely.
-p = 'sports/nfl-preview-v893.js'
-s = read(p)
-s = replace_once(s, "player-prop-tool-build-period-v940.js?v=94.2", "player-prop-tool-build-period-v940.js?v=94.4", 'wrapper v940 cache')
-s = s.replace("import { installNflPlayerPropToolReferenceV941 } from './nfl/player-prop-tool-reference-v941.js?v=94.1';\n", '')
-old = "    installNflPlayerPropToolUxV930();\n    installNflPlayerPropToolSnapshotV928();\n    installNflPlayerPropToolSimV939();\n    installNflPlayerPropToolControlsV933();\n    installNflPlayerPropToolThemeV936();\n    installNflPlayerPropToolPolishV938();\n    installNflPlayerPropToolBuildPeriodV940();\n    installNflPlayerPropToolReferenceV941();"
-new = "    installNflPlayerPropToolUxV930();\n    // v94.4 is the only owner of Bet Style/period columns. Install its capture\n    // handler before snapshot so the retired View behavior never sees #nflPptMode.\n    installNflPlayerPropToolBuildPeriodV940();\n    installNflPlayerPropToolSnapshotV928();\n    installNflPlayerPropToolSimV939();\n    installNflPlayerPropToolControlsV933();\n    installNflPlayerPropToolThemeV936();\n    installNflPlayerPropToolPolishV938();"
-s = replace_once(s, old, new, 'wrapper install order and reference removal')
-s = s.replace('[NFL Player Prop Tool v94.2]', '[NFL Player Prop Tool v94.4]')
-write(p, s)
-
-
-# 3) Replace the retired reference implementation with a compatibility-only
-# stub so an already-cached old preview import cannot 404 and break NFL.
-compat = """// v94.1 compatibility shim only.\n// The old reference-column implementation was deleted in v94.4 because it\n// rewrote the Player Prop Tool after every click. Keep this export temporarily\n// so an already-cached preview module cannot fail its import with a 404.\nexport function installNflPlayerPropToolReferenceV941(){ return false; }\nexport const __NFL_PLAYER_PROP_TOOL_REFERENCE_V941_TEST__={compatibilityOnly:true};\n"""
-write('sports/nfl/player-prop-tool-reference-v941.js', compat)
-
-
-# 4) Hard cache-bust the NFL wrapper and outer router.
-p = 'sports/router.js'
-s = read(p)
-s = regex_once(s, r"import\('\./nfl-preview-v893\.js\?v=[^']+'\)", "import('./nfl-preview-v893.js?v=94.4')", 'router NFL wrapper cache')
-write(p, s)
-
-p = 'index.html'
-s = read(p)
-pat = r'\./sports/router\.js\?v=(\d+)\.(\d+)'
-m = re.search(pat, s)
-if not m:
-    raise SystemExit('index outer router cache marker missing')
-major, minor = int(m.group(1)), int(m.group(2))
-s = regex_once(s, pat, f'./sports/router.js?v={major}.{minor+1}', 'outer router cache bump')
-write(p, s)
-print(f'outer router cache {major}.{minor} -> {major}.{minor+1}')
-
-
-# 5) Update persistent static/browser regressions to the single-authority design.
-p = 'scripts/nfl-player-prop-tool-v940-selftest.mjs'
-s = read(p)
-s = replace_once(s, "player-prop-tool-build-period-v940.js?v=94.2", "player-prop-tool-build-period-v940.js?v=94.4", 'selftest wrapper version')
-needle = "assert.ok(preview.includes('installNflPlayerPropToolBuildPeriodV940();'),'NFL wrapper must install Bet Style controls');"
-addition = needle + "\nassert.ok(preview.indexOf('installNflPlayerPropToolBuildPeriodV940();')<preview.indexOf('installNflPlayerPropToolSnapshotV928();'),'v94.4 Bet Style capture listener must install before snapshot legacy View listener');\nassert.ok(ui.includes('let applyGeneration=0'),'v94.4 must guard overlapping async style/filter applications');\nassert.ok(ui.includes('generation!==applyGeneration'),'v94.4 stale async applications must be discarded');\nassert.ok(ui.includes('function patchFullHeaders(table)'),'v94.4 must explicitly own the Full header set');\nassert.ok(ui.includes(\"['PLAYER','CONSENSUS','PICK','SIM MEAN','SIM MED','SIM PROB','SIM EDGE','P10','P25','P75','P90','RANGE','RUNS']\"),'v94.4 modern Full headers missing');"
-s = replace_once(s, needle, addition, 'selftest authority assertions')
-s = s.replace('NFL Player Prop Tool v94.2 Bet Style regression passed', 'NFL Player Prop Tool v94.4 Bet Style regression passed')
-write(p, s)
-
-p = 'tests/nfl-player-prop-tool-build-period-v940.spec.js'
-s = read(p).replace('data-nfl-ppt-build-style="94.2"', 'data-nfl-ppt-build-style="94.4"')
-write(p, s)
-
-p = '.github/workflows/nfl-player-prop-tool-browser-v923.yml'
-s = read(p)
-s = replace_once(s, 'name: NFL Player Prop Tool Browser QA v94.2', 'name: NFL Player Prop Tool Browser QA v94.4', 'browser workflow name')
-s = s.replace('# v94.2 validates sportsbook-aware Bet Style selection against the frozen 50K\n# simulation authority, reference-image stat categories, compact period controls,', '# v94.4 validates one authoritative sportsbook-aware Bet Style/period table,\n# stable modern SIM columns, compact period controls,')
-s = s.replace("      - 'tests/nfl-player-prop-tool-reference-v941.spec.js'\n", "      - 'tests/nfl-player-prop-tool-clean-v944.spec.js'\n")
-s = s.replace('          node scripts/nfl-player-prop-tool-v941-selftest.mjs\n', '          node scripts/nfl-player-prop-tool-v944-selftest.mjs\n')
-s = s.replace('tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-reference-v941.spec.js', 'tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-clean-v944.spec.js')
-write(p, s)
-
-selftest = """import fs from 'node:fs';\nimport assert from 'node:assert/strict';\n\nconst read=p=>fs.readFileSync(p,'utf8');\nconst preview=read('sports/nfl-preview-v893.js');\nconst ui=read('sports/nfl/player-prop-tool-build-period-v940.js');\nconst compat=read('sports/nfl/player-prop-tool-reference-v941.js');\nconst browser=read('.github/workflows/nfl-player-prop-tool-browser-v923.yml');\n\nassert.ok(!preview.includes('player-prop-tool-reference-v941.js'),'fresh NFL preview must not import retired v94.1 reference columns');\nassert.ok(!preview.includes('installNflPlayerPropToolReferenceV941'),'fresh NFL preview must not install retired reference columns');\nassert.ok(compat.includes('compatibilityOnly:true'),'v94.1 path must be compatibility-only for cached imports');\nfor(const token of ['REFERENCE_HEADERS','L10 AVG','COV PROB','DEF VS PROP','SIM DEF','addEventListener','setTimeout','MutationObserver']) assert.ok(!compat.includes(token),`compatibility shim must not contain retired behavior: ${token}`);\nfor(const token of [\"const VERSION='94.4'\",'let applyGeneration=0','generation!==applyGeneration','function patchFullHeaders(table)',\"['PLAYER','CONSENSUS','PICK','SIM MEAN','SIM MED','SIM PROB','SIM EDGE','P10','P25','P75','P90','RANGE','RUNS']\",\"event.stopImmediatePropagation()\",'replacement=select.cloneNode(false)']) assert.ok(ui.includes(token),`v94.4 single-authority layer missing ${token}`);\nassert.ok(preview.indexOf('installNflPlayerPropToolBuildPeriodV940();')<preview.indexOf('installNflPlayerPropToolSnapshotV928();'),'Bet Style authority must register before snapshot legacy View handler');\nassert.ok(browser.includes('nfl-player-prop-tool-clean-v944.spec.js'),'persistent browser QA must protect against stale columns returning');\nfor(const old of ['scripts/nfl-player-prop-tool-v941-selftest.mjs','tests/nfl-player-prop-tool-reference-v941.spec.js','.github/workflows/one-time-nfl-prop-build-period-v940.yml','.github/workflows/one-time-nfl-player-prop-tool-video-v943.yml','scripts/apply-nfl-player-prop-tool-v943-video-fix.py','tests/nfl-player-prop-tool-video-v943.spec.js']) assert.ok(!fs.existsSync(old),`retired file must be deleted: ${old}`);\nconsole.log('✓ NFL Player Prop Tool v94.4 cleanup regression passed: retired column writer is deleted and modern SIM columns have one authority.');\n"""
-write('scripts/nfl-player-prop-tool-v944-selftest.mjs', selftest)
-
-
-# 6) Delete the obsolete writers/tests/workflows instead of leaving them disabled.
-for old in [
-    'scripts/nfl-player-prop-tool-v941-selftest.mjs',
-    'tests/nfl-player-prop-tool-reference-v941.spec.js',
-    '.github/workflows/one-time-nfl-prop-build-period-v940.yml',
-    '.github/workflows/one-time-nfl-player-prop-tool-video-v943.yml',
-    'scripts/apply-nfl-player-prop-tool-v943-video-fix.py',
-    'tests/nfl-player-prop-tool-video-v943.spec.js',
-    '.github/workflows/one-time-nfl-player-prop-tool-clean-v944.yml',
-    'scripts/apply-nfl-player-prop-tool-v944-cleanup.py',
-]:
-    Path(old).unlink(missing_ok=True)
-
-print('Applied NFL Player Prop Tool v94.4 single-authority cleanup.')
+# Keep normal QA aligned with v94.5; obsolete one-time workflows cannot race it.
+p='.github/workflows/nfl-player-prop-tool-browser-v923.yml'; s=read(p)
+s=re.sub(r'^name: NFL Player Prop Tool Browser QA v[^\n]+','name: NFL Player Prop Tool Browser QA v94.5',s,flags=re.M)
+if "sports/nfl/player-prop-tool-authority-v945.js" not in s:s=s.replace("      - 'sports/nfl/player-prop-tool-v926.js'\n","      - 'sports/nfl/player-prop-tool-v926.js'\n      - 'sports/nfl/player-prop-tool-authority-v945.js'\n")
+if "tests/nfl-player-prop-tool-authority-v945.spec.js" not in s:s=s.replace("      - 'tests/nfl-player-prop-tool-v923.spec.js'\n","      - 'tests/nfl-player-prop-tool-v923.spec.js'\n      - 'tests/nfl-player-prop-tool-authority-v945.spec.js'\n")
+s=one(s,r"      - name: Run static Player Prop Tool regressions\n        run: \|\n(?:          .*\n)+?      - name: Verify sportsbook-aware 50K Bet Style cache is present","      - name: Run static Player Prop Tool regressions\n        run: |\n          node scripts/nfl-player-prop-tool-v945-selftest.mjs\n          node scripts/nfl-player-prop-tool-v923-selftest.mjs\n          node scripts/mobile-swipe-anywhere-selftest.mjs\n      - name: Verify sportsbook-aware 50K Bet Style cache is present",'qa static')
+s=one(s,r"          npx playwright test tests/nfl-player-prop-tool-v923\.spec\.js .*? --reporter=line --workers=1","          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-authority-v945.spec.js --reporter=line --workers=1",'qa playwright')
+write(p,s)
+for old in['.github/workflows/one-time-nfl-prop-build-period-v940.yml','.github/workflows/one-time-nfl-player-prop-tool-video-v943.yml']:Path(old).unlink(missing_ok=True)
+print('v94.5 transform ready')
