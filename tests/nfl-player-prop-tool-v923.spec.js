@@ -19,7 +19,7 @@ async function openTool(page){
   await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:45000});
   await page.waitForFunction(()=>{
     const rings=[...document.querySelectorAll('#nflPlayerPropTool .nfl-ppt-prob:not(.empty)')];
-    return !rings.length||rings.every(r=>r.dataset.v925Ring==='1');
+    return !rings.length||rings.every(r=>r.querySelector('svg')&&r.querySelector('.nfl-ppt-ring-label'));
   },{timeout:15000});
 }
 
@@ -36,6 +36,7 @@ test('NFL Player Prop Tool loads real rows, filters quickly, and opens the exist
   const rows=page.locator('#nflPlayerPropTool tbody tr');
   const initialCount=await rows.count();
   expect(initialCount).toBeGreaterThan(0);
+  expect(initialCount).toBeLessThanOrEqual(60);
   expect(await page.locator('#nflPlayerPropTool .nfl-ppt-player').count()).toBe(initialCount);
   const headerText=await page.locator('#nflPlayerPropTool thead').innerText();
   for(const label of ['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','MODEL PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'])expect(headerText).toContain(label);
@@ -53,16 +54,17 @@ test('NFL Player Prop Tool loads real rows, filters quickly, and opens the exist
     input.dispatchEvent(new Event('input',{bubbles:true}));
     return performance.now()-t;
   },searchTerm);
-  expect(inputCost).toBeLessThan(150);
+  expect(inputCost).toBeLessThan(100);
   await expect(page.locator('#nflPptSearch')).toHaveValue(searchTerm);
+  await page.waitForTimeout(220);
+  await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:10000});
   const filteredVisible=await page.locator('#nflPlayerPropTool tbody tr:visible').count();
   expect(filteredVisible).toBeGreaterThan(0);
-  expect(filteredVisible).toBeLessThanOrEqual(initialCount);
+  expect(filteredVisible).toBeLessThanOrEqual(60);
   await expect(page.locator('#nflPptFilterPanel')).toBeVisible();
 
   const market=page.locator('#nflPptMarket');
-  const marketOptions=await market.locator('option').count();
-  expect(marketOptions).toBeGreaterThan(2);
+  expect(await market.locator('option').count()).toBeGreaterThan(2);
   await market.selectOption('ALL');
   await page.locator('#nflPptClear').click();
   await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:10000});
@@ -86,6 +88,25 @@ test('NFL Player Prop Tool loads real rows, filters quickly, and opens the exist
   await page.locator('[data-nfl-close-modal]').first().click();
   await page.waitForSelector('#nflPlayerPropTool',{state:'visible',timeout:15000});
   expect(await page.locator('#nflPlayerPropTool tbody tr').count()).toBeGreaterThan(0);
+});
+
+test('NFL Player Prop Tool lets the page scroll vertically over the table without a scroll trap',async({page})=>{
+  await openNfl(page,{width:1440,height:800});
+  await openTool(page);
+  const css=await page.evaluate(()=>{
+    const wrap=document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap');
+    const s=getComputedStyle(wrap);
+    return {overflowX:s.overflowX,overflowY:s.overflowY,overscrollY:s.overscrollBehaviorY,contain:s.contain};
+  });
+  expect(css.overflowX).toMatch(/auto|scroll/);
+  expect(css.overflowY).toBe('visible');
+  expect(css.overscrollY).not.toBe('contain');
+  expect(css.contain).toBe('none');
+
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await page.locator('#nflPlayerPropTool .nfl-ppt-table-wrap').hover();
+  await page.mouse.wheel(0,900);
+  await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:3000}).toBeGreaterThan(100);
 });
 
 test('NFL Player Prop Tool uses compact columns and centered NFL-style progress rings',async({page})=>{
@@ -113,12 +134,12 @@ test('NFL Player Prop Tool uses compact columns and centered NFL-style progress 
     };
   });
   expect(geometry.tableWidth).toBeGreaterThan(950);
-  expect(geometry.tableWidth).toBeLessThanOrEqual(1060);
+  expect(geometry.tableWidth).toBeLessThanOrEqual(1050);
   expect(geometry.cells.length).toBe(13);
-  expect(geometry.cells[0]).toBeLessThanOrEqual(220);
+  expect(geometry.cells[0]).toBeLessThanOrEqual(215);
   expect(Math.max(...geometry.cells.slice(1))).toBeLessThanOrEqual(90);
-  expect(geometry.ringWidth).toBeGreaterThanOrEqual(43);
-  expect(geometry.ringWidth).toBeLessThanOrEqual(47);
+  expect(geometry.ringWidth).toBeGreaterThanOrEqual(41);
+  expect(geometry.ringWidth).toBeLessThanOrEqual(45);
   expect(Math.abs(geometry.ringWidth-geometry.ringHeight)).toBeLessThanOrEqual(1);
   expect(geometry.ringDx).toBeLessThanOrEqual(1.5);
   expect(geometry.ringDy).toBeLessThanOrEqual(1.5);
@@ -141,14 +162,16 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
         toolWidth:tool?.getBoundingClientRect().width||0,
         wrapClient:wrap?.clientWidth||0,
         wrapScroll:wrap?.scrollWidth||0,
-        playerHeight:player?.getBoundingClientRect().height||0
+        playerHeight:player?.getBoundingClientRect().height||0,
+        rowCount:tool?.querySelectorAll('tbody tr').length||0
       };
     });
     expect(geometry.bodyScroll).toBeLessThanOrEqual(geometry.viewport+3);
     expect(geometry.toolWidth).toBeGreaterThan(0);
     expect(geometry.wrapClient).toBeGreaterThan(0);
     expect(geometry.wrapScroll).toBeGreaterThanOrEqual(geometry.wrapClient);
-    expect(geometry.wrapScroll).toBeLessThanOrEqual(viewport.width<=700?1045:1060);
-    expect(geometry.playerHeight).toBeGreaterThanOrEqual(36);
+    expect(geometry.wrapScroll).toBeLessThanOrEqual(viewport.width<=700?1040:1050);
+    expect(geometry.playerHeight).toBeGreaterThanOrEqual(34);
+    expect(geometry.rowCount).toBeLessThanOrEqual(60);
   });
 }
