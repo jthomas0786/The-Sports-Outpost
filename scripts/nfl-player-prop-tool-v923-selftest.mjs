@@ -58,22 +58,23 @@ for(const marker of [
 
 for(const marker of [
   'captureReturnState','restoreReturnState','window.scrollTo(saved.x,saved.y)','wrap.scrollLeft=saved.tableX',
-  '#nflPptRefresh','nflPptClientUpdatedAt','snapshot updated','requestAnimationFrame'
-]) assert(ux.includes(marker),`Player Prop Tool UX v93.0 missing ${marker}`);
+  '#nflPptRefresh','nflPptClientUpdatedAt','snapshot updated','requestAnimationFrame','recoverSavedTool',
+  '.modal-close','background-attachment:scroll','contain:layout paint'
+]) assert(ux.includes(marker),`Player Prop Tool UX v93.2 missing ${marker}`);
 
 assert(!js.includes('new MutationObserver'),'v92.6 Player Prop Tool must not use mutation observers');
 assert(!js.includes('setInterval('),'v92.6 Player Prop Tool must not auto-rerender on an interval');
 assert(!snapshot.includes('new MutationObserver'),'v93.1 snapshot layer must not observe/rebuild the DOM');
 assert(!snapshot.includes('setInterval('),'v93.1 snapshot layer must not auto-refresh on an interval');
 assert(!snapshot.includes('renderTool('),'v93.1 snapshot controls must not call the base renderer');
-assert(!ux.includes('new MutationObserver'),'v93.0 UX layer must not observe/rebuild the DOM');
-assert(!ux.includes('setInterval('),'v93.0 UX layer must not add interval work');
+assert(!ux.includes('new MutationObserver'),'v93.2 UX layer must not observe/rebuild the DOM');
+assert(!ux.includes('setInterval('),'v93.2 UX layer must not add interval work');
 assert(staticGuard.includes('if(guardActive)return;\n  for(const delay of [0,80,220,500,1000,2000])'),'v93.0 sidebar retry work must stop while the snapshot is active');
 assert(staticGuard.includes("if(target.closest?.(`#${TOOL_ID} #nflPptRefresh`))"),'v93.0 Refresh must explicitly arm the four-file source refresh');
 assert(!staticGuard.includes('setInterval('),'v93.0 static guard must not add a permanent timer');
 
 assert(preview.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'NFL production wrapper must import the v93.0 background freeze');
-assert(preview.includes("player-prop-tool-ux-v930.js?v=93.0"),'NFL production wrapper must import the v93.0 modal/updated-time UX layer');
+assert(preview.includes("player-prop-tool-ux-v930.js?v=93.2"),'NFL production wrapper must import the v93.2 modal/smooth-scroll UX layer');
 assert(preview.includes("player-prop-tool-static-guard-v929.js?v=93.0"),'NFL production wrapper must use the v93.0 static guard cache key');
 assert(preview.includes("player-prop-tool-snapshot-v928.js?v=93.1"),'NFL production wrapper must load the v93.1 smooth snapshot module');
 assert(preview.includes('installNflBackgroundFreezeV930();'),'NFL production wrapper must install the background freeze before base mount');
@@ -84,6 +85,6 @@ assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL product
 
 assert(router.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'router must install the freeze before NFL global enhancements');
 assert(router.indexOf('installNflBackgroundFreezeV930();')<router.indexOf('installNflChibiPreviewPrivateV901();'),'router must install the freeze before NFL observers are created');
-assert(router.includes("import('./nfl-preview-v893.js?v=93.1')"),'router must load the v93.1 NFL wrapper');
+assert(router.includes("import('./nfl-preview-v893.js?v=93.2')"),'router must load the v93.2 NFL wrapper');
 
-console.log('NFL Player Prop Tool regression passed: v93.1 keeps the full readable snapshot in memory, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the Player Modal to the exact scroll position.');
+console.log('NFL Player Prop Tool regression passed: v93.2 keeps the full readable snapshot in memory, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, disables fixed-background repaint work while the tool is open, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the enhanced Player Modal to the exact scroll position.');
