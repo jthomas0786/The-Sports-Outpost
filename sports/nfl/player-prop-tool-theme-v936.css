@@ -1,4 +1,4 @@
-/* NFL Player Prop Tool v93.6 — Sports Outpost visual parity.
+/* NFL Player Prop Tool v93.7 — Sports Outpost visual parity.
    Theme-only overrides. Do not change snapshot layout, sizing, scrolling,
    containment, filtering, data loading, or modal behavior here. */
 #nflView #nflPlayerPropTool{
@@ -18,9 +18,7 @@
   --ppt-muted2:#6f829d;
   --ppt-nfl:#f59e0b;
   color:var(--ppt-text)!important;
-  background:
-    radial-gradient(circle at 82% 8%,rgba(45,127,255,.10),transparent 30%),
-    linear-gradient(180deg,var(--ppt-bg2),var(--ppt-bg))!important;
+  background:linear-gradient(180deg,var(--ppt-bg2),var(--ppt-bg))!important;
   background-attachment:scroll!important;
   color-scheme:dark;
 }
@@ -224,8 +222,6 @@
 
 @media(max-width:700px){
   #nflView #nflPlayerPropTool{
-    background:
-      radial-gradient(circle at 88% 3%,rgba(45,127,255,.11),transparent 24%),
-      linear-gradient(180deg,#07101f,#050a14)!important;
+    background:linear-gradient(180deg,#07101f,#050a14)!important;
   }
 }
