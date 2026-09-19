@@ -1,0 +1,82 @@
+name: One-time NFL Player Prop Tool 50K Boards v94.7
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-prop-sim-v947.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-prop-sim-v947
+  cancel-in-progress: true
+
+jobs:
+  build-prop-boards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Sync latest main
+        run: git pull --rebase origin main
+      - name: Find missing active 50K sportsbook boards
+        id: cache
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const sim=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const isFinal=id=>['post','final','completed'].includes(String(live?.games?.[id]?.status||'').toLowerCase());
+          const required=(slate.games||[]).map(g=>String(g.gameId||g.id||'')).filter(id=>id&&!isFinal(id));
+          const good=new Set((sim.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length).map(g=>String(g?.game?.gameId||g.gameId||'')));
+          const missing=required.filter(id=>!good.has(id));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`missing=${missing.join(',')}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`ready=${missing.length?'false':'true'}\n`);
+          console.log(missing.length?`Missing ${missing.length} board(s): ${missing.join(', ')}`:`All ${required.length} active/upcoming boards already ready`);
+          NODE
+      - name: Build only missing 50K sportsbook boards
+        if: steps.cache.outputs.ready != 'true'
+        env:
+          NFL_SIM_FORCE: '1'
+        run: node scripts/nfl-sim-auto.mjs --force --game "${{ steps.cache.outputs.missing }}"
+      - name: Verify frozen sportsbook-backed style boards
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const sim=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const isFinal=id=>['post','final','completed'].includes(String(live?.games?.[id]?.status||'').toLowerCase());
+          const required=(slate.games||[]).map(g=>String(g.gameId||g.id||'')).filter(id=>id&&!isFinal(id));
+          const byGame=new Map((sim.games||[]).map(g=>[String(g?.game?.gameId||g.gameId||''),g]));
+          for(const id of required){
+            const g=byGame.get(id);
+            if(Number(g?.iterations)<50000||!g?.propStyles?.ready||!g?.propStyles?.candidates?.length)throw new Error(`Missing 50K propStyles for ${id}`);
+            const byId=new Map(g.propStyles.candidates.map(c=>[String(c.id),c]));
+            for(const style of ['tsoPick','safest','bestEdge','balanced','aggressive','correlated','longshot']){
+              const ids=g.propStyles.rankings?.[style]||[];
+              if(!ids.length)continue;
+              for(const cid of ids){
+                const c=byId.get(String(cid));
+                if(!c||Number(c.iterations)<50000||!Number.isFinite(Number(c.line))||!Number.isFinite(Number(c.simProbability)))throw new Error(`${id} ${style} invalid candidate ${cid}`);
+              }
+            }
+          }
+          console.log(`Verified ${required.length} active/upcoming 50K style board(s)`);
+          NODE
+      - name: Commit generated simulation boards
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add slates/nfl-sim.json slates/nfl-quarter.json state/nfl-sim-state.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo 'No generated board changes'; exit 0; fi
+          git commit -m 'Publish NFL Prop Tool 50K style boards'
+          git pull --rebase origin main
+          git push origin HEAD:main
