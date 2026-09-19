@@ -1,4 +1,4 @@
-name: One-time NFL Prop Tool v93.5 swipe cache bust
+name: One-time NFL Prop Tool v93.6 theme cache bust
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Cache-bust Prop Tool swipe behavior
+      - name: Cache-bust Prop Tool Outpost theme
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -27,13 +27,13 @@ jobs:
           router_path = Path('sports/router.js')
           router = router_path.read_text()
           router, count = re.subn(
-              r"(\./mobile-edge-swipe-v894\.js\?v=)[^']+",
-              r"\g<1>93.5",
+              r"(import\('\./nfl-preview-v893\.js\?v=)[^']+('\))",
+              r"\g<1>93.6\g<2>",
               router,
               count=1,
           )
           if count != 1:
-              raise SystemExit('mobile swipe router import marker not found')
+              raise SystemExit('NFL preview router import marker not found')
           router_path.write_text(router)
 
           index_path = Path('index.html')
@@ -45,7 +45,7 @@ jobs:
 
           query = match.group(2)
           parts = [part for part in query.split('&') if part and not part.startswith('nflprop=')]
-          parts.append('nflprop=935')
+          parts.append('nflprop=936')
           replacement = match.group(1) + '&'.join(parts) + match.group(3)
           text, count = re.subn(pattern, replacement, text, count=1)
           if count != 1:
@@ -57,19 +57,22 @@ jobs:
         run: |
           node scripts/nfl-player-prop-tool-v923-selftest.mjs
           node scripts/mobile-swipe-anywhere-selftest.mjs
-          grep -q "mobile-edge-swipe-v894.js?v=93.5" sports/router.js
-          grep -q 'sports/router.js?.*nflprop=935' index.html
+          grep -q "import('./nfl-preview-v893.js?v=93.6')" sports/router.js
+          grep -q "player-prop-tool-theme-v936.js?v=93.6" sports/nfl-preview-v893.js
+          grep -q -- '--ppt-bg:#050a14' sports/nfl/player-prop-tool-theme-v936.css
+          grep -q -- '--ppt-blue:#2d7fff' sports/nfl/player-prop-tool-theme-v936.css
+          grep -q 'sports/router.js?.*nflprop=936' index.html
 
       - name: Commit cache bust to main
         run: |
           if git diff --quiet -- sports/router.js index.html; then
-            echo 'NFL Prop Tool v93.5 cache keys already present.'
+            echo 'NFL Prop Tool v93.6 cache keys already present.'
             exit 0
           fi
           git config user.name 'TSO NFL Bot'
           git config user.email 'actions@users.noreply.github.com'
           git add sports/router.js index.html
-          git commit -m 'Cache-bust NFL Prop Tool swipe v93.5'
+          git commit -m 'Cache-bust NFL Player Prop Tool theme v93.6'
           for attempt in 1 2 3 4 5; do
             git pull --rebase origin main
             if git push origin HEAD:main; then
