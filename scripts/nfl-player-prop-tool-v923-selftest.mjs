@@ -12,6 +12,8 @@ const ux=fs.readFileSync('sports/nfl/player-prop-tool-ux-v930.js','utf8');
 const controls=fs.readFileSync('sports/nfl/player-prop-tool-controls-v933.js','utf8');
 const themeJs=fs.readFileSync('sports/nfl/player-prop-tool-theme-v936.js','utf8');
 const themeCss=fs.readFileSync('sports/nfl/player-prop-tool-theme-v936.css','utf8');
+const polishJs=fs.readFileSync('sports/nfl/player-prop-tool-polish-v938.js','utf8');
+const polishCss=fs.readFileSync('sports/nfl/player-prop-tool-polish-v938.css','utf8');
 const preview=fs.readFileSync('sports/nfl-preview-v893.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
 const swipe=fs.readFileSync('sports/mobile-edge-swipe-v894.js','utf8');
@@ -87,6 +89,16 @@ assert(!themeCss.includes('radial-gradient'),'v93.7 root theme must avoid multi-
 assert(!themeCss.includes('content-visibility:'),'v93.7 theme must not alter the snapshot rendering engine');
 assert(!themeCss.includes('grid-template-columns:305px'),'v93.7 theme must not alter fixed snapshot geometry');
 
+for(const marker of [
+  "STYLE_ID='nfl-player-prop-tool-polish-v938-css'",'player-prop-tool-polish-v938.css?v=93.8','nfl-ppt-xscroll-v938',
+  'ensureNflPlayerPropToolScrollerV938','wrap.scrollLeft=bar.scrollLeft','bar.scrollLeft=wrap.scrollLeft'
+]) assert(polishJs.includes(marker),`Player Prop Tool v93.8 scrollbar polish missing ${marker}`);
+for(const marker of [
+  'td:first-child','background:#081426!important','nfl-ppt-xscroll-v938','overflow-x:scroll','scrollbar-color:#2d7fff #07101f'
+]) assert(polishCss.includes(marker),`Player Prop Tool v93.8 player-column/scrollbar CSS missing ${marker}`);
+assert(!polishJs.includes('MutationObserver'),'v93.8 polish must not add a DOM observer');
+assert(!polishJs.includes('setInterval('),'v93.8 polish must not add interval polling');
+
 assert(!js.includes('new MutationObserver'),'v92.6 Player Prop Tool must not use mutation observers');
 assert(!js.includes('setInterval('),'v92.6 Player Prop Tool must not auto-rerender on an interval');
 assert(!snapshot.includes('new MutationObserver'),'v93.2 snapshot layer must not observe/rebuild the DOM');
@@ -102,10 +114,12 @@ assert(preview.includes("player-prop-tool-static-guard-v929.js?v=93.0"),'NFL pro
 assert(preview.includes("player-prop-tool-snapshot-v928.js?v=93.2"),'NFL production wrapper must load the v93.2 modal-safe snapshot module');
 assert(preview.includes("player-prop-tool-controls-v933.js?v=93.3"),'NFL production wrapper must load the v93.3 top-level Prop selector');
 assert(preview.includes("player-prop-tool-theme-v936.js?v=93.7"),'NFL production wrapper must load the v93.7 Outpost theme layer');
+assert(preview.includes("player-prop-tool-polish-v938.js?v=93.8"),'NFL production wrapper must load the v93.8 player-column/scrollbar polish');
 assert(preview.includes('installNflBackgroundFreezeV930();'),'NFL production wrapper must install the background freeze before base mount');
 assert(preview.includes('installNflPlayerPropToolUxV930();'),'NFL production wrapper must install exact modal return behavior');
 assert(preview.includes('installNflPlayerPropToolControlsV933();'),'NFL production wrapper must install the Prop selector enhancement');
 assert(preview.includes('installNflPlayerPropToolThemeV936();'),'NFL production wrapper must install the Outpost theme');
+assert(preview.includes('installNflPlayerPropToolPolishV938();'),'NFL production wrapper must install the v93.8 player-column/scrollbar polish');
 assert(preview.indexOf('installNflPlayerPropToolUxV930();')<preview.indexOf('installNflPlayerPropToolSnapshotV928();'),'modal return capture must install before the snapshot parking layer');
 assert(preview.indexOf('installNflPlayerPropToolSnapshotV928();')<preview.indexOf('installNflPlayerPropToolThemeV936();'),'Outpost theme must load after snapshot CSS so theme colors win without altering geometry');
 assert(preview.indexOf('installPlayerPropTool();')<preview.indexOf('ensurePlayerPropVisibilityV927();'),'larger visibility CSS must be appended after the base tool styles');
@@ -113,7 +127,7 @@ assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL product
 
 assert(router.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'router must install the freeze before NFL global enhancements');
 assert(router.indexOf('installNflBackgroundFreezeV930();')<router.indexOf('installNflChibiPreviewPrivateV901();'),'router must install the freeze before NFL observers are created');
-assert(router.includes("import('./nfl-preview-v893.js?v=93.7')"),'router must load the v93.7 NFL Player Prop Tool wrapper');
+assert(router.includes("import('./nfl-preview-v893.js?v=93.8')"),'router must load the v93.8 NFL Player Prop Tool wrapper');
 assert(router.includes("./mobile-edge-swipe-v894.js?v=93.5")||router.includes("./mobile-edge-swipe-v894.js?v=91.2"),'router must load the current mobile swipe module');
 assert(swipe.includes('if(playerPropToolActive()||!mobileViewport()'),'Player Prop Tool must reject swipe-to-open before a gesture is armed');
 assert(!swipe.includes('PROP_OPEN_DISTANCE'),'Player Prop Tool swipe-to-open must be disabled rather than merely desensitized');

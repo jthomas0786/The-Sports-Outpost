@@ -19,6 +19,7 @@ import { installNflBackgroundFreezeV930 } from './nfl/player-prop-tool-backgroun
 import { installNflPlayerPropToolUxV930 } from './nfl/player-prop-tool-ux-v930.js?v=93.7';
 import { installNflPlayerPropToolControlsV933 } from './nfl/player-prop-tool-controls-v933.js?v=93.3';
 import { installNflPlayerPropToolThemeV936 } from './nfl/player-prop-tool-theme-v936.js?v=93.7';
+import { installNflPlayerPropToolPolishV938 } from './nfl/player-prop-tool-polish-v938.js?v=93.8';
 
 installNflBackgroundFreezeV930();
 
@@ -71,6 +72,7 @@ function arm(){
     installNflPlayerPropToolSnapshotV928();
     installNflPlayerPropToolControlsV933();
     installNflPlayerPropToolThemeV936();
+    installNflPlayerPropToolPolishV938();
     installNflPlayerPropToolStaticGuardV929({installPlayerPropTool});
   }catch(e){console.warn('[NFL Player Prop Tool v93.7] unavailable:',e);}
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
