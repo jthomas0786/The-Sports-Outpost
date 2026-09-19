@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/apply-nfl-player-prop-tool-v944-cleanup.py'
+      - '.github/workflows/one-time-nfl-player-prop-tool-clean-v944.yml'
 
 permissions:
   contents: write
@@ -15,7 +16,7 @@ concurrency:
 jobs:
   clean-and-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
         with:
@@ -36,13 +37,30 @@ jobs:
           node scripts/mobile-swipe-anywhere-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
 
-      - name: Verify existing frozen 50K sportsbook prop boards
+      - name: Check frozen sportsbook prop-board cache
+        id: prop_cache
         run: |
           node - <<'NODE'
           const fs=require('fs');
           const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
           const games=(doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length);
-          if(!games.length)throw new Error('No published 50K sportsbook-aware propStyles cache');
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`ready=${games.length>0?'true':'false'}\n`);
+          console.log(games.length?`✓ Reusing ${games.length} existing 50K sportsbook prop board(s)`:'No published propStyles boards; one 50K rebuild is required');
+          NODE
+
+      - name: Build missing 50K sportsbook prop boards once
+        if: steps.prop_cache.outputs.ready != 'true'
+        env:
+          NFL_SIM_FORCE: '1'
+        run: node scripts/nfl-sim-auto.mjs --force
+
+      - name: Verify frozen 50K sportsbook prop boards
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const games=(doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length);
+          if(!games.length)throw new Error('No published 50K sportsbook-aware propStyles cache after conditional build');
           for(const g of games){
             const byId=new Map((g.propStyles.candidates||[]).map(c=>[String(c.id),c]));
             for(const [style,ids] of Object.entries(g.propStyles.rankings||{}))for(const id of ids||[]){
@@ -51,6 +69,7 @@ jobs:
               if(Number(c.iterations)<50000)throw new Error(`${id} is not 50K-backed`);
               if(!Number.isFinite(Number(c.line))||!['over','under'].includes(c.side))throw new Error(`${id} missing prop line/side`);
               if(!Number.isFinite(Number(c.price))||!c.book)throw new Error(`${id} missing sportsbook price`);
+              if(!c.projection||!Number.isFinite(Number(c.projection.mean)))throw new Error(`${id} missing 50K projection distribution`);
             }
           }
           console.log(`✓ ${games.length} game(s) contain frozen sportsbook-backed 50K Bet Style boards`);
@@ -74,11 +93,11 @@ jobs:
 
       - name: Reproduce uploaded-video interactions
         run: |
-          npx playwright test tests/nfl-player-prop-tool-clean-v944.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js --reporter=line --workers=1
+          npx playwright test tests/nfl-player-prop-tool-authority-v945.spec.js --reporter=line --workers=1
 
       - name: Run complete Player Prop Tool browser regression
         run: |
-          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-clean-v944.spec.js --reporter=line --workers=1
+          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-authority-v945.spec.js --reporter=line --workers=1
 
       - name: Commit and push verified v94.5 cleanup
         run: |
