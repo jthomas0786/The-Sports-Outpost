@@ -41,6 +41,11 @@ jobs:
           node scripts/mobile-swipe-anywhere-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
 
+      - name: Regenerate authoritative 50K sportsbook prop boards
+        env:
+          NFL_SIM_FORCE: '1'
+        run: node scripts/nfl-sim-auto.mjs --force
+
       - name: Verify frozen 50K sportsbook prop boards
         run: |
           node - <<'NODE'
