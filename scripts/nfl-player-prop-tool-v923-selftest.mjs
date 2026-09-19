@@ -12,6 +12,7 @@ const ux=fs.readFileSync('sports/nfl/player-prop-tool-ux-v930.js','utf8');
 const controls=fs.readFileSync('sports/nfl/player-prop-tool-controls-v933.js','utf8');
 const preview=fs.readFileSync('sports/nfl-preview-v893.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
+const swipe=fs.readFileSync('sports/mobile-edge-swipe-v894.js','utf8');
 
 for(const marker of [
   'PLAYER PROP TOOL','TSO Picks','All Props','MODEL PROB','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H',
@@ -96,6 +97,8 @@ assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL product
 assert(router.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'router must install the freeze before NFL global enhancements');
 assert(router.indexOf('installNflBackgroundFreezeV930();')<router.indexOf('installNflChibiPreviewPrivateV901();'),'router must install the freeze before NFL observers are created');
 assert(router.includes("import('./nfl-preview-v893.js?v=93.4')"),'router must load the v93.3 NFL wrapper cache key');
-assert(router.includes("./mobile-edge-swipe-v894.js?v=91.2"),'router must cache-bust the scoped Player Prop Tool swipe tuning');
+assert(router.includes("./mobile-edge-swipe-v894.js?v=91.2")||router.includes("./mobile-edge-swipe-v894.js?v=93.5"),'router must load the current mobile swipe module');
+assert(swipe.includes('if(playerPropToolActive()||!mobileViewport()'),'Player Prop Tool must reject swipe-to-open before a gesture is armed');
+assert(!swipe.includes('PROP_OPEN_DISTANCE'),'Player Prop Tool swipe-to-open must be disabled rather than merely desensitized');
 
-console.log('NFL Player Prop Tool regression passed: v93.3 keeps the full readable snapshot in memory, replaces the redundant Week selector with a top-level Prop selector while the slate remains on its current week, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, reduces side-nav swipe sensitivity only on the Player Prop Tool, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the enhanced Player Modal to the exact scroll position across repeated opens.');
+console.log('NFL Player Prop Tool regression passed: v93.5 keeps the full readable snapshot in memory, replaces the redundant Week selector with a top-level Prop selector while the slate remains on its current week, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, disables side-nav swipe-to-open entirely only on the Player Prop Tool, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the enhanced Player Modal to the exact scroll position across repeated opens.');
