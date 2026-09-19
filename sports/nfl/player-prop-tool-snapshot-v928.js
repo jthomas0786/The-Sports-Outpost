@@ -29,7 +29,7 @@ function ensureStyle(){
   const link=document.createElement('link');
   link.id=STYLE_ID;
   link.rel='stylesheet';
-  link.href='./sports/nfl/player-prop-tool-snapshot-v928.css?v=92.8.1';
+  link.href='./sports/nfl/player-prop-tool-snapshot-v928.css?v=93.1';
   document.head.appendChild(link);
 }
 
