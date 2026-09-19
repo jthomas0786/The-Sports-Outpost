@@ -9,6 +9,7 @@ const snapshotCss=fs.readFileSync('sports/nfl/player-prop-tool-snapshot-v928.css
 const staticGuard=fs.readFileSync('sports/nfl/player-prop-tool-static-guard-v929.js','utf8');
 const backgroundFreeze=fs.readFileSync('sports/nfl/player-prop-tool-background-freeze-v930.js','utf8');
 const ux=fs.readFileSync('sports/nfl/player-prop-tool-ux-v930.js','utf8');
+const controls=fs.readFileSync('sports/nfl/player-prop-tool-controls-v933.js','utf8');
 const preview=fs.readFileSync('sports/nfl-preview-v893.js','utf8');
 const router=fs.readFileSync('sports/router.js','utf8');
 
@@ -62,6 +63,13 @@ for(const marker of [
   '.modal-close','background-attachment:scroll','contain:layout paint'
 ]) assert(ux.includes(marker),`Player Prop Tool UX v93.2 missing ${marker}`);
 
+for(const marker of [
+  "week=tool.querySelector('.nfl-ppt-selects #nflPptWeek')",'<span>Prop</span>','id="nflPptMarket"','All Props',
+  "oldMarket=tool.querySelector('#nflPptFilterPanel #nflPptMarket')",'data-nfl-ppt-top-prop="1"','state.market','schedulePatch'
+]) assert(controls.includes(marker),`Player Prop Tool controls v93.3 missing ${marker}`);
+assert(!controls.includes('MutationObserver'),'v93.3 Prop selector must not use a DOM observer');
+assert(!controls.includes('setInterval('),'v93.3 Prop selector must not add background polling');
+
 assert(!js.includes('new MutationObserver'),'v92.6 Player Prop Tool must not use mutation observers');
 assert(!js.includes('setInterval('),'v92.6 Player Prop Tool must not auto-rerender on an interval');
 assert(!snapshot.includes('new MutationObserver'),'v93.2 snapshot layer must not observe/rebuild the DOM');
@@ -77,14 +85,17 @@ assert(preview.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'NF
 assert(preview.includes("player-prop-tool-ux-v930.js?v=93.2"),'NFL production wrapper must import the v93.2 modal/smooth-scroll UX layer');
 assert(preview.includes("player-prop-tool-static-guard-v929.js?v=93.0"),'NFL production wrapper must use the v93.0 static guard cache key');
 assert(preview.includes("player-prop-tool-snapshot-v928.js?v=93.2"),'NFL production wrapper must load the v93.2 modal-safe snapshot module');
+assert(preview.includes("player-prop-tool-controls-v933.js?v=93.3"),'NFL production wrapper must load the v93.3 top-level Prop selector');
 assert(preview.includes('installNflBackgroundFreezeV930();'),'NFL production wrapper must install the background freeze before base mount');
 assert(preview.includes('installNflPlayerPropToolUxV930();'),'NFL production wrapper must install exact modal return behavior');
+assert(preview.includes('installNflPlayerPropToolControlsV933();'),'NFL production wrapper must install the Prop selector enhancement');
 assert(preview.indexOf('installNflPlayerPropToolUxV930();')<preview.indexOf('installNflPlayerPropToolSnapshotV928();'),'modal return capture must install before the snapshot parking layer');
 assert(preview.indexOf('installPlayerPropTool();')<preview.indexOf('ensurePlayerPropVisibilityV927();'),'larger visibility CSS must be appended after the base tool styles');
 assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL production wrapper must not install the old repaint-heavy v92.5 layer');
 
 assert(router.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'router must install the freeze before NFL global enhancements');
 assert(router.indexOf('installNflBackgroundFreezeV930();')<router.indexOf('installNflChibiPreviewPrivateV901();'),'router must install the freeze before NFL observers are created');
-assert(router.includes("import('./nfl-preview-v893.js?v=93.3')"),'router must load the final v93.2 NFL wrapper cache key');
+assert(router.includes("import('./nfl-preview-v893.js?v=93.4')"),'router must load the v93.3 NFL wrapper cache key');
+assert(router.includes("./mobile-edge-swipe-v894.js?v=91.2"),'router must cache-bust the scoped Player Prop Tool swipe tuning');
 
-console.log('NFL Player Prop Tool regression passed: v93.2 keeps the full readable snapshot in memory, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, disables fixed-background repaint work while the tool is open, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the enhanced Player Modal to the exact scroll position across repeated opens.');
+console.log('NFL Player Prop Tool regression passed: v93.3 keeps the full readable snapshot in memory, replaces the redundant Week selector with a top-level Prop selector while the slate remains on its current week, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, reduces side-nav swipe sensitivity only on the Player Prop Tool, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the enhanced Player Modal to the exact scroll position across repeated opens.');
