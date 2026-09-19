@@ -6,6 +6,7 @@ import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v891
 import { decideAutomaticRun, nextAutomationState } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
+import { buildPregameFullPropBoard } from '../sports/nfl/sim/full-prop-board-v942.js';
 
 const ROOT=process.cwd();
 const arg=(flag,fallback=null)=>{const i=process.argv.indexOf(flag);return i>=0&&process.argv[i+1]!=null?process.argv[i+1]:fallback};
@@ -111,14 +112,22 @@ for(const game of games){
     continue;
   }
   const needHalftimeSamples=decision.phase==='halftime';
+  const needFullPropSamples=decision.phase==='pregame';
   const needQuarterSamples=decision.phase==='pregame'&&config.quarters?.enabled!==false;
-  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples||needQuarterSamples});
-  let halftimeBoard=null,quarterBoard=null;
+  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples||needFullPropSamples||needQuarterSamples});
+  let halftimeBoard=null,quarterBoard=null,fullPropBoard=null;
   if(needHalftimeSamples){
     halftimeBoard=buildHalftimeBoard({result:raw,game,liveGame,liveOdds,config,generatedAt:NOW.toISOString()});
     halftimeById.set(gameId,halftimeBoard);
     halftimeTouched=true;
     console.log(`  ↳ halftime board: ${halftimeBoard.candidates.length} eligible candidate(s), ready=${halftimeBoard.ready}`);
+  }
+  if(needFullPropSamples){
+    fullPropBoard=buildPregameFullPropBoard({result:raw,game,odds,generatedAt:NOW.toISOString()});
+    raw.propStyleVersion='v94.2';
+    raw.propStyles=fullPropBoard;
+    const styleCounts=Object.fromEntries(Object.entries(fullPropBoard.rankings||{}).map(([k,v])=>[k,(v||[]).length]));
+    console.log(`  ↳ full prop styles: ${fullPropBoard.candidates.length} sportsbook-backed 50K candidate(s), ready=${fullPropBoard.ready} ${JSON.stringify(styleCounts)}`);
   }
   if(needQuarterSamples){
     quarterBoard=buildPregameQuarterBoard({result:raw,game,config,generatedAt:NOW.toISOString()});
@@ -139,6 +148,8 @@ for(const game of games){
     halftimeCandidateCount:halftimeBoard?.candidates?.length??null,
     quarterParlayReady:quarterBoard?.ready??null,
     propPeriodsReady:quarterBoard?Object.values(quarterBoard.periods||{}).filter(p=>p?.ready).length:null,
+    propStylesReady:fullPropBoard?.ready??null,
+    propStyleCandidates:fullPropBoard?.candidates?.length??null,
     liveModelVersion:result?.liveModel?.version||null,
   };
   existingById.set(gameId,result);
@@ -170,7 +181,7 @@ const payload={
     liveIterations:config.automatic?.liveIterations||config.liveIterations||15000,
     pregameCheckpointMinutes:config.automatic?.pregameCheckpointMinutes||[180,90,15],
     probabilityBlend:config.probabilityBlend||null,weekKey,
-    propPeriodVersion:'v94.0',
+    propPeriodVersion:'v94.0',propStyleVersion:'v94.2',
     lastRun:{games:runs,totalIterations,reasonCounts:Object.fromEntries([...new Set(touched.map(x=>x.decision.reason))].map(reason=>[reason,touched.filter(x=>x.decision.reason===reason).length]))},
   },
   source:{slate:path.relative(ROOT,SLATE),research:path.relative(ROOT,RESEARCH),odds:path.relative(ROOT,ODDS),live:LIVE_URL},
