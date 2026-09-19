@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-04",
+  "season": 2026,
+  "purpose": "Production render-composition, layering, transition, football-continuity, and accessibility contract for Philadelphia realistic 3D chibis in NFL Gamecast. Metadata-only: no shared NFL runtime or MLB/NHL behavior is modified.",
+  "dependsOn": ["./roster.json", "./gamecast-integration-01.json", "./gamecast-integration-02.json", "./gamecast-integration-03.json", "./signature-sequences-01.json", "./signature-sequences-02.json"],
+  "composition": {
+    "coordinateSpace": "Gamecast field-local normalized coordinates resolved by the NFL scene before chibi placement",
+    "footAnchor": "bottom-center between planted feet is the only player-to-field placement anchor",
+    "zOrder": ["field", "field markings", "behind-player effects", "chibi shadow/contact patch", "chibi body", "football when player-occluded", "front-player effects", "Gamecast labels/UI"],
+    "scaleRule": "Use each player's locked PHI appearance/base scale; perspective may affect scene projection but never identity proportions.",
+    "alphaRule": "All frames remain transparent-alpha assets with no baked field, crowd, halo rectangle, matte fringe, or team-logo backdrop.",
+    "shadowRule": "Runtime shadow/contact treatment is scene-owned and subtle; never bake opaque shadows into transparent source assets."
+  },
+  "orientation": {
+    "default": "Preserve the Dallas-approved shared three-quarter Gamecast camera presentation.",
+    "mirrorEligibility": "Only action metadata explicitly marked mirror-safe may be horizontally mirrored for field direction.",
+    "numberGuard": "Never mirror rasterized jersey numerals, wordmarks, helmet marks, or asymmetric identity details into an incorrect orientation; use an authored opposite-facing asset when required.",
+    "ballHandGuard": "Ball hand, throwing arm, catching geometry, and contact side remain semantically correct after orientation resolution."
+  },
+  "transitionPolicy": {
+    "baseToAction": "Blend from the anchored base/idle state at an event boundary without teleporting the planted-foot anchor.",
+    "actionToAction": "Prefer authored compatible transition points; otherwise settle through the shortest neutral anchored pose.",
+    "actionToBase": "Return to the same player-specific anchor and scale after completion.",
+    "signatureEntry": "Verified signatures begin only from their declared event-compatible entry state.",
+    "signatureExit": "Verified signatures settle to the canonical anchor before another play-owned animation begins.",
+    "pollingRule": "A repeated event fingerprint never restarts or re-times an active transition."
+  },
+  "footballContinuity": {
+    "singleAuthority": "Exactly one visible football authority exists during possession animation: scene ball or chibi-attached ball, never both.",
+    "handoff": "Transfer ball authority only at authored possession/contact boundaries.",
+    "pass": "Release chibi-attached football at the authored throw-release marker before scene flight takes authority.",
+    "catch": "Scene flight yields to receiver-attached ball at the authored secure-catch marker.",
+    "fumble": "Player-attached authority ends at the authored loose-ball marker; scene ball owns motion until recovery.",
+    "recovery": "Recovery transfers scene-ball authority to the recovering player's authored possession marker."
+  },
+  "collisionAndOcclusion": {
+    "contact": "Use authored contact markers and roster-authoritative participant roles; never stretch, slide, or rescale a chibi to force contact.",
+    "multiPlayer": "Resolve each foot anchor independently, then use scene depth for natural overlap.",
+    "labelOcclusion": "Player labels and critical score/down UI remain above chibis; chibis never become input-blocking overlays.",
+    "edgeSafety": "If an animation would clip the viewport, adjust scene framing/field-local placement within allowed bounds rather than deforming the asset."
+  },
+  "verifiedSignatureComposition": [
+    {"playerKey":"PHI:nolan-smith-jr","signature":"dice-roll-celebration","classification":"verified celebration","rules":["Use only verified sequence metadata.","Preserve identity, number, scale, alpha and canonical anchor.","Do not extend or rename the celebration."]},
+    {"playerKey":"PHI:saquon-barkley","signature":"reverse-hurdle","classification":"signature football move","rules":["Use only on supported hurdle/airborne-highlight events.","Preserve ball authority through authored possession markers.","Do not relabel the move as a celebration."]},
+    {"playerKey":"PHI:jalen-hurts","signature":"brotherly-shove","classification":"signature football move","rules":["Use only on supported short-yardage QB-sneak events.","Preserve multi-player contact roles and canonical scale.","Do not relabel the move as a celebration."]},
+    {"playerKey":"PHI:devonta-smith","signature":"sideline-toe-tap","classification":"signature football move","rules":["Use only on supported boundary/toe-tap catches.","Secure-catch marker owns scene-ball transfer.","Do not relabel the move as a celebration."]}
+  ],
+  "reducedMotion": {
+    "respectPreference": true,
+    "behavior": "When Gamecast reduced-motion mode is active, render the event's most informative authored key pose at the canonical anchor instead of full motion.",
+    "signatures": "Verified signatures reduce to a representative authored pose without repeated gesture loops.",
+    "continuity": "Possession state, football authority, uniform number, identity, scale, and event meaning remain intact."
+  },
+  "fallbacks": {
+    "missingAction": "Keep decoded base asset and existing non-chibi Gamecast event presentation; never show a broken-image placeholder.",
+    "missingBase": "Retain existing non-chibi Gamecast presentation for that participant.",
+    "decodeFailure": "Memoize according to gamecast-integration-03 and continue the safe fallback chain.",
+    "signatureFailure": "Fall back to roster-authorized generic event action; never invent or approximate a named signature.",
+    "openRosterSlot": "The legitimate open 53rd PHI slot produces no identity, asset, anchor, label, or placeholder."
+  },
+  "appearanceAndGeometryInvariants": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Eagles headshot locks; skin tone and visible appearance are never inferred from name",
+    "camera": "shared Dallas-approved three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "identityContinuity": "Base, action, reduced-motion pose, and verified signature depict the same locked player identity."
+  },
+  "acceptanceFixtures": [
+    {"id":"phi-anchor-transition","input":{"baseAnchor":[0.50,1.00],"actionStarts":true},"expect":{"anchorTeleport":false,"scaleMutation":false}},
+    {"id":"phi-no-double-ball-catch","input":{"event":"catch","sceneBallVisible":true,"secureCatchMarker":true},"expect":{"sceneBallVisibleAfterMarker":false,"playerBallAuthority":true,"doubleBall":false}},
+    {"id":"phi-pass-release","input":{"event":"pass","throwReleaseMarker":true},"expect":{"playerBallAuthority":false,"sceneBallFlightAuthority":true}},
+    {"id":"phi-number-mirror-guard","input":{"requestedFacing":"opposite","rasterMirrorWouldReverseNumber":true},"expect":{"rawRasterMirror":false,"authoredFacingRequired":true}},
+    {"id":"phi-reduced-motion","input":{"reducedMotion":true,"event":"touchdown"},"expect":{"fullLoop":false,"representativeKeyPose":true,"eventMeaningPreserved":true}},
+    {"id":"phi-signature-classification-guard","input":{"player":"Saquon Barkley","signature":"reverse-hurdle"},"expect":{"classification":"signature football move","inventedCelebration":false}},
+    {"id":"phi-missing-signature-soft-fail","input":{"verifiedSignatureAssetMissing":true,"genericRosterActionAvailable":true},"expect":{"brokenPlaceholder":false,"genericRosterActionSelected":true,"inventedSignature":false}},
+    {"id":"phi-open-slot","input":{"requestedRosterIndex":53,"identityMissing":true},"expect":{"placeholderCreated":false,"anchorCreated":false}},
+    {"id":"phi-ui-layer-safety","input":{"chibiOverlapsPlayerLabel":true},"expect":{"labelAboveChibi":true,"inputBlockingOverlay":false}},
+    {"id":"phi-sport-isolation","input":{"composePhiladelphiaChibi":true,"mlbRendererPresent":true,"nhlRendererPresent":true},"expect":{"mlbRendererMutation":false,"nhlRendererMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": ["Composition preserves transparent alpha, locked camera/lighting/scale and foot anchors.", "Orientation cannot reverse jersey numbers or asymmetric identity details.", "Possession maintains exactly one visible football authority.", "Transitions do not restart on repeated polling or teleport anchors.", "Reduced-motion preserves event meaning and identity.", "Signature classifications remain faithful to verified PHI metadata and no named signature is invented.", "Open roster slot cannot create synthetic UI or assets.", "Fallbacks fail soft without broken-image UI.", "Layering cannot obscure critical Gamecast UI or intercept unrelated input.", "Contract is PHI/NFL namespaced and cannot mutate MLB/NHL renderers.", "This metadata-only batch introduces no shared runtime behavior change."]
+  }
+}
