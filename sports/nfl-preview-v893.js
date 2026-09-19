@@ -12,6 +12,7 @@ import { installNflGamecastPossessionBallV8922 } from './nfl/gamecast-possession
 import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-sync-v907.js?v=90.7';
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
+import { installNflPlayerPropToolV923 } from './nfl/player-prop-tool-v923.js?v=92.3';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
@@ -44,6 +45,7 @@ function arm(){
   try{installNflPlayerModalSlateSyncV907();}catch(e){console.warn('[NFL modal slate sync v90.7] unavailable:',e);}
   try{installNflAllPlayersControlsV8921();}catch(e){console.warn('[NFL All Players v89.21] controls unavailable:',e);}
   try{installNflReadabilityV8922();}catch(e){console.warn('[NFL readability v89.22] unavailable:',e);}
+  try{installNflPlayerPropToolV923({selectBaseTab:tab=>basePreview.selectTab?.(tab)});}catch(e){console.warn('[NFL Player Prop Tool v92.3] unavailable:',e);}
   // One active-game gate, one accepted-score renderer, one field renderer.
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
