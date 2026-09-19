@@ -1,0 +1,231 @@
+/* NFL Player Prop Tool v93.6 — Sports Outpost visual parity.
+   Theme-only overrides. Do not change snapshot layout, sizing, scrolling,
+   containment, filtering, data loading, or modal behavior here. */
+#nflView #nflPlayerPropTool{
+  --ppt-bg:#050a14;
+  --ppt-bg2:#07101f;
+  --ppt-panel:#0a1730;
+  --ppt-panel2:#0d1d38;
+  --ppt-panel3:#102442;
+  --ppt-line:rgba(45,127,255,.25);
+  --ppt-line-soft:rgba(120,176,239,.14);
+  --ppt-blue:#2d7fff;
+  --ppt-blue2:#0f6cf2;
+  --ppt-cyan:#6edcff;
+  --ppt-text:#f4f8ff;
+  --ppt-text2:#d8e7fb;
+  --ppt-muted:#8ea2bd;
+  --ppt-muted2:#6f829d;
+  --ppt-nfl:#f59e0b;
+  color:var(--ppt-text)!important;
+  background:
+    radial-gradient(circle at 82% 8%,rgba(45,127,255,.10),transparent 30%),
+    linear-gradient(180deg,var(--ppt-bg2),var(--ppt-bg))!important;
+  background-attachment:scroll!important;
+  color-scheme:dark;
+}
+
+/* Header */
+#nflView .nfl-ppt-head>div:first-child>span{color:var(--ppt-cyan)!important}
+#nflView .nfl-ppt-head h1{color:#fff!important;text-shadow:0 0 22px rgba(45,127,255,.18)!important}
+#nflView .nfl-ppt-head p{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-head-stat{
+  background:linear-gradient(180deg,rgba(16,36,66,.94),rgba(9,22,43,.94))!important;
+  border:1px solid var(--ppt-line)!important;
+  box-shadow:0 12px 30px rgba(0,0,0,.18)!important;
+}
+#nflView .nfl-ppt-head-stat b{color:var(--ppt-cyan)!important}
+#nflView .nfl-ppt-head-stat span{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-snapshot-badge{
+  border-color:rgba(110,220,255,.28)!important;
+  background:rgba(45,127,255,.10)!important;
+  color:var(--ppt-cyan)!important;
+}
+
+/* Controls */
+#nflView .nfl-ppt-selects label>span,
+#nflView .nfl-ppt-filter-panel label{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-selects select,
+#nflView .nfl-ppt-filter-panel select,
+#nflView .nfl-ppt-filter-panel input{
+  background:#08162c!important;
+  border-color:rgba(91,145,214,.30)!important;
+  color:var(--ppt-text)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025)!important;
+}
+#nflView .nfl-ppt-selects select:focus,
+#nflView .nfl-ppt-filter-panel select:focus,
+#nflView .nfl-ppt-filter-panel input:focus{
+  border-color:var(--ppt-blue)!important;
+  box-shadow:0 0 0 3px rgba(45,127,255,.13)!important;
+}
+#nflView .nfl-ppt-filter-panel input::placeholder{color:#637895!important}
+#nflView .nfl-ppt-selects option,
+#nflView .nfl-ppt-filter-panel option{background:#08162c!important;color:#f4f8ff!important}
+
+#nflView .nfl-ppt-positions button{
+  background:#09172d!important;
+  border-color:rgba(91,145,214,.28)!important;
+  color:#9eb1ca!important;
+}
+#nflView .nfl-ppt-positions button.active{
+  background:linear-gradient(180deg,#2d7fff,#1267df)!important;
+  border-color:#5da0ff!important;
+  color:#fff!important;
+  box-shadow:0 0 18px rgba(45,127,255,.22)!important;
+}
+
+#nflView .nfl-ppt-actions>button,
+#nflView .nfl-ppt-filter-panel button,
+#nflView .nfl-ppt-more button{
+  background:#0a1931!important;
+  border:1px solid rgba(91,145,214,.28)!important;
+  color:#d8e7fb!important;
+  border-radius:9px!important;
+  box-shadow:none!important;
+}
+#nflView .nfl-ppt-actions>button:hover,
+#nflView .nfl-ppt-filter-panel button:hover,
+#nflView .nfl-ppt-more button:hover{
+  background:#10284b!important;
+  border-color:rgba(110,220,255,.45)!important;
+  color:#fff!important;
+}
+#nflView .nfl-ppt-actions .toggle i{background:#263a58!important;border:1px solid rgba(255,255,255,.06)!important}
+#nflView .nfl-ppt-actions .toggle i::after{background:#dce8f8!important}
+#nflView .nfl-ppt-actions .toggle.on i{background:var(--ppt-blue)!important}
+
+#nflView .nfl-ppt-filter-panel{
+  background:linear-gradient(180deg,rgba(12,29,56,.96),rgba(8,20,40,.96))!important;
+  border-color:var(--ppt-line)!important;
+  box-shadow:0 12px 28px rgba(0,0,0,.16)!important;
+}
+
+/* Table shell and headers */
+#nflView .nfl-ppt-table-wrap{
+  background:#07101f!important;
+  border:1px solid var(--ppt-line)!important;
+  border-radius:14px!important;
+  box-shadow:0 18px 44px rgba(0,0,0,.20)!important;
+  scrollbar-color:#2d7fff #07101f!important;
+}
+#nflView .nfl-ppt-table .nfl-ppt-groups th{
+  background:#071426!important;
+  color:#6edcff!important;
+  border-color:var(--ppt-line-soft)!important;
+}
+#nflView .nfl-ppt-table .nfl-ppt-groups th:nth-child(2),
+#nflView .nfl-ppt-table .nfl-ppt-groups th:nth-child(3),
+#nflView .nfl-ppt-table .nfl-ppt-groups th:nth-child(4){background:#09182d!important}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th{
+  background:#0d1c34!important;
+  color:#cfe2fb!important;
+  border-color:var(--ppt-line-soft)!important;
+}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th[data-sort]:hover{color:var(--ppt-cyan)!important}
+
+/* Rows */
+#nflView .nfl-ppt-table tbody tr[data-nfl-ppt-row]{background:#081426!important}
+#nflView .nfl-ppt-table tbody tr[data-nfl-ppt-row]:hover{background:#0b1b33!important}
+#nflView .nfl-ppt-table td{
+  color:var(--ppt-text2)!important;
+  border-color:var(--ppt-line-soft)!important;
+}
+#nflView .nfl-ppt-player{color:#fff!important}
+#nflView .nfl-ppt-player b{color:#f7fbff!important}
+#nflView .nfl-ppt-player:hover b{color:var(--ppt-cyan)!important}
+#nflView .nfl-ppt-player small{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-avatar{
+  background:#0b1f3e!important;
+  border-color:rgba(45,127,255,.78)!important;
+  box-shadow:0 0 0 2px rgba(45,127,255,.08)!important;
+}
+#nflView .nfl-ppt-avatar i{color:var(--ppt-cyan)!important}
+
+#nflView .nfl-ppt-consensus b,
+#nflView .nfl-ppt-proj b,
+#nflView .nfl-ppt-avg b,
+#nflView .nfl-ppt-edge b,
+#nflView .nfl-ppt-def b,
+#nflView .nfl-ppt-sim b,
+#nflView .nfl-ppt-hit b{color:#f1f7ff!important}
+#nflView .nfl-ppt-consensus span,
+#nflView .nfl-ppt-proj span,
+#nflView .nfl-ppt-avg span,
+#nflView .nfl-ppt-edge span,
+#nflView .nfl-ppt-def span,
+#nflView .nfl-ppt-sim span,
+#nflView .nfl-ppt-hit span{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-edge b{color:#71e7ae!important}
+
+/* Pick / model / matchup cells */
+#nflView .nfl-ppt-pick{
+  background:#091831!important;
+  border-color:rgba(45,127,255,.70)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.015)!important;
+}
+#nflView .nfl-ppt-pick.under{border-color:#2d7fff!important}
+#nflView .nfl-ppt-pick.over{border-color:#21c87a!important}
+#nflView .nfl-ppt-pick small{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-pick b{color:#fff!important}
+#nflView .nfl-ppt-pick span{color:#d4e3f7!important}
+
+#nflView .nfl-ppt-ring-track{stroke:#203652!important}
+#nflView .nfl-ppt-ring-label b{color:#fff!important}
+#nflView .nfl-ppt-prob.empty{
+  background:#0b1a31!important;
+  color:#7f94ae!important;
+  border-color:rgba(91,145,214,.20)!important;
+}
+
+#nflView .nfl-ppt-match{background:#0d1a2d!important;color:#b7c6da!important}
+#nflView .nfl-ppt-match span{color:#8fa3bd!important}
+#nflView .nfl-ppt-match.bad{background:#2b1519!important;color:#ff8d80!important}
+#nflView .nfl-ppt-match.mid{background:#171c29!important;color:#b7c4d6!important}
+#nflView .nfl-ppt-match.good{background:#0d261f!important;color:#68dca4!important}
+#nflView .nfl-ppt-match.great{background:#0c3025!important;color:#7bf0b6!important}
+
+#nflView .nfl-ppt-hit.neutral{background:#0c192c!important;color:#8fa2ba!important}
+#nflView .nfl-ppt-hit.good{background:#0d2a21!important;color:#72e2aa!important}
+#nflView .nfl-ppt-hit.mid{background:#2a2413!important;color:#f2ca63!important}
+#nflView .nfl-ppt-hit.bad{background:#301719!important;color:#ff8b80!important}
+#nflView .nfl-ppt-hit b{color:currentColor!important}
+#nflView .ppt-color-off .nfl-ppt-hit,
+#nflView .ppt-color-off .nfl-ppt-match{background:#0b182c!important;color:#c8d7ea!important}
+
+/* Empty/loading/footer states */
+#nflView .nfl-ppt-more{border-color:var(--ppt-line-soft)!important;background:#081426!important}
+#nflView .nfl-ppt-more span{color:var(--ppt-muted)!important}
+#nflView .nfl-ppt-empty,
+#nflView .nfl-ppt-snapshot-empty,
+#nflView .nfl-ppt-loading,
+#nflView .nfl-ppt-error{
+  background:#08162b!important;
+  color:var(--ppt-muted)!important;
+  border-color:var(--ppt-line)!important;
+}
+#nflView .nfl-ppt-loading b,
+#nflView .nfl-ppt-error b{color:#fff!important}
+
+/* Quick Guide */
+.nfl-ppt-guide-backdrop{background:rgba(1,5,13,.84)!important;backdrop-filter:blur(8px)!important}
+.nfl-ppt-guide{
+  background:linear-gradient(180deg,#0c1a33,#07101f)!important;
+  border-color:rgba(45,127,255,.34)!important;
+  color:#e9f3ff!important;
+  box-shadow:0 28px 80px rgba(0,0,0,.55)!important;
+}
+.nfl-ppt-guide>span{color:#6edcff!important}
+.nfl-ppt-guide h2{color:#fff!important}
+.nfl-ppt-guide-grid>div{background:#0a1930!important;border-color:rgba(91,145,214,.22)!important}
+.nfl-ppt-guide-grid b{color:#ddebff!important}
+.nfl-ppt-guide-grid p,.nfl-ppt-guide small{color:#8fa2ba!important}
+.nfl-ppt-guide [data-nfl-ppt-guide-close]{background:#0b1b34!important;border-color:rgba(91,145,214,.30)!important;color:#fff!important}
+
+@media(max-width:700px){
+  #nflView #nflPlayerPropTool{
+    background:
+      radial-gradient(circle at 88% 3%,rgba(45,127,255,.11),transparent 24%),
+      linear-gradient(180deg,#07101f,#050a14)!important;
+  }
+}
