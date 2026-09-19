@@ -5,7 +5,7 @@ const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
 const GUIDE_ID='nflPlayerPropGuide';
 const CACHE_MS=45000;
-const PAGE_SIZE=60;
+const PAGE_SIZE=5000;
 const RING_C=113.1;
 const MARKET_META={
   rushYds:{label:'Rush Yds',short:'Rush Yds',stat:'rushYds',positions:['QB','RB','WR']},
