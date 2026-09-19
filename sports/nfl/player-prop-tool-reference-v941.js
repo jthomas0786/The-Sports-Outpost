@@ -91,7 +91,7 @@ function patchGuide(){
   const guide=document.getElementById('nflPlayerPropGuide');
   const grid=guide?.querySelector('.nfl-ppt-guide-grid');
   if(!grid)return false;
-  grid.innerHTML='<div><b>Consensus</b><p>Current sportsbook line for Full. Period views use the TSO simulation threshold because a comparable sportsbook period line is not always published.</p></div><div><b>Pick</b><p>The side favored by the 50,000-run simulation at the displayed line.</p></div><div><b>Proj / L10 Avg</b><p>Projection and central-value columns are generated from the 50K simulation distribution. L10 Avg is a simulation display category here, not a historical last-10 average.</p></div><div><b>Cov Prob</b><p>Exact share of the 50,000 simulated worlds in which the selected side covers the displayed line.</p></div><div><b>Edge</b><p>For Full, simulation cover probability minus sportsbook implied probability. Period views show simulation advantage over a neutral 50% baseline.</p></div><div><b>DEF vs Prop / Matchup</b><p>Simulation-only matchup rank and grade, derived from how the 50K worlds perform against the prop line. No historical defense-rank fallback is used.</p></div><div><b>Sim Def / L5 / L10 / H2H</b><p>Compact equivalent-hit displays calculated from the exact 50K cover probability. They are simulation analogs for the reference layout, not historical game-log counts.</p></div><div><b>50K Authority</b><p>All model-derived values on this table trace back to the same 50,000 pregame simulation worlds.</p></div>';
+  grid.innerHTML='<div><b>Bet Style</b><p>For Full-game props, TSO Pick, Safest, Best Edge, Balanced, Aggressive, Correlated and Longshot choose among real sportsbook line/side/price candidates, then grade that exact candidate against the same 50,000 simulated worlds.</p></div><div><b>Consensus</b><p>For Full, this is the actual sportsbook prop line selected by the active Bet Style. When Bet Style selects a different posted line, Consensus and Pick move together. Period views use a TSO simulation threshold when a comparable sportsbook period market is not published.</p></div><div><b>Pick</b><p>The exact Over/Under side, line, sportsbook and price selected by Bet Style. Full-game Pick is never a made-up sportsbook quote.</p></div><div><b>Proj / L10 Avg</b><p>Projection and central-value columns come from the 50K simulation distribution. L10 Avg is a simulation display category here, not a historical last-10 average.</p></div><div><b>Cov Prob</b><p>Exact share of the 50,000 simulated worlds in which the selected side covers the displayed line.</p></div><div><b>Edge</b><p>For Full, SIM VS IMPLIED is the exact 50K cover probability minus the implied probability of the displayed sportsbook price. Period views use SIM VS 50% rather than inventing unavailable period odds.</p></div><div><b>DEF vs Prop / Matchup</b><p>Simulation-only matchup rank and grade derived from how the 50K worlds perform against the selected prop. No historical defense-rank fallback is used. The table label remains SIM vs Prop.</p></div><div><b>Sim Def / L5 / L10 / H2H</b><p>Compact equivalent-hit displays calculated from the exact 50K cover probability. They are simulation analogs for the reference layout, not historical game-log counts.</p></div><div><b>Filters</b><p>Game, Prop, Team, Search, Position and minimum probability stay hard filters. Changing Bet Style can change the candidate line and odds, but it cannot bring filtered-out players or prop markets back into the table.</p></div><div><b>50K Authority</b><p>All model-derived values on this table trace back to the same 50,000 pregame simulation worlds.</p></div>';
   const small=guide.querySelector('small');
   if(small)small.textContent='TSO simulation categories are informational. L5/L10/H2H labels on this table are simulation equivalents, not claims about historical game samples.';
   return true;
@@ -144,11 +144,12 @@ function onClick(event){
   if(opener){schedule();return;}
   const inside=event.target.closest?.(`#${TOOL_ID}`);
   if(!inside)return;
-  if(event.target.closest?.('[data-nfl-ppt-period],#nflPptRefresh,#nflPptGuide,[data-sort],#nflPptClear,#nflPptMore'))setTimeout(applyReference,35);
+  if(event.target.closest?.('[data-nfl-ppt-period],#nflPptRefresh,#nflPptGuide,[data-sort],#nflPptClear,#nflPptMore')){setTimeout(applyReference,35);setTimeout(applyReference,140);}
 }
 function onChange(event){
   if(!event.target.closest?.(`#${TOOL_ID}`))return;
   setTimeout(applyReference,35);
+  setTimeout(applyReference,140);
 }
 function onInput(event){
   if(!event.target.closest?.(`#${TOOL_ID}`))return;
@@ -160,7 +161,7 @@ export function installNflPlayerPropToolReferenceV941(){
   installed=true;
   window.__TSO_NFL_PROP_REFERENCE_V941__={applyReference,patchHeaders,patchRows,patchGuide,HEADERS,GROUPS};
   document.addEventListener('click',onClick,true);
-  document.addEventListener('change',onChange,true);
+  window.addEventListener('change',onChange,true);
   document.addEventListener('input',onInput,true);
   schedule();
 }
