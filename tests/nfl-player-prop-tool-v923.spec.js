@@ -124,7 +124,11 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
     wrap.scrollLeft=Math.min(180,Math.max(0,wrap.scrollWidth-wrap.clientWidth));
     return {x:window.scrollX,y:window.scrollY,tableX:wrap.scrollLeft};
   });
-  await player.click();
+  // Use a DOM click after setting the table position. Playwright locator.click()
+  // auto-scrolls the horizontal table before dispatching the click event, which
+  // would make the app capture the automation-induced position instead of the
+  // user's position at the moment of the tap.
+  await player.evaluate(el=>el.click());
   const modal=page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72,.ms-modal').first();
   await expect(modal).toBeVisible({timeout:15000});
   await expect(modal).toContainText(clickedName.split(' ')[0]);
@@ -138,7 +142,7 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
   expect(Math.abs(afterModal.tableX-beforeModal.tableX)).toBeLessThanOrEqual(2);
 
   const secondPlayer=page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-player').first();
-  await secondPlayer.click();
+  await secondPlayer.evaluate(el=>el.click());
   await expect(page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72,.ms-modal').first()).toBeVisible({timeout:15000});
   await page.locator('.modal-close:visible,.ms-modal-x:visible').first().click();
   await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:15000});
@@ -241,7 +245,10 @@ test('NFL Player Prop Tool scrolls smoothly without rerendering the snapshot',as
   expect(css.rowHeight).toBeGreaterThanOrEqual(82);
   expect(css.transition).toMatch(/^0s/);
   expect(css.animation).toBe('none');
-  expect(css.backgroundAttachment).toBe('scroll');
+  const backgroundAttachments=css.backgroundAttachment.split(',').map(v=>v.trim()).filter(Boolean);
+  expect(backgroundAttachments.length).toBeGreaterThan(0);
+  expect(backgroundAttachments.every(v=>v==='scroll')).toBe(true);
+  expect(css.backgroundAttachment).not.toContain('fixed');
   expect(css.bodyScrollWidth).toBeLessThanOrEqual(css.bodyClientWidth+3);
 
   await page.evaluate(()=>window.scrollTo(0,0));
