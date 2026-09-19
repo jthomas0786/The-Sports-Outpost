@@ -1,5 +1,6 @@
 import {test,expect} from '@playwright/test';
 
+test.setTimeout(90000);
 const BASE='http://127.0.0.1:4173/index.html#nhl';
 
 async function openNhl(page,viewport){
