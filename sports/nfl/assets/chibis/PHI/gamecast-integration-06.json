@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-06",
+  "season": 2026,
+  "purpose": "Philadelphia NFL Gamecast accessibility, replay, responsive-layout and production observability contract. Metadata-only and PHI/NFL namespaced.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json","./gamecast-integration-05.json"],
+  "responsiveComposition": {
+    "coordinateSpace": "Resolve player and football anchors in field-local normalized coordinates before viewport projection.",
+    "resize": "Viewport resize or orientation change reprojects canonical anchors without restarting the play animation.",
+    "safeArea": "Keep authored player silhouettes and possession-critical football pixels clear of Gamecast controls and mobile safe-area insets.",
+    "scaleGuard": "Responsive scaling is scene-wide; never independently stretch a player's approved body proportions or identity details.",
+    "footAnchor": "Every responsive projection preserves bottom-center planted-foot contact with the field plane."
+  },
+  "accessibility": {
+    "reducedMotion": "Honor reduced-motion by selecting representative authored key poses and existing textual Gamecast event output instead of rapid motion.",
+    "meaning": "Chibi animation is additive presentation; score, down, distance, clock, possession and play result remain available in existing semantic UI.",
+    "focus": "Decorative chibi layers never enter keyboard focus order or intercept Gamecast controls.",
+    "flashGuard": "Do not add rapid flashing, strobing or celebration effects that are required to understand an event."
+  },
+  "replay": {
+    "source": "Replay is reconstructed from the authoritative play snapshot and roster/action inventory, not mutable live animation state.",
+    "determinism": "The same normalized play fingerprint, participant roles and asset inventory resolve the same action sequence and football ownership.",
+    "signatureEligibility": "Verified signature eligibility is recomputed from the replayed event; explicit replay may intentionally replay an eligible verified sequence while polling may not.",
+    "corrections": "If an authoritative correction changes the play fingerprint or participant role, invalidate the prior replay recipe before rendering."
+  },
+  "observability": {
+    "scope": "NFL chibi telemetry is namespaced to nfl.chibi.PHI and cannot alter MLB/NHL runtime state.",
+    "events": ["asset_resolve","asset_fallback","animation_start","animation_complete","signature_start","replay_start","authoritative_correction"],
+    "privacy": "Record asset/action identifiers and play fingerprints only; do not add user-identifying telemetry.",
+    "failurePolicy": "Telemetry failure is non-blocking and never suppresses existing Gamecast presentation."
+  },
+  "identityGuards": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Eagles headshot lock; never infer skin tone or visible appearance from name",
+    "camera": "shared Dallas-approved locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale projected scene-wide",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "verifiedSignatures": ["Nolan Smith Jr. dice-roll sack celebration","Saquon Barkley reverse hurdle","Jalen Hurts Brotherly Shove","DeVonta Smith sideline toe-tap"],
+    "signatureClassification": "Only Nolan Smith Jr. dice-roll is classified as a verified celebration; Barkley reverse hurdle, Hurts Brotherly Shove and Smith sideline toe-tap remain signature football moves.",
+    "forbidden": ["invent a named signature","infer appearance from name","stretch player identity independently","mirror jersey identity incorrectly","duplicate football ownership","synthesize the legitimate open 53rd slot"]
+  },
+  "acceptanceFixtures": [
+    {"id":"phi-mobile-reproject","input":{"orientationChange":true,"animationActive":true},"expect":{"animationRestart":false,"footAnchorPreserved":true,"independentPlayerStretch":false}},
+    {"id":"phi-safe-area","input":{"mobileControlsVisible":true},"expect":{"criticalPlayerOccluded":false,"footballOccludedByControls":false}},
+    {"id":"phi-reduced-motion","input":{"prefersReducedMotion":true,"event":"touchdown"},"expect":{"representativeKeyPose":true,"semanticEventRetained":true,"rapidMotion":false}},
+    {"id":"phi-focus-order","input":{"chibiVisible":true},"expect":{"chibiFocusable":false,"gamecastControlsIntercepted":false}},
+    {"id":"phi-deterministic-replay","input":{"samePlayFingerprint":true,"sameParticipants":true,"sameInventory":true},"expect":{"sameReplayRecipe":true,"sameFootballAuthority":true}},
+    {"id":"phi-dice-roll-intentional-replay","input":{"signature":"dice-roll-celebration","verifiedEligible":true,"explicitReplay":true},"expect":{"signatureMayReplay":true,"classification":"verified celebration"}},
+    {"id":"phi-move-classification-replay","input":{"signature":"reverse-hurdle","verifiedEligible":true,"explicitReplay":true},"expect":{"signatureMayReplay":true,"classification":"signature football move","inventedCelebration":false}},
+    {"id":"phi-polling-not-replay","input":{"signature":"brotherly-shove","fingerprintConsumed":true,"pollRefresh":true},"expect":{"signatureReplay":false}},
+    {"id":"phi-correction-invalidates-replay","input":{"authoritativeCorrection":true,"fingerprintChanged":true},"expect":{"oldReplayRecipeValid":false}},
+    {"id":"phi-telemetry-nonblocking","input":{"telemetryAvailable":false},"expect":{"gamecastRenderBlocked":false,"fallbackChanged":false}},
+    {"id":"phi-open-slot","input":{"requestedRosterIndex":53,"identityMissing":true},"expect":{"assetProbe":false,"placeholderCreated":false}},
+    {"id":"phi-observability-isolation","input":{"telemetryNamespace":"nfl.chibi.PHI"},"expect":{"mlbMutation":false,"nhlMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Responsive projection preserves canonical scale and foot anchors without animation restart.",
+      "Reduced-motion and semantic Gamecast presentation remain usable without animation.",
+      "Replay reconstruction is deterministic and correction-aware.",
+      "Polling cannot masquerade as intentional replay for verified signatures.",
+      "Verified signature classifications remain unchanged; no named celebration is invented.",
+      "The legitimate open roster slot cannot generate an asset or placeholder.",
+      "Observability is non-blocking, privacy-minimal and NFL/Philadelphia scoped.",
+      "No MLB/NHL runtime or metadata dependency is introduced."
+    ]
+  }
+}
