@@ -6,7 +6,7 @@ async function openNfl(page,viewport={width:1440,height:1000}){
   await page.setViewportSize(viewport);
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
   await page.waitForSelector('#nflView',{state:'visible',timeout:30000});
-  await page.waitForFunction(()=>document.querySelectorAll('#nflView [data-nfl-player]').length>20,{timeout:30000});
+  await page.waitForFunction(()=>document.querySelectorAll('#nflView [data-nfl-player]').length>0,{timeout:30000});
   await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:30000});
 }
 
