@@ -1,0 +1,68 @@
+/* NFL Player Prop Tool v93.8 — final visual polish.
+   Theme-only player-column correction plus a dedicated horizontal scrollbar.
+   Snapshot/render/data behavior is intentionally untouched. */
+
+/* The player column must use the same Outpost navy surface as the rest of each row. */
+#nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row] > td:first-child,
+#nflView #nflPlayerPropTool .nfl-ppt-table td.nfl-ppt-player-sticky,
+#nflView #nflPlayerPropTool .nfl-ppt-player-sticky{
+  background:#081426!important;
+  background-image:none!important;
+  color:#d8e7fb!important;
+  border-color:rgba(120,176,239,.14)!important;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row]:hover > td:first-child,
+#nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row]:hover > td.nfl-ppt-player-sticky{
+  background:#0b1b33!important;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row] > td:first-child .nfl-ppt-player,
+#nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row] > td:first-child .nfl-ppt-player b{
+  color:#f7fbff!important;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row] > td:first-child .nfl-ppt-player small{
+  color:#8ea2bd!important;
+}
+
+/* Always-visible horizontal scroller above the long table. */
+#nflView #nflPlayerPropTool .nfl-ppt-xscroll-v938{
+  display:block;
+  width:100%;
+  max-width:1620px;
+  height:19px;
+  margin:0 0 8px;
+  overflow-x:scroll;
+  overflow-y:hidden;
+  box-sizing:border-box;
+  border:1px solid rgba(45,127,255,.25);
+  border-radius:9px;
+  background:#07101f;
+  scrollbar-color:#2d7fff #07101f;
+  scrollbar-width:auto;
+  overscroll-behavior-x:contain;
+  -webkit-overflow-scrolling:touch;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-xscroll-inner-v938{
+  height:1px;
+  min-height:1px;
+  pointer-events:none;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-xscroll-v938::-webkit-scrollbar,
+#nflView #nflPlayerPropTool .nfl-ppt-table-wrap::-webkit-scrollbar{
+  height:14px;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-xscroll-v938::-webkit-scrollbar-track,
+#nflView #nflPlayerPropTool .nfl-ppt-table-wrap::-webkit-scrollbar-track{
+  background:#07101f;
+  border-radius:999px;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-xscroll-v938::-webkit-scrollbar-thumb,
+#nflView #nflPlayerPropTool .nfl-ppt-table-wrap::-webkit-scrollbar-thumb{
+  min-width:72px;
+  background:linear-gradient(90deg,#176ee8,#2d7fff,#53a1ff);
+  border:3px solid #07101f;
+  border-radius:999px;
+}
+#nflView #nflPlayerPropTool .nfl-ppt-xscroll-v938::-webkit-scrollbar-thumb:hover,
+#nflView #nflPlayerPropTool .nfl-ppt-table-wrap::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(90deg,#2d7fff,#5ea6ff);
+}
