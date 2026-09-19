@@ -21,7 +21,7 @@ permissions:
 
 concurrency:
   group: one-time-nfl-prop-build-period-v940
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build-and-qa:
