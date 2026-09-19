@@ -7,6 +7,8 @@ let installed=false;
 let returnState=null;
 let restoreRaf=0;
 let restoreFrames=0;
+let settleRaf=0;
+let settleFrames=0;
 let pendingStamp=0;
 let stampRaf=0;
 
@@ -58,7 +60,13 @@ function queueStamp(label='snapshot loaded',previousTable=null){
   };
   stampRaf=requestAnimationFrame(run);
 }
+function cancelSettle(){
+  if(settleRaf)cancelAnimationFrame(settleRaf);
+  settleRaf=0;
+  settleFrames=0;
+}
 function captureReturnState(){
+  cancelSettle();
   const root=tool(),wrap=tableWrap(root);
   if(!root)return;
   returnState={x:window.scrollX,y:window.scrollY,tableX:wrap?.scrollLeft||0,toolRef:root};
@@ -83,11 +91,31 @@ function recoverSavedTool(){
   document.getElementById(BUTTON_ID)?.classList.add('is-active');
   return true;
 }
+function applySavedPosition(saved){
+  const root=tool(),wrap=tableWrap(root);
+  if(!root||root.dataset.nflPptSnapshot!=='ready')return false;
+  if(wrap&&Math.abs(wrap.scrollLeft-saved.tableX)>.5)wrap.scrollLeft=saved.tableX;
+  if(Math.abs(window.scrollX-saved.x)>.5||Math.abs(window.scrollY-saved.y)>.5)window.scrollTo(saved.x,saved.y);
+  return true;
+}
+function settleSavedPosition(saved){
+  cancelSettle();
+  const run=()=>{
+    settleRaf=0;
+    applySavedPosition(saved);
+    // Enhanced Player Modal teardown can restore focus after the tool has already
+    // been reinserted. Keep the saved page/table coordinates authoritative for a
+    // short bounded window, then stop completely. No observer or background poll.
+    if(++settleFrames<36)settleRaf=requestAnimationFrame(run);
+    else settleFrames=0;
+  };
+  settleRaf=requestAnimationFrame(run);
+}
 function restoreReturnState(){
   restoreRaf=0;
   if(!returnState)return;
   recoverSavedTool();
-  const root=tool(),wrap=tableWrap(root);
+  const root=tool();
   if(!root||root.dataset.nflPptSnapshot!=='ready'){
     if(++restoreFrames<480)restoreRaf=requestAnimationFrame(restoreReturnState);
     return;
@@ -95,13 +123,8 @@ function restoreReturnState(){
   const saved=returnState;
   returnState=null;
   restoreFrames=0;
-  if(wrap)wrap.scrollLeft=saved.tableX;
-  window.scrollTo(saved.x,saved.y);
-  requestAnimationFrame(()=>{
-    const currentWrap=tableWrap();
-    if(currentWrap)currentWrap.scrollLeft=saved.tableX;
-    window.scrollTo(saved.x,saved.y);
-  });
+  applySavedPosition(saved);
+  settleSavedPosition(saved);
 }
 function queueReturnRestore(){
   if(restoreRaf)cancelAnimationFrame(restoreRaf);
@@ -135,4 +158,4 @@ export function installNflPlayerPropToolUxV930(){
   document.addEventListener('keydown',onKeyDown,true);
 }
 
-export const __NFL_PLAYER_PROP_TOOL_UX_V930_TEST__={captureReturnState,queueReturnRestore,stampSnapshot,recoverSavedTool,modalNodeVisible};
+export const __NFL_PLAYER_PROP_TOOL_UX_V930_TEST__={captureReturnState,queueReturnRestore,stampSnapshot,recoverSavedTool,modalNodeVisible,applySavedPosition,settleSavedPosition};
