@@ -12,7 +12,9 @@ let snapshotReady=false;
 let preparing=false;
 let savedState=null;
 let prepTimer=null;
-let prepAttempts=0;
+let prepPolls=0;
+let loadBatches=0;
+let waitForTableReplacement=null;
 let applyRaf=0;
 let parkedTool=null;
 let gameKeyById=new Map();
@@ -27,7 +29,7 @@ function ensureStyle(){
   const link=document.createElement('link');
   link.id=STYLE_ID;
   link.rel='stylesheet';
-  link.href='./sports/nfl/player-prop-tool-snapshot-v928.css?v=92.8';
+  link.href='./sports/nfl/player-prop-tool-snapshot-v928.css?v=92.8.1';
   document.head.appendChild(link);
 }
 
@@ -175,7 +177,7 @@ function requestApply(){
   applyRaf=requestAnimationFrame(()=>{applyRaf=0;applySnapshot();});
 }
 function syncControls(tool){
-  const setValue=(id,value)=>{const el=tool.querySelector(id);if(el&&[...el.options||[]].some(o=>o.value===String(value)))el.value=String(value);};
+  const setValue=(id,value)=>{const el=tool.querySelector(id);if(el&&[...(el.options||[])].some(o=>o.value===String(value)))el.value=String(value);};
   setValue('#nflPptMode',state.mode);
   setValue('#nflPptGame',state.game);
   setValue('#nflPptMarket',state.market);
@@ -212,7 +214,9 @@ function finishSnapshot(){
   savedState=null;
   preparing=false;
   snapshotReady=true;
-  prepAttempts=0;
+  prepPolls=0;
+  loadBatches=0;
+  waitForTableReplacement=null;
   tool.querySelector('.nfl-ppt-more')?.remove();
   buildGameMap(tool);
   tool.querySelectorAll('.nfl-ppt-table tbody tr[data-nfl-ppt-row]').forEach(decorateRow);
@@ -227,25 +231,37 @@ function advancePrepare(){
   prepTimer=null;
   if(!preparing)return;
   const tool=document.getElementById(TOOL_ID);
-  if(!tool){if(++prepAttempts<400)queuePrepare(25);return;}
+  if(!tool){if(++prepPolls<500)queuePrepare(25);return;}
   tool.dataset.nflPptSnapshot='preparing';
-  if(tool.querySelector('.nfl-ppt-error')){restoreState(savedState);savedState=null;preparing=false;return;}
-  const tbody=tool.querySelector('.nfl-ppt-table tbody');
-  if(!tbody){if(++prepAttempts<400)queuePrepare(25);return;}
+  if(tool.querySelector('.nfl-ppt-error')){
+    restoreState(savedState);savedState=null;preparing=false;waitForTableReplacement=null;return;
+  }
+  const table=tool.querySelector('.nfl-ppt-table');
+  if(waitForTableReplacement&&table===waitForTableReplacement){if(++prepPolls<500)queuePrepare(25);return;}
+  if(waitForTableReplacement&&table!==waitForTableReplacement){waitForTableReplacement=null;prepPolls=0;}
+  const tbody=table?.querySelector('tbody');
+  if(!tbody){if(++prepPolls<500)queuePrepare(25);return;}
   const more=tool.querySelector('#nflPptMore');
-  if(more&&prepAttempts<80){prepAttempts++;more.click();queuePrepare(35);return;}
+  if(more&&loadBatches<4){
+    loadBatches++;
+    for(let i=0;i<100;i++)more.click();
+    queuePrepare(80);
+    return;
+  }
   finishSnapshot();
 }
 function queuePrepare(delay=0){
   if(prepTimer)clearTimeout(prepTimer);
   prepTimer=setTimeout(advancePrepare,delay);
 }
-function beginPrepare(){
+function beginPrepare(previousTable=null){
   if(preparing)return;
   savedState=copyState();
   snapshotReady=false;
   preparing=true;
-  prepAttempts=0;
+  prepPolls=0;
+  loadBatches=0;
+  waitForTableReplacement=previousTable;
   neutralizeForSnapshot();
   const tool=document.getElementById(TOOL_ID);
   if(tool)tool.dataset.nflPptSnapshot='preparing';
@@ -300,7 +316,8 @@ function onClickCapture(e){
   }
   const tool=target.closest?.(`#${TOOL_ID}`);
   if(!tool)return;
-  if(target.closest?.('#nflPptRefresh,#nflPptRetry')){beginPrepare();return;}
+  if(target.closest?.('#nflPptRefresh')){beginPrepare(tool.querySelector('.nfl-ppt-table'));return;}
+  if(target.closest?.('#nflPptRetry')){beginPrepare();return;}
   if(!snapshotReady)return;
   if(target.closest?.('[data-nfl-tool-player]')){parkForPlayerModal();return;}
   if(target.closest?.('#nflPptClear')){
@@ -345,7 +362,7 @@ function onInputCapture(e){
 }
 function onHashChange(){
   if(!String(location.hash||'').toLowerCase().startsWith('#nfl')){
-    snapshotReady=false;preparing=false;savedState=null;parkedTool=null;
+    snapshotReady=false;preparing=false;savedState=null;parkedTool=null;waitForTableReplacement=null;
     if(prepTimer)clearTimeout(prepTimer);
   }
 }
