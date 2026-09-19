@@ -3,14 +3,16 @@ import { __NFL_PLAYER_PROP_TOOL_V923_TEST__ as base } from './player-prop-tool-v
 const STYLE_ID='nfl-player-prop-tool-v925-polish';
 const TOOL_ID='nflPlayerPropTool';
 const STASH_ID='nflPlayerPropToolBaseStash';
+const BUTTON_ID='nflPlayerPropToolBtn';
 const RING_C=326.7;
+const COL_WIDTHS=[215,75,84,60,68,72,62,72,88,68,62,62,62];
 const state=base?.state;
 
 let installed=false;
 let observer=null;
 let observedRoot=null;
 let filtersOpen=false;
-let playerModalOpen=false;
+let toolWanted=false;
 let restoreQueued=false;
 let raf=0;
 
@@ -23,7 +25,7 @@ function ensureStyle(){
   const style=document.createElement('style');
   style.id=STYLE_ID;
   style.textContent=`
-/* v92.5: compact, lower-paint Player Prop Tool */
+/* v92.5: compact, low-repaint Player Prop Tool */
 #nflView #${TOOL_ID}{padding:12px 10px 22px!important}
 #nflView .nfl-ppt-head,#nflView .nfl-ppt-toolbar,#nflView .nfl-ppt-filter-panel,#nflView .nfl-ppt-table-wrap{max-width:1180px!important}
 #nflView .nfl-ppt-toolbar{grid-template-columns:minmax(340px,1.1fr) auto minmax(360px,.9fr)!important;gap:8px!important}
@@ -37,22 +39,33 @@ function ensureStyle(){
 #nflView .nfl-ppt-filter-panel button{height:36px!important;padding:0 10px!important}
 
 #nflView .nfl-ppt-table-wrap{overflow:auto!important;contain:layout paint;overscroll-behavior:contain!important;scroll-behavior:auto!important;scrollbar-gutter:stable}
-#nflView .nfl-ppt-table{width:1050px!important;min-width:1050px!important;table-layout:fixed!important;font-size:10.5px!important}
-#nflView .nfl-ppt-table thead tr:nth-child(2) th{height:36px!important;padding:0 3px!important;font-size:7.5px!important;letter-spacing:.015em!important}
+#nflView .nfl-ppt-table{width:1050px!important;min-width:1050px!important;max-width:1050px!important;table-layout:fixed!important;font-size:10.5px!important}
+#nflView .nfl-ppt-table col:nth-child(1){width:215px!important}
+#nflView .nfl-ppt-table col:nth-child(2){width:75px!important}
+#nflView .nfl-ppt-table col:nth-child(3){width:84px!important}
+#nflView .nfl-ppt-table col:nth-child(4){width:60px!important}
+#nflView .nfl-ppt-table col:nth-child(5){width:68px!important}
+#nflView .nfl-ppt-table col:nth-child(6){width:72px!important}
+#nflView .nfl-ppt-table col:nth-child(7){width:62px!important}
+#nflView .nfl-ppt-table col:nth-child(8){width:72px!important}
+#nflView .nfl-ppt-table col:nth-child(9){width:88px!important}
+#nflView .nfl-ppt-table col:nth-child(10){width:68px!important}
+#nflView .nfl-ppt-table col:nth-child(n+11){width:62px!important}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th{height:36px!important;padding:0 3px!important;font-size:7.5px!important;letter-spacing:.015em!important;overflow:hidden!important;white-space:nowrap!important;text-overflow:ellipsis!important}
 #nflView .nfl-ppt-table .nfl-ppt-groups th{height:22px!important;padding:0 4px!important;font-size:6.5px!important;letter-spacing:.14em!important;transform:none!important}
 #nflView .nfl-ppt-table tbody tr{height:58px!important}
-#nflView .nfl-ppt-table td{padding:3px 4px!important}
-#nflView .nfl-ppt-table th:nth-child(1),#nflView .nfl-ppt-table td:nth-child(1){width:215px!important}
-#nflView .nfl-ppt-table th:nth-child(2),#nflView .nfl-ppt-table td:nth-child(2){width:75px!important}
-#nflView .nfl-ppt-table th:nth-child(3),#nflView .nfl-ppt-table td:nth-child(3){width:84px!important}
-#nflView .nfl-ppt-table th:nth-child(4),#nflView .nfl-ppt-table td:nth-child(4){width:60px!important}
-#nflView .nfl-ppt-table th:nth-child(5),#nflView .nfl-ppt-table td:nth-child(5){width:68px!important}
-#nflView .nfl-ppt-table th:nth-child(6),#nflView .nfl-ppt-table td:nth-child(6){width:72px!important}
-#nflView .nfl-ppt-table th:nth-child(7),#nflView .nfl-ppt-table td:nth-child(7){width:62px!important}
-#nflView .nfl-ppt-table th:nth-child(8),#nflView .nfl-ppt-table td:nth-child(8){width:72px!important}
-#nflView .nfl-ppt-table th:nth-child(9),#nflView .nfl-ppt-table td:nth-child(9){width:88px!important}
-#nflView .nfl-ppt-table th:nth-child(10),#nflView .nfl-ppt-table td:nth-child(10){width:68px!important}
-#nflView .nfl-ppt-table th:nth-child(n+11),#nflView .nfl-ppt-table td:nth-child(n+11){width:62px!important}
+#nflView .nfl-ppt-table td{padding:3px 4px!important;overflow:hidden!important}
+#nflView .nfl-ppt-table th:nth-child(1),#nflView .nfl-ppt-table td:nth-child(1){width:215px!important;min-width:215px!important;max-width:215px!important}
+#nflView .nfl-ppt-table th:nth-child(2),#nflView .nfl-ppt-table td:nth-child(2){width:75px!important;min-width:75px!important;max-width:75px!important}
+#nflView .nfl-ppt-table th:nth-child(3),#nflView .nfl-ppt-table td:nth-child(3){width:84px!important;min-width:84px!important;max-width:84px!important}
+#nflView .nfl-ppt-table th:nth-child(4),#nflView .nfl-ppt-table td:nth-child(4){width:60px!important;min-width:60px!important;max-width:60px!important}
+#nflView .nfl-ppt-table th:nth-child(5),#nflView .nfl-ppt-table td:nth-child(5){width:68px!important;min-width:68px!important;max-width:68px!important}
+#nflView .nfl-ppt-table th:nth-child(6),#nflView .nfl-ppt-table td:nth-child(6){width:72px!important;min-width:72px!important;max-width:72px!important}
+#nflView .nfl-ppt-table th:nth-child(7),#nflView .nfl-ppt-table td:nth-child(7){width:62px!important;min-width:62px!important;max-width:62px!important}
+#nflView .nfl-ppt-table th:nth-child(8),#nflView .nfl-ppt-table td:nth-child(8){width:72px!important;min-width:72px!important;max-width:72px!important}
+#nflView .nfl-ppt-table th:nth-child(9),#nflView .nfl-ppt-table td:nth-child(9){width:88px!important;min-width:88px!important;max-width:88px!important}
+#nflView .nfl-ppt-table th:nth-child(10),#nflView .nfl-ppt-table td:nth-child(10){width:68px!important;min-width:68px!important;max-width:68px!important}
+#nflView .nfl-ppt-table th:nth-child(n+11),#nflView .nfl-ppt-table td:nth-child(n+11){width:62px!important;min-width:62px!important;max-width:62px!important}
 #nflView .nfl-ppt-player{gap:6px!important}
 #nflView .nfl-ppt-avatar{flex-basis:36px!important;width:36px!important;height:36px!important}
 #nflView .nfl-ppt-player b{font-size:11px!important}
@@ -68,7 +81,7 @@ function ensureStyle(){
 #nflView .nfl-ppt-match span{margin-top:2px!important;font-size:6px!important}
 #nflView .nfl-ppt-hit{height:42px!important;margin:-3px -4px!important}
 
-/* Use the same SVG progress-ring language as the established NFL surfaces. */
+/* Same SVG/grade language as the established NFL progress rings. */
 #nflView .nfl-ppt-prob{position:relative!important;width:46px!important;height:46px!important;margin:0 auto!important;display:grid!important;place-items:center!important;vertical-align:middle!important;background:none!important;border:0!important;border-radius:50%!important;box-shadow:none!important;color:var(--ring-color,#8b95a8)!important}
 #nflView .nfl-ppt-prob::before{display:none!important}
 #nflView .nfl-ppt-prob>svg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;overflow:visible!important}
@@ -80,8 +93,7 @@ function ensureStyle(){
 #nflView .nfl-ppt-prob>i,#nflView .nfl-ppt-prob>button{display:none!important}
 #nflView .nfl-ppt-prob.empty{background:#f5f7fa!important;color:#8b95a8!important;border:1px solid #e1e8f0!important;font:800 11px/1 'JetBrains Mono',monospace!important}
 
-/* Sticky first cells force expensive repaints across a wide desktop table. Keep
-   them only where horizontal scrolling actually needs the player anchor. */
+/* Sticky cells were repainting the full wide table while scrolling on desktop. */
 @media(min-width:901px){
   #nflView .nfl-ppt-player-sticky{position:static!important;left:auto!important;z-index:auto!important;box-shadow:none!important}
   #nflView .nfl-ppt-table thead tr:nth-child(2) th:first-child{left:auto!important}
@@ -93,8 +105,9 @@ function ensureStyle(){
 }
 @media(max-width:700px){
   #nflView #${TOOL_ID}{padding:9px 5px 16px!important}
-  #nflView .nfl-ppt-table{width:1035px!important;min-width:1035px!important}
-  #nflView .nfl-ppt-table th:nth-child(1),#nflView .nfl-ppt-table td:nth-child(1){width:200px!important}
+  #nflView .nfl-ppt-table{width:1035px!important;min-width:1035px!important;max-width:1035px!important}
+  #nflView .nfl-ppt-table col:nth-child(1){width:200px!important}
+  #nflView .nfl-ppt-table th:nth-child(1),#nflView .nfl-ppt-table td:nth-child(1){width:200px!important;min-width:200px!important;max-width:200px!important}
   #nflView .nfl-ppt-filter-panel{grid-template-columns:1fr!important}
   #nflView .nfl-ppt-prob{width:44px!important;height:44px!important}
 }
@@ -107,8 +120,7 @@ function filterVisibleRows(query){
   if(!tool)return;
   const q=norm(query);
   let shown=0;
-  const rows=tool.querySelectorAll('tbody tr');
-  for(const row of rows){
+  for(const row of tool.querySelectorAll('tbody tr')){
     const match=!q||norm(row.textContent).includes(q);
     row.hidden=!match;
     if(match)shown++;
@@ -130,6 +142,19 @@ function patchSearchInput(){
   return true;
 }
 
+function lockColumnGeometry(){
+  const table=document.querySelector(`#${TOOL_ID} .nfl-ppt-table`);
+  if(!table||table.querySelector('colgroup[data-v925-cols]'))return;
+  const group=document.createElement('colgroup');
+  group.dataset.v925Cols='1';
+  for(const width of COL_WIDTHS){
+    const col=document.createElement('col');
+    col.style.width=`${width}px`;
+    group.appendChild(col);
+  }
+  table.prepend(group);
+}
+
 function decorateRings(){
   const tool=document.getElementById(TOOL_ID);
   if(!tool)return;
@@ -142,34 +167,38 @@ function decorateRings(){
   }
 }
 
-function restoreAfterPlayerModal(){
-  const root=document.getElementById('nflView');
-  if(!root)return;
-  const modal=root.querySelector('[data-nfl-close-modal],.tso-nfl-player-card-v70,.tso-nfl-player-card-v72');
-  if(modal){playerModalOpen=true;return;}
-  if(!playerModalOpen||root.querySelector(`#${TOOL_ID}`)||restoreQueued)return;
+function modalIsOpen(){
+  return !!document.querySelector('[data-nfl-close-modal],.tso-nfl-player-card-v70,.tso-nfl-player-card-v72');
+}
+
+function attemptToolRestore(){
+  if(!toolWanted||document.getElementById(TOOL_ID)||modalIsOpen())return;
+  const trigger=document.getElementById(BUTTON_ID);
+  if(trigger)trigger.click();
+}
+
+function queueToolRestore(){
+  if(restoreQueued)return;
   restoreQueued=true;
-  setTimeout(()=>{
-    restoreQueued=false;
-    const liveRoot=document.getElementById('nflView');
-    if(!liveRoot)return;
-    if(liveRoot.querySelector('[data-nfl-close-modal],.tso-nfl-player-card-v70,.tso-nfl-player-card-v72'))return;
-    if(liveRoot.querySelector(`#${TOOL_ID}`)){playerModalOpen=false;return;}
-    const trigger=document.getElementById('nflPlayerPropToolBtn');
-    if(trigger?.classList.contains('is-active'))trigger.click();
-    playerModalOpen=false;
-  },60);
+  const delays=[0,80,180,350,700,1200];
+  for(const delay of delays)setTimeout(()=>{
+    if(!toolWanted){restoreQueued=false;return;}
+    attemptToolRestore();
+    if(delay===delays.at(-1))restoreQueued=false;
+  },delay);
 }
 
 function stabilize(){
   raf=0;
   ensureStyle();
+  const tool=document.getElementById(TOOL_ID);
+  if(tool)toolWanted=true;
   const panel=document.getElementById('nflPptFilterPanel');
   if(panel&&filtersOpen)panel.hidden=false;
   const patched=patchSearchInput();
   if(patched&&state?.search)filterVisibleRows(state.search);
+  lockColumnGeometry();
   decorateRings();
-  restoreAfterPlayerModal();
 }
 
 function scheduleStabilize(){
@@ -213,10 +242,30 @@ function onClick(e){
     scheduleStabilize();
     return;
   }
+  if(e.target.closest?.(`#${BUTTON_ID}`)){
+    toolWanted=true;
+    scheduleStabilize();
+    return;
+  }
+  if(e.target.closest?.('[data-nfl-tool-player]')){
+    toolWanted=true;
+    return;
+  }
+  if(e.target.closest?.('[data-nfl-close-modal]')){
+    if(toolWanted)queueToolRestore();
+    return;
+  }
   if(e.target.closest?.('#nflPptClear')){
     filtersOpen=true;
     queueMicrotask(scheduleStabilize);
+    return;
   }
+  const otherTab=e.target.closest?.('#sbSportAccordion [data-nfl-preview-tab],#sbSportAccordion [data-nfl-tab],#nflSideNav [data-nfl-tab]');
+  if(otherTab&&otherTab.id!==BUTTON_ID)toolWanted=false;
+}
+
+function onHashChange(){
+  if(!String(location.hash||'').toLowerCase().startsWith('#nfl'))toolWanted=false;
 }
 
 export function installNflPlayerPropToolPerformanceV925(){
@@ -224,6 +273,7 @@ export function installNflPlayerPropToolPerformanceV925(){
   installed=true;
   ensureStyle();
   document.addEventListener('click',onClick,true);
+  window.addEventListener('hashchange',onHashChange);
   bindObserver();
   stabilize();
 }
