@@ -1,4 +1,4 @@
-name: NFL Player Prop Tool Browser QA v93.7 final
+name: NFL Player Prop Tool Browser QA v93.8
 
 on:
   workflow_dispatch:
@@ -15,10 +15,13 @@ on:
       - 'sports/nfl/player-prop-tool-controls-v933.js'
       - 'sports/nfl/player-prop-tool-theme-v936.js'
       - 'sports/nfl/player-prop-tool-theme-v936.css'
+      - 'sports/nfl/player-prop-tool-polish-v938.js'
+      - 'sports/nfl/player-prop-tool-polish-v938.css'
       - 'sports/nfl-preview-v893.js'
       - 'sports/router.js'
       - 'tests/nfl-player-prop-tool-v923.spec.js'
       - 'tests/nfl-player-prop-tool-theme-v936.spec.js'
+      - 'tests/nfl-player-prop-tool-polish-v938.spec.js'
       - '.github/workflows/nfl-player-prop-tool-browser-v923.yml'
 
 permissions:
@@ -48,7 +51,7 @@ jobs:
           cat /tmp/nfl-prop-tool-server.log
           exit 1
       - name: Exercise frozen Player Prop Tool and Outpost theme in Chromium
-        run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js --reporter=line --workers=1
+        run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js --reporter=line --workers=1
       - name: Print server log on failure
         if: failure()
         run: cat /tmp/nfl-prop-tool-server.log || true
