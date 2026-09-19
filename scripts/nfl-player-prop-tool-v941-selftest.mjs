@@ -10,7 +10,7 @@ assert.deepEqual(R.HEADERS,['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','COV PR
 assert.deepEqual(R.GROUPS,['','PROJECTIONS + VALUE','TSO INSIGHTS + DATA','HIT RATES']);
 assert.deepEqual(R.rate(.831,5),{hits:4,total:5,p:.831});
 assert.deepEqual(R.rate(.831,10),{hits:8,total:10,p:.831});
-assert.equal(R.offenseScore({side:'under',prob:.83}),.17);
+assert.ok(Math.abs(R.offenseScore({side:'under',prob:.83})-.17)<1e-9);
 assert.deepEqual(R.matchupTone(27),['POOR','bad']);
 
 for(const token of [
