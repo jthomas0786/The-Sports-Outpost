@@ -1,24 +1,21 @@
-name: One-time NFL Player Prop Tool Single Authority v94.4
+name: One-time NFL Player Prop Tool Single Authority v94.5
 
 on:
-  workflow_dispatch:
   push:
     paths:
       - 'scripts/apply-nfl-player-prop-tool-v944-cleanup.py'
-      - 'tests/nfl-player-prop-tool-clean-v944.spec.js'
-      - '.github/workflows/one-time-nfl-player-prop-tool-clean-v944.yml'
 
 permissions:
   contents: write
 
 concurrency:
-  group: one-time-nfl-player-prop-tool-clean-v944
+  group: one-time-nfl-player-prop-tool-clean-v945
   cancel-in-progress: true
 
 jobs:
   clean-and-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -30,23 +27,16 @@ jobs:
       - name: Sync latest main
         run: git pull --rebase origin main
 
-      - name: Delete stale column writer and apply v94.4 authority fix
+      - name: Delete retired writers and apply v94.5 single authority
         run: python3 scripts/apply-nfl-player-prop-tool-v944-cleanup.py
 
       - name: Run static regressions
         run: |
-          node scripts/nfl-player-prop-tool-v944-selftest.mjs
-          node scripts/nfl-player-prop-tool-v940-selftest.mjs
-          node scripts/nfl-player-prop-tool-v923-selftest.mjs
+          node scripts/nfl-player-prop-tool-v945-selftest.mjs
           node scripts/mobile-swipe-anywhere-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
 
-      - name: Regenerate authoritative 50K sportsbook prop boards
-        env:
-          NFL_SIM_FORCE: '1'
-        run: node scripts/nfl-sim-auto.mjs --force
-
-      - name: Verify frozen 50K sportsbook prop boards
+      - name: Verify existing frozen 50K sportsbook prop boards
         run: |
           node - <<'NODE'
           const fs=require('fs');
@@ -73,33 +63,33 @@ jobs:
 
       - name: Start local production server
         run: |
-          python3 -m http.server 4173 >/tmp/nfl-prop-v944-server.log 2>&1 &
-          echo $! >/tmp/nfl-prop-v944-server.pid
+          python3 -m http.server 4173 >/tmp/nfl-prop-v945-server.log 2>&1 &
+          echo $! >/tmp/nfl-prop-v945-server.pid
           for i in {1..30}; do
             curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
             sleep 1
           done
-          cat /tmp/nfl-prop-v944-server.log
+          cat /tmp/nfl-prop-v945-server.log
           exit 1
 
-      - name: Reproduce stale-column video interaction
+      - name: Reproduce uploaded-video interactions
         run: |
           npx playwright test tests/nfl-player-prop-tool-clean-v944.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js --reporter=line --workers=1
 
       - name: Run complete Player Prop Tool browser regression
         run: |
-          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-clean-v944.spec.js --reporter=line --workers=1
+          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-clean-v944.spec.js --reporter=line --workers=1
 
-      - name: Commit and push verified v94.4 cleanup
+      - name: Commit and push verified v94.5 cleanup
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
-          git diff --cached --quiet && { echo 'No v94.4 changes to commit'; exit 1; }
-          git commit -m 'Delete stale NFL Prop Tool column layer v94.4'
+          git diff --cached --quiet && { echo 'No v94.5 changes to commit'; exit 1; }
+          git commit -m 'Delete retired NFL Prop Tool writers v94.5'
           git pull --rebase origin main
           git push origin HEAD:main
 
       - name: Print server log on failure
         if: failure()
-        run: cat /tmp/nfl-prop-v944-server.log || true
+        run: cat /tmp/nfl-prop-v945-server.log || true
