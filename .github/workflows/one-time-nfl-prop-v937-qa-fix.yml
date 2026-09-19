@@ -1,0 +1,70 @@
+name: One-time NFL Prop Tool v93.7 QA fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-nfl-prop-v937-qa-fix.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Patch browser QA to measure app behavior
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          p=Path('tests/nfl-player-prop-tool-v923.spec.js')
+          s=p.read_text()
+
+          old='''  await player.click();\n'''
+          new='''  // Use a DOM click after setting the table position. Playwright locator.click()\n  // auto-scrolls the horizontal table before dispatching the click event, which\n  // would make the app capture the automation-induced position instead of the\n  // user's position at the moment of the tap.\n  await player.evaluate(el=>el.click());\n'''
+          if old not in s:
+              raise SystemExit('first player click marker not found')
+          s=s.replace(old,new,1)
+
+          old2='''  await secondPlayer.click();\n'''
+          new2='''  await secondPlayer.evaluate(el=>el.click());\n'''
+          if old2 not in s:
+              raise SystemExit('second player click marker not found')
+          s=s.replace(old2,new2,1)
+
+          old3="""  expect(css.backgroundAttachment).toBe('scroll');\n"""
+          new3="""  const backgroundAttachments=css.backgroundAttachment.split(',').map(v=>v.trim()).filter(Boolean);\n  expect(backgroundAttachments.length).toBeGreaterThan(0);\n  expect(backgroundAttachments.every(v=>v==='scroll')).toBe(true);\n  expect(css.backgroundAttachment).not.toContain('fixed');\n"""
+          if old3 not in s:
+              raise SystemExit('background attachment assertion marker not found')
+          s=s.replace(old3,new3,1)
+
+          p.write_text(s)
+          PY
+
+      - name: Verify exact-position and scrolling-background assertions remain strict
+        run: |
+          grep -q "expect(Math.abs(afterModal.tableX-beforeModal.tableX)).toBeLessThanOrEqual(2)" tests/nfl-player-prop-tool-v923.spec.js
+          grep -q "await player.evaluate(el=>el.click())" tests/nfl-player-prop-tool-v923.spec.js
+          grep -q "backgroundAttachments.every(v=>v==='scroll')" tests/nfl-player-prop-tool-v923.spec.js
+          grep -q "not.toContain('fixed')" tests/nfl-player-prop-tool-v923.spec.js
+
+      - name: Commit QA correction
+        run: |
+          if git diff --quiet -- tests/nfl-player-prop-tool-v923.spec.js; then
+            echo 'QA corrections already present.'
+            exit 0
+          fi
+          git config user.name 'TSO NFL Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add tests/nfl-player-prop-tool-v923.spec.js
+          git commit -m 'Correct NFL Prop Tool browser QA interactions'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep 2
+          done
+          exit 1
