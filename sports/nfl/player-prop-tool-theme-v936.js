@@ -5,6 +5,6 @@ export function installNflPlayerPropToolThemeV936(){
   const link=document.createElement('link');
   link.id=STYLE_ID;
   link.rel='stylesheet';
-  link.href='./sports/nfl/player-prop-tool-theme-v936.css?v=93.6';
+  link.href='./sports/nfl/player-prop-tool-theme-v936.css?v=93.7';
   document.head.appendChild(link);
 }
