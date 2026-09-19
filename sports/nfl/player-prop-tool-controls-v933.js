@@ -22,25 +22,30 @@ function patchPropControl(){
   const tool=document.getElementById(TOOL_ID);
   if(!tool)return false;
 
+  let controlReady=false;
   const existingTop=tool.querySelector('.nfl-ppt-selects #nflPptMarket[data-nfl-ppt-top-prop="1"]');
   if(existingTop){
     if(state&&[...existingTop.options].some(o=>o.value===String(state.market)))existingTop.value=String(state.market);
-    return true;
+    controlReady=true;
+  }else{
+    const week=tool.querySelector('.nfl-ppt-selects #nflPptWeek');
+    if(!week)return false;
+    const weekLabel=week.closest('label');
+    if(!weekLabel)return false;
+
+    const oldMarket=tool.querySelector('#nflPptFilterPanel #nflPptMarket');
+    oldMarket?.closest('label')?.remove();
+
+    weekLabel.innerHTML=`<span>Prop</span><select id="nflPptMarket" data-nfl-ppt-top-prop="1">${propOptions()}</select>`;
+    const select=weekLabel.querySelector('#nflPptMarket');
+    if(select&&state&&[...select.options].some(o=>o.value===String(state.market)))select.value=String(state.market);
+    tool.dataset.nflPptPropSelector='top';
+    controlReady=true;
   }
 
-  const week=tool.querySelector('.nfl-ppt-selects #nflPptWeek');
-  if(!week)return false;
-  const weekLabel=week.closest('label');
-  if(!weekLabel)return false;
-
-  const oldMarket=tool.querySelector('#nflPptFilterPanel #nflPptMarket');
-  oldMarket?.closest('label')?.remove();
-
-  weekLabel.innerHTML=`<span>Prop</span><select id="nflPptMarket" data-nfl-ppt-top-prop="1">${propOptions()}</select>`;
-  const select=weekLabel.querySelector('#nflPptMarket');
-  if(select&&state&&[...select.options].some(o=>o.value===String(state.market)))select.value=String(state.market);
-  tool.dataset.nflPptPropSelector='top';
-  return true;
+  const simAuthority=window.__TSO_NFL_PROP_SIM_V939__;
+  const simReady=simAuthority?.applyIfReady?.();
+  return controlReady&&simReady===true;
 }
 
 function schedulePatch(){
