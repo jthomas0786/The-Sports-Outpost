@@ -1,4 +1,4 @@
-name: One-time NFL Player Prop Tool Build + Period v94.0
+name: One-time NFL Player Prop Tool Build + Period v94.1
 
 on:
   workflow_dispatch:
@@ -8,9 +8,12 @@ on:
       - 'scripts/nfl-sim-auto.mjs'
       - 'sports/nfl/player-prop-tool-build-period-v940.js'
       - 'sports/nfl/player-prop-tool-build-period-v940.css'
+      - 'sports/nfl/player-prop-tool-reference-v941.js'
       - 'sports/nfl-preview-v893.js'
       - 'scripts/nfl-player-prop-tool-v940-selftest.mjs'
+      - 'scripts/nfl-player-prop-tool-v941-selftest.mjs'
       - 'tests/nfl-player-prop-tool-build-period-v940.spec.js'
+      - 'tests/nfl-player-prop-tool-reference-v941.spec.js'
       - '.github/workflows/one-time-nfl-prop-build-period-v940.yml'
 
 permissions:
@@ -62,8 +65,9 @@ jobs:
           print(f'router cache: {major}.{minor} -> {major}.{minor+1}')
           PY
 
-      - name: Run static v94 regressions
+      - name: Run static v94.1 regressions
         run: |
+          node scripts/nfl-player-prop-tool-v941-selftest.mjs
           node scripts/nfl-player-prop-tool-v940-selftest.mjs
           node scripts/nfl-player-prop-tool-v923-selftest.mjs
           node scripts/mobile-swipe-anywhere-selftest.mjs
@@ -105,20 +109,20 @@ jobs:
 
       - name: Start local production server
         run: |
-          python3 -m http.server 4173 >/tmp/nfl-prop-v940-server.log 2>&1 &
-          echo $! >/tmp/nfl-prop-v940-server.pid
+          python3 -m http.server 4173 >/tmp/nfl-prop-v941-server.log 2>&1 &
+          echo $! >/tmp/nfl-prop-v941-server.pid
           for i in {1..30}; do
             curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
             sleep 1
           done
-          cat /tmp/nfl-prop-v940-server.log
+          cat /tmp/nfl-prop-v941-server.log
           exit 1
 
-      - name: Exercise v94 Build Style + period UI in Chromium
+      - name: Exercise v94.1 reference columns + Build Style + period UI in Chromium
         run: |
-          npx playwright test tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js --reporter=line --workers=1
+          npx playwright test tests/nfl-player-prop-tool-reference-v941.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js --reporter=line --workers=1
 
-      - name: Commit final v94 wiring + regenerated 50K period data
+      - name: Commit final v94.1 wiring + regenerated 50K period data
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
@@ -126,10 +130,10 @@ jobs:
           if git diff --cached --quiet; then
             echo 'No finalizer changes to commit.'
           else
-            git commit -m 'Finalize NFL Player Prop Tool v94.0 period data'
+            git commit -m 'Finalize NFL Player Prop Tool v94.1 simulation columns'
             git push origin HEAD:main
           fi
 
       - name: Print server log on failure
         if: failure()
-        run: cat /tmp/nfl-prop-v940-server.log || true
+        run: cat /tmp/nfl-prop-v941-server.log || true
