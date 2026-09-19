@@ -1,0 +1,135 @@
+name: One-time NFL Player Prop Tool Build + Period v94.0
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports/nfl/sim/quarter-board.js'
+      - 'scripts/nfl-sim-auto.mjs'
+      - 'sports/nfl/player-prop-tool-build-period-v940.js'
+      - 'sports/nfl/player-prop-tool-build-period-v940.css'
+      - 'sports/nfl-preview-v893.js'
+      - 'scripts/nfl-player-prop-tool-v940-selftest.mjs'
+      - 'tests/nfl-player-prop-tool-build-period-v940.spec.js'
+      - '.github/workflows/one-time-nfl-prop-build-period-v940.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-prop-build-period-v940
+  cancel-in-progress: false
+
+jobs:
+  build-and-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sync latest main
+        run: git pull --ff-only origin main
+
+      - name: Cache-bust v94 Player Prop Tool wiring
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          router=Path('sports/router.js')
+          r=router.read_text()
+          r2,n=re.subn(r"import\('\./nfl-preview-v893\.js\?v=[^']+'\)","import('./nfl-preview-v893.js?v=94.0')",r,count=1)
+          if n!=1:
+              raise SystemExit('NFL preview router import cache marker missing')
+          router.write_text(r2)
+
+          index=Path('index.html')
+          i=index.read_text()
+          pat=r'\./sports/router\.js\?v=(\d+)\.(\d+)'
+          m=re.search(pat,i)
+          if not m:
+              raise SystemExit('outer router cache marker missing')
+          major,minor=int(m.group(1)),int(m.group(2))
+          i2,n=re.subn(pat,f'./sports/router.js?v={major}.{minor+1}',i,count=1)
+          if n!=1:
+              raise SystemExit('outer router cache bump failed')
+          index.write_text(i2)
+          print(f'router cache: {major}.{minor} -> {major}.{minor+1}')
+          PY
+
+      - name: Run static v94 regressions
+        run: |
+          node scripts/nfl-player-prop-tool-v940-selftest.mjs
+          node scripts/nfl-player-prop-tool-v923-selftest.mjs
+          node scripts/mobile-swipe-anywhere-selftest.mjs
+          node scripts/nfl-quarter-selftest.mjs
+
+      - name: Refresh authoritative period simulation cache
+        env:
+          NFL_SIM_FORCE: '1'
+        run: node scripts/nfl-sim-auto.mjs --force
+
+      - name: Verify published 50K Full / 1H / 2H / Q1-Q4 period data
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const wanted=['1h','2h','q1','q2','q3','q4'];
+          const games=(doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propPeriods);
+          if(!games.length)throw new Error('No 50K pregame result published propPeriods');
+          for(const key of wanted){
+            if(!games.some(g=>g.propPeriods?.[key]?.candidates?.length))throw new Error(`No 50K candidates for ${key}`);
+          }
+          for(const g of games){
+            for(const key of wanted){
+              const p=g.propPeriods?.[key];
+              if(!p)continue;
+              for(const c of p.candidates||[]){
+                if('worldMaskB64' in c)throw new Error('Private same-world mask leaked into nfl-sim.json');
+                if(Number(c.worldMaskIterations)!==Number(g.iterations))throw new Error(`Run count mismatch ${key}`);
+              }
+            }
+          }
+          console.log(`✓ ${games.length} 50K game(s) expose compact exact period candidates`);
+          NODE
+
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local production server
+        run: |
+          python3 -m http.server 4173 >/tmp/nfl-prop-v940-server.log 2>&1 &
+          echo $! >/tmp/nfl-prop-v940-server.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/nfl-prop-v940-server.log
+          exit 1
+
+      - name: Exercise v94 Build Style + period UI in Chromium
+        run: |
+          npx playwright test tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js --reporter=line --workers=1
+
+      - name: Commit final v94 wiring + regenerated 50K period data
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sports/router.js index.html slates/nfl-sim.json slates/nfl-sim-state.json slates/nfl-quarter.json
+          if git diff --cached --quiet; then
+            echo 'No finalizer changes to commit.'
+          else
+            git commit -m 'Finalize NFL Player Prop Tool v94.0 period data'
+            git push origin HEAD:main
+          fi
+
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/nfl-prop-v940-server.log || true
