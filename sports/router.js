@@ -14,7 +14,7 @@
  * MLB v916 field-actors note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
-import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=91.2';
+import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=93.5';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
 import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=91.2';
