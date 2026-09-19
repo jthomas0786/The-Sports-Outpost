@@ -2,6 +2,7 @@ import {test,expect} from '@playwright/test';
 
 test.setTimeout(180000);
 const BASE='http://127.0.0.1:4173/index.html#nfl';
+const SOURCE_PATHS=['/slates/nfl.json','/slates/nfl-odds.json','/slates/nfl-sim.json','/slates/nfl-research.json'];
 
 async function openNfl(page,viewport={width:1440,height:1000}){
   await page.setViewportSize(viewport);
@@ -48,7 +49,9 @@ async function expectSameSnapshot(page){
   expect(identity.total).toBe(identity.expected);
 }
 
-test('NFL Player Prop Tool is a static snapshot until Refresh and preserves the existing Player Modal flow',async({page})=>{
+function countSources(requests){return SOURCE_PATHS.reduce((sum,path)=>sum+(requests.get(path)||0),0);}
+
+test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the exact table position',async({page})=>{
   await openNfl(page);
   await openTool(page);
 
@@ -111,14 +114,90 @@ test('NFL Player Prop Tool is a static snapshot until Refresh and preserves the 
   await expect(tool).not.toHaveClass(/ppt-color-off/);
   await expectSameSnapshot(page);
 
-  const clickedName=((await page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-player b').first().textContent())||'').replace('↗','').trim();
-  await page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-player').first().click();
+  const players=page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-player');
+  const playerIndex=Math.min(8,Math.max(0,(await players.count())-1));
+  const player=players.nth(playerIndex);
+  await player.scrollIntoViewIfNeeded();
+  const clickedName=((await player.locator('b').textContent())||'').replace('↗','').trim();
+  const beforeModal=await page.evaluate(()=>{
+    const wrap=document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap');
+    wrap.scrollLeft=Math.min(180,Math.max(0,wrap.scrollWidth-wrap.clientWidth));
+    return {x:window.scrollX,y:window.scrollY,tableX:wrap.scrollLeft};
+  });
+  await player.click();
   const modal=page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72,.ms-modal').first();
   await expect(modal).toBeVisible({timeout:15000});
   await expect(modal).toContainText(clickedName.split(' ')[0]);
   await page.locator('[data-nfl-close-modal]').first().click();
   await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:15000});
   await expectSameSnapshot(page);
+  await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:5000}).toBeCloseTo(beforeModal.y,0);
+  const afterModal=await page.evaluate(()=>({x:window.scrollX,y:window.scrollY,tableX:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollLeft||0}));
+  expect(Math.abs(afterModal.x-beforeModal.x)).toBeLessThanOrEqual(2);
+  expect(Math.abs(afterModal.y-beforeModal.y)).toBeLessThanOrEqual(2);
+  expect(Math.abs(afterModal.tableX-beforeModal.tableX)).toBeLessThanOrEqual(2);
+});
+
+test('NFL Player Prop Tool freezes NFL background work and only Refresh refetches the four source files',async({page})=>{
+  await openNfl(page);
+  const sourceRequests=new Map(SOURCE_PATHS.map(path=>[path,0]));
+  page.on('request',request=>{
+    try{
+      const path=new URL(request.url()).pathname;
+      if(sourceRequests.has(path))sourceRequests.set(path,(sourceRequests.get(path)||0)+1);
+    }catch{}
+  });
+
+  await openTool(page);
+  await expect.poll(()=>countSources(sourceRequests),{timeout:15000}).toBe(4);
+  for(const path of SOURCE_PATHS)expect(sourceRequests.get(path)).toBe(1);
+
+  const frozen=await page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.());
+  expect(frozen?.installed).toBe(true);
+  expect(frozen?.suspended).toBe(true);
+  expect(frozen?.managedIntervals).toBeGreaterThan(0);
+  expect(frozen?.runningIntervals).toBe(0);
+  expect(frozen?.runningTimeouts).toBe(0);
+  expect(frozen?.managedObservers).toBeGreaterThan(0);
+  expect(frozen?.observingObservers).toBe(0);
+
+  await rememberSnapshot(page);
+  const requestsBeforeIdle=countSources(sourceRequests);
+  await page.waitForTimeout(3200);
+  await expectSameSnapshot(page);
+  expect(countSources(sourceRequests)).toBe(requestsBeforeIdle);
+
+  await page.locator('#nflPptFilters').click();
+  await page.locator('#nflPptMarket').selectOption('ALL');
+  await page.locator('[data-nfl-ppt-pos="WR"]').click();
+  await page.locator('#nflPlayerPropTool th[data-sort="prob"]').click();
+  await page.locator('#nflPptSearch').fill('a');
+  await page.waitForTimeout(150);
+  await expectSameSnapshot(page);
+  expect(countSources(sourceRequests)).toBe(requestsBeforeIdle);
+
+  const stampBefore=await page.locator('#nflPlayerPropTool').getAttribute('data-nfl-ppt-client-updated-at');
+  await page.locator('#nflPptRefresh').click();
+  await page.waitForFunction(()=>{
+    const root=document.getElementById('nflPlayerPropTool');
+    const table=root?.querySelector('.nfl-ppt-table');
+    return root?.dataset.nflPptSnapshot==='ready'&&table&&table!==window.__pptTableRef;
+  },{timeout:90000});
+  await expect.poll(()=>countSources(sourceRequests),{timeout:15000}).toBe(8);
+  for(const path of SOURCE_PATHS)expect(sourceRequests.get(path)).toBe(2);
+  await expect.poll(()=>page.locator('#nflPlayerPropTool').getAttribute('data-nfl-ppt-client-updated-at'),{timeout:10000}).not.toBe(stampBefore);
+  await expect(page.locator('#nflPlayerPropTool .nfl-ppt-client-updated')).toContainText('snapshot updated');
+
+  const stillFrozen=await page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.());
+  expect(stillFrozen?.suspended).toBe(true);
+  expect(stillFrozen?.runningIntervals).toBe(0);
+  expect(stillFrozen?.observingObservers).toBe(0);
+
+  const propsNav=page.locator('#sbSportAccordion [data-nfl-preview-tab="props"],#sbSportAccordion [data-nfl-tab="props"],#nflSideNav [data-nfl-preview-tab="props"],#nflSideNav [data-nfl-tab="props"]').first();
+  await propsNav.click();
+  await expect.poll(()=>page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.().suspended),{timeout:5000}).toBe(false);
+  await expect.poll(()=>page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.().runningIntervals||0),{timeout:5000}).toBeGreaterThan(0);
+  await expect.poll(()=>page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.().observingObservers||0),{timeout:5000}).toBeGreaterThan(0);
 });
 
 test('NFL Player Prop Tool scrolls smoothly without rerendering the snapshot',async({page})=>{
@@ -163,9 +242,9 @@ test('NFL Player Prop Tool only rebuilds the table after explicit Refresh',async
 
   await page.locator('#nflPptRefresh').click();
   await page.waitForFunction(()=>{
-    const tool=document.getElementById('nflPlayerPropTool');
-    const table=tool?.querySelector('.nfl-ppt-table');
-    return tool?.dataset.nflPptSnapshot==='ready'&&table&&table!==window.__pptTableRef;
+    const root=document.getElementById('nflPlayerPropTool');
+    const table=root?.querySelector('.nfl-ppt-table');
+    return root?.dataset.nflPptSnapshot==='ready'&&table&&table!==window.__pptTableRef;
   },{timeout:90000});
 
   const result=await page.evaluate(()=>({
@@ -182,8 +261,8 @@ test('NFL Player Prop Tool uses larger readable columns and centered progress ri
   await openNfl(page,{width:1440,height:1000});
   await openTool(page);
   const geometry=await page.evaluate(()=>{
-    const tool=document.getElementById('nflPlayerPropTool');
-    const table=tool?.querySelector('.nfl-ppt-table');
+    const root=document.getElementById('nflPlayerPropTool');
+    const table=root?.querySelector('.nfl-ppt-table');
     const firstRow=table?.querySelector('tbody tr:not([hidden])')||table?.querySelector('tbody tr');
     const ring=firstRow?.querySelector('.nfl-ppt-prob:not(.empty)')||table?.querySelector('.nfl-ppt-prob:not(.empty)');
     const cell=ring?.closest('td');
@@ -228,18 +307,18 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
     await openNfl(page,viewport);
     await openTool(page);
     const geometry=await page.evaluate(()=>{
-      const tool=document.getElementById('nflPlayerPropTool');
-      const wrap=tool?.querySelector('.nfl-ppt-table-wrap');
-      const player=tool?.querySelector('tbody tr:not([hidden]) .nfl-ppt-player')||tool?.querySelector('.nfl-ppt-player');
+      const root=document.getElementById('nflPlayerPropTool');
+      const wrap=root?.querySelector('.nfl-ppt-table-wrap');
+      const player=root?.querySelector('tbody tr:not([hidden]) .nfl-ppt-player')||root?.querySelector('.nfl-ppt-player');
       return {
         bodyScroll:document.documentElement.scrollWidth,
         viewport:document.documentElement.clientWidth,
-        toolWidth:tool?.getBoundingClientRect().width||0,
+        toolWidth:root?.getBoundingClientRect().width||0,
         wrapClient:wrap?.clientWidth||0,
         wrapScroll:wrap?.scrollWidth||0,
         playerHeight:player?.getBoundingClientRect().height||0,
-        rowCount:tool?.querySelectorAll('tbody tr[data-nfl-ppt-row]').length||0,
-        ready:tool?.dataset.nflPptSnapshot
+        rowCount:root?.querySelectorAll('tbody tr[data-nfl-ppt-row]').length||0,
+        ready:root?.dataset.nflPptSnapshot
       };
     });
     expect(geometry.bodyScroll).toBeLessThanOrEqual(geometry.viewport+3);

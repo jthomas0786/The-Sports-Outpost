@@ -20,6 +20,7 @@ import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header
 import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=91.2';
 import { installNflChibiApprovedConceptV913 } from './nfl/chibi-preview-approved-concept-v913.js?v=91.3';
 import { installNflWatchlistV910 } from './nfl/watchlist-v910.js?v=91.0';
+import { installNflBackgroundFreezeV930 } from './nfl/player-prop-tool-background-freeze-v930.js?v=93.0';
 
 /** MLB-owned containers that must hide when another sport's view is showing. */
 const MLB_SELECTORS = ['.app-main > main', '.app-main > footer', '.app-main > .status-bar'];
@@ -172,7 +173,7 @@ async function swapView(active) {
 
   if (active === 'nfl') {
     try {
-      const mod = await import('./nfl-preview-v893.js?v=92.9.2');
+      const mod = await import('./nfl-preview-v893.js?v=93.0');
       await mod.mount();
       const pendingTab = window.DW_nflPreviewPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
@@ -205,6 +206,7 @@ function render() {
   swapView(active).finally(() => window.renderSidebarSports?.());
 }
 
+installNflBackgroundFreezeV930();
 installMobileEdgeSwipeV894();
 installGamblyWebFallbackV895();
 installPlayerModalStickyHeaderV901();

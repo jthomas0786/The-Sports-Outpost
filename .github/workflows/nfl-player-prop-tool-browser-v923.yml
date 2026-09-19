@@ -1,4 +1,4 @@
-name: NFL Player Prop Tool Browser QA v92.8
+name: NFL Player Prop Tool Browser QA v93.0
 
 on:
   workflow_dispatch:
@@ -9,6 +9,9 @@ on:
       - 'sports/nfl/player-prop-tool-visibility-v927.css'
       - 'sports/nfl/player-prop-tool-snapshot-v928.js'
       - 'sports/nfl/player-prop-tool-snapshot-v928.css'
+      - 'sports/nfl/player-prop-tool-static-guard-v929.js'
+      - 'sports/nfl/player-prop-tool-background-freeze-v930.js'
+      - 'sports/nfl/player-prop-tool-ux-v930.js'
       - 'sports/nfl-preview-v893.js'
       - 'sports/router.js'
       - 'tests/nfl-player-prop-tool-v923.spec.js'
@@ -40,7 +43,7 @@ jobs:
           done
           cat /tmp/nfl-prop-tool-server.log
           exit 1
-      - name: Exercise static Player Prop Tool in Chromium
+      - name: Exercise frozen Player Prop Tool in Chromium
         run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js --reporter=line --workers=1
       - name: Print server log on failure
         if: failure()
