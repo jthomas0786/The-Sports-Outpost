@@ -1,0 +1,117 @@
+name: One-time NFL Prop Tool v93.9 cache + regression wiring
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-prop-sim-v939.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Cache-bust v93.9 and update permanent regression
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          router=Path('sports/router.js')
+          r=router.read_text()
+          r2,n=re.subn(r"import\('\./nfl-preview-v893\.js\?v=[^']+'\)","import('./nfl-preview-v893.js?v=93.9')",r,count=1)
+          if n!=1:
+              raise SystemExit('NFL preview router import cache marker missing')
+          router.write_text(r2)
+
+          index=Path('index.html')
+          i=index.read_text()
+          m=re.search(r'(\./sports/router\.js\?v=)(\d+)\.(\d+)',i)
+          if not m:
+              raise SystemExit('index router cache marker missing')
+          replacement=f"{m.group(1)}{m.group(2)}.{int(m.group(3))+1}"
+          i2=i[:m.start()]+replacement+i[m.end():]
+          index.write_text(i2)
+
+          p=Path('scripts/nfl-player-prop-tool-v923-selftest.mjs')
+          s=p.read_text()
+          anchor="const polishCss=fs.readFileSync('sports/nfl/player-prop-tool-polish-v938.css','utf8');"
+          if "player-prop-tool-sim-v939.js" not in s:
+              s=s.replace(anchor,anchor+"\nconst simAuth=fs.readFileSync('sports/nfl/player-prop-tool-sim-v939.js','utf8');",1)
+
+          start="for(const marker of [\n  \"STYLE_ID='nfl-player-prop-tool-polish-v938-css'\""
+          a=s.find(start)
+          if a<0:
+              raise SystemExit('v93.8 polish regression block start missing')
+          end="assert(!polishJs.includes('setInterval('),'v93.8 polish must not add interval polling');"
+          b=s.find(end,a)
+          if b<0:
+              raise SystemExit('v93.8 polish regression block end missing')
+          b+=len(end)
+          replacement_block='''for(const marker of [
+            "STYLE_ID='nfl-player-prop-tool-polish-v938-css'",'player-prop-tool-polish-v938.css?v=93.9','removeLegacyScroller'
+          ]) assert(polishJs.includes(marker),`Player Prop Tool v93.9 no-scrollbar polish missing ${marker}`);
+          for(const marker of [
+            'td:first-child','background:#081426!important','nfl-ppt-xscroll-v938{display:none!important}','scrollbar-width:none!important','::-webkit-scrollbar'
+          ]) assert(polishCss.includes(marker),`Player Prop Tool v93.9 player-column/no-scrollbar CSS missing ${marker}`);
+          assert(!polishJs.includes('createElement(\'div\')'),'v93.9 polish must not create a dedicated horizontal scrollbar');
+          assert(!polishJs.includes('setTimeout('),'v93.9 polish must not add scrollbar retry work');
+          assert(!polishJs.includes('MutationObserver'),'v93.9 polish must not add a DOM observer');
+          assert(!polishJs.includes('setInterval('),'v93.9 polish must not add interval polling');
+
+          for(const marker of [
+            '__TSO_NFL_PROP_SIM_V939__','nflPptSimAuthority','nflPptSimIterations','pregameIterations','SIM MEAN','SIM MEDIAN',
+            'SIM PROB','SIM EDGE','P10 FLOOR','P90 CEILING','SIM RUNS','50K SIM PROJECTION + VALUE','SIM DISTRIBUTION',
+            'SIM RANGE + SAMPLE','nfl-sim.json','nfl-odds.json','Historical L5/L10/H2H and defensive-average fallbacks are not used'
+          ]) assert(simAuth.includes(marker),`Player Prop Tool v93.9 simulation authority missing ${marker}`);
+          assert(!simAuth.includes('setInterval('),'v93.9 simulation authority must not add interval work');
+          assert(!simAuth.includes('MutationObserver'),'v93.9 simulation authority must not observe/rebuild the DOM');'''
+          s=s[:a]+replacement_block+s[b:]
+
+          s=s.replace("player-prop-tool-controls-v933.js?v=93.3","player-prop-tool-controls-v933.js?v=93.9")
+          s=s.replace("v93.3 top-level Prop selector","v93.9 top-level Prop selector")
+          s=s.replace("player-prop-tool-polish-v938.js?v=93.8","player-prop-tool-polish-v938.js?v=93.9")
+          s=s.replace("v93.8 player-column/scrollbar polish","v93.9 player-column/no-scrollbar polish")
+          s=s.replace("install the v93.8 player-column/scrollbar polish","install the v93.9 player-column/no-scrollbar polish")
+          s=s.replace("import('./nfl-preview-v893.js?v=93.8')","import('./nfl-preview-v893.js?v=93.9')")
+          s=s.replace("v93.8 NFL Player Prop Tool wrapper","v93.9 NFL Player Prop Tool wrapper")
+
+          preview_anchor="assert(preview.includes(\"player-prop-tool-snapshot-v928.js?v=93.2\"),'NFL production wrapper must load the v93.2 modal-safe snapshot module');"
+          sim_import_assert="assert(preview.includes(\"player-prop-tool-sim-v939.js?v=93.9\"),'NFL production wrapper must load the v93.9 50K simulation authority');"
+          if sim_import_assert not in s:
+              s=s.replace(preview_anchor,preview_anchor+'\n'+sim_import_assert,1)
+          install_anchor="assert(preview.includes('installNflPlayerPropToolControlsV933();'),'NFL production wrapper must install the Prop selector enhancement');"
+          sim_install_assert="assert(preview.includes('installNflPlayerPropToolSimV939();'),'NFL production wrapper must install the v93.9 simulation authority');"
+          if sim_install_assert not in s:
+              s=s.replace(install_anchor,sim_install_assert+'\n'+install_anchor,1)
+          order_anchor="assert(preview.indexOf('installNflPlayerPropToolSnapshotV928();')<preview.indexOf('installNflPlayerPropToolThemeV936();'),'Outpost theme must load after snapshot CSS so theme colors win without altering geometry');"
+          sim_order="assert(preview.indexOf('installNflPlayerPropToolSnapshotV928();')<preview.indexOf('installNflPlayerPropToolSimV939();'),'50K simulation authority must apply only after the static snapshot is installed');\nassert(preview.indexOf('installNflPlayerPropToolSimV939();')<preview.indexOf('installNflPlayerPropToolControlsV933();'),'Prop control retry scheduling must drive the simulation-authority apply pass');"
+          if sim_order not in s:
+              s=s.replace(order_anchor,sim_order+'\n'+order_anchor,1)
+          s=s.replace("console.log('NFL Player Prop Tool regression passed: v93.7 keeps", "console.log('NFL Player Prop Tool regression passed: v93.9 keeps")
+          p.write_text(s)
+          PY
+      - name: Run Player Prop Tool regressions
+        run: |
+          node scripts/nfl-player-prop-tool-v923-selftest.mjs
+          node scripts/mobile-swipe-anywhere-selftest.mjs
+      - name: Commit final v93.9 wiring
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add sports/router.js index.html scripts/nfl-player-prop-tool-v923-selftest.mjs
+          if git diff --cached --quiet; then
+            echo "No v93.9 cache changes needed"
+            exit 0
+          fi
+          git commit -m "Apply NFL Prop Tool 50K sim authority v93.9"
+          git push origin HEAD:main
