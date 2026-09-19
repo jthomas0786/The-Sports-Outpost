@@ -47,11 +47,13 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
           const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
-          const required=(slate.games||[]).filter(g=>!g.status||g.status==='pre').map(g=>String(g.gameId||g.id));
+          const isFinal=id=>['post','final','completed'].includes(String(live?.games?.[id]?.status||'').toLowerCase());
+          const required=(slate.games||[]).map(g=>String(g.gameId||g.id)).filter(id=>id&&!isFinal(id));
           const valid=new Set((doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length).map(g=>String(g?.game?.gameId||g.gameId||'')));
           const missing=required.filter(id=>!valid.has(id));
-          fs.appendFileSync(process.env.GITHUB_OUTPUT,`ready=${required.length>0&&missing.length===0?'true':'false'}\n`);
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`ready=${required.length>0&&missing.length===0?'true':'false'}\nmissing=${missing.join(',')}\n`);
           console.log(missing.length?`Missing ${missing.length}/${required.length} frozen 50K sportsbook board(s): ${missing.join(', ')}`:`✓ Reusing complete ${required.length}-game frozen 50K sportsbook cache`);
           NODE
 
@@ -59,15 +61,18 @@ jobs:
         if: steps.prop_cache.outputs.ready != 'true'
         env:
           NFL_SIM_FORCE: '1'
-        run: node scripts/nfl-sim-auto.mjs --force
+          MISSING_GAMES: ${{ steps.prop_cache.outputs.missing }}
+        run: node scripts/nfl-sim-auto.mjs --force --game "$MISSING_GAMES"
 
       - name: Verify complete frozen 50K sportsbook prop boards
         run: |
           node - <<'NODE'
           const fs=require('fs');
           const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
           const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
-          const required=(slate.games||[]).filter(g=>!g.status||g.status==='pre').map(g=>String(g.gameId||g.id));
+          const isFinal=id=>['post','final','completed'].includes(String(live?.games?.[id]?.status||'').toLowerCase());
+          const required=(slate.games||[]).map(g=>String(g.gameId||g.id)).filter(id=>id&&!isFinal(id));
           const games=(doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length);
           const byGame=new Map(games.map(g=>[String(g?.game?.gameId||g.gameId||''),g]));
           const missing=required.filter(id=>!byGame.has(id));
@@ -83,7 +88,7 @@ jobs:
               if(!c.projection||!Number.isFinite(Number(c.projection.mean)))throw new Error(`${candidateId} missing 50K projection distribution`);
             }
           }
-          console.log(`✓ ${required.length} upcoming game(s) contain frozen sportsbook-backed 50K Bet Style boards`);
+          console.log(`✓ ${required.length} active/upcoming game(s) contain frozen sportsbook-backed 50K Bet Style boards`);
           NODE
 
       - name: Install Chromium test runtime
