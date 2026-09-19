@@ -1,0 +1,225 @@
+/* NFL Player Prop Tool v92.7 — readability/visibility pass.
+   Loaded after v92.6. This only scales typography, controls, rows and visual
+   targets; it deliberately preserves v92.6's static table + page-owned Y scroll. */
+#nflView #nflPlayerPropTool{
+  padding:22px 18px 34px!important;
+  color:#081327!important;
+}
+#nflView .nfl-ppt-head,
+#nflView .nfl-ppt-toolbar,
+#nflView .nfl-ppt-filter-panel,
+#nflView .nfl-ppt-table-wrap{
+  max-width:1500px!important;
+}
+
+/* Header */
+#nflView .nfl-ppt-head{margin-bottom:18px!important;gap:24px!important}
+#nflView .nfl-ppt-head>div:first-child>span{font-size:11px!important;letter-spacing:.14em!important}
+#nflView .nfl-ppt-head h1{font-size:32px!important;line-height:1.05!important;margin:5px 0 7px!important}
+#nflView .nfl-ppt-head p{font-size:14px!important;line-height:1.45!important;color:#4f6078!important}
+#nflView .nfl-ppt-head-stat{min-width:165px!important;padding:12px 16px!important;border-radius:12px!important}
+#nflView .nfl-ppt-head-stat b{font-size:27px!important}
+#nflView .nfl-ppt-head-stat span{font-size:10px!important;margin-top:5px!important;color:#53647d!important}
+
+/* Primary filters + controls */
+#nflView .nfl-ppt-toolbar{
+  grid-template-columns:minmax(460px,1.3fr) auto minmax(430px,1fr)!important;
+  gap:16px!important;
+  margin-bottom:14px!important;
+}
+#nflView .nfl-ppt-selects{grid-template-columns:repeat(3,minmax(135px,1fr))!important;gap:10px!important}
+#nflView .nfl-ppt-selects label,
+#nflView .nfl-ppt-filter-panel label{gap:6px!important}
+#nflView .nfl-ppt-selects label>span,
+#nflView .nfl-ppt-filter-panel label{font-size:10px!important;color:#53647d!important}
+#nflView .nfl-ppt-selects select,
+#nflView .nfl-ppt-filter-panel select,
+#nflView .nfl-ppt-filter-panel input{
+  height:48px!important;
+  padding:0 14px!important;
+  font-size:14px!important;
+  border-width:1.5px!important;
+  border-radius:8px!important;
+}
+#nflView .nfl-ppt-positions{gap:9px!important}
+#nflView .nfl-ppt-positions button{
+  width:46px!important;
+  height:46px!important;
+  font-size:12px!important;
+  border-width:1.5px!important;
+}
+#nflView .nfl-ppt-actions{gap:12px!important}
+#nflView .nfl-ppt-actions>button{
+  height:46px!important;
+  padding:0 12px!important;
+  font-size:13px!important;
+}
+#nflView .nfl-ppt-actions .toggle{gap:10px!important}
+#nflView .nfl-ppt-actions .toggle i{width:46px!important;height:26px!important}
+#nflView .nfl-ppt-actions .toggle i::after{width:20px!important;height:20px!important}
+#nflView .nfl-ppt-actions .toggle.on i::after{left:23px!important}
+
+/* Expanded filter panel */
+#nflView .nfl-ppt-filter-panel{
+  padding:14px!important;
+  gap:12px!important;
+  grid-template-columns:minmax(250px,1.5fr) repeat(3,minmax(150px,.7fr)) auto!important;
+  margin-bottom:14px!important;
+  border-radius:10px!important;
+}
+#nflView .nfl-ppt-filter-panel button{
+  height:48px!important;
+  padding:0 18px!important;
+  font-size:12px!important;
+  border-width:1.5px!important;
+}
+
+/* Table: larger without restoring sticky repaint cost. */
+#nflView .nfl-ppt-table-wrap{
+  border-top-width:2px!important;
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+  contain:none!important;
+  scroll-behavior:auto!important;
+  touch-action:pan-x pan-y!important;
+}
+#nflView .nfl-ppt-table{
+  width:1420px!important;
+  min-width:1420px!important;
+  max-width:1420px!important;
+  font-size:13px!important;
+  table-layout:fixed!important;
+}
+#nflView .nfl-ppt-table col:nth-child(1){width:285px!important}
+#nflView .nfl-ppt-table col:nth-child(2){width:102px!important}
+#nflView .nfl-ppt-table col:nth-child(3){width:110px!important}
+#nflView .nfl-ppt-table col:nth-child(4){width:82px!important}
+#nflView .nfl-ppt-table col:nth-child(5){width:92px!important}
+#nflView .nfl-ppt-table col:nth-child(6){width:100px!important}
+#nflView .nfl-ppt-table col:nth-child(7){width:90px!important}
+#nflView .nfl-ppt-table col:nth-child(8){width:100px!important}
+#nflView .nfl-ppt-table col:nth-child(9){width:120px!important}
+#nflView .nfl-ppt-table col:nth-child(10){width:92px!important}
+#nflView .nfl-ppt-table col:nth-child(n+11){width:90px!important}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th{
+  height:48px!important;
+  padding:0 7px!important;
+  font-size:10px!important;
+  letter-spacing:.025em!important;
+  color:#15243b!important;
+}
+#nflView .nfl-ppt-table .nfl-ppt-groups th{
+  height:31px!important;
+  padding:0 8px!important;
+  font-size:8px!important;
+  letter-spacing:.17em!important;
+  color:#5c697d!important;
+}
+#nflView .nfl-ppt-table tbody tr{height:78px!important}
+#nflView .nfl-ppt-table td{
+  padding:7px 8px!important;
+  color:#07152a!important;
+  border-color:#d8e0ea!important;
+}
+
+/* Player identity */
+#nflView .nfl-ppt-player{gap:11px!important}
+#nflView .nfl-ppt-avatar{
+  flex:0 0 50px!important;
+  width:50px!important;
+  height:50px!important;
+  border-width:2px!important;
+}
+#nflView .nfl-ppt-avatar img{width:50px!important;height:50px!important}
+#nflView .nfl-ppt-avatar i{font-size:12px!important}
+#nflView .nfl-ppt-player b{font-size:15px!important;line-height:1.15!important;color:#07152a!important}
+#nflView .nfl-ppt-player small{margin-top:5px!important;font-size:9.5px!important;line-height:1.2!important;color:#56677f!important}
+
+/* Numeric values */
+#nflView .nfl-ppt-consensus b,
+#nflView .nfl-ppt-proj b,
+#nflView .nfl-ppt-avg b,
+#nflView .nfl-ppt-edge b,
+#nflView .nfl-ppt-def b,
+#nflView .nfl-ppt-sim b,
+#nflView .nfl-ppt-hit b{font-size:15px!important;line-height:1.05!important}
+#nflView .nfl-ppt-consensus span,
+#nflView .nfl-ppt-proj span,
+#nflView .nfl-ppt-avg span,
+#nflView .nfl-ppt-edge span,
+#nflView .nfl-ppt-def span,
+#nflView .nfl-ppt-sim span,
+#nflView .nfl-ppt-hit span{margin-top:5px!important;font-size:8.5px!important;line-height:1.1!important;color:#53647d!important}
+
+/* Sportsbook pick / matchup blocks */
+#nflView .nfl-ppt-pick{min-height:58px!important;gap:3px!important;border-width:2px!important;border-radius:7px!important}
+#nflView .nfl-ppt-pick small{font-size:8.5px!important;max-width:110px!important}
+#nflView .nfl-ppt-pick b{font-size:14px!important}
+#nflView .nfl-ppt-pick span{font-size:12px!important}
+#nflView .nfl-ppt-match{height:58px!important;border-radius:6px!important}
+#nflView .nfl-ppt-match b{font-size:14px!important}
+#nflView .nfl-ppt-match span{font-size:8.5px!important;margin-top:6px!important}
+#nflView .nfl-ppt-hit{height:58px!important;margin:-7px -8px!important}
+
+/* Probability ring */
+#nflView .nfl-ppt-prob{width:58px!important;height:58px!important}
+#nflView .nfl-ppt-prob>svg{width:58px!important;height:58px!important}
+#nflView .nfl-ppt-ring-track,#nflView .nfl-ppt-ring-fill{stroke-width:5!important}
+#nflView .nfl-ppt-ring-label{gap:2px!important}
+#nflView .nfl-ppt-ring-label b{font-size:14px!important}
+#nflView .nfl-ppt-ring-label span{font-size:7.5px!important}
+#nflView .nfl-ppt-prob.empty{font-size:13px!important}
+
+/* Show More */
+#nflView .nfl-ppt-more{min-height:66px!important;padding:12px!important;gap:14px!important}
+#nflView .nfl-ppt-more button{height:42px!important;padding:0 20px!important;font-size:12px!important}
+#nflView .nfl-ppt-more span{font-size:10px!important}
+
+/* Increased contrast for secondary information. */
+#nflView .nfl-ppt-table th,
+#nflView .nfl-ppt-head p,
+#nflView .nfl-ppt-player small,
+#nflView .nfl-ppt-consensus span,
+#nflView .nfl-ppt-proj span,
+#nflView .nfl-ppt-avg span,
+#nflView .nfl-ppt-edge span,
+#nflView .nfl-ppt-def span,
+#nflView .nfl-ppt-sim span,
+#nflView .nfl-ppt-hit span{opacity:1!important}
+
+@media(max-width:1600px){
+  #nflView .nfl-ppt-toolbar{grid-template-columns:minmax(0,1fr) auto!important}
+  #nflView .nfl-ppt-actions{grid-column:1/-1!important;justify-content:flex-start!important}
+  #nflView .nfl-ppt-filter-panel{grid-template-columns:repeat(2,minmax(180px,1fr))!important}
+}
+@media(max-width:900px){
+  #nflView .nfl-ppt-head{align-items:flex-start!important}
+  #nflView .nfl-ppt-head h1{font-size:28px!important}
+  #nflView .nfl-ppt-toolbar{grid-template-columns:1fr!important}
+  #nflView .nfl-ppt-selects{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+  #nflView .nfl-ppt-actions{grid-column:auto!important}
+}
+@media(max-width:700px){
+  #nflView #nflPlayerPropTool{padding:14px 8px 24px!important}
+  #nflView .nfl-ppt-head{gap:12px!important;margin-bottom:14px!important}
+  #nflView .nfl-ppt-head h1{font-size:25px!important}
+  #nflView .nfl-ppt-head p{font-size:13px!important}
+  #nflView .nfl-ppt-head-stat{min-width:110px!important;padding:9px 10px!important}
+  #nflView .nfl-ppt-head-stat b{font-size:22px!important}
+  #nflView .nfl-ppt-selects{grid-template-columns:1fr!important}
+  #nflView .nfl-ppt-selects select,
+  #nflView .nfl-ppt-filter-panel select,
+  #nflView .nfl-ppt-filter-panel input{height:50px!important;font-size:15px!important}
+  #nflView .nfl-ppt-positions button{width:48px!important;height:48px!important;font-size:12px!important}
+  #nflView .nfl-ppt-actions>button{height:48px!important;font-size:13px!important}
+  #nflView .nfl-ppt-filter-panel{grid-template-columns:1fr!important}
+  #nflView .nfl-ppt-table{width:1400px!important;min-width:1400px!important;max-width:1400px!important}
+  #nflView .nfl-ppt-table col:nth-child(1){width:265px!important}
+  #nflView .nfl-ppt-table tbody tr{height:82px!important}
+  #nflView .nfl-ppt-avatar{flex-basis:52px!important;width:52px!important;height:52px!important}
+  #nflView .nfl-ppt-avatar img{width:52px!important;height:52px!important}
+  #nflView .nfl-ppt-player b{font-size:16px!important}
+  #nflView .nfl-ppt-player small{font-size:10px!important}
+  #nflView .nfl-ppt-prob{width:60px!important;height:60px!important}
+  #nflView .nfl-ppt-prob>svg{width:60px!important;height:60px!important}
+}
