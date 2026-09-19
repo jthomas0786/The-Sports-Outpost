@@ -1,6 +1,7 @@
-name: NFL Player Prop Tool Browser QA v93.9
+name: NFL Player Prop Tool Browser QA v94.1
 
-# Final v93.9 validation trigger: 50K simulation authority + hidden horizontal scrollbar.
+# v94.1 validates the frozen 50K simulation authority, reference-image stat
+# categories, Build Style, compact period controls, scrolling, and mobile containment.
 on:
   workflow_dispatch:
   push:
@@ -19,12 +20,17 @@ on:
       - 'sports/nfl/player-prop-tool-polish-v938.js'
       - 'sports/nfl/player-prop-tool-polish-v938.css'
       - 'sports/nfl/player-prop-tool-sim-v939.js'
+      - 'sports/nfl/player-prop-tool-build-period-v940.js'
+      - 'sports/nfl/player-prop-tool-build-period-v940.css'
+      - 'sports/nfl/player-prop-tool-reference-v941.js'
       - 'sports/nfl-preview-v893.js'
       - 'sports/router.js'
       - 'tests/nfl-player-prop-tool-v923.spec.js'
       - 'tests/nfl-player-prop-tool-theme-v936.spec.js'
       - 'tests/nfl-player-prop-tool-polish-v938.spec.js'
       - 'tests/nfl-player-prop-tool-sim-v939.spec.js'
+      - 'tests/nfl-player-prop-tool-build-period-v940.spec.js'
+      - 'tests/nfl-player-prop-tool-reference-v941.spec.js'
       - '.github/workflows/nfl-player-prop-tool-browser-v923.yml'
 
 permissions:
@@ -33,12 +39,18 @@ permissions:
 jobs:
   browser-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Run static Player Prop Tool regressions
+        run: |
+          node scripts/nfl-player-prop-tool-v941-selftest.mjs
+          node scripts/nfl-player-prop-tool-v940-selftest.mjs
+          node scripts/nfl-player-prop-tool-v923-selftest.mjs
+          node scripts/mobile-swipe-anywhere-selftest.mjs
       - name: Install Chromium test runtime
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
@@ -54,7 +66,8 @@ jobs:
           cat /tmp/nfl-prop-tool-server.log
           exit 1
       - name: Exercise frozen 50K-simulation Player Prop Tool in Chromium
-        run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js --reporter=line --workers=1
+        run: |
+          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-reference-v941.spec.js --reporter=line --workers=1
       - name: Print server log on failure
         if: failure()
         run: cat /tmp/nfl-prop-tool-server.log || true
