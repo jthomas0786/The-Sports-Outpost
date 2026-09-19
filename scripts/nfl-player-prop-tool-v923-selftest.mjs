@@ -27,11 +27,11 @@ for(const marker of ['max-width:1500px','height:48px','width:1420px','height:78p
 
 for(const marker of [
   'nflPptSnapshot','STATIC SNAPSHOT · REFRESH TO UPDATE','requestAnimationFrame','row.hidden','DocumentFragment',
-  '#nflPptRefresh,#nflPptRetry','parkedTool','restoreParkedTool','snapshotReady','snapshotRows','data-nfl-tool-player'
+  '#nflPptRefresh,#nflPptRetry','parkedTool','restoreParkedTool','snapshotReady','nflPptSnapshotRows','data-nfl-tool-player'
 ]) assert(snapshot.includes(marker),`Player Prop Tool v92.8 snapshot layer missing ${marker}`);
 for(const marker of [
   'width:1535px','height:86px','width:64px','transition:none','animation:none','overflow-y:visible',
-  'touch-action:pan-x pan-y','tr[hidden]','STATIC SNAPSHOT'
+  'touch-action:pan-x pan-y','tr[hidden]','nfl-ppt-snapshot-badge'
 ]) assert(snapshotCss.includes(marker),`Player Prop Tool v92.8 snapshot CSS missing ${marker}`);
 
 assert(!js.includes('new MutationObserver'),'v92.6 Player Prop Tool must not use mutation observers');
