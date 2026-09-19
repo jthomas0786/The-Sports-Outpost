@@ -27,8 +27,9 @@ for(const marker of ['max-width:1500px','height:48px','width:1420px','height:78p
 
 for(const marker of [
   'nflPptSnapshot','STATIC SNAPSHOT · REFRESH TO UPDATE','requestAnimationFrame','row.hidden','DocumentFragment',
-  '#nflPptRefresh,#nflPptRetry','parkedTool','restoreParkedTool','snapshotReady','nflPptSnapshotRows','data-nfl-tool-player'
-]) assert(snapshot.includes(marker),`Player Prop Tool v92.8 snapshot layer missing ${marker}`);
+  'parkedTool','restoreParkedTool','snapshotReady','nflPptSnapshotRows','data-nfl-tool-player',
+  'waitForTableReplacement','for(let i=0;i<100;i++)more.click()','beginPrepare(tool.querySelector(\'.nfl-ppt-table\'))'
+]) assert(snapshot.includes(marker),`Player Prop Tool v92.8.1 snapshot layer missing ${marker}`);
 for(const marker of [
   'width:1535px','height:86px','width:64px','transition:none','animation:none','overflow-y:visible',
   'touch-action:pan-x pan-y','tr[hidden]','nfl-ppt-snapshot-badge'
@@ -36,15 +37,15 @@ for(const marker of [
 
 assert(!js.includes('new MutationObserver'),'v92.6 Player Prop Tool must not use mutation observers');
 assert(!js.includes('setInterval('),'v92.6 Player Prop Tool must not auto-rerender on an interval');
-assert(!snapshot.includes('new MutationObserver'),'v92.8 snapshot layer must not observe/rebuild the DOM');
-assert(!snapshot.includes('setInterval('),'v92.8 snapshot layer must not auto-refresh on an interval');
-assert(!snapshot.includes('renderTool('),'v92.8 snapshot controls must not call the base renderer');
+assert(!snapshot.includes('new MutationObserver'),'v92.8.1 snapshot layer must not observe/rebuild the DOM');
+assert(!snapshot.includes('setInterval('),'v92.8.1 snapshot layer must not auto-refresh on an interval');
+assert(!snapshot.includes('renderTool('),'v92.8.1 snapshot controls must not call the base renderer');
 
 assert(preview.includes("player-prop-tool-v926.js?v=92.7"),'NFL production wrapper must import Player Prop Tool v92.6 with the v92.7 cache key');
 assert(preview.includes("player-prop-tool-visibility-v927.css?v=92.7"),'NFL production wrapper must load the v92.7 visibility layer');
-assert(preview.includes("player-prop-tool-snapshot-v928.js?v=92.8"),'NFL production wrapper must import the v92.8 static snapshot layer');
+assert(preview.includes("player-prop-tool-snapshot-v928.js?v=92.8.1"),'NFL production wrapper must import the refresh-safe v92.8.1 static snapshot layer');
 assert(preview.includes('installNflPlayerPropToolV926'),'NFL production wrapper must install Player Prop Tool v92.6');
-assert(preview.includes('installNflPlayerPropToolSnapshotV928'),'NFL production wrapper must install the v92.8 static snapshot layer');
+assert(preview.includes('installNflPlayerPropToolSnapshotV928'),'NFL production wrapper must install the v92.8.1 static snapshot layer');
 assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL production wrapper must not install the old repaint-heavy v92.5 layer');
 
-console.log('NFL Player Prop Tool regression passed: v92.8 builds one static snapshot, filters/searches/sorts existing rows in place, preserves the same tool across Player Modal use, refreshes only on explicit Refresh, and uses the larger non-sticky scroll geometry.');
+console.log('NFL Player Prop Tool regression passed: v92.8.1 builds one full static snapshot, filters/searches/sorts existing rows in place, preserves the same tool across Player Modal use, waits for an explicit Refresh replacement before rebuilding, and uses larger non-sticky scroll geometry.');
