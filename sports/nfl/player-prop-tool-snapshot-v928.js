@@ -4,6 +4,7 @@ const TOOL_ID='nflPlayerPropTool';
 const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
 const STYLE_ID='nfl-player-prop-tool-snapshot-v928-css';
+const CLOSE_SELECTOR='[data-nfl-close-modal],.modal-close,.ms-modal-x';
 const POSITIONS=['QB','RB','WR','TE'];
 const state=base?.state;
 
@@ -319,7 +320,7 @@ function resetFilters(tool){
 }
 function onClickCapture(e){
   const target=e.target;
-  if(target.closest?.('[data-nfl-close-modal]')&&parkedTool){scheduleParkedRestore();return;}
+  if(target.closest?.(CLOSE_SELECTOR)&&parkedTool){scheduleParkedRestore();return;}
   if(target.closest?.(`#${BUTTON_ID}`)){
     if(!snapshotReady&&!preparing)beginPrepare();
     return;
