@@ -1,0 +1,128 @@
+name: One-time NFL Prop Tool v93.8 polish
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-prop-polish-v938.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Wire player-column theme and horizontal scroller
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          preview=Path('sports/nfl-preview-v893.js')
+          s=preview.read_text()
+          theme_import="import { installNflPlayerPropToolThemeV936 } from './nfl/player-prop-tool-theme-v936.js?v=93.7';"
+          polish_import="import { installNflPlayerPropToolPolishV938 } from './nfl/player-prop-tool-polish-v938.js?v=93.8';"
+          if polish_import not in s:
+              if theme_import not in s: raise SystemExit('theme import anchor missing')
+              s=s.replace(theme_import,theme_import+'\n'+polish_import,1)
+          if 'installNflPlayerPropToolPolishV938();' not in s:
+              anchor='    installNflPlayerPropToolThemeV936();'
+              if anchor not in s: raise SystemExit('theme install anchor missing')
+              s=s.replace(anchor,anchor+'\n    installNflPlayerPropToolPolishV938();',1)
+          preview.write_text(s)
+
+          router=Path('sports/router.js')
+          r=router.read_text()
+          r2,n=re.subn(r"import\('./nfl-preview-v893\.js\?v=[^']+'\)","import('./nfl-preview-v893.js?v=93.8')",r,count=1)
+          if n!=1: raise SystemExit('NFL router import cache marker missing')
+          router.write_text(r2)
+
+          index=Path('index.html')
+          i=index.read_text()
+          pat=r'\./sports/router\.js\?v=(\d+)\.(\d+)'
+          m=re.search(pat,i)
+          if not m: raise SystemExit('outer router cache marker missing')
+          major,minor=int(m.group(1)),int(m.group(2))
+          i=re.sub(pat,f'./sports/router.js?v={major}.{minor+1}',i,count=1)
+          index.write_text(i)
+
+          st=Path('scripts/nfl-player-prop-tool-v923-selftest.mjs')
+          x=st.read_text()
+          if "const polishJs=fs.readFileSync('sports/nfl/player-prop-tool-polish-v938.js','utf8');" not in x:
+              anchor="const themeCss=fs.readFileSync('sports/nfl/player-prop-tool-theme-v936.css','utf8');"
+              add="\nconst polishJs=fs.readFileSync('sports/nfl/player-prop-tool-polish-v938.js','utf8');\nconst polishCss=fs.readFileSync('sports/nfl/player-prop-tool-polish-v938.css','utf8');"
+              if anchor not in x: raise SystemExit('selftest theme read anchor missing')
+              x=x.replace(anchor,anchor+add,1)
+          marker="assert(!themeCss.includes('grid-template-columns:305px'),'v93.7 theme must not alter fixed snapshot geometry');"
+          block="""
+          for(const marker of [
+            "STYLE_ID='nfl-player-prop-tool-polish-v938-css'",'player-prop-tool-polish-v938.css?v=93.8','nfl-ppt-xscroll-v938',
+            'ensureNflPlayerPropToolScrollerV938','wrap.scrollLeft=bar.scrollLeft','bar.scrollLeft=wrap.scrollLeft'
+          ]) assert(polishJs.includes(marker),`Player Prop Tool v93.8 scrollbar polish missing ${marker}`);
+          for(const marker of [
+            'td:first-child','background:#081426!important','nfl-ppt-xscroll-v938','overflow-x:scroll','scrollbar-color:#2d7fff #07101f'
+          ]) assert(polishCss.includes(marker),`Player Prop Tool v93.8 player-column/scrollbar CSS missing ${marker}`);
+          assert(!polishJs.includes('MutationObserver'),'v93.8 polish must not add a DOM observer');
+          assert(!polishJs.includes('setInterval('),'v93.8 polish must not add interval polling');
+          """.strip()
+          if 'Player Prop Tool v93.8 scrollbar polish missing' not in x:
+              if marker not in x: raise SystemExit('selftest theme assertion anchor missing')
+              x=x.replace(marker,marker+'\n\n'+block,1)
+          old="assert(preview.includes(\"player-prop-tool-theme-v936.js?v=93.7\"),'NFL production wrapper must load the v93.7 Outpost theme layer');"
+          new=old+"\nassert(preview.includes(\"player-prop-tool-polish-v938.js?v=93.8\"),'NFL production wrapper must load the v93.8 player-column/scrollbar polish');"
+          if 'player-prop-tool-polish-v938.js?v=93.8' not in x:
+              if old not in x: raise SystemExit('selftest preview theme anchor missing')
+              x=x.replace(old,new,1)
+          old2="assert(preview.includes('installNflPlayerPropToolThemeV936();'),'NFL production wrapper must install the Outpost theme');"
+          new2=old2+"\nassert(preview.includes('installNflPlayerPropToolPolishV938();'),'NFL production wrapper must install the v93.8 player-column/scrollbar polish');"
+          if "installNflPlayerPropToolPolishV938();'),'NFL production" not in x:
+              if old2 not in x: raise SystemExit('selftest theme install anchor missing')
+              x=x.replace(old2,new2,1)
+          x=x.replace("assert(router.includes(\"import('./nfl-preview-v893.js?v=93.7')\"),'router must load the v93.7 NFL Player Prop Tool wrapper');","assert(router.includes(\"import('./nfl-preview-v893.js?v=93.8')\"),'router must load the v93.8 NFL Player Prop Tool wrapper');")
+          st.write_text(x)
+
+          wf=Path('.github/workflows/nfl-player-prop-tool-browser-v923.yml')
+          w=wf.read_text()
+          w=re.sub(r'^name: NFL Player Prop Tool Browser QA.*$', 'name: NFL Player Prop Tool Browser QA v93.8', w, count=1, flags=re.M)
+          path_line="      - 'tests/nfl-player-prop-tool-polish-v938.spec.js'\n"
+          if path_line not in w:
+              anchor="      - 'tests/nfl-player-prop-tool-theme-v936.spec.js'\n"
+              if anchor not in w: raise SystemExit('browser workflow test path anchor missing')
+              w=w.replace(anchor,anchor+path_line,1)
+          oldrun='run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js --reporter=line --workers=1'
+          newrun='run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js --reporter=line --workers=1'
+          if oldrun in w: w=w.replace(oldrun,newrun,1)
+          elif newrun not in w: raise SystemExit('browser workflow run command anchor missing')
+          polish_path="      - 'sports/nfl/player-prop-tool-polish-v938.js'\n      - 'sports/nfl/player-prop-tool-polish-v938.css'\n"
+          if "player-prop-tool-polish-v938.js" not in w:
+              anchor="      - 'sports/nfl/player-prop-tool-theme-v936.css'\n"
+              if anchor not in w: raise SystemExit('browser workflow product path anchor missing')
+              w=w.replace(anchor,anchor+polish_path,1)
+          wf.write_text(w)
+          PY
+      - name: Run permanent Prop Tool regression
+        run: node scripts/nfl-player-prop-tool-v923-selftest.mjs
+      - name: Validate patch
+        run: |
+          git diff --check
+          grep -q "player-prop-tool-polish-v938.js?v=93.8" sports/nfl-preview-v893.js
+          grep -q "installNflPlayerPropToolPolishV938" sports/nfl-preview-v893.js
+          grep -q "nfl-ppt-xscroll-v938" sports/nfl/player-prop-tool-polish-v938.css
+          grep -q "background:#081426!important" sports/nfl/player-prop-tool-polish-v938.css
+      - name: Commit v93.8 production wiring
+        run: |
+          if git diff --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git config user.name "TSO NFL Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl-preview-v893.js sports/router.js index.html scripts/nfl-player-prop-tool-v923-selftest.mjs .github/workflows/nfl-player-prop-tool-browser-v923.yml
+          git commit -m "Wire NFL Prop Tool v93.8 player column and scrollbar"
+          git push origin HEAD:main
