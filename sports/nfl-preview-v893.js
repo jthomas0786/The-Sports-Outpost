@@ -13,7 +13,7 @@ import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-syn
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
 import { installNflPlayerPropToolV923 } from './nfl/player-prop-tool-v923.js?v=92.3';
-import { installNflPlayerPropToolPerformanceV925 } from './nfl/player-prop-tool-performance-v925.js?v=92.5.1';
+import { installNflPlayerPropToolPerformanceV925 } from './nfl/player-prop-tool-performance-v925.js?v=92.5.2';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
@@ -48,18 +48,12 @@ function arm(){
   try{installNflReadabilityV8922();}catch(e){console.warn('[NFL readability v89.22] unavailable:',e);}
   try{installNflPlayerPropToolV923({selectBaseTab:tab=>basePreview.selectTab?.(tab)});}catch(e){console.warn('[NFL Player Prop Tool v92.3] unavailable:',e);}
   try{installNflPlayerPropToolPerformanceV925();}catch(e){console.warn('[NFL Player Prop Tool v92.5] performance polish unavailable:',e);}
-  // One active-game gate, one accepted-score renderer, one field renderer.
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
   try{installNflGamecastFieldPositionV8925();}catch(e){console.warn('[NFL Gamecast v89.25] field position authority unavailable:',e);}
   try{installNflGamecastScoreGuardV8910();}catch(e){console.warn('[NFL Gamecast v89.14] scoreboard renderer unavailable:',e);}
   try{installNflGamecastFieldStateV8912();}catch(e){console.warn('[NFL Gamecast v89.16] authoritative motion renderer unavailable:',e);}
-  // v89.8 removes the legacy full-rebuild marker and preserves the field/actors
-  // across the 2s live polling cycle so the stage never flashes blank.
   try{installNflGamecastLiveFixV898();}catch(e){console.warn('[NFL Gamecast v89.8] live stability layer unavailable:',e);}
-  // v89.9 is fail-open protection for the actual PlayStage surface. The original
-  // field/stadium and base player sprites remain visible until the clean field art
-  // and refined Chibis are confirmed loaded, so a live remount can never be blank.
   try{installNflGamecastStageGuardV899();}catch(e){console.warn('[NFL Gamecast v89.9] stage visibility guard unavailable:',e);}
   installNflPropModelEdgeV8918().catch(e=>console.warn('[NFL Prop Model v89.18] simulation + 2+ TD UI unavailable:',e));
   installReplayLabIfRequested();
