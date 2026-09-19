@@ -6,7 +6,7 @@ let gameModalId=null, liveBypass=false, goalBaseline=false;
 const goalSeen=new Set();
 const filters={q:'',team:'ALL',pos:'ALL',game:'ALL',sort:'model'};
 const MARKETS={atg:'Anytime Goal',sog:'Shots on Goal',points:'Points',assists:'Assists',blocks:'Blocked Shots',saves:'Goalie Saves'};
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const norm=v=>String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
 const num=v=>Number.isFinite(Number(v))?Number(v):null;
 function ensureStyle(){if(document.getElementById('nhl-launch-v922-css'))return;const l=document.createElement('link');l.id='nhl-launch-v922-css';l.rel='stylesheet';l.href='./sports/nhl/launch-v922.css?v=90.22';document.head.appendChild(l);}
