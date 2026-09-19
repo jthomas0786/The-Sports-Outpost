@@ -56,9 +56,6 @@ function restoreAfterPlayerModal(){
     if(stillModal)return;
     if(liveRoot.querySelector('#nflPlayerPropTool')){playerModalOpen=false;return;}
     const trigger=document.getElementById('nflPlayerPropToolBtn');
-    // v92.3 deliberately keeps this nav item active while its canonical NFL
-    // Player Modal is open. Clicking it after the modal closes reuses the same
-    // tool opener and stashes the freshly rendered base page again.
     if(trigger?.classList.contains('is-active'))trigger.click();
     playerModalOpen=false;
   },80);
@@ -73,9 +70,17 @@ function stabilize(){
 }
 
 function onClick(e){
-  if(e.target.closest?.('#nflPptFilters')){
-    filtersOpen=!filtersOpen;
-    queueMicrotask(stabilize);
+  const filterButton=e.target.closest?.('#nflPptFilters');
+  if(filterButton){
+    // Own this one toggle in the capture phase so v92.3's older click handler
+    // cannot immediately flip the same panel a second time. This removes the
+    // hidden-panel race seen in real Chromium after the tool rerenders.
+    e.preventDefault();
+    e.stopImmediatePropagation();
+    const panel=document.getElementById('nflPptFilterPanel');
+    filtersOpen=panel ? panel.hidden : !filtersOpen;
+    if(panel)panel.hidden=!filtersOpen;
+    stabilize();
     return;
   }
   if(e.target.closest?.('#nflPptClear')){
