@@ -13,7 +13,7 @@ import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-syn
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
 import { installNflPlayerPropToolV923 } from './nfl/player-prop-tool-v923.js?v=92.3';
-import { installNflPlayerPropToolPerformanceV925 } from './nfl/player-prop-tool-performance-v925.js?v=92.5';
+import { installNflPlayerPropToolPerformanceV925 } from './nfl/player-prop-tool-performance-v925.js?v=92.5.1';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
