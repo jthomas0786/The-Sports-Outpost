@@ -30,6 +30,8 @@ for(const token of ["raw.propPeriodVersion='v94.0'",'raw.propPeriods=publicPropP
 assert.ok(auto.includes('const {worldMaskB64,...rest}=candidate'),'public nfl-sim propPeriods must strip large same-world masks');
 assert.ok(preview.includes("player-prop-tool-build-period-v940.js?v=94.0"),'NFL wrapper must import v94 build/period controls');
 assert.ok(preview.includes('installNflPlayerPropToolBuildPeriodV940();'),'NFL wrapper must install v94 build/period controls');
-assert.ok(router.includes("import('./nfl-preview-v893.js?v=94.0')"),'router must cache-bust NFL wrapper to v94.0');
+const routerMarker=router.match(/import\('\.\/nfl-preview-v893\.js\?v=(\d+)\.(\d+)'\)/);
+assert.ok(routerMarker,'router must load the NFL wrapper with a cache marker');
+assert.ok(Number(routerMarker[1])>94||(Number(routerMarker[1])===94&&Number(routerMarker[2])>=0),`router NFL wrapper cache must be v94.0 or newer, got ${routerMarker[1]}.${routerMarker[2]}`);
 
 console.log('✓ NFL Player Prop Tool v94.0 build-style + period regression passed');
