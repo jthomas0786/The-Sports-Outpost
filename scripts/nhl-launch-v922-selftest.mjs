@@ -51,7 +51,7 @@ assert.equal(fake[1].players[0].propsEligible,false,'other split-squad occurrenc
 for(const marker of [
  "atg:'Anytime Goal'","sog:'Shots on Goal'","points:'Points'","assists:'Assists'","blocks:'Blocked Shots'","saves:'Goalie Saves'",
  'hkLaunchSearch','hkLaunchTeam','hkLaunchPos','hkLaunchGame','hkLaunchSort','hkLaunchClear','openGameModal','openPlayer','openLive',
- 'decorateFeed','notifyGoal','ccExtraHTML','Top Goal Threats','Launch Slate','installNhlLaunchV922'
+ 'decorateFeed','notifyGoal','ccExtraHTML','Top Goal Threats','Launch Slate','installNhlLaunchV922','setPropsMarketState','resetPropsControls'
 ])assert(launch.includes(marker),`launch controller missing ${marker}`);
 for(const marker of ['hk-launch-props-controls','hk-launch-market-tabs','hk-launch-modal-backdrop','hk-launch-goal-toast','@media(max-width:900px)','@media(max-width:620px)'])assert(launchCss.includes(marker),`launch CSS missing ${marker}`);
 assert(view.includes("dedupeSlatePlayers(next.games);doc=next"),'browser refresh must re-apply the same daily/split-squad eligibility gate');
@@ -64,9 +64,10 @@ assert(slateUi.includes('data-hk-game='),'Slate player rows must carry exact gam
 assert.equal(Number((propsGuard.match(/const PAGE_SIZE=(\d+);/)||[])[1])>=1000,true,'Props guard must expose the complete launch-day pool rather than cap it at 60');
 assert(wrapper.includes("import {installNhlLaunchV922} from './launch-v922.js?v=90.22'"),'production NHL wrapper must import launch controller');
 assert(wrapper.includes('await installNhlLaunchV922(host);'),'production NHL wrapper must install launch controller');
-assert(launch.includes('if(host)return;'),'launch Props controls must stay mounted across observer scans so typing cannot detach the input');
+assert(launch.includes('if(host){setPropsMarketState'),'launch Props controls must stay mounted across observer scans so typing cannot detach the input');
+assert(launch.includes("Object.assign(filters,{q:'',team:'ALL',pos:'ALL',game:'ALL',sort:'model'});resetPropsControls()"),'Clear must reset both filter state and the stable control surface');
 assert(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'router must point at launch build');
 assert(index.includes("./sports/nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'Command Center lazy-load must use the full launch build');
 assert(index.includes('sports/router.js?v=90.62'),'index must cache-bust the launch router');
 
-console.log('NHL launch v90.22: exact Sept. 19 slate, split-squad safety, complete Props controls, modal wiring, 10s Live, Goal Feed alerts, Command Center and responsive launch CSS passed');
+console.log('NHL launch v90.22: exact Sept. 19 slate, split-squad safety, complete Props controls, stable filters, modal wiring, 10s Live, Goal Feed alerts, Command Center and responsive launch CSS passed');
