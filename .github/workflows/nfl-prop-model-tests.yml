@@ -8,6 +8,9 @@ on:
       - 'sports/nfl/prop-model-edge-v8917.js'
       - 'sports/nfl/player-prop-tool-v926.js'
       - 'sports/nfl/player-prop-tool-v926.css'
+      - 'sports/nfl/player-prop-tool-visibility-v927.css'
+      - 'sports/nfl/player-prop-tool-snapshot-v928.js'
+      - 'sports/nfl/player-prop-tool-snapshot-v928.css'
       - 'sports/nfl-preview-v893.js'
       - 'sports/router.js'
       - 'scripts/nfl-v8917-prop-bridge-selftest.mjs'
@@ -32,6 +35,7 @@ jobs:
           node --check sports/nfl/sim/prop-probabilities-v8917.js
           node --check sports/nfl/prop-model-edge-v8917.js
           node --check sports/nfl/player-prop-tool-v926.js
+          node --check sports/nfl/player-prop-tool-snapshot-v928.js
           node --check sports/nfl-preview-v893.js
           node --check sports/router.js
       - name: Prop probability bridge tests
