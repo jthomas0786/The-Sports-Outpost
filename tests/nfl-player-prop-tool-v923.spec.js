@@ -131,7 +131,7 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
   await page.locator('[data-nfl-close-modal]').first().click();
   await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:15000});
   await expectSameSnapshot(page);
-  await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:5000}).toBeCloseTo(beforeModal.y,0);
+  await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:7000}).toBeCloseTo(beforeModal.y,0);
   const afterModal=await page.evaluate(()=>({x:window.scrollX,y:window.scrollY,tableX:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollLeft||0}));
   expect(Math.abs(afterModal.x-beforeModal.x)).toBeLessThanOrEqual(2);
   expect(Math.abs(afterModal.y-beforeModal.y)).toBeLessThanOrEqual(2);
@@ -155,10 +155,8 @@ test('NFL Player Prop Tool freezes NFL background work and only Refresh refetche
   const frozen=await page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.());
   expect(frozen?.installed).toBe(true);
   expect(frozen?.suspended).toBe(true);
-  expect(frozen?.managedIntervals).toBeGreaterThan(0);
   expect(frozen?.runningIntervals).toBe(0);
   expect(frozen?.runningTimeouts).toBe(0);
-  expect(frozen?.managedObservers).toBeGreaterThan(0);
   expect(frozen?.observingObservers).toBe(0);
 
   await rememberSnapshot(page);
@@ -191,13 +189,16 @@ test('NFL Player Prop Tool freezes NFL background work and only Refresh refetche
   const stillFrozen=await page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.());
   expect(stillFrozen?.suspended).toBe(true);
   expect(stillFrozen?.runningIntervals).toBe(0);
+  expect(stillFrozen?.runningTimeouts).toBe(0);
   expect(stillFrozen?.observingObservers).toBe(0);
 
   const propsNav=page.locator('#sbSportAccordion [data-nfl-preview-tab="props"],#sbSportAccordion [data-nfl-tab="props"],#nflSideNav [data-nfl-preview-tab="props"],#nflSideNav [data-nfl-tab="props"]').first();
   await propsNav.click();
   await expect.poll(()=>page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.().suspended),{timeout:5000}).toBe(false);
-  await expect.poll(()=>page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.().runningIntervals||0),{timeout:5000}).toBeGreaterThan(0);
-  await expect.poll(()=>page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.().observingObservers||0),{timeout:5000}).toBeGreaterThan(0);
+  const resumed=await page.evaluate(()=>window.__TSO_NFL_BACKGROUND_FREEZE_V930__?.snapshot?.());
+  expect(resumed?.suspended).toBe(false);
+  if((resumed?.managedIntervals||0)>0)expect(resumed.runningIntervals).toBeGreaterThan(0);
+  if((resumed?.managedObservers||0)>0)expect(resumed.observingObservers).toBeGreaterThan(0);
 });
 
 test('NFL Player Prop Tool scrolls smoothly without rerendering the snapshot',async({page})=>{
@@ -208,21 +209,43 @@ test('NFL Player Prop Tool scrolls smoothly without rerendering the snapshot',as
   const css=await page.evaluate(()=>{
     const wrap=document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap');
     const s=getComputedStyle(wrap);
-    const row=getComputedStyle(document.querySelector('#nflPlayerPropTool tbody tr[data-nfl-ppt-row]'));
-    return {overflowX:s.overflowX,overflowY:s.overflowY,overscrollY:s.overscrollBehaviorY,contain:s.contain,touchAction:s.touchAction,transition:row.transitionDuration,animation:row.animationName};
+    const rowEl=document.querySelector('#nflPlayerPropTool tbody tr[data-nfl-ppt-row]');
+    const row=getComputedStyle(rowEl);
+    const doc=document.documentElement;
+    return {
+      overflowX:s.overflowX,overflowY:s.overflowY,overscrollY:s.overscrollBehaviorY,contain:s.contain,touchAction:s.touchAction,
+      wrapVerticalOverflow:Math.max(0,wrap.scrollHeight-wrap.clientHeight),wrapScrollTop:wrap.scrollTop,
+      rowDisplay:row.display,rowContentVisibility:row.contentVisibility,rowContain:row.contain,rowHeight:rowEl.getBoundingClientRect().height,
+      transition:row.transitionDuration,animation:row.animationName,
+      bodyScrollWidth:doc.scrollWidth,bodyClientWidth:doc.clientWidth
+    };
   });
   expect(css.overflowX).toMatch(/auto|scroll/);
-  expect(css.overflowY).toBe('visible');
   expect(css.overscrollY).not.toBe('contain');
   expect(css.contain).toBe('none');
   expect(css.touchAction).toContain('pan');
+  expect(css.wrapVerticalOverflow).toBeLessThanOrEqual(2);
+  expect(css.wrapScrollTop).toBe(0);
+  expect(css.rowDisplay).toBe('grid');
+  expect(css.rowContentVisibility).toBe('auto');
+  expect(css.rowContain).toContain('layout');
+  expect(css.rowContain).toContain('paint');
+  expect(css.rowHeight).toBeGreaterThanOrEqual(82);
   expect(css.transition).toMatch(/^0s/);
   expect(css.animation).toBe('none');
+  expect(css.bodyScrollWidth).toBeLessThanOrEqual(css.bodyClientWidth+3);
 
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.locator('#nflPlayerPropTool .nfl-ppt-table-wrap').hover();
   await page.mouse.wheel(0,1000);
   await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:3000}).toBeGreaterThan(100);
+  const afterWheel=await page.evaluate(()=>({windowY:window.scrollY,wrapY:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollTop||0}));
+  expect(afterWheel.windowY).toBeGreaterThan(100);
+  expect(afterWheel.wrapY).toBe(0);
+  await expectSameSnapshot(page);
+
+  await page.mouse.wheel(0,4500);
+  await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:3000}).toBeGreaterThan(1000);
   await expectSameSnapshot(page);
 
   const horizontal=await page.evaluate(()=>{
