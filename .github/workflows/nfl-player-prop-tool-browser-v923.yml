@@ -1,7 +1,8 @@
-name: NFL Player Prop Tool Browser QA v94.1
+name: NFL Player Prop Tool Browser QA v94.2
 
-# v94.1 validates the frozen 50K simulation authority, reference-image stat
-# categories, Build Style, compact period controls, scrolling, and mobile containment.
+# v94.2 validates sportsbook-aware Bet Style selection against the frozen 50K
+# simulation authority, reference-image stat categories, compact period controls,
+# static snapshot performance, scrolling, and mobile containment.
 on:
   workflow_dispatch:
   push:
@@ -23,6 +24,9 @@ on:
       - 'sports/nfl/player-prop-tool-build-period-v940.js'
       - 'sports/nfl/player-prop-tool-build-period-v940.css'
       - 'sports/nfl/player-prop-tool-reference-v941.js'
+      - 'sports/nfl/sim/full-prop-board-v942.js'
+      - 'scripts/nfl-sim-auto.mjs'
+      - 'slates/nfl-sim.json'
       - 'sports/nfl-preview-v893.js'
       - 'sports/router.js'
       - 'tests/nfl-player-prop-tool-v923.spec.js'
@@ -51,6 +55,28 @@ jobs:
           node scripts/nfl-player-prop-tool-v940-selftest.mjs
           node scripts/nfl-player-prop-tool-v923-selftest.mjs
           node scripts/mobile-swipe-anywhere-selftest.mjs
+      - name: Verify sportsbook-aware 50K Bet Style cache is present
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const games=(doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length);
+          if(!games.length)throw new Error('No 50K sportsbook-aware propStyles cache is published yet');
+          for(const g of games){
+            const byId=new Map((g.propStyles.candidates||[]).map(c=>[String(c.id),c]));
+            for(const [style,ids] of Object.entries(g.propStyles.rankings||{})){
+              for(const id of ids||[]){
+                const c=byId.get(String(id));
+                if(!c)throw new Error(`Missing ${style} candidate ${id}`);
+                if(Number(c.iterations)<50000)throw new Error(`${id} is not 50K-backed`);
+                if(!Number.isFinite(Number(c.line))||!['over','under'].includes(c.side))throw new Error(`${id} missing selected prop line/side`);
+                if(!Number.isFinite(Number(c.price))||!c.book)throw new Error(`${id} missing sportsbook odds`);
+                if(!c.projection||!Number.isFinite(Number(c.projection.mean)))throw new Error(`${id} missing simulation distribution`);
+              }
+            }
+          }
+          console.log(`✓ ${games.length} game(s) contain sportsbook-backed 50K Bet Style boards`);
+          NODE
       - name: Install Chromium test runtime
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
@@ -65,7 +91,7 @@ jobs:
           done
           cat /tmp/nfl-prop-tool-server.log
           exit 1
-      - name: Exercise frozen 50K-simulation Player Prop Tool in Chromium
+      - name: Exercise frozen 50K sportsbook-aware Player Prop Tool in Chromium
         run: |
           npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-reference-v941.spec.js --reporter=line --workers=1
       - name: Print server log on failure
