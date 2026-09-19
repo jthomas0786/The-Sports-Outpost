@@ -6,15 +6,6 @@ const LOCK_DISTANCE=14;
 const MAX_VERTICAL=84;
 const MAX_DURATION_MS=900;
 
-// The Player Prop Tool is a dense horizontally-scrollable surface. Require a
-// much more deliberate rightward gesture there so normal table interaction
-// does not accidentally open the side nav. Other pages retain the shared
-// swipe-anywhere thresholds above.
-const PROP_OPEN_DISTANCE=118;
-const PROP_LOCK_DISTANCE=26;
-const PROP_MAX_VERTICAL=52;
-const PROP_HORIZONTAL_RATIO=1.75;
-
 function mobileViewport(){
   return window.matchMedia(`(max-width:${MAX_WIDTH}px)`).matches;
 }
@@ -36,12 +27,6 @@ function playerPropToolActive(){
   if(!tool||!tool.isConnected)return false;
   const nflView=document.getElementById('nflView');
   return !nflView?.hasAttribute('hidden');
-}
-
-function openGestureTuning(){
-  return playerPropToolActive()
-    ? {openDistance:PROP_OPEN_DISTANCE,lockDistance:PROP_LOCK_DISTANCE,maxVertical:PROP_MAX_VERTICAL,horizontalRatio:PROP_HORIZONTAL_RATIO}
-    : {openDistance:OPEN_DISTANCE,lockDistance:LOCK_DISTANCE,maxVertical:MAX_VERTICAL,horizontalRatio:1.2};
 }
 
 function blockingOverlayOpen(){
@@ -80,7 +65,11 @@ export function installMobileEdgeSwipeV894(){
   const reset=()=>{gesture=null;};
 
   document.addEventListener('touchstart',e=>{
-    if(!mobileViewport()||drawerOpen()||blockingOverlayOpen()||e.touches.length!==1){reset();return;}
+    // The NFL Player Prop Tool owns horizontal touch interaction for its wide
+    // snapshot table. Do not arm the global drawer-opening gesture at all on
+    // this page. The hamburger/tap controls remain available, and the normal
+    // swipe-to-open behavior is unchanged everywhere else.
+    if(playerPropToolActive()||!mobileViewport()||drawerOpen()||blockingOverlayOpen()||e.touches.length!==1){reset();return;}
     const t=e.touches[0];
     // Start anywhere on the mobile viewport. Direction locking below prevents
     // normal vertical scrolling or taps from accidentally opening the drawer.
@@ -92,7 +81,6 @@ export function installMobileEdgeSwipeV894(){
       startedAt:performance.now(),
       horizontal:false,
       cancelled:false,
-      tuning:openGestureTuning(),
     };
   },{passive:true});
 
@@ -104,10 +92,9 @@ export function installMobileEdgeSwipeV894(){
     const dx=gesture.x-gesture.x0;
     const dy=gesture.y-gesture.y0;
     const ax=Math.abs(dx),ay=Math.abs(dy);
-    const tuning=gesture.tuning;
 
-    if(!gesture.horizontal&&Math.max(ax,ay)>=tuning.lockDistance){
-      if(dx>0&&ax>ay*tuning.horizontalRatio) gesture.horizontal=true;
+    if(!gesture.horizontal&&Math.max(ax,ay)>=LOCK_DISTANCE){
+      if(dx>0&&ax>ay*1.2) gesture.horizontal=true;
       else gesture.cancelled=true;
     }
     if(gesture.horizontal){
@@ -124,8 +111,7 @@ export function installMobileEdgeSwipeV894(){
     const dx=gesture.x-gesture.x0;
     const dy=gesture.y-gesture.y0;
     const duration=performance.now()-gesture.startedAt;
-    const tuning=gesture.tuning;
-    const shouldOpen=!gesture.cancelled&&gesture.horizontal&&dx>=tuning.openDistance&&Math.abs(dy)<=tuning.maxVertical&&duration<=MAX_DURATION_MS;
+    const shouldOpen=!gesture.cancelled&&gesture.horizontal&&dx>=OPEN_DISTANCE&&Math.abs(dy)<=MAX_VERTICAL&&duration<=MAX_DURATION_MS;
     reset();
     if(shouldOpen) openSidebar();
   },{passive:true});
@@ -133,7 +119,8 @@ export function installMobileEdgeSwipeV894(){
   document.addEventListener('touchcancel',reset,{passive:true});
 
   // Keep the existing matching gesture while the drawer is open: swipe it
-  // left from inside the drawer to dismiss it.
+  // left from inside the drawer to dismiss it. This remains available even
+  // if the Player Prop Tool is the page behind the open drawer.
   let closeGesture=null;
   document.addEventListener('touchstart',e=>{
     if(!mobileViewport()||!drawerOpen()||e.touches.length!==1){closeGesture=null;return;}
