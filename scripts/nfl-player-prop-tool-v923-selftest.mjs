@@ -15,7 +15,7 @@ for(const marker of [
   'rushYds','recYds','receptions','passYds','passTds','completions','atd',
   'hitRate','h2hRate','recentAverage','impliedFromAmerican','defenseRankMap','buildRows',
   'data-nfl-tool-player','data-nfl-player','openExistingPlayerModal','Player Prop Tool','Quick Guide','Color Cells','Filters',
-  'PAGE_SIZE=60','renderLimit','Show ${Math.min(PAGE_SIZE,more)} more','loading="lazy"','decoding="async"',
+  'PAGE_SIZE=5000','renderLimit','Show ${Math.min(PAGE_SIZE,more)} more','loading="lazy"','decoding="async"',
   'nfl-ppt-ring-track','nfl-ppt-ring-fill','nfl-ppt-ring-label'
 ]) assert(js.includes(marker),`Player Prop Tool v92.6 missing ${marker}`);
 
@@ -59,4 +59,4 @@ assert(preview.includes('installNflPlayerPropToolStaticGuardV929'),'NFL producti
 assert(preview.indexOf('installPlayerPropTool();')<preview.indexOf('ensurePlayerPropVisibilityV927();'),'larger visibility CSS must be appended after the base tool styles');
 assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL production wrapper must not install the old repaint-heavy v92.5 layer');
 
-console.log('NFL Player Prop Tool regression passed: v92.9 keeps the larger v92.8 snapshot stable after load, filters/searches/sorts existing rows in place, preserves the same tool across Player Modal use, blocks live/halftime/quarter background network churn while active, supports the current NFL side nav, and only rebuilds from an explicit Refresh.');
+console.log('NFL Player Prop Tool regression passed: v92.9 renders the full snapshot in one initial pass, keeps the larger v92.8 layout stable after load, filters/searches/sorts existing rows in place, preserves the same tool across Player Modal use, blocks live/halftime/quarter background network churn while active, supports the current NFL side nav, and only rebuilds from an explicit Refresh.');
