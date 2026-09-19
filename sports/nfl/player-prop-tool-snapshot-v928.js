@@ -268,7 +268,15 @@ function beginPrepare(previousTable=null){
   queuePrepare(0);
 }
 
-function modalIsOpen(){return !!document.querySelector('#nflView [data-nfl-close-modal],#nflView .tso-nfl-player-card-v70,#nflView .tso-nfl-player-card-v72,#nflView .ms-modal');}
+function modalNodeVisible(node){
+  if(!node||node.hidden||node.getAttribute?.('aria-hidden')==='true')return false;
+  const style=getComputedStyle(node);
+  return style.display!=='none'&&style.visibility!=='hidden'&&Number(style.opacity||1)!==0&&node.getClientRects().length>0;
+}
+function modalIsOpen(){
+  const nodes=document.querySelectorAll('#nflView .tso-nfl-player-card-v70,#nflView .tso-nfl-player-card-v72,#nflView .ms-modal');
+  return [...nodes].some(modalNodeVisible);
+}
 function restoreParkedTool(){
   if(!parkedTool||modalIsOpen())return false;
   const root=document.getElementById('nflView');
@@ -291,7 +299,9 @@ function restoreParkedTool(){
   return true;
 }
 function scheduleParkedRestore(){
-  [0,40,100,220].forEach(delay=>setTimeout(()=>{if(parkedTool)restoreParkedTool();},delay));
+  for(const delay of [0,40,100,220,400,700,1100,1600,2400]){
+    setTimeout(()=>{if(parkedTool)restoreParkedTool();},delay);
+  }
 }
 function parkForPlayerModal(){
   const tool=document.getElementById(TOOL_ID);
@@ -360,6 +370,9 @@ function onInputCapture(e){
   e.stopImmediatePropagation();
   requestApply();
 }
+function onKeyDown(e){
+  if(e.key==='Escape'&&parkedTool)scheduleParkedRestore();
+}
 function onHashChange(){
   if(!String(location.hash||'').toLowerCase().startsWith('#nfl')){
     snapshotReady=false;preparing=false;savedState=null;parkedTool=null;waitForTableReplacement=null;
@@ -374,7 +387,8 @@ export function installNflPlayerPropToolSnapshotV928(){
   document.addEventListener('click',onClickCapture,true);
   document.addEventListener('change',onChangeCapture,true);
   document.addEventListener('input',onInputCapture,true);
+  document.addEventListener('keydown',onKeyDown,true);
   window.addEventListener('hashchange',onHashChange);
 }
 
-export const __NFL_PLAYER_PROP_TOOL_SNAPSHOT_V928_TEST__={copyState,restoreState,neutralizeForSnapshot,qualifies,sortValue};
+export const __NFL_PLAYER_PROP_TOOL_SNAPSHOT_V928_TEST__={copyState,restoreState,neutralizeForSnapshot,qualifies,sortValue,modalNodeVisible};
