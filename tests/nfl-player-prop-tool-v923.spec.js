@@ -17,7 +17,8 @@ async function openTool(page){
   await page.waitForSelector('#nflPlayerPropTool',{state:'visible',timeout:45000});
   await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
   await page.waitForSelector('#nflPptMode',{state:'visible',timeout:15000});
-  await page.locator('#nflPptMode').selectOption('all');
+  await page.waitForFunction(()=>[...document.querySelectorAll('#nflPptMode option')].some(o=>o.value==='tsoPick'),{timeout:15000});
+  await page.locator('#nflPptMode').selectOption('tsoPick');
   await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr[data-nfl-ppt-row]').length>0,{timeout:15000});
   await page.waitForFunction(()=>{
     const rings=[...document.querySelectorAll('#nflPlayerPropTool .nfl-ppt-prob:not(.empty)')];
@@ -69,7 +70,7 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
   expect(await page.locator('#nflPlayerPropTool .nfl-ppt-player').count()).toBe(initialCount);
 
   const headerText=await page.locator('#nflPlayerPropTool thead').innerText();
-  for(const label of ['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','MODEL PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'])expect(headerText).toContain(label);
+  for(const label of ['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'])expect(headerText).toContain(label);
   for(const pos of ['QB','RB','WR','TE'])await expect(page.locator(`[data-nfl-ppt-pos="${pos}"]`)).toBeVisible();
 
   await page.locator('#nflPptFilters').click();
@@ -124,10 +125,6 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
     wrap.scrollLeft=Math.min(180,Math.max(0,wrap.scrollWidth-wrap.clientWidth));
     return {x:window.scrollX,y:window.scrollY,tableX:wrap.scrollLeft};
   });
-  // Use a DOM click after setting the table position. Playwright locator.click()
-  // auto-scrolls the horizontal table before dispatching the click event, which
-  // would make the app capture the automation-induced position instead of the
-  // user's position at the moment of the tap.
   await player.evaluate(el=>el.click());
   const modal=page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72,.ms-modal').first();
   await expect(modal).toBeVisible({timeout:15000});
