@@ -38,7 +38,7 @@ jobs:
       - name: Sync latest main
         run: git pull --ff-only origin main
 
-      - name: Cache-bust v94 Player Prop Tool wiring
+      - name: Cache-bust v94.1 Player Prop Tool wiring
         run: |
           python3 - <<'PY'
           from pathlib import Path
@@ -46,7 +46,7 @@ jobs:
 
           router=Path('sports/router.js')
           r=router.read_text()
-          r2,n=re.subn(r"import\('\./nfl-preview-v893\.js\?v=[^']+'\)","import('./nfl-preview-v893.js?v=94.0')",r,count=1)
+          r2,n=re.subn(r"import\('\./nfl-preview-v893\.js\?v=[^']+'\)","import('./nfl-preview-v893.js?v=94.1')",r,count=1)
           if n!=1:
               raise SystemExit('NFL preview router import cache marker missing')
           router.write_text(r2)
@@ -131,6 +131,7 @@ jobs:
             echo 'No finalizer changes to commit.'
           else
             git commit -m 'Finalize NFL Player Prop Tool v94.1 simulation columns'
+            git pull --rebase origin main
             git push origin HEAD:main
           fi
 
