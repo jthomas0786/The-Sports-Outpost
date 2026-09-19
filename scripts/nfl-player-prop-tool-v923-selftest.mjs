@@ -32,12 +32,14 @@ for(const marker of ['max-width:1500px','height:48px','width:1420px','height:78p
 for(const marker of [
   'nflPptSnapshot','STATIC SNAPSHOT · REFRESH TO UPDATE','requestAnimationFrame','row.hidden','DocumentFragment',
   'parkedTool','restoreParkedTool','snapshotReady','nflPptSnapshotRows','data-nfl-tool-player',
-  'waitForTableReplacement','for(let i=0;i<100;i++)more.click()','beginPrepare(tool.querySelector(\'.nfl-ppt-table\'))'
-]) assert(snapshot.includes(marker),`Player Prop Tool v92.8.1 snapshot layer missing ${marker}`);
+  'waitForTableReplacement','for(let i=0;i<100;i++)more.click()','beginPrepare(tool.querySelector(\'.nfl-ppt-table\'))',
+  'player-prop-tool-snapshot-v928.css?v=93.1'
+]) assert(snapshot.includes(marker),`Player Prop Tool v93.1 snapshot layer missing ${marker}`);
 for(const marker of [
   'width:1535px','height:86px','width:64px','transition:none','animation:none','overflow-y:visible',
-  'touch-action:pan-x pan-y','tr[hidden]','nfl-ppt-snapshot-badge'
-]) assert(snapshotCss.includes(marker),`Player Prop Tool v92.8 snapshot CSS missing ${marker}`);
+  'touch-action:pan-x pan-y','tr[data-nfl-ppt-row][hidden]','nfl-ppt-snapshot-badge',
+  'display:grid!important','content-visibility:auto!important','contain-intrinsic-size:auto 86px!important','contain:layout paint style!important'
+]) assert(snapshotCss.includes(marker),`Player Prop Tool v93.1 smooth snapshot CSS missing ${marker}`);
 
 for(const marker of [
   '__TSO_NFL_PROP_SNAPSHOT_ACTIVE__','BLOCKED_PATHS','SOURCE_PATHS','sourceCache','sourceInflight','sourceRefreshBudget',
@@ -61,9 +63,9 @@ for(const marker of [
 
 assert(!js.includes('new MutationObserver'),'v92.6 Player Prop Tool must not use mutation observers');
 assert(!js.includes('setInterval('),'v92.6 Player Prop Tool must not auto-rerender on an interval');
-assert(!snapshot.includes('new MutationObserver'),'v92.8.1 snapshot layer must not observe/rebuild the DOM');
-assert(!snapshot.includes('setInterval('),'v92.8.1 snapshot layer must not auto-refresh on an interval');
-assert(!snapshot.includes('renderTool('),'v92.8.1 snapshot controls must not call the base renderer');
+assert(!snapshot.includes('new MutationObserver'),'v93.1 snapshot layer must not observe/rebuild the DOM');
+assert(!snapshot.includes('setInterval('),'v93.1 snapshot layer must not auto-refresh on an interval');
+assert(!snapshot.includes('renderTool('),'v93.1 snapshot controls must not call the base renderer');
 assert(!ux.includes('new MutationObserver'),'v93.0 UX layer must not observe/rebuild the DOM');
 assert(!ux.includes('setInterval('),'v93.0 UX layer must not add interval work');
 assert(staticGuard.includes('if(guardActive)return;\n  for(const delay of [0,80,220,500,1000,2000])'),'v93.0 sidebar retry work must stop while the snapshot is active');
@@ -73,6 +75,7 @@ assert(!staticGuard.includes('setInterval('),'v93.0 static guard must not add a 
 assert(preview.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'NFL production wrapper must import the v93.0 background freeze');
 assert(preview.includes("player-prop-tool-ux-v930.js?v=93.0"),'NFL production wrapper must import the v93.0 modal/updated-time UX layer');
 assert(preview.includes("player-prop-tool-static-guard-v929.js?v=93.0"),'NFL production wrapper must use the v93.0 static guard cache key');
+assert(preview.includes("player-prop-tool-snapshot-v928.js?v=93.1"),'NFL production wrapper must load the v93.1 smooth snapshot module');
 assert(preview.includes('installNflBackgroundFreezeV930();'),'NFL production wrapper must install the background freeze before base mount');
 assert(preview.includes('installNflPlayerPropToolUxV930();'),'NFL production wrapper must install exact modal return behavior');
 assert(preview.indexOf('installNflPlayerPropToolUxV930();')<preview.indexOf('installNflPlayerPropToolSnapshotV928();'),'modal return capture must install before the snapshot parking layer');
@@ -81,6 +84,6 @@ assert(!preview.includes('installNflPlayerPropToolPerformanceV925'),'NFL product
 
 assert(router.includes("player-prop-tool-background-freeze-v930.js?v=93.0"),'router must install the freeze before NFL global enhancements');
 assert(router.indexOf('installNflBackgroundFreezeV930();')<router.indexOf('installNflChibiPreviewPrivateV901();'),'router must install the freeze before NFL observers are created');
-assert(router.includes("import('./nfl-preview-v893.js?v=93.0')"),'router must load the v93.0 NFL wrapper');
+assert(router.includes("import('./nfl-preview-v893.js?v=93.1')"),'router must load the v93.1 NFL wrapper');
 
-console.log('NFL Player Prop Tool regression passed: v93.0 keeps the full readable snapshot in memory, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the Player Modal to the exact scroll position.');
+console.log('NFL Player Prop Tool regression passed: v93.1 keeps the full readable snapshot in memory, freezes NFL live/quarter/halftime/Gamecast/prop-model timer and observer work while active, uses fixed-grid rows plus native off-screen content visibility for smooth scrolling, serves the four source documents from the page snapshot, permits exactly one explicit four-file Refresh pass, preserves filter/search/sort without source refetches, and restores the Player Modal to the exact scroll position.');
