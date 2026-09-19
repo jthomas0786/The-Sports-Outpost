@@ -1,0 +1,109 @@
+name: One-time NFL Player Prop Tool Video Fix v94.3
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/apply-nfl-player-prop-tool-v943-video-fix.py'
+      - 'tests/nfl-player-prop-tool-video-v943.spec.js'
+      - '.github/workflows/one-time-nfl-player-prop-tool-video-v943.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-player-prop-tool-video-v943
+  cancel-in-progress: true
+
+jobs:
+  fix-and-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sync latest main
+        run: git pull --rebase origin main
+
+      - name: Apply v94.3 video/event-race fix
+        run: python3 scripts/apply-nfl-player-prop-tool-v943-video-fix.py
+
+      - name: Run static regressions
+        run: |
+          node scripts/nfl-player-prop-tool-v941-selftest.mjs
+          node scripts/nfl-player-prop-tool-v940-selftest.mjs
+          node scripts/nfl-player-prop-tool-v923-selftest.mjs
+          node scripts/mobile-swipe-anywhere-selftest.mjs
+          node scripts/nfl-quarter-selftest.mjs
+
+      - name: Regenerate authoritative 50K sportsbook prop boards
+        env:
+          NFL_SIM_FORCE: '1'
+        run: node scripts/nfl-sim-auto.mjs --force
+
+      - name: Verify 50K sportsbook-aware prop cache
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const doc=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const styles=['tsoPick','safest','bestEdge','balanced','aggressive','correlated','longshot'];
+          const games=(doc.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length);
+          if(!games.length)throw new Error('No 50K sportsbook-aware propStyles cache was generated');
+          for(const style of styles){
+            if(!games.some(g=>(g.propStyles.rankings?.[style]||[]).length))throw new Error(`No candidates for ${style}`);
+          }
+          for(const g of games){
+            const byId=new Map((g.propStyles.candidates||[]).map(c=>[String(c.id),c]));
+            for(const [style,ids] of Object.entries(g.propStyles.rankings||{}))for(const id of ids||[]){
+              const c=byId.get(String(id));
+              if(!c)throw new Error(`Missing ${style} candidate ${id}`);
+              if(Number(c.iterations)<50000)throw new Error(`${id} is not 50K-backed`);
+              if(!Number.isFinite(Number(c.line))||!['over','under'].includes(c.side))throw new Error(`${id} missing exact prop line/side`);
+              if(!Number.isFinite(Number(c.price))||!c.book)throw new Error(`${id} missing sportsbook price`);
+            }
+          }
+          console.log(`✓ ${games.length} game(s) contain 50K sportsbook-aware Bet Style boards`);
+          NODE
+
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+
+      - name: Start local production server
+        run: |
+          python3 -m http.server 4173 >/tmp/nfl-prop-v943-server.log 2>&1 &
+          echo $! >/tmp/nfl-prop-v943-server.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/nfl-prop-v943-server.log
+          exit 1
+
+      - name: Reproduce uploaded-video interactions in Chromium
+        run: |
+          npx playwright test tests/nfl-player-prop-tool-video-v943.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js --reporter=line --workers=1
+
+      - name: Run complete Player Prop Tool browser regression
+        run: |
+          npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-sim-v939.spec.js tests/nfl-player-prop-tool-build-period-v940.spec.js tests/nfl-player-prop-tool-reference-v941.spec.js tests/nfl-player-prop-tool-video-v943.spec.js --reporter=line --workers=1
+
+      - name: Commit and push verified v94.3 fix
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add sports/nfl/player-prop-tool-build-period-v940.js sports/nfl-preview-v893.js sports/router.js index.html scripts/nfl-player-prop-tool-v940-selftest.mjs tests/nfl-player-prop-tool-build-period-v940.spec.js .github/workflows/nfl-player-prop-tool-browser-v923.yml .github/workflows/one-time-nfl-prop-build-period-v940.yml slates/nfl-sim.json slates/nfl-sim-state.json slates/nfl-quarter.json
+          git diff --cached --quiet && { echo 'No v94.3 changes to commit'; exit 1; }
+          git commit -m 'Fix NFL Prop Tool Bet Style event race v94.3'
+          git pull --rebase origin main
+          git push origin HEAD:main
+
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/nfl-prop-v943-server.log || true
