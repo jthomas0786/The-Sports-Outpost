@@ -110,6 +110,9 @@ jobs:
         run: |
           npx playwright test tests/nfl-player-prop-tool-v923.spec.js tests/nfl-player-prop-tool-theme-v936.spec.js tests/nfl-player-prop-tool-polish-v938.spec.js tests/nfl-player-prop-tool-authority-v945.spec.js --reporter=line --workers=1
 
+      - name: Retire one-time bootstrap helpers
+        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-clean-v944.yml scripts/fix-nfl-player-prop-tool-v946.py
+
       - name: Commit and push verified v94.6 cleanup
         run: |
           git config user.name 'github-actions[bot]'
