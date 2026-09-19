@@ -1,0 +1,44 @@
+name: NFL Player Prop Tool Browser QA v92.3
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'sports/nfl/player-prop-tool-v923.js'
+      - 'sports/nfl/player-prop-tool-v923.css'
+      - 'sports/nfl-preview-v893.js'
+      - 'sports/router.js'
+      - 'tests/nfl-player-prop-tool-v923.spec.js'
+      - '.github/workflows/nfl-player-prop-tool-browser-v923.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  browser-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install Chromium test runtime
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local production server
+        run: |
+          python3 -m http.server 4173 >/tmp/nfl-prop-tool-server.log 2>&1 &
+          echo $! >/tmp/nfl-prop-tool-server.pid
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/nfl-prop-tool-server.log
+          exit 1
+      - name: Exercise Player Prop Tool in Chromium
+        run: npx playwright test tests/nfl-player-prop-tool-v923.spec.js --reporter=line --workers=1
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/nfl-prop-tool-server.log || true
