@@ -46,7 +46,7 @@ function restoreReturnState(){
   if(!returnState)return;
   const root=tool(),wrap=tableWrap(root);
   if(!root||root.dataset.nflPptSnapshot!=='ready'){
-    if(++restoreFrames<120)restoreRaf=requestAnimationFrame(restoreReturnState);
+    if(++restoreFrames<360)restoreRaf=requestAnimationFrame(restoreReturnState);
     return;
   }
   const saved=returnState;
