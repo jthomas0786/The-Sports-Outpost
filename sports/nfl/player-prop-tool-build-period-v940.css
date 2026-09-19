@@ -1,6 +1,6 @@
-/* NFL Player Prop Tool v94.0 — compact Build Style + period controls.
-   Keep this control intentionally small: it should read like a filter strip,
-   not a second toolbar or a full-width mobile takeover. */
+/* NFL Player Prop Tool v94.2 — compact Bet Style + period controls.
+   Keep these controls intentionally small: one sportsbook-aware risk selector
+   plus one slim period strip, never a second full-screen toolbar. */
 #nflView #nflPlayerPropTool .nfl-ppt-periodbar-v940{
   width:min(100%,1620px);
   margin:-4px auto 14px;
@@ -50,10 +50,7 @@
   cursor:pointer;
   box-shadow:none;
 }
-#nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940 button:hover{
-  background:#0d203d;
-  color:#eef6ff;
-}
+#nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940 button:hover{background:#0d203d;color:#eef6ff}
 #nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940 button.active{
   border-color:rgba(93,160,255,.7);
   background:linear-gradient(180deg,#2d7fff,#1768dc);
@@ -71,39 +68,25 @@
   letter-spacing:.02em;
 }
 
-/* View is now the Build Style selector, but keep the existing compact select. */
-#nflView #nflPlayerPropTool #nflPptMode[data-nfl-ppt-build-style="94.0"]{
+/* The old View select is now Bet Style. Keep it compact and visually aligned
+   with the existing Game/Prop controls instead of creating another panel. */
+#nflView #nflPlayerPropTool #nflPptMode[data-nfl-ppt-build-style]{
   border-color:rgba(45,127,255,.42)!important;
   background:#081a34!important;
   color:#f4f8ff!important;
 }
-#nflView #nflPlayerPropTool #nflPptMode[data-nfl-ppt-build-style="94.0"]:focus{
+#nflView #nflPlayerPropTool #nflPptMode[data-nfl-ppt-build-style]:focus{
   border-color:#2d7fff!important;
   box-shadow:0 0 0 3px rgba(45,127,255,.12)!important;
 }
 
 @media (max-width:900px){
-  #nflView #nflPlayerPropTool .nfl-ppt-periodbar-v940{
-    margin:-2px auto 12px;
-    gap:6px;
-  }
+  #nflView #nflPlayerPropTool .nfl-ppt-periodbar-v940{margin:-2px auto 12px;gap:6px}
   #nflView #nflPlayerPropTool .nfl-ppt-period-status-v940{display:none}
 }
 @media (max-width:560px){
-  #nflView #nflPlayerPropTool .nfl-ppt-periodbar-v940{
-    margin:-1px 0 10px;
-    width:100%;
-  }
+  #nflView #nflPlayerPropTool .nfl-ppt-periodbar-v940{margin:-1px 0 10px;width:100%}
   #nflView #nflPlayerPropTool .nfl-ppt-period-label-v940{display:none}
-  #nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940{
-    max-width:100%;
-    padding:2px;
-    border-radius:9px;
-  }
-  #nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940 button{
-    min-width:39px;
-    height:28px;
-    padding:0 8px;
-    font-size:10px;
-  }
+  #nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940{max-width:100%;padding:2px;border-radius:9px}
+  #nflView #nflPlayerPropTool .nfl-ppt-period-segments-v940 button{min-width:39px;height:28px;padding:0 8px;font-size:10px}
 }
