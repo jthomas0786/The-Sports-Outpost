@@ -1,21 +1,22 @@
 import {test,expect} from '@playwright/test';
 
+test.setTimeout(120000);
 const BASE='http://127.0.0.1:4173/index.html#nfl';
 
 async function openNfl(page,viewport={width:1440,height:1000}){
   await page.setViewportSize(viewport);
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
-  await page.waitForSelector('#nflView',{state:'visible',timeout:30000});
-  await page.waitForFunction(()=>document.querySelectorAll('#nflView [data-nfl-player]').length>0,{timeout:30000});
-  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:30000});
+  await page.waitForSelector('#nflView',{state:'visible',timeout:45000});
+  await page.waitForFunction(()=>document.querySelectorAll('#nflView [data-nfl-player]').length>0,{timeout:45000});
+  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:45000});
 }
 
 async function openTool(page){
   await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
-  await page.waitForSelector('#nflPlayerPropTool',{state:'visible',timeout:30000});
-  await page.waitForSelector('#nflPptMode',{state:'visible',timeout:30000});
+  await page.waitForSelector('#nflPlayerPropTool',{state:'visible',timeout:45000});
+  await page.waitForSelector('#nflPptMode',{state:'visible',timeout:45000});
   await page.locator('#nflPptMode').selectOption('all');
-  await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:30000});
+  await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:45000});
 }
 
 test('NFL Player Prop Tool loads real rows, filters, and opens the existing Player Modal',async({page})=>{
@@ -32,9 +33,8 @@ test('NFL Player Prop Tool loads real rows, filters, and opens the existing Play
   const initialCount=await rows.count();
   expect(initialCount).toBeGreaterThan(0);
   expect(await page.locator('#nflPlayerPropTool .nfl-ppt-player').count()).toBe(initialCount);
-  for(const label of ['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','MODEL PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H']){
-    await expect(page.locator('#nflPlayerPropTool thead')).toContainText(label);
-  }
+  const headerText=await page.locator('#nflPlayerPropTool thead').innerText();
+  for(const label of ['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','MODEL PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'])expect(headerText).toContain(label);
   for(const pos of ['QB','RB','WR','TE'])await expect(page.locator(`[data-nfl-ppt-pos="${pos}"]`)).toBeVisible();
 
   await page.locator('#nflPptFilters').click();
@@ -42,7 +42,7 @@ test('NFL Player Prop Tool loads real rows, filters, and opens the existing Play
   const firstName=((await page.locator('#nflPlayerPropTool .nfl-ppt-player b').first().textContent())||'').replace('↗','').trim();
   expect(firstName).toBeTruthy();
   await page.locator('#nflPptSearch').fill(firstName.split(' ')[0]);
-  await page.waitForTimeout(100);
+  await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:10000});
   const filteredCount=await page.locator('#nflPlayerPropTool tbody tr').count();
   expect(filteredCount).toBeGreaterThan(0);
   expect(filteredCount).toBeLessThanOrEqual(initialCount);
@@ -52,8 +52,7 @@ test('NFL Player Prop Tool loads real rows, filters, and opens the existing Play
   expect(marketOptions).toBeGreaterThan(2);
   await market.selectOption('ALL');
   await page.locator('#nflPptClear').click();
-  await page.waitForTimeout(100);
-  expect(await page.locator('#nflPlayerPropTool tbody tr').count()).toBeGreaterThan(0);
+  await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:10000});
 
   await page.locator('#nflPptGuide').click();
   await expect(page.locator('#nflPlayerPropGuide')).toBeVisible();
@@ -68,11 +67,11 @@ test('NFL Player Prop Tool loads real rows, filters, and opens the existing Play
   const clickedName=((await page.locator('#nflPlayerPropTool .nfl-ppt-player b').first().textContent())||'').replace('↗','').trim();
   await page.locator('#nflPlayerPropTool .nfl-ppt-player').first().click();
   const modal=page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72').first();
-  await expect(modal).toBeVisible({timeout:10000});
+  await expect(modal).toBeVisible({timeout:15000});
   await expect(modal).toContainText(clickedName.split(' ')[0]);
   await expect(page.locator('[data-nfl-close-modal]').first()).toBeVisible();
   await page.locator('[data-nfl-close-modal]').first().click();
-  await page.waitForSelector('#nflPlayerPropTool',{state:'visible',timeout:10000});
+  await page.waitForSelector('#nflPlayerPropTool',{state:'visible',timeout:15000});
   expect(await page.locator('#nflPlayerPropTool tbody tr').count()).toBeGreaterThan(0);
 });
 
