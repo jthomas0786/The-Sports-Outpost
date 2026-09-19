@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-07",
+  "season": 2026,
+  "purpose": "Philadelphia NFL Gamecast production release-gating, asset-integrity and runtime rollback contract. Metadata-only and PHI/NFL namespaced.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json","./gamecast-integration-05.json","./gamecast-integration-06.json"],
+  "releaseGate": {
+    "inventory": "Every routed Philadelphia player/action must resolve through roster.json; supersets on disk never create runtime eligibility and the legitimate open 53rd slot is never synthesized.",
+    "identity": "Release is blocked if an asset disagrees with the locked current official Eagles-headshot appearance reference, current uniform number, approved realistic 3D chibi proportions, camera, lighting, scale or foot anchor.",
+    "alpha": "Production frames require clean transparent alpha with no matte halo, clipped silhouette, stray pixels or opaque background.",
+    "signatures": "Signature routing is allowlisted only for the four verified concepts already recorded in Philadelphia signature metadata, preserving celebration versus football-move classification.",
+    "fallback": "A failed chibi release gate falls back to the existing non-chibi Gamecast presentation; it never blocks authoritative play data."
+  },
+  "assetIntegrity": {
+    "manifestKey": "team/player/action/version",
+    "versionRule": "Runtime references immutable versioned assets; replacement art increments version rather than mutating a consumed cache identity.",
+    "dimensions": "Validate expected canvas dimensions and bottom-center foot-anchor coordinates before publishing.",
+    "decode": "Validate successful browser decode and nonzero alpha bounds before an asset becomes preload-eligible.",
+    "football": "Possession-bearing frames are checked against the single-football-authority rules from integration-04.",
+    "crossTeamGuard": "Philadelphia manifests cannot resolve another team's player folder even if slugs or jersey numbers collide.",
+    "openSlotGuard": "Roster index 53 without a roster.json identity produces no manifest key, probe, placeholder or fallback player art."
+  },
+  "runtimeCanary": {
+    "scope": "Enable Philadelphia chibis independently from other NFL teams and independently from MLB/NHL presentation.",
+    "healthSignals": ["asset_resolve_success","asset_fallback_rate","animation_completion","signature_completion","decode_failure","authoritative_correction"],
+    "rollback": "If identity, decode, animation ownership, football-authority or signature-classification invariants fail, disable only the Philadelphia chibi layer and retain existing Gamecast data/UI without clearing unrelated caches.",
+    "recovery": "Re-enable only after a new manifest/version passes the same release gate; do not hot-patch a consumed immutable asset key."
+  },
+  "signatureAllowlist": [
+    {"player":"Nolan Smith Jr.","concept":"dice-roll sack celebration","classification":"verified celebration","events":["sack"],"verified":true},
+    {"player":"Saquon Barkley","concept":"reverse hurdle","classification":"signature football move","events":["rush","reception"],"verified":true},
+    {"player":"Jalen Hurts","concept":"Brotherly Shove","classification":"signature football move","events":["qb_sneak","short_yardage_rush"],"verified":true},
+    {"player":"DeVonta Smith","concept":"sideline toe-tap","classification":"signature football move","events":["reception"],"verified":true}
+  ],
+  "identityGuards": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Eagles headshot lock; never infer skin tone or visible appearance from name",
+    "camera": "shared Dallas-approved locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale projected scene-wide",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number"
+  },
+  "acceptanceFixtures": [
+    {"id":"phi-release-roster-authority","input":{"assetOnDisk":true,"actionInRosterInventory":false},"expect":{"runtimeEligible":false}},
+    {"id":"phi-release-number-mismatch","input":{"assetNumberMatchesRoster":false},"expect":{"releaseBlocked":true,"nonChibiGamecastAvailable":true}},
+    {"id":"phi-release-alpha-halo","input":{"transparentBackground":true,"matteHaloDetected":true},"expect":{"releaseBlocked":true}},
+    {"id":"phi-release-decode-failure","input":{"browserDecode":false},"expect":{"preloadEligible":false,"fallbackAvailable":true}},
+    {"id":"phi-release-cross-team-slug","input":{"team":"PHI","resolvedAssetTeam":"DAL"},"expect":{"resolutionRejected":true}},
+    {"id":"phi-release-double-football","input":{"footballAuthorityCount":2},"expect":{"releaseBlocked":true}},
+    {"id":"phi-release-open-slot","input":{"requestedRosterIndex":53,"identityMissing":true},"expect":{"manifestKeyCreated":false,"assetProbe":false,"placeholderCreated":false}},
+    {"id":"phi-release-smith-allowlist","input":{"player":"Nolan Smith Jr.","signature":"dice-roll sack celebration","event":"sack"},"expect":{"signatureEligible":true,"classification":"verified celebration"}},
+    {"id":"phi-release-barkley-classification","input":{"player":"Saquon Barkley","signature":"reverse hurdle","event":"rush"},"expect":{"signatureEligible":true,"classification":"signature football move","inventedCelebration":false}},
+    {"id":"phi-release-hurts-classification","input":{"player":"Jalen Hurts","signature":"Brotherly Shove","event":"qb_sneak"},"expect":{"signatureEligible":true,"classification":"signature football move","inventedCelebration":false}},
+    {"id":"phi-release-devonta-classification","input":{"player":"DeVonta Smith","signature":"sideline toe-tap","event":"reception"},"expect":{"signatureEligible":true,"classification":"signature football move","inventedCelebration":false}},
+    {"id":"phi-release-invented-signature","input":{"signatureVerified":false,"signatureNamed":true},"expect":{"signatureEligible":false}},
+    {"id":"phi-canary-rollback-isolation","input":{"philadelphiaChibiInvariantFailure":true},"expect":{"philadelphiaChibiDisabled":true,"baseGamecastRetained":true,"mlbMutation":false,"nhlMutation":false}}
+  ],
+  "qa": {
+    "status": "specified",
+    "checks": [
+      "Roster inventory remains the sole action-eligibility authority and the legitimate open roster slot remains empty.",
+      "Identity, number, alpha, dimensions, decode and foot-anchor integrity are release gates.",
+      "Only verified Philadelphia signature concepts are allowlisted and their celebration/move classifications remain unchanged.",
+      "Runtime rollback removes only the Philadelphia chibi enhancement and preserves base Gamecast.",
+      "Immutable asset versions prevent stale cache identity from silently changing art.",
+      "No MLB/NHL runtime, cache or metadata dependency is introduced."
+    ]
+  }
+}
