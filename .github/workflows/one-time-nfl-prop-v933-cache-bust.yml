@@ -1,0 +1,67 @@
+name: One-time NFL Prop Tool v93.3 cache bust
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/one-time-nfl-prop-v933-cache-bust.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  cache-bust-and-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add outer router cache key
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path('index.html')
+          text = path.read_text()
+          pattern = r'(<script type="module" src="\./sports/router\.js\?)([^"]+)("></script>)'
+          match = re.search(pattern, text)
+          if not match:
+              raise SystemExit('index router module marker not found')
+
+          query = match.group(2)
+          parts = [part for part in query.split('&') if part and not part.startswith('nflprop=')]
+          parts.append('nflprop=933')
+          replacement = match.group(1) + '&'.join(parts) + match.group(3)
+          text, count = re.subn(pattern, replacement, text, count=1)
+          if count != 1:
+              raise SystemExit('index router cache-bust replacement failed')
+          path.write_text(text)
+          PY
+
+      - name: Run Player Prop Tool regressions
+        run: |
+          node scripts/nfl-player-prop-tool-v923-selftest.mjs
+          node scripts/mobile-swipe-anywhere-selftest.mjs
+          grep -q 'sports/router.js?.*nflprop=933' index.html
+
+      - name: Commit cache bust to main
+        run: |
+          if git diff --quiet -- index.html; then
+            echo 'Outer NFL prop cache key already present.'
+            exit 0
+          fi
+          git config user.name 'TSO NFL Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Cache-bust NFL Player Prop Tool v93.3'
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase origin main
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            sleep 2
+          done
+          exit 1
