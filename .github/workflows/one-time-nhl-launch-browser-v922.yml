@@ -1,5 +1,5 @@
 name: One-time NHL Launch Browser QA v90.22
-# launch-browser validation follows every NHL runtime/UI change on main
+# launch-browser validation follows every NHL runtime/UI and published NHL data change on main
 on:
   workflow_dispatch:
   push:
@@ -8,6 +8,7 @@ on:
       - 'tests/nhl-launch-browser-v922.spec.js'
       - 'sports/nhl/**'
       - 'scripts/nhl-*.mjs'
+      - 'slates/nhl*.json'
       - 'sports/router.js'
       - 'index.html'
 permissions:
