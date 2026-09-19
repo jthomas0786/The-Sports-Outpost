@@ -13,7 +13,7 @@ import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-syn
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
 import { installNflPlayerPropToolV926 } from './nfl/player-prop-tool-v926.js?v=92.7';
-import { installNflPlayerPropToolSnapshotV928 } from './nfl/player-prop-tool-snapshot-v928.js?v=93.1';
+import { installNflPlayerPropToolSnapshotV928 } from './nfl/player-prop-tool-snapshot-v928.js?v=93.2';
 import { installNflPlayerPropToolStaticGuardV929 } from './nfl/player-prop-tool-static-guard-v929.js?v=93.0';
 import { installNflBackgroundFreezeV930 } from './nfl/player-prop-tool-background-freeze-v930.js?v=93.0';
 import { installNflPlayerPropToolUxV930 } from './nfl/player-prop-tool-ux-v930.js?v=93.2';
