@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "team": "PHI",
+  "phase": "gamecast-integration",
+  "batch": "gamecast-integration-05",
+  "season": 2026,
+  "purpose": "Philadelphia NFL Gamecast performance, scheduling, visibility and deterministic degradation contract. Metadata-only and PHI/NFL namespaced.",
+  "dependsOn": ["./roster.json","./gamecast-integration-01.json","./gamecast-integration-02.json","./gamecast-integration-03.json","./gamecast-integration-04.json"],
+  "scheduling": {
+    "clock": "Use one NFL Gamecast scene animation clock for all visible Philadelphia participants.",
+    "polling": "Repeated event fingerprints never restart active animation or trigger resolved asset probes.",
+    "offscreen": "Pause nonessential visual advancement while hidden; retain logical event and possession state.",
+    "resume": "Resume from safe logical elapsed state or settle to the correct authored end pose; never replay stale signatures."
+  },
+  "performance": {
+    "decode": "Decode only active participant/event assets selected by preload policy, never the full 52-player active snapshot for one play.",
+    "memory": "Bound decoded assets to the active game working set and release unpinned entries through lifecycle policy.",
+    "layout": "Use resolved field-local anchors without per-frame DOM layout measurement.",
+    "priority": ["ball participant","primary contact participant","verified signature owner","secondary participant","decorative effect"]
+  },
+  "degradation": [
+    {"level":0,"behavior":"Play authored roster-authorized action or verified signature."},
+    {"level":1,"behavior":"Drop nonessential effects but retain player animation."},
+    {"level":2,"behavior":"Use the action's representative authored key pose at the canonical foot anchor."},
+    {"level":3,"behavior":"Use the player's base asset plus existing non-chibi event presentation."},
+    {"level":4,"behavior":"Use existing non-chibi Gamecast presentation only; never show a broken placeholder."}
+  ],
+  "identityGuards": {
+    "style": "approved realistic 3D chibi",
+    "appearanceAuthority": "current official Eagles headshot lock; never infer skin tone or visible appearance from name",
+    "camera": "shared Dallas-approved locked three-quarter Gamecast angle",
+    "lighting": "shared neutral stadium key/fill/rim rig",
+    "scale": "player-specific locked scale",
+    "footAnchor": "bottom-center between planted feet",
+    "background": "transparent alpha",
+    "uniformNumber": "current roster.json number",
+    "forbidden": ["substitute another player identity","invent a signature","duplicate the football","mirror identity details incorrectly","mutate roster number","synthesize the legitimate open 53rd slot"]
+  },
+  "stateGuards": {
+    "playOwnership": "A play fingerprint owns its animation set until completion, correction, or newer-play transition.",
+    "newPlay": "Never inherit prior signature eligibility, loose-ball authority, or contact state.",
+    "correction": "Discard invalid queued visuals and reconcile football authority before corrected rendering.",
+    "signatureReplay": "Nolan Smith Jr. dice-roll, Saquon Barkley reverse hurdle, Jalen Hurts Brotherly Shove and DeVonta Smith sideline toe-tap are verified fingerprint-owned sequences and cannot replay from polling or visibility resume.",
+    "signatureClassification": "Barkley reverse hurdle, Hurts Brotherly Shove and Smith sideline toe-tap remain signature football moves; only Smith Jr. dice-roll is classified as a verified celebration."
+  },
+  "acceptanceFixtures": [
+    {"id":"phi-one-scheduler","input":{"visibleParticipants":5},"expect":{"sceneSchedulers":1,"perPlayerTimers":0}},
+    {"id":"phi-repeat-poll","input":{"sameFingerprintPolls":6,"assetResolved":true},"expect":{"additionalAssetProbes":0,"animationRestarts":0}},
+    {"id":"phi-offscreen","input":{"sceneVisible":false},"expect":{"nonessentialFrameAdvance":false,"logicalStateRetained":true}},
+    {"id":"phi-degrade-identity","input":{"degradationLevel":2,"player":"Jalen Hurts"},"expect":{"representativeKeyPose":true,"identitySubstitution":false,"numberMutation":false}},
+    {"id":"phi-signature-replay-guard","input":{"signature":"dice-roll-celebration","fingerprintConsumed":true,"visibilityRestored":true},"expect":{"signatureReplay":false}},
+    {"id":"phi-signature-classification","input":{"signature":"reverse-hurdle","degradationLevel":2},"expect":{"classification":"signature football move","inventedCelebration":false}},
+    {"id":"phi-new-play-reset","input":{"newPlay":true,"priorLooseBall":true,"priorSignatureEligible":true},"expect":{"inheritsLooseBall":false,"inheritsSignatureEligibility":false}},
+    {"id":"phi-no-full-roster-decode","input":{"activeParticipants":3,"activeRosterPlayers":52},"expect":{"decodeWholeRoster":false,"decodeScopedToWorkingSet":true}},
+    {"id":"phi-open-slot","input":{"requestedRosterIndex":53,"identityMissing":true},"expect":{"assetProbe":false,"placeholderCreated":false}},
+    {"id":"phi-sport-isolation","input":{"philadelphiaDegradationActive":true},"expect":{"mlbSchedulerMutation":false,"nhlSchedulerMutation":false}}
+  ],
+  "qa": {"status":"specified","checks":["Single scene scheduler owns Philadelphia timing.","Polling and visibility cannot replay fingerprint-owned actions.","Decode/network work remains scoped to active participants.","Degradation preserves official-headshot identity, event truth, scale, current number, transparent alpha and foot anchor.","Verified signature classifications remain unchanged and no named signature is invented.","New plays and corrections clear stale state.","The legitimate open roster slot cannot generate an asset or placeholder.","PHI/NFL metadata cannot mutate MLB/NHL behavior."]}
+}
