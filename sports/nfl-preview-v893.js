@@ -12,9 +12,19 @@ import { installNflGamecastPossessionBallV8922 } from './nfl/gamecast-possession
 import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-sync-v907.js?v=90.7';
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
-import { installNflPlayerPropToolV926 } from './nfl/player-prop-tool-v926.js?v=92.6';
+import { installNflPlayerPropToolV926 } from './nfl/player-prop-tool-v926.js?v=92.7';
 
 let quarterPollTimer=null,replayLabPromise=null;
+
+function ensurePlayerPropVisibilityV927(){
+  const id='nfl-player-prop-tool-visibility-v927-css';
+  if(document.getElementById(id))return;
+  const link=document.createElement('link');
+  link.id=id;
+  link.rel='stylesheet';
+  link.href='./sports/nfl/player-prop-tool-visibility-v927.css?v=92.7';
+  document.head.appendChild(link);
+}
 
 async function installReplayLabIfRequested(){
   if(typeof location==='undefined'||new URLSearchParams(location.search).get('nflReplayLab')!=='1')return;
@@ -45,7 +55,7 @@ function arm(){
   try{installNflPlayerModalSlateSyncV907();}catch(e){console.warn('[NFL modal slate sync v90.7] unavailable:',e);}
   try{installNflAllPlayersControlsV8921();}catch(e){console.warn('[NFL All Players v89.21] controls unavailable:',e);}
   try{installNflReadabilityV8922();}catch(e){console.warn('[NFL readability v89.22] unavailable:',e);}
-  try{installNflPlayerPropToolV926({selectBaseTab:tab=>basePreview.selectTab?.(tab)});}catch(e){console.warn('[NFL Player Prop Tool v92.6] unavailable:',e);}
+  try{ensurePlayerPropVisibilityV927();installNflPlayerPropToolV926({selectBaseTab:tab=>basePreview.selectTab?.(tab)});}catch(e){console.warn('[NFL Player Prop Tool v92.7] unavailable:',e);}
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
   try{installNflGamecastFieldPositionV8925();}catch(e){console.warn('[NFL Gamecast v89.25] field position authority unavailable:',e);}
