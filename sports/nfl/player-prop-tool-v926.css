@@ -1,0 +1,242 @@
+/* NFL Player Prop Tool v92.6 — scroll/performance pass.
+   Loaded after v92.3 base styles. Keep the table a normal page participant:
+   no paint containment, no vertical scroll trap, no sticky-cell repaints. */
+#nflView #nflPlayerPropTool{
+  padding:12px 10px 24px!important;
+}
+#nflView .nfl-ppt-head,
+#nflView .nfl-ppt-toolbar,
+#nflView .nfl-ppt-filter-panel,
+#nflView .nfl-ppt-table-wrap{
+  max-width:1180px!important;
+}
+#nflView .nfl-ppt-toolbar{
+  grid-template-columns:minmax(320px,1fr) auto minmax(330px,.9fr)!important;
+  gap:8px!important;
+}
+#nflView .nfl-ppt-selects{
+  grid-template-columns:repeat(3,minmax(96px,1fr))!important;
+  gap:5px!important;
+}
+#nflView .nfl-ppt-selects select,
+#nflView .nfl-ppt-filter-panel select,
+#nflView .nfl-ppt-filter-panel input{
+  height:36px!important;
+  padding:0 8px!important;
+  font-size:10px!important;
+}
+#nflView .nfl-ppt-positions{gap:5px!important}
+#nflView .nfl-ppt-positions button{
+  width:34px!important;
+  height:34px!important;
+  font-size:9px!important;
+  box-shadow:none!important;
+}
+#nflView .nfl-ppt-actions{gap:6px!important}
+#nflView .nfl-ppt-actions>button{
+  height:34px!important;
+  padding:0 10px!important;
+  font-size:10px!important;
+}
+#nflView .nfl-ppt-filter-panel{
+  padding:7px!important;
+  gap:6px!important;
+  grid-template-columns:minmax(180px,1.35fr) repeat(3,minmax(108px,.7fr)) auto!important;
+}
+#nflView .nfl-ppt-filter-panel button{height:36px!important;padding:0 10px!important}
+
+/* Critical scroll fix: only the X axis belongs to the table wrapper. The page owns Y. */
+#nflView .nfl-ppt-table-wrap{
+  overflow-x:auto!important;
+  overflow-y:visible!important;
+  contain:none!important;
+  overscroll-behavior-x:contain!important;
+  overscroll-behavior-y:auto!important;
+  scroll-behavior:auto!important;
+  scrollbar-gutter:stable!important;
+  touch-action:pan-x pan-y!important;
+  isolation:auto!important;
+}
+#nflView .nfl-ppt-table{
+  width:1044px!important;
+  min-width:1044px!important;
+  max-width:1044px!important;
+  table-layout:fixed!important;
+  font-size:10.5px!important;
+  transform:none!important;
+}
+#nflView .nfl-ppt-table col:nth-child(1){width:210px!important}
+#nflView .nfl-ppt-table col:nth-child(2){width:74px!important}
+#nflView .nfl-ppt-table col:nth-child(3){width:82px!important}
+#nflView .nfl-ppt-table col:nth-child(4){width:60px!important}
+#nflView .nfl-ppt-table col:nth-child(5){width:66px!important}
+#nflView .nfl-ppt-table col:nth-child(6){width:72px!important}
+#nflView .nfl-ppt-table col:nth-child(7){width:62px!important}
+#nflView .nfl-ppt-table col:nth-child(8){width:72px!important}
+#nflView .nfl-ppt-table col:nth-child(9){width:86px!important}
+#nflView .nfl-ppt-table col:nth-child(10){width:66px!important}
+#nflView .nfl-ppt-table col:nth-child(n+11){width:62px!important}
+#nflView .nfl-ppt-table th,
+#nflView .nfl-ppt-table td{
+  position:static!important;
+  left:auto!important;
+  right:auto!important;
+  transform:none!important;
+  box-shadow:none!important;
+}
+#nflView .nfl-ppt-player-sticky{
+  position:static!important;
+  left:auto!important;
+  z-index:auto!important;
+  box-shadow:none!important;
+}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th{
+  height:34px!important;
+  padding:0 3px!important;
+  font-size:7.5px!important;
+  letter-spacing:.01em!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+}
+#nflView .nfl-ppt-table .nfl-ppt-groups th{
+  height:21px!important;
+  padding:0 4px!important;
+  font-size:6.5px!important;
+  letter-spacing:.12em!important;
+}
+#nflView .nfl-ppt-table tbody tr{height:56px!important}
+#nflView .nfl-ppt-table td{padding:3px 4px!important;overflow:hidden!important}
+#nflView .nfl-ppt-player{gap:6px!important}
+#nflView .nfl-ppt-avatar{
+  flex:0 0 34px!important;
+  width:34px!important;
+  height:34px!important;
+}
+#nflView .nfl-ppt-avatar img{
+  width:34px!important;
+  height:34px!important;
+  object-fit:cover!important;
+}
+#nflView .nfl-ppt-player b{font-size:11px!important}
+#nflView .nfl-ppt-player small{margin-top:2px!important;font-size:7px!important}
+#nflView .nfl-ppt-consensus b,
+#nflView .nfl-ppt-proj b,
+#nflView .nfl-ppt-avg b,
+#nflView .nfl-ppt-edge b,
+#nflView .nfl-ppt-def b,
+#nflView .nfl-ppt-sim b,
+#nflView .nfl-ppt-hit b{font-size:11px!important}
+#nflView .nfl-ppt-consensus span,
+#nflView .nfl-ppt-proj span,
+#nflView .nfl-ppt-avg span,
+#nflView .nfl-ppt-edge span,
+#nflView .nfl-ppt-def span,
+#nflView .nfl-ppt-sim span,
+#nflView .nfl-ppt-hit span{margin-top:2px!important;font-size:6.5px!important}
+#nflView .nfl-ppt-pick{min-height:40px!important;gap:1px!important}
+#nflView .nfl-ppt-match{height:40px!important}
+#nflView .nfl-ppt-hit{height:40px!important;margin:-3px -4px!important}
+
+/* Rings are emitted correctly on first render; no DOM rewrite/observer pass is required. */
+#nflView .nfl-ppt-prob{
+  position:relative!important;
+  width:44px!important;
+  height:44px!important;
+  margin:0 auto!important;
+  display:grid!important;
+  place-items:center!important;
+  background:none!important;
+  border:0!important;
+  border-radius:50%!important;
+  box-shadow:none!important;
+  color:var(--ring-color,#8b95a8)!important;
+  pointer-events:none!important;
+}
+#nflView .nfl-ppt-prob::before{display:none!important}
+#nflView .nfl-ppt-prob>svg{
+  position:absolute!important;
+  inset:0!important;
+  width:44px!important;
+  height:44px!important;
+  overflow:visible!important;
+}
+#nflView .nfl-ppt-ring-track{
+  fill:none!important;
+  stroke:#dfe6ee!important;
+  stroke-width:4!important;
+}
+#nflView .nfl-ppt-ring-fill{
+  fill:none!important;
+  stroke:currentColor!important;
+  stroke-width:4!important;
+  stroke-linecap:round!important;
+}
+#nflView .nfl-ppt-ring-label{
+  position:absolute!important;
+  inset:0!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:1px!important;
+  text-align:center!important;
+  line-height:1!important;
+}
+#nflView .nfl-ppt-ring-label b{
+  margin:0!important;
+  padding:0!important;
+  font:800 10px/1 'Oswald',sans-serif!important;
+  color:#13233a!important;
+}
+#nflView .nfl-ppt-ring-label span{
+  margin:0!important;
+  padding:0!important;
+  font:800 6.5px/1 'JetBrains Mono',monospace!important;
+  color:currentColor!important;
+}
+#nflView .nfl-ppt-prob.empty{
+  background:#f5f7fa!important;
+  color:#8b95a8!important;
+  border:1px solid #e1e8f0!important;
+  font:800 11px/1 'JetBrains Mono',monospace!important;
+}
+
+#nflView .nfl-ppt-more{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:10px!important;
+  min-height:52px!important;
+  padding:8px!important;
+  border-top:1px solid rgba(19,35,58,.09)!important;
+}
+#nflView .nfl-ppt-more button{
+  height:34px!important;
+  padding:0 16px!important;
+  border:1px solid rgba(45,127,255,.35)!important;
+  border-radius:8px!important;
+  background:#fff!important;
+  color:#173154!important;
+  font:800 10px/1 'Oswald',sans-serif!important;
+  cursor:pointer!important;
+  box-shadow:none!important;
+}
+#nflView .nfl-ppt-more span{
+  color:#718096!important;
+  font:700 9px/1.2 'JetBrains Mono',monospace!important;
+}
+
+@media(max-width:1600px){
+  #nflView .nfl-ppt-toolbar{grid-template-columns:minmax(0,1fr) auto!important}
+  #nflView .nfl-ppt-actions{grid-column:1/-1!important}
+  #nflView .nfl-ppt-filter-panel{grid-template-columns:repeat(2,minmax(125px,1fr))!important}
+}
+@media(max-width:700px){
+  #nflView #nflPlayerPropTool{padding:9px 5px 16px!important}
+  #nflView .nfl-ppt-filter-panel{grid-template-columns:1fr!important}
+  #nflView .nfl-ppt-table{width:1028px!important;min-width:1028px!important;max-width:1028px!important}
+  #nflView .nfl-ppt-table col:nth-child(1){width:194px!important}
+  #nflView .nfl-ppt-prob{width:42px!important;height:42px!important}
+  #nflView .nfl-ppt-prob>svg{width:42px!important;height:42px!important}
+}
