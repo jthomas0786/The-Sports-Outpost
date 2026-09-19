@@ -3,6 +3,8 @@ import { __NFL_PLAYER_PROP_TOOL_V923_TEST__ as base } from './player-prop-tool-v
 let installed=false;
 let observer=null;
 let filtersOpen=false;
+let playerModalOpen=false;
+let restoreQueued=false;
 
 const state=base?.state;
 const norm=v=>String(v||'').toLowerCase().replace(/\./g,'').replace(/['’]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
@@ -39,23 +41,47 @@ function patchSearchInput(){
   });
 }
 
-function stabilizeFilters(){
+function restoreAfterPlayerModal(){
+  const root=document.getElementById('nflView');
+  if(!root)return;
+  const modal=root.querySelector('[data-nfl-close-modal],.tso-nfl-player-card-v70,.tso-nfl-player-card-v72');
+  if(modal){playerModalOpen=true;return;}
+  if(!playerModalOpen||root.querySelector('#nflPlayerPropTool')||restoreQueued)return;
+  restoreQueued=true;
+  setTimeout(()=>{
+    restoreQueued=false;
+    const liveRoot=document.getElementById('nflView');
+    if(!liveRoot)return;
+    const stillModal=liveRoot.querySelector('[data-nfl-close-modal],.tso-nfl-player-card-v70,.tso-nfl-player-card-v72');
+    if(stillModal)return;
+    if(liveRoot.querySelector('#nflPlayerPropTool')){playerModalOpen=false;return;}
+    const trigger=document.getElementById('nflPlayerPropToolBtn');
+    // v92.3 deliberately keeps this nav item active while its canonical NFL
+    // Player Modal is open. Clicking it after the modal closes reuses the same
+    // tool opener and stashes the freshly rendered base page again.
+    if(trigger?.classList.contains('is-active'))trigger.click();
+    playerModalOpen=false;
+  },80);
+}
+
+function stabilize(){
   const panel=document.getElementById('nflPptFilterPanel');
   if(panel&&filtersOpen)panel.hidden=false;
   patchSearchInput();
   if(state?.search)filterVisibleRows(state.search);
+  restoreAfterPlayerModal();
 }
 
 function onClick(e){
   if(e.target.closest?.('#nflPptFilters')){
     filtersOpen=!filtersOpen;
-    queueMicrotask(stabilizeFilters);
+    queueMicrotask(stabilize);
     return;
   }
   if(e.target.closest?.('#nflPptClear')){
     // Keep Filters open after Clear; v92.3 handles the actual state reset/render.
     filtersOpen=true;
-    queueMicrotask(stabilizeFilters);
+    queueMicrotask(stabilize);
   }
 }
 
@@ -63,7 +89,7 @@ export function installNflPlayerPropToolFilterStabilityV924(){
   if(installed)return;
   installed=true;
   document.addEventListener('click',onClick,true);
-  observer=new MutationObserver(()=>stabilizeFilters());
+  observer=new MutationObserver(()=>stabilize());
   observer.observe(document.body,{childList:true,subtree:true});
-  stabilizeFilters();
+  stabilize();
 }
