@@ -128,7 +128,7 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
   const modal=page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72,.ms-modal').first();
   await expect(modal).toBeVisible({timeout:15000});
   await expect(modal).toContainText(clickedName.split(' ')[0]);
-  await page.locator('[data-nfl-close-modal]').first().click();
+  await page.locator('.modal-close:visible,.ms-modal-x:visible').first().click();
   await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:15000});
   await expectSameSnapshot(page);
   await expect.poll(()=>page.evaluate(()=>window.scrollY),{timeout:7000}).toBeCloseTo(beforeModal.y,0);
@@ -136,6 +136,13 @@ test('NFL Player Prop Tool is a static snapshot and Player Modal returns to the 
   expect(Math.abs(afterModal.x-beforeModal.x)).toBeLessThanOrEqual(2);
   expect(Math.abs(afterModal.y-beforeModal.y)).toBeLessThanOrEqual(2);
   expect(Math.abs(afterModal.tableX-beforeModal.tableX)).toBeLessThanOrEqual(2);
+
+  const secondPlayer=page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-player').first();
+  await secondPlayer.click();
+  await expect(page.locator('.tso-nfl-player-card-v70,.tso-nfl-player-card-v72,.ms-modal').first()).toBeVisible({timeout:15000});
+  await page.locator('.modal-close:visible,.ms-modal-x:visible').first().click();
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:15000});
+  await expectSameSnapshot(page);
 });
 
 test('NFL Player Prop Tool freezes NFL background work and only Refresh refetches the four source files',async({page})=>{
@@ -211,12 +218,13 @@ test('NFL Player Prop Tool scrolls smoothly without rerendering the snapshot',as
     const s=getComputedStyle(wrap);
     const rowEl=document.querySelector('#nflPlayerPropTool tbody tr[data-nfl-ppt-row]');
     const row=getComputedStyle(rowEl);
+    const body=getComputedStyle(document.body);
     const doc=document.documentElement;
     return {
       overflowX:s.overflowX,overflowY:s.overflowY,overscrollY:s.overscrollBehaviorY,contain:s.contain,touchAction:s.touchAction,
       wrapVerticalOverflow:Math.max(0,wrap.scrollHeight-wrap.clientHeight),wrapScrollTop:wrap.scrollTop,
       rowDisplay:row.display,rowContentVisibility:row.contentVisibility,rowContain:row.contain,rowHeight:rowEl.getBoundingClientRect().height,
-      transition:row.transitionDuration,animation:row.animationName,
+      transition:row.transitionDuration,animation:row.animationName,backgroundAttachment:body.backgroundAttachment,
       bodyScrollWidth:doc.scrollWidth,bodyClientWidth:doc.clientWidth
     };
   });
@@ -233,6 +241,7 @@ test('NFL Player Prop Tool scrolls smoothly without rerendering the snapshot',as
   expect(css.rowHeight).toBeGreaterThanOrEqual(82);
   expect(css.transition).toMatch(/^0s/);
   expect(css.animation).toBe('none');
+  expect(css.backgroundAttachment).toBe('scroll');
   expect(css.bodyScrollWidth).toBeLessThanOrEqual(css.bodyClientWidth+3);
 
   await page.evaluate(()=>window.scrollTo(0,0));
