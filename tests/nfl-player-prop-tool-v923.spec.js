@@ -17,9 +17,13 @@ async function openTool(page){
   await page.waitForSelector('#nflPptMode',{state:'visible',timeout:45000});
   await page.locator('#nflPptMode').selectOption('all');
   await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:45000});
+  await page.waitForFunction(()=>{
+    const rings=[...document.querySelectorAll('#nflPlayerPropTool .nfl-ppt-prob:not(.empty)')];
+    return !rings.length||rings.every(r=>r.dataset.v925Ring==='1');
+  },{timeout:15000});
 }
 
-test('NFL Player Prop Tool loads real rows, filters, and opens the existing Player Modal',async({page})=>{
+test('NFL Player Prop Tool loads real rows, filters quickly, and opens the existing Player Modal',async({page})=>{
   await openNfl(page);
   await openTool(page);
 
@@ -41,11 +45,20 @@ test('NFL Player Prop Tool loads real rows, filters, and opens the existing Play
   await expect(page.locator('#nflPptFilterPanel')).toBeVisible();
   const firstName=((await page.locator('#nflPlayerPropTool .nfl-ppt-player b').first().textContent())||'').replace('↗','').trim();
   expect(firstName).toBeTruthy();
-  await page.locator('#nflPptSearch').fill(firstName.split(' ')[0]);
-  await page.waitForFunction(()=>document.querySelectorAll('#nflPlayerPropTool tbody tr').length>0,{timeout:10000});
-  const filteredCount=await page.locator('#nflPlayerPropTool tbody tr').count();
-  expect(filteredCount).toBeGreaterThan(0);
-  expect(filteredCount).toBeLessThanOrEqual(initialCount);
+  const searchTerm=firstName.split(' ')[0];
+  const inputCost=await page.evaluate(term=>{
+    const input=document.getElementById('nflPptSearch');
+    const t=performance.now();
+    input.value=term;
+    input.dispatchEvent(new Event('input',{bubbles:true}));
+    return performance.now()-t;
+  },searchTerm);
+  expect(inputCost).toBeLessThan(150);
+  await expect(page.locator('#nflPptSearch')).toHaveValue(searchTerm);
+  const filteredVisible=await page.locator('#nflPlayerPropTool tbody tr:visible').count();
+  expect(filteredVisible).toBeGreaterThan(0);
+  expect(filteredVisible).toBeLessThanOrEqual(initialCount);
+  await expect(page.locator('#nflPptFilterPanel')).toBeVisible();
 
   const market=page.locator('#nflPptMarket');
   const marketOptions=await market.locator('option').count();
@@ -75,6 +88,45 @@ test('NFL Player Prop Tool loads real rows, filters, and opens the existing Play
   expect(await page.locator('#nflPlayerPropTool tbody tr').count()).toBeGreaterThan(0);
 });
 
+test('NFL Player Prop Tool uses compact columns and centered NFL-style progress rings',async({page})=>{
+  await openNfl(page,{width:1440,height:1000});
+  await openTool(page);
+  const geometry=await page.evaluate(()=>{
+    const tool=document.getElementById('nflPlayerPropTool');
+    const table=tool?.querySelector('.nfl-ppt-table');
+    const firstRow=table?.querySelector('tbody tr');
+    const ring=firstRow?.querySelector('.nfl-ppt-prob:not(.empty)')||table?.querySelector('.nfl-ppt-prob:not(.empty)');
+    const cell=ring?.closest('td');
+    const rr=ring?.getBoundingClientRect();
+    const cr=cell?.getBoundingClientRect();
+    const cells=firstRow?[...firstRow.children].map(td=>td.getBoundingClientRect().width):[];
+    return {
+      tableWidth:table?.getBoundingClientRect().width||0,
+      cells,
+      ringWidth:rr?.width||0,
+      ringHeight:rr?.height||0,
+      ringDx:rr&&cr?Math.abs((rr.left+rr.width/2)-(cr.left+cr.width/2)):999,
+      ringDy:rr&&cr?Math.abs((rr.top+rr.height/2)-(cr.top+cr.height/2)):999,
+      ringSvg:!!ring?.querySelector('svg'),
+      ringLabel:!!ring?.querySelector('.nfl-ppt-ring-label'),
+      grade:String(ring?.querySelector('.nfl-ppt-ring-label b')?.textContent||'')
+    };
+  });
+  expect(geometry.tableWidth).toBeGreaterThan(950);
+  expect(geometry.tableWidth).toBeLessThanOrEqual(1060);
+  expect(geometry.cells.length).toBe(13);
+  expect(geometry.cells[0]).toBeLessThanOrEqual(220);
+  expect(Math.max(...geometry.cells.slice(1))).toBeLessThanOrEqual(90);
+  expect(geometry.ringWidth).toBeGreaterThanOrEqual(43);
+  expect(geometry.ringWidth).toBeLessThanOrEqual(47);
+  expect(Math.abs(geometry.ringWidth-geometry.ringHeight)).toBeLessThanOrEqual(1);
+  expect(geometry.ringDx).toBeLessThanOrEqual(1.5);
+  expect(geometry.ringDy).toBeLessThanOrEqual(1.5);
+  expect(geometry.ringSvg).toBe(true);
+  expect(geometry.ringLabel).toBe(true);
+  expect(geometry.grade).toMatch(/^(A\+?|A-|B\+?|B-|C\+?|C)$/);
+});
+
 for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:1440,height:1000}]){
   test(`NFL Player Prop Tool is usable at ${viewport.width}px`,async({page})=>{
     await openNfl(page,viewport);
@@ -96,6 +148,7 @@ for(const viewport of [{width:390,height:844},{width:768,height:1024},{width:144
     expect(geometry.toolWidth).toBeGreaterThan(0);
     expect(geometry.wrapClient).toBeGreaterThan(0);
     expect(geometry.wrapScroll).toBeGreaterThanOrEqual(geometry.wrapClient);
-    expect(geometry.playerHeight).toBeGreaterThanOrEqual(40);
+    expect(geometry.wrapScroll).toBeLessThanOrEqual(viewport.width<=700?1045:1060);
+    expect(geometry.playerHeight).toBeGreaterThanOrEqual(36);
   });
 }
