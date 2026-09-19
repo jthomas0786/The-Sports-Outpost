@@ -14,6 +14,8 @@ let installBase=null;
 let upstreamFetch=null;
 let guardActive=false;
 let retryTimers=[];
+let sidebarObserver=null;
+let sidebarObserverTarget=null;
 
 function requestUrl(input){
   if(typeof input==='string')return input;
@@ -49,7 +51,23 @@ function disableStaticMode(){
   upstreamFetch=null;
 }
 function sidePropsAnchor(){
-  return document.querySelector('#nflSideNav [data-nfl-tab="props"],#nflSideNav [data-nfl-preview-tab="props"]');
+  const accordion=document.querySelector('#sbSportAccordion [data-nfl-preview-tab="props"],#sbSportAccordion [data-nfl-tab="props"]');
+  if(accordion)return accordion;
+  const legacy=document.querySelector('#nflSideNav [data-nfl-tab="props"],#nflSideNav [data-nfl-preview-tab="props"]');
+  const legacyNav=legacy?.closest?.('#nflSideNav');
+  return legacyNav&&!legacyNav.hasAttribute('hidden')?legacy:null;
+}
+function watchSidebar(){
+  if(typeof MutationObserver==='undefined')return;
+  const host=document.getElementById('sbSportAccordion');
+  const target=host?.parentElement||host;
+  if(!target||sidebarObserverTarget===target)return;
+  sidebarObserver?.disconnect();
+  sidebarObserverTarget=target;
+  sidebarObserver=new MutationObserver(()=>{
+    if(!document.getElementById(BUTTON_ID))queueMicrotask(()=>ensureButton());
+  });
+  sidebarObserver.observe(target,{childList:true,subtree:true});
 }
 function moveButtonToSideNav(btn,anchor){
   if(!btn||!anchor||btn.previousElementSibling===anchor)return;
@@ -61,6 +79,7 @@ function moveButtonToSideNav(btn,anchor){
 }
 function ensureButton(){
   if(typeof installBase!=='function')return false;
+  watchSidebar();
   const sideAnchor=sidePropsAnchor();
   installBase();
   let btn=document.getElementById(BUTTON_ID);
