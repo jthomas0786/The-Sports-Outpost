@@ -53,6 +53,21 @@ function selectedGames(slate){
     return terms.some(t=>t===id||t===pair||pair.includes(t));
   });
 }
+function publicPropPeriods(board){
+  const out={};
+  for(const [period,data] of Object.entries(board?.periods||{})){
+    out[period]={
+      ready:!!data?.ready,
+      iterations:Number(data?.iterations||board?.iterations||0),
+      rankings:{...(data?.rankings||{})},
+      candidates:(data?.candidates||[]).map(candidate=>{
+        const {worldMaskB64,...rest}=candidate;
+        return rest;
+      }),
+    };
+  }
+  return out;
+}
 
 const [slate,research,odds,config,existing,stateDoc,liveBoard,liveOdds,halftimeExisting,quarterExisting]=await Promise.all([
   read(SLATE,{games:[]}),read(RESEARCH,{players:[]}),read(ODDS,{games:[]}),read(CONFIG,null),
@@ -109,8 +124,11 @@ for(const game of games){
     quarterBoard=buildPregameQuarterBoard({result:raw,game,config,generatedAt:NOW.toISOString()});
     quarterById.set(gameId,quarterBoard);
     quarterTouched=true;
+    raw.propPeriodVersion='v94.0';
+    raw.propPeriods=publicPropPeriods(quarterBoard);
     const readyQuarters=Object.values(quarterBoard.quarters||{}).filter(q=>q?.ready).length;
-    console.log(`  ↳ quarter board: ${readyQuarters}/4 quarter(s) ready for correlated parlay generation`);
+    const readyHalves=Object.values(quarterBoard.halves||{}).filter(q=>q?.ready).length;
+    console.log(`  ↳ prop periods: ${readyHalves}/2 half(s), ${readyQuarters}/4 quarter(s) ready from the same ${Number(raw.iterations||0).toLocaleString()} worlds`);
   }
   const result=stripPrivateSamples(raw);
   result.automation={
@@ -120,6 +138,7 @@ for(const game of games){
     halftimeHasLiveOdds:halftimeBoard?.readiness?.hasLiveOdds??null,
     halftimeCandidateCount:halftimeBoard?.candidates?.length??null,
     quarterParlayReady:quarterBoard?.ready??null,
+    propPeriodsReady:quarterBoard?Object.values(quarterBoard.periods||{}).filter(p=>p?.ready).length:null,
     liveModelVersion:result?.liveModel?.version||null,
   };
   existingById.set(gameId,result);
@@ -151,6 +170,7 @@ const payload={
     liveIterations:config.automatic?.liveIterations||config.liveIterations||15000,
     pregameCheckpointMinutes:config.automatic?.pregameCheckpointMinutes||[180,90,15],
     probabilityBlend:config.probabilityBlend||null,weekKey,
+    propPeriodVersion:'v94.0',
     lastRun:{games:runs,totalIterations,reasonCounts:Object.fromEntries([...new Set(touched.map(x=>x.decision.reason))].map(reason=>[reason,touched.filter(x=>x.decision.reason===reason).length]))},
   },
   source:{slate:path.relative(ROOT,SLATE),research:path.relative(ROOT,RESEARCH),odds:path.relative(ROOT,ODDS),live:LIVE_URL},
@@ -164,7 +184,7 @@ const halftimePayload={
 };
 const quarterGames=[...quarterById.values()].filter(x=>slateIds.has(String(x?.gameId||'')));
 const quarterPayload={
-  schemaVersion:1,boardVersion:'v89.3',engineVersion:config.engineVersion,weekKey,
+  schemaVersion:2,boardVersion:'v94.0',engineVersion:config.engineVersion,weekKey,
   generatedAt:NOW.toISOString(),gameCount:quarterGames.length,games:quarterGames,
 };
 await fs.mkdir(path.dirname(OUT),{recursive:true});
