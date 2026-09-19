@@ -22,6 +22,7 @@ import { installNflPlayerPropToolControlsV933 } from './nfl/player-prop-tool-con
 import { installNflPlayerPropToolThemeV936 } from './nfl/player-prop-tool-theme-v936.js?v=93.7';
 import { installNflPlayerPropToolPolishV938 } from './nfl/player-prop-tool-polish-v938.js?v=93.9';
 import { installNflPlayerPropToolBuildPeriodV940 } from './nfl/player-prop-tool-build-period-v940.js?v=94.0';
+import { installNflPlayerPropToolReferenceV941 } from './nfl/player-prop-tool-reference-v941.js?v=94.1';
 
 installNflBackgroundFreezeV930();
 
@@ -77,8 +78,9 @@ function arm(){
     installNflPlayerPropToolThemeV936();
     installNflPlayerPropToolPolishV938();
     installNflPlayerPropToolBuildPeriodV940();
+    installNflPlayerPropToolReferenceV941();
     installNflPlayerPropToolStaticGuardV929({installPlayerPropTool});
-  }catch(e){console.warn('[NFL Player Prop Tool v94.0] unavailable:',e);}
+  }catch(e){console.warn('[NFL Player Prop Tool v94.1] unavailable:',e);}
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
   try{installNflGamecastFieldPositionV8925();}catch(e){console.warn('[NFL Gamecast v89.25] field position authority unavailable:',e);}
