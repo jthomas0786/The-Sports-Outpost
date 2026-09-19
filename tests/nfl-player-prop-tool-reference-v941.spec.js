@@ -25,7 +25,7 @@ async function visualState(page){
       groups:[...root.querySelectorAll('.nfl-ppt-groups th')].map(x=>x.textContent.trim()),
       rowCount:rows.length,
       allReference:rows.every(r=>r.dataset.nflPptReferenceV941==='94.1'),
-      all50k:rows.every(r=>Number(r.dataset.nflPptSimIterations||50000)===50000||r.dataset.nflPptPeriodCandidate==='1'),
+      all50k:rows.every(r=>Number(r.dataset.nflPptSimIterations||50000)>=50000||r.dataset.nflPptPeriodCandidate==='1'),
       examples:rows.slice(0,6).map(r=>({
         proj:r.children[3]?.textContent.trim(),
         l10avg:r.children[4]?.textContent.trim(),
@@ -51,6 +51,7 @@ test('reference-image stat categories render from the frozen 50K simulation snap
   expect(s.groups).toEqual(GROUPS);
   expect(s.rowCount).toBeGreaterThan(0);
   expect(s.allReference).toBe(true);
+  expect(s.all50k).toBe(true);
   expect(s.examples.every(x=>x.proj&&x.l10avg&&x.cov&&x.edge&&x.def&&x.matchup&&x.simdef&&x.l5&&x.l10&&x.h2h)).toBe(true);
   expect(s.examples.some(x=>/SIM vs Prop/i.test(x.def))).toBe(true);
   expect(s.examples.some(x=>/(GREAT|GOOD|FAIR|POOR)/.test(x.matchup))).toBe(true);
@@ -60,11 +61,12 @@ test('reference-image stat categories render from the frozen 50K simulation snap
   await expect(page.locator('#nflPlayerPropGuide')).toContainText('50,000 simulated worlds');
 });
 
-test('Build Style and compact Full/1H/2H/Q1-Q4 controls mount reliably when tool opens',async({page})=>{
+test('Bet Style and compact Full/1H/2H/Q1-Q4 controls mount reliably when tool opens',async({page})=>{
   await openTool(page);
-  const mode=page.locator('#nflPptMode[data-nfl-ppt-build-style="94.0"]');
+  const mode=page.locator('#nflPptMode[data-nfl-ppt-build-style="94.2"]');
   await expect(mode).toBeVisible();
   await expect(mode.locator('option')).toHaveText(['TSO Pick','Safest','Best Edge','Balanced','Aggressive','Correlated','Longshot']);
+  await expect(mode.locator('xpath=..').locator(':scope > span')).toHaveText('Bet Style');
   const labels=await page.locator('[data-nfl-ppt-period]').allTextContents();
   expect(labels.map(x=>x.trim())).toEqual(['Full','1H','2H','Q1','Q2','Q3','Q4']);
   const bar=await page.locator('.nfl-ppt-periodbar-v940').boundingBox();
