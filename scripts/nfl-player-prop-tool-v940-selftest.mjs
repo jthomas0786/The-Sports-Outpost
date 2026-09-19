@@ -18,7 +18,7 @@ const a=new Uint16Array([1,2,3,4]),b=new Uint16Array([4,3,2,1]);
 assert.deepEqual([...P.summedArray(a,b,4)],[5,5,5,5]);
 
 for(const token of [
-  "data-nfl-ppt-build-style",'nfl-ppt-periodbar-v940','TSO Pick','Safest','Best Edge','Balanced','Aggressive','Correlated','Longshot',
+  'nflPptBuildStyle','nfl-ppt-periodbar-v940','TSO Pick','Safest','Best Edge','Balanced','Aggressive','Correlated','Longshot',
   "['full','Full']","['1h','1H']","['2h','2H']","['q1','Q1']","['q4','Q4']",'propPeriods','projectedPeriod','worldMaskIterations'
 ])assert.ok(ui.includes(token),`v94 UI missing ${token}`);
 assert.ok(!ui.includes('setInterval('),'v94 Player Prop controls must not introduce polling');
