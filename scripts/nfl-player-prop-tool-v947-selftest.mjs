@@ -1,0 +1,31 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+
+const read=p=>fs.readFileSync(p,'utf8');
+const tool=read('sports/nfl/player-prop-tool-v947.js');
+const css=read('sports/nfl/player-prop-tool-v947.css');
+const preview=read('sports/nfl-preview-v893.js');
+const router=read('sports/router.js');
+
+for(const label of ['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H']) assert.ok(tool.includes(`'${label}'`),`missing ${label}`);
+for(const style of ['tsoPick','safest','bestEdge','balanced','aggressive','correlated','longshot']) assert.ok(tool.includes(`'${style}'`),`missing style ${style}`);
+for(const period of ['full','1h','2h','q1','q2','q3','q4']) assert.ok(tool.includes(`'${period}'`),`missing period ${period}`);
+assert.ok(tool.includes("const FILES=['./slates/nfl.json','./slates/nfl-odds.json','./slates/nfl-sim.json','./slates/nfl-research.json']"),'must freeze exactly four source files');
+assert.equal((tool.match(/fetch\(/g)||[]).length,1,'v94.7 must have one centralized fetch path');
+assert.ok(!tool.includes('MutationObserver'),'Player Prop Tool must not install a MutationObserver');
+assert.ok(!tool.includes('setInterval('),'Player Prop Tool must not poll');
+assert.ok(tool.includes("data-ppt-sort=\"${key}\""),'all headers must be sort controls');
+assert.ok(tool.includes(".nfl-ppt-periodbar-v947 [data-nfl-ppt-period]"),'period clicks must be scoped to the period bar');
+assert.ok(tool.includes('bookLogo(row.book)'),'sportsbook image path missing');
+assert.ok(tool.includes('teamLogo(row.opp)'),'DEF opponent logo path missing');
+assert.ok(tool.includes("research.mountNflResearchUI(root)"),'modern research player modal must be explicitly mounted');
+assert.ok(tool.includes("root.querySelector('.tso-nfl-player-card-v72')"),'must wait for actual modern NFL player modal');
+assert.ok(tool.includes('<colgroup>'),'table must use an explicit colgroup');
+assert.ok(css.includes('stroke-width:2.6'),'coverage ring must stay thin');
+assert.ok(css.includes('border-bottom:1px solid #1f3b58'),'player rows/cells must retain visible borders');
+assert.ok(css.includes('scrollbar-width:none'),'horizontal table scrollbar must remain visually hidden');
+assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=94.7"),'preview must import v94.7');
+for(const retired of ['player-prop-tool-sim-v939','player-prop-tool-controls-v933','player-prop-tool-build-period-v940','player-prop-tool-reference-v941','player-prop-tool-snapshot-v928','player-prop-tool-static-guard-v929','player-prop-tool-ux-v930']) assert.ok(!preview.includes(retired),`retired writer still active in preview: ${retired}`);
+assert.ok(!router.includes('installNflBackgroundFreezeV930'),'global Player Prop background freeze must be removed');
+assert.ok(router.includes("import('./nfl-preview-v893.js?v=94.7')"),'router must hard cache-bust NFL preview to v94.7');
+console.log('✓ NFL Player Prop Tool v94.7 single-owner static regression passed');
