@@ -1,5 +1,5 @@
 name: One-time NFL Player Prop Tool v94.7 Cutover
-# retry after static sportsbook-logo assertion correction
+# rebuild only missing active 50K boards, then commit the exact QA-tested snapshot
 
 on:
   push:
@@ -17,7 +17,7 @@ concurrency:
 jobs:
   cutover-and-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
         with:
@@ -34,6 +34,28 @@ jobs:
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
           node scripts/mobile-swipe-anywhere-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
+      - name: Find missing frozen 50K Bet Style boards
+        id: cache
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const sim=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const isFinal=id=>['post','final','completed'].includes(String(live?.games?.[id]?.status||'').toLowerCase());
+          const required=(slate.games||[]).map(g=>String(g.gameId||g.id||'')).filter(id=>id&&!isFinal(id));
+          const good=new Set((sim.games||[]).filter(g=>Number(g.iterations)>=50000&&g.propStyles?.ready&&g.propStyles?.candidates?.length).map(g=>String(g?.game?.gameId||g.gameId||'')));
+          const missing=required.filter(id=>!good.has(id));
+          fs.appendFileSync(process.env.GITHUB_OUTPUT,`missing=${missing.join(',')}\nready=${missing.length?'false':'true'}\n`);
+          console.log(missing.length?`Missing ${missing.length} active 50K board(s): ${missing.join(', ')}`:`All ${required.length} active 50K boards already present`);
+          NODE
+      - name: Build only missing 50K Bet Style boards
+        if: steps.cache.outputs.ready != 'true'
+        env:
+          NFL_SIM_FORCE: '1'
+        run: |
+          node scripts/nfl-sim-auto.mjs --force --game "${{ steps.cache.outputs.missing }}"
+          git status --short slates/nfl-sim.json slates/nfl-quarter.json slates/nfl-sim-state.json || true
       - name: Verify frozen 50K Bet Style boards
         run: |
           node - <<'NODE'
@@ -82,6 +104,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
+          git add -f slates/nfl-sim.json slates/nfl-quarter.json slates/nfl-sim-state.json 2>/dev/null || true
           git diff --cached --quiet && { echo 'No v94.7 changes to commit'; exit 1; }
           git commit -m 'Finish NFL Player Prop Tool v94.7 rebuild'
           git pull --rebase origin main
