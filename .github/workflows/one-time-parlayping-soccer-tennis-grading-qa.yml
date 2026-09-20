@@ -1,0 +1,79 @@
+name: One-time ParlayPing Soccer/Tennis Grading QA
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-parlayping-soccer-tennis-grading-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Clone staged ParlayPing grader
+        run: git clone --depth 1 --branch soccer-tennis-live-grading-stage https://github.com/jthomas0786/ParlayPing.git parlayping
+      - name: Verify staged grader against real Sports Outpost snapshots
+        working-directory: parlayping
+        run: |
+          node <<'NODE'
+          const assert=require('node:assert/strict');
+          const {gradeSoccerLeg,gradeTennisLeg}=require('./lib/extended-live-grading');
+          const base='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates';
+          async function json(name){const r=await fetch(`${base}/${name}`,{headers:{accept:'application/json'}});if(!r.ok)throw new Error(`${name}: ${r.status}`);return r.json();}
+          const finite=v=>v!==null&&v!==undefined&&Number.isFinite(Number(v));
+          (async()=>{
+            const [soccer,tennis]=await Promise.all([json('soccer-live.json'),json('tennis-live.json')]);
+
+            const soccerFinal=Object.values(soccer.games||{}).find(g=>g.final&&(g.players||[]).some(p=>p.appeared&&(['shots','shotsOnTarget','goals','assists','fouls','cards','saves'].some(k=>finite(p[k])))));
+            assert.ok(soccerFinal,'expected at least one final soccer game with player stats');
+            const soccerPlayer=soccerFinal.players.find(p=>p.appeared&&(['shots','shotsOnTarget','goals','assists','fouls','cards','saves'].some(k=>finite(p[k]))));
+            const market=['shots','shotsOnTarget','goals','assists','fouls','saves'].find(k=>finite(soccerPlayer[k]))||'toReceiveCard';
+            const current=market==='toReceiveCard'?Number(soccerPlayer.cards||0):Number(soccerPlayer[market]);
+            const soccerLeg=current>0
+              ? {sport:'SOCCER',player:soccerPlayer.name,market,side:'over',line:current-0.5,inclusive:false}
+              : {sport:'SOCCER',player:soccerPlayer.name,market,side:'under',line:0.5,inclusive:false};
+            const soccerGrade=gradeSoccerLeg(soccerLeg,soccer,{referenceTime:soccerFinal.startTime});
+            assert.equal(soccerGrade?.status,'HIT');
+            assert.equal(Number(soccerGrade.current),current);
+            console.log('Soccer final QA:',soccerFinal.league,soccerPlayer.name,market,current,soccerGrade.status);
+
+            const soccerDnp=Object.values(soccer.games||{}).find(g=>g.final&&(g.players||[]).some(p=>p.appeared===false&&p.name));
+            if(soccerDnp){
+              const p=soccerDnp.players.find(x=>x.appeared===false&&x.name);
+              const dnp=gradeSoccerLeg({sport:'SOCCER',player:p.name,market:'shots',side:'over',line:0.5,inclusive:false},soccer,{referenceTime:soccerDnp.startTime});
+              assert.equal(dnp?.status,'UNRESOLVED');
+              assert.equal(dnp?.resolutionReason,'soccer-player-did-not-appear');
+              console.log('Soccer DNP safety QA:',p.name,dnp.status,dnp.resolutionReason);
+            }
+
+            const soccerLive=Object.values(soccer.games||{}).find(g=>g.state==='in'&&(g.players||[]).some(p=>p.appeared&&finite(p.shots)));
+            if(soccerLive){
+              const p=soccerLive.players.find(x=>x.appeared&&finite(x.shots));
+              const line=Number(p.shots)+5.5;
+              const live=gradeSoccerLeg({sport:'SOCCER',player:p.name,market:'shots',side:'under',line,inclusive:false},soccer,{referenceTime:soccerLive.startTime});
+              assert.equal(live?.status,'LIVE');
+              console.log('Soccer live QA:',p.name,`${p.shots}/${line}`,live.status);
+            } else console.log('Soccer live QA: no live match with populated player shots at this instant; final grading verified.');
+
+            const tennisFinal=Object.values(tennis.matches||{}).find(m=>m.final&&(m.players||[]).some(p=>p.winner===true&&p.name));
+            assert.ok(tennisFinal,'expected at least one final tennis match with winner');
+            const winner=tennisFinal.players.find(p=>p.winner===true);
+            const tennisGrade=gradeTennisLeg({sport:'TENNIS',player:winner.name,market:'matchWinner',side:'yes',line:null,inclusive:true},tennis,{referenceTime:tennisFinal.startTime});
+            assert.equal(tennisGrade?.status,'HIT');
+            console.log('Tennis final QA:',winner.name,tennisGrade.status,tennisFinal.tournament||'');
+
+            const tennisLive=Object.values(tennis.matches||{}).find(m=>m.state==='in'&&(m.players||[]).length===2);
+            if(tennisLive){
+              const p=tennisLive.players[0];
+              const live=gradeTennisLeg({sport:'TENNIS',player:p.name,market:'matchWinner',side:'yes',line:null,inclusive:true},tennis,{referenceTime:tennisLive.startTime});
+              assert.equal(live?.status,'LIVE');
+              console.log('Tennis live QA:',p.name,live.status,tennisLive.tournament||'');
+            } else console.log('Tennis live QA: no live singles match at this instant; final grading verified.');
+
+            console.log('Real-data Soccer/Tennis grading QA passed.');
+          })().catch(e=>{console.error(e.stack||e);process.exit(1);});
+          NODE
