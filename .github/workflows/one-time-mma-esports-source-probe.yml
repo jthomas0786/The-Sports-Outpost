@@ -12,7 +12,7 @@ permissions:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -26,27 +26,32 @@ jobs:
           const key=process.env.PARLAY_API_KEY;
           if(!key) throw new Error('PARLAY_API_KEY missing');
           const api='https://parlay-api.com/v1';
-          const today=new Date();
-          const dates=[0,-1].map(off=>{
-            const d=new Date(today.getTime()+off*86400000);
-            return d.toISOString().slice(0,10);
-          });
+          const today=new Date().toISOString().slice(0,10);
+          const yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);
           async function get(label,url){
-            const r=await fetch(url,{headers:{'X-API-Key':key,accept:'application/json'}});
-            const text=await r.text();
-            let data=null;try{data=text?JSON.parse(text):null}catch{data={raw:text.slice(0,500)}}
-            const arr=Array.isArray(data)?data:Array.isArray(data?.data)?data.data:Array.isArray(data?.results)?data.results:Array.isArray(data?.matches)?data.matches:[];
-            const top=data&&typeof data==='object'&&!Array.isArray(data)?Object.keys(data):[];
-            console.log(`\n=== ${label} ===`);
-            console.log('status',r.status,'topKeys',top,'rows',arr.length);
-            if(arr[0]) console.log('sample',JSON.stringify(arr[0],null,2).slice(0,5000));
-            else if(data) console.log('body',JSON.stringify(data,null,2).slice(0,3000));
+            const controller=new AbortController();
+            const timer=setTimeout(()=>controller.abort(),15000);
+            try{
+              const r=await fetch(url,{headers:{'X-API-Key':key,accept:'application/json'},signal:controller.signal});
+              const text=await r.text();
+              let data=null;try{data=text?JSON.parse(text):null}catch{data={raw:text.slice(0,500)}}
+              const arr=Array.isArray(data)?data:Array.isArray(data?.data)?data.data:Array.isArray(data?.results)?data.results:Array.isArray(data?.matches)?data.matches:[];
+              const top=data&&typeof data==='object'&&!Array.isArray(data)?Object.keys(data):[];
+              console.log(`\n=== ${label} ===`);
+              console.log('status',r.status,'topKeys',top,'rows',arr.length);
+              if(arr[0]) console.log('sample',JSON.stringify(arr[0],null,2).slice(0,5000));
+              else if(data) console.log('body',JSON.stringify(data,null,2).slice(0,2500));
+            }catch(e){console.log(`\n=== ${label} ===\nerror`,e?.name||'',e?.message||e);}
+            finally{clearTimeout(timer);}
           }
-          await get('MMA live points',`${api}/sports/mma_mixed_martial_arts/live/points`);
-          await get('MMA scores',`${api}/sports/mma_mixed_martial_arts/scores?daysFrom=3`);
-          for(const date of dates) await get(`MMA matches ${date}`,`${api}/historical/sports/mma_mixed_martial_arts/matches?date=${date}`);
+          const jobs=[
+            ['MMA live points',`${api}/sports/mma_mixed_martial_arts/live/points`],
+            ['MMA scores',`${api}/sports/mma_mixed_martial_arts/scores?daysFrom=3`],
+            [`MMA matches ${yesterday}`,`${api}/historical/sports/mma_mixed_martial_arts/matches?date=${yesterday}`],
+          ];
           for(const sport of ['esports_cs2','esports_valorant','esports_lol']){
-            await get(`${sport} scores`,`${api}/sports/${sport}/scores?daysFrom=3`);
-            for(const date of dates) await get(`${sport} matches ${date}`,`${api}/historical/sports/${sport}/matches?date=${date}`);
+            jobs.push([`${sport} scores`,`${api}/sports/${sport}/scores?daysFrom=3`]);
+            jobs.push([`${sport} matches ${today}`,`${api}/historical/sports/${sport}/matches?date=${today}`]);
           }
+          await Promise.all(jobs.map(([label,url])=>get(label,url)));
           NODE
