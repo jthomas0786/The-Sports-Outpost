@@ -12,27 +12,22 @@ permissions:
 jobs:
   qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 5
     steps:
-      - name: Clone staged Esports odds refresh
-        run: git clone --depth 1 --branch esports-odds-fix-stage https://github.com/jthomas0786/The-Sports-Outpost.git outpost
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Run Esports refresh with free market discovery
-        working-directory: outpost
+      - name: Probe zero-credit Esports coverage
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
         run: |
-          node scripts/parlayping-extended-odds-refresh.mjs ESPORTS
           node --input-type=module <<'NODE'
-          import fs from 'node:fs';
-          const d=JSON.parse(fs.readFileSync('slates/esports-odds.json','utf8'));
-          if(d?.meta?.sport!=='ESPORTS')throw new Error('bad esports snapshot');
-          const keys=(d.meta?.bySportKey||[]).map(x=>x.sportKey);
-          for(const expected of ['esports_cs2','esports_valorant','esports_lol'])if(!keys.includes(expected))throw new Error(`missing ${expected}`);
-          for(const row of d.rows||[]){if(!row.player||!row.market||!row.sportKey)throw new Error('invalid esports row');}
-          console.log('ESPORTS QA META',JSON.stringify(d.meta,null,2));
-          console.log('ESPORTS accepted rows',d.rows?.length||0);
-          if(d.rows?.length)console.log('Sample',JSON.stringify(d.rows[0],null,2));
+          const key=process.env.PARLAY_API_KEY;if(!key)throw new Error('PARLAY_API_KEY missing');
+          for(const sport of ['esports_cs2','esports_valorant','esports_lol']){
+            const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),15000);
+            try{
+              const r=await fetch(`https://parlay-api.com/v1/sports/${sport}/props/coverage`,{headers:{'X-API-Key':key,accept:'application/json'},signal:controller.signal});
+              const text=await r.text();console.log(`\n=== ${sport} coverage HTTP ${r.status} ===`);console.log(text.slice(0,12000));
+            }finally{clearTimeout(timer);}
+          }
           NODE
