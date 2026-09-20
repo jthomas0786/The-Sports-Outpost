@@ -1,0 +1,62 @@
+name: ParlayPing Soccer/Tennis Live Stats
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/parlayping-soccer-tennis-live-refresh.mjs'
+      - '.github/workflows/parlayping-soccer-tennis-live.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parlayping-soccer-tennis-live
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build Soccer and Tennis live/final stats
+        run: node scripts/parlayping-soccer-tennis-live-refresh.mjs
+      - name: Validate snapshots
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const soccer=JSON.parse(fs.readFileSync('slates/soccer-live.json','utf8'));
+          const tennis=JSON.parse(fs.readFileSync('slates/tennis-live.json','utf8'));
+          if(soccer.schemaVersion!==1||soccer.source!=='espn-public'||soccer.sport!=='SOCCER'||!soccer.games||typeof soccer.games!=='object')throw new Error('Invalid soccer live snapshot');
+          if(tennis.schemaVersion!==1||tennis.source!=='espn-public'||tennis.sport!=='TENNIS'||!tennis.matches||typeof tennis.matches!=='object')throw new Error('Invalid tennis live snapshot');
+          for(const game of Object.values(soccer.games))for(const player of game.players||[]){if(!player.name)throw new Error('Soccer player missing name');}
+          for(const match of Object.values(tennis.matches)){if(!Array.isArray(match.players)||match.players.length!==2)throw new Error('Tennis match must have two players');}
+          console.log('Soccer games:',Object.keys(soccer.games).length,'Tennis matches:',Object.keys(tennis.matches).length);
+          NODE
+      - name: Commit snapshots when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'ParlayPing Live Stats Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slates/soccer-live.json slates/tennis-live.json
+          if git diff --staged --quiet; then
+            echo 'No Soccer/Tennis live changes.'
+            exit 0
+          fi
+          git commit -m 'Refresh ParlayPing Soccer/Tennis live stats'
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:main; then exit 0; fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin main || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1
