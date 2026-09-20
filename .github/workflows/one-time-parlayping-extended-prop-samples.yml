@@ -1,0 +1,44 @@
+name: One-time ParlayPing extended prop samples
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-parlayping-extended-prop-samples.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Sample sanitized player prop rows
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const key=process.env.PARLAY_API_KEY;
+          if(!key)throw new Error('PARLAY_API_KEY missing');
+          const base='https://parlay-api.com/v1';
+          const targets=[
+            ['SOCCER','soccer_epl','player_shots,player_shots_on_target,player_assists,player_goals_assists,player_fouls,player_goals'],
+            ['TENNIS','tennis','player_games_won,player_games_played,player_sets_won,player_aces,player_double_faults,player_break_points_won,player_moneyline'],
+            ['MMA','mma_mixed_martial_arts','player_moneyline'],
+            ['ESPORTS','esports','player_kills_on_maps_1_2,player_headshots_on_maps_1_2,player_points,player_assists,player_maps_1_2_first_bloods'],
+            ['TABLE_TENNIS','table_tennis','player_total_points,player_points,player_moneyline']
+          ];
+          const keep=['canonical_event_id','event_id','commence_time','home_team','away_team','player_name','player','team','player_team','market_key','market','line','period','bookmaker','bookmaker_title','source','source_title','over_price','under_price','yes_price','no_price','price','odds','outcome','selection','side','name','snapshot_time','last_update','deep_link'];
+          for(const [label,sport,markets] of targets){
+            const q=new URLSearchParams({markets,limit:'100',maxAgeSec:'7200'});
+            const r=await fetch(`${base}/sports/${sport}/props?${q}`,{headers:{accept:'application/json','X-API-Key':key}});
+            const text=await r.text();let body=null;try{body=text?JSON.parse(text):null}catch{body=text}
+            const rows=Array.isArray(body)?body:Array.isArray(body?.data)?body.data:[];
+            console.log(`=== ${label} ${sport} HTTP ${r.status} rows=${rows.length} ===`);
+            for(const row of rows.slice(0,8)){
+              const safe={};for(const k of keep)if(row?.[k]!==undefined)safe[k]=row[k];
+              console.log(JSON.stringify(safe));
+            }
+          }
+          NODE
