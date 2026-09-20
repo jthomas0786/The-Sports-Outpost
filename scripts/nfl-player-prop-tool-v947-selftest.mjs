@@ -29,8 +29,29 @@ assert.ok(tool.includes('bookLogo(row.book'),'sportsbook image path missing');
 assert.ok(tool.includes('teamLogo(row.opp)'),'DEF opponent logo path missing');
 assert.ok(tool.includes('gameOptionLabel(g)'),'Game filter must show every slate game with date/time');
 assert.ok(tool.includes('nfl-ppt-watch-v947'),'compact Player-column watch star missing');
-assert.ok(tool.includes('nfl-ppt-match-line-v947'),'Matchup position-vs-defense-logo layout missing');
+assert.ok(tool.includes('nfl-ppt-history-v949'),'Historical actual-data cell missing');
 assert.ok(tool.includes('const statKey=MARKET_STAT'),'historical market-stat mapping missing');
+assert.ok(tool.includes("const histDelta=full&&l10Avg!=null"),'Historical column must derive from actual L10 average');
+assert.ok(tool.includes("if(key==='matchup')return row.histPct"),'MATCHUP column sort must use actual normalized historical margin');
+assert.ok(tool.includes('No simulation data is used'),'Historical tooltip must explicitly identify actual-only data');
+assert.ok(tool.includes('previousSeasonAllowed?.perGame'),'DEF VS PROP must use historical opponent allowance data');
+assert.ok(tool.includes("if(key==='def')return row.defHistoryScore"),'DEF VS PROP sort must use historical defense score');
+assert.ok(tool.includes("row.defHistoryGrade=support>=.75?'Great'"),'historical defense four-grade scale missing');
+assert.ok(tool.includes("return r>=.70?'Great':r>=.60?'Good':r>=.45?'Fair':'Poor'"),'Historical four-grade scale missing');
+assert.ok(!tool.includes('50K simulation matchup read'),'DEF VS PROP must not use simulated matchup copy');
+
+assert.ok(tool.includes("['matchup','MATCHUP']"),'MATCHUP column label must be preserved');
+for(const label of ['PLAYER','PROP LINE','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H']) assert.ok(tool.includes(`<b>${label}</b>`)||tool.includes(`['${label.toLowerCase()}','${label}']`)||tool.includes(`'${label}'`),`guide/header missing ${label}`);
+assert.ok(css.includes('v94.9 larger text + actual Historical column'),'v94.9 readability CSS missing');
+assert.ok(css.includes('v94.9 full-cell conditional grade formatting'),'full-cell grade formatting missing');
+for(const tone of ['great','good','mid','bad']){
+  assert.ok(css.includes(`td:has(.nfl-ppt-history-v949.${tone})`),`MATCHUP full-cell background missing for ${tone}`);
+  assert.ok(css.includes(`td:has(.nfl-ppt-def-v947.${tone})`),`DEF VS PROP full-cell background missing for ${tone}`);
+}
+
+assert.ok(css.includes('.nfl-ppt-player-v947 b{font-size:15px}'),'player-name font enlargement missing');
+assert.ok(css.includes('.nfl-ppt-guide-grid-v947 p{font-size:11px'),'Quick Guide readability enlargement missing');
+
 assert.ok(tool.includes('recentAverage(logs,statKey,10)'),'L10 AVG must use actual game logs');
 assert.ok(tool.includes('actualHitRate(logs,statKey'),'L5/L10 must use actual game logs');
 assert.ok(tool.includes('actualH2HRate(logs,statKey'),'H2H must use actual opponent game logs');
@@ -59,7 +80,7 @@ assert.ok(tool.includes('<colgroup>'),'table must use an explicit colgroup');
 assert.ok(css.includes('stroke-width:2.2'),'coverage ring must stay thin');
 assert.ok(css.includes('border-bottom:1px solid #1f3b58'),'player rows/cells must retain visible borders');
 assert.ok(css.includes('scrollbar-width:none'),'horizontal table scrollbar must remain visually hidden');
-assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=94.8"),'preview must import v94.7');
+assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=94.9"),'preview must import v94.9');
 for(const retired of ['player-prop-tool-sim-v939','player-prop-tool-controls-v933','player-prop-tool-build-period-v940','player-prop-tool-reference-v941','player-prop-tool-snapshot-v928','player-prop-tool-static-guard-v929','player-prop-tool-ux-v930']) assert.ok(!preview.includes(retired),`retired writer still active in preview: ${retired}`);
 assert.ok(!router.includes('installNflBackgroundFreezeV930'),'global Player Prop background freeze must be removed');
 const basePreview=read('sports/nfl-preview.js');
@@ -75,5 +96,5 @@ assert.ok(halftimeUi.includes("document.getElementById('nflPlayerPropTool')||doc
 assert.ok(modelEdge.includes("root.classList.contains('nfl-ppt-active-v948')"),'model observer/refresh must pause on Player Prop Tool');
 assert.ok(commandCenterClient.includes("document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')"),'Command Center polling must pause on Player Prop Tool');
 
-assert.ok(router.includes("import('./nfl-preview-v893.js?v=94.8')"),'router must hard cache-bust NFL preview to v94.7');
-console.log('✓ NFL Player Prop Tool v94.7 single-owner static regression passed');
+assert.ok(router.includes("import('./nfl-preview-v893.js?v=94.9')"),'router must hard cache-bust NFL preview to v94.9');
+console.log('✓ NFL Player Prop Tool v94.9 readability/history static regression passed');
