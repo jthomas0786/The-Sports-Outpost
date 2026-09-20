@@ -27,20 +27,6 @@ function keyPriority(key){
   return score;
 }
 function titleFromKey(key){return String(key||'').replace(/^golf_/,'').split('_').filter(Boolean).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');}
-function shapeSummary(payload){
-  const rows=arrayPayload(payload);const firstRow=rows[0]||{};
-  const books=Array.isArray(firstRow?.bookmakers)?firstRow.bookmakers:[];
-  const firstBook=books[0]||{};const markets=Array.isArray(firstBook?.markets)?firstBook.markets:[];const firstMarket=markets[0]||{};
-  const directMarkets=Array.isArray(firstRow?.markets)?firstRow.markets:[];
-  const directOutcomes=Array.isArray(firstRow?.outcomes)?firstRow.outcomes:[];
-  return {
-    rowCount:rows.length,rowKeys:Object.keys(firstRow).slice(0,30),bookCount:books.length,
-    firstBookKeys:Object.keys(firstBook).slice(0,20),firstBookKey:firstBook?.key||firstBook?.bookmaker||null,
-    firstMarketKeys:Object.keys(firstMarket).slice(0,20),firstMarketKey:firstMarket?.key||firstMarket?.market_key||firstMarket?.market||null,
-    firstMarketOutcomeCount:Array.isArray(firstMarket?.outcomes)?firstMarket.outcomes.length:0,
-    directMarketCount:directMarkets.length,directOutcomeCount:directOutcomes.length
-  };
-}
 
 async function fetchJson(url,{auth=true,attempts=3}={}){
   let lastError=null;
@@ -59,6 +45,29 @@ async function fetchJson(url,{auth=true,attempts=3}={}){
     await new Promise(resolve=>setTimeout(resolve,700*Math.pow(2,attempt-1)));
   }
   throw lastError||new Error('request failed');
+}
+
+function coverageSummary(payload,sportKey){
+  const root=payload&&typeof payload==='object'&&!Array.isArray(payload)?payload:{};
+  const source=root.data&&typeof root.data==='object'&&!Array.isArray(root.data)?root.data:root;
+  const pregame=Math.max(0,finite(source.total_games_pregame??source.totalGamesPregame)??0);
+  const inPlay=Math.max(0,finite(source.total_games_in_play??source.totalGamesInPlay)??0);
+  const covered=Math.max(0,finite(source.total_games_covered??source.totalGamesCovered)??(pregame+inPlay));
+  return {
+    sportKey,
+    pregame,
+    inPlay,
+    covered,
+    serves:Boolean(source.serves),
+    bookmakers:Array.isArray(source.bookmakers)?source.bookmakers:[],
+    markets:Array.isArray(source.markets)?source.markets:[]
+  };
+}
+
+async function getOutrightCoverage(sportKey){
+  const params=new URLSearchParams({regions:'us',markets:'outrights',bookmakers:'pinnacle'});
+  const response=await fetchJson(`${API}/sports/${encodeURIComponent(sportKey)}/odds/coverage?${params}`,{auth:true,attempts:2});
+  return coverageSummary(response.data,sportKey);
 }
 
 function normalizeOutrights(payload,sportKey,now){
@@ -98,25 +107,48 @@ async function main(){
   const catalogResponse=await fetchJson(`${API}/sports`,{auth:false,attempts:2});
   const catalog=arrayPayload(catalogResponse.data);
   const golfKeys=catalog.map(row=>String(row?.key||'').trim()).filter(isTournamentKey).sort((a,b)=>keyPriority(b)-keyPriority(a)||a.localeCompare(b));
-  const selectedKeys=golfKeys.slice(0,MAX_PAID_KEYS);
+
+  // `/odds/coverage` is free. Probe every current Golf key first so paid `/odds`
+  // calls are spent only where Pinnacle actually has a current pregame outright board.
+  const coverage=[];
+  for(const sportKey of golfKeys){
+    try{coverage.push(await getOutrightCoverage(sportKey));}
+    catch(error){coverage.push({sportKey,pregame:0,inPlay:0,covered:0,serves:false,bookmakers:[],markets:[],error:error?.message||String(error)});}
+  }
+  const selectedKeys=coverage
+    .filter(row=>row.pregame>0&&row.bookmakers.map(v=>String(v).toLowerCase()).includes('pinnacle')&&row.markets.map(v=>String(v).toLowerCase()).includes('outrights'))
+    .sort((a,b)=>b.pregame-a.pregame||keyPriority(b.sportKey)-keyPriority(a.sportKey)||a.sportKey.localeCompare(b.sportKey))
+    .slice(0,MAX_PAID_KEYS)
+    .map(row=>row.sportKey);
+
   const allRows=[];const diagnostics=[];let reportedCredits=0;
   for(const sportKey of selectedKeys){
     try{
       const params=new URLSearchParams({regions:'us',markets:'outrights',bookmakers:'pinnacle',oddsFormat:'american',dateFormat:'iso'});
       const response=await fetchJson(`${API}/sports/${encodeURIComponent(sportKey)}/odds?${params}`);
       reportedCredits+=response.credits;
-      const shape=shapeSummary(response.data);
       const normalized=normalizeOutrights(response.data,sportKey,now);
       allRows.push(...normalized.rows);
-      diagnostics.push({sportKey,acceptedRows:normalized.rows.length,markets:normalized.diagnostics,shape,reportedCredits:response.credits,served:response.served,unservable:response.unservable});
+      diagnostics.push({sportKey,acceptedRows:normalized.rows.length,markets:normalized.diagnostics,reportedCredits:response.credits,served:response.served,unservable:response.unservable});
     }catch(error){diagnostics.push({sportKey,acceptedRows:0,error:error?.message||String(error)});}
   }
   const rows=allRows.sort((a,b)=>a.sportKey.localeCompare(b.sportKey)||b.fairProbability-a.fairProbability||a.selection.localeCompare(b.selection));
-  const output={schemaVersion:1,meta:{source:'parlayapi-pinnacle',sport:'GOLF',market:'tournamentWinner',providerMarket:'outrights',fetchedAt:new Date(now).toISOString(),settlementConnected:false,catalogGolfKeys:golfKeys,selectedKeys,rows:rows.length,maxPaidSportKeysPerRun:MAX_PAID_KEYS,reportedCreditsUsed:reportedCredits,probabilityPolicy:'Only complete multi-player Pinnacle outright fields with at least four priced selections are accepted. Each selection is de-vigged against the full quoted field.',settlementPolicy:'Golf is sportsbook-probability only for launch. A disappearing quote, tournament progress, leaderboard position, withdrawal or result is never used to infer HIT/MISS.',diagnostics},rows};
+  const output={
+    schemaVersion:1,
+    meta:{
+      source:'parlayapi-pinnacle',sport:'GOLF',market:'tournamentWinner',providerMarket:'outrights',fetchedAt:new Date(now).toISOString(),settlementConnected:false,
+      catalogGolfKeys:golfKeys,coverage,selectedKeys,rows:rows.length,maxPaidSportKeysPerRun:MAX_PAID_KEYS,reportedCreditsUsed:reportedCredits,
+      coveragePolicy:'Every current Golf tournament key is checked with the free ParlayAPI /odds/coverage endpoint. Paid /odds is called only for keys reporting current pregame Pinnacle outright coverage.',
+      probabilityPolicy:'Only complete multi-player Pinnacle outright fields with at least four priced selections are accepted. Each selection is de-vigged against the full quoted field.',
+      settlementPolicy:'Golf is sportsbook-probability only for launch. A disappearing quote, tournament progress, leaderboard position, withdrawal or result is never used to infer HIT/MISS.',
+      diagnostics
+    },
+    rows
+  };
   await fs.mkdir(path.dirname(OUT_FILE),{recursive:true});
   await fs.writeFile(OUT_FILE,JSON.stringify(output,null,2)+'\n');
-  console.log(`GOLF outright feed: ${rows.length} accepted Pinnacle selections across ${selectedKeys.length} selected keys; reported credits=${reportedCredits}.`);
-  console.log(JSON.stringify({catalogGolfKeys:golfKeys,selectedKeys,diagnostics:diagnostics.map(d=>({sportKey:d.sportKey,acceptedRows:d.acceptedRows,reportedCredits:d.reportedCredits,error:d.error,served:d.served,unservable:d.unservable,shape:d.shape}))}));
+  console.log(`GOLF outright feed: coverage checked ${coverage.length} keys free; ${rows.length} accepted Pinnacle selections across ${selectedKeys.length} paid keys; reported credits=${reportedCredits}.`);
+  console.log(JSON.stringify({coverage:coverage.map(({sportKey,pregame,inPlay,covered,error})=>({sportKey,pregame,inPlay,covered,error})),selectedKeys,diagnostics:diagnostics.map(d=>({sportKey:d.sportKey,acceptedRows:d.acceptedRows,reportedCredits:d.reportedCredits,error:d.error,served:d.served,unservable:d.unservable}))}));
 }
 
 main().catch(error=>{console.error('::error::',error?.stack||error);process.exit(1);});
