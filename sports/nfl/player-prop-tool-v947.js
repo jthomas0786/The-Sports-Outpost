@@ -1,4 +1,4 @@
-const VERSION='95.0';
+const VERSION='95.1';
 const TOOL_ID='nflPlayerPropTool';
 const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
@@ -160,12 +160,20 @@ function projectionMeta(row){
   const delta=row.proj-row.line;
   return `${delta>=0?'+':''}${fmt(delta)} vs line`;
 }
-function historicalGrade(rate){
-  if(rate==null||!Number.isFinite(Number(rate)))return '—';
-  const r=Number(rate);
-  return r>=.70?'Great':r>=.60?'Good':r>=.45?'Fair':'Poor';
+function fourGrade(score){
+  if(score==null||!Number.isFinite(Number(score)))return '—';
+  const s=Number(score);
+  return s>=.70?'Great':s>=.58?'Good':s>=.42?'Fair':'Poor';
 }
 function gradeToneHistorical(label){return label==='Great'?'great':label==='Good'?'good':label==='Fair'?'mid':label==='Poor'?'bad':'neutral';}
+function weightedScore(parts){
+  let sum=0,weight=0;
+  for(const [value,w] of parts){
+    if(value==null||!Number.isFinite(Number(value))||!Number.isFinite(Number(w))||Number(w)<=0)continue;
+    sum+=clamp(Number(value))*Number(w);weight+=Number(w);
+  }
+  return weight?clamp(sum/weight):null;
+}
 function historicalDefenseAllowed(research,market,position){
   const pg=research?.matchup?.previousSeasonAllowed?.perGame||{};
   const pos=String(position||'').toUpperCase();
@@ -184,7 +192,7 @@ function defenseUnit(market){
   if(market==='passTds'||market==='atd')return 'TD/G';
   return '/G';
 }
-function attachDefenseHistory(rows){
+function attachMatchupProfiles(rows){
   const groups=new Map();
   for(const row of rows){
     if(row.defAllowed==null)continue;
@@ -194,12 +202,27 @@ function attachDefenseHistory(rows){
   }
   for(const row of rows){
     const vals=[...(groups.get(`${row.position}|${row.market}`)?.values()||[])].filter(Number.isFinite).sort((a,b)=>a-b);
-    if(row.defAllowed==null||!vals.length){row.defHistoryScore=null;row.defHistoryGrade='—';continue;}
-    const lower=vals.filter(v=>v<row.defAllowed).length,equal=vals.filter(v=>v===row.defAllowed).length;
-    const pct=(lower+equal*.5)/vals.length;
-    const support=row.side==='under'?1-pct:pct;
-    row.defHistoryScore=support;
-    row.defHistoryGrade=support>=.75?'Great':support>=.58?'Good':support>=.42?'Fair':'Poor';
+    if(row.defAllowed==null||!vals.length){
+      row.defWeaknessScore=null;row.defStrengthScore=null;row.defHistoryScore=null;row.defHistoryGrade='—';
+    }else{
+      const lower=vals.filter(v=>v<row.defAllowed).length,equal=vals.filter(v=>v===row.defAllowed).length;
+      const allowancePct=clamp((lower+equal*.5)/vals.length);
+      row.defWeaknessScore=allowancePct;
+      row.defStrengthScore=clamp(1-allowancePct);
+      row.defHistoryScore=row.defStrengthScore;
+      row.defHistoryGrade=fourGrade(row.defStrengthScore);
+    }
+
+    const recentRate=row.l10Actual?.rate??row.l5Actual?.rate??null;
+    const h2hRate=row.h2hActual?.total>=2?row.h2hActual.rate:null;
+    const marginScore=row.histPct==null?null:clamp(.5+Number(row.histPct)*1.35);
+    row.playerMatchupScore=weightedScore([[recentRate,.70],[marginScore,.20],[h2hRate,.10]]);
+    const defenseFit=row.side==='under'?row.defStrengthScore:row.defWeaknessScore;
+    row.matchupDefenseScore=defenseFit;
+    if(row.playerMatchupScore==null&&defenseFit!=null)row.matchupScore=weightedScore([[.5,.62],[defenseFit,.38]]);
+    else if(defenseFit==null)row.matchupScore=row.playerMatchupScore;
+    else row.matchupScore=weightedScore([[row.playerMatchupScore,.62],[defenseFit,.38]]);
+    row.matchupGrade=fourGrade(row.matchupScore);
   }
 }
 function actualRateValue(rate){return rate?.total?rate.hits/rate.total:-1;}
@@ -271,7 +294,7 @@ function buildRows(docs){
       out.push(row);
     }
   }
-  attachDefenseHistory(out);
+  attachMatchupProfiles(out);
   rowsCache.set(key,out);
   return out;
 }
@@ -299,8 +322,8 @@ function valueFor(row,key){
   if(key==='l10Avg')return row.l10Avg??-1;
   if(key==='prob')return row.prob??-1;
   if(key==='edge')return row.edge??-999;
-  if(key==='def')return row.defHistoryScore??-1;
-  if(key==='matchup')return row.histPct??-999;
+  if(key==='def')return row.defStrengthScore??-1;
+  if(key==='matchup')return row.matchupScore??-1;
   if(key==='simDef')return row.simStop??-1;
   if(key==='l5')return actualRateValue(row.l5Actual);
   if(key==='l10')return actualRateValue(row.l10Actual);
@@ -328,17 +351,15 @@ function bookHtml(row){
 function defHtml(row){
   const src=teamLogo(row.opp),grade=row.defHistoryGrade||'—',tone=gradeToneHistorical(grade);
   const value=row.defAllowed==null?'—':`${fmt(row.defAllowed)} ${defenseUnit(row.market)}`;
-  return `<div class="nfl-ppt-def-v947 ${tone}" title="${esc(row.opp)} previous-season actual allowance to ${esc(row.position||'this')} position group for ${esc(marketLabel(row.market))}. Grade is relative to the other defenses in this frozen slate and the displayed ${row.side==='under'?'Under':'Over'} side. No simulation data is used.">${src?`<img src="${esc(src)}" alt="${esc(row.opp)}">`:`<strong>${esc(row.opp||'DEF')}</strong>`}<div class="nfl-ppt-def-copy-v949"><b>${esc(grade)}</b><span>${esc(value)} · PREV YR</span></div></div>`;
+  const title=`${row.opp} defense vs ${row.position||'this position'} ${marketLabel(row.market)}. ${grade==='—'?'Defensive allowance data is unavailable.':`${grade} grades the defense itself: stronger defenses allow less than peer defenses for this position/prop; weaker defenses allow more.`} ${value==='—'?'':`Previous-season actual allowance: ${value}. `}No simulation data is used.`;
+  return `<div class="nfl-ppt-def-v947 ${tone}" title="${esc(title)}">${src?`<img src="${esc(src)}" alt="${esc(row.opp)} defense">`:`<strong>${esc(row.opp||'DEF')}</strong>`}<div class="nfl-ppt-def-copy-v949"><b>${esc(grade)}</b><span>${esc(value)} · PREV YR</span></div></div>`;
 }
-function historicalHtml(row){
-  if(state.period!=='full'||row.histDelta==null){
-    return `<div class="nfl-ppt-history-v949 neutral" title="Historical comparison is shown for full-game sportsbook props because the research feed contains full-game actual results."><b>—</b><span>FULL GAME</span></div>`;
-  }
-  const rate=row.l10Actual?.rate??row.l5Actual?.rate??row.h2hActual?.rate??null;
-  const grade=historicalGrade(rate),tone=gradeToneHistorical(grade),sign=row.histDelta>0?'+':'';
-  const record=row.l10Actual?.total?`${row.l10Actual.hits}/${row.l10Actual.total} HIT`:'ACTUAL LOGS';
-  const side=row.side==='under'?'Under':'Over';
-  return `<div class="nfl-ppt-history-v949 ${tone}" title="${grade} is based on actual recent hit rate for the displayed ${side} side. ${sign}${fmt(row.histDelta)} is the actual L10 average margin versus this sportsbook line. No simulation data is used."><b>${esc(grade)} · ${sign}${fmt(row.histDelta)}</b><span>${record} · VS LINE</span></div>`;
+function matchupHtml(row){
+  const grade=row.matchupGrade||'—',tone=gradeToneHistorical(grade),src=teamLogo(row.opp),side=row.side==='under'?'Under':'Over';
+  const player=row.playerMatchupScore==null?'player form pending':`${Math.round(row.playerMatchupScore*100)}% player-form score`;
+  const defense=row.matchupDefenseScore==null?'defense profile pending':`${Math.round(row.matchupDefenseScore*100)}% defense-fit score`;
+  const title=`${row.position||'OFF'} vs ${row.opp} defense for ${marketLabel(row.market)} ${side}. ${grade} blends actual recent player results with the opponent's actual previous-season defensive allowance to this position/prop (${player}; ${defense}). No simulation data is used.`;
+  return `<div class="nfl-ppt-match-v947 ${tone}" title="${esc(title)}"><div class="nfl-ppt-match-line-v947"><b>${esc(row.position||'OFF')}</b><span>vs</span>${src?`<img src="${esc(src)}" alt="${esc(row.opp)} defense">`:`<strong>${esc(row.opp||'DEF')}</strong>`}</div><small>${esc(grade)}</small></div>`;
 }
 function rowHtml(row){
   const edge=row.edge==null?'—':state.period==='full'?`${row.edge>=0?'+':''}${(row.edge*100).toFixed(1)}%`:`${row.edge>=0?'+':''}${row.edge.toFixed(2)}σ`;
@@ -354,7 +375,7 @@ function rowHtml(row){
     <td>${ringHtml(row.prob)}</td>
     <td><div class="nfl-ppt-edge-v947"><b>${edge}</b><span>${state.period==='full'?'VS IMPLIED':'SIM EDGE'}</span></div></td>
     <td>${defHtml(row)}</td>
-    <td>${historicalHtml(row)}</td>
+    <td>${matchupHtml(row)}</td>
     <td><div class="nfl-ppt-simdef-v947"><b>${Math.round(row.simStop*100)}%</b><span>SIM STOP</span></div></td>
     <td>${historicalRateCell(row.l5Actual,row.side,'L5')}</td>
     <td>${historicalRateCell(row.l10Actual,row.side,'L10')}</td>
@@ -398,8 +419,8 @@ function guideHtml(){
     <div><b>L10 AVG</b><p>The player’s actual average for this stat over the last 10 available games.</p></div>
     <div><b>COV PROB</b><p>The 50K simulated chance that the displayed side covers the line.</p></div>
     <div><b>EDGE</b><p>Model cover probability compared with the sportsbook’s implied probability.</p></div>
-    <div><b>DEF VS PROP</b><p>Previous-season actual allowance to this position group. Great/Good/Fair/Poor reflects how favorable it is for the displayed side.</p></div>
-    <div><b>MATCHUP</b><p>Great/Good/Fair/Poor comes from actual recent hit rate versus this line; the number is the actual L10 average margin.</p></div>
+    <div><b>DEF VS PROP</b><p>Opponent defense vs this player position and prop. Great means a stronger defense with lower actual allowance than peers; Poor means a weaker defense with higher allowance.</p></div>
+    <div><b>MATCHUP</b><p>Player position vs the opponent defense. The grade blends actual recent player results with the opponent’s actual defensive allowance for this position/prop.</p></div>
     <div><b>SIM DEF</b><p>The simulated stop rate against the displayed side. Higher means a tougher simulated cover.</p></div>
     <div><b>L5</b><p>Actual hits in the player’s last 5 games versus this exact line and side.</p></div>
     <div><b>L10</b><p>Actual hits in the player’s last 10 available games versus this line and side.</p></div>

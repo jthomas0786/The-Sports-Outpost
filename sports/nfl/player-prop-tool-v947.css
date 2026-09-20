@@ -295,3 +295,15 @@ body:has(#nflView.nfl-ppt-active-v948) .app-main{visibility:visible!important;op
   z-index:6!important;
   box-shadow:7px 0 12px rgba(0,0,0,.22)!important;
 }
+
+
+/* v95.1 player-v-defense matchup restore */
+#nflView .nfl-ppt-match-v947.great>small{color:#7dffad!important}
+#nflView .nfl-ppt-match-v947.good>small{color:#68e6b0!important}
+#nflView .nfl-ppt-match-v947.mid>small{color:#ffd166!important}
+#nflView .nfl-ppt-match-v947.bad>small{color:#ff8d9a!important}
+#nflView .nfl-ppt-match-v947.neutral>small{color:#a7b8ca!important}
+#nflView .nfl-ppt-table td:has(.nfl-ppt-match-v947.great){background-color:rgba(34,197,94,.24)!important;box-shadow:inset 0 0 0 1px rgba(74,222,128,.34)}
+#nflView .nfl-ppt-table td:has(.nfl-ppt-match-v947.good){background-color:rgba(16,185,129,.15)!important;box-shadow:inset 0 0 0 1px rgba(52,211,153,.25)}
+#nflView .nfl-ppt-table td:has(.nfl-ppt-match-v947.mid){background-color:rgba(245,158,11,.18)!important;box-shadow:inset 0 0 0 1px rgba(251,191,36,.28)}
+#nflView .nfl-ppt-table td:has(.nfl-ppt-match-v947.bad){background-color:rgba(239,68,68,.19)!important;box-shadow:inset 0 0 0 1px rgba(248,113,113,.30)}
