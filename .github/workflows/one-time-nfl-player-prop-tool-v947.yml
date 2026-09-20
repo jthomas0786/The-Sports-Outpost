@@ -7,6 +7,7 @@ on:
       - 'scripts/apply-nfl-player-prop-tool-v947.py'
       - 'scripts/apply-nfl-player-prop-tool-v948-proj-l10.py'
       - 'scripts/apply-nfl-player-prop-tool-v948-side-filter.py'
+      - 'scripts/fix-nfl-player-prop-tool-v948-side-filter-qa.py'
       - 'scripts/fix-nfl-player-prop-tool-v948-browser-qa.py'
       - 'scripts/fix-nfl-player-prop-tool-v948-isolation.py'
       - 'scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py'
@@ -40,6 +41,7 @@ jobs:
           python3 scripts/apply-nfl-player-prop-tool-v948-side-filter.py
           python3 scripts/fix-nfl-player-prop-tool-v948-isolation.py
           python3 scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py
+          python3 scripts/fix-nfl-player-prop-tool-v948-side-filter-qa.py
       - name: Run v94.8 static regressions
         run: |
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
@@ -126,6 +128,10 @@ jobs:
         run: |
           set -o pipefail
           npx playwright test tests/nfl-player-prop-tool-v947.spec.js --grep "player name opens the actual modern NFL player modal" --reporter=line --workers=1 --max-failures=1 2>&1 | tee /tmp/nfl-ppt-v948-modal-smoke.log
+      - name: Smoke Over Under cross-filter persistence
+        run: |
+          set -o pipefail
+          npx playwright test tests/nfl-player-prop-tool-v947.spec.js --grep "Over Under side selection survives every other Player Prop Tool filter" --reporter=line --workers=1 --max-failures=1 2>&1 | tee /tmp/nfl-ppt-v948-side-smoke.log
       - name: Reproduce video, readability, filters and smooth-scroll suite
         run: |
           set -o pipefail
@@ -137,6 +143,7 @@ jobs:
           name: nfl-player-prop-tool-v948-browser-qa
           path: |
             /tmp/nfl-ppt-v948-modal-smoke.log
+            /tmp/nfl-ppt-v948-side-smoke.log
             /tmp/nfl-ppt-v948-playwright.log
             /tmp/nfl-ppt-v948-cutover.log
             test-results
@@ -144,7 +151,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: Retire one-time helpers
-        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-v947.yml .github/workflows/one-time-nfl-prop-sim-v947.yml scripts/apply-nfl-player-prop-tool-v947.py scripts/apply-nfl-player-prop-tool-v948-proj-l10.py scripts/apply-nfl-player-prop-tool-v948-side-filter.py scripts/fix-nfl-player-prop-tool-v948-browser-qa.py scripts/fix-nfl-player-prop-tool-v948-isolation.py scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py
+        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-v947.yml .github/workflows/one-time-nfl-prop-sim-v947.yml scripts/apply-nfl-player-prop-tool-v947.py scripts/apply-nfl-player-prop-tool-v948-proj-l10.py scripts/apply-nfl-player-prop-tool-v948-side-filter.py scripts/fix-nfl-player-prop-tool-v948-side-filter-qa.py scripts/fix-nfl-player-prop-tool-v948-browser-qa.py scripts/fix-nfl-player-prop-tool-v948-isolation.py scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py
       - name: Commit and push verified v94.8 cutover
         run: |
           git config user.name 'github-actions[bot]'
