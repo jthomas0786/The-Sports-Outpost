@@ -1,4 +1,4 @@
-const VERSION='95.2';
+const VERSION='95.3';
 const TOOL_ID='nflPlayerPropTool';
 const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
@@ -187,21 +187,45 @@ function historicalDefenseAllowed(research,market,position){
   else if(market==='atd')v=pos==='QB'?(pg.rushTds??pg.tds):(pg.tds??((num(pg.rushTds)||0)+(num(pg.recTds)||0)));
   return num(v);
 }
+function historicalPositionAllowed(research,position){
+  const pg=research?.matchup?.previousSeasonAllowed?.perGame||null;
+  if(!pg)return null;
+  const pos=String(position||'').toUpperCase();
+  const safe=v=>v==null?null:num(v);
+  return{
+    yards:safe(pg.yards),
+    tds:safe(pg.tds),
+    volume:safe(pos==='QB'?pg.completions:pg.receptions),
+    volumeLabel:pos==='QB'?'CMP/G':'REC/G',
+  };
+}
 function defenseUnit(market){
   if(market==='rushYds'||market==='recYds'||market==='passYds')return 'YDS/G';
   if(market==='passTds'||market==='atd')return 'TD/G';
   return '/G';
 }
 function attachMatchupProfiles(rows){
-  const groups=new Map();
+  const propGroups=new Map(),positionGroups=new Map();
   for(const row of rows){
-    if(row.defAllowed==null)continue;
-    const key=`${row.position}|${row.market}`;
-    if(!groups.has(key))groups.set(key,new Map());
-    groups.get(key).set(row.opp,row.defAllowed);
+    if(row.defAllowed!=null){
+      const key=`${row.position}|${row.market}`;
+      if(!propGroups.has(key))propGroups.set(key,new Map());
+      propGroups.get(key).set(row.opp,row.defAllowed);
+    }
+    if(row.positionAllowedProfile){
+      if(!positionGroups.has(row.position))positionGroups.set(row.position,new Map());
+      positionGroups.get(row.position).set(row.opp,row.positionAllowedProfile);
+    }
   }
+  const percentile=(profiles,field,value)=>{
+    if(value==null)return null;
+    const vals=profiles.map(p=>p?.[field]).filter(v=>v!=null&&Number.isFinite(Number(v))).map(Number).sort((a,b)=>a-b);
+    if(!vals.length)return null;
+    const n=Number(value),lower=vals.filter(v=>v<n).length,equal=vals.filter(v=>v===n).length;
+    return clamp((lower+equal*.5)/vals.length);
+  };
   for(const row of rows){
-    const vals=[...(groups.get(`${row.position}|${row.market}`)?.values()||[])].filter(Number.isFinite).sort((a,b)=>a-b);
+    const vals=[...(propGroups.get(`${row.position}|${row.market}`)?.values()||[])].filter(Number.isFinite).sort((a,b)=>a-b);
     if(row.defAllowed==null||!vals.length){
       row.defWeaknessScore=null;row.defStrengthScore=null;row.defHistoryScore=null;row.defHistoryGrade='—';
     }else{
@@ -214,15 +238,15 @@ function attachMatchupProfiles(rows){
       row.defHistoryGrade=fourGrade(propFavorability);
     }
 
-    const recentRate=row.l10Actual?.rate??row.l5Actual?.rate??null;
-    const h2hRate=row.h2hActual?.total>=2?row.h2hActual.rate:null;
-    const marginScore=row.histPct==null?null:clamp(.5+Number(row.histPct)*1.35);
-    row.playerMatchupScore=weightedScore([[recentRate,.70],[marginScore,.20],[h2hRate,.10]]);
-    const defenseFit=row.defHistoryScore;
-    row.matchupDefenseScore=defenseFit;
-    if(row.playerMatchupScore==null&&defenseFit!=null)row.matchupScore=weightedScore([[.5,.62],[defenseFit,.38]]);
-    else if(defenseFit==null)row.matchupScore=row.playerMatchupScore;
-    else row.matchupScore=weightedScore([[row.playerMatchupScore,.62],[defenseFit,.38]]);
+    const positionPeers=[...(positionGroups.get(row.position)?.values()||[])];
+    const profile=row.positionAllowedProfile||positionGroups.get(row.position)?.get(row.opp)||null;
+    row.positionAllowedProfile=profile;
+    const yardsPct=percentile(positionPeers,'yards',profile?.yards);
+    const tdsPct=percentile(positionPeers,'tds',profile?.tds);
+    const volumePct=percentile(positionPeers,'volume',profile?.volume);
+    const positionWeaknessScore=weightedScore([[yardsPct,.65],[tdsPct,.20],[volumePct,.15]]);
+    row.positionMatchupScore=positionWeaknessScore;
+    row.matchupScore=row.positionMatchupScore;
     row.matchupGrade=fourGrade(row.matchupScore);
   }
 }
@@ -288,7 +312,7 @@ function buildRows(docs){
         playerId:String(c.playerId||player?.gsisId||player?.espnId||''),espnId:c.espnId||player?.espnId||null,gsisId:c.gsisId||player?.gsisId||null,
         name:c.name||player?.name||'Player',team:playerTeam,opp,position:String(c.position||player?.position||'').toUpperCase(),headshot:player?.headshot||c.headshot||'',watchId:String(player?.espnId||c.espnId||c.playerId||player?.playerId||''),
         market:String(c.market||''),line:num(c.line),side:String(c.side||'over').toLowerCase(),price:full?num(c.price):null,book:full?String(c.book||'Sportsbook'):'TSO 50K',link:full?String(c.link||''):'',
-        prob,edge,proj,l10Avg,l5Actual,l10Actual,h2hActual,defAllowed:historicalDefenseAllowed(research,String(c.market||''),String(c.position||player?.position||'').toUpperCase()),mean,median,p10,p25,p75,p90,iterations,simStop,histDelta,histPct,rank,correlationLift:num(c.correlationLift),correlationPartner:c.correlationPartner||'',
+        prob,edge,proj,l10Avg,l5Actual,l10Actual,h2hActual,defAllowed:historicalDefenseAllowed(research,String(c.market||''),String(c.position||player?.position||'').toUpperCase()),positionAllowedProfile:historicalPositionAllowed(research,String(c.position||player?.position||'').toUpperCase()),mean,median,p10,p25,p75,p90,iterations,simStop,histDelta,histPct,rank,correlationLift:num(c.correlationLift),correlationPartner:c.correlationPartner||'',
       };
       row.styleScore=styleScore(row);
       row.search=norm(`${row.name} ${row.team} ${row.opp} ${row.position} ${marketLabel(row.market)} ${row.game}`);
@@ -357,10 +381,12 @@ function defHtml(row){
   return `<div class="nfl-ppt-def-v947 ${tone}" title="${esc(title)}">${src?`<img src="${esc(src)}" alt="${esc(row.opp)} defense">`:`<strong>${esc(row.opp||'DEF')}</strong>`}<div class="nfl-ppt-def-copy-v949"><b>${esc(grade)}</b><span>${esc(value)} · PREV YR</span></div></div>`;
 }
 function matchupHtml(row){
-  const grade=row.matchupGrade||'—',tone=gradeToneHistorical(grade),src=teamLogo(row.opp),side=row.side==='under'?'Under':'Over';
-  const player=row.playerMatchupScore==null?'player form pending':`${Math.round(row.playerMatchupScore*100)}% player-form score`;
-  const defense=row.matchupDefenseScore==null?'defense profile pending':`${Math.round(row.matchupDefenseScore*100)}% defense-fit score`;
-  const title=`${row.position||'OFF'} vs ${row.opp} defense for ${marketLabel(row.market)} ${side}. ${grade} blends actual recent player results with the opponent's actual previous-season defensive allowance to this position/prop (${player}; ${defense}). No simulation data is used.`;
+  const grade=row.matchupGrade||'—',tone=gradeToneHistorical(grade),src=teamLogo(row.opp),profile=row.positionAllowedProfile||null;
+  const detail=[];
+  if(profile?.yards!=null)detail.push(`${fmt(profile.yards)} YDS/G`);
+  if(profile?.tds!=null)detail.push(`${fmt(profile.tds)} TD/G`);
+  if(profile?.volume!=null)detail.push(`${fmt(profile.volume)} ${profile.volumeLabel||'VOL/G'}`);
+  const title=`${row.position||'OFF'} vs ${row.opp} defense. ${grade==='—'?'Position-level defensive allowance data is unavailable.':`${grade} is a position-only matchup grade: higher previous-season production allowed to the ${row.position||'offensive'} position group grades more favorably; lower allowance grades more difficult.`} ${detail.length?`Opponent position allowance: ${detail.join(' · ')}. `:''}This does not use this player's form, prop line, market, or Over/Under side. No simulation data is used.`;
   return `<div class="nfl-ppt-match-v947 ${tone}" title="${esc(title)}"><div class="nfl-ppt-match-line-v947"><b>${esc(row.position||'OFF')}</b><span>vs</span>${src?`<img src="${esc(src)}" alt="${esc(row.opp)} defense">`:`<strong>${esc(row.opp||'DEF')}</strong>`}</div><small>${esc(grade)}</small></div>`;
 }
 function rowHtml(row){
@@ -422,7 +448,7 @@ function guideHtml(){
     <div><b>COV PROB</b><p>The 50K simulated chance that the displayed side covers the line.</p></div>
     <div><b>EDGE</b><p>Model cover probability compared with the sportsbook’s implied probability.</p></div>
     <div><b>DEF VS PROP</b><p>Opponent defense vs this player position and prop, graded for the displayed pick. Great/green helps the pick; Poor/red hurts it. Overs favor defenses allowing more; Unders favor defenses allowing less.</p></div>
-    <div><b>MATCHUP</b><p>Player position vs the opponent defense. The grade blends actual recent player results with the opponent’s actual defensive allowance for this position/prop.</p></div>
+    <div><b>MATCHUP</b><p>Position vs opponent defense only. Every player at the same position facing the same defense gets the same grade. Great/green means that defense allowed more production to the position; Poor/red means it was stingier.</p></div>
     <div><b>SIM DEF</b><p>The simulated stop rate against the displayed side. Higher means a tougher simulated cover.</p></div>
     <div><b>L5</b><p>Actual hits in the player’s last 5 games versus this exact line and side.</p></div>
     <div><b>L10</b><p>Actual hits in the player’s last 10 available games versus this line and side.</p></div>
