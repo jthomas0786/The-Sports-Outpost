@@ -74,7 +74,7 @@ function looksLikePlayer(value,groupKey){
   if(!s||!/[A-Za-z]/.test(s))return false;
   if(/^\d+(?:\.\d+)?\s+or\s+(?:more|less)/i.test(s))return false;
   if(/\b(?:team total|game total|match total|1q|1h|2h|first half|second half)\b/i.test(s))return false;
-  if(groupKey==='TABLE_TENNIS'&&(s.includes('@')||/^(?:odd|even)(?:\s*-\s*lg\d+)?$/i.test(s)))return false;
+  if(groupKey==='TABLE_TENNIS'&&(s.includes('@')||/^(?:odd|even)(?:\s*-\s*lg\d+)?$/i.test(s)||/\s-\sG\d+$/i.test(s)))return false;
   return true;
 }
 function normalizeRow(groupKey,sportKey,marketMap,r){
