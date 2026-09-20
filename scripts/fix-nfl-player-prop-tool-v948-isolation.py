@@ -94,11 +94,18 @@ if 'static-snapshot ownership: base route/boot CSS' not in s:
     s += extra
 write(p,s)
 
+# Keep the legacy sort regression aligned with the v94.8 data-ownership header keys.
+p='tests/nfl-player-prop-tool-v947.spec.js'
+s=read(p)
+s=replace_once(
+    s,
+    "for(const key of ['player','consensus','pick','proj','median','prob','edge','def','matchup','simDef','l5','l10','h2h'])",
+    "for(const key of ['player','propLine','pick','proj','l10Avg','prob','edge','def','matchup','simDef','l5','l10','h2h'])",
+    'v94.8 sort header keys',
+)
 # Playwright's actionability auto-scroll can stall on the very wide 365-row table
 # after a sort rebuild. Exercise the exact browser click handler directly and keep
 # the aria-sort/state assertions as the functional proof for every column.
-p='tests/nfl-player-prop-tool-v947.spec.js'
-s=read(p)
 old="""    await btn.click();
     const first=await th.getAttribute('aria-sort');
     expect(['ascending','descending']).toContain(first);
