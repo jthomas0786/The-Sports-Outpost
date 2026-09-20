@@ -13,7 +13,7 @@ async function open(page,viewport={width:1440,height:900}){
   await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
   await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
   await page.waitForFunction(()=>document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'),null,{timeout:15000});
-  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='94.9'&&document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='95.0'&&document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
   const visibility=await page.locator('#nflPlayerPropTool').evaluate(el=>{
     const chain=[];let n=el;
     while(n&&n!==document.documentElement){const cs=getComputedStyle(n),r=n.getBoundingClientRect();chain.push({tag:n.tagName,id:n.id,cls:n.className,hidden:n.hasAttribute('hidden'),display:cs.display,visibility:cs.visibility,opacity:cs.opacity,w:r.width,h:r.height});n=n.parentElement;}
@@ -116,7 +116,7 @@ test('Game and Prop filters keep valid rows instead of blanking the table',async
 
 test('style period filters and sorting stay inside the frozen four-file snapshot',async({page})=>{
   let toolRequests=0;
-  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.9-'))toolRequests++;}catch{}});
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.0-'))toolRequests++;}catch{}});
   await open(page);
   await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
   const baseline=toolRequests;
@@ -138,7 +138,7 @@ test('player name opens the actual modern NFL player modal and returns to the sa
   await expect(page.locator('#nflView .tso-nfl-player-card-v72')).toBeVisible({timeout:30000});
   expect(await page.locator('#nflView .ms-modal').evaluateAll(ms=>ms.filter(m=>m.getClientRects().length&&!m.querySelector('.tso-nfl-player-card-v72')).length)).toBe(0);
   await page.locator('#nflView .tso-nfl-player-card-v72 .modal-close').click();
-  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='94.9',{timeout:30000});
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='95.0',{timeout:30000});
   await expect(page.locator('#nflPlayerPropTool')).toBeVisible();
   const after=await page.evaluate(()=>({y:window.scrollY,x:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollLeft||0}));
   expect(Math.abs(after.x-before.x)).toBeLessThanOrEqual(3);
@@ -154,7 +154,7 @@ test('mobile table scrolls internally without widening the page',async({page})=>
 });
 
 
-test('v94.9 readability keeps all columns centered with larger Player and historical Matchup cells',async({page})=>{
+test('v95.0 readability keeps all columns centered with larger Player and historical Matchup cells',async({page})=>{
   await open(page);
   const row=page.locator('#nflPlayerPropTool tbody tr:visible').first();
   const layout=await row.evaluate(r=>({centers:[...r.children].every(td=>getComputedStyle(td).textAlign==='center'),playerWidth:r.children[0].getBoundingClientRect().width,star:r.querySelector('.nfl-ppt-watch-v947')?.getBoundingClientRect().width||0,avatar:r.querySelector('.nfl-ppt-avatar-v947')?.getBoundingClientRect().width||0,matchText:r.querySelector('.nfl-ppt-history-v949')?.textContent||'',matchTitle:r.querySelector('.nfl-ppt-history-v949')?.getAttribute('title')||''}));
@@ -194,7 +194,7 @@ test('scrolling is display-only: no Prop Tool refetch or table rebuild',async({p
   page.on('request',r=>{
     try{
       const u=new URL(r.url());
-      if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.9-'))toolRequests++;
+      if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.0-'))toolRequests++;
     }catch{}
   });
   await open(page,{width:1280,height:800});
@@ -216,7 +216,7 @@ test('scrolling is display-only: no Prop Tool refetch or table rebuild',async({p
 
 test('Over Under segmented switch covers both directions and same-side clear',async({page})=>{
   let toolRequests=0;
-  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.9-'))toolRequests++;}catch{}});
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.0-'))toolRequests++;}catch{}});
   await open(page);
   await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
   const baseline=toolRequests;
@@ -326,7 +326,7 @@ test('Over Under side selection survives every other Player Prop Tool filter',as
 });
 
 
-test('v94.9 larger text Historical actuals and column-by-column Quick Guide',async({page})=>{
+test('v95.0 larger text Historical actuals and column-by-column Quick Guide',async({page})=>{
   await open(page);
   await expect(page.locator('#nflPlayerPropTool thead tr:nth-child(2) th').filter({hasText:'MATCHUP'})).toHaveCount(1);
   await expect(page.locator('#nflPlayerPropTool thead tr:nth-child(2) th').filter({hasText:'HISTORICAL'})).toHaveCount(0);
@@ -380,4 +380,39 @@ test('v94.9 larger text Historical actuals and column-by-column Quick Guide',asy
   const defStyle=await defCell.evaluate(td=>({bg:getComputedStyle(td).backgroundColor,text:getComputedStyle(td.querySelector('.nfl-ppt-def-copy-v949 b')).color}));
   expect(defStyle.bg).not.toBe('rgba(0, 0, 0, 0)');
   expect(defStyle.text).not.toBe('rgb(243, 248, 252)');
+});
+
+
+test('v95.0 keeps the entire Player column frozen during horizontal scrolling',async({page})=>{
+  await open(page,{width:900,height:800});
+  const wrap=page.locator('#nflPlayerPropTool .nfl-ppt-table-wrap');
+  const playerHead=page.locator('#nflPlayerPropTool thead tr:nth-child(2) th[data-col="player"]');
+  const firstRow=page.locator('#nflPlayerPropTool tbody tr:visible').first();
+  const playerCell=firstRow.locator('td').first();
+  const propCell=firstRow.locator('td').nth(1);
+  const before=await page.evaluate(()=>{
+    const wrap=document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap');
+    const head=document.querySelector('#nflPlayerPropTool thead tr:nth-child(2) th[data-col="player"]');
+    const row=document.querySelector('#nflPlayerPropTool tbody tr:not([hidden])');
+    const player=row?.children?.[0],next=row?.children?.[1];
+    return {max:wrap?wrap.scrollWidth-wrap.clientWidth:0,headLeft:head?.getBoundingClientRect().left,playerLeft:player?.getBoundingClientRect().left,nextLeft:next?.getBoundingClientRect().left};
+  });
+  expect(before.max).toBeGreaterThan(100);
+  await wrap.evaluate(el=>{el.scrollLeft=Math.min(500,el.scrollWidth-el.clientWidth);});
+  await expect.poll(()=>wrap.evaluate(el=>el.scrollLeft)).toBeGreaterThan(100);
+  const after=await page.evaluate(()=>{
+    const head=document.querySelector('#nflPlayerPropTool thead tr:nth-child(2) th[data-col="player"]');
+    const row=document.querySelector('#nflPlayerPropTool tbody tr:not([hidden])');
+    const player=row?.children?.[0],next=row?.children?.[1];
+    return {headLeft:head?.getBoundingClientRect().left,playerLeft:player?.getBoundingClientRect().left,nextLeft:next?.getBoundingClientRect().left,headPos:head?getComputedStyle(head).position:'',playerPos:player?getComputedStyle(player).position:'',headZ:head?Number(getComputedStyle(head).zIndex):0,playerZ:player?Number(getComputedStyle(player).zIndex):0};
+  });
+  expect(after.headPos).toBe('sticky');
+  expect(after.playerPos).toBe('sticky');
+  expect(after.headZ).toBeGreaterThan(after.playerZ);
+  expect(Math.abs(after.headLeft-before.headLeft)).toBeLessThanOrEqual(2);
+  expect(Math.abs(after.playerLeft-before.playerLeft)).toBeLessThanOrEqual(2);
+  expect(after.nextLeft).toBeLessThan(before.nextLeft-100);
+  await expect(playerHead).toHaveClass(/nfl-ppt-player-sticky/);
+  await expect(playerCell).toHaveClass(/nfl-ppt-player-sticky/);
+  await expect(propCell).not.toHaveClass(/nfl-ppt-player-sticky/);
 });

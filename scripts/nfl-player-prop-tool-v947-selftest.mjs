@@ -80,7 +80,7 @@ assert.ok(tool.includes('<colgroup>'),'table must use an explicit colgroup');
 assert.ok(css.includes('stroke-width:2.2'),'coverage ring must stay thin');
 assert.ok(css.includes('border-bottom:1px solid #1f3b58'),'player rows/cells must retain visible borders');
 assert.ok(css.includes('scrollbar-width:none'),'horizontal table scrollbar must remain visually hidden');
-assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=94.9"),'preview must import v94.9');
+assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=95.0"),'preview must import v94.9');
 for(const retired of ['player-prop-tool-sim-v939','player-prop-tool-controls-v933','player-prop-tool-build-period-v940','player-prop-tool-reference-v941','player-prop-tool-snapshot-v928','player-prop-tool-static-guard-v929','player-prop-tool-ux-v930']) assert.ok(!preview.includes(retired),`retired writer still active in preview: ${retired}`);
 assert.ok(!router.includes('installNflBackgroundFreezeV930'),'global Player Prop background freeze must be removed');
 const basePreview=read('sports/nfl-preview.js');
@@ -96,5 +96,12 @@ assert.ok(halftimeUi.includes("document.getElementById('nflPlayerPropTool')||doc
 assert.ok(modelEdge.includes("root.classList.contains('nfl-ppt-active-v948')"),'model observer/refresh must pause on Player Prop Tool');
 assert.ok(commandCenterClient.includes("document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')"),'Command Center polling must pause on Player Prop Tool');
 
-assert.ok(router.includes("import('./nfl-preview-v893.js?v=94.9')"),'router must hard cache-bust NFL preview to v94.9');
+assert.ok(router.includes("import('./nfl-preview-v893.js?v=95.0')"),'router must hard cache-bust NFL preview to v94.9');
 console.log('✓ NFL Player Prop Tool v94.9 readability/history static regression passed');
+
+assert.ok(tool.includes("key==='player'?'nfl-ppt-player-sticky':''"),'PLAYER header must join the sticky first column');
+assert.ok(css.includes('/* v95.0 frozen Player column */'),'v95.0 frozen Player column CSS missing');
+assert.ok(css.includes('th.nfl-ppt-player-sticky'),'PLAYER header sticky selector missing');
+assert.ok(css.includes('td.nfl-ppt-player-sticky'),'Player body cell sticky selector missing');
+assert.ok(css.includes('position:sticky!important'),'Player column must be forced sticky');
+

@@ -1,4 +1,4 @@
-const VERSION='94.9';
+const VERSION='95.0';
 const TOOL_ID='nflPlayerPropTool';
 const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
@@ -362,7 +362,7 @@ function rowHtml(row){
   </tr>`;
 }
 function headerHtml(){
-  return `<thead><tr class="nfl-ppt-groups"><th colspan="3"></th><th colspan="4">PROJECTIONS + VALUE</th><th colspan="3">TSO INSIGHTS + DATA</th><th colspan="3">HIT RATES</th></tr><tr>${HEADERS.map(([key,label])=>`<th data-col="${key}" aria-sort="none"><button type="button" data-ppt-sort="${key}"><span>${label}</span><i>↕</i></button></th>`).join('')}</tr></thead>`;
+  return `<thead><tr class="nfl-ppt-groups"><th colspan="3"></th><th colspan="4">PROJECTIONS + VALUE</th><th colspan="3">TSO INSIGHTS + DATA</th><th colspan="3">HIT RATES</th></tr><tr>${HEADERS.map(([key,label])=>`<th class="${key==='player'?'nfl-ppt-player-sticky':''}" data-col="${key}" aria-sort="none"><button type="button" data-ppt-sort="${key}"><span>${label}</span><i>↕</i></button></th>`).join('')}</tr></thead>`;
 }
 function controlsHtml(){
   return `<div class="nfl-ppt-toolbar-v947">
