@@ -122,6 +122,10 @@ jobs:
           done
           cat /tmp/nfl-ppt-v948-cutover.log
           exit 1
+      - name: Smoke player modal handoff
+        run: |
+          set -o pipefail
+          npx playwright test tests/nfl-player-prop-tool-v947.spec.js --grep "player name opens the actual modern NFL player modal" --reporter=line --workers=1 --max-failures=1 2>&1 | tee /tmp/nfl-ppt-v948-modal-smoke.log
       - name: Reproduce video, readability, filters and smooth-scroll suite
         run: |
           set -o pipefail
@@ -132,6 +136,7 @@ jobs:
         with:
           name: nfl-player-prop-tool-v948-browser-qa
           path: |
+            /tmp/nfl-ppt-v948-modal-smoke.log
             /tmp/nfl-ppt-v948-playwright.log
             /tmp/nfl-ppt-v948-cutover.log
             test-results
