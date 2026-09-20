@@ -12,12 +12,14 @@ def replace_once(text, old, new, label):
 
 # The Player Prop Tool is a static snapshot surface. While it owns #nflView,
 # the base NFL renderer must not replace its DOM from a live/background tick.
+# The one exception is the tool's explicit native player-modal handoff, marked
+# by nfl-ppt-opening-modal immediately before the hidden native player is clicked.
 p='sports/nfl-preview.js'
 s=read(p)
 s=replace_once(
     s,
     "function render(){\n  const root=document.getElementById('nflView'); if(!root) return;",
-    "function render(){\n  const root=document.getElementById('nflView'); if(!root) return;\n  if(root.querySelector('#nflPlayerPropTool')||root.classList.contains('nfl-ppt-active-v948')) return;",
+    "function render(){\n  const root=document.getElementById('nflView'); if(!root) return;\n  if((root.querySelector('#nflPlayerPropTool')||root.classList.contains('nfl-ppt-active-v948'))&&!document.documentElement.classList.contains('nfl-ppt-opening-modal')) return;",
     'base NFL render ownership guard',
 )
 s=replace_once(
@@ -118,10 +120,23 @@ new="""    await expect(btn).toHaveCount(1);
     await btn.evaluate(el=>el.click());
     const second=await th.getAttribute('aria-sort');"""
 s=replace_once(s,old,new,'wide table sort browser interaction')
+s=replace_once(
+    s,
+    "  await page.locator('#nflPlayerPropTool th[data-col=\"prob\"] [data-ppt-sort]').click();",
+    "  await page.locator('#nflPlayerPropTool th[data-col=\"prob\"] [data-ppt-sort]').evaluate(el=>el.click());",
+    'prob sort direct browser interaction',
+)
+s=replace_once(
+    s,
+    "  await page.locator('#nflPlayerPropTool th[data-col=\"edge\"] [data-ppt-sort]').click();",
+    "  await page.locator('#nflPlayerPropTool th[data-col=\"edge\"] [data-ppt-sort]').evaluate(el=>el.click());",
+    'edge sort direct browser interaction',
+)
 write(p,s)
 
 # Permanent static regression: the surrounding NFL engines must respect the
-# Player Prop Tool ownership flag rather than polling/re-rendering through it.
+# Player Prop Tool ownership flag rather than polling/re-rendering through it,
+# while still allowing the explicit player-modal handoff.
 p='scripts/nfl-player-prop-tool-v947-selftest.mjs'
 s=read(p)
 anchor="assert.ok(!router.includes('installNflBackgroundFreezeV930'),'global Player Prop background freeze must be removed');"
@@ -131,6 +146,7 @@ const liveEngine=read('sports/nfl/live.js');
 const halftimeUi=read('sports/nfl/halftime-ui-v884.js');
 const modelEdge=read('sports/nfl/prop-model-edge-v8918.js');
 const commandCenterClient=read('sports/nfl/command-center-client.js');
+assert.ok(basePreview.includes("nfl-ppt-opening-modal"),'base NFL renderer must allow the explicit Player Prop modal handoff');
 assert.ok(basePreview.includes("root.querySelector('#nflPlayerPropTool')||root.classList.contains('nfl-ppt-active-v948')"),'base NFL renderer must not overwrite active Player Prop Tool');
 assert.ok(basePreview.includes("root?.querySelector('#nflPlayerPropTool')||root?.classList.contains('nfl-ppt-active-v948')"),'live callback must not rerender active Player Prop Tool');
 assert.ok(liveEngine.includes("document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')"),'NFL live polling must pause on Player Prop Tool');
