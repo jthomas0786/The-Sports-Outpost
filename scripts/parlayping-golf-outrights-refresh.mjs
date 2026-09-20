@@ -27,6 +27,20 @@ function keyPriority(key){
   return score;
 }
 function titleFromKey(key){return String(key||'').replace(/^golf_/,'').split('_').filter(Boolean).map(w=>w.charAt(0).toUpperCase()+w.slice(1)).join(' ');}
+function shapeSummary(payload){
+  const rows=arrayPayload(payload);const firstRow=rows[0]||{};
+  const books=Array.isArray(firstRow?.bookmakers)?firstRow.bookmakers:[];
+  const firstBook=books[0]||{};const markets=Array.isArray(firstBook?.markets)?firstBook.markets:[];const firstMarket=markets[0]||{};
+  const directMarkets=Array.isArray(firstRow?.markets)?firstRow.markets:[];
+  const directOutcomes=Array.isArray(firstRow?.outcomes)?firstRow.outcomes:[];
+  return {
+    rowCount:rows.length,rowKeys:Object.keys(firstRow).slice(0,30),bookCount:books.length,
+    firstBookKeys:Object.keys(firstBook).slice(0,20),firstBookKey:firstBook?.key||firstBook?.bookmaker||null,
+    firstMarketKeys:Object.keys(firstMarket).slice(0,20),firstMarketKey:firstMarket?.key||firstMarket?.market_key||firstMarket?.market||null,
+    firstMarketOutcomeCount:Array.isArray(firstMarket?.outcomes)?firstMarket.outcomes.length:0,
+    directMarketCount:directMarkets.length,directOutcomeCount:directOutcomes.length
+  };
+}
 
 async function fetchJson(url,{auth=true,attempts=3}={}){
   let lastError=null;
@@ -69,11 +83,7 @@ function normalizeOutrights(payload,sportKey,now){
         const snapshotTime=snapshotMs!==null?new Date(snapshotMs).toISOString():new Date(now).toISOString();
         diagnostics.push({sportKey,eventId,marketId,eventTitle,outcomes:priced.length,overround});
         for(const outcome of priced){
-          rows.push({
-            sport:'GOLF',sportKey,eventId,marketId,tournament:eventTitle,market:'tournamentWinner',selection:outcome.name,
-            book:'Pinnacle',bookKey:'pinnacle',price:outcome.price,impliedProbability:outcome.impliedProbability,
-            fairProbability:outcome.impliedProbability/overround,snapshotTime,settlementConnected:false
-          });
+          rows.push({sport:'GOLF',sportKey,eventId,marketId,tournament:eventTitle,market:'tournamentWinner',selection:outcome.name,book:'Pinnacle',bookKey:'pinnacle',price:outcome.price,impliedProbability:outcome.impliedProbability,fairProbability:outcome.impliedProbability/overround,snapshotTime,settlementConnected:false});
         }
       }
     }
@@ -95,27 +105,18 @@ async function main(){
       const params=new URLSearchParams({regions:'us',markets:'outrights',bookmakers:'pinnacle',oddsFormat:'american',dateFormat:'iso'});
       const response=await fetchJson(`${API}/sports/${encodeURIComponent(sportKey)}/odds?${params}`);
       reportedCredits+=response.credits;
+      const shape=shapeSummary(response.data);
       const normalized=normalizeOutrights(response.data,sportKey,now);
       allRows.push(...normalized.rows);
-      diagnostics.push({sportKey,acceptedRows:normalized.rows.length,markets:normalized.diagnostics,reportedCredits:response.credits,served:response.served,unservable:response.unservable});
+      diagnostics.push({sportKey,acceptedRows:normalized.rows.length,markets:normalized.diagnostics,shape,reportedCredits:response.credits,served:response.served,unservable:response.unservable});
     }catch(error){diagnostics.push({sportKey,acceptedRows:0,error:error?.message||String(error)});}
   }
   const rows=allRows.sort((a,b)=>a.sportKey.localeCompare(b.sportKey)||b.fairProbability-a.fairProbability||a.selection.localeCompare(b.selection));
-  const output={
-    schemaVersion:1,
-    meta:{
-      source:'parlayapi-pinnacle',sport:'GOLF',market:'tournamentWinner',providerMarket:'outrights',fetchedAt:new Date(now).toISOString(),settlementConnected:false,
-      catalogGolfKeys:golfKeys,selectedKeys,rows:rows.length,maxPaidSportKeysPerRun:MAX_PAID_KEYS,reportedCreditsUsed:reportedCredits,
-      probabilityPolicy:'Only complete multi-player Pinnacle outright fields with at least four priced selections are accepted. Each selection is de-vigged against the full quoted field.',
-      settlementPolicy:'Golf is sportsbook-probability only for launch. A disappearing quote, tournament progress, leaderboard position, withdrawal or result is never used to infer HIT/MISS.',
-      diagnostics
-    },
-    rows
-  };
+  const output={schemaVersion:1,meta:{source:'parlayapi-pinnacle',sport:'GOLF',market:'tournamentWinner',providerMarket:'outrights',fetchedAt:new Date(now).toISOString(),settlementConnected:false,catalogGolfKeys:golfKeys,selectedKeys,rows:rows.length,maxPaidSportKeysPerRun:MAX_PAID_KEYS,reportedCreditsUsed:reportedCredits,probabilityPolicy:'Only complete multi-player Pinnacle outright fields with at least four priced selections are accepted. Each selection is de-vigged against the full quoted field.',settlementPolicy:'Golf is sportsbook-probability only for launch. A disappearing quote, tournament progress, leaderboard position, withdrawal or result is never used to infer HIT/MISS.',diagnostics},rows};
   await fs.mkdir(path.dirname(OUT_FILE),{recursive:true});
   await fs.writeFile(OUT_FILE,JSON.stringify(output,null,2)+'\n');
   console.log(`GOLF outright feed: ${rows.length} accepted Pinnacle selections across ${selectedKeys.length} selected keys; reported credits=${reportedCredits}.`);
-  console.log(JSON.stringify({catalogGolfKeys:golfKeys,selectedKeys,diagnostics:diagnostics.map(d=>({sportKey:d.sportKey,acceptedRows:d.acceptedRows,reportedCredits:d.reportedCredits,error:d.error,served:d.served,unservable:d.unservable}))}));
+  console.log(JSON.stringify({catalogGolfKeys:golfKeys,selectedKeys,diagnostics:diagnostics.map(d=>({sportKey:d.sportKey,acceptedRows:d.acceptedRows,reportedCredits:d.reportedCredits,error:d.error,served:d.served,unservable:d.unservable,shape:d.shape}))}));
 }
 
 main().catch(error=>{console.error('::error::',error?.stack||error);process.exit(1);});
