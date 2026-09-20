@@ -1,0 +1,57 @@
+name: ParlayPing MMA Live Stats
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - mma-esports-live-stage
+    paths:
+      - 'scripts/parlayping-mma-live-refresh.mjs'
+      - '.github/workflows/parlayping-mma-live.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parlayping-mma-live
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build UFC live/final fight state
+        run: node scripts/parlayping-mma-live-refresh.mjs
+      - name: Validate snapshot
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const d=JSON.parse(fs.readFileSync('slates/mma-live.json','utf8'));
+          if(d.schemaVersion!==1||d.source!=='espn-public'||d.sport!=='MMA'||!d.fights||typeof d.fights!=='object')throw new Error('Invalid MMA live snapshot');
+          for(const f of Object.values(d.fights)){if(!Array.isArray(f.fighters)||f.fighters.length!==2)throw new Error('MMA fight must contain two fighters');if(f.final&&!f.fighters.some(x=>x.winner===true))throw new Error(`Final MMA fight missing winner: ${f.id}`);}
+          console.log('MMA fights:',Object.keys(d.fights).length,'live:',d.meta?.liveCount||0,'final:',d.meta?.finalCount||0);
+          NODE
+      - name: Commit snapshot when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'ParlayPing MMA Live Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slates/mma-live.json
+          if git diff --staged --quiet; then echo 'No MMA live changes.'; exit 0; fi
+          git commit -m 'Refresh ParlayPing MMA live stats'
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:mma-esports-live-stage; then exit 0; fi
+            git pull --rebase --autostash origin mma-esports-live-stage || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1
