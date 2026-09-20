@@ -1,4 +1,5 @@
 from pathlib import Path
+import copy
 import json
 import subprocess
 
@@ -68,9 +69,14 @@ def live_now(rec):
         return False
     return status in {'in','live','halftime','half'} or 'halftime' in detail
 
-live_ids={str(gid) for gid,rec in (live.get('games') or {}).items() if live_now(rec)}
+def has_full_board(rec):
+    board=(rec or {}).get('propStyles') or {}
+    return bool(board.get('ready') and board.get('candidates'))
+
+slate_ids={str(g.get('gameId') or g.get('id') or '') for g in slate.get('games') or []}
+live_ids={str(gid) for gid,rec in (live.get('games') or {}).items() if str(gid) in slate_ids and live_now(rec)}
 by_id={str((g.get('game') or {}).get('gameId') or g.get('gameId') or ''):g for g in sim.get('games') or []}
-missing={gid for gid in live_ids if gid in by_id and not ((by_id[gid].get('propStyles') or {}).get('ready') and (by_id[gid].get('propStyles') or {}).get('candidates'))}
+missing={gid for gid in live_ids if not has_full_board(by_id.get(gid))}
 restored={}
 
 if missing:
@@ -86,16 +92,18 @@ if missing:
         old_by={str((g.get('game') or {}).get('gameId') or g.get('gameId') or ''):g for g in old.get('games') or []}
         for gid in list(missing):
             prior=old_by.get(gid)
-            board=(prior or {}).get('propStyles') or {}
-            if not (board.get('ready') and board.get('candidates')):
+            if not has_full_board(prior):
                 continue
-            current=by_id[gid]
-            for key in ['propStyles','propStyleVersion','propPeriods','propPeriodVersion']:
-                if prior.get(key) is not None and current.get(key) is None:
-                    current[key]=prior[key]
-            # propStyles is the required live-reference payload; ensure it is copied
-            # even if a broken empty object survived the overwrite.
-            current['propStyles']=prior['propStyles']
+            current=by_id.get(gid)
+            if current is None:
+                current=copy.deepcopy(prior)
+                sim.setdefault('games',[]).append(current)
+                by_id[gid]=current
+            else:
+                for key in ['propStyles','propStyleVersion','propPeriods','propPeriodVersion']:
+                    if prior.get(key) is not None and (current.get(key) is None or key=='propStyles'):
+                        current[key]=copy.deepcopy(prior[key])
+            current['propStyles']=copy.deepcopy(prior['propStyles'])
             if prior.get('propStyleVersion') is not None:
                 current['propStyleVersion']=prior['propStyleVersion']
             restored[gid]=sha
@@ -105,8 +113,10 @@ if missing:
     raise SystemExit('Unable to restore frozen pregame prop cache for live game(s): '+', '.join(sorted(missing)))
 
 if restored:
+    sim['games']=sorted(sim.get('games') or [],key=lambda g:(str((g.get('game') or {}).get('startTimeUTC') or ''),str((g.get('game') or {}).get('gameId') or g.get('gameId') or '')))
+    sim['gameCount']=len(sim['games'])
     SIM.write_text(json.dumps(sim,indent=2)+'\n')
-    for gid,sha in restored.items():
+    for gid,sha in sorted(restored.items()):
         print(f'restored live Prop Tool cache for {gid} from {sha[:12]}')
 else:
     print('no already-live Prop Tool cache repair was needed')
