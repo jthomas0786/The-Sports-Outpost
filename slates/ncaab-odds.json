@@ -4,10 +4,10 @@
     "sample": false,
     "sport": "NCAAB",
     "sportKey": "basketball_ncaab",
-    "fetchedAt": "2026-09-20T15:40:07.759Z",
+    "fetchedAt": "2026-09-20T15:52:26.618Z",
     "queryWindow": {
-      "from": "2026-09-19T15:39:51.126Z",
-      "to": "2026-09-27T15:39:51.126Z"
+      "from": "2026-09-19T15:52:13.288Z",
+      "to": "2026-09-27T15:52:13.288Z"
     },
     "eventsFound": 3,
     "relevantEvents": 3,
@@ -33,13 +33,14 @@
     ],
     "rawRows": 0,
     "sportsbookRows": 0,
+    "rejectedNonPlayers": 0,
     "books": [],
     "rawBooks": [],
     "markets": [],
     "rawMarketKeys": [],
     "noCurrentProps": true,
     "probabilityPolicy": "Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied and are never labeled as a proprietary model.",
-    "note": "Current NCAAB player props from ParlayAPI. Empty rows are treated as unavailable data, never as zero probability."
+    "note": "Current NCAAB player props from ParlayAPI. Non-player selections are filtered. Empty rows are treated as unavailable data, never as zero probability."
   },
   "rows": []
 }
