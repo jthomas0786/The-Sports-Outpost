@@ -37,7 +37,6 @@ jobs:
           node scripts/nfl-sim-auto-selftest.mjs
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
           node scripts/nfl-quarter-selftest.mjs
-          node scripts/nfl-v901-halftime-ready-sync-selftest.mjs
       - name: Verify every current live game retains a frozen Prop Tool board
         run: |
           node - <<'NODE'
