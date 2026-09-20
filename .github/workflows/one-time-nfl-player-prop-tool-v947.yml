@@ -93,12 +93,17 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          for f in slates/nfl-sim.json slates/nfl-quarter.json slates/nfl-sim-state.json; do
-            [ -e "$f" ] && git add "$f"
-          done
+          git add slates/nfl-sim.json slates/nfl-quarter.json
           if ! git diff --cached --quiet; then
             git commit -m 'Publish verified NFL 50K prop boards'
-            git push origin HEAD:main
+            for attempt in 1 2 3; do
+              git pull --rebase --autostash origin main || { git rebase --abort || true; exit 1; }
+              if git push origin HEAD:main; then break; fi
+              [ "$attempt" = 3 ] && exit 1
+              sleep 2
+            done
+            git fetch origin main
+            git restore --source=origin/main -- slates/nfl-sim-state.json || true
           fi
       - name: Install Chromium
         run: |
@@ -121,11 +126,16 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git restore --source=origin/main -- slates/nfl-sim-state.json || true
           git add -A
           git diff --cached --quiet && { echo 'No v94.8 changes to commit'; exit 1; }
           git commit -m 'Polish NFL Player Prop Tool v94.8 readability'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3; do
+            git pull --rebase --autostash origin main || { git rebase --abort || true; exit 1; }
+            if git push origin HEAD:main; then break; fi
+            [ "$attempt" = 3 ] && exit 1
+            sleep 2
+          done
       - name: Print server log on failure
         if: failure()
         run: cat /tmp/nfl-ppt-v948-cutover.log || true
