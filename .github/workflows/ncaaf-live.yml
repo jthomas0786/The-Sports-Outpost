@@ -1,0 +1,48 @@
+name: NCAAF Live Stats
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/ncaaf-live-poller.mjs'
+      - '.github/workflows/ncaaf-live.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ncaaf-live-stats
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build NCAAF live/final player stats
+        run: node scripts/ncaaf-live-poller.mjs
+      - name: Validate snapshot
+        run: |
+          node -e "const d=require('./slates/ncaaf-live.json');if(d.schemaVersion!==1||d.source!=='espn-public'||!d.games||typeof d.games!=='object')process.exit(2);console.log('NCAAF live games cached:',Object.keys(d.games).length)"
+      - name: Commit snapshot when changed
+        run: |
+          git config user.name 'TSO NCAAF Live Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slates/ncaaf-live.json
+          git diff --staged --quiet && echo "no NCAAF live changes" && exit 0
+          git commit -m "Refresh NCAAF live stats"
+          for attempt in 1 2 3 4 5; do
+            if git push; then exit 0; fi
+            echo "push rejected — rebasing (attempt $attempt)"
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1
