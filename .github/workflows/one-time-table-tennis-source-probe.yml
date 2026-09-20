@@ -18,31 +18,37 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Probe official World Table Tennis result APIs
+      - name: Probe current WTT match-card details
         run: |
           node --input-type=module <<'NODE'
           const base='https://wtt-web-cms-api-prod.azurewebsites.net';
           const controllerFor=()=>{const c=new AbortController();setTimeout(()=>c.abort(),12000);return c;};
-          async function get(label,path){
-            try{
-              const c=controllerFor();
-              const r=await fetch(`${base}${path}`,{headers:{accept:'application/json','user-agent':'ParlayPing/0.9'},signal:c.signal});
-              const text=await r.text();
-              let data=null;try{data=text?JSON.parse(text):null}catch{data={raw:text.slice(0,1200)}}
-              console.log(`\n=== ${label} ===`);
-              console.log('status',r.status,'contentType',r.headers.get('content-type'));
-              if(Array.isArray(data)){
-                console.log('rows',data.length);
-                for(const row of data.slice(0,2)) console.log(JSON.stringify(row,null,2).slice(0,6000));
-              }else{
-                console.log('topKeys',data&&typeof data==='object'?Object.keys(data):[]);
-                console.log(JSON.stringify(data,null,2).slice(0,6000));
-              }
-            }catch(error){console.log(`\n=== ${label} ERROR ===`,error.name,error.message);}
+          async function fetchJson(path){
+            const c=controllerFor();
+            const r=await fetch(`${base}${path}`,{headers:{accept:'application/json','user-agent':'ParlayPing/0.9'},signal:c.signal});
+            const text=await r.text();
+            let data=null;try{data=text?JSON.parse(text):null}catch{data={raw:text.slice(0,1200)}}
+            return {status:r.status,data,contentType:r.headers.get('content-type')};
           }
-          await get('WTT live results','/api/cms/GetLiveResult');
-          await get('WTT past results','/api/cms/GetPastResults');
-          await get('WTT results','/api/cms/GetResults');
-          await get('WTT official results','/api/cms/GetOfficialResult');
-          await get('WTT live event','/api/cms/GetLiveEvent');
+          function log(label,value){console.log(`\n=== ${label} ===`);console.log(JSON.stringify(value,null,2).slice(0,10000));}
+          const live=await fetchJson('/api/cms/GetLiveResult');
+          console.log('live status',live.status,'rows',Array.isArray(live.data)?live.data.length:'n/a');
+          const rows=Array.isArray(live.data)?live.data:[];
+          for(const row of rows.slice(0,4)){
+            log('live pointer',row);
+            const eventId=encodeURIComponent(row.eventId||'');
+            const documentCode=encodeURIComponent(row.documentCode||'');
+            if(!eventId||!documentCode)continue;
+            for(const endpoint of [
+              `/api/cms/GetMatchCardDetails_Minimal/${eventId}/${documentCode}`,
+              `/api/cms/GetMatchCardDetails/${eventId}/${documentCode}`,
+              `/api/cms/GetMatchCardDetails_viaListener/${eventId}/${documentCode}`
+            ]){
+              try{
+                const result=await fetchJson(endpoint);
+                console.log('\nendpoint',endpoint,'status',result.status,'contentType',result.contentType);
+                console.log(JSON.stringify(result.data,null,2).slice(0,10000));
+              }catch(error){console.log('endpoint error',endpoint,error.name,error.message);}
+            }
+          }
           NODE
