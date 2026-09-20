@@ -40,8 +40,8 @@ if marker in css:
     raise SystemExit('sticky Player CSS already present unexpectedly')
 css += r'''
 
-/* v95.0 frozen Player column
-   Keep the complete first column — PLAYER header, watch star, avatar, name and
+/* v95.0 frozen Player column */
+/* Keep the complete first column — PLAYER header, watch star, avatar, name and
    metadata — anchored at the left edge while the remaining prop columns scroll. */
 #nflView #nflPlayerPropTool .nfl-ppt-table thead tr:nth-child(2) th.nfl-ppt-player-sticky,
 #nflView #nflPlayerPropTool .nfl-ppt-table tbody tr[data-nfl-ppt-row] > td.nfl-ppt-player-sticky,
