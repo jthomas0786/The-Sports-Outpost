@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: Probe ESPN soccer and tennis public feeds
+      - name: Probe ESPN soccer and tennis player-stat structures
         shell: bash
         run: |
           node --input-type=module <<'NODE'
@@ -24,40 +24,79 @@ jobs:
             if(!r.ok)throw new Error(`${r.status} ${r.statusText} ${url}`);
             return r.json();
           };
-          const summarize=(value,depth=0)=>{
-            if(value==null)return value;
-            if(Array.isArray(value))return {type:'array',length:value.length,sample:value.length&&depth<2?summarize(value[0],depth+1):null};
-            if(typeof value==='object'){
-              const out={keys:Object.keys(value).slice(0,40)};
-              if(depth<2)for(const key of Object.keys(value).slice(0,12))out[key]=summarize(value[key],depth+1);
-              return out;
-            }
-            return typeof value==='string'&&value.length>100?value.slice(0,100)+'…':value;
-          };
-          async function probeSport(label,base){
-            console.log(`\n===== ${label} SCOREBOARD =====`);
+          const safe=(value,max=14000)=>{const s=JSON.stringify(value,null,2);return typeof s==='string'?s.slice(0,max):String(value);};
+          const compactAthlete=a=>({
+            id:a?.id||a?.athlete?.id||null,
+            name:a?.displayName||a?.fullName||a?.athlete?.displayName||a?.athlete?.fullName||null,
+            starter:a?.starter??null,
+            position:a?.position?.abbreviation||a?.athlete?.position?.abbreviation||null,
+            stats:a?.stats||a?.statistics||null,
+            keys:Object.keys(a||{})
+          });
+          async function soccer(label,base){
+            console.log(`\n===== ${label} =====`);
             const board=await get(`${base}/scoreboard?limit=500`);
-            console.log(JSON.stringify({keys:Object.keys(board),events:board?.events?.length||0,leagues:(board?.leagues||[]).map(l=>({slug:l.slug,name:l.name}))},null,2));
             const event=board?.events?.find(e=>e?.competitions?.length)||board?.events?.[0];
-            if(!event){console.log(`${label}: no current event`);return;}
-            console.log(`${label} event`,event.id,event.name||event.shortName||'');
-            console.log('event shape',JSON.stringify(summarize(event),null,2).slice(0,12000));
-            try{
-              const summary=await get(`${base}/summary?event=${encodeURIComponent(event.id)}`);
-              console.log(`${label} summary keys`,Object.keys(summary));
-              console.log(`${label} boxscore shape`,JSON.stringify(summarize(summary?.boxscore),null,2).slice(0,16000));
-              console.log(`${label} details shape`,JSON.stringify(summarize(summary?.details),null,2).slice(0,8000));
-              console.log(`${label} plays shape`,JSON.stringify(summarize(summary?.plays),null,2).slice(0,8000));
-              console.log(`${label} header shape`,JSON.stringify(summarize(summary?.header),null,2).slice(0,8000));
-            }catch(e){console.log(`${label} summary failed:`,e.message);}
+            if(!event){console.log('no current event');return;}
+            const summary=await get(`${base}/summary?event=${encodeURIComponent(event.id)}`);
+            console.log('event',event.id,event.name,event?.status?.type?.state,event?.status?.type?.shortDetail);
+            console.log('summary keys',Object.keys(summary));
+            console.log('rosters count',summary?.rosters?.length||0);
+            for(const roster of summary?.rosters||[]){
+              console.log('roster team',roster?.team?.abbreviation||roster?.team?.displayName||null,'keys',Object.keys(roster||{}));
+              console.log('roster athletes sample',safe((roster?.roster||roster?.athletes||[]).slice(0,3).map(compactAthlete),12000));
+              console.log('roster raw sample',safe((roster?.roster||roster?.athletes||[]).slice(0,1),16000));
+            }
+            console.log('keyEvents sample',safe((summary?.keyEvents||[]).slice(0,5),10000));
+            console.log('commentary sample',safe((summary?.commentary||[]).slice(0,3),8000));
+            console.log('scoreboard details sample',safe((event?.competitions?.[0]?.details||[]).slice(0,8),10000));
           }
-          const cases=[
+          async function tennis(label,base){
+            console.log(`\n===== ${label} =====`);
+            const board=await get(`${base}/scoreboard?limit=500`);
+            console.log('tournaments',board?.events?.length||0);
+            const event=board?.events?.find(e=>(e?.groupings||[]).some(g=>(g?.competitions||[]).length))||board?.events?.[0];
+            if(!event){console.log('no current tournament');return;}
+            console.log('tournament',event.id,event.name,event?.status?.type?.state,event?.status?.type?.shortDetail);
+            console.log('groupings',safe((event.groupings||[]).map(g=>({grouping:g.grouping,competitionCount:g?.competitions?.length||0})),8000));
+            const comps=(event.groupings||[]).flatMap(g=>g?.competitions||[]);
+            const comp=comps.find(c=>c?.competitors?.length>=2)||comps[0];
+            if(!comp){console.log('no competition');return;}
+            console.log('competition keys',Object.keys(comp));
+            console.log('competition sample',safe({
+              id:comp.id,
+              uid:comp.uid,
+              date:comp.date,
+              status:comp.status,
+              type:comp.type,
+              round:comp.round,
+              notes:comp.notes,
+              format:comp.format,
+              competitors:(comp.competitors||[]).map(c=>({
+                id:c.id,
+                winner:c.winner,
+                score:c.score,
+                linescores:c.linescores,
+                athlete:c.athlete,
+                statistics:c.statistics,
+                keys:Object.keys(c||{})
+              }))
+            },22000));
+            for(const id of [comp.id,comp.uid].filter(Boolean)){
+              try{
+                const summary=await get(`${base}/summary?event=${encodeURIComponent(id)}`);
+                console.log('summary success for',id,'keys',Object.keys(summary));
+                console.log('summary sample',safe(summary,16000));
+                break;
+              }catch(e){console.log('summary failed for',id,e.message);}
+            }
+          }
+          for(const [label,base] of [
             ['SOCCER EPL','https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1'],
-            ['SOCCER MLS','https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1'],
+            ['SOCCER MLS','https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1']
+          ]){try{await soccer(label,base);}catch(e){console.error(label,e.message);}}
+          for(const [label,base] of [
             ['TENNIS ATP','https://site.api.espn.com/apis/site/v2/sports/tennis/atp'],
             ['TENNIS WTA','https://site.api.espn.com/apis/site/v2/sports/tennis/wta']
-          ];
-          for(const [label,base] of cases){
-            try{await probeSport(label,base);}catch(e){console.error(`${label} probe failed:`,e.message);}
-          }
+          ]){try{await tennis(label,base);}catch(e){console.error(label,e.message);}}
           NODE
