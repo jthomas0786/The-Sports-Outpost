@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/apply-nfl-player-prop-tool-v951-matchup-restore.py'
+      - 'scripts/fix-nfl-player-prop-tool-v951-stale-browser-qa.py'
       - '.github/workflows/one-time-nfl-player-prop-tool-v951-matchup-restore.yml'
   workflow_dispatch:
 
@@ -31,7 +32,9 @@ jobs:
           git checkout main
           git reset --hard origin/main
       - name: Apply v95.1 player-v-defense matchup restore
-        run: python3 scripts/apply-nfl-player-prop-tool-v951-matchup-restore.py
+        run: |
+          python3 scripts/apply-nfl-player-prop-tool-v951-matchup-restore.py
+          python3 scripts/fix-nfl-player-prop-tool-v951-stale-browser-qa.py
       - name: Run static regressions
         run: |
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
@@ -83,12 +86,13 @@ jobs:
       - name: Retire one-time helper and workflow
         run: |
           rm scripts/apply-nfl-player-prop-tool-v951-matchup-restore.py
+          rm scripts/fix-nfl-player-prop-tool-v951-stale-browser-qa.py
           rm .github/workflows/one-time-nfl-player-prop-tool-v951-matchup-restore.yml
       - name: Commit and push verified v95.1 production cutover
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add sports/nfl/player-prop-tool-v947.js sports/nfl/player-prop-tool-v947.css sports/nfl-preview-v893.js sports/router.js scripts/nfl-player-prop-tool-v947-selftest.mjs tests/nfl-player-prop-tool-v947.spec.js scripts/apply-nfl-player-prop-tool-v951-matchup-restore.py .github/workflows/one-time-nfl-player-prop-tool-v951-matchup-restore.yml
+          git add sports/nfl/player-prop-tool-v947.js sports/nfl/player-prop-tool-v947.css sports/nfl-preview-v893.js sports/router.js scripts/nfl-player-prop-tool-v947-selftest.mjs tests/nfl-player-prop-tool-v947.spec.js scripts/apply-nfl-player-prop-tool-v951-matchup-restore.py scripts/fix-nfl-player-prop-tool-v951-stale-browser-qa.py .github/workflows/one-time-nfl-player-prop-tool-v951-matchup-restore.yml
           git commit -m 'Restore NFL Prop Tool player-v-defense matchup'
           git fetch origin main
           git rebase origin/main
