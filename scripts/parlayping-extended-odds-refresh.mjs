@@ -28,7 +28,9 @@ const GROUPS={
   },
   MMA:{file:'mma-odds.json',sportKeys:['mma_mixed_martial_arts'],markets:{player_moneyline:'fightWinner'}},
   ESPORTS:{
-    file:'esports-odds.json',sportKeys:['esports'],
+    file:'esports-odds.json',
+    sportKeys:['esports_cs2','esports_valorant','esports_lol'],
+    discoverBeforeProps:true,
     markets:{
       player_kills_on_maps_1_2:'killsMaps12',player_maps_1_2_kills:'killsMaps12',player_kills_on_maps_1_2_3:'killsMaps123',
       player_maps_1_3_kills:'killsMaps13',player_map_1_kills:'map1Kills',player_map_3_kills:'map3Kills',player_map_4_kills:'map4Kills',player_map_5_kills:'map5Kills',
@@ -49,6 +51,10 @@ const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const bookKey=r=>String(r?.bookmaker||r?.bookmaker_key||r?.source||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const bookTitle=r=>String(r?.bookmaker_title||r?.source_title||r?.bookmaker||r?.source||'Sportsbook').trim();
 function arrayPayload(payload){return Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:[];}
+function marketList(payload){
+  const values=Array.isArray(payload)?payload:Array.isArray(payload?.markets)?payload.markets:Array.isArray(payload?.data)?payload.data:[];
+  return [...new Set(values.map(v=>typeof v==='string'?v:(v?.market_key||v?.key||v?.market||v?.name)).filter(Boolean).map(String))];
+}
 async function fetchJson(url,{attempts=4}={}){
   let lastError=null;
   for(let attempt=1;attempt<=attempts;attempt++){
@@ -68,6 +74,12 @@ async function fetchJson(url,{attempts=4}={}){
     await sleep(delay);
   }
   throw lastError||new Error('ParlayAPI request failed.');
+}
+async function discoverRelevantMarkets(sportKey,requested){
+  const payload=await fetchJson(`${API}/sports/${encodeURIComponent(sportKey)}/props/markets`,{attempts:2});
+  const available=marketList(payload);
+  const availableSet=new Set(available);
+  return {available,relevant:requested.filter(key=>availableSet.has(key))};
 }
 function looksLikePlayer(value,groupKey){
   const s=String(value||'').trim();
@@ -102,17 +114,35 @@ async function refreshGroup(groupKey,cfg){
   const marketKeys=Object.keys(cfg.markets);const rows=[];const books=new Set();const activeMarkets=new Set();const rawMarketKeys=new Set();
   const bySportKey=[];
   for(const sportKey of cfg.sportKeys){
-    const params=new URLSearchParams({markets:marketKeys.join(','),bookmakers:BOOKMAKERS,limit:'10000',maxAgeSec:'3600'});
+    let queryMarkets=marketKeys;
+    let discoveredMarkets=null;
+    if(cfg.discoverBeforeProps){
+      try{
+        const discovered=await discoverRelevantMarkets(sportKey,marketKeys);
+        discoveredMarkets=discovered.available;
+        queryMarkets=discovered.relevant;
+        if(!queryMarkets.length){
+          console.log(`${groupKey} ${sportKey}: no relevant live prop markets; skipping paid props call.`);
+          bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,discoveredMarkets});
+          continue;
+        }
+      }catch(error){
+        console.error(`::warning::${groupKey} ${sportKey} market discovery failed; skipping paid props call: ${error?.message||error}`);
+        bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,error:String(error?.message||error)});
+        continue;
+      }
+    }
+    const params=new URLSearchParams({markets:queryMarkets.join(','),bookmakers:BOOKMAKERS,limit:'10000',maxAgeSec:'3600'});
     let raw=[];
     try{raw=arrayPayload(await fetchJson(`${API}/sports/${sportKey}/props?${params}`));}
-    catch(error){console.error(`::warning::${groupKey} ${sportKey} props failed after retries: ${error?.message||error}`);bySportKey.push({sportKey,rawRows:0,acceptedRows:0,error:String(error?.message||error)});continue;}
+    catch(error){console.error(`::warning::${groupKey} ${sportKey} props failed after retries: ${error?.message||error}`);bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:true,discoveredMarkets,error:String(error?.message||error)});continue;}
     let accepted=0;
     for(const r of raw){
       rawMarketKeys.add(String(r?.market_key||r?.market||''));
       const row=normalizeRow(groupKey,sportKey,cfg.markets,r);if(!row)continue;
       rows.push(row);accepted++;books.add(row.book);activeMarkets.add(row.market);
     }
-    bySportKey.push({sportKey,rawRows:raw.length,acceptedRows:accepted});
+    bySportKey.push({sportKey,rawRows:raw.length,acceptedRows:accepted,paidPropsCall:true,discoveredMarkets});
   }
   rows.sort((a,b)=>(a.commenceTime||'').localeCompare(b.commenceTime||'')||a.player.localeCompare(b.player)||a.market.localeCompare(b.market)||(a.line??0)-(b.line??0)||a.book.localeCompare(b.book));
   const output={meta:{
