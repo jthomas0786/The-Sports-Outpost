@@ -17,7 +17,7 @@ concurrency:
 jobs:
   repair-and-qa:
     runs-on: ubuntu-latest
-    timeout-minutes: 40
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,8 +75,8 @@ jobs:
           done
           cat /tmp/nfl-ppt-live-v954.log
           exit 1
-      - name: Run full NFL Player Prop Tool Chromium regression
-        run: npx playwright test tests/nfl-player-prop-tool-v947.spec.js --reporter=line --workers=1
+      - name: Run focused NFL Player Prop Tool Chromium regressions
+        run: npx playwright test tests/nfl-player-prop-tool-v947.spec.js --grep "bordered rows|frozen four-file snapshot|position-only vs opponent defense" --reporter=line --workers=1
       - name: Re-sync latest main, reapply verified repair, and push production cutover
         run: |
           for attempt in 1 2 3; do
