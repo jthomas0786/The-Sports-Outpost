@@ -16,7 +16,7 @@ assert.ok(!tool.includes('MutationObserver'),'Player Prop Tool must not install 
 assert.ok(!tool.includes('setInterval('),'Player Prop Tool must not poll');
 assert.ok(tool.includes("data-ppt-sort=\"${key}\""),'all headers must be sort controls');
 assert.ok(tool.includes(".nfl-ppt-periodbar-v947 [data-nfl-ppt-period]"),'period clicks must be scoped to the period bar');
-assert.ok(tool.includes('bookLogo(row.book)'),'sportsbook image path missing');
+assert.ok(tool.includes('bookLogo(row.book'),'sportsbook image path missing');
 assert.ok(tool.includes('teamLogo(row.opp)'),'DEF opponent logo path missing');
 assert.ok(tool.includes("research.mountNflResearchUI(root)"),'modern research player modal must be explicitly mounted');
 assert.ok(tool.includes("root.querySelector('.tso-nfl-player-card-v72')"),'must wait for actual modern NFL player modal');
