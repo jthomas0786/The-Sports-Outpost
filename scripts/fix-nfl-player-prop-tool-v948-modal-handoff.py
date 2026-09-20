@@ -63,6 +63,21 @@ new_restore="""    const modal=root.querySelector('.ms-modal,.tso-nfl-player-car
 s=replace_once(s,old_restore,new_restore,'direct player modal restore')
 write(p,s)
 
+# The first player column is sticky and already visible. Playwright's normal
+# locator.click() performs an artificial horizontal scroll before dispatching
+# the click, which changes the table position before production code can capture
+# it. Dispatch the native click on the already-visible sticky control instead;
+# the modal/close/restore behavior remains fully browser-exercised.
+p='tests/nfl-player-prop-tool-v947.spec.js'
+test=read(p)
+test=replace_once(
+    test,
+    "  await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player]').first().click();",
+    "  await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player]').first().evaluate(el=>el.click());",
+    'sticky player modal click QA',
+)
+write(p,test)
+
 p='scripts/nfl-player-prop-tool-v947-selftest.mjs'
 t=read(p)
 anchor="assert.ok(tool.includes(\"root.querySelector('.tso-nfl-player-card-v72')\"),'must wait for actual modern NFL player modal');"
@@ -74,6 +89,8 @@ assert.ok(tool.includes("${esc(row.team)} · ${esc(row.position||'')}"),'direct 
 assert.ok(tool.includes("const saved=modalReturn;"),'direct player modal close must synchronously capture the saved table position');
 assert.ok(tool.includes("if(saved?.directModal)"),'direct player modal close must synchronously restore scroll before the click returns');
 assert.ok(tool.includes("if(saved.directModal)"),'direct modal fallback must restore scroll without rebuilding the Prop Tool snapshot');
+const browserQa=read('tests/nfl-player-prop-tool-v947.spec.js');
+assert.ok(browserQa.includes("first().evaluate(el=>el.click())"),'modal QA must not let Playwright auto-scroll the sticky player column before click dispatch');
 """
 if add.strip() not in t:
     if anchor not in t:
