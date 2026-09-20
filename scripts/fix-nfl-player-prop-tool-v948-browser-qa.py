@@ -1,8 +1,7 @@
 from pathlib import Path
 
-# The Player Prop Tool is NFL-only. Make its own open path guarantee that the NFL
-# view is visible before mounting, so a collapsed sidebar/navigation state cannot
-# leave a fully-loaded tool hidden behind the router container.
+# The Player Prop Tool is NFL-only. Its own open path owns an explicit active
+# class so stale route/sidebar CSS cannot leave the fully-loaded tool invisible.
 toolp=Path('sports/nfl/player-prop-tool-v947.js')
 tool=toolp.read_text()
 old_open="""async function openTool(){
@@ -15,6 +14,21 @@ new_open="""async function openTool(){
   if(active&&document.getElementById(TOOL_ID))return;
   active=true;
   const nflRoot=document.getElementById('nflView');
+  if(String(location.hash||'').toLowerCase().startsWith('#nfl')){
+    nflRoot?.removeAttribute('hidden');
+    nflRoot?.classList.add('nfl-ppt-active-v948');
+  }
+  try{selectBaseTab?.('players');}catch{}
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  if(String(location.hash||'').toLowerCase().startsWith('#nfl')){
+    nflRoot?.removeAttribute('hidden');
+    nflRoot?.classList.add('nfl-ppt-active-v948');
+  }
+  if(!mountShell())return;"""
+old_open2="""async function openTool(){
+  if(active&&document.getElementById(TOOL_ID))return;
+  active=true;
+  const nflRoot=document.getElementById('nflView');
   if(String(location.hash||'').toLowerCase().startsWith('#nfl'))nflRoot?.removeAttribute('hidden');
   try{selectBaseTab?.('players');}catch{}
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
@@ -22,9 +36,25 @@ new_open="""async function openTool(){
   if(!mountShell())return;"""
 if old_open in tool:
     tool=tool.replace(old_open,new_open,1)
+elif old_open2 in tool:
+    tool=tool.replace(old_open2,new_open,1)
 elif new_open not in tool:
     raise SystemExit('Player Prop Tool open visibility marker missing')
+
+old_deactivate="function deactivate(){active=false;modalReturn=null;if(restoreRaf)cancelAnimationFrame(restoreRaf);restoreRaf=0;document.documentElement.classList.remove('nfl-ppt-opening-modal');document.getElementById(GUIDE_ID)?.remove();restoreBase();}"
+new_deactivate="function deactivate(){active=false;modalReturn=null;if(restoreRaf)cancelAnimationFrame(restoreRaf);restoreRaf=0;document.documentElement.classList.remove('nfl-ppt-opening-modal');document.getElementById('nflView')?.classList.remove('nfl-ppt-active-v948');document.getElementById(GUIDE_ID)?.remove();restoreBase();}"
+if old_deactivate in tool:
+    tool=tool.replace(old_deactivate,new_deactivate,1)
+elif new_deactivate not in tool:
+    raise SystemExit('Player Prop Tool deactivate visibility marker missing')
 toolp.write_text(tool)
+
+cssp=Path('sports/nfl/player-prop-tool-v947.css')
+css=cssp.read_text()
+visibility_css='''\n/* v94.8: while the dedicated Prop Tool owns NFL view, stale route/sidebar CSS may not hide it. */\n#nflView.nfl-ppt-active-v948{display:block!important;visibility:visible!important;opacity:1!important}\n#nflView.nfl-ppt-active-v948>#nflPlayerPropTool{display:block!important;visibility:visible!important;opacity:1!important;min-height:1px}\n'''
+if '#nflView.nfl-ppt-active-v948{' not in css:
+    css+=visibility_css
+cssp.write_text(css)
 
 p=Path('tests/nfl-player-prop-tool-v947.spec.js')
 s=p.read_text()
@@ -33,15 +63,22 @@ old="""  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'visible',tim
   await page.locator('#nflPlayerPropToolBtn').click();"""
 new="""  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
   await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
-  await page.waitForFunction(()=>!document.getElementById('nflView')?.hasAttribute('hidden'),null,{timeout:15000});"""
+  await page.waitForFunction(()=>document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'),null,{timeout:15000});"""
 old2="""  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
-  await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());"""
+  await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
+  await page.waitForFunction(()=>!document.getElementById('nflView')?.hasAttribute('hidden'),null,{timeout:15000});"""
 if old in s:
     s=s.replace(old,new,1)
 elif old2 in s:
     s=s.replace(old2,new,1)
 elif new not in s:
     raise SystemExit('Prop Tool open helper marker missing')
+
+# Diagnostic remains useful if visibility ever regresses again.
+needle="  await expect(page.locator('#nflPlayerPropTool')).toBeVisible();"
+diag="""  const visibility=await page.locator('#nflPlayerPropTool').evaluate(el=>{\n    const chain=[];let n=el;\n    while(n&&n!==document.documentElement){const cs=getComputedStyle(n),r=n.getBoundingClientRect();chain.push({tag:n.tagName,id:n.id,cls:n.className,hidden:n.hasAttribute('hidden'),display:cs.display,visibility:cs.visibility,opacity:cs.opacity,w:r.width,h:r.height});n=n.parentElement;}\n    return chain;\n  });\n  console.log('PROP_TOOL_VISIBILITY '+JSON.stringify(visibility));\n  await expect(page.locator('#nflPlayerPropTool')).toBeVisible();"""
+if needle in s and 'PROP_TOOL_VISIBILITY' not in s:
+    s=s.replace(needle,diag,1)
 
 perf="""
 
@@ -76,7 +113,7 @@ p.write_text(s)
 selftest=Path('scripts/nfl-player-prop-tool-v947-selftest.mjs')
 t=selftest.read_text()
 anchor="assert.ok(!tool.includes('setInterval('),'Player Prop Tool must not poll');"
-add="\nassert.ok(!tool.includes(\"addEventListener('scroll'\"),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(!tool.includes('addEventListener(\"scroll\"'),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(tool.includes(\"nflRoot?.removeAttribute('hidden')\"),'Player Prop Tool open must make the active NFL view visible');"
+add="\nassert.ok(!tool.includes(\"addEventListener('scroll'\"),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(!tool.includes('addEventListener(\"scroll\"'),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(tool.includes(\"classList.add('nfl-ppt-active-v948')\"),'Player Prop Tool open must claim visible NFL view');\nassert.ok(tool.includes(\"classList.remove('nfl-ppt-active-v948')\"),'Player Prop Tool close must release visible NFL view');"
 if add.strip() not in t:
     if anchor not in t: raise SystemExit('static performance QA anchor missing')
     t=t.replace(anchor,anchor+add,1)
