@@ -55,6 +55,17 @@ function marketList(payload){
   const values=Array.isArray(payload)?payload:Array.isArray(payload?.markets)?payload.markets:Array.isArray(payload?.data)?payload.data:[];
   return [...new Set(values.map(v=>typeof v==='string'?v:(v?.market_key||v?.key||v?.market||v?.name)).filter(Boolean).map(String))];
 }
+function coverageSources(payload){
+  return (Array.isArray(payload?.sources)?payload.sources:[]).map(source=>({
+    bookmaker:bookKey(source),
+    title:String(source?.bookmaker_title||source?.bookmaker||'').trim()||null,
+    freshRows:Number(source?.fresh_rows||0),
+    apiVisibleRows:Number(source?.api_visible_rows||0),
+    marketCount:Number(source?.market_count||0),
+    latestUpdate:iso(source?.latest_update),
+    status:source?.status||null
+  }));
+}
 async function fetchJson(url,{attempts=4}={}){
   let lastError=null;
   for(let attempt=1;attempt<=attempts;attempt++){
@@ -80,6 +91,12 @@ async function discoverRelevantMarkets(sportKey,requested){
   const available=marketList(payload);
   const availableSet=new Set(available);
   return {available,relevant:requested.filter(key=>availableSet.has(key))};
+}
+async function discoverSportsbookCoverage(sportKey){
+  const payload=await fetchJson(`${API}/sports/${encodeURIComponent(sportKey)}/props/coverage`,{attempts:2});
+  const sources=coverageSources(payload);
+  const allowed=sources.filter(source=>SPORTSBOOK_KEYS.has(source.bookmaker)&&source.apiVisibleRows>0);
+  return {sources,allowed};
 }
 function looksLikePlayer(value,groupKey){
   const s=String(value||'').trim();
@@ -116,6 +133,8 @@ async function refreshGroup(groupKey,cfg){
   for(const sportKey of cfg.sportKeys){
     let queryMarkets=marketKeys;
     let discoveredMarkets=null;
+    let coverage=null;
+    let queryBookmakers=BOOKMAKERS;
     if(cfg.discoverBeforeProps){
       try{
         const discovered=await discoverRelevantMarkets(sportKey,marketKeys);
@@ -123,26 +142,34 @@ async function refreshGroup(groupKey,cfg){
         queryMarkets=discovered.relevant;
         if(!queryMarkets.length){
           console.log(`${groupKey} ${sportKey}: no relevant live prop markets; skipping paid props call.`);
-          bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,discoveredMarkets});
+          bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,skipReason:'no-relevant-markets',discoveredMarkets});
           continue;
         }
+        const coverageResult=await discoverSportsbookCoverage(sportKey);
+        coverage=coverageResult.sources;
+        if(!coverageResult.allowed.length){
+          console.log(`${groupKey} ${sportKey}: no allowed sportsbook prop rows in free coverage; skipping paid props call.`);
+          bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,skipReason:'no-sportsbook-coverage',discoveredMarkets,coverage});
+          continue;
+        }
+        queryBookmakers=coverageResult.allowed.map(x=>x.bookmaker).join(',');
       }catch(error){
-        console.error(`::warning::${groupKey} ${sportKey} market discovery failed; skipping paid props call: ${error?.message||error}`);
-        bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,error:String(error?.message||error)});
+        console.error(`::warning::${groupKey} ${sportKey} free discovery failed; skipping paid props call: ${error?.message||error}`);
+        bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:false,skipReason:'discovery-error',error:String(error?.message||error),discoveredMarkets,coverage});
         continue;
       }
     }
-    const params=new URLSearchParams({markets:queryMarkets.join(','),bookmakers:BOOKMAKERS,limit:'10000',maxAgeSec:'3600'});
+    const params=new URLSearchParams({markets:queryMarkets.join(','),bookmakers:queryBookmakers,limit:'10000',maxAgeSec:'3600'});
     let raw=[];
     try{raw=arrayPayload(await fetchJson(`${API}/sports/${sportKey}/props?${params}`));}
-    catch(error){console.error(`::warning::${groupKey} ${sportKey} props failed after retries: ${error?.message||error}`);bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:true,discoveredMarkets,error:String(error?.message||error)});continue;}
+    catch(error){console.error(`::warning::${groupKey} ${sportKey} props failed after retries: ${error?.message||error}`);bySportKey.push({sportKey,rawRows:0,acceptedRows:0,paidPropsCall:true,discoveredMarkets,coverage,error:String(error?.message||error)});continue;}
     let accepted=0;
     for(const r of raw){
       rawMarketKeys.add(String(r?.market_key||r?.market||''));
       const row=normalizeRow(groupKey,sportKey,cfg.markets,r);if(!row)continue;
       rows.push(row);accepted++;books.add(row.book);activeMarkets.add(row.market);
     }
-    bySportKey.push({sportKey,rawRows:raw.length,acceptedRows:accepted,paidPropsCall:true,discoveredMarkets});
+    bySportKey.push({sportKey,rawRows:raw.length,acceptedRows:accepted,paidPropsCall:true,discoveredMarkets,coverage});
   }
   rows.sort((a,b)=>(a.commenceTime||'').localeCompare(b.commenceTime||'')||a.player.localeCompare(b.player)||a.market.localeCompare(b.market)||(a.line??0)-(b.line??0)||a.book.localeCompare(b.book));
   const output={meta:{
