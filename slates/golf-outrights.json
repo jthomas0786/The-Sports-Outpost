@@ -5,7 +5,7 @@
     "sport": "GOLF",
     "market": "tournamentWinner",
     "providerMarket": "outrights",
-    "fetchedAt": "2026-09-20T19:48:02.466Z",
+    "fetchedAt": "2026-09-20T20:05:04.429Z",
     "settlementConnected": false,
     "catalogGolfKeys": [
       "golf_dp_world_bmw_pga_championship_tournament",
@@ -13,57 +13,68 @@
       "golf_pga_championship",
       "golf_other"
     ],
-    "selectedKeys": [
-      "golf_dp_world_bmw_pga_championship_tournament",
-      "golf_pga_biltmore_championship_asheville_tournament"
-    ],
-    "rows": 0,
-    "maxPaidSportKeysPerRun": 2,
-    "reportedCreditsUsed": 2,
-    "probabilityPolicy": "Only complete multi-player Pinnacle outright fields with at least four priced selections are accepted. Each selection is de-vigged against the full quoted field.",
-    "settlementPolicy": "Golf is sportsbook-probability only for launch. A disappearing quote, tournament progress, leaderboard position, withdrawal or result is never used to infer HIT/MISS.",
-    "diagnostics": [
+    "coverage": [
       {
         "sportKey": "golf_dp_world_bmw_pga_championship_tournament",
-        "acceptedRows": 0,
-        "markets": [],
-        "shape": {
-          "rowCount": 0,
-          "rowKeys": [],
-          "bookCount": 0,
-          "firstBookKeys": [],
-          "firstBookKey": null,
-          "firstMarketKeys": [],
-          "firstMarketKey": null,
-          "firstMarketOutcomeCount": 0,
-          "directMarketCount": 0,
-          "directOutcomeCount": 0
-        },
-        "reportedCredits": 1,
-        "served": "outrights",
-        "unservable": ""
+        "pregame": 0,
+        "inPlay": 0,
+        "covered": 0,
+        "serves": true,
+        "bookmakers": [
+          "pinnacle"
+        ],
+        "markets": [
+          "outrights"
+        ]
       },
       {
         "sportKey": "golf_pga_biltmore_championship_asheville_tournament",
-        "acceptedRows": 0,
-        "markets": [],
-        "shape": {
-          "rowCount": 0,
-          "rowKeys": [],
-          "bookCount": 0,
-          "firstBookKeys": [],
-          "firstBookKey": null,
-          "firstMarketKeys": [],
-          "firstMarketKey": null,
-          "firstMarketOutcomeCount": 0,
-          "directMarketCount": 0,
-          "directOutcomeCount": 0
-        },
-        "reportedCredits": 1,
-        "served": "outrights",
-        "unservable": ""
+        "pregame": 0,
+        "inPlay": 0,
+        "covered": 0,
+        "serves": true,
+        "bookmakers": [
+          "pinnacle"
+        ],
+        "markets": [
+          "outrights"
+        ]
+      },
+      {
+        "sportKey": "golf_pga_championship",
+        "pregame": 0,
+        "inPlay": 0,
+        "covered": 0,
+        "serves": true,
+        "bookmakers": [
+          "pinnacle"
+        ],
+        "markets": [
+          "outrights"
+        ]
+      },
+      {
+        "sportKey": "golf_other",
+        "pregame": 0,
+        "inPlay": 0,
+        "covered": 0,
+        "serves": true,
+        "bookmakers": [
+          "pinnacle"
+        ],
+        "markets": [
+          "outrights"
+        ]
       }
-    ]
+    ],
+    "selectedKeys": [],
+    "rows": 0,
+    "maxPaidSportKeysPerRun": 2,
+    "reportedCreditsUsed": 0,
+    "coveragePolicy": "Every current Golf tournament key is checked with the free ParlayAPI /odds/coverage endpoint. Paid /odds is called only for keys reporting current pregame Pinnacle outright coverage.",
+    "probabilityPolicy": "Only complete multi-player Pinnacle outright fields with at least four priced selections are accepted. Each selection is de-vigged against the full quoted field.",
+    "settlementPolicy": "Golf is sportsbook-probability only for launch. A disappearing quote, tournament progress, leaderboard position, withdrawal or result is never used to infer HIT/MISS.",
+    "diagnostics": []
   },
   "rows": []
 }
