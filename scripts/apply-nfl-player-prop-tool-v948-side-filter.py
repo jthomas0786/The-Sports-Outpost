@@ -82,7 +82,7 @@ test('Over Under segmented switch covers both directions and same-side clear',as
   const baseline=toolRequests;
   const over=page.locator('[data-nfl-ppt-side="over"]'),under=page.locator('[data-nfl-ppt-side="under"]');
   const sideState=()=>page.evaluate(()=>{
-    const rows=[...document.querySelectorAll('#nflPlayerPropTool tbody tr:visible')];
+    const rows=[...document.querySelectorAll('#nflPlayerPropTool tbody tr')];
     const visible=rows.map(r=>r.querySelector('.nfl-ppt-pick-v947')?.classList.contains('under')?'under':'over');
     const source=(window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]).map(r=>r.side);
     return {
@@ -142,16 +142,18 @@ test('Over Under side selection survives every other Player Prop Tool filter',as
   const prop=page.locator('#nflPptMarket');
   const pv=await prop.locator('option').nth(1).getAttribute('value');if(pv){await prop.selectOption(pv);await assertOver();}
 
-  const activeRowId=await page.locator('#nflPlayerPropTool tbody tr:visible').first().getAttribute('data-nfl-ppt-row').catch(()=>null);
-  if(activeRowId){
+  if(await page.locator('#nflPlayerPropTool tbody tr:visible').count()){
+    const activeRowId=await page.locator('#nflPlayerPropTool tbody tr:visible').first().getAttribute('data-nfl-ppt-row');
     const activePos=await page.evaluate(id=>(window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]).find(r=>r.id===id)?.position||'',activeRowId);
     const alternate=['QB','RB','WR','TE'].find(p=>p!==activePos);
     if(alternate){await page.locator(`[data-nfl-ppt-pos="${alternate}"]`).click();await assertOver();}
   }
 
   await page.locator('#nflPptFilters').click();
-  const playerName=await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player] b').first().textContent().catch(()=>null);
-  if(playerName){await page.locator('#nflPptSearch').fill(playerName.replace('↗','').trim().split(/\s+/)[0]);await assertOver();await page.locator('#nflPptSearch').fill('');}
+  if(await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player] b').count()){
+    const playerName=await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player] b').first().textContent();
+    if(playerName){await page.locator('#nflPptSearch').fill(playerName.replace('↗','').trim().split(/\s+/)[0]);await assertOver();await page.locator('#nflPptSearch').fill('');}
+  }
   const team=page.locator('#nflPptTeam');
   const tv=await team.locator('option').nth(1).getAttribute('value');if(tv){await team.selectOption(tv);await assertOver();await team.selectOption('ALL');}
   await page.locator('#nflPptMin').selectOption('0.50');await assertOver();
