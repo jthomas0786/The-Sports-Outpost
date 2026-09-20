@@ -5,6 +5,7 @@ on:
     paths:
       - 'scripts/apply-nfl-player-prop-tool-v949-readability-history.py'
       - 'scripts/apply-nfl-player-prop-tool-v949-historical-defense.py'
+      - 'scripts/apply-nfl-player-prop-tool-v949-matchup-format.py'
       - 'scripts/fix-nfl-player-prop-tool-v949-selftest.py'
       - 'scripts/fix-nfl-player-prop-tool-v949-browser-version.py'
       - '.github/workflows/one-time-nfl-player-prop-tool-v949-readability-history.yml'
@@ -30,10 +31,11 @@ jobs:
           node-version: 22
       - name: Sync latest main
         run: git pull --rebase origin main
-      - name: Apply v94.9 readability and Historical cutover
+      - name: Apply v94.9 readability and historical Matchup cutover
         run: |
           python3 scripts/apply-nfl-player-prop-tool-v949-readability-history.py
           python3 scripts/apply-nfl-player-prop-tool-v949-historical-defense.py
+          python3 scripts/apply-nfl-player-prop-tool-v949-matchup-format.py
           python3 scripts/fix-nfl-player-prop-tool-v949-selftest.py
           python3 scripts/fix-nfl-player-prop-tool-v949-browser-version.py
       - name: Run static regressions
@@ -59,7 +61,7 @@ jobs:
             for(const style of ['tsoPick','safest','bestEdge','balanced','aggressive','correlated','longshot']){
               for(const cid of g.propStyles.rankings?.[style]||[]){
                 const c=byId.get(String(cid));
-                if(!c||Number(c.iterations)<50000||!Number.isFinite(Number(c.line))||!Number.isFinite(Number(c.simProbability)))throw new Error(`${id}/${style} invalid candidate ${cid}`);
+                if(!c||Number(c.iterations)<50000||!g?.propStyles?.ready||!Number.isFinite(Number(c.line))||!Number.isFinite(Number(c.simProbability)))throw new Error(`${id}/${style} invalid candidate ${cid}`);
                 choices++;
               }
             }
@@ -80,7 +82,7 @@ jobs:
           done
           cat /tmp/nfl-ppt-v949.log
           exit 1
-      - name: Focused v94.9 readability Historical and Quick Guide smoke
+      - name: Focused v94.9 readability Matchup historical grades and Quick Guide smoke
         run: |
           set -o pipefail
           npx playwright test tests/nfl-player-prop-tool-v947.spec.js --grep "v94.9 larger text Historical actuals and column-by-column Quick Guide" --reporter=line --workers=1 --max-failures=1 2>&1 | tee /tmp/nfl-ppt-v949-focused.log
@@ -102,14 +104,14 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: Retire one-time helper and workflow
-        run: rm -f scripts/apply-nfl-player-prop-tool-v949-readability-history.py scripts/apply-nfl-player-prop-tool-v949-historical-defense.py scripts/fix-nfl-player-prop-tool-v949-selftest.py scripts/fix-nfl-player-prop-tool-v949-browser-version.py .github/workflows/one-time-nfl-player-prop-tool-v949-readability-history.yml
+        run: rm -f scripts/apply-nfl-player-prop-tool-v949-readability-history.py scripts/apply-nfl-player-prop-tool-v949-historical-defense.py scripts/apply-nfl-player-prop-tool-v949-matchup-format.py scripts/fix-nfl-player-prop-tool-v949-selftest.py scripts/fix-nfl-player-prop-tool-v949-browser-version.py .github/workflows/one-time-nfl-player-prop-tool-v949-readability-history.yml
       - name: Commit and push verified v94.9 production cutover
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add -A
           git diff --cached --quiet && { echo 'No v94.9 changes to commit'; exit 1; }
-          git commit -m 'Improve NFL Prop Tool readability and Historical data'
+          git commit -m 'Improve NFL Prop Tool readability and historical Matchup data'
           for attempt in 1 2 3; do
             git pull --rebase --autostash origin main || { git rebase --abort || true; exit 1; }
             if git push origin HEAD:main; then break; fi
