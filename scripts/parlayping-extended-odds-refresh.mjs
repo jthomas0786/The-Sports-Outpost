@@ -5,9 +5,9 @@ import process from 'node:process';
 
 const API=process.env.PARLAY_API_BASE||'https://parlay-api.com/v1';
 const KEY=process.env.PARLAY_API_KEY||'';
-const NOW=Date.now();
 const SPORTSBOOK_KEYS=new Set(['draftkings','fanduel','caesars','betmgm','fanatics','pinnacle','bet365','betrivers','hardrock','parx','bovada']);
 const BOOKMAKERS=[...SPORTSBOOK_KEYS].join(',');
+const BINARY_KEYS=new Set(['player_moneyline','player_to_score_anytime','player_to_receive_a_card']);
 
 const GROUPS={
   SOCCER:{
@@ -15,7 +15,7 @@ const GROUPS={
     sportKeys:['soccer_epl','soccer_spain_la_liga','soccer_germany_bundesliga','soccer_italy_serie_a','soccer_france_ligue_one','soccer_usa_mls'],
     markets:{
       player_shots:'shots',player_shots_on_target:'shotsOnTarget',player_assists:'assists',player_goals_assists:'goalsAssists',
-      player_fouls:'fouls',player_goals:'goals',player_to_score_anytime:'goals',player_to_receive_a_card:'cards',player_saves:'saves'
+      player_fouls:'fouls',player_goals:'goals',player_to_score_anytime:'anytimeGoal',player_to_receive_a_card:'toReceiveCard',player_saves:'saves'
     }
   },
   TENNIS:{
@@ -38,38 +38,52 @@ const GROUPS={
   },
   TABLE_TENNIS:{
     file:'table-tennis-odds.json',sportKeys:['table_tennis'],
-    markets:{player_total_points:'totalPoints',player_points:'points',player_moneyline:'matchWinner'}
+    markets:{player_moneyline:'matchWinner'}
   }
 };
 
 if(!KEY){console.error('::error::PARLAY_API_KEY is missing.');process.exit(2);}
 const finite=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
 const iso=v=>{const t=Date.parse(String(v||''));return Number.isFinite(t)?new Date(t).toISOString():null;};
+const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const bookKey=r=>String(r?.bookmaker||r?.bookmaker_key||r?.source||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const bookTitle=r=>String(r?.bookmaker_title||r?.source_title||r?.bookmaker||r?.source||'Sportsbook').trim();
 function arrayPayload(payload){return Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:[];}
-async function fetchJson(url){
-  const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45_000);
-  try{
-    const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':KEY},signal:controller.signal});
-    const text=await res.text();if(!res.ok)throw new Error(`${res.status} ${res.statusText}: ${text.slice(0,700)}`);
-    return text?JSON.parse(text):null;
-  }finally{clearTimeout(timer);}
+async function fetchJson(url,{attempts=4}={}){
+  let lastError=null;
+  for(let attempt=1;attempt<=attempts;attempt++){
+    const controller=new AbortController();const timer=setTimeout(()=>controller.abort(),45_000);
+    try{
+      const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':KEY},signal:controller.signal});
+      const text=await res.text();
+      if(res.ok)return text?JSON.parse(text):null;
+      lastError=new Error(`${res.status} ${res.statusText}: ${text.slice(0,700)}`);
+      if(![429,502,503,504].includes(res.status)||attempt===attempts)throw lastError;
+    }catch(error){
+      lastError=error;
+      if(attempt===attempts)throw error;
+    }finally{clearTimeout(timer);}
+    const delay=1200*Math.pow(2,attempt-1)+Math.floor(Math.random()*350);
+    console.log(`Transient props response; retrying in ${delay}ms (attempt ${attempt+1}/${attempts}).`);
+    await sleep(delay);
+  }
+  throw lastError||new Error('ParlayAPI request failed.');
 }
-function looksLikePlayer(value){
+function looksLikePlayer(value,groupKey){
   const s=String(value||'').trim();
   if(!s||!/[A-Za-z]/.test(s))return false;
   if(/^\d+(?:\.\d+)?\s+or\s+(?:more|less)/i.test(s))return false;
   if(/\b(?:team total|game total|match total|1q|1h|2h|first half|second half)\b/i.test(s))return false;
+  if(groupKey==='TABLE_TENNIS'&&(s.includes('@')||/^(?:odd|even)(?:\s*-\s*lg\d+)?$/i.test(s)))return false;
   return true;
 }
 function normalizeRow(groupKey,sportKey,marketMap,r){
   const rawMarket=String(r?.market_key||r?.market||'').trim();
   const market=marketMap[rawMarket];if(!market)return null;
-  const player=String(r?.player_name||r?.player||'').trim();if(!looksLikePlayer(player))return null;
+  const player=String(r?.player_name||r?.player||'').trim();if(!looksLikePlayer(player,groupKey))return null;
   const bk=bookKey(r);if(!SPORTSBOOK_KEYS.has(bk))return null;
   const period=String(r?.period||'FULL').toUpperCase();if(!['FULL','UNKNOWN',''].includes(period))return null;
-  const binary=market==='matchWinner'||market==='fightWinner'||market==='goals'||market==='cards';
+  const binary=BINARY_KEYS.has(rawMarket);
   const line=finite(r?.line);
   const overPrice=finite(r?.over_price??r?.yes_price??r?.price);
   const underPrice=finite(r?.under_price??r?.no_price);
@@ -91,7 +105,7 @@ async function refreshGroup(groupKey,cfg){
     const params=new URLSearchParams({markets:marketKeys.join(','),bookmakers:BOOKMAKERS,limit:'10000',maxAgeSec:'3600'});
     let raw=[];
     try{raw=arrayPayload(await fetchJson(`${API}/sports/${sportKey}/props?${params}`));}
-    catch(error){console.error(`::warning::${groupKey} ${sportKey} props failed: ${error?.message||error}`);bySportKey.push({sportKey,rawRows:0,acceptedRows:0,error:String(error?.message||error)});continue;}
+    catch(error){console.error(`::warning::${groupKey} ${sportKey} props failed after retries: ${error?.message||error}`);bySportKey.push({sportKey,rawRows:0,acceptedRows:0,error:String(error?.message||error)});continue;}
     let accepted=0;
     for(const r of raw){
       rawMarketKeys.add(String(r?.market_key||r?.market||''));
