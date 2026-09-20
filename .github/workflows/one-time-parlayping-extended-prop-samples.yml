@@ -32,7 +32,7 @@ jobs:
           ];
           const keep=['canonical_event_id','event_id','commence_time','home_team','away_team','player_name','player','team','player_team','market_key','market','line','period','bookmaker','bookmaker_title','source','source_title','over_price','under_price','yes_price','no_price','price','odds','outcome','selection','side','name','snapshot_time','last_update','deep_link'];
           for(const [label,sport,markets] of targets){
-            const q=new URLSearchParams({markets,bookmakers,limit:'100',maxAgeSec:'7200'});
+            const q=new URLSearchParams({markets,bookmakers,limit:'100',maxAgeSec:'3600'});
             const r=await fetch(`${base}/sports/${sport}/props?${q}`,{headers:{accept:'application/json','X-API-Key':key}});
             const text=await r.text();let body=null;try{body=text?JSON.parse(text):null}catch{body=text}
             const rows=Array.isArray(body)?body:Array.isArray(body?.data)?body.data:[];
