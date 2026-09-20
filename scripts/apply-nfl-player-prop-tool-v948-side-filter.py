@@ -72,8 +72,96 @@ write(p,t)
 
 p='tests/nfl-player-prop-tool-v947.spec.js'
 t=read(p)
-qa="""\n\ntest('Over Under switch is exclusive and clicking active side clears to both',async({page})=>{\n  await open(page);\n  const sideState=()=>page.evaluate(()=>({\n    side:window.__TSO_NFL_PLAYER_PROP_V947__.state.side,\n    visible:[...document.querySelectorAll('#nflPlayerPropTool tbody tr')].map(r=>r.querySelector('.nfl-ppt-pick-v947')?.classList.contains('under')?'under':'over'),\n    overPressed:document.querySelector('[data-nfl-ppt-side=\"over\"]')?.getAttribute('aria-pressed'),\n    underPressed:document.querySelector('[data-nfl-ppt-side=\"under\"]')?.getAttribute('aria-pressed')\n  }));\n  let st=await sideState();\n  expect(st.side).toBeNull();expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('false');\n  await page.locator('[data-nfl-ppt-side=\"over\"]').click();\n  st=await sideState();expect(st.side).toBe('over');expect(st.overPressed).toBe('true');expect(st.underPressed).toBe('false');expect(st.visible.length).toBeGreaterThan(0);expect(new Set(st.visible)).toEqual(new Set(['over']));\n  await page.locator('[data-nfl-ppt-side=\"under\"]').click();\n  st=await sideState();expect(st.side).toBe('under');expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('true');expect(st.visible.length).toBeGreaterThan(0);expect(new Set(st.visible)).toEqual(new Set(['under']));\n  await page.locator('[data-nfl-ppt-side=\"under\"]').click();\n  st=await sideState();expect(st.side).toBeNull();expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('false');expect(st.visible.length).toBeGreaterThan(0);\n});\n"""
-if 'Over Under switch is exclusive and clicking active side clears to both' not in t:t+=qa
+qa="""
+
+test('Over Under segmented switch covers both directions and same-side clear',async({page})=>{
+  let toolRequests=0;
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.7-'))toolRequests++;}catch{}});
+  await open(page);
+  await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
+  const baseline=toolRequests;
+  const over=page.locator('[data-nfl-ppt-side="over"]'),under=page.locator('[data-nfl-ppt-side="under"]');
+  const sideState=()=>page.evaluate(()=>{
+    const rows=[...document.querySelectorAll('#nflPlayerPropTool tbody tr:visible')];
+    const visible=rows.map(r=>r.querySelector('.nfl-ppt-pick-v947')?.classList.contains('under')?'under':'over');
+    const source=(window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]).map(r=>r.side);
+    return {
+      side:window.__TSO_NFL_PLAYER_PROP_V947__?.state?.side??null,
+      visible,
+      source,
+      overPressed:document.querySelector('[data-nfl-ppt-side="over"]')?.getAttribute('aria-pressed'),
+      underPressed:document.querySelector('[data-nfl-ppt-side="under"]')?.getAttribute('aria-pressed')
+    };
+  });
+  const expectOnly=async(side)=>{
+    const st=await sideState();
+    expect(st.side).toBe(side);
+    expect(st.visible.length).toBeGreaterThan(0);
+    expect(new Set(st.visible)).toEqual(new Set([side]));
+    expect(st.overPressed).toBe(side==='over'?'true':'false');
+    expect(st.underPressed).toBe(side==='under'?'true':'false');
+  };
+  let st=await sideState();
+  expect(st.side).toBeNull();
+  expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('false');
+  expect(new Set(st.source)).toEqual(new Set(['over','under']));
+  expect(new Set(st.visible)).toEqual(new Set(['over','under']));
+
+  await over.click();await expectOnly('over');
+  await under.click();await expectOnly('under');
+  await over.click();await expectOnly('over');
+  await over.click();
+  st=await sideState();
+  expect(st.side).toBeNull();expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('false');
+  expect(new Set(st.visible)).toEqual(new Set(['over','under']));
+
+  await under.click();await expectOnly('under');
+  await under.click();
+  st=await sideState();
+  expect(st.side).toBeNull();expect(new Set(st.visible)).toEqual(new Set(['over','under']));
+  await page.waitForTimeout(150);
+  expect(toolRequests).toBe(baseline);
+});
+
+test('Over Under side selection survives every other Player Prop Tool filter',async({page})=>{
+  await open(page);
+  const over=page.locator('[data-nfl-ppt-side="over"]');
+  await over.click();
+  const assertOver=async()=>{
+    await expect(over).toHaveAttribute('aria-pressed','true');
+    await expect(page.locator('[data-nfl-ppt-side="under"]')).toHaveAttribute('aria-pressed','false');
+    expect(await page.evaluate(()=>window.__TSO_NFL_PLAYER_PROP_V947__?.state?.side)).toBe('over');
+    const sides=await page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-pick-v947').evaluateAll(nodes=>nodes.map(n=>n.classList.contains('under')?'under':'over'));
+    expect(sides.every(x=>x==='over')).toBe(true);
+  };
+  await assertOver();
+
+  await page.locator('#nflPptMode').selectOption('safest');await assertOver();
+  const game=page.locator('#nflPptGame');
+  const gv=await game.locator('option').nth(1).getAttribute('value');if(gv){await game.selectOption(gv);await assertOver();}
+  const prop=page.locator('#nflPptMarket');
+  const pv=await prop.locator('option').nth(1).getAttribute('value');if(pv){await prop.selectOption(pv);await assertOver();}
+
+  const activeRowId=await page.locator('#nflPlayerPropTool tbody tr:visible').first().getAttribute('data-nfl-ppt-row').catch(()=>null);
+  if(activeRowId){
+    const activePos=await page.evaluate(id=>(window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]).find(r=>r.id===id)?.position||'',activeRowId);
+    const alternate=['QB','RB','WR','TE'].find(p=>p!==activePos);
+    if(alternate){await page.locator(`[data-nfl-ppt-pos="${alternate}"]`).click();await assertOver();}
+  }
+
+  await page.locator('#nflPptFilters').click();
+  const playerName=await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player] b').first().textContent().catch(()=>null);
+  if(playerName){await page.locator('#nflPptSearch').fill(playerName.replace('↗','').trim().split(/\s+/)[0]);await assertOver();await page.locator('#nflPptSearch').fill('');}
+  const team=page.locator('#nflPptTeam');
+  const tv=await team.locator('option').nth(1).getAttribute('value');if(tv){await team.selectOption(tv);await assertOver();await team.selectOption('ALL');}
+  await page.locator('#nflPptMin').selectOption('0.50');await assertOver();
+
+  await game.selectOption('ALL');await prop.selectOption('ALL');
+  await page.locator('#nflPptMin').selectOption('0.40');
+  for(const p of ['1h','q1','full']){await page.locator(`[data-nfl-ppt-period="${p}"]`).click();await assertOver();}
+});
+"""
+if 'Over Under segmented switch covers both directions and same-side clear' not in t:t+=qa
 write(p,t)
 
-print('NFL Player Prop Tool v94.8 Over/Under exclusive switch applied')
+print('NFL Player Prop Tool v94.8 Over/Under exclusive switch and full regression coverage applied')
