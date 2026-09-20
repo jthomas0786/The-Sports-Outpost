@@ -6,6 +6,7 @@ on:
     paths:
       - 'scripts/apply-nfl-player-prop-tool-v947.py'
       - 'scripts/apply-nfl-player-prop-tool-v948-proj-l10.py'
+      - 'scripts/fix-nfl-player-prop-tool-v948-browser-qa.py'
       - '.github/workflows/one-time-nfl-player-prop-tool-v947.yml'
 
 permissions:
@@ -32,6 +33,7 @@ jobs:
         run: |
           python3 scripts/apply-nfl-player-prop-tool-v947.py
           python3 scripts/apply-nfl-player-prop-tool-v948-proj-l10.py
+          python3 scripts/fix-nfl-player-prop-tool-v948-browser-qa.py
       - name: Run v94.8 static regressions
         run: |
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
@@ -97,10 +99,10 @@ jobs:
           done
           cat /tmp/nfl-ppt-v948-cutover.log
           exit 1
-      - name: Reproduce video, readability and filter suite
+      - name: Reproduce video, readability, filters and smooth-scroll suite
         run: npx playwright test tests/nfl-player-prop-tool-v947.spec.js --reporter=line --workers=1
       - name: Retire one-time helpers
-        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-v947.yml .github/workflows/one-time-nfl-prop-sim-v947.yml scripts/apply-nfl-player-prop-tool-v947.py scripts/apply-nfl-player-prop-tool-v948-proj-l10.py
+        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-v947.yml .github/workflows/one-time-nfl-prop-sim-v947.yml scripts/apply-nfl-player-prop-tool-v947.py scripts/apply-nfl-player-prop-tool-v948-proj-l10.py scripts/fix-nfl-player-prop-tool-v948-browser-qa.py
       - name: Commit and push verified v94.8 cutover
         run: |
           git config user.name 'github-actions[bot]'
