@@ -26,7 +26,7 @@ jobs:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
       - name: Refresh NBA/NCAAB/WNBA sportsbook props
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
@@ -34,10 +34,12 @@ jobs:
       - name: Commit changed snapshots
         run: |
           set -euo pipefail
-          if git diff --quiet -- slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json; then
+          changes="$(git status --porcelain -- slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json)"
+          if [ -z "$changes" ]; then
             echo 'No basketball snapshot changes.'
             exit 0
           fi
+          printf '%s\n' "$changes"
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json
