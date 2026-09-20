@@ -3,12 +3,12 @@
   "meta": {
     "source": "parlayapi-pinnacle",
     "sport": "ESPORTS",
-    "fetchedAt": "2026-09-20T19:13:18.675Z",
+    "fetchedAt": "2026-09-20T19:20:04.929Z",
     "market": "matchWinner",
-    "finalSettlementSource": "parlayapi-results-archive",
-    "probabilityPolicy": "Only complete two-sided Pinnacle h2h markets are accepted and de-vigged. Started events are not priced from this snapshot.",
     "rows": 8,
-    "estimatedCreditsUsed": 6,
+    "estimatedCreditsUsed": 2,
+    "probabilityPolicy": "Only complete two-sided Pinnacle h2h markets are accepted and de-vigged. Started events are never settled from this snapshot.",
+    "settlementConnected": false,
     "diagnostics": [
       {
         "sportKey": "esports_cs2",
@@ -16,43 +16,7 @@
         "eventCount": 11,
         "futureEvents": 7,
         "oddsCalled": true,
-        "oddsRows": 8,
-        "resultDates": [
-          "2026-09-20"
-        ],
-        "rawResultRows": 21,
-        "acceptedFinals": 0,
-        "sampleResultKeys": [
-          "game_date",
-          "sport_key",
-          "sport_title",
-          "home_team",
-          "away_team",
-          "bookmaker",
-          "bookmaker_title",
-          "home_score",
-          "away_score",
-          "result",
-          "season",
-          "has_odds",
-          "odds",
-          "home_team_raw",
-          "away_team_raw",
-          "canonical_event_id"
-        ],
-        "sampleResult": {
-          "game_date": "2026-09-20",
-          "sport_key": "esports_cs2_circuit_x_curitiba",
-          "family": "esports_cs2",
-          "home_team": "Bounty Hunters",
-          "away_team": "BESTIA",
-          "home_score": null,
-          "away_score": null,
-          "result": null,
-          "has_odds": true,
-          "canonical_event_id": "a596209ae1e92149"
-        },
-        "sampleResolvedResult": null
+        "oddsRows": 8
       },
       {
         "sportKey": "esports_valorant",
@@ -60,13 +24,7 @@
         "eventCount": 0,
         "futureEvents": 0,
         "oddsCalled": false,
-        "oddsRows": 0,
-        "resultDates": [],
-        "rawResultRows": 0,
-        "acceptedFinals": 0,
-        "sampleResultKeys": [],
-        "sampleResult": null,
-        "sampleResolvedResult": null
+        "oddsRows": 0
       },
       {
         "sportKey": "esports_dota2",
@@ -74,43 +32,7 @@
         "eventCount": 2,
         "futureEvents": 0,
         "oddsCalled": false,
-        "oddsRows": 0,
-        "resultDates": [
-          "2026-09-20"
-        ],
-        "rawResultRows": 21,
-        "acceptedFinals": 0,
-        "sampleResultKeys": [
-          "game_date",
-          "sport_key",
-          "sport_title",
-          "home_team",
-          "away_team",
-          "bookmaker",
-          "bookmaker_title",
-          "home_score",
-          "away_score",
-          "result",
-          "season",
-          "has_odds",
-          "odds",
-          "home_team_raw",
-          "away_team_raw",
-          "canonical_event_id"
-        ],
-        "sampleResult": {
-          "game_date": "2026-09-20",
-          "sport_key": "esports_dota_2_pgl_wallachia",
-          "family": "esports_dota2",
-          "home_team": "1W Team",
-          "away_team": "Hokori",
-          "home_score": null,
-          "away_score": null,
-          "result": null,
-          "has_odds": true,
-          "canonical_event_id": "1b0b40a5a8853cd9"
-        },
-        "sampleResolvedResult": null
+        "oddsRows": 0
       },
       {
         "sportKey": "esports_lol",
@@ -118,13 +40,7 @@
         "eventCount": 2,
         "futureEvents": 1,
         "oddsCalled": true,
-        "oddsRows": 0,
-        "resultDates": [],
-        "rawResultRows": 0,
-        "acceptedFinals": 0,
-        "sampleResultKeys": [],
-        "sampleResult": null,
-        "sampleResolvedResult": null
+        "oddsRows": 0
       }
     ]
   },
@@ -136,7 +52,6 @@
       "commenceTime": "2026-09-20T21:00:00.000Z",
       "homeTeam": "Bounty Hunters",
       "awayTeam": "BESTIA",
-      "identity": "esports_cs2|2026-09-20|bestia|bounty hunters",
       "selection": "BESTIA",
       "side": "away",
       "market": "matchWinner",
@@ -154,7 +69,6 @@
       "commenceTime": "2026-09-20T21:00:00.000Z",
       "homeTeam": "Bounty Hunters",
       "awayTeam": "BESTIA",
-      "identity": "esports_cs2|2026-09-20|bestia|bounty hunters",
       "selection": "Bounty Hunters",
       "side": "home",
       "market": "matchWinner",
@@ -172,7 +86,6 @@
       "commenceTime": "2026-09-21T10:00:00.000Z",
       "homeTeam": "Astralis",
       "awayTeam": "Sangal",
-      "identity": "esports_cs2|2026-09-21|astralis|sangal",
       "selection": "Astralis",
       "side": "home",
       "market": "matchWinner",
@@ -190,7 +103,6 @@
       "commenceTime": "2026-09-21T10:00:00.000Z",
       "homeTeam": "Astralis",
       "awayTeam": "Sangal",
-      "identity": "esports_cs2|2026-09-21|astralis|sangal",
       "selection": "Sangal",
       "side": "away",
       "market": "matchWinner",
@@ -208,7 +120,6 @@
       "commenceTime": "2026-09-21T17:00:00.000Z",
       "homeTeam": "WW",
       "awayTeam": "Phantom Academy",
-      "identity": "esports_cs2|2026-09-21|phantom academy|ww",
       "selection": "Phantom Academy",
       "side": "away",
       "market": "matchWinner",
@@ -226,7 +137,6 @@
       "commenceTime": "2026-09-21T17:00:00.000Z",
       "homeTeam": "WW",
       "awayTeam": "Phantom Academy",
-      "identity": "esports_cs2|2026-09-21|phantom academy|ww",
       "selection": "WW",
       "side": "home",
       "market": "matchWinner",
@@ -244,7 +154,6 @@
       "commenceTime": "2026-09-23T10:00:00.000Z",
       "homeTeam": "100 Thieves",
       "awayTeam": "EAC",
-      "identity": "esports_cs2|2026-09-23|100 thieves|eac",
       "selection": "100 Thieves",
       "side": "home",
       "market": "matchWinner",
@@ -262,7 +171,6 @@
       "commenceTime": "2026-09-23T10:00:00.000Z",
       "homeTeam": "100 Thieves",
       "awayTeam": "EAC",
-      "identity": "esports_cs2|2026-09-23|100 thieves|eac",
       "selection": "EAC",
       "side": "away",
       "market": "matchWinner",
