@@ -1,0 +1,67 @@
+name: ParlayPing Table Tennis Live Stats
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - table-tennis-live-stage
+    paths:
+      - 'scripts/parlayping-table-tennis-live-refresh.mjs'
+      - '.github/workflows/parlayping-table-tennis-live.yml'
+  schedule:
+    - cron: '*/5 * * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parlayping-table-tennis-live-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Build official WTT live/final snapshot
+        run: node scripts/parlayping-table-tennis-live-refresh.mjs
+      - name: Validate snapshot safety
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const d=JSON.parse(fs.readFileSync('slates/table-tennis-live.json','utf8'));
+          if(d.schemaVersion!==1||d.source!=='world-table-tennis-official'||d.sport!=='TABLE_TENNIS'||!d.matches||typeof d.matches!=='object')throw new Error('Invalid Table Tennis live snapshot');
+          const now=Date.now();
+          for(const m of Object.values(d.matches)){
+            const start=Date.parse(m.startTime||'');
+            if(!Number.isFinite(start)||Math.abs(now-start)>72*3600_000)throw new Error(`Stale Table Tennis match leaked into snapshot: ${m.id}`);
+            if(!Array.isArray(m.players)||m.players.length!==2)throw new Error(`Table Tennis match must contain two singles players: ${m.id}`);
+            if(m.final&&!m.voidLike&&m.players.filter(p=>p.winner===true).length!==1)throw new Error(`Gradeable final missing exactly one winner: ${m.id}`);
+            if(m.voidLike&&m.players.some(p=>p.winner===true))throw new Error(`Void-like match must not expose a winner: ${m.id}`);
+          }
+          console.log('Table Tennis snapshot:',d.meta);
+          NODE
+      - name: Commit snapshot when changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'ParlayPing Table Tennis Live Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add slates/table-tennis-live.json
+          if git diff --staged --quiet; then echo 'No Table Tennis live changes.'; exit 0; fi
+          git commit -m 'Refresh ParlayPing Table Tennis live stats'
+          target="${GITHUB_REF_NAME}"
+          if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then target="main"; fi
+          for attempt in 1 2 3 4 5; do
+            if git push origin HEAD:"$target"; then exit 0; fi
+            git pull --rebase --autostash origin "$target" || exit 1
+            sleep $((attempt * 3))
+          done
+          exit 1
