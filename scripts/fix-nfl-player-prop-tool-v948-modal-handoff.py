@@ -34,7 +34,14 @@ new_open="""async function openPlayer(row){
   const backdrop=document.createElement('div');
   backdrop.className='ms-modal-backdrop';backdrop.dataset.nflPptDirectModal='1';backdrop.setAttribute('data-nfl-close-modal','');
   backdrop.innerHTML=`<div class=\"ms-modal\" data-nfl-ppt-direct-shell=\"1\"><button class=\"ms-modal-x\" type=\"button\" data-nfl-close-modal>×</button><header><div><div class=\"ms-modal-name\"><h2>${esc(row.name)}</h2></div><p>${esc(row.team)} · ${esc(row.position||'')}</p></div></header></div>`;
-  const closeDirect=()=>backdrop.remove();
+  const closeDirect=()=>{
+    backdrop.remove();
+    const saved=modalReturn;
+    if(saved?.directModal){
+      const savedWrap=saved.tool?.querySelector('.nfl-ppt-table-wrap');if(savedWrap)savedWrap.scrollLeft=saved.tableX;
+      window.scrollTo(saved.x,saved.y);modalReturn=null;syncNav();
+    }
+  };
   backdrop.querySelector('.ms-modal-x')?.addEventListener('click',closeDirect);
   backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeDirect();});
   root.append(backdrop);
@@ -64,7 +71,9 @@ assert.ok(tool.includes("directModal:true"),'player modal must preserve the froz
 assert.ok(tool.includes("data-nfl-ppt-direct-shell"),'player modal must be created from the frozen row identity');
 assert.ok(tool.includes("<h2>${esc(row.name)}</h2>"),'direct player modal must use the selected frozen player name');
 assert.ok(tool.includes("${esc(row.team)} · ${esc(row.position||'')}"),'direct player modal must provide team and position to research UI');
-assert.ok(tool.includes("if(saved.directModal)"),'direct modal close must restore scroll without rebuilding the Prop Tool snapshot');
+assert.ok(tool.includes("const saved=modalReturn;"),'direct player modal close must synchronously capture the saved table position');
+assert.ok(tool.includes("if(saved?.directModal)"),'direct player modal close must synchronously restore scroll before the click returns');
+assert.ok(tool.includes("if(saved.directModal)"),'direct modal fallback must restore scroll without rebuilding the Prop Tool snapshot');
 """
 if add.strip() not in t:
     if anchor not in t:
