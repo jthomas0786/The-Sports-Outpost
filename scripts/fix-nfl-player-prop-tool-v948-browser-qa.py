@@ -1,14 +1,45 @@
 from pathlib import Path
 
+# The Player Prop Tool is NFL-only. Make its own open path guarantee that the NFL
+# view is visible before mounting, so a collapsed sidebar/navigation state cannot
+# leave a fully-loaded tool hidden behind the router container.
+toolp=Path('sports/nfl/player-prop-tool-v947.js')
+tool=toolp.read_text()
+old_open="""async function openTool(){
+  if(active&&document.getElementById(TOOL_ID))return;
+  active=true;
+  try{selectBaseTab?.('players');}catch{}
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  if(!mountShell())return;"""
+new_open="""async function openTool(){
+  if(active&&document.getElementById(TOOL_ID))return;
+  active=true;
+  const nflRoot=document.getElementById('nflView');
+  if(String(location.hash||'').toLowerCase().startsWith('#nfl'))nflRoot?.removeAttribute('hidden');
+  try{selectBaseTab?.('players');}catch{}
+  await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  if(String(location.hash||'').toLowerCase().startsWith('#nfl'))nflRoot?.removeAttribute('hidden');
+  if(!mountShell())return;"""
+if old_open in tool:
+    tool=tool.replace(old_open,new_open,1)
+elif new_open not in tool:
+    raise SystemExit('Player Prop Tool open visibility marker missing')
+toolp.write_text(tool)
+
 p=Path('tests/nfl-player-prop-tool-v947.spec.js')
 s=p.read_text()
 
 old="""  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'visible',timeout:60000});
   await page.locator('#nflPlayerPropToolBtn').click();"""
 new="""  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
+  await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
+  await page.waitForFunction(()=>!document.getElementById('nflView')?.hasAttribute('hidden'),null,{timeout:15000});"""
+old2="""  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
   await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());"""
 if old in s:
     s=s.replace(old,new,1)
+elif old2 in s:
+    s=s.replace(old2,new,1)
 elif new not in s:
     raise SystemExit('Prop Tool open helper marker missing')
 
@@ -45,10 +76,10 @@ p.write_text(s)
 selftest=Path('scripts/nfl-player-prop-tool-v947-selftest.mjs')
 t=selftest.read_text()
 anchor="assert.ok(!tool.includes('setInterval('),'Player Prop Tool must not poll');"
-add="\nassert.ok(!tool.includes(\"addEventListener('scroll'\"),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(!tool.includes('addEventListener(\"scroll\"'),'Player Prop Tool must not render/refetch from scroll events');"
+add="\nassert.ok(!tool.includes(\"addEventListener('scroll'\"),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(!tool.includes('addEventListener(\"scroll\"'),'Player Prop Tool must not render/refetch from scroll events');\nassert.ok(tool.includes(\"nflRoot?.removeAttribute('hidden')\"),'Player Prop Tool open must make the active NFL view visible');"
 if add.strip() not in t:
     if anchor not in t: raise SystemExit('static performance QA anchor missing')
     t=t.replace(anchor,anchor+add,1)
 selftest.write_text(t)
-print('NFL Player Prop Tool v94.8 browser navigation + scroll-performance QA patched')
+print('NFL Player Prop Tool v94.8 visibility + scroll-performance QA patched')
 Path('scripts/fix-nfl-player-prop-tool-v948-browser-qa.py').unlink(missing_ok=True)
