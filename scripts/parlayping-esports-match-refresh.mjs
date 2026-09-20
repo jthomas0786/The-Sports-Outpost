@@ -32,6 +32,14 @@ const voidLikeText=value=>/\b(?:void|cancel(?:led|ed)?|abandon(?:ed)?|postpon(?:
 
 function first(...values){for(const value of values){if(value!==undefined&&value!==null&&String(value)!=='')return value;}return null;}
 function firstFinite(...values){for(const value of values){const n=finite(value);if(n!==null)return n;}return null;}
+function esportsFamily(value){
+  const key=String(value||'').toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_+|_+$/g,'');
+  if(/^esports_cs2(?:_|$)/.test(key)||/^esports_counter_strike(?:_2)?(?:_|$)/.test(key))return 'esports_cs2';
+  if(/^esports_valorant(?:_|$)/.test(key))return 'esports_valorant';
+  if(/^esports_dota_?2(?:_|$)/.test(key))return 'esports_dota2';
+  if(/^esports_(?:lol|league_of_legends)(?:_|$)/.test(key))return 'esports_lol';
+  return key;
+}
 function rawScore(row,side){
   const score=row?.score||row?.scores||(row?.result&&typeof row.result==='object'?row.result:{});
   if(side==='home')return firstFinite(row?.home_score,row?.homeScore,row?.score_home,row?.team1_score,row?.team1Score,score?.home,score?.home_score,score?.homeScore,score?.team1,score?.team1_score);
@@ -57,7 +65,7 @@ function winnerFromResult(row,home,away){
 }
 function eventIdentity({sportKey,homeTeam,awayTeam,commenceTime}){
   const teams=[norm(homeTeam),norm(awayTeam)].filter(Boolean).sort();
-  return `${sportKey||''}|${dateKey(commenceTime)||''}|${teams.join('|')}`;
+  return `${esportsFamily(sportKey)||''}|${dateKey(commenceTime)||''}|${teams.join('|')}`;
 }
 function readId(row,sportKey,home,away,start){
   return String(first(row?.canonical_event_id,row?.canonicalEventId,row?.event_id,row?.eventId,row?.match_id,row?.matchId,row?.id)||eventIdentity({sportKey,homeTeam:home,awayTeam:away,commenceTime:start}));
@@ -67,6 +75,7 @@ function sanitizedSample(row){
   return {
     game_date:first(row.game_date,row.gameDate,row.commence_time,row.commenceTime,row.start_time,row.startTime)||null,
     sport_key:first(row.sport_key,row.sportKey)||null,
+    family:esportsFamily(first(row.sport_key,row.sportKey)||''),
     home_team:rawTeam(row,'home')||null,
     away_team:rawTeam(row,'away')||null,
     home_score:rawScore(row,'home'),
@@ -128,20 +137,20 @@ function normalizeMoneylines(payload,sportKey,game,now){
 
 function normalizeResult(row,sportKey,game){
   const rowSport=String(first(row?.sport_key,row?.sportKey)||'').trim();
-  if(rowSport&&rowSport!==sportKey)return null;
+  if(rowSport&&esportsFamily(rowSport)!==esportsFamily(sportKey))return null;
   const home=rawTeam(row,'home'),away=rawTeam(row,'away');if(!home||!away||norm(home)===norm(away))return null;
   const start=iso(first(row?.commence_time,row?.commenceTime,row?.start_time,row?.startTime,row?.scheduled_at,row?.scheduledAt,row?.match_time,row?.matchTime,row?.game_date,row?.gameDate,row?.date));if(!start)return null;
   const statusText=String(first(row?.status,row?.state,row?.result_status,row?.resultStatus,row?.match_status,row?.matchStatus,row?.outcome_status)||'').trim();
   const resultText=primitiveResult(row);
   const homeScore=rawScore(row,'home'),awayScore=rawScore(row,'away');
-  let voidLike=voidLikeText(statusText)||voidLikeText(resultText)||voidLikeText(row?.reason)||row?.void===true||row?.cancelled===true||row?.canceled===true;
+  const voidLike=voidLikeText(statusText)||voidLikeText(resultText)||voidLikeText(row?.reason)||row?.void===true||row?.cancelled===true||row?.canceled===true;
   let winner=rawWinner(row)||winnerFromResult(row,home,away);
   if(winner&&![home,away].some(team=>norm(team)===norm(winner)))winner='';
   const explicitFinal=row?.completed===true||row?.complete===true||row?.is_final===true||row?.final===true||/\b(?:final|completed|complete|finished|closed)\b/i.test(statusText)||Boolean(resultText);
   if(!winner&&!voidLike&&explicitFinal&&homeScore!==null&&awayScore!==null&&homeScore!==awayScore)winner=homeScore>awayScore?home:away;
   if(!voidLike&&!winner)return null;
   return {
-    id:readId(row,sportKey,home,away,start),sport:'ESPORTS',sportKey,game,commenceTime:start,homeTeam:home,awayTeam:away,
+    id:readId(row,sportKey,home,away,start),sport:'ESPORTS',sportKey:esportsFamily(rowSport||sportKey),sourceSportKey:rowSport||sportKey,game,commenceTime:start,homeTeam:home,awayTeam:away,
     homeScore,awayScore,status:'FINAL',resultStatus:statusText||resultText||'FINAL',final:true,voidLike,winner:voidLike?null:winner,
     identity:eventIdentity({sportKey,homeTeam:home,awayTeam:away,commenceTime:start}),updatedAt:new Date().toISOString()
   };
@@ -176,7 +185,7 @@ async function main(){
       }catch(error){console.error(`::warning::${sport.key} Pinnacle h2h failed: ${error?.message||error}`);}
     }
 
-    const resultDates=[];let rawResultRows=0,acceptedFinals=0,sampleResultKeys=[],sampleResult=null;
+    const resultDates=[];let rawResultRows=0,acceptedFinals=0,sampleResultKeys=[],sampleResult=null,sampleResolvedResult=null;
     if(sport.results){
       const due=events.filter(event=>Date.parse(event.commenceTime)<=now-RESULT_DELAY_MS);
       const dates=[...new Set(due.filter(event=>!finals.has(event.identity)).map(event=>dateKey(event.commenceTime)).filter(Boolean))];
@@ -184,7 +193,11 @@ async function main(){
         try{
           const response=await fetchJson(`${API}/historical/sports/${encodeURIComponent(sport.key)}/matches?date=${encodeURIComponent(date)}&pricedOnly=false`);totalCredits+=response.credits;resultDates.push(date);
           const raw=arrayPayload(response.data);rawResultRows+=raw.length;
-          if(!sampleResultKeys.length&&raw[0]&&typeof raw[0]==='object'){sampleResultKeys=Object.keys(raw[0]).slice(0,30);sampleResult=sanitizedSample(raw[0]);}
+          if(!sampleResultKeys.length&&raw[0]&&typeof raw[0]==='object'){
+            sampleResultKeys=Object.keys(raw[0]).slice(0,30);sampleResult=sanitizedSample(raw[0]);
+            const resolved=raw.find(item=>primitiveResult(item)||rawScore(item,'home')!==null||rawScore(item,'away')!==null);
+            sampleResolvedResult=sanitizedSample(resolved);
+          }
           for(const item of raw){
             const match=normalizeResult(item,sport.key,sport.game);if(!match)continue;
             const t=Date.parse(match.commenceTime);if(!Number.isFinite(t)||now-t>RESULT_CACHE_MS||t-now>6*3600_000)continue;
@@ -193,7 +206,7 @@ async function main(){
         }catch(error){console.error(`::warning::${sport.key} results ${date} failed: ${error?.message||error}`);}
       }
     }
-    diagnostics.push({sportKey:sport.key,game:sport.game,eventCount:events.length,futureEvents:future.length,oddsCalled,oddsRows,resultDates,rawResultRows,acceptedFinals,sampleResultKeys,sampleResult});
+    diagnostics.push({sportKey:sport.key,game:sport.game,eventCount:events.length,futureEvents:future.length,oddsCalled,oddsRows,resultDates,rawResultRows,acceptedFinals,sampleResultKeys,sampleResult,sampleResolvedResult});
   }
 
   moneylineRows.sort((a,b)=>a.commenceTime.localeCompare(b.commenceTime)||a.game.localeCompare(b.game)||a.selection.localeCompare(b.selection));
