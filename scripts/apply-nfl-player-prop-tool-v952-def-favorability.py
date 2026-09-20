@@ -58,6 +58,10 @@ replace_once(JS,old_guide,new_guide,'Quick Guide DEF semantics')
 # Permanent static regression ownership.
 replace_all(SELFTEST,'95.1','95.2','selftest version bump')
 replace_once(SELFTEST,
+"assert.ok(css.includes('/* v95.2 player-v-defense matchup restore */'),'v95.2 matchup CSS missing');",
+"assert.ok(css.includes('/* v95.1 player-v-defense matchup restore */'),'restored matchup CSS missing');",
+'selftest unchanged CSS marker')
+replace_once(SELFTEST,
 "assert.ok(tool.includes('row.defStrengthScore=clamp(1-allowancePct)'),'DEF VS PROP must grade defensive strength from opponent allowance');\nassert.ok(tool.includes(\"const defenseFit=row.side==='under'?row.defStrengthScore:row.defWeaknessScore\"),'MATCHUP must convert defense strength/weakness to the selected prop side');",
 "assert.ok(tool.includes('row.defStrengthScore=clamp(1-allowancePct)'),'defense-strength normalization must remain available');\nassert.ok(tool.includes(\"const propFavorability=row.side==='under'?row.defStrengthScore:row.defWeaknessScore\"),'DEF VS PROP must favor high allowance for Overs and low allowance for Unders');\nassert.ok(tool.includes('row.defHistoryScore=propFavorability'),'DEF VS PROP grade must own player-side prop favorability');\nassert.ok(tool.includes('const defenseFit=row.defHistoryScore'),'MATCHUP must consume the same player-favorable defense fit');",
 'selftest DEF ownership')
