@@ -1,0 +1,59 @@
+name: One-time ParlayPing remaining sports discovery
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-parlayping-remaining-sports-discovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Discover active sports and prop markets
+        shell: bash
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${PARLAY_API_KEY:-}" ]; then
+            echo '::error::PARLAY_API_KEY is missing.'
+            exit 2
+          fi
+          base='https://parlay-api.com/v1'
+          curl --fail --silent --show-error "$base/sports" -H "X-API-Key: $PARLAY_API_KEY" -o /tmp/sports.json
+          node - <<'NODE'
+          const fs=require('fs');
+          const p=JSON.parse(fs.readFileSync('/tmp/sports.json','utf8'));
+          const rows=Array.isArray(p)?p:Array.isArray(p.data)?p.data:[];
+          const wanted=rows.filter(r=>/(soccer|tennis|mma|mixed martial|golf|esports|boxing|cricket|rugby|volleyball)/i.test(`${r.key||r.sport_key||''} ${r.title||r.sport_title||''}`));
+          console.log('ACTIVE_REMAINING_SPORTS');
+          for(const r of wanted) console.log(JSON.stringify({key:r.key||r.sport_key,title:r.title||r.sport_title,active:r.active??true,hasOutrights:r.has_outrights??r.hasOutrights??null}));
+          fs.writeFileSync('/tmp/keys.txt',wanted.map(r=>r.key||r.sport_key).filter(Boolean).join('\n'));
+          NODE
+
+          echo 'MARKET_DISCOVERY'
+          while IFS= read -r key; do
+            [ -n "$key" ] || continue
+            case "$key" in
+              soccer_epl|soccer_spain_la_liga|soccer_germany_bundesliga|soccer_italy_serie_a|soccer_france_ligue_one|soccer_usa_mls|soccer_uefa_champs_league|soccer_uefa_europa_league|tennis_atp|tennis_wta|mma_mixed_martial_arts|golf_pga_championship|esports_lol|esports_cs2|esports_valorant|boxing_boxing|cricket_*|rugby*|volleyball*)
+                echo "=== $key ==="
+                code=$(curl --silent --show-error -w '%{http_code}' -o /tmp/markets.json "$base/sports/$key/props/markets" -H "X-API-Key: $PARLAY_API_KEY")
+                echo "HTTP $code"
+                if [ "$code" = "200" ]; then
+                  node - <<'NODE'
+                  const fs=require('fs');
+                  const p=JSON.parse(fs.readFileSync('/tmp/markets.json','utf8'));
+                  const rows=Array.isArray(p)?p:Array.isArray(p.data)?p.data:Array.isArray(p.markets)?p.markets:[];
+                  const out=rows.map(x=>typeof x==='string'?x:(x.key||x.market_key||x.market)).filter(Boolean);
+                  console.log(out.slice(0,160).join(','));
+                  NODE
+                else
+                  cat /tmp/markets.json || true
+                fi
+              ;;
+            esac
+          done < /tmp/keys.txt
