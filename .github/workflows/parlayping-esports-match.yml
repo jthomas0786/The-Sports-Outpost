@@ -27,7 +27,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Refresh adaptive esports match odds and finals
+      - name: Refresh verified esports pregame match odds
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
         run: node scripts/parlayping-esports-match-refresh.mjs
@@ -38,6 +38,7 @@ jobs:
           const odds=JSON.parse(fs.readFileSync('slates/esports-match-odds.json','utf8'));
           const results=JSON.parse(fs.readFileSync('slates/esports-results.json','utf8'));
           if(odds?.schemaVersion!==1||odds?.meta?.source!=='parlayapi-pinnacle'||!Array.isArray(odds?.rows))throw new Error('Invalid esports-match-odds schema');
+          if(odds?.meta?.settlementConnected!==false)throw new Error('Esports odds metadata must not claim settlement coverage');
           const groups=new Map();
           for(const row of odds.rows){
             if(row.market!=='matchWinner'||row.bookKey!=='pinnacle')throw new Error('Only Pinnacle matchWinner rows are allowed');
@@ -50,13 +51,9 @@ jobs:
             const sum=rows.reduce((n,r)=>n+r.fairProbability,0);
             if(Math.abs(sum-1)>1e-6)throw new Error(`Esports event ${id} probabilities are not de-vigged to 1`);
           }
-          if(results?.schemaVersion!==1||results?.source!=='parlayapi-results-archive'||results?.liveCoverage!==false||results?.finalOnly!==true||typeof results?.matches!=='object')throw new Error('Invalid esports-results schema');
-          for(const match of Object.values(results.matches||{})){
-            if(match.status!=='FINAL'||!match.final||!match.homeTeam||!match.awayTeam||!match.commenceTime)throw new Error('Invalid esports final row');
-            if(!match.voidLike&&match.winner&&![match.homeTeam,match.awayTeam].some(t=>String(t).toLowerCase()===String(match.winner).toLowerCase()))throw new Error('Esports winner is not one of the match teams');
-            if(!match.voidLike&&!match.winner)throw new Error('Clean esports final cannot omit winner');
-          }
-          console.log(`✓ esports snapshots: ${odds.rows.length} Pinnacle sides across ${groups.size} events; ${Object.keys(results.matches||{}).length} cached finals`);
+          if(results?.schemaVersion!==1||results?.settlementConnected!==false||results?.liveCoverage!==false||results?.finalCoverage!==false||typeof results?.matches!=='object')throw new Error('Invalid fail-closed esports-results schema');
+          if(Object.keys(results.matches||{}).length!==0)throw new Error('Untrusted esports results file must remain empty');
+          console.log(`✓ esports pregame snapshot: ${odds.rows.length} Pinnacle sides across ${groups.size} events; settlement safely disabled`);
           NODE
       - name: Commit changed snapshots to current branch
         shell: bash
@@ -72,6 +69,6 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add "${files[@]}"
-          git commit -m 'Refresh ParlayPing esports match feed'
+          git commit -m 'Refresh ParlayPing esports pregame feed'
           git pull --rebase origin "${GITHUB_REF_NAME}"
           git push origin HEAD:"${GITHUB_REF_NAME}"
