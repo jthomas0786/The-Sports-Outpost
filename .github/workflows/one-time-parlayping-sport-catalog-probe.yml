@@ -1,0 +1,32 @@
+name: One-Time ParlayPing Sport Catalog Probe
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-parlayping-sport-catalog-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: List active expansion candidates
+        run: |
+          node - <<'NODE'
+          (async()=>{
+            const res=await fetch('https://parlay-api.com/v1/sports',{headers:{accept:'application/json','user-agent':'ParlayPing-Sport-Catalog-Probe/1.0'}});
+            const text=await res.text();
+            if(!res.ok)throw new Error(`${res.status}: ${text.slice(0,400)}`);
+            const rows=JSON.parse(text);
+            const wanted=/rugby|volley|cricket|golf|boxing|aussie|afl|lacrosse|handball|water|snooker|darts|formula|nascar|motorsport|cycling|badminton/i;
+            const selected=(Array.isArray(rows)?rows:[]).filter(row=>wanted.test(`${row?.key||''} ${row?.group||''} ${row?.title||''} ${row?.description||''}`));
+            console.log(JSON.stringify({totalActive:Array.isArray(rows)?rows.length:0,candidates:selected.map(({key,group,title,description,active,has_outrights})=>({key,group,title,description,active,has_outrights}))},null,2));
+          })().catch(error=>{console.error(error?.stack||error);process.exit(1);});
+          NODE
