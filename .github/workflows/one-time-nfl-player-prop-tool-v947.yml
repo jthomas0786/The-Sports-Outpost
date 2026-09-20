@@ -88,6 +88,18 @@ jobs:
           if(!choices)throw new Error('No 50K Bet Style selections available');
           console.log(`✓ ${required.length} active/upcoming games · ${choices} Bet Style selections`);
           NODE
+      - name: Persist verified frozen 50K boards
+        if: steps.boards.outputs.ready != 'true'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          for f in slates/nfl-sim.json slates/nfl-quarter.json slates/nfl-sim-state.json; do
+            [ -e "$f" ] && git add "$f"
+          done
+          if ! git diff --cached --quiet; then
+            git commit -m 'Publish verified NFL 50K prop boards'
+            git push origin HEAD:main
+          fi
       - name: Install Chromium
         run: |
           npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
