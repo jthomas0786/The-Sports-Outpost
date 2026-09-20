@@ -65,9 +65,11 @@ css += r'''
 '''
 CSS.write_text(css)
 
-# Advance test expectations to the cache-busted release and add permanent sticky-column coverage.
+# Advance browser expectations to the cache-busted release. Keep existing v94.9
+# CSS-contract assertions intact because those styles are still part of v95.0.
 replace_all(BROWSER, "94.9", "95.0", 'browser version assertions')
-replace_all(SELFTEST, "94.9", "95.0", 'static version assertions')
+replace_once(SELFTEST, "./nfl/player-prop-tool-v947.js?v=94.9", "./nfl/player-prop-tool-v947.js?v=95.0", 'selftest preview cache bust')
+replace_once(SELFTEST, "import('./nfl-preview-v893.js?v=94.9')", "import('./nfl-preview-v893.js?v=95.0')", 'selftest router cache bust')
 
 browser = BROWSER.read_text()
 sticky_test = r'''
