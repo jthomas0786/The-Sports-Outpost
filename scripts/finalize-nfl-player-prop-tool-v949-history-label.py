@@ -29,6 +29,9 @@ b=b.replace('await expect(historyCell).toBeVisible();', 'await expect(matchupCel
 b=b.replace('const historyStyle=await historyCell.evaluate', 'const matchupStyle=await matchupCell.evaluate')
 b=b.replace('expect(historyStyle.bg)', 'expect(matchupStyle.bg)')
 b=b.replace('expect(historyStyle.text)', 'expect(matchupStyle.text)')
+# Retire the old generic DEF copy assertion. DEF VS PROP now intentionally renders an
+# actual historical grade and previous-season allowance rather than the text "vs Prop".
+b=b.replace("  expect(metrics.defText).toContain('vs Prop');","  expect(metrics.defText).toMatch(/Great|Good|Fair|Poor/);\n  expect(metrics.defText).toContain('PREV YR');")
 p.write_text(b)
 
-print('Finalized v94.9 visible MATCHUP label with historical actual-data grading and full-cell formatting')
+print('Finalized v94.9 visible MATCHUP label, historical DEF grades and full-cell formatting regression')
