@@ -12,31 +12,9 @@ import { installNflGamecastPossessionBallV8922 } from './nfl/gamecast-possession
 import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-sync-v907.js?v=90.7';
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
-import { installNflPlayerPropToolV926 } from './nfl/player-prop-tool-v926.js?v=92.7';
-import { installNflPlayerPropToolSnapshotV928 } from './nfl/player-prop-tool-snapshot-v928.js?v=93.2';
-import { installNflPlayerPropToolStaticGuardV929 } from './nfl/player-prop-tool-static-guard-v929.js?v=93.0';
-import { installNflBackgroundFreezeV930 } from './nfl/player-prop-tool-background-freeze-v930.js?v=93.0';
-import { installNflPlayerPropToolUxV930 } from './nfl/player-prop-tool-ux-v930.js?v=93.7';
-import { installNflPlayerPropToolSimV939 } from './nfl/player-prop-tool-sim-v939.js?v=93.9';
-import { installNflPlayerPropToolControlsV933 } from './nfl/player-prop-tool-controls-v933.js?v=93.9';
-import { installNflPlayerPropToolThemeV936 } from './nfl/player-prop-tool-theme-v936.js?v=93.7';
-import { installNflPlayerPropToolPolishV938 } from './nfl/player-prop-tool-polish-v938.js?v=93.9';
-import { installNflPlayerPropToolBuildPeriodV940 } from './nfl/player-prop-tool-build-period-v940.js?v=94.2';
-import { installNflPlayerPropToolReferenceV941 } from './nfl/player-prop-tool-reference-v941.js?v=94.1';
-
-installNflBackgroundFreezeV930();
+import { installNflPlayerPropToolV947 } from './nfl/player-prop-tool-v947.js?v=94.7';
 
 let quarterPollTimer=null,replayLabPromise=null;
-
-function ensurePlayerPropVisibilityV927(){
-  const id='nfl-player-prop-tool-visibility-v927-css';
-  if(document.getElementById(id))return;
-  const link=document.createElement('link');
-  link.id=id;
-  link.rel='stylesheet';
-  link.href='./sports/nfl/player-prop-tool-visibility-v927.css?v=92.7';
-  document.head.appendChild(link);
-}
 
 async function installReplayLabIfRequested(){
   if(typeof location==='undefined'||new URLSearchParams(location.search).get('nflReplayLab')!=='1')return;
@@ -67,20 +45,7 @@ function arm(){
   try{installNflPlayerModalSlateSyncV907();}catch(e){console.warn('[NFL modal slate sync v90.7] unavailable:',e);}
   try{installNflAllPlayersControlsV8921();}catch(e){console.warn('[NFL All Players v89.21] controls unavailable:',e);}
   try{installNflReadabilityV8922();}catch(e){console.warn('[NFL readability v89.22] unavailable:',e);}
-  try{
-    const installPlayerPropTool=()=>installNflPlayerPropToolV926({selectBaseTab:tab=>basePreview.selectTab?.(tab)});
-    installPlayerPropTool();
-    ensurePlayerPropVisibilityV927();
-    installNflPlayerPropToolUxV930();
-    installNflPlayerPropToolSnapshotV928();
-    installNflPlayerPropToolSimV939();
-    installNflPlayerPropToolControlsV933();
-    installNflPlayerPropToolThemeV936();
-    installNflPlayerPropToolPolishV938();
-    installNflPlayerPropToolBuildPeriodV940();
-    installNflPlayerPropToolReferenceV941();
-    installNflPlayerPropToolStaticGuardV929({installPlayerPropTool});
-  }catch(e){console.warn('[NFL Player Prop Tool v94.2] unavailable:',e);}
+  try{installNflPlayerPropToolV947({selectBaseTab:tab=>basePreview.selectTab?.(tab)});}catch(e){console.warn('[NFL Player Prop Tool v94.7] unavailable:',e);}
   try{installNflGamecastActiveLiveV8911();}catch(e){console.warn('[NFL Gamecast v89.11] active-game live gate unavailable:',e);}
   try{installNflGamecastPossessionBallV8922();}catch(e){console.warn('[NFL Gamecast v89.24] possession football unavailable:',e);}
   try{installNflGamecastFieldPositionV8925();}catch(e){console.warn('[NFL Gamecast v89.25] field position authority unavailable:',e);}
