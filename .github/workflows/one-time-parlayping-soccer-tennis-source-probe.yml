@@ -1,0 +1,63 @@
+name: One-time ParlayPing Soccer/Tennis Source Probe
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-parlayping-soccer-tennis-source-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Probe ESPN soccer and tennis public feeds
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const UA='okhttp/4.12.0';
+          const get=async url=>{
+            const r=await fetch(url,{headers:{'user-agent':UA,accept:'application/json','cache-control':'no-cache'}});
+            if(!r.ok)throw new Error(`${r.status} ${r.statusText} ${url}`);
+            return r.json();
+          };
+          const summarize=(value,depth=0)=>{
+            if(value==null)return value;
+            if(Array.isArray(value))return {type:'array',length:value.length,sample:value.length&&depth<2?summarize(value[0],depth+1):null};
+            if(typeof value==='object'){
+              const out={keys:Object.keys(value).slice(0,40)};
+              if(depth<2)for(const key of Object.keys(value).slice(0,12))out[key]=summarize(value[key],depth+1);
+              return out;
+            }
+            return typeof value==='string'&&value.length>100?value.slice(0,100)+'…':value;
+          };
+          async function probeSport(label,base){
+            console.log(`\n===== ${label} SCOREBOARD =====`);
+            const board=await get(`${base}/scoreboard?limit=500`);
+            console.log(JSON.stringify({keys:Object.keys(board),events:board?.events?.length||0,leagues:(board?.leagues||[]).map(l=>({slug:l.slug,name:l.name}))},null,2));
+            const event=board?.events?.find(e=>e?.competitions?.length)||board?.events?.[0];
+            if(!event){console.log(`${label}: no current event`);return;}
+            console.log(`${label} event`,event.id,event.name||event.shortName||'');
+            console.log('event shape',JSON.stringify(summarize(event),null,2).slice(0,12000));
+            try{
+              const summary=await get(`${base}/summary?event=${encodeURIComponent(event.id)}`);
+              console.log(`${label} summary keys`,Object.keys(summary));
+              console.log(`${label} boxscore shape`,JSON.stringify(summarize(summary?.boxscore),null,2).slice(0,16000));
+              console.log(`${label} details shape`,JSON.stringify(summarize(summary?.details),null,2).slice(0,8000));
+              console.log(`${label} plays shape`,JSON.stringify(summarize(summary?.plays),null,2).slice(0,8000));
+              console.log(`${label} header shape`,JSON.stringify(summarize(summary?.header),null,2).slice(0,8000));
+            }catch(e){console.log(`${label} summary failed:`,e.message);}
+          }
+          const cases=[
+            ['SOCCER EPL','https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1'],
+            ['SOCCER MLS','https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1'],
+            ['TENNIS ATP','https://site.api.espn.com/apis/site/v2/sports/tennis/atp'],
+            ['TENNIS WTA','https://site.api.espn.com/apis/site/v2/sports/tennis/wta']
+          ];
+          for(const [label,base] of cases){
+            try{await probeSport(label,base);}catch(e){console.error(`${label} probe failed:`,e.message);}
+          }
+          NODE
