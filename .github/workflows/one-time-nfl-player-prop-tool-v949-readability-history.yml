@@ -6,6 +6,7 @@ on:
       - 'scripts/apply-nfl-player-prop-tool-v949-readability-history.py'
       - 'scripts/apply-nfl-player-prop-tool-v949-historical-defense.py'
       - 'scripts/fix-nfl-player-prop-tool-v949-selftest.py'
+      - 'scripts/fix-nfl-player-prop-tool-v949-browser-version.py'
       - '.github/workflows/one-time-nfl-player-prop-tool-v949-readability-history.yml'
   workflow_dispatch:
 
@@ -34,6 +35,7 @@ jobs:
           python3 scripts/apply-nfl-player-prop-tool-v949-readability-history.py
           python3 scripts/apply-nfl-player-prop-tool-v949-historical-defense.py
           python3 scripts/fix-nfl-player-prop-tool-v949-selftest.py
+          python3 scripts/fix-nfl-player-prop-tool-v949-browser-version.py
       - name: Run static regressions
         run: |
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
@@ -100,7 +102,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: Retire one-time helper and workflow
-        run: rm -f scripts/apply-nfl-player-prop-tool-v949-readability-history.py scripts/apply-nfl-player-prop-tool-v949-historical-defense.py scripts/fix-nfl-player-prop-tool-v949-selftest.py .github/workflows/one-time-nfl-player-prop-tool-v949-readability-history.yml
+        run: rm -f scripts/apply-nfl-player-prop-tool-v949-readability-history.py scripts/apply-nfl-player-prop-tool-v949-historical-defense.py scripts/fix-nfl-player-prop-tool-v949-selftest.py scripts/fix-nfl-player-prop-tool-v949-browser-version.py .github/workflows/one-time-nfl-player-prop-tool-v949-readability-history.yml
       - name: Commit and push verified v94.9 production cutover
         run: |
           git config user.name 'github-actions[bot]'
