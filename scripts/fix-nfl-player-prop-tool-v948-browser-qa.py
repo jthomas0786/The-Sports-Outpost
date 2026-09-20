@@ -51,3 +51,4 @@ if add.strip() not in t:
     t=t.replace(anchor,anchor+add,1)
 selftest.write_text(t)
 print('NFL Player Prop Tool v94.8 browser navigation + scroll-performance QA patched')
+Path('scripts/fix-nfl-player-prop-tool-v948-browser-qa.py').unlink(missing_ok=True)
