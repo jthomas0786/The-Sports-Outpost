@@ -3,15 +3,58 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-09-20T16:23:36.581Z",
+    "fetchedAt": "2026-09-20T17:46:03.165Z",
     "sportKeys": [
-      "esports"
+      "esports_cs2",
+      "esports_valorant",
+      "esports_lol"
     ],
     "bySportKey": [
       {
-        "sportKey": "esports",
+        "sportKey": "esports_cs2",
         "rawRows": 0,
-        "acceptedRows": 0
+        "acceptedRows": 0,
+        "paidPropsCall": true,
+        "discoveredMarkets": [
+          "player_kills_on_maps_1_2",
+          "player_headshots_on_maps_1_2",
+          "player_shots_on_goal",
+          "player_maps_1_2_kills",
+          "player_maps_1_2_headshots",
+          "moneyline",
+          "spreads",
+          "player_map_3_kills",
+          "player_map_3_headshots",
+          "totals"
+        ]
+      },
+      {
+        "sportKey": "esports_valorant",
+        "rawRows": 0,
+        "acceptedRows": 0,
+        "paidPropsCall": true,
+        "discoveredMarkets": [
+          "player_kills_on_maps_1_2",
+          "player_maps_1_2_kills",
+          "player_maps_1_2_first_bloods",
+          "player_maps_1_2_kills_combo"
+        ]
+      },
+      {
+        "sportKey": "esports_lol",
+        "rawRows": 0,
+        "acceptedRows": 0,
+        "paidPropsCall": true,
+        "discoveredMarkets": [
+          "player_assists",
+          "player_kills_on_maps_1_2_3",
+          "player_points",
+          "polymarket_yesno",
+          "player_maps_1_3_kills",
+          "player_map_4_kills",
+          "player_map_5_kills",
+          "player_maps_1_3_kills_combo"
+        ]
       }
     ],
     "sportsbookRows": 0,
