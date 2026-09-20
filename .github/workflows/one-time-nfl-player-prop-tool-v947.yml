@@ -9,6 +9,7 @@ on:
       - 'scripts/apply-nfl-player-prop-tool-v948-side-filter.py'
       - 'scripts/fix-nfl-player-prop-tool-v948-browser-qa.py'
       - 'scripts/fix-nfl-player-prop-tool-v948-isolation.py'
+      - 'scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py'
       - '.github/workflows/one-time-nfl-player-prop-tool-v947.yml'
 
 permissions:
@@ -38,6 +39,7 @@ jobs:
           python3 scripts/fix-nfl-player-prop-tool-v948-browser-qa.py
           python3 scripts/apply-nfl-player-prop-tool-v948-side-filter.py
           python3 scripts/fix-nfl-player-prop-tool-v948-isolation.py
+          python3 scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py
       - name: Run v94.8 static regressions
         run: |
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
@@ -137,7 +139,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
       - name: Retire one-time helpers
-        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-v947.yml .github/workflows/one-time-nfl-prop-sim-v947.yml scripts/apply-nfl-player-prop-tool-v947.py scripts/apply-nfl-player-prop-tool-v948-proj-l10.py scripts/apply-nfl-player-prop-tool-v948-side-filter.py scripts/fix-nfl-player-prop-tool-v948-browser-qa.py scripts/fix-nfl-player-prop-tool-v948-isolation.py
+        run: rm -f .github/workflows/one-time-nfl-player-prop-tool-v947.yml .github/workflows/one-time-nfl-prop-sim-v947.yml scripts/apply-nfl-player-prop-tool-v947.py scripts/apply-nfl-player-prop-tool-v948-proj-l10.py scripts/apply-nfl-player-prop-tool-v948-side-filter.py scripts/fix-nfl-player-prop-tool-v948-browser-qa.py scripts/fix-nfl-player-prop-tool-v948-isolation.py scripts/fix-nfl-player-prop-tool-v948-modal-handoff.py
       - name: Commit and push verified v94.8 cutover
         run: |
           git config user.name 'github-actions[bot]'
