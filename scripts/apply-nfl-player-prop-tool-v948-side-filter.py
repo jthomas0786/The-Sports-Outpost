@@ -76,7 +76,7 @@ qa="""
 
 test('Over Under segmented switch covers both directions and same-side clear',async({page})=>{
   let toolRequests=0;
-  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.7-'))toolRequests++;}catch{}});
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.8-'))toolRequests++;}catch{}});
   await open(page);
   await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
   const baseline=toolRequests;
