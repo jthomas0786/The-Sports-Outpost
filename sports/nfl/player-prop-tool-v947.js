@@ -1,4 +1,4 @@
-const VERSION='95.1';
+const VERSION='95.2';
 const TOOL_ID='nflPlayerPropTool';
 const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
@@ -209,15 +209,16 @@ function attachMatchupProfiles(rows){
       const allowancePct=clamp((lower+equal*.5)/vals.length);
       row.defWeaknessScore=allowancePct;
       row.defStrengthScore=clamp(1-allowancePct);
-      row.defHistoryScore=row.defStrengthScore;
-      row.defHistoryGrade=fourGrade(row.defStrengthScore);
+      const propFavorability=row.side==='under'?row.defStrengthScore:row.defWeaknessScore;
+      row.defHistoryScore=propFavorability;
+      row.defHistoryGrade=fourGrade(propFavorability);
     }
 
     const recentRate=row.l10Actual?.rate??row.l5Actual?.rate??null;
     const h2hRate=row.h2hActual?.total>=2?row.h2hActual.rate:null;
     const marginScore=row.histPct==null?null:clamp(.5+Number(row.histPct)*1.35);
     row.playerMatchupScore=weightedScore([[recentRate,.70],[marginScore,.20],[h2hRate,.10]]);
-    const defenseFit=row.side==='under'?row.defStrengthScore:row.defWeaknessScore;
+    const defenseFit=row.defHistoryScore;
     row.matchupDefenseScore=defenseFit;
     if(row.playerMatchupScore==null&&defenseFit!=null)row.matchupScore=weightedScore([[.5,.62],[defenseFit,.38]]);
     else if(defenseFit==null)row.matchupScore=row.playerMatchupScore;
@@ -322,7 +323,7 @@ function valueFor(row,key){
   if(key==='l10Avg')return row.l10Avg??-1;
   if(key==='prob')return row.prob??-1;
   if(key==='edge')return row.edge??-999;
-  if(key==='def')return row.defStrengthScore??-1;
+  if(key==='def')return row.defHistoryScore??-1;
   if(key==='matchup')return row.matchupScore??-1;
   if(key==='simDef')return row.simStop??-1;
   if(key==='l5')return actualRateValue(row.l5Actual);
@@ -351,7 +352,8 @@ function bookHtml(row){
 function defHtml(row){
   const src=teamLogo(row.opp),grade=row.defHistoryGrade||'—',tone=gradeToneHistorical(grade);
   const value=row.defAllowed==null?'—':`${fmt(row.defAllowed)} ${defenseUnit(row.market)}`;
-  const title=`${row.opp} defense vs ${row.position||'this position'} ${marketLabel(row.market)}. ${grade==='—'?'Defensive allowance data is unavailable.':`${grade} grades the defense itself: stronger defenses allow less than peer defenses for this position/prop; weaker defenses allow more.`} ${value==='—'?'':`Previous-season actual allowance: ${value}. `}No simulation data is used.`;
+  const side=row.side==='under'?'Under':'Over';
+  const title=`${row.opp} defense vs ${row.position||'this position'} ${marketLabel(row.market)} ${side}. ${grade==='—'?'Defensive allowance data is unavailable.':`${grade} is graded from the displayed player prop side: Great/green means this defense is favorable for the ${side}; Poor/red means it is unfavorable.`} ${side==='Over'?'Higher opponent allowance helps the Over; lower allowance hurts it.':'Lower opponent allowance helps the Under; higher allowance hurts it.'} ${value==='—'?'':`Previous-season actual allowance: ${value}. `}No simulation data is used.`;
   return `<div class="nfl-ppt-def-v947 ${tone}" title="${esc(title)}">${src?`<img src="${esc(src)}" alt="${esc(row.opp)} defense">`:`<strong>${esc(row.opp||'DEF')}</strong>`}<div class="nfl-ppt-def-copy-v949"><b>${esc(grade)}</b><span>${esc(value)} · PREV YR</span></div></div>`;
 }
 function matchupHtml(row){
@@ -419,7 +421,7 @@ function guideHtml(){
     <div><b>L10 AVG</b><p>The player’s actual average for this stat over the last 10 available games.</p></div>
     <div><b>COV PROB</b><p>The 50K simulated chance that the displayed side covers the line.</p></div>
     <div><b>EDGE</b><p>Model cover probability compared with the sportsbook’s implied probability.</p></div>
-    <div><b>DEF VS PROP</b><p>Opponent defense vs this player position and prop. Great means a stronger defense with lower actual allowance than peers; Poor means a weaker defense with higher allowance.</p></div>
+    <div><b>DEF VS PROP</b><p>Opponent defense vs this player position and prop, graded for the displayed pick. Great/green helps the pick; Poor/red hurts it. Overs favor defenses allowing more; Unders favor defenses allowing less.</p></div>
     <div><b>MATCHUP</b><p>Player position vs the opponent defense. The grade blends actual recent player results with the opponent’s actual defensive allowance for this position/prop.</p></div>
     <div><b>SIM DEF</b><p>The simulated stop rate against the displayed side. Higher means a tougher simulated cover.</p></div>
     <div><b>L5</b><p>Actual hits in the player’s last 5 games versus this exact line and side.</p></div>

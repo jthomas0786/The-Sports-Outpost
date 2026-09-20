@@ -13,7 +13,7 @@ async function open(page,viewport={width:1440,height:900}){
   await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
   await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
   await page.waitForFunction(()=>document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'),null,{timeout:15000});
-  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='95.1'&&document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='95.2'&&document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
   const visibility=await page.locator('#nflPlayerPropTool').evaluate(el=>{
     const chain=[];let n=el;
     while(n&&n!==document.documentElement){const cs=getComputedStyle(n),r=n.getBoundingClientRect();chain.push({tag:n.tagName,id:n.id,cls:n.className,hidden:n.hasAttribute('hidden'),display:cs.display,visibility:cs.visibility,opacity:cs.opacity,w:r.width,h:r.height});n=n.parentElement;}
@@ -116,7 +116,7 @@ test('Game and Prop filters keep valid rows instead of blanking the table',async
 
 test('style period filters and sorting stay inside the frozen four-file snapshot',async({page})=>{
   let toolRequests=0;
-  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.1-'))toolRequests++;}catch{}});
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.2-'))toolRequests++;}catch{}});
   await open(page);
   await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
   const baseline=toolRequests;
@@ -138,7 +138,7 @@ test('player name opens the actual modern NFL player modal and returns to the sa
   await expect(page.locator('#nflView .tso-nfl-player-card-v72')).toBeVisible({timeout:30000});
   expect(await page.locator('#nflView .ms-modal').evaluateAll(ms=>ms.filter(m=>m.getClientRects().length&&!m.querySelector('.tso-nfl-player-card-v72')).length)).toBe(0);
   await page.locator('#nflView .tso-nfl-player-card-v72 .modal-close').click();
-  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='95.1',{timeout:30000});
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='95.2',{timeout:30000});
   await expect(page.locator('#nflPlayerPropTool')).toBeVisible();
   const after=await page.evaluate(()=>({y:window.scrollY,x:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollLeft||0}));
   expect(Math.abs(after.x-before.x)).toBeLessThanOrEqual(3);
@@ -154,7 +154,7 @@ test('mobile table scrolls internally without widening the page',async({page})=>
 });
 
 
-test('v95.1 Matchup is player position vs opponent defense and DEF is the defensive view',async({page})=>{
+test('v95.2 Matchup is player position vs opponent defense and DEF VS PROP favors the displayed pick',async({page})=>{
   await open(page);
   const row=page.locator('#nflPlayerPropTool tbody tr:visible').first();
   const metrics=await row.evaluate(r=>{
@@ -189,20 +189,25 @@ test('v95.1 Matchup is player position vs opponent defense and DEF is the defens
   expect(metrics.matchTitle).toContain('No simulation data is used');
   expect(metrics.defLogo).toContain('teamlogos/nfl');
   expect(metrics.defGrade).toMatch(/Great|Good|Fair|Poor/);
-  expect(metrics.defTitle).toContain('grades the defense itself');
+  expect(metrics.defTitle).toContain('graded from the displayed player prop side');
   expect(metrics.defTitle).toContain('No simulation data is used');
   expect(metrics.matchBg).not.toBe('rgba(0, 0, 0, 0)');
   expect(metrics.defBg).not.toBe('rgba(0, 0, 0, 0)');
 
   const ownership=await page.evaluate(()=>{
     const rows=window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[];
-    const r=rows.find(x=>Number.isFinite(Number(x.matchupScore))&&Number.isFinite(Number(x.defStrengthScore)));
-    return r?{matchupScore:r.matchupScore,defStrengthScore:r.defStrengthScore,defWeaknessScore:r.defWeaknessScore,playerScore:r.playerMatchupScore,side:r.side}:null;
+    return rows.filter(x=>Number.isFinite(Number(x.matchupScore))&&Number.isFinite(Number(x.defStrengthScore))&&Number.isFinite(Number(x.defWeaknessScore))&&Number.isFinite(Number(x.defHistoryScore))).slice(0,100).map(r=>({matchupScore:r.matchupScore,defStrengthScore:r.defStrengthScore,defWeaknessScore:r.defWeaknessScore,defHistoryScore:r.defHistoryScore,side:r.side}));
   });
-  expect(ownership).toBeTruthy();
-  expect(ownership.matchupScore).toBeGreaterThanOrEqual(0);
-  expect(ownership.matchupScore).toBeLessThanOrEqual(1);
-  expect(ownership.defStrengthScore+ownership.defWeaknessScore).toBeCloseTo(1,5);
+  expect(ownership.length).toBeGreaterThan(0);
+  for(const row of ownership){
+    expect(row.matchupScore).toBeGreaterThanOrEqual(0);
+    expect(row.matchupScore).toBeLessThanOrEqual(1);
+    expect(row.defStrengthScore+row.defWeaknessScore).toBeCloseTo(1,5);
+    const expected=row.side==='under'?row.defStrengthScore:row.defWeaknessScore;
+    expect(row.defHistoryScore).toBeCloseTo(expected,5);
+  }
+  expect(ownership.some(x=>x.side==='over')).toBe(true);
+  expect(ownership.some(x=>x.side==='under')).toBe(true);
 });
 
 
@@ -233,7 +238,7 @@ test('scrolling is display-only: no Prop Tool refetch or table rebuild',async({p
   page.on('request',r=>{
     try{
       const u=new URL(r.url());
-      if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.1-'))toolRequests++;
+      if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.2-'))toolRequests++;
     }catch{}
   });
   await open(page,{width:1280,height:800});
@@ -255,7 +260,7 @@ test('scrolling is display-only: no Prop Tool refetch or table rebuild',async({p
 
 test('Over Under segmented switch covers both directions and same-side clear',async({page})=>{
   let toolRequests=0;
-  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.1-'))toolRequests++;}catch{}});
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('95.2-'))toolRequests++;}catch{}});
   await open(page);
   await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
   const baseline=toolRequests;
@@ -365,7 +370,7 @@ test('Over Under side selection survives every other Player Prop Tool filter',as
 });
 
 
-test('v95.1 larger text restored Matchup Defense and column-by-column Quick Guide',async({page})=>{
+test('v95.2 larger text restored Matchup Defense and column-by-column Quick Guide',async({page})=>{
   await open(page);
   await expect(page.locator('#nflPlayerPropTool thead tr:nth-child(2) th').filter({hasText:'MATCHUP'})).toHaveCount(1);
   await expect(page.locator('#nflPlayerPropTool thead tr:nth-child(2) th').filter({hasText:'HISTORICAL'})).toHaveCount(0);
@@ -398,7 +403,7 @@ test('v95.1 larger text restored Matchup Defense and column-by-column Quick Guid
   expect(defenseData.logo).toContain('teamlogos/nfl');
   expect(defenseData.grade).toMatch(/Great|Good|Fair|Poor/);
   expect(defenseData.copy).toContain('PREV YR');
-  expect(defenseData.title).toContain('grades the defense itself');
+  expect(defenseData.title).toContain('graded from the displayed player prop side');
   expect(defenseData.title).toContain('No simulation data');
 
   const fontSizes=await page.evaluate(()=>({
@@ -418,7 +423,8 @@ test('v95.1 larger text restored Matchup Defense and column-by-column Quick Guid
   const guideLabels=await cards.locator('b').allTextContents();
   expect(guideLabels).toEqual(['PLAYER','PROP LINE','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H']);
   const guideText=await cards.allTextContents();
-  expect(guideText[7]).toContain('Opponent defense vs this player position and prop');
+  expect(guideText[7]).toContain('graded for the displayed pick');
+  expect(guideText[7]).toContain('Great/green helps the pick');
   expect(guideText[8]).toContain('Player position vs the opponent defense');
   const guideFont=await cards.locator('p').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize));
   expect(guideFont).toBeGreaterThanOrEqual(11);
@@ -436,7 +442,7 @@ test('v95.1 larger text restored Matchup Defense and column-by-column Quick Guid
 });
 
 
-test('v95.1 keeps the entire Player column frozen during horizontal scrolling',async({page})=>{
+test('v95.2 keeps the entire Player column frozen during horizontal scrolling',async({page})=>{
   await open(page,{width:900,height:800});
   const wrap=page.locator('#nflPlayerPropTool .nfl-ppt-table-wrap');
   const playerHead=page.locator('#nflPlayerPropTool thead tr:nth-child(2) th[data-col="player"]');

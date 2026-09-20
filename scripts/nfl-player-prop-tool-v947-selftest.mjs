@@ -34,13 +34,17 @@ assert.ok(tool.includes('nfl-ppt-match-line-v947'),'MATCHUP position-vs-opponent
 assert.ok(tool.includes('const statKey=MARKET_STAT'),'historical market-stat mapping missing');
 assert.ok(tool.includes("const histDelta=full&&l10Avg!=null"),'actual player-form margin must derive from L10 average');
 assert.ok(tool.includes('previousSeasonAllowed?.perGame'),'DEF VS PROP must use historical opponent allowance data');
-assert.ok(tool.includes('row.defStrengthScore=clamp(1-allowancePct)'),'DEF VS PROP must grade defensive strength from opponent allowance');
-assert.ok(tool.includes("const defenseFit=row.side==='under'?row.defStrengthScore:row.defWeaknessScore"),'MATCHUP must convert defense strength/weakness to the selected prop side');
+assert.ok(tool.includes('row.defStrengthScore=clamp(1-allowancePct)'),'defense-strength normalization must remain available');
+assert.ok(tool.includes("const propFavorability=row.side==='under'?row.defStrengthScore:row.defWeaknessScore"),'DEF VS PROP must favor high allowance for Overs and low allowance for Unders');
+assert.ok(tool.includes('row.defHistoryScore=propFavorability'),'DEF VS PROP grade must own player-side prop favorability');
+assert.ok(tool.includes('const defenseFit=row.defHistoryScore'),'MATCHUP must consume the same player-favorable defense fit');
 assert.ok(tool.includes('row.matchupScore=weightedScore'),'MATCHUP must blend player form and opponent defense');
-assert.ok(tool.includes("if(key==='def')return row.defStrengthScore"),'DEF VS PROP sort must use defense-strength score');
+assert.ok(tool.includes("if(key==='def')return row.defHistoryScore"),'DEF VS PROP sort must use player-favorable prop score');
 assert.ok(tool.includes("if(key==='matchup')return row.matchupScore"),'MATCHUP sort must use player-v-defense score');
 assert.ok(tool.includes("return s>=.70?'Great':s>=.58?'Good':s>=.42?'Fair':'Poor'"),'Great/Good/Fair/Poor scale missing');
 assert.ok(tool.includes('No simulation data is used'),'MATCHUP and defense tooltips must identify actual-only data');
+assert.ok(tool.includes('graded from the displayed player prop side'),'DEF tooltip must explain player-favorable grading');
+assert.ok(tool.includes('Great/green helps the pick; Poor/red hurts it.'),'Quick Guide must explain player-favorable DEF colors');
 assert.ok(!tool.includes('function historicalHtml(row)'),'historical hit-rate box must not own MATCHUP');
 assert.ok(!tool.includes('50K simulation matchup read'),'DEF VS PROP must not use simulated matchup copy');
 
@@ -84,7 +88,7 @@ assert.ok(tool.includes('<colgroup>'),'table must use an explicit colgroup');
 assert.ok(css.includes('stroke-width:2.2'),'coverage ring must stay thin');
 assert.ok(css.includes('border-bottom:1px solid #1f3b58'),'player rows/cells must retain visible borders');
 assert.ok(css.includes('scrollbar-width:none'),'horizontal table scrollbar must remain visually hidden');
-assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=95.1"),'preview must import v94.9');
+assert.ok(preview.includes("./nfl/player-prop-tool-v947.js?v=95.2"),'preview must import v94.9');
 for(const retired of ['player-prop-tool-sim-v939','player-prop-tool-controls-v933','player-prop-tool-build-period-v940','player-prop-tool-reference-v941','player-prop-tool-snapshot-v928','player-prop-tool-static-guard-v929','player-prop-tool-ux-v930']) assert.ok(!preview.includes(retired),`retired writer still active in preview: ${retired}`);
 assert.ok(!router.includes('installNflBackgroundFreezeV930'),'global Player Prop background freeze must be removed');
 const basePreview=read('sports/nfl-preview.js');
@@ -100,8 +104,8 @@ assert.ok(halftimeUi.includes("document.getElementById('nflPlayerPropTool')||doc
 assert.ok(modelEdge.includes("root.classList.contains('nfl-ppt-active-v948')"),'model observer/refresh must pause on Player Prop Tool');
 assert.ok(commandCenterClient.includes("document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')"),'Command Center polling must pause on Player Prop Tool');
 
-assert.ok(router.includes("import('./nfl-preview-v893.js?v=95.1')"),'router must hard cache-bust NFL preview to v94.9');
-console.log('✓ NFL Player Prop Tool v95.1 player-v-defense matchup static regression passed');
+assert.ok(router.includes("import('./nfl-preview-v893.js?v=95.2')"),'router must hard cache-bust NFL preview to v94.9');
+console.log('✓ NFL Player Prop Tool v95.2 player-v-defense matchup static regression passed');
 
 assert.ok(tool.includes("key==='player'?'nfl-ppt-player-sticky':''"),'PLAYER header must join the sticky first column');
 assert.ok(css.includes('/* v95.0 frozen Player column */'),'v95.0 frozen Player column CSS missing');
@@ -110,5 +114,5 @@ assert.ok(css.includes('td.nfl-ppt-player-sticky'),'Player body cell sticky sele
 assert.ok(css.includes('position:sticky!important'),'Player column must be forced sticky');
 
 
-assert.ok(tool.includes("const VERSION='95.1'"),'Player Prop Tool v95.1 version missing');
-assert.ok(css.includes('/* v95.1 player-v-defense matchup restore */'),'v95.1 matchup CSS missing');
+assert.ok(tool.includes("const VERSION='95.2'"),'Player Prop Tool v95.2 version missing');
+assert.ok(css.includes('/* v95.1 player-v-defense matchup restore */'),'restored matchup CSS missing');
