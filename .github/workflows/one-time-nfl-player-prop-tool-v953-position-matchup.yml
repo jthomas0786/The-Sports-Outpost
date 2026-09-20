@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'scripts/apply-nfl-player-prop-tool-v953-position-matchup.py'
+      - 'scripts/fix-nfl-player-prop-tool-v953-browser-copy.py'
       - '.github/workflows/one-time-nfl-player-prop-tool-v953-position-matchup.yml'
   workflow_dispatch:
 
@@ -31,7 +32,9 @@ jobs:
           git checkout main
           git reset --hard origin/main
       - name: Apply v95.3 position-only MATCHUP cutover
-        run: python3 scripts/apply-nfl-player-prop-tool-v953-position-matchup.py
+        run: |
+          python3 scripts/apply-nfl-player-prop-tool-v953-position-matchup.py
+          python3 scripts/fix-nfl-player-prop-tool-v953-browser-copy.py
       - name: Run static regressions
         run: |
           node scripts/nfl-player-prop-tool-v947-selftest.mjs
@@ -83,12 +86,13 @@ jobs:
       - name: Retire one-time helper and workflow
         run: |
           rm scripts/apply-nfl-player-prop-tool-v953-position-matchup.py
+          rm scripts/fix-nfl-player-prop-tool-v953-browser-copy.py
           rm .github/workflows/one-time-nfl-player-prop-tool-v953-position-matchup.yml
       - name: Commit and push verified v95.3 production cutover
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add sports/nfl/player-prop-tool-v947.js sports/nfl-preview-v893.js sports/router.js scripts/nfl-player-prop-tool-v947-selftest.mjs tests/nfl-player-prop-tool-v947.spec.js scripts/apply-nfl-player-prop-tool-v953-position-matchup.py .github/workflows/one-time-nfl-player-prop-tool-v953-position-matchup.yml
+          git add sports/nfl/player-prop-tool-v947.js sports/nfl-preview-v893.js sports/router.js scripts/nfl-player-prop-tool-v947-selftest.mjs tests/nfl-player-prop-tool-v947.spec.js scripts/apply-nfl-player-prop-tool-v953-position-matchup.py scripts/fix-nfl-player-prop-tool-v953-browser-copy.py .github/workflows/one-time-nfl-player-prop-tool-v953-position-matchup.yml
           git commit -m 'Make NFL Prop Tool Matchup position-only'
           for attempt in 1 2 3; do
             git fetch origin main
