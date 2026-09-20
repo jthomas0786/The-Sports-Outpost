@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v8918.js';
-import { decideAutomaticRun, nextAutomationState } from '../sports/nfl/sim/auto.js';
+import { decideAutomaticRun, nextAutomationState, preservePregamePropCache } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
 import { buildPregameFullPropBoard } from '../sports/nfl/sim/full-prop-board-v942.js';
@@ -139,7 +139,7 @@ for(const game of games){
     const readyHalves=Object.values(quarterBoard.halves||{}).filter(q=>q?.ready).length;
     console.log(`  ↳ prop periods: ${readyHalves}/2 half(s), ${readyQuarters}/4 quarter(s) ready from the same ${Number(raw.iterations||0).toLocaleString()} worlds`);
   }
-  const result=stripPrivateSamples(raw);
+  const result=preservePregamePropCache({previousResult:old,nextResult:stripPrivateSamples(raw),phase:decision.phase});
   result.automation={
     automatic:true,phase:decision.phase,reason:decision.reason,checkpointMinutes:decision.checkpointMinutes??null,
     inputFingerprint:decision.fingerprint,runAt:NOW.toISOString(),probabilityBlend:config.probabilityBlend||null,

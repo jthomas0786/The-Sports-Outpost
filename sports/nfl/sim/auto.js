@@ -224,6 +224,15 @@ export function decideAutomaticRun({
   return {run:false,phase,reason:changed?'pregame change throttled':'no material change',fingerprint,iterations:0,checkpointMinutes:cp,ready};
 }
 
+export function preservePregamePropCache({previousResult=null,nextResult=null,phase='pregame'}={}){
+  if(!nextResult||typeof nextResult!=='object'||!previousResult||phase==='pregame') return nextResult;
+  const out={...nextResult};
+  for(const key of ['propStyles','propStyleVersion','propPeriods','propPeriodVersion']){
+    if(out[key]==null&&previousResult[key]!=null) out[key]=previousResult[key];
+  }
+  return out;
+}
+
 export function nextAutomationState({previousState=null,decision,result,game,now=new Date()}){
   const prev=previousState||{};
   const out={...prev,gameId:String(game?.gameId||game?.id||''),kickoff:game?.startTimeUTC||null};

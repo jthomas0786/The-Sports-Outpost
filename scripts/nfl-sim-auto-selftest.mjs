@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import fs from 'node:fs/promises';
 import assert from 'node:assert/strict';
-import { decideAutomaticRun, nextAutomationState, activePregameCheckpoint, isHalftimeState } from '../sports/nfl/sim/auto.js';
+import { decideAutomaticRun, nextAutomationState, activePregameCheckpoint, isHalftimeState, preservePregamePropCache } from '../sports/nfl/sim/auto.js';
 
 const config=JSON.parse(await fs.readFile(new URL('../sports/nfl/sim/config.json',import.meta.url),'utf8'));
 const kickoff='2026-09-09T20:20:00-04:00';
@@ -119,6 +119,24 @@ hd=decideAutomaticRun({
 });
 assert.equal(hd.run,false);
 assert.match(hd.reason,/already complete/);
+
+
+// Live/halftime updates must retain the exact frozen pregame Prop Tool cache.
+const frozenPropStyles={ready:true,candidates:[{id:'frozen-prop'}],rankings:{tsoPick:['frozen-prop']}};
+const frozenPropPeriods={full:{ready:true,candidates:[{id:'frozen-period'}]}};
+const cachedPregame={propStyleVersion:'v94.2',propStyles:frozenPropStyles,propPeriodVersion:'v94.0',propPeriods:frozenPropPeriods};
+for(const phase of ['live','halftime']){
+  const retained=preservePregamePropCache({previousResult:cachedPregame,nextResult:{iterations:15000,game:{gameId:'AUTO-NE-SEA'}},phase});
+  assert.deepEqual(retained.propStyles,frozenPropStyles,`${phase} update erased frozen propStyles`);
+  assert.deepEqual(retained.propPeriods,frozenPropPeriods,`${phase} update erased frozen propPeriods`);
+  assert.equal(retained.propStyleVersion,'v94.2');
+  assert.equal(retained.propPeriodVersion,'v94.0');
+}
+const refreshed={ready:true,candidates:[{id:'new-prop'}],rankings:{tsoPick:['new-prop']}};
+const liveWithOwnBoard=preservePregamePropCache({previousResult:cachedPregame,nextResult:{propStyles:refreshed},phase:'live'});
+assert.equal(liveWithOwnBoard.propStyles,refreshed,'newly supplied board must not be overwritten by older cache');
+const pregameNoCarry=preservePregamePropCache({previousResult:cachedPregame,nextResult:{iterations:50000},phase:'pregame'});
+assert.equal(pregameNoCarry.propStyles,undefined,'pregame rebuilds must own their newly generated board');
 
 const post={...halftime,status:'post',period:4,clockMin:0,statusDetail:'Final'};
 const pd=decideAutomaticRun({game,research,odds,liveGame:post,config,now:new Date('2026-09-10T00:00:00-04:00'),existingResult:existing,previousState:state});
