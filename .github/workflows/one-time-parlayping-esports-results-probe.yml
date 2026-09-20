@@ -1,0 +1,52 @@
+name: One-Time ParlayPing Esports Results Probe
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-parlayping-esports-results-probe.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Probe prior-day completed esports result rows
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: |
+          node - <<'NODE'
+          const sports=['esports_cs2','esports_valorant','esports_dota2'];
+          const date='2026-09-19';
+          const finite=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
+          const clean=row=>({
+            game_date:row?.game_date??null,
+            sport_key:row?.sport_key??null,
+            home_team:row?.home_team??null,
+            away_team:row?.away_team??null,
+            home_score:finite(row?.home_score),
+            away_score:finite(row?.away_score),
+            result:typeof row?.result==='string'||typeof row?.result==='number'?row.result:null,
+            has_odds:row?.has_odds??null,
+            canonical_event_id:row?.canonical_event_id??null
+          });
+          (async()=>{
+            for(const sport of sports){
+              const url=`https://parlay-api.com/v1/historical/sports/${sport}/matches?date=${date}&pricedOnly=false`;
+              const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':process.env.PARLAY_API_KEY,'user-agent':'The-Sports-Outpost-ParlayPing-Probe/1.0'}});
+              const text=await res.text();
+              if(!res.ok)throw new Error(`${sport}: ${res.status} ${text.slice(0,300)}`);
+              const payload=text?JSON.parse(text):[];
+              const rows=Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:Array.isArray(payload?.matches)?payload.matches:[];
+              const resolved=rows.filter(row=>row?.result!==null&&row?.result!==undefined&&row?.result!==''||finite(row?.home_score)!==null||finite(row?.away_score)!==null);
+              console.log(JSON.stringify({sport,date,totalRows:rows.length,resolvedRows:resolved.length,samples:resolved.slice(0,5).map(clean)}));
+            }
+          })().catch(error=>{console.error(error?.stack||error);process.exit(1);});
+          NODE
