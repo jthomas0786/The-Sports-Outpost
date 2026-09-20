@@ -1,4 +1,4 @@
-const VERSION='94.7';
+const VERSION='94.8';
 const TOOL_ID='nflPlayerPropTool';
 const BUTTON_ID='nflPlayerPropToolBtn';
 const STASH_ID='nflPlayerPropToolBaseStash';
@@ -26,7 +26,7 @@ const MARKET_META={
 };
 const POSITIONS=['QB','RB','WR','TE'];
 const HEADERS=[
-  ['player','PLAYER'],['consensus','CONSENSUS'],['pick','PICK'],['proj','PROJ'],['median','L10 AVG'],
+  ['player','PLAYER'],['propLine','PROP LINE'],['pick','PICK'],['proj','PROJ'],['l10Avg','L10 AVG'],
   ['prob','COV PROB'],['edge','EDGE'],['def','DEF VS PROP'],['matchup','MATCHUP'],['simDef','SIM DEF'],
   ['l5','L5'],['l10','L10'],['h2h','H2H'],
 ];
@@ -38,7 +38,7 @@ const BOOK_DOMAINS=[
 ];
 const state={
   style:'tsoPick',period:'full',game:'ALL',market:'ALL',team:'ALL',positions:new Set(POSITIONS),
-  search:'',minProb:.40,sortKey:'style',sortDir:'desc',color:true,filtersOpen:false,
+  search:'',minProb:.40,side:null,sortKey:'style',sortDir:'desc',color:true,filtersOpen:false,
 };
 let installed=false,active=false,selectBaseTab=null,snapshot=null,loadPromise=null,rowsCache=new Map(),modalReturn=null,restoreRaf=0;
 const currentRows=new Map();
@@ -51,6 +51,13 @@ const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,Number(v)||0));
 const fmt=v=>v==null||!Number.isFinite(Number(v))?'—':Math.abs(Number(v))>=100?Math.round(Number(v)).toString():Number(v).toFixed(1).replace(/\.0$/,'');
 const priceFmt=v=>v==null||!Number.isFinite(Number(v))?'—':Number(v)>0?`+${Math.round(Number(v))}`:`${Math.round(Number(v))}`;
 const kickoff=iso=>{const d=new Date(iso||0);return Number.isFinite(d.getTime())?d.toLocaleString([],{weekday:'short',hour:'numeric',minute:'2-digit'}):'TBD';};
+function gameOptionLabel(g){
+  const away=team(g?.away?.abbr||g?.away),home=team(g?.home?.abbr||g?.home),d=new Date(g?.startTimeUTC||g?.startTime||g?.date||0);
+  if(!Number.isFinite(d.getTime()))return `${away||'AWY'} @ ${home||'HME'} · TBD`;
+  const now=new Date(),sameDay=d.getFullYear()===now.getFullYear()&&d.getMonth()===now.getMonth()&&d.getDate()===now.getDate();
+  const time=d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}).toLowerCase();
+  return `${away||'AWY'} @ ${home||'HME'} · ${sameDay?time:`${d.getMonth()+1}/${d.getDate()} ${time}`}`;
+}
 const gradeFor=p=>p>=.70?'A+':p>=.65?'A':p>=.61?'A-':p>=.57?'B+':p>=.54?'B':p>=.51?'B-':p>=.48?'C+':'C';
 const gradeTone=p=>p>=.67?'great':p>=.58?'good':p>=.50?'mid':'tough';
 const cssEscape=v=>globalThis.CSS?.escape?CSS.escape(String(v)):String(v).replace(/["\\]/g,'\\$&');
@@ -87,8 +94,9 @@ function bookDomain(book){
   const b=String(book||'');
   return BOOK_DOMAINS.find(([re])=>re.test(b))?.[1]||'';
 }
-function bookLogo(book){
-  const domain=bookDomain(book);
+function bookLogo(book,link=''){
+  let domain=bookDomain(book);
+  if(!domain&&link){try{domain=new URL(link,location.href).hostname.replace(/^www\./,'');}catch{}}
   return domain?`https://www.google.com/s2/favicons?domain=${encodeURIComponent(domain)}&sz=64`:'';
 }
 function marketLabel(key){return MARKET_META[key]?.label||key||'Prop';}
@@ -108,6 +116,57 @@ function findSlatePlayer(game,c){
   }
   return players.find(p=>team(p.team)===team(c.team)&&norm(p.name)===norm(c.name))||null;
 }
+
+const MARKET_STAT={rushYds:'rushYds',recYds:'recYds',receptions:'receptions',passYds:'passYds',passTds:'passTds',completions:'completions',atd:'tds'};
+function buildResearchIndex(research){
+  const byEspn=new Map(),byGsis=new Map(),byTeamName=new Map();
+  for(const p of research?.players||[]){
+    if(p?.espnId)byEspn.set(String(p.espnId),p);
+    if(p?.gsisId)byGsis.set(String(p.gsisId),p);
+    byTeamName.set(`${team(p?.team)}|${norm(p?.name)}`,p);
+  }
+  return{byEspn,byGsis,byTeamName};
+}
+function findResearch(index,p){
+  if(!p)return null;
+  return index.byEspn.get(String(p.espnId||''))||index.byGsis.get(String(p.gsisId||''))||index.byTeamName.get(`${team(p.team)}|${norm(p.name)}`)||null;
+}
+function researchLogs(r){return Array.isArray(r?.gameLog)&&r.gameLog.length?r.gameLog:(r?.last5?.gamesLog||[]);}
+function statValue(log,key){
+  if(!log)return null;
+  if(key==='tds')return num(log.tds??((num(log.rushTds)||0)+(num(log.recTds)||0)));
+  return num(log[key]);
+}
+function recentAverage(logs,key,n=10){
+  const vals=(logs||[]).slice(0,n).map(x=>statValue(x,key)).filter(v=>v!=null);
+  return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+}
+function actualHitRate(logs,key,line,side,n){
+  if(line==null)return null;
+  const vals=(logs||[]).slice(0,n).map(x=>statValue(x,key)).filter(v=>v!=null);
+  if(!vals.length)return null;
+  const hits=vals.filter(v=>side==='under'?v<line:v>line).length;
+  return{hits,total:vals.length,rate:hits/vals.length};
+}
+function actualH2HRate(logs,key,line,side,opp){
+  if(line==null)return null;
+  const vals=(logs||[]).filter(x=>team(x?.opponent||x?.opp)===team(opp)).map(x=>statValue(x,key)).filter(v=>v!=null).slice(0,10);
+  if(!vals.length)return null;
+  const hits=vals.filter(v=>side==='under'?v<line:v>line).length;
+  return{hits,total:vals.length,rate:hits/vals.length};
+}
+function projectionMeta(row){
+  if(row.proj==null||row.line==null)return '50K PROJ';
+  const delta=row.proj-row.line;
+  return `${delta>=0?'+':''}${fmt(delta)} vs line`;
+}
+function actualRateValue(rate){return rate?.total?rate.hits/rate.total:-1;}
+function historicalRateCell(rate,side,label){
+  if(!rate||!rate.total)return `<div class="nfl-ppt-hit-v947 neutral"><b>—</b><span>${label}</span></div>`;
+  const tone=rate.rate>=.70?'good':rate.rate<=.30?'bad':'mid';
+  return `<div class="nfl-ppt-hit-v947 ${tone}" title="Actual game-log result versus this selected line"><b>${rate.hits}/${rate.total}</b><span>${side==='under'?'Under':'Over'} · ${label}</span></div>`;
+}
+
 function payoutBonus(price){const p=num(price);if(p==null)return 0;if(p>0)return Math.min(.22,p/1800);return Math.max(-.10,(p+110)/2200);}
 function styleScore(r){
   const p=r.prob??0,e=r.edge??-.5,pay=payoutBonus(r.price);
@@ -126,7 +185,7 @@ function periodBoard(gameDoc){
 function buildRows(docs){
   const key=`${state.period}|${state.style}`;
   if(rowsCache.has(key))return rowsCache.get(key);
-  const slateById=gameMaps(docs),out=[];
+  const slateById=gameMaps(docs),researchIndex=buildResearchIndex(docs.research),out=[];
   for(const simGame of docs?.sim?.games||[]){
     const gameId=String(simGame?.game?.gameId||simGame?.gameId||'');
     const board=periodBoard(simGame);
@@ -140,6 +199,7 @@ function buildRows(docs){
       if(seen.has(rowKey))continue;seen.add(rowKey);
       const g=slateById.get(gameId)||simGame?.game||{};
       const player=findSlatePlayer(g,c);
+      const research=findResearch(researchIndex,player||c),logs=researchLogs(research);
       const away=team(g?.away?.abbr||g?.away||simGame?.game?.away?.abbr),home=team(g?.home?.abbr||g?.home||simGame?.game?.home?.abbr);
       const playerTeam=team(c.team||player?.team);
       const opp=playerTeam===away?home:playerTeam===home?away:team(player?.opponent||c.opponent);
@@ -149,13 +209,17 @@ function buildRows(docs){
       const prob=num(c.simProbability),edge=full?num(c.edge):num(c.modelEdge??c.edge),iterations=Number(c.iterations||c.worldMaskIterations||board.iterations||simGame.iterations||0);
       if(prob==null)continue;
       const mean=num(dist.mean),median=num(dist.median)??mean,p25=num(dist.p25),p75=num(dist.p75),p90=num(dist.p90),p10=num(dist.p10);
+      const statKey=MARKET_STAT[String(c.market||'')],proj=mean,l10Avg=statKey?recentAverage(logs,statKey,10):null;
+      const l5Actual=statKey?actualHitRate(logs,statKey,num(c.line),String(c.side||'over').toLowerCase(),5):null;
+      const l10Actual=statKey?actualHitRate(logs,statKey,num(c.line),String(c.side||'over').toLowerCase(),10):null;
+      const h2hActual=statKey?actualH2HRate(logs,statKey,num(c.line),String(c.side||'over').toLowerCase(),opp):null;
       const simStop=clamp(1-prob),matchScore=clamp(prob+(full&&edge!=null?edge*.20:0));
       const row={
         id:rowKey,gameId,game:`${away||'AWY'} @ ${home||'HME'}`,kickoff:g?.startTimeUTC||simGame?.game?.startTimeUTC,
         playerId:String(c.playerId||player?.gsisId||player?.espnId||''),espnId:c.espnId||player?.espnId||null,gsisId:c.gsisId||player?.gsisId||null,
-        name:c.name||player?.name||'Player',team:playerTeam,opp,position:String(c.position||player?.position||'').toUpperCase(),headshot:player?.headshot||c.headshot||'',
-        market:String(c.market||''),line:num(c.line),side:String(c.side||'over').toLowerCase(),price:full?num(c.price):null,book:full?String(c.book||'Sportsbook'):'TSO 50K',
-        prob,edge,mean,median,p10,p25,p75,p90,iterations,simStop,matchScore,rank,correlationLift:num(c.correlationLift),correlationPartner:c.correlationPartner||'',
+        name:c.name||player?.name||'Player',team:playerTeam,opp,position:String(c.position||player?.position||'').toUpperCase(),headshot:player?.headshot||c.headshot||'',watchId:String(player?.espnId||c.espnId||c.playerId||player?.playerId||''),
+        market:String(c.market||''),line:num(c.line),side:String(c.side||'over').toLowerCase(),price:full?num(c.price):null,book:full?String(c.book||'Sportsbook'):'TSO 50K',link:full?String(c.link||''):'',
+        prob,edge,proj,l10Avg,l5Actual,l10Actual,h2hActual,mean,median,p10,p25,p75,p90,iterations,simStop,matchScore,rank,correlationLift:num(c.correlationLift),correlationPartner:c.correlationPartner||'',
       };
       row.styleScore=styleScore(row);
       row.search=norm(`${row.name} ${row.team} ${row.opp} ${row.position} ${marketLabel(row.market)} ${row.game}`);
@@ -167,6 +231,7 @@ function buildRows(docs){
 }
 function passes(row,ignore=''){
   if(ignore!=='position'&&state.positions.size&&!state.positions.has(row.position))return false;
+  if(ignore!=='side'&&state.side&&row.side!==state.side)return false;
   if(ignore!=='game'&&state.game!=='ALL'&&row.gameId!==state.game)return false;
   if(ignore!=='market'&&state.market!=='ALL'&&row.market!==state.market)return false;
   if(ignore!=='team'&&state.team!=='ALL'&&row.team!==state.team)return false;
@@ -175,24 +240,25 @@ function passes(row,ignore=''){
   return true;
 }
 function reconcileFilters(rows){
-  if(state.game!=='ALL'&&!rows.some(r=>r.gameId===state.game&&passes(r,'game')))state.game='ALL';
+  const slateIds=new Set((snapshot?.slate?.games||[]).map(g=>String(g.gameId||g.id||'')).filter(Boolean));
+  if(state.game!=='ALL'&&!slateIds.has(state.game))state.game='ALL';
   if(state.market!=='ALL'&&!rows.some(r=>r.market===state.market&&passes(r,'market')))state.market='ALL';
   if(state.team!=='ALL'&&!rows.some(r=>r.team===state.team&&passes(r,'team')))state.team='ALL';
 }
 function valueFor(row,key){
   if(key==='player')return row.name.toLowerCase();
-  if(key==='consensus')return row.line??-1;
+  if(key==='propLine')return row.line??-1;
   if(key==='pick')return row.price??row.line??-9999;
-  if(key==='proj')return row.mean??-1;
-  if(key==='median')return row.median??-1;
+  if(key==='proj')return row.proj??-1;
+  if(key==='l10Avg')return row.l10Avg??-1;
   if(key==='prob')return row.prob??-1;
   if(key==='edge')return row.edge??-999;
   if(key==='def')return row.simStop??-1;
   if(key==='matchup')return row.matchScore??-1;
   if(key==='simDef')return row.simStop??-1;
-  if(key==='l5')return row.prob??-1;
-  if(key==='l10')return row.prob??-1;
-  if(key==='h2h')return row.prob??-1;
+  if(key==='l5')return actualRateValue(row.l5Actual);
+  if(key==='l10')return actualRateValue(row.l10Actual);
+  if(key==='h2h')return actualRateValue(row.h2hActual);
   return row.styleScore??-999;
 }
 function sorted(rows){
@@ -209,41 +275,38 @@ function ringHtml(prob){
 }
 function bookHtml(row){
   if(state.period!=='full')return `<span class="nfl-ppt-bookmark tso" title="TSO 50K simulation">TSO</span>`;
-  const src=bookLogo(row.book);
+  const src=bookLogo(row.book,row.link);
   if(!src)return `<span class="nfl-ppt-bookmark fallback" title="${esc(row.book)}">${esc(String(row.book||'SB').slice(0,2).toUpperCase())}</span>`;
-  return `<span class="nfl-ppt-bookmark" title="${esc(row.book)}"><img src="${esc(src)}" alt="${esc(row.book)}" loading="lazy" referrerpolicy="no-referrer"><i>${esc(String(row.book||'SB').slice(0,2).toUpperCase())}</i></span>`;
+  return `<span class="nfl-ppt-bookmark" title="${esc(row.book)}"><img src="${esc(src)}" alt="${esc(row.book)}" loading="lazy" referrerpolicy="no-referrer" onerror="this.style.display='none';this.nextElementSibling.style.display='grid'"><i>${esc(String(row.book||'SB').slice(0,2).toUpperCase())}</i></span>`;
 }
 function defHtml(row){
   const src=teamLogo(row.opp);
   return `<div class="nfl-ppt-def-v947" title="${esc(row.opp)} defense · 50K simulation matchup read">${src?`<img src="${esc(src)}" alt="${esc(row.opp)}">`:`<b>${esc(row.opp||'DEF')}</b>`}<span>vs Prop</span></div>`;
 }
 function matchupHtml(row){
-  const tone=gradeTone(row.matchScore),label=tone==='great'?'GREAT':tone==='good'?'GOOD':tone==='mid'?'FAIR':'TOUGH';
+  const tone=gradeTone(row.matchScore),label=tone==='great'?'GREAT':tone==='good'?'GOOD':tone==='mid'?'FAIR':'TOUGH',src=teamLogo(row.opp);
   const corr=state.style==='correlated'&&row.correlationLift>0?` · +${(row.correlationLift*100).toFixed(1)}% co-hit`:'';
-  return `<div class="nfl-ppt-match-v947 ${tone}"><b>${label}</b><span>${esc(row.position||'OFF')} vs ${esc(row.opp||'DEF')}${esc(corr)}</span></div>`;
-}
-function hitCell(prob,total,label){
-  const hits=Math.max(0,Math.min(total,Math.round(clamp(prob)*total))),tone=prob>=.67?'good':prob<.48?'bad':'mid';
-  return `<div class="nfl-ppt-hit-v947 ${tone}"><b>${hits}/${total}</b><span>${label}</span></div>`;
+  return `<div class="nfl-ppt-match-v947 ${tone}"><div class="nfl-ppt-match-line-v947"><b>${esc(row.position||'OFF')}</b><span>vs</span>${src?`<img src="${esc(src)}" alt="${esc(row.opp)} defense">`:`<strong>${esc(row.opp||'DEF')}</strong>`}</div><small>${label}${esc(corr)}</small></div>`;
 }
 function rowHtml(row){
   const edge=row.edge==null?'—':state.period==='full'?`${row.edge>=0?'+':''}${(row.edge*100).toFixed(1)}%`:`${row.edge>=0?'+':''}${row.edge.toFixed(2)}σ`;
   const periodLabel=PERIODS.find(x=>x[0]===state.period)?.[1]||state.period.toUpperCase();
-  const book=bookHtml(row),side=row.side==='under'?'U':'O';
+  const book=bookHtml(row),side=row.side==='under'?'U':'O',watchId=String(row.watchId||row.espnId||row.playerId||'');
+  const watch=watchId?`<button type="button" class="nfl-watch-star nfl-ppt-watch-v947" data-nfl-ppt-watch="1" data-nfl-watch-id="${esc(watchId)}" data-row-id="${esc(row.id)}" aria-label="Add to NFL watchlist" title="Add to NFL watchlist">☆</button>`:'';
   return `<tr data-nfl-ppt-row="${esc(row.id)}" data-nfl-ppt-game="${esc(row.gameId)}" data-nfl-ppt-market="${esc(row.market)}" data-nfl-ppt-style="${esc(state.style)}" data-nfl-ppt-period="${esc(state.period)}">
-    <td class="nfl-ppt-player-sticky"><button type="button" class="nfl-ppt-player-v947" data-nfl-tool-player="${esc(row.playerId||row.espnId||row.gsisId||row.name)}" data-row-id="${esc(row.id)}"><span class="nfl-ppt-avatar-v947">${row.headshot?`<img src="${esc(row.headshot)}" alt="" loading="lazy">`:`<i>${esc(row.name.split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</i>`}</span><span><b>${esc(row.name)} ↗</b><small>${esc(row.team)} vs ${esc(row.opp)} · ${esc(kickoff(row.kickoff))}</small></span></button></td>
+    <td class="nfl-ppt-player-sticky"><div class="nfl-ppt-player-cell-v947">${watch}<button type="button" class="nfl-ppt-player-v947" data-nfl-tool-player="${esc(row.playerId||row.espnId||row.gsisId||row.name)}" data-row-id="${esc(row.id)}"><span class="nfl-ppt-avatar-v947">${row.headshot?`<img src="${esc(row.headshot)}" alt="" loading="lazy">`:`<i>${esc(row.name.split(/\s+/).map(x=>x[0]).slice(0,2).join(''))}</i>`}</span><span><b>${esc(row.name)} ↗</b><small>${esc(row.team)} vs ${esc(row.opp)} · ${esc(kickoff(row.kickoff))}</small></span></button></div></td>
     <td><div class="nfl-ppt-consensus-v947"><b>${fmt(row.line)}</b><span>${state.period==='full'?'':`${esc(periodLabel)} `}${esc(marketLabel(row.market))}</span></div></td>
     <td><div class="nfl-ppt-pick-v947 ${esc(row.side)}">${book}<span class="nfl-ppt-pick-number"><b>${side} ${fmt(row.line)}</b><small>${row.price==null?'MODEL':priceFmt(row.price)}</small></span></div></td>
-    <td><div class="nfl-ppt-metric-v947"><b>${fmt(row.mean)}</b><span>SIM MEAN</span></div></td>
-    <td><div class="nfl-ppt-metric-v947"><b>${fmt(row.median)}</b><span>SIM MED</span></div></td>
+    <td><div class="nfl-ppt-metric-v947 nfl-ppt-proj-v948" title="Projection from the 50,000-simulation distribution"><b>${fmt(row.proj)}</b><span>${esc(projectionMeta(row))}</span></div></td>
+    <td><div class="nfl-ppt-metric-v947 nfl-ppt-l10avg-v948" title="Actual average from the player's most recent 10 available game logs"><b>${fmt(row.l10Avg)}</b><span>${esc(marketLabel(row.market))}</span></div></td>
     <td>${ringHtml(row.prob)}</td>
     <td><div class="nfl-ppt-edge-v947"><b>${edge}</b><span>${state.period==='full'?'VS IMPLIED':'SIM EDGE'}</span></div></td>
     <td>${defHtml(row)}</td>
     <td>${matchupHtml(row)}</td>
     <td><div class="nfl-ppt-simdef-v947"><b>${Math.round(row.simStop*100)}%</b><span>SIM STOP</span></div></td>
-    <td>${hitCell(row.prob,5,row.side==='under'?'Under':'Over')}</td>
-    <td>${hitCell(row.prob,10,row.side==='under'?'Under':'Over')}</td>
-    <td><div class="nfl-ppt-hit-v947 sim"><b>${Math.round(row.prob*100)}%</b><span>50K SIM</span></div></td>
+    <td>${historicalRateCell(row.l5Actual,row.side,'L5')}</td>
+    <td>${historicalRateCell(row.l10Actual,row.side,'L10')}</td>
+    <td>${historicalRateCell(row.h2hActual,row.side,'H2H')}</td>
   </tr>`;
 }
 function headerHtml(){
@@ -256,6 +319,7 @@ function controlsHtml(){
       <label><span>Game</span><select id="nflPptGame"><option value="ALL">All Games</option></select></label>
       <label><span>Prop</span><select id="nflPptMarket"><option value="ALL">All Props</option></select></label>
     </div>
+    <div class="nfl-ppt-side-v948" role="group" aria-label="Over or Under filter"><span>Side</span><div class="nfl-ppt-side-switch-v948"><button type="button" data-nfl-ppt-side="over" aria-pressed="false">Over</button><button type="button" data-nfl-ppt-side="under" aria-pressed="false">Under</button></div></div>
     <div class="nfl-ppt-positions-v947">${POSITIONS.map(p=>`<button type="button" data-nfl-ppt-pos="${p}" class="active">${p}</button>`).join('')}</div>
     <div class="nfl-ppt-actions-v947"><button type="button" id="nflPptGuide">Quick Guide</button><button type="button" id="nflPptFilters">Filters ⚙</button><button type="button" id="nflPptRefresh">Refresh ↻</button></div>
   </div>
@@ -271,16 +335,16 @@ function shellHtml(docs){
   const week=docs?.slate?.week||'—';
   return `<header class="nfl-ppt-head-v947"><div><span>THE SPORTS OUTPOST · NFL</span><h1>PLAYER PROP TOOL</h1><p>Sportsbook-backed Bet Styles · Week ${esc(week)} · exact 50K simulation snapshot</p></div><div class="nfl-ppt-head-stat"><b id="nflPptVisibleCount">0</b><span>matching props</span></div></header>
     ${controlsHtml()}
-    <div class="nfl-ppt-table-wrap"><table class="nfl-ppt-table">${'<col>'.repeat(13)}${headerHtml()}<tbody></tbody></table><div class="nfl-ppt-empty" hidden>No sportsbook-backed 50K props match these filters.</div></div>`;
+    <div class="nfl-ppt-table-wrap"><table class="nfl-ppt-table"><colgroup>${'<col>'.repeat(13)}</colgroup>${headerHtml()}<tbody></tbody></table><div class="nfl-ppt-empty" hidden>No sportsbook-backed 50K props match these filters.</div></div>`;
 }
 function guideHtml(){
   return `<div class="nfl-ppt-guide-backdrop-v947" id="${GUIDE_ID}"><section><button type="button" data-nfl-ppt-guide-close>×</button><span>QUICK GUIDE</span><h2>50K Player Prop Tool</h2><div class="nfl-ppt-guide-grid-v947">
     <div><b>Bet Style</b><p>Changes the actual sportsbook-backed line, side and price selected for each player market from the frozen 50K board.</p></div>
-    <div><b>Consensus / Pick</b><p>Consensus is the selected line. Pick is the exact side, sportsbook logo and American price for Full-game props.</p></div>
-    <div><b>PROJ / L10 AVG</b><p>Simulation mean and simulation median from the same 50,000 worlds. L10 AVG is a display category here, not a historical last-10 claim.</p></div>
+    <div><b>Prop Line / Pick</b><p>Prop Line is the selected sportsbook line. Pick is the exact side, sportsbook logo and American price for Full-game props.</p></div>
+    <div><b>PROJ / L10 AVG</b><p>PROJ comes from the 50,000-simulation distribution. L10 AVG is the player’s actual average for that stat across the most recent 10 available game logs.</p></div>
     <div><b>COV PROB / Edge</b><p>Exact 50K cover rate and, for Full, the difference versus the displayed sportsbook price's implied probability.</p></div>
     <div><b>DEF vs Prop</b><p>The opponent defense logo tied to the selected prop. Matchup and SIM DEF are simulation reads, not a historical defense-rank fallback.</p></div>
-    <div><b>L5 / L10 / H2H</b><p>Compact 50K simulation equivalents so every displayed stat stays simulation-backed.</p></div>
+    <div><b>L5 / L10 / H2H</b><p>Actual game-log hit rates versus the selected prop line. L5 uses the last 5 games, L10 uses the last 10 available games, and H2H uses prior available games against the current opponent.</p></div>
     <div><b>Sorting</b><p>Every column header is sortable. Click once for one direction and again to reverse it.</p></div>
     <div><b>Snapshot behavior</b><p>Style, period, sorting and filters never refetch data. Only Refresh or a browser reload replaces the four-file snapshot.</p></div>
   </div><small>Period views use TSO simulation thresholds when a comparable sportsbook period market is not published; no sportsbook quote is invented.</small></section></div>`;
@@ -288,7 +352,7 @@ function guideHtml(){
 function syncControlOptions(allRows){
   const tool=document.getElementById(TOOL_ID);if(!tool)return;
   const gameSel=tool.querySelector('#nflPptGame'),marketSel=tool.querySelector('#nflPptMarket'),teamSel=tool.querySelector('#nflPptTeam');
-  const games=[...new Map(allRows.filter(r=>passes(r,'game')).map(r=>[r.gameId,r.game])).entries()].sort((a,b)=>a[1].localeCompare(b[1]));
+  const games=[...new Map((snapshot?.slate?.games||[]).map(g=>{const id=String(g.gameId||g.id||'');return id?[id,gameOptionLabel(g)]:null;}).filter(Boolean)).entries()];
   const markets=[...new Set(allRows.filter(r=>passes(r,'market')).map(r=>r.market))].sort((a,b)=>marketLabel(a).localeCompare(marketLabel(b)));
   const teams=[...new Set(allRows.filter(r=>passes(r,'team')).map(r=>r.team))].sort();
   const fill=(sel,first,items,current,labelFn=x=>x)=>{if(!sel)return;sel.innerHTML=`<option value="ALL">${first}</option>`+items.map(x=>{const v=Array.isArray(x)?x[0]:x,l=Array.isArray(x)?x[1]:labelFn(x);return`<option value="${esc(v)}">${esc(l)}</option>`;}).join('');sel.value=current;};
@@ -298,6 +362,7 @@ function syncControlOptions(allRows){
   const styleSel=tool.querySelector('#nflPptMode');if(styleSel)styleSel.value=state.style;
   const minSel=tool.querySelector('#nflPptMin');if(minSel)minSel.value=state.minProb.toFixed(2);
   const search=tool.querySelector('#nflPptSearch');if(search&&document.activeElement!==search)search.value=state.search;
+  tool.querySelectorAll('[data-nfl-ppt-side]').forEach(b=>{const on=state.side===b.dataset.nflPptSide;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});
   tool.querySelectorAll('[data-nfl-ppt-pos]').forEach(b=>b.classList.toggle('active',state.positions.has(b.dataset.nflPptPos)));
   tool.querySelectorAll('.nfl-ppt-periodbar-v947 [data-nfl-ppt-period]').forEach(b=>{const on=b.dataset.nflPptPeriod===state.period;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false');});
   const panel=tool.querySelector('#nflPptFilterPanel');if(panel)panel.hidden=!state.filtersOpen;
@@ -342,7 +407,7 @@ function restoreBase(){
   if(tool)tool.remove();
   if(root&&stash){while(stash.firstChild)root.insertBefore(stash.firstChild,stash);stash.remove();}
 }
-function deactivate(){active=false;modalReturn=null;if(restoreRaf)cancelAnimationFrame(restoreRaf);restoreRaf=0;document.documentElement.classList.remove('nfl-ppt-opening-modal');document.getElementById(GUIDE_ID)?.remove();restoreBase();}
+function deactivate(){active=false;modalReturn=null;if(restoreRaf)cancelAnimationFrame(restoreRaf);restoreRaf=0;document.documentElement.classList.remove('nfl-ppt-opening-modal');document.getElementById('nflView')?.classList.remove('nfl-ppt-active-v948');document.getElementById(GUIDE_ID)?.remove();restoreBase();}
 function mountShell(){
   const root=document.getElementById('nflView');if(!root)return false;
   if(root.querySelector(`#${TOOL_ID}`))return true;
@@ -354,8 +419,17 @@ function mountShell(){
 async function openTool(){
   if(active&&document.getElementById(TOOL_ID))return;
   active=true;
+  const nflRoot=document.getElementById('nflView');
+  if(String(location.hash||'').toLowerCase().startsWith('#nfl')){
+    nflRoot?.removeAttribute('hidden');
+    nflRoot?.classList.add('nfl-ppt-active-v948');
+  }
   try{selectBaseTab?.('players');}catch{}
   await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
+  if(String(location.hash||'').toLowerCase().startsWith('#nfl')){
+    nflRoot?.removeAttribute('hidden');
+    nflRoot?.classList.add('nfl-ppt-active-v948');
+  }
   if(!mountShell())return;
   const tool=document.getElementById(TOOL_ID);
   try{
@@ -375,7 +449,7 @@ async function enhanceOpenedPlayerModal(){
   try{
     const research=await import('../nfl-research-ui.js?v=86.10');
     await research.mountNflResearchUI(root);
-  }catch(e){console.warn('[NFL Player Prop Tool v94.7] research modal enhancement unavailable:',e);}
+  }catch(e){console.warn('[NFL Player Prop Tool v94.8] research modal enhancement unavailable:',e);}
   let frames=0;
   await new Promise(resolve=>{
     const tick=()=>{if(root.querySelector('.tso-nfl-player-card-v72')||++frames>120)return resolve();requestAnimationFrame(tick);};
@@ -392,6 +466,10 @@ function queueModalRestore(){
     if(!saved||!active||!root)return;
     const modal=root.querySelector('.ms-modal,.tso-nfl-player-card-v72');
     if(modal&&modal.getClientRects().length&&++frames<240){restoreRaf=requestAnimationFrame(run);return;}
+    if(saved.directModal){
+      const wrap=saved.tool.querySelector('.nfl-ppt-table-wrap');if(wrap)wrap.scrollLeft=saved.tableX;
+      window.scrollTo(saved.x,saved.y);modalReturn=null;syncNav();return;
+    }
     const existing=root.querySelector(`#${STASH_ID}`);existing?.remove();
     const stash=document.createElement('div');stash.id=STASH_ID;stash.hidden=true;
     while(root.firstChild)stash.appendChild(root.firstChild);
@@ -403,15 +481,42 @@ function queueModalRestore(){
   restoreRaf=requestAnimationFrame(run);
 }
 async function openPlayer(row){
-  const tool=document.getElementById(TOOL_ID),proxy=findPlayerProxy(row);if(!tool||!proxy)return;
+  const tool=document.getElementById(TOOL_ID),root=document.getElementById('nflView');if(!tool||!root)return;
   const wrap=tool.querySelector('.nfl-ppt-table-wrap');
-  modalReturn={tool,x:window.scrollX,y:window.scrollY,tableX:wrap?.scrollLeft||0};
+  modalReturn={tool,x:window.scrollX,y:window.scrollY,tableX:wrap?.scrollLeft||0,directModal:true};
   document.documentElement.classList.add('nfl-ppt-opening-modal');
-  proxy.click();
+  root.querySelector('[data-nfl-ppt-direct-modal]')?.remove();
+  const backdrop=document.createElement('div');
+  backdrop.className='ms-modal-backdrop';backdrop.dataset.nflPptDirectModal='1';backdrop.setAttribute('data-nfl-close-modal','');
+  backdrop.innerHTML=`<div class="ms-modal" data-nfl-ppt-direct-shell="1"><button class="ms-modal-x" type="button" data-nfl-close-modal>×</button><header><div><div class="ms-modal-name"><h2>${esc(row.name)}</h2></div><p>${esc(row.team)} · ${esc(row.position||'')}</p></div></header></div>`;
+  const closeDirect=()=>{
+    backdrop.remove();
+    const saved=modalReturn;
+    if(saved?.directModal){
+      const savedWrap=saved.tool?.querySelector('.nfl-ppt-table-wrap');if(savedWrap)savedWrap.scrollLeft=saved.tableX;
+      window.scrollTo(saved.x,saved.y);modalReturn=null;syncNav();
+    }
+  };
+  backdrop.querySelector('.ms-modal-x')?.addEventListener('click',closeDirect);
+  backdrop.addEventListener('click',e=>{if(e.target===backdrop)closeDirect();});
+  root.append(backdrop);
   await enhanceOpenedPlayerModal();
+  if(!root.querySelector('.tso-nfl-player-card-v72')){backdrop.remove();queueModalRestore();}
+}
+async function toggleWatch(row,btn){
+  const id=String(row?.watchId||row?.espnId||row?.playerId||'');if(!id)return;
+  const player={id,espnId:row?.espnId||id,name:row?.name||'Player',team:row?.team||''};
+  btn.disabled=true;
+  try{
+    let result;const api=window.DW_NFL_WATCHLIST;
+    if(api?.toggle)result=await api.toggle(player);
+    else{const mod=await import('./watchlist-v910.js?v=91.0');result=await mod.toggleNflWatchPlayer(player);}
+    if(result?.error==='not signed in'){document.querySelector('[data-open-auth],#profileBtn,#userBtn,.profile-btn')?.click();}
+  }catch(e){console.warn('[NFL Player Prop Tool v94.8] watchlist toggle failed:',e);}
+  finally{btn.disabled=false;}
 }
 function clearFilters(){
-  Object.assign(state,{game:'ALL',market:'ALL',team:'ALL',search:'',minProb:.40,sortKey:'style',sortDir:'desc',filtersOpen:true});
+  Object.assign(state,{game:'ALL',market:'ALL',team:'ALL',search:'',minProb:.40,side:null,sortKey:'style',sortDir:'desc',filtersOpen:true});
   state.positions=new Set(POSITIONS);renderRows();
 }
 function bindTool(tool){
@@ -420,11 +525,13 @@ function bindTool(tool){
     const t=e.target;
     const sort=t.closest?.('[data-ppt-sort]');if(sort){const key=sort.dataset.pptSort;if(state.sortKey===key)state.sortDir=state.sortDir==='asc'?'desc':'asc';else{state.sortKey=key;state.sortDir=key==='player'?'asc':'desc';}renderRows();return;}
     const periodBtn=t.closest?.('.nfl-ppt-periodbar-v947 [data-nfl-ppt-period]');if(periodBtn){state.period=periodBtn.dataset.nflPptPeriod||'full';state.sortKey='style';state.sortDir='desc';renderRows();return;}
+    const side=t.closest?.('[data-nfl-ppt-side]');if(side){const v=side.dataset.nflPptSide;state.side=state.side===v?null:v;renderRows();return;}
     const pos=t.closest?.('[data-nfl-ppt-pos]');if(pos){const p=pos.dataset.nflPptPos;if(state.positions.has(p)&&state.positions.size>1)state.positions.delete(p);else state.positions.add(p);renderRows();return;}
     if(t.closest?.('#nflPptFilters')){state.filtersOpen=!state.filtersOpen;syncControlOptions(buildRows(snapshot));return;}
     if(t.closest?.('#nflPptGuide')){document.body.insertAdjacentHTML('beforeend',guideHtml());return;}
     if(t.closest?.('#nflPptClear')){clearFilters();return;}
     if(t.closest?.('#nflPptRefresh')){refreshTool();return;}
+    const watch=t.closest?.('[data-nfl-ppt-watch]');if(watch){e.preventDefault();e.stopPropagation();const row=currentRows.get(watch.dataset.rowId);if(row)toggleWatch(row,watch);return;}
     const player=t.closest?.('[data-nfl-tool-player]');if(player){const row=currentRows.get(player.dataset.rowId);if(row)openPlayer(row);return;}
   });
   tool.addEventListener('change',e=>{
@@ -440,7 +547,7 @@ function bindTool(tool){
 async function refreshTool(){
   const tool=document.getElementById(TOOL_ID);if(!tool)return;
   tool.classList.add('is-refreshing');
-  try{await loadSnapshot(true);renderRows();}catch(err){console.warn('[NFL Player Prop Tool v94.7] refresh failed:',err);}
+  try{await loadSnapshot(true);renderRows();}catch(err){console.warn('[NFL Player Prop Tool v94.8] refresh failed:',err);}
   finally{tool.classList.remove('is-refreshing');}
 }
 function onDocumentClick(e){

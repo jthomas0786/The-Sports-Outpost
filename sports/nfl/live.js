@@ -248,7 +248,7 @@ async function tick(){
     if(changed&&typeof _onChange==='function')_onChange();
   }catch{}finally{_inflight=false;}
 }
-function shouldPoll(){if(!_slate)return false;const now=Date.now();return(_slate.games||[]).some(g=>g.status==='in'||(g.status==='pre'&&g.startTimeUTC&&Number.isFinite(new Date(g.startTimeUTC).getTime())&&new Date(g.startTimeUTC).getTime()-now<30*60000&&new Date(g.startTimeUTC).getTime()-now>-3*3600000));}
+function shouldPoll(){if(!_slate)return false;if(typeof document!=='undefined'&&(document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')))return false;const now=Date.now();return(_slate.games||[]).some(g=>g.status==='in'||(g.status==='pre'&&g.startTimeUTC&&Number.isFinite(new Date(g.startTimeUTC).getTime())&&new Date(g.startTimeUTC).getTime()-now<30*60000&&new Date(g.startTimeUTC).getTime()-now>-3*3600000));}
 export function startLivePolling(slate,onChange){_slate=slate;_onChange=onChange||null;if(_timer)clearInterval(_timer);tick();_timer=setInterval(()=>{if(shouldPoll())tick();},POLL_MS);}
 export async function refreshLiveNow(){await tick();}
 export function stopLivePolling(){if(_timer){clearInterval(_timer);_timer=null;}_slate=null;_onChange=null;_lastNotifySig={};_acceptedByGame.clear();}

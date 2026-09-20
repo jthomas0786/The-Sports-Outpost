@@ -124,6 +124,7 @@ async function decorateNow(){
   const root=document.getElementById('nflView');if(!root||root.hidden)return;
   const nodes=root.querySelectorAll('h1,h2,h3,h4,strong,b,[class*="name"],[class*="player"]');
   for(const el of nodes){
+    if(el.closest('#nflPlayerPropTool'))continue;
     if(!eligibleNameNode(el))continue;const player=findPlayerForName(el.textContent,catalog);if(!player)continue;
     const host=el.closest('.ms-player-card,.ms-slate-person,.tso-nfl-player-card-v72,[class*="player-card"],[class*="player-row"],[class*="threat"],[class*="leader"],[class*="feed"],[class*="prop"]')||el.parentElement;
     if(!host||host.querySelector(`.nfl-watch-star[data-nfl-watch-id="${CSS.escape(String(player.id))}"]`))continue;

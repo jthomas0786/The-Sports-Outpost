@@ -18,7 +18,7 @@ function render(){
   window.refreshCommandCenterAlertState?.();
 }
 async function refresh(){
-  if(busy||document.hidden)return;
+  if(busy||document.hidden||document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'))return;
   busy=true;
   try{
     const [remote,odds,research,sim,watchlist]=await Promise.all([

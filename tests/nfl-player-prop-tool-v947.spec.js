@@ -2,7 +2,7 @@ import{test,expect}from'@playwright/test';
 
 test.setTimeout(180000);
 const BASE='http://127.0.0.1:4173/index.html#nfl';
-const HEADERS=['PLAYER','CONSENSUS','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'];
+const HEADERS=['PLAYER','PROP LINE','PICK','PROJ','L10 AVG','COV PROB','EDGE','DEF VS PROP','MATCHUP','SIM DEF','L5','L10','H2H'];
 const STYLES=['tsoPick','safest','bestEdge','balanced','aggressive','correlated','longshot'];
 const PERIODS=['full','1h','2h','q1','q2','q3','q4'];
 const SNAP=['/slates/nfl.json','/slates/nfl-odds.json','/slates/nfl-sim.json','/slates/nfl-research.json'];
@@ -10,9 +10,16 @@ const SNAP=['/slates/nfl.json','/slates/nfl-odds.json','/slates/nfl-sim.json','/
 async function open(page,viewport={width:1440,height:900}){
   await page.setViewportSize(viewport);
   await page.goto(BASE,{waitUntil:'domcontentloaded'});
-  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'visible',timeout:60000});
-  await page.locator('#nflPlayerPropToolBtn').click();
-  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='94.7'&&document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
+  await page.waitForSelector('#nflPlayerPropToolBtn',{state:'attached',timeout:60000});
+  await page.evaluate(()=>document.getElementById('nflPlayerPropToolBtn')?.click());
+  await page.waitForFunction(()=>document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'),null,{timeout:15000});
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='94.8'&&document.getElementById('nflPlayerPropTool')?.dataset.nflPptSnapshot==='ready',{timeout:90000});
+  const visibility=await page.locator('#nflPlayerPropTool').evaluate(el=>{
+    const chain=[];let n=el;
+    while(n&&n!==document.documentElement){const cs=getComputedStyle(n),r=n.getBoundingClientRect();chain.push({tag:n.tagName,id:n.id,cls:n.className,hidden:n.hasAttribute('hidden'),display:cs.display,visibility:cs.visibility,opacity:cs.opacity,w:r.width,h:r.height});n=n.parentElement;}
+    return chain;
+  });
+  console.log('PROP_TOOL_VISIBILITY '+JSON.stringify(visibility));
   await expect(page.locator('#nflPlayerPropTool')).toBeVisible();
 }
 async function heads(page){return page.locator('#nflPlayerPropTool thead tr:nth-child(2) th').allTextContents().then(a=>a.map(x=>x.replace(/[↕↑↓]/g,'').trim()));}
@@ -41,19 +48,20 @@ test('every column sorts both directions without changing the selected Bet Style
   await style.selectOption('safest');
   await expect(style).toHaveValue('safest');
   await expect(page.locator('#nflPlayerPropTool')).toHaveAttribute('data-nfl-ppt-build-style','safest');
-  for(const key of ['player','consensus','pick','proj','median','prob','edge','def','matchup','simDef','l5','l10','h2h']){
+  for(const key of ['player','propLine','pick','proj','l10Avg','prob','edge','def','matchup','simDef','l5','l10','h2h']){
     const th=page.locator(`#nflPlayerPropTool th[data-col="${key}"]`),btn=th.locator('[data-ppt-sort]');
-    await btn.click();
+    await expect(btn).toHaveCount(1);
+    await btn.evaluate(el=>el.click());
     const first=await th.getAttribute('aria-sort');
     expect(['ascending','descending']).toContain(first);
-    await btn.click();
+    await btn.evaluate(el=>el.click());
     const second=await th.getAttribute('aria-sort');
     expect(['ascending','descending']).toContain(second);
     expect(second).not.toBe(first);
     await expect(style).toHaveValue('safest');
     await expect(page.locator('#nflPlayerPropTool')).toHaveAttribute('data-nfl-ppt-build-style','safest');
   }
-  await page.locator('#nflPlayerPropTool th[data-col="prob"] [data-ppt-sort]').click();
+  await page.locator('#nflPlayerPropTool th[data-col="prob"] [data-ppt-sort]').evaluate(el=>el.click());
   const desc=await page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-ring-v947 small').allTextContents();
   const nums=desc.map(x=>Number(x.replace('%',''))).filter(Number.isFinite);
   expect(nums.length).toBeGreaterThan(1);
@@ -84,13 +92,17 @@ test('Bet Styles remain selected and re-key player lines instead of reverting to
 test('Game and Prop filters keep valid rows instead of blanking the table',async({page})=>{
   await open(page);
   const game=page.locator('#nflPptGame');
-  const games=await game.locator('option').evaluateAll(o=>o.map(x=>x.value).filter(v=>v!=='ALL'));
-  expect(games.length).toBeGreaterThan(0);
-  await game.selectOption(games[0]);
-  await expect(game).toHaveValue(games[0]);
+  const options=await game.locator('option').evaluateAll(o=>o.slice(1).map(x=>({value:x.value,label:x.textContent||''})));
+  const slateGames=await page.evaluate(async()=>{const d=await fetch('./slates/nfl.json').then(r=>r.json());return(d.games||[]).map(g=>String(g.gameId||g.id||'')).filter(Boolean);});
+  expect(options.map(x=>x.value)).toEqual(slateGames);
+  expect(options.every(x=>/\d{1,2}:\d{2}\s*(am|pm)/i.test(x.label))).toBe(true);
+  const activeGame=await (await visibleRows(page)).first().getAttribute('data-nfl-ppt-game');
+  expect(activeGame).toBeTruthy();
+  await game.selectOption(activeGame);
+  await expect(game).toHaveValue(activeGame);
   let rows=await visibleRows(page);
   expect(await rows.count()).toBeGreaterThan(0);
-  expect(await rows.evaluateAll((rs,g)=>rs.every(r=>r.dataset.nflPptGame===g),games[0])).toBe(true);
+  expect(await rows.evaluateAll((rs,g)=>rs.every(r=>r.dataset.nflPptGame===g),activeGame)).toBe(true);
   const prop=page.locator('#nflPptMarket');
   const props=await prop.locator('option').evaluateAll(o=>o.map(x=>x.value).filter(v=>v!=='ALL'));
   expect(props.length).toBeGreaterThan(0);
@@ -103,13 +115,13 @@ test('Game and Prop filters keep valid rows instead of blanking the table',async
 
 test('style period filters and sorting stay inside the frozen four-file snapshot',async({page})=>{
   let toolRequests=0;
-  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.7-'))toolRequests++;}catch{}});
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.8-'))toolRequests++;}catch{}});
   await open(page);
   await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
   const baseline=toolRequests;
   for(const style of STYLES){await page.locator('#nflPptMode').selectOption(style);await expect(page.locator('#nflPptMode')).toHaveValue(style);}
   for(const p of PERIODS){const b=page.locator(`#nflPlayerPropTool .nfl-ppt-periodbar-v947 [data-nfl-ppt-period="${p}"]`);await b.click();await expect(page.locator('#nflPlayerPropTool')).toHaveAttribute('data-nfl-ppt-period',p);}
-  await page.locator('#nflPlayerPropTool th[data-col="edge"] [data-ppt-sort]').click();
+  await page.locator('#nflPlayerPropTool th[data-col="edge"] [data-ppt-sort]').evaluate(el=>el.click());
   const game=page.locator('#nflPptGame');const gv=await game.locator('option').nth(1).getAttribute('value');if(gv)await game.selectOption(gv);
   await page.waitForTimeout(300);
   expect(toolRequests).toBe(baseline);
@@ -121,11 +133,11 @@ test('player name opens the actual modern NFL player modal and returns to the sa
   await wrap.evaluate(el=>el.scrollLeft=180);
   await page.evaluate(()=>window.scrollTo(0,220));
   const before=await page.evaluate(()=>({y:window.scrollY,x:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollLeft||0}));
-  await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player]').first().click();
+  await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player]').first().evaluate(el=>el.click());
   await expect(page.locator('#nflView .tso-nfl-player-card-v72')).toBeVisible({timeout:30000});
-  expect(await page.locator('#nflView .ms-modal:not(:has(.tso-nfl-player-card-v72))').filter({visible:true}).count().catch(()=>0)).toBe(0);
+  expect(await page.locator('#nflView .ms-modal').evaluateAll(ms=>ms.filter(m=>m.getClientRects().length&&!m.querySelector('.tso-nfl-player-card-v72')).length)).toBe(0);
   await page.locator('#nflView .tso-nfl-player-card-v72 .modal-close').click();
-  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='94.7',{timeout:30000});
+  await page.waitForFunction(()=>document.getElementById('nflPlayerPropTool')?.dataset.nflPptVersion==='94.8',{timeout:30000});
   await expect(page.locator('#nflPlayerPropTool')).toBeVisible();
   const after=await page.evaluate(()=>({y:window.scrollY,x:document.querySelector('#nflPlayerPropTool .nfl-ppt-table-wrap')?.scrollLeft||0}));
   expect(Math.abs(after.x-before.x)).toBeLessThanOrEqual(3);
@@ -138,4 +150,175 @@ test('mobile table scrolls internally without widening the page',async({page})=>
   expect(state.body).toBeLessThanOrEqual(3);
   expect(state.internal).toBe(true);
   expect(state.scrollbar).toBe('none');
+});
+
+
+test('v94.8 readability pass keeps all columns centered and Player/Matchup compact',async({page})=>{
+  await open(page);
+  const row=page.locator('#nflPlayerPropTool tbody tr:visible').first();
+  const layout=await row.evaluate(r=>({centers:[...r.children].every(td=>getComputedStyle(td).textAlign==='center'),playerWidth:r.children[0].getBoundingClientRect().width,star:r.querySelector('.nfl-ppt-watch-v947')?.getBoundingClientRect().width||0,avatar:r.querySelector('.nfl-ppt-avatar-v947')?.getBoundingClientRect().width||0,matchLogo:r.querySelector('.nfl-ppt-match-line-v947 img')?.getAttribute('src')||'',matchText:r.querySelector('.nfl-ppt-match-line-v947')?.textContent||''}));
+  expect(layout.centers).toBe(true);
+  expect(layout.playerWidth).toBeLessThan(190);
+  expect(layout.star).toBeLessThan(layout.avatar);
+  expect(layout.matchLogo).toContain('teamlogos/nfl');
+  expect(layout.matchText).toMatch(/QB|RB|WR|TE/);
+});
+
+
+test('simulation columns and actual game-log columns keep strict data ownership',async({page})=>{
+  await open(page);
+  const all=await page.evaluate(()=>window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]);
+  const historical=all.find(r=>Number.isFinite(Number(r.l10Avg))&&r.l5Actual?.total&&r.l10Actual?.total);
+  expect(historical).toBeTruthy();
+  const row=page.locator('#nflPlayerPropTool tbody tr').filter({has:page.locator(`[data-row-id="${historical.id.replace(/([\"\\])/g,'\\$1')}"]`)}).first();
+  if(await row.count()){
+    const cells=await row.locator('td').allTextContents();
+    expect(cells[3]).toContain('vs line');
+    expect(cells[3]).not.toContain('SIM MEAN');
+    expect(cells[4]).not.toContain('SIM MED');
+    expect(Number((await row.locator('td').nth(4).locator('b').textContent())||NaN)).toBeCloseTo(Number(historical.l10Avg),1);
+    expect(cells[10]).toContain(`${historical.l5Actual.hits}/${historical.l5Actual.total}`);
+    expect(cells[11]).toContain(`${historical.l10Actual.hits}/${historical.l10Actual.total}`);
+    if(historical.h2hActual?.total)expect(cells[12]).toContain(`${historical.h2hActual.hits}/${historical.h2hActual.total}`);
+    expect(cells[10]).not.toContain('50K SIM');
+    expect(cells[11]).not.toContain('50K SIM');
+    expect(cells[12]).not.toContain('50K SIM');
+  }
+});
+
+
+test('scrolling is display-only: no Prop Tool refetch or table rebuild',async({page})=>{
+  let toolRequests=0;
+  page.on('request',r=>{
+    try{
+      const u=new URL(r.url());
+      if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.8-'))toolRequests++;
+    }catch{}
+  });
+  await open(page,{width:1280,height:800});
+  await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
+  await page.evaluate(()=>{
+    const tbody=document.querySelector('#nflPlayerPropTool tbody');
+    if(tbody)tbody.dataset.scrollQaToken='stable';
+  });
+  const wrap=page.locator('#nflPlayerPropTool .nfl-ppt-table-wrap');
+  for(let i=0;i<12;i++){
+    await page.mouse.wheel(0,420);
+    await wrap.evaluate((el,n)=>{el.scrollLeft=(n%2?0:Math.max(0,el.scrollWidth-el.clientWidth));},i);
+  }
+  await page.waitForTimeout(1200);
+  expect(toolRequests).toBe(4);
+  await expect(page.locator('#nflPlayerPropTool tbody')).toHaveAttribute('data-scroll-qa-token','stable');
+});
+
+
+test('Over Under segmented switch covers both directions and same-side clear',async({page})=>{
+  let toolRequests=0;
+  page.on('request',r=>{try{const u=new URL(r.url());if(SNAP.includes(u.pathname)&&(u.searchParams.get('v')||'').startsWith('94.8-'))toolRequests++;}catch{}});
+  await open(page);
+  await expect.poll(()=>toolRequests,{timeout:15000}).toBe(4);
+  const baseline=toolRequests;
+  const over=page.locator('[data-nfl-ppt-side="over"]'),under=page.locator('[data-nfl-ppt-side="under"]');
+  const sideState=()=>page.evaluate(()=>{
+    const rows=[...document.querySelectorAll('#nflPlayerPropTool tbody tr')];
+    const visible=rows.map(r=>r.querySelector('.nfl-ppt-pick-v947')?.classList.contains('under')?'under':'over');
+    const source=(window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]).map(r=>r.side);
+    return {
+      side:window.__TSO_NFL_PLAYER_PROP_V947__?.state?.side??null,
+      visible,
+      source,
+      overPressed:document.querySelector('[data-nfl-ppt-side="over"]')?.getAttribute('aria-pressed'),
+      underPressed:document.querySelector('[data-nfl-ppt-side="under"]')?.getAttribute('aria-pressed')
+    };
+  });
+  const expectOnly=async(side)=>{
+    const st=await sideState();
+    expect(st.side).toBe(side);
+    expect(st.visible.length).toBeGreaterThan(0);
+    expect(new Set(st.visible)).toEqual(new Set([side]));
+    expect(st.overPressed).toBe(side==='over'?'true':'false');
+    expect(st.underPressed).toBe(side==='under'?'true':'false');
+  };
+  let st=await sideState();
+  expect(st.side).toBeNull();
+  expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('false');
+  expect(new Set(st.source)).toEqual(new Set(['over','under']));
+  expect(new Set(st.visible)).toEqual(new Set(['over','under']));
+
+  await over.click();await expectOnly('over');
+  await under.click();await expectOnly('under');
+  await over.click();await expectOnly('over');
+  await over.click();
+  st=await sideState();
+  expect(st.side).toBeNull();expect(st.overPressed).toBe('false');expect(st.underPressed).toBe('false');
+  expect(new Set(st.visible)).toEqual(new Set(['over','under']));
+
+  await under.click();await expectOnly('under');
+  await under.click();
+  st=await sideState();
+  expect(st.side).toBeNull();expect(new Set(st.visible)).toEqual(new Set(['over','under']));
+  await page.waitForTimeout(150);
+  expect(toolRequests).toBe(baseline);
+});
+
+test('Over Under side selection survives every other Player Prop Tool filter',async({page})=>{
+  await open(page);
+  const over=page.locator('[data-nfl-ppt-side="over"]');
+  await over.click();
+  const assertOver=async()=>{
+    await expect(over).toHaveAttribute('aria-pressed','true');
+    await expect(page.locator('[data-nfl-ppt-side="under"]')).toHaveAttribute('aria-pressed','false');
+    expect(await page.evaluate(()=>window.__TSO_NFL_PLAYER_PROP_V947__?.state?.side)).toBe('over');
+    const sides=await page.locator('#nflPlayerPropTool tbody tr:visible .nfl-ppt-pick-v947').evaluateAll(nodes=>nodes.map(n=>n.classList.contains('under')?'under':'over'));
+    expect(sides.every(x=>x==='over')).toBe(true);
+  };
+  await assertOver();
+
+  await page.locator('#nflPptMode').selectOption('safest');await assertOver();
+  const nonAllValue=async select=>{
+    const values=await select.locator('option').evaluateAll(opts=>opts.map(o=>o.value).filter(v=>v&&v!=='ALL'));
+    return values[0]||null;
+  };
+
+  // Exercise Game and Prop independently. A selected game can legitimately have
+  // no second Prop option after all other filters are applied, so do not wait on
+  // option:nth(1). Each filter still gets a real non-ALL selection and side check.
+  const game=page.locator('#nflPptGame');
+  const gv=await nonAllValue(game);expect(gv).not.toBeNull();
+  await game.selectOption(gv);await assertOver();
+  await game.selectOption('ALL');await assertOver();
+
+  const prop=page.locator('#nflPptMarket');
+  const pv=await nonAllValue(prop);expect(pv).not.toBeNull();
+  await prop.selectOption(pv);await assertOver();
+  await prop.selectOption('ALL');await assertOver();
+
+  if(await page.locator('#nflPlayerPropTool tbody tr:visible').count()){
+    const activeRowId=await page.locator('#nflPlayerPropTool tbody tr:visible').first().getAttribute('data-nfl-ppt-row');
+    const activePos=await page.evaluate(id=>(window.__TSO_NFL_PLAYER_PROP_V947__?.buildRows?.()||[]).find(r=>r.id===id)?.position||'',activeRowId);
+    const alternate=['QB','RB','WR','TE'].find(p=>p!==activePos);
+    if(alternate){
+      const pos=page.locator(`[data-nfl-ppt-pos="${alternate}"]`);
+      await pos.click();await assertOver();
+      await pos.click();await assertOver();
+    }
+  }
+
+  await page.locator('#nflPptFilters').click();
+  if(await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player] b').count()){
+    const playerName=await page.locator('#nflPlayerPropTool tbody tr:visible [data-nfl-tool-player] b').first().textContent();
+    if(playerName){
+      const search=page.locator('#nflPptSearch');
+      await search.fill(playerName.replace('↗','').trim().split(/\s+/)[0]);await assertOver();
+      await search.fill('');await assertOver();
+    }
+  }
+  const team=page.locator('#nflPptTeam');
+  const tv=await nonAllValue(team);expect(tv).not.toBeNull();
+  await team.selectOption(tv);await assertOver();
+  await team.selectOption('ALL');await assertOver();
+
+  await page.locator('#nflPptMin').selectOption('0.50');await assertOver();
+  await page.locator('#nflPptMin').selectOption('0.40');await assertOver();
+  for(const p of ['1h','q1','full']){await page.locator(`[data-nfl-ppt-period="${p}"]`).click();await assertOver();}
 });

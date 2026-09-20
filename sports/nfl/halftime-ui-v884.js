@@ -209,6 +209,7 @@ export function startHalftimeBoardPolling(onUpdate,{intervalMs=5000}={}){
   armLiveSnapshotSync();
   if(pollTimer)return;
   const tick=async()=>{
+    if(document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'))return;
     refreshOpenDrawer();
     if(document.hidden||window.DW_SPORT!=='nfl')return;
     try{

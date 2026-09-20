@@ -12,7 +12,7 @@ import { installNflGamecastPossessionBallV8922 } from './nfl/gamecast-possession
 import { installNflPlayerModalSlateSyncV907 } from './nfl/player-modal-slate-sync-v907.js?v=90.7';
 import { installNflAllPlayersControlsV8921 } from './nfl/all-players-controls-v8921.js?v=89.21';
 import { installNflReadabilityV8922 } from './nfl/readability-v8922.js?v=89.22';
-import { installNflPlayerPropToolV947 } from './nfl/player-prop-tool-v947.js?v=94.7';
+import { installNflPlayerPropToolV947 } from './nfl/player-prop-tool-v947.js?v=94.8';
 
 let quarterPollTimer=null,replayLabPromise=null;
 
@@ -24,6 +24,7 @@ async function installReplayLabIfRequested(){
 }
 
 async function refreshQuarterCta(){
+  if(document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'))return;
   const banner=document.querySelector('[data-tso-quarter-banner]');
   if(!banner) return;
   try{

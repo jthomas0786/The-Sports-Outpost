@@ -1,90 +1,90 @@
-#nflView #nflPlayerPropTool{--ppt-bg:#07101e;--ppt-card:#0b1728;--ppt-card2:#0e1d32;--ppt-line:#234568;--ppt-line-soft:rgba(89,149,205,.22);--ppt-text:#edf7ff;--ppt-muted:#8fa9c2;--ppt-blue:#2d7fff;--ppt-cyan:#67d9ff;--ppt-green:#32d583;--ppt-gold:#f4c430;--ppt-red:#ff7086;color:var(--ppt-text);width:100%;min-width:0;padding:10px 10px 28px;box-sizing:border-box}
+#nflView #nflPlayerPropTool{--ppt-bg:#07101e;--ppt-card:#0b1728;--ppt-card2:#0e1d32;--ppt-line:#234568;--ppt-line-soft:rgba(89,149,205,.22);--ppt-text:#edf7ff;--ppt-muted:#8fa9c2;--ppt-blue:#2d7fff;--ppt-cyan:#67d9ff;--ppt-green:#32d583;--ppt-gold:#f4c430;--ppt-red:#ff7086;color:var(--ppt-text);width:100%;min-width:0;padding:14px 12px 30px;box-sizing:border-box}
 #nflView #nflPlayerPropTool *{box-sizing:border-box}
 #nflView .nfl-ppt-head-v947{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:0 0 10px;padding:14px 16px;border:1px solid var(--ppt-line);border-radius:12px;background:linear-gradient(135deg,#0c1c31,#07111f);box-shadow:0 12px 32px rgba(0,0,0,.22)}
-#nflView .nfl-ppt-head-v947>div>span{display:block;color:var(--ppt-cyan);font:800 9px/1.2 "JetBrains Mono",monospace;letter-spacing:.11em}
-#nflView .nfl-ppt-head-v947 h1{margin:4px 0 2px;font:800 23px/1 "Oswald",sans-serif;letter-spacing:.025em}
-#nflView .nfl-ppt-head-v947 p{margin:0;color:var(--ppt-muted);font:600 10px/1.35 "JetBrains Mono",monospace}
+#nflView .nfl-ppt-head-v947>div>span{display:block;color:var(--ppt-cyan);font:800 10.5px/1.2 "JetBrains Mono",monospace;letter-spacing:.11em}
+#nflView .nfl-ppt-head-v947 h1{margin:4px 0 2px;font:800 28px/1 "Oswald",sans-serif;letter-spacing:.025em}
+#nflView .nfl-ppt-head-v947 p{margin:0;color:var(--ppt-muted);font:600 12px/1.4 "JetBrains Mono",monospace}
 #nflView .nfl-ppt-head-stat{text-align:right;min-width:86px}
-#nflView .nfl-ppt-head-stat b{display:block;color:#fff;font:800 24px/1 "Oswald",sans-serif}
-#nflView .nfl-ppt-head-stat span{color:var(--ppt-muted);font:700 8px/1.2 "JetBrains Mono",monospace;text-transform:uppercase}
-#nflView .nfl-ppt-toolbar-v947{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--ppt-line);border-radius:10px 10px 0 0;background:#091727}
+#nflView .nfl-ppt-head-stat b{display:block;color:#fff;font:800 28px/1 "Oswald",sans-serif}
+#nflView .nfl-ppt-head-stat span{color:var(--ppt-muted);font:700 9.5px/1.2 "JetBrains Mono",monospace;text-transform:uppercase}
+#nflView .nfl-ppt-toolbar-v947{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 12px;border:1px solid var(--ppt-line);border-radius:10px 10px 0 0;background:#091727}
 #nflView .nfl-ppt-selects-v947{display:flex;gap:7px;flex:1;min-width:450px}
-#nflView .nfl-ppt-selects-v947 label,#nflView .nfl-ppt-filter-panel-v947 label{display:grid;gap:3px;color:var(--ppt-muted);font:700 7px/1 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em}
-#nflView .nfl-ppt-selects-v947 select,#nflView .nfl-ppt-filter-panel-v947 select,#nflView .nfl-ppt-filter-panel-v947 input{height:30px;min-width:124px;padding:0 9px;border:1px solid var(--ppt-line);border-radius:7px;background:#06111e;color:#eaf5ff;font:700 10px "JetBrains Mono",monospace;outline:none}
+#nflView .nfl-ppt-selects-v947 label,#nflView .nfl-ppt-filter-panel-v947 label{display:grid;gap:3px;color:var(--ppt-muted);font:700 8.5px/1 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em}
+#nflView .nfl-ppt-selects-v947 select,#nflView .nfl-ppt-filter-panel-v947 select,#nflView .nfl-ppt-filter-panel-v947 input{height:36px;min-width:132px;padding:0 10px;border:1px solid var(--ppt-line);border-radius:7px;background:#06111e;color:#eaf5ff;font:700 11.5px "JetBrains Mono",monospace;outline:none}
 #nflView .nfl-ppt-selects-v947 label:first-child select{min-width:150px}
 #nflView .nfl-ppt-positions-v947,#nflView .nfl-ppt-actions-v947{display:flex;align-items:center;gap:5px}
-#nflView .nfl-ppt-positions-v947 button,#nflView .nfl-ppt-actions-v947 button,#nflView .nfl-ppt-filter-panel-v947>button{height:30px;padding:0 9px;border:1px solid var(--ppt-line);border-radius:7px;background:#081524;color:var(--ppt-muted);font:800 8px "JetBrains Mono",monospace;cursor:pointer}
+#nflView .nfl-ppt-positions-v947 button,#nflView .nfl-ppt-actions-v947 button,#nflView .nfl-ppt-filter-panel-v947>button{height:36px;padding:0 11px;border:1px solid var(--ppt-line);border-radius:7px;background:#081524;color:var(--ppt-muted);font:800 9.5px "JetBrains Mono",monospace;cursor:pointer}
 #nflView .nfl-ppt-positions-v947 button.active{background:rgba(45,127,255,.18);border-color:#2d7fff;color:#dceaff}
 #nflView .nfl-ppt-actions-v947 button:hover,#nflView .nfl-ppt-filter-panel-v947>button:hover{border-color:#4887c4;color:white}
-#nflView .nfl-ppt-periodbar-v947{display:flex;align-items:center;gap:9px;min-height:36px;padding:5px 10px;border:1px solid var(--ppt-line);border-top:0;background:#071321;overflow:hidden}
-#nflView .nfl-ppt-periodbar-v947>span{color:var(--ppt-muted);font:800 7px "JetBrains Mono",monospace;text-transform:uppercase}
+#nflView .nfl-ppt-periodbar-v947{display:flex;align-items:center;gap:9px;min-height:44px;padding:7px 12px;border:1px solid var(--ppt-line);border-top:0;background:#071321;overflow:hidden}
+#nflView .nfl-ppt-periodbar-v947>span{color:var(--ppt-muted);font:800 8.5px "JetBrains Mono",monospace;text-transform:uppercase}
 #nflView .nfl-ppt-periodbar-v947>div{display:flex;gap:3px;overflow-x:auto;scrollbar-width:none}
 #nflView .nfl-ppt-periodbar-v947>div::-webkit-scrollbar{display:none}
-#nflView .nfl-ppt-periodbar-v947 button{height:24px;min-width:35px;padding:0 7px;border:1px solid var(--ppt-line);border-radius:5px;background:#081827;color:#91abc3;font:800 8px "JetBrains Mono",monospace;cursor:pointer}
+#nflView .nfl-ppt-periodbar-v947 button{height:30px;min-width:39px;padding:0 9px;border:1px solid var(--ppt-line);border-radius:5px;background:#081827;color:#91abc3;font:800 9.5px "JetBrains Mono",monospace;cursor:pointer}
 #nflView .nfl-ppt-periodbar-v947 button.active{background:#2d7fff;border-color:#4b95ff;color:#fff}
-#nflView .nfl-ppt-periodbar-v947 small{margin-left:auto;white-space:nowrap;color:#6edcff;font:700 7px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-periodbar-v947 small{margin-left:auto;white-space:nowrap;color:#6edcff;font:700 8.5px "JetBrains Mono",monospace}
 #nflView .nfl-ppt-filter-panel-v947{display:flex;align-items:end;gap:8px;padding:8px 10px;border:1px solid var(--ppt-line);border-top:0;background:#091624}
 #nflView .nfl-ppt-filter-panel-v947[hidden]{display:none!important}
 #nflView .nfl-ppt-filter-panel-v947 label:first-child{flex:1;min-width:180px}
 #nflView .nfl-ppt-filter-panel-v947 input{width:100%}
 #nflView .nfl-ppt-table-wrap{width:100%;max-width:100%;overflow-x:auto;overflow-y:visible;border:1px solid var(--ppt-line);border-top:0;border-radius:0 0 10px 10px;background:#06101d;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #nflView .nfl-ppt-table-wrap::-webkit-scrollbar{height:0}
-#nflView .nfl-ppt-table{width:100%;min-width:1180px;border-collapse:separate;border-spacing:0;table-layout:fixed;background:#07111f}
-#nflView .nfl-ppt-table col:nth-child(1){width:205px}
-#nflView .nfl-ppt-table col:nth-child(2){width:84px}
-#nflView .nfl-ppt-table col:nth-child(3){width:106px}
-#nflView .nfl-ppt-table col:nth-child(4),#nflView .nfl-ppt-table col:nth-child(5){width:76px}
-#nflView .nfl-ppt-table col:nth-child(6){width:78px}
-#nflView .nfl-ppt-table col:nth-child(7){width:82px}
-#nflView .nfl-ppt-table col:nth-child(8){width:90px}
-#nflView .nfl-ppt-table col:nth-child(9){width:105px}
-#nflView .nfl-ppt-table col:nth-child(10){width:75px}
-#nflView .nfl-ppt-table col:nth-child(n+11){width:72px}
+#nflView .nfl-ppt-table{width:100%;min-width:1280px;border-collapse:separate;border-spacing:0;table-layout:fixed;background:#07111f}
+#nflView .nfl-ppt-table col:nth-child(1){width:174px}
+#nflView .nfl-ppt-table col:nth-child(2){width:96px}
+#nflView .nfl-ppt-table col:nth-child(3){width:112px}
+#nflView .nfl-ppt-table col:nth-child(4),#nflView .nfl-ppt-table col:nth-child(5){width:86px}
+#nflView .nfl-ppt-table col:nth-child(6){width:92px}
+#nflView .nfl-ppt-table col:nth-child(7){width:90px}
+#nflView .nfl-ppt-table col:nth-child(8){width:100px}
+#nflView .nfl-ppt-table col:nth-child(9){width:110px}
+#nflView .nfl-ppt-table col:nth-child(10){width:86px}
+#nflView .nfl-ppt-table col:nth-child(n+11){width:80px}
 #nflView .nfl-ppt-table thead{position:sticky;top:0;z-index:5}
-#nflView .nfl-ppt-table .nfl-ppt-groups th{height:22px;padding:0 5px;border-right:1px solid var(--ppt-line-soft);border-bottom:1px solid var(--ppt-line);background:#07182a;color:#62d8ff;font:800 7px "JetBrains Mono",monospace;letter-spacing:.08em;text-align:center}
-#nflView .nfl-ppt-table thead tr:nth-child(2) th{height:37px;padding:0;border-right:1px solid var(--ppt-line-soft);border-bottom:1px solid #305a82;background:#0a1a2d}
-#nflView .nfl-ppt-table thead tr:nth-child(2) th button{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;height:100%;padding:0 4px;border:0;background:transparent;color:#d6e8f7;font:800 7.6px/1.1 "JetBrains Mono",monospace;letter-spacing:.035em;cursor:pointer}
-#nflView .nfl-ppt-table thead tr:nth-child(2) th:first-child button{justify-content:flex-start;padding-left:9px}
+#nflView .nfl-ppt-table .nfl-ppt-groups th{height:26px;padding:0 6px;border-right:1px solid var(--ppt-line-soft);border-bottom:1px solid var(--ppt-line);background:#07182a;color:#62d8ff;font:800 8.5px "JetBrains Mono",monospace;letter-spacing:.07em;text-align:center}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th{height:44px;padding:0;border-right:1px solid var(--ppt-line-soft);border-bottom:1px solid #305a82;background:#0a1a2d}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th button{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;height:100%;padding:0 4px;border:0;background:transparent;color:#d6e8f7;font:800 9.2px/1.1 "JetBrains Mono",monospace;letter-spacing:.035em;cursor:pointer}
+#nflView .nfl-ppt-table thead tr:nth-child(2) th:first-child button{justify-content:center;padding-left:4px}
 #nflView .nfl-ppt-table thead th button i{color:#5f82a4;font-style:normal;font-size:9px}
 #nflView .nfl-ppt-table thead th[aria-sort="ascending"] button,#nflView .nfl-ppt-table thead th[aria-sort="descending"] button{color:#6edcff;background:rgba(45,127,255,.07)}
 #nflView .nfl-ppt-table thead th[aria-sort="ascending"] button i,#nflView .nfl-ppt-table thead th[aria-sort="descending"] button i{color:#6edcff}
-#nflView .nfl-ppt-table tbody tr{height:58px;background:#091522;box-shadow:inset 0 -1px #234568}
+#nflView .nfl-ppt-table tbody tr{height:68px;background:#091522;box-shadow:inset 0 -1px #234568}
 #nflView .nfl-ppt-table tbody tr:nth-child(even){background:#0a1827}
 #nflView .nfl-ppt-table tbody tr:hover{background:#10233a}
-#nflView .nfl-ppt-table tbody td{height:58px;padding:5px 6px;border-right:1px solid var(--ppt-line-soft);border-bottom:1px solid #1f3b58;text-align:center;vertical-align:middle;overflow:hidden}
+#nflView .nfl-ppt-table tbody td{height:68px;padding:7px 7px;border-right:1px solid var(--ppt-line-soft);border-bottom:1px solid #1f3b58;text-align:center;vertical-align:middle;overflow:hidden}
 #nflView .nfl-ppt-table tbody td:first-child{border-left:1px solid transparent}
 #nflView .nfl-ppt-table tbody tr:first-child td{border-top:1px solid rgba(77,135,187,.16)}
 #nflView .nfl-ppt-player-sticky{position:sticky;left:0;z-index:3;background:inherit!important;box-shadow:6px 0 10px rgba(0,0,0,.12)}
 #nflView .nfl-ppt-player-v947{display:flex;align-items:center;gap:8px;width:100%;padding:0;border:0;background:transparent;color:#fff;text-align:left;cursor:pointer;min-width:0}
 #nflView .nfl-ppt-player-v947>span:last-child{display:block;min-width:0}
-#nflView .nfl-ppt-player-v947 b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 11px/1.2 "Oswald",sans-serif}
-#nflView .nfl-ppt-player-v947 small{display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#7795af;font:600 7px/1 "JetBrains Mono",monospace}
-#nflView .nfl-ppt-avatar-v947{flex:0 0 34px;width:34px;height:34px;border:1px solid #2b5278;border-radius:50%;overflow:hidden;background:#0c2036;display:grid;place-items:center}
+#nflView .nfl-ppt-player-v947 b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:800 13px/1.2 "Oswald",sans-serif}
+#nflView .nfl-ppt-player-v947 small{display:block;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#7795af;font:600 8px/1.15 "JetBrains Mono",monospace}
+#nflView .nfl-ppt-avatar-v947{flex:0 0 38px;width:38px;height:38px;border:1px solid #2b5278;border-radius:50%;overflow:hidden;background:#0c2036;display:grid;place-items:center}
 #nflView .nfl-ppt-avatar-v947 img{width:100%;height:100%;object-fit:cover}
-#nflView .nfl-ppt-avatar-v947 i{font:800 9px "JetBrains Mono",monospace;color:#8bcdf8}
-#nflView .nfl-ppt-consensus-v947 b,#nflView .nfl-ppt-metric-v947 b,#nflView .nfl-ppt-edge-v947 b,#nflView .nfl-ppt-simdef-v947 b,#nflView .nfl-ppt-hit-v947 b{display:block;color:#f3f8fc;font:800 11px/1 "JetBrains Mono",monospace}
-#nflView .nfl-ppt-consensus-v947 span,#nflView .nfl-ppt-metric-v947 span,#nflView .nfl-ppt-edge-v947 span,#nflView .nfl-ppt-simdef-v947 span,#nflView .nfl-ppt-hit-v947 span{display:block;margin-top:4px;color:#718da7;font:700 6.5px/1 "JetBrains Mono",monospace;text-transform:uppercase}
+#nflView .nfl-ppt-avatar-v947 i{font:800 10px "JetBrains Mono",monospace;color:#8bcdf8}
+#nflView .nfl-ppt-consensus-v947 b,#nflView .nfl-ppt-metric-v947 b,#nflView .nfl-ppt-edge-v947 b,#nflView .nfl-ppt-simdef-v947 b,#nflView .nfl-ppt-hit-v947 b{display:block;color:#f3f8fc;font:800 12.5px/1 "JetBrains Mono",monospace}
+#nflView .nfl-ppt-consensus-v947 span,#nflView .nfl-ppt-metric-v947 span,#nflView .nfl-ppt-edge-v947 span,#nflView .nfl-ppt-simdef-v947 span,#nflView .nfl-ppt-hit-v947 span{display:block;margin-top:4px;color:#718da7;font:700 7.5px/1.1 "JetBrains Mono",monospace;text-transform:uppercase}
 #nflView .nfl-ppt-edge-v947 b{color:#6ee7a6}
 #nflView .nfl-ppt-pick-v947{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
-#nflView .nfl-ppt-pick-number b{display:block;white-space:nowrap;font:800 10px "JetBrains Mono",monospace;color:#e9f5ff}
-#nflView .nfl-ppt-pick-number small{display:block;margin-top:3px;color:#7ee1a8;font:800 7px "JetBrains Mono",monospace}
-#nflView .nfl-ppt-bookmark{position:relative;display:grid;place-items:center;flex:0 0 25px;width:25px;height:25px;border:1px solid #2b5074;border-radius:7px;background:#eef6fb;overflow:hidden}
-#nflView .nfl-ppt-bookmark img{width:19px;height:19px;object-fit:contain}
+#nflView .nfl-ppt-pick-number b{display:block;white-space:nowrap;font:800 11.5px "JetBrains Mono",monospace;color:#e9f5ff}
+#nflView .nfl-ppt-pick-number small{display:block;margin-top:3px;color:#7ee1a8;font:800 8px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-bookmark{position:relative;display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;border:1px solid #2b5074;border-radius:7px;background:#eef6fb;overflow:hidden}
+#nflView .nfl-ppt-bookmark img{width:23px;height:23px;object-fit:contain}
 #nflView .nfl-ppt-bookmark i{display:none;color:#15324a;font:900 7px "JetBrains Mono",monospace;font-style:normal}
 #nflView .nfl-ppt-bookmark img:not([src]),#nflView .nfl-ppt-bookmark img[src=""]{display:none}
 #nflView .nfl-ppt-bookmark.fallback,#nflView .nfl-ppt-bookmark.tso{background:#0d2842;color:#7ee4ff;font:900 7px "JetBrains Mono",monospace}
-#nflView .nfl-ppt-ring-v947{position:relative;display:inline-grid;place-items:center;width:43px;height:43px}
-#nflView .nfl-ppt-ring-v947 svg{position:absolute;inset:0;width:43px;height:43px}
-#nflView .nfl-ppt-ring-v947 circle{fill:none;stroke-width:2.6}
+#nflView .nfl-ppt-ring-v947{position:relative;display:inline-grid;place-items:center;width:46px;height:46px}
+#nflView .nfl-ppt-ring-v947 svg{position:absolute;inset:0;width:46px;height:46px}
+#nflView .nfl-ppt-ring-v947 circle{fill:none;stroke-width:2.2}
 #nflView .nfl-ppt-ring-v947 .track{stroke:#22374d}
 #nflView .nfl-ppt-ring-v947 .fill{stroke:#42d98f;stroke-linecap:round}
 #nflView .nfl-ppt-ring-v947>span{position:relative;display:grid;place-items:center;line-height:1}
-#nflView .nfl-ppt-ring-v947 b{font:900 8px "JetBrains Mono",monospace;color:#fff}
-#nflView .nfl-ppt-ring-v947 small{margin-top:2px;font:800 6px "JetBrains Mono",monospace;color:#8ca9c2}
-#nflView .nfl-ppt-def-v947{display:grid;grid-template-columns:30px 1fr;grid-template-rows:1fr;align-items:center;justify-content:center;gap:5px;text-align:left}
-#nflView .nfl-ppt-def-v947 img{width:28px;height:28px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
-#nflView .nfl-ppt-def-v947 b{font:900 8px "JetBrains Mono",monospace}
-#nflView .nfl-ppt-def-v947 span{color:#9bb2c8;font:800 7px/1.1 "JetBrains Mono",monospace}
+#nflView .nfl-ppt-ring-v947 b{font:900 9.5px "JetBrains Mono",monospace;color:#fff}
+#nflView .nfl-ppt-ring-v947 small{margin-top:2px;font:800 7px "JetBrains Mono",monospace;color:#8ca9c2}
+#nflView .nfl-ppt-def-v947{display:grid;grid-template-columns:34px auto;grid-template-rows:1fr;align-items:center;justify-content:center;gap:5px;text-align:left}
+#nflView .nfl-ppt-def-v947 img{width:32px;height:32px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+#nflView .nfl-ppt-def-v947 b{font:900 9.5px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-def-v947 span{color:#9bb2c8;font:800 8px/1.1 "JetBrains Mono",monospace}
 #nflView .nfl-ppt-match-v947 b{display:block;font:900 9px "JetBrains Mono",monospace}
 #nflView .nfl-ppt-match-v947 span{display:block;margin-top:4px;color:#718da7;font:700 6.3px/1.1 "JetBrains Mono",monospace;white-space:normal}
 #nflView .nfl-ppt-match-v947.great b,#nflView .nfl-ppt-match-v947.good b{color:#4ee49a}
@@ -94,7 +94,7 @@
 #nflView .nfl-ppt-hit-v947.mid b{color:#f0c95b}
 #nflView .nfl-ppt-hit-v947.bad b{color:#ff7a8e}
 #nflView .nfl-ppt-hit-v947.sim b{color:#70d9ff}
-#nflView .nfl-ppt-empty{padding:28px;text-align:center;color:#7894ad;font:700 10px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-empty{padding:28px;text-align:center;color:#7894ad;font:700 11.5px "JetBrains Mono",monospace}
 #nflView .nfl-ppt-loading-v947,#nflView .nfl-ppt-error-v947{display:grid;place-items:center;gap:7px;min-height:320px;border:1px solid var(--ppt-line);border-radius:12px;background:#081523;color:#fff;text-align:center}
 #nflView .nfl-ppt-loading-v947 span,#nflView .nfl-ppt-error-v947 span{color:#809bb3;font:600 9px "JetBrains Mono",monospace}
 #nflView .nfl-ppt-error-v947 button{margin-top:6px;padding:8px 14px;border:1px solid #2d7fff;border-radius:7px;background:#14396a;color:#fff}
@@ -130,8 +130,42 @@ html.nfl-ppt-opening-modal #nflView .ms-modal-backdrop:not(.tso-mlb-backdrop){op
   .nfl-ppt-guide-grid-v947{grid-template-columns:1fr}
 }
 @media(max-width:520px){
-  #nflView .nfl-ppt-head-v947 p{font-size:7.5px}
+  #nflView .nfl-ppt-head-v947 p{font-size:10px}
   #nflView .nfl-ppt-head-stat{display:none}
-  #nflView .nfl-ppt-actions-v947 button{padding:0 7px;font-size:7px}
+  #nflView .nfl-ppt-actions-v947 button{padding:0 8px;font-size:9px}
   #nflView .nfl-ppt-positions-v947 button{padding:0 7px}
 }
+
+#nflView .nfl-ppt-selects-v947 label:nth-child(2) select{min-width:255px}
+#nflView .nfl-ppt-selects-v947 label:nth-child(3) select{min-width:165px}
+#nflView .nfl-ppt-player-cell-v947{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;min-width:0}
+#nflView #nflPlayerPropTool .nfl-ppt-watch-v947{flex:0 0 18px;width:18px;height:18px;min-width:18px;margin:0;padding:0;border-width:1px;font-size:12px;line-height:1}
+#nflView .nfl-ppt-player-v947{width:auto;max-width:145px;justify-content:center;gap:7px}
+#nflView .nfl-ppt-player-v947>span:last-child{text-align:left}
+#nflView .nfl-ppt-def-v947{justify-content:center;text-align:center}
+#nflView .nfl-ppt-match-v947{display:grid;place-items:center;gap:4px;text-align:center}
+#nflView .nfl-ppt-match-line-v947{display:flex;align-items:center;justify-content:center;gap:5px;white-space:nowrap}
+#nflView .nfl-ppt-match-line-v947 b{display:inline;font:900 11px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-match-line-v947 span{display:inline;margin:0;color:#8fa9c2;font:800 8px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-match-line-v947 img{width:30px;height:30px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.35))}
+#nflView .nfl-ppt-match-line-v947 strong{font:900 9px "JetBrains Mono",monospace}
+#nflView .nfl-ppt-match-v947>small{display:block;color:#718da7;font:800 7.5px/1.1 "JetBrains Mono",monospace}
+#nflView .nfl-ppt-table th,#nflView .nfl-ppt-table td{text-align:center}
+
+#nflView .nfl-ppt-proj-v948 span{color:#6ee7a6!important;font-weight:800!important}
+#nflView .nfl-ppt-l10avg-v948 span{color:#8fa9c2!important;font-weight:800!important}
+
+/* v94.8: while the dedicated Prop Tool owns NFL view, stale route/sidebar CSS may not hide it. */
+#nflView.nfl-ppt-active-v948{display:block!important;visibility:visible!important;opacity:1!important}
+#nflView.nfl-ppt-active-v948>#nflPlayerPropTool{display:block!important;visibility:visible!important;opacity:1!important;min-height:1px}
+
+#nflView .nfl-ppt-side-v948{display:flex;align-items:center;gap:7px;min-height:36px}
+#nflView .nfl-ppt-side-v948>span{font:800 8.5px/1 "JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.08em;color:#6f8aa4}
+#nflView .nfl-ppt-side-switch-v948{display:grid;grid-template-columns:1fr 1fr;padding:2px;border:1px solid #253d56;border-radius:10px;background:#07131f;overflow:hidden}
+#nflView .nfl-ppt-side-switch-v948 button{height:32px;min-width:62px;padding:0 12px;border:0;border-radius:7px;background:transparent;color:#a9c0d5;font:800 10px/1 "JetBrains Mono",monospace;cursor:pointer;transition:background .14s ease,color .14s ease,box-shadow .14s ease}
+#nflView .nfl-ppt-side-switch-v948 button:hover{color:#fff}
+#nflView .nfl-ppt-side-switch-v948 button.active,#nflView .nfl-ppt-side-switch-v948 button[aria-pressed="true"]{background:#2d7fff;color:#fff;box-shadow:0 0 0 1px rgba(255,255,255,.08),0 3px 10px rgba(45,127,255,.22)}
+
+/* v94.8 static-snapshot ownership: base route/boot CSS cannot hide the active tool. */
+body:has(#nflView.nfl-ppt-active-v948) .app-shell,
+body:has(#nflView.nfl-ppt-active-v948) .app-main{visibility:visible!important;opacity:1!important}

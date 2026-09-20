@@ -117,10 +117,11 @@ export async function installNflPropModelEdgeV8918(){
     installed=true;
     const root=document.getElementById('nflView')||document.body;
     observer=new MutationObserver(mutations=>{
+      if(document.getElementById('nflPlayerPropTool')||root.classList.contains('nfl-ppt-active-v948'))return;
       if(mutations.every(m=>m.target?.closest?.(`.${STRIP}`)))return;
       schedule();
     });observer.observe(root,{childList:true,subtree:true,characterData:true});
-    refreshTimer=setInterval(async()=>{await loadSim({force:true});schedule();},60000);
+    refreshTimer=setInterval(async()=>{if(document.getElementById('nflPlayerPropTool')||root.classList.contains('nfl-ppt-active-v948'))return;await loadSim({force:true});schedule();},60000);
   }
   return observer;
 }

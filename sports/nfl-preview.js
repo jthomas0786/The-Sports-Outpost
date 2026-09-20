@@ -706,8 +706,9 @@ async function loadData(){
     state.data={games:games.length?games:FALLBACK_GAMES,players:players.length?players:FALLBACK_PLAYERS,week:d.week||1,generatedAt:d.generatedAt||null,researchGeneratedAt:research?.generatedAt||null,oddsFetchedAt:odds?.meta?.fetchedAt||null,simGeneratedAt:sim?.generatedAt||null};
     hydrateNflDemoState(state,{data:state.data,research,odds,sim,halftime});
     if(!NFL_DEMO_MODE) startLivePolling(d,()=>{
-      syncPreviewGamesFromRaw(d);
       const root=document.getElementById('nflView');
+      if(root?.querySelector('#nflPlayerPropTool')||root?.classList.contains('nfl-ppt-active-v948')) return;
+      syncPreviewGamesFromRaw(d);
       if(!root || root.hidden || !(state.tab==='slate' || state.tab==='live' || state.tab==='feed' || state.game)) return;
       if(state.game && state.gamecastTab==='game'){
         const current=gameForId(state.game);
@@ -1946,6 +1947,7 @@ function contentHTML(){
 
 function render(){
   const root=document.getElementById('nflView'); if(!root) return;
+  if((root.querySelector('#nflPlayerPropTool')||root.classList.contains('nfl-ppt-active-v948'))&&!document.documentElement.classList.contains('nfl-ppt-opening-modal')) return;
   window.DW_nflPreviewTab=state.tab;
   document.querySelectorAll('#nflSideNav [data-nfl-tab]').forEach(btn=>btn.classList.toggle('is-active', btn.dataset.nflTab===state.tab));
   root.style.setProperty('--ms-accent','#f59e0b'); root.style.setProperty('--ms-accent2','#fbbf24');
