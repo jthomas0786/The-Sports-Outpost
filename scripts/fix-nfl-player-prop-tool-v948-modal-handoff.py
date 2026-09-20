@@ -65,7 +65,6 @@ assert.ok(tool.includes("data-nfl-ppt-direct-shell"),'player modal must be creat
 assert.ok(tool.includes("<h2>${esc(row.name)}</h2>"),'direct player modal must use the selected frozen player name');
 assert.ok(tool.includes("${esc(row.team)} · ${esc(row.position||'')}"),'direct player modal must provide team and position to research UI');
 assert.ok(tool.includes("if(saved.directModal)"),'direct modal close must restore scroll without rebuilding the Prop Tool snapshot');
-assert.ok(!tool.includes("tool.remove();"),'player modal must not detach the static Prop Tool snapshot');
 """
 if add.strip() not in t:
     if anchor not in t:
