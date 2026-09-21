@@ -1,0 +1,20 @@
+name: ParlayPing API Proxy CI
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/parlayping-build/index.ts'
+      - 'scripts/parlayping-api-proxy-selftest.mjs'
+      - '.github/workflows/parlayping-api-proxy-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run ParlayPing proxy security regression
+        run: node scripts/parlayping-api-proxy-selftest.mjs
