@@ -1,12 +1,11 @@
-name: ParlayPing Betslip v2 CI
+name: ParlayPing External Handoff CI
 
 on:
   pull_request:
     paths:
-      - 'sports/parlayping-betslip-v2.js'
-      - 'sports/parlayping-betslip-v2.css'
-      - 'sports/parlayping-betslip-v2-polish.js'
+      - 'sports/parlayping-external-handoff.js'
       - 'sports/gambly-web-fallback-v895.js'
+      - 'supabase/functions/parlayping-share/index.ts'
       - 'scripts/parlayping-betslip-v2-selftest.mjs'
       - '.github/workflows/parlayping-betslip-v2-ci.yml'
   workflow_dispatch:
@@ -19,9 +18,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Syntax check ParlayPing v2
-        run: |
-          node --check sports/parlayping-betslip-v2.js
-          node --check sports/parlayping-betslip-v2-polish.js
-      - name: Run ParlayPing v2 concept regression
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Syntax check external handoff
+        run: node --check sports/parlayping-external-handoff.js
+      - name: Type-check secure share proxy
+        run: deno check supabase/functions/parlayping-share/index.ts
+      - name: Run external handoff regression
         run: node scripts/parlayping-betslip-v2-selftest.mjs
