@@ -1,0 +1,155 @@
+name: One-time NFL Player Prop Tool v95.5 Exact Period Markets
+
+on:
+  push:
+    paths:
+      - 'scripts/apply-nfl-player-prop-tool-v955-exact-period-markets.py'
+      - 'scripts/nfl-period-history.mjs'
+      - 'scripts/nfl-period-history-selftest.mjs'
+      - 'scripts/nfl-prop-cache-refresh.mjs'
+      - '.github/workflows/one-time-nfl-player-prop-tool-v955-exact-period-markets.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nfl-player-prop-tool-v955-exact-period-markets
+  cancel-in-progress: true
+
+jobs:
+  cutover-and-qa:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Sync latest main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+      - name: Apply v95.5 exact-period + complete-market cutover
+        run: python3 scripts/apply-nfl-player-prop-tool-v955-exact-period-markets.py
+      - name: Run code and ownership regressions
+        run: |
+          node --check scripts/nfl-period-history.mjs
+          node --check scripts/nfl-prop-cache-refresh.mjs
+          node --check sports/nfl/sim/quarter-board.js
+          node --check sports/nfl/sim/full-prop-board-v942.js
+          node --check sports/nfl/player-prop-tool-v947.js
+          node scripts/nfl-period-history-selftest.mjs
+          node scripts/nfl-player-prop-tool-v947-selftest.mjs
+          node scripts/nfl-quarter-selftest.mjs
+          node - <<'NODE'
+          import assert from 'node:assert/strict';
+          const full=await import('./sports/nfl/sim/full-prop-board-v942.js');
+          assert.ok(full.__NFL_FULL_PROP_BOARD_V942_TEST__.MARKET_META.firstTd,'First TD model market missing');
+          const choose=full.__NFL_FULL_PROP_BOARD_V942_TEST__.choose;
+          const c={id:'x',simProbability:.22,edge:-.4,price:+500};
+          assert.equal(choose([c],'safest')?.id,'x','style qualification must rank/fallback, not delete a player-market');
+          const q=await import('node:fs/promises').then(fs=>fs.readFile('sports/nfl/sim/quarter-board.js','utf8'));
+          assert.ok(q.includes("QB:['passYds','passTds','completions','rushYds']"),'Q/half passing TD market missing');
+          assert.ok(!q.includes("slice(0,maxCandidates)"),'old 24-candidate admission cap must be removed');
+          const tool=await import('./sports/nfl/player-prop-tool-v947.js');
+          const T=tool.__NFL_PLAYER_PROP_TOOL_V947_TEST__;
+          const research={gameLog:[{gameId:'g1',opponent:'KC',recYds:80},{gameId:'g2',opponent:'LV',recYds:60}],periodGameLog:[{gameId:'g1',opponent:'KC',periods:{q1:{recYds:3}}},{gameId:'g2',opponent:'LV',periods:{q1:{recYds:9}}}]};
+          const q1=T.researchLogsForPeriod(research,'q1');
+          assert.deepEqual(q1.map(x=>x.recYds),[3,9]);
+          assert.deepEqual(T.actualHitRate(q1,'recYds',4.5,'over',5),{hits:1,total:2,rate:.5});
+          console.log('✓ exact selected-period hit-rate ownership verified');
+          NODE
+      - name: Build current research and backfill verified period history
+        run: |
+          node scripts/nfl-research.mjs
+          node scripts/nfl-period-history.mjs
+          cp slates/nfl-research.json /tmp/nfl-research-v955.json
+      - name: Verify current-slate period history coverage
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const r=JSON.parse(fs.readFileSync('slates/nfl-research.json','utf8'));
+          const s=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const ids=new Set((s.games||[]).map(g=>String(g.gameId||g.id||'')));
+          const active=(r.players||[]).filter(p=>ids.has(String(p.gameId||''))&&Array.isArray(p.gameLog)&&p.gameLog.length);
+          const covered=active.filter(p=>(p.periodGameLog||[]).length>0);
+          if(!covered.length)throw new Error('No current-slate player received verified period history');
+          const kelce=active.find(p=>/travis kelce/i.test(p.name||''));
+          if(kelce&&!(kelce.periodGameLog||[]).length)throw new Error('Travis Kelce exact period history is missing');
+          console.log(`✓ exact period history: ${covered.length}/${active.length} current-slate historical players covered${kelce?` · Kelce ${(kelce.periodGameLog||[]).length} games`:''}`);
+          NODE
+      - name: Rebuild frozen Prop Tool boards without replacing live state
+        run: node scripts/nfl-prop-cache-refresh.mjs
+      - name: Verify active/upcoming board market coverage
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const slate=JSON.parse(fs.readFileSync('slates/nfl.json','utf8'));
+          const live=JSON.parse(fs.readFileSync('slates/nfl-live.json','utf8'));
+          const sim=JSON.parse(fs.readFileSync('slates/nfl-sim.json','utf8'));
+          const byId=new Map((sim.games||[]).map(g=>[String(g?.game?.gameId||g.gameId||''),g]));
+          const isFinal=id=>{const g=live?.games?.[id]||{},s=String(g.status||'').toLowerCase(),d=String(g.statusDetail||g.detail||'').toLowerCase();return ['post','final','completed','closed'].includes(s)||d.includes('final');};
+          let boards=0,periodRows=0;
+          for(const g of slate.games||[]){
+            const id=String(g.gameId||g.id||'');if(!id||isFinal(id))continue;
+            const row=byId.get(id);if(!row)continue;boards++;
+            const q1=row?.propPeriods?.q1?.candidates||[];periodRows+=q1.length;
+            const kelce=q1.filter(c=>/travis kelce/i.test(c.name||''));
+            if(kelce.length){
+              const markets=new Set(kelce.map(c=>c.market));
+              if(!markets.has('recYds')||!markets.has('receptions'))throw new Error('Kelce must remain available in both Q1 Rec Yds and Receptions');
+              console.log(`✓ Kelce Q1 markets: ${[...markets].sort().join(', ')}`);
+            }
+            const full=row?.propStyles?.candidates||[];
+            if(full.some(c=>c.market==='atd'))console.log(`✓ ${id}: ATD present`);
+            if(full.some(c=>c.market==='firstTd'))console.log(`✓ ${id}: First TD present`);
+          }
+          if(!boards)console.log('No non-final game remained at board verification time; unit/browser regressions still cover the new pool rules.');
+          else if(!periodRows)throw new Error('Active/upcoming period boards have no candidates');
+          console.log(`✓ ${boards} active/upcoming frozen board(s) · ${periodRows} Q1 candidate(s)`);
+          NODE
+      - name: Install Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund @playwright/test@1.55.0
+          npx playwright install --with-deps chromium
+      - name: Start local production server
+        run: |
+          python3 -m http.server 4173 >/tmp/nfl-ppt-v955.log 2>&1 &
+          for i in {1..30}; do
+            curl -fsS http://127.0.0.1:4173/index.html >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/nfl-ppt-v955.log
+          exit 1
+      - name: Focused v95.5 browser QA
+        run: >-
+          npx playwright test tests/nfl-player-prop-tool-v947.spec.js
+          --reporter=line --workers=1
+          -g "v94.7 has bordered rows|style period filters and sorting stay inside the frozen four-file snapshot|v95.5 complete Prop dropdown"
+      - name: Re-sync latest main, reapply verified cutover, and push production
+        run: |
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            python3 scripts/apply-nfl-player-prop-tool-v955-exact-period-markets.py
+            cp /tmp/nfl-research-v955.json slates/nfl-research.json
+            node scripts/nfl-prop-cache-refresh.mjs
+            node scripts/nfl-period-history-selftest.mjs
+            node scripts/nfl-player-prop-tool-v947-selftest.mjs
+            rm scripts/apply-nfl-player-prop-tool-v955-exact-period-markets.py
+            rm .github/workflows/one-time-nfl-player-prop-tool-v955-exact-period-markets.yml
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add scripts/nfl-research.mjs scripts/nfl-period-history.mjs scripts/nfl-period-history-selftest.mjs scripts/nfl-prop-cache-refresh.mjs .github/workflows/nfl-research.yml .github/workflows/nfl-player-prop-tool-v947.yml sports/nfl/sim/quarter-board.js sports/nfl/sim/full-prop-board-v942.js sports/nfl/player-prop-tool-v947.js sports/nfl-preview-v893.js sports/router.js scripts/nfl-player-prop-tool-v947-selftest.mjs tests/nfl-player-prop-tool-v947.spec.js slates/nfl-research.json slates/nfl-sim.json scripts/apply-nfl-player-prop-tool-v955-exact-period-markets.py .github/workflows/one-time-nfl-player-prop-tool-v955-exact-period-markets.yml
+            git commit -m 'Expand NFL Prop Tool markets and exact period hit rates'
+            if git push origin main; then exit 0; fi
+            sleep 3
+          done
+          exit 1
+      - name: Print server log on failure
+        if: failure()
+        run: cat /tmp/nfl-ppt-v955.log || true
