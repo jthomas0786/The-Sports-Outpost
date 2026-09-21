@@ -41,6 +41,12 @@ const ICONS={
   more:`<svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor" stroke="none"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>`,
 };
 
+function simplifyConnector(root){
+  root.querySelector('#ppLineCheck')?.remove();
+  const tools=root.querySelector('.pps-tools');
+  if(tools){tools.style.gridTemplateColumns='1fr';tools.style.justifyItems='end';}
+}
+
 function polishShare(root){
   root.querySelectorAll('.pps-share[data-share]').forEach(btn=>{
     const kind=btn.dataset.share||'';
@@ -72,7 +78,7 @@ function polishHeadshots(root){
   });
 }
 
-function polish(){const root=document.getElementById(ROOT_ID);if(!root)return;polishShare(root);polishHeadshots(root);}
+function polish(){const root=document.getElementById(ROOT_ID);if(!root)return;simplifyConnector(root);polishShare(root);polishHeadshots(root);}
 function arm(){
   clearTimeout(armTimer);
   const root=document.getElementById(ROOT_ID);
