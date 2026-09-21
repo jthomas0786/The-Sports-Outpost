@@ -14,7 +14,6 @@ const PERIODS=['q1','q2','q3','q4'];
 const normTeam=t=>({LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'}[String(t||'').toUpperCase()]||String(t||'').toUpperCase());
 const clean=s=>String(s??'').trim();
 const compact=s=>String(s??'').toLowerCase().replace(/[^a-z0-9]+/g,'');
-const num=v=>Number.isFinite(Number(v))?Number(v):0;
 const emptyStats=()=>Object.fromEntries(STAT_KEYS.map(k=>[k,0]));
 const addStats=(a,b)=>Object.fromEntries(STAT_KEYS.map(k=>[k,Number(a?.[k]||0)+Number(b?.[k]||0)]));
 const playerKey=p=>String(p?.espnId||p?.gsisId||`${normTeam(p?.team)}|${compact(p?.name)}`);
@@ -63,9 +62,6 @@ function tokenMatches(text,targets){
 }
 function firstMatched(text,targets){return tokenMatches(text,targets)[0]?.target||null;}
 function receiverMatched(text,targets){
-  // ESPN commonly abbreviates receivers as "T.Kelce". A literal period is
-  // part of the player token, so never use punctuation as the first terminator.
-  // Stop at the football result phrase instead ("for 12 yards", yard line, etc.).
   const m=text.match(/\bto\s+(.+?)(?=\s+for\s+(?:-?\d+\s+yards?|no\s+gain)\b|\s+to\s+[A-Z]{2,4}\s+\d+\b|,|$)/i);
   if(!m)return null;
   return firstMatched(m[1],targets);
@@ -129,16 +125,62 @@ export function parsePeriodHistorySummary(summary,targetPlayers=[]){
 }
 
 async function readJson(file,fallback=null){try{return JSON.parse(await fs.readFile(file,'utf8'));}catch{return fallback;}}
+async function espnJson(url){
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{
+    const res=await fetch(url,{signal:controller.signal,headers:{'user-agent':UA,accept:'application/json,text/plain,*/*','accept-language':'en-US,en;q=0.9',referer:'https://www.espn.com/'}});
+    if(!res.ok)throw new Error(`${res.status} ${res.statusText}`);
+    return await res.json();
+  }finally{clearTimeout(timer);}
+}
+const scoreboardCache=new Map();
+async function scoreboardForDate(date){
+  const key=String(date||'').replace(/[^0-9]/g,'').slice(0,8);
+  if(key.length!==8)return [];
+  if(scoreboardCache.has(key))return scoreboardCache.get(key);
+  const promise=(async()=>{
+    const urls=[
+      `https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${key}&limit=100`,
+      `https://site.web.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?dates=${key}&limit=100`,
+    ];
+    let last=null;
+    for(const url of urls){try{return (await espnJson(url))?.events||[];}catch(err){last=err;}}
+    throw last||new Error('ESPN scoreboard unavailable');
+  })();
+  scoreboardCache.set(key,promise);
+  return promise;
+}
+function eventTeams(event){
+  const comp=event?.competitions?.[0],teams={home:'',away:''};
+  for(const c of comp?.competitors||[]){const side=String(c?.homeAway||'').toLowerCase();if(side==='home'||side==='away')teams[side]=normTeam(c?.team?.abbreviation||c?.team?.shortDisplayName||'');}
+  return teams;
+}
+async function resolveEspnGameId(meta){
+  const direct=clean(meta?.espnGameId||'');
+  if(/^\d{6,}$/.test(direct))return direct;
+  const raw=clean(meta?.gameId||'');
+  if(/^\d{6,}$/.test(raw))return raw;
+  if(!meta?.date)return null;
+  const team=normTeam(meta?.team),opp=normTeam(meta?.opponent);
+  const expectedHome=meta?.homeAway==='home'?team:meta?.homeAway==='away'?opp:null;
+  const expectedAway=meta?.homeAway==='away'?team:meta?.homeAway==='home'?opp:null;
+  try{
+    const events=await scoreboardForDate(meta.date);
+    const event=events.find(e=>{
+      const t=eventTeams(e);
+      if(expectedHome&&expectedAway)return t.home===expectedHome&&t.away===expectedAway;
+      return new Set([t.home,t.away]).size===2&&[t.home,t.away].includes(team)&&[t.home,t.away].includes(opp);
+    });
+    return event?.id?String(event.id):null;
+  }catch{return null;}
+}
 async function fetchSummary(gameId){
   const base=`https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event=${encodeURIComponent(gameId)}`;
   const urls=[base,base.replace('://site.api.espn.com/','://site.web.api.espn.com/')];
   const errors=[];
   for(const url of urls){
     try{
-      const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
-      const res=await fetch(url,{signal:controller.signal,headers:{'user-agent':UA,accept:'application/json,text/plain,*/*','accept-language':'en-US,en;q=0.9',referer:'https://www.espn.com/'}});clearTimeout(timer);
-      if(!res.ok){errors.push(`${new URL(url).host}:${res.status}`);continue;}
-      const json=await res.json();
+      const json=await espnJson(url);
       if(!rawPlays(json).length){errors.push(`${new URL(url).host}:no plays`);continue;}
       return json;
     }catch(err){errors.push(`${new URL(url).host}:${String(err?.message||err)}`);}
@@ -156,39 +198,50 @@ async function main(){
   if(!research?.players?.length)throw new Error('slates/nfl-research.json is missing or empty');
   const slateIds=new Set((slate?.games||[]).map(g=>String(g.gameId||g.id||'')).filter(Boolean));
   const currentPlayers=(research.players||[]).filter(p=>p?.gameId&&slateIds.has(String(p.gameId))&&Array.isArray(p.gameLog)&&p.gameLog.length);
-  const targetsByGame=new Map(),wantedByPlayer=new Map();
+  const targetsByEspnGame=new Map(),wantedByPlayer=new Map(),resolvedBySourceGame=new Map();
 
   for(const p of currentPlayers){
     const key=playerKey(p),wanted=[];
     for(const row of (p.gameLog||[]).slice(0,10))if(row?.gameId)wanted.push(row);
     for(const row of (p.gameLog||[]).filter(r=>normTeam(r?.opponent)===normTeam(p?.opponent)).slice(0,10))if(row?.gameId&&!wanted.some(x=>String(x.gameId)===String(row.gameId)))wanted.push(row);
     wantedByPlayer.set(key,wanted);
-    const existing=new Map((p.periodGameLog||[]).map(r=>[String(r.gameId),r]));
-    for(const meta of wanted){
-      const gid=String(meta.gameId);if(existing.has(gid))continue;
-      if(!targetsByGame.has(gid))targetsByGame.set(gid,[]);
-      const list=targetsByGame.get(gid);
+  }
+
+  const uniqueMeta=new Map();
+  for(const wanted of wantedByPlayer.values())for(const meta of wanted)uniqueMeta.set(String(meta.gameId),meta);
+  await parallelMap([...uniqueMeta.entries()],8,async([sourceId,meta])=>{
+    const espnId=await resolveEspnGameId(meta);
+    if(espnId)resolvedBySourceGame.set(sourceId,espnId);
+  });
+
+  for(const p of currentPlayers){
+    const key=playerKey(p),existing=new Map((p.periodGameLog||[]).map(r=>[String(r.gameId),r]));
+    for(const meta of wantedByPlayer.get(key)||[]){
+      const sourceId=String(meta.gameId);if(existing.has(sourceId))continue;
+      const espnId=resolvedBySourceGame.get(sourceId);if(!espnId)continue;
+      if(!targetsByEspnGame.has(espnId))targetsByEspnGame.set(espnId,[]);
+      const list=targetsByEspnGame.get(espnId);
       if(!list.some(x=>x.key===key))list.push({key,name:p.name,espnId:p.espnId,gsisId:p.gsisId,team:p.team});
     }
   }
 
-  const gameIds=[...targetsByGame.keys()];
+  const gameIds=[...targetsByEspnGame.keys()];
   let fetched=0,failed=0;
-  const parsedByGame=new Map();
-  await parallelMap(gameIds,8,async gid=>{
+  const parsedByEspnGame=new Map();
+  await parallelMap(gameIds,6,async espnId=>{
     try{
-      const summary=await fetchSummary(gid),parsed=parsePeriodHistorySummary(summary,targetsByGame.get(gid));
-      parsedByGame.set(gid,parsed);fetched++;
-    }catch(err){failed++;console.warn(`period history ${gid}: ${String(err?.message||err)}`);}
+      const summary=await fetchSummary(espnId),parsed=parsePeriodHistorySummary(summary,targetsByEspnGame.get(espnId));
+      parsedByEspnGame.set(espnId,parsed);fetched++;
+    }catch(err){failed++;console.warn(`period history ESPN ${espnId}: ${String(err?.message||err)}`);}
   });
 
   for(const p of currentPlayers){
     const key=playerKey(p),baseById=new Map((p.gameLog||[]).map(r=>[String(r.gameId),r])),existing=new Map((p.periodGameLog||[]).map(r=>[String(r.gameId),r]));
     for(const meta of wantedByPlayer.get(key)||[]){
-      const gid=String(meta.gameId),parsed=parsedByGame.get(gid)?.get(key);
+      const sourceId=String(meta.gameId),espnId=resolvedBySourceGame.get(sourceId),parsed=espnId?parsedByEspnGame.get(espnId)?.get(key):null;
       if(!parsed)continue;
-      existing.set(gid,{
-        gameId:gid,season:meta.season??null,week:meta.week??null,date:meta.date??null,team:meta.team||p.team,opponent:meta.opponent||null,homeAway:meta.homeAway||null,
+      existing.set(sourceId,{
+        gameId:sourceId,espnGameId:espnId,season:meta.season??null,week:meta.week??null,date:meta.date??null,team:meta.team||p.team,opponent:meta.opponent||null,homeAway:meta.homeAway||null,
         firstTd:parsed.firstTd,periods:parsed.periods,source:'ESPN play-by-play',
       });
     }
@@ -197,14 +250,15 @@ async function main(){
     p.periodHistoryMeta={source:'ESPN play-by-play',updatedAt:new Date().toISOString(),games:p.periodGameLog.length};
   }
 
+  const unresolved=uniqueMeta.size-resolvedBySourceGame.size;
   research.sources={...(research.sources||{}),espnPeriodHistory:'Historical Q1-Q4 and half splits derived from ESPN play-by-play for current-slate players'};
-  research.sourceHealth={...(research.sourceHealth||{}),espnPeriodHistory:{ok:fetched>0||gameIds.length===0,requested:gameIds.length,fetched,failed,cached:currentPlayers.reduce((n,p)=>n+(p.periodGameLog?.length||0),0)}};
+  research.sourceHealth={...(research.sourceHealth||{}),espnPeriodHistory:{ok:fetched>0||gameIds.length===0,sourceGames:uniqueMeta.size,resolvedGameIds:resolvedBySourceGame.size,unresolvedGameIds:unresolved,requested:gameIds.length,fetched,failed,cached:currentPlayers.reduce((n,p)=>n+(p.periodGameLog?.length||0),0)}};
   research.generatedAt=new Date().toISOString();
   await fs.writeFile(RESEARCH_PATH,JSON.stringify(research,null,2)+'\n');
-  console.log(`NFL period history: ${currentPlayers.length} current-slate players · ${gameIds.length} game summaries requested · ${fetched} fetched · ${failed} failed`);
+  console.log(`NFL period history: ${currentPlayers.length} current-slate players · ${resolvedBySourceGame.size}/${uniqueMeta.size} nflverse games resolved to ESPN · ${gameIds.length} summaries requested · ${fetched} fetched · ${failed} failed`);
 }
 
 const invoked=process.argv[1]&&path.resolve(process.argv[1])===fileURLToPath(import.meta.url);
 if(invoked)main().catch(err=>{console.error(err);process.exitCode=1;});
 
-export const __NFL_PERIOD_HISTORY_TEST__={emptyStats,addStats,playerAliases,rawPlays,periodOf,yardsFrom,parsePeriodHistorySummary};
+export const __NFL_PERIOD_HISTORY_TEST__={emptyStats,addStats,playerAliases,rawPlays,periodOf,yardsFrom,parsePeriodHistorySummary,eventTeams};
