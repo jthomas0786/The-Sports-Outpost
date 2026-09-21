@@ -1,0 +1,31 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+
+const ui=fs.readFileSync('sports/parlayping-betslip-v2.js','utf8');
+const css=fs.readFileSync('sports/parlayping-betslip-v2.css','utf8');
+const shim=fs.readFileSync('sports/gambly-web-fallback-v895.js','utf8');
+
+assert.match(shim,/installParlayPingBetslipV2/,'legacy handoff installs ParlayPing v2');
+assert.doesNotMatch(shim,/gambly\.com|handoffToGambly|Generate on Gambly/i,'no Gambly handoff remains active');
+assert.match(ui,/MAX_LEGS=25/,'ParlayPing supports 25-leg shared slips');
+assert.match(ui,/Best Book for This Parlay/,'concept sportsbook comparison heading is present');
+assert.match(ui,/SPORTSBOOK/,'sportsbook dropdown has aligned sportsbook column');
+assert.match(ui,/AVAILABLE BETS/,'sportsbook dropdown has aligned availability column');
+assert.match(ui,/PARLAY ODDS/,'sportsbook dropdown has aligned parlay odds column');
+assert.match(ui,/Compare All Books/,'compare-all row is present');
+assert.match(ui,/PLACE ALL \$\{legs\.length\} BET/,'place-all-bets CTA is dynamic');
+assert.match(ui,/Tune Parlay/,'Tune Parlay control is present');
+assert.match(ui,/Line Check/,'Line Check control is present');
+assert.match(ui,/altOffers\(leg,selectedBook\)/,'tuner alt lines use the selected sportsbook');
+assert.match(ui,/\$\{esc\(selectedBook\)\} odds/,'selected sportsbook is labeled under each tuned leg');
+assert.match(ui,/pps-alt-scroll/,'each leg has a horizontal alt-line scroller');
+assert.match(ui,/gameGroups\(legs\)/,'bets are grouped by game');
+assert.match(ui,/priceText\(price\)/,'each leg renders sportsbook odds');
+assert.match(ui,/formatPct\(prob\)/,'each leg renders probability below odds');
+assert.match(ui,/ppLogo\(\)/,'the ParlayPing brand uses the real inline brand mark');
+assert.match(ui,/dw_betslip/,'existing TSO betslip storage remains the source of truth');
+assert.doesNotMatch(ui,/pp_live_[0-9a-f]{48}/i,'browser source contains no ParlayPing private key');
+assert.match(css,/grid-template-columns:minmax\(220px,1fr\) 170px 170px 42px/,'sportsbook dropdown columns are uniformly aligned');
+assert.match(css,/pps-alt-chip\.selected/,'selected tuner line has ParlayPing glow styling');
+
+console.log('ParlayPing v2 concept selftest: PASS');
