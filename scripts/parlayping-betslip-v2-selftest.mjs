@@ -20,6 +20,10 @@ assert.match(ui,/altOffers\(leg,selectedBook\)/,'tuner alt lines use the selecte
 assert.match(ui,/\$\{esc\(selectedBook\)\} odds/,'selected sportsbook is labeled under each tuned leg');
 assert.match(ui,/pps-alt-scroll/,'each leg has a horizontal alt-line scroller');
 assert.match(ui,/gameGroups\(legs\)/,'bets are grouped by game');
+assert.match(ui,/items\.push\(\{leg,index\}\)/,'grouped games preserve each original betslip index for tuning');
+assert.match(ui,/group\.items\.map\(\(\{leg,index\}\)=>legHtml\(leg,index\)\)/,'rendered tuned legs use the preserved original index');
+assert.match(ui,/explicitParlayPrice\(legs,book\)/,'sportsbook-provided parlay odds are preferred when available');
+assert.match(ui,/!hasRepeatedGame\(legs\)/,'same-game legs are never naively multiplied into a parlay price');
 assert.match(ui,/priceText\(price\)/,'each leg renders sportsbook odds');
 assert.match(ui,/formatPct\(prob\)/,'each leg renders probability below odds');
 assert.match(ui,/ppLogo\(\)/,'the ParlayPing brand uses the real inline brand mark');
