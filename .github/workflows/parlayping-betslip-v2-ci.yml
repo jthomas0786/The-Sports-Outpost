@@ -1,0 +1,22 @@
+name: ParlayPing Betslip v2 CI
+
+on:
+  pull_request:
+    paths:
+      - 'sports/parlayping-betslip-v2.js'
+      - 'sports/parlayping-betslip-v2.css'
+      - 'sports/gambly-web-fallback-v895.js'
+      - 'scripts/parlayping-betslip-v2-selftest.mjs'
+      - '.github/workflows/parlayping-betslip-v2-ci.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run ParlayPing v2 concept regression
+        run: node scripts/parlayping-betslip-v2-selftest.mjs
