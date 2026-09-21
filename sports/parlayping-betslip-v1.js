@@ -3,7 +3,7 @@ let clientPromise=null;
 let lastBuild=null;
 
 const SUPABASE_URL='https://hjhfbhpuuxnrexddplxd.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2hqaGZiaHB1dXhucmV4ZGRwbHhkLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJyZWYiOiJoamhmYmhwdXV4bnJleGRkcGx4ZCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NDk2OTg0LCJleHAiOjIxMDIwNzI5ODR9.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaGZiaHB1dXhucmV4ZGRwbHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY5ODQsImV4cCI6MjEwMjA3Mjk4NH0.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
 
 function readSlip(){
   try{const rows=JSON.parse(localStorage.getItem('dw_betslip')||'[]');return Array.isArray(rows)?rows:[];}catch{return [];}
