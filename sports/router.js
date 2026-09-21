@@ -15,7 +15,7 @@
  */
 import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=93.5';
-import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
+import { installParlayPingBetslipV1 } from './parlayping-betslip-v1.js?v=1.0';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
 import { installNflChibiPreviewPrivateV901 } from './nfl/chibi-preview-private-v901.js?v=91.2';
 import { installNflChibiApprovedConceptV913 } from './nfl/chibi-preview-approved-concept-v913.js?v=91.3';
@@ -206,7 +206,7 @@ function render() {
 }
 
 installMobileEdgeSwipeV894();
-installGamblyWebFallbackV895();
+installParlayPingBetslipV1();
 installPlayerModalStickyHeaderV901();
 installNflChibiPreviewPrivateV901();
 installNflChibiApprovedConceptV913();
