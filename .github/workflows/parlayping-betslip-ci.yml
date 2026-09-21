@@ -1,0 +1,25 @@
+name: ParlayPing Betslip CI
+
+on:
+  pull_request:
+    paths:
+      - 'sports/parlayping-betslip-v1.js'
+      - 'sports/router.js'
+      - 'supabase/functions/parlayping-build/**'
+      - 'scripts/parlayping-betslip-selftest.mjs'
+      - '.github/workflows/parlayping-betslip-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate ParlayPing betslip integration
+        run: node scripts/parlayping-betslip-selftest.mjs
