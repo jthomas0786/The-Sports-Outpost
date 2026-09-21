@@ -18,5 +18,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Syntax check ParlayPing v2
+        run: node --check sports/parlayping-betslip-v2.js
       - name: Run ParlayPing v2 concept regression
         run: node scripts/parlayping-betslip-v2-selftest.mjs
