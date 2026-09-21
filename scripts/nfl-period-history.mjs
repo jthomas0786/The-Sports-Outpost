@@ -63,7 +63,10 @@ function tokenMatches(text,targets){
 }
 function firstMatched(text,targets){return tokenMatches(text,targets)[0]?.target||null;}
 function receiverMatched(text,targets){
-  const m=text.match(/\bto\s+([A-Z][^,;]*?)(?:\s+for\s+|\s+to\s+[A-Z]{2,3}\s+\d+|\.|,|$)/i);
+  // ESPN commonly abbreviates receivers as "T.Kelce". A literal period is
+  // part of the player token, so never use punctuation as the first terminator.
+  // Stop at the football result phrase instead ("for 12 yards", yard line, etc.).
+  const m=text.match(/\bto\s+(.+?)(?=\s+for\s+(?:-?\d+\s+yards?|no\s+gain)\b|\s+to\s+[A-Z]{2,4}\s+\d+\b|,|$)/i);
   if(!m)return null;
   return firstMatched(m[1],targets);
 }
