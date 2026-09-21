@@ -16,5 +16,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check ParlayPing Edge Function
+        run: deno check supabase/functions/parlayping-build/index.ts
       - name: Run ParlayPing proxy security regression
         run: node scripts/parlayping-api-proxy-selftest.mjs
