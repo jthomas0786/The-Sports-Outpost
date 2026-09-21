@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "engineVersion": "v89.18.0",
-  "generatedAt": "2026-09-21T05:21:17.230Z",
+  "generatedAt": "2026-09-21T23:33:56.638Z",
   "meta": {
     "automatic": true,
     "pollMinutes": 5,
@@ -26,7 +26,7 @@
       "games": 1,
       "totalIterations": 50000,
       "reasonCounts": {
-        "material input change": 1
+        "pregame 90m checkpoint": 1
       }
     }
   },
@@ -223274,7 +223274,7 @@
     {
       "schemaVersion": 1,
       "engineVersion": "v89.18.0",
-      "generatedAt": "2026-09-21T05:21:33.386Z",
+      "generatedAt": "2026-09-21T23:34:12.391Z",
       "game": {
         "gameId": "401872947",
         "away": {
@@ -223515,8 +223515,8 @@
                 "probability": 0.4584
               },
               "recYds": {
-                "line": 15.5,
-                "probability": 0.367
+                "line": 16.5,
+                "probability": 0.3414
               },
               "receptions": {
                 "line": 2.5,
@@ -223529,8 +223529,8 @@
                 "probability": 0.5416
               },
               "recYds": {
-                "line": 15.5,
-                "probability": 0.633
+                "line": 16.5,
+                "probability": 0.6586
               },
               "receptions": {
                 "line": 2.5,
@@ -223540,8 +223540,8 @@
             "markets": [
               "atd",
               "receptions",
-              "rushYds",
-              "recYds"
+              "recYds",
+              "rushYds"
             ]
           }
         },
@@ -223706,8 +223706,8 @@
           "sportsbook": {
             "over": {
               "rushYds": {
-                "line": 29.5,
-                "probability": 0.7779
+                "line": 51.5,
+                "probability": 0.3024
               },
               "recYds": {
                 "line": 11.5,
@@ -223720,8 +223720,8 @@
             },
             "under": {
               "rushYds": {
-                "line": 29.5,
-                "probability": 0.2221
+                "line": 51.5,
+                "probability": 0.6976
               },
               "recYds": {
                 "line": 11.5,
@@ -224087,19 +224087,37 @@
           "sportsbook": {
             "over": {
               "rushYds": {
-                "line": 47.5,
-                "probability": 0.432
+                "line": 39.5,
+                "probability": 0.6047
+              },
+              "recYds": {
+                "line": 3.5,
+                "probability": 0.0772
+              },
+              "receptions": {
+                "line": 0.5,
+                "probability": 0.1129
               }
             },
             "under": {
               "rushYds": {
-                "line": 47.5,
-                "probability": 0.568
+                "line": 39.5,
+                "probability": 0.3953
+              },
+              "recYds": {
+                "line": 3.5,
+                "probability": 0.9228
+              },
+              "receptions": {
+                "line": 0.5,
+                "probability": 0.8871
               }
             },
             "markets": [
               "atd",
-              "rushYds"
+              "receptions",
+              "rushYds",
+              "recYds"
             ]
           }
         },
@@ -224263,20 +224281,12 @@
           },
           "sportsbook": {
             "over": {
-              "recYds": {
-                "line": 79.5,
-                "probability": 0.4012
-              },
               "receptions": {
                 "line": 6.5,
                 "probability": 0.3065
               }
             },
             "under": {
-              "recYds": {
-                "line": 79.5,
-                "probability": 0.5988
-              },
               "receptions": {
                 "line": 6.5,
                 "probability": 0.6935
@@ -224284,8 +224294,7 @@
             },
             "markets": [
               "atd",
-              "receptions",
-              "recYds"
+              "receptions"
             ]
           }
         },
@@ -224453,9 +224462,13 @@
                 "line": 14.5,
                 "probability": 0.3273
               },
+              "recYds": {
+                "line": 7.5,
+                "probability": 0.3363
+              },
               "receptions": {
-                "line": 0.5,
-                "probability": 0.6416
+                "line": 1.5,
+                "probability": 0.3301
               }
             },
             "under": {
@@ -224463,14 +224476,19 @@
                 "line": 14.5,
                 "probability": 0.6727
               },
+              "recYds": {
+                "line": 7.5,
+                "probability": 0.6637
+              },
               "receptions": {
-                "line": 0.5,
-                "probability": 0.3584
+                "line": 1.5,
+                "probability": 0.6699
               }
             },
             "markets": [
-              "atd",
               "receptions",
+              "atd",
+              "recYds",
               "rushYds"
             ]
           }
@@ -224636,8 +224654,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 26.5,
-                "probability": 0.1826
+                "line": 19.5,
+                "probability": 0.3025
               },
               "receptions": {
                 "line": 3.5,
@@ -224646,8 +224664,8 @@
             },
             "under": {
               "recYds": {
-                "line": 26.5,
-                "probability": 0.8174
+                "line": 19.5,
+                "probability": 0.6975
               },
               "receptions": {
                 "line": 3.5,
@@ -224822,38 +224840,38 @@
           "sportsbook": {
             "over": {
               "passYds": {
-                "line": 149.5,
-                "probability": 0.7482
+                "line": 213.5,
+                "probability": 0.3443
               },
               "passTds": {
-                "line": 1.5,
-                "probability": 0.1524
+                "line": 0.5,
+                "probability": 0.4908
               },
               "completions": {
                 "line": 19.5,
                 "probability": 0.4283
               },
               "rushYds": {
-                "line": 31.5,
-                "probability": 0.3321
+                "line": 24.5,
+                "probability": 0.5161
               }
             },
             "under": {
               "passYds": {
-                "line": 149.5,
-                "probability": 0.2518
+                "line": 213.5,
+                "probability": 0.6557
               },
               "passTds": {
-                "line": 1.5,
-                "probability": 0.8476
+                "line": 0.5,
+                "probability": 0.5092
               },
               "completions": {
                 "line": 19.5,
                 "probability": 0.5717
               },
               "rushYds": {
-                "line": 31.5,
-                "probability": 0.6679
+                "line": 24.5,
+                "probability": 0.4839
               }
             },
             "markets": [
@@ -225356,8 +225374,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 43.5,
-                "probability": 0.1446
+                "line": 39.5,
+                "probability": 0.1842
               },
               "receptions": {
                 "line": 4.5,
@@ -225366,8 +225384,8 @@
             },
             "under": {
               "recYds": {
-                "line": 43.5,
-                "probability": 0.8554
+                "line": 39.5,
+                "probability": 0.8158
               },
               "receptions": {
                 "line": 4.5,
@@ -225706,8 +225724,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 65.5,
-                "probability": 0.2292
+                "line": 29.5,
+                "probability": 0.6907
               },
               "receptions": {
                 "line": 5.5,
@@ -225716,8 +225734,8 @@
             },
             "under": {
               "recYds": {
-                "line": 65.5,
-                "probability": 0.7708
+                "line": 29.5,
+                "probability": 0.3093
               },
               "receptions": {
                 "line": 5.5,
@@ -225892,8 +225910,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 14.5,
-                "probability": 0.3357
+                "line": 13.5,
+                "probability": 0.3595
               },
               "receptions": {
                 "line": 1.5,
@@ -225902,8 +225920,8 @@
             },
             "under": {
               "recYds": {
-                "line": 14.5,
-                "probability": 0.6643
+                "line": 13.5,
+                "probability": 0.6405
               },
               "receptions": {
                 "line": 1.5,
@@ -226082,12 +226100,16 @@
                 "probability": 0.3228
               },
               "passTds": {
-                "line": 1.5,
-                "probability": 0.2879
+                "line": 0.5,
+                "probability": 0.6503
               },
               "completions": {
                 "line": 21.5,
                 "probability": 0.2133
+              },
+              "rushYds": {
+                "line": 0.5,
+                "probability": 0.6196
               }
             },
             "under": {
@@ -226096,19 +226118,24 @@
                 "probability": 0.6772
               },
               "passTds": {
-                "line": 1.5,
-                "probability": 0.7121
+                "line": 0.5,
+                "probability": 0.3497
               },
               "completions": {
                 "line": 21.5,
                 "probability": 0.7867
+              },
+              "rushYds": {
+                "line": 0.5,
+                "probability": 0.3804
               }
             },
             "markets": [
               "atd",
               "completions",
               "passTds",
-              "passYds"
+              "passYds",
+              "rushYds"
             ]
           }
         },
@@ -226605,8 +226632,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 32.5,
-                "probability": 0.0519
+                "line": 19.5,
+                "probability": 0.1495
               },
               "receptions": {
                 "line": 2.5,
@@ -226615,8 +226642,8 @@
             },
             "under": {
               "recYds": {
-                "line": 32.5,
-                "probability": 0.9481
+                "line": 19.5,
+                "probability": 0.8505
               },
               "receptions": {
                 "line": 2.5,
@@ -226955,8 +226982,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 9.5,
-                "probability": 0.6213
+                "line": 26.5,
+                "probability": 0.2397
               },
               "receptions": {
                 "line": 2.5,
@@ -226965,8 +226992,8 @@
             },
             "under": {
               "recYds": {
-                "line": 9.5,
-                "probability": 0.3787
+                "line": 26.5,
+                "probability": 0.7603
               },
               "receptions": {
                 "line": 2.5,
@@ -226974,8 +227001,8 @@
               }
             },
             "markets": [
-              "atd",
               "receptions",
+              "atd",
               "recYds"
             ]
           }
@@ -227637,8 +227664,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 11.5,
-                "probability": 0.5591
+                "line": 19.5,
+                "probability": 0.3485
               },
               "receptions": {
                 "line": 1.5,
@@ -227647,8 +227674,8 @@
             },
             "under": {
               "recYds": {
-                "line": 11.5,
-                "probability": 0.4409
+                "line": 19.5,
+                "probability": 0.6515
               },
               "receptions": {
                 "line": 1.5,
@@ -227656,8 +227683,8 @@
               }
             },
             "markets": [
-              "atd",
               "receptions",
+              "atd",
               "recYds"
             ]
           }
@@ -227985,10 +228012,30 @@
             "twoPlusTd": 0.0011
           },
           "sportsbook": {
-            "over": {},
-            "under": {},
+            "over": {
+              "recYds": {
+                "line": 14.5,
+                "probability": 0.0818
+              },
+              "receptions": {
+                "line": 1.5,
+                "probability": 0.0975
+              }
+            },
+            "under": {
+              "recYds": {
+                "line": 14.5,
+                "probability": 0.9182
+              },
+              "receptions": {
+                "line": 1.5,
+                "probability": 0.9025
+              }
+            },
             "markets": [
-              "atd"
+              "atd",
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -228481,10 +228528,30 @@
             "twoPlusTd": 0.0009
           },
           "sportsbook": {
-            "over": {},
-            "under": {},
+            "over": {
+              "recYds": {
+                "line": 9.5,
+                "probability": 0.2597
+              },
+              "receptions": {
+                "line": 1.5,
+                "probability": 0.0569
+              }
+            },
+            "under": {
+              "recYds": {
+                "line": 9.5,
+                "probability": 0.7403
+              },
+              "receptions": {
+                "line": 1.5,
+                "probability": 0.9431
+              }
+            },
             "markets": [
-              "atd"
+              "atd",
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -228981,8 +229048,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 5.5,
-                "probability": 0.5547
+                "line": 3.5,
+                "probability": 0.5586
               },
               "receptions": {
                 "line": 0.5,
@@ -228991,8 +229058,8 @@
             },
             "under": {
               "recYds": {
-                "line": 5.5,
-                "probability": 0.4453
+                "line": 3.5,
+                "probability": 0.4414
               },
               "receptions": {
                 "line": 0.5,
@@ -229333,8 +229400,8 @@
           "sportsbook": {
             "over": {
               "recYds": {
-                "line": 7.5,
-                "probability": 0.5925
+                "line": 8.5,
+                "probability": 0.5772
               },
               "receptions": {
                 "line": 0.5,
@@ -229343,8 +229410,8 @@
             },
             "under": {
               "recYds": {
-                "line": 7.5,
-                "probability": 0.4075
+                "line": 8.5,
+                "probability": 0.4228
               },
               "receptions": {
                 "line": 0.5,
@@ -229353,8 +229420,8 @@
             },
             "markets": [
               "atd",
-              "recYds",
-              "receptions"
+              "receptions",
+              "recYds"
             ]
           }
         },
@@ -258776,79 +258843,47 @@
       "propStyles": {
         "schemaVersion": 1,
         "boardVersion": "v94.2",
-        "generatedAt": "2026-09-21T05:21:17.230Z",
+        "generatedAt": "2026-09-21T23:33:56.638Z",
         "gameId": "401872947",
         "iterations": 50000,
         "ready": true,
         "candidates": [
           {
-            "id": "401872947|full|00-0040691|rushYds|under|251.5",
-            "key": "00-0040691|rushYds",
+            "id": "401872947|full|00-0039738|receptions|under|0.5",
+            "key": "00-0039738|receptions",
             "gameId": "401872947",
-            "playerId": "00-0040691",
-            "espnId": "4689114",
-            "gsisId": "00-0040691",
-            "name": "Jaxson Dart",
-            "team": "NYG",
-            "position": "QB",
-            "market": "rushYds",
-            "marketLabel": "Rushing Yards",
-            "side": "under",
-            "line": 251.5,
-            "price": -115,
-            "book": "Bovada",
-            "link": null,
-            "simProbability": 1,
-            "impliedProbability": 0.5349,
-            "edge": 0.4651,
-            "projection": {
-              "mean": 26.62,
-              "median": 25,
-              "p10": 10,
-              "p25": 16,
-              "p75": 35,
-              "p90": 45,
-              "min": 0,
-              "max": 109
-            },
-            "iterations": 50000
-          },
-          {
-            "id": "401872947|full|00-0040737|receptions|under|2.5",
-            "key": "00-0040737|receptions",
-            "gameId": "401872947",
-            "playerId": "00-0040737",
-            "espnId": "4570037",
-            "gsisId": "00-0040737",
-            "name": "Terrance Ferguson",
+            "playerId": "00-0039738",
+            "espnId": "4429096",
+            "gsisId": "00-0039738",
+            "name": "Blake Corum",
             "team": "LA",
-            "position": "TE",
+            "position": "RB",
             "market": "receptions",
             "marketLabel": "Receptions",
             "side": "under",
-            "line": 2.5,
-            "price": -135,
-            "book": "BetMGM",
+            "line": 0.5,
+            "price": 163,
+            "book": "DraftKings",
             "link": null,
-            "simProbability": 0.9804,
-            "impliedProbability": 0.5745,
-            "edge": 0.4059,
+            "simProbability": 0.8871,
+            "impliedProbability": 0.3802,
+            "edge": 0.5069,
             "projection": {
-              "mean": 0.44,
+              "mean": 0.12,
               "median": 0,
               "p10": 0,
               "p25": 0,
-              "p75": 1,
+              "p75": 0,
               "p90": 1,
               "min": 0,
-              "max": 6
+              "max": 3
             },
             "iterations": 50000,
-            "correlationLift": 0.004,
+            "correlationLift": 0.0073,
             "correlationPartner": "Matthew Stafford Completions"
           },
           {
-            "id": "401872947|full|00-0040737|recYds|under|32.5",
+            "id": "401872947|full|00-0040737|recYds|under|34.5",
             "key": "00-0040737|recYds",
             "gameId": "401872947",
             "playerId": "00-0040737",
@@ -258860,13 +258895,13 @@
             "market": "recYds",
             "marketLabel": "Receiving Yards",
             "side": "under",
-            "line": 32.5,
+            "line": 34.5,
             "price": -113,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.9481,
+            "simProbability": 0.9564,
             "impliedProbability": 0.5305,
-            "edge": 0.4176,
+            "edge": 0.4259,
             "projection": {
               "mean": 7.25,
               "median": 0,
@@ -258878,7 +258913,75 @@
               "max": 140
             },
             "iterations": 50000,
-            "correlationLift": 0.0135,
+            "correlationLift": 0.0124,
+            "correlationPartner": "Matthew Stafford Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0040590|recYds|under|14.5",
+            "key": "00-0040590|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0040590",
+            "espnId": "4710855",
+            "gsisId": "00-0040590",
+            "name": "Konata Mumpfield",
+            "team": "LA",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 14.5,
+            "price": -110,
+            "book": "Bovada",
+            "link": null,
+            "simProbability": 0.9182,
+            "impliedProbability": 0.5238,
+            "edge": 0.3944,
+            "projection": {
+              "mean": 4.1,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 8,
+              "p90": 13,
+              "min": 0,
+              "max": 72
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0149,
+            "correlationPartner": "Matthew Stafford Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0039738|recYds|under|3.5",
+            "key": "00-0039738|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0039738",
+            "espnId": "4429096",
+            "gsisId": "00-0039738",
+            "name": "Blake Corum",
+            "team": "LA",
+            "position": "RB",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 3.5,
+            "price": -125,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.9228,
+            "impliedProbability": 0.5556,
+            "edge": 0.3672,
+            "projection": {
+              "mean": 0.52,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 3,
+              "min": 0,
+              "max": 27
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0121,
             "correlationPartner": "Matthew Stafford Passing Yards"
           },
           {
@@ -258916,6 +259019,108 @@
             "correlationPartner": "Matthew Stafford Passing Yards"
           },
           {
+            "id": "401872947|full|00-0040590|receptions|under|1.5",
+            "key": "00-0040590|receptions",
+            "gameId": "401872947",
+            "playerId": "00-0040590",
+            "espnId": "4710855",
+            "gsisId": "00-0040590",
+            "name": "Konata Mumpfield",
+            "team": "LA",
+            "position": "WR",
+            "market": "receptions",
+            "marketLabel": "Receptions",
+            "side": "under",
+            "line": 1.5,
+            "price": -112,
+            "book": "DraftKings",
+            "link": null,
+            "simProbability": 0.9025,
+            "impliedProbability": 0.5283,
+            "edge": 0.3742,
+            "projection": {
+              "mean": 0.47,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 1,
+              "p90": 1,
+              "min": 0,
+              "max": 6
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0112,
+            "correlationPartner": "Matthew Stafford Completions"
+          },
+          {
+            "id": "401872947|full|00-0038359|receptions|under|1.5",
+            "key": "00-0038359|receptions",
+            "gameId": "401872947",
+            "playerId": "00-0038359",
+            "espnId": "4386544",
+            "gsisId": "00-0038359",
+            "name": "Xavier Smith",
+            "team": "LA",
+            "position": "WR",
+            "market": "receptions",
+            "marketLabel": "Receptions",
+            "side": "under",
+            "line": 1.5,
+            "price": -200,
+            "book": "BetMGM",
+            "link": null,
+            "simProbability": 0.9431,
+            "impliedProbability": 0.6667,
+            "edge": 0.2764,
+            "projection": {
+              "mean": 0.34,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 1,
+              "p90": 1,
+              "min": 0,
+              "max": 5
+            },
+            "iterations": 50000,
+            "correlationLift": 0.007,
+            "correlationPartner": "Matthew Stafford Completions"
+          },
+          {
+            "id": "401872947|full|00-0037838|recYds|under|49.5",
+            "key": "00-0037838|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0037838",
+            "espnId": "4361050",
+            "gsisId": "00-0037838",
+            "name": "Isaiah Likely",
+            "team": "NYG",
+            "position": "TE",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 49.5,
+            "price": -145,
+            "book": "Bovada",
+            "link": null,
+            "simProbability": 0.9008,
+            "impliedProbability": 0.5918,
+            "edge": 0.309,
+            "projection": {
+              "mean": 24.32,
+              "median": 21,
+              "p10": 0,
+              "p25": 11,
+              "p75": 34,
+              "p90": 49,
+              "min": 0,
+              "max": 159
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0367,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
             "id": "401872947|full|00-0037838|receptions|under|4.5",
             "key": "00-0037838|receptions",
             "gameId": "401872947",
@@ -258946,8 +259151,8 @@
               "max": 12
             },
             "iterations": 50000,
-            "correlationLift": 0.0334,
-            "correlationPartner": "Jaxson Dart Completions"
+            "correlationLift": 0.0204,
+            "correlationPartner": "Jaxson Dart Passing Yards"
           },
           {
             "id": "401872947|full|00-0040715|receptions|under|1.5",
@@ -258980,41 +259185,7 @@
               "max": 8
             },
             "iterations": 50000,
-            "correlationLift": 0.0216,
-            "correlationPartner": "Jaxson Dart Completions"
-          },
-          {
-            "id": "401872947|full|00-0037838|recYds|under|43.5",
-            "key": "00-0037838|recYds",
-            "gameId": "401872947",
-            "playerId": "00-0037838",
-            "espnId": "4361050",
-            "gsisId": "00-0037838",
-            "name": "Isaiah Likely",
-            "team": "NYG",
-            "position": "TE",
-            "market": "recYds",
-            "marketLabel": "Receiving Yards",
-            "side": "under",
-            "line": 43.5,
-            "price": -113,
-            "book": "FanDuel",
-            "link": null,
-            "simProbability": 0.8554,
-            "impliedProbability": 0.5305,
-            "edge": 0.3249,
-            "projection": {
-              "mean": 24.32,
-              "median": 21,
-              "p10": 0,
-              "p25": 11,
-              "p75": 34,
-              "p90": 49,
-              "min": 0,
-              "max": 159
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0468,
+            "correlationLift": 0.0124,
             "correlationPartner": "Jaxson Dart Passing Yards"
           },
           {
@@ -259031,12 +259202,12 @@
             "marketLabel": "Receptions",
             "side": "under",
             "line": 3.5,
-            "price": -155,
-            "book": "bet365",
+            "price": -166,
+            "book": "DraftKings",
             "link": null,
             "simProbability": 0.8888,
-            "impliedProbability": 0.6078,
-            "edge": 0.2809,
+            "impliedProbability": 0.6241,
+            "edge": 0.2647,
             "projection": {
               "mean": 1.62,
               "median": 1,
@@ -259050,39 +259221,7 @@
             "iterations": 50000
           },
           {
-            "id": "401872947|full|00-0026498|completions|under|22.5",
-            "key": "00-0026498|completions",
-            "gameId": "401872947",
-            "playerId": "00-0026498",
-            "espnId": "12483",
-            "gsisId": "00-0026498",
-            "name": "Matthew Stafford",
-            "team": "LA",
-            "position": "QB",
-            "market": "completions",
-            "marketLabel": "Completions",
-            "side": "under",
-            "line": 22.5,
-            "price": -115,
-            "book": "bet365",
-            "link": null,
-            "simProbability": 0.8416,
-            "impliedProbability": 0.5349,
-            "edge": 0.3068,
-            "projection": {
-              "mean": 18.04,
-              "median": 18,
-              "p10": 12,
-              "p25": 15,
-              "p75": 21,
-              "p90": 24,
-              "min": 3,
-              "max": 42
-            },
-            "iterations": 50000
-          },
-          {
-            "id": "401872947|full|00-0036244|recYds|under|26.5",
+            "id": "401872947|full|00-0036244|recYds|under|28.5",
             "key": "00-0036244|recYds",
             "gameId": "401872947",
             "playerId": "00-0036244",
@@ -259094,13 +259233,13 @@
             "market": "recYds",
             "marketLabel": "Receiving Yards",
             "side": "under",
-            "line": 26.5,
+            "line": 28.5,
             "price": -113,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.8174,
+            "simProbability": 0.8414,
             "impliedProbability": 0.5305,
-            "edge": 0.2868,
+            "edge": 0.3108,
             "projection": {
               "mean": 14.84,
               "median": 11,
@@ -259112,7 +259251,7 @@
               "max": 128
             },
             "iterations": 50000,
-            "correlationLift": 0.0401,
+            "correlationLift": 0.038,
             "correlationPartner": "Matthew Stafford Passing Yards"
           },
           {
@@ -259129,12 +259268,12 @@
             "marketLabel": "Receptions",
             "side": "under",
             "line": 5.5,
-            "price": -110,
+            "price": -115,
             "book": "bet365",
             "link": null,
             "simProbability": 0.8003,
-            "impliedProbability": 0.5238,
-            "edge": 0.2765,
+            "impliedProbability": 0.5349,
+            "edge": 0.2654,
             "projection": {
               "mean": 3.72,
               "median": 4,
@@ -259146,8 +259285,40 @@
               "max": 17
             },
             "iterations": 50000,
-            "correlationLift": 0.0518,
-            "correlationPartner": "Jaxson Dart Completions"
+            "correlationLift": 0.0267,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0038359|recYds|under|14.5",
+            "key": "00-0038359|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0038359",
+            "espnId": "4386544",
+            "gsisId": "00-0038359",
+            "name": "Xavier Smith",
+            "team": "LA",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 14.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.7951,
+            "impliedProbability": 0.5305,
+            "edge": 0.2645,
+            "projection": {
+              "mean": 5.92,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 11,
+              "p90": 22,
+              "min": 0,
+              "max": 138
+            },
+            "iterations": 50000
           },
           {
             "id": "401872947|full|00-0040715|recYds|under|11.5",
@@ -259163,12 +259334,12 @@
             "marketLabel": "Receiving Yards",
             "side": "under",
             "line": 11.5,
-            "price": -110,
-            "book": "Bovada",
+            "price": -113,
+            "book": "FanDuel",
             "link": null,
             "simProbability": 0.795,
-            "impliedProbability": 0.5238,
-            "edge": 0.2712,
+            "impliedProbability": 0.5305,
+            "edge": 0.2645,
             "projection": {
               "mean": 6.28,
               "median": 0,
@@ -259180,8 +259351,74 @@
               "max": 98
             },
             "iterations": 50000,
-            "correlationLift": 0.0324,
+            "correlationLift": 0.0328,
             "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0026498|completions|under|21.5",
+            "key": "00-0026498|completions",
+            "gameId": "401872947",
+            "playerId": "00-0026498",
+            "espnId": "12483",
+            "gsisId": "00-0026498",
+            "name": "Matthew Stafford",
+            "team": "LA",
+            "position": "QB",
+            "market": "completions",
+            "marketLabel": "Completions",
+            "side": "under",
+            "line": 21.5,
+            "price": -110,
+            "book": "Hard Rock Bet",
+            "link": null,
+            "simProbability": 0.7867,
+            "impliedProbability": 0.5238,
+            "edge": 0.2629,
+            "projection": {
+              "mean": 18.04,
+              "median": 18,
+              "p10": 12,
+              "p25": 15,
+              "p75": 21,
+              "p90": 24,
+              "min": 3,
+              "max": 42
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0609,
+            "correlationPartner": "Puka Nacua Receptions"
+          },
+          {
+            "id": "401872947|full|00-0040691|rushYds|under|39.5",
+            "key": "00-0040691|rushYds",
+            "gameId": "401872947",
+            "playerId": "00-0040691",
+            "espnId": "4689114",
+            "gsisId": "00-0040691",
+            "name": "Jaxson Dart",
+            "team": "NYG",
+            "position": "QB",
+            "market": "rushYds",
+            "marketLabel": "Rushing Yards",
+            "side": "under",
+            "line": 39.5,
+            "price": -160,
+            "book": "Bovada",
+            "link": null,
+            "simProbability": 0.8237,
+            "impliedProbability": 0.6154,
+            "edge": 0.2084,
+            "projection": {
+              "mean": 26.62,
+              "median": 25,
+              "p10": 10,
+              "p25": 16,
+              "p75": 35,
+              "p90": 45,
+              "min": 0,
+              "max": 109
+            },
+            "iterations": 50000
           },
           {
             "id": "401872947|full|00-0041042|receptions|under|2.5",
@@ -259197,12 +259434,12 @@
             "marketLabel": "Receptions",
             "side": "under",
             "line": 2.5,
-            "price": -144,
-            "book": "Pinnacle",
+            "price": -150,
+            "book": "bet365",
             "link": null,
             "simProbability": 0.8144,
-            "impliedProbability": 0.5902,
-            "edge": 0.2242,
+            "impliedProbability": 0.6,
+            "edge": 0.2144,
             "projection": {
               "mean": 1.37,
               "median": 1,
@@ -259214,8 +259451,8 @@
               "max": 11
             },
             "iterations": 50000,
-            "correlationLift": 0.0321,
-            "correlationPartner": "Jaxson Dart Completions"
+            "correlationLift": 0.0161,
+            "correlationPartner": "Jaxson Dart Passing Yards"
           },
           {
             "id": "401872947|full|00-0040691|passTds|under|1.5",
@@ -259231,12 +259468,12 @@
             "marketLabel": "Passing TDs",
             "side": "under",
             "line": 1.5,
-            "price": -230,
-            "book": "Bovada",
+            "price": -250,
+            "book": "FanDuel",
             "link": null,
             "simProbability": 0.8476,
-            "impliedProbability": 0.697,
-            "edge": 0.1506,
+            "impliedProbability": 0.7143,
+            "edge": 0.1333,
             "projection": {
               "mean": 0.69,
               "median": 0,
@@ -259252,72 +259489,6 @@
             "correlationPartner": "Matthew Stafford Completions"
           },
           {
-            "id": "401872947|full|00-0041042|recYds|under|27.5",
-            "key": "00-0041042|recYds",
-            "gameId": "401872947",
-            "playerId": "00-0041042",
-            "espnId": "4682648",
-            "gsisId": "00-0041042",
-            "name": "Malachi Fields",
-            "team": "NYG",
-            "position": "WR",
-            "market": "recYds",
-            "marketLabel": "Receiving Yards",
-            "side": "under",
-            "line": 27.5,
-            "price": -115,
-            "book": "Bovada",
-            "link": null,
-            "simProbability": 0.7746,
-            "impliedProbability": 0.5349,
-            "edge": 0.2397,
-            "projection": {
-              "mean": 16.62,
-              "median": 13,
-              "p10": 0,
-              "p25": 0,
-              "p75": 26,
-              "p90": 40,
-              "min": 0,
-              "max": 159
-            },
-            "iterations": 50000
-          },
-          {
-            "id": "401872947|full|00-0039337|recYds|under|65.5",
-            "key": "00-0039337|recYds",
-            "gameId": "401872947",
-            "playerId": "00-0039337",
-            "espnId": "4595348",
-            "gsisId": "00-0039337",
-            "name": "Malik Nabers",
-            "team": "NYG",
-            "position": "WR",
-            "market": "recYds",
-            "marketLabel": "Receiving Yards",
-            "side": "under",
-            "line": 65.5,
-            "price": -113,
-            "book": "FanDuel",
-            "link": null,
-            "simProbability": 0.7708,
-            "impliedProbability": 0.5305,
-            "edge": 0.2403,
-            "projection": {
-              "mean": 46.33,
-              "median": 43,
-              "p10": 13,
-              "p25": 25,
-              "p75": 63,
-              "p90": 85,
-              "min": 0,
-              "max": 226
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0722,
-            "correlationPartner": "Jaxson Dart Passing Yards"
-          },
-          {
             "id": "401872947|full|00-0026498|passTds|under|1.5",
             "key": "00-0026498|passTds",
             "gameId": "401872947",
@@ -259331,12 +259502,12 @@
             "marketLabel": "Passing TDs",
             "side": "under",
             "line": 1.5,
-            "price": 145,
-            "book": "Bovada",
+            "price": 136,
+            "book": "FanDuel",
             "link": null,
             "simProbability": 0.7121,
-            "impliedProbability": 0.4082,
-            "edge": 0.3039,
+            "impliedProbability": 0.4237,
+            "edge": 0.2884,
             "projection": {
               "mean": 1.07,
               "median": 1,
@@ -259348,8 +259519,76 @@
               "max": 8
             },
             "iterations": 50000,
-            "correlationLift": 0.0317,
-            "correlationPartner": "Jaxson Dart Completions"
+            "correlationLift": 0.0224,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0041042|recYds|under|26.5",
+            "key": "00-0041042|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0041042",
+            "espnId": "4682648",
+            "gsisId": "00-0041042",
+            "name": "Malachi Fields",
+            "team": "NYG",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 26.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.7603,
+            "impliedProbability": 0.5305,
+            "edge": 0.2298,
+            "projection": {
+              "mean": 16.62,
+              "median": 13,
+              "p10": 0,
+              "p25": 0,
+              "p75": 26,
+              "p90": 40,
+              "min": 0,
+              "max": 159
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0459,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0039337|recYds|under|60.5",
+            "key": "00-0039337|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0039337",
+            "espnId": "4595348",
+            "gsisId": "00-0039337",
+            "name": "Malik Nabers",
+            "team": "NYG",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 60.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.723,
+            "impliedProbability": 0.5305,
+            "edge": 0.1925,
+            "projection": {
+              "mean": 46.33,
+              "median": 43,
+              "p10": 13,
+              "p25": 25,
+              "p75": 63,
+              "p90": 85,
+              "min": 0,
+              "max": 226
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0769,
+            "correlationPartner": "Jaxson Dart Passing Yards"
           },
           {
             "id": "401872947|full|00-0039075|receptions|under|6.5",
@@ -259365,12 +259604,12 @@
             "marketLabel": "Receptions",
             "side": "under",
             "line": 6.5,
-            "price": 110,
-            "book": "bet365",
+            "price": 105,
+            "book": "Hard Rock Bet",
             "link": null,
             "simProbability": 0.6935,
-            "impliedProbability": 0.4762,
-            "edge": 0.2173,
+            "impliedProbability": 0.4878,
+            "edge": 0.2057,
             "projection": {
               "mean": 5.29,
               "median": 5,
@@ -259420,7 +259659,41 @@
             "correlationPartner": "Matthew Stafford Completions"
           },
           {
-            "id": "401872947|full|00-0040715|rushYds|under|50.5",
+            "id": "401872947|full|00-0037840|receptions|under|2.5",
+            "key": "00-0037840|receptions",
+            "gameId": "401872947",
+            "playerId": "00-0037840",
+            "espnId": "4430737",
+            "gsisId": "00-0037840",
+            "name": "Kyren Williams",
+            "team": "LA",
+            "position": "RB",
+            "market": "receptions",
+            "marketLabel": "Receptions",
+            "side": "under",
+            "line": 2.5,
+            "price": -120,
+            "book": "bet365",
+            "link": null,
+            "simProbability": 0.7181,
+            "impliedProbability": 0.5455,
+            "edge": 0.1727,
+            "projection": {
+              "mean": 1.78,
+              "median": 2,
+              "p10": 0,
+              "p25": 1,
+              "p75": 3,
+              "p90": 4,
+              "min": 0,
+              "max": 11
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0311,
+            "correlationPartner": "Matthew Stafford Completions"
+          },
+          {
+            "id": "401872947|full|00-0040715|rushYds|under|51.5",
             "key": "00-0040715|rushYds",
             "gameId": "401872947",
             "playerId": "00-0040715",
@@ -259432,13 +259705,13 @@
             "market": "rushYds",
             "marketLabel": "Rushing Yards",
             "side": "under",
-            "line": 50.5,
+            "line": 51.5,
             "price": -113,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.678,
+            "simProbability": 0.6976,
             "impliedProbability": 0.5305,
-            "edge": 0.1475,
+            "edge": 0.1671,
             "projection": {
               "mean": 43.49,
               "median": 42,
@@ -259450,8 +259723,42 @@
               "max": 152
             },
             "iterations": 50000,
-            "correlationLift": 0.0177,
+            "correlationLift": 0.0174,
             "correlationPartner": "Matthew Stafford Completions"
+          },
+          {
+            "id": "401872947|full|00-0026498|rushYds|over|0.5",
+            "key": "00-0026498|rushYds",
+            "gameId": "401872947",
+            "playerId": "00-0026498",
+            "espnId": "12483",
+            "gsisId": "00-0026498",
+            "name": "Matthew Stafford",
+            "team": "LA",
+            "position": "QB",
+            "market": "rushYds",
+            "marketLabel": "Rushing Yards",
+            "side": "over",
+            "line": 0.5,
+            "price": 172,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.6196,
+            "impliedProbability": 0.3676,
+            "edge": 0.2519,
+            "projection": {
+              "mean": 4.18,
+              "median": 3,
+              "p10": 0,
+              "p25": 0,
+              "p75": 7,
+              "p90": 11,
+              "min": 0,
+              "max": 40
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0014,
+            "correlationPartner": "Colby Parkinson Receptions"
           },
           {
             "id": "401872947|full|00-0026498|passYds|under|238.5",
@@ -259484,7 +259791,7 @@
               "max": 584
             },
             "iterations": 50000,
-            "correlationLift": 0.0475,
+            "correlationLift": 0.0476,
             "correlationPartner": "Kyren Williams Receiving Yards"
           },
           {
@@ -259522,7 +259829,75 @@
             "correlationPartner": "Matthew Stafford Completions"
           },
           {
-            "id": "401872947|full|00-0040691|passYds|under|215.5",
+            "id": "401872947|full|00-0035250|recYds|under|7.5",
+            "key": "00-0035250|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0035250",
+            "espnId": "4040761",
+            "gsisId": "00-0035250",
+            "name": "Devin Singletary",
+            "team": "NYG",
+            "position": "RB",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 7.5,
+            "price": -110,
+            "book": "Bovada",
+            "link": null,
+            "simProbability": 0.6637,
+            "impliedProbability": 0.5238,
+            "edge": 0.1399,
+            "projection": {
+              "mean": 6.42,
+              "median": 5,
+              "p10": 0,
+              "p25": 0,
+              "p75": 10,
+              "p90": 16,
+              "min": 0,
+              "max": 84
+            },
+            "iterations": 50000,
+            "correlationLift": 0.041,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0037840|recYds|under|16.5",
+            "key": "00-0037840|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0037840",
+            "espnId": "4430737",
+            "gsisId": "00-0037840",
+            "name": "Kyren Williams",
+            "team": "LA",
+            "position": "RB",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 16.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.6586,
+            "impliedProbability": 0.5305,
+            "edge": 0.1281,
+            "projection": {
+              "mean": 13.91,
+              "median": 11,
+              "p10": 0,
+              "p25": 5,
+              "p75": 20,
+              "p90": 31,
+              "min": 0,
+              "max": 145
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0476,
+            "correlationPartner": "Matthew Stafford Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0040691|passYds|under|213.5",
             "key": "00-0040691|passYds",
             "gameId": "401872947",
             "playerId": "00-0040691",
@@ -259534,13 +259909,13 @@
             "market": "passYds",
             "marketLabel": "Passing Yards",
             "side": "under",
-            "line": 215.5,
-            "price": -115,
-            "book": "Bovada",
+            "line": 213.5,
+            "price": -113,
+            "book": "FanDuel",
             "link": null,
-            "simProbability": 0.6666,
-            "impliedProbability": 0.5349,
-            "edge": 0.1317,
+            "simProbability": 0.6557,
+            "impliedProbability": 0.5305,
+            "edge": 0.1252,
             "projection": {
               "mean": 192.92,
               "median": 188,
@@ -259552,11 +259927,79 @@
               "max": 550
             },
             "iterations": 50000,
-            "correlationLift": 0.0722,
+            "correlationLift": 0.0769,
             "correlationPartner": "Malik Nabers Receiving Yards"
           },
           {
-            "id": "401872947|full|00-0033110|recYds|under|14.5",
+            "id": "401872947|full|00-0036309|recYds|under|19.5",
+            "key": "00-0036309|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0036309",
+            "espnId": "4040655",
+            "gsisId": "00-0036309",
+            "name": "Darnell Mooney",
+            "team": "NYG",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 19.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.6515,
+            "impliedProbability": 0.5305,
+            "edge": 0.121,
+            "projection": {
+              "mean": 16.43,
+              "median": 13,
+              "p10": 0,
+              "p25": 0,
+              "p75": 26,
+              "p90": 39,
+              "min": 0,
+              "max": 143
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0418,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0035250|receptions|under|1.5",
+            "key": "00-0035250|receptions",
+            "gameId": "401872947",
+            "playerId": "00-0035250",
+            "espnId": "4040761",
+            "gsisId": "00-0035250",
+            "name": "Devin Singletary",
+            "team": "NYG",
+            "position": "RB",
+            "market": "receptions",
+            "marketLabel": "Receptions",
+            "side": "under",
+            "line": 1.5,
+            "price": -136,
+            "book": "Parx Casino",
+            "link": null,
+            "simProbability": 0.6699,
+            "impliedProbability": 0.5763,
+            "edge": 0.0936,
+            "projection": {
+              "mean": 1.16,
+              "median": 1,
+              "p10": 0,
+              "p25": 0,
+              "p75": 2,
+              "p90": 3,
+              "min": 0,
+              "max": 9
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0213,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0033110|recYds|under|13.5",
             "key": "00-0033110|recYds",
             "gameId": "401872947",
             "playerId": "00-0033110",
@@ -259568,13 +260011,13 @@
             "market": "recYds",
             "marketLabel": "Receiving Yards",
             "side": "under",
-            "line": 14.5,
+            "line": 13.5,
             "price": -113,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.6643,
+            "simProbability": 0.6405,
             "impliedProbability": 0.5305,
-            "edge": 0.1338,
+            "edge": 0.11,
             "projection": {
               "mean": 12.11,
               "median": 9,
@@ -259586,42 +260029,8 @@
               "max": 116
             },
             "iterations": 50000,
-            "correlationLift": 0.041,
+            "correlationLift": 0.0409,
             "correlationPartner": "Matthew Stafford Passing Yards"
-          },
-          {
-            "id": "401872947|full|00-0040691|completions|under|20.5",
-            "key": "00-0040691|completions",
-            "gameId": "401872947",
-            "playerId": "00-0040691",
-            "espnId": "4689114",
-            "gsisId": "00-0040691",
-            "name": "Jaxson Dart",
-            "team": "NYG",
-            "position": "QB",
-            "market": "completions",
-            "marketLabel": "Completions",
-            "side": "under",
-            "line": 20.5,
-            "price": -125,
-            "book": "FanDuel",
-            "link": null,
-            "simProbability": 0.653,
-            "impliedProbability": 0.5556,
-            "edge": 0.0975,
-            "projection": {
-              "mean": 18.92,
-              "median": 19,
-              "p10": 13,
-              "p25": 16,
-              "p75": 22,
-              "p90": 25,
-              "min": 4,
-              "max": 45
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0518,
-            "correlationPartner": "Malik Nabers Receptions"
           },
           {
             "id": "401872947|full|00-0033110|receptions|under|1.5",
@@ -259637,12 +260046,12 @@
             "marketLabel": "Receptions",
             "side": "under",
             "line": 1.5,
-            "price": -102,
-            "book": "Pinnacle",
+            "price": -110,
+            "book": "bet365",
             "link": null,
             "simProbability": 0.6267,
-            "impliedProbability": 0.505,
-            "edge": 0.1217,
+            "impliedProbability": 0.5238,
+            "edge": 0.1029,
             "projection": {
               "mean": 1.3,
               "median": 1,
@@ -259658,109 +260067,7 @@
             "correlationPartner": "Matthew Stafford Completions"
           },
           {
-            "id": "401872947|full|00-0037840|recYds|under|15.5",
-            "key": "00-0037840|recYds",
-            "gameId": "401872947",
-            "playerId": "00-0037840",
-            "espnId": "4430737",
-            "gsisId": "00-0037840",
-            "name": "Kyren Williams",
-            "team": "LA",
-            "position": "RB",
-            "market": "recYds",
-            "marketLabel": "Receiving Yards",
-            "side": "under",
-            "line": 15.5,
-            "price": -113,
-            "book": "FanDuel",
-            "link": null,
-            "simProbability": 0.633,
-            "impliedProbability": 0.5305,
-            "edge": 0.1025,
-            "projection": {
-              "mean": 13.91,
-              "median": 11,
-              "p10": 0,
-              "p25": 5,
-              "p75": 20,
-              "p90": 31,
-              "min": 0,
-              "max": 145
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0475,
-            "correlationPartner": "Matthew Stafford Passing Yards"
-          },
-          {
-            "id": "401872947|full|00-0039738|rushYds|under|49.5",
-            "key": "00-0039738|rushYds",
-            "gameId": "401872947",
-            "playerId": "00-0039738",
-            "espnId": "4429096",
-            "gsisId": "00-0039738",
-            "name": "Blake Corum",
-            "team": "LA",
-            "position": "RB",
-            "market": "rushYds",
-            "marketLabel": "Rushing Yards",
-            "side": "under",
-            "line": 49.5,
-            "price": -120,
-            "book": "Bovada",
-            "link": null,
-            "simProbability": 0.6081,
-            "impliedProbability": 0.5455,
-            "edge": 0.0626,
-            "projection": {
-              "mean": 45.91,
-              "median": 44,
-              "p10": 23,
-              "p25": 33,
-              "p75": 58,
-              "p90": 71,
-              "min": 0,
-              "max": 148
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0199,
-            "correlationPartner": "Jaxson Dart Completions"
-          },
-          {
-            "id": "401872947|full|00-0039847|recYds|over|7.5",
-            "key": "00-0039847|recYds",
-            "gameId": "401872947",
-            "playerId": "00-0039847",
-            "espnId": "4429148",
-            "gsisId": "00-0039847",
-            "name": "Theo Johnson",
-            "team": "NYG",
-            "position": "TE",
-            "market": "recYds",
-            "marketLabel": "Receiving Yards",
-            "side": "over",
-            "line": 7.5,
-            "price": -113,
-            "book": "FanDuel",
-            "link": null,
-            "simProbability": 0.5925,
-            "impliedProbability": 0.5305,
-            "edge": 0.062,
-            "projection": {
-              "mean": 13.86,
-              "median": 11,
-              "p10": 0,
-              "p25": 0,
-              "p75": 22,
-              "p90": 35,
-              "min": 0,
-              "max": 156
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0046,
-            "correlationPartner": "Malik Nabers Receiving Yards"
-          },
-          {
-            "id": "401872947|full|00-0031235|recYds|over|6.5",
+            "id": "401872947|full|00-0031235|recYds|over|5.5",
             "key": "00-0031235|recYds",
             "gameId": "401872947",
             "playerId": "00-0031235",
@@ -259772,13 +260079,13 @@
             "market": "recYds",
             "marketLabel": "Receiving Yards",
             "side": "over",
-            "line": 6.5,
+            "line": 5.5,
             "price": 114,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.5481,
+            "simProbability": 0.5547,
             "impliedProbability": 0.4673,
-            "edge": 0.0808,
+            "edge": 0.0874,
             "projection": {
               "mean": 11.52,
               "median": 9,
@@ -259790,42 +260097,144 @@
               "max": 113
             },
             "iterations": 50000,
-            "correlationLift": 0.0039,
+            "correlationLift": 0.006,
             "correlationPartner": "Malik Nabers Receiving Yards"
           },
           {
-            "id": "401872947|full|00-0036309|recYds|over|11.5",
-            "key": "00-0036309|recYds",
+            "id": "401872947|full|00-0040691|completions|under|19.5",
+            "key": "00-0040691|completions",
             "gameId": "401872947",
-            "playerId": "00-0036309",
-            "espnId": "4040655",
-            "gsisId": "00-0036309",
-            "name": "Darnell Mooney",
+            "playerId": "00-0040691",
+            "espnId": "4689114",
+            "gsisId": "00-0040691",
+            "name": "Jaxson Dart",
             "team": "NYG",
-            "position": "WR",
+            "position": "QB",
+            "market": "completions",
+            "marketLabel": "Completions",
+            "side": "under",
+            "line": 19.5,
+            "price": -102,
+            "book": "DraftKings",
+            "link": null,
+            "simProbability": 0.5717,
+            "impliedProbability": 0.505,
+            "edge": 0.0668,
+            "projection": {
+              "mean": 18.92,
+              "median": 19,
+              "p10": 13,
+              "p25": 16,
+              "p75": 22,
+              "p90": 25,
+              "min": 4,
+              "max": 45
+            },
+            "iterations": 50000,
+            "correlationLift": 0.053,
+            "correlationPartner": "Malik Nabers Receptions"
+          },
+          {
+            "id": "401872947|full|00-0039847|recYds|over|8.5",
+            "key": "00-0039847|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0039847",
+            "espnId": "4429148",
+            "gsisId": "00-0039847",
+            "name": "Theo Johnson",
+            "team": "NYG",
+            "position": "TE",
             "market": "recYds",
             "marketLabel": "Receiving Yards",
             "side": "over",
-            "line": 11.5,
+            "line": 8.5,
             "price": -113,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.5591,
+            "simProbability": 0.5772,
             "impliedProbability": 0.5305,
-            "edge": 0.0286,
+            "edge": 0.0467,
             "projection": {
-              "mean": 16.43,
-              "median": 13,
+              "mean": 13.86,
+              "median": 11,
               "p10": 0,
               "p25": 0,
-              "p75": 26,
-              "p90": 39,
+              "p75": 22,
+              "p90": 35,
               "min": 0,
-              "max": 143
+              "max": 156
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0045,
+            "correlationPartner": "Malik Nabers Receptions"
+          },
+          {
+            "id": "401872947|full|00-0039738|rushYds|under|47.5",
+            "key": "00-0039738|rushYds",
+            "gameId": "401872947",
+            "playerId": "00-0039738",
+            "espnId": "4429096",
+            "gsisId": "00-0039738",
+            "name": "Blake Corum",
+            "team": "LA",
+            "position": "RB",
+            "market": "rushYds",
+            "marketLabel": "Rushing Yards",
+            "side": "under",
+            "line": 47.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.568,
+            "impliedProbability": 0.5305,
+            "edge": 0.0375,
+            "projection": {
+              "mean": 45.91,
+              "median": 44,
+              "p10": 23,
+              "p25": 33,
+              "p75": 58,
+              "p90": 71,
+              "min": 0,
+              "max": 148
+            },
+            "iterations": 50000,
+            "correlationLift": 0.0138,
+            "correlationPartner": "Jaxson Dart Passing Yards"
+          },
+          {
+            "id": "401872947|full|00-0031235|receptions|over|0.5",
+            "key": "00-0031235|receptions",
+            "gameId": "401872947",
+            "playerId": "00-0031235",
+            "espnId": "16733",
+            "gsisId": "00-0031235",
+            "name": "Odell Beckham Jr.",
+            "team": "NYG",
+            "position": "WR",
+            "market": "receptions",
+            "marketLabel": "Receptions",
+            "side": "over",
+            "line": 0.5,
+            "price": -115,
+            "book": "bet365",
+            "link": null,
+            "simProbability": 0.5595,
+            "impliedProbability": 0.5349,
+            "edge": 0.0246,
+            "projection": {
+              "mean": 0.93,
+              "median": 1,
+              "p10": 0,
+              "p25": 0,
+              "p75": 2,
+              "p90": 2,
+              "min": 0,
+              "max": 7
             },
             "iterations": 50000,
             "correlationLift": 0.0072,
-            "correlationPartner": "Malik Nabers Receptions"
+            "correlationPartner": "Malik Nabers Receiving Yards"
           },
           {
             "id": "401872947|full|00-0037840|rushYds|under|63.5",
@@ -259858,102 +260267,166 @@
               "max": 175
             },
             "iterations": 50000,
-            "correlationLift": 0.0314,
-            "correlationPartner": "Jaxson Dart Completions"
+            "correlationLift": 0.0236,
+            "correlationPartner": "Matthew Stafford Passing TDs"
           },
           {
-            "id": "401872947|full|00-0037840|rushYds|over|39.5",
-            "key": "00-0037840|rushYds",
+            "id": "401872947|full|00-0039738|receptions|under|1.5",
+            "key": "00-0039738|receptions",
             "gameId": "401872947",
-            "playerId": "00-0037840",
-            "espnId": "4430737",
-            "gsisId": "00-0037840",
-            "name": "Kyren Williams",
+            "playerId": "00-0039738",
+            "espnId": "4429096",
+            "gsisId": "00-0039738",
+            "name": "Blake Corum",
             "team": "LA",
             "position": "RB",
-            "market": "rushYds",
-            "marketLabel": "Rushing Yards",
-            "side": "over",
-            "line": 39.5,
-            "price": -650,
-            "book": "Bovada",
-            "link": null,
-            "simProbability": 0.8554,
-            "impliedProbability": 0.8667,
-            "edge": -0.0113,
-            "projection": {
-              "mean": 62.85,
-              "median": 61,
-              "p10": 35,
-              "p25": 47,
-              "p75": 77,
-              "p90": 92,
-              "min": 0,
-              "max": 175
-            },
-            "iterations": 50000
-          },
-          {
-            "id": "401872947|full|00-0035250|receptions|over|0.5",
-            "key": "00-0035250|receptions",
-            "gameId": "401872947",
-            "playerId": "00-0035250",
-            "espnId": "4040761",
-            "gsisId": "00-0035250",
-            "name": "Devin Singletary",
-            "team": "NYG",
-            "position": "RB",
-            "market": "receptions",
-            "marketLabel": "Receptions",
-            "side": "over",
-            "line": 0.5,
-            "price": -210,
-            "book": "bet365",
-            "link": null,
-            "simProbability": 0.6416,
-            "impliedProbability": 0.6774,
-            "edge": -0.0358,
-            "projection": {
-              "mean": 1.16,
-              "median": 1,
-              "p10": 0,
-              "p25": 0,
-              "p75": 2,
-              "p90": 3,
-              "min": 0,
-              "max": 9
-            },
-            "iterations": 50000
-          },
-          {
-            "id": "401872947|full|00-0036309|receptions|under|1.5",
-            "key": "00-0036309|receptions",
-            "gameId": "401872947",
-            "playerId": "00-0036309",
-            "espnId": "4040655",
-            "gsisId": "00-0036309",
-            "name": "Darnell Mooney",
-            "team": "NYG",
-            "position": "WR",
             "market": "receptions",
             "marketLabel": "Receptions",
             "side": "under",
             "line": 1.5,
-            "price": -210,
-            "book": "bet365",
+            "price": -340,
+            "book": "FanDuel",
             "link": null,
-            "simProbability": 0.6242,
-            "impliedProbability": 0.6774,
-            "edge": -0.0532,
+            "simProbability": 0.9902,
+            "impliedProbability": 0.7727,
+            "edge": 0.2174,
             "projection": {
-              "mean": 1.3,
+              "mean": 0.12,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "iterations": 50000
+          },
+          {
+            "id": "401872947|full|00-0031381|recYds|under|72.5",
+            "key": "00-0031381|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0031381",
+            "espnId": "16800",
+            "gsisId": "00-0031381",
+            "name": "Davante Adams",
+            "team": "LA",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 72.5,
+            "price": -170,
+            "book": "Bovada",
+            "link": null,
+            "simProbability": 0.9463,
+            "impliedProbability": 0.6296,
+            "edge": 0.3167,
+            "projection": {
+              "mean": 29.92,
+              "median": 26,
+              "p10": 0,
+              "p25": 13,
+              "p75": 42,
+              "p90": 61,
+              "min": 0,
+              "max": 181
+            },
+            "iterations": 50000
+          },
+          {
+            "id": "401872947|full|00-0039847|receptions|under|1.5",
+            "key": "00-0039847|receptions",
+            "gameId": "401872947",
+            "playerId": "00-0039847",
+            "espnId": "4429148",
+            "gsisId": "00-0039847",
+            "name": "Theo Johnson",
+            "team": "NYG",
+            "position": "TE",
+            "market": "receptions",
+            "marketLabel": "Receptions",
+            "side": "under",
+            "line": 1.5,
+            "price": -245,
+            "book": "Caesars",
+            "link": null,
+            "simProbability": 0.6916,
+            "impliedProbability": 0.7101,
+            "edge": -0.0185,
+            "projection": {
+              "mean": 1.1,
               "median": 1,
               "p10": 0,
               "p25": 0,
               "p75": 2,
               "p90": 3,
               "min": 0,
-              "max": 9
+              "max": 8
+            },
+            "iterations": 50000
+          },
+          {
+            "id": "401872947|full|00-0031381|recYds|under|52.5",
+            "key": "00-0031381|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0031381",
+            "espnId": "16800",
+            "gsisId": "00-0031381",
+            "name": "Davante Adams",
+            "team": "LA",
+            "position": "WR",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 52.5,
+            "price": 140,
+            "book": "Bovada",
+            "link": null,
+            "simProbability": 0.845,
+            "impliedProbability": 0.4167,
+            "edge": 0.4284,
+            "projection": {
+              "mean": 29.92,
+              "median": 26,
+              "p10": 0,
+              "p25": 13,
+              "p75": 42,
+              "p90": 61,
+              "min": 0,
+              "max": 181
+            },
+            "iterations": 50000
+          },
+          {
+            "id": "401872947|full|00-0037838|recYds|under|44.5",
+            "key": "00-0037838|recYds",
+            "gameId": "401872947",
+            "playerId": "00-0037838",
+            "espnId": "4361050",
+            "gsisId": "00-0037838",
+            "name": "Isaiah Likely",
+            "team": "NYG",
+            "position": "TE",
+            "market": "recYds",
+            "marketLabel": "Receiving Yards",
+            "side": "under",
+            "line": 44.5,
+            "price": -113,
+            "book": "FanDuel",
+            "link": null,
+            "simProbability": 0.864,
+            "impliedProbability": 0.5305,
+            "edge": 0.3335,
+            "projection": {
+              "mean": 24.32,
+              "median": 21,
+              "p10": 0,
+              "p25": 11,
+              "p75": 34,
+              "p90": 49,
+              "min": 0,
+              "max": 159
             },
             "iterations": 50000
           },
@@ -259972,7 +260445,7 @@
             "side": "under",
             "line": 2.5,
             "price": 140,
-            "book": "Pinnacle",
+            "book": "bet365",
             "link": null,
             "simProbability": 0.7548,
             "impliedProbability": 0.4167,
@@ -259992,7 +260465,7 @@
             "correlationPartner": "Matthew Stafford Completions"
           },
           {
-            "id": "401872947|full|00-0040691|rushYds|under|31.5",
+            "id": "401872947|full|00-0040691|rushYds|under|33.5",
             "key": "00-0040691|rushYds",
             "gameId": "401872947",
             "playerId": "00-0040691",
@@ -260004,13 +260477,13 @@
             "market": "rushYds",
             "marketLabel": "Rushing Yards",
             "side": "under",
-            "line": 31.5,
+            "line": 33.5,
             "price": -113,
             "book": "FanDuel",
             "link": null,
-            "simProbability": 0.6679,
+            "simProbability": 0.7115,
             "impliedProbability": 0.5305,
-            "edge": 0.1374,
+            "edge": 0.181,
             "projection": {
               "mean": 26.62,
               "median": 25,
@@ -260022,80 +260495,46 @@
               "max": 109
             },
             "iterations": 50000,
-            "correlationLift": 0.0058,
-            "correlationPartner": "Blake Corum Rushing Yards"
+            "correlationLift": 0.0037,
+            "correlationPartner": "Matthew Stafford Passing TDs"
           },
           {
-            "id": "401872947|full|00-0041042|recYds|under|26.5",
-            "key": "00-0041042|recYds",
+            "id": "401872947|full|00-0038359|recYds|under|13.5",
+            "key": "00-0038359|recYds",
             "gameId": "401872947",
-            "playerId": "00-0041042",
-            "espnId": "4682648",
-            "gsisId": "00-0041042",
-            "name": "Malachi Fields",
-            "team": "NYG",
+            "playerId": "00-0038359",
+            "espnId": "4386544",
+            "gsisId": "00-0038359",
+            "name": "Xavier Smith",
+            "team": "LA",
             "position": "WR",
             "market": "recYds",
             "marketLabel": "Receiving Yards",
             "side": "under",
-            "line": 26.5,
-            "price": -113,
-            "book": "FanDuel",
+            "line": 13.5,
+            "price": -110,
+            "book": "Bovada",
             "link": null,
-            "simProbability": 0.7603,
-            "impliedProbability": 0.5305,
-            "edge": 0.2298,
+            "simProbability": 0.7797,
+            "impliedProbability": 0.5238,
+            "edge": 0.2559,
             "projection": {
-              "mean": 16.62,
-              "median": 13,
+              "mean": 5.92,
+              "median": 0,
               "p10": 0,
               "p25": 0,
-              "p75": 26,
-              "p90": 40,
+              "p75": 11,
+              "p90": 22,
               "min": 0,
-              "max": 159
+              "max": 138
             },
             "iterations": 50000,
-            "correlationLift": 0.0449,
-            "correlationPartner": "Jaxson Dart Passing Yards"
+            "correlationLift": 0.0225,
+            "correlationPartner": "Matthew Stafford Passing Yards"
           },
           {
-            "id": "401872947|full|00-0026498|completions|under|21.5",
-            "key": "00-0026498|completions",
-            "gameId": "401872947",
-            "playerId": "00-0026498",
-            "espnId": "12483",
-            "gsisId": "00-0026498",
-            "name": "Matthew Stafford",
-            "team": "LA",
-            "position": "QB",
-            "market": "completions",
-            "marketLabel": "Completions",
-            "side": "under",
-            "line": 21.5,
-            "price": -110,
-            "book": "DraftKings",
-            "link": null,
-            "simProbability": 0.7867,
-            "impliedProbability": 0.5238,
-            "edge": 0.2629,
-            "projection": {
-              "mean": 18.04,
-              "median": 18,
-              "p10": 12,
-              "p25": 15,
-              "p75": 21,
-              "p90": 24,
-              "min": 3,
-              "max": 42
-            },
-            "iterations": 50000,
-            "correlationLift": 0.0609,
-            "correlationPartner": "Puka Nacua Receptions"
-          },
-          {
-            "id": "401872947|full|00-0040691|completions|under|19.5",
-            "key": "00-0040691|completions",
+            "id": "401872947|full|00-0040691|rushYds|under|29.5",
+            "key": "00-0040691|rushYds",
             "gameId": "401872947",
             "playerId": "00-0040691",
             "espnId": "4689114",
@@ -260103,31 +260542,31 @@
             "name": "Jaxson Dart",
             "team": "NYG",
             "position": "QB",
-            "market": "completions",
-            "marketLabel": "Completions",
+            "market": "rushYds",
+            "marketLabel": "Rushing Yards",
             "side": "under",
-            "line": 19.5,
-            "price": -102,
-            "book": "DraftKings",
+            "line": 29.5,
+            "price": 130,
+            "book": "Bovada",
             "link": null,
-            "simProbability": 0.5717,
-            "impliedProbability": 0.505,
-            "edge": 0.0668,
+            "simProbability": 0.6195,
+            "impliedProbability": 0.4348,
+            "edge": 0.1847,
             "projection": {
-              "mean": 18.92,
-              "median": 19,
-              "p10": 13,
+              "mean": 26.62,
+              "median": 25,
+              "p10": 10,
               "p25": 16,
-              "p75": 22,
-              "p90": 25,
-              "min": 4,
-              "max": 45
+              "p75": 35,
+              "p90": 45,
+              "min": 0,
+              "max": 109
             },
             "iterations": 50000
           },
           {
-            "id": "401872947|full|00-0040691|passYds|under|213.5",
-            "key": "00-0040691|passYds",
+            "id": "401872947|full|00-0040691|rushYds|under|24.5",
+            "key": "00-0040691|rushYds",
             "gameId": "401872947",
             "playerId": "00-0040691",
             "espnId": "4689114",
@@ -260135,199 +260574,245 @@
             "name": "Jaxson Dart",
             "team": "NYG",
             "position": "QB",
-            "market": "passYds",
-            "marketLabel": "Passing Yards",
+            "market": "rushYds",
+            "marketLabel": "Rushing Yards",
             "side": "under",
-            "line": 213.5,
-            "price": -113,
-            "book": "FanDuel",
+            "line": 24.5,
+            "price": 190,
+            "book": "Bovada",
             "link": null,
-            "simProbability": 0.6557,
-            "impliedProbability": 0.5305,
-            "edge": 0.1252,
+            "simProbability": 0.4839,
+            "impliedProbability": 0.3448,
+            "edge": 0.1391,
             "projection": {
-              "mean": 192.92,
-              "median": 188,
-              "p10": 117,
-              "p25": 149,
-              "p75": 232,
-              "p90": 274,
+              "mean": 26.62,
+              "median": 25,
+              "p10": 10,
+              "p25": 16,
+              "p75": 35,
+              "p90": 45,
               "min": 0,
-              "max": 550
+              "max": 109
             },
             "iterations": 50000
           }
         ],
         "rankings": {
           "tsoPick": [
-            "401872947|full|00-0040691|rushYds|under|251.5",
-            "401872947|full|00-0040737|receptions|under|2.5",
-            "401872947|full|00-0040737|recYds|under|32.5",
+            "401872947|full|00-0039738|receptions|under|0.5",
+            "401872947|full|00-0040737|recYds|under|34.5",
+            "401872947|full|00-0040590|recYds|under|14.5",
+            "401872947|full|00-0039738|recYds|under|3.5",
             "401872947|full|00-0031381|recYds|under|62.5",
+            "401872947|full|00-0040590|receptions|under|1.5",
+            "401872947|full|00-0038359|receptions|under|1.5",
+            "401872947|full|00-0037838|recYds|under|49.5",
             "401872947|full|00-0037838|receptions|under|4.5",
             "401872947|full|00-0040715|receptions|under|1.5",
-            "401872947|full|00-0037838|recYds|under|43.5",
             "401872947|full|00-0036244|receptions|under|3.5",
-            "401872947|full|00-0026498|completions|under|22.5",
-            "401872947|full|00-0036244|recYds|under|26.5",
+            "401872947|full|00-0036244|recYds|under|28.5",
             "401872947|full|00-0039337|receptions|under|5.5",
+            "401872947|full|00-0038359|recYds|under|14.5",
             "401872947|full|00-0040715|recYds|under|11.5",
+            "401872947|full|00-0026498|completions|under|21.5",
+            "401872947|full|00-0040691|rushYds|under|39.5",
             "401872947|full|00-0041042|receptions|under|2.5",
             "401872947|full|00-0040691|passTds|under|1.5",
-            "401872947|full|00-0041042|recYds|under|27.5",
-            "401872947|full|00-0039337|recYds|under|65.5",
             "401872947|full|00-0026498|passTds|under|1.5",
+            "401872947|full|00-0041042|recYds|under|26.5",
+            "401872947|full|00-0039337|recYds|under|60.5",
             "401872947|full|00-0039075|receptions|under|6.5",
             "401872947|full|00-0031381|receptions|under|3.5",
-            "401872947|full|00-0040715|rushYds|under|50.5",
+            "401872947|full|00-0037840|receptions|under|2.5",
+            "401872947|full|00-0040715|rushYds|under|51.5",
+            "401872947|full|00-0026498|rushYds|over|0.5",
             "401872947|full|00-0026498|passYds|under|238.5",
             "401872947|full|00-0035250|rushYds|under|14.5",
-            "401872947|full|00-0040691|passYds|under|215.5",
-            "401872947|full|00-0033110|recYds|under|14.5",
-            "401872947|full|00-0040691|completions|under|20.5",
+            "401872947|full|00-0035250|recYds|under|7.5",
+            "401872947|full|00-0037840|recYds|under|16.5",
+            "401872947|full|00-0040691|passYds|under|213.5",
+            "401872947|full|00-0036309|recYds|under|19.5",
+            "401872947|full|00-0035250|receptions|under|1.5",
+            "401872947|full|00-0033110|recYds|under|13.5",
             "401872947|full|00-0033110|receptions|under|1.5",
-            "401872947|full|00-0037840|recYds|under|15.5",
-            "401872947|full|00-0039738|rushYds|under|49.5",
-            "401872947|full|00-0039847|recYds|over|7.5",
-            "401872947|full|00-0031235|recYds|over|6.5",
-            "401872947|full|00-0036309|recYds|over|11.5",
+            "401872947|full|00-0031235|recYds|over|5.5",
+            "401872947|full|00-0040691|completions|under|19.5",
+            "401872947|full|00-0039847|recYds|over|8.5",
+            "401872947|full|00-0039738|rushYds|under|47.5",
+            "401872947|full|00-0031235|receptions|over|0.5",
             "401872947|full|00-0037840|rushYds|under|63.5"
           ],
           "safest": [
-            "401872947|full|00-0040691|rushYds|under|251.5",
-            "401872947|full|00-0040737|receptions|under|2.5",
-            "401872947|full|00-0040737|recYds|under|32.5",
-            "401872947|full|00-0031381|recYds|under|62.5",
+            "401872947|full|00-0039738|receptions|under|1.5",
+            "401872947|full|00-0040737|recYds|under|34.5",
+            "401872947|full|00-0031381|recYds|under|72.5",
+            "401872947|full|00-0038359|receptions|under|1.5",
+            "401872947|full|00-0039738|recYds|under|3.5",
+            "401872947|full|00-0040590|recYds|under|14.5",
+            "401872947|full|00-0040590|receptions|under|1.5",
+            "401872947|full|00-0037838|recYds|under|49.5",
             "401872947|full|00-0036244|receptions|under|3.5",
             "401872947|full|00-0037838|receptions|under|4.5",
-            "401872947|full|00-0037838|recYds|under|43.5",
-            "401872947|full|00-0026498|completions|under|22.5",
+            "401872947|full|00-0036244|recYds|under|28.5",
             "401872947|full|00-0040691|passTds|under|1.5",
-            "401872947|full|00-0037840|rushYds|over|39.5",
             "401872947|full|00-0040715|receptions|under|1.5",
-            "401872947|full|00-0036244|recYds|under|26.5",
+            "401872947|full|00-0040691|rushYds|under|39.5",
             "401872947|full|00-0041042|receptions|under|2.5",
             "401872947|full|00-0039337|receptions|under|5.5",
+            "401872947|full|00-0038359|recYds|under|14.5",
             "401872947|full|00-0040715|recYds|under|11.5",
-            "401872947|full|00-0041042|recYds|under|27.5",
-            "401872947|full|00-0039337|recYds|under|65.5",
+            "401872947|full|00-0026498|completions|under|21.5",
+            "401872947|full|00-0041042|recYds|under|26.5",
+            "401872947|full|00-0039337|recYds|under|60.5",
             "401872947|full|00-0026498|passTds|under|1.5",
+            "401872947|full|00-0037840|receptions|under|2.5",
+            "401872947|full|00-0040715|rushYds|under|51.5",
             "401872947|full|00-0039075|receptions|under|6.5",
             "401872947|full|00-0031381|receptions|under|3.5",
-            "401872947|full|00-0040715|rushYds|under|50.5",
+            "401872947|full|00-0039847|receptions|under|1.5",
             "401872947|full|00-0026498|passYds|under|238.5",
             "401872947|full|00-0035250|rushYds|under|14.5",
-            "401872947|full|00-0040691|passYds|under|215.5",
-            "401872947|full|00-0033110|recYds|under|14.5",
-            "401872947|full|00-0040691|completions|under|20.5",
-            "401872947|full|00-0037840|recYds|under|15.5",
-            "401872947|full|00-0035250|receptions|over|0.5",
-            "401872947|full|00-0033110|receptions|under|1.5",
-            "401872947|full|00-0036309|receptions|under|1.5"
+            "401872947|full|00-0035250|receptions|under|1.5",
+            "401872947|full|00-0035250|recYds|under|7.5",
+            "401872947|full|00-0037840|recYds|under|16.5",
+            "401872947|full|00-0040691|passYds|under|213.5",
+            "401872947|full|00-0036309|recYds|under|19.5",
+            "401872947|full|00-0033110|recYds|under|13.5",
+            "401872947|full|00-0033110|receptions|under|1.5"
           ],
           "bestEdge": [
-            "401872947|full|00-0040691|rushYds|under|251.5",
-            "401872947|full|00-0040737|recYds|under|32.5",
-            "401872947|full|00-0040737|receptions|under|2.5",
-            "401872947|full|00-0031381|recYds|under|62.5",
+            "401872947|full|00-0039738|receptions|under|0.5",
+            "401872947|full|00-0040737|recYds|under|34.5",
+            "401872947|full|00-0031381|recYds|under|52.5",
+            "401872947|full|00-0040590|recYds|under|14.5",
+            "401872947|full|00-0040590|receptions|under|1.5",
+            "401872947|full|00-0039738|recYds|under|3.5",
             "401872947|full|00-0040715|receptions|under|1.5",
             "401872947|full|00-0037838|receptions|under|4.5",
+            "401872947|full|00-0037838|recYds|under|44.5",
             "401872947|full|00-0036244|receptions|under|2.5",
-            "401872947|full|00-0037838|recYds|under|43.5",
-            "401872947|full|00-0026498|completions|under|22.5",
+            "401872947|full|00-0036244|recYds|under|28.5",
+            "401872947|full|00-0038359|receptions|under|1.5",
             "401872947|full|00-0026498|passTds|under|1.5",
-            "401872947|full|00-0036244|recYds|under|26.5",
             "401872947|full|00-0039337|receptions|under|5.5",
+            "401872947|full|00-0038359|recYds|under|14.5",
             "401872947|full|00-0040715|recYds|under|11.5",
-            "401872947|full|00-0039337|recYds|under|65.5",
-            "401872947|full|00-0041042|recYds|under|27.5",
+            "401872947|full|00-0026498|completions|under|21.5",
+            "401872947|full|00-0026498|rushYds|over|0.5",
+            "401872947|full|00-0041042|recYds|under|26.5",
             "401872947|full|00-0041042|receptions|under|2.5",
+            "401872947|full|00-0040691|rushYds|under|39.5",
             "401872947|full|00-0039075|receptions|under|6.5",
             "401872947|full|00-0031381|receptions|under|3.5",
+            "401872947|full|00-0039337|recYds|under|60.5",
+            "401872947|full|00-0037840|receptions|under|2.5",
+            "401872947|full|00-0040715|rushYds|under|51.5",
             "401872947|full|00-0040691|passTds|under|1.5",
-            "401872947|full|00-0040715|rushYds|under|50.5",
             "401872947|full|00-0026498|passYds|under|238.5",
             "401872947|full|00-0035250|rushYds|under|14.5",
-            "401872947|full|00-0033110|recYds|under|14.5",
-            "401872947|full|00-0040691|passYds|under|215.5",
+            "401872947|full|00-0035250|recYds|under|7.5",
+            "401872947|full|00-0037840|recYds|under|16.5",
+            "401872947|full|00-0040691|passYds|under|213.5",
+            "401872947|full|00-0036309|recYds|under|19.5",
+            "401872947|full|00-0033110|recYds|under|13.5",
             "401872947|full|00-0033110|receptions|under|1.5",
-            "401872947|full|00-0037840|recYds|under|15.5",
-            "401872947|full|00-0040691|completions|under|20.5",
-            "401872947|full|00-0031235|recYds|over|6.5",
-            "401872947|full|00-0039738|rushYds|under|49.5",
-            "401872947|full|00-0039847|recYds|over|7.5",
-            "401872947|full|00-0036309|recYds|over|11.5"
+            "401872947|full|00-0035250|receptions|under|1.5",
+            "401872947|full|00-0031235|recYds|over|5.5",
+            "401872947|full|00-0040691|completions|under|19.5",
+            "401872947|full|00-0039847|recYds|over|8.5",
+            "401872947|full|00-0039738|rushYds|under|47.5",
+            "401872947|full|00-0031235|receptions|over|0.5"
           ],
           "balanced": [
-            "401872947|full|00-0040715|rushYds|under|50.5",
             "401872947|full|00-0031381|receptions|under|3.5",
             "401872947|full|00-0026498|passYds|under|238.5",
             "401872947|full|00-0039075|receptions|under|6.5",
             "401872947|full|00-0035250|rushYds|under|14.5",
             "401872947|full|00-0026498|passTds|under|1.5",
-            "401872947|full|00-0040691|rushYds|under|31.5",
-            "401872947|full|00-0040691|passYds|under|215.5",
-            "401872947|full|00-0033110|recYds|under|14.5",
-            "401872947|full|00-0040691|completions|under|20.5",
+            "401872947|full|00-0040715|rushYds|under|51.5",
+            "401872947|full|00-0035250|recYds|under|7.5",
+            "401872947|full|00-0035250|receptions|under|1.5",
+            "401872947|full|00-0037840|recYds|under|16.5",
+            "401872947|full|00-0040691|rushYds|under|33.5",
+            "401872947|full|00-0040691|passYds|under|213.5",
+            "401872947|full|00-0036309|recYds|under|19.5",
+            "401872947|full|00-0037840|receptions|under|2.5",
+            "401872947|full|00-0039337|recYds|under|60.5",
+            "401872947|full|00-0033110|recYds|under|13.5",
+            "401872947|full|00-0026498|rushYds|over|0.5",
             "401872947|full|00-0036244|receptions|under|2.5",
-            "401872947|full|00-0037840|recYds|under|15.5",
             "401872947|full|00-0033110|receptions|under|1.5",
             "401872947|full|00-0041042|recYds|under|26.5",
-            "401872947|full|00-0039337|recYds|under|65.5",
-            "401872947|full|00-0039738|rushYds|under|49.5",
+            "401872947|full|00-0038359|recYds|under|13.5",
             "401872947|full|00-0026498|completions|under|21.5",
-            "401872947|full|00-0039847|recYds|over|7.5",
-            "401872947|full|00-0040715|recYds|under|11.5"
+            "401872947|full|00-0040715|recYds|under|11.5",
+            "401872947|full|00-0039847|recYds|over|8.5",
+            "401872947|full|00-0040691|completions|under|19.5"
           ],
           "aggressive": [
-            "401872947|full|00-0039847|recYds|over|7.5",
+            "401872947|full|00-0026498|rushYds|over|0.5",
+            "401872947|full|00-0040691|rushYds|under|29.5",
+            "401872947|full|00-0039847|recYds|over|8.5",
             "401872947|full|00-0040691|completions|under|19.5",
-            "401872947|full|00-0039738|rushYds|under|49.5",
+            "401872947|full|00-0039738|rushYds|under|47.5",
+            "401872947|full|00-0031235|recYds|over|5.5",
             "401872947|full|00-0033110|receptions|under|1.5",
-            "401872947|full|00-0036309|recYds|over|11.5",
-            "401872947|full|00-0031235|recYds|over|6.5",
-            "401872947|full|00-0037840|recYds|under|15.5",
+            "401872947|full|00-0031235|receptions|over|0.5",
+            "401872947|full|00-0033110|recYds|under|13.5",
             "401872947|full|00-0037840|rushYds|under|63.5",
+            "401872947|full|00-0036309|recYds|under|19.5",
             "401872947|full|00-0040691|passYds|under|213.5",
-            "401872947|full|00-0033110|recYds|under|14.5",
-            "401872947|full|00-0040691|rushYds|under|31.5"
+            "401872947|full|00-0037840|recYds|under|16.5",
+            "401872947|full|00-0035250|recYds|under|7.5",
+            "401872947|full|00-0035250|receptions|under|1.5"
           ],
           "correlated": [
-            "401872947|full|00-0040691|passYds|under|215.5",
-            "401872947|full|00-0039337|recYds|under|65.5",
+            "401872947|full|00-0040691|passYds|under|213.5",
+            "401872947|full|00-0039337|recYds|under|60.5",
             "401872947|full|00-0039075|receptions|under|6.5",
             "401872947|full|00-0026498|completions|under|21.5",
-            "401872947|full|00-0040691|completions|under|20.5",
-            "401872947|full|00-0039337|receptions|under|5.5",
+            "401872947|full|00-0040691|completions|under|19.5",
             "401872947|full|00-0026498|passYds|under|238.5",
-            "401872947|full|00-0037840|recYds|under|15.5",
-            "401872947|full|00-0037838|recYds|under|43.5",
+            "401872947|full|00-0037840|recYds|under|16.5",
             "401872947|full|00-0041042|recYds|under|26.5",
             "401872947|full|00-0031381|receptions|under|3.5",
-            "401872947|full|00-0033110|recYds|under|14.5",
-            "401872947|full|00-0036244|recYds|under|26.5",
-            "401872947|full|00-0037838|receptions|under|4.5",
+            "401872947|full|00-0036309|recYds|under|19.5",
+            "401872947|full|00-0035250|recYds|under|7.5",
+            "401872947|full|00-0033110|recYds|under|13.5",
+            "401872947|full|00-0036244|recYds|under|28.5",
+            "401872947|full|00-0037838|recYds|under|49.5",
             "401872947|full|00-0040715|recYds|under|11.5",
             "401872947|full|00-0031381|recYds|under|62.5",
-            "401872947|full|00-0041042|receptions|under|2.5",
-            "401872947|full|00-0026498|passTds|under|1.5",
-            "401872947|full|00-0037840|rushYds|under|63.5",
+            "401872947|full|00-0037840|receptions|under|2.5",
             "401872947|full|00-0036244|receptions|under|2.5",
             "401872947|full|00-0033110|receptions|under|1.5",
-            "401872947|full|00-0040715|receptions|under|1.5",
-            "401872947|full|00-0039738|rushYds|under|49.5",
-            "401872947|full|00-0040715|rushYds|under|50.5",
+            "401872947|full|00-0039337|receptions|under|5.5",
+            "401872947|full|00-0037840|rushYds|under|63.5",
+            "401872947|full|00-0038359|recYds|under|13.5",
+            "401872947|full|00-0026498|passTds|under|1.5",
+            "401872947|full|00-0035250|receptions|under|1.5",
+            "401872947|full|00-0037838|receptions|under|4.5",
+            "401872947|full|00-0040715|rushYds|under|51.5",
             "401872947|full|00-0040691|passTds|under|1.5",
-            "401872947|full|00-0040737|recYds|under|32.5",
+            "401872947|full|00-0041042|receptions|under|2.5",
+            "401872947|full|00-0040590|recYds|under|14.5",
+            "401872947|full|00-0039738|rushYds|under|47.5",
+            "401872947|full|00-0040715|receptions|under|1.5",
+            "401872947|full|00-0040737|recYds|under|34.5",
+            "401872947|full|00-0039738|recYds|under|3.5",
+            "401872947|full|00-0040590|receptions|under|1.5",
             "401872947|full|00-0035250|rushYds|under|14.5",
-            "401872947|full|00-0036309|recYds|over|11.5",
-            "401872947|full|00-0040691|rushYds|under|31.5",
-            "401872947|full|00-0039847|recYds|over|7.5",
-            "401872947|full|00-0040737|receptions|under|2.5",
-            "401872947|full|00-0031235|recYds|over|6.5"
+            "401872947|full|00-0039738|receptions|under|0.5",
+            "401872947|full|00-0031235|receptions|over|0.5",
+            "401872947|full|00-0038359|receptions|under|1.5",
+            "401872947|full|00-0031235|recYds|over|5.5",
+            "401872947|full|00-0039847|recYds|over|8.5",
+            "401872947|full|00-0040691|rushYds|under|33.5",
+            "401872947|full|00-0026498|rushYds|over|0.5"
           ],
           "longshot": [
-            "401872947|full|00-0031235|recYds|over|6.5"
+            "401872947|full|00-0040691|rushYds|under|24.5",
+            "401872947|full|00-0031235|recYds|over|5.5"
           ]
         }
       },
@@ -265884,10 +266369,10 @@
       "automation": {
         "automatic": true,
         "phase": "pregame",
-        "reason": "material input change",
-        "checkpointMinutes": null,
-        "inputFingerprint": "094f65c3",
-        "runAt": "2026-09-21T05:21:17.230Z",
+        "reason": "pregame 90m checkpoint",
+        "checkpointMinutes": 90,
+        "inputFingerprint": "6f752c42",
+        "runAt": "2026-09-21T23:33:56.638Z",
         "probabilityBlend": {
           "simulationWeight": 0.7,
           "existingModelWeight": 0.3,
@@ -265900,7 +266385,7 @@
         "quarterParlayReady": true,
         "propPeriodsReady": 6,
         "propStylesReady": true,
-        "propStyleCandidates": 41,
+        "propStyleCandidates": 52,
         "liveModelVersion": "v89.18.0"
       }
     }
