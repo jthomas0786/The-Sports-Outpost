@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-09-21T04:57:14.698Z",
+  "generatedAt": "2026-09-21T12:49:39.949Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -15,15 +15,11 @@
     },
     "nflverseCurrentSnaps": {
       "ok": true,
-      "rows": 1585
+      "rows": 2901
     },
-    "nflverseCurrentWeekly": {
+    "nflverseRosterCurrent": {
       "ok": true,
-      "rows": 2162
-    },
-    "nflverseCurrentRegular": {
-      "ok": true,
-      "rows": 1294
+      "rows": 2980
     },
     "espnTeams": {
       "ok": true,
@@ -37,21 +33,25 @@
       "ok": true,
       "rows": 2020
     },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 2980
-    },
     "nflversePrevSnaps": {
       "ok": true,
       "rows": 26612
     },
-    "nflversePlayers": {
+    "nflverseCurrentRegular": {
       "ok": true,
-      "rows": 24830
+      "rows": 1294
+    },
+    "nflverseCurrentWeekly": {
+      "ok": true,
+      "rows": 2162
     },
     "nflversePrevWeekly": {
       "ok": true,
       "rows": 19422
+    },
+    "nflversePlayers": {
+      "ok": true,
+      "rows": 24830
     },
     "espnInjuries": {
       "ok": true,
@@ -74,21 +74,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CAR": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CHI": {
+    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -102,14 +88,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ATL": {
+    "espnRoster:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -123,7 +102,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:CIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:ATL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:BUF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -137,35 +137,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:BAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:CLE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -179,28 +151,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DEN": {
+    "espnRoster:BAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DET": {
+    "espnDepth:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -214,7 +172,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DET": {
+    "espnRoster:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -228,7 +193,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:HOU": {
+    "espnDepth:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:DET": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DET": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -242,7 +235,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:IND": {
+    "espnRoster:JAX": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -256,7 +256,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:KC": {
+    "espnDepth:IND": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -270,42 +270,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:JAX": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LV": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LV": {
+    "espnRoster:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -319,7 +284,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:LV": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:LV": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:LA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -333,14 +319,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
+    "espnDepth:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NE": {
+    "espnDepth:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -354,7 +340,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NO": {
+    "espnDepth:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -368,14 +354,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NYG": {
+    "espnDepth:NE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NE": {
+    "espnRoster:NE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NO": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -389,13 +382,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -403,28 +389,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:PIT": {
+    "espnDepth:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -438,7 +403,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:SF": {
+    "espnRoster:PIT": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:NYJ": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:PHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:PHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -452,7 +445,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TB": {
+    "espnDepth:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:SEA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -473,21 +480,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TEN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:SF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:SEA": {
+    "espnDepth:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -502,6 +495,13 @@
       ]
     },
     "espnRoster:WSH": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -1568,10 +1568,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 43,
-        "lastOffensePct": 43,
-        "avgOffenseSnaps": 32
+        "games": 2,
+        "avgOffensePct": 41.5,
+        "lastOffensePct": 40,
+        "avgOffenseSnaps": 26
       },
       "matchup": {
         "opponent": "SEA",
@@ -11441,7 +11441,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -14941,7 +14941,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -15798,7 +15798,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -16596,10 +16596,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 9,
-        "lastOffensePct": 9,
-        "avgOffenseSnaps": 7
+        "games": 2,
+        "avgOffensePct": 5.5,
+        "lastOffensePct": 2,
+        "avgOffenseSnaps": 4
       },
       "matchup": null
     },
@@ -18774,7 +18774,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -25412,9 +25412,9 @@
       ],
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 60.4,
+        "avgOffensePct": 52,
         "lastOffensePct": 68,
-        "avgOffenseSnaps": 35
+        "avgOffenseSnaps": 31
       },
       "matchup": {
         "opponent": "CAR",
@@ -27484,7 +27484,12 @@
           "scrimmageYds": 16
         }
       ],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 42,
+        "lastOffensePct": 42,
+        "avgOffenseSnaps": 29
+      },
       "matchup": {
         "opponent": "CAR",
         "positionGroup": "QB",
@@ -27648,10 +27653,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 8,
-        "lastOffensePct": 8,
-        "avgOffenseSnaps": 5
+        "games": 2,
+        "avgOffensePct": 14,
+        "lastOffensePct": 20,
+        "avgOffenseSnaps": 9.5
       },
       "matchup": {
         "opponent": "CAR",
@@ -27860,10 +27865,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 30,
-        "lastOffensePct": 30,
-        "avgOffenseSnaps": 18
+        "games": 2,
+        "avgOffensePct": 25,
+        "lastOffensePct": 20,
+        "avgOffenseSnaps": 16
       },
       "matchup": {
         "opponent": "CAR",
@@ -28278,10 +28283,10 @@
         }
       ],
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 8.3,
+        "games": 5,
+        "avgOffensePct": 16.4,
         "lastOffensePct": 0,
-        "avgOffenseSnaps": 5.5
+        "avgOffenseSnaps": 11.2
       },
       "matchup": {
         "opponent": "CAR",
@@ -29690,7 +29695,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -34703,7 +34708,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -35011,7 +35016,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -35573,7 +35578,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -36518,10 +36523,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
-        "avgOffensePct": 24.5,
+        "games": 3,
+        "avgOffensePct": 29,
         "lastOffensePct": 46,
-        "avgOffenseSnaps": 17
+        "avgOffenseSnaps": 20
       },
       "matchup": null
     },
@@ -43697,10 +43702,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 34,
-        "lastOffensePct": 34,
-        "avgOffenseSnaps": 23
+        "games": 2,
+        "avgOffensePct": 33.5,
+        "lastOffensePct": 33,
+        "avgOffenseSnaps": 21
       },
       "matchup": {
         "opponent": "NO",
@@ -44062,10 +44067,10 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 9,
         "lastOffensePct": 9,
-        "avgOffenseSnaps": 6
+        "avgOffenseSnaps": 5.5
       },
       "matchup": {
         "opponent": "NO",
@@ -46522,7 +46527,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -48479,7 +48489,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -49859,10 +49869,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 68
+        "avgOffenseSnaps": 63
       },
       "matchup": null
     },
@@ -50252,7 +50262,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -52091,7 +52101,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -52923,7 +52933,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -76409,10 +76419,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 19,
-        "lastOffensePct": 19,
-        "avgOffenseSnaps": 13
+        "games": 2,
+        "avgOffensePct": 24.5,
+        "lastOffensePct": 30,
+        "avgOffenseSnaps": 16.5
       },
       "matchup": {
         "opponent": "ATL",
@@ -83770,10 +83780,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 10,
-        "lastOffensePct": 10,
-        "avgOffenseSnaps": 7
+        "games": 2,
+        "avgOffensePct": 8,
+        "lastOffensePct": 6,
+        "avgOffenseSnaps": 5.5
       },
       "matchup": null
     },
@@ -85057,7 +85067,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -85475,7 +85485,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -86281,7 +86291,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -86442,7 +86452,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -87312,10 +87322,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 84.8,
+        "games": 5,
+        "avgOffensePct": 87.4,
         "lastOffensePct": 76,
-        "avgOffenseSnaps": 59.5
+        "avgOffenseSnaps": 60.6
       },
       "matchup": null
     },
@@ -88394,7 +88404,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -88836,7 +88846,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -90538,10 +90548,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 90,
-        "lastOffensePct": 90,
-        "avgOffenseSnaps": 61
+        "games": 2,
+        "avgOffensePct": 95,
+        "lastOffensePct": 100,
+        "avgOffenseSnaps": 63.5
       },
       "matchup": null
     },
@@ -92601,7 +92611,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -95479,10 +95494,10 @@
         }
       ],
       "snapTrend": {
-        "games": 3,
-        "avgOffensePct": 6.7,
+        "games": 4,
+        "avgOffensePct": 8.5,
         "lastOffensePct": 3,
-        "avgOffenseSnaps": 4.7
+        "avgOffenseSnaps": 6
       },
       "matchup": {
         "opponent": "MIN",
@@ -98125,10 +98140,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 16,
-        "lastOffensePct": 16,
-        "avgOffenseSnaps": 12
+        "games": 2,
+        "avgOffensePct": 21.5,
+        "lastOffensePct": 27,
+        "avgOffenseSnaps": 16
       },
       "matchup": {
         "opponent": "MIN",
@@ -100032,10 +100047,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
+        "games": 2,
+        "avgOffensePct": 1.5,
+        "lastOffensePct": 3,
+        "avgOffenseSnaps": 1
       },
       "matchup": {
         "opponent": "MIN",
@@ -102244,7 +102259,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -102586,7 +102601,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -103475,7 +103490,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -105604,7 +105619,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -107528,7 +107543,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -108390,7 +108405,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -108557,9 +108572,9 @@
       "gameLog": null,
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 45,
+        "avgOffensePct": 43,
         "lastOffensePct": 0,
-        "avgOffenseSnaps": 28.8
+        "avgOffenseSnaps": 28.4
       },
       "matchup": null
     },
@@ -109975,7 +109990,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -110368,7 +110383,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -116365,10 +116380,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 31,
-        "lastOffensePct": 31,
-        "avgOffenseSnaps": 20
+        "games": 2,
+        "avgOffensePct": 36.5,
+        "lastOffensePct": 42,
+        "avgOffenseSnaps": 22.5
       },
       "matchup": {
         "opponent": "HOU",
@@ -116533,10 +116548,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 31,
-        "lastOffensePct": 31,
-        "avgOffenseSnaps": 20
+        "games": 2,
+        "avgOffensePct": 36.5,
+        "lastOffensePct": 42,
+        "avgOffenseSnaps": 22.5
       },
       "matchup": {
         "opponent": "HOU",
@@ -117243,7 +117258,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": [],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 2,
+        "lastOffensePct": 2,
+        "avgOffenseSnaps": 1
+      },
       "matchup": {
         "opponent": "HOU",
         "positionGroup": "TE",
@@ -117407,10 +117427,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 14,
-        "lastOffensePct": 14,
-        "avgOffenseSnaps": 9
+        "games": 2,
+        "avgOffensePct": 15.5,
+        "lastOffensePct": 17,
+        "avgOffenseSnaps": 9.5
       },
       "matchup": {
         "opponent": "HOU",
@@ -118297,10 +118317,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 16,
-        "lastOffensePct": 16,
-        "avgOffenseSnaps": 10
+        "games": 2,
+        "avgOffensePct": 17,
+        "lastOffensePct": 18,
+        "avgOffenseSnaps": 10.5
       },
       "matchup": {
         "opponent": "HOU",
@@ -119055,7 +119075,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 2,
         "lastOffensePct": 2,
         "avgOffenseSnaps": 1
@@ -120831,7 +120851,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -120850,7 +120870,7 @@
       "rosterStatus": "Practice Squad",
       "active": true,
       "experience": null,
-      "age": 25,
+      "age": 26,
       "depth": {
         "rank": null,
         "position": "CB",
@@ -121371,7 +121391,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -125968,7 +125988,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 5,
+        "lastOffensePct": 5,
+        "avgOffenseSnaps": 3
+      },
       "matchup": null
     },
     {
@@ -127688,10 +127713,10 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 12,
-        "lastOffensePct": 12,
-        "avgOffenseSnaps": 6
+        "games": 2,
+        "avgOffensePct": 14.5,
+        "lastOffensePct": 17,
+        "avgOffenseSnaps": 8
       },
       "matchup": {
         "opponent": "TB",
@@ -127900,10 +127925,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 51
+        "avgOffenseSnaps": 54.5
       },
       "matchup": {
         "opponent": "TB",
@@ -131622,10 +131647,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 69,
-        "lastOffensePct": 69,
-        "avgOffenseSnaps": 35
+        "games": 2,
+        "avgOffensePct": 67.5,
+        "lastOffensePct": 66,
+        "avgOffenseSnaps": 36.5
       },
       "matchup": {
         "opponent": "TB",
@@ -132087,9 +132112,9 @@
       ],
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 27.6,
+        "avgOffensePct": 30.6,
         "lastOffensePct": 27,
-        "avgOffenseSnaps": 15.4
+        "avgOffenseSnaps": 17
       },
       "matchup": {
         "opponent": "TB",
@@ -132254,10 +132279,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
+        "games": 2,
+        "avgOffensePct": 1,
+        "lastOffensePct": 2,
+        "avgOffenseSnaps": 0.5
       },
       "matchup": {
         "opponent": "TB",
@@ -132466,10 +132491,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 92,
-        "lastOffensePct": 92,
-        "avgOffenseSnaps": 47
+        "games": 2,
+        "avgOffensePct": 92.5,
+        "lastOffensePct": 93,
+        "avgOffenseSnaps": 50.5
       },
       "matchup": {
         "opponent": "TB",
@@ -141490,7 +141515,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -142064,7 +142089,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -142406,10 +142431,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 51
+        "avgOffenseSnaps": 54.5
       },
       "matchup": null
     },
@@ -142538,10 +142563,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 48,
+        "games": 5,
+        "avgOffensePct": 39,
         "lastOffensePct": 6,
-        "avgOffenseSnaps": 35.8
+        "avgOffenseSnaps": 29
       },
       "matchup": null
     },
@@ -142799,10 +142824,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 51
+        "avgOffenseSnaps": 54.5
       },
       "matchup": null
     },
@@ -144306,7 +144331,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -154637,7 +154662,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -156808,7 +156833,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -157467,7 +157492,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -159089,7 +159114,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -159355,7 +159380,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -159487,7 +159512,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -160945,10 +160970,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 5,
-        "lastOffensePct": 5,
-        "avgOffenseSnaps": 3
+        "games": 2,
+        "avgOffensePct": 3.5,
+        "lastOffensePct": 2,
+        "avgOffenseSnaps": 2
       },
       "matchup": null
     },
@@ -162320,7 +162345,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -168713,10 +168738,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 6,
-        "lastOffensePct": 6,
-        "avgOffenseSnaps": 3
+        "games": 2,
+        "avgOffensePct": 23,
+        "lastOffensePct": 40,
+        "avgOffenseSnaps": 14
       },
       "matchup": {
         "opponent": "JAX",
@@ -174407,7 +174432,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -198070,10 +198095,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 44,
-        "lastOffensePct": 44,
-        "avgOffenseSnaps": 30
+        "games": 2,
+        "avgOffensePct": 35.5,
+        "lastOffensePct": 27,
+        "avgOffenseSnaps": 23
       },
       "matchup": {
         "opponent": "NYJ",
@@ -203719,10 +203744,10 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 31,
-        "lastOffensePct": 31,
-        "avgOffenseSnaps": 21
+        "games": 2,
+        "avgOffensePct": 32.5,
+        "lastOffensePct": 34,
+        "avgOffenseSnaps": 20.5
       },
       "matchup": {
         "opponent": "NYJ",
@@ -205986,7 +206011,12 @@
           "scrimmageYds": 0
         }
       ],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 15,
+        "lastOffensePct": 15,
+        "avgOffenseSnaps": 9
+      },
       "matchup": {
         "opponent": "NYJ",
         "positionGroup": "WR",
@@ -206847,7 +206877,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 39,
+        "lastOffensePct": 39,
+        "avgOffenseSnaps": 23
+      },
       "matchup": null
     },
     {
@@ -207207,7 +207242,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -208809,7 +208844,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -209377,7 +209412,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -209505,7 +209545,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -211305,10 +211345,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
-        "avgOffensePct": 37.7,
+        "games": 4,
+        "avgOffensePct": 34.3,
         "lastOffensePct": 13,
-        "avgOffenseSnaps": 24.7
+        "avgOffenseSnaps": 22
       },
       "matchup": null
     },
@@ -214161,7 +214201,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -221001,7 +221041,7 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 11,
         "lastOffensePct": 11,
         "avgOffenseSnaps": 9
@@ -223403,10 +223443,10 @@
         }
       ],
       "snapTrend": {
-        "games": 2,
-        "avgOffensePct": 38,
+        "games": 3,
+        "avgOffensePct": 42,
         "lastOffensePct": 44,
-        "avgOffenseSnaps": 30
+        "avgOffenseSnaps": 33.3
       },
       "matchup": {
         "opponent": "CIN",
@@ -223471,7 +223511,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": [],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 16,
+        "lastOffensePct": 16,
+        "avgOffenseSnaps": 13
+      },
       "matchup": {
         "opponent": "CIN",
         "positionGroup": "WR",
@@ -227805,7 +227850,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -228176,7 +228221,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -229271,7 +229316,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -229377,10 +229427,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 79
+        "avgOffenseSnaps": 79.5
       },
       "matchup": null
     },
@@ -229691,7 +229741,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -231546,7 +231601,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -233612,7 +233667,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -233878,7 +233933,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -237529,10 +237584,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 11,
-        "lastOffensePct": 11,
-        "avgOffenseSnaps": 6
+        "games": 2,
+        "avgOffensePct": 8.5,
+        "lastOffensePct": 6,
+        "avgOffenseSnaps": 5
       },
       "matchup": {
         "opponent": "KC",
@@ -244137,10 +244192,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
+        "games": 2,
+        "avgOffensePct": 2.5,
+        "lastOffensePct": 5,
+        "avgOffenseSnaps": 1.5
       },
       "matchup": {
         "opponent": "KC",
@@ -245740,7 +245795,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -245850,7 +245905,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -248101,7 +248156,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -248267,7 +248322,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -249193,7 +249248,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -249325,7 +249380,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -249434,7 +249489,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -249625,7 +249685,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -249757,7 +249817,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -250339,9 +250399,9 @@
       "gameLog": null,
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 9.6,
+        "avgOffensePct": 10.2,
         "lastOffensePct": 0,
-        "avgOffenseSnaps": 5.8
+        "avgOffenseSnaps": 6.2
       },
       "matchup": null
     },
@@ -251131,7 +251191,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -251605,7 +251665,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -255922,10 +255982,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 67,
-        "lastOffensePct": 67,
-        "avgOffenseSnaps": 38
+        "games": 2,
+        "avgOffensePct": 53,
+        "lastOffensePct": 39,
+        "avgOffenseSnaps": 30.5
       },
       "matchup": {
         "opponent": "DEN",
@@ -259384,10 +259444,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 33,
-        "lastOffensePct": 33,
-        "avgOffenseSnaps": 19
+        "games": 2,
+        "avgOffensePct": 25,
+        "lastOffensePct": 17,
+        "avgOffenseSnaps": 14.5
       },
       "matchup": {
         "opponent": "DEN",
@@ -262460,7 +262520,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -263574,7 +263639,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -264465,10 +264530,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 57
+        "avgOffenseSnaps": 58
       },
       "matchup": null
     },
@@ -266186,7 +266251,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -268203,7 +268273,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -269145,10 +269215,10 @@
         }
       ],
       "snapTrend": {
-        "games": 2,
-        "avgOffensePct": 2,
-        "lastOffensePct": 4,
-        "avgOffenseSnaps": 1.5
+        "games": 3,
+        "avgOffensePct": 1.3,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 1
       },
       "matchup": {
         "opponent": "IND",
@@ -272397,10 +272467,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 36,
-        "lastOffensePct": 36,
-        "avgOffenseSnaps": 25
+        "games": 2,
+        "avgOffensePct": 27,
+        "lastOffensePct": 18,
+        "avgOffenseSnaps": 19.5
       },
       "matchup": {
         "opponent": "IND",
@@ -275991,10 +276061,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 19,
-        "lastOffensePct": 19,
-        "avgOffenseSnaps": 13
+        "games": 2,
+        "avgOffensePct": 15.5,
+        "lastOffensePct": 12,
+        "avgOffenseSnaps": 11.5
       },
       "matchup": {
         "opponent": "IND",
@@ -276159,10 +276229,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 1,
-        "lastOffensePct": 1,
-        "avgOffenseSnaps": 1
+        "games": 2,
+        "avgOffensePct": 2.5,
+        "lastOffensePct": 4,
+        "avgOffenseSnaps": 2
       },
       "matchup": {
         "opponent": "IND",
@@ -278144,7 +278214,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -279570,7 +279640,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -279934,7 +280004,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -280537,7 +280607,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -280830,10 +280900,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 4,
-        "lastOffensePct": 4,
-        "avgOffenseSnaps": 3
+        "games": 2,
+        "avgOffensePct": 2.5,
+        "lastOffensePct": 1,
+        "avgOffenseSnaps": 2
       },
       "matchup": null
     },
@@ -281580,7 +281650,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -283326,10 +283396,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 69
+        "avgOffenseSnaps": 74.5
       },
       "matchup": null
     },
@@ -284683,7 +284753,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -309733,10 +309803,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 18,
         "lastOffensePct": 18,
-        "avgOffenseSnaps": 10
+        "avgOffenseSnaps": 11
       },
       "matchup": {
         "opponent": "LV",
@@ -311105,7 +311175,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": [],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": {
         "opponent": "LV",
         "positionGroup": "WR",
@@ -311545,10 +311620,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 55
+        "avgOffenseSnaps": 61.5
       },
       "matchup": null
     },
@@ -312893,7 +312968,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -314041,7 +314116,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -315064,7 +315139,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -317467,7 +317542,7 @@
         "games": 5,
         "avgOffensePct": 70,
         "lastOffensePct": 42,
-        "avgOffenseSnaps": 49.6
+        "avgOffenseSnaps": 51.6
       },
       "matchup": null
     },
@@ -317625,10 +317700,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 55
+        "avgOffenseSnaps": 61.5
       },
       "matchup": null
     },
@@ -317659,7 +317734,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -318714,7 +318789,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -322909,10 +322984,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 19,
         "lastOffensePct": 19,
-        "avgOffenseSnaps": 13
+        "avgOffenseSnaps": 12.5
       },
       "matchup": {
         "opponent": "LAC",
@@ -327318,10 +327393,10 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 7,
-        "lastOffensePct": 7,
-        "avgOffenseSnaps": 5
+        "games": 2,
+        "avgOffensePct": 6,
+        "lastOffensePct": 5,
+        "avgOffenseSnaps": 4
       },
       "matchup": {
         "opponent": "LAC",
@@ -327530,10 +327605,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 10,
-        "lastOffensePct": 10,
-        "avgOffenseSnaps": 7
+        "games": 2,
+        "avgOffensePct": 11.5,
+        "lastOffensePct": 13,
+        "avgOffenseSnaps": 7.5
       },
       "matchup": {
         "opponent": "LAC",
@@ -330022,10 +330097,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
+        "games": 2,
+        "avgOffensePct": 1.5,
+        "lastOffensePct": 3,
+        "avgOffenseSnaps": 1
       },
       "matchup": null
     },
@@ -331444,7 +331519,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -331553,7 +331628,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -338050,7 +338130,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -338389,10 +338469,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 27,
-        "lastOffensePct": 27,
-        "avgOffenseSnaps": 15
+        "games": 2,
+        "avgOffensePct": 28,
+        "lastOffensePct": 29,
+        "avgOffenseSnaps": 16
       },
       "matchup": {
         "opponent": "SF",
@@ -338792,7 +338872,7 @@
         "games": 5,
         "avgOffensePct": 53.8,
         "lastOffensePct": 83,
-        "avgOffenseSnaps": 30.8
+        "avgOffenseSnaps": 31.4
       },
       "matchup": {
         "opponent": "SF",
@@ -341435,10 +341515,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 25,
-        "lastOffensePct": 25,
-        "avgOffenseSnaps": 14
+        "games": 2,
+        "avgOffensePct": 36,
+        "lastOffensePct": 47,
+        "avgOffenseSnaps": 21
       },
       "matchup": {
         "opponent": "SF",
@@ -341647,9 +341727,9 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 91,
-        "lastOffensePct": 91,
+        "games": 2,
+        "avgOffensePct": 88.5,
+        "lastOffensePct": 86,
         "avgOffenseSnaps": 51
       },
       "matchup": {
@@ -342724,7 +342804,7 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -342936,10 +343016,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 52,
-        "lastOffensePct": 52,
-        "avgOffenseSnaps": 29
+        "games": 2,
+        "avgOffensePct": 46.5,
+        "lastOffensePct": 41,
+        "avgOffenseSnaps": 26.5
       },
       "matchup": {
         "opponent": "SF",
@@ -343237,10 +343317,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 29,
-        "lastOffensePct": 29,
-        "avgOffenseSnaps": 16
+        "games": 2,
+        "avgOffensePct": 37.5,
+        "lastOffensePct": 46,
+        "avgOffenseSnaps": 21.5
       },
       "matchup": {
         "opponent": "SF",
@@ -344969,10 +345049,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 100,
+        "games": 2,
+        "avgOffensePct": 50,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 55
+        "avgOffenseSnaps": 27.5
       },
       "matchup": null
     },
@@ -345101,7 +345181,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -346657,7 +346737,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -346690,7 +346770,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -347242,7 +347327,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -348880,7 +348965,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -349487,7 +349572,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -350162,7 +350252,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -350429,9 +350519,9 @@
       "gameLog": null,
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 2.8,
+        "avgOffensePct": 3.4,
         "lastOffensePct": 12,
-        "avgOffenseSnaps": 1.8
+        "avgOffenseSnaps": 2.2
       },
       "matchup": null
     },
@@ -350777,10 +350867,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 56
+        "avgOffenseSnaps": 57.5
       },
       "matchup": null
     },
@@ -351815,7 +351905,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -351925,7 +352015,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -352086,7 +352176,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -352360,10 +352450,10 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 37,
-        "lastOffensePct": 37,
-        "avgOffenseSnaps": 24
+        "games": 2,
+        "avgOffensePct": 35,
+        "lastOffensePct": 33,
+        "avgOffenseSnaps": 20.5
       },
       "matchup": {
         "opponent": "CHI",
@@ -358121,7 +358211,12 @@
           "scrimmageYds": 2
         }
       ],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 4,
+        "lastOffensePct": 4,
+        "avgOffenseSnaps": 2
+      },
       "matchup": {
         "opponent": "CHI",
         "positionGroup": "RB",
@@ -358186,7 +358281,7 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -362542,7 +362637,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -363777,7 +363872,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -363909,7 +364004,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -364969,10 +365064,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
-        "avgOffensePct": 3.3,
+        "games": 4,
+        "avgOffensePct": 2.5,
         "lastOffensePct": 0,
-        "avgOffenseSnaps": 2
+        "avgOffenseSnaps": 1.5
       },
       "matchup": null
     },
@@ -366930,7 +367025,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -368762,7 +368857,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -369556,7 +369651,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -374580,10 +374675,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 54,
-        "lastOffensePct": 54,
-        "avgOffenseSnaps": 38
+        "games": 2,
+        "avgOffensePct": 37,
+        "lastOffensePct": 20,
+        "avgOffenseSnaps": 24.5
       },
       "matchup": {
         "opponent": "PIT",
@@ -375709,9 +375804,9 @@
       ],
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 12.8,
+        "avgOffensePct": 12,
         "lastOffensePct": 25,
-        "avgOffenseSnaps": 7.6
+        "avgOffenseSnaps": 6.8
       },
       "matchup": {
         "opponent": "PIT",
@@ -380900,7 +380995,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -381473,7 +381568,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -382587,7 +382687,7 @@
       "team": "NE",
       "name": "DaQuan Jones",
       "position": "DT",
-      "jersey": "92",
+      "jersey": "99",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/16910.png",
       "rosterStatus": "Active",
       "active": true,
@@ -383929,10 +384029,10 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 71
+        "avgOffenseSnaps": 63
       },
       "matchup": null
     },
@@ -385083,7 +385183,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -385211,7 +385316,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -385797,7 +385902,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -385907,7 +386012,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -386539,10 +386644,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
+        "games": 2,
+        "avgOffensePct": 3.5,
+        "lastOffensePct": 7,
+        "avgOffenseSnaps": 2
       },
       "matchup": null
     },
@@ -395134,7 +395239,12 @@
           "scrimmageYds": 8
         }
       ],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 13,
+        "lastOffensePct": 13,
+        "avgOffenseSnaps": 9
+      },
       "matchup": {
         "opponent": "BAL",
         "positionGroup": "TE",
@@ -395342,10 +395452,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 8,
-        "lastOffensePct": 8,
-        "avgOffenseSnaps": 7
+        "games": 2,
+        "avgOffensePct": 5.5,
+        "lastOffensePct": 3,
+        "avgOffenseSnaps": 4.5
       },
       "matchup": {
         "opponent": "BAL",
@@ -396242,10 +396352,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 17,
-        "lastOffensePct": 17,
-        "avgOffenseSnaps": 15
+        "games": 2,
+        "avgOffensePct": 23,
+        "lastOffensePct": 29,
+        "avgOffenseSnaps": 17.5
       },
       "matchup": {
         "opponent": "BAL",
@@ -396410,10 +396520,10 @@
         }
       ],
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 8.8,
+        "games": 5,
+        "avgOffensePct": 8.4,
         "lastOffensePct": 10,
-        "avgOffenseSnaps": 6.5
+        "avgOffenseSnaps": 6.2
       },
       "matchup": {
         "opponent": "BAL",
@@ -396622,10 +396732,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 69,
-        "lastOffensePct": 69,
-        "avgOffenseSnaps": 62
+        "games": 2,
+        "avgOffensePct": 74,
+        "lastOffensePct": 79,
+        "avgOffenseSnaps": 58
       },
       "matchup": {
         "opponent": "BAL",
@@ -400521,7 +400631,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -400885,7 +400995,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -400919,7 +401029,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -403835,7 +403945,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -404255,7 +404365,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -404795,7 +404905,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -408604,7 +408714,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -429788,7 +429898,7 @@
         "games": 5,
         "avgOffensePct": 26.6,
         "lastOffensePct": 10,
-        "avgOffenseSnaps": 17
+        "avgOffenseSnaps": 17.6
       },
       "matchup": {
         "opponent": "GB",
@@ -429997,10 +430107,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 42,
-        "lastOffensePct": 42,
-        "avgOffenseSnaps": 28
+        "games": 2,
+        "avgOffensePct": 39,
+        "lastOffensePct": 36,
+        "avgOffenseSnaps": 27.5
       },
       "matchup": {
         "opponent": "GB",
@@ -432822,9 +432932,9 @@
       ],
       "snapTrend": {
         "games": 5,
-        "avgOffensePct": 23,
+        "avgOffensePct": 23.8,
         "lastOffensePct": 35,
-        "avgOffenseSnaps": 15.2
+        "avgOffenseSnaps": 16.2
       },
       "matchup": {
         "opponent": "GB",
@@ -438243,7 +438353,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -439779,7 +439889,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -442649,7 +442759,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -450181,10 +450291,10 @@
         }
       ],
       "snapTrend": {
-        "games": 3,
-        "avgOffensePct": 7,
+        "games": 4,
+        "avgOffensePct": 13.5,
         "lastOffensePct": 9,
-        "avgOffenseSnaps": 4
+        "avgOffenseSnaps": 9.3
       },
       "matchup": {
         "opponent": "TEN",
@@ -450393,10 +450503,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 64,
-        "lastOffensePct": 64,
-        "avgOffenseSnaps": 35
+        "games": 2,
+        "avgOffensePct": 63.5,
+        "lastOffensePct": 63,
+        "avgOffenseSnaps": 41.5
       },
       "matchup": {
         "opponent": "TEN",
@@ -454815,7 +454925,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -460320,7 +460430,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -461111,7 +461221,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -462211,7 +462321,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -468199,10 +468314,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 12,
-        "lastOffensePct": 12,
-        "avgOffenseSnaps": 8
+        "games": 2,
+        "avgOffensePct": 7.5,
+        "lastOffensePct": 3,
+        "avgOffenseSnaps": 5
       },
       "matchup": {
         "opponent": "NE",
@@ -468475,10 +468590,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 4,
-        "lastOffensePct": 4,
-        "avgOffenseSnaps": 3
+        "games": 2,
+        "avgOffensePct": 2,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 1.5
       },
       "matchup": {
         "opponent": "NE",
@@ -470295,10 +470410,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 4,
-        "lastOffensePct": 4,
-        "avgOffenseSnaps": 3
+        "games": 2,
+        "avgOffensePct": 41.5,
+        "lastOffensePct": 79,
+        "avgOffenseSnaps": 29
       },
       "matchup": {
         "opponent": "NE",
@@ -471149,7 +471264,7 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -472377,7 +472492,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -472411,7 +472526,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -477542,10 +477657,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 1,
-        "lastOffensePct": 1,
-        "avgOffenseSnaps": 1
+        "games": 2,
+        "avgOffensePct": 2.5,
+        "lastOffensePct": 4,
+        "avgOffenseSnaps": 2
       },
       "matchup": null
     },
@@ -479017,7 +479132,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -480852,9 +480967,9 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 48,
-        "lastOffensePct": 48,
+        "games": 2,
+        "avgOffensePct": 41,
+        "lastOffensePct": 34,
         "avgOffenseSnaps": 24
       },
       "matchup": {
@@ -489638,7 +489753,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -490212,7 +490327,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -492443,7 +492558,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 39,
+        "lastOffensePct": 39,
+        "avgOffenseSnaps": 27
+      },
       "matchup": null
     },
     {
@@ -496345,7 +496465,12 @@
         ]
       },
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -501088,10 +501213,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 43,
-        "lastOffensePct": 43,
-        "avgOffenseSnaps": 28
+        "games": 2,
+        "avgOffensePct": 38,
+        "lastOffensePct": 33,
+        "avgOffenseSnaps": 22.5
       },
       "matchup": {
         "opponent": "MIA",
@@ -504025,7 +504150,7 @@
       "rosterStatus": "Active",
       "active": true,
       "experience": 11,
-      "age": 31,
+      "age": 32,
       "depth": {
         "rank": 4,
         "position": "WR",
@@ -504811,10 +504936,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 8,
-        "lastOffensePct": 8,
-        "avgOffenseSnaps": 5
+        "games": 2,
+        "avgOffensePct": 27,
+        "lastOffensePct": 46,
+        "avgOffenseSnaps": 14.5
       },
       "matchup": {
         "opponent": "MIA",
@@ -509343,7 +509468,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -509453,7 +509578,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -510022,7 +510147,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -512108,7 +512233,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -512736,7 +512861,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 2,
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -513134,10 +513259,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
+        "games": 2,
+        "avgOffensePct": 6,
+        "lastOffensePct": 12,
+        "avgOffenseSnaps": 3
       },
       "matchup": null
     },
@@ -520865,10 +520990,10 @@
         }
       ],
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 11,
+        "games": 5,
+        "avgOffensePct": 8.8,
         "lastOffensePct": 22,
-        "avgOffenseSnaps": 7.5
+        "avgOffenseSnaps": 6
       },
       "matchup": {
         "opponent": "CLE",
@@ -521165,10 +521290,10 @@
         }
       ],
       "snapTrend": {
-        "games": 4,
-        "avgOffensePct": 51.5,
+        "games": 5,
+        "avgOffensePct": 43.4,
         "lastOffensePct": 55,
-        "avgOffenseSnaps": 34.5
+        "avgOffenseSnaps": 29
       },
       "matchup": {
         "opponent": "CLE",
@@ -521687,10 +521812,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 2,
-        "lastOffensePct": 2,
-        "avgOffenseSnaps": 1
+        "games": 2,
+        "avgOffensePct": 3.5,
+        "lastOffensePct": 5,
+        "avgOffenseSnaps": 2
       },
       "matchup": {
         "opponent": "CLE",
@@ -521899,10 +522024,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 75,
-        "lastOffensePct": 75,
-        "avgOffenseSnaps": 43
+        "games": 2,
+        "avgOffensePct": 74.5,
+        "lastOffensePct": 74,
+        "avgOffenseSnaps": 45.5
       },
       "matchup": {
         "opponent": "CLE",
@@ -525561,7 +525686,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -526728,7 +526853,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -527867,7 +527992,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 3,
+        "games": 4,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
         "avgOffenseSnaps": 65
@@ -529095,7 +529220,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -529256,7 +529381,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -529400,7 +529525,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -534285,10 +534410,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 88,
-        "lastOffensePct": 88,
-        "avgOffenseSnaps": 44
+        "games": 2,
+        "avgOffensePct": 81.5,
+        "lastOffensePct": 75,
+        "avgOffenseSnaps": 42
       },
       "matchup": {
         "opponent": "PHI",
@@ -538780,7 +538905,12 @@
           "scrimmageYds": 10
         }
       ],
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 11,
+        "lastOffensePct": 11,
+        "avgOffenseSnaps": 6
+      },
       "matchup": {
         "opponent": "PHI",
         "positionGroup": "RB",
@@ -541697,7 +541827,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -544105,7 +544235,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -545904,10 +546034,10 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 100,
         "lastOffensePct": 100,
-        "avgOffenseSnaps": 50
+        "avgOffenseSnaps": 51.5
       },
       "matchup": null
     },
@@ -546280,7 +546410,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -555553,10 +555683,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 10,
-        "lastOffensePct": 10,
-        "avgOffenseSnaps": 7
+        "games": 2,
+        "avgOffensePct": 9,
+        "lastOffensePct": 8,
+        "avgOffenseSnaps": 6.5
       },
       "matchup": {
         "opponent": "DAL",
@@ -556253,10 +556383,10 @@
         }
       ],
       "snapTrend": {
-        "games": 1,
-        "avgOffensePct": 37,
-        "lastOffensePct": 37,
-        "avgOffenseSnaps": 26
+        "games": 2,
+        "avgOffensePct": 43,
+        "lastOffensePct": 49,
+        "avgOffenseSnaps": 30.5
       },
       "matchup": {
         "opponent": "DAL",
@@ -560903,7 +561033,12 @@
       "currentSeason": null,
       "last5": null,
       "gameLog": null,
-      "snapTrend": null,
+      "snapTrend": {
+        "games": 1,
+        "avgOffensePct": 6,
+        "lastOffensePct": 6,
+        "avgOffenseSnaps": 4
+      },
       "matchup": null
     },
     {
@@ -565873,7 +566008,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 4,
+        "games": 5,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -566139,7 +566274,7 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -567228,7 +567363,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -568374,7 +568509,7 @@
       },
       "gameLog": null,
       "snapTrend": {
-        "games": 1,
+        "games": 2,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
