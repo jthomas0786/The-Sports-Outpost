@@ -16,7 +16,7 @@ assert.match(ui,/AVAILABLE BETS/,'sportsbook dropdown has aligned availability c
 assert.match(ui,/PARLAY ODDS/,'sportsbook dropdown has aligned parlay odds column');
 assert.match(ui,/Compare All Books/,'compare-all row is present');
 assert.match(ui,/PLACE ALL \$\{legs\.length\} BET/,'place-all-bets CTA is dynamic');
-assert.match(ui,/Tune Parlay/,'Tune Parlay control is present');
+assert.match(polish,/Parlay Tune/,'connector renders the tuner label as Parlay Tune');
 assert.match(polish,/querySelector\('#ppLineCheck'\)\?\.remove\(\)/,'connector removes Line Check from the shipped interaction surface');
 assert.match(ui,/altOffers\(leg,selectedBook\)/,'tuner alt lines use the selected sportsbook');
 assert.match(ui,/\$\{esc\(selectedBook\)\} odds/,'selected sportsbook is labeled under each tuned leg');
