@@ -176,18 +176,18 @@ Deno.serve(async (req) => {
   if (!upstream.ok) return json(result,upstream.status,origin,{'X-ParlayPing-Request-Id':requestId});
 
   const share = (result.share && typeof result.share === 'object' ? result.share : {}) as Record<string,unknown>;
-  const shareUrl = text(share.url,2200);
-  if (!shareUrl) return json({ok:false,error:'ParlayPing did not return a betslip URL.',requestId},502,origin);
+  const candidate = text(share.launchUrl ?? share.url,2200);
+  if (!candidate) return json({ok:false,error:'ParlayPing did not return a builder URL.',requestId},502,origin);
 
   let launchUrl: string;
   try {
-    const launch = new URL(shareUrl);
-    if (launch.protocol !== 'https:' || launch.hostname.toLowerCase() !== 'parlayping.net' || !launch.pathname.startsWith('/slip/')) {
+    const launch = new URL(candidate);
+    if (launch.protocol !== 'https:' || launch.hostname.toLowerCase() !== 'parlayping.net' || !/^\/build\/s1\./.test(launch.pathname)) {
       throw new Error('Unexpected ParlayPing URL.');
     }
     launchUrl = launch.toString();
   } catch {
-    return json({ok:false,error:'ParlayPing returned an invalid betslip URL.',requestId},502,origin);
+    return json({ok:false,error:'ParlayPing returned an invalid builder URL.',requestId},502,origin);
   }
 
   return json({ok:true,requestId,share:{...share,launchUrl}},201,origin,{'X-ParlayPing-Request-Id':requestId});
