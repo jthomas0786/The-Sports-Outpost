@@ -1,4 +1,4 @@
-import { installParlayPingExternalHandoff } from './parlayping-external-handoff.js?v=2.1';
+import { installParlayPingExternalHandoff } from './parlayping-external-handoff.js?v=2.2';
 
 // Historical module name retained so automated slate/research commits do not
 // need to touch router wiring. ParlayPing is NOT rendered inside The Sports
