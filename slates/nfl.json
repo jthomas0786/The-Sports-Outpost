@@ -1,24 +1,23 @@
 {
   "sport": "nfl",
   "slateId": "2026-reg-w02",
-  "date": "2026-09-22",
+  "date": "2026-reg-wk03",
   "season": 2026,
   "seasonType": "reg",
   "week": 2,
-  "generatedAt": "2026-09-22T17:43:02.220Z",
-  "buildDurationMs": 4684,
+  "generatedAt": "2026-09-22T17:45:00.426Z",
+  "buildDurationMs": 3913,
   "gameCount": 16,
   "availability": {
     "source": "espn-injuries",
     "ok": true,
-    "fetchedAt": "2026-09-22T17:42:59Z",
+    "fetchedAt": "2026-09-22T17:44:54Z",
     "counts": {
       "active": 336,
       "questionable": 17,
       "unconfirmed": 390,
-      "out": 34,
-      "doubtful": 6,
-      "unknown": 4
+      "out": 38,
+      "doubtful": 6
     }
   },
   "leagueRzTdRate": 0.1924,
@@ -57,7 +56,7 @@
     "odds/inactives: Live injury/inactive status comes from the ESPN league-wide injuries endpoint (nflverse's injury feed has no data after 2024). OUT/IR/suspended players are zeroed and flagged; questionable/doubtful are discounted. Per-game official inactives (T-90) and OpticOdds ATD markets are still a follow-up.",
     "roster2026: 2982 rows, 787 skill players on 32 teams (141 RET/CUT dropped)",
     "depth2026: 549675 rows, 762 players ranked, latest snapshot 2026-09-22T12:33:43Z",
-    "availability: 800 ESPN injury entries (800 with ids), as of 2026-09-22T17:42:59Z",
+    "availability: 800 ESPN injury entries (800 with ids), as of 2026-09-22T17:44:54Z",
     "roster: 3138 rows, 732 skill players",
     "snap_counts: 26613 rows, 5946 matched",
     "pbp: 48772 rows, 1235 TDs + 4579 RZ plays matched",
@@ -6233,62 +6232,6 @@
           }
         },
         {
-          "gsisId": "00-0037525",
-          "espnId": "4360569",
-          "name": "Jordan Mason",
-          "team": "MIN",
-          "position": "RB",
-          "depth": "RB",
-          "jersey": "27",
-          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/qeeucinnxl8mpzaw23hc",
-          "depthRank": 4,
-          "yearsExp": 4,
-          "isRookie": false,
-          "prevTeam": "MIN",
-          "teamChanged": false,
-          "stats": {
-            "snapShare": 0.428,
-            "gamesPlayed": 16,
-            "rzTargets": 1,
-            "rzCarries": 29,
-            "tds": 6,
-            "statsSeason": 2025
-          },
-          "opponent": "CHI",
-          "props": {
-            "atd": {
-              "probability": 0.0554,
-              "grade": "F",
-              "gradeLabel": "Avoid",
-              "dataConfidence": "full",
-              "isRookie": false,
-              "availability": {
-                "status": "unknown",
-                "statusRaw": "IR",
-                "detail": "Thumb",
-                "note": "ir",
-                "factor": 1
-              },
-              "inputs": {
-                "tdRate": 0.375,
-                "rzPerGame": 1.88,
-                "snapShare": 0.428,
-                "gamesPlayed": 16,
-                "depthRank": 4,
-                "roleFactor": 0.15,
-                "roleSource": "depth-2026",
-                "historyFactor": 1,
-                "oppRzDefIndex": 1.02,
-                "oppRzDefFactor": 1.012,
-                "oppRzTdRateAllowed": 0.1963,
-                "sampleYear": 2025,
-                "rosterYear": 2026
-              },
-              "oddsAvailable": false
-            }
-          }
-        },
-        {
           "gsisId": "00-0036425",
           "espnId": "4240631",
           "name": "DeeJay Dallas",
@@ -8236,6 +8179,62 @@
                 "gamesPlayed": 15,
                 "depthRank": 3,
                 "roleFactor": 0.72,
+                "roleSource": "depth-2026",
+                "historyFactor": 1,
+                "oppRzDefIndex": 1.02,
+                "oppRzDefFactor": 1.012,
+                "oppRzTdRateAllowed": 0.1963,
+                "sampleYear": 2025,
+                "rosterYear": 2026
+              },
+              "oddsAvailable": false
+            }
+          }
+        },
+        {
+          "gsisId": "00-0037525",
+          "espnId": "4360569",
+          "name": "Jordan Mason",
+          "team": "MIN",
+          "position": "RB",
+          "depth": "RB",
+          "jersey": "27",
+          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/qeeucinnxl8mpzaw23hc",
+          "depthRank": 4,
+          "yearsExp": 4,
+          "isRookie": false,
+          "prevTeam": "MIN",
+          "teamChanged": false,
+          "stats": {
+            "snapShare": 0.428,
+            "gamesPlayed": 16,
+            "rzTargets": 1,
+            "rzCarries": 29,
+            "tds": 6,
+            "statsSeason": 2025
+          },
+          "opponent": "CHI",
+          "props": {
+            "atd": {
+              "probability": 0,
+              "grade": "F",
+              "gradeLabel": "Out",
+              "dataConfidence": "full",
+              "isRookie": false,
+              "availability": {
+                "status": "out",
+                "statusRaw": "Injured Reserve",
+                "detail": "Thumb",
+                "note": "ir",
+                "factor": 0
+              },
+              "inputs": {
+                "tdRate": 0.375,
+                "rzPerGame": 1.88,
+                "snapShare": 0.428,
+                "gamesPlayed": 16,
+                "depthRank": 4,
+                "roleFactor": 0.15,
                 "roleSource": "depth-2026",
                 "historyFactor": 1,
                 "oppRzDefIndex": 1.02,
@@ -15035,62 +15034,6 @@
           }
         },
         {
-          "gsisId": "00-0041511",
-          "espnId": "4723820",
-          "name": "Omar Cooper Jr.",
-          "team": "NYJ",
-          "position": "WR",
-          "depth": "WR",
-          "jersey": "11",
-          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/lmua2lbg0m77ibvydvaq",
-          "depthRank": 6,
-          "yearsExp": 0,
-          "isRookie": true,
-          "prevTeam": null,
-          "teamChanged": false,
-          "stats": {
-            "snapShare": 0,
-            "gamesPlayed": 0,
-            "rzTargets": 0,
-            "rzCarries": 0,
-            "tds": 0,
-            "statsSeason": null
-          },
-          "opponent": "GB",
-          "props": {
-            "atd": {
-              "probability": 0.0552,
-              "grade": "F",
-              "gradeLabel": "Avoid",
-              "dataConfidence": "rookie",
-              "isRookie": true,
-              "availability": {
-                "status": "unknown",
-                "statusRaw": "IR",
-                "detail": "Ankle",
-                "note": "The Jets are expected to place Cooper (ankle) on injured reserve, Ian Rapoport of NFL Network reports.",
-                "factor": 1
-              },
-              "inputs": {
-                "tdRate": 0,
-                "rzPerGame": 0,
-                "snapShare": 0,
-                "gamesPlayed": 0,
-                "depthRank": 6,
-                "roleFactor": 0.22,
-                "roleSource": "depth-2026",
-                "historyFactor": 1.18,
-                "oppRzDefIndex": 0.945,
-                "oppRzDefFactor": 0.967,
-                "oppRzTdRateAllowed": 0.1818,
-                "sampleYear": 2025,
-                "rosterYear": 2026
-              },
-              "oddsAvailable": false
-            }
-          }
-        },
-        {
           "gsisId": "00-0040948",
           "espnId": "4635009",
           "name": "J. Michael Sturdivant",
@@ -16769,6 +16712,62 @@
               "oddsAvailable": false
             }
           }
+        },
+        {
+          "gsisId": "00-0041511",
+          "espnId": "4723820",
+          "name": "Omar Cooper Jr.",
+          "team": "NYJ",
+          "position": "WR",
+          "depth": "WR",
+          "jersey": "11",
+          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/lmua2lbg0m77ibvydvaq",
+          "depthRank": 6,
+          "yearsExp": 0,
+          "isRookie": true,
+          "prevTeam": null,
+          "teamChanged": false,
+          "stats": {
+            "snapShare": 0,
+            "gamesPlayed": 0,
+            "rzTargets": 0,
+            "rzCarries": 0,
+            "tds": 0,
+            "statsSeason": null
+          },
+          "opponent": "GB",
+          "props": {
+            "atd": {
+              "probability": 0,
+              "grade": "F",
+              "gradeLabel": "Out",
+              "dataConfidence": "rookie",
+              "isRookie": true,
+              "availability": {
+                "status": "out",
+                "statusRaw": "Injured Reserve",
+                "detail": "Ankle",
+                "note": "The Jets are expected to place Cooper (ankle) on injured reserve, Ian Rapoport of NFL Network reports.",
+                "factor": 0
+              },
+              "inputs": {
+                "tdRate": 0,
+                "rzPerGame": 0,
+                "snapShare": 0,
+                "gamesPlayed": 0,
+                "depthRank": 6,
+                "roleFactor": 0.22,
+                "roleSource": "depth-2026",
+                "historyFactor": 1.18,
+                "oppRzDefIndex": 0.945,
+                "oppRzDefFactor": 0.967,
+                "oppRzTdRateAllowed": 0.1818,
+                "sampleYear": 2025,
+                "rosterYear": 2026
+              },
+              "oddsAvailable": false
+            }
+          }
         }
       ]
     },
@@ -18361,62 +18360,6 @@
           }
         },
         {
-          "gsisId": "00-0035359",
-          "espnId": "3871102",
-          "name": "David Sills",
-          "team": "TB",
-          "position": "WR",
-          "depth": "WR",
-          "jersey": "80",
-          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/g0jd9yaq2yhw05ktamlh",
-          "depthRank": 7,
-          "yearsExp": 7,
-          "isRookie": false,
-          "prevTeam": "ATL",
-          "teamChanged": true,
-          "stats": {
-            "snapShare": 0.524,
-            "gamesPlayed": 17,
-            "rzTargets": 6,
-            "rzCarries": 0,
-            "tds": 2,
-            "statsSeason": 2025
-          },
-          "opponent": "CLE",
-          "props": {
-            "atd": {
-              "probability": 0.0343,
-              "grade": "F",
-              "gradeLabel": "Avoid",
-              "dataConfidence": "full",
-              "isRookie": false,
-              "availability": {
-                "status": "unknown",
-                "statusRaw": "IR",
-                "detail": "Undisclosed",
-                "note": "Sills (undisclosed) was placed on injured reserve by the Buccaneers on Sunday with a designation to return, Scott Smith of the team's official website reports.",
-                "factor": 1
-              },
-              "inputs": {
-                "tdRate": 0.118,
-                "rzPerGame": 0.35,
-                "snapShare": 0.524,
-                "gamesPlayed": 17,
-                "depthRank": 7,
-                "roleFactor": 0.22,
-                "roleSource": "depth-2026",
-                "historyFactor": 1,
-                "oppRzDefIndex": 1.054,
-                "oppRzDefFactor": 1.032,
-                "oppRzTdRateAllowed": 0.2028,
-                "sampleYear": 2025,
-                "rosterYear": 2026
-              },
-              "oddsAvailable": false
-            }
-          }
-        },
-        {
           "gsisId": "00-0036630",
           "espnId": "4241424",
           "name": "Tylan Wallace",
@@ -19246,6 +19189,62 @@
                 "roleFactor": 0.1,
                 "roleSource": "depth-2026",
                 "historyFactor": 0.55,
+                "oppRzDefIndex": 1.054,
+                "oppRzDefFactor": 1.032,
+                "oppRzTdRateAllowed": 0.2028,
+                "sampleYear": 2025,
+                "rosterYear": 2026
+              },
+              "oddsAvailable": false
+            }
+          }
+        },
+        {
+          "gsisId": "00-0035359",
+          "espnId": "3871102",
+          "name": "David Sills",
+          "team": "TB",
+          "position": "WR",
+          "depth": "WR",
+          "jersey": "80",
+          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/g0jd9yaq2yhw05ktamlh",
+          "depthRank": 7,
+          "yearsExp": 7,
+          "isRookie": false,
+          "prevTeam": "ATL",
+          "teamChanged": true,
+          "stats": {
+            "snapShare": 0.524,
+            "gamesPlayed": 17,
+            "rzTargets": 6,
+            "rzCarries": 0,
+            "tds": 2,
+            "statsSeason": 2025
+          },
+          "opponent": "CLE",
+          "props": {
+            "atd": {
+              "probability": 0,
+              "grade": "F",
+              "gradeLabel": "Out",
+              "dataConfidence": "full",
+              "isRookie": false,
+              "availability": {
+                "status": "out",
+                "statusRaw": "Injured Reserve",
+                "detail": "Undisclosed",
+                "note": "Sills (undisclosed) was placed on injured reserve by the Buccaneers on Sunday with a designation to return, Scott Smith of the team's official website reports.",
+                "factor": 0
+              },
+              "inputs": {
+                "tdRate": 0.118,
+                "rzPerGame": 0.35,
+                "snapShare": 0.524,
+                "gamesPlayed": 17,
+                "depthRank": 7,
+                "roleFactor": 0.22,
+                "roleSource": "depth-2026",
+                "historyFactor": 1,
                 "oppRzDefIndex": 1.054,
                 "oppRzDefFactor": 1.032,
                 "oppRzTdRateAllowed": 0.2028,
@@ -38003,62 +38002,6 @@
           }
         },
         {
-          "gsisId": "00-0041035",
-          "espnId": "4710714",
-          "name": "De'Zhaun Stribling",
-          "team": "SF",
-          "position": "WR",
-          "depth": "WR",
-          "jersey": "7",
-          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/eu1nxtlztiwr5ko48iwz",
-          "depthRank": 8,
-          "yearsExp": 0,
-          "isRookie": true,
-          "prevTeam": null,
-          "teamChanged": false,
-          "stats": {
-            "snapShare": 0,
-            "gamesPlayed": 0,
-            "rzTargets": 0,
-            "rzCarries": 0,
-            "tds": 0,
-            "statsSeason": null
-          },
-          "opponent": "MIA",
-          "props": {
-            "atd": {
-              "probability": 0.059,
-              "grade": "F",
-              "gradeLabel": "Avoid",
-              "dataConfidence": "rookie",
-              "isRookie": true,
-              "availability": {
-                "status": "unknown",
-                "statusRaw": "IR",
-                "detail": "Ankle",
-                "note": "The 49ers placed Stribling (ankle) on injured reserve Saturday.",
-                "factor": 1
-              },
-              "inputs": {
-                "tdRate": 0,
-                "rzPerGame": 0,
-                "snapShare": 0,
-                "gamesPlayed": 0,
-                "depthRank": 8,
-                "roleFactor": 0.22,
-                "roleSource": "depth-2026",
-                "historyFactor": 1.08,
-                "oppRzDefIndex": 1.213,
-                "oppRzDefFactor": 1.128,
-                "oppRzTdRateAllowed": 0.2335,
-                "sampleYear": 2025,
-                "rosterYear": 2026
-              },
-              "oddsAvailable": false
-            }
-          }
-        },
-        {
           "gsisId": "00-0039365",
           "espnId": "4575665",
           "name": "Jacob Cowing",
@@ -39616,6 +39559,62 @@
                 "roleFactor": 0.2,
                 "roleSource": "depth-2026",
                 "historyFactor": 1,
+                "oppRzDefIndex": 1.213,
+                "oppRzDefFactor": 1.128,
+                "oppRzTdRateAllowed": 0.2335,
+                "sampleYear": 2025,
+                "rosterYear": 2026
+              },
+              "oddsAvailable": false
+            }
+          }
+        },
+        {
+          "gsisId": "00-0041035",
+          "espnId": "4710714",
+          "name": "De'Zhaun Stribling",
+          "team": "SF",
+          "position": "WR",
+          "depth": "WR",
+          "jersey": "7",
+          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/eu1nxtlztiwr5ko48iwz",
+          "depthRank": 8,
+          "yearsExp": 0,
+          "isRookie": true,
+          "prevTeam": null,
+          "teamChanged": false,
+          "stats": {
+            "snapShare": 0,
+            "gamesPlayed": 0,
+            "rzTargets": 0,
+            "rzCarries": 0,
+            "tds": 0,
+            "statsSeason": null
+          },
+          "opponent": "MIA",
+          "props": {
+            "atd": {
+              "probability": 0,
+              "grade": "F",
+              "gradeLabel": "Out",
+              "dataConfidence": "rookie",
+              "isRookie": true,
+              "availability": {
+                "status": "out",
+                "statusRaw": "Injured Reserve",
+                "detail": "Ankle",
+                "note": "The 49ers placed Stribling (ankle) on injured reserve Saturday.",
+                "factor": 0
+              },
+              "inputs": {
+                "tdRate": 0,
+                "rzPerGame": 0,
+                "snapShare": 0,
+                "gamesPlayed": 0,
+                "depthRank": 8,
+                "roleFactor": 0.22,
+                "roleSource": "depth-2026",
+                "historyFactor": 1.08,
                 "oppRzDefIndex": 1.213,
                 "oppRzDefFactor": 1.128,
                 "oppRzTdRateAllowed": 0.2335,
