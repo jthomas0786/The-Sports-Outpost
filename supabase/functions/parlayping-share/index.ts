@@ -98,7 +98,8 @@ function sanitizeLeg(raw: Record<string,unknown>, index: number) {
     sportsbookLink: safeHttps(raw.sportsbookLink ?? raw.link ?? raw.deepLink),
     status: text(raw.status ?? raw.state,24) ?? 'PENDING',
     pregameProbability: probability(raw.pregameProbability ?? raw.probability ?? raw.pct ?? raw.modelProbability),
-    startTimeUTC: text(raw.startTimeUTC ?? raw.kickoff,80),
+    startTimeUTC: text(raw.startTimeUTC ?? raw.start_time_utc ?? raw.startTime ?? raw.start_time ?? raw.commenceTime ?? raw.commence_time ?? raw.kickoff ?? raw.firstPitch ?? raw.first_pitch,80),
+    originalText: text(raw.originalText,300),
   };
 }
 
