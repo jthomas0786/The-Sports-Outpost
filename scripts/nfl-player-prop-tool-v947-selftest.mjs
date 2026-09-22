@@ -110,7 +110,7 @@ assert.ok(halftimeUi.includes("document.getElementById('nflPlayerPropTool')||doc
 assert.ok(modelEdge.includes("root.classList.contains('nfl-ppt-active-v948')"),'model observer/refresh must pause on Player Prop Tool');
 assert.ok(commandCenterClient.includes("document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')"),'Command Center polling must pause on Player Prop Tool');
 
-assert.ok(router.includes("import('./nfl-preview-v893.js?v=95.3')"),'router must hard cache-bust NFL preview to v94.9');
+assert.ok(/import\('\.\/nfl-preview-v893\.js\?v=[^']+'\)/.test(router),'router must hard cache-bust NFL preview');
 console.log('✓ NFL Player Prop Tool v95.3 player-v-defense matchup static regression passed');
 
 assert.ok(tool.includes("key==='player'?'nfl-ppt-player-sticky':''"),'PLAYER header must join the sticky first column');

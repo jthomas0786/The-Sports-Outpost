@@ -4,14 +4,16 @@
  * exact turnover endpoints, current play and Gamecast player identities.
  */
 
-const POLL_MS=2000;
+// v95.6 low-egress NFL live transport
+const POLL_MS=5000;
+const FULL_DETAIL_REFRESH_MS=60000;
 const STATIC_LIVE_URL='slates/nfl-live.json';
 const DEFAULT_LIVE_URL='https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';
 const STATIC_MAX_AGE_MS=2*60*1000;
 const LIVE_WINDOW_MS=6*60*60*1000;
 const configuredLiveUrl=()=>typeof window==='undefined'?null:(window.DW_NFL_LIVE_ENDPOINT||window.TSO_NFL_LIVE_URL||DEFAULT_LIVE_URL);
 
-let _slate=null,_onChange=null,_timer=null,_inflight=false,_lastNotifySig={};
+let _slate=null,_onChange=null,_timer=null,_inflight=false,_lastNotifySig={},_lastFullFetchAt=0;
 const _acceptedByGame=new Map();
 
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
@@ -225,12 +227,15 @@ function candidateAccepted(g,gl,source,data){
 function rememberAccepted(g,gl){_acceptedByGame.set(String(g?.gameId||g?.id||''),{status:gl?.status||g?.status||'',period:Number(gl?.period)||0,clockMin:Number.isFinite(Number(gl?.clockMin))?Number(gl.clockMin):null,awayScore:Number.isFinite(Number(gl?.awayScore))?Number(gl.awayScore):Number(g?.away?.score)||0,homeScore:Number.isFinite(Number(gl?.homeScore))?Number(gl.homeScore):Number(g?.home?.score)||0,acceptedAt:Date.now()});}
 
 async function fetchJson(url){try{const r=await fetch(url,{cache:'no-store'});if(!r?.ok)return null;const d=await r.json();return d?.games?d:null;}catch{return null;}}
-async function loadLiveDocument(){const remote=configuredLiveUrl();if(remote){const data=await fetchJson(remote);if(data&&Object.keys(data.games||{}).length)return {data,source:'remote'};}const data=await fetchJson(STATIC_LIVE_URL);if(!data)return null;return {data,source:'static'};}
+const liveModeUrl=(url,mode)=>`${url}${String(url).includes('?')?'&':'?'}mode=${encodeURIComponent(mode)}`;
+async function loadLiveDocument({full=false}={}){const remote=configuredLiveUrl();if(remote){const data=await fetchJson(liveModeUrl(remote,full?'full':'compact'));if(data&&Object.keys(data.games||{}).length)return {data,source:'remote',full};}const data=await fetchJson(STATIC_LIVE_URL);if(!data)return null;return {data,source:'static',full:false};}
 
-async function tick(){
+async function tick(forceFull=false){
   if(_inflight||!_slate)return;_inflight=true;
   try{
-    const loaded=await loadLiveDocument();if(!loaded)return;
+    const wantFull=forceFull||Date.now()-_lastFullFetchAt>=FULL_DETAIL_REFRESH_MS;
+    const loaded=await loadLiveDocument({full:wantFull});if(!loaded)return;
+    if(loaded.source==='remote'&&loaded.full)_lastFullFetchAt=Date.now();
     const {data,source}=loaded,live=data?.games||{};let changed=false;
     for(const g of (_slate.games||[])){
       const gl=live[String(g.gameId)];if(!gl||!candidateAccepted(g,gl,source,data))continue;
@@ -239,7 +244,7 @@ async function tick(){
       g.away={...(g.away||{}),score:gl.awayScore!=null?gl.awayScore:(g.away?.score??0)};
       g.home={...(g.home||{}),score:gl.homeScore!=null?gl.homeScore:(g.home?.score??0)};
       g.currentPlay=currentPlay||g.currentPlay||null;
-      g.liveScore={period:gl.period,clockMin:gl.clockMin,possession,yardFromOwn:gl.yardFromOwn,isRedZone:gl.isRedZone,down:gl.down,distance:gl.distance,downDistanceText:gl.downDistanceText,lastPlayText:gl.lastPlayText,currentPlay,gamecastState,winProbability:gl.winProbability||null,linescores:gl.linescores||null,currentDrive:gl.currentDrive||null,plays:Array.isArray(gl.plays)?gl.plays:[],playerStats:gl.playerStats||null,boxScore:gl.boxScore||null,teamStats:gl.teamStats||null,scoringPlays:Array.isArray(gl.scoringPlays)?gl.scoringPlays:[],lastFetchedAt:gl.lastFetchedAt||data.lastFetchedAt,source};
+      g.liveScore={period:gl.period,clockMin:gl.clockMin,possession,yardFromOwn:gl.yardFromOwn,isRedZone:gl.isRedZone,down:gl.down,distance:gl.distance,downDistanceText:gl.downDistanceText,lastPlayText:gl.lastPlayText,currentPlay,gamecastState,winProbability:gl.winProbability??g.liveScore?.winProbability??null,linescores:gl.linescores??g.liveScore?.linescores??null,currentDrive:gl.currentDrive??g.liveScore?.currentDrive??null,plays:Array.isArray(gl.plays)?gl.plays:(g.liveScore?.plays||[]),playerStats:gl.playerStats??g.liveScore?.playerStats??null,boxScore:gl.boxScore??g.liveScore?.boxScore??null,teamStats:gl.teamStats??g.liveScore?.teamStats??null,scoringPlays:Array.isArray(gl.scoringPlays)?gl.scoringPlays:(g.liveScore?.scoringPlays||[]),lastFetchedAt:gl.lastFetchedAt||data.lastFetchedAt,source};
       rememberAccepted(g,gl);patchClockOnly(g,gl,possession);
       const snap={gameId:String(g.gameId),status:g.status,statusDetail:g.statusDetail,away:g.away,home:g.home,possession,currentPlay,gamecastState,liveScore:g.liveScore,updatedAt:Date.now(),source};
       if(typeof window!=='undefined'){window.__TSO_NFL_LIVE_LATEST__=snap;window.dispatchEvent(new CustomEvent('tso:nfl-live-snapshot',{detail:snap}));}
@@ -248,10 +253,10 @@ async function tick(){
     if(changed&&typeof _onChange==='function')_onChange();
   }catch{}finally{_inflight=false;}
 }
-function shouldPoll(){if(!_slate)return false;if(typeof document!=='undefined'&&(document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948')))return false;const now=Date.now();return(_slate.games||[]).some(g=>g.status==='in'||(g.status==='pre'&&g.startTimeUTC&&Number.isFinite(new Date(g.startTimeUTC).getTime())&&new Date(g.startTimeUTC).getTime()-now<30*60000&&new Date(g.startTimeUTC).getTime()-now>-3*3600000));}
-export function startLivePolling(slate,onChange){_slate=slate;_onChange=onChange||null;if(_timer)clearInterval(_timer);tick();_timer=setInterval(()=>{if(shouldPoll())tick();},POLL_MS);}
-export async function refreshLiveNow(){await tick();}
-export function stopLivePolling(){if(_timer){clearInterval(_timer);_timer=null;}_slate=null;_onChange=null;_lastNotifySig={};_acceptedByGame.clear();}
+function shouldPoll(){if(!_slate)return false;if(typeof document!=='undefined'){if(document.hidden)return false;if(document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'))return false;}const now=Date.now();return(_slate.games||[]).some(g=>g.status==='in'||(g.status==='pre'&&g.startTimeUTC&&Number.isFinite(new Date(g.startTimeUTC).getTime())&&new Date(g.startTimeUTC).getTime()-now<10*60000&&new Date(g.startTimeUTC).getTime()-now>-3*3600000));}
+export function startLivePolling(slate,onChange){_slate=slate;_onChange=onChange||null;_lastFullFetchAt=0;if(_timer)clearInterval(_timer);if(shouldPoll())tick(true);_timer=setInterval(()=>{if(shouldPoll())tick(false);},POLL_MS);}
+export async function refreshLiveNow(){await tick(true);}
+export function stopLivePolling(){if(_timer){clearInterval(_timer);_timer=null;}_slate=null;_onChange=null;_lastNotifySig={};_lastFullFetchAt=0;_acceptedByGame.clear();}
 export function timeRemainingMin(period,clockMin){if(!period||period<1)return 60;if(period>=5){if(clockMin==null||clockMin<0)return 10;return Math.min(10,Math.max(0,clockMin));}const inQuarter=clockMin==null?15:Math.max(0,Math.min(15,clockMin));return(4-period)*15+inQuarter;}
 
 export const __LIVE_TEST__={playYards,playKind,playDirection,currentPlayFrom,buildGamecastState,candidatePlayers,findPlayerInText,participantPlayer,exactOwnYard,exactPlayEndFromOriginalOffense};

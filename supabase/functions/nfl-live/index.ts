@@ -16,6 +16,14 @@ const CORS = {
   "content-type": "application/json; charset=utf-8",
 };
 
+// v95.6 compact egress mode: browser heartbeats carry only live Gamecast essentials.
+const headersFor = (compact: boolean) => ({
+  ...CORS,
+  "cache-control": compact
+    ? "public, max-age=3, s-maxage=5, stale-while-revalidate=10"
+    : "public, max-age=5, s-maxage=10, stale-while-revalidate=20",
+});
+
 const n = (v: unknown) => {
   const x = Number(v);
   return Number.isFinite(x) ? x : null;
@@ -334,9 +342,10 @@ function scoringPlays(summary: any) {
 }
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  const compact = new URL(req.url).searchParams.get("mode") === "compact";
+  if (req.method === "OPTIONS") return new Response("ok", { headers: headersFor(compact) });
   if (req.method !== "GET") {
-    return new Response(JSON.stringify({ error: "GET only" }), { status: 405, headers: CORS });
+    return new Response(JSON.stringify({ error: "GET only" }), { status: 405, headers: headersFor(compact) });
   }
 
   try {
@@ -349,18 +358,16 @@ Deno.serve(async (req: Request) => {
         let g: any = base(event);
         if (!id || !g) return;
 
-        if (g.status === "in" || g.status === "post") {
+        if (g.status === "in" || (!compact && g.status === "post")) {
           try {
             const summary = await json(SUMMARY(id));
-            const plays = recent(summary);
+            const plays = compact ? recent(summary).slice(-12) : recent(summary);
             g = {
               ...g,
               currentDrive: currentDrive(summary),
               winProbability: latestWinProbability(summary),
               plays,
-              playerStats: playerStats(summary),
-              boxScore: fullBoxScore(summary),
-              teamStats: teamStats(summary),
+              ...(compact ? {} : { playerStats: playerStats(summary), boxScore: fullBoxScore(summary), teamStats: teamStats(summary) }),
               scoringPlays: scoringPlays(summary),
               lastPlayText: plays.at(-1)?.text || g.lastPlayText,
             };
@@ -381,12 +388,12 @@ Deno.serve(async (req: Request) => {
         generatedAt: new Date().toISOString(),
         games,
       }),
-      { status: 200, headers: CORS },
+      { status: 200, headers: headersFor(compact) },
     );
   } catch (err) {
     return new Response(
       JSON.stringify({ error: String((err as Error)?.message || err), games: {} }),
-      { status: 502, headers: CORS },
+      { status: 502, headers: headersFor(compact) },
     );
   }
 });

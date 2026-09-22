@@ -3,6 +3,7 @@ import { getNflWatchlist } from './watchlist-v910.js?v=91.0';
 
 let inputs={},busy=false,lastResearch=0;
 const liveUrl=()=>window.DW_NFL_LIVE_ENDPOINT||window.TSO_NFL_LIVE_URL||'https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live';
+const compactLiveUrl=()=>{const u=liveUrl();return `${u}${String(u).includes('?')?'&':'?'}mode=compact`;};
 async function get(url){
   try{const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(10000)});return r.ok?await r.json():null;}catch{return null;}
 }
@@ -18,11 +19,11 @@ function render(){
   window.refreshCommandCenterAlertState?.();
 }
 async function refresh(){
-  if(busy||document.hidden||document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'))return;
+  if(busy||document.hidden||!document.getElementById('ccFootballCol')?.classList.contains('active')||document.getElementById('nflPlayerPropTool')||document.getElementById('nflView')?.classList.contains('nfl-ppt-active-v948'))return;
   busy=true;
   try{
     const [remote,odds,research,sim,watchlist]=await Promise.all([
-      get(liveUrl()),get('./slates/nfl-live-odds.json'),
+      get(compactLiveUrl()),get('./slates/nfl-live-odds.json'),
       Date.now()-lastResearch>300000?get('./slates/nfl-research.json'):Promise.resolve(null),
       get('./slates/nfl-sim.json'),getNflWatchlist().catch(()=>[]),
     ]);
