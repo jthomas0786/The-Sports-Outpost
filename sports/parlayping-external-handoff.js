@@ -102,8 +102,8 @@ async function createExternalSlip(){
     });
     const payload=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(payload?.error||'Unable to create the ParlayPing betslip.');
-    const launchUrl=payload?.share?.launchUrl||payload?.share?.url;
-    if(!launchUrl||!/^https:\/\/parlayping\.net\/slip\//i.test(launchUrl))throw new Error('ParlayPing returned an invalid betslip URL.');
+    const launchUrl=payload?.share?.launchUrl;
+    if(!launchUrl||!/^https:\/\/parlayping\.net\/build\/s1\./i.test(launchUrl))throw new Error('ParlayPing returned an invalid builder URL.');
     location.assign(launchUrl);
   }catch(error){
     note(error?.message||'Unable to open ParlayPing right now.');
