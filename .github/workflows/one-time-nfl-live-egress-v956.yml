@@ -1,0 +1,95 @@
+name: One-time NFL v95.6 Low Egress Live Cutover
+
+on:
+  push:
+    paths:
+      - '.github/workflows/one-time-nfl-live-egress-v956.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: one-time-nfl-live-egress-v956
+  cancel-in-progress: true
+
+jobs:
+  cutover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Sync newest main
+        run: |
+          git fetch origin main
+          git checkout main
+          git reset --hard origin/main
+
+      - name: Apply low-egress NFL live transport
+        run: python3 scripts/apply-nfl-live-egress-v956.py
+
+      - name: Run low-egress and NFL regressions
+        run: |
+          node --check sports/nfl/live.js
+          node --check sports/nfl/command-center-client.js
+          node scripts/nfl-live-egress-v956-selftest.mjs
+          node scripts/nfl-player-prop-tool-v947-selftest.mjs
+          grep -F "./nfl/live.js?v=89.22" sports/nfl-preview.js
+          grep -F "mode=compact" sports/nfl/command-center-client.js
+
+      - name: Deploy optimized nfl-live Edge Function when credentials are available
+        id: edge
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ]; then
+            echo "deployed=false" >> "$GITHUB_OUTPUT"
+            echo "SUPABASE_ACCESS_TOKEN is not configured in this repo; client-side egress controls will still ship."
+            exit 0
+          fi
+          npx --yes supabase@latest functions deploy nfl-live \
+            --project-ref hjhfbhpuuxnrexddplxd \
+            --no-verify-jwt
+          echo "deployed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Probe full vs compact live payload
+        if: steps.edge.outputs.deployed == 'true'
+        run: |
+          URL='https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live'
+          FULL=$(curl -fsSL "$URL" | wc -c)
+          COMPACT=$(curl -fsSL "$URL?mode=compact" | wc -c)
+          echo "Full payload bytes:    $FULL"
+          echo "Compact payload bytes: $COMPACT"
+          node -e "const f=Number(process.argv[1]),c=Number(process.argv[2]); console.log('Compact/full ratio:',f?((c/f)*100).toFixed(1)+'%':'n/a')" "$FULL" "$COMPACT"
+
+      - name: Re-sync, reapply verified cutover, and push production
+        run: |
+          git reset --hard
+          git fetch origin main
+          git reset --hard origin/main
+          python3 scripts/apply-nfl-live-egress-v956.py
+          node scripts/nfl-live-egress-v956-selftest.mjs
+          node scripts/nfl-player-prop-tool-v947-selftest.mjs
+          rm -f scripts/apply-nfl-live-egress-v956.py
+          rm -f .github/workflows/one-time-nfl-live-egress-v956.yml
+          git config user.name "TSO Release Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add sports/nfl/live.js sports/nfl/command-center-client.js supabase/functions/nfl-live/index.ts \
+            sports/nfl-preview.js sports/nfl-preview-v890.js sports/nfl-preview-v893.js sports/router.js index.html \
+            scripts/nfl-live-egress-v956-selftest.mjs scripts/nfl-player-prop-tool-v947-selftest.mjs \
+            .github/workflows/nfl-gamecast-tests.yml scripts/apply-nfl-live-egress-v956.py .github/workflows/one-time-nfl-live-egress-v956.yml
+          git diff --staged --quiet && { echo 'No production changes'; exit 0; }
+          git commit -m "Reduce NFL Supabase live egress v95.6"
+          for attempt in 1 2 3 4 5; do
+            if git push origin main; then exit 0; fi
+            echo "push rejected; rebasing latest main (attempt $attempt)"
+            git pull --rebase --autostash origin main
+            sleep $((attempt*2))
+          done
+          exit 1
