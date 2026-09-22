@@ -1,6 +1,8 @@
 const SUPABASE_URL='https://hjhfbhpuuxnrexddplxd.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaGZiaHB1dXhucmV4ZGRwbHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY5ODQsImV4cCI6MjEwMjA3Mjk4NH0.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2hqaGZiaHB1dXhucmV4ZGRwbHhkLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJyZWYiOiJoamhmYmhwdXV4bnJleGRkcGx4ZCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NDk2OTg0LCJleHAiOjIxMDIwNzI5ODR9.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
 const MAX_LEGS=25;
+const LEGACY_GAMBLY_BUTTON_ID='bsBuild';
+const LEGACY_GAMBLY_STYLE_ID='pp-hide-legacy-gambly';
 let installed=false;
 let busy=false;
 let clientPromise=null;
@@ -48,6 +50,31 @@ function note(text){const el=document.getElementById('bsNote');if(el)el.textCont
 function button(){return document.getElementById('bsText');}
 function setButton(text,disabled=false){const btn=button();if(!btn)return;if(btn.tagName==='INPUT')btn.value=text;else btn.textContent=text;btn.disabled=disabled;}
 function renameButton(){const btn=button();if(!btn)return false;setButton('Open ParlayPing',false);btn.setAttribute('aria-label','Open this betslip on ParlayPing.net');return true;}
+function installLegacyGamblyStyle(){
+  if(document.getElementById(LEGACY_GAMBLY_STYLE_ID))return;
+  const style=document.createElement('style');
+  style.id=LEGACY_GAMBLY_STYLE_ID;
+  style.textContent='#bsBuild{display:none!important}';
+  (document.head||document.documentElement)?.appendChild(style);
+}
+function cleanupLegacyGamblyUi(){
+  const legacy=document.getElementById(LEGACY_GAMBLY_BUTTON_ID);
+  if(legacy)legacy.remove();
+  renameButton();
+  const noteEl=document.getElementById('bsNote');
+  if(noteEl&&/gambly/i.test(noteEl.textContent||''))noteEl.textContent='Open this betslip on ParlayPing to share and track it.';
+}
+function wrapBetslipRenderer(){
+  const render=window.renderBetslipBar;
+  if(typeof render!=='function'||render.__parlayPingExternalHandoffWrapped)return;
+  const wrapped=function(...args){
+    const result=render.apply(this,args);
+    queueMicrotask(cleanupLegacyGamblyUi);
+    return result;
+  };
+  Object.defineProperty(wrapped,'__parlayPingExternalHandoffWrapped',{value:true});
+  window.renderBetslipBar=wrapped;
+}
 async function createExternalSlip(){
   if(busy)return;
   const rows=readSlip();
@@ -80,12 +107,16 @@ async function createExternalSlip(){
     location.assign(launchUrl);
   }catch(error){
     note(error?.message||'Unable to open ParlayPing right now.');
-    busy=false;renameButton();
+    busy=false;cleanupLegacyGamblyUi();
   }
 }
 export function installParlayPingExternalHandoff(){
   if(installed||typeof document==='undefined')return;
-  installed=true;renameButton();requestAnimationFrame(renameButton);
+  installed=true;
+  installLegacyGamblyStyle();
+  wrapBetslipRenderer();
+  cleanupLegacyGamblyUi();
+  requestAnimationFrame(()=>{wrapBetslipRenderer();cleanupLegacyGamblyUi();});
   document.addEventListener('click',event=>{
     const btn=event.target?.closest?.('#bsText');
     if(!btn)return;
@@ -94,4 +125,4 @@ export function installParlayPingExternalHandoff(){
   },true);
 }
 
-export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,MAX_LEGS};
+export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
