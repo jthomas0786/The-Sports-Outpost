@@ -6,6 +6,7 @@ const shim=fs.readFileSync('sports/gambly-web-fallback-v895.js','utf8');
 const proxy=fs.readFileSync('supabase/functions/parlayping-share/index.ts','utf8');
 
 assert.match(shim,/installParlayPingExternalHandoff/,'compatibility shim installs the external ParlayPing handoff');
+assert.match(shim,/parlayping-external-handoff\.js\?v=2\.1/,'handoff module cache is busted for the Gambly UI cleanup');
 assert.doesNotMatch(shim,/installParlayPingBetslipV2|installParlayPingBetslipPolish/,'embedded ParlayPing UI is not installed in Sports Outpost');
 assert.doesNotMatch(shim,/parlayping-betslip-v2\.js|parlayping-betslip-v2-polish\.js/,'embedded ParlayPing modules are not imported by the active handoff');
 assert.doesNotMatch(shim,/gambly\.com|handoffToGambly|Generate on Gambly/i,'no Gambly handoff remains active');
@@ -18,6 +19,11 @@ assert.match(handoff,/location\.assign\(launchUrl\)/,'successful handoff navigat
 assert.match(handoff,/parlayping\\\.net\\\/slip/,'browser only accepts generated ParlayPing slip URLs');
 assert.match(handoff,/returnUrl/,'browser sends the exact Sports Outpost return location');
 assert.match(handoff,/returnLabel:'The Sports Outpost'/,'browser identifies the return destination');
+assert.match(handoff,/LEGACY_GAMBLY_BUTTON_ID='bsBuild'/,'active handoff identifies the legacy Generate on Gambly action');
+assert.match(handoff,/legacy\.remove\(\)/,'active handoff removes the legacy Generate on Gambly action from the DOM');
+assert.match(handoff,/#bsBuild\{display:none!important\}/,'legacy Gambly action stays hidden across betslip rerenders');
+assert.match(handoff,/Open this betslip on ParlayPing to share and track it/,'legacy Gambly note copy is replaced with ParlayPing copy');
+assert.doesNotMatch(handoff,/generateGamblySlip|functions\/v1\/gambly-slip/,'active handoff contains no Gambly generation path');
 assert.doesNotMatch(handoff,/ppSlipShell|Best Book for This Parlay|pps-wrap/,'Sports Outpost handoff contains no embedded ParlayPing experience');
 assert.doesNotMatch(handoff,/pp_live_[0-9a-z_-]+/i,'browser source contains no ParlayPing private API key');
 
