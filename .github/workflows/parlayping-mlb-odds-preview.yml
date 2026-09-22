@@ -1,0 +1,34 @@
+name: ParlayPing MLB Odds Preview
+
+on:
+  push:
+    branches: [parlayping-approval-preview]
+    paths:
+      - 'scripts/parlayping-mlb-odds-preview.mjs'
+      - '.github/workflows/parlayping-mlb-odds-preview.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Fetch real MLB HR sportsbook prices for approval preview
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          PREVIEW_DATE: '2026-09-22'
+          PREVIEW_PLAYERS: 'Kazuma Okamoto,CJ Abrams'
+        run: node scripts/parlayping-mlb-odds-preview.mjs
+      - name: Upload preview prices
+        uses: actions/upload-artifact@v4
+        with:
+          name: parlayping-mlb-hr-odds-preview
+          path: artifacts/parlayping-mlb-hr-odds.json
+          retention-days: 1
