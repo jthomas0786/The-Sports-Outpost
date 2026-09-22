@@ -5,19 +5,19 @@
   "season": 2026,
   "seasonType": "reg",
   "week": 3,
-  "generatedAt": "2026-09-22T17:51:51.062Z",
-  "buildDurationMs": 4992,
+  "generatedAt": "2026-09-22T17:54:01.260Z",
+  "buildDurationMs": 4065,
   "gameCount": 16,
   "availability": {
     "source": "espn-injuries",
     "ok": true,
-    "fetchedAt": "2026-09-22T17:51:47Z",
+    "fetchedAt": "2026-09-22T17:53:58Z",
     "counts": {
       "active": 336,
       "questionable": 17,
       "unconfirmed": 390,
-      "out": 33,
-      "unknown": 5,
+      "out": 32,
+      "unknown": 6,
       "doubtful": 6
     }
   },
@@ -57,7 +57,7 @@
     "odds/inactives: Live injury/inactive status comes from the ESPN league-wide injuries endpoint (nflverse's injury feed has no data after 2024). OUT/IR/suspended players are zeroed and flagged; questionable/doubtful are discounted. Per-game official inactives (T-90) and OpticOdds ATD markets are still a follow-up.",
     "roster2026: 2982 rows, 787 skill players on 32 teams (141 RET/CUT dropped)",
     "depth2026: 549675 rows, 762 players ranked, latest snapshot 2026-09-22T12:33:43Z",
-    "availability: 800 ESPN injury entries (800 with ids), as of 2026-09-22T17:51:47Z",
+    "availability: 800 ESPN injury entries (800 with ids), as of 2026-09-22T17:53:58Z",
     "roster: 3138 rows, 732 skill players",
     "snap_counts: 26613 rows, 5946 matched",
     "pbp: 48772 rows, 1235 TDs + 4579 RZ plays matched",
@@ -12605,6 +12605,62 @@
           }
         },
         {
+          "gsisId": "00-0040853",
+          "espnId": null,
+          "name": "Carson Towt",
+          "team": "IND",
+          "position": "TE",
+          "depth": "TE",
+          "jersey": "45",
+          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/nwppu7wrirz6adoxgzij",
+          "depthRank": 5,
+          "yearsExp": 0,
+          "isRookie": true,
+          "prevTeam": null,
+          "teamChanged": false,
+          "stats": {
+            "snapShare": 0,
+            "gamesPlayed": 0,
+            "rzTargets": 0,
+            "rzCarries": 0,
+            "tds": 0,
+            "statsSeason": null
+          },
+          "opponent": "HOU",
+          "props": {
+            "atd": {
+              "probability": 0.0322,
+              "grade": "F",
+              "gradeLabel": "Avoid",
+              "dataConfidence": "rookie",
+              "isRookie": true,
+              "availability": {
+                "status": "unknown",
+                "statusRaw": "IR",
+                "detail": "Undisclosed",
+                "note": "ir",
+                "factor": 1
+              },
+              "inputs": {
+                "tdRate": 0,
+                "rzPerGame": 0,
+                "snapShare": 0,
+                "gamesPlayed": 0,
+                "depthRank": 5,
+                "roleFactor": 0.2,
+                "roleSource": "depth-2026",
+                "historyFactor": 0.92,
+                "oppRzDefIndex": 1.159,
+                "oppRzDefFactor": 1.095,
+                "oppRzTdRateAllowed": 0.2231,
+                "sampleYear": 2025,
+                "rosterYear": 2026
+              },
+              "oddsAvailable": false
+            }
+          }
+        },
+        {
           "gsisId": "00-0041252",
           "espnId": null,
           "name": "Kenny Fletcher Jr.",
@@ -13770,62 +13826,6 @@
                 "roleFactor": 0.3,
                 "roleSource": "depth-2026",
                 "historyFactor": 1,
-                "oppRzDefIndex": 1.159,
-                "oppRzDefFactor": 1.095,
-                "oppRzTdRateAllowed": 0.2231,
-                "sampleYear": 2025,
-                "rosterYear": 2026
-              },
-              "oddsAvailable": false
-            }
-          }
-        },
-        {
-          "gsisId": "00-0040853",
-          "espnId": null,
-          "name": "Carson Towt",
-          "team": "IND",
-          "position": "TE",
-          "depth": "TE",
-          "jersey": "45",
-          "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/nwppu7wrirz6adoxgzij",
-          "depthRank": 5,
-          "yearsExp": 0,
-          "isRookie": true,
-          "prevTeam": null,
-          "teamChanged": false,
-          "stats": {
-            "snapShare": 0,
-            "gamesPlayed": 0,
-            "rzTargets": 0,
-            "rzCarries": 0,
-            "tds": 0,
-            "statsSeason": null
-          },
-          "opponent": "HOU",
-          "props": {
-            "atd": {
-              "probability": 0,
-              "grade": "F",
-              "gradeLabel": "Out",
-              "dataConfidence": "rookie",
-              "isRookie": true,
-              "availability": {
-                "status": "out",
-                "statusRaw": "Injured Reserve",
-                "detail": "Undisclosed",
-                "note": "ir",
-                "factor": 0
-              },
-              "inputs": {
-                "tdRate": 0,
-                "rzPerGame": 0,
-                "snapShare": 0,
-                "gamesPlayed": 0,
-                "depthRank": 5,
-                "roleFactor": 0.2,
-                "roleSource": "depth-2026",
-                "historyFactor": 0.92,
                 "oppRzDefIndex": 1.159,
                 "oppRzDefFactor": 1.095,
                 "oppRzTdRateAllowed": 0.2231,
