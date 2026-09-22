@@ -7,7 +7,7 @@ const shim=fs.readFileSync('sports/gambly-web-fallback-v895.js','utf8');
 const proxy=fs.readFileSync('supabase/functions/parlayping-share/index.ts','utf8');
 
 assert.match(shim,/installParlayPingExternalHandoff/,'compatibility shim installs the external ParlayPing handoff');
-assert.match(shim,/parlayping-external-handoff\.js\?v=2\.3/,'handoff module cache is busted for book-price and game-time transport');
+assert.match(shim,/parlayping-external-handoff\.js\?v=2\.4/,'handoff module cache is busted for exact-leg book-price transport');
 assert.doesNotMatch(shim,/installParlayPingBetslipV2|installParlayPingBetslipPolish/,'embedded ParlayPing UI is not installed in Sports Outpost');
 assert.doesNotMatch(shim,/parlayping-betslip-v2\.js|parlayping-betslip-v2-polish\.js/,'embedded ParlayPing modules are not imported by the active handoff');
 assert.doesNotMatch(shim,/gambly\.com|handoffToGambly|Generate on Gambly/i,'no Gambly handoff remains active');
