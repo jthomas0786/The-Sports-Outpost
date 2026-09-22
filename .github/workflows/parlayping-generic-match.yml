@@ -1,0 +1,72 @@
+name: ParlayPing Generic Match-Winner Feed
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 */12 * * *'
+  push:
+    paths:
+      - 'scripts/parlayping-generic-match-refresh.mjs'
+      - '.github/workflows/parlayping-generic-match.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parlayping-generic-match-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Refresh generic match-winner board
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: node scripts/parlayping-generic-match-refresh.mjs
+      - name: Validate fail-closed generic board
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const payload=JSON.parse(fs.readFileSync('slates/generic-match-odds.json','utf8'));
+          const allowed=new Set(['VOLLEYBALL','CRICKET','RUGBY_LEAGUE','AFL','BOXING']);
+          if(payload?.schemaVersion!==1||payload?.meta?.source!=='parlayapi-pinnacle'||payload?.meta?.settlementConnected!==false||!Array.isArray(payload?.rows))throw new Error('Invalid generic match snapshot');
+          if((payload?.meta?.diagnostics||[]).length>5)throw new Error('Paid sport-key cap exceeded');
+          const groups=new Map();
+          for(const row of payload.rows){
+            if(!allowed.has(row.sport))throw new Error(`Unsupported generic sport ${row.sport}`);
+            if(row.market!=='matchWinner'||row.bookKey!=='pinnacle')throw new Error('Only Pinnacle matchWinner rows allowed');
+            if(!row.eventId||!row.sportKey||!row.selection||!row.homeTeam||!row.awayTeam||!row.commenceTime)throw new Error('Incomplete generic match row');
+            if(!Number.isFinite(row.price)||!Number.isFinite(row.fairProbability)||row.fairProbability<=0||row.fairProbability>=1)throw new Error('Invalid generic probability');
+            if(Date.parse(row.commenceTime)<=Date.now()-5*60_000)throw new Error('Started generic event leaked into pregame board');
+            const key=`${row.sport}|${row.sportKey}|${row.eventId}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);
+          }
+          for(const [key,rows] of groups){
+            if(rows.length!==2)throw new Error(`${key} must have exactly two sides`);
+            const sum=rows.reduce((n,row)=>n+row.fairProbability,0);
+            if(Math.abs(sum-1)>1e-6)throw new Error(`${key} probabilities do not sum to 1`);
+          }
+          console.log(`✓ generic match board: ${payload.rows.length} sides across ${groups.size} two-way Pinnacle events`);
+          NODE
+      - name: Commit changed snapshot to current branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='slates/generic-match-odds.json'
+          if [ -z "$(git status --porcelain -- "$file")" ]; then
+            echo 'No generic match snapshot changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$file"
+          git commit -m 'Refresh ParlayPing generic match-winner feed'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"

@@ -1,0 +1,86 @@
+name: ParlayPing Golf Outrights
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - parlayping-golf-stage
+    paths:
+      - 'scripts/parlayping-golf-outrights-refresh.mjs'
+      - '.github/workflows/parlayping-golf-outrights.yml'
+  schedule:
+    - cron: '37 */12 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parlayping-golf-outrights-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Refresh Golf outright board
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: node scripts/parlayping-golf-outrights-refresh.mjs
+      - name: Validate fail-closed Golf board
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const payload=JSON.parse(fs.readFileSync('slates/golf-outrights.json','utf8'));
+          if(payload?.schemaVersion!==1||payload?.meta?.source!=='parlayapi-pinnacle'||payload?.meta?.sport!=='GOLF'||payload?.meta?.market!=='tournamentWinner'||payload?.meta?.settlementConnected!==false||!Array.isArray(payload?.rows))throw new Error('Invalid Golf snapshot');
+          const catalog=payload?.meta?.catalogGolfKeys||[];
+          const coverage=payload?.meta?.coverage||[];
+          const selected=payload?.meta?.selectedKeys||[];
+          if(!Array.isArray(catalog)||!Array.isArray(coverage)||!Array.isArray(selected))throw new Error('Missing Golf coverage metadata');
+          if(selected.length>2)throw new Error('Golf paid-key cap exceeded');
+          if(coverage.length!==catalog.length)throw new Error(`Golf coverage preflight did not inspect every catalog key (${coverage.length}/${catalog.length})`);
+          const byKey=new Map(coverage.map(row=>[String(row?.sportKey||''),row]));
+          for(const sportKey of selected){
+            const row=byKey.get(String(sportKey));
+            if(!row||!(Number(row.pregame)>0))throw new Error(`Paid Golf key ${sportKey} lacks positive free pregame coverage`);
+            if(!(row.bookmakers||[]).map(v=>String(v).toLowerCase()).includes('pinnacle'))throw new Error(`Paid Golf key ${sportKey} lacks Pinnacle coverage`);
+            if(!(row.markets||[]).map(v=>String(v).toLowerCase()).includes('outrights'))throw new Error(`Paid Golf key ${sportKey} lacks outright coverage`);
+          }
+          const credits=Number(payload?.meta?.reportedCreditsUsed||0);
+          if(!Number.isFinite(credits)||credits<0)throw new Error('Invalid Golf credit accounting');
+          if(selected.length===0&&credits!==0)throw new Error(`Golf spent ${credits} credits with no covered key selected`);
+          const groups=new Map();
+          for(const row of payload.rows){
+            if(row.sport!=='GOLF'||row.market!=='tournamentWinner'||row.bookKey!=='pinnacle'||row.settlementConnected!==false)throw new Error('Unsafe Golf row');
+            if(!row.sportKey||!row.eventId||!row.marketId||!row.selection||!row.tournament)throw new Error('Incomplete Golf row');
+            if(!selected.includes(row.sportKey))throw new Error(`Golf row came from unselected sport key ${row.sportKey}`);
+            if(!Number.isFinite(row.price)||!Number.isFinite(row.impliedProbability)||!Number.isFinite(row.fairProbability)||row.fairProbability<=0||row.fairProbability>=1)throw new Error('Invalid Golf probability');
+            const key=`${row.sportKey}|${row.eventId}|${row.marketId}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);
+          }
+          for(const [key,rows] of groups){
+            if(rows.length<4)throw new Error(`${key} has too few outright selections`);
+            const sum=rows.reduce((n,row)=>n+row.fairProbability,0);
+            if(Math.abs(sum-1)>1e-6)throw new Error(`${key} fair probabilities do not sum to 1 (${sum})`);
+          }
+          console.log(`✓ Golf outright board: ${payload.rows.length} selections across ${groups.size} complete Pinnacle fields; ${coverage.length} free coverage checks; ${selected.length} paid keys; ${credits} credits`);
+          NODE
+      - name: Commit changed snapshot to current branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          file='slates/golf-outrights.json'
+          if [ -z "$(git status --porcelain -- "$file")" ]; then
+            echo 'No Golf snapshot changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "$file"
+          git commit -m 'Refresh ParlayPing Golf outright feed'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"

@@ -1,0 +1,74 @@
+name: ParlayPing Esports Match Feed
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '41 */6 * * *'
+  push:
+    paths:
+      - 'scripts/parlayping-esports-match-refresh.mjs'
+      - '.github/workflows/parlayping-esports-match.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: parlayping-esports-match-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Refresh verified esports pregame match odds
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: node scripts/parlayping-esports-match-refresh.mjs
+      - name: Validate fail-closed esports snapshots
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          const odds=JSON.parse(fs.readFileSync('slates/esports-match-odds.json','utf8'));
+          const results=JSON.parse(fs.readFileSync('slates/esports-results.json','utf8'));
+          if(odds?.schemaVersion!==1||odds?.meta?.source!=='parlayapi-pinnacle'||!Array.isArray(odds?.rows))throw new Error('Invalid esports-match-odds schema');
+          if(odds?.meta?.settlementConnected!==false)throw new Error('Esports odds metadata must not claim settlement coverage');
+          const groups=new Map();
+          for(const row of odds.rows){
+            if(row.market!=='matchWinner'||row.bookKey!=='pinnacle')throw new Error('Only Pinnacle matchWinner rows are allowed');
+            if(!row.eventId||!row.selection||!row.homeTeam||!row.awayTeam||!row.commenceTime)throw new Error('Incomplete esports odds row');
+            if(!Number.isFinite(row.price)||!Number.isFinite(row.fairProbability)||row.fairProbability<=0||row.fairProbability>=1)throw new Error('Invalid esports probability row');
+            const key=String(row.eventId);if(!groups.has(key))groups.set(key,[]);groups.get(key).push(row);
+          }
+          for(const [id,rows] of groups){
+            if(rows.length!==2)throw new Error(`Esports event ${id} must have exactly two Pinnacle sides`);
+            const sum=rows.reduce((n,r)=>n+r.fairProbability,0);
+            if(Math.abs(sum-1)>1e-6)throw new Error(`Esports event ${id} probabilities are not de-vigged to 1`);
+          }
+          if(results?.schemaVersion!==1||results?.settlementConnected!==false||results?.liveCoverage!==false||results?.finalCoverage!==false||typeof results?.matches!=='object')throw new Error('Invalid fail-closed esports-results schema');
+          if(Object.keys(results.matches||{}).length!==0)throw new Error('Untrusted esports results file must remain empty');
+          console.log(`✓ esports pregame snapshot: ${odds.rows.length} Pinnacle sides across ${groups.size} events; settlement safely disabled`);
+          NODE
+      - name: Commit changed snapshots to current branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          files=(slates/esports-match-odds.json slates/esports-results.json)
+          changes="$(git status --porcelain -- "${files[@]}")"
+          if [ -z "$changes" ]; then
+            echo 'No esports match snapshot changes.'
+            exit 0
+          fi
+          printf '%s\n' "$changes"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add "${files[@]}"
+          git commit -m 'Refresh ParlayPing esports pregame feed'
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin HEAD:"${GITHUB_REF_NAME}"
