@@ -1,0 +1,72 @@
+name: ParlayPing HR Odds Preview
+
+on:
+  push:
+    branches:
+      - parlayping-hr-odds-preview
+    paths:
+      - '.github/workflows/one-time-parlayping-hr-odds-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+    steps:
+      - name: Fetch current real MLB home run prices
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const key = process.env.ODDS_API_KEY;
+          if (!key) throw new Error('ODDS_API_KEY is not configured');
+          const api = 'https://api.the-odds-api.com/v4';
+          const books = 'draftkings,fanduel,bet365,caesars,espnbet';
+          const wanted = new Set(['kazuma okamoto','cj abrams']);
+          const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+          const out = { fetchedAt: new Date().toISOString(), market: 'batter_home_runs', players: {} };
+          async function get(url){
+            const r = await fetch(url);
+            const body = await r.text();
+            if (!r.ok) throw new Error(`Odds API ${r.status}: ${body.slice(0,300)}`);
+            return JSON.parse(body);
+          }
+          const events = await get(`${api}/sports/baseball_mlb/events?apiKey=${encodeURIComponent(key)}`);
+          for (const event of events) {
+            if (Object.keys(out.players).length === wanted.size) break;
+            let payload;
+            try {
+              payload = await get(`${api}/sports/baseball_mlb/events/${encodeURIComponent(event.id)}/odds?apiKey=${encodeURIComponent(key)}&regions=us&oddsFormat=american&bookmakers=${encodeURIComponent(books)}&markets=batter_home_runs&includeLinks=true`);
+            } catch (err) {
+              console.warn(String(err.message || err));
+              continue;
+            }
+            for (const book of payload.bookmakers || []) {
+              for (const market of book.markets || []) {
+                if (market.key !== 'batter_home_runs') continue;
+                for (const o of market.outcomes || []) {
+                  const player = norm(o.description);
+                  if (!wanted.has(player)) continue;
+                  if (String(o.name || '').toLowerCase() !== 'over') continue;
+                  if (Number(o.point) !== 0.5) continue;
+                  const label = player === 'kazuma okamoto' ? 'Kazuma Okamoto' : 'CJ Abrams';
+                  out.players[label] ||= { matchup: `${event.away_team} @ ${event.home_team}`, commenceTime: event.commence_time, books: {} };
+                  out.players[label].books[book.title || book.key] = { key: book.key, price: Number(o.price), line: Number(o.point), link: o.link || market.link || book.link || null };
+                }
+              }
+            }
+          }
+          fs.writeFileSync('hr-odds-preview.json', JSON.stringify(out, null, 2));
+          const safe = JSON.parse(JSON.stringify(out, (k,v)=>k === 'link' ? undefined : v));
+          console.log(JSON.stringify(safe, null, 2));
+          if (!out.players['Kazuma Okamoto'] && !out.players['CJ Abrams']) throw new Error('Neither preview player has a current HR market');
+          NODE
+      - name: Upload preview odds
+        uses: actions/upload-artifact@v4
+        with:
+          name: parlayping-hr-odds-preview
+          path: hr-odds-preview.json
+          retention-days: 1
