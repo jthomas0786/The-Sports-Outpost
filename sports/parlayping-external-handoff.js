@@ -1,8 +1,9 @@
 const SUPABASE_URL='https://hjhfbhpuuxnrexddplxd.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaGZiaHB1dXhucmV4ZGRwbHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY5ODQsImV4cCI6MjEwMjA3Mjk4NH0.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJoamhmYmhwdXV4bnJleGRkcGx4ZCIsInJvbGUiOiJhbm9uIiwiaWF0IjoxNzg2NDk2OTg0LCJleHAiOjIxMDIwNzI5ODR9.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
 const MAX_LEGS=25;
 const LEGACY_GAMBLY_BUTTON_ID='bsBuild';
 const LEGACY_GAMBLY_STYLE_ID='pp-hide-legacy-gambly';
+const BOOK_ODDS_PREFIX='PP_BOOK_ODDS:';
 let installed=false;
 let busy=false;
 let clientPromise=null;
@@ -15,6 +16,63 @@ function readSlip(){try{const rows=JSON.parse(localStorage.getItem('dw_betslip')
 function num(v){if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null;}
 function probability(v){const n=num(v);if(n==null)return null;const p=n>1&&n<=100?n/100:n;return p>=0&&p<=1?p:null;}
 function first(row,keys){for(const key of keys){const value=row?.[key];if(value!==null&&value!==undefined&&value!=='')return value;}return null;}
+
+function normalizeBookName(value){
+  const raw=String(value??'').trim();
+  const key=raw.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(!key)return null;
+  if(key==='draftkings'||key==='dk')return 'DraftKings';
+  if(key==='fanduel'||key==='fd')return 'FanDuel';
+  if(key==='bet365'||key==='365')return 'bet365';
+  if(key==='caesars'||key==='williamhill'||key==='caesarssportsbook')return 'Caesars';
+  if(key==='espnbet'||key==='espn')return 'ESPN BET';
+  return null;
+}
+function collectBookOdds(row){
+  const out={};
+  const seen=new Set();
+  const bookFields=['sportsbook','book','bookName','book_name','bookTitle','book_title','sportsbookName','sportsbook_name'];
+  const priceFields=['oddsAmerican','americanOdds','american_odds','price','odds'];
+  function visit(value,depth=0,contextBook=null){
+    if(depth>4||value===null||value===undefined)return;
+    if(typeof value!=='object')return;
+    if(seen.has(value))return;seen.add(value);
+    if(Array.isArray(value)){for(const item of value.slice(0,80))visit(item,depth+1,contextBook);return;}
+    let book=contextBook;
+    for(const field of bookFields){const found=normalizeBookName(value[field]);if(found){book=found;break;}}
+    if(book){
+      for(const field of priceFields){
+        const price=num(value[field]);
+        if(price!=null&&price!==0&&Math.abs(price)>=100&&Math.abs(price)<=100000){out[book]=Math.round(price);break;}
+      }
+    }
+    for(const [key,child] of Object.entries(value)){
+      if(child===null||child===undefined||typeof child!=='object')continue;
+      visit(child,depth+1,normalizeBookName(key)||book);
+    }
+  }
+  visit(row);
+  const topBook=normalizeBookName(first(row,['sportsbook','book','bookName']));
+  const topPrice=num(first(row,['oddsAmerican','price','americanOdds']));
+  if(topBook&&topPrice!=null&&topPrice!==0)out[topBook]=Math.round(topPrice);
+  return out;
+}
+function bookOddsEnvelope(row){
+  const map=collectBookOdds(row);
+  return Object.keys(map).length?`${BOOK_ODDS_PREFIX}${JSON.stringify(map)}`:first(row,['originalText']);
+}
+function findStartTime(row){
+  const aliases=['startTimeUTC','start_time_utc','startTime','start_time','commenceTime','commence_time','kickoff','firstPitch','first_pitch','gameTimeUTC','game_time_utc','scheduledAt','scheduled_at'];
+  const direct=first(row,aliases);if(direct)return direct;
+  const seen=new Set();
+  function scan(value,depth=0){
+    if(depth>3||!value||typeof value!=='object'||seen.has(value))return null;seen.add(value);
+    for(const key of aliases){if(value[key]!==null&&value[key]!==undefined&&value[key]!=='')return value[key];}
+    for(const key of ['gameData','event','gameInfo','fixture','game','match']){const found=scan(value[key],depth+1);if(found)return found;}
+    return null;
+  }
+  return scan(row);
+}
 function normalizeLeg(row,index){
   return {
     id:String(first(row,['id'])||`tso-leg-${index+1}`),
@@ -36,7 +94,8 @@ function normalizeLeg(row,index){
     sportsbookLink:first(row,['sportsbookLink','deepLink','link']),
     status:String(first(row,['status','state'])||'PENDING').toUpperCase(),
     pregameProbability:probability(first(row,['pregameProbability','probability','pct','modelProbability','fairProbability'])),
-    startTimeUTC:first(row,['startTimeUTC','kickoff']),
+    startTimeUTC:findStartTime(row),
+    originalText:bookOddsEnvelope(row),
   };
 }
 function currentReturnUrl(){
@@ -125,4 +184,4 @@ export function installParlayPingExternalHandoff(){
   },true);
 }
 
-export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
+export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,collectBookOdds,findStartTime,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
