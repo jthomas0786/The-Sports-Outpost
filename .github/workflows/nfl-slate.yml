@@ -63,28 +63,48 @@ jobs:
           const season = current.leagues?.[0]?.season || {};
           let year = Number(season.year || new Date().getUTCFullYear());
           let type = Number(season.type?.id || 2);
-          let week = Number(season.week || 1);
-          let events = Array.isArray(current.events) ? current.events : [];
+          const reportedWeek = Math.max(1, Number(season.week || 1));
+          let week = reportedWeek;
+          let events = [];
 
           const isFinal = (event) => {
             const status = event?.status?.type || event?.competitions?.[0]?.status?.type || {};
             return status.completed === true || String(status.state || '').toLowerCase() === 'post';
           };
-          const allFinal = events.length > 0 && events.every(isFinal);
 
-          if (allFinal && week > 0) {
-            const candidate = week + 1;
-            const nextUrl = `${base}?dates=${year}&seasontype=${type}&week=${candidate}`;
-            const next = await get(nextUrl);
-            if (Array.isArray(next.events) && next.events.length > 0) {
+          // ESPN's default scoreboard can be empty during the Tuesday rollover
+          // while season.week still points at the week that just finished. Do not
+          // use an empty default payload as evidence that the reported week is
+          // still current. Explicitly probe weekly scoreboards and select the
+          // first week at/after ESPN's reported week that contains a non-final
+          // game. This naturally rolls Week 2 -> Week 3, etc. without hard-coding.
+          const probes = [];
+          for (let candidate = reportedWeek; candidate <= reportedWeek + 3; candidate++) {
+            const url = `${base}?dates=${year}&seasontype=${type}&week=${candidate}`;
+            const doc = await get(url);
+            const games = Array.isArray(doc.events) ? doc.events : [];
+            const nonFinal = games.filter(event => !isFinal(event));
+            probes.push({ candidate, games: games.length, nonFinal: nonFinal.length });
+            if (games.length > 0 && nonFinal.length > 0) {
               week = candidate;
-              events = next.events;
-              console.log(`Current ESPN week is fully final; advancing build target to week ${week}.`);
-            } else {
-              console.log(`Current week ${week} is final, but ESPN has no week ${candidate} games yet; keeping week ${week}.`);
+              events = games;
+              break;
             }
           }
 
+          if (!events.length) {
+            // End-of-season / provider-delay fallback: keep the reported week,
+            // but still use its explicit weekly scoreboard rather than the
+            // potentially empty default scoreboard response.
+            const fallback = await get(`${base}?dates=${year}&seasontype=${type}&week=${reportedWeek}`);
+            events = Array.isArray(fallback.events) ? fallback.events : [];
+            week = reportedWeek;
+            console.log(`No upcoming non-final NFL week found in probe window; keeping reported week ${week}.`);
+          } else if (week !== reportedWeek) {
+            console.log(`ESPN reported week ${reportedWeek}, but it has no remaining games; advancing build target to week ${week}.`);
+          }
+
+          console.log('NFL week probes:', JSON.stringify(probes));
           appendFileSync(process.env.GITHUB_ENV, `NFL_SEASON=${year}\nNFL_SEASON_TYPE=${type}\nNFL_WEEK=${week}\nRUN_NFL_BUILD=true\n`);
           console.log(`Resolved NFL target: season=${year} seasontype=${type} week=${week} (${events.length} games)`);
           NODE
