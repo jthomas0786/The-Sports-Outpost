@@ -1,0 +1,63 @@
+name: MLB ParlayAPI Probe Stage
+
+on:
+  push:
+    branches: [mlb-parlayapi-odds-stage]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Probe MLB home-run rows safely
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          PARLAY_API_BASE: https://parlay-api.com/v1
+        run: |
+          node <<'NODE'
+          const KEY=process.env.PARLAY_API_KEY||'';
+          if(!KEY) throw new Error('PARLAY_API_KEY is missing');
+          const API=process.env.PARLAY_API_BASE;
+          const params=new URLSearchParams({
+            markets:'player_home_runs',
+            bookmakers:'draftkings,fanduel,betmgm,caesars,fanatics,bet365,betrivers,hardrock,pinnacle',
+            limit:'10000',
+            maxAgeSec:'86400'
+          });
+          const url=`${API}/sports/baseball_mlb/props?${params}`;
+          const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':KEY}});
+          const text=await res.text();
+          if(!res.ok) throw new Error(`ParlayAPI ${res.status}: ${text.slice(0,300)}`);
+          const payload=text?JSON.parse(text):null;
+          const rows=Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:[];
+          const wanted=new Set(['riley greene','coby mayo','josh bell','jake burger']);
+          const norm=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+          const matches=rows.filter(r=>wanted.has(norm(r?.player_name||r?.player)));
+          console.log(`rawRows=${rows.length} exactMatches=${matches.length}`);
+          for(const r of matches){
+            const link=r?.deep_link||r?.link||r?.url||null;
+            console.log(JSON.stringify({
+              player:r?.player_name||r?.player||null,
+              eventId:r?.canonical_event_id||r?.event_id||null,
+              commenceTime:r?.commence_time||null,
+              bookmaker:r?.bookmaker_title||r?.bookmaker||null,
+              market:r?.market_key||r?.market||null,
+              line:r?.line??null,
+              overPrice:r?.over_price??r?.yes_price??null,
+              underPrice:r?.under_price??r?.no_price??null,
+              hasDeepLink:Boolean(r?.deep_link),
+              hasLink:Boolean(r?.link),
+              hasUrl:Boolean(r?.url),
+              hasAnySelectionLink:Boolean(link),
+              fieldNames:Object.keys(r||{}).filter(k=>!/(key|secret|token|auth)/i.test(k)).sort()
+            }));
+          }
+          NODE
