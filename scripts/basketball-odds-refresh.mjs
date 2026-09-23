@@ -40,6 +40,7 @@ const SPORTSBOOK_QUERY = [...SPORTSBOOK_KEYS].join(',');
 if (!KEY) { console.error('::error::PARLAY_API_KEY is missing.'); process.exit(2); }
 const finite = v => Number.isFinite(Number(v)) ? Number(v) : null;
 const iso = v => { const t=Date.parse(String(v||'')); return Number.isFinite(t)?new Date(t).toISOString():null; };
+const sleep = ms => new Promise(resolve=>setTimeout(resolve,ms));
 const bookKey = r => String(r?.bookmaker || r?.bookmaker_title || r?.source || r?.source_title || '').toLowerCase().replace(/[^a-z0-9]/g,'');
 const bookTitle = r => String(r?.bookmaker_title || r?.source_title || r?.bookmaker || r?.source || 'Sportsbook').trim();
 function arrayPayload(payload){ return Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:[]; }
@@ -51,13 +52,75 @@ function plausiblePlayerName(value){
   const words=name.match(/[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ.'’\-]*/g)||[];
   return words.length>=2;
 }
-async function fetchJson(url){
-  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),45_000);
-  try{
-    const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':KEY},signal:controller.signal});
-    const text=await res.text(); if(!res.ok) throw new Error(`${res.status} ${res.statusText}: ${text.slice(0,500)}`);
-    return text?JSON.parse(text):null;
-  } finally { clearTimeout(timer); }
+function nativeSideObject(row,side){
+  const aliases=side==='over'?['over','yes','more','higher']:['under','no','less','lower'];
+  const containers=[row?.selection_by_side,row?.selectionBySide,row?.native_selection_by_side,row?.nativeSelectionBySide,row?.links_by_side,row?.linksBySide,row?.betslip_links,row?.betslipLinks,row?.links];
+  for(const container of containers){
+    if(!container||typeof container!=='object')continue;
+    for(const key of aliases){if(container[key]!=null)return container[key];}
+  }
+  return null;
+}
+function nativeSideLink(row,side){
+  const aliases=side==='over'?['over','yes']:['under','no'];
+  for(const key of aliases){
+    const upper=key[0].toUpperCase()+key.slice(1);
+    const direct=[row?.[`${key}_link`],row?.[`${key}Link`],row?.[`${key}_url`],row?.[`${key}Url`],row?.[`link${upper}`],row?.[`url${upper}`]];
+    const value=direct.find(v=>typeof v==='string'&&/^https:\/\//i.test(v));
+    if(value)return value;
+  }
+  const entry=nativeSideObject(row,side);
+  if(typeof entry==='string'&&/^https:\/\//i.test(entry))return entry;
+  if(entry&&typeof entry==='object'){
+    const value=[entry.link,entry.url,entry.deep_link,entry.deepLink,entry.betslip_url,entry.betslipUrl].find(v=>typeof v==='string'&&/^https:\/\//i.test(v));
+    if(value)return value;
+  }
+  return null;
+}
+function nativeSideSid(row,side){
+  const aliases=side==='over'?['over','yes']:['under','no'];
+  for(const key of aliases){
+    const upper=key[0].toUpperCase()+key.slice(1);
+    const direct=[row?.[`${key}_sid`],row?.[`${key}Sid`],row?.[`sid${upper}`],row?.[`${key}_selection_id`],row?.[`${key}SelectionId`]];
+    const value=direct.find(v=>v!==null&&v!==undefined&&String(v).trim());
+    if(value!=null)return String(value);
+  }
+  const entry=nativeSideObject(row,side);
+  if(entry&&typeof entry==='object'){
+    const value=[entry.sid,entry.selection_id,entry.selectionId,entry.id].find(v=>v!==null&&v!==undefined&&String(v).trim());
+    if(value!=null)return String(value);
+  }
+  return null;
+}
+async function fetchJson(url,{attempts=4}={}){
+  let lastError=null;
+  for(let attempt=1;attempt<=attempts;attempt++){
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),45_000);
+    try{
+      const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':KEY},signal:controller.signal});
+      const text=await res.text();
+      if(res.ok)return text?JSON.parse(text):null;
+      const retryable=[429,500,502,503,504].includes(res.status);
+      lastError=new Error(`${res.status} ${res.statusText}: ${text.slice(0,500)}`);
+      if(!retryable||attempt===attempts)throw lastError;
+      const retryAfter=Number(res.headers?.get?.('retry-after'));
+      const delay=Number.isFinite(retryAfter)&&retryAfter>0?retryAfter*1000:Math.min(8000,1000*(2**(attempt-1)));
+      console.warn(`ParlayAPI request returned ${res.status}; retrying in ${delay}ms (attempt ${attempt}/${attempts}).`);
+      await sleep(delay);
+    }catch(error){
+      lastError=error;
+      if(attempt===attempts)throw error;
+      const message=String(error?.message||'');
+      if(!/\b(?:429|500|502|503|504)\b|abort|fetch/i.test(message))throw error;
+      const delay=Math.min(8000,1000*(2**(attempt-1)));
+      console.warn(`ParlayAPI request failed transiently; retrying in ${delay}ms (attempt ${attempt}/${attempts}).`);
+      await sleep(delay);
+    }finally{
+      clearTimeout(timer);
+    }
+  }
+  throw lastError||new Error('ParlayAPI request failed.');
 }
 function marketInfo(key,row){
   const market=MARKET_MAP.get(key); if(!market)return null;
@@ -74,11 +137,11 @@ async function refreshLeague(sport){
   const relevant=events.filter(e=>{const t=Date.parse(e?.commence_time||'');return Number.isFinite(t)&&t>NOW-12*3600_000;});
   let rawRows=[];
   if(relevant.length){
-    const propParams=new URLSearchParams({markets:MARKET_KEYS.join(','),bookmakers:SPORTSBOOK_QUERY,limit:'10000',maxAgeSec:'3600'});
+    const propParams=new URLSearchParams({markets:MARKET_KEYS.join(','),bookmakers:SPORTSBOOK_QUERY,limit:'10000',maxAgeSec:'3600',includeLinks:'true',includeSids:'true'});
     rawRows=arrayPayload(await fetchJson(`${API}/sports/${cfg.sportKey}/props?${propParams}`));
   }
   const rows=[],books=new Set(),markets=new Set(),rawMarketKeys=new Set(),rawBooks=new Set();
-  let rejectedNonPlayers=0;
+  let rejectedNonPlayers=0,nativeLinkRows=0,nativeSidRows=0;
   for(const r of rawRows){
     const marketRaw=String(r?.market_key||r?.market||'').trim(); rawMarketKeys.add(marketRaw);
     const bk=bookKey(r); if(bk)rawBooks.add(bk);
@@ -88,6 +151,10 @@ async function refreshLeague(sport){
     if(!plausiblePlayerName(player)){rejectedNonPlayers++;continue;}
     const overPrice=finite(r?.over_price??r?.yes_price),underPrice=finite(r?.under_price??r?.no_price);
     if(overPrice==null&&underPrice==null)continue;
+    const overLink=nativeSideLink(r,'over'),underLink=nativeSideLink(r,'under');
+    const overSid=nativeSideSid(r,'over'),underSid=nativeSideSid(r,'under');
+    if(overLink||underLink)nativeLinkRows++;
+    if(overSid||underSid)nativeSidRows++;
     const book=bookTitle(r);books.add(book);markets.add(info.market);
     rows.push({
       eventId:String(r?.canonical_event_id||r?.event_id||''),sport,commenceTime:iso(r?.commence_time),
@@ -96,6 +163,7 @@ async function refreshLeague(sport){
       market:info.market,marketKey:marketRaw,line:info.line,binary:info.binary,period,
       book,bookKey:bk,overPrice,underPrice,
       overImplied:finite(r?.over_implied_prob),underImplied:finite(r?.under_implied_prob),
+      overLink,underLink,overSid,underSid,
       deepLink:r?.deep_link||r?.link||r?.url||null,
       snapshotTime:iso(r?.snapshot_time||r?.last_update||r?.updated_at)
     });
@@ -104,15 +172,16 @@ async function refreshLeague(sport){
   const eventPreview=relevant.slice(0,12).map(e=>({eventId:String(e?.canonical_event_id||e?.id||''),commenceTime:iso(e?.commence_time),awayTeam:e?.away_team||null,homeTeam:e?.home_team||null}));
   const output={meta:{
     source:'parlayapi',sample:false,sport,sportKey:cfg.sportKey,fetchedAt:new Date().toISOString(),queryWindow:{from,to},
-    eventsFound:events.length,relevantEvents:relevant.length,eventPreview,rawRows:rawRows.length,sportsbookRows:rows.length,rejectedNonPlayers,
+    eventsFound:events.length,relevantEvents:relevant.length,eventPreview,rawRows:rawRows.length,sportsbookRows:rows.length,rejectedNonPlayers,nativeLinkRows,nativeSidRows,
+    nativeMetadataRequested:{includeLinks:true,includeSids:true},
     books:[...books].sort(),rawBooks:[...rawBooks].sort(),markets:[...markets].sort(),rawMarketKeys:[...rawMarketKeys].filter(Boolean).sort(),
     noCurrentProps:rawRows.length===0,
     probabilityPolicy:'Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied and are never labeled as a proprietary model.',
-    note:`Current ${sport} player props from ParlayAPI. Non-player selections are filtered. Empty rows are treated as unavailable data, never as zero probability.`
+    note:`Current ${sport} player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Empty rows are treated as unavailable data, never as zero probability.`
   },rows};
   const out=path.join(process.cwd(),'slates',`${cfg.slug}-odds.json`);
   await fs.mkdir(path.dirname(out),{recursive:true});await fs.writeFile(out,JSON.stringify(output,null,2)+'\n');
-  console.log(`${sport} odds: events=${events.length}, relevant=${relevant.length}, rawProps=${rawRows.length}, sportsbookRows=${rows.length}, rejectedNonPlayers=${rejectedNonPlayers}, books=${books.size}.`);
+  console.log(`${sport} odds: events=${events.length}, relevant=${relevant.length}, rawProps=${rawRows.length}, sportsbookRows=${rows.length}, nativeLinks=${nativeLinkRows}, nativeSids=${nativeSidRows}, rejectedNonPlayers=${rejectedNonPlayers}, books=${books.size}.`);
 }
 
 async function main(){
