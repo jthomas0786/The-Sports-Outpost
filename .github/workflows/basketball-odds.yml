@@ -13,7 +13,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: basketball-odds-snapshots
+  group: basketball-odds-snapshots-${{ github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -34,6 +34,7 @@ jobs:
       - name: Commit changed snapshots
         run: |
           set -euo pipefail
+          branch="${GITHUB_REF_NAME}"
           changes="$(git status --porcelain -- slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json)"
           if [ -z "$changes" ]; then
             echo 'No basketball snapshot changes.'
@@ -44,5 +45,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json
           git commit -m 'Refresh basketball odds snapshots'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          git pull --rebase origin "$branch"
+          git push origin "HEAD:$branch"
