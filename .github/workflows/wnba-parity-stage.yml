@@ -9,7 +9,7 @@ on:
 permissions:
   contents: write
 
-# staging refresh v3: validates PRA aliases, native links, and preserved exact quotes
+# staging refresh v4: inspect combo-alt milestone aliases and exact sportsbook coverage
 jobs:
   refresh:
     runs-on: ubuntu-latest
@@ -32,7 +32,7 @@ jobs:
           console.log(JSON.stringify({rows:d.meta?.sportsbookRows,currentRows:d.meta?.currentRows,preservedRows:d.meta?.preservedRows,nativeLinkRows:d.meta?.nativeLinkRows,nativeSidRows:d.meta?.nativeSidRows,books:d.meta?.books,markets:d.meta?.markets,rawMarketKeys:d.meta?.rawMarketKeys},null,2));
           for (const player of ['Jordin Canada','Allisha Gray','Angel Reese','Pauline Astier','Breanna Stewart','Jonquel Jones']) {
             const rows=(d.rows||[]).filter(r=>String(r.player).toLowerCase()===player.toLowerCase());
-            console.log(player, JSON.stringify([...new Set(rows.map(r=>`${r.market}:${r.line}:${r.book}:${r.overPrice}:${r.preserved?'preserved':'live'}:${r.overLink||r.overSid?'linkable':'no-native-link'}`))].slice(0,160)));
+            console.log(player, JSON.stringify([...new Set(rows.map(r=>`${r.market}:${r.line}:${r.book}:${r.overPrice}:${r.preserved?'preserved':'live'}:${r.overLink||r.overSid?'linkable':'no-native-link'}:${r.marketKey||''}`))].slice(0,220)));
           }
           NODE
       - name: Commit WNBA staging snapshot
