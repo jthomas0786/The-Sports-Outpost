@@ -18,7 +18,7 @@ const MARKET_KEYS = [
   'player_threes','player_threes_alt','player_threes_alternate','player_three_pointers','player_three_pointers_made','player_threes_made',
   'player_steals','player_blocks','player_turnovers',
   'player_points_rebounds_assists','player_points_rebounds','player_points_assists','player_rebounds_assists',
-  'player_pra','player_pts_rebs','player_pts_asts','player_rebs_asts',
+  'player_pra','player_pts_rebs_asts','player_pts_rebs','player_pts_asts','player_rebs_asts',
   'player_double_double','player_triple_double'
 ];
 const MARKET_MAP = new Map([
@@ -27,7 +27,7 @@ const MARKET_MAP = new Map([
   ['player_assists','assists'],['player_assists_alt','assists'],['player_assists_alternate','assists'],
   ['player_threes','threes'],['player_threes_alt','threes'],['player_threes_alternate','threes'],['player_three_pointers','threes'],['player_three_pointers_made','threes'],['player_threes_made','threes'],
   ['player_steals','steals'],['player_blocks','blocks'],['player_turnovers','turnovers'],
-  ['player_points_rebounds_assists','pra'],['player_pra','pra'],
+  ['player_points_rebounds_assists','pra'],['player_pts_rebs_asts','pra'],['player_pra','pra'],
   ['player_points_rebounds','ptsRebs'],['player_pts_rebs','ptsRebs'],
   ['player_points_assists','ptsAsts'],['player_pts_asts','ptsAsts'],
   ['player_rebounds_assists','rebsAsts'],['player_rebs_asts','rebsAsts'],
