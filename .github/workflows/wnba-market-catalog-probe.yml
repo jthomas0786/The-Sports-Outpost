@@ -1,0 +1,45 @@
+name: WNBA Market Catalog Probe
+
+on:
+  push:
+    paths:
+      - '.github/workflows/wnba-market-catalog-probe.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    if: github.ref_name == 'wnba-odds-parity-stage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Read authoritative live WNBA prop catalog
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: |
+          node - <<'NODE'
+          const url='https://parlay-api.com/v1/sports/basketball_wnba/props/markets';
+          const res=await fetch(url,{headers:{accept:'application/json','X-API-Key':process.env.PARLAY_API_KEY}});
+          const text=await res.text();
+          if(!res.ok)throw new Error(`${res.status}: ${text.slice(0,500)}`);
+          const payload=JSON.parse(text);
+          const rows=Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:Array.isArray(payload?.markets)?payload.markets:[];
+          const keys=rows.map(x=>typeof x==='string'?x:String(x?.market_key||x?.key||x?.market||'')).filter(Boolean).sort();
+          const combo=keys.filter(k=>/pra|rebs|rebounds|asts|assists|points.*(?:reb|ast)|(?:reb|ast).*points/i.test(k));
+          console.log('WNBA prop catalog count=',keys.length);
+          console.log('WNBA combo-related market keys=',JSON.stringify(combo,null,2));
+          console.log('WNBA all player market keys=',JSON.stringify(keys.filter(k=>k.startsWith('player_')),null,2));
+          NODE
+      - name: Remove one-time probe
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/wnba-market-catalog-probe.yml
+          git commit -m 'Remove WNBA market catalog probe'
+          git pull --rebase origin wnba-odds-parity-stage
+          git push origin HEAD:wnba-odds-parity-stage
