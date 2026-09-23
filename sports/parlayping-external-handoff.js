@@ -28,33 +28,84 @@ function normalizeBookName(value){
   if(key==='espnbet'||key==='espn')return 'ESPN BET';
   return null;
 }
+function normalizedText(value){return String(value??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
+function normalizedMarket(value){
+  const key=normalizedText(value);
+  if(['hr','homerun','homeruns','batterhomerun','batterhomeruns'].includes(key))return 'hr';
+  if(['atd','anytimetd','anytimetouchdown','anytimetouchdownscorer'].includes(key))return 'atd';
+  if(['atg','anytimegoal','anytimegoalscorer'].includes(key))return 'atg';
+  return key;
+}
+function validAmericanPrice(value){
+  const n=num(value);
+  if(n==null||n===0||Math.abs(n)<100||Math.abs(n)>100000)return null;
+  return Math.round(n);
+}
+function sameExactSelection(row,offer){
+  if(!offer||typeof offer!=='object'||Array.isArray(offer))return true;
+  const rowPlayer=first(row,['player','player_name','name']);
+  const offerPlayer=first(offer,['player','player_name','athlete','participant','name']);
+  if(rowPlayer&&offerPlayer&&normalizedText(rowPlayer)!==normalizedText(offerPlayer))return false;
+
+  const rowMarket=first(row,['market','prop_key','prop','marketKey','market_key']);
+  const offerMarket=first(offer,['market','prop_key','prop','marketKey','market_key']);
+  if(rowMarket&&offerMarket&&normalizedMarket(rowMarket)!==normalizedMarket(offerMarket))return false;
+
+  const rowSide=first(row,['side','selection']);
+  const offerSide=first(offer,['side','selection']);
+  if(rowSide&&offerSide&&normalizedText(rowSide)!==normalizedText(offerSide))return false;
+
+  const rowLine=num(first(row,['line','threshold','point']));
+  const offerLine=num(first(offer,['line','threshold','point']));
+  if(rowLine!=null&&offerLine!=null&&Math.abs(rowLine-offerLine)>0.000001)return false;
+
+  const rowEvent=first(row,['event_id','eventId','gameId','game_pk','gamePk']);
+  const offerEvent=first(offer,['event_id','eventId','gameId','game_pk','gamePk']);
+  if(rowEvent&&offerEvent&&String(rowEvent)!==String(offerEvent))return false;
+  return true;
+}
+function offerBook(offer,fallback=null){
+  if(!offer||typeof offer!=='object'||Array.isArray(offer))return normalizeBookName(fallback);
+  return normalizeBookName(first(offer,['sportsbook','book','bookName','book_name','bookTitle','book_title','sportsbookName','sportsbook_name']))||normalizeBookName(fallback);
+}
+function offerPrice(offer){
+  if(offer===null||offer===undefined)return null;
+  if(typeof offer!=='object')return validAmericanPrice(offer);
+  return validAmericanPrice(first(offer,['oddsAmerican','americanOdds','american_odds','price','odds']));
+}
 function collectBookOdds(row){
   const out={};
-  const seen=new Set();
-  const bookFields=['sportsbook','book','bookName','book_name','bookTitle','book_title','sportsbookName','sportsbook_name'];
-  const priceFields=['oddsAmerican','americanOdds','american_odds','price','odds'];
-  function visit(value,depth=0,contextBook=null){
-    if(depth>4||value===null||value===undefined)return;
-    if(typeof value!=='object')return;
-    if(seen.has(value))return;seen.add(value);
-    if(Array.isArray(value)){for(const item of value.slice(0,80))visit(item,depth+1,contextBook);return;}
-    let book=contextBook;
-    for(const field of bookFields){const found=normalizeBookName(value[field]);if(found){book=found;break;}}
-    if(book){
-      for(const field of priceFields){
-        const price=num(value[field]);
-        if(price!=null&&price!==0&&Math.abs(price)>=100&&Math.abs(price)<=100000){out[book]=Math.round(price);break;}
+  const exactContainers=['bookOdds','book_odds','oddsByBook','odds_by_book','pricesByBook','prices_by_book','sportsbookPrices','sportsbook_prices','offersByBook','offers_by_book','offers','books','sportsbooks'];
+
+  for(const field of exactContainers){
+    const container=row?.[field];
+    if(!container||typeof container!=='object')continue;
+    const offers=Array.isArray(container)?container:Object.entries(container).map(([key,value])=>({key,value}));
+    for(const entry of offers){
+      if(Array.isArray(container)){
+        const offer=entry;
+        const book=offerBook(offer);
+        const price=offerPrice(offer);
+        if(book&&price!=null&&sameExactSelection(row,offer))out[book]=price;
+        continue;
+      }
+      const {key,value}=entry;
+      const keyedBook=normalizeBookName(key);
+      if(value&&typeof value==='object'&&!Array.isArray(value)){
+        const book=offerBook(value,keyedBook);
+        const price=offerPrice(value);
+        if(book&&price!=null&&sameExactSelection(row,value))out[book]=price;
+      }else if(keyedBook){
+        const price=offerPrice(value);
+        if(price!=null)out[keyedBook]=price;
       }
     }
-    for(const [key,child] of Object.entries(value)){
-      if(child===null||child===undefined||typeof child!=='object')continue;
-      visit(child,depth+1,normalizeBookName(key)||book);
-    }
   }
-  visit(row);
+
+  /* The row itself is the selected exact leg, so its own book/price is authoritative. */
   const topBook=normalizeBookName(first(row,['sportsbook','book','bookName']));
-  const topPrice=num(first(row,['oddsAmerican','price','americanOdds']));
-  if(topBook&&topPrice!=null&&topPrice!==0)out[topBook]=Math.round(topPrice);
+  const topPrice=validAmericanPrice(first(row,['oddsAmerican','price','americanOdds']));
+  if(topBook&&topPrice!=null)out[topBook]=topPrice;
   return out;
 }
 function bookOddsEnvelope(row){
@@ -184,4 +235,4 @@ export function installParlayPingExternalHandoff(){
   },true);
 }
 
-export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,collectBookOdds,findStartTime,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
+export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,collectBookOdds,findStartTime,sameExactSelection,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
