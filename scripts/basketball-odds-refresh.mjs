@@ -12,21 +12,25 @@ const LEAGUES = {
   WNBA: { sportKey:'basketball_wnba', slug:'wnba' }
 };
 const MARKET_KEYS = [
-  'player_points','player_points_alt',
-  'player_rebounds','player_rebounds_alt',
-  'player_assists','player_assists_alt',
-  'player_threes','player_threes_alt','player_three_pointers','player_three_pointers_made',
+  'player_points','player_points_alt','player_points_alternate',
+  'player_rebounds','player_rebounds_alt','player_rebounds_alternate',
+  'player_assists','player_assists_alt','player_assists_alternate',
+  'player_threes','player_threes_alt','player_threes_alternate','player_three_pointers','player_three_pointers_made','player_threes_made',
   'player_steals','player_blocks','player_turnovers',
+  'player_points_rebounds_assists','player_points_rebounds','player_points_assists','player_rebounds_assists',
   'player_pra','player_pts_rebs','player_pts_asts','player_rebs_asts',
   'player_double_double','player_triple_double'
 ];
 const MARKET_MAP = new Map([
-  ['player_points','points'],['player_points_alt','points'],
-  ['player_rebounds','rebounds'],['player_rebounds_alt','rebounds'],
-  ['player_assists','assists'],['player_assists_alt','assists'],
-  ['player_threes','threes'],['player_threes_alt','threes'],['player_three_pointers','threes'],['player_three_pointers_made','threes'],
+  ['player_points','points'],['player_points_alt','points'],['player_points_alternate','points'],
+  ['player_rebounds','rebounds'],['player_rebounds_alt','rebounds'],['player_rebounds_alternate','rebounds'],
+  ['player_assists','assists'],['player_assists_alt','assists'],['player_assists_alternate','assists'],
+  ['player_threes','threes'],['player_threes_alt','threes'],['player_threes_alternate','threes'],['player_three_pointers','threes'],['player_three_pointers_made','threes'],['player_threes_made','threes'],
   ['player_steals','steals'],['player_blocks','blocks'],['player_turnovers','turnovers'],
-  ['player_pra','pra'],['player_pts_rebs','ptsRebs'],['player_pts_asts','ptsAsts'],['player_rebs_asts','rebsAsts'],
+  ['player_points_rebounds_assists','pra'],['player_pra','pra'],
+  ['player_points_rebounds','ptsRebs'],['player_pts_rebs','ptsRebs'],
+  ['player_points_assists','ptsAsts'],['player_pts_asts','ptsAsts'],
+  ['player_rebounds_assists','rebsAsts'],['player_rebs_asts','rebsAsts'],
   ['player_double_double','doubleDouble'],['player_triple_double','tripleDouble']
 ]);
 const BINARY_MARKETS = new Set(['doubleDouble','tripleDouble']);
