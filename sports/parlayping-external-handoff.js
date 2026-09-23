@@ -16,6 +16,7 @@ function readSlip(){try{const rows=JSON.parse(localStorage.getItem('dw_betslip')
 function num(v){if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null;}
 function probability(v){const n=num(v);if(n==null)return null;const p=n>1&&n<=100?n/100:n;return p>=0&&p<=1?p:null;}
 function first(row,keys){for(const key of keys){const value=row?.[key];if(value!==null&&value!==undefined&&value!=='')return value;}return null;}
+function safeHttps(value){try{const u=new URL(String(value||''));return u.protocol==='https:'?u.toString():null;}catch{return null;}}
 
 function normalizeBookName(value){
   const raw=String(value??'').trim();
@@ -25,7 +26,9 @@ function normalizeBookName(value){
   if(key==='fanduel'||key==='fd')return 'FanDuel';
   if(key==='bet365'||key==='365')return 'bet365';
   if(key==='caesars'||key==='williamhill'||key==='caesarssportsbook')return 'Caesars';
-  if(key==='espnbet'||key==='espn')return 'ESPN BET';
+  if(key==='thescorebet'||key==='thescore')return 'theScore Bet';
+  if(key==='betmgm'||key==='mgm')return 'BetMGM';
+  if(key==='fanatics'||key==='fanaticssportsbook')return 'Fanatics';
   return null;
 }
 function normalizedText(value){return String(value??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');}
@@ -73,39 +76,65 @@ function offerPrice(offer){
   if(typeof offer!=='object')return validAmericanPrice(offer);
   return validAmericanPrice(first(offer,['oddsAmerican','americanOdds','american_odds','price','odds']));
 }
-function collectBookOdds(row){
+function selectionLink(offer){return safeHttps(first(offer||{},['selectionLink','deepLink','deep_link','link','url']));}
+function fullSlipLink(offer){return safeHttps(first(offer||{},['betslipUrl','betslipURL','betslipLink','parlayUrl','parlayLink','shareBetUrl','shareBetLink']));}
+function exactOfferContainers(row){
+  const names=['bookOdds','book_odds','oddsByBook','odds_by_book','pricesByBook','prices_by_book','sportsbookPrices','sportsbook_prices','offersByBook','offers_by_book','offers','books','sportsbooks'];
+  return names.map(name=>row?.[name]).filter(value=>value&&typeof value==='object');
+}
+function collectBookOffers(row){
   const out={};
-  const exactContainers=['bookOdds','book_odds','oddsByBook','odds_by_book','pricesByBook','prices_by_book','sportsbookPrices','sportsbook_prices','offersByBook','offers_by_book','offers','books','sportsbooks'];
-
-  for(const field of exactContainers){
-    const container=row?.[field];
-    if(!container||typeof container!=='object')continue;
+  for(const container of exactOfferContainers(row)){
     const offers=Array.isArray(container)?container:Object.entries(container).map(([key,value])=>({key,value}));
     for(const entry of offers){
       if(Array.isArray(container)){
         const offer=entry;
         const book=offerBook(offer);
-        const price=offerPrice(offer);
-        if(book&&price!=null&&sameExactSelection(row,offer))out[book]=price;
+        if(!book||!sameExactSelection(row,offer))continue;
+        const oddsAmerican=offerPrice(offer),sel=selectionLink(offer),betslipUrl=fullSlipLink(offer);
+        if(oddsAmerican!=null||sel||betslipUrl)out[book]={oddsAmerican,selectionLink:sel,betslipUrl};
         continue;
       }
       const {key,value}=entry;
       const keyedBook=normalizeBookName(key);
       if(value&&typeof value==='object'&&!Array.isArray(value)){
         const book=offerBook(value,keyedBook);
-        const price=offerPrice(value);
-        if(book&&price!=null&&sameExactSelection(row,value))out[book]=price;
+        if(!book||!sameExactSelection(row,value))continue;
+        const oddsAmerican=offerPrice(value),sel=selectionLink(value),betslipUrl=fullSlipLink(value);
+        if(oddsAmerican!=null||sel||betslipUrl)out[book]={oddsAmerican,selectionLink:sel,betslipUrl};
       }else if(keyedBook){
-        const price=offerPrice(value);
-        if(price!=null)out[keyedBook]=price;
+        const oddsAmerican=offerPrice(value);
+        if(oddsAmerican!=null)out[keyedBook]={oddsAmerican,selectionLink:null,betslipUrl:null};
       }
     }
   }
-
-  /* The row itself is the selected exact leg, so its own book/price is authoritative. */
   const topBook=normalizeBookName(first(row,['sportsbook','book','bookName']));
   const topPrice=validAmericanPrice(first(row,['oddsAmerican','price','americanOdds']));
-  if(topBook&&topPrice!=null)out[topBook]=topPrice;
+  const topSelection=safeHttps(first(row,['sportsbookLink','deepLink','link']));
+  const topBetslip=safeHttps(first(row,['betslipUrl','betslipLink','parlayUrl','parlayLink','shareBetUrl']));
+  if(topBook&&(topPrice!=null||topSelection||topBetslip))out[topBook]={oddsAmerican:topPrice,selectionLink:topSelection,betslipUrl:topBetslip};
+  return out;
+}
+function collectBookOdds(row){
+  const out={};
+  for(const [book,offer] of Object.entries(collectBookOffers(row))){if(offer.oddsAmerican!=null)out[book]=offer.oddsAmerican;}
+  return out;
+}
+function explicitFullSlipMaps(row){
+  return ['sportsbookLinks','sportsbookBetslipLinks','betslipLinks','parlayLinks','bookBetslipLinks'].map(key=>row?.[key]).filter(value=>value&&typeof value==='object'&&!Array.isArray(value));
+}
+function collectSlipBookLinks(rows){
+  const out={};
+  for(const row of rows){
+    for(const map of explicitFullSlipMaps(row))for(const [rawBook,rawUrl] of Object.entries(map)){const book=normalizeBookName(rawBook);const url=safeHttps(rawUrl);if(book&&url)out[book]=url;}
+  }
+  const perRow=rows.map(collectBookOffers);
+  const books=[...new Set(perRow.flatMap(map=>Object.keys(map)))];
+  for(const book of books){
+    if(out[book])continue;
+    const urls=perRow.map(map=>map[book]?.betslipUrl||null);
+    if(urls.length===rows.length&&urls.every(Boolean)&&new Set(urls).size===1)out[book]=urls[0];
+  }
   return out;
 }
 function bookOddsEnvelope(row){
@@ -143,6 +172,7 @@ function normalizeLeg(row,index){
     oddsAmerican:num(first(row,['oddsAmerican','odds','price'])),
     sportsbook:first(row,['sportsbook','book','bookName']),
     sportsbookLink:first(row,['sportsbookLink','deepLink','link']),
+    bookOffers:collectBookOffers(row),
     status:String(first(row,['status','state'])||'PENDING').toUpperCase(),
     pregameProbability:probability(first(row,['pregameProbability','probability','pct','modelProbability','fairProbability'])),
     startTimeUTC:findStartTime(row),
@@ -195,6 +225,7 @@ async function createExternalSlip(){
     const {data:{session}}=await sb.auth.getSession();
     if(!session?.access_token)throw new Error('Sign in to The Sports Outpost to open this betslip in ParlayPing.');
     const returnUrl=currentReturnUrl();
+    const sportsbookLinks=collectSlipBookLinks(rows);
     const response=await fetch(`${SUPABASE_URL}/functions/v1/parlayping-share`,{
       method:'POST',
       headers:{
@@ -207,6 +238,7 @@ async function createExternalSlip(){
         sourceReference:returnUrl,
         returnUrl,
         returnLabel:'The Sports Outpost',
+        sportsbookLinks,
         legs:rows.map(normalizeLeg),
       }),
     });
@@ -235,4 +267,4 @@ export function installParlayPingExternalHandoff(){
   },true);
 }
 
-export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,collectBookOdds,findStartTime,sameExactSelection,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
+export const __PARLAYPING_EXTERNAL_HANDOFF_TEST__={readSlip,normalizeLeg,currentReturnUrl,cleanupLegacyGamblyUi,collectBookOdds,collectBookOffers,collectSlipBookLinks,findStartTime,sameExactSelection,MAX_LEGS,LEGACY_GAMBLY_BUTTON_ID};
