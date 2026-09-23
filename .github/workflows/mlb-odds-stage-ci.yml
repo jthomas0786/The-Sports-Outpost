@@ -1,0 +1,38 @@
+name: MLB Odds Stage CI
+
+on:
+  push:
+    branches: [mlb-parlayapi-odds-stage]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build MLB ParlayAPI odds snapshot
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+          MLB_ODDS_FORCE: '1'
+        run: node scripts/mlb-odds-refresh.mjs --force
+      - name: Verify reported four-player HR slip has verified sportsbook prices
+        run: |
+          node <<'NODE'
+          const fs=require('fs');
+          const doc=JSON.parse(fs.readFileSync('slates/mlb-odds.json','utf8'));
+          const wanted=['Riley Greene','Coby Mayo','Josh Bell','Jake Burger'];
+          for(const player of wanted){
+            const rows=(doc.rows||[]).filter(r=>r.player===player&&r.market==='homeRun'&&Number.isFinite(Number(r.overPrice)));
+            const books=[...new Set(rows.map(r=>r.book))];
+            const best=rows.sort((a,b)=>Number(b.overPrice)-Number(a.overPrice))[0]||null;
+            console.log(JSON.stringify({player,count:rows.length,books,best:best?{book:best.book,price:best.overPrice,eventId:best.eventId,preserved:Boolean(best.preserved)}:null}));
+            if(!rows.length)throw new Error(`${player}: no verified HR sportsbook price`);
+          }
+          if(doc.meta?.source!=='parlayapi')throw new Error('MLB odds source is not ParlayAPI');
+          NODE
