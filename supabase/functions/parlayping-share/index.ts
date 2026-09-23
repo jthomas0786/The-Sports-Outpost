@@ -63,6 +63,47 @@ function safeHttps(value: unknown) {
   } catch { return undefined; }
 }
 
+function normalizeBook(value: unknown) {
+  const raw = text(value,80);
+  if (!raw) return undefined;
+  const key = raw.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const aliases:Record<string,string> = {
+    draftkings:'DraftKings',dk:'DraftKings',fanduel:'FanDuel',fd:'FanDuel',bet365:'bet365','365':'bet365',
+    caesars:'Caesars',williamhill:'Caesars',caesarssportsbook:'Caesars',thescorebet:'theScore Bet',thescore:'theScore Bet',
+    betmgm:'BetMGM',mgm:'BetMGM',fanatics:'Fanatics',fanaticssportsbook:'Fanatics',
+  };
+  return aliases[key] ?? raw;
+}
+
+function sanitizeSportsbookLinks(value: unknown) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const out:Record<string,string> = {};
+  for (const [rawBook, rawUrl] of Object.entries(value as Record<string,unknown>)) {
+    if (Object.keys(out).length >= 12) break;
+    const book = normalizeBook(rawBook);
+    const url = safeHttps(rawUrl);
+    if (book && url) out[book] = url;
+  }
+  return out;
+}
+
+function sanitizeBookOffers(value: unknown) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const out:Record<string,unknown> = {};
+  for (const [rawBook, rawOffer] of Object.entries(value as Record<string,unknown>)) {
+    if (Object.keys(out).length >= 16) break;
+    const book = normalizeBook(rawBook);
+    if (!book) continue;
+    const offer = rawOffer && typeof rawOffer === 'object' && !Array.isArray(rawOffer) ? rawOffer as Record<string,unknown> : { oddsAmerican:rawOffer };
+    const oddsAmerican = finite(offer.oddsAmerican ?? offer.price ?? offer.odds);
+    const selectionLink = safeHttps(offer.selectionLink ?? offer.deepLink ?? offer.link);
+    const betslipUrl = safeHttps(offer.betslipUrl ?? offer.betslipLink ?? offer.parlayUrl ?? offer.parlayLink ?? offer.shareUrl);
+    if (oddsAmerican === undefined && !selectionLink && !betslipUrl) continue;
+    out[book] = { oddsAmerican, selectionLink, betslipUrl };
+  }
+  return out;
+}
+
 function safeReturnUrl(value: unknown) {
   const raw = text(value,1600);
   if (!raw) return undefined;
@@ -94,8 +135,9 @@ function sanitizeLeg(raw: Record<string,unknown>, index: number) {
     line: finite(raw.line),
     inclusive: raw.inclusive === true,
     oddsAmerican: finite(raw.oddsAmerican ?? raw.odds ?? raw.price),
-    sportsbook: text(raw.sportsbook ?? raw.book ?? raw.bookName,80),
+    sportsbook: normalizeBook(raw.sportsbook ?? raw.book ?? raw.bookName),
     sportsbookLink: safeHttps(raw.sportsbookLink ?? raw.link ?? raw.deepLink),
+    bookOffers: sanitizeBookOffers(raw.bookOffers ?? raw.sportsbookOffers ?? raw.offersByBook),
     status: text(raw.status ?? raw.state,24) ?? 'PENDING',
     pregameProbability: probability(raw.pregameProbability ?? raw.probability ?? raw.pct ?? raw.modelProbability),
     startTimeUTC: text(raw.startTimeUTC ?? raw.start_time_utc ?? raw.startTime ?? raw.start_time ?? raw.commenceTime ?? raw.commence_time ?? raw.kickoff ?? raw.firstPitch ?? raw.first_pitch,80),
@@ -149,6 +191,7 @@ Deno.serve(async (req) => {
     sourceReference:text(body.sourceReference,180),
     returnUrl,
     returnLabel:'The Sports Outpost',
+    sportsbookLinks:sanitizeSportsbookLinks(body.sportsbookLinks ?? body.sportsbookBetslipLinks ?? body.betslipLinks),
     legs,
   };
 
