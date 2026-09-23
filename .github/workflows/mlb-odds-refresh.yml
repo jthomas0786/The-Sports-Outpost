@@ -1,0 +1,41 @@
+name: MLB Odds Refresh
+
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: mlb-odds-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Refresh verified MLB prop prices when due
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        run: node scripts/mlb-odds-refresh.mjs
+      - name: Persist MLB odds snapshot
+        run: |
+          if git diff --quiet -- slates/mlb-odds.json; then
+            echo "No MLB odds snapshot change to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add slates/mlb-odds.json
+          git commit -m "Refresh MLB sportsbook odds [skip ci]"
+          git push origin HEAD:main
