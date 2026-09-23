@@ -43,6 +43,7 @@ const norm=s=>String(s??'').toLowerCase().normalize('NFKD').replace(/[.'’]/g,'
 const compact=s=>norm(s).replace(/\s+/g,'');
 const bookKey=r=>String(r?.bookmaker||r?.bookmaker_title||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const bookTitle=r=>String(r?.bookmaker_title||r?.bookmaker||'Sportsbook').trim();
+const normalizedBookKey=row=>String(row?.bookKey||row?.book||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const iso=v=>{const t=typeof v==='number'?v:Date.parse(String(v||''));return Number.isFinite(t)?new Date(t).toISOString():null;};
 const pairKey=(a,b)=>[compact(a),compact(b)].sort().join('|');
 
@@ -91,11 +92,31 @@ function desiredRefreshMs(slate,existing){
   if(hours<=8)return HOUR;
   return 4*HOUR;
 }
-function rowKey(row){return [row.eventId||'',norm(row.player),row.market,row.line??'null',row.bookKey||'',row.period||'FULL'].join('|');}
+function rowKey(row){return [row.eventId||'',norm(row.player),row.market,row.line??'null',normalizedBookKey(row),row.period||'FULL'].join('|');}
 function currentSlatePairs(slate){return new Set((slate?.games||[]).map(g=>pairKey(g?.away?.name||g?.away?.abbr,g?.home?.name||g?.home?.abbr)).filter(Boolean));}
 function keepExistingRow(row,slatePairs){
   if(!row||!row.player||!row.market)return false;
   const p=pairKey(row.awayTeam,row.homeTeam);return !p||slatePairs.has(p);
+}
+function compactRow(row){
+  return {
+    eventId:String(row?.eventId||''),
+    providerEventId:String(row?.providerEventId||''),
+    commenceTime:row?.commenceTime||null,
+    homeTeam:row?.homeTeam||null,
+    awayTeam:row?.awayTeam||null,
+    player:row?.player||null,
+    market:row?.market||null,
+    line:finite(row?.line),
+    period:row?.period||'FULL',
+    book:row?.book||null,
+    bookKey:normalizedBookKey(row),
+    overPrice:finite(row?.overPrice),
+    underPrice:finite(row?.underPrice),
+    deepLink:row?.deepLink||null,
+    snapshotTime:row?.snapshotTime||null,
+    preserved:Boolean(row?.preserved),
+  };
 }
 
 async function main(){
@@ -116,7 +137,6 @@ async function main(){
   const requested=[];
   for(const key of MARKET_CANDIDATES.keys())if(available.has(key))requested.push(key);
   if(!requested.length){
-    // Canonical keys are stable; keep a small fallback if discovery shape changes.
     requested.push('player_home_runs','player_hits','player_total_bases','player_rbis','player_runs','player_hits_runs_rbis');
   }
   const params=new URLSearchParams({markets:requested.join(','),bookmakers:SPORTSBOOK_QUERY,limit:'10000',maxAgeSec:'3600'});
@@ -138,26 +158,20 @@ async function main(){
     fresh.push({
       eventId:game?.gamePk?String(game.gamePk):String(r?.canonical_event_id||r?.event_id||''),
       providerEventId:String(r?.canonical_event_id||r?.event_id||''),
-      sport:'MLB',commenceTime:iso(r?.commence_time)||game?.startTimeUTC||null,
+      commenceTime:iso(r?.commence_time)||game?.startTimeUTC||null,
       homeTeam:String(r?.home_team||game?.home?.name||'').trim()||null,
       awayTeam:String(r?.away_team||game?.away?.name||'').trim()||null,
-      player,team:String(r?.team||r?.player_team||'').trim()||null,
-      market,marketKey:marketRaw,line,period,
-      book,bookKey:bk,overPrice,underPrice,
-      overImplied:finite(r?.over_implied_prob),underImplied:finite(r?.under_implied_prob),
+      player,market,line,period,book,bookKey:bk,overPrice,underPrice,
       deepLink:r?.deep_link||r?.link||r?.url||null,
       snapshotTime:iso(r?.snapshot_time||r?.last_update||r?.updated_at),
-      ageSeconds:finite(r?.age_seconds),
-      pregameSnapshot:Boolean(game&&Date.parse(game.startTimeUTC||'')<=NOW),
+      preserved:false,
     });
   }
 
-  // Preserve the last verified quote for today's slate after a book stops
-  // publishing the pregame market. Fresh rows always replace preserved rows.
   const pairs=currentSlatePairs(slate),merged=new Map();
-  for(const row of existing?.rows||[])if(keepExistingRow(row,pairs))merged.set(rowKey(row),{...row,preserved:true});
-  for(const row of fresh)merged.set(rowKey(row),{...row,preserved:false});
-  const rows=[...merged.values()].sort((a,b)=>(a.commenceTime||'').localeCompare(b.commenceTime||'')||a.player.localeCompare(b.player)||a.market.localeCompare(b.market)||Number(a.line)-Number(b.line)||a.book.localeCompare(b.book));
+  for(const row of existing?.rows||[])if(keepExistingRow(row,pairs))merged.set(rowKey(row),compactRow({...row,preserved:true}));
+  for(const row of fresh)merged.set(rowKey(row),compactRow(row));
+  const rows=[...merged.values()].sort((a,b)=>(a.commenceTime||'').localeCompare(b.commenceTime||'')||String(a.player||'').localeCompare(String(b.player||''))||String(a.market||'').localeCompare(String(b.market||''))||Number(a.line)-Number(b.line)||String(a.book||'').localeCompare(String(b.book||'')));
   const output={meta:{
     source:'parlayapi',sample:false,sport:'MLB',sportKey:SPORT,fetchedAt:new Date().toISOString(),
     rawRows:rawRows.length,freshSportsbookRows:fresh.length,rows:rows.length,books:[...books].sort(),markets:[...markets].sort(),
@@ -166,7 +180,7 @@ async function main(){
     note:'Verified MLB sportsbook prop prices from ParlayAPI. Preserved=true means the last verified pregame quote is retained after the live feed stops publishing that selection. ParlayAPI props do not currently expose sportsbook selection/deep-link IDs, so these rows are prices, not one-tap betslip URLs.'
   },rows};
   await fs.mkdir(path.dirname(OUT_PATH),{recursive:true});
-  await fs.writeFile(OUT_PATH,JSON.stringify(output,null,2)+'\n');
+  await fs.writeFile(OUT_PATH,JSON.stringify(output)+'\n');
   console.log(`MLB odds: raw=${rawRows.length}, fresh=${fresh.length}, retained=${rows.length}, books=${books.size}, markets=${markets.size}.`);
 }
 main().catch(error=>{console.error('::error::MLB odds refresh failed:',error?.stack||error);process.exit(1);});
