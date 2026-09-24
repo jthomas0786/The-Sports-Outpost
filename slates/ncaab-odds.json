@@ -4,10 +4,10 @@
     "sample": false,
     "sport": "NCAAB",
     "sportKey": "basketball_ncaab",
-    "fetchedAt": "2026-09-24T00:08:18.811Z",
+    "fetchedAt": "2026-09-24T00:09:59.054Z",
     "queryWindow": {
-      "from": "2026-09-23T00:08:11.550Z",
-      "to": "2026-10-01T00:08:11.550Z"
+      "from": "2026-09-23T00:09:25.310Z",
+      "to": "2026-10-01T00:09:25.310Z"
     },
     "eventsFound": 2,
     "relevantEvents": 2,
@@ -27,6 +27,8 @@
     ],
     "rawRows": 0,
     "sportsbookRows": 0,
+    "currentRows": 0,
+    "preservedRows": 0,
     "rejectedNonPlayers": 0,
     "nativeLinkRows": 0,
     "nativeSidRows": 0,
@@ -40,7 +42,8 @@
     "rawMarketKeys": [],
     "noCurrentProps": true,
     "probabilityPolicy": "Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied and are never labeled as a proprietary model.",
-    "note": "Current NCAAB player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Empty rows are treated as unavailable data, never as zero probability."
+    "preservationPolicy": "If an exact sportsbook player-prop quote disappears before game time, retain its last verified pregame price for up to 36 hours and no later than 30 minutes after scheduled start.",
+    "note": "Current NCAAB player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Missing exact pregame rows may retain their last verified price; prices are never invented."
   },
   "rows": []
 }
