@@ -5,13 +5,15 @@ on:
     paths:
       - 'scripts/basketball-odds-refresh.mjs'
       - '.github/workflows/basketball-odds.yml'
+  schedule:
+    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 concurrency:
-  group: basketball-odds-snapshots-${{ github.ref_name }}
+  group: basketball-odds-snapshots
   cancel-in-progress: true
 
 jobs:
@@ -29,10 +31,9 @@ jobs:
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
         run: node scripts/basketball-odds-refresh.mjs NBA NCAAB WNBA
-      - name: Commit changed snapshots to this branch only
+      - name: Commit changed snapshots
         run: |
           set -euo pipefail
-          branch="${GITHUB_REF_NAME}"
           changes="$(git status --porcelain -- slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json)"
           if [ -z "$changes" ]; then
             echo 'No basketball snapshot changes.'
@@ -43,5 +44,5 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json
           git commit -m 'Refresh basketball odds snapshots'
-          git pull --rebase origin "$branch"
-          git push origin "HEAD:$branch"
+          git pull --rebase origin main
+          git push origin HEAD:main
