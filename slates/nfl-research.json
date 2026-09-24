@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-09-24T17:12:17.130Z",
+  "generatedAt": "2026-09-24T21:31:56.252Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -13,6 +13,26 @@
       "ok": true,
       "rows": 7548
     },
+    "nflverseCurrentSnaps": {
+      "ok": true,
+      "rows": 2994
+    },
+    "nflverseCurrentRegular": {
+      "ok": true,
+      "rows": 1307
+    },
+    "nflverseRosterCurrent": {
+      "ok": true,
+      "rows": 2998
+    },
+    "nflverseCurrentWeekly": {
+      "ok": true,
+      "rows": 2225
+    },
+    "nflversePrevRegular": {
+      "ok": true,
+      "rows": 2020
+    },
     "espnTeams": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -21,29 +41,17 @@
       ],
       "rows": 32
     },
-    "nflverseCurrentSnaps": {
+    "nflversePrevSnaps": {
       "ok": true,
-      "rows": 2994
-    },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 2998
-    },
-    "nflversePrevRegular": {
-      "ok": true,
-      "rows": 2020
-    },
-    "nflverseCurrentWeekly": {
-      "ok": true,
-      "rows": 2225
-    },
-    "nflverseCurrentRegular": {
-      "ok": true,
-      "rows": 1307
+      "rows": 26613
     },
     "nflversePrevWeekly": {
       "ok": true,
       "rows": 19422
+    },
+    "nflversePlayers": {
+      "ok": true,
+      "rows": 24830
     },
     "espnInjuries": {
       "ok": true,
@@ -51,14 +59,6 @@
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
-    },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26613
-    },
-    "nflversePlayers": {
-      "ok": true,
-      "rows": 24830
     },
     "espnDepth:ARI": {
       "ok": true,
@@ -88,14 +88,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CAR": {
+    "espnDepth:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CAR": {
+    "espnRoster:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -116,6 +116,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:BUF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -123,7 +130,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:BUF": {
+    "espnDepth:CIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -137,14 +151,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CLE": {
+    "espnRoster:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DAL": {
+    "espnDepth:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -158,7 +172,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DEN": {
+    "espnRoster:CLE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -172,6 +186,27 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:DET": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -179,14 +214,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CIN": {
+    "espnRoster:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -207,42 +235,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:IND": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:HOU": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:IND": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:JAX": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -256,13 +249,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:KC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -270,7 +256,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:GB": {
+    "espnRoster:JAX": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:IND": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:KC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:IND": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -284,14 +291,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:LV": {
+    "espnDepth:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -305,7 +305,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:LAC": {
+    "espnRoster:LV": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -319,35 +326,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:MIA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:MIA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -361,7 +340,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:MIA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:MIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:NE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -389,13 +389,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NYG": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -404,13 +397,6 @@
       ]
     },
     "espnRoster:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -431,6 +417,20 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:PHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -439,13 +439,6 @@
       ]
     },
     "espnRoster:SF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -474,6 +467,13 @@
       ]
     },
     "espnRoster:TB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -510,7 +510,7 @@
     }
   },
   "teamCount": 32,
-  "playerCount": 2559,
+  "playerCount": 2558,
   "teams": [
     {
       "id": "22",
@@ -654,7 +654,7 @@
       "name": "Los Angeles Chargers",
       "shortName": "Chargers",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/lac.png",
-      "rosterCount": 81
+      "rosterCount": 80
     },
     {
       "id": "14",
@@ -718,7 +718,7 @@
       "name": "Philadelphia Eagles",
       "shortName": "Eagles",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/phi.png",
-      "rosterCount": 77
+      "rosterCount": 78
     },
     {
       "id": "23",
@@ -750,7 +750,7 @@
       "name": "Tampa Bay Buccaneers",
       "shortName": "Buccaneers",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/tb.png",
-      "rosterCount": 76
+      "rosterCount": 75
     },
     {
       "id": "10",
@@ -101693,350 +101693,6 @@
       }
     },
     {
-      "espnId": "3914397",
-      "gsisId": "00-0035298",
-      "pfrId": "MillSc01",
-      "team": "CHI",
-      "name": "Scotty Miller",
-      "position": "WR",
-      "jersey": "35",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3914397.png",
-      "rosterStatus": "Practice Squad",
-      "active": true,
-      "experience": 8,
-      "age": 29,
-      "depth": {
-        "rank": 6,
-        "position": "WR",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": "PHI",
-      "gameId": "401872963",
-      "model": {
-        "atdProbability": 0.0172,
-        "atdGrade": "F",
-        "snapShare": 0.193,
-        "rzTargets": 2,
-        "rzCarries": 0,
-        "gamesPlayed": 13,
-        "tds": 0
-      },
-      "previousSeason": {
-        "games": 5,
-        "carries": 0,
-        "targets": 14,
-        "receptions": 9,
-        "rushYds": 0,
-        "recYds": 62,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 9,
-        "scrimmageYds": 62,
-        "perGame": {
-          "carries": 0,
-          "targets": 2.8,
-          "receptions": 1.8,
-          "rushYds": 0,
-          "recYds": 12.4,
-          "scrimmageYds": 12.4,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 2.7,
-        "airYardsShare": 2.3,
-        "fantasyPpr": 15.2
-      },
-      "currentSeason": null,
-      "last5": {
-        "games": 5,
-        "avg": {
-          "carries": 0,
-          "targets": 2.8,
-          "receptions": 1.8,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 12.4,
-          "scrimmageYds": 12.4,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "tdGames": 0,
-        "gamesLog": [
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "PIT",
-            "opponent": "BAL",
-            "date": "2026-01-04",
-            "homeAway": "home",
-            "gameId": "2025_18_BAL_PIT",
-            "carries": 0,
-            "targets": 2,
-            "receptions": 2,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 9,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 9
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "PIT",
-            "opponent": "CLE",
-            "date": "2025-12-28",
-            "homeAway": "away",
-            "gameId": "2025_17_PIT_CLE",
-            "carries": 0,
-            "targets": 7,
-            "receptions": 3,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 25,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 25
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "PIT",
-            "opponent": "DET",
-            "date": "2025-12-21",
-            "homeAway": "away",
-            "gameId": "2025_16_PIT_DET",
-            "carries": 0,
-            "targets": 3,
-            "receptions": 3,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 19,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 19
-          },
-          {
-            "season": 2025,
-            "week": 7,
-            "team": "PIT",
-            "opponent": "CIN",
-            "date": "2025-10-16",
-            "homeAway": "away",
-            "gameId": "2025_07_PIT_CIN",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 9,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 9
-          },
-          {
-            "season": 2025,
-            "week": 4,
-            "team": "PIT",
-            "opponent": "MIN",
-            "date": "2025-09-28",
-            "homeAway": "home",
-            "gameId": "2025_04_MIN_PIT",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          }
-        ]
-      },
-      "gameLog": [
-        {
-          "season": 2025,
-          "week": 18,
-          "team": "PIT",
-          "opponent": "BAL",
-          "date": "2026-01-04",
-          "homeAway": "home",
-          "gameId": "2025_18_BAL_PIT",
-          "carries": 0,
-          "targets": 2,
-          "receptions": 2,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 9,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 9
-        },
-        {
-          "season": 2025,
-          "week": 17,
-          "team": "PIT",
-          "opponent": "CLE",
-          "date": "2025-12-28",
-          "homeAway": "away",
-          "gameId": "2025_17_PIT_CLE",
-          "carries": 0,
-          "targets": 7,
-          "receptions": 3,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 25,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 25
-        },
-        {
-          "season": 2025,
-          "week": 16,
-          "team": "PIT",
-          "opponent": "DET",
-          "date": "2025-12-21",
-          "homeAway": "away",
-          "gameId": "2025_16_PIT_DET",
-          "carries": 0,
-          "targets": 3,
-          "receptions": 3,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 19,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 19
-        },
-        {
-          "season": 2025,
-          "week": 7,
-          "team": "PIT",
-          "opponent": "CIN",
-          "date": "2025-10-16",
-          "homeAway": "away",
-          "gameId": "2025_07_PIT_CIN",
-          "carries": 0,
-          "targets": 1,
-          "receptions": 1,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 9,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 9
-        },
-        {
-          "season": 2025,
-          "week": 4,
-          "team": "PIT",
-          "opponent": "MIN",
-          "date": "2025-09-28",
-          "homeAway": "home",
-          "gameId": "2025_04_MIN_PIT",
-          "carries": 0,
-          "targets": 1,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        }
-      ],
-      "snapTrend": {
-        "games": 5,
-        "avgOffensePct": 25.2,
-        "lastOffensePct": 12,
-        "avgOffenseSnaps": 17.2
-      },
-      "matchup": {
-        "opponent": "PHI",
-        "positionGroup": "WR",
-        "previousSeasonAllowed": {
-          "games": 18,
-          "position": "WR",
-          "totalYards": 2590,
-          "passYds": 29,
-          "rushYds": 75,
-          "recYds": 2486,
-          "totalTds": 8,
-          "perGame": {
-            "yards": 143.9,
-            "passYds": 1.6,
-            "rushYds": 4.2,
-            "recYds": 138.1,
-            "passTds": 0.06,
-            "rushTds": 0,
-            "recTds": 0.39,
-            "tds": 0.44,
-            "targets": 18.6,
-            "receptions": 10.3,
-            "carries": 1,
-            "completions": 0.1,
-            "attempts": 0.1
-          }
-        }
-      }
-    },
-    {
       "espnId": "4685183",
       "gsisId": "00-0040275",
       "pfrId": "RichJP00",
@@ -108574,6 +108230,116 @@
       "last5": null,
       "gameLog": null,
       "snapTrend": null,
+      "matchup": null
+    },
+    {
+      "espnId": "4696723",
+      "gsisId": "00-0041167",
+      "pfrId": "GardBe01",
+      "team": "CHI",
+      "name": "Beau Gardner",
+      "position": "LS",
+      "jersey": "45",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4696723.png",
+      "rosterStatus": "Practice Squad",
+      "active": true,
+      "experience": 0,
+      "age": 24,
+      "depth": {
+        "rank": null,
+        "position": "LS",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": null,
+      "currentSeason": {
+        "games": 1,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "last5": {
+        "games": 1,
+        "avg": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "tdGames": 0,
+        "gamesLog": [
+          {
+            "season": 2026,
+            "week": 1,
+            "team": "CHI",
+            "opponent": "CAR",
+            "date": "2026-09-13",
+            "homeAway": "away",
+            "gameId": "2026_01_CHI_CAR",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          }
+        ]
+      },
+      "gameLog": null,
+      "snapTrend": {
+        "games": 2,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
       "matchup": null
     },
     {
@@ -312905,12 +312671,12 @@
       "team": "LAC",
       "name": "Gary Jennings",
       "position": "WR",
-      "jersey": null,
-      "headshot": "https://static.www.nfl.com/image/private/f_auto,q_auto/league/kfmi1ueidfxfixmaggov",
-      "rosterStatus": "Slate player",
+      "jersey": "87",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3916071.png",
+      "rosterStatus": "Practice Squad",
       "active": true,
-      "experience": null,
-      "age": null,
+      "experience": 2,
+      "age": 29,
       "depth": {
         "rank": 6,
         "position": "WR",
@@ -319538,35 +319304,6 @@
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
       },
-      "matchup": null
-    },
-    {
-      "espnId": "4688823",
-      "gsisId": null,
-      "pfrId": null,
-      "team": "LAC",
-      "name": "Spencer Triplett",
-      "position": "LS",
-      "jersey": "41",
-      "headshot": "https://a.espncdn.com/i/headshots/college-football/players/full/4688823.png",
-      "rosterStatus": "Practice Squad",
-      "active": true,
-      "experience": 0,
-      "age": null,
-      "depth": {
-        "rank": null,
-        "position": "LS",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": null,
-      "currentSeason": null,
-      "last5": null,
-      "gameLog": null,
-      "snapTrend": null,
       "matchup": null
     },
     {
@@ -352214,35 +351951,6 @@
       "matchup": null
     },
     {
-      "espnId": "4875296",
-      "gsisId": null,
-      "pfrId": null,
-      "team": "MIA",
-      "name": "Luke Basso",
-      "position": "LS",
-      "jersey": "45",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4875296.png",
-      "rosterStatus": "Practice Squad",
-      "active": true,
-      "experience": 0,
-      "age": 23,
-      "depth": {
-        "rank": null,
-        "position": "LS",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": null,
-      "currentSeason": null,
-      "last5": null,
-      "gameLog": null,
-      "snapTrend": null,
-      "matchup": null
-    },
-    {
       "espnId": "4034729",
       "gsisId": "00-0037686",
       "pfrId": "AddiTu00",
@@ -354506,6 +354214,35 @@
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
       },
+      "matchup": null
+    },
+    {
+      "espnId": "4429053",
+      "gsisId": "00-0040302",
+      "pfrId": "HennAJ00",
+      "team": "MIA",
+      "name": "AJ Henning",
+      "position": "WR",
+      "jersey": "88",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4429053.png",
+      "rosterStatus": "Practice Squad",
+      "active": true,
+      "experience": 1,
+      "age": 25,
+      "depth": {
+        "rank": null,
+        "position": "WR",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": null,
+      "currentSeason": null,
+      "last5": null,
+      "gameLog": null,
+      "snapTrend": null,
       "matchup": null
     },
     {
@@ -412044,7 +411781,7 @@
       "position": "QB",
       "jersey": "6",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4689114.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 2,
       "age": 23,
@@ -460777,6 +460514,35 @@
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
       },
+      "matchup": null
+    },
+    {
+      "espnId": "4241995",
+      "gsisId": "00-0036559",
+      "pfrId": "WadeSh00",
+      "team": "PHI",
+      "name": "Shaun Wade",
+      "position": "CB",
+      "jersey": "30",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4241995.png",
+      "rosterStatus": "Practice Squad",
+      "active": true,
+      "experience": 4,
+      "age": 28,
+      "depth": {
+        "rank": null,
+        "position": "CB",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": null,
+      "currentSeason": null,
+      "last5": null,
+      "gameLog": null,
+      "snapTrend": null,
       "matchup": null
     },
     {
@@ -531909,35 +531675,6 @@
       "active": true,
       "experience": 0,
       "age": 24,
-      "depth": {
-        "rank": null,
-        "position": "DT",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": null,
-      "currentSeason": null,
-      "last5": null,
-      "gameLog": null,
-      "snapTrend": null,
-      "matchup": null
-    },
-    {
-      "espnId": "4683248",
-      "gsisId": "00-0041339",
-      "pfrId": "McKnDe00",
-      "team": "TB",
-      "name": "Deshawn McKnight",
-      "position": "DT",
-      "jersey": "73",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4683248.png",
-      "rosterStatus": "Day-To-Day",
-      "active": true,
-      "experience": 0,
-      "age": 23,
       "depth": {
         "rank": null,
         "position": "DT",
