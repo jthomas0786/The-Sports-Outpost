@@ -1,0 +1,61 @@
+name: WNBA Final Target Coverage
+
+on:
+  push:
+    paths:
+      - '.github/workflows/wnba-final-target-coverage.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    if: github.ref_name == 'wnba-parity-final-stage'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Report exact six-leg provider coverage
+        run: |
+          node - <<'NODE'
+          const d=require('./slates/wnba-odds.json');
+          const targets=[
+            {player:'Jordin Canada',market:'assists',line:6,inclusive:true},
+            {player:'Allisha Gray',market:'points',line:15,inclusive:true},
+            {player:'Angel Reese',market:'rebsAsts',line:12,inclusive:true},
+            {player:'Pauline Astier',market:'ptsRebs',line:10,inclusive:true},
+            {player:'Breanna Stewart',market:'pra',line:30,inclusive:true},
+            {player:'Jonquel Jones',market:'points',line:10,inclusive:true},
+          ];
+          const norm=s=>String(s||'').toLowerCase().replace(/\s*\([a-z]{2,5}\)\s*$/i,'').replace(/[^a-z0-9]+/g,' ').trim();
+          function exactLine(r,t){
+            if(r.market!==t.market)return false;
+            const line=Number(r.line);
+            if(!Number.isFinite(line))return false;
+            if(t.inclusive){
+              const alt=String(r.marketKey||'').endsWith('_alt');
+              return alt?line===t.line:line===t.line-0.5;
+            }
+            return line===t.line;
+          }
+          console.log('META',JSON.stringify(d.meta,null,2));
+          for(const t of targets){
+            const playerRows=(d.rows||[]).filter(r=>norm(r.player)===norm(t.player));
+            const exact=playerRows.filter(r=>exactLine(r,t));
+            const sameMarket=playerRows.filter(r=>r.market===t.market);
+            console.log('\nTARGET',JSON.stringify(t));
+            console.log('playerRows=',playerRows.length,'sameMarket=',sameMarket.length,'exact=',exact.length);
+            console.log('exactRows=',JSON.stringify(exact.map(r=>({book:r.book,line:r.line,marketKey:r.marketKey,overPrice:r.overPrice,underPrice:r.underPrice,preserved:r.preserved,priceKind:r.priceKind,overLink:r.overLink,overSid:r.overSid,snapshotTime:r.snapshotTime})),null,2));
+            console.log('availableSameMarketLines=',JSON.stringify([...new Set(sameMarket.map(r=>`${r.marketKey}:${r.line}`))].sort()));
+          }
+          NODE
+      - name: Remove one-time coverage workflow
+        run: |
+          set -euo pipefail
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git rm .github/workflows/wnba-final-target-coverage.yml
+          git commit -m 'Remove WNBA final target coverage probe'
+          git pull --rebase origin wnba-parity-final-stage
+          git push origin HEAD:wnba-parity-final-stage
