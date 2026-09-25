@@ -13,7 +13,7 @@
  * toggle `hidden` on its containers vs the sport-specific view containers.
  * MLB v916 field-actors note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
  */
-import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=90.0';
+import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=95.8-global-info';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=93.5';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
