@@ -81,7 +81,7 @@ export function isPreview(key) {
 
 // Restore the global header Info control independently of sport-specific views.
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-  import('./global-info-button-v956.js?v=95.6')
+  import('./global-info-button-v956.js?v=95.7-mobile-info')
     .then(mod => mod.installGlobalInfoButtonV956?.())
     .catch(error => console.warn('[Global info button] unavailable:', error));
 }
