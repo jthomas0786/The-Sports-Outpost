@@ -1,6 +1,7 @@
 const INFO_BUTTON_ID = 'infoBtnTb';
 const INFO_MODAL_ID = 'sportsOutpostInfoModal';
-const INFO_STYLE_ID = 'sportsOutpostInfoStylesV956';
+const INFO_STYLE_ID = 'sportsOutpostInfoStylesV957';
+const INFO_BUTTON_CLASS = 'dw-info-btn-v957';
 
 let lastFocused = null;
 let observer = null;
@@ -10,12 +11,12 @@ function installStyles() {
   const style = document.createElement('style');
   style.id = INFO_STYLE_ID;
   style.textContent = `
-    #${INFO_BUTTON_ID}.dw-info-btn-v956 {
+    #${INFO_BUTTON_ID}.${INFO_BUTTON_CLASS} {
       appearance: none;
       width: 38px;
       height: 38px;
       min-width: 38px;
-      display: inline-grid;
+      display: inline-grid !important;
       place-items: center;
       flex: 0 0 38px;
       padding: 0;
@@ -32,8 +33,8 @@ function installStyles() {
       transition: transform .14s ease, border-color .14s ease, background .14s ease, box-shadow .14s ease;
       z-index: 3;
     }
-    #${INFO_BUTTON_ID}.dw-info-btn-v956:hover,
-    #${INFO_BUTTON_ID}.dw-info-btn-v956:focus-visible {
+    #${INFO_BUTTON_ID}.${INFO_BUTTON_CLASS}:hover,
+    #${INFO_BUTTON_ID}.${INFO_BUTTON_CLASS}:focus-visible {
       transform: translateY(-1px);
       border-color: rgb(45,127,255);
       background: rgba(45,127,255,.18);
@@ -132,14 +133,16 @@ function installStyles() {
       background: rgba(45,127,255,.14);
       outline: none;
     }
-    @media (max-width: 620px) {
-      #${INFO_BUTTON_ID}.dw-info-btn-v956 {
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
-        flex-basis: 36px;
-        margin-left: 6px;
+    @media (max-width: 760px) {
+      #${INFO_BUTTON_ID}.${INFO_BUTTON_CLASS} {
+        width: 30px !important;
+        height: 30px !important;
+        min-width: 30px !important;
+        flex: 0 0 30px !important;
+        margin-left: 0 !important;
       }
+    }
+    @media (max-width: 620px) {
       #${INFO_MODAL_ID} { padding: 12px; }
       #${INFO_MODAL_ID} .dw-info-dialog-v956 { padding: 21px 18px 19px; border-radius: 16px; }
       #${INFO_MODAL_ID} .dw-info-grid-v956 { grid-template-columns: 1fr; }
@@ -164,7 +167,7 @@ function buildModal() {
       <div class="dw-info-kicker-v956">The Sports Outpost</div>
       <h2 id="sportsOutpostInfoTitle">About The Sports Outpost</h2>
       <p>Your live sports command center for game tracking, player props, matchup research, watchlists and sport-specific tools.</p>
-      <p>Use the sport selector to move between available leagues. Live data and grades update from the data sources shown inside each tool; simulation-based fields are labeled separately where they are used.</p>
+      <p>Use the sport navigation to move between available leagues. Live data and grades update from the data sources shown inside each tool; simulation-based fields are labeled separately where they are used.</p>
       <div class="dw-info-grid-v956">
         <div class="dw-info-card-v956"><strong>Live</strong><span>Game state, scoring and in-game player tracking.</span></div>
         <div class="dw-info-card-v956"><strong>Props</strong><span>Player markets, matchup context and research views.</span></div>
@@ -200,16 +203,36 @@ function closeInfoModal() {
 }
 
 function findActionHost(switcher) {
-  const header = switcher?.closest('header, .topbar, .header, [role="banner"]');
-  const actionSelector = '.topbar-right, .header-actions, .topbar-actions, .toolbar-actions, .actions';
-  const headerActions = header?.querySelector(actionSelector);
-  if (headerActions) return { host: headerActions, mode: 'append' };
+  const selector = '.topbar .topbar-right, header .topbar-right, .header-actions, .topbar-actions, .toolbar-actions, .actions';
+  const direct = document.querySelector(selector);
+  if (direct) return { host: direct, mode: 'append' };
 
-  const parentActions = switcher?.parentElement?.querySelector?.(actionSelector);
-  if (parentActions) return { host: parentActions, mode: 'append' };
+  const header = switcher?.closest('header, .topbar, .header, [role="banner"]')
+    || document.querySelector('header, .topbar, .header, [role="banner"]');
+  const headerActions = header?.querySelector('.topbar-right, .header-actions, .topbar-actions, .toolbar-actions, .actions');
+  if (headerActions) return { host: headerActions, mode: 'append' };
 
   if (switcher?.parentElement) return { host: switcher.parentElement, mode: 'after-switcher' };
   return { host: header || document.body, mode: 'append' };
+}
+
+function normalizeButton(button) {
+  button.type = 'button';
+  button.classList.add('dw-info-btn-v956', INFO_BUTTON_CLASS);
+  button.setAttribute('aria-label', 'About The Sports Outpost');
+  button.setAttribute('title', 'Info');
+  button.setAttribute('aria-haspopup', 'dialog');
+  button.setAttribute('aria-controls', INFO_MODAL_ID);
+
+  // v56 intentionally hid the old Info action on <=760px. Force only this
+  // control back on; the separate Refresh control remains hidden on mobile.
+  button.style.setProperty('display', 'inline-grid', 'important');
+
+  if (button.dataset.dwInfoBoundV957 !== '1') {
+    button.removeAttribute('onclick');
+    button.addEventListener('click', openInfoModal);
+    button.dataset.dwInfoBoundV957 = '1';
+  }
 }
 
 function mountButton() {
@@ -218,33 +241,31 @@ function mountButton() {
   buildModal();
 
   const switcher = document.getElementById('sportSwitch');
-  if (!switcher) return;
-
   let button = document.getElementById(INFO_BUTTON_ID);
+
   if (!button) {
     button = document.createElement('button');
     button.id = INFO_BUTTON_ID;
-    button.type = 'button';
-    button.className = 'dw-info-btn-v956';
-    button.setAttribute('aria-label', 'About The Sports Outpost');
-    button.setAttribute('title', 'Info');
-    button.setAttribute('aria-haspopup', 'dialog');
-    button.setAttribute('aria-controls', INFO_MODAL_ID);
     button.innerHTML = '<span class="dw-info-glyph-v956" aria-hidden="true">i</span>';
-    button.addEventListener('click', openInfoModal);
+
+    const { host, mode } = findActionHost(switcher);
+    if (mode === 'after-switcher' && switcher?.parentElement === host) {
+      switcher.insertAdjacentElement('afterend', button);
+    } else {
+      host.appendChild(button);
+    }
   }
 
-  if (!button.isConnected) {
-    const { host, mode } = findActionHost(switcher);
-    if (mode === 'after-switcher' && switcher.parentElement === host) switcher.insertAdjacentElement('afterend', button);
-    else host.appendChild(button);
-  }
+  normalizeButton(button);
 }
 
 function observeShell() {
   if (observer || !document.body) return;
   observer = new MutationObserver(() => {
-    if (!document.getElementById(INFO_BUTTON_ID)) mountButton();
+    const button = document.getElementById(INFO_BUTTON_ID);
+    if (!button || !button.classList.contains(INFO_BUTTON_CLASS) || button.dataset.dwInfoBoundV957 !== '1') {
+      mountButton();
+    }
   });
   observer.observe(document.body, { childList: true, subtree: true });
 }
@@ -258,8 +279,11 @@ export function installGlobalInfoButtonV956() {
     observeShell();
   };
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start, { once: true });
-  else start();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 
   window.addEventListener('keydown', event => {
     if (event.key === 'Escape') closeInfoModal();
