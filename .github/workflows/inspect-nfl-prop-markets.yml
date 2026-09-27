@@ -10,37 +10,47 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect live NFL prop market keys
+      - name: Inspect exact FanDuel milestone rows
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
+          MARKETS="player_passing_yards_milestones_225_or_more,player_passing_yards_milestones_175_or_more,player_receiving_yards_milestones_30_or_more,player_receiving_yards_milestones_80_or_more,player_receiving_yards_milestones_20_or_more,player_rushing_yards_milestones_70_or_more"
           curl -fsS \
             -H "X-API-Key: ${PARLAY_API_KEY}" \
-            "https://api.parlay-api.com/v1/sports/americanfootball_nfl/props/markets" \
-            -o /tmp/markets.json
+            "https://api.parlay-api.com/v1/sports/americanfootball_nfl/props?markets=${MARKETS}&bookmakers=fanduel&includeSids=true&includeLinks=true&limit=2000&maxAgeSec=3600" \
+            -D /tmp/headers.txt \
+            -o /tmp/rows.json
+          echo "RESULT_HEADERS"
+          grep -Ei '^x-result-|^x-next-offset|^x-markets-' /tmp/headers.txt || true
           python3 - <<'PY'
           import json
-          d=json.load(open('/tmp/markets.json'))
-          if isinstance(d,dict):
-              rows=d.get('markets') or d.get('data') or d.get('results') or d
-          else:
-              rows=d
-          if isinstance(rows,dict):
-              keys=list(rows.keys())
-          else:
-              keys=[]
-              for row in rows if isinstance(rows,list) else []:
-                  if isinstance(row,str): keys.append(row)
-                  elif isinstance(row,dict):
-                      k=row.get('market_key') or row.get('key') or row.get('market') or row.get('name')
-                      if k: keys.append(str(k))
-          keys=sorted(set(keys))
-          print('TOTAL_MARKETS',len(keys))
-          print('NFL_YARDAGE_RELATED_MARKETS')
-          for k in keys:
-              s=k.lower()
-              if any(x in s for x in ['pass','rush','rec','yard','yds','milestone','alternate','alt_']):
-                  print(k)
+          d=json.load(open('/tmp/rows.json'))
+          rows=d if isinstance(d,list) else d.get('data') or d.get('results') or d.get('props') or []
+          wanted={'Patrick Mahomes','Rashee Rice','Kenneth Walker III','Kenneth Walker','Jaxon Smith-Njigba','Sam Darnold','Stefon Diggs'}
+          print('ROW_COUNT',len(rows) if isinstance(rows,list) else 0)
+          print('MATCHING_ROWS')
+          for r in rows if isinstance(rows,list) else []:
+              player=str(r.get('player') or r.get('player_name') or '')
+              if player not in wanted: continue
+              clean={
+                'player':player,
+                'market_key':r.get('market_key') or r.get('market'),
+                'line':r.get('line'),
+                'over_price':r.get('over_price'),
+                'under_price':r.get('under_price'),
+                'bookmaker':r.get('bookmaker') or r.get('book'),
+                'event_id':r.get('event_id'),
+                'commence_time':r.get('commence_time'),
+                'selection_id':r.get('selection_id'),
+                'over_selection_id':r.get('over_selection_id'),
+                'under_selection_id':r.get('under_selection_id'),
+                'selection_by_side':r.get('selection_by_side'),
+                'over_link':r.get('over_link'),
+                'under_link':r.get('under_link'),
+                'link':r.get('link'),
+                'raw_keys':sorted(r.keys()),
+              }
+              print(json.dumps(clean,separators=(',',':')))
           PY
