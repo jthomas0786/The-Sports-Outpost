@@ -7,10 +7,16 @@ on:
         description: 'Force a paid refresh now'
         type: boolean
         default: true
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/nfl-odds-refresh.mjs'
+      - 'scripts/nfl-odds-refresh-v891.mjs'
+      - '.github/workflows/nfl-odds.yml'
   schedule:
     # v88.1: run the FREE weekly gate every 20 minutes. The script itself only
     # makes paid calls when its distance-to-next-kickoff threshold is due:
-    # 4h far away, 1h inside 12h, 30m inside 3h, 20m inside 90m.
+    # 4h far away, 1h inside 12h, 30m inside 3h, every 20m inside 90m.
     - cron: '7,27,47 * * * *'
 
 permissions:
@@ -35,7 +41,7 @@ jobs:
       - name: Refresh NFL sportsbook odds + alternate lines
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
-          NFL_ODDS_FORCE: ${{ inputs.force == true && '1' || '0' }}
+          NFL_ODDS_FORCE: ${{ github.event_name == 'push' && '1' || (inputs.force == true && '1' || '0') }}
         run: node scripts/nfl-odds-refresh-v891.mjs
 
       - name: Validate odds file when changed
@@ -44,7 +50,7 @@ jobs:
             echo "Odds file unchanged."
             exit 0
           fi
-          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi'||d.meta?.windowMode!=='nfl-week-tue-mon')process.exit(2);console.log('✓ weekly odds',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players',d.meta.windowStartLocal,'->',d.meta.windowEndLocal)"
+          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi'||d.meta?.windowMode!=='nfl-week-tue-mon')process.exit(2);console.log('✓ weekly odds',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players',d.meta.windowStartLocal,'->',d.meta.windowEndLocal,'props requests',d.meta.propsRequestCount||1,'capped',Boolean(d.meta.propsResponseCapped))"
 
       - name: Commit odds when changed
         run: |
