@@ -10,16 +10,16 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect exact FanDuel milestone rows
+      - name: Inspect generic FanDuel milestone ladders
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
         shell: bash
         run: |
           set -euo pipefail
-          MARKETS="player_passing_yards_milestones_225_or_more,player_passing_yards_milestones_175_or_more,player_receiving_yards_milestones_30_or_more,player_receiving_yards_milestones_80_or_more,player_receiving_yards_milestones_20_or_more,player_rushing_yards_milestones_70_or_more"
+          MARKETS="player_passing_yards_milestones,player_receiving_yards_milestones,player_rushing_yards_milestones"
           curl -fsS \
             -H "X-API-Key: ${PARLAY_API_KEY}" \
-            "https://api.parlay-api.com/v1/sports/americanfootball_nfl/props?markets=${MARKETS}&bookmakers=fanduel&includeSids=true&includeLinks=true&limit=2000&maxAgeSec=3600" \
+            "https://api.parlay-api.com/v1/sports/americanfootball_nfl/props?markets=${MARKETS}&bookmakers=fanduel&includeSids=true&includeLinks=true&limit=5000&maxAgeSec=3600" \
             -D /tmp/headers.txt \
             -o /tmp/rows.json
           echo "RESULT_HEADERS"
@@ -37,15 +37,13 @@ jobs:
               clean={
                 'player':player,
                 'market_key':r.get('market_key') or r.get('market'),
+                'market':r.get('market'),
                 'line':r.get('line'),
                 'over_price':r.get('over_price'),
                 'under_price':r.get('under_price'),
                 'bookmaker':r.get('bookmaker') or r.get('book'),
                 'event_id':r.get('event_id'),
-                'commence_time':r.get('commence_time'),
                 'selection_id':r.get('selection_id'),
-                'over_selection_id':r.get('over_selection_id'),
-                'under_selection_id':r.get('under_selection_id'),
                 'selection_by_side':r.get('selection_by_side'),
                 'over_link':r.get('over_link'),
                 'under_link':r.get('under_link'),
