@@ -3,8 +3,9 @@
  * v89.1 runtime wrapper for scripts/nfl-odds-refresh.mjs.
  *
  * The established weekly refresh pipeline remains the source of truth. This
- * wrapper patches only parsePlayerMarket() in-memory so every sportsbook line
- * returned by the existing single paid /props call is preserved as `alternates`.
+ * wrapper preserves every sportsbook line returned by ParlayAPI as `alternates`
+ * and batches the large NFL props request so the provider's 10,000-row response
+ * ceiling cannot silently drop sportsbook/alternate-line coverage.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -15,11 +16,12 @@ const sourcePath=path.join(ROOT,'scripts','nfl-odds-refresh.mjs');
 const runtimePath=path.join(ROOT,'scripts','.nfl-odds-refresh-v891-runtime.mjs');
 const startMarker='function parsePlayerMarket(rows, internalKey) {';
 const endMarker='\nfunction blankMarketDiagnostics';
+const propsStartMarker='  // /props is one sport-level call.';
+const propsEndMarker='  const oddsParams = new URLSearchParams';
 
 const replacement=`function parsePlayerMarket(rows, internalKey) {
-  // v89.1: preserve every sportsbook line from the SAME /props response so the
-  // player modal can offer alternate yards/receptions/TD/completion lines without
-  // an extra API request. Top-level line/over/under remains backward compatible.
+  // v89.1: preserve every sportsbook line returned for the market so the
+  // player modal and ParlayPing can resolve exact alternate thresholds.
   const source = rows.filter(r => !isNonSportsbook(r));
   if (!source.length) return null;
   if (internalKey === 'atd' || internalKey === 'firstTd') {
@@ -57,15 +59,66 @@ const replacement=`function parsePlayerMarket(rows, internalKey) {
   };
 }`;
 
+const propsReplacement=`  // v89.2 completeness hotfix: a single weekly NFL /props call can exceed
+  // ParlayAPI's 10,000-row response ceiling. Split the highest-volume prop
+  // families into smaller requests and recursively split any batch that still
+  // reaches the cap. This preserves exact FanDuel/DraftKings/etc. alternate
+  // thresholds instead of silently losing rows at the provider boundary.
+  let propsRequestCount=0;
+  let propsResponseCapped=false;
+  async function fetchPropMarkets(markets){
+    if(!markets.length) return [];
+    const propParams=new URLSearchParams({
+      markets:markets.join(','),
+      bookmakers:SPORTSBOOK_QUERY,
+      limit:'10000',
+      maxAgeSec:'3600'
+    });
+    propsRequestCount++;
+    const payload=await fetchJson(\`${'${API}'}/sports/${'${SPORT}'}/props?${'${propParams}'}\`);
+    const rows=Array.isArray(payload)?payload:[];
+    if(rows.length>=10000&&markets.length>1){
+      console.warn(\`::warning::NFL /props batch hit 10,000 rows for ${'${markets.join(",")}'}. Splitting the batch for complete coverage.\`);
+      const mid=Math.ceil(markets.length/2);
+      const left=await fetchPropMarkets(markets.slice(0,mid));
+      const right=await fetchPropMarkets(markets.slice(mid));
+      return [...left,...right];
+    }
+    if(rows.length>=10000){
+      propsResponseCapped=true;
+      console.warn(\`::warning::NFL /props single-market response still hit 10,000 rows for ${'${markets[0]}'}; provider coverage may remain incomplete.\`);
+    }
+    return rows;
+  }
+
+  const preferredPropBatches=[
+    ['player_rec_yds','player_rush_yds'],
+    ['player_pass_yds','player_receptions'],
+    ['player_anytime_td','player_first_td','player_pass_tds','player_pass_completions'],
+  ].map(batch=>batch.filter(key=>API_MARKETS.includes(key))).filter(batch=>batch.length);
+  const props=[];
+  for(const batch of preferredPropBatches) props.push(...await fetchPropMarkets(batch));
+`;
+
 async function main(){
   const src=await fs.readFile(sourcePath,'utf8');
   const start=src.indexOf(startMarker);
   const end=src.indexOf(endMarker,start);
   if(start<0||end<0) throw new Error('v89.1 could not locate parsePlayerMarket() patch point');
-  const patched=src.slice(0,start)+replacement+src.slice(end);
+  let patched=src.slice(0,start)+replacement+src.slice(end);
+
+  const propsStart=patched.indexOf(propsStartMarker);
+  const propsEnd=patched.indexOf(propsEndMarker,propsStart);
+  if(propsStart<0||propsEnd<0) throw new Error('v89.2 could not locate NFL /props fetch block');
+  patched=patched.slice(0,propsStart)+propsReplacement+patched.slice(propsEnd);
+  patched=patched.replace(
+    'creditsEstimated:6,windowMode:',
+    "creditsEstimated:1+propsRequestCount*5,propsRequestCount,propsFetchMode:'batched-by-market',windowMode:"
+  );
+
   await fs.writeFile(runtimePath,patched,'utf8');
   try{
-    await import(`${pathToFileURL(runtimePath).href}?v=891-${Date.now()}`);
+    await import(`${pathToFileURL(runtimePath).href}?v=892-${Date.now()}`);
   }finally{
     await fs.rm(runtimePath,{force:true});
   }
