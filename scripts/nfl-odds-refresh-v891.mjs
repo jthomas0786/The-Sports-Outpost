@@ -62,10 +62,10 @@ const replacement=`function parsePlayerMarket(rows, internalKey) {
 const propsReplacement=`  // v89.2 completeness hotfix: a single weekly NFL /props call can exceed
   // ParlayAPI's 10,000-row response ceiling. Split the highest-volume prop
   // families into smaller requests and recursively split any batch that still
-  // reaches the cap. This preserves exact FanDuel/DraftKings/etc. alternate
-  // thresholds instead of silently losing rows at the provider boundary.
+  // reaches the cap. Temporary provider rebuild/busy responses are retried.
   let propsRequestCount=0;
   let propsResponseCapped=false;
+  const sleep=ms=>new Promise(resolve=>setTimeout(resolve,ms));
   async function fetchPropMarkets(markets){
     if(!markets.length) return [];
     const propParams=new URLSearchParams({
@@ -74,8 +74,25 @@ const propsReplacement=`  // v89.2 completeness hotfix: a single weekly NFL /pro
       limit:'10000',
       maxAgeSec:'3600'
     });
-    propsRequestCount++;
-    const payload=await fetchJson(\`${'${API}'}/sports/${'${SPORT}'}/props?${'${propParams}'}\`);
+    let payload=null;
+    let lastError=null;
+    for(let attempt=1;attempt<=5;attempt++){
+      propsRequestCount++;
+      try{
+        payload=await fetchJson(\`${'${API}'}/sports/${'${SPORT}'}/props?${'${propParams}'}\`);
+        lastError=null;
+        break;
+      }catch(error){
+        lastError=error;
+        const message=String(error?.message||error);
+        const retryable=/503|temporarily_busy|temporarily busy|under load/i.test(message);
+        if(!retryable||attempt===5) throw error;
+        const delay=attempt*2000;
+        console.warn(\`::warning::NFL props provider temporarily busy for ${'${markets.join(",")}'}. Retry ${'${attempt}'}/5 in ${'${delay/1000}'}s.\`);
+        await sleep(delay);
+      }
+    }
+    if(lastError) throw lastError;
     const rows=Array.isArray(payload)?payload:[];
     if(rows.length>=10000&&markets.length>1){
       console.warn(\`::warning::NFL /props batch hit 10,000 rows for ${'${markets.join(",")}'}. Splitting the batch for complete coverage.\`);
@@ -97,7 +114,10 @@ const propsReplacement=`  // v89.2 completeness hotfix: a single weekly NFL /pro
     ['player_anytime_td','player_first_td','player_pass_tds','player_pass_completions'],
   ].map(batch=>batch.filter(key=>API_MARKETS.includes(key))).filter(batch=>batch.length);
   const props=[];
-  for(const batch of preferredPropBatches) props.push(...await fetchPropMarkets(batch));
+  for(const batch of preferredPropBatches){
+    props.push(...await fetchPropMarkets(batch));
+    await sleep(750);
+  }
 `;
 
 async function main(){
