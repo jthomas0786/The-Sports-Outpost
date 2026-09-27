@@ -1,0 +1,46 @@
+name: Inspect NFL prop market catalog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/inspect-nfl-prop-markets.yml'
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect live NFL prop market keys
+        env:
+          PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsS \
+            -H "X-API-Key: ${PARLAY_API_KEY}" \
+            "https://api.parlay-api.com/v1/sports/americanfootball_nfl/props/markets" \
+            -o /tmp/markets.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/markets.json'))
+          if isinstance(d,dict):
+              rows=d.get('markets') or d.get('data') or d.get('results') or d
+          else:
+              rows=d
+          if isinstance(rows,dict):
+              keys=list(rows.keys())
+          else:
+              keys=[]
+              for row in rows if isinstance(rows,list) else []:
+                  if isinstance(row,str): keys.append(row)
+                  elif isinstance(row,dict):
+                      k=row.get('market_key') or row.get('key') or row.get('market') or row.get('name')
+                      if k: keys.append(str(k))
+          keys=sorted(set(keys))
+          print('TOTAL_MARKETS',len(keys))
+          print('NFL_YARDAGE_RELATED_MARKETS')
+          for k in keys:
+              s=k.lower()
+              if any(x in s for x in ['pass','rush','rec','yard','yds','milestone','alternate','alt_']):
+                  print(k)
+          PY
