@@ -2,11 +2,17 @@ name: Basketball Odds Snapshots
 
 on:
   push:
+    branches: [main]
     paths:
       - 'scripts/basketball-odds-refresh.mjs'
+      - 'scripts/basketball-odds-primary-refresh.mjs'
+      - 'scripts/parlayapi-pregame-cadence.mjs'
+      - 'scripts/parlayapi-pregame-cadence-selftest.mjs'
       - '.github/workflows/basketball-odds.yml'
   schedule:
-    - cron: '*/10 * * * *'
+    # Free event gate every 5 minutes. Paid props refreshes are adaptive:
+    # >7d 12h, <=7d 4h, <=48h 1h, <=12h 30m, <=3h 15m, <=90m 5m.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -19,7 +25,7 @@ concurrency:
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
         with:
@@ -27,10 +33,26 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Refresh NBA/NCAAB/WNBA sportsbook props
+      - name: Validate shared ParlayAPI cadence
+        run: node scripts/parlayapi-pregame-cadence-selftest.mjs
+      - name: Refresh NBA/NCAAB/WNBA sportsbook props when due
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
-        run: node scripts/basketball-odds-refresh.mjs NBA NCAAB WNBA
+          BASKETBALL_ODDS_FORCE: ${{ github.event_name == 'push' && '1' || (github.event_name == 'workflow_dispatch' && '1' || '0') }}
+        run: node scripts/basketball-odds-primary-refresh.mjs NBA NCAAB WNBA
+      - name: Validate ParlayAPI snapshots
+        run: |
+          node - <<'NODE'
+          const fs=require('fs');
+          for(const sport of ['nba','ncaab','wnba']){
+            const path=`slates/${sport}-odds.json`;
+            if(!fs.existsSync(path)) continue;
+            const d=JSON.parse(fs.readFileSync(path,'utf8'));
+            if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error(`${sport} snapshot is not verified ParlayAPI data`);
+            if((d.rows||[]).some(r=>String(r.player||'').includes('@'))) throw new Error(`${sport} snapshot contains matchup text as a player`);
+            console.log(`✓ ${sport.toUpperCase()} ParlayAPI snapshot rows=${(d.rows||[]).length} books=${(d.meta?.books||[]).length} links=${d.meta?.nativeLinkRows||0} sids=${d.meta?.nativeSidRows||0}`);
+          }
+          NODE
       - name: Commit changed snapshots
         run: |
           set -euo pipefail
@@ -44,5 +66,9 @@ jobs:
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json
           git commit -m 'Refresh basketball odds snapshots'
-          git pull --rebase origin main
-          git push origin HEAD:main
+          for attempt in 1 2 3 4 5; do
+            git pull --rebase --autostash origin main
+            if git push origin HEAD:main; then exit 0; fi
+            sleep $((attempt*2))
+          done
+          exit 1
