@@ -13,6 +13,7 @@ on:
       - 'scripts/nfl-odds-refresh.mjs'
       - 'scripts/nfl-odds-refresh-v891.mjs'
       - 'scripts/nfl-week-window.mjs'
+      - 'scripts/nfl-v881-selftest.mjs'
       - '.github/workflows/nfl-odds.yml'
   schedule:
     # ParlayAPI is the primary sportsbook pricing source for TSO and ParlayPing.
@@ -39,6 +40,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Validate NFL weekly window + ParlayAPI cadence
+        run: node scripts/nfl-v881-selftest.mjs
 
       - name: Refresh NFL sportsbook odds + alternate lines
         env:
