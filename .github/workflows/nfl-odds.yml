@@ -14,8 +14,9 @@ on:
       - 'scripts/nfl-odds-refresh-v891.mjs'
       - '.github/workflows/nfl-odds.yml'
   schedule:
-    # v88.1: run the FREE weekly gate every 20 minutes. The script itself only
-    # makes paid calls when its distance-to-next-kickoff threshold is due:
+    # ParlayAPI is the primary sportsbook pricing source for TSO and ParlayPing.
+    # Run the FREE weekly gate every 20 minutes; the script itself only makes
+    # paid calls when its distance-to-next-kickoff threshold is due:
     # 4h far away, 1h inside 12h, 30m inside 3h, every 20m inside 90m.
     - cron: '7,27,47 * * * *'
 
