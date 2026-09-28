@@ -4,6 +4,7 @@ import {installNhlPlayerModalV921} from './player-modal-v921.js?v=90.22';
 import {installNhlPropsDailyGuardV920} from './props-daily-guard-v920.js?v=90.22';
 import {gradeForLean,gradeRingHTML} from './grade.js?v=90.4';
 import {installNhlLaunchV922} from './launch-v922.js?v=90.22';
+import {installPuckLineJesusV923} from './puck-line-jesus.js?v=90.23';
 
 function ensureNhlModalVisibilityV910(){
  if(typeof document==='undefined'||document.getElementById('nhl-player-modal-visibility-v910'))return;
@@ -23,5 +24,6 @@ export async function mount(){
  installNhlSlateV906({gradeForLean,gradeRingHTML});
  installNhlPlayerModalV921(host);
  await installNhlLaunchV922(host);
+ installPuckLineJesusV923();
  return result;
 }
