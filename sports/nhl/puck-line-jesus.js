@@ -154,7 +154,13 @@ function syncPanel(){
  if(!panel){const header=root.querySelector('.hk-head');if(!header)return;header.insertAdjacentHTML('afterend',panelHTML());panel=root.querySelector('#hkPuckLineJesusPanel');if(lastModel)renderModel(lastModel);else if(lastError){const body=document.getElementById('hkPuckLineJesusBody');if(body)body.innerHTML=`<div class="plj-empty">${esc(lastError)}</div>`;}}
 }
 async function liveSlate(){
- const slate=await loadScoreboard();
+ const published=await getJSON(`./slates/nhl.json?t=${Date.now()}`);
+ let slate=published;
+ try{
+  const live=await loadScoreboard();
+  const liveById=new Map((live?.games||[]).map(g=>[String(g.id),g]));
+  slate={...published,generatedAt:live?.generatedAt||published.generatedAt,games:(published?.games||[]).map(g=>liveById.get(String(g.id))||g)};
+ }catch{}
  await Promise.all((slate.games||[]).filter(g=>['in','post'].includes(g.status)).map(async g=>{try{Object.assign(g,mergeSummary(g,await getJSON(`${API}/summary?event=${g.id}`)));}catch{g.summaryUnavailable=true;}}));
  return slate;
 }
