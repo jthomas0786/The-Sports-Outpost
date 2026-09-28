@@ -12,6 +12,25 @@ if(!KEY){console.error('::error::PARLAY_API_KEY is missing.');process.exit(2);}
 
 function arrayPayload(payload){return Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:[];}
 async function readSnapshot(slug){try{return JSON.parse(await fs.readFile(`slates/${slug}-odds.json`,'utf8'));}catch{return null;}}
+async function writeSnapshot(slug,doc){await fs.writeFile(`slates/${slug}-odds.json`,JSON.stringify(doc,null,2)+'\n');}
+function matchupLabel(value){const name=String(value||'').trim();return name.includes('@')||/\bvs\.?\b/i.test(name);}
+async function sanitizeSnapshot(slug){
+  const doc=await readSnapshot(slug);if(!doc||!Array.isArray(doc.rows))return 0;
+  const before=doc.rows.length;
+  doc.rows=doc.rows.filter(row=>!matchupLabel(row?.player));
+  const removed=before-doc.rows.length;
+  if(!removed)return 0;
+  if(doc.meta&&typeof doc.meta==='object'){
+    doc.meta.sportsbookRows=doc.rows.length;
+    doc.meta.currentRows=doc.rows.filter(row=>!row?.preserved).length;
+    doc.meta.preservedRows=doc.rows.filter(row=>row?.preserved).length;
+    doc.meta.rejectedNonPlayers=Number(doc.meta.rejectedNonPlayers||0)+removed;
+    doc.meta.sanitizedMatchupLabels=Number(doc.meta.sanitizedMatchupLabels||0)+removed;
+  }
+  await writeSnapshot(slug,doc);
+  console.log(`${slug.toUpperCase()} snapshot removed ${removed} matchup label row(s) misclassified as players.`);
+  return removed;
+}
 async function eventsFor(sportKey){
   const from=new Date(NOW-12*3600_000).toISOString();
   const to=new Date(NOW+30*24*3600_000).toISOString();
@@ -31,6 +50,7 @@ for(const sport of sports){
     const nextStartMs=nextFutureStartMs(events.map(e=>e?.commence_time),NOW);
     const gate=refreshState({lastFetchedAt:snapshot?.meta?.fetchedAt,nextStartMs,nowMs:NOW,force:FORCE});
     if(!gate.due){
+      await sanitizeSnapshot(cfg.slug);
       const threshold=Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60_000):null;
       const age=Number.isFinite(gate.ageMs)?Math.round(gate.ageMs/60_000):null;
       console.log(`${sport} ParlayAPI props not due; age=${age??'n/a'}m threshold=${threshold??'n/a'}m next=${gate.hoursToNextStart==null?'none':gate.hoursToNextStart.toFixed(2)+'h'}.`);
@@ -39,6 +59,7 @@ for(const sport of sports){
     console.log(`${sport} ParlayAPI props due; next=${gate.hoursToNextStart==null?'forced':gate.hoursToNextStart.toFixed(2)+'h'}, threshold=${Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60_000):0}m.`);
     const run=spawnSync(process.execPath,['scripts/basketball-odds-refresh.mjs',sport],{stdio:'inherit',env:process.env});
     if(run.status!==0)throw new Error(`${sport} basketball odds refresh exited ${run.status}`);
+    await sanitizeSnapshot(cfg.slug);
   }catch(error){failed=true;console.error(`::error::${sport} primary refresh failed:`,error?.stack||error);}
 }
 if(failed)process.exit(1);
