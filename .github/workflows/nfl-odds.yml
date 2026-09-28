@@ -12,13 +12,14 @@ on:
     paths:
       - 'scripts/nfl-odds-refresh.mjs'
       - 'scripts/nfl-odds-refresh-v891.mjs'
+      - 'scripts/nfl-week-window.mjs'
       - '.github/workflows/nfl-odds.yml'
   schedule:
     # ParlayAPI is the primary sportsbook pricing source for TSO and ParlayPing.
-    # Run the FREE weekly gate every 20 minutes; the script itself only makes
-    # paid calls when its distance-to-next-kickoff threshold is due:
-    # 4h far away, 1h inside 12h, 30m inside 3h, every 20m inside 90m.
-    - cron: '7,27,47 * * * *'
+    # Run the FREE weekly gate every 5 minutes. Paid calls are adaptive:
+    # 2h when >48h out, 1h inside 48h, 30m inside 12h,
+    # 15m inside 3h, and every 5m inside 90m.
+    - cron: '*/5 * * * *'
 
 permissions:
   contents: write
@@ -51,7 +52,7 @@ jobs:
             echo "Odds file unchanged."
             exit 0
           fi
-          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi'||d.meta?.windowMode!=='nfl-week-tue-mon')process.exit(2);console.log('✓ weekly odds',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players',d.meta.windowStartLocal,'->',d.meta.windowEndLocal,'props requests',d.meta.propsRequestCount||1,'capped',Boolean(d.meta.propsResponseCapped))"
+          node -e "const f=require('fs');const d=JSON.parse(f.readFileSync('slates/nfl-odds.json','utf8'));if(d.meta?.sample!==false||d.meta?.source!=='parlayapi'||d.meta?.windowMode!=='nfl-week-tue-mon')process.exit(2);console.log('✓ weekly odds',d.games.length,'game(s),',d.games.reduce((n,g)=>n+(g.players||[]).length,0),'players',d.meta.windowStartLocal,'->',d.meta.windowEndLocal,'props requests',d.meta.propsRequestCount||1,'capped',Boolean(d.meta.propsResponseCapped),'refresh threshold',d.meta.refreshThresholdMinutes,'minutes')"
 
       - name: Commit odds when changed
         run: |
