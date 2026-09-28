@@ -6,7 +6,7 @@ function openExactGame(id){
   document.querySelector('#hkPuckLineJesusPanel [data-plj-close]')?.click();
   window.DW_openNhlTab?.('slate');
   queueMicrotask(()=>{
-    const target=[...document.querySelectorAll('#nhlView [data-hk-game]')]
+    const target=[...document.querySelectorAll('#nhlView button[data-hk-game]')]
       .find(el=>String(el.dataset.hkGame||'')===gameId);
     if(target){target.click();return;}
     window.DW_openNhlTab?.('live');
