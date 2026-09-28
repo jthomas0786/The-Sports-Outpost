@@ -10,7 +10,6 @@ on:
       - 'scripts/parlayapi-pregame-cadence-selftest.mjs'
       - '.github/workflows/mlb-odds-refresh.yml'
   schedule:
-    # Free/local gate every 5 minutes; paid ParlayAPI props calls are adaptive.
     - cron: '*/5 * * * *'
   workflow_dispatch:
 
@@ -47,7 +46,8 @@ jobs:
           if(!fs.existsSync('slates/mlb-odds.json')) process.exit(0);
           const d=JSON.parse(fs.readFileSync('slates/mlb-odds.json','utf8'));
           if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error('MLB snapshot is not verified ParlayAPI data');
-          if((d.rows||[]).some(r=>Number(r.overPrice)===0||Number(r.underPrice)===0)) throw new Error('MLB snapshot contains a zero price');
+          const zero=v=>v!==null&&v!==undefined&&v!==''&&Number(v)===0;
+          if((d.rows||[]).some(r=>zero(r.overPrice)||zero(r.underPrice))) throw new Error('MLB snapshot contains a zero price');
           console.log(`✓ MLB ParlayAPI snapshot rows=${(d.rows||[]).length} books=${(d.meta?.books||[]).length} markets=${(d.meta?.markets||[]).length}`);
           NODE
       - name: Persist MLB odds snapshot
