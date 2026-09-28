@@ -1,0 +1,44 @@
+#!/usr/bin/env node
+import fs from 'node:fs/promises';
+import { spawnSync } from 'node:child_process';
+import { nextFutureStartMs, refreshState } from './parlayapi-pregame-cadence.mjs';
+
+const API=process.env.PARLAY_API_BASE||'https://parlay-api.com/v1';
+const KEY=process.env.PARLAY_API_KEY||'';
+const NOW=Date.now();
+const FORCE=process.env.BASKETBALL_ODDS_FORCE==='1'||process.argv.includes('--force');
+const LEAGUES={NBA:{sportKey:'basketball_nba',slug:'nba'},NCAAB:{sportKey:'basketball_ncaab',slug:'ncaab'},WNBA:{sportKey:'basketball_wnba',slug:'wnba'}};
+if(!KEY){console.error('::error::PARLAY_API_KEY is missing.');process.exit(2);}
+
+function arrayPayload(payload){return Array.isArray(payload)?payload:Array.isArray(payload?.data)?payload.data:[];}
+async function readSnapshot(slug){try{return JSON.parse(await fs.readFile(`slates/${slug}-odds.json`,'utf8'));}catch{return null;}}
+async function eventsFor(sportKey){
+  const from=new Date(NOW-12*3600_000).toISOString();
+  const to=new Date(NOW+30*24*3600_000).toISOString();
+  const qs=new URLSearchParams({commenceTimeFrom:from,commenceTimeTo:to});
+  const response=await fetch(`${API}/sports/${sportKey}/events?${qs}`,{headers:{accept:'application/json','X-API-Key':KEY},signal:AbortSignal.timeout(30_000)});
+  const text=await response.text();
+  if(!response.ok)throw new Error(`ParlayAPI events HTTP ${response.status}: ${text.slice(0,300)}`);
+  return arrayPayload(text?JSON.parse(text):null);
+}
+
+const requested=process.argv.slice(2).filter(x=>x!=='--force').map(x=>String(x).toUpperCase()).filter(x=>LEAGUES[x]);
+const sports=requested.length?[...new Set(requested)]:['NBA','NCAAB','WNBA'];
+let failed=false;
+for(const sport of sports){
+  try{
+    const cfg=LEAGUES[sport],snapshot=await readSnapshot(cfg.slug),events=await eventsFor(cfg.sportKey);
+    const nextStartMs=nextFutureStartMs(events.map(e=>e?.commence_time),NOW);
+    const gate=refreshState({lastFetchedAt:snapshot?.meta?.fetchedAt,nextStartMs,nowMs:NOW,force:FORCE});
+    if(!gate.due){
+      const threshold=Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60_000):null;
+      const age=Number.isFinite(gate.ageMs)?Math.round(gate.ageMs/60_000):null;
+      console.log(`${sport} ParlayAPI props not due; age=${age??'n/a'}m threshold=${threshold??'n/a'}m next=${gate.hoursToNextStart==null?'none':gate.hoursToNextStart.toFixed(2)+'h'}.`);
+      continue;
+    }
+    console.log(`${sport} ParlayAPI props due; next=${gate.hoursToNextStart==null?'forced':gate.hoursToNextStart.toFixed(2)+'h'}, threshold=${Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60_000):0}m.`);
+    const run=spawnSync(process.execPath,['scripts/basketball-odds-refresh.mjs',sport],{stdio:'inherit',env:process.env});
+    if(run.status!==0)throw new Error(`${sport} basketball odds refresh exited ${run.status}`);
+  }catch(error){failed=true;console.error(`::error::${sport} primary refresh failed:`,error?.stack||error);}
+}
+if(failed)process.exit(1);
