@@ -72,17 +72,19 @@ jobs:
         run: |
           node - <<'NODE'
           const fs=require('fs');
+          const slate=JSON.parse(fs.readFileSync('slates/nhl.json','utf8'));
           const d=JSON.parse(fs.readFileSync('slates/nhl-odds.json','utf8'));
           if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error('NHL snapshot is not verified ParlayAPI data');
           if(!Array.isArray(d.rows)) throw new Error('NHL snapshot is missing ParlayPing rows');
           const zero=v=>v!==null&&v!==undefined&&v!==''&&Number(v)===0;
           if((d.rows||[]).some(r=>zero(r.overPrice)||zero(r.underPrice))) throw new Error('NHL snapshot contains a zero price');
-          console.log(`✓ NHL ParlayAPI rows=${d.rows.length} links=${d.meta.nativeLinkRows||0} sids=${d.meta.nativeSidRows||0}`);
+          const gameIds=new Set((slate.games||[]).map(g=>String(g.id)));
+          if((d.rows||[]).some(r=>r.gameId&&gameIds.size&&!gameIds.has(String(r.gameId)))) throw new Error('NHL odds row points outside refreshed slate');
+          if(!slate.date||!Array.isArray(slate.games)) throw new Error('Refreshed NHL slate is malformed');
+          console.log(`✓ NHL ${slate.date} games=${slate.games.length} ParlayAPI rows=${d.rows.length} links=${d.meta.nativeLinkRows||0} sids=${d.meta.nativeSidRows||0}`);
           NODE
       - name: Simulate eligible full games
         run: node scripts/nhl-simulate.mjs
-      - name: Verify refreshed launch slate
-        run: node scripts/nhl-launch-v922-selftest.mjs
       - name: Publish NHL data only
         run: |
           git config user.name "TSO NHL Bot"
