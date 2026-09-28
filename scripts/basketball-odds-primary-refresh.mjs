@@ -14,6 +14,7 @@ function arrayPayload(payload){return Array.isArray(payload)?payload:Array.isArr
 async function readSnapshot(slug){try{return JSON.parse(await fs.readFile(`slates/${slug}-odds.json`,'utf8'));}catch{return null;}}
 async function writeSnapshot(slug,doc){await fs.writeFile(`slates/${slug}-odds.json`,JSON.stringify(doc,null,2)+'\n');}
 function matchupLabel(value){const name=String(value||'').trim();return name.includes('@')||/\bvs\.?\b/i.test(name);}
+function verifiedSnapshot(doc){return doc?.meta?.source==='parlayapi'&&doc?.meta?.sample===false&&Array.isArray(doc?.rows);}
 async function sanitizeSnapshot(slug){
   const doc=await readSnapshot(slug);if(!doc||!Array.isArray(doc.rows))return 0;
   const before=doc.rows.length;
@@ -57,8 +58,19 @@ for(const sport of sports){
       continue;
     }
     console.log(`${sport} ParlayAPI props due; next=${gate.hoursToNextStart==null?'forced':gate.hoursToNextStart.toFixed(2)+'h'}, threshold=${Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60_000):0}m.`);
-    const run=spawnSync(process.execPath,['scripts/basketball-odds-refresh.mjs',sport],{stdio:'inherit',env:process.env});
-    if(run.status!==0)throw new Error(`${sport} basketball odds refresh exited ${run.status}`);
+    const run=spawnSync(process.execPath,['scripts/basketball-odds-refresh.mjs',sport],{encoding:'utf8',env:process.env,maxBuffer:16*1024*1024});
+    if(run.stdout)process.stdout.write(run.stdout);
+    if(run.stderr)process.stderr.write(run.stderr);
+    if(run.status!==0){
+      const detail=`${run.stdout||''}\n${run.stderr||''}`;
+      const transient=/\b503\b|props_temporarily_busy|temporarily busy|board is being rebuilt/i.test(detail);
+      if(transient&&verifiedSnapshot(snapshot)){
+        console.warn(`::warning::${sport} ParlayAPI props are temporarily busy; preserving the last verified snapshot instead of failing the pricing path.`);
+        await sanitizeSnapshot(cfg.slug);
+        continue;
+      }
+      throw new Error(`${sport} basketball odds refresh exited ${run.status}`);
+    }
     await sanitizeSnapshot(cfg.slug);
   }catch(error){failed=true;console.error(`::error::${sport} primary refresh failed:`,error?.stack||error);}
 }
