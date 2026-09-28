@@ -75,7 +75,8 @@ jobs:
           const d=JSON.parse(fs.readFileSync('slates/nhl-odds.json','utf8'));
           if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error('NHL snapshot is not verified ParlayAPI data');
           if(!Array.isArray(d.rows)) throw new Error('NHL snapshot is missing ParlayPing rows');
-          if((d.rows||[]).some(r=>Number(r.overPrice)===0||Number(r.underPrice)===0)) throw new Error('NHL snapshot contains a zero price');
+          const zero=v=>v!==null&&v!==undefined&&v!==''&&Number(v)===0;
+          if((d.rows||[]).some(r=>zero(r.overPrice)||zero(r.underPrice))) throw new Error('NHL snapshot contains a zero price');
           console.log(`✓ NHL ParlayAPI rows=${d.rows.length} links=${d.meta.nativeLinkRows||0} sids=${d.meta.nativeSidRows||0}`);
           NODE
       - name: Simulate eligible full games
