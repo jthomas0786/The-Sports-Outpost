@@ -1,0 +1,22 @@
+name: Validate ParlayAPI cadence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/validate-parlayapi-cadence.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Run NFL cadence regression suite
+        run: npm run nfl:v881:test
