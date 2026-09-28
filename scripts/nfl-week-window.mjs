@@ -1,5 +1,5 @@
 /**
- * v88.1 — NFL weekly odds window + refresh cadence.
+ * v94.0 — NFL weekly odds window + ParlayAPI refresh cadence.
  * NFL product week rolls Tuesday at 3:00 AM America/Chicago.
  */
 
@@ -57,9 +57,10 @@ export function activeNflWeekWindow(nowMs=Date.now()){
 
 export function weeklyPaidRefreshMs(hoursToNextKick){
   const h=Number(hoursToNextKick);
-  if(!Number.isFinite(h)) return 4*3600000;
-  if(h<=1.5) return 20*60000;
-  if(h<=3) return 30*60000;
-  if(h<=12) return 60*60000;
-  return 4*3600000;
+  if(!Number.isFinite(h)) return 2*3600000;
+  if(h<=1.5) return 5*60000;
+  if(h<=3) return 15*60000;
+  if(h<=12) return 30*60000;
+  if(h<=48) return 60*60000;
+  return 2*3600000;
 }
