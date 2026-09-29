@@ -1,15 +1,15 @@
 import {API,getJSON,loadScoreboard,mergeSummary,text as esc} from './data.js?v=90.23';
 import {buildPuckLineJesusModel} from './puck-line-jesus.js?v=90.23';
+import {setPljRemotePushEnabled,getPljRemotePushStatus} from './plj-push-client-v926.js?v=90.26';
 
 const ALERT_PREF='tso.plj.alerts.v1';
 const ALERTED_PREF='tso.plj.alerted.v1';
 const HISTORY_PATH='./slates/nhl-plj-history.json';
 const LINES_PATH='./slates/nhl-puck-lines.json';
 const POLL_MS=10000;
-let installed=false,timer=null,refreshing=false,observer=null,queued=false,historyAt=0,lastHistory=null;
+let installed=false,timer=null,refreshing=false,observer=null,queued=false,historyAt=0,lastHistory=null,remoteState='unknown';
 const states=new Map();
 
-const upper=v=>String(v||'').toUpperCase();
 const alertsEnabled=()=>{try{return localStorage.getItem(ALERT_PREF)==='1';}catch{return false;}};
 const setAlertsEnabled=v=>{try{localStorage.setItem(ALERT_PREF,v?'1':'0');}catch{}};
 const alertedKeys=()=>{try{const v=JSON.parse(localStorage.getItem(ALERTED_PREF)||'[]');return Array.isArray(v)?v:[];}catch{return [];}};
@@ -105,9 +105,21 @@ function syncControls(){
  const actions=panel.querySelector('.plj-hero-actions');if(actions&&!document.getElementById('hkPuckLineJesusAlertToggle')){
   const b=document.createElement('button');b.type='button';b.id='hkPuckLineJesusAlertToggle';b.dataset.pljAlertToggle='1';actions.insertBefore(b,actions.querySelector('[data-plj-close]'));
  }
- const b=document.getElementById('hkPuckLineJesusAlertToggle');if(b){const on=alertsEnabled(),copy=on?'🔔 Alerts On':'🔕 Enable Alerts';b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',on?'true':'false');if(b.textContent!==copy)b.textContent=copy;}
+ const b=document.getElementById('hkPuckLineJesusAlertToggle');
+ if(b){
+  const on=alertsEnabled(),suffix=on&&remoteState==='on'?' · Push':on&&remoteState==='signin'?' · Sign in for Push':'';
+  const copy=on?`🔔 Alerts On${suffix}`:'🔕 Enable Alerts';
+  b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',on?'true':'false');if(b.textContent!==copy)b.textContent=copy;
+ }
  document.getElementById('hkPuckLineJesusBtn')?.classList.toggle('plj-alerts-enabled',alertsEnabled());
  refreshHistory();
+}
+async function syncRemotePreference(enabled){
+ try{
+  const result=await setPljRemotePushEnabled(enabled);
+  remoteState=result.ok&&result.remote?'on':result.reason==='signin'?'signin':result.ok?'off':result.reason||'off';
+  syncControls();return result;
+ }catch{remoteState='error';syncControls();return {ok:false,reason:'error'};}
 }
 async function toggleAlerts(){
  const next=!alertsEnabled();setAlertsEnabled(next);
@@ -115,15 +127,33 @@ async function toggleAlerts(){
   let permission='unsupported';
   if('Notification' in window){permission=Notification.permission;try{if(permission==='default')permission=await Notification.requestPermission();}catch{}}
   syncControls();startPolling();
-  const body=permission==='granted'?'Browser notifications and in-site PLJ alerts are on.':permission==='denied'?'Browser notifications are blocked, but in-site PLJ alerts are on while The Sports Outpost is open.':'In-site PLJ alerts are on while The Sports Outpost is open.';
+  const remote=await syncRemotePreference(true);
+  let body='In-site PLJ alerts are on while The Sports Outpost is open.';
+  if(remote.ok&&remote.remote)body='Remote PLJ push and in-site alerts are on — you can close The Sports Outpost and still get the alert.';
+  else if(remote.reason==='signin')body='In-site alerts are on. Sign in to The Sports Outpost to enable background push when the site is closed.';
+  else if(permission==='denied')body='Browser notifications are blocked, but in-site PLJ alerts are on while The Sports Outpost is open.';
   toast('Puck Line Jesus Alerts On',body,'live');
- }else{stopPolling();syncControls();toast('Puck Line Jesus Alerts Off','Live PLJ notifications are paused.','watch');}
+ }else{
+  stopPolling();await syncRemotePreference(false);syncControls();toast('Puck Line Jesus Alerts Off','PLJ push and in-site alerts are paused for this device.','watch');
+ }
+}
+async function hydrateRemoteState(){
+ if(!alertsEnabled())return;
+ try{const s=await getPljRemotePushStatus();remoteState=s.enabled?'on':s.reason==='signin'?'signin':'off';if(Notification.permission==='granted'&&!s.enabled)await syncRemotePreference(true);else syncControls();}catch{}
 }
 function queueSync(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;syncControls();});}
 function click(e){if(e.target.closest?.('[data-plj-alert-toggle]')){e.preventDefault();e.stopImmediatePropagation();toggleAlerts();}}
+function openFromPushUrl(){
+ try{
+  const url=new URL(location.href);if(url.searchParams.get('plj')!=='1')return;
+  url.searchParams.delete('plj');history.replaceState({},'',url.pathname+(url.searchParams.size?`?${url.searchParams}`:'')+url.hash);
+  setTimeout(()=>window.DW_openPuckLineJesus?.(),250);
+ }catch{}
+}
 
 export function installPuckLineJesusAlertsV925(){
  if(installed){queueSync();if(alertsEnabled())startPolling();return;}installed=true;ensureStyle();document.addEventListener('click',click,true);
  observer=new MutationObserver(queueSync);observer.observe(document.body,{childList:true,subtree:true});queueSync();if(alertsEnabled())startPolling();
- window.DW_pljAlerts={enabled:alertsEnabled,refresh:refreshAlerts,history:()=>lastHistory};
+ window.DW_pljAlerts={enabled:alertsEnabled,refresh:refreshAlerts,history:()=>lastHistory,remote:()=>remoteState};
+ openFromPushUrl();hydrateRemoteState();
 }
