@@ -79,9 +79,12 @@ export function isPreview(key) {
   return !!(s && s.uiReady && !s.adapterReady);
 }
 
-// Restore the global header Info control independently of sport-specific views.
+// Global header Info control + NHL side-nav enhancements load independently of sport views.
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   import('./global-info-button-v956.js?v=95.7-mobile-info')
     .then(mod => mod.installGlobalInfoButtonV956?.())
     .catch(error => console.warn('[Global info button] unavailable:', error));
+  import('./nhl/sidebar-plj-v927.js?v=90.27')
+    .then(mod => mod.installNhlSidebarPuckLineJesusV927?.())
+    .catch(error => console.warn('[NHL sidebar PLJ] unavailable:', error));
 }
