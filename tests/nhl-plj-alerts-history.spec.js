@@ -15,6 +15,7 @@ async function openPlj(page,width=1440,height=1000){
 test('Puck Line Jesus is a direct NHL side-nav item',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});
  await page.goto('http://127.0.0.1:4173/index.html#mlb',{waitUntil:'domcontentloaded'});
+ const nhlHead=page.locator('#sbSportAccordion .sb-sport-head[data-sport="nhl"]');
  const item=page.locator('#sbSportAccordion .sb-sub-item[data-nhl-plj]');
  await expect(item).toHaveCount(1,{timeout:30000});
  await expect(item).toHaveText('Puck Line Jesus');
@@ -24,6 +25,8 @@ test('Puck Line Jesus is a direct NHL side-nav item',async({page})=>{
  }));
  expect(structure.sport).toBe('nhl');
  expect(structure.previous).toBe('live');
+ await nhlHead.click();
+ await expect(item).toBeVisible({timeout:30000});
  await item.click();
  await expect.poll(()=>page.evaluate(()=>location.hash),{timeout:30000}).toBe('#nhl');
  await expect(page.locator('#hkPuckLineJesusPanel')).toBeVisible({timeout:30000});
