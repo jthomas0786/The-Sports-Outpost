@@ -54,6 +54,7 @@ jobs:
           node --check sports/nhl/player-modal-v918.js
           node --check sports/nhl/player-modal-v921.js
           node scripts/nhl-selftest.mjs
+          node scripts/nhl-live-roster-selftest.mjs
           node scripts/nhl-daily-slate-selftest.mjs
           node scripts/nhl-props-baseline-selftest.mjs
           node scripts/nhl-v901-selftest.mjs
@@ -79,12 +80,16 @@ jobs:
           node - <<'NODE'
           const fs=require('fs');
           const slate=JSON.parse(fs.readFileSync('slates/nhl.json','utf8'));
+          const research=JSON.parse(fs.readFileSync('slates/nhl-research.json','utf8'));
           const d=JSON.parse(fs.readFileSync('slates/nhl-odds.json','utf8'));
           const plj=JSON.parse(fs.readFileSync('slates/nhl-puck-lines.json','utf8'));
           if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error('NHL snapshot is not verified ParlayAPI data');
           if(!Array.isArray(d.rows)) throw new Error('NHL snapshot is missing ParlayPing rows');
           if(!Array.isArray(d.gameLines)) throw new Error('NHL snapshot is missing game-line rows');
           if(plj.source!=='parlayapi'||plj.sample!==false||!Array.isArray(plj.games)) throw new Error('NHL puck-line snapshot is malformed');
+          if(!research.players||Object.keys(research.players).length===0) throw new Error('NHL research snapshot has no player baselines');
+          const sparseLive=(slate.games||[]).filter(g=>g.status==='in'&&(g.players||[]).length<20);
+          if(sparseLive.length) throw new Error(`NHL live slate has sparse player coverage: ${sparseLive.map(g=>`${g.away?.abbr}@${g.home?.abbr}=${(g.players||[]).length}`).join(', ')}`);
           const zero=v=>v!==null&&v!==undefined&&v!==''&&Number(v)===0;
           if((d.rows||[]).some(r=>zero(r.overPrice)||zero(r.underPrice))) throw new Error('NHL snapshot contains a zero price');
           const gameIds=new Set((slate.games||[]).map(g=>String(g.id)));
