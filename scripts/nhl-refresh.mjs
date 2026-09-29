@@ -6,15 +6,14 @@ const out=flag('--out')||'slates/nhl.json';
 const doc=await loadScoreboard(flag('--date'));
 const rosters=new Map();
 for(const game of doc.games){
+ for(const team of [game.away,game.home]){
+  if(!rosters.has(team.id)){
+   try{const r=await getJSON(`${API}/teams/${team.id}/roster`);rosters.set(team.id,(r.athletes||[]).flatMap(g=>g.items||[]));}catch{rosters.set(team.id,[]);}
+  }
+  game.players.push(...rosters.get(team.id).map(p=>athlete(p,team.abbr,game.id)));
+ }
  if(['in','post'].includes(game.status)){
   try{Object.assign(game,mergeSummary(game,await getJSON(`${API}/summary?event=${game.id}`)));}catch{game.summaryUnavailable=true;}
- }else{
-  for(const team of [game.away,game.home]){
-   if(!rosters.has(team.id)){
-    try{const r=await getJSON(`${API}/teams/${team.id}/roster`);rosters.set(team.id,(r.athletes||[]).flatMap(g=>g.items||[]));}catch{rosters.set(team.id,[]);}
-   }
-   game.players.push(...rosters.get(team.id).map(p=>athlete(p,team.abbr,game.id)));
-  }
  }
  const evidence={};
  if(game.status!=='pre'||Date.parse(game.startTime)-Date.now()<10800000){
