@@ -1,0 +1,7051 @@
+{
+  "date": "2026-09-29",
+  "generatedAt": "2026-09-29T10:35:51.832Z",
+  "slateGeneratedAt": "2026-09-29T10:35:51.832Z",
+  "model": {
+    "gitSha": "2c1f121",
+    "indexHash": "4eae8e91f16a",
+    "configHash": "21d3bd77c781",
+    "modelHash": "aca6f5f6d5fc",
+    "simRuns": 10000,
+    "rngSeed": "2026-09-29:2026-09-29T10:35:51.832Z:aca6f5f6d5fc"
+  },
+  "props": {
+    "hr": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "homeRuns"
+    },
+    "hits": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "hits"
+    },
+    "tb": {
+      "over": 1.5,
+      "kind": "totalBases"
+    },
+    "rbi": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "rbi"
+    },
+    "hrr": {
+      "over": 1.5,
+      "kind": "hitsPlusRunsPlusRbi"
+    },
+    "sb": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "stolenBases"
+    }
+  },
+  "players": [
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 547180,
+      "name": "Bryce Harper",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1235,
+          "pct": 12.4,
+          "grade": "B+",
+          "percentile": 83,
+          "contextMult": 0.7591827373936598,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5882,
+          "pct": 58.8,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 0.8795810766169299,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3312,
+          "pct": 33.1,
+          "grade": "B+",
+          "percentile": 78,
+          "contextMult": 0.7901970279329792,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2806,
+          "pct": 28.1,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.8371872350146999,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4178,
+          "pct": 41.8,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.8209321809343201,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0101,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7269628380300002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 656941,
+      "name": "Kyle Schwarber",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.2014,
+          "pct": 20.1,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 0.8767087436996542,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5627,
+          "pct": 56.3,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.8087526060615879,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.346,
+          "pct": 34.6,
+          "grade": "B+",
+          "percentile": 83,
+          "contextMult": 0.8181946074444704,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2912,
+          "pct": 29.1,
+          "grade": "B+",
+          "percentile": 70,
+          "contextMult": 0.8408814821877253,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4138,
+          "pct": 41.4,
+          "grade": "B+",
+          "percentile": 70,
+          "contextMult": 0.7955482772764801,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0119,
+          "pct": 1.2,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 1.021244367,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 650333,
+      "name": "Luis Arraez",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0452,
+          "pct": 4.5,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.6312376724594045,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6168,
+          "pct": 61.7,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.8145308286128738,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3069,
+          "pct": 30.7,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.6524516673845459,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2364,
+          "pct": 23.6,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.7094374071554078,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3847,
+          "pct": 38.5,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.7698854296224,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.044,
+          "pct": 4.4,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 1.3960792560000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 650559,
+      "name": "Bryan De La Cruz",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0582,
+          "pct": 5.8,
+          "grade": "C",
+          "percentile": 28,
+          "contextMult": 0.6326680481207134,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4376,
+          "pct": 43.8,
+          "grade": "C",
+          "percentile": 26,
+          "contextMult": 0.748572307234398,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1895,
+          "pct": 19,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.645575499065539,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2275,
+          "pct": 22.8,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.7159045302794729,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2453,
+          "pct": 24.5,
+          "grade": "C",
+          "percentile": 28,
+          "contextMult": 0.7698854296224,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 1.0326030000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 681082,
+      "name": "Bryson Stott",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0543,
+          "pct": 5.4,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.6269806600520934,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.567,
+          "pct": 56.7,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.9607490796247051,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2913,
+          "pct": 29.1,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.7198926062644002,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2719,
+          "pct": 27.2,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.8287596865748045,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3852,
+          "pct": 38.5,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.9037785478176,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1015,
+          "pct": 10.2,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 1.3960792560000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 656537,
+      "name": "Derek Hill",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0648,
+          "pct": 6.5,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.7161924004597636,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.338,
+          "pct": 33.8,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.7821769675631965,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1447,
+          "pct": 14.5,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.7682525448056041,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1616,
+          "pct": 16.2,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.8121570889132549,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1881,
+          "pct": 18.8,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.83683198872,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0634,
+          "pct": 6.3,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 1.24660997175,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 669016,
+      "name": "Brandon Marsh",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0763,
+          "pct": 7.6,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.6628705212170902,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4886,
+          "pct": 48.9,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.736821239688666,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2231,
+          "pct": 22.3,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.6959859230902884,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1994,
+          "pct": 19.9,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.7410446772863305,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2925,
+          "pct": 29.3,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.80084821320504,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0407,
+          "pct": 4.1,
+          "grade": "B+",
+          "percentile": 70,
+          "contextMult": 1.18912496274,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 624641,
+      "name": "Edmundo Sosa",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0712,
+          "pct": 7.1,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.7236110151622931,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5006,
+          "pct": 50.1,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.9032839806679857,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2392,
+          "pct": 23.9,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.839651982536035,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3136,
+          "pct": 31.4,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.8626392119944097,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3408,
+          "pct": 34.1,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.9037785478176,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0294,
+          "pct": 2.9,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 1.3692315780000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 664761,
+      "name": "Alec Bohm",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0546,
+          "pct": 5.5,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.587211143818875,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5251,
+          "pct": 52.5,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.7999411994307212,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.237,
+          "pct": 23.7,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.6310777734602127,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2634,
+          "pct": 26.3,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.7264706547493575,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3259,
+          "pct": 32.6,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.8092165330922401,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0107,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 1.3021123829999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 607208,
+      "name": "Trea Turner",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0643,
+          "pct": 6.4,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.5916162304226864,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.558,
+          "pct": 55.8,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.8238245483007004,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2639,
+          "pct": 26.4,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.6542400214540073,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1641,
+          "pct": 16.4,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.7721331826655093,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3557,
+          "pct": 35.6,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.86444744434776,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0715,
+          "pct": 7.2,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 1.3244166078000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 702222,
+      "name": "Justin Crawford",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.028,
+          "pct": 2.8,
+          "grade": "D",
+          "percentile": 0,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.4394,
+          "pct": 43.9,
+          "grade": "C",
+          "percentile": 28,
+          "contextMult": 0.7441117128099078,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.17,
+          "pct": 17,
+          "grade": "C",
+          "percentile": 17,
+          "contextMult": 0.6017850348551146,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1606,
+          "pct": 16.1,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.6953812665755031,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2248,
+          "pct": 22.5,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.81089019706968,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0595,
+          "pct": 6,
+          "grade": "B+",
+          "percentile": 76,
+          "contextMult": 1.3232807445,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 592663,
+      "name": "J.T. Realmuto",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0554,
+          "pct": 5.5,
+          "grade": "C",
+          "percentile": 22,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3949,
+          "pct": 39.5,
+          "grade": "C",
+          "percentile": 17,
+          "contextMult": 0.6593179209503857,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1771,
+          "pct": 17.7,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.5510069272285326,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1901,
+          "pct": 19,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.6534509029775154,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2264,
+          "pct": 22.6,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.7698854296224,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0094,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 1.2081455100000003,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 596117,
+      "name": "Garrett Stubbs",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0391,
+          "pct": 3.9,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3477,
+          "pct": 34.8,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.7849994600144568,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1224,
+          "pct": 12.2,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.6063536983270861,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1061,
+          "pct": 10.6,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.7351469966100649,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1653,
+          "pct": 16.5,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.89457339594168,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.9293427000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 665561,
+      "name": "Rafael Marchán",
+      "team": "PHI",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0534,
+          "pct": 5.3,
+          "grade": "C",
+          "percentile": 17,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3733,
+          "pct": 37.3,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.7365172892243539,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1464,
+          "pct": 14.6,
+          "grade": "D",
+          "percentile": 11,
+          "contextMult": 0.562975449509508,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1016,
+          "pct": 10.2,
+          "grade": "D",
+          "percentile": 4,
+          "contextMult": 0.6920926340934846,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1443,
+          "pct": 14.4,
+          "grade": "D",
+          "percentile": 4,
+          "contextMult": 0.83766882070872,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.9293427000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 621566,
+      "name": "Matt Olson",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1697,
+          "pct": 17,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 0.8288387819366025,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6196,
+          "pct": 62,
+          "grade": "B+",
+          "percentile": 83,
+          "contextMult": 0.9345298717251519,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3805,
+          "pct": 38.1,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.8711742475391222,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2798,
+          "pct": 28,
+          "grade": "B",
+          "percentile": 65,
+          "contextMult": 0.9228004749943146,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4453,
+          "pct": 44.5,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.8793091621778043,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0104,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 1.164426588,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 686948,
+      "name": "Drake Baldwin",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.1168,
+          "pct": 11.7,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.7121532994853775,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6751,
+          "pct": 67.5,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 0.9938503671399691,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3709,
+          "pct": 37.1,
+          "grade": "A",
+          "percentile": 89,
+          "contextMult": 0.8239163508526531,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2993,
+          "pct": 29.9,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.9024306420886192,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4993,
+          "pct": 49.9,
+          "grade": "A",
+          "percentile": 89,
+          "contextMult": 0.9190031969768023,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0109,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.93183021,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 671739,
+      "name": "Michael Harris II",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1136,
+          "pct": 11.4,
+          "grade": "B+",
+          "percentile": 76,
+          "contextMult": 0.7437426355913723,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.654,
+          "pct": 65.4,
+          "grade": "A",
+          "percentile": 87,
+          "contextMult": 0.9408977258264009,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3698,
+          "pct": 37,
+          "grade": "A",
+          "percentile": 87,
+          "contextMult": 0.8282023513443049,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3009,
+          "pct": 30.1,
+          "grade": "B+",
+          "percentile": 74,
+          "contextMult": 0.9064634925220835,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4591,
+          "pct": 45.9,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 0.889664127777543,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0433,
+          "pct": 4.3,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 1.2183619800000003,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 660670,
+      "name": "Ronald Acuña Jr.",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.1149,
+          "pct": 11.5,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.7818986713137441,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5983,
+          "pct": 59.8,
+          "grade": "B+",
+          "percentile": 76,
+          "contextMult": 0.8922585423108819,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3281,
+          "pct": 32.8,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8270059395388987,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2442,
+          "pct": 24.4,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.8443305502378485,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4157,
+          "pct": 41.6,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.8609195103071573,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0841,
+          "pct": 8.4,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 0.997804752,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 676551,
+      "name": "Brewer Hicklen",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0601,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.6890182384267937,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4551,
+          "pct": 45.5,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.7792795378463948,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2179,
+          "pct": 21.8,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7072101441685592,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.226,
+          "pct": 22.6,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.76729791524525,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2914,
+          "pct": 29.1,
+          "grade": "C+",
+          "percentile": 35,
+          "contextMult": 0.8468060757119581,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.963132,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 643289,
+      "name": "Mauricio Dubón",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0555,
+          "pct": 5.6,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.6277074677557757,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6255,
+          "pct": 62.6,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.9757370139308533,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3126,
+          "pct": 31.3,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.7362749522294914,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2723,
+          "pct": 27.2,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.8473042118426393,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4187,
+          "pct": 41.9,
+          "grade": "B+",
+          "percentile": 76,
+          "contextMult": 0.9319469039764755,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0279,
+          "pct": 2.8,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 1.0840724852399999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 642086,
+      "name": "Dominic Smith",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.059,
+          "pct": 5.9,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.629209678786529,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4064,
+          "pct": 40.6,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.7415319213848393,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1595,
+          "pct": 16,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.6563390986090851,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2224,
+          "pct": 22.2,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.7133329839372402,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2376,
+          "pct": 23.8,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.7938806959799607,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.88608144,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 573262,
+      "name": "Mike Yastrzemski",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0624,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 37,
+          "contextMult": 0.6620618962564649,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.411,
+          "pct": 41.1,
+          "grade": "C",
+          "percentile": 22,
+          "contextMult": 0.7519954746233437,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1859,
+          "pct": 18.6,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 0.695337147297751,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1565,
+          "pct": 15.7,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.7437293281396793,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.228,
+          "pct": 22.8,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.8240826789791982,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 1.2771130320000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 645277,
+      "name": "Ozzie Albies",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0851,
+          "pct": 8.5,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.6315997929360512,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5012,
+          "pct": 50.1,
+          "grade": "C+",
+          "percentile": 43,
+          "contextMult": 0.7504889054853779,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2462,
+          "pct": 24.6,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.6282784755256233,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2034,
+          "pct": 20.3,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.7332437069719762,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.308,
+          "pct": 30.8,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.8027015926019603,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0094,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 0.701160096,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 663586,
+      "name": "Austin Riley",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0678,
+          "pct": 6.8,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.6298270664983876,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4394,
+          "pct": 43.9,
+          "grade": "C",
+          "percentile": 28,
+          "contextMult": 0.6835991264606824,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2014,
+          "pct": 20.1,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.6520974455137009,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2074,
+          "pct": 20.7,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.7232347741686744,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2564,
+          "pct": 25.6,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.8180422823793507,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0306,
+          "pct": 3.1,
+          "grade": "B",
+          "percentile": 65,
+          "contextMult": 1.0995981730799997,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 669221,
+      "name": "Sean Murphy",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0634,
+          "pct": 6.3,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3994,
+          "pct": 39.9,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.6287748520992424,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1806,
+          "pct": 18.1,
+          "grade": "C",
+          "percentile": 22,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "rbi": {
+          "p": 0.1496,
+          "pct": 15,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.6779550949318713,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2049,
+          "pct": 20.5,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.8137277133794598,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.8668188,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 571657,
+      "name": "Kyle Farmer",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0494,
+          "pct": 4.9,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.382,
+          "pct": 38.2,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.686539575051831,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1543,
+          "pct": 15.4,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.5949584749397847,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2916,
+          "pct": 29.2,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 0.7219936481754547,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2242,
+          "pct": 22.4,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.8629137999782182,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.88608144,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849845,
+      "startTimeUTC": "2026-09-29T18:00:00Z",
+      "playerId": 673490,
+      "name": "Ha-Seong Kim",
+      "team": "ATL",
+      "opponent": "PHI",
+      "side": "home",
+      "pitcherId": 666200,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0368,
+          "pct": 3.7,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3407,
+          "pct": 34.1,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.6720258934012627,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.124,
+          "pct": 12.4,
+          "grade": "D",
+          "percentile": 7,
+          "contextMult": 0.5531950563331263,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1392,
+          "pct": 13.9,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.6761960002382236,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1504,
+          "pct": 15,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.8292601617790676,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0328,
+          "pct": 3.3,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 1.327195896,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 545341,
+      "name": "Randal Grichuk",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.1345,
+          "pct": 13.5,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.181458271438841,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5772,
+          "pct": 57.7,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 1.064986262607894,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3639,
+          "pct": 36.4,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 1.1937399528968027,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3186,
+          "pct": 31.9,
+          "grade": "B+",
+          "percentile": 83,
+          "contextMult": 1.0681492990387222,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4117,
+          "pct": 41.2,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.9798395020536624,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.89585,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 678246,
+      "name": "Miguel Vargas",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.2069,
+          "pct": 20.7,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.1564000757791033,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7348,
+          "pct": 73.5,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.2502629168404726,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4849,
+          "pct": 48.5,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.15831237351335,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.4023,
+          "pct": 40.2,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.072170484425979,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.6267,
+          "pct": 62.7,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.0727442784208825,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0659,
+          "pct": 6.6,
+          "grade": "B+",
+          "percentile": 83,
+          "contextMult": 1.2278987499999998,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 808959,
+      "name": "Munetaka Murakami",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.225,
+          "pct": 22.5,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.1353876753682288,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6612,
+          "pct": 66.1,
+          "grade": "A",
+          "percentile": 89,
+          "contextMult": 1.1644417482957983,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4369,
+          "pct": 43.7,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.2080864739969002,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3666,
+          "pct": 36.7,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.0920846085285096,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5501,
+          "pct": 55,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.073150774926536,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.63391125,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 671976,
+      "name": "Tristan Peters",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0794,
+          "pct": 7.9,
+          "grade": "B",
+          "percentile": 57,
+          "contextMult": 0.8806203909858317,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5466,
+          "pct": 54.7,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.9308105051506159,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2958,
+          "pct": 29.6,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.8651250454010359,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2525,
+          "pct": 25.3,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.8670760863687385,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3585,
+          "pct": 35.9,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.9162431237440956,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0279,
+          "pct": 2.8,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 1.2317937500000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 803011,
+      "name": "Sam Antonacci",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0609,
+          "pct": 6.1,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.7655754893896214,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6939,
+          "pct": 69.4,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.2050197432548786,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3701,
+          "pct": 37,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.8998048424384751,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2717,
+          "pct": 27.2,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.9604046639976619,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5248,
+          "pct": 52.5,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 1.0755897539604602,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0632,
+          "pct": 6.3,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 1.014082725,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 805367,
+      "name": "Chase Meidroth",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.096,
+          "pct": 9.6,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 0.8663413610024892,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7165,
+          "pct": 71.7,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.1600412285082762,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.414,
+          "pct": 41.4,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.0146816308768645,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3065,
+          "pct": 30.7,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.9949402573011711,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5549,
+          "pct": 55.5,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.0865651596131178,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0099,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.96257135,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 643217,
+      "name": "Andrew Benintendi",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0858,
+          "pct": 8.6,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.8457998589198493,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5223,
+          "pct": 52.2,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.9124963791247988,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2735,
+          "pct": 27.4,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.8746842602597386,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3563,
+          "pct": 35.6,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.8774679034908097,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3826,
+          "pct": 38.3,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.9480514753115203,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 1.1646050000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 691019,
+      "name": "Kyle Teel",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0923,
+          "pct": 9.2,
+          "grade": "B",
+          "percentile": 65,
+          "contextMult": 0.7501430802763265,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5325,
+          "pct": 53.3,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.9081897448296216,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2642,
+          "pct": 26.4,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.803279289918127,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.4758,
+          "pct": 47.6,
+          "grade": "A+",
+          "percentile": 100,
+          "contextMult": 0.8620195835869655,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4639,
+          "pct": 46.4,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 0.9876340725495778,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.876375,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 695657,
+      "name": "Colson Montgomery",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.1366,
+          "pct": 13.7,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.7737994595815647,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4649,
+          "pct": 46.5,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.7242608731905216,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2722,
+          "pct": 27.2,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.7363110456759023,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2919,
+          "pct": 29.2,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.7887411534968192,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3216,
+          "pct": 32.2,
+          "grade": "C+",
+          "percentile": 43,
+          "contextMult": 0.8507971863338031,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.7225225,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 695731,
+      "name": "Braden Montgomery",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0632,
+          "pct": 6.3,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.6845050245574806,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5958,
+          "pct": 59.6,
+          "grade": "B+",
+          "percentile": 74,
+          "contextMult": 1.044163224226522,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2914,
+          "pct": 29.1,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.8072298573555112,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2883,
+          "pct": 28.8,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.9005258776058341,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4306,
+          "pct": 43.1,
+          "grade": "B+",
+          "percentile": 78,
+          "contextMult": 1.0536389426551447,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.6816249999999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 686668,
+      "name": "Brenton Doyle",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0639,
+          "pct": 6.4,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.7561700688235216,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4657,
+          "pct": 46.6,
+          "grade": "C+",
+          "percentile": 35,
+          "contextMult": 0.8948601153272367,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2108,
+          "pct": 21.1,
+          "grade": "C+",
+          "percentile": 35,
+          "contextMult": 0.8777218018920449,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.135,
+          "pct": 13.5,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.8956839535499105,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2752,
+          "pct": 27.5,
+          "grade": "C",
+          "percentile": 33,
+          "contextMult": 1.0316881313498292,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.093,
+          "pct": 9.3,
+          "grade": "A",
+          "percentile": 93,
+          "contextMult": 1.196446625,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 682668,
+      "name": "Luisangel Acuña",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0304,
+          "pct": 3,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.5929311916674943,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3682,
+          "pct": 36.8,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.8043715035316181,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1217,
+          "pct": 12.2,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.6812814027505794,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.0996,
+          "pct": 10,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.7672833602365215,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.157,
+          "pct": 15.7,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.9552667882868787,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0896,
+          "pct": 9,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.109588125,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 691011,
+      "name": "Drew Romo",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0717,
+          "pct": 7.2,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.5997424478972831,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4228,
+          "pct": 42.3,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 0.8421806967364036,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1934,
+          "pct": 19.3,
+          "grade": "C",
+          "percentile": 26,
+          "contextMult": 0.6576129908593584,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1271,
+          "pct": 12.7,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.7977203132017998,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2118,
+          "pct": 21.2,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.9658356974338825,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0085,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 1.1392875000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 502054,
+      "name": "Tommy Pham",
+      "team": "CWS",
+      "opponent": "HOU",
+      "side": "away",
+      "pitcherId": 805123,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0694,
+          "pct": 6.9,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.6623090211363065,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4601,
+          "pct": 46,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.8563534144327987,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2087,
+          "pct": 20.9,
+          "grade": "C",
+          "percentile": 33,
+          "contextMult": 0.7651128832665289,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1773,
+          "pct": 17.7,
+          "grade": "C",
+          "percentile": 22,
+          "contextMult": 0.8338691954330212,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2575,
+          "pct": 25.8,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 1.0106722620075177,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.89585,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 670541,
+      "name": "Yordan Alvarez",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.1974,
+          "pct": 19.7,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.9763939849572232,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6948,
+          "pct": 69.5,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 0.9767410446495093,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4597,
+          "pct": 46,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.0374962205737694,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3641,
+          "pct": 36.4,
+          "grade": "A",
+          "percentile": 89,
+          "contextMult": 1.0201135861149666,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5649,
+          "pct": 56.5,
+          "grade": "A",
+          "percentile": 93,
+          "contextMult": 0.8995374045100871,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 1.1152700000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 828599,
+      "name": "Lucas Spence",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1107,
+          "pct": 11.1,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.8357947212046389,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5893,
+          "pct": 58.9,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.9661438057724894,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3237,
+          "pct": 32.4,
+          "grade": "B+",
+          "percentile": 76,
+          "contextMult": 0.9752677714531667,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3845,
+          "pct": 38.5,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 0.950806559716881,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4482,
+          "pct": 44.8,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.9003710814373439,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0102,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.718025,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 670623,
+      "name": "Isaac Paredes",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.1197,
+          "pct": 12,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.7911110467608222,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6409,
+          "pct": 64.1,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.0063766638390659,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3537,
+          "pct": 35.4,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.8696326818485156,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3347,
+          "pct": 33.5,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 0.8821800801426442,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4585,
+          "pct": 45.9,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.8928679890920326,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.904525,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 665161,
+      "name": "Jeremy Peña",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.137,
+          "pct": 13.7,
+          "grade": "A",
+          "percentile": 89,
+          "contextMult": 0.7844826675636514,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6168,
+          "pct": 61.7,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.8294328736496326,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3543,
+          "pct": 35.4,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 0.847814478746749,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2517,
+          "pct": 25.2,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.8523958216606171,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.445,
+          "pct": 44.5,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.8353442811113135,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0625,
+          "pct": 6.3,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 1.221229975,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 673237,
+      "name": "Yainer Diaz",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.096,
+          "pct": 9.6,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 0.7103019449936775,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5972,
+          "pct": 59.7,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.9098523606948915,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3174,
+          "pct": 31.7,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.8311989797051959,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2406,
+          "pct": 24.1,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.8760499939844291,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3773,
+          "pct": 37.7,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.8803628351831808,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.587475,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 572233,
+      "name": "Christian Walker",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1238,
+          "pct": 12.4,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.7555429169414728,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5405,
+          "pct": 54.1,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.8391082304682989,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3018,
+          "pct": 30.2,
+          "grade": "B",
+          "percentile": 65,
+          "contextMult": 0.8290086950661265,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2747,
+          "pct": 27.5,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.8423436347363937,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3651,
+          "pct": 36.5,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.8645229735653015,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.867225,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 669397,
+      "name": "Nick Allen",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0376,
+          "pct": 3.8,
+          "grade": "D",
+          "percentile": 7,
+          "contextMult": 0.6261702568479898,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3354,
+          "pct": 33.5,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.7792992908661176,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1184,
+          "pct": 11.8,
+          "grade": "D",
+          "percentile": 4,
+          "contextMult": 0.6895850304587295,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1114,
+          "pct": 11.1,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.7659518064644509,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1604,
+          "pct": 16,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.8336769272567999,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0093,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 1.284985,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 514888,
+      "name": "Jose Altuve",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0773,
+          "pct": 7.7,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.6292751537852035,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5745,
+          "pct": 57.5,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.8710299653730452,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2882,
+          "pct": 28.8,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.7338206754673149,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1871,
+          "pct": 18.7,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.8341906402510705,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3633,
+          "pct": 36.3,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.9003710814373439,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0087,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.7603232000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 701358,
+      "name": "Cam Smith",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0846,
+          "pct": 8.5,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.6486025707967457,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4144,
+          "pct": 41.4,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.6754025051139957,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2028,
+          "pct": 20.3,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.6615093993169799,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1601,
+          "pct": 16,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7285251383353074,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2297,
+          "pct": 23,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.7811552808396216,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0397,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 1.15210375,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 676369,
+      "name": "Nelson Velázquez",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0751,
+          "pct": 7.5,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.7137837382007678,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3628,
+          "pct": 36.3,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.7450446924741482,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1711,
+          "pct": 17.1,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7325580780524934,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.204,
+          "pct": 20.4,
+          "grade": "C",
+          "percentile": 33,
+          "contextMult": 0.7941302963418979,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2016,
+          "pct": 20.2,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.8336769272567999,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.95115,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 664774,
+      "name": "LaMonte Wade Jr.",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0537,
+          "pct": 5.4,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.6264212172356978,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3671,
+          "pct": 36.7,
+          "grade": "D",
+          "percentile": 11,
+          "contextMult": 0.7016594705918636,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1571,
+          "pct": 15.7,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6461003539179515,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1979,
+          "pct": 19.8,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.7074482537382656,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2101,
+          "pct": 21,
+          "grade": "C",
+          "percentile": 17,
+          "contextMult": 0.8019972040210416,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.95115,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 669384,
+      "name": "Raynel Delgado",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0557,
+          "pct": 5.6,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.6018647993120778,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4075,
+          "pct": 40.8,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.6904297585203156,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1739,
+          "pct": 17.4,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.6542031251877125,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1469,
+          "pct": 14.7,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6985939446975209,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1857,
+          "pct": 18.6,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.7878246962576759,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.9698,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 666211,
+      "name": "Taylor Trammell",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0595,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.6057647052353546,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3394,
+          "pct": 33.9,
+          "grade": "D",
+          "percentile": 7,
+          "contextMult": 0.6253313101841729,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1534,
+          "pct": 15.3,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.6051650918705987,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1151,
+          "pct": 11.5,
+          "grade": "D",
+          "percentile": 7,
+          "contextMult": 0.6737237909028269,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1582,
+          "pct": 15.8,
+          "grade": "D",
+          "percentile": 7,
+          "contextMult": 0.766982773076256,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0111,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.767102475,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 678489,
+      "name": "Jorge Barrosa",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.031,
+          "pct": 3.1,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.575043502088184,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.2567,
+          "pct": 25.7,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.7037639991593376,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1084,
+          "pct": 10.8,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.6228292696800539,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.0964,
+          "pct": 9.6,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.7230474736631114,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1245,
+          "pct": 12.5,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.8336769272567999,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0179,
+          "pct": 1.8,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 1.3334750000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849849,
+      "startTimeUTC": "2026-09-29T21:00:00Z",
+      "playerId": 543877,
+      "name": "Christian Vázquez",
+      "team": "HOU",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 696146,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.057,
+          "pct": 5.7,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3504,
+          "pct": 35,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.6097252438575984,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1458,
+          "pct": 14.6,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "rbi": {
+          "p": 0.1387,
+          "pct": 13.9,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.6539283656477854,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1626,
+          "pct": 16.3,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.766982773076256,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0112,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 1.0910250000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 575929,
+      "name": "Willson Contreras",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1415,
+          "pct": 14.2,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 0.8604708540958702,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5778,
+          "pct": 57.8,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.818152801168046,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3343,
+          "pct": 33.4,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.8312946372672394,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3301,
+          "pct": 33,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 0.8515279620170664,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4158,
+          "pct": 41.6,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.7964114633480982,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0104,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.6442901430000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 677800,
+      "name": "Wilyer Abreu",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.106,
+          "pct": 10.6,
+          "grade": "B+",
+          "percentile": 74,
+          "contextMult": 0.7272131606599029,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5357,
+          "pct": 53.6,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.7689362916359008,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3021,
+          "pct": 30.2,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.6889902218259467,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2333,
+          "pct": 23.3,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.756669634442905,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3398,
+          "pct": 34,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.76496298507288,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0215,
+          "pct": 2.2,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.9407031965,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 678882,
+      "name": "Ceddanne Rafaela",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0792,
+          "pct": 7.9,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.6768687269322923,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5739,
+          "pct": 57.4,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.7887034429400286,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.296,
+          "pct": 29.6,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.700559157325542,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2597,
+          "pct": 26,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.7743018013622514,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.367,
+          "pct": 36.7,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.797390763787926,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0479,
+          "pct": 4.8,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 1.0135446013000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 668939,
+      "name": "Adley Rutschman",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0867,
+          "pct": 8.7,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.7068661121017289,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5559,
+          "pct": 55.6,
+          "grade": "B",
+          "percentile": 57,
+          "contextMult": 0.8962462726226097,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3053,
+          "pct": 30.5,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.7485693077158658,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3126,
+          "pct": 31.3,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.818641001185569,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3838,
+          "pct": 38.4,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.8489426171297938,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.6235065900000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 701350,
+      "name": "Roman Anthony",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0715,
+          "pct": 7.2,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.6391204788221748,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5578,
+          "pct": 55.8,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.8328527897089711,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.286,
+          "pct": 28.6,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.7168702177780255,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1591,
+          "pct": 15.9,
+          "grade": "C",
+          "percentile": 17,
+          "contextMult": 0.7904525391617454,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3234,
+          "pct": 32.3,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.8522685431518499,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0191,
+          "pct": 1.9,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 1.312332918,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 686765,
+      "name": "Nick Sogard",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0654,
+          "pct": 6.5,
+          "grade": "C+",
+          "percentile": 43,
+          "contextMult": 0.6180364276839323,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5271,
+          "pct": 52.7,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.7638912974168296,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2546,
+          "pct": 25.5,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.6312151056195849,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1562,
+          "pct": 15.6,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.7161922173225689,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.298,
+          "pct": 29.8,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.78575002271073,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0105,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.720496504,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 702332,
+      "name": "Caleb Durbin",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0574,
+          "pct": 5.7,
+          "grade": "C",
+          "percentile": 26,
+          "contextMult": 0.5939442140048314,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4981,
+          "pct": 49.8,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.8130729703907792,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2177,
+          "pct": 21.8,
+          "grade": "C+",
+          "percentile": 37,
+          "contextMult": 0.625998144830678,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2184,
+          "pct": 21.8,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7238912521201685,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3069,
+          "pct": 30.7,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.8015481713154959,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.062,
+          "pct": 6.2,
+          "grade": "B+",
+          "percentile": 78,
+          "contextMult": 1.059362438735,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 663330,
+      "name": "Jahmai Jones",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0488,
+          "pct": 4.9,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6501451504661242,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3036,
+          "pct": 30.4,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.6922209008474051,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1249,
+          "pct": 12.5,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.6460641495916134,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1007,
+          "pct": 10.1,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.7136417300026572,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1306,
+          "pct": 13.1,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.7882444672272718,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0112,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.7739399260000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 655316,
+      "name": "Andruw Monasterio",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.049,
+          "pct": 4.9,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.621790914968304,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4185,
+          "pct": 41.9,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.6915131714513065,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2053,
+          "pct": 20.5,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.6065114605851236,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2163,
+          "pct": 21.6,
+          "grade": "C+",
+          "percentile": 37,
+          "contextMult": 0.6881331483227768,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2357,
+          "pct": 23.6,
+          "grade": "C",
+          "percentile": 26,
+          "contextMult": 0.76496298507288,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0105,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.734352206,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 657136,
+      "name": "Connor Wong",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0445,
+          "pct": 4.5,
+          "grade": "D",
+          "percentile": 11,
+          "contextMult": 0.5650061176451492,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3863,
+          "pct": 38.6,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.6682769696205995,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1602,
+          "pct": 16,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.5766157261066022,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.184,
+          "pct": 18.4,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.668374165517116,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2024,
+          "pct": 20.2,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.76496298507288,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0237,
+          "pct": 2.4,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.9575279775000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 643396,
+      "name": "Isiah Kiner-Falefa",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0409,
+          "pct": 4.1,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3752,
+          "pct": 37.5,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6933357802773848,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1349,
+          "pct": 13.5,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "rbi": {
+          "p": 0.1386,
+          "pct": 13.9,
+          "grade": "D",
+          "percentile": 11,
+          "contextMult": 0.6362924030399519,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1851,
+          "pct": 18.5,
+          "grade": "D",
+          "percentile": 11,
+          "contextMult": 0.76496298507288,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0692,
+          "pct": 6.9,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 1.1836728280000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 680776,
+      "name": "Jarren Duran",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0742,
+          "pct": 7.4,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.5893449174194575,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.477,
+          "pct": 47.7,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.8010679166216406,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2162,
+          "pct": 21.6,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.6532191287123322,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2158,
+          "pct": 21.6,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.7933746908357743,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2909,
+          "pct": 29.1,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.8863592848779239,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0741,
+          "pct": 7.4,
+          "grade": "A",
+          "percentile": 87,
+          "contextMult": 1.2214791006,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 596115,
+      "name": "Trevor Story",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0622,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.6164895053476793,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4894,
+          "pct": 48.9,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.6670305632315103,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.241,
+          "pct": 24.1,
+          "grade": "C+",
+          "percentile": 43,
+          "contextMult": 0.6614723021562018,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2382,
+          "pct": 23.8,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.7120147714687076,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2915,
+          "pct": 29.2,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.8123574308871779,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0499,
+          "pct": 5,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 1.3637969540000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 681987,
+      "name": "Nate Eaton",
+      "team": "BOS",
+      "opponent": "NYY",
+      "side": "away",
+      "pitcherId": 693645,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0566,
+          "pct": 5.7,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 0.5630146301051244,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4091,
+          "pct": 40.9,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.7723315806080236,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1737,
+          "pct": 17.4,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.6010353585352372,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2111,
+          "pct": 21.1,
+          "grade": "C+",
+          "percentile": 35,
+          "contextMult": 0.7447830755261231,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2147,
+          "pct": 21.5,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.883033358855868,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0717,
+          "pct": 7.2,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.312332918,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 700250,
+      "name": "Ben Rice",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.2221,
+          "pct": 22.2,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.064417015500436,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6931,
+          "pct": 69.3,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.0574656447212434,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4583,
+          "pct": 45.8,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.108024877535194,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3714,
+          "pct": 37.1,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.0534245144516725,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5665,
+          "pct": 56.7,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 0.9657023452580035,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0107,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.9184843,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 671277,
+      "name": "Luis García Jr.",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1423,
+          "pct": 14.2,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.8548150573986447,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5821,
+          "pct": 58.2,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.8509382485718845,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3397,
+          "pct": 34,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8354109012369375,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3222,
+          "pct": 32.2,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.872799643917843,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.406,
+          "pct": 40.6,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.8176436119033178,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0098,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 35,
+          "contextMult": 0.881828511,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 641355,
+      "name": "Cody Bellinger",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.1007,
+          "pct": 10.1,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.8175541138535594,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6177,
+          "pct": 61.8,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.9217902397391367,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3361,
+          "pct": 33.6,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.8278902549830706,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3152,
+          "pct": 31.5,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8463844786512091,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4515,
+          "pct": 45.2,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8869851031182431,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0318,
+          "pct": 3.2,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.9003839370000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 502671,
+      "name": "Paul Goldschmidt",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1217,
+          "pct": 12.2,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8564824856882092,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5912,
+          "pct": 59.1,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.9941956835016682,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3161,
+          "pct": 31.6,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 0.881365159946019,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2818,
+          "pct": 28.2,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.9521298699275879,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4025,
+          "pct": 40.3,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.9649405654953607,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 1.1227983,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 682987,
+      "name": "Spencer Jones",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1143,
+          "pct": 11.4,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.96090466000105,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5307,
+          "pct": 53.1,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.8258681704977863,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2924,
+          "pct": 29.2,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.8974866783172808,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3145,
+          "pct": 31.5,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.88775557286309,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3733,
+          "pct": 37.3,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.92546474753892,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0617,
+          "pct": 6.2,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 1.1273024950000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 671218,
+      "name": "Heliot Ramos",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0919,
+          "pct": 9.2,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.8166959714469777,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5829,
+          "pct": 58.3,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.8994486064782032,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3189,
+          "pct": 31.9,
+          "grade": "B+",
+          "percentile": 74,
+          "contextMult": 0.8783969333072404,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2567,
+          "pct": 25.7,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.8965732017380692,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.387,
+          "pct": 38.7,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.9551936910964176,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0202,
+          "pct": 2,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 1.0893651000000004,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 665862,
+      "name": "Jazz Chisholm Jr.",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0942,
+          "pct": 9.4,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.6998966324968712,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5457,
+          "pct": 54.6,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.9213116920115384,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2763,
+          "pct": 27.6,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.7825906914160643,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2284,
+          "pct": 22.8,
+          "grade": "C+",
+          "percentile": 43,
+          "contextMult": 0.8903131551812229,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3696,
+          "pct": 37,
+          "grade": "B",
+          "percentile": 57,
+          "contextMult": 0.9598425009299818,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1384,
+          "pct": 13.8,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.1397006400000003,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 806146,
+      "name": "George Lombard Jr.",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.1151,
+          "pct": 11.5,
+          "grade": "B+",
+          "percentile": 78,
+          "contextMult": 0.8515966915015315,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6169,
+          "pct": 61.7,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.9664886551596448,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3358,
+          "pct": 33.6,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.9439979976722752,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3048,
+          "pct": 30.5,
+          "grade": "B+",
+          "percentile": 76,
+          "contextMult": 0.9471579870702687,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.452,
+          "pct": 45.2,
+          "grade": "B+",
+          "percentile": 83,
+          "contextMult": 1.0040061943488396,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.021,
+          "pct": 2.1,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.9356931110000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 642708,
+      "name": "Amed Rosario",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0691,
+          "pct": 6.9,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.6606167089491115,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4645,
+          "pct": 46.5,
+          "grade": "C",
+          "percentile": 33,
+          "contextMult": 0.8810577434808469,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1964,
+          "pct": 19.6,
+          "grade": "C",
+          "percentile": 28,
+          "contextMult": 0.7307872831393607,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.219,
+          "pct": 21.9,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.8660988373058202,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2725,
+          "pct": 27.3,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.9281993415586637,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0181,
+          "pct": 1.8,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.9684019249999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 683011,
+      "name": "Anthony Volpe",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0431,
+          "pct": 4.3,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.5750803949275477,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4759,
+          "pct": 47.6,
+          "grade": "C+",
+          "percentile": 37,
+          "contextMult": 0.7974731320851902,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2026,
+          "pct": 20.3,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.6303067193749694,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2559,
+          "pct": 25.6,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.751881937929807,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2925,
+          "pct": 29.3,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.8833715324492962,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0778,
+          "pct": 7.8,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.05825365,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 676609,
+      "name": "José Caballero",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0659,
+          "pct": 6.6,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.6312041866352422,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4607,
+          "pct": 46.1,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.7782148092267241,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1944,
+          "pct": 19.4,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.6810424669054054,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1961,
+          "pct": 19.6,
+          "grade": "C",
+          "percentile": 28,
+          "contextMult": 0.7716121233394202,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.266,
+          "pct": 26.6,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.8710658593604504,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1215,
+          "pct": 12.2,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.0671134480000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 641857,
+      "name": "Ryan McMahon",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.06,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.632108068336641,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3849,
+          "pct": 38.5,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.7447317670049871,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1668,
+          "pct": 16.7,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.675465955022384,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.181,
+          "pct": 18.1,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.7708456136707589,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.202,
+          "pct": 20.2,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.8737027893080602,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0099,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.7657131500000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 669224,
+      "name": "Austin Wells",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0764,
+          "pct": 7.6,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.6491818400092584,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4302,
+          "pct": 43,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.87366606233557,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1814,
+          "pct": 18.1,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.7265092825139461,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1278,
+          "pct": 12.8,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.8158105839967532,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.226,
+          "pct": 22.6,
+          "grade": "C",
+          "percentile": 22,
+          "contextMult": 0.9492947811395425,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0208,
+          "pct": 2.1,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 1.0865790000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849851,
+      "startTimeUTC": "2026-09-30T00:00:00Z",
+      "playerId": 645305,
+      "name": "Ali Sánchez",
+      "team": "NYY",
+      "opponent": "BOS",
+      "side": "home",
+      "pitcherId": 801139,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.033,
+          "pct": 3.3,
+          "grade": "D",
+          "percentile": 4,
+          "contextMult": 0.55249430067369,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3249,
+          "pct": 32.5,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.7021841723487511,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1123,
+          "pct": 11.2,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.5994376218974392,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.135,
+          "pct": 13.5,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.733445458202584,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1335,
+          "pct": 13.4,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.8842505090984996,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.585081,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 691718,
+      "name": "Pete Crow-Armstrong",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.2783,
+          "pct": 27.8,
+          "grade": "A+",
+          "percentile": 100,
+          "contextMult": 1.2515576365432068,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7709,
+          "pct": 77.1,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.148552996722379,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.5648,
+          "pct": 56.5,
+          "grade": "A+",
+          "percentile": 100,
+          "contextMult": 1.2309216384738644,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.4605,
+          "pct": 46.1,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.175545151160542,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.6774,
+          "pct": 67.7,
+          "grade": "A+",
+          "percentile": 100,
+          "contextMult": 1.0767879391557418,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1227,
+          "pct": 12.3,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.25755267,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 673548,
+      "name": "Seiya Suzuki",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.1434,
+          "pct": 14.3,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 0.9256335461254793,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7077,
+          "pct": 70.8,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 1.1233359893564276,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4387,
+          "pct": 43.9,
+          "grade": "A",
+          "percentile": 93,
+          "contextMult": 0.9794226616008702,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.4024,
+          "pct": 40.2,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.0270473799982527,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.606,
+          "pct": 60.6,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.0493312817061597,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0105,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 1.20731,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 621438,
+      "name": "Tyrone Taylor",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0934,
+          "pct": 9.3,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.8892349455825055,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5178,
+          "pct": 51.8,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 1.0395827228071708,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.265,
+          "pct": 26.5,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.892558989040023,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2796,
+          "pct": 28,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.9727204164802109,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3505,
+          "pct": 35.1,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.9658215990481857,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0104,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.8051829,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 608324,
+      "name": "Alex Bregman",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.1493,
+          "pct": 14.9,
+          "grade": "A",
+          "percentile": 93,
+          "contextMult": 0.9779610260444999,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7355,
+          "pct": 73.6,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.2283348269126528,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4621,
+          "pct": 46.2,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.039778068908448,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3889,
+          "pct": 38.9,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.0337319269336769,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.6003,
+          "pct": 60,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.0661471892686774,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0122,
+          "pct": 1.2,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.9684019249999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 624424,
+      "name": "Michael Conforto",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.1053,
+          "pct": 10.5,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.8537373104262183,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5184,
+          "pct": 51.8,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 1.0645132444198016,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2766,
+          "pct": 27.7,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.8967906225272969,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.279,
+          "pct": 27.9,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.9915423224592814,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3413,
+          "pct": 34.1,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 1.0115654264594705,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 1.1107252000000003,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 683737,
+      "name": "Michael Busch",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.0975,
+          "pct": 9.8,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 0.7146061482167722,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6271,
+          "pct": 62.7,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 1.0514775122150464,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3255,
+          "pct": 32.6,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.7926211064321053,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3134,
+          "pct": 31.3,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.913831648292972,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4667,
+          "pct": 46.7,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.027604258811151,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0092,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.73413735,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 664023,
+      "name": "Ian Happ",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.1187,
+          "pct": 11.9,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.8030533031238681,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5624,
+          "pct": 56.2,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.975219617471356,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3155,
+          "pct": 31.6,
+          "grade": "B+",
+          "percentile": 70,
+          "contextMult": 0.8347283527903357,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2723,
+          "pct": 27.2,
+          "grade": "B",
+          "percentile": 61,
+          "contextMult": 0.9291333480053713,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4145,
+          "pct": 41.5,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 1.0092860058410147,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.01,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 1.0893651000000004,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 807713,
+      "name": "Matt Shaw",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0575,
+          "pct": 5.8,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.7118321953015868,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4709,
+          "pct": 47.1,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.9855068267964564,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2098,
+          "pct": 21,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.7476055936266488,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2364,
+          "pct": 23.6,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.8788019521827897,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2918,
+          "pct": 29.2,
+          "grade": "C+",
+          "percentile": 37,
+          "contextMult": 0.9645368346996014,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.02,
+          "pct": 2,
+          "grade": "B",
+          "percentile": 57,
+          "contextMult": 0.8827293500000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 699393,
+      "name": "Pedro Ramírez",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0615,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 35,
+          "contextMult": 0.6682238582406328,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5286,
+          "pct": 52.9,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.9009526904876212,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2444,
+          "pct": 24.4,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.7070989874445621,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2579,
+          "pct": 25.8,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.833896002845319,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3553,
+          "pct": 35.5,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.9303351644199521,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0601,
+          "pct": 6,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 1.2556024000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 665804,
+      "name": "Miguel Amaya",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0608,
+          "pct": 6.1,
+          "grade": "C",
+          "percentile": 33,
+          "contextMult": 0.717989606895005,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5121,
+          "pct": 51.2,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 1.0055353135405396,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2357,
+          "pct": 23.6,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.7869726157417452,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2675,
+          "pct": 26.8,
+          "grade": "B",
+          "percentile": 57,
+          "contextMult": 0.9025548959410341,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3563,
+          "pct": 35.6,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 1.0325257351464534,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.8358300000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 608348,
+      "name": "Carson Kelly",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0601,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.6306451749278185,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5229,
+          "pct": 52.3,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.9057147874061227,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2323,
+          "pct": 23.2,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.6693416976412646,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.287,
+          "pct": 28.7,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.8042530252354821,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3761,
+          "pct": 37.6,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.9288846240263895,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.585081,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 621020,
+      "name": "Dansby Swanson",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0943,
+          "pct": 9.4,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.7262849303313056,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5012,
+          "pct": 50.1,
+          "grade": "C+",
+          "percentile": 43,
+          "contextMult": 0.8737344664982838,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2538,
+          "pct": 25.4,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.7459471513033031,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3033,
+          "pct": 30.3,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.8436342802329034,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3878,
+          "pct": 38.8,
+          "grade": "B",
+          "percentile": 65,
+          "contextMult": 0.9340029594151039,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0632,
+          "pct": 6.3,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 1.2797486,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 663538,
+      "name": "Nico Hoerner",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0457,
+          "pct": 4.6,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.596325669714016,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6087,
+          "pct": 60.9,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.9030060777065333,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2858,
+          "pct": 28.6,
+          "grade": "B",
+          "percentile": 57,
+          "contextMult": 0.6443891435407544,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2711,
+          "pct": 27.1,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.7763416910405285,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3975,
+          "pct": 39.8,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.9340029594151039,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0716,
+          "pct": 7.2,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 1.141149412,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 672356,
+      "name": "Gabriel Arias",
+      "team": "CHC",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 650633,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0726,
+          "pct": 7.3,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.7108970961080628,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4563,
+          "pct": 45.6,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.7641352578090667,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2024,
+          "pct": 20.2,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.7349949056673989,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1866,
+          "pct": 18.7,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 0.8548248379090717,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2522,
+          "pct": 25.2,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.9860151935271426,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0401,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 1.1710907000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 664034,
+      "name": "Ty France",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1336,
+          "pct": 13.4,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 1.0380573706761773,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7282,
+          "pct": 72.8,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.2391509781032062,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4424,
+          "pct": 44.2,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 1.0924189214860696,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.4135,
+          "pct": 41.4,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.0777098602197686,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5811,
+          "pct": 58.1,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.0672963835623486,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.609975933,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 665487,
+      "name": "Fernando Tatis Jr.",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.1441,
+          "pct": 14.4,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.0443578819874624,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.8029,
+          "pct": 80.3,
+          "grade": "A+",
+          "percentile": 100,
+          "contextMult": 1.3344629870535782,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.5276,
+          "pct": 52.8,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.142678762457205,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3835,
+          "pct": 38.4,
+          "grade": "A",
+          "percentile": 93,
+          "contextMult": 1.083829969585618,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.6717,
+          "pct": 67.2,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.1145177137089612,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1039,
+          "pct": 10.4,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.0002293525,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 669392,
+      "name": "Samad Taylor",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0697,
+          "pct": 7,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.7833636511469275,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.695,
+          "pct": 69.5,
+          "grade": "A",
+          "percentile": 93,
+          "contextMult": 1.1695888196746398,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.365,
+          "pct": 36.5,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 0.9206652207006973,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3656,
+          "pct": 36.6,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 0.9427961341780849,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5561,
+          "pct": 55.6,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.0529874977168177,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1384,
+          "pct": 13.8,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.11771765087,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 669134,
+      "name": "Luis Campusano",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0917,
+          "pct": 9.2,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.8914853711298536,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5992,
+          "pct": 59.9,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 1.0396027065075875,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3086,
+          "pct": 30.9,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.8861128630675953,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2907,
+          "pct": 29.1,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.8882160406270387,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4026,
+          "pct": 40.3,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.9508485432836757,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.8432847,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 701538,
+      "name": "Jackson Merrill",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1248,
+          "pct": 12.5,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 0.8044477017924742,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.661,
+          "pct": 66.1,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.036152917878824,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3761,
+          "pct": 37.6,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 0.8707600620327999,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3325,
+          "pct": 33.3,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 0.9273823800621479,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4878,
+          "pct": 48.8,
+          "grade": "A",
+          "percentile": 87,
+          "contextMult": 0.979947960501095,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.091,
+          "pct": 9.1,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.2950510534500002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 806956,
+      "name": "Ethan Salas",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0917,
+          "pct": 9.2,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.8064437496914094,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5823,
+          "pct": 58.2,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 1.0394111773254047,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2999,
+          "pct": 30,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.9209496216066826,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2039,
+          "pct": 20.4,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.9394577716831914,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3635,
+          "pct": 36.4,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.9753321908735045,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.8432847,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 687957,
+      "name": "Dustin Harris",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0513,
+          "pct": 5.1,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.6226542543282625,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5754,
+          "pct": 57.5,
+          "grade": "B",
+          "percentile": 65,
+          "contextMult": 0.9739693527259485,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2639,
+          "pct": 26.4,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.7066869280915227,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3404,
+          "pct": 34,
+          "grade": "A",
+          "percentile": 87,
+          "contextMult": 0.7886583951541579,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.43,
+          "pct": 43,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.9030853619199115,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1263,
+          "pct": 12.6,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.2424394580000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 657757,
+      "name": "Gavin Sheets",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.0948,
+          "pct": 9.5,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.7155325670693581,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5004,
+          "pct": 50,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.9975593880907486,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2504,
+          "pct": 25,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.8065231025898495,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2206,
+          "pct": 22.1,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.8415972953088935,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3138,
+          "pct": 31.4,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.928371752053669,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0184,
+          "pct": 1.8,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 1.1328124470000003,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 592518,
+      "name": "Manny Machado",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.1347,
+          "pct": 13.5,
+          "grade": "A",
+          "percentile": 87,
+          "contextMult": 0.8233875957947874,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5833,
+          "pct": 58.3,
+          "grade": "B+",
+          "percentile": 70,
+          "contextMult": 0.9578210116075044,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3169,
+          "pct": 31.7,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.8331013736779184,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3127,
+          "pct": 31.3,
+          "grade": "B+",
+          "percentile": 78,
+          "contextMult": 0.8498694307695731,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4197,
+          "pct": 42,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.9253413989503377,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0109,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.7125568318400001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 669720,
+      "name": "Austin Hays",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0853,
+          "pct": 8.5,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.9048974409208254,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6404,
+          "pct": 64,
+          "grade": "B+",
+          "percentile": 85,
+          "contextMult": 1.2282160330019203,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3207,
+          "pct": 32.1,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 1.0591340167114511,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3702,
+          "pct": 37,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.05828197637691,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4938,
+          "pct": 49.4,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.1812356533912445,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.6034170520000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 593428,
+      "name": "Xander Bogaerts",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0634,
+          "pct": 6.3,
+          "grade": "C+",
+          "percentile": 39,
+          "contextMult": 0.6733871701614201,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6095,
+          "pct": 61,
+          "grade": "B+",
+          "percentile": 78,
+          "contextMult": 1.1236127835559757,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2813,
+          "pct": 28.1,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.8102564364350274,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2459,
+          "pct": 24.6,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.8717962607907693,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4175,
+          "pct": 41.8,
+          "grade": "B+",
+          "percentile": 74,
+          "contextMult": 1.040354336931738,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0806,
+          "pct": 8.1,
+          "grade": "A",
+          "percentile": 89,
+          "contextMult": 1.2911625740000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 630105,
+      "name": "Jake Cronenworth",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0535,
+          "pct": 5.4,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.5794124025790761,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5575,
+          "pct": 55.8,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.9504746429183589,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2479,
+          "pct": 24.8,
+          "grade": "C+",
+          "percentile": 46,
+          "contextMult": 0.700357026529497,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2444,
+          "pct": 24.4,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.7941124911173014,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3647,
+          "pct": 36.5,
+          "grade": "B",
+          "percentile": 54,
+          "contextMult": 0.9753321908735045,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0393,
+          "pct": 3.9,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 1.14694215064,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 666023,
+      "name": "Freddy Fermin",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0407,
+          "pct": 4.1,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.5888121418041158,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4382,
+          "pct": 43.8,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.9582871137091434,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1845,
+          "pct": 18.5,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.6769429163828121,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.199,
+          "pct": 19.9,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.8214252156549788,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2295,
+          "pct": 23,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 1.0078432639026214,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 15,
+          "contextMult": 0.59029929,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 823550,
+      "name": "Sung-Mun Song",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0336,
+          "pct": 3.4,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3306,
+          "pct": 33.1,
+          "grade": "D",
+          "percentile": 4,
+          "contextMult": 0.8060951663141401,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1112,
+          "pct": 11.1,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.6078143244858812,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1886,
+          "pct": 18.9,
+          "grade": "C",
+          "percentile": 26,
+          "contextMult": 0.7242216706154339,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1836,
+          "pct": 18.4,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.9030853619199115,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0885,
+          "pct": 8.9,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.0694723962,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849843,
+      "startTimeUTC": "2026-09-30T02:00:00Z",
+      "playerId": 687749,
+      "name": "Jase Bowen",
+      "team": "SD",
+      "opponent": "CHC",
+      "side": "home",
+      "pitcherId": 571510,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0321,
+          "pct": 3.2,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.6098289083609361,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.2506,
+          "pct": 25.1,
+          "grade": "D",
+          "percentile": 0,
+          "contextMult": 0.7829799770644077,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.0868,
+          "pct": 8.7,
+          "grade": "D",
+          "percentile": 0,
+          "contextMult": 0.6638720244676405,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.0961,
+          "pct": 9.6,
+          "grade": "D",
+          "percentile": 0,
+          "contextMult": 0.7678576573999025,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1055,
+          "pct": 10.6,
+          "grade": "D",
+          "percentile": 0,
+          "contextMult": 0.9432224891163519,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0482,
+          "pct": 4.8,
+          "grade": "B+",
+          "percentile": 74,
+          "contextMult": 1.1576424965,
+          "saturated": false
+        }
+      }
+    }
+  ]
+}
