@@ -95,7 +95,10 @@ export function classifyPuckLineGame(game,line){
   else if(margin===1)code='MISSED_ONE';
   else code='MISSED';
  }else if(game.status==='in'){
-  if(margin===1&&isLateThird(game,WATCH_SECONDS)&&goaliePulled(game,side.underdog))code='PLJ_LIVE';
+  if(margin===1&&swing.backdoor)code='BACKDOORED';
+  else if(margin>=2&&swing.cash?.emptyNet)code='PLJ_CASHED';
+  else if(margin>=2&&swing.cash)code='LATE_CASH';
+  else if(margin===1&&isLateThird(game,WATCH_SECONDS)&&goaliePulled(game,side.underdog))code='PLJ_LIVE';
   else if(margin===1&&isLateThird(game,WATCH_SECONDS))code='PLJ_WATCH';
   else if(margin===2&&isLateThird(game,WATCH_SECONDS))code='BACKDOOR_DANGER';
   else if(margin===1&&isLateThird(game,SWEAT_SECONDS))code='ONE_GOAL_SWEAT';
@@ -110,8 +113,8 @@ export function buildPuckLineJesusModel(slate,lines){
  const live=tracked.filter(x=>x.game.status==='in'&&['ONE_GOAL_SWEAT','PLJ_WATCH','PLJ_LIVE','BACKDOOR_DANGER','SAFE_COVER'].includes(x.code));
  const hot=live.filter(x=>['PLJ_WATCH','PLJ_LIVE','BACKDOOR_DANGER'].includes(x.code));
  const completed=tracked.filter(x=>x.game.status==='post');
- const cashes=completed.filter(x=>['PLJ_CASHED','LATE_CASH'].includes(x.code));
- const backdoors=completed.filter(x=>x.code==='BACKDOORED');
+ const cashes=tracked.filter(x=>['PLJ_CASHED','LATE_CASH'].includes(x.code));
+ const backdoors=tracked.filter(x=>x.code==='BACKDOORED');
  const upcoming=tracked.filter(x=>x.game.status==='pre');
  return {date:slate?.date||lines?.date||'',generatedAt:new Date().toISOString(),tracked,live,hot,completed,cashes,backdoors,upcoming};
 }
