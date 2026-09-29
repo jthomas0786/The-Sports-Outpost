@@ -1,0 +1,57 @@
+name: Realtime NHL PLJ push
+
+on:
+  schedule:
+    - cron: '0 20 * * *'
+    - cron: '0 1 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Detect PLJ states but send nothing'
+        type: boolean
+        default: false
+      self_test:
+        description: 'Send one PLJ test notification to opted-in devices'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: realtime-nhl-plj-push
+  cancel-in-progress: true
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install push runtime
+        run: npm install --no-audit --no-fund
+      - name: Validate PLJ push sender
+        run: |
+          node --check scripts/nhl-plj-push.mjs
+          node --check sports/nhl/plj-push-client-v926.js
+          node --check sw.js
+      - name: Poll Puck Line Jesus states
+        env:
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          POLL_MS: '20000'
+          MAX_TICKS: ${{ inputs.dry_run == true && '3' || '0' }}
+        run: |
+          if [ "${{ inputs.self_test }}" = "true" ]; then
+            node scripts/nhl-plj-push.mjs --test
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
+            node scripts/nhl-plj-push.mjs --dry-run
+          else
+            node scripts/nhl-plj-push.mjs
+          fi
