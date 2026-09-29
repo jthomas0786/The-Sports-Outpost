@@ -12,6 +12,25 @@ async function openPlj(page,width=1440,height=1000){
  await expect(page.locator('#hkPuckLineJesusPanel')).toBeVisible();
 }
 
+test('Puck Line Jesus is a direct NHL side-nav item',async({page})=>{
+ await page.setViewportSize({width:1440,height:1000});
+ await page.goto('http://127.0.0.1:4173/index.html#mlb',{waitUntil:'domcontentloaded'});
+ const item=page.locator('#sbSportAccordion .sb-sub-item[data-nhl-plj]');
+ await expect(item).toHaveCount(1,{timeout:30000});
+ await expect(item).toHaveText('Puck Line Jesus');
+ const structure=await item.evaluate(el=>({
+  sport:el.closest('.sb-sport-block')?.querySelector('.sb-sport-head')?.dataset.sport||'',
+  previous:el.previousElementSibling?.dataset.nhlTab||''
+ }));
+ expect(structure.sport).toBe('nhl');
+ expect(structure.previous).toBe('live');
+ await item.click();
+ await expect.poll(()=>page.evaluate(()=>location.hash),{timeout:30000}).toBe('#nhl');
+ await expect(page.locator('#hkPuckLineJesusPanel')).toBeVisible({timeout:30000});
+ await expect(page.locator('#hkPuckLineJesusPanel')).toContainText('Puck Line Jesus');
+ await expect(item).toHaveClass(/is-active/);
+});
+
 test('Puck Line Jesus alert opt-in and permanent ledger mount',async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('tso.plj.alerts.v1','1'));
  await openPlj(page);
