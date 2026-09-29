@@ -65,13 +65,30 @@ export function normalizeScoreboard(doc,now=Date.now(),requestedDate=null){
  return {sport:'nhl',schemaVersion:2,generatedAt:new Date(now).toISOString(),season:doc.leagues?.[0]?.season?.displayName||'',date:slateDate,games};
 }
 export function mergeSummary(game,summary,now=Date.now()){
+ const roster=new Map((game.players||[]).map(p=>[playerKey(p),{...p}]));
+ const livePlayers=new Map();
  const next={...game,players:[],goals:[],plays:[],summaryAt:now,onIce:summary.onIce||[]};
  const keys={goals:'goals',assists:'assists',shotsTotal:'sog',blockedShots:'blocks',saves:'saves',shotsAgainst:'shotsAgainst',goalsAgainst:'goalsAgainst',timeOnIce:'toi'};
  for(const group of summary.boxscore?.players||[])for(const section of group.statistics||[])for(const row of section.athletes||[]){
-  const p=athlete(row.athlete,group.team?.abbreviation,game.id),current={};
-  for(const [i,key] of (section.keys||[]).entries())if(keys[key])current[keys[key]]=key==='timeOnIce'?row.stats?.[i]:num(row.stats?.[i]);
-  if(current.goals!=null&&current.assists!=null)current.points=current.goals+current.assists;
-  next.players.push({...p,current});
+  if(!row.athlete?.id)continue;
+  const team=group.team?.abbreviation||[game.away,game.home].find(t=>t.id===String(group.team?.id))?.abbr||'';
+  const p=athlete(row.athlete,team,game.id),key=playerKey(p),current={};
+  for(const [i,statKey] of (section.keys||[]).entries())if(keys[statKey])current[keys[statKey]]=statKey==='timeOnIce'?row.stats?.[i]:num(row.stats?.[i]);
+  const previous=livePlayers.get(key)||roster.get(key);
+  const mergedCurrent={...(previous?.current||{}),...current};
+  if(mergedCurrent.goals!=null&&mergedCurrent.assists!=null)mergedCurrent.points=mergedCurrent.goals+mergedCurrent.assists;
+  livePlayers.set(key,{...p,...(previous||{}),current:mergedCurrent});
+ }
+ for(const [key,p] of roster)if(!livePlayers.has(key))livePlayers.set(key,p);
+ next.players=[...livePlayers.values()];
+ for(const row of summary.boxscore?.teams||[]){
+  const team=[game.away,game.home].find(t=>t.id===String(row.team?.id)||String(t.abbr).toUpperCase()===String(row.team?.abbreviation||'').toUpperCase());
+  if(!team)continue;
+  const shotStat=(row.statistics||[]).find(s=>['shotsTotal','shotsOnGoal','shots'].includes(s.name));
+  const shots=num(shotStat?.displayValue??shotStat?.value);
+  if(shots==null)continue;
+  if(team.id===game.away.id)next.away={...next.away,shots};
+  if(team.id===game.home.id)next.home={...next.home,shots};
  }
  const seen=new Set();
  for(const p of summary.plays||[]){
