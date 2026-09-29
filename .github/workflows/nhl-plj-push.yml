@@ -14,6 +14,15 @@ on:
         description: 'Send one PLJ test notification to opted-in devices'
         type: boolean
         default: false
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/nhl-plj-push.mjs'
+      - 'sports/nhl/plj-push-client-v926.js'
+      - 'sports/nhl/puck-line-jesus-alerts-v925.js'
+      - 'sports/nhl/puck-line-jesus.js'
+      - 'sw.js'
+      - '.github/workflows/nhl-plj-push.yml'
 
 permissions:
   contents: read
@@ -37,6 +46,7 @@ jobs:
         run: |
           node --check scripts/nhl-plj-push.mjs
           node --check sports/nhl/plj-push-client-v926.js
+          node --check sports/nhl/puck-line-jesus-alerts-v925.js
           node --check sw.js
       - name: Poll Puck Line Jesus states
         env:
@@ -46,9 +56,11 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           POLL_MS: '20000'
-          MAX_TICKS: ${{ inputs.dry_run == true && '3' || '0' }}
+          MAX_TICKS: ${{ github.event_name == 'push' && '1' || (inputs.dry_run == true && '3' || '0') }}
         run: |
-          if [ "${{ inputs.self_test }}" = "true" ]; then
+          if [ "${{ github.event_name }}" = "push" ]; then
+            node scripts/nhl-plj-push.mjs --dry-run
+          elif [ "${{ inputs.self_test }}" = "true" ]; then
             node scripts/nhl-plj-push.mjs --test
           elif [ "${{ inputs.dry_run }}" = "true" ]; then
             node scripts/nhl-plj-push.mjs --dry-run
