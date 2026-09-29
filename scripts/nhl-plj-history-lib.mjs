@@ -1,5 +1,6 @@
 const ALERT_CODES=new Set(['PLJ_WATCH','PLJ_LIVE','BACKDOOR_DANGER','PLJ_CASHED','LATE_CASH','BACKDOORED']);
 const FINAL_CODES=new Set(['PLJ_CASHED','LATE_CASH','BACKDOORED','COVERED','MISSED_ONE','MISSED']);
+const LIVE_RESULT_CODES=new Set(['PLJ_CASHED','LATE_CASH','BACKDOORED']);
 const iso=v=>{const d=v instanceof Date?v:new Date(v);return Number.isFinite(d.getTime())?d.toISOString():new Date().toISOString();};
 const scoreOf=g=>({away:Number.isFinite(Number(g?.away?.score))?Number(g.away.score):null,home:Number.isFinite(Number(g?.home?.score))?Number(g.home.score):null});
 const goalCopy=g=>g?{period:g.period??null,clock:g.clock||'',team:g.team||'',scorer:g.scorer?.name||'',text:g.text||'',strength:g.strength||'',awayScore:g.awayScore??null,homeScore:g.homeScore??null,emptyNet:Boolean(g.emptyNet)}:null;
@@ -13,7 +14,7 @@ function seedRecord(x,at){
   initialPrice:l.price??null,initialBook:l.book||'',sportsbookCount:Number(l.sportsbookCount||0),
   createdAt:at,updatedAt:at,status:g.status||'pre',lastState:null,lastStateAt:null,
   sawPljWatch:false,sawPljLive:false,sawBackdoorDanger:false,pljCash:false,lateCash:false,backdoored:false,
-  outcome:null,finalScore:null,decisiveGoal:null,transitions:[]
+  liveOutcome:null,outcome:null,finalScore:null,decisiveGoal:null,transitions:[]
  };
 }
 
@@ -44,9 +45,14 @@ export function updatePljHistory(history,model,now=new Date()){
   if(rec.lastState!==x.code){
    const transitions=Array.isArray(rec.transitions)?rec.transitions.slice(-31):[];transitions.push(transitionFor(x,at));rec.transitions=transitions;rec.lastState=x.code;rec.lastStateAt=at;
   }
-  if(g.status==='post'||FINAL_CODES.has(x.code)){
-   rec.status='post';rec.outcome=x.code;rec.finalScore=scoreOf(g);
-   const decisive=x.swing?.cash||x.swing?.backdoor||null;if(decisive)rec.decisiveGoal=goalCopy(decisive);
+  const decisive=x.swing?.cash||x.swing?.backdoor||null;
+  if(LIVE_RESULT_CODES.has(x.code)){
+   rec.liveOutcome=x.code;
+   if(decisive)rec.decisiveGoal=goalCopy(decisive);
+  }
+  if(g.status==='post'){
+   rec.status='post';rec.outcome=x.code;rec.finalScore=scoreOf(g);rec.liveOutcome=rec.liveOutcome||x.code;
+   if(decisive)rec.decisiveGoal=goalCopy(decisive);
   }
   byId.set(id,rec);
  }
@@ -61,4 +67,4 @@ export function updatePljHistory(history,model,now=new Date()){
  return {version:1,updatedAt:at,season:prior.season||model?.season||'',summary,games};
 }
 
-export const __PLJ_HISTORY_TEST__={ALERT_CODES,FINAL_CODES};
+export const __PLJ_HISTORY_TEST__={ALERT_CODES,FINAL_CODES,LIVE_RESULT_CODES};
