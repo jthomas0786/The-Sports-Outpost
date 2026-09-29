@@ -1,19 +1,17 @@
 /**
- * sw.js — Dinger Watch service worker
+ * sw.js — The Sports Outpost service worker
  *
  * Runs independently of any open page, which is what makes notifications work
- * when the app is closed. It cannot poll on its own — browsers don't permit
- * that — so it sleeps until the push service wakes it.
+ * when the app is closed. It sleeps until the push service wakes it.
  */
 
-const VERSION = 'dw-sw-v2';
+const VERSION = 'tso-sw-v3';
 const LATEST_URL = 'latest-hr.json';
 const ICON = 'icon-192.png';
 
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 
-/** Keys already shown, so a duplicate push can't double-notify. */
 async function seenKeys() {
   try {
     const cache = await caches.open(VERSION);
@@ -34,69 +32,81 @@ async function rememberKey(key) {
 let pushQueue = Promise.resolve();
 self.addEventListener('push', event => {
   event.waitUntil(pushQueue = pushQueue.catch(() => {}).then(async () => {
-    let hrs = [];
+    let events = [];
 
     try {
       if (event.data) {
         const parsed = event.data.json();
-        hrs = Array.isArray(parsed) ? parsed : [parsed];
+        events = Array.isArray(parsed) ? parsed : [parsed];
       }
     } catch {}
 
-    if (!hrs.length) {
+    if (!events.length) {
       try {
         const res = await fetch(LATEST_URL + '?t=' + Date.now(), { cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
-          hrs = data.homeRuns || [];
+          events = data.homeRuns || [];
         }
       } catch {}
     }
 
-    if (!hrs.length) return;
+    if (!events.length) return;
 
     const seen = await seenKeys();
-    const fresh = hrs.filter(h => h.key && !seen.has(h.key)).slice(-5);
+    const fresh = events.filter(e => e.key && !seen.has(e.key)).slice(-5);
 
-    for (const hr of fresh) {
-      if (hr.sport === 'nfl' && hr.kind === 'watchlist') {
-        if (!Number.isFinite(hr.ts) || Date.now()-hr.ts>120000 || hr.ts>Date.now()+60000) continue;
-        const score = hr.awayScore!=null&&hr.homeScore!=null ? `${hr.away} ${hr.awayScore} · ${hr.home} ${hr.homeScore}` : `${hr.away||''} @ ${hr.home||''}`;
-        const gameState = hr.period ? `Q${hr.period}${hr.clock?` ${hr.clock}`:''}` : '';
-        await self.registration.showNotification(`⭐ ${hr.playerName}`, {
-          body: [hr.text, hr.totals, [score,gameState].filter(Boolean).join(' · ')].filter(Boolean).join('\n'),
-          icon: ICON, badge: ICON, tag: hr.key,
-          data: { url: 'index.html#nfl', sport: 'nfl', kind: 'watchlist', gameId: hr.gameId, playerId: hr.playerId },
-          vibrate: [160,80,160],
+    for (const item of fresh) {
+      if (item.sport === 'nhl' && item.kind === 'plj') {
+        if (!Number.isFinite(item.ts) || Date.now()-item.ts>5*60*1000 || item.ts>Date.now()+60000) continue;
+        await self.registration.showNotification(item.title || '⚡ Puck Line Jesus', {
+          body: item.body || `${item.favorite || 'Favorite'} -1.5 live puck-line alert`,
+          icon: ICON, badge: ICON, tag: item.key,
+          data: { url: item.url || 'index.html?plj=1#nhl', sport: 'nhl', kind: 'plj', gameId: item.gameId },
+          vibrate: [220,90,220,90,300],
+          renotify: true,
         });
-        await rememberKey(hr.key);
+        await rememberKey(item.key);
         continue;
       }
-      if (hr.sport === 'nfl') {
-        if (!Number.isFinite(hr.ts) || Date.now()-hr.ts>120000 || hr.ts>Date.now()+60000) continue;
-        await self.registration.showNotification(`🏈 ${hr.scorer} — TOUCHDOWN`, {
-          body: `${hr.text}\n${hr.away} ${hr.awayScore} · ${hr.home} ${hr.homeScore} · Q${hr.period} ${hr.clock||''}`,
-          icon: ICON, badge: ICON, tag: hr.key,
+      if (item.sport === 'nfl' && item.kind === 'watchlist') {
+        if (!Number.isFinite(item.ts) || Date.now()-item.ts>120000 || item.ts>Date.now()+60000) continue;
+        const score = item.awayScore!=null&&item.homeScore!=null ? `${item.away} ${item.awayScore} · ${item.home} ${item.homeScore}` : `${item.away||''} @ ${item.home||''}`;
+        const gameState = item.period ? `Q${item.period}${item.clock?` ${item.clock}`:''}` : '';
+        await self.registration.showNotification(`⭐ ${item.playerName}`, {
+          body: [item.text, item.totals, [score,gameState].filter(Boolean).join(' · ')].filter(Boolean).join('\n'),
+          icon: ICON, badge: ICON, tag: item.key,
+          data: { url: 'index.html#nfl', sport: 'nfl', kind: 'watchlist', gameId: item.gameId, playerId: item.playerId },
+          vibrate: [160,80,160],
+        });
+        await rememberKey(item.key);
+        continue;
+      }
+      if (item.sport === 'nfl') {
+        if (!Number.isFinite(item.ts) || Date.now()-item.ts>120000 || item.ts>Date.now()+60000) continue;
+        await self.registration.showNotification(`🏈 ${item.scorer} — TOUCHDOWN`, {
+          body: `${item.text}\n${item.away} ${item.awayScore} · ${item.home} ${item.homeScore} · Q${item.period} ${item.clock||''}`,
+          icon: ICON, badge: ICON, tag: item.key,
           data: { url: 'index.html#nfl', sport: 'nfl', kind: 'touchdown' }, vibrate: [200,100,200],
         });
-        await rememberKey(hr.key);
+        await rememberKey(item.key);
         continue;
       }
       const bits = [];
-      if (hr.exitVelo) bits.push(`${hr.exitVelo} mph`);
-      if (hr.distance) bits.push(`${hr.distance} ft`);
-      if (hr.launchAngle != null) bits.push(`${hr.launchAngle}°`);
+      if (item.exitVelo) bits.push(`${item.exitVelo} mph`);
+      if (item.distance) bits.push(`${item.distance} ft`);
+      if (item.launchAngle != null) bits.push(`${item.launchAngle}°`);
 
-      await self.registration.showNotification(`💣 ${hr.batter} — HOME RUN`, {
-        body: [bits.join(' · '), `${hr.half} ${hr.inning} · ${hr.battingTeam} vs ${hr.opponent}`]
+      await self.registration.showNotification(`💣 ${item.batter} — HOME RUN`, {
+        body: [bits.join(' · '), `${item.half} ${item.inning} · ${item.battingTeam} vs ${item.opponent}`]
                 .filter(Boolean).join('\n'),
         icon: ICON,
         badge: ICON,
-        tag: hr.key,
+        tag: item.key,
         data: { url: 'index.html' },
         vibrate: [200, 100, 200],
       });
-      await rememberKey(hr.key);
+      await rememberKey(item.key);
     }
   }));
 });
@@ -108,6 +118,14 @@ self.addEventListener('notificationclick', event => {
   const gamePk = data.gamePk;
   event.waitUntil((async () => {
     const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    if(data.sport === 'nhl' && data.kind === 'plj'){
+      const target = new URL(data.url || 'index.html?plj=1#nhl', self.location.origin).href;
+      for(const c of all){
+        if('navigate' in c){try{await c.navigate(target);}catch{} if('focus' in c)await c.focus();return;}
+      }
+      if(clients.openWindow) await clients.openWindow(target);
+      return;
+    }
     for (const c of all) {
       if (c.url.includes('index.html') && 'focus' in c) {
         await c.focus();
@@ -126,17 +144,12 @@ self.addEventListener('notificationclick', event => {
   })());
 });
 
-/** Chrome may drop a subscription; re-subscribe so alerts don't silently stop. */
 self.addEventListener('pushsubscriptionchange', event => {
   event.waitUntil((async () => {
     try {
-      const sub = await self.registration.pushManager.subscribe(
-        event.oldSubscription?.options || { userVisibleOnly: true });
-      await fetch(self.__DW_PUSH_API || '', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ subscription: sub }),
-      });
+      await self.registration.pushManager.subscribe(event.oldSubscription?.options || { userVisibleOnly: true });
+      const all = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for(const c of all)c.postMessage?.({type:'push-subscription-changed'});
     } catch {}
   })());
 });
