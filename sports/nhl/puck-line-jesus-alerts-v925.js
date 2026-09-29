@@ -90,6 +90,9 @@ function renderHistory(history){
  let host=document.getElementById('hkPuckLineJesusHistory');
  if(!host){host=document.createElement('section');host.id='hkPuckLineJesusHistory';host.className='plj-history';document.getElementById('hkPuckLineJesusBody')?.after(host);}
  const s=history?.summary||{},completed=(history?.games||[]).filter(g=>g.status==='post').slice(0,8);
+ const stamp=[history?.updatedAt||'',s.tracked||0,s.completed||0,s.pljLive||0,s.pljCashes||0,s.backdoors||0,completed.map(g=>`${g.gameId}:${g.outcome}:${g.updatedAt}`).join('|')].join('::');
+ if(host.dataset.pljHistoryStamp===stamp)return;
+ host.dataset.pljHistoryStamp=stamp;
  host.innerHTML=`<div class="plj-history-head"><div><span>PERMANENT LEDGER</span><h3>${esc(history?.season||'NHL')} Puck Line Jesus History</h3><p>First tracked price, live trigger history, final result and decisive late goal are preserved by the NHL bot.</p></div><small>${history?.updatedAt?`Updated ${esc(new Date(history.updatedAt).toLocaleString())}`:'Waiting for first history refresh'}</small></div><div class="plj-history-kpis"><div><b>${Number(s.completed||0)}</b><span>Finals</span></div><div><b>${Number(s.pljLive||0)}</b><span>PLJ Live</span></div><div><b>${Number(s.pljCashes||0)}</b><span>EN Cashes</span></div><div><b>${Number(s.backdoors||0)}</b><span>Backdoors</span></div></div><div class="plj-history-grid">${completed.map(historyCard).join('')||'<div class="plj-history-empty">Opening-night results will begin filling this ledger automatically.</div>'}</div>`;
 }
 async function refreshHistory(force=false){
@@ -102,7 +105,7 @@ function syncControls(){
  const actions=panel.querySelector('.plj-hero-actions');if(actions&&!document.getElementById('hkPuckLineJesusAlertToggle')){
   const b=document.createElement('button');b.type='button';b.id='hkPuckLineJesusAlertToggle';b.dataset.pljAlertToggle='1';actions.insertBefore(b,actions.querySelector('[data-plj-close]'));
  }
- const b=document.getElementById('hkPuckLineJesusAlertToggle');if(b){const on=alertsEnabled();b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',on?'true':'false');b.textContent=on?'🔔 Alerts On':'🔕 Enable Alerts';}
+ const b=document.getElementById('hkPuckLineJesusAlertToggle');if(b){const on=alertsEnabled(),copy=on?'🔔 Alerts On':'🔕 Enable Alerts';b.classList.toggle('is-on',on);b.setAttribute('aria-pressed',on?'true':'false');if(b.textContent!==copy)b.textContent=copy;}
  document.getElementById('hkPuckLineJesusBtn')?.classList.toggle('plj-alerts-enabled',alertsEnabled());
  refreshHistory();
 }
