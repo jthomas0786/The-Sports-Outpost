@@ -11,15 +11,23 @@ assert.equal(classifyPuckLineGame(base,line).code,'PLJ_LIVE');
 assert.equal(classifyPuckLineGame({...base,clock:'7:12'},line).code,'ONE_GOAL_SWEAT');
 assert.equal(classifyPuckLineGame({...base,away:{...base.away,score:4},clock:'2:11'},line).code,'BACKDOOR_DANGER');
 
-const emptyNetCash={...base,status:'post',away:{...base.away,score:4},home:{...base.home,score:2},clock:'0:00',goals:[{period:3,clock:'0:28',team:'EDM',awayScore:4,homeScore:2,text:'Connor McDavid scores an empty-net goal',strength:'Empty Net'}]};
+const cashGoal={period:3,clock:'0:28',team:'EDM',awayScore:4,homeScore:2,text:'Connor McDavid scores an empty-net goal',strength:'Empty Net'};
+const liveEmptyNetCash={...base,away:{...base.away,score:4},home:{...base.home,score:2},clock:'0:28',goals:[cashGoal]};
+assert.equal(classifyPuckLineGame(liveEmptyNetCash,line).code,'PLJ_CASHED','empty-net cover must cash before the final horn');
+const liveModel=buildPuckLineJesusModel({date:'2026-09-29',games:[liveEmptyNetCash]},{games:[line]});
+assert.equal(liveModel.cashes[0]?.code,'PLJ_CASHED','live cash must surface in Jesus Cashes Today immediately');
+
+const emptyNetCash={...liveEmptyNetCash,status:'post',clock:'0:00'};
 assert.equal(classifyPuckLineGame(emptyNetCash,line).code,'PLJ_CASHED');
 const lateCash={...emptyNetCash,goals:[{period:3,clock:'0:28',team:'EDM',awayScore:4,homeScore:2,text:'Connor McDavid scores',strength:'Even Strength'}]};
 assert.equal(classifyPuckLineGame(lateCash,line).code,'LATE_CASH');
-const backdoor={...base,status:'post',away:{...base.away,score:4},home:{...base.home,score:3},clock:'0:00',goals:[{period:3,clock:'0:44',team:'CGY',awayScore:4,homeScore:3,text:'Calgary scores'}]};
+const liveBackdoor={...base,away:{...base.away,score:4},home:{...base.home,score:3},clock:'0:44',goals:[{period:3,clock:'0:44',team:'CGY',awayScore:4,homeScore:3,text:'Calgary scores'}]};
+assert.equal(classifyPuckLineGame(liveBackdoor,line).code,'BACKDOORED','late cover loss must fire before the final horn');
+const backdoor={...liveBackdoor,status:'post',clock:'0:00'};
 assert.equal(classifyPuckLineGame(backdoor,line).code,'BACKDOORED');
 const model=buildPuckLineJesusModel({date:'2026-09-29',games:[emptyNetCash,backdoor]},{games:[line,{...line,gameId:'g1'}]});
 assert.ok(model.tracked.length>=1);
 
 console.log('✓ Puck Line Jesus classification regression passed');
 console.log('  ✓ pulled-goalie state requires live on-ice evidence');
-console.log('  ✓ PLJ live / empty-net cash / late cash / backdoor states classify correctly');
+console.log('  ✓ PLJ live / immediate empty-net cash / late cash / immediate backdoor states classify correctly');
