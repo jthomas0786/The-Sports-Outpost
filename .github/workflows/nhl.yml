@@ -39,6 +39,9 @@ jobs:
           node --check sports/nhl/view-v906.js
           node --check sports/nhl/launch-v922.js
           node --check sports/nhl/puck-line-jesus.js
+          node --check sports/nhl/puck-line-jesus-alerts-v925.js
+          node --check scripts/nhl-plj-history-lib.mjs
+          node --check scripts/nhl-plj-history.mjs
           node --check sports/nhl/props-daily-guard-v919.js
           node --check sports/nhl/props-daily-guard-v920.js
           node --check sports/nhl/props-model.js
@@ -61,6 +64,7 @@ jobs:
           node scripts/player-modal-parity-selftest.mjs
           node scripts/nhl-launch-v922-selftest.mjs
           node scripts/nhl-puck-line-jesus-selftest.mjs
+          node scripts/nhl-plj-history-selftest.mjs
       - name: Refresh NHL slate
         run: node scripts/nhl-refresh.mjs
       - name: Update verified season research
@@ -90,6 +94,8 @@ jobs:
           if(!slate.date||!Array.isArray(slate.games)) throw new Error('Refreshed NHL slate is malformed');
           console.log(`✓ NHL ${slate.date} games=${slate.games.length} ParlayAPI rows=${d.rows.length} puckLines=${plj.games.filter(g=>g.puckLine).length} links=${d.meta.nativeLinkRows||0} sids=${d.meta.nativeSidRows||0}`);
           NODE
+      - name: Update Puck Line Jesus season history
+        run: node scripts/nhl-plj-history.mjs
       - name: Simulate eligible full games
         run: node scripts/nhl-simulate.mjs
       - name: Publish NHL data only
@@ -101,6 +107,7 @@ jobs:
           cp slates/nhl-research.json "$tmpdir/nhl-research.json"
           cp slates/nhl-odds.json "$tmpdir/nhl-odds.json"
           cp slates/nhl-puck-lines.json "$tmpdir/nhl-puck-lines.json"
+          cp slates/nhl-plj-history.json "$tmpdir/nhl-plj-history.json"
           cp slates/nhl-sim.json "$tmpdir/nhl-sim.json"
           for attempt in 1 2 3 4 5; do
             git fetch origin main
@@ -109,8 +116,9 @@ jobs:
             cp "$tmpdir/nhl-research.json" slates/nhl-research.json
             cp "$tmpdir/nhl-odds.json" slates/nhl-odds.json
             cp "$tmpdir/nhl-puck-lines.json" slates/nhl-puck-lines.json
+            cp "$tmpdir/nhl-plj-history.json" slates/nhl-plj-history.json
             cp "$tmpdir/nhl-sim.json" slates/nhl-sim.json
-            git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-puck-lines.json slates/nhl-sim.json
+            git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-puck-lines.json slates/nhl-plj-history.json slates/nhl-sim.json
             if git diff --staged --quiet; then exit 0; fi
             git commit -m "Refresh NHL slate"
             git push origin HEAD:main && exit 0
