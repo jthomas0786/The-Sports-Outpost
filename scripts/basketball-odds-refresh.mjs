@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
+import { normalizeBasketballPlayerIdentity, resolveWnbaQuoteEvent } from './lib/basketball-odds-quality.mjs';
 
 const API = process.env.PARLAY_API_BASE || 'https://parlay-api.com/v1';
 const KEY = process.env.PARLAY_API_KEY || '';
@@ -178,14 +179,24 @@ async function refreshLeague(sport){
     rawRows=arrayPayload(await fetchJson(`${API}/sports/${cfg.sportKey}/props?${propParams}`));
   }
   const rows=[],rawMarketKeys=new Set(),rawBooks=new Set();
-  let rejectedNonPlayers=0,nativeLinkRows=0,nativeSidRows=0;
+  let rejectedNonPlayers=0,rejectedUnmatchedEvents=0,normalizedTeamSuffixes=0,nativeLinkRows=0,nativeSidRows=0;
   for(const r of rawRows){
     const marketRaw=String(r?.market_key||r?.market||'').trim(); rawMarketKeys.add(marketRaw);
     const bk=bookKey(r); if(bk)rawBooks.add(bk);
-    const info=marketInfo(marketRaw,r),player=String(r?.player_name||r?.player||'').trim();
+    const info=marketInfo(marketRaw,r);
+    const identity=normalizeBasketballPlayerIdentity(sport,r?.player_name||r?.player||'',r?.team||r?.player_team||'');
+    const player=identity.player;
     const period=String(r?.period||'FULL').toUpperCase();
     if(!info||!player||!SPORTSBOOK_KEYS.has(bk)||!['FULL','UNKNOWN',''].includes(period))continue;
     if(!plausiblePlayerName(player)){rejectedNonPlayers++;continue;}
+
+    let resolvedContext=null;
+    if(sport==='WNBA'){
+      resolvedContext=resolveWnbaQuoteEvent(r,relevant,identity.teamHint);
+      if(!resolvedContext){rejectedUnmatchedEvents++;continue;}
+      if(identity.strippedTeamSuffix)normalizedTeamSuffixes++;
+    }
+
     const overPrice=finite(r?.over_price??r?.yes_price),underPrice=finite(r?.under_price??r?.no_price);
     if(overPrice==null&&underPrice==null)continue;
     const overLink=nativeSideLink(r,'over'),underLink=nativeSideLink(r,'under');
@@ -193,9 +204,11 @@ async function refreshLeague(sport){
     if(overLink||underLink)nativeLinkRows++;
     if(overSid||underSid)nativeSidRows++;
     rows.push({
-      eventId:String(r?.canonical_event_id||r?.event_id||''),sport,commenceTime:iso(r?.commence_time),
-      homeTeam:String(r?.home_team||'').trim()||null,awayTeam:String(r?.away_team||'').trim()||null,
-      player,team:String(r?.team||r?.player_team||'').trim()||null,
+      eventId:resolvedContext?.eventId||String(r?.canonical_event_id||r?.event_id||''),sport,
+      commenceTime:iso(resolvedContext?.commenceTime||r?.commence_time),
+      homeTeam:resolvedContext?.homeTeam||String(r?.home_team||'').trim()||null,
+      awayTeam:resolvedContext?.awayTeam||String(r?.away_team||'').trim()||null,
+      player,team:identity.team,
       market:info.market,marketKey:marketRaw,line:info.line,binary:info.binary,period,
       book:bookTitle(r),bookKey:bk,overPrice,underPrice,
       overImplied:finite(r?.over_implied_prob),underImplied:finite(r?.under_implied_prob),
@@ -212,16 +225,17 @@ async function refreshLeague(sport){
   const eventPreview=relevant.slice(0,12).map(e=>({eventId:String(e?.canonical_event_id||e?.id||''),commenceTime:iso(e?.commence_time),awayTeam:e?.away_team||null,homeTeam:e?.home_team||null}));
   const output={meta:{
     source:'parlayapi',sample:false,sport,sportKey:cfg.sportKey,fetchedAt:new Date().toISOString(),queryWindow:{from,to},
-    eventsFound:events.length,relevantEvents:relevant.length,eventPreview,rawRows:rawRows.length,sportsbookRows:rows.length,currentRows:rows.length-preservedRows,preservedRows,rejectedNonPlayers,nativeLinkRows,nativeSidRows,
+    eventsFound:events.length,relevantEvents:relevant.length,eventPreview,rawRows:rawRows.length,sportsbookRows:rows.length,currentRows:rows.length-preservedRows,preservedRows,rejectedNonPlayers,rejectedUnmatchedEvents,normalizedTeamSuffixes,nativeLinkRows,nativeSidRows,
     nativeMetadataRequested:{includeLinks:true,includeSids:true},
     books,rawBooks:[...rawBooks].sort(),markets,rawMarketKeys:[...rawMarketKeys].filter(Boolean).sort(),
     noCurrentProps:rawRows.length===0,
     probabilityPolicy:'Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied and are never labeled as a proprietary model.',
     preservationPolicy:'If an exact sportsbook player-prop quote disappears before game time, retain its last verified pregame price for up to 36 hours and no later than 30 minutes after scheduled start.',
+    identityPolicy:sport==='WNBA'?'WNBA player props must resolve to one current event by provider event id, matchup, or one unambiguous team identity. Recognized parenthesized team suffixes are identity metadata, not part of the player name. Orphan and ambiguous rows are quarantined.':'Provider player identity is preserved without guessing event context.',
     note:`Current ${sport} player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Missing exact pregame rows may retain their last verified price; prices are never invented.`
   },rows};
   await fs.mkdir(path.dirname(out),{recursive:true});await fs.writeFile(out,JSON.stringify(output,null,2)+'\n');
-  console.log(`${sport} odds: events=${events.length}, relevant=${relevant.length}, rawProps=${rawRows.length}, sportsbookRows=${rows.length}, preserved=${preservedRows}, nativeLinks=${nativeLinkRows}, nativeSids=${nativeSidRows}, rejectedNonPlayers=${rejectedNonPlayers}, books=${books.length}.`);
+  console.log(`${sport} odds: events=${events.length}, relevant=${relevant.length}, rawProps=${rawRows.length}, sportsbookRows=${rows.length}, preserved=${preservedRows}, nativeLinks=${nativeLinkRows}, nativeSids=${nativeSidRows}, rejectedNonPlayers=${rejectedNonPlayers}, rejectedUnmatchedEvents=${rejectedUnmatchedEvents}, normalizedTeamSuffixes=${normalizedTeamSuffixes}, books=${books.length}.`);
 }
 
 async function main(){
