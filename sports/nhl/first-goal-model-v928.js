@@ -24,13 +24,13 @@ function marketProbFromQuote(q){
  if(over==null)return null;
  return under!=null&&over+under>0?over/(over+under):over;
 }
+function bestQuote(rows){return rows.slice().sort((a,b)=>Number(b.over)-Number(a.over)||Number(b.ts||0)-Number(a.ts||0))[0]||null;}
 function anytimeConsensus(odds,gameId,playerId){
- const rows=quotesFor(odds,gameId,playerId,'atg'),vals=rows.map(marketProbFromQuote).filter(Number.isFinite);
- return {prob:median(vals),books:new Set(rows.map(r=>r.book)).size};
+ const rows=quotesFor(odds,gameId,playerId,'atg'),vals=rows.map(marketProbFromQuote).filter(Number.isFinite),best=bestQuote(rows);
+ return {prob:median(vals),books:new Set(rows.map(r=>r.book)).size,bestPrice:best?Number(best.over):null,bestBook:best?.book||null};
 }
 function bestFirstGoalQuote(odds,gameId,playerId){
- const rows=quotesFor(odds,gameId,playerId,'fgs');
- const best=rows.slice().sort((a,b)=>Number(b.over)-Number(a.over))[0]||null;
+ const rows=quotesFor(odds,gameId,playerId,'fgs'),best=bestQuote(rows);
  return {price:best?Number(best.over):null,book:best?.book||null,books:new Set(rows.map(r=>r.book)).size};
 }
 function directFirstGoalShares(odds,game,players){
@@ -89,12 +89,13 @@ export function buildFirstGoalGame(game,research,odds){
  for(const r of rows){const id=String(r.player.id),base=baseShares.get(id)||0,mkt=direct.shares.get(id)||0;r.finalShare=directWeight*mkt+(1-directWeight)*base;shareSum+=r.finalShare;}
  if(!(shareSum>0))shareSum=1;
  const all=rows.map(r=>{
-  const probability=goalOccurs*r.finalShare/shareSum,marketShare=(direct.shares.get(String(r.player.id))||0)*goalOccurs;
+  const probability=goalOccurs*r.finalShare/shareSum,marketShare=(direct.shares.get(String(r.player.id))||0)*goalOccurs,anytimeProbability=1-Math.exp(-Math.max(0,r.lambda||0));
   const confidence=direct.books>=3&&r.hist.priorGames>=40?'HIGH':direct.books>=1&&r.atg.books>=2?'MED':'MODEL';
-  return {id:String(r.player.id),name:r.player.name,team:r.player.team,position:r.player.position,photo:r.player.photo||'',probability,probabilityLabel:probabilityLabel(probability),fairOdds:fairAmerican(probability),bestOdds:r.fgs.price,bestBook:r.fgs.book,firstGoalBooks:r.fgs.books,marketFirstGoalProbability:direct.books?marketShare:null,anytimeMarketProbability:r.atg.prob,anytimeBooks:r.atg.books,confidence,lambda:r.lambda,...r.hist};
+  return {id:String(r.player.id),name:r.player.name,team:r.player.team,position:r.player.position,photo:r.player.photo||'',probability,probabilityLabel:probabilityLabel(probability),fairOdds:fairAmerican(probability),bestOdds:r.fgs.price,bestBook:r.fgs.book,firstGoalBooks:r.fgs.books,marketFirstGoalProbability:direct.books?marketShare:null,anytimeProbability,anytimeProbabilityLabel:probabilityLabel(anytimeProbability),fairAtgOdds:fairAmerican(anytimeProbability),bestAtgOdds:r.atg.bestPrice,bestAtgBook:r.atg.bestBook,anytimeMarketProbability:r.atg.prob,anytimeBooks:r.atg.books,confidence,lambda:r.lambda,...r.hist};
  }).sort((a,b)=>b.probability-a.probability);
- const teamBlock=team=>({id:String(team.id||''),abbr:team.abbr,name:team.name,logo:team.logo||'',expectedGoals:team===game.home?ctx.homeExpected:ctx.awayExpected,winProbability:team===game.home?ctx.homeWin:ctx.awayWin,players:all.filter(p=>teamKey(p.team)===teamKey(team.abbr)).slice(0,3).map((p,i)=>({...p,teamRank:i+1}))});
- return {gameId:String(game.id),startTime:game.startTime,status:game.status,venue:game.venue||'',away:teamBlock(game.away),home:teamBlock(game.home),expectedGoals:totalLambda,noGoalProbability:1-goalOccurs,directFirstGoalBooks:direct.books,directMarketCoverage:direct.coverage,directMarketWeight:directWeight,model:'FGS-Hazard Ensemble v1',method:'Competing Poisson hazards calibrated to sportsbook game total/team strength, blended with de-vigged first-goal consensus when sufficiently covered.',top6:[...teamBlock(game.away).players,...teamBlock(game.home).players].sort((a,b)=>b.probability-a.probability)};
+ const teamBlock=team=>{const group=all.filter(p=>teamKey(p.team)===teamKey(team.abbr));return {id:String(team.id||''),abbr:team.abbr,name:team.name,logo:team.logo||'',expectedGoals:team===game.home?ctx.homeExpected:ctx.awayExpected,winProbability:team===game.home?ctx.homeWin:ctx.awayWin,players:group.slice().sort((a,b)=>b.probability-a.probability).slice(0,3).map((p,i)=>({...p,teamRank:i+1})),atgPlayers:group.slice().sort((a,b)=>b.anytimeProbability-a.anytimeProbability).slice(0,3).map((p,i)=>({...p,teamRank:i+1}))};};
+ const away=teamBlock(game.away),home=teamBlock(game.home);
+ return {gameId:String(game.id),startTime:game.startTime,status:game.status,venue:game.venue||'',away,home,expectedGoals:totalLambda,noGoalProbability:1-goalOccurs,directFirstGoalBooks:direct.books,directMarketCoverage:direct.coverage,directMarketWeight:directWeight,model:'FGS-Hazard Ensemble v1',method:'Competing Poisson hazards calibrated to sportsbook game total/team strength, blended with de-vigged first-goal consensus when sufficiently covered.',top6:[...away.players,...home.players].sort((a,b)=>b.probability-a.probability),top6Atg:[...away.atgPlayers,...home.atgPlayers].sort((a,b)=>b.anytimeProbability-a.anytimeProbability)};
 }
 export function buildFirstGoalSlate(slate,research,odds,old=null){
  const preserve=old?.date===slate?.date?new Map((old.games||[]).map(g=>[String(g.gameId),g])):new Map();
@@ -102,5 +103,5 @@ export function buildFirstGoalSlate(slate,research,odds,old=null){
   if(g.status!=='pre'&&preserve.has(String(g.id)))return {...preserve.get(String(g.id)),status:g.status,away:{...preserve.get(String(g.id)).away,score:g.away?.score??null},home:{...preserve.get(String(g.id)).home,score:g.home?.score??null}};
   return buildFirstGoalGame(g,research,odds);
  }).filter(Boolean);
- return {version:1,source:'TSO NHL first-goal model',model:'FGS-Hazard Ensemble v1',generatedAt:new Date().toISOString(),date:slate?.date||'',season:slate?.season||'',methodology:{eventModel:'competing Poisson scoring hazards',marketAnchor:'ParlayAPI player_first_goal_scorer + player_anytime_goal',playerInputs:['verified prior-season goals/game','shots/game','regressed shooting percentage','last-10 goals/shots','last-10 first-goal occurrences'],gameInputs:['sportsbook total','de-vigged moneyline team strength'],note:'Probabilities are model estimates, not guarantees. Actual sportsbook prices are displayed only when a verified first-goal quote is present.'},games};
+ return {version:1,source:'TSO NHL first-goal model',model:'FGS-Hazard Ensemble v1',generatedAt:new Date().toISOString(),date:slate?.date||'',season:slate?.season||'',methodology:{eventModel:'competing Poisson scoring hazards',marketAnchor:'ParlayAPI player_first_goal_scorer + player_anytime_goal',playerInputs:['verified prior-season goals/game','shots/game','regressed shooting percentage','last-10 goals/shots','last-10 first-goal occurrences'],gameInputs:['sportsbook total','de-vigged moneyline team strength'],note:'Probabilities are model estimates, not guarantees. Actual sportsbook prices are displayed only when a verified quote is present.'},games};
 }
