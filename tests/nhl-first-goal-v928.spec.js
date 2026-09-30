@@ -33,10 +33,11 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
  await expect(first.locator('[data-fgs-share]')).toContainText('Anytime Goal');
 });
 
-test('NHL scorer market toggle stays visible while scrolling',async({page})=>{
+test('NHL scorer market toggle is above the model header and stays visible while scrolling',async({page})=>{
  await openModel(page,1440,800);
  const dock=page.locator('#hkFirstGoalPanel .fgs-sticky-market');
  await expect(dock).toBeVisible();
+ expect(await dock.evaluate(el=>!!el.nextElementSibling?.classList.contains('fgs-hero'))).toBe(true);
  expect(await dock.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
  await page.evaluate(()=>document.querySelector('#hkFirstGoalPanel .fgs-game:last-child')?.scrollIntoView({block:'start'}));
  await page.waitForTimeout(150);
