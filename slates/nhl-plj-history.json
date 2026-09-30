@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-30T01:54:56.253Z",
+  "updatedAt": "2026-09-30T01:55:39.664Z",
   "season": "2026-27",
   "summary": {
     "tracked": 5,
-    "completed": 1,
+    "completed": 2,
     "pljLive": 0,
     "pljCashes": 0,
     "lateCashes": 0,
@@ -31,7 +31,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T01:54:56.253Z",
+      "updatedAt": "2026-09-30T01:55:39.664Z",
       "status": "pre",
       "lastState": "UPCOMING",
       "lastStateAt": "2026-09-29T03:00:43.565Z",
@@ -85,7 +85,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T01:54:56.253Z",
+      "updatedAt": "2026-09-30T01:55:39.664Z",
       "status": "pre",
       "lastState": "UPCOMING",
       "lastStateAt": "2026-09-29T03:00:43.565Z",
@@ -139,10 +139,10 @@
       "initialBook": "bet365",
       "sportsbookCount": 5,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T01:54:56.253Z",
+      "updatedAt": "2026-09-30T01:55:39.664Z",
       "status": "in",
       "lastState": "NEEDS_RALLY",
-      "lastStateAt": "2026-09-30T01:54:56.253Z",
+      "lastStateAt": "2026-09-30T01:53:59.482Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -166,7 +166,7 @@
           "goaliePulled": false
         },
         {
-          "at": "2026-09-30T01:54:56.253Z",
+          "at": "2026-09-30T01:53:59.482Z",
           "code": "NEEDS_RALLY",
           "period": 2,
           "clock": "0:00",
@@ -205,18 +205,21 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 5,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T01:54:56.253Z",
-      "status": "in",
-      "lastState": "NEEDS_RALLY",
-      "lastStateAt": "2026-09-30T01:54:56.253Z",
+      "updatedAt": "2026-09-30T01:55:39.664Z",
+      "status": "post",
+      "lastState": "MISSED",
+      "lastStateAt": "2026-09-30T01:55:39.664Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "outcome": null,
-      "finalScore": null,
+      "outcome": "MISSED",
+      "finalScore": {
+        "away": 3,
+        "home": 2
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -232,8 +235,20 @@
           "goaliePulled": false
         },
         {
-          "at": "2026-09-30T01:54:56.253Z",
+          "at": "2026-09-30T01:53:59.482Z",
           "code": "NEEDS_RALLY",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 3,
+            "home": 2
+          },
+          "margin": -1,
+          "goaliePulled": false
+        },
+        {
+          "at": "2026-09-30T01:55:39.664Z",
+          "code": "MISSED",
           "period": 3,
           "clock": "0:00",
           "score": {
@@ -250,7 +265,8 @@
         "away": 3,
         "home": 2
       },
-      "lastMargin": -1
+      "lastMargin": -1,
+      "liveOutcome": "MISSED"
     },
     {
       "gameId": "401891773",
@@ -271,10 +287,10 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T01:54:56.253Z",
+      "updatedAt": "2026-09-30T01:55:39.664Z",
       "status": "post",
       "lastState": "MISSED",
-      "lastStateAt": "2026-09-30T01:54:56.253Z",
+      "lastStateAt": "2026-09-30T01:53:59.482Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -301,7 +317,7 @@
           "goaliePulled": false
         },
         {
-          "at": "2026-09-30T01:54:56.253Z",
+          "at": "2026-09-30T01:53:59.482Z",
           "code": "MISSED",
           "period": 4,
           "clock": "0:00",
