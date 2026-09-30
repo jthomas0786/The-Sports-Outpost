@@ -6,10 +6,14 @@ function roundRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
 function fit(c,text,max,widthStart=30){let s=widthStart;c.font=`800 ${s}px Inter,Arial,sans-serif`;while(s>16&&c.measureText(text).width>max){s--;c.font=`800 ${s}px Inter,Arial,sans-serif`;}return s;}
 function initials(name){return String(name||'?').split(/\s+/).map(x=>x[0]).join('').slice(0,2).toUpperCase();}
 async function image(url){if(!url)return null;return new Promise(resolve=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>resolve(im);im.onerror=()=>resolve(null);im.src=url;});}
-function drawAspectImage(c,img,x,y,w,h,mode='cover'){
- const iw=Number(img?.naturalWidth||img?.width||0),ih=Number(img?.naturalHeight||img?.height||0);if(!iw||!ih)return;
+function aspectBox(iw,ih,w,h,mode='cover'){
+ iw=Number(iw)||0;ih=Number(ih)||0;if(!iw||!ih)return null;
  const scale=mode==='contain'?Math.min(w/iw,h/ih):Math.max(w/iw,h/ih),dw=iw*scale,dh=ih*scale;
- c.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+ return {dx:(w-dw)/2,dy:(h-dh)/2,dw,dh};
+}
+function drawAspectImage(c,img,x,y,w,h,mode='cover'){
+ const box=aspectBox(img?.naturalWidth||img?.width,img?.naturalHeight||img?.height,w,h,mode);if(!box)return;
+ c.drawImage(img,x+box.dx,y+box.dy,box.dw,box.dh);
 }
 function circleImage(c,img,x,y,r,label,mode='cover'){
  c.save();c.beginPath();c.arc(x,y,r,0,Math.PI*2);c.clip();
@@ -51,4 +55,4 @@ export async function shareScorerCard(game,market='fgs'){
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename(game,market);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text+'\n\nCard downloaded — attach the PNG to this post.')}`,'_blank','noopener,noreferrer');return 'downloaded';
 }
 
-export const __SCORER_CARD_TEST__={drawAspectImage};
+export const __SCORER_CARD_TEST__={aspectBox};
