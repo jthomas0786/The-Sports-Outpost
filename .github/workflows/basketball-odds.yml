@@ -6,6 +6,8 @@ on:
     paths:
       - 'scripts/basketball-odds-refresh.mjs'
       - 'scripts/basketball-odds-primary-refresh.mjs'
+      - 'scripts/lib/basketball-odds-quality.mjs'
+      - 'scripts/basketball-odds-quality-selftest.mjs'
       - 'scripts/parlayapi-pregame-cadence.mjs'
       - 'scripts/parlayapi-pregame-cadence-selftest.mjs'
       - '.github/workflows/basketball-odds.yml'
@@ -35,6 +37,8 @@ jobs:
           node-version: '24'
       - name: Validate shared ParlayAPI cadence
         run: node scripts/parlayapi-pregame-cadence-selftest.mjs
+      - name: Validate basketball sportsbook identity guard
+        run: node scripts/basketball-odds-quality-selftest.mjs
       - name: Refresh NBA/NCAAB/WNBA sportsbook props when due
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
@@ -50,7 +54,11 @@ jobs:
             const d=JSON.parse(fs.readFileSync(path,'utf8'));
             if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error(`${sport} snapshot is not verified ParlayAPI data`);
             if((d.rows||[]).some(r=>String(r.player||'').includes('@'))) throw new Error(`${sport} snapshot contains matchup text as a player`);
-            console.log(`✓ ${sport.toUpperCase()} ParlayAPI snapshot rows=${(d.rows||[]).length} books=${(d.meta?.books||[]).length} links=${d.meta?.nativeLinkRows||0} sids=${d.meta?.nativeSidRows||0}`);
+            if(sport==='wnba'){
+              if((d.rows||[]).some(r=>/\([A-Z]{2,4}\)\s*$/.test(String(r.player||'')))) throw new Error('wnba snapshot still embeds a team suffix in player identity');
+              if((d.rows||[]).some(r=>!r.eventId||!r.commenceTime||!r.homeTeam||!r.awayTeam)) throw new Error('wnba snapshot contains an orphan sportsbook prop without current event context');
+            }
+            console.log(`✓ ${sport.toUpperCase()} ParlayAPI snapshot rows=${(d.rows||[]).length} books=${(d.meta?.books||[]).length} links=${d.meta?.nativeLinkRows||0} sids=${d.meta?.nativeSidRows||0} quarantined=${d.meta?.rejectedUnmatchedEvents||0}`);
           }
           NODE
       - name: Commit changed snapshots
