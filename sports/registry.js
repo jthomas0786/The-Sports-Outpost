@@ -73,7 +73,7 @@ export function isViewable(key) {
   return !!(s && s.uiReady);
 }
 
-/** True when the sport is built but not yet blessed — render a preview banner. */
+/** True when this sport is built but not yet blessed — render a preview banner. */
 export function isPreview(key) {
   const s = SPORTS[key];
   return !!(s && s.uiReady && !s.adapterReady);
@@ -87,4 +87,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   import('./nhl/sidebar-plj-v927.js?v=90.27')
     .then(mod => mod.installNhlSidebarPuckLineJesusV927?.())
     .catch(error => console.warn('[NHL sidebar PLJ] unavailable:', error));
+  import('./nhl/sidebar-first-goal-v928.js?v=90.28')
+    .then(mod => mod.installNhlSidebarFirstGoalV928?.())
+    .catch(error => console.warn('[NHL sidebar first goal] unavailable:', error));
 }
