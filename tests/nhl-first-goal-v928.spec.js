@@ -33,24 +33,25 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
  await expect(first.locator('[data-fgs-share]')).toContainText('Anytime Goal');
 });
 
-test('NHL scorer market toggle starts below model header and sticks below the app bar',async({page})=>{
+test('NHL scorer market toggle belongs to the model hero and preserves state while scrolling',async({page})=>{
  await openModel(page,1440,800);
- const hero=page.locator('#hkFirstGoalPanel .fgs-hero');
- const dock=page.locator('#hkFirstGoalPanel .fgs-sticky-market');
- await expect(dock).toBeVisible();
- expect(await dock.evaluate(el=>!!el.previousElementSibling?.classList.contains('fgs-hero'))).toBe(true);
- expect(await dock.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
- const initial=await page.evaluate(()=>{const h=document.querySelector('#hkFirstGoalPanel .fgs-hero')?.getBoundingClientRect();const d=document.querySelector('#hkFirstGoalPanel .fgs-sticky-market')?.getBoundingClientRect();return {heroBottom:h?.bottom||0,dockTop:d?.top||0};});
- expect(initial.dockTop).toBeGreaterThanOrEqual(initial.heroBottom+8);
+ const panel=page.locator('#hkFirstGoalPanel');
+ const hero=panel.locator('.fgs-hero');
+ const control=hero.locator(':scope > .fgs-market-control');
+ await expect(control).toBeVisible();
+ await expect(hero.locator(':scope > .fgs-market-control .fgs-market-tabs')).toHaveCount(1);
+ expect(await control.evaluate(el=>!!el.parentElement?.classList.contains('fgs-hero'))).toBe(true);
+ expect(await panel.locator('.fgs-meta').evaluate(el=>!!el.nextElementSibling?.classList.contains('fgs-market-control'))).toBe(true);
+ await expect(panel.locator('.fgs-sticky-market')).toHaveCount(0);
+ await expect(page.locator('#nhlView .hk-head [data-fgs-market]')).toHaveCount(0);
+ expect(await control.evaluate(el=>getComputedStyle(el).position)).not.toBe('sticky');
+ await control.locator('[data-fgs-market="atg"]').click();
+ await expect(control.locator('[data-fgs-market="atg"]')).toHaveAttribute('aria-selected','true');
+ await expect(panel.locator('.fgs-game').first().locator('[data-fgs-share]')).toContainText('Anytime Goal');
  await page.evaluate(()=>document.querySelector('#hkFirstGoalPanel .fgs-game:last-child')?.scrollIntoView({block:'start'}));
  await page.waitForTimeout(150);
- const box=await dock.boundingBox();
- expect(box).not.toBeNull();
- expect(box.y).toBeGreaterThanOrEqual(60);
- expect(box.y).toBeLessThanOrEqual(90);
- await dock.locator('[data-fgs-market="atg"]').click();
- await expect(dock.locator('[data-fgs-market="atg"]')).toHaveAttribute('aria-selected','true');
- await expect(page.locator('#hkFirstGoalPanel .fgs-game').first().locator('[data-fgs-share]')).toContainText('Anytime Goal');
+ await expect(control.locator('[data-fgs-market="atg"]')).toHaveAttribute('aria-selected','true');
+ await expect(panel.locator('.fgs-game').first().locator('[data-fgs-share]')).toContainText('Anytime Goal');
 });
 
 test('NHL scorer model is a direct side-nav item',async({page})=>{
@@ -91,8 +92,12 @@ test('NHL FGS and ATG share cards preserve image ratios and render real PNG blob
 
 for(const width of [390,768,1440])test(`NHL scorer model has no horizontal overflow at ${width}px`,async({page})=>{
  await openModel(page,width,width===390?844:1000);
- const geometry=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0};});
+ const control=page.locator('#hkFirstGoalPanel .fgs-hero > .fgs-market-control');
+ await expect(control).toBeVisible();
+ const geometry=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');const c=document.querySelector('#hkFirstGoalPanel .fgs-hero > .fgs-market-control')?.getBoundingClientRect();return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0,controlLeft:c?.left||0,controlRight:c?.right||0,viewport:innerWidth};});
  expect(geometry.scroll).toBeLessThanOrEqual(geometry.client+2);
+ expect(geometry.controlLeft).toBeGreaterThanOrEqual(-1);
+ expect(geometry.controlRight).toBeLessThanOrEqual(geometry.viewport+1);
  await page.locator('[data-fgs-market="atg"]').click();
  const after=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0};});
  expect(after.scroll).toBeLessThanOrEqual(after.client+2);

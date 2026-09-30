@@ -8,7 +8,7 @@ import {installPuckLineJesusV923} from './puck-line-jesus.js?v=90.29';
 import {installPuckLineJesusRoutingV924} from './puck-line-jesus-routing-v924.js?v=90.24';
 import {installPuckLineJesusAlertsV925} from './puck-line-jesus-alerts-v925.js?v=90.29';
 import {installPljBeginnerGuideV930} from './plj-beginner-guide-v930.js?v=90.31';
-import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.31';
+import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.32';
 
 function ensureNhlModalVisibilityV910(){
  if(typeof document==='undefined'||document.getElementById('nhl-player-modal-visibility-v910'))return;
