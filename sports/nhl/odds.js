@@ -1,5 +1,5 @@
 import {num} from './data.js';
-export const MARKET_MAP={player_anytime_goal:'atg',player_anytime_goal_scorer:'atg',player_first_goal_scorer:'fgs',player_first_goal:'fgs',player_shots_on_goal:'sog',player_points_nhl:'points',player_assists:'assists',player_blocked_shots:'blocks',player_saves:'saves',player_total_saves:'saves'};
+export const MARKET_MAP={player_anytime_goal:'atg',player_anytime_goal_scorer:'atg',player_first_goal_scorer:'fgs',player_shots_on_goal:'sog',player_points_nhl:'points',player_assists:'assists',player_blocked_shots:'blocks',player_saves:'saves',player_total_saves:'saves'};
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export const BOOKS=['draftkings','fanduel','betmgm','caesars','fanatics','pinnacle','bet365','betrivers'];
 function sideLink(row,side){
