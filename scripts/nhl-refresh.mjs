@@ -1,9 +1,11 @@
 import {applyLineups,rosterURL} from '../sports/nhl/lineups.js';
 import fs from 'node:fs/promises';
 import {API,getJSON,loadScoreboard,mergeSummary,athlete,dedupeSlatePlayers} from '../sports/nhl/data.js';
+import {nhlSlateDate} from '../sports/nhl/slate-date.js';
 const flag=name=>{const i=process.argv.indexOf(name);return i<0?null:process.argv[i+1];};
 const out=flag('--out')||'slates/nhl.json';
-const doc=await loadScoreboard(flag('--date'));
+const targetDate=flag('--date')||nhlSlateDate();
+const doc=await loadScoreboard(targetDate);
 const rosters=new Map();
 for(const game of doc.games){
  for(const team of [game.away,game.home]){
