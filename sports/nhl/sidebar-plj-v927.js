@@ -1,5 +1,5 @@
 const ITEM_ATTR='data-nhl-plj';
-let installed=false,observer=null,retryTimer=null;
+let installed=false,observer=null,retryTimer=null,queued=false;
 
 function panelForNhl(){
   const head=document.querySelector('#sbSportAccordion .sb-sport-head[data-sport="nhl"]');
@@ -9,21 +9,25 @@ function panelForNhl(){
 function isPanelOpen(){return !!document.getElementById('hkPuckLineJesusPanel');}
 
 function syncActive(){
-  document.querySelectorAll(`#sbSportAccordion .sb-sub-item[${ITEM_ATTR}]`).forEach(btn=>btn.classList.toggle('is-active',isPanelOpen()));
+  const open=isPanelOpen();
+  document.querySelectorAll(`#sbSportAccordion .sb-sub-item[${ITEM_ATTR}]`).forEach(btn=>btn.classList.toggle('is-active',open));
 }
 
 function openPuckLineJesus(){
   window.DW_nhlPendingPlj=true;
   if(location.hash!=='#nhl') location.hash='nhl';
+  if(retryTimer) clearTimeout(retryTimer);
   const started=Date.now();
   const attempt=()=>{
     if(typeof window.DW_openPuckLineJesus==='function'){
+      retryTimer=null;
       window.DW_nhlPendingPlj=false;
       window.DW_openPuckLineJesus();
       syncActive();
       return;
     }
     if(Date.now()-started<8000) retryTimer=setTimeout(attempt,100);
+    else retryTimer=null;
   };
   attempt();
 }
@@ -47,15 +51,31 @@ function ensureItem(){
 }
 
 function sync(){ensureItem();syncActive();}
+function queueSync(){
+  if(queued)return;
+  queued=true;
+  requestAnimationFrame(()=>{queued=false;sync();});
+}
+function nodeTouchesSidebarOrPlj(node){
+  if(node?.nodeType!==1)return false;
+  return node.matches?.('#sbSportAccordion,#hkPuckLineJesusPanel,.sb-sport-block,.sb-sport-panel')||
+    !!node.querySelector?.('#sbSportAccordion,#hkPuckLineJesusPanel,.sb-sport-block,.sb-sport-panel');
+}
+function mutationNeedsSync(records){
+  return records.some(r=>r.type==='childList'&&(
+    [...r.addedNodes].some(nodeTouchesSidebarOrPlj)||
+    [...r.removedNodes].some(nodeTouchesSidebarOrPlj)
+  ));
+}
 
 export function installNhlSidebarPuckLineJesusV927(){
-  if(installed){sync();return;}
+  if(installed){queueSync();return;}
   installed=true;
   const start=()=>{
     sync();
-    observer=new MutationObserver(()=>queueMicrotask(sync));
+    observer=new MutationObserver(records=>{if(mutationNeedsSync(records))queueSync();});
     observer.observe(document.body,{childList:true,subtree:true});
-    window.addEventListener('hashchange',()=>setTimeout(sync,0));
+    window.addEventListener('hashchange',()=>setTimeout(queueSync,0));
     window.DW_openPuckLineJesusFromSidebar=openPuckLineJesus;
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
