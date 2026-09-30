@@ -8,7 +8,7 @@ import {installPuckLineJesusV923} from './puck-line-jesus.js?v=90.29';
 import {installPuckLineJesusRoutingV924} from './puck-line-jesus-routing-v924.js?v=90.24';
 import {installPuckLineJesusAlertsV925} from './puck-line-jesus-alerts-v925.js?v=90.29';
 import {installPljBeginnerGuideV930} from './plj-beginner-guide-v930.js?v=90.31';
-import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.35-mobile-static';
+import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.36-mobile-pin';
 import {nhlShouldLiveRefresh,nhlNextRefreshDelay,NHL_IDLE_PROBE_MS} from './refresh-policy-v933.js?v=90.33';
 
 let policySlate=null,policyFetchedAt=0,policyLoading=null,schedulerTimer=null,schedulerStarted=false;
