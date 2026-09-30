@@ -13,7 +13,7 @@
  * toggle `hidden` on its containers vs the sport-specific view containers.
  * MLB v916 field-actors note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
  */
-import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=95.8-global-info';
+import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=95.9-nhl-scorer';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=93.5';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
@@ -104,7 +104,7 @@ async function swapView(active) {
   setVisible(nflView, active === 'nfl');
   setVisible(document.getElementById('nhlView'), active === 'nhl');
   if(active === 'nhl'){
-    try { await (await import('./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1')).mount(); }
+    try { await (await import('./nhl/view-v906.js?v=90.28&props=2&slate=3&launch=1&scorer=1')).mount(); }
     catch { document.getElementById('nhlView').textContent='Hockey is temporarily unavailable. Please try again shortly.'; }
   }
   setVisible(document.getElementById('nflSideNav'), false);
