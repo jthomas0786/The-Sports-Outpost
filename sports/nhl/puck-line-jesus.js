@@ -1,7 +1,9 @@
 import {API,getJSON,loadScoreboard,mergeSummary,text as esc} from './data.js?v=90.23';
 import {gradePljCandidate,PLJ_CANDIDATE_ORDER} from './plj-candidate-v927.js?v=90.27';
+import {preserveTrackedPuckLines} from './plj-line-lock-v929.js?v=90.29';
 
 const LINES_PATH='./slates/nhl-puck-lines.json';
+const HISTORY_PATH='./slates/nhl-plj-history.json';
 const WATCH_SECONDS=300;
 const SWEAT_SECONDS=600;
 let installed=false,active=false,observer=null,timer=null,refreshing=false,lastModel=null,lastError='';
@@ -112,13 +114,14 @@ export function classifyPuckLineGame(game,line){
 }
 export function buildPuckLineJesusModel(slate,lines){
  const tracked=(slate?.games||[]).map(game=>classifyPuckLineGame(game,lineFor(lines,game))).filter(Boolean);
- const live=tracked.filter(x=>x.game.status==='in'&&['ONE_GOAL_SWEAT','PLJ_WATCH','PLJ_LIVE','BACKDOOR_DANGER','SAFE_COVER'].includes(x.code));
+ const liveTracked=tracked.filter(x=>x.game.status==='in');
+ const live=liveTracked.filter(x=>['ONE_GOAL_SWEAT','PLJ_WATCH','PLJ_LIVE','BACKDOOR_DANGER','SAFE_COVER'].includes(x.code));
  const hot=live.filter(x=>['PLJ_WATCH','PLJ_LIVE','BACKDOOR_DANGER'].includes(x.code));
  const completed=tracked.filter(x=>x.game.status==='post');
  const cashes=tracked.filter(x=>['PLJ_CASHED','LATE_CASH'].includes(x.code));
  const backdoors=tracked.filter(x=>x.code==='BACKDOORED');
  const upcoming=tracked.filter(x=>x.game.status==='pre');
- return {date:slate?.date||lines?.date||'',generatedAt:new Date().toISOString(),tracked,live,hot,completed,cashes,backdoors,upcoming};
+ return {date:slate?.date||lines?.date||'',generatedAt:new Date().toISOString(),tracked,liveTracked,live,hot,completed,cashes,backdoors,upcoming};
 }
 function gameClock(g){return g.status==='pre'?new Date(g.startTime).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):g.status==='post'?'FINAL':`P${g.period||'—'} · ${esc(g.clock||g.detail||'LIVE')}`;}
 function statusCard(x){
@@ -132,7 +135,7 @@ function statusCard(x){
  return `<article class="plj-card plj-${x.code.toLowerCase().replaceAll('_','-')}${candidateClass}">
   <div class="plj-card-top"><span class="plj-badge">${esc(x.label)}</span><span>${esc(gameClock(g))}</span></div>
   <div class="plj-match"><div>${logo(g.away)}<b>${esc(g.away.abbr)}</b><strong>${pre?'—':esc(g.away.score??'—')}</strong></div><i>@</i><div>${logo(g.home)}<b>${esc(g.home.abbr)}</b><strong>${pre?'—':esc(g.home.score??'—')}</strong></div></div>
-  <div class="plj-line"><div><small>TRACKED FAVORITE</small><b>${esc(l.favoriteAbbr)} -1.5 <em>${esc(price(l.price))}</em></b><span>${esc(l.book||'Sportsbook')} · ${Number(l.sportsbookCount||0)} book${Number(l.sportsbookCount||0)===1?'':'s'}</span></div><div><small>${esc(rightLabel)}</small><b${rightClass}>${esc(rightValue)}</b><span>${esc(rightDetail)}</span></div></div>
+  <div class="plj-line"><div><small>TRACKED FAVORITE</small><b>${esc(l.favoriteAbbr)} -1.5 <em>${esc(price(l.price))}</em></b><span>${esc(l.book||'Sportsbook')} · ${Number(l.sportsbookCount||0)} book${Number(l.sportsbookCount||0)===1?'':'s'}${l.lockedFromHistory?' · locked pregame':''}</span></div><div><small>${esc(rightLabel)}</small><b${rightClass}>${esc(rightValue)}</b><span>${esc(rightDetail)}</span></div></div>
   <p>${esc(detail)}</p><button type="button" data-plj-game="${esc(g.id)}">Open NHL Live →</button>
  </article>`;
 }
@@ -140,16 +143,18 @@ function section(title,subtitle,items,emptyText){return `<section class="plj-sec
 function renderModel(model){
  const host=document.getElementById('hkPuckLineJesusBody');if(!host)return;
  const live=model.live.slice().sort((a,b)=>({PLJ_LIVE:0,PLJ_WATCH:1,BACKDOOR_DANGER:2,ONE_GOAL_SWEAT:3,SAFE_COVER:4}[a.code]??9)-({PLJ_LIVE:0,PLJ_WATCH:1,BACKDOOR_DANGER:2,ONE_GOAL_SWEAT:3,SAFE_COVER:4}[b.code]??9));
+ const liveOther=(model.liveTracked||[]).filter(x=>!live.includes(x));
  const upcoming=model.upcoming.slice().sort((a,b)=>(PLJ_CANDIDATE_ORDER[a.candidate?.grade]??9)-(PLJ_CANDIDATE_ORDER[b.candidate?.grade]??9)||Date.parse(a.game.startTime)-Date.parse(b.game.startTime));
  const gradeA=upcoming.filter(x=>x.candidate?.grade==='A').length;
  host.innerHTML=`<div class="plj-kpis"><div><b>${model.hot.length}</b><span>Live PLJ alerts</span></div><div><b>${model.cashes.filter(x=>x.code==='PLJ_CASHED').length}</b><span>Empty-net cashes</span></div><div><b>${model.backdoors.length}</b><span>Backdoor pain</span></div><div><b>${gradeA}</b><span>A-grade candidates</span></div></div>
  ${section('Live Opportunities','One-goal sweats, pulled-goalie chances and backdoor danger.',live,'No live puck-line sweat is active right now.')}
+ ${section('Live Tracked Puck Lines','Pregame -1.5 favorites still being tracked even when they are not currently in a PLJ setup.',liveOther,'Every live tracked favorite is currently shown above as an active opportunity.')}
  ${section('Jesus Cashes Today','Late covers that moved the favorite from +1 to +2.',model.cashes,'No late puck-line cashes recorded yet.')}
  ${section('Backdoor Pain','Late opponent goals that erased a -1.5 cover.',model.backdoors,'No backdoor losses recorded yet.')}
  ${section('Pregame PLJ Candidates','A/B/C market-shape grade from -1.5 pricing, +1.5 resistance and sportsbook breadth — not a win probability.',upcoming,'Pregame puck lines are waiting for sportsbooks to post.')}`;
  const stamp=document.getElementById('hkPuckLineJesusStamp');if(stamp)stamp.textContent=`Updated ${new Date(model.generatedAt).toLocaleTimeString([],{hour:'numeric',minute:'2-digit',second:'2-digit'})}`;
 }
-function panelHTML(){return `<section id="hkPuckLineJesusPanel" class="plj-panel" aria-label="Puck Line Jesus late empty-net cover tracker"><div class="plj-hero"><div><span class="plj-kicker">🏒 THE SPORTS OUTPOST · NHL</span><h2>Puck Line Jesus</h2><p>Live late empty-net cover tracker with pregame PLJ candidate grading for NHL -1.5 puck lines.</p></div><div class="plj-hero-actions"><span id="hkPuckLineJesusStamp">Loading live state…</span><button type="button" data-plj-close>Back to NHL</button></div></div><div id="hkPuckLineJesusBody"><div class="plj-loading">Loading verified puck lines and live game state…</div></div><footer class="plj-note">Pregame puck lines: ParlayAPI sportsbook snapshot · Candidate grades are market-shape heuristics, not probabilities · Live score/on-ice state: ESPN · “PLJ LIVE” requires a verified late one-goal lead plus no goalie among the trailing team’s current on-ice players.</footer></section>`;}
+function panelHTML(){return `<section id="hkPuckLineJesusPanel" class="plj-panel" aria-label="Puck Line Jesus late empty-net cover tracker"><div class="plj-hero"><div><span class="plj-kicker">🏒 THE SPORTS OUTPOST · NHL</span><h2>Puck Line Jesus</h2><p>Live late empty-net cover tracker with pregame PLJ candidate grading for NHL -1.5 puck lines.</p></div><div class="plj-hero-actions"><span id="hkPuckLineJesusStamp">Loading live state…</span><button type="button" data-plj-close>Back to NHL</button></div></div><div id="hkPuckLineJesusBody"><div class="plj-loading">Loading verified puck lines and live game state…</div></div><footer class="plj-note">Pregame puck lines are locked for the full game once tracked · Candidate grades are market-shape heuristics, not probabilities · Live score/on-ice state: ESPN · “PLJ LIVE” requires a verified late one-goal lead plus no goalie among the trailing team’s current on-ice players.</footer></section>`;}
 function ensureStyle(){
  if(!document.getElementById('nhl-puck-line-jesus-css')){const l=document.createElement('link');l.id='nhl-puck-line-jesus-css';l.rel='stylesheet';l.href='./sports/nhl/puck-line-jesus.css?v=90.23';document.head.appendChild(l);}
  if(!document.getElementById('nhl-plj-candidate-v927-css')){const l=document.createElement('link');l.id='nhl-plj-candidate-v927-css';l.rel='stylesheet';l.href='./sports/nhl/plj-candidate-v927.css?v=90.27';document.head.appendChild(l);}
@@ -183,7 +188,8 @@ async function liveSlate(){
 async function refresh(){
  if(!active||refreshing)return;refreshing=true;
  try{
-  const [lines,slate]=await Promise.all([getJSON(`${LINES_PATH}?t=${Date.now()}`),liveSlate()]);
+  const [rawLines,history,slate]=await Promise.all([getJSON(`${LINES_PATH}?t=${Date.now()}`),getJSON(`${HISTORY_PATH}?t=${Date.now()}`).catch(()=>null),liveSlate()]);
+  const lines=preserveTrackedPuckLines(rawLines,history);
   lastModel=buildPuckLineJesusModel(slate,lines);lastError='';renderModel(lastModel);
  }catch(err){lastError='Puck Line Jesus is waiting for fresh NHL data.';const body=document.getElementById('hkPuckLineJesusBody');if(body)body.innerHTML=`<div class="plj-empty">${esc(lastError)}</div>`;}
  finally{refreshing=false;}
