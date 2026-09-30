@@ -32,34 +32,46 @@ const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 const finite=v=>Number.isFinite(Number(v))?Number(v):null;
 const bookKey=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');
 const americanPrice=v=>{const n=finite(v);if(n==null)return null;if(Math.abs(n)>=100||n<=-100)return Math.round(n);if(n>1&&n<100)return Math.round(n>=2?(n-1)*100:-100/(n-1));return Math.round(n);};
+const implied=p=>{const n=finite(p);if(n==null||Math.abs(n)<100)return null;return n>0?100/(n+100):(-n)/((-n)+100);};
+const median=vals=>{const a=vals.filter(Number.isFinite).sort((x,y)=>x-y);if(!a.length)return null;const m=Math.floor(a.length/2);return a.length%2?a[m]:(a[m-1]+a[m])/2;};
 const best=rows=>rows.filter(x=>Number.isFinite(x.price)).sort((a,b)=>b.price-a.price||String(b.ts||'').localeCompare(String(a.ts||'')))[0]||null;
 function matchSlateGame(event){
  const t=Date.parse(event?.commence_time||'');
  const hits=(slate.games||[]).filter(g=>norm(g.home?.name)===norm(event?.home_team)&&norm(g.away?.name)===norm(event?.away_team)&&Number.isFinite(t)&&Math.abs(Date.parse(g.startTime)-t)<=1800000);
  return hits.length===1?hits[0]:null;
 }
+function marketRows(event,key){
+ const out=[];for(const b of event?.bookmakers||[]){const bk=bookKey(b.key||b.title);if(!BOOKS.includes(bk))continue;for(const m of b.markets||[]){if(m.key!==key)continue;for(const o of m.outcomes||[])out.push({book:b.title||b.key||'Sportsbook',bookKey:bk,name:o.name,point:finite(o.point),price:americanPrice(o.price),ts:b.last_update||m.last_update||null});}}
+ return out;
+}
 function puckLineForEvent(event,game){
- const spreadRows=[];
- for(const b of event?.bookmakers||[]){
-  const bk=bookKey(b.key||b.title);if(!BOOKS.includes(bk))continue;
-  for(const m of b.markets||[]){if(m.key!=='spreads')continue;for(const o of m.outcomes||[]){
-   const point=finite(o.point),p=americanPrice(o.price);if(point==null||p==null)continue;
-   spreadRows.push({book:b.title||b.key||'Sportsbook',bookKey:bk,team:o.name,point,price:p,ts:b.last_update||m.last_update||null});
-  }}
- }
+ const spreadRows=marketRows(event,'spreads').filter(x=>x.point!=null&&x.price!=null);
  const favRows=spreadRows.filter(x=>x.point===-1.5);if(!favRows.length)return null;
- const counts=new Map();for(const x of favRows){const k=norm(x.team);counts.set(k,(counts.get(k)||0)+1);}
+ const counts=new Map();for(const x of favRows){const k=norm(x.name);counts.set(k,(counts.get(k)||0)+1);}
  const favNorm=[...counts.entries()].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0]))[0]?.[0];if(!favNorm)return null;
- const fav=favRows.filter(x=>norm(x.team)===favNorm),pick=best(fav);if(!pick)return null;
+ const fav=favRows.filter(x=>norm(x.name)===favNorm),pick=best(fav);if(!pick)return null;
  const favorite=norm(game.away.name)===favNorm?game.away:norm(game.home.name)===favNorm?game.home:null;if(!favorite)return null;
  const underdog=favorite===game.away?game.home:game.away;
- const dog=best(spreadRows.filter(x=>norm(x.team)===norm(underdog.name)&&x.point===1.5));
+ const dog=best(spreadRows.filter(x=>norm(x.name)===norm(underdog.name)&&x.point===1.5));
  return {favoriteAbbr:favorite.abbr,favoriteTeam:favorite.name,line:-1.5,price:pick.price,book:pick.book,underdogAbbr:underdog.abbr,underdogTeam:underdog.name,underdogLine:1.5,underdogPrice:dog?.price??null,underdogBook:dog?.book??null,sportsbookCount:new Set(fav.map(x=>x.bookKey)).size};
 }
-function buildPuckLines(gameOdds){
+function moneylineForEvent(event,game){
+ const rows=marketRows(event,'h2h').filter(x=>x.price!=null),byBook=new Map();
+ for(const r of rows){if(!byBook.has(r.bookKey))byBook.set(r.bookKey,[]);byBook.get(r.bookKey).push(r);}
+ const homeFair=[],awayFair=[];for(const [,bookRows] of byBook){const h=bookRows.find(x=>norm(x.name)===norm(game.home.name)),a=bookRows.find(x=>norm(x.name)===norm(game.away.name));if(!h||!a)continue;const hp=implied(h.price),ap=implied(a.price),s=(hp||0)+(ap||0);if(!(s>0))continue;homeFair.push(hp/s);awayFair.push(ap/s);}
+ const hb=best(rows.filter(x=>norm(x.name)===norm(game.home.name))),ab=best(rows.filter(x=>norm(x.name)===norm(game.away.name)));
+ return homeFair.length?{homeFair:homeFair.reduce((s,v)=>s+v,0)/homeFair.length,awayFair:awayFair.reduce((s,v)=>s+v,0)/awayFair.length,homeBest:hb?.price??null,homeBook:hb?.book??null,awayBest:ab?.price??null,awayBook:ab?.book??null,books:homeFair.length}:null;
+}
+function totalForEvent(event){
+ const rows=marketRows(event,'totals').filter(x=>x.point!=null&&x.price!=null);if(!rows.length)return null;
+ const line=median(rows.map(x=>x.point));if(line==null)return null;
+ const near=rows.filter(x=>Math.abs(x.point-line)<.01),over=best(near.filter(x=>/^over$/i.test(x.name))),under=best(near.filter(x=>/^under$/i.test(x.name)));
+ return {line,expectedGoals:line,overPrice:over?.price??null,overBook:over?.book??null,underPrice:under?.price??null,underBook:under?.book??null,books:new Set(near.map(x=>x.bookKey)).size};
+}
+function buildGameLines(gameOdds){
  const byGame=new Map();
- for(const event of Array.isArray(gameOdds)?gameOdds:[]){const game=matchSlateGame(event);if(!game)continue;byGame.set(String(game.id),{gameId:String(game.id),startTime:game.startTime,awayAbbr:game.away.abbr,homeAbbr:game.home.abbr,awayTeam:game.away.name,homeTeam:game.home.name,puckLine:puckLineForEvent(event,game)});}
- return (slate.games||[]).map(g=>byGame.get(String(g.id))||{gameId:String(g.id),startTime:g.startTime,awayAbbr:g.away.abbr,homeAbbr:g.home.abbr,awayTeam:g.away.name,homeTeam:g.home.name,puckLine:null});
+ for(const event of Array.isArray(gameOdds)?gameOdds:[]){const game=matchSlateGame(event);if(!game)continue;byGame.set(String(game.id),{gameId:String(game.id),startTime:game.startTime,awayAbbr:game.away.abbr,homeAbbr:game.home.abbr,awayTeam:game.away.name,homeTeam:game.home.name,puckLine:puckLineForEvent(event,game),moneyline:moneylineForEvent(event,game),total:totalForEvent(event)});}
+ return (slate.games||[]).map(g=>byGame.get(String(g.id))||{gameId:String(g.id),startTime:g.startTime,awayAbbr:g.away.abbr,homeAbbr:g.home.abbr,awayTeam:g.away.name,homeTeam:g.home.name,puckLine:null,moneyline:null,total:null});
 }
 const events=await get('events');const relevant=(Array.isArray(events)?events:[]).some(e=>upcoming.some(g=>Math.abs(Date.parse(g.startTime)-Date.parse(e.commence_time))<=1800000));
 let rows=[];if(relevant&&next!=null){rows=await get('props?'+new URLSearchParams({markets:Object.keys(MARKET_MAP).join(','),bookmakers:BOOKS.join(','),maxAgeSec:'3600',limit:'10000',includeLinks:'true',includeSids:'true'}));if(!Array.isArray(rows))throw new Error('Unexpected props response');}
@@ -69,11 +81,11 @@ if(relevant&&upcoming.length){
  gameOdds=await get('odds?'+new URLSearchParams({regions:'us',markets:'h2h,spreads,totals',oddsFormat:'american',commenceTimeFrom:from,commenceTimeTo:to}));
  if(!Array.isArray(gameOdds))throw new Error('Unexpected game odds response');
 }
-const gameLines=buildPuckLines(gameOdds);
+const gameLines=buildGameLines(gameOdds);
 const output=normalizeOdds(rows,slate,now);output.status=relevant?'waiting-for-markets':'no-listed-events';if(output.quotes.length)output.status='available';
 output.gameLines=gameLines;
-output.meta={...(output.meta||{}),refreshThresholdMinutes:Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60000):null,hoursToNextStart:gate.hoursToNextStart,nativeMetadataRequested:{includeLinks:true,includeSids:true},puckLineGames:gameLines.filter(g=>g.puckLine).length};
+output.meta={...(output.meta||{}),refreshThresholdMinutes:Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60000):null,hoursToNextStart:gate.hoursToNextStart,nativeMetadataRequested:{includeLinks:true,includeSids:true},puckLineGames:gameLines.filter(g=>g.puckLine).length,firstGoalQuotes:output.quotes.filter(q=>q.market==='fgs').length};
 await fs.writeFile('slates/nhl-odds.json',JSON.stringify(output,null,2)+'\n');
 const puckLines={source:'parlayapi',sample:false,generatedAt:new Date(now).toISOString(),date:slate.date,season:slate.season,games:gameLines};
 await fs.writeFile('slates/nhl-puck-lines.json',JSON.stringify(puckLines,null,2)+'\n');
-console.log(`NHL odds: ${output.quotes.length} matched player quotes; puckLines=${gameLines.filter(g=>g.puckLine).length}/${gameLines.length}; ${output.status}; links=${output.meta.nativeLinkRows||0}; sids=${output.meta.nativeSidRows||0}`);
+console.log(`NHL odds: ${output.quotes.length} matched player quotes; FGS=${output.meta.firstGoalQuotes}; puckLines=${gameLines.filter(g=>g.puckLine).length}/${gameLines.length}; ${output.status}; links=${output.meta.nativeLinkRows||0}; sids=${output.meta.nativeSidRows||0}`);
