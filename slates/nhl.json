@@ -1,7 +1,7 @@
 {
   "sport": "nhl",
   "schemaVersion": 2,
-  "generatedAt": "2026-09-30T01:43:15.042Z",
+  "generatedAt": "2026-09-30T01:44:08.044Z",
   "season": "2026-27",
   "date": "2026-09-29",
   "games": [
@@ -34,7 +34,7 @@
       "seasonType": 2,
       "venue": "Lenovo Center",
       "neutralSite": false,
-      "fetchedAt": 1790732595042,
+      "fetchedAt": 1790732648044,
       "players": [
         {
           "id": "3041970",
@@ -2072,7 +2072,7 @@
       ],
       "splitSquadTeams": [],
       "splitSquad": false,
-      "summaryAt": 1790732595375,
+      "summaryAt": 1790732648470,
       "onIce": [
         {
           "entries": [
@@ -2176,7 +2176,7 @@
       "lineupsConfirmed": true,
       "lineupEvidence": {
         "gameId": "401891773",
-        "checkedAt": 1790732595491,
+        "checkedAt": 1790732648567,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -2213,17 +2213,17 @@
         "name": "Toronto Maple Leafs",
         "logo": "https://a.espncdn.com/i/teamlogos/nhl/500/scoreboard/tor.png",
         "score": 1,
-        "shots": 25,
+        "shots": 26,
         "powerPlay": false
       },
       "status": "in",
-      "detail": "4:49 - 3rd",
+      "detail": "4:38 - 3rd",
       "period": 3,
-      "clock": "4:49",
+      "clock": "4:38",
       "seasonType": 2,
       "venue": "Scotiabank Arena",
       "neutralSite": false,
-      "fetchedAt": 1790732595042,
+      "fetchedAt": 1790732648044,
       "players": [
         {
           "id": "3069687",
@@ -2668,8 +2668,8 @@
           "availability": "In net now",
           "current": {
             "goalsAgainst": 1,
-            "shotsAgainst": 25,
-            "saves": 24,
+            "shotsAgainst": 26,
+            "saves": 25,
             "toi": "54:22"
           },
           "rosterActive": true,
@@ -2789,7 +2789,7 @@
             "toi": "17:18",
             "goals": 0,
             "assists": 1,
-            "sog": 3,
+            "sog": 4,
             "points": 1
           },
           "rosterActive": true,
@@ -3458,6 +3458,47 @@
       ],
       "plays": [
         {
+          "id": "401891827000005050",
+          "type": "Stoppage",
+          "text": "Icing",
+          "period": 3,
+          "clock": "15:21",
+          "team": "",
+          "timestamp": "2026-09-30T01:42:58Z",
+          "awayScore": 3,
+          "homeScore": 1,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": []
+        },
+        {
+          "id": "401891827000010770",
+          "type": "Shot",
+          "text": "Kirill Marchenko Slap Shot saved by Jakub Dobes",
+          "period": 3,
+          "clock": "15:12",
+          "team": "TOR",
+          "timestamp": "2026-09-30T01:42:50Z",
+          "awayScore": 3,
+          "homeScore": 1,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": [
+            {
+              "type": "shooter",
+              "id": "4587996",
+              "name": "Kirill Marchenko",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4587996.png"
+            },
+            {
+              "type": "saver",
+              "id": "4697686",
+              "name": "Jakub Dobes",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4697686.png"
+            }
+          ]
+        },
+        {
           "id": "401891827000010760",
           "type": "Missed",
           "text": "Kirby Dach Wrist Shot Wide Left",
@@ -3481,6 +3522,27 @@
               "id": "5571",
               "name": "Sergei Bobrovsky",
               "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/5571.png"
+            }
+          ]
+        },
+        {
+          "id": "401891827000010780",
+          "type": "Giveaway",
+          "text": "Giveaway by Darren Raddysh",
+          "period": 3,
+          "clock": "14:52",
+          "team": "TOR",
+          "timestamp": "2026-09-30T01:42:30Z",
+          "awayScore": 3,
+          "homeScore": 1,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": [
+            {
+              "type": "giver",
+              "id": "3149843",
+              "name": "Darren Raddysh",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/3149843.png"
             }
           ]
         },
@@ -4368,80 +4430,14 @@
               "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/5571.png"
             }
           ]
-        },
-        {
-          "id": "401891827000008940",
-          "type": "Face Off",
-          "text": "John Tavares faceoff won against Jake Evans",
-          "period": 3,
-          "clock": "6:17",
-          "team": "TOR",
-          "timestamp": "2026-09-30T01:27:55Z",
-          "awayScore": 2,
-          "homeScore": 1,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": [
-            {
-              "type": "face-off-winner",
-              "id": "5160",
-              "name": "John Tavares",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/5160.png"
-            },
-            {
-              "type": "",
-              "id": "4393049",
-              "name": "Jake Evans",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4393049.png"
-            }
-          ]
-        },
-        {
-          "id": "401891827000008960",
-          "type": "Stoppage",
-          "text": "TV Timeout",
-          "period": 3,
-          "clock": "6:17",
-          "team": "",
-          "timestamp": "2026-09-30T01:24:53Z",
-          "awayScore": 2,
-          "homeScore": 1,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": []
-        },
-        {
-          "id": "401891827000005010",
-          "type": "Stoppage",
-          "text": "Puck Frozen - Goalie",
-          "period": 3,
-          "clock": "6:17",
-          "team": "",
-          "timestamp": "2026-09-30T01:24:53Z",
-          "awayScore": 2,
-          "homeScore": 1,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": []
         }
       ],
       "splitSquadTeams": [],
       "splitSquad": false,
-      "summaryAt": 1790732595634,
+      "summaryAt": 1790732648908,
       "onIce": [
         {
           "entries": [
-            {
-              "whereabouts": {
-                "id": "1",
-                "description": "In Play",
-                "name": "ROSTER_WHEREABOUTS_IN_PLAY"
-              },
-              "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891827/competitions/401891827/competitors/21/roster/3149843/projections?lang=en&region=us"
-              },
-              "athleteid": "3149843"
-            },
             {
               "whereabouts": {
                 "id": "1",
@@ -4463,6 +4459,17 @@
                 "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891827/competitions/401891827/competitors/21/roster/2976833/projections?lang=en&region=us"
               },
               "athleteid": "2976833"
+            },
+            {
+              "whereabouts": {
+                "id": "1",
+                "description": "In Play",
+                "name": "ROSTER_WHEREABOUTS_IN_PLAY"
+              },
+              "projections": {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891827/competitions/401891827/competitors/21/roster/3149843/projections?lang=en&region=us"
+              },
+              "athleteid": "3149843"
             },
             {
               "whereabouts": {
@@ -4575,7 +4582,7 @@
       "lineupsConfirmed": false,
       "lineupEvidence": {
         "gameId": "401891827",
-        "checkedAt": 1790732595700,
+        "checkedAt": 1790732648935,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -4616,13 +4623,13 @@
         "powerPlay": false
       },
       "status": "in",
-      "detail": "0:25 - 2nd",
+      "detail": "0:16 - 2nd",
       "period": 2,
-      "clock": "0:25",
+      "clock": "0:16",
       "seasonType": 2,
       "venue": "TD Garden",
       "neutralSite": false,
-      "fetchedAt": 1790732595042,
+      "fetchedAt": 1790732648044,
       "players": [
         {
           "id": "3042095",
@@ -4659,7 +4666,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "9:09",
+            "toi": "9:13",
             "goals": 0,
             "assists": 0,
             "sog": 2,
@@ -4683,7 +4690,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "10:48",
+            "toi": "11:02",
             "goals": 0,
             "assists": 0,
             "sog": 2,
@@ -4707,7 +4714,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "8:54",
+            "toi": "9:12",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -4875,7 +4882,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 3,
-            "toi": "10:32",
+            "toi": "10:50",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -4923,7 +4930,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 1,
-            "toi": "15:25",
+            "toi": "15:28",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -4947,7 +4954,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "12:49",
+            "toi": "13:04",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -4971,7 +4978,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 2,
-            "toi": "12:52",
+            "toi": "13:10",
             "goals": 0,
             "assists": 0,
             "sog": 1,
@@ -5069,7 +5076,7 @@
             "goalsAgainst": 0,
             "shotsAgainst": 15,
             "saves": 15,
-            "toi": "38:37"
+            "toi": "38:55"
           },
           "rosterActive": true,
           "rosterAvailability": "Lineup unconfirmed",
@@ -5089,7 +5096,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "10:48",
+            "toi": "11:04",
             "goals": 0,
             "assists": 0,
             "sog": 1,
@@ -5161,7 +5168,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 2,
-            "toi": "8:34",
+            "toi": "8:36",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -5281,7 +5288,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "9:45",
+            "toi": "10:03",
             "goals": 0,
             "assists": 0,
             "sog": 2,
@@ -5353,7 +5360,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "10:55",
+            "toi": "11:13",
             "goals": 0,
             "assists": 0,
             "sog": 3,
@@ -5401,7 +5408,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "10:34",
+            "toi": "10:52",
             "goals": 0,
             "assists": 0,
             "sog": 1,
@@ -5449,7 +5456,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "11:37",
+            "toi": "11:55",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -5523,7 +5530,7 @@
             "goalsAgainst": 0,
             "shotsAgainst": 14,
             "saves": 14,
-            "toi": "39:03"
+            "toi": "39:21"
           },
           "rosterActive": true,
           "rosterAvailability": "Lineup unconfirmed",
@@ -5727,6 +5734,20 @@
       ],
       "goals": [],
       "plays": [
+        {
+          "id": "401891774000000450",
+          "type": "Stoppage",
+          "text": "Puck in Benches",
+          "period": 2,
+          "clock": "19:43",
+          "team": "",
+          "timestamp": "2026-09-30T01:43:00Z",
+          "awayScore": 0,
+          "homeScore": 0,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": []
+        },
         {
           "id": "401891774000006660",
           "type": "Shot",
@@ -5948,7 +5969,7 @@
         {
           "id": "401891774000006350",
           "type": "Shot",
-          "text": "Oliver Bjorkstrand saved by Jeremy Swayman",
+          "text": "Oliver Bjorkstrand Snap Shot saved by Jeremy Swayman",
           "period": 2,
           "clock": "16:05",
           "team": "NYR",
@@ -6652,38 +6673,11 @@
               "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/3151297.png"
             }
           ]
-        },
-        {
-          "id": "401891774000005760",
-          "type": "Blocked",
-          "text": "Connor Clifton shot blocked by Joseph Veleno",
-          "period": 2,
-          "clock": "11:24",
-          "team": "NYR",
-          "timestamp": "2026-09-30T01:27:50Z",
-          "awayScore": 0,
-          "homeScore": 0,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": [
-            {
-              "type": "shooter",
-              "id": "3042191",
-              "name": "Connor Clifton",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/3042191.png"
-            },
-            {
-              "type": "defender",
-              "id": "4352804",
-              "name": "Joe Veleno",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4352804.png"
-            }
-          ]
         }
       ],
       "splitSquadTeams": [],
       "splitSquad": false,
-      "summaryAt": 1790732595966,
+      "summaryAt": 1790732649063,
       "onIce": [
         {
           "entries": [
@@ -6694,9 +6688,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/2968818/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/2564154/projections?lang=en&region=us"
               },
-              "athleteid": "2968818"
+              "athleteid": "2564154"
             },
             {
               "whereabouts": {
@@ -6705,9 +6699,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/3899949/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/2968818/projections?lang=en&region=us"
               },
-              "athleteid": "3899949"
+              "athleteid": "2968818"
             },
             {
               "whereabouts": {
@@ -6727,20 +6721,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/4268466/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/4064780/projections?lang=en&region=us"
               },
-              "athleteid": "4268466"
-            },
-            {
-              "whereabouts": {
-                "id": "1",
-                "description": "In Play",
-                "name": "ROSTER_WHEREABOUTS_IN_PLAY"
-              },
-              "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/4233575/projections?lang=en&region=us"
-              },
-              "athleteid": "4233575"
+              "athleteid": "4064780"
             },
             {
               "whereabouts": {
@@ -6752,6 +6735,17 @@
                 "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/4712036/projections?lang=en&region=us"
               },
               "athleteid": "4712036"
+            },
+            {
+              "whereabouts": {
+                "id": "1",
+                "description": "In Play",
+                "name": "ROSTER_WHEREABOUTS_IN_PLAY"
+              },
+              "projections": {
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/1/roster/4587985/projections?lang=en&region=us"
+              },
+              "athleteid": "4587985"
             }
           ],
           "teamId": "1"
@@ -6765,9 +6759,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/2590852/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/2562637/projections?lang=en&region=us"
               },
-              "athleteid": "2590852"
+              "athleteid": "2562637"
             },
             {
               "whereabouts": {
@@ -6776,9 +6770,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/3042095/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/3114995/projections?lang=en&region=us"
               },
-              "athleteid": "3042095"
+              "athleteid": "3114995"
             },
             {
               "whereabouts": {
@@ -6798,9 +6792,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/3942292/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/4378683/projections?lang=en&region=us"
               },
-              "athleteid": "3942292"
+              "athleteid": "4378683"
             },
             {
               "whereabouts": {
@@ -6809,9 +6803,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/4197146/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/4697382/projections?lang=en&region=us"
               },
-              "athleteid": "4197146"
+              "athleteid": "4697382"
             },
             {
               "whereabouts": {
@@ -6820,9 +6814,9 @@
                 "name": "ROSTER_WHEREABOUTS_IN_PLAY"
               },
               "projections": {
-                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/4587588/projections?lang=en&region=us"
+                "$ref": "http://sports.core.api.espn.pvt/v2/sports/hockey/leagues/nhl/events/401891774/competitions/401891774/competitors/13/roster/4697468/projections?lang=en&region=us"
               },
-              "athleteid": "4587588"
+              "athleteid": "4697468"
             }
           ],
           "teamId": "13"
@@ -6831,7 +6825,7 @@
       "lineupsConfirmed": true,
       "lineupEvidence": {
         "gameId": "401891774",
-        "checkedAt": 1790732596004,
+        "checkedAt": 1790732649071,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -6878,7 +6872,7 @@
       "seasonType": 2,
       "venue": "Rogers Place",
       "neutralSite": false,
-      "fetchedAt": 1790732595042,
+      "fetchedAt": 1790732648044,
       "players": [
         {
           "id": "4233643",
@@ -7768,7 +7762,7 @@
       "lineupsConfirmed": false,
       "lineupEvidence": {
         "gameId": "401891804",
-        "checkedAt": 1790732596259,
+        "checkedAt": 1790732649189,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -7815,7 +7809,7 @@
       "seasonType": 2,
       "venue": "T-Mobile Arena",
       "neutralSite": false,
-      "fetchedAt": 1790732595042,
+      "fetchedAt": 1790732648044,
       "players": [
         {
           "id": "5149125",
@@ -8737,7 +8731,7 @@
       "lineupsConfirmed": false,
       "lineupEvidence": {
         "gameId": "401891775",
-        "checkedAt": 1790732596396,
+        "checkedAt": 1790732649303,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
