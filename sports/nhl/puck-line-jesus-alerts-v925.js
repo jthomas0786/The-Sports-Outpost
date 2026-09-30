@@ -1,5 +1,6 @@
 import {API,getJSON,loadScoreboard,mergeSummary,text as esc} from './data.js?v=90.23';
-import {buildPuckLineJesusModel} from './puck-line-jesus.js?v=90.23';
+import {buildPuckLineJesusModel} from './puck-line-jesus.js?v=90.29';
+import {preserveTrackedPuckLines} from './plj-line-lock-v929.js?v=90.29';
 import {setPljRemotePushEnabled,getPljRemotePushStatus} from './plj-push-client-v926.js?v=90.26';
 
 const ALERT_PREF='tso.plj.alerts.v1';
@@ -72,7 +73,10 @@ async function liveSlate(){
 }
 async function refreshAlerts(){
  if(!alertsEnabled()||refreshing)return;refreshing=true;
- try{const [lines,slate]=await Promise.all([getJSON(`${LINES_PATH}?t=${Date.now()}`),liveSlate()]);processModel(buildPuckLineJesusModel(slate,lines));}
+ try{
+  const [rawLines,history,slate]=await Promise.all([getJSON(`${LINES_PATH}?t=${Date.now()}`),getJSON(`${HISTORY_PATH}?t=${Date.now()}`).catch(()=>null),liveSlate()]);
+  processModel(buildPuckLineJesusModel(slate,preserveTrackedPuckLines(rawLines,history)));
+ }
  catch(err){console.warn('PLJ alert refresh',err);}
  finally{refreshing=false;}
 }
