@@ -42,6 +42,11 @@ jobs:
           node --check sports/nhl/puck-line-jesus-alerts-v925.js
           node --check scripts/nhl-plj-history-lib.mjs
           node --check scripts/nhl-plj-history.mjs
+          node --check sports/nhl/first-goal-model-v928.js
+          node --check sports/nhl/first-goal-share-v928.js
+          node --check sports/nhl/first-goal-v928.js
+          node --check sports/nhl/sidebar-first-goal-v928.js
+          node --check scripts/nhl-first-goal.mjs
           node --check sports/nhl/props-daily-guard-v919.js
           node --check sports/nhl/props-daily-guard-v920.js
           node --check sports/nhl/props-model.js
@@ -66,6 +71,7 @@ jobs:
           node scripts/nhl-launch-v922-selftest.mjs
           node scripts/nhl-puck-line-jesus-selftest.mjs
           node scripts/nhl-plj-history-selftest.mjs
+          node scripts/nhl-first-goal-selftest.mjs
       - name: Refresh NHL slate
         run: node scripts/nhl-refresh.mjs
       - name: Update verified season research
@@ -75,6 +81,8 @@ jobs:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NHL_ODDS_FORCE: ${{ github.event_name == 'push' && '1' || (github.event_name == 'workflow_dispatch' && '1' || '0') }}
         run: node scripts/nhl-odds.mjs
+      - name: Generate NHL first goal and anytime scorer board
+        run: node scripts/nhl-first-goal.mjs
       - name: Validate ParlayPing-compatible NHL snapshot
         run: |
           node - <<'NODE'
@@ -83,11 +91,17 @@ jobs:
           const research=JSON.parse(fs.readFileSync('slates/nhl-research.json','utf8'));
           const d=JSON.parse(fs.readFileSync('slates/nhl-odds.json','utf8'));
           const plj=JSON.parse(fs.readFileSync('slates/nhl-puck-lines.json','utf8'));
+          const fgs=JSON.parse(fs.readFileSync('slates/nhl-first-goal.json','utf8'));
           if(d.meta?.source!=='parlayapi'||d.meta?.sample!==false) throw new Error('NHL snapshot is not verified ParlayAPI data');
           if(!Array.isArray(d.rows)) throw new Error('NHL snapshot is missing ParlayPing rows');
           if(!Array.isArray(d.gameLines)) throw new Error('NHL snapshot is missing game-line rows');
           if(plj.source!=='parlayapi'||plj.sample!==false||!Array.isArray(plj.games)) throw new Error('NHL puck-line snapshot is malformed');
           if(!research.players||Object.keys(research.players).length===0) throw new Error('NHL research snapshot has no player baselines');
+          if(fgs.model!=='FGS-Hazard Ensemble v1'||!Array.isArray(fgs.games)) throw new Error('NHL first-goal snapshot is malformed');
+          for(const g of fgs.games)for(const s of ['away','home']){
+            if(g?.[s]?.players?.length!==3||g?.[s]?.atgPlayers?.length!==3)throw new Error(`NHL scorer model missing Top 3 for ${g.gameId} ${s}`);
+            if(!g?.[s]?.riskyFirstGoal||!g?.[s]?.riskyAtg)throw new Error(`NHL scorer model missing risky picks for ${g.gameId} ${s}`);
+          }
           const sparseLive=(slate.games||[]).filter(g=>g.status==='in'&&(g.players||[]).length<20);
           if(sparseLive.length) throw new Error(`NHL live slate has sparse player coverage: ${sparseLive.map(g=>`${g.away?.abbr}@${g.home?.abbr}=${(g.players||[]).length}`).join(', ')}`);
           const zero=v=>v!==null&&v!==undefined&&v!==''&&Number(v)===0;
@@ -97,7 +111,7 @@ jobs:
           if((plj.games||[]).some(r=>r.gameId&&gameIds.size&&!gameIds.has(String(r.gameId)))) throw new Error('NHL puck-line row points outside refreshed slate');
           if((plj.games||[]).some(r=>r.puckLine&&Number(r.puckLine.line)!==-1.5)) throw new Error('Puck Line Jesus snapshot contains a non -1.5 favorite line');
           if(!slate.date||!Array.isArray(slate.games)) throw new Error('Refreshed NHL slate is malformed');
-          console.log(`✓ NHL ${slate.date} games=${slate.games.length} ParlayAPI rows=${d.rows.length} puckLines=${plj.games.filter(g=>g.puckLine).length} links=${d.meta.nativeLinkRows||0} sids=${d.meta.nativeSidRows||0}`);
+          console.log(`✓ NHL ${slate.date} games=${slate.games.length} ParlayAPI rows=${d.rows.length} FGS=${d.meta.firstGoalQuotes||0} scorerGames=${fgs.games.length} puckLines=${plj.games.filter(g=>g.puckLine).length} links=${d.meta.nativeLinkRows||0} sids=${d.meta.nativeSidRows||0}`);
           NODE
       - name: Update Puck Line Jesus season history
         run: node scripts/nhl-plj-history.mjs
@@ -113,6 +127,7 @@ jobs:
           cp slates/nhl-odds.json "$tmpdir/nhl-odds.json"
           cp slates/nhl-puck-lines.json "$tmpdir/nhl-puck-lines.json"
           cp slates/nhl-plj-history.json "$tmpdir/nhl-plj-history.json"
+          cp slates/nhl-first-goal.json "$tmpdir/nhl-first-goal.json"
           cp slates/nhl-sim.json "$tmpdir/nhl-sim.json"
           for attempt in 1 2 3 4 5; do
             git fetch origin main
@@ -122,8 +137,9 @@ jobs:
             cp "$tmpdir/nhl-odds.json" slates/nhl-odds.json
             cp "$tmpdir/nhl-puck-lines.json" slates/nhl-puck-lines.json
             cp "$tmpdir/nhl-plj-history.json" slates/nhl-plj-history.json
+            cp "$tmpdir/nhl-first-goal.json" slates/nhl-first-goal.json
             cp "$tmpdir/nhl-sim.json" slates/nhl-sim.json
-            git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-puck-lines.json slates/nhl-plj-history.json slates/nhl-sim.json
+            git add slates/nhl.json slates/nhl-research.json slates/nhl-odds.json slates/nhl-puck-lines.json slates/nhl-plj-history.json slates/nhl-first-goal.json slates/nhl-sim.json
             if git diff --staged --quiet; then exit 0; fi
             git commit -m "Refresh NHL slate"
             git push origin HEAD:main && exit 0
