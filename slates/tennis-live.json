@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "espn-public",
   "sport": "TENNIS",
-  "generatedAt": "2026-09-30T19:58:03.059Z",
+  "generatedAt": "2026-09-30T23:37:31.778Z",
   "tours": [
     {
       "key": "atp",
@@ -9025,24 +9025,26 @@
       "group": "womens-singles",
       "round": "Round 2",
       "startTime": "2026-09-30T18:35Z",
-      "state": "in",
-      "statusDetail": "1st",
-      "final": false,
-      "period": 1,
+      "state": "post",
+      "statusDetail": "Final",
+      "final": true,
+      "period": 3,
       "bestOf": 3,
-      "gamesPlayed": 13,
-      "setsPlayed": 1,
+      "gamesPlayed": 31,
+      "setsPlayed": 3,
       "players": [
         {
           "id": "8067",
           "name": "Lucrezia Stefanini",
-          "winner": null,
+          "winner": true,
           "linescores": [
+            6,
+            6,
             6
           ],
-          "gamesWon": 6,
-          "setsWon": 0,
-          "setsPlayed": 1,
+          "gamesWon": 18,
+          "setsWon": 2,
+          "setsPlayed": 3,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
@@ -9051,20 +9053,22 @@
         {
           "id": "1254",
           "name": "Cagla Buyukakcay",
-          "winner": null,
+          "winner": false,
           "linescores": [
-            7
+            7,
+            3,
+            3
           ],
-          "gamesWon": 7,
+          "gamesWon": 13,
           "setsWon": 1,
-          "setsPlayed": 1,
+          "setsPlayed": 3,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
           "firstSetAces": null
         }
       ],
-      "note": "Cagla Buyukakcay (TUR) leads (6) Lucrezia Stefanini (ITA) 7-6 (7-5)"
+      "note": "(6) Lucrezia Stefanini (ITA) bt Cagla Buyukakcay (TUR) 6-7 (5-7) 6-3 6-3"
     },
     "184132": {
       "id": "184132",
@@ -9872,6 +9876,53 @@
         }
       ],
       "note": "Elena Pridankina (RUS) bt Fiona Crawley (USA) 7-5 2-6 6-4"
+    },
+    "184147": {
+      "id": "184147",
+      "uid": "s:850~l:900~e:1078-2026~c:184147",
+      "tournamentId": "1078-2026",
+      "tournament": "Adana Open",
+      "tour": "wta",
+      "tourName": "WTA",
+      "group": "womens-singles",
+      "round": "Quarterfinal",
+      "startTime": "2026-10-02T04:00Z",
+      "state": "pre",
+      "statusDetail": "TBD",
+      "final": false,
+      "period": 1,
+      "bestOf": 3,
+      "gamesPlayed": null,
+      "setsPlayed": null,
+      "players": [
+        {
+          "id": "8067",
+          "name": "Lucrezia Stefanini",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        },
+        {
+          "id": "4453",
+          "name": "Leolia Jeanjean",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        }
+      ],
+      "note": null
     },
     "184148": {
       "id": "184148",
@@ -18542,7 +18593,7 @@
     }
   },
   "meta": {
-    "liveCount": 1,
-    "finalCount": 219
+    "liveCount": 0,
+    "finalCount": 220
   }
 }
