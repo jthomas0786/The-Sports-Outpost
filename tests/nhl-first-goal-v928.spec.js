@@ -27,7 +27,7 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
  await expect(first).toContainText('RISKY VALUE');
  await expect(first.locator('.fgs-prob').first()).toContainText('%');
  await expect(first.locator('[data-fgs-share]')).toContainText('First Goal');
- await page.locator('[data-fgs-market="atg"]').click();
+ await page.locator('#hkFirstGoalPanel .fgs-market-slot [data-fgs-market="atg"]').click();
  await expect(first.locator('.fgs-player')).toHaveCount(8);
  await expect(first.locator('.fgs-player.risky')).toHaveCount(2);
  await expect(first.locator('[data-fgs-share]')).toContainText('Anytime Goal');
@@ -37,11 +37,12 @@ test('NHL scorer market toggle belongs to the model hero and preserves state whi
  await openModel(page,1440,800);
  const panel=page.locator('#hkFirstGoalPanel');
  const hero=panel.locator('.fgs-hero');
- const control=hero.locator(':scope > .fgs-market-control');
+ const slot=hero.locator(':scope > .fgs-market-slot');
+ const control=slot.locator(':scope > .fgs-market-control');
  await expect(control).toBeVisible();
- await expect(hero.locator(':scope > .fgs-market-control .fgs-market-tabs')).toHaveCount(1);
- expect(await control.evaluate(el=>!!el.parentElement?.classList.contains('fgs-hero'))).toBe(true);
- expect(await panel.locator('.fgs-meta').evaluate(el=>!!el.nextElementSibling?.classList.contains('fgs-market-control'))).toBe(true);
+ await expect(control.locator('.fgs-market-tabs')).toHaveCount(1);
+ expect(await slot.evaluate(el=>!!el.parentElement?.classList.contains('fgs-hero'))).toBe(true);
+ expect(await panel.locator('.fgs-meta').evaluate(el=>!!el.nextElementSibling?.classList.contains('fgs-market-slot'))).toBe(true);
  await expect(panel.locator('.fgs-sticky-market')).toHaveCount(0);
  await expect(page.locator('#nhlView .hk-head [data-fgs-market]')).toHaveCount(0);
  expect(await control.evaluate(el=>getComputedStyle(el).position)).toBe('static');
@@ -51,6 +52,7 @@ test('NHL scorer market toggle belongs to the model hero and preserves state whi
  await page.evaluate(()=>document.querySelector('#hkFirstGoalPanel .fgs-game:last-child')?.scrollIntoView({block:'start'}));
  await page.waitForTimeout(150);
  await expect(control.locator('[data-fgs-market="atg"]')).toHaveAttribute('aria-selected','true');
+ await expect(control).not.toHaveClass(/is-mobile-pinned/);
  await expect(panel.locator('.fgs-game').first().locator('[data-fgs-share]')).toContainText('Anytime Goal');
 });
 
@@ -90,17 +92,36 @@ test('NHL FGS and ATG share cards preserve image ratios and render real PNG blob
  expect(result.contain.dh).toBeLessThan(94);
 });
 
-for(const width of [390,768,1440])test(`NHL scorer model has no horizontal overflow and a static market toggle at ${width}px`,async({page})=>{
+for(const width of [390,768,1440])test(`NHL scorer model toggle stays usable at ${width}px`,async({page})=>{
  await openModel(page,width,width===390?844:1000);
- const control=page.locator('#hkFirstGoalPanel .fgs-hero > .fgs-market-control');
+ const control=page.locator('#hkFirstGoalPanel .fgs-market-slot > .fgs-market-control');
  await expect(control).toBeVisible();
- const geometry=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');const el=document.querySelector('#hkFirstGoalPanel .fgs-hero > .fgs-market-control');const c=el?.getBoundingClientRect();const style=el?getComputedStyle(el):null;return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0,controlLeft:c?.left||0,controlRight:c?.right||0,viewport:innerWidth,position:style?.position||'',top:style?.top||''};});
+ const geometry=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');const el=document.querySelector('#hkFirstGoalPanel .fgs-market-slot > .fgs-market-control');const c=el?.getBoundingClientRect();const style=el?getComputedStyle(el):null;return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0,controlLeft:c?.left||0,controlRight:c?.right||0,viewport:innerWidth,position:style?.position||'',top:style?.top||''};});
  expect(geometry.scroll).toBeLessThanOrEqual(geometry.client+2);
  expect(geometry.controlLeft).toBeGreaterThanOrEqual(-1);
  expect(geometry.controlRight).toBeLessThanOrEqual(geometry.viewport+1);
  expect(geometry.position).toBe('static');
  expect(geometry.top).toBe('auto');
- await page.locator('[data-fgs-market="atg"]').click();
+ await control.locator('[data-fgs-market="atg"]').click();
  const after=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0};});
  expect(after.scroll).toBeLessThanOrEqual(after.client+2);
+ if(width<=840){
+  await page.evaluate(()=>document.querySelector('#hkFirstGoalPanel .fgs-game:last-child')?.scrollIntoView({block:'start'}));
+  await expect(control).toHaveClass(/is-mobile-pinned/,{timeout:5000});
+  await expect(control).toBeVisible();
+  const pinned=await page.evaluate(()=>{const el=document.querySelector('#hkFirstGoalPanel .fgs-market-slot > .fgs-market-control');const header=document.querySelector('.topbar,[role="banner"]');const e=el?.getBoundingClientRect(),h=header?.getBoundingClientRect();return {position:el?getComputedStyle(el).position:'',top:e?.top??-1,headerBottom:Math.max(0,h?.bottom??0)};});
+  expect(pinned.position).toBe('fixed');
+  expect(pinned.top).toBeGreaterThanOrEqual(pinned.headerBottom);
+  expect(pinned.top-pinned.headerBottom).toBeLessThanOrEqual(12);
+  await control.locator('[data-fgs-market="fgs"]').click();
+  await expect(control.locator('[data-fgs-market="fgs"]')).toHaveAttribute('aria-selected','true');
+  await page.evaluate(()=>window.scrollTo(0,0));
+  await expect(control).not.toHaveClass(/is-mobile-pinned/,{timeout:5000});
+  expect(await control.evaluate(el=>getComputedStyle(el).position)).toBe('static');
+ }else{
+  await page.evaluate(()=>document.querySelector('#hkFirstGoalPanel .fgs-game:last-child')?.scrollIntoView({block:'start'}));
+  await page.waitForTimeout(150);
+  await expect(control).not.toHaveClass(/is-mobile-pinned/);
+  expect(await control.evaluate(el=>getComputedStyle(el).position)).toBe('static');
+ }
 });
