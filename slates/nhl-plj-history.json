@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-30T02:30:26.025Z",
+  "updatedAt": "2026-09-30T02:47:51.182Z",
   "season": "2026-27",
   "summary": {
     "tracked": 5,
-    "completed": 2,
+    "completed": 3,
     "pljLive": 0,
     "pljCashes": 0,
     "lateCashes": 0,
     "backdoors": 0,
-    "covered": 0
+    "covered": 1
   },
   "games": [
     {
@@ -31,10 +31,10 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T02:30:26.025Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-09-29T03:00:43.565Z",
+      "updatedAt": "2026-09-30T02:47:51.182Z",
+      "status": "in",
+      "lastState": "NEEDS_RALLY",
+      "lastStateAt": "2026-09-30T02:47:51.182Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -50,6 +50,18 @@
           "code": "UPCOMING",
           "period": 0,
           "clock": "0:00",
+          "score": {
+            "away": 0,
+            "home": 0
+          },
+          "margin": 0,
+          "goaliePulled": false
+        },
+        {
+          "at": "2026-09-30T02:47:51.182Z",
+          "code": "NEEDS_RALLY",
+          "period": 1,
+          "clock": "18:58",
           "score": {
             "away": 0,
             "home": 0
@@ -85,7 +97,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T02:30:26.025Z",
+      "updatedAt": "2026-09-30T02:47:51.182Z",
       "status": "in",
       "lastState": "NEEDS_RALLY",
       "lastStateAt": "2026-09-30T02:11:08.448Z",
@@ -128,9 +140,9 @@
       "latestBook": "Caesars",
       "lastScore": {
         "away": 1,
-        "home": 0
+        "home": 1
       },
-      "lastMargin": -1
+      "lastMargin": 0
     },
     {
       "gameId": "401891774",
@@ -151,18 +163,21 @@
       "initialBook": "bet365",
       "sportsbookCount": 5,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T02:30:26.025Z",
-      "status": "in",
-      "lastState": "NEEDS_RALLY",
-      "lastStateAt": "2026-09-30T01:54:56.253Z",
+      "updatedAt": "2026-09-30T02:47:51.182Z",
+      "status": "post",
+      "lastState": "COVERED",
+      "lastStateAt": "2026-09-30T02:47:51.182Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "outcome": null,
-      "finalScore": null,
+      "outcome": "COVERED",
+      "finalScore": {
+        "away": 0,
+        "home": 3
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -188,15 +203,28 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-09-30T02:47:51.182Z",
+          "code": "COVERED",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 0,
+            "home": 3
+          },
+          "margin": 3,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 234,
       "latestBook": "Pinnacle",
       "lastScore": {
         "away": 0,
-        "home": 0
+        "home": 3
       },
-      "lastMargin": 0
+      "lastMargin": 3,
+      "liveOutcome": "COVERED"
     },
     {
       "gameId": "401891827",
@@ -217,7 +245,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 5,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T02:30:26.025Z",
+      "updatedAt": "2026-09-30T02:47:51.182Z",
       "status": "post",
       "lastState": "MISSED",
       "lastStateAt": "2026-09-30T01:56:30.020Z",
@@ -299,7 +327,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T02:30:26.025Z",
+      "updatedAt": "2026-09-30T02:47:51.182Z",
       "status": "post",
       "lastState": "MISSED",
       "lastStateAt": "2026-09-30T01:54:56.253Z",
