@@ -81,7 +81,8 @@ if(!DRY){
 if(TEST){await runTest();process.exit(0);}
 
 const rawLines=JSON.parse(await fs.readFile('slates/nhl-puck-lines.json','utf8'));
-const history=JSON.parse(await fs.readFile(HISTORY_PATH,'utf8')).catch?.(()=>null);
+let history=null;
+try{history=JSON.parse(await fs.readFile(HISTORY_PATH,'utf8'));}catch{}
 const lines=preserveTrackedPuckLines(rawLines,history);
 for(let tick=1;;tick++){
  try{
