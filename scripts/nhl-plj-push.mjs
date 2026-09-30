@@ -2,9 +2,11 @@ import fs from 'node:fs/promises';
 import webpush from 'web-push';
 import {normalizeScoreboard,mergeSummary} from '../sports/nhl/data.js';
 import {buildPuckLineJesusModel} from '../sports/nhl/puck-line-jesus.js';
+import {preserveTrackedPuckLines} from '../sports/nhl/plj-line-lock-v929.js';
 import {pruneDeadSubscriptions,checkVapidKeysMatch} from '../send-push.js';
 
 const API='https://site.api.espn.com/apis/site/v2/sports/hockey/nhl';
+const HISTORY_PATH='slates/nhl-plj-history.json';
 const DRY=process.argv.includes('--dry-run');
 const TEST=process.argv.includes('--test');
 const POLL_MS=Number(process.env.POLL_MS||20000);
@@ -78,7 +80,9 @@ if(!DRY){
 }
 if(TEST){await runTest();process.exit(0);}
 
-const lines=JSON.parse(await fs.readFile('slates/nhl-puck-lines.json','utf8'));
+const rawLines=JSON.parse(await fs.readFile('slates/nhl-puck-lines.json','utf8'));
+const history=JSON.parse(await fs.readFile(HISTORY_PATH,'utf8')).catch?.(()=>null);
+const lines=preserveTrackedPuckLines(rawLines,history);
 for(let tick=1;;tick++){
  try{
   const model=await liveModel(lines),events=[];
