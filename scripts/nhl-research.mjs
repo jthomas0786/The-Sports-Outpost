@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import {API,getJSON} from '../sports/nhl/data.js';
 import {seasonPrior,eventIdFromLogItem,recentGameFromSummary,recentAverages} from '../sports/nhl/research.js';
 
+const RESEARCH_VERSION=2;
 const slate=JSON.parse(await fs.readFile('slates/nhl.json','utf8'));
 // ESPN identifies the last completed NHL season by its ending year. A 2026-27 slate therefore uses 2026 as the verified completed-season baseline and 2027 as the active season code.
 const priorSeason=Number(slate.season.slice(0,4));if(!Number.isInteger(priorSeason)||priorSeason<2020)throw new Error('Unknown NHL season');
@@ -9,6 +10,8 @@ const currentSeason=priorSeason+1,now=Date.now(),DAY=86400000,HOUR=3600000;
 let cache={players:{},checked:{},recentChecked:{}};try{cache=JSON.parse(await fs.readFile('slates/nhl-research.json','utf8'));}catch{}
 if(cache.season!==priorSeason)cache={players:{},checked:{},recentChecked:{}};
 cache.players??={};cache.checked??={};cache.recentChecked??={};
+// v2 adds first-goal flags to verified recent-game rows. Preserve the season priors but force one recent-history backfill.
+if(Number(cache.version||0)<RESEARCH_VERSION)cache.recentChecked={};
 const ids=[...new Set(slate.games.flatMap(g=>g.players.map(p=>String(p.id))))];
 let index=0,failures=0;
 
@@ -56,6 +59,6 @@ for(const [id,refs] of refsByPlayer){
  }
 }
 
-cache.season=priorSeason;cache.currentSeason=currentSeason;cache.generatedAt=new Date(now).toISOString();
+cache.version=RESEARCH_VERSION;cache.season=priorSeason;cache.currentSeason=currentSeason;cache.generatedAt=new Date(now).toISOString();
 await fs.writeFile('slates/nhl-research.json',JSON.stringify(cache,null,2)+'\n');
-console.log(`NHL season ${priorSeason}: ${Object.keys(cache.players).length} verified player histories; ${refsByPlayer.size} recent logs refreshed; ${failures+recentFailures} temporary fetch failures`);
+console.log(`NHL research v${RESEARCH_VERSION} season ${priorSeason}: ${Object.keys(cache.players).length} verified player histories; ${refsByPlayer.size} recent logs refreshed; ${failures+recentFailures} temporary fetch failures`);
