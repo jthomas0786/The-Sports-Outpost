@@ -61,8 +61,11 @@ test('NHL daily launch + Puck Line Jesus work in Chromium',async({page})=>{
  await pljButton.click();
  await expect(page.locator('#hkPuckLineJesusPanel')).toBeVisible();
  await expect(page.locator('#hkPuckLineJesusPanel')).toContainText('Puck Line Jesus');
- await expect(page.locator('#hkPuckLineJesusPanel')).toContainText('Today’s Tracked Puck Lines');
+ await expect(page.locator('#hkPuckLineJesusPanel')).toContainText('Pregame PLJ Candidates');
+ await expect(page.locator('#hkPuckLineJesusPanel')).toContainText('not a win probability');
  await expect.poll(()=>page.locator('#hkPuckLineJesusPanel .plj-card').count()).toBeGreaterThan(0);
+ const candidateCount=await page.locator('#hkPuckLineJesusPanel .plj-candidate-grade').count();
+ if(candidateCount>0)await expect(page.locator('#hkPuckLineJesusPanel .plj-candidate-grade').first()).toContainText(/Grade [ABC]/);
  const panelGeometry=await page.locator('#hkPuckLineJesusPanel').evaluate(el=>({scroll:el.scrollWidth,client:el.clientWidth}));
  expect(panelGeometry.scroll).toBeLessThanOrEqual(panelGeometry.client+2);
 
