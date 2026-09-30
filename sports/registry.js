@@ -87,10 +87,10 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   import('./nhl/sidebar-state-v933.js?v=90.33')
     .then(mod => mod.installNhlSidebarStateV933?.())
     .catch(error => console.warn('[NHL sidebar state] unavailable:', error));
-  import('./nhl/sidebar-plj-v927.js?v=90.31')
+  import('./nhl/sidebar-plj-v927.js?v=90.34-sidebar-exclusive')
     .then(mod => mod.installNhlSidebarPuckLineJesusV927?.())
     .catch(error => console.warn('[NHL sidebar PLJ] unavailable:', error));
-  import('./nhl/sidebar-first-goal-v928.js?v=90.28')
+  import('./nhl/sidebar-first-goal-v928.js?v=90.34-sidebar-exclusive')
     .then(mod => mod.installNhlSidebarFirstGoalV928?.())
     .catch(error => console.warn('[NHL sidebar first goal] unavailable:', error));
 }
