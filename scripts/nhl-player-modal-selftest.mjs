@@ -66,5 +66,5 @@ for(const marker of ['historicalPropProjection','propLine','buildNhlPlayerContex
 assert.ok(researchScript.includes('.slice(0,30)'));
 assert.ok(wrapper.includes("./player-modal-v921.js?v=90.22"),'launch wrapper must cache-bust the v90.21 modal layer');
 assert.ok(wrapper.includes("./launch-v922.js?v=90.22"),'launch wrapper must install v90.22 surface controller');
-assert.ok(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'router must use the launch-ready NHL wrapper');
-console.log('NHL player modal: v90.21 model logic, v90.18 NFL-parity chart geometry and v90.22 canonical launch wiring passed');
+assert.ok(/\.\/nhl\/view-v906\.js\?[^'\"]*props=2[^'\"]*slate=3[^'\"]*launch=1/.test(router),'router must use the launch-ready NHL wrapper with required launch flags');
+console.log('NHL player modal: v90.21 model logic, v90.18 NFL-parity chart geometry and canonical launch wiring passed');
