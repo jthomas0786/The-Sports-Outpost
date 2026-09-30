@@ -1,3 +1,5 @@
+import {nhlSlateDate} from './slate-date.js';
+
 export const API='https://site.api.espn.com/apis/site/v2/sports/hockey/nhl';
 export const num=v=>v==null||v===''||v==='--'?null:Number.isFinite(Number(v))?Number(v):null;
 export const text=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -105,7 +107,7 @@ export function mergeSummary(game,summary,now=Date.now()){
  return next;
 }
 export async function getJSON(url){const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!r.ok)throw new Error(`Hockey feed HTTP ${r.status}`);return r.json();}
-export async function loadScoreboard(date=null){const selected=normalizeSlateDate(date)||centralDate();return normalizeScoreboard(await getJSON(`${API}/scoreboard?dates=${selected.replaceAll('-','')}`),Date.now(),selected);}
+export async function loadScoreboard(date=null){const selected=normalizeSlateDate(date)||nhlSlateDate();return normalizeScoreboard(await getJSON(`${API}/scoreboard?dates=${selected.replaceAll('-','')}`),Date.now(),selected);}
 export function freshGame(g,now=Date.now()){return g.status==='in'&&Number.isFinite(g.fetchedAt)&&now-g.fetchedAt<=120000&&g.fetchedAt<=now+60000;}
 export function threats(doc,now=Date.now()){
  const alerts=[];
