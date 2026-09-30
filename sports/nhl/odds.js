@@ -1,5 +1,5 @@
 import {num} from './data.js';
-export const MARKET_MAP={player_anytime_goal:'atg',player_anytime_goal_scorer:'atg',player_shots_on_goal:'sog',player_points_nhl:'points',player_assists:'assists',player_blocked_shots:'blocks',player_saves:'saves',player_total_saves:'saves'};
+export const MARKET_MAP={player_anytime_goal:'atg',player_anytime_goal_scorer:'atg',player_first_goal_scorer:'fgs',player_first_goal:'fgs',player_shots_on_goal:'sog',player_points_nhl:'points',player_assists:'assists',player_blocked_shots:'blocks',player_saves:'saves',player_total_saves:'saves'};
 const norm=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
 export const BOOKS=['draftkings','fanduel','betmgm','caesars','fanatics','pinnacle','bet365','betrivers'];
 function sideLink(row,side){
@@ -22,7 +22,7 @@ export function normalizeOdds(rows,slate,now=Date.now()){
   let ts=num(r.last_update??r.last_update_ms);if(ts!=null&&ts<1e12)ts*=1000;
   const age=num(r.age_seconds);if(ts==null&&age!=null&&age>=0)ts=now-age*1000;
   if(ts==null||now-ts>3600000||ts>now+60000||(age!=null&&(age<0||age>3600)))continue;
-  const line=market==='atg'?.5:num(r.line);if(line==null||line<0)continue;
+  const line=['atg','fgs'].includes(market)?.5:num(r.line);if(line==null||line<0)continue;
   const price=v=>{const n=num(v);return n!=null&&Math.abs(n)>=100?n:null;};const over=price(r.over_price),under=price(r.under_price);if(over==null&&under==null)continue;
   quotes.push({gameId:game.id,playerId:players[0].id,player:players[0].name,market,line,over,under,book,ts,homeTeam:game.home.name,awayTeam:game.away.name,commenceTime:game.startTime,overLink:sideLink(r,'over'),underLink:sideLink(r,'under'),overSid:sideSid(r,'over'),underSid:sideSid(r,'under')});
  }
