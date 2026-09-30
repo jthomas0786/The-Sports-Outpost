@@ -33,18 +33,21 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
  await expect(first.locator('[data-fgs-share]')).toContainText('Anytime Goal');
 });
 
-test('NHL scorer market toggle is above the model header and stays visible while scrolling',async({page})=>{
+test('NHL scorer market toggle starts below model header and sticks below the app bar',async({page})=>{
  await openModel(page,1440,800);
+ const hero=page.locator('#hkFirstGoalPanel .fgs-hero');
  const dock=page.locator('#hkFirstGoalPanel .fgs-sticky-market');
  await expect(dock).toBeVisible();
- expect(await dock.evaluate(el=>!!el.nextElementSibling?.classList.contains('fgs-hero'))).toBe(true);
+ expect(await dock.evaluate(el=>!!el.previousElementSibling?.classList.contains('fgs-hero'))).toBe(true);
  expect(await dock.evaluate(el=>getComputedStyle(el).position)).toBe('sticky');
+ const initial=await page.evaluate(()=>{const h=document.querySelector('#hkFirstGoalPanel .fgs-hero')?.getBoundingClientRect();const d=document.querySelector('#hkFirstGoalPanel .fgs-sticky-market')?.getBoundingClientRect();return {heroBottom:h?.bottom||0,dockTop:d?.top||0};});
+ expect(initial.dockTop).toBeGreaterThanOrEqual(initial.heroBottom+8);
  await page.evaluate(()=>document.querySelector('#hkFirstGoalPanel .fgs-game:last-child')?.scrollIntoView({block:'start'}));
  await page.waitForTimeout(150);
  const box=await dock.boundingBox();
  expect(box).not.toBeNull();
- expect(box.y).toBeGreaterThanOrEqual(0);
- expect(box.y).toBeLessThanOrEqual(35);
+ expect(box.y).toBeGreaterThanOrEqual(60);
+ expect(box.y).toBeLessThanOrEqual(90);
  await dock.locator('[data-fgs-market="atg"]').click();
  await expect(dock.locator('[data-fgs-market="atg"]')).toHaveAttribute('aria-selected','true');
  await expect(page.locator('#hkFirstGoalPanel .fgs-game').first().locator('[data-fgs-share]')).toContainText('Anytime Goal');
