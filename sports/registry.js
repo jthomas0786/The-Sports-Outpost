@@ -84,7 +84,7 @@ if (typeof window !== 'undefined' && typeof document !== 'undefined') {
   import('./global-info-button-v956.js?v=95.7-mobile-info')
     .then(mod => mod.installGlobalInfoButtonV956?.())
     .catch(error => console.warn('[Global info button] unavailable:', error));
-  import('./nhl/sidebar-plj-v927.js?v=90.27')
+  import('./nhl/sidebar-plj-v927.js?v=90.31')
     .then(mod => mod.installNhlSidebarPuckLineJesusV927?.())
     .catch(error => console.warn('[NHL sidebar PLJ] unavailable:', error));
   import('./nhl/sidebar-first-goal-v928.js?v=90.28')
