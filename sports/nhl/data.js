@@ -4,6 +4,7 @@ export const text=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;
 export const imageUrl=u=>/^https:\/\//.test(String(u||''))?u:'';
 export const normalizeSlateDate=value=>{const m=String(value??'').trim().match(/^(\d{4})-?(\d{2})-?(\d{2})$/);return m?`${m[1]}-${m[2]}-${m[3]}`:'';};
 export const easternDate=(value=Date.now())=>{const date=value instanceof Date?value:new Date(value);return new Intl.DateTimeFormat('en-CA',{timeZone:'America/New_York',year:'numeric',month:'2-digit',day:'2-digit'}).format(Number.isNaN(date.getTime())?new Date():date);};
+export const centralDate=(value=Date.now())=>{const date=value instanceof Date?value:new Date(value);return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'}).format(Number.isNaN(date.getTime())?new Date():date);};
 const playerKey=p=>p?.id?`${p.team||''}:${p.id}`:`${p?.team||''}:${String(p?.name||'').trim().toLowerCase()}`;
 const propsCandidateScore=(p,g)=>Number(Boolean(g?.status==='in'||g?.status==='post'))*8+Number(Boolean(p?.lineupConfirmed))*6+Number(Boolean(p?.confirmedStarter||p?.currentGoalie))*4+Number(p?.active!==false)+Number(Boolean(p?.current&&Object.values(p.current).some(v=>v!=null)))*5;
 export function markSplitSquadSlate(games=[]){
@@ -104,7 +105,7 @@ export function mergeSummary(game,summary,now=Date.now()){
  return next;
 }
 export async function getJSON(url){const r=await fetch(url,{cache:'no-store',signal:AbortSignal.timeout(15000)});if(!r.ok)throw new Error(`Hockey feed HTTP ${r.status}`);return r.json();}
-export async function loadScoreboard(date=null){const selected=normalizeSlateDate(date);return normalizeScoreboard(await getJSON(`${API}/scoreboard${selected?'?dates='+selected.replaceAll('-',''):''}`),Date.now(),selected||null);}
+export async function loadScoreboard(date=null){const selected=normalizeSlateDate(date)||centralDate();return normalizeScoreboard(await getJSON(`${API}/scoreboard?dates=${selected.replaceAll('-','')}`),Date.now(),selected);}
 export function freshGame(g,now=Date.now()){return g.status==='in'&&Number.isFinite(g.fetchedAt)&&now-g.fetchedAt<=120000&&g.fetchedAt<=now+60000;}
 export function threats(doc,now=Date.now()){
  const alerts=[];
