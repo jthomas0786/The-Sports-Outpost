@@ -75,6 +75,16 @@ function gameContext(odds,game){
  return {total:clamp(totalLine,4.5,8.5),homeWin,awayWin,homeExpected:clamp(totalLine*hs/sum,1.5,5),awayExpected:clamp(totalLine*as/sum,1.5,5),raw:line};
 }
 function probabilityLabel(p){return `${(100*p).toFixed(p>=.1?1:2)}%`;}
+function riskyPick(group,topIds,{probKey,oddsKey,minOdds,minProb}){
+ const candidates=group.filter(p=>!topIds.has(p.id)&&Number.isFinite(Number(p[oddsKey]))&&Number(p[oddsKey])>=minOdds&&Number(p[probKey])>=minProb).map(p=>{
+  const market=americanImplied(p[oddsKey])||.01,edge=p[probKey]/market;
+  const longshot=Math.log2(2+Math.max(0,Number(p[oddsKey]))/100),score=p[probKey]*Math.pow(clamp(edge,.6,3),.7)*longshot;
+  return {...p,riskyEdge:edge,riskyScore:score,riskyReason:`${probabilityLabel(p[probKey])} model vs ${(100*market).toFixed(1)}% implied at ${Number(p[oddsKey])>0?'+':''}${p[oddsKey]}`};
+ }).sort((a,b)=>b.riskyScore-a.riskyScore||b[probKey]-a[probKey]);
+ if(candidates.length)return candidates[0];
+ const fallback=group.filter(p=>!topIds.has(p.id)&&Number.isFinite(Number(p[probKey]))).sort((a,b)=>b[probKey]-a[probKey])[0]||null;
+ return fallback?{...fallback,riskyEdge:null,riskyScore:null,riskyReason:'Best model longshot with verified price pending'}:null;
+}
 export function buildFirstGoalGame(game,research,odds){
  const skaters=validSkaters(game);if(!skaters.length)return null;
  const ctx=gameContext(odds,game),direct=directFirstGoalShares(odds,game,skaters),rows=[];
@@ -93,7 +103,12 @@ export function buildFirstGoalGame(game,research,odds){
   const confidence=direct.books>=3&&r.hist.priorGames>=40?'HIGH':direct.books>=1&&r.atg.books>=2?'MED':'MODEL';
   return {id:String(r.player.id),name:r.player.name,team:r.player.team,position:r.player.position,photo:r.player.photo||'',probability,probabilityLabel:probabilityLabel(probability),fairOdds:fairAmerican(probability),bestOdds:r.fgs.price,bestBook:r.fgs.book,firstGoalBooks:r.fgs.books,marketFirstGoalProbability:direct.books?marketShare:null,anytimeProbability,anytimeProbabilityLabel:probabilityLabel(anytimeProbability),fairAtgOdds:fairAmerican(anytimeProbability),bestAtgOdds:r.atg.bestPrice,bestAtgBook:r.atg.bestBook,anytimeMarketProbability:r.atg.prob,anytimeBooks:r.atg.books,confidence,lambda:r.lambda,...r.hist};
  }).sort((a,b)=>b.probability-a.probability);
- const teamBlock=team=>{const group=all.filter(p=>teamKey(p.team)===teamKey(team.abbr));return {id:String(team.id||''),abbr:team.abbr,name:team.name,logo:team.logo||'',expectedGoals:team===game.home?ctx.homeExpected:ctx.awayExpected,winProbability:team===game.home?ctx.homeWin:ctx.awayWin,players:group.slice().sort((a,b)=>b.probability-a.probability).slice(0,3).map((p,i)=>({...p,teamRank:i+1})),atgPlayers:group.slice().sort((a,b)=>b.anytimeProbability-a.anytimeProbability).slice(0,3).map((p,i)=>({...p,teamRank:i+1}))};};
+ const teamBlock=team=>{
+  const group=all.filter(p=>teamKey(p.team)===teamKey(team.abbr)),players=group.slice().sort((a,b)=>b.probability-a.probability).slice(0,3).map((p,i)=>({...p,teamRank:i+1})),atgPlayers=group.slice().sort((a,b)=>b.anytimeProbability-a.anytimeProbability).slice(0,3).map((p,i)=>({...p,teamRank:i+1}));
+  const riskyFirst=riskyPick(group,new Set(players.map(p=>p.id)),{probKey:'probability',oddsKey:'bestOdds',minOdds:900,minProb:.025});
+  const riskyAtg=riskyPick(group,new Set(atgPlayers.map(p=>p.id)),{probKey:'anytimeProbability',oddsKey:'bestAtgOdds',minOdds:250,minProb:.10});
+  return {id:String(team.id||''),abbr:team.abbr,name:team.name,logo:team.logo||'',expectedGoals:team===game.home?ctx.homeExpected:ctx.awayExpected,winProbability:team===game.home?ctx.homeWin:ctx.awayWin,players,atgPlayers,riskyFirstGoal:riskyFirst,riskyAtg};
+ };
  const away=teamBlock(game.away),home=teamBlock(game.home);
  return {gameId:String(game.id),startTime:game.startTime,status:game.status,venue:game.venue||'',away,home,expectedGoals:totalLambda,noGoalProbability:1-goalOccurs,directFirstGoalBooks:direct.books,directMarketCoverage:direct.coverage,directMarketWeight:directWeight,model:'FGS-Hazard Ensemble v1',method:'Competing Poisson hazards calibrated to sportsbook game total/team strength, blended with de-vigged first-goal consensus when sufficiently covered.',top6:[...away.players,...home.players].sort((a,b)=>b.probability-a.probability),top6Atg:[...away.atgPlayers,...home.atgPlayers].sort((a,b)=>b.anytimeProbability-a.anytimeProbability)};
 }
@@ -103,5 +118,5 @@ export function buildFirstGoalSlate(slate,research,odds,old=null){
   if(g.status!=='pre'&&preserve.has(String(g.id)))return {...preserve.get(String(g.id)),status:g.status,away:{...preserve.get(String(g.id)).away,score:g.away?.score??null},home:{...preserve.get(String(g.id)).home,score:g.home?.score??null}};
   return buildFirstGoalGame(g,research,odds);
  }).filter(Boolean);
- return {version:1,source:'TSO NHL first-goal model',model:'FGS-Hazard Ensemble v1',generatedAt:new Date().toISOString(),date:slate?.date||'',season:slate?.season||'',methodology:{eventModel:'competing Poisson scoring hazards',marketAnchor:'ParlayAPI player_first_goal_scorer + player_anytime_goal',playerInputs:['verified prior-season goals/game','shots/game','regressed shooting percentage','last-10 goals/shots','last-10 first-goal occurrences'],gameInputs:['sportsbook total','de-vigged moneyline team strength'],note:'Probabilities are model estimates, not guarantees. Actual sportsbook prices are displayed only when a verified quote is present.'},games};
+ return {version:1,source:'TSO NHL first-goal model',model:'FGS-Hazard Ensemble v1',generatedAt:new Date().toISOString(),date:slate?.date||'',season:slate?.season||'',methodology:{eventModel:'competing Poisson scoring hazards',marketAnchor:'ParlayAPI player_first_goal_scorer + player_anytime_goal',playerInputs:['verified prior-season goals/game','shots/game','regressed shooting percentage','last-10 goals/shots','last-10 first-goal occurrences'],gameInputs:['sportsbook total','de-vigged moneyline team strength'],riskyPick:'One additional player per team chosen outside the top three for a combination of long verified odds, useful model probability and price-vs-model edge.',note:'Probabilities are model estimates, not guarantees. Actual sportsbook prices are displayed only when a verified quote is present.'},games};
 }
