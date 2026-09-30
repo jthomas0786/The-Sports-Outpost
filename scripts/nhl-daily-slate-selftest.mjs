@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {normalizeScoreboard,dedupeSlatePlayers,easternDate} from '../sports/nhl/data.js';
+import {normalizeScoreboard,dedupeSlatePlayers,easternDate,centralDate} from '../sports/nhl/data.js';
 
 const team=(id,abbr,homeAway)=>({id:String(id),homeAway,score:'0',team:{abbreviation:abbr,displayName:abbr}});
 const event=(id,date,away,home)=>({id,date,season:{type:1},competitions:[{competitors:[team(away.id,away.abbr,'away'),team(home.id,home.abbr,'home')],status:{type:{state:'pre',shortDetail:'Scheduled'},period:0,displayClock:'0:00'}}]});
@@ -20,6 +20,8 @@ assert.equal(slate.date,'2026-09-19');
 assert.deepEqual(slate.games.map(g=>g.id),['early','late'],'late-night UTC rollover must stay on the Eastern slate date');
 assert.ok(slate.games.every(g=>g.slateDate===slate.date));
 assert.equal(easternDate('2026-09-20T02:30:00Z'),'2026-09-19');
+assert.equal(centralDate('2026-09-20T04:59:59Z'),'2026-09-19','Central slate date must not roll before midnight Chicago time');
+assert.equal(centralDate('2026-09-20T05:00:00Z'),'2026-09-20','Central slate date must roll at midnight Chicago time');
 const selected=normalizeScoreboard(feed,now,'2026-09-20');
 assert.equal(selected.date,'2026-09-20');
 assert.deepEqual(selected.games.map(g=>g.id),['tomorrow'],'explicit slate date must override a multi-day feed');
@@ -35,9 +37,11 @@ assert.equal(split[0].players.find(p=>p.id==='4024123').propsEligible,false,'unc
 assert.equal(split[1].players.find(p=>p.id==='4024123').propsEligible,true,'confirmed matchup must win Props eligibility');
 assert.equal(split.flatMap(g=>g.players).filter(p=>p.id==='4024123'&&p.propsEligible!==false).length,1,'player must be Props-eligible once per daily slate');
 
+const data=fs.readFileSync('sports/nhl/data.js','utf8');
 const wrapper=fs.readFileSync('sports/nhl/view-v906.js','utf8');
 const guard=fs.readFileSync('sports/nhl/props-daily-guard-v920.js','utf8');
 const compat=fs.readFileSync('sports/nhl/props-daily-guard-v919.js','utf8');
+assert.ok(data.includes('normalizeSlateDate(date)||centralDate()'),'automatic NHL slate refresh must anchor its date to America/Chicago');
 assert.ok(wrapper.includes('installNhlPropsDailyGuardV920'),'NHL wrapper must install the non-blocking Props guard');
 assert.ok(wrapper.indexOf('installNhlPropsDailyGuardV920(host)')<wrapper.indexOf('await base.mount()'),'Props guard must be armed before the large base render begins');
 assert.ok(compat.includes('props-daily-guard-v920.js?v=90.20'),'cached v919 wrapper must forward to the freeze-safe guard after revalidation');
@@ -46,6 +50,7 @@ assert.ok(!guard.includes('new MutationObserver(run)'),'Props observer must not 
 
 console.log('✓ NHL daily slate + freeze-safe Props regression passed');
 console.log('  ✓ one Eastern-time date survives multi-day ESPN responses');
+console.log('  ✓ automatic daily rollover is anchored to midnight America/Chicago');
 console.log('  ✓ UTC rollover does not leak late-night games into the next slate');
 console.log('  ✓ duplicate roster rows collapse and one same-day matchup owns Props eligibility');
 console.log('  ✓ Props observer ignores its own DOM edits and is armed before render');
