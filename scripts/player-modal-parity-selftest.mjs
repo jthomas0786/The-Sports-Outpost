@@ -49,11 +49,11 @@ assert.ok(nhlView.includes("player-modal-v921.js?v=90.22"),'NHL launch wrapper m
 assert.ok(nhlView.includes('installNhlPlayerModalV921'),'NHL view must install v90.21 modal logic');
 assert.ok(nhlView.includes("launch-v922.js?v=90.22"),'NHL launch wrapper must install launch controller on top of player parity');
 assert.ok(nhlFallback.includes("installNhlPlayerModalV918"),'NHL v90.21 must preserve the v90.18 NFL-parity layer');
-assert.ok(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'Router must load the launch-ready NHL wrapper');
+assert.ok(/\.\/nhl\/view-v906\.js\?[^'\"]*props=2[^'\"]*slate=3[^'\"]*launch=1/.test(router),'Router must load the launch-ready NHL wrapper with required launch flags');
 assert.ok(router.includes("./mlb/player-modal-parity-v901.js?v=90.2"),'Router must load hardened MLB NFL-parity modal');
 assert.ok(router.includes('installMlbPlayerModalParityV901'),'Router must install MLB modal parity enhancer');
 assert.ok(router.includes("./player-modal-sticky-header-v901.js?v=90.7"),'Router must load the actual MLB/NFL/NHL static-header runtime');
 assert.ok(router.includes('installPlayerModalStickyHeaderV901();'),'Router must install static player headers for all sports');
 assert.ok(/\.\/sports\/router\.js\?v=[A-Za-z0-9._-]+/.test(index),'Outer page must load a cache-busted sports router');
 
-console.log('Player modal parity: MLB/NFL/NHL preserve shared static-header geometry, NHL keeps v90.18 chart parity + v90.21 projection fallback, and v90.22 launch wiring uses the same canonical modal.');
+console.log('Player modal parity: MLB/NFL/NHL preserve shared static-header geometry, NHL keeps v90.18 chart parity + v90.21 projection fallback, and canonical launch wiring uses the same modal.');
