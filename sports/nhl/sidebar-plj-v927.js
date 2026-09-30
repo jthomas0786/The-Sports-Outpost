@@ -1,4 +1,5 @@
-const ITEM_ATTR='data-nhl-plj';
+import {NHL_PLJ_ATTR,closeNhlFeaturePanels,installNhlSidebarStateV931,setExclusiveNhlSidebarActive} from './sidebar-state-v931.js?v=90.33';
+const ITEM_ATTR=NHL_PLJ_ATTR;
 let installed=false,observer=null,retryTimer=null,queued=false;
 
 function panelForNhl(){
@@ -7,13 +8,10 @@ function panelForNhl(){
 }
 
 function isPanelOpen(){return !!document.getElementById('hkPuckLineJesusPanel');}
-
-function syncActive(){
-  const open=isPanelOpen();
-  document.querySelectorAll(`#sbSportAccordion .sb-sub-item[${ITEM_ATTR}]`).forEach(btn=>btn.classList.toggle('is-active',open));
-}
+function syncActive(){setExclusiveNhlSidebarActive(ITEM_ATTR,isPanelOpen());}
 
 function openPuckLineJesus(){
+  closeNhlFeaturePanels('plj');
   window.DW_nhlPendingPlj=true;
   if(location.hash!=='#nhl') location.hash='nhl';
   if(retryTimer) clearTimeout(retryTimer);
@@ -72,6 +70,7 @@ export function installNhlSidebarPuckLineJesusV927(){
   if(installed){queueSync();return;}
   installed=true;
   const start=()=>{
+    installNhlSidebarStateV931();
     sync();
     observer=new MutationObserver(records=>{if(mutationNeedsSync(records))queueSync();});
     observer.observe(document.body,{childList:true,subtree:true});
