@@ -19,7 +19,7 @@ export function setExclusiveNhlSidebarActive(attr,isActive){
 }
 
 function closeFirstGoal(){
-  if(typeof window?.DW_closeNhlFirstGoal==='function')window.DW_closeNhlFirstGoal();
+  if(typeof window!=='undefined'&&typeof window.DW_closeNhlFirstGoal==='function')window.DW_closeNhlFirstGoal();
   else document.querySelector('#hkFirstGoalPanel [data-fgs-close]')?.click();
   setExclusiveNhlSidebarActive(NHL_FIRST_GOAL_ATTR,false);
 }
