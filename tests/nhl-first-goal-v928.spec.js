@@ -44,7 +44,7 @@ test('NHL scorer market toggle belongs to the model hero and preserves state whi
  expect(await panel.locator('.fgs-meta').evaluate(el=>!!el.nextElementSibling?.classList.contains('fgs-market-control'))).toBe(true);
  await expect(panel.locator('.fgs-sticky-market')).toHaveCount(0);
  await expect(page.locator('#nhlView .hk-head [data-fgs-market]')).toHaveCount(0);
- expect(await control.evaluate(el=>getComputedStyle(el).position)).not.toBe('sticky');
+ expect(await control.evaluate(el=>getComputedStyle(el).position)).toBe('static');
  await control.locator('[data-fgs-market="atg"]').click();
  await expect(control.locator('[data-fgs-market="atg"]')).toHaveAttribute('aria-selected','true');
  await expect(panel.locator('.fgs-game').first().locator('[data-fgs-share]')).toContainText('Anytime Goal');
@@ -90,14 +90,16 @@ test('NHL FGS and ATG share cards preserve image ratios and render real PNG blob
  expect(result.contain.dh).toBeLessThan(94);
 });
 
-for(const width of [390,768,1440])test(`NHL scorer model has no horizontal overflow at ${width}px`,async({page})=>{
+for(const width of [390,768,1440])test(`NHL scorer model has no horizontal overflow and a static market toggle at ${width}px`,async({page})=>{
  await openModel(page,width,width===390?844:1000);
  const control=page.locator('#hkFirstGoalPanel .fgs-hero > .fgs-market-control');
  await expect(control).toBeVisible();
- const geometry=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');const c=document.querySelector('#hkFirstGoalPanel .fgs-hero > .fgs-market-control')?.getBoundingClientRect();return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0,controlLeft:c?.left||0,controlRight:c?.right||0,viewport:innerWidth};});
+ const geometry=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');const el=document.querySelector('#hkFirstGoalPanel .fgs-hero > .fgs-market-control');const c=el?.getBoundingClientRect();const style=el?getComputedStyle(el):null;return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0,controlLeft:c?.left||0,controlRight:c?.right||0,viewport:innerWidth,position:style?.position||'',top:style?.top||''};});
  expect(geometry.scroll).toBeLessThanOrEqual(geometry.client+2);
  expect(geometry.controlLeft).toBeGreaterThanOrEqual(-1);
  expect(geometry.controlRight).toBeLessThanOrEqual(geometry.viewport+1);
+ expect(geometry.position).toBe('static');
+ expect(geometry.top).toBe('auto');
  await page.locator('[data-fgs-market="atg"]').click();
  const after=await page.evaluate(()=>{const p=document.getElementById('hkFirstGoalPanel');return {scroll:p?.scrollWidth||0,client:p?.clientWidth||0};});
  expect(after.scroll).toBeLessThanOrEqual(after.client+2);
