@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {clockSeconds,goaliePulled,classifyPuckLineGame,buildPuckLineJesusModel} from '../sports/nhl/puck-line-jesus.js';
 import {gradePljCandidate} from '../sports/nhl/plj-candidate-v927.js';
+import {preserveTrackedPuckLines} from '../sports/nhl/plj-line-lock-v929.js';
 
 const line={gameId:'g1',puckLine:{favoriteAbbr:'EDM',favoriteTeam:'Edmonton Oilers',line:-1.5,price:125,book:'FanDuel',underdogPrice:-135,sportsbookCount:5}};
 const base={id:'g1',startTime:'2026-09-29T23:00:00Z',away:{id:'1',abbr:'EDM',name:'Edmonton Oilers',score:3},home:{id:'2',abbr:'CGY',name:'Calgary Flames',score:2},status:'in',period:3,clock:'1:41',players:[{id:'edmg',team:'EDM',position:'G'},{id:'cgyg',team:'CGY',position:'G'},{id:'c1',team:'CGY',position:'C'},{id:'c2',team:'CGY',position:'C'},{id:'c3',team:'CGY',position:'LW'},{id:'c4',team:'CGY',position:'RW'},{id:'c5',team:'CGY',position:'D'},{id:'c6',team:'CGY',position:'D'}],onIce:[{teamId:'1',entries:[{athleteid:'edmg',whereabouts:{id:'1'}}]},{teamId:'2',entries:['c1','c2','c3','c4','c5','c6'].map(athleteid=>({athleteid,whereabouts:{id:'1'}}))}],goals:[]};
@@ -38,7 +39,19 @@ assert.equal(classifyPuckLineGame(backdoor,line).code,'BACKDOORED');
 const model=buildPuckLineJesusModel({date:'2026-09-29',games:[emptyNetCash,backdoor]},{games:[line,{...line,gameId:'g1'}]});
 assert.ok(model.tracked.length>=1);
 
+const torGame={id:'tor',slateDate:'2026-09-29',status:'in',period:3,clock:'3:40',away:{id:'mtl',abbr:'MTL',name:'Montreal Canadiens',score:3},home:{id:'tor-team',abbr:'TOR',name:'Toronto Maple Leafs',score:2},players:[],onIce:[],goals:[]};
+const rawLiveLines={date:'2026-09-29',games:[{gameId:'tor',awayAbbr:'MTL',homeAbbr:'TOR',puckLine:null}]};
+const history={games:[{gameId:'tor',startTime:'2026-09-29T23:00:00Z',away:{abbr:'MTL',name:'Montreal Canadiens'},home:{abbr:'TOR',name:'Toronto Maple Leafs'},favoriteAbbr:'TOR',favoriteTeam:'Toronto Maple Leafs',line:-1.5,initialPrice:225,initialBook:'BetRivers',latestPrice:220,latestBook:'bet365',sportsbookCount:5}]};
+const locked=preserveTrackedPuckLines(rawLiveLines,history);
+assert.equal(locked.games[0].puckLine.favoriteAbbr,'TOR','pregame favorite must survive when the live sportsbook feed drops the line');
+assert.equal(locked.games[0].puckLine.lockedFromHistory,true);
+const torModel=buildPuckLineJesusModel({date:'2026-09-29',games:[torGame]},locked);
+assert.equal(torModel.tracked.length,1,'tracked game must stay on PLJ board after line disappears');
+assert.equal(torModel.tracked[0].code,'NEEDS_RALLY','trailing tracked favorite should be visible as NEEDS RALLY, not PLJ LIVE');
+assert.equal(torModel.liveTracked.length,1,'live tracked section must retain non-opportunity games');
+
 console.log('✓ Puck Line Jesus classification regression passed');
 console.log('  ✓ pulled-goalie state requires live on-ice evidence');
 console.log('  ✓ PLJ pregame candidate A/B/C grading uses market shape without inventing probability');
 console.log('  ✓ PLJ live / immediate empty-net cash / late cash / immediate backdoor states classify correctly');
+console.log('  ✓ tracked pregame -1.5 survives live-market disappearance and remains visible as NEEDS RALLY');
