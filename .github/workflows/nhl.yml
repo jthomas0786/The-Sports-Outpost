@@ -48,6 +48,10 @@ jobs:
           node --check sports/nhl/first-goal-share-v928.js
           node --check sports/nhl/first-goal-v928.js
           node --check sports/nhl/sidebar-first-goal-v928.js
+          node --check sports/nhl/sidebar-plj-v927.js
+          node --check sports/nhl/sidebar-state-v931.js
+          node --check sports/nhl/sidebar-state-v933.js
+          node --check sports/nhl/refresh-policy-v933.js
           node --check scripts/nhl-first-goal.mjs
           node --check sports/nhl/props-daily-guard-v919.js
           node --check sports/nhl/props-daily-guard-v920.js
@@ -65,6 +69,7 @@ jobs:
           node scripts/nhl-live-roster-selftest.mjs
           node scripts/nhl-daily-slate-selftest.mjs
           node scripts/nhl-midnight-rollover-selftest.mjs
+          node scripts/nhl-navigation-selftest.mjs
           node scripts/nhl-props-baseline-selftest.mjs
           node scripts/nhl-v901-selftest.mjs
           node scripts/nhl-lineups-selftest.mjs
