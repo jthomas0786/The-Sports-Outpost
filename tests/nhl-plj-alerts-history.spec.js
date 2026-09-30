@@ -55,10 +55,24 @@ test('Puck Line Jesus alert opt-in and permanent ledger mount',async({page})=>{
  expect(await page.evaluate(()=>localStorage.getItem('tso.plj.alerts.v1'))).toBe('0');
 });
 
+test('Puck Line Jesus shows beginner play instructions on pregame candidates',async({page})=>{
+ await openPlj(page);
+ await expect(page.locator('#hkPljBeginnerGuide')).toBeVisible({timeout:30000});
+ await expect(page.locator('#hkPljBeginnerGuide')).toContainText('How to Play Puck Line Jesus');
+ await expect(page.locator('#hkPljBeginnerGuide')).toContainText('Beginner rule: stick to A');
+ const cards=page.locator('.plj-candidate-card-a,.plj-candidate-card-b,.plj-candidate-card-c');
+ const count=await cards.count();expect(count).toBeGreaterThan(0);
+ for(let i=0;i<count;i++)await expect(cards.nth(i).locator('.plj-play-call')).toBeVisible();
+ const a=page.locator('.plj-candidate-card-a .plj-play-call');if(await a.count())await expect(a.first()).toContainText('PREGAME PLAY');
+ const b=page.locator('.plj-candidate-card-b .plj-play-call');if(await b.count())await expect(b.first()).toContainText('WATCHLIST');
+ const c=page.locator('.plj-candidate-card-c .plj-play-call');if(await c.count())await expect(c.first()).toContainText('PASS');
+});
+
 for(const width of [390,768,1440])test(`PLJ alert/history UI has no horizontal overflow at ${width}px`,async({page})=>{
  await openPlj(page,width,width===390?844:1000);
  await expect(page.locator('#hkPuckLineJesusAlertToggle')).toBeVisible();
  await expect(page.locator('#hkPuckLineJesusHistory')).toBeVisible();
- const geometry=await page.evaluate(()=>{const p=document.getElementById('hkPuckLineJesusPanel'),h=document.getElementById('hkPuckLineJesusHistory');return {panel:[p?.scrollWidth||0,p?.clientWidth||0],history:[h?.scrollWidth||0,h?.clientWidth||0]};});
- expect(geometry.panel[0]).toBeLessThanOrEqual(geometry.panel[1]+2);expect(geometry.history[0]).toBeLessThanOrEqual(geometry.history[1]+2);
+ await expect(page.locator('#hkPljBeginnerGuide')).toBeVisible();
+ const geometry=await page.evaluate(()=>{const p=document.getElementById('hkPuckLineJesusPanel'),h=document.getElementById('hkPuckLineJesusHistory'),g=document.getElementById('hkPljBeginnerGuide');return {panel:[p?.scrollWidth||0,p?.clientWidth||0],history:[h?.scrollWidth||0,h?.clientWidth||0],guide:[g?.scrollWidth||0,g?.clientWidth||0]};});
+ expect(geometry.panel[0]).toBeLessThanOrEqual(geometry.panel[1]+2);expect(geometry.history[0]).toBeLessThanOrEqual(geometry.history[1]+2);expect(geometry.guide[0]).toBeLessThanOrEqual(geometry.guide[1]+2);
 });
