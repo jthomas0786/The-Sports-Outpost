@@ -26,6 +26,9 @@ function decorateCard(card){
  let box=card.querySelector('.plj-play-call');
  if(!box){box=document.createElement('div');box.className='plj-play-call';const p=card.querySelector(':scope>p');(p||card.querySelector(':scope>button'))?.before(box);}
  if(!box)return;
+ const sig=`${grade}|${bet}|${action.tone}|${action.label}|${action.detail}`;
+ if(box.dataset.pljGuideSig===sig)return;
+ box.dataset.pljGuideSig=sig;
  box.className=`plj-play-call tone-${action.tone}`;
  box.innerHTML=`<small>WHAT TO DO</small><strong>${action.label}</strong><span>${action.detail}</span>`;
 }
@@ -35,10 +38,18 @@ function sync(){
  const pregame=[...panel.querySelectorAll('.plj-section')].find(s=>s.querySelector('h3')?.textContent?.trim()==='Pregame PLJ Candidates');
  if(pregame&&!document.getElementById('hkPljBeginnerGuide'))pregame.insertAdjacentHTML('beforebegin',guideHTML());
 }
-function queue(){if(queued)return;queued=true;queueMicrotask(()=>{queued=false;sync();});}
+function mutationNeedsSync(records){
+ return records.some(r=>[...r.addedNodes].some(n=>{
+  if(n.nodeType!==1)return false;
+  return n.matches?.('#hkPuckLineJesusPanel,.plj-candidate-card-a,.plj-candidate-card-b,.plj-candidate-card-c')||
+   n.querySelector?.('#hkPuckLineJesusPanel,.plj-candidate-card-a,.plj-candidate-card-b,.plj-candidate-card-c');
+ }));
+}
+function queue(){if(queued)return;queued=true;requestAnimationFrame(()=>{queued=false;sync();});}
 export function installPljBeginnerGuideV930(){
  ensureStyle();
  if(installed){queue();return;}installed=true;queue();
- observer=new MutationObserver(queue);observer.observe(document.body,{childList:true,subtree:true});
+ observer=new MutationObserver(records=>{if(mutationNeedsSync(records))queue();});
+ observer.observe(document.body,{childList:true,subtree:true});
  window.DW_pljBeginnerGuide={sync,action:pljBeginnerAction};
 }
