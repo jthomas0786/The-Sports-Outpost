@@ -8,6 +8,7 @@ on:
       - 'scripts/basketball-odds-primary-refresh.mjs'
       - 'scripts/lib/basketball-odds-quality.mjs'
       - 'scripts/basketball-odds-quality-selftest.mjs'
+      - 'scripts/basketball-odds-legacy-cleanup.mjs'
       - 'scripts/parlayapi-pregame-cadence.mjs'
       - 'scripts/parlayapi-pregame-cadence-selftest.mjs'
       - '.github/workflows/basketball-odds.yml'
@@ -39,6 +40,8 @@ jobs:
         run: node scripts/parlayapi-pregame-cadence-selftest.mjs
       - name: Validate basketball sportsbook identity guard
         run: node scripts/basketball-odds-quality-selftest.mjs
+      - name: Clean legacy WNBA preserved rows
+        run: node scripts/basketball-odds-legacy-cleanup.mjs
       - name: Refresh NBA/NCAAB/WNBA sportsbook props when due
         env:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
