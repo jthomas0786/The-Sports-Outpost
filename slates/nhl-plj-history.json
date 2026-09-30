@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-09-30T04:19:20.956Z",
+  "updatedAt": "2026-09-30T05:55:27.560Z",
   "season": "2026-27",
   "summary": {
     "tracked": 5,
-    "completed": 3,
+    "completed": 5,
     "pljLive": 0,
     "pljCashes": 0,
-    "lateCashes": 0,
+    "lateCashes": 1,
     "backdoors": 0,
-    "covered": 1
+    "covered": 2
   },
   "games": [
     {
@@ -31,19 +31,32 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T04:19:20.956Z",
-      "status": "in",
-      "lastState": "SAFE_COVER",
-      "lastStateAt": "2026-09-30T04:19:20.956Z",
+      "updatedAt": "2026-09-30T05:55:27.560Z",
+      "status": "post",
+      "lastState": "LATE_CASH",
+      "lastStateAt": "2026-09-30T05:55:27.560Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
-      "lateCash": false,
+      "lateCash": true,
       "backdoored": false,
-      "outcome": null,
-      "finalScore": null,
-      "decisiveGoal": null,
+      "outcome": "LATE_CASH",
+      "finalScore": {
+        "away": 2,
+        "home": 5
+      },
+      "decisiveGoal": {
+        "period": 3,
+        "clock": "4:43",
+        "team": "VGK",
+        "scorer": "Noah Hanifin",
+        "text": "Noah Hanifin Goal (1) Wrist Shot, assists: Nic Dowd (1), Marc Gatcomb (1)",
+        "strength": "Even Strength",
+        "awayScore": 2,
+        "homeScore": 4,
+        "emptyNet": false
+      },
       "transitions": [
         {
           "at": "2026-09-29T03:00:43.565Z",
@@ -80,15 +93,28 @@
           },
           "margin": 2,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-09-30T05:55:27.560Z",
+          "code": "LATE_CASH",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 2,
+            "home": 5
+          },
+          "margin": 3,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 106,
       "latestBook": "Pinnacle",
       "lastScore": {
-        "away": 1,
-        "home": 3
+        "away": 2,
+        "home": 5
       },
-      "lastMargin": 2
+      "lastMargin": 3,
+      "liveOutcome": "LATE_CASH"
     },
     {
       "gameId": "401891804",
@@ -109,18 +135,21 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T04:19:20.956Z",
-      "status": "in",
-      "lastState": "NEEDS_RALLY",
-      "lastStateAt": "2026-09-30T02:11:08.448Z",
+      "updatedAt": "2026-09-30T05:55:27.560Z",
+      "status": "post",
+      "lastState": "MISSED",
+      "lastStateAt": "2026-09-30T05:55:27.560Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "outcome": null,
-      "finalScore": null,
+      "outcome": "MISSED",
+      "finalScore": {
+        "away": 6,
+        "home": 5
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -146,15 +175,28 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-09-30T05:55:27.560Z",
+          "code": "MISSED",
+          "period": 4,
+          "clock": "0:00",
+          "score": {
+            "away": 6,
+            "home": 5
+          },
+          "margin": -1,
+          "goaliePulled": false
         }
       ],
       "latestPrice": -115,
       "latestBook": "Caesars",
       "lastScore": {
-        "away": 5,
-        "home": 3
+        "away": 6,
+        "home": 5
       },
-      "lastMargin": -2
+      "lastMargin": -1,
+      "liveOutcome": "MISSED"
     },
     {
       "gameId": "401891774",
@@ -175,7 +217,7 @@
       "initialBook": "bet365",
       "sportsbookCount": 5,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T04:19:20.956Z",
+      "updatedAt": "2026-09-30T05:55:27.560Z",
       "status": "post",
       "lastState": "COVERED",
       "lastStateAt": "2026-09-30T02:48:32.594Z",
@@ -257,7 +299,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 5,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T04:19:20.956Z",
+      "updatedAt": "2026-09-30T05:55:27.560Z",
       "status": "post",
       "lastState": "MISSED",
       "lastStateAt": "2026-09-30T01:56:30.020Z",
@@ -339,7 +381,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 8,
       "createdAt": "2026-09-29T03:00:43.565Z",
-      "updatedAt": "2026-09-30T04:19:20.956Z",
+      "updatedAt": "2026-09-30T05:55:27.560Z",
       "status": "post",
       "lastState": "MISSED",
       "lastStateAt": "2026-09-30T01:54:56.253Z",
