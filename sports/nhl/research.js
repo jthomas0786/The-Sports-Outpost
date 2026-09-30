@@ -28,6 +28,17 @@ function playerBoxStats(summary,playerId){
  }
  return null;
 }
+function clockSeconds(clock){const m=String(clock||'').match(/^(\d+):(\d{2})$/);return m?Number(m[1])*60+Number(m[2]):null;}
+function firstGoalScorerId(summary){
+ const goals=(summary?.plays||[]).filter(p=>p?.scoringPlay&&p?.type?.text==='Goal'&&!/shootout/i.test(`${p?.period?.displayValue||''} ${p?.text||''}`));
+ goals.sort((a,b)=>{
+  const pa=Number(a?.period?.number||99),pb=Number(b?.period?.number||99);if(pa!==pb)return pa-pb;
+  const ca=clockSeconds(a?.clock?.displayValue),cb=clockSeconds(b?.clock?.displayValue);return (cb??-1)-(ca??-1);
+ });
+ const first=goals[0];if(!first)return null;
+ const scorer=first?.participants?.find(x=>x?.type==='scorer')?.athlete||first?.participants?.[0]?.athlete;
+ return scorer?.id!=null?String(scorer.id):null;
+}
 function competitorSide(summary,teamId){
  const comp=summary?.header?.competitions?.[0];
  const teams=comp?.competitors||[];
@@ -39,7 +50,7 @@ export function recentGameFromSummary(summary,{playerId,teamId,season,eventId}={
  const stats=playerBoxStats(summary,playerId);if(!stats)return null;
  const {comp,mine,opp}=competitorSide(summary,teamId);if(!comp||!mine||!opp)return null;
  const date=comp.date||summary?.header?.competitions?.[0]?.date||summary?.header?.date||'';
- const scoreMine=num(mine.score),scoreOpp=num(opp.score);
+ const scoreMine=num(mine.score),scoreOpp=num(opp.score),fg=firstGoalScorerId(summary);
  let result='';
  if(mine.winner===true)result='W';else if(mine.winner===false)result='L';else if(scoreMine!=null&&scoreOpp!=null&&scoreMine!==scoreOpp)result=scoreMine>scoreOpp?'W':'L';
  return {
@@ -52,6 +63,8 @@ export function recentGameFromSummary(summary,{playerId,teamId,season,eventId}={
   homeAway:mine.homeAway||'',
   result,
   score:scoreMine!=null&&scoreOpp!=null?`${scoreMine}-${scoreOpp}`:'',
+  firstGoal:fg!=null?fg===String(playerId):false,
+  firstGoalScorerId:fg,
   stats,
   source:'ESPN event log + game summary box score'
  };
