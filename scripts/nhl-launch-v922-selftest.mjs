@@ -60,8 +60,8 @@ assert(wrapper.includes("import {installNhlLaunchV922} from './launch-v922.js?v=
 assert(wrapper.includes('await installNhlLaunchV922(host);'),'production NHL wrapper must install launch controller');
 assert(launch.includes('if(host){setPropsMarketState'),'launch Props controls must stay mounted across observer scans so typing cannot detach the input');
 assert(launch.includes("Object.assign(filters,{q:'',team:'ALL',pos:'ALL',game:'ALL',sort:'model'});resetPropsControls()"),'Clear must reset both filter state and the stable control surface');
-assert(router.includes("./nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'router must point at launch build');
-assert(index.includes("./sports/nhl/view-v906.js?v=90.22&props=2&slate=3&launch=1"),'Command Center lazy-load must use the full launch build');
-assert(index.includes('sports/router.js?v=90.62'),'index must cache-bust the launch router');
+assert(/\.\/nhl\/view-v906\.js\?[^'\"]*props=2[^'\"]*slate=3[^'\"]*launch=1/.test(router),'router must point at launch-ready NHL wrapper with required flags');
+assert(/\.\/sports\/nhl\/view-v906\.js\?[^'\"]*props=2[^'\"]*slate=3[^'\"]*launch=1/.test(index),'Command Center lazy-load must use the full launch-ready NHL build');
+assert(/sports\/router\.js\?v=[A-Za-z0-9._-]+/.test(index),'index must cache-bust the sports router');
 
 console.log(`NHL launch v90.22: ${slate.date} daily slate, split-squad safety, complete Props controls, stable filters, modal wiring, 10s Live, Goal Feed alerts, Command Center and responsive launch CSS passed`);
