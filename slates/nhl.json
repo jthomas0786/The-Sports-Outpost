@@ -1,7 +1,7 @@
 {
   "sport": "nhl",
   "schemaVersion": 2,
-  "generatedAt": "2026-09-30T01:53:49.713Z",
+  "generatedAt": "2026-09-30T01:54:42.802Z",
   "season": "2026-27",
   "date": "2026-09-29",
   "games": [
@@ -34,7 +34,7 @@
       "seasonType": 2,
       "venue": "Lenovo Center",
       "neutralSite": false,
-      "fetchedAt": 1790733229713,
+      "fetchedAt": 1790733282802,
       "players": [
         {
           "id": "3041970",
@@ -2072,7 +2072,7 @@
       ],
       "splitSquadTeams": [],
       "splitSquad": false,
-      "summaryAt": 1790733229893,
+      "summaryAt": 1790733283089,
       "onIce": [
         {
           "entries": [
@@ -2176,7 +2176,7 @@
       "lineupsConfirmed": true,
       "lineupEvidence": {
         "gameId": "401891773",
-        "checkedAt": 1790733229988,
+        "checkedAt": 1790733283249,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -2223,7 +2223,7 @@
       "seasonType": 2,
       "venue": "Scotiabank Arena",
       "neutralSite": false,
-      "fetchedAt": 1790733229713,
+      "fetchedAt": 1790733282802,
       "players": [
         {
           "id": "3069687",
@@ -2332,7 +2332,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "15:27",
+            "toi": "15:37",
             "goals": 0,
             "assists": 0,
             "sog": 0,
@@ -2758,8 +2758,8 @@
           "name": "Zack MacEwen",
           "position": "C",
           "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4063569.png",
-          "active": false,
-          "availability": "Injured Reserve",
+          "active": true,
+          "availability": "In game roster",
           "current": {
             "blocks": 0,
             "toi": "5:25",
@@ -2768,11 +2768,11 @@
             "sog": 0,
             "points": 0
           },
-          "rosterActive": false,
-          "rosterAvailability": "Injured Reserve",
+          "rosterActive": true,
+          "rosterAvailability": "12",
           "confirmedStarter": false,
           "currentGoalie": false,
-          "lineupConfirmed": false,
+          "lineupConfirmed": true,
           "propsEligible": true
         },
         {
@@ -2810,7 +2810,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 0,
-            "toi": "22:24",
+            "toi": "22:34",
             "goals": 0,
             "assists": 0,
             "sog": 2,
@@ -3026,7 +3026,7 @@
           "availability": "In game roster",
           "current": {
             "blocks": 2,
-            "toi": "23:37",
+            "toi": "23:47",
             "goals": 0,
             "assists": 0,
             "sog": 3,
@@ -3513,6 +3513,75 @@
           "strength": "Even Strength",
           "shootout": false,
           "participants": []
+        },
+        {
+          "id": "401891827000005110",
+          "type": "Roughing",
+          "text": "Roughing against Jakub Dobes",
+          "period": 3,
+          "clock": "20:00",
+          "team": "TOR",
+          "timestamp": "2026-09-30T01:52:22Z",
+          "awayScore": 3,
+          "homeScore": 2,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": [
+            {
+              "type": "",
+              "id": "4697686",
+              "name": "Jakub Dobes",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4697686.png"
+            }
+          ]
+        },
+        {
+          "id": "401891827000011500",
+          "type": "Takeaway",
+          "text": "Takeaway by Darren Raddysh",
+          "period": 3,
+          "clock": "19:52",
+          "team": "TOR",
+          "timestamp": "2026-09-30T01:52:14Z",
+          "awayScore": 3,
+          "homeScore": 2,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": [
+            {
+              "type": "taker",
+              "id": "3149843",
+              "name": "Darren Raddysh",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/3149843.png"
+            }
+          ]
+        },
+        {
+          "id": "401891827000004080",
+          "type": "Blocked",
+          "text": "William Nylander shot blocked by Jake Evans",
+          "period": 3,
+          "clock": "19:52",
+          "team": "MTL",
+          "timestamp": "2026-09-30T01:52:14Z",
+          "awayScore": 3,
+          "homeScore": 2,
+          "strength": "Even Strength",
+          "shootout": false,
+          "participants": [
+            {
+              "type": "shooter",
+              "id": "3114736",
+              "name": "William Nylander",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/3114736.png"
+            },
+            {
+              "type": "defender",
+              "id": "4393049",
+              "name": "Jake Evans",
+              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4393049.png"
+            }
+          ]
         },
         {
           "id": "401891827000011410",
@@ -4345,86 +4414,11 @@
               "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/3942064.png"
             }
           ]
-        },
-        {
-          "id": "401891827000010500",
-          "type": "Hit",
-          "text": "Brandon Duhaime hit Nick Suzuki",
-          "period": 3,
-          "clock": "11:49",
-          "team": "TOR",
-          "timestamp": "2026-09-30T01:35:46Z",
-          "awayScore": 2,
-          "homeScore": 1,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": [
-            {
-              "type": "hit-credited",
-              "id": "4197009",
-              "name": "Brandon Duhaime",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4197009.png"
-            },
-            {
-              "type": "hitted",
-              "id": "4233594",
-              "name": "Nick Suzuki",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4233594.png"
-            }
-          ]
-        },
-        {
-          "id": "401891827000010450",
-          "type": "Hit",
-          "text": "Chris Kreider hit Colton Sissons",
-          "period": 3,
-          "clock": "11:44",
-          "team": "MTL",
-          "timestamp": "2026-09-30T01:35:41Z",
-          "awayScore": 2,
-          "homeScore": 1,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": [
-            {
-              "type": "hit-credited",
-              "id": "5833",
-              "name": "Chris Kreider",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/5833.png"
-            },
-            {
-              "type": "hitted",
-              "id": "2993474",
-              "name": "Colton Sissons",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/2993474.png"
-            }
-          ]
-        },
-        {
-          "id": "401891827000010350",
-          "type": "Takeaway",
-          "text": "Takeaway by Jayden Struble",
-          "period": 3,
-          "clock": "11:44",
-          "team": "MTL",
-          "timestamp": "2026-09-30T01:35:41Z",
-          "awayScore": 2,
-          "homeScore": 1,
-          "strength": "Even Strength",
-          "shootout": false,
-          "participants": [
-            {
-              "type": "taker",
-              "id": "4565269",
-              "name": "Jayden Struble",
-              "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4565269.png"
-            }
-          ]
         }
       ],
       "splitSquadTeams": [],
       "splitSquad": false,
-      "summaryAt": 1790733230157,
+      "summaryAt": 1790733283404,
       "onIce": [
         {
           "entries": [
@@ -4569,10 +4563,10 @@
           "teamId": "10"
         }
       ],
-      "lineupsConfirmed": false,
+      "lineupsConfirmed": true,
       "lineupEvidence": {
         "gameId": "401891827",
-        "checkedAt": 1790733230169,
+        "checkedAt": 1790733283468,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -4583,7 +4577,7 @@
           },
           {
             "team": "TOR",
-            "confirmed": false,
+            "confirmed": true,
             "goalieId": null,
             "goalieName": null
           }
@@ -4619,7 +4613,7 @@
       "seasonType": 2,
       "venue": "TD Garden",
       "neutralSite": false,
-      "fetchedAt": 1790733229713,
+      "fetchedAt": 1790733282802,
       "players": [
         {
           "id": "3042095",
@@ -5453,7 +5447,7 @@
             "points": 0
           },
           "rosterActive": true,
-          "rosterAvailability": "Lineup unconfirmed",
+          "rosterAvailability": "Day-To-Day",
           "confirmedStarter": false,
           "currentGoalie": false,
           "lineupConfirmed": true,
@@ -6680,7 +6674,7 @@
       ],
       "splitSquadTeams": [],
       "splitSquad": false,
-      "summaryAt": 1790733230302,
+      "summaryAt": 1790733283626,
       "onIce": [
         {
           "entries": [
@@ -6828,7 +6822,7 @@
       "lineupsConfirmed": true,
       "lineupEvidence": {
         "gameId": "401891774",
-        "checkedAt": 1790733230312,
+        "checkedAt": 1790733283686,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -6875,7 +6869,7 @@
       "seasonType": 2,
       "venue": "Rogers Place",
       "neutralSite": false,
-      "fetchedAt": 1790733229713,
+      "fetchedAt": 1790733282802,
       "players": [
         {
           "id": "4233643",
@@ -7765,7 +7759,7 @@
       "lineupsConfirmed": false,
       "lineupEvidence": {
         "gameId": "401891804",
-        "checkedAt": 1790733230423,
+        "checkedAt": 1790733283918,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
@@ -7812,7 +7806,7 @@
       "seasonType": 2,
       "venue": "T-Mobile Arena",
       "neutralSite": false,
-      "fetchedAt": 1790733229713,
+      "fetchedAt": 1790733282802,
       "players": [
         {
           "id": "5149125",
@@ -7904,7 +7898,7 @@
           "active": true,
           "availability": "Lineup unconfirmed",
           "rosterActive": true,
-          "rosterAvailability": "Lineup unconfirmed",
+          "rosterAvailability": "Day-To-Day",
           "confirmedStarter": false,
           "currentGoalie": false,
           "lineupConfirmed": false,
@@ -8077,10 +8071,10 @@
           "name": "Ryan Ellis",
           "position": "D",
           "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/5169.png",
-          "active": false,
-          "availability": "Injured Reserve",
-          "rosterActive": false,
-          "rosterAvailability": "Injured Reserve",
+          "active": true,
+          "availability": "Lineup unconfirmed",
+          "rosterActive": true,
+          "rosterAvailability": "12",
           "confirmedStarter": false,
           "currentGoalie": false,
           "lineupConfirmed": false,
@@ -8621,10 +8615,10 @@
           "name": "Alex Pietrangelo",
           "position": "D",
           "photo": "https://a.espncdn.com/i/headshots/nhl/players/full/4013.png",
-          "active": false,
-          "availability": "Injured Reserve",
-          "rosterActive": false,
-          "rosterAvailability": "Injured Reserve",
+          "active": true,
+          "availability": "Lineup unconfirmed",
+          "rosterActive": true,
+          "rosterAvailability": "12",
           "confirmedStarter": false,
           "currentGoalie": false,
           "lineupConfirmed": false,
@@ -8734,7 +8728,7 @@
       "lineupsConfirmed": false,
       "lineupEvidence": {
         "gameId": "401891775",
-        "checkedAt": 1790733230507,
+        "checkedAt": 1790733284099,
         "source": "ESPN event roster / on-ice feed",
         "teams": [
           {
