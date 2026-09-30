@@ -3,7 +3,7 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-09-30T05:31:38.381Z",
+    "fetchedAt": "2026-09-30T12:33:34.822Z",
     "sportKeys": [
       "esports_cs2",
       "esports_valorant",
@@ -15,8 +15,7 @@
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "discovery-error",
-        "error": "503 Service Unavailable: {\"error\":\"props_temporarily_busy\",\"detail\":\"The props board is being rebuilt under load. Retry in a couple of seconds.\"}",
+        "skipReason": "no-sportsbook-coverage",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
           "player_headshots_on_maps_1_2",
@@ -25,9 +24,39 @@
           "player_maps_1_2_headshots",
           "spreads",
           "moneyline",
+          "player_map_3_kills",
+          "player_map_3_headshots",
           "totals"
         ],
-        "coverage": null
+        "coverage": [
+          {
+            "bookmaker": "prizepicks",
+            "title": "PrizePicks",
+            "freshRows": 52,
+            "apiVisibleRows": 52,
+            "marketCount": 2,
+            "latestUpdate": "2026-09-30T12:23:41.000Z",
+            "status": "api_visible"
+          },
+          {
+            "bookmaker": "sleeper",
+            "title": "Sleeper",
+            "freshRows": 10944,
+            "apiVisibleRows": 105,
+            "marketCount": 2,
+            "latestUpdate": "2026-09-30T12:33:26.000Z",
+            "status": "api_visible"
+          },
+          {
+            "bookmaker": "underdog",
+            "title": "Underdog Fantasy",
+            "freshRows": 1094,
+            "apiVisibleRows": 73,
+            "marketCount": 2,
+            "latestUpdate": "2026-09-30T12:30:01.000Z",
+            "status": "api_visible"
+          }
+        ]
       },
       {
         "sportKey": "esports_valorant",
@@ -38,6 +67,7 @@
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
           "player_maps_1_2_kills",
+          "player_map_3_kills",
           "spreads",
           "player_maps_1_2_kills_combo",
           "moneyline",
@@ -48,19 +78,19 @@
           {
             "bookmaker": "prizepicks",
             "title": "PrizePicks",
-            "freshRows": 72,
-            "apiVisibleRows": 72,
-            "marketCount": 3,
-            "latestUpdate": "2026-09-30T05:22:43.000Z",
+            "freshRows": 76,
+            "apiVisibleRows": 76,
+            "marketCount": 4,
+            "latestUpdate": "2026-09-30T12:33:18.000Z",
             "status": "api_visible"
           },
           {
             "bookmaker": "underdog",
             "title": "Underdog Fantasy",
-            "freshRows": 901,
-            "apiVisibleRows": 60,
+            "freshRows": 625,
+            "apiVisibleRows": 50,
             "marketCount": 1,
-            "latestUpdate": "2026-09-30T05:31:03.000Z",
+            "latestUpdate": "2026-09-30T12:30:01.000Z",
             "status": "api_visible"
           }
         ]
@@ -72,27 +102,19 @@
         "paidPropsCall": false,
         "skipReason": "no-sportsbook-coverage",
         "discoveredMarkets": [
-          "player_kills_on_maps_1_2_3",
-          "player_maps_1_3_kills",
+          "player_maps_1_2_kills",
+          "player_map_1_kills",
+          "player_map_5_kills",
           "polymarket_yesno"
         ],
         "coverage": [
           {
             "bookmaker": "prizepicks",
             "title": "PrizePicks",
-            "freshRows": 16,
-            "apiVisibleRows": 16,
-            "marketCount": 1,
-            "latestUpdate": "2026-09-30T05:22:43.000Z",
-            "status": "api_visible"
-          },
-          {
-            "bookmaker": "underdog",
-            "title": "Underdog Fantasy",
-            "freshRows": 225,
-            "apiVisibleRows": 15,
-            "marketCount": 1,
-            "latestUpdate": "2026-09-30T05:30:01.000Z",
+            "freshRows": 55,
+            "apiVisibleRows": 55,
+            "marketCount": 3,
+            "latestUpdate": "2026-09-30T12:05:29.000Z",
             "status": "api_visible"
           }
         ]
