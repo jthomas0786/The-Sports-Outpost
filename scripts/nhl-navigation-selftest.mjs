@@ -49,15 +49,23 @@ for(const marker of [
 assert.ok(registry.includes("sidebar-state-v933.js?v=90.33"),'centralized NHL sidebar controller must load globally');
 assert.ok(registry.includes("sidebar-plj-v927.js?v=90.34-sidebar-exclusive"),'PLJ sidebar must use the refreshed cache-busted module');
 assert.ok(registry.includes("sidebar-first-goal-v928.js?v=90.34-sidebar-exclusive"),'First Goal sidebar must use the refreshed cache-busted module');
-assert.ok(router.includes("view-v906.js?v=90.35-mobile-static"),'router must load the mobile-static NHL scorer build');
-assert.ok(wrapper.includes("first-goal-v928.js?v=90.35-mobile-static"),'NHL wrapper must load the mobile-static First Goal module');
-assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.35-mobile-static"),'First Goal module must cache-bust the mobile-static stylesheet');
+assert.ok(router.includes("view-v906.js?v=90.36-mobile-pin"),'router must load the mobile-pinned NHL scorer build');
+assert.ok(wrapper.includes("first-goal-v928.js?v=90.36-mobile-pin"),'NHL wrapper must load the mobile-pinned First Goal module');
+assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.36-mobile-pin"),'First Goal module must cache-bust the mobile-pinned stylesheet');
 for(const marker of [
-  '#hkFirstGoalPanel .fgs-hero>.fgs-market-control',
-  'position:static!important',
-  'inset:auto!important',
-  '-webkit-transform:none!important',
-]) assert.ok(firstGoalCss.includes(marker),`missing mobile-static scorer toggle safeguard: ${marker}`);
+  'fgs-market-slot',
+  'is-mobile-pinned',
+  '--fgs-mobile-market-top',
+  "document.addEventListener('scroll',queueMobileMarketPin",
+  'window.visualViewport?.addEventListener',
+]) assert.ok(firstGoalModel.includes(marker),`missing mobile pin behavior: ${marker}`);
+for(const marker of [
+  '.fgs-market-slot',
+  '.is-mobile-pinned',
+  'position:fixed!important',
+  'z-index:1200!important',
+  'backdrop-filter:blur(16px)',
+]) assert.ok(firstGoalCss.includes(marker),`missing mobile pinned scorer toggle style: ${marker}`);
 assert.ok(firstGoal.includes("closeNhlFeaturePanels('first-goal')"),'First Goal must close competing NHL feature state before opening');
 assert.ok(plj.includes("closeNhlFeaturePanels('plj')"),'Puck Line Jesus must close competing NHL feature state before opening');
 
@@ -65,5 +73,5 @@ console.log('✓ NHL navigation + refresh regression passed');
 console.log('  ✓ only one NHL sidebar destination can remain active');
 console.log('  ✓ core tab switches close First Goal and Puck Line Jesus before navigation');
 console.log('  ✓ legacy 10s/60s rerenders are suppressed outside the live/pregame window');
-console.log('  ✓ First Goal / Anytime Goal toggle stays static inside the hero on mobile');
+console.log('  ✓ First Goal / Anytime Goal toggle pins beneath the site header on mobile scroll');
 console.log('  ✓ refreshed NHL modules are cache-busted for deployed browsers');
