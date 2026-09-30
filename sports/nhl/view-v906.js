@@ -4,7 +4,7 @@ import {installNhlPlayerModalV921} from './player-modal-v921.js?v=90.22';
 import {installNhlPropsDailyGuardV920} from './props-daily-guard-v920.js?v=90.22';
 import {gradeForLean,gradeRingHTML} from './grade.js?v=90.4';
 import {installNhlLaunchV922} from './launch-v922.js?v=90.22';
-import {installPuckLineJesusV923} from './puck-line-jesus.js?v=90.23';
+import {installPuckLineJesusV923} from './puck-line-jesus.js?v=90.27';
 import {installPuckLineJesusRoutingV924} from './puck-line-jesus-routing-v924.js?v=90.24';
 import {installPuckLineJesusAlertsV925} from './puck-line-jesus-alerts-v925.js?v=90.25';
 
