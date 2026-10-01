@@ -25,6 +25,7 @@ const firstGoal=fs.readFileSync('sports/nhl/sidebar-first-goal-v928.js','utf8');
 const firstGoalModel=fs.readFileSync('sports/nhl/first-goal-v928.js','utf8');
 const firstGoalCss=fs.readFileSync('sports/nhl/first-goal-v928.css','utf8');
 const plj=fs.readFileSync('sports/nhl/sidebar-plj-v927.js','utf8');
+const coverBar=fs.readFileSync('sports/nhl/plj-cover-bar-v938.js','utf8');
 
 for(const marker of [
   "document.addEventListener('click',onClick,true)",
@@ -49,7 +50,18 @@ for(const marker of [
 assert.ok(registry.includes("sidebar-state-v933.js?v=90.33"),'centralized NHL sidebar controller must load globally');
 assert.ok(registry.includes("sidebar-plj-v927.js?v=90.34-sidebar-exclusive"),'PLJ sidebar must use the refreshed cache-busted module');
 assert.ok(registry.includes("sidebar-first-goal-v928.js?v=90.34-sidebar-exclusive"),'First Goal sidebar must use the refreshed cache-busted module');
-assert.ok(router.includes("view-v906.js?v=90.36-mobile-pin"),'router must load the mobile-pinned NHL scorer build');
+assert.ok(router.includes("view-v906.js?v=90.38-cover-bars"),'router must load the team-color PLJ cover-bar NHL build');
+assert.ok(wrapper.includes("plj-cover-bar-v938.js?v=90.38-cover-bars"),'NHL wrapper must load the team-color PLJ cover-bar module');
+assert.ok(wrapper.includes('installPljCoverBarsV938();'),'NHL wrapper must install PLJ cover bars');
+for(const marker of [
+  'MARKET COVER LEAN',
+  'plj-cover-track',
+  'No-vig market cover split',
+  "CBJ:'#002654'",
+  "PHI:'#F74902'",
+  "TOR:'#003E7E'",
+  "VGK:'#B4975A'",
+]) assert.ok(coverBar.includes(marker),`missing PLJ cover-bar behavior: ${marker}`);
 assert.ok(wrapper.includes("first-goal-v928.js?v=90.36-mobile-pin"),'NHL wrapper must load the mobile-pinned First Goal module');
 assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.36-mobile-pin"),'First Goal module must cache-bust the mobile-pinned stylesheet');
 for(const marker of [
@@ -74,4 +86,5 @@ console.log('  ✓ only one NHL sidebar destination can remain active');
 console.log('  ✓ core tab switches close First Goal and Puck Line Jesus before navigation');
 console.log('  ✓ legacy 10s/60s rerenders are suppressed outside the live/pregame window');
 console.log('  ✓ First Goal / Anytime Goal toggle pins beneath the site header on mobile scroll');
+console.log('  ✓ PLJ matchup cards render team-color no-vig puck-line cover bars');
 console.log('  ✓ refreshed NHL modules are cache-busted for deployed browsers');
