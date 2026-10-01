@@ -2,6 +2,30 @@ const num=v=>Number.isFinite(Number(v))?Number(v):null;
 
 export const PLJ_CANDIDATE_ORDER={A:0,B:1,C:2};
 
+
+export const DOG_COVER_GRADE_ORDER={'A+':0,A:1,'B+':2,B:3,'C+':4,C:5,D:6};
+
+const implied=p=>{
+ const n=num(p);if(n==null||n===0)return null;
+ return n<0?(-n)/((-n)+100):100/(n+100);
+};
+
+export function gradePuckLineDog(line){
+ const l=line?.puckLine;
+ if(!l?.underdogAbbr||Number(l.underdogLine??1.5)!==1.5)return null;
+ const favoritePrice=num(l.price),dogPrice=num(l.underdogPrice);
+ if(favoritePrice==null||dogPrice==null)return null;
+ const favoriteRaw=implied(favoritePrice),dogRaw=implied(dogPrice);
+ if(favoriteRaw==null||dogRaw==null||favoriteRaw+dogRaw<=0)return null;
+ const coverProbability=dogRaw/(favoriteRaw+dogRaw);
+ const coverPct=Number((coverProbability*100).toFixed(1));
+ const grade=coverPct>=70?'A+':coverPct>=67?'A':coverPct>=64?'B+':coverPct>=61?'B':coverPct>=58?'C+':coverPct>=55?'C':'D';
+ const label=grade==='A+'?'Elite +1.5 resistance':grade==='A'?'Strong +1.5 resistance':grade==='B+'?'Above-average cover profile':grade==='B'?'Solid cover profile':grade==='C+'?'Slight cover lean':grade==='C'?'Average cover profile':'Weak +1.5 resistance';
+ const books=Math.max(0,Math.round(num(l.sportsbookCount)||0));
+ const confidence=books>=7?'High':books>=5?'Medium':'Low';
+ return {grade,label,coverProbability,coverPct,confidence,books,dogAbbr:l.underdogAbbr,dogTeam:l.underdogTeam||l.underdogAbbr,dogPrice,dogBook:l.underdogBook||'',favoritePrice};
+}
+
 export function gradePljCandidate(line){
  const l=line?.puckLine;
  if(!l?.favoriteAbbr||Number(l.line)!==-1.5)return null;

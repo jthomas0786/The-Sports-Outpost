@@ -1,5 +1,5 @@
 import {API,getJSON,loadScoreboard,mergeSummary,text as esc} from './data.js?v=90.23';
-import {buildPuckLineJesusModel} from './puck-line-jesus.js?v=90.29';
+import {buildPuckLineJesusModel} from './puck-line-jesus.js?v=90.37-dog-cover';
 import {preserveTrackedPuckLines} from './plj-line-lock-v929.js?v=90.29';
 import {setPljRemotePushEnabled,getPljRemotePushStatus} from './plj-push-client-v926.js?v=90.26';
 

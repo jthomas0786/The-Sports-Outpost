@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {clockSeconds,goaliePulled,classifyPuckLineGame,buildPuckLineJesusModel} from '../sports/nhl/puck-line-jesus.js';
-import {gradePljCandidate} from '../sports/nhl/plj-candidate-v927.js';
+import {gradePljCandidate,gradePuckLineDog} from '../sports/nhl/plj-candidate-v927.js';
 import {preserveTrackedPuckLines} from '../sports/nhl/plj-line-lock-v929.js';
 
-const line={gameId:'g1',puckLine:{favoriteAbbr:'EDM',favoriteTeam:'Edmonton Oilers',line:-1.5,price:125,book:'FanDuel',underdogPrice:-135,sportsbookCount:5}};
+const line={gameId:'g1',puckLine:{favoriteAbbr:'EDM',favoriteTeam:'Edmonton Oilers',line:-1.5,price:125,book:'FanDuel',underdogAbbr:'CGY',underdogTeam:'Calgary Flames',underdogLine:1.5,underdogPrice:-135,underdogBook:'BetMGM',sportsbookCount:5}};
 const base={id:'g1',startTime:'2026-09-29T23:00:00Z',away:{id:'1',abbr:'EDM',name:'Edmonton Oilers',score:3},home:{id:'2',abbr:'CGY',name:'Calgary Flames',score:2},status:'in',period:3,clock:'1:41',players:[{id:'edmg',team:'EDM',position:'G'},{id:'cgyg',team:'CGY',position:'G'},{id:'c1',team:'CGY',position:'C'},{id:'c2',team:'CGY',position:'C'},{id:'c3',team:'CGY',position:'LW'},{id:'c4',team:'CGY',position:'RW'},{id:'c5',team:'CGY',position:'D'},{id:'c6',team:'CGY',position:'D'}],onIce:[{teamId:'1',entries:[{athleteid:'edmg',whereabouts:{id:'1'}}]},{teamId:'2',entries:['c1','c2','c3','c4','c5','c6'].map(athleteid=>({athleteid,whereabouts:{id:'1'}}))}],goals:[]};
 assert.equal(clockSeconds('5:00'),300);
 assert.equal(clockSeconds('1:41'),101);
@@ -19,8 +19,14 @@ const cCandidate=gradePljCandidate({puckLine:{favoriteAbbr:'EDM',line:-1.5,price
 assert.equal(aCandidate.grade,'A','balanced plus-money -1.5 with tight +1.5 pricing and broad books should grade A');
 assert.equal(bCandidate.grade,'B','moderate close-game market shape should grade B');
 assert.equal(cCandidate.grade,'C','heavily juiced -1.5 should not be promoted as a PLJ setup');
+const strongDogCover=gradePuckLineDog({puckLine:{favoriteAbbr:'BUF',line:-1.5,price:231,underdogAbbr:'CBJ',underdogLine:1.5,underdogPrice:-250,underdogBook:'bet365',sportsbookCount:6}});
+const weakDogCover=gradePuckLineDog({puckLine:{favoriteAbbr:'EDM',line:-1.5,price:115,underdogAbbr:'VAN',underdogLine:1.5,underdogPrice:-126,underdogBook:'Pinnacle',sportsbookCount:7}});
+assert.equal(strongDogCover.grade,'A+','strong +1.5 market resistance should receive the top dog-cover grade');
+assert.equal(weakDogCover.grade,'D','near-balanced +1.5 pricing should receive a low dog-cover grade');
+assert.ok(strongDogCover.coverProbability>weakDogCover.coverProbability,'dog-cover grade must order stronger market-implied cover chances above weaker ones');
 const pregame={...base,status:'pre',period:0,clock:'',away:{...base.away,score:0},home:{...base.home,score:0},goals:[],onIce:[]};
 assert.equal(classifyPuckLineGame(pregame,{...line,puckLine:{...line.puckLine,price:190,underdogPrice:-180,sportsbookCount:8}}).candidate.grade,'A');
+assert.equal(classifyPuckLineGame(pregame,line).dogCover.dogAbbr,'CGY','classified pregame games must carry the +1.5 dog-cover grade');
 
 const cashGoal={period:3,clock:'0:28',team:'EDM',awayScore:4,homeScore:2,text:'Connor McDavid scores an empty-net goal',strength:'Empty Net'};
 const liveEmptyNetCash={...base,away:{...base.away,score:4},home:{...base.home,score:2},clock:'0:28',goals:[cashGoal]};
@@ -53,5 +59,6 @@ assert.equal(torModel.liveTracked.length,1,'live tracked section must retain non
 console.log('✓ Puck Line Jesus classification regression passed');
 console.log('  ✓ pulled-goalie state requires live on-ice evidence');
 console.log('  ✓ PLJ pregame candidate A/B/C grading uses market shape without inventing probability');
+console.log('  ✓ +1.5 underdogs receive ranked no-vig market cover grades without claiming simulation probability');
 console.log('  ✓ PLJ live / immediate empty-net cash / late cash / immediate backdoor states classify correctly');
 console.log('  ✓ tracked pregame -1.5 survives live-market disappearance and remains visible as NEEDS RALLY');
