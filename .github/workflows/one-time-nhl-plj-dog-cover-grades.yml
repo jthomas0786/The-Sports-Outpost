@@ -1,0 +1,45 @@
+name: One-time NHL PLJ dog cover grades
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/one-time-nhl-plj-dog-cover-grades.yml'
+permissions:
+  contents: write
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Apply Puck Line Jesus dog cover grades
+        run: python scripts/apply-nhl-plj-dog-cover-grades.py
+      - name: Validate NHL dog cover grades
+        run: |
+          node --check sports/nhl/plj-candidate-v927.js
+          node --check sports/nhl/puck-line-jesus.js
+          node --check sports/nhl/puck-line-jesus-alerts-v925.js
+          node --check sports/nhl/view-v906.js
+          node --check sports/router.js
+          node scripts/nhl-puck-line-jesus-selftest.mjs
+          grep -F "DOG +1.5 COVER" sports/nhl/puck-line-jesus.js
+          grep -F "gradePuckLineDog" sports/nhl/plj-candidate-v927.js
+          grep -F "pljdog=1" sports/router.js
+          grep -F "nhlpljdog=1" index.html
+      - name: Commit production update
+        run: |
+          git config user.name 'TSO NHL PLJ Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add sports/nhl/plj-candidate-v927.js sports/nhl/plj-candidate-v927.css sports/nhl/puck-line-jesus.js sports/nhl/puck-line-jesus-alerts-v925.js sports/nhl/view-v906.js sports/router.js index.html scripts/nhl-puck-line-jesus-selftest.mjs
+          if ! git diff --cached --quiet; then git commit -m 'NHL: grade puckline dogs by cover chance'; fi
+          git reset --hard HEAD
+          for attempt in 1 2 3 4; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 2
+          done
+          exit 1
