@@ -3,7 +3,7 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-03T11:39:02.513Z",
+    "fetchedAt": "2026-10-03T16:18:10.447Z",
     "sportKeys": [
       "esports_cs2",
       "esports_valorant",
@@ -15,128 +15,63 @@
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "no-sportsbook-coverage",
+        "skipReason": "discovery-error",
+        "error": "500 Internal Server Error: {\"error\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. The request_id below has been logged on the server; paste it in a support ticket for fastest resolution.\",\"request_id\":\"cececbc8740449bd\",\"docs_url\":\"/docs\",\"openapi_url\":\"/openapi.json\",\"hint\":\"If this persists, please email support@parlay-api.com with the request_id.\",\"path\":\"/v1/sports/esports_cs2/props/coverage\",\"method\":\"GET\"}",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
           "player_headshots_on_maps_1_2",
           "player_shots_on_goal",
           "spreads",
           "moneyline",
-          "polymarket_yesno",
-          "player_maps_1_2_kills",
-          "player_maps_1_2_headshots",
-          "player_map_2_kills",
           "totals",
+          "player_map_2_kills",
+          "player_maps_1_2_headshots",
+          "player_maps_1_2_kills",
           "player_map_1_kills",
-          "player_map_3_kills",
-          "player_map_3_headshots",
-          "player_map_2_headshots",
-          "player_map_1_headshots"
+          "player_map_1_headshots",
+          "player_map_2_headshots"
         ],
-        "coverage": [
-          {
-            "bookmaker": "prizepicks",
-            "title": "PrizePicks",
-            "freshRows": 619,
-            "apiVisibleRows": 617,
-            "marketCount": 8,
-            "latestUpdate": "2026-10-03T11:15:27.000Z",
-            "status": "api_visible"
-          },
-          {
-            "bookmaker": "sleeper",
-            "title": "Sleeper",
-            "freshRows": 8938,
-            "apiVisibleRows": 214,
-            "marketCount": 2,
-            "latestUpdate": "2026-10-03T11:33:53.000Z",
-            "status": "api_visible"
-          },
-          {
-            "bookmaker": "underdog",
-            "title": "Underdog Fantasy",
-            "freshRows": 1449,
-            "apiVisibleRows": 207,
-            "marketCount": 2,
-            "latestUpdate": "2026-10-03T11:37:44.000Z",
-            "status": "api_visible"
-          }
-        ]
+        "coverage": null
       },
       {
         "sportKey": "esports_valorant",
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "no-sportsbook-coverage",
+        "skipReason": "discovery-error",
+        "error": "500 Internal Server Error: {\"error\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. The request_id below has been logged on the server; paste it in a support ticket for fastest resolution.\",\"request_id\":\"f6cf9e755fd5fd73\",\"docs_url\":\"/docs\",\"openapi_url\":\"/openapi.json\",\"hint\":\"If this persists, please email support@parlay-api.com with the request_id.\",\"path\":\"/v1/sports/esports_valorant/props/coverage\",\"method\":\"GET\"}",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
           "spreads",
-          "player_maps_1_2_kills",
           "moneyline",
-          "player_map_3_kills",
+          "player_maps_1_2_kills",
           "totals",
-          "player_maps_1_2_kills_combo",
-          "player_maps_1_2_first_bloods"
+          "player_maps_1_2_first_bloods",
+          "player_maps_1_2_kills_combo"
         ],
-        "coverage": [
-          {
-            "bookmaker": "prizepicks",
-            "title": "PrizePicks",
-            "freshRows": 50,
-            "apiVisibleRows": 50,
-            "marketCount": 4,
-            "latestUpdate": "2026-10-03T11:13:13.000Z",
-            "status": "api_visible"
-          },
-          {
-            "bookmaker": "underdog",
-            "title": "Underdog Fantasy",
-            "freshRows": 210,
-            "apiVisibleRows": 30,
-            "marketCount": 1,
-            "latestUpdate": "2026-10-03T11:37:44.000Z",
-            "status": "api_visible"
-          }
-        ]
+        "coverage": null
       },
       {
         "sportKey": "esports_lol",
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "no-sportsbook-coverage",
+        "skipReason": "discovery-error",
+        "error": "500 Internal Server Error: {\"error\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. The request_id below has been logged on the server; paste it in a support ticket for fastest resolution.\",\"request_id\":\"f253aad08cdf93d8\",\"docs_url\":\"/docs\",\"openapi_url\":\"/openapi.json\",\"hint\":\"If this persists, please email support@parlay-api.com with the request_id.\",\"path\":\"/v1/sports/esports_lol/props/coverage\",\"method\":\"GET\"}",
         "discoveredMarkets": [
-          "player_kills_on_maps_1_2_3",
           "player_kills_on_map_1",
+          "player_kills_on_maps_1_2_3",
           "player_assists",
           "player_points",
-          "player_maps_1_3_kills",
           "player_map_1_kills",
+          "player_maps_1_3_kills",
           "player_map_1_kills_combo",
+          "player_map_4_kills",
+          "player_map_5_kills",
           "player_maps_1_3_kills_combo",
           "polymarket_yesno"
         ],
-        "coverage": [
-          {
-            "bookmaker": "prizepicks",
-            "title": "PrizePicks",
-            "freshRows": 112,
-            "apiVisibleRows": 111,
-            "marketCount": 4,
-            "latestUpdate": "2026-10-03T11:15:27.000Z",
-            "status": "api_visible"
-          },
-          {
-            "bookmaker": "underdog",
-            "title": "Underdog Fantasy",
-            "freshRows": 392,
-            "apiVisibleRows": 56,
-            "marketCount": 4,
-            "latestUpdate": "2026-10-03T11:37:44.000Z",
-            "status": "api_visible"
-          }
-        ]
+        "coverage": null
       }
     ],
     "sportsbookRows": 0,
