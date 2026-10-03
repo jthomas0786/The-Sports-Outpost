@@ -106,7 +106,7 @@ function summaryTeamMap(summary){
  return {comp,teams,out};
 }
 function regularGoalPlays(summary){
- return (summary?.plays||[]).filter(p=>p?.scoringPlay&&p?.type?.text==='Goal'&&!/shootout/i.test(\`${p?.period?.displayValue||''} ${p?.text||''}\`));
+ return (summary?.plays||[]).filter(p=>p?.scoringPlay&&p?.type?.text==='Goal'&&!/shootout/i.test(`${p?.period?.displayValue||''} ${p?.text||''}`));
 }
 function firstGoalPlay(goals=[]){
  return goals.slice().sort((a,b)=>{
@@ -138,12 +138,12 @@ export function defenseGameFromSummary(summary,{eventId='',season=null}={}){
   const scorer=goal?.participants?.find(x=>x?.type==='scorer')?.athlete||goal?.participants?.[0]?.athlete;
   const pos=nhlPositionGroup(scorer?.position?.abbreviation||positions.get(String(scorer?.id||''))||'');
   const row=rows.get(defense);row.goalsAllowed++;row.positionGoalsAllowed[pos]=(row.positionGoalsAllowed[pos]||0)+1;
-  if(/power\s*play|\bPP\b/i.test(\`${goal?.strength?.text||''} ${goal?.text||''}\`))row.ppGoalsAllowed++;
+  if(/power\s*play|\bPP\b/i.test(`${goal?.strength?.text||''} ${goal?.text||''}`))row.ppGoalsAllowed++;
   if(goal===first)row.firstGoalPositionAllowed[pos]=(row.firstGoalPositionAllowed[pos]||0)+1;
  }
  for(const t of sides){
   const row=rows.get(t.abbr);
-  if(goals.length===0&&t.score!=null)row.goalsAllowed=Math.max(0,t.score);
+  const opponentScore=sides.find(x=>x.abbr!==t.abbr)?.score;if(goals.length===0&&opponentScore!=null)row.goalsAllowed=Math.max(0,opponentScore);
  }
  return {eventId:String(eventId||comp.id||summary?.header?.id||''),season:Number(season??summary?.header?.season?.year??summary?.header?.season?.type)||null,seasonType:num(summary?.header?.season?.type??comp?.type?.id??comp?.type?.type),date:comp?.date||summary?.header?.date||'',teams:[...rows.values()],source:'ESPN game summary scoring + box score'};
 }
