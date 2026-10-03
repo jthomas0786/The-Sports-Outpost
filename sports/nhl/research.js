@@ -194,15 +194,18 @@ export function summarizeTeamDefense(defenseGames=[],currentSeason=null){
   const avg=(arr,key)=>arr.length?sum(arr,key)/arr.length:null;
   const split=arr=>{
    const goalsAllowedPerGame=avg(arr,'goalsAllowed'),shotsAllowedPerGame=avg(arr,'shotsAllowed'),ppGoalsAllowedPerGame=avg(arr,'ppGoalsAllowed');
-   return {games:arr.length,goalsAllowedPerGame,shotsAllowedPerGame,ppGoalsAllowedPerGame,overallIndex:ratioIndex(goalsAllowedPerGame,league.goalsPerGame,arr.length,.72,1.34),shotPaceIndex:ratioIndex(shotsAllowedPerGame,league.shotsPerGame,arr.length,.76,1.28),ppIndex:ratioIndex(ppGoalsAllowedPerGame,league.ppGoalsPerGame,arr.length,.72,1.36)};
+   const shotPaceIndex=ratioIndex(shotsAllowedPerGame,league.shotsPerGame,arr.length,.76,1.28);return {games:arr.length,goalsAllowedPerGame,shotsAllowedPerGame,ppGoalsAllowedPerGame,overallIndex:ratioIndex(goalsAllowedPerGame,league.goalsPerGame,arr.length,.72,1.34),shotPaceIndex,shotIndex:shotPaceIndex,ppIndex:ratioIndex(ppGoalsAllowedPerGame,league.ppGoalsPerGame,arr.length,.72,1.36)};
   };
   const homeRows=posRows.filter(r=>r.homeAway==='home'),awayRows=posRows.filter(r=>r.homeAway==='away');
   const profile={team,games:posRows.length,currentSeasonGames:current.length,lastGameDate:posRows[0]?.date||null,goalsAllowedPerGame:avg(posRows,'goalsAllowed')??0,shotsAllowedPerGame:avg(posRows,'shotsAllowed')??0,recent10GoalsAllowedPerGame:avg(recent10,'goalsAllowed'),recent10ShotsAllowedPerGame:avg(recent10,'shotsAllowed'),ppGoalsAllowedPerGame:avg(posRows,'ppGoalsAllowed')??0,goalsForPerGame:avg(posRows,'goalsFor')??0,shotsForPerGame:avg(posRows,'shotsFor')??0,recent10GoalsForPerGame:avg(recent10,'goalsFor'),recent10ShotsForPerGame:avg(recent10,'shotsFor'),homeDefense:split(homeRows),awayDefense:split(awayRows),position:{},source:'ESPN last 30 regular-season game summaries'};
   profile.overallIndex=ratioIndex(profile.goalsAllowedPerGame,league.goalsPerGame,posRows.length,.72,1.34);
   profile.shotPaceIndex=ratioIndex(profile.shotsAllowedPerGame,league.shotsPerGame,posRows.length,.76,1.28);
+  profile.overallShotIndex=profile.shotPaceIndex;
   profile.ppIndex=ratioIndex(profile.ppGoalsAllowedPerGame,league.ppGoalsPerGame,posRows.length,.68,1.42);
   profile.recent10OverallIndex=ratioIndex(profile.recent10GoalsAllowedPerGame,league.goalsPerGame,recent10.length,.76,1.28);
   profile.recent10ShotPaceIndex=ratioIndex(profile.recent10ShotsAllowedPerGame,league.shotsPerGame,recent10.length,.80,1.24);
+  profile.recent10ShotIndex=profile.recent10ShotPaceIndex;
+  profile.homeAway={home:profile.homeDefense,away:profile.awayDefense};
   profile.offenseIndex=ratioIndex(profile.goalsForPerGame,league.goalsPerGame,posRows.length,.74,1.30);
   profile.shotCreationIndex=ratioIndex(profile.shotsForPerGame,league.shotsPerGame,posRows.length,.78,1.24);
   profile.recent10OffenseIndex=ratioIndex(profile.recent10GoalsForPerGame,league.goalsPerGame,recent10.length,.78,1.25);
