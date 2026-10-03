@@ -38,7 +38,13 @@ function stadiumLightBank(c,x,y,flip=1){c.save();c.translate(x,y);c.rotate(flip*
 function drawArena(c,brandBg){
  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#010714');bg.addColorStop(.42,'#03152c');bg.addColorStop(.70,'#04182d');bg.addColorStop(1,'#09182a');c.fillStyle=bg;c.fillRect(0,0,W,H);
  const crown=c.createRadialGradient(W/2,120,40,W/2,220,800);crown.addColorStop(0,'rgba(26,137,255,.34)');crown.addColorStop(.58,'rgba(4,49,112,.12)');crown.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=crown;c.fillRect(0,0,W,640);
- stadiumLightBank(c,85,44,1);stadiumLightBank(c,1515,44,-1);
+ stadiumLightBank(c,82,42,1);stadiumLightBank(c,1518,42,-1);
+ c.save();
+ const leftCrowd=c.createLinearGradient(0,120,560,520);leftCrowd.addColorStop(0,'rgba(14,74,150,.30)');leftCrowd.addColorStop(1,'rgba(1,8,20,.02)');
+ polygon(c,[[0,115],[575,115],[510,520],[0,610]]);c.fillStyle=leftCrowd;c.fill();
+ const rightCrowd=c.createLinearGradient(W,120,1040,520);rightCrowd.addColorStop(0,'rgba(14,74,150,.30)');rightCrowd.addColorStop(1,'rgba(1,8,20,.02)');
+ polygon(c,[[W,115],[1025,115],[1090,520],[W,610]]);c.fillStyle=rightCrowd;c.fill();
+ c.restore();
  c.save();c.strokeStyle='rgba(46,145,255,.23)';c.lineWidth=2;for(let r=610;r<=1010;r+=72){c.beginPath();c.arc(W/2,520,r,Math.PI*1.07,Math.PI*1.93);c.stroke();}c.restore();
  c.save();for(let ring=0;ring<6;ring++){const y=118+ring*46,alpha=.16-ring*.015;for(let x=18+(ring%2)*13;x<W;x+=33){c.fillStyle=`rgba(${ring%2?80:42},${ring%2?165:120},255,${alpha})`;c.beginPath();c.arc(x,y+(x%5)*1.4,1.6+(ring%3)*.35,0,Math.PI*2);c.fill();}}c.restore();
  const horizon=c.createLinearGradient(0,250,0,650);horizon.addColorStop(0,'rgba(2,9,20,0)');horizon.addColorStop(.7,'rgba(0,18,43,.20)');horizon.addColorStop(1,'rgba(2,9,18,.72)');c.fillStyle=horizon;c.fillRect(0,230,W,460);
@@ -46,10 +52,23 @@ function drawArena(c,brandBg){
  const iceGlow=c.createRadialGradient(W/2,790,40,W/2,790,690);iceGlow.addColorStop(0,'rgba(210,248,255,.34)');iceGlow.addColorStop(.5,'rgba(60,170,255,.11)');iceGlow.addColorStop(1,'rgba(0,60,130,0)');c.fillStyle=iceGlow;c.fillRect(0,570,W,H-570);
  c.save();c.strokeStyle='rgba(213,244,255,.19)';c.lineWidth=1.2;for(let i=0;i<24;i++){const y=690+i*9;c.beginPath();c.moveTo(0,y);c.bezierCurveTo(480,y-10+(i%3)*6,1120,y+8-(i%4)*5,W,y-4);c.stroke();}c.restore();
  c.save();c.strokeStyle='rgba(50,140,220,.22)';c.lineWidth=3;c.beginPath();c.moveTo(W/2,640);c.lineTo(W/2,H);c.stroke();c.beginPath();c.ellipse(W/2,792,144,52,0,0,Math.PI*2);c.stroke();c.restore();
- if(brandBg){c.save();c.globalAlpha=.30;c.shadowColor='#1d93ff';c.shadowBlur=44;drawAspectImage(c,brandBg,445,160,710,710,'contain');c.restore();}
+ if(brandBg){
+  const iw=brandBg.naturalWidth||brandBg.width,ih=brandBg.naturalHeight||brandBg.height;
+  const cropH=Math.max(1,Math.round(ih*.61));
+  c.save();c.globalAlpha=.46;c.shadowColor='#1599ff';c.shadowBlur=58;
+  c.drawImage(brandBg,0,0,iw,cropH,548,150,504,520);
+  c.restore();
+}
  const edge=c.createRadialGradient(W/2,H/2,300,W/2,H/2,980);edge.addColorStop(.53,'rgba(0,0,0,0)');edge.addColorStop(.82,'rgba(0,5,16,.22)');edge.addColorStop(1,'rgba(0,0,0,.72)');c.fillStyle=edge;c.fillRect(0,0,W,H);
 }
-function drawWordmark(c,img){if(!img)return;c.save();c.shadowColor='#158cff';c.shadowBlur=22;drawAspectImage(c,img,52,18,665,136,'contain');c.restore();}
+function drawWordmark(c,img){
+ if(!img)return;
+ const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;
+ const sx=Math.round(iw*.18),sw=Math.max(1,iw-sx);
+ c.save();c.shadowColor='#158cff';c.shadowBlur=28;
+ c.drawImage(img,sx,0,sw,ih,46,18,700,142);
+ c.restore();
+}
 function metallicText(c,text,x,y,maxWidth,startSize,align='right'){
  c.textAlign=align;c.textBaseline='alphabetic';fit(c,text,maxWidth,startSize,30,950,'Impact, "Arial Black", Inter, sans-serif',true);
  const g=c.createLinearGradient(0,y-startSize,0,y+8);g.addColorStop(0,'#ffffff');g.addColorStop(.32,'#f6fbff');g.addColorStop(.56,'#b9d8ee');g.addColorStop(.76,'#ffffff');g.addColorStop(1,'#3c9ef4');
@@ -57,7 +76,7 @@ function metallicText(c,text,x,y,maxWidth,startSize,align='right'){
 }
 function drawTitle(c,market){
  const line=market==='fgs'?'FIRST GOAL SCORER':'ANYTIME GOAL SCORER';
- metallicText(c,line,1544,65,780,64,'right');metallicText(c,'MODEL',1544,130,500,61,'right');
+ metallicText(c,line,1546,68,800,70,'right');metallicText(c,'MODEL',1546,137,520,67,'right');
  const x=1002,y=143,w=542,h=43;c.fillStyle='rgba(2,12,29,.88)';roundRect(c,x,y,w,h,10);c.strokeStyle='rgba(46,155,255,.96)';c.lineWidth=2.2;strokeRoundRect(c,x+1,y+1,w-2,h-2,9);c.save();c.shadowColor='#198fff';c.shadowBlur=17;c.strokeStyle='rgba(67,182,255,.7)';c.strokeRect(x+8,y+h-4,w-16,1);c.restore();c.textAlign='center';c.fillStyle='#fff';c.font='900 italic 20px Impact, "Arial Black", Inter, sans-serif';c.fillText('TOP 3 PER TEAM + RISKY VALUE',x+w/2,y+29);
 }
 function drawTeamLogo(c,img,x,y,w,h,accent){if(!img)return;c.save();c.shadowColor=accent;c.shadowBlur=24;c.globalAlpha=.98;drawAspectImage(c,img,x,y,w,h,'contain');c.restore();}
