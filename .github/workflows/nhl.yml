@@ -106,7 +106,8 @@ jobs:
           if(!Array.isArray(d.gameLines)) throw new Error('NHL snapshot is missing game-line rows');
           if(plj.source!=='parlayapi'||plj.sample!==false||!Array.isArray(plj.games)) throw new Error('NHL puck-line snapshot is malformed');
           if(!research.players||Object.keys(research.players).length===0) throw new Error('NHL research snapshot has no player baselines');
-          if(fgs.model!=='FGS-Hazard Ensemble v1'||!Array.isArray(fgs.games)) throw new Error('NHL first-goal snapshot is malformed');
+          if(!research.teamDefense?.teams||Object.keys(research.teamDefense.teams).length===0) throw new Error('NHL research snapshot has no opponent defense profiles');
+          if(fgs.model!=='FGS-Hazard Ensemble v2'||!Array.isArray(fgs.games)) throw new Error('NHL first-goal snapshot is malformed');
           for(const g of fgs.games)for(const s of ['away','home']){
             if(g?.[s]?.players?.length!==3||g?.[s]?.atgPlayers?.length!==3)throw new Error(`NHL scorer model missing Top 3 for ${g.gameId} ${s}`);
             if(!g?.[s]?.riskyFirstGoal||!g?.[s]?.riskyAtg)throw new Error(`NHL scorer model missing risky picks for ${g.gameId} ${s}`);
