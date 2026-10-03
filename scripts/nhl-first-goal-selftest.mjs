@@ -11,7 +11,7 @@ const game={id:'g1',startTime:'2026-09-30T23:00:00Z',status:'pre',venue:'Test Ic
 const neutralPos={C:{goalIndex:1,shotIndex:1,firstGoalIndex:1,goalsPerGame:.50,games:30,goalAllowedRank:16,rankedTeams:32},RW:{goalIndex:1,shotIndex:1,firstGoalIndex:1,goalsPerGame:.50,games:30,goalAllowedRank:16,rankedTeams:32},LW:{goalIndex:1,shotIndex:1,firstGoalIndex:1,goalsPerGame:.50,games:30,goalAllowedRank:16,rankedTeams:32},D:{goalIndex:1,shotIndex:1,firstGoalIndex:1,goalsPerGame:.30,games:30,goalAllowedRank:16,rankedTeams:32}};
 const research={players:{},teamDefense:{teams:{
  BBB:{overallIndex:1.08,overallShotIndex:1.10,recent10OverallIndex:1.15,recent10ShotIndex:1.12,ppIndex:1.12,lastGameDate:'2026-09-30T02:00:00Z',homeAway:{home:{games:14,overallIndex:1.13,shotIndex:1.09},away:{games:16,overallIndex:1.02,shotIndex:1.01}},position:{...neutralPos,C:{...neutralPos.C,goalIndex:.82,shotIndex:.92,firstGoalIndex:.86,goalsPerGame:.44,goalAllowedRank:24},RW:{...neutralPos.RW,goalIndex:1.32,shotIndex:1.20,firstGoalIndex:1.38,goalsPerGame:.72,goalAllowedRank:1}}},
- AAA:{overallIndex:.98,overallShotIndex:.99,recent10OverallIndex:.97,recent10ShotIndex:.98,ppIndex:.96,lastGameDate:'2026-09-28T23:00:00Z',homeAway:{home:{games:15,overallIndex:.98,shotIndex:.99},away:{games:15,overallIndex:.98,shotIndex:.99}},position:neutralPos}
+ AAA:{overallIndex:.98,overallShotIndex:.99,recent10OverallIndex:.97,recent10ShotIndex:.98,ppIndex:.96,offenseIndex:1.08,recent10OffenseIndex:1.12,shotCreationIndex:1.05,recent10ShotCreationIndex:1.09,lastGameDate:'2026-09-28T23:00:00Z',homeAway:{home:{games:15,overallIndex:.98,shotIndex:.99},away:{games:15,overallIndex:.98,shotIndex:.99}},position:neutralPos}
 }}};
 for(const p of [...away,...home]){
  const n=Number(p.id)%10,star=n===1,compare=n===2||n===3,mid=n===4;
@@ -46,11 +46,13 @@ assert.ok(rw.matchup.anytimeFactor>center.matchup.anytimeFactor,'more permissive
 assert.ok(rw.anytimeProbability>center.anytimeProbability,'full matchup factor must change the final ATG probability before selection');
 assert.ok(rw.matchup.firstGoalFactor>center.matchup.firstGoalFactor,'first-goal positional allowance must affect first-goal weighting');
 assert.ok(rw.matchup.recentDefenseIndex>1&&rw.matchup.venueDefenseIndex>1,'recent and home/road opponent defense must be represented');
+assert.ok(rw.matchup.teamOffenseIndex>1&&rw.matchup.recentTeamOffenseIndex>rw.matchup.teamOffenseIndex,'attacking-team scoring form must be represented before ranking');
+assert.ok(rw.matchup.teamShotCreationIndex>1&&rw.matchup.recentTeamShotCreationIndex>1,'attacking-team shot creation must be represented before ranking');
 assert.ok(rw.matchup.defenseRestFactor>1,'opponent back-to-back/short-rest context must be represented');
 assert.ok(rw.matchup.goalie?.verified&&Number.isFinite(rw.matchup.goalie?.recentSavePct),'verified starter and recent goalie form must be represented');
 assert.ok(Number.isFinite(rw.matchup.playerUsageFactor)&&Number.isFinite(rw.matchup.playerLocationFactor)&&Number.isFinite(rw.matchup.playerH2HFactor),'player usage, venue split and H2H factors must be represented');
 console.log('✓ NHL scorer full-matchup model regression passed');
 console.log('  ✓ exactly 3 first-goal + 3 anytime-goal candidates per team plus separate Risky Value picks');
 console.log('  ✓ opponent position goals/shots and first-goal allowance change player hazards before selection');
-console.log('  ✓ recent/venue defense, rest, PP resistance and verified goalie form feed the matchup');
+console.log('  ✓ recent/venue defense, attacking-team offense/shot creation, rest, PP resistance and verified goalie form feed the matchup');
 console.log('  ✓ player TOI usage, home-road form, H2H and rest feed the player probability before ranking');
