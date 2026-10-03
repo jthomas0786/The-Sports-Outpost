@@ -3,25 +3,26 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "TABLE_TENNIS",
-    "fetchedAt": "2026-10-03T16:18:20.624Z",
+    "fetchedAt": "2026-10-03T21:13:46.315Z",
     "sportKeys": [
       "table_tennis"
     ],
     "bySportKey": [
       {
         "sportKey": "table_tennis",
-        "rawRows": 0,
+        "rawRows": 47,
         "acceptedRows": 0,
         "paidPropsCall": true,
         "discoveredMarkets": null,
-        "coverage": null,
-        "error": "500 Internal Server Error: {\"error\":\"INTERNAL_SERVER_ERROR\",\"message\":\"An unexpected error occurred. The request_id below has been logged on the server; paste it in a support ticket for fastest resolution.\",\"request_id\":\"a7961c7e82bf67cc\",\"docs_url\":\"/docs\",\"openapi_url\":\"/openapi.json\",\"hint\":\"If this persists, please email support@parlay-api.com with the request_id.\",\"path\":\"/v1/sports/table_tennis/props\",\"method\":\"GET\"}"
+        "coverage": null
       }
     ],
     "sportsbookRows": 0,
     "books": [],
     "markets": [],
-    "rawMarketKeys": [],
+    "rawMarketKeys": [
+      "player_moneyline"
+    ],
     "probabilityPolicy": "Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied. No proprietary model is claimed for this snapshot.",
     "liveGrading": "not-connected",
     "note": "Current TABLE_TENNIS player markets for ParlayPing. Started events must not be graded from this pregame snapshot."
