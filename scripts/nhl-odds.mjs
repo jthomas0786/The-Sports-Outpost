@@ -74,7 +74,17 @@ function buildGameLines(gameOdds){
  return (slate.games||[]).map(g=>byGame.get(String(g.id))||{gameId:String(g.id),startTime:g.startTime,awayAbbr:g.away.abbr,homeAbbr:g.home.abbr,awayTeam:g.away.name,homeTeam:g.home.name,puckLine:null,moneyline:null,total:null});
 }
 const events=await get('events');const relevant=(Array.isArray(events)?events:[]).some(e=>upcoming.some(g=>Math.abs(Date.parse(g.startTime)-Date.parse(e.commence_time))<=1800000));
-let rows=[];if(relevant&&next!=null){rows=await get('props?'+new URLSearchParams({markets:Object.keys(MARKET_MAP).join(','),bookmakers:BOOKS.join(','),maxAgeSec:'3600',limit:'10000',includeLinks:'true',includeSids:'true'}));if(!Array.isArray(rows))throw new Error('Unexpected props response');}
+const scorerMarkets=['player_goals','player_anytime_goal','player_anytime_goal_scorer','player_first_goal_scorer'];
+let rows=[],scorerRecoveryUsed=false,scorerRecoveryRows=0;
+if(relevant&&next!=null){
+ rows=await get('props?'+new URLSearchParams({markets:Object.keys(MARKET_MAP).join(','),bookmakers:BOOKS.join(','),maxAgeSec:'3600',limit:'10000',includeLinks:'true',includeSids:'true'}));if(!Array.isArray(rows))throw new Error('Unexpected props response');
+ const firstPass=normalizeOdds(rows,slate,now),matchedScorers=firstPass.quotes.filter(q=>q.market==='atg'||q.market==='fgs').length;
+ if(!matchedScorers){
+  const targeted=await get('props?'+new URLSearchParams({markets:scorerMarkets.join(','),bookmakers:BOOKS.join(','),maxAgeSec:'3600',limit:'10000',includeLinks:'true',includeSids:'true'}));
+  if(!Array.isArray(targeted))throw new Error('Unexpected targeted scorer props response');
+  scorerRecoveryUsed=true;scorerRecoveryRows=targeted.length;rows=[...rows,...targeted];
+ }
+}
 let gameOdds=[];
 if(relevant&&upcoming.length){
  const starts=upcoming.map(g=>Date.parse(g.startTime)).filter(Number.isFinite),from=new Date(Math.min(...starts)-3600000).toISOString(),to=new Date(Math.max(...starts)+8*3600000).toISOString();
@@ -84,8 +94,8 @@ if(relevant&&upcoming.length){
 const gameLines=buildGameLines(gameOdds);
 const output=normalizeOdds(rows,slate,now);output.status=relevant?'waiting-for-markets':'no-listed-events';if(output.quotes.length)output.status='available';
 output.gameLines=gameLines;
-output.meta={...(output.meta||{}),refreshThresholdMinutes:Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60000):null,hoursToNextStart:gate.hoursToNextStart,nativeMetadataRequested:{includeLinks:true,includeSids:true},puckLineGames:gameLines.filter(g=>g.puckLine).length,firstGoalQuotes:output.quotes.filter(q=>q.market==='fgs').length};
+output.meta={...(output.meta||{}),refreshThresholdMinutes:Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60000):null,hoursToNextStart:gate.hoursToNextStart,nativeMetadataRequested:{includeLinks:true,includeSids:true},puckLineGames:gameLines.filter(g=>g.puckLine).length,firstGoalQuotes:output.quotes.filter(q=>q.market==='fgs').length,anytimeGoalQuotes:output.quotes.filter(q=>q.market==='atg').length,scorerRecoveryUsed,scorerRecoveryRows};
 await fs.writeFile('slates/nhl-odds.json',JSON.stringify(output,null,2)+'\n');
 const puckLines={source:'parlayapi',sample:false,generatedAt:new Date(now).toISOString(),date:slate.date,season:slate.season,games:gameLines};
 await fs.writeFile('slates/nhl-puck-lines.json',JSON.stringify(puckLines,null,2)+'\n');
-console.log(`NHL odds: ${output.quotes.length} matched player quotes; FGS=${output.meta.firstGoalQuotes}; puckLines=${gameLines.filter(g=>g.puckLine).length}/${gameLines.length}; ${output.status}; links=${output.meta.nativeLinkRows||0}; sids=${output.meta.nativeSidRows||0}`);
+console.log(`NHL odds: ${output.quotes.length} matched player quotes; ATG=${output.meta.anytimeGoalQuotes}; FGS=${output.meta.firstGoalQuotes}; scorerRecovery=${scorerRecoveryUsed?scorerRecoveryRows:'not-needed'}; puckLines=${gameLines.filter(g=>g.puckLine).length}/${gameLines.length}; ${output.status}; links=${output.meta.nativeLinkRows||0}; sids=${output.meta.nativeSidRows||0}`);
