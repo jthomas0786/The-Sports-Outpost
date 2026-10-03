@@ -1,5 +1,5 @@
 const W=1600,H=900,BLUE='#2d7fff',INK='#f7fbff',MUTED='#8fa9c6',RISK='#f7b84b';
-const price=v=>v==null?'ODDS PENDING':`${Number(v)>0?'+':''}${Number(v)}`;
+const price=v=>v==null?'—':`${Number(v)>0?'+':''}${Number(v)}`;
 const pct=v=>Number.isFinite(Number(v))?`${(Number(v)*100).toFixed(Number(v)>=.1?1:2)}%`:'—';
 const stat=v=>Number.isFinite(Number(v))?Number(v).toFixed(2):'—';
 function roundRect(c,x,y,w,h,r){c.beginPath();c.roundRect(x,y,w,h,r);c.fill();}
@@ -31,8 +31,8 @@ async function drawPlayer(c,p,market,x,y,w,risky=false){
  c.fillStyle=INK;fit(c,p.name,w-330,29);c.fillText(p.name,x+132,y+65);
  c.fillStyle=MUTED;c.font='600 16px Inter,Arial';c.fillText(statsText(p,market),x+132,y+96,w-360);
  const matchup=matchupText(p);if(matchup){c.fillStyle='#82a9d8';c.font='700 12px Inter,Arial';c.fillText(matchup,x+132,y+123,w-360);}
- const m=playerLine(market,p);c.textAlign='right';c.fillStyle=BLUE;c.font='950 38px Inter,Arial';c.fillText(pct(m.prob),x+w-24,y+57);
- c.fillStyle=INK;c.font='900 22px Inter,Arial';c.fillText(price(m.odds),x+w-24,y+91);c.fillStyle=MUTED;c.font='700 13px Inter,Arial';c.fillText(m.book?`${String(m.book).toUpperCase()} · fair ${price(m.fair)}`:`MODEL FAIR ${price(m.fair)}`,x+w-24,y+116);
+ const m=playerLine(market,p),shownOdds=m.odds!=null?price(m.odds):(m.fair!=null?`FAIR ${price(m.fair)}`:'—'),priceNote=m.book?`${String(m.book).toUpperCase()} · fair ${price(m.fair)}`:(m.fair!=null?'MODEL FAIR · LIVE BOOK NOT POSTED':'LIVE BOOK PRICE NOT POSTED');c.textAlign='right';c.fillStyle=BLUE;c.font='950 38px Inter,Arial';c.fillText(pct(m.prob),x+w-24,y+57);
+ c.fillStyle=INK;c.font='900 22px Inter,Arial';c.fillText(shownOdds,x+w-24,y+91);c.fillStyle=MUTED;c.font='700 13px Inter,Arial';c.fillText(priceNote,x+w-24,y+116);
 }
 function teamHeader(c,team,img,x,y,w){c.fillStyle='rgba(45,127,255,.10)';roundRect(c,x,y,w,76,18);circleImage(c,img,x+45,y+38,27,team.abbr,'contain');c.fillStyle=INK;c.textAlign='left';c.font='950 29px Inter,Arial';c.fillText(team.name,x+85,y+35);c.fillStyle=MUTED;c.font='700 15px Inter,Arial';c.fillText(`${team.abbr} · ${Number(team.expectedGoals||0).toFixed(2)} model goals`,x+85,y+59);}
 export async function scorerCardBlob(game,market='fgs'){
