@@ -23,12 +23,14 @@ function circleImage(c,img,x,y,r,label,mode='cover'){
 }
 function playerLine(market,p){const isFgs=market==='fgs';return {prob:isFgs?p.probability:p.anytimeProbability,odds:isFgs?p.bestOdds:p.bestAtgOdds,book:isFgs?p.bestBook:p.bestAtgBook,fair:isFgs?p.fairOdds:p.fairAtgOdds};}
 function statsText(p,market){const base=`${stat(p.seasonGoalRate)} G/GP  ·  ${stat(p.seasonSogRate)} SOG/GP  ·  L10 ${p.recentGoals??0} G`;return market==='fgs'?`${base}  ·  L10 ${p.recentFirstGoals??0} first`:`${base}  ·  ${p.anytimeBooks??0} ATG books`;}
+function matchupText(p){const m=p?.matchup||{};if(!m.opponent)return '';const rank=m.goalAllowedRank&&m.rankedTeams?`#${m.goalAllowedRank}/${m.rankedTeams} ${m.position||''} goals allowed`:`${m.position||''} matchup`;const extras=[];if(Number.isFinite(Number(m.recentDefenseIndex)))extras.push(`recent D ${Number(m.recentDefenseIndex)>=1?'+':''}${Math.round((Number(m.recentDefenseIndex)-1)*100)}%`);if(Number(m.defenseRestFactor)>=1.025)extras.push('opp B2B');if(m.goalie?.verified&&m.goalie?.name)extras.push(`G ${m.goalie.name}`);return `${m.label||'Neutral'} · ${m.position||''} vs ${m.opponent} · ${rank}${extras.length?` · ${extras.join(' · ')}`:''}`;}
 async function drawPlayer(c,p,market,x,y,w,risky=false){
  const h=142;c.fillStyle=risky?'rgba(247,184,75,.085)':'rgba(8,22,39,.80)';roundRect(c,x,y,w,h,22);c.strokeStyle=risky?'rgba(247,184,75,.58)':'rgba(91,153,235,.18)';c.lineWidth=1.5;c.strokeRect(x+.75,y+.75,w-1.5,h-1.5);
  const im=await image(p.photo);circleImage(c,im,x+70,y+70,47,initials(p.name),'cover');
  c.textAlign='left';c.textBaseline='alphabetic';c.fillStyle=risky?RISK:INK;c.font='900 15px Inter,Arial';c.fillText(risky?'⚡ RISKY VALUE':`#${p.teamRank||''} ${p.position||'SKATER'}`,x+132,y+31);
  c.fillStyle=INK;fit(c,p.name,w-330,29);c.fillText(p.name,x+132,y+65);
- c.fillStyle=MUTED;c.font='600 17px Inter,Arial';c.fillText(statsText(p,market),x+132,y+101);
+ c.fillStyle=MUTED;c.font='600 16px Inter,Arial';c.fillText(statsText(p,market),x+132,y+96,w-360);
+ const matchup=matchupText(p);if(matchup){c.fillStyle='#82a9d8';c.font='700 12px Inter,Arial';c.fillText(matchup,x+132,y+123,w-360);}
  const m=playerLine(market,p);c.textAlign='right';c.fillStyle=BLUE;c.font='950 38px Inter,Arial';c.fillText(pct(m.prob),x+w-24,y+57);
  c.fillStyle=INK;c.font='900 22px Inter,Arial';c.fillText(price(m.odds),x+w-24,y+91);c.fillStyle=MUTED;c.font='700 13px Inter,Arial';c.fillText(m.book?`${String(m.book).toUpperCase()} · fair ${price(m.fair)}`:`MODEL FAIR ${price(m.fair)}`,x+w-24,y+116);
 }
