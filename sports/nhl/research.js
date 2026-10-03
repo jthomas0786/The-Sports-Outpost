@@ -118,9 +118,9 @@ function blankPositionMap(){return {C:0,LW:0,RW:0,W:0,D:0,UNK:0};}
 export function defenseGameFromSummary(summary,{eventId='',season=null}={}){
  const {comp,teams,out:teamMap}=summaryTeamMap(summary);if(!comp||teams.length<2)return null;
  const positions=summaryPlayerPositions(summary),goals=regularGoalPlays(summary),first=firstGoalPlay(goals);
- const sides=teams.map(t=>({id:String(t?.team?.id??t?.id??''),abbr:String(t?.team?.abbreviation||t?.abbreviation||'').toUpperCase(),score:num(t?.score)})).filter(t=>t.id&&t.abbr);
+ const sides=teams.map(t=>({id:String(t?.team?.id??t?.id??''),abbr:String(t?.team?.abbreviation||t?.abbreviation||'').toUpperCase(),score:num(t?.score),homeAway:String(t?.homeAway||'').toLowerCase()})).filter(t=>t.id&&t.abbr);
  if(sides.length<2)return null;
- const rows=new Map(sides.map(t=>[t.abbr,{team:t.abbr,opponent:sides.find(x=>x!==t)?.abbr||'',goalsAllowed:0,ppGoalsAllowed:0,positionGoalsAllowed:blankPositionMap(),positionShotsAllowed:blankPositionMap(),firstGoalPositionAllowed:blankPositionMap(),positionTracked:Array.isArray(summary?.plays)&&positions.size>0}]));
+ const rows=new Map(sides.map(t=>[t.abbr,{team:t.abbr,opponent:sides.find(x=>x!==t)?.abbr||'',homeAway:t.homeAway,goalsAllowed:0,ppGoalsAllowed:0,positionGoalsAllowed:blankPositionMap(),positionShotsAllowed:blankPositionMap(),firstGoalPositionAllowed:blankPositionMap(),positionTracked:Array.isArray(summary?.plays)&&positions.size>0}]));
  for(const group of summary?.boxscore?.players||[]){
   const offense=String(group?.team?.abbreviation||teamMap.get(String(group?.team?.id||''))||'').toUpperCase(),defense=sides.find(t=>t.abbr!==offense)?.abbr;
   if(!offense||!defense||!rows.has(defense))continue;
@@ -153,6 +153,15 @@ function ratioIndex(value,baseline,games,capLow=.68,capHigh=1.42){
  return 1+(raw-1)*w;
 }
 const clampLocal=(v,a,b)=>Math.max(a,Math.min(b,v));
+function rowShotsAllowed(row){
+ return Object.values(row?.positionShotsAllowed||{}).reduce((s,v)=>s+Number(v||0),0);
+}
+function defenseSplit(rows,league){
+ const n=rows.length;if(!n)return {games:0,goalsAllowedPerGame:null,shotsAllowedPerGame:null,ppGoalsAllowedPerGame:null,overallIndex:1,shotIndex:1,ppIndex:1};
+ const goals=rows.reduce((s,r)=>s+Number(r?.goalsAllowed||0),0),shots=rows.reduce((s,r)=>s+rowShotsAllowed(r),0),pp=rows.reduce((s,r)=>s+Number(r?.ppGoalsAllowed||0),0);
+ const goalsAllowedPerGame=goals/n,shotsAllowedPerGame=shots/n,ppGoalsAllowedPerGame=pp/n;
+ return {games:n,goalsAllowedPerGame,shotsAllowedPerGame,ppGoalsAllowedPerGame,overallIndex:ratioIndex(goalsAllowedPerGame,league.goalsPerGame,n,.72,1.34),shotIndex:ratioIndex(shotsAllowedPerGame,league.shotsPerGame,n,.76,1.28),ppIndex:ratioIndex(ppGoalsAllowedPerGame,league.ppGoalsPerGame,n,.68,1.42)};
+}
 export function summarizeTeamDefense(defenseGames=[],currentSeason=null){
  const events=(Array.isArray(defenseGames)?defenseGames:Object.values(defenseGames||{})).filter(Boolean),byTeam=new Map();
  for(const event of events){
@@ -166,21 +175,25 @@ export function summarizeTeamDefense(defenseGames=[],currentSeason=null){
  const selected=new Map();
  for(const [team,rows] of byTeam)selected.set(team,rows.slice().sort((a,b)=>Date.parse(b.date||0)-Date.parse(a.date||0)).slice(0,30));
  const tracked=[...selected.values()].flat().filter(r=>r.positionTracked),games=Math.max(1,tracked.length);
- const posKeys=['C','LW','RW','W','D','UNK'],league={games,goals:0,ppGoals:0,position:{}};
+ const posKeys=['C','LW','RW','W','D','UNK'],league={games,goals:0,shots:0,ppGoals:0,position:{}};
  for(const p of posKeys)league.position[p]={goals:0,shots:0,firstGoals:0};
  for(const r of tracked){
-  league.goals+=Number(r.goalsAllowed||0);league.ppGoals+=Number(r.ppGoalsAllowed||0);
+  league.goals+=Number(r.goalsAllowed||0);league.shots+=rowShotsAllowed(r);league.ppGoals+=Number(r.ppGoalsAllowed||0);
   for(const p of posKeys){league.position[p].goals+=Number(r.positionGoalsAllowed?.[p]||0);league.position[p].shots+=Number(r.positionShotsAllowed?.[p]||0);league.position[p].firstGoals+=Number(r.firstGoalPositionAllowed?.[p]||0);}
  }
- league.goalsPerGame=league.goals/games;league.ppGoalsPerGame=league.ppGoals/games;
+ league.goalsPerGame=league.goals/games;league.shotsPerGame=league.shots/games;league.ppGoalsPerGame=league.ppGoals/games;
  for(const p of posKeys){league.position[p].goalsPerGame=league.position[p].goals/games;league.position[p].shotsPerGame=league.position[p].shots/games;league.position[p].firstGoalRate=league.position[p].firstGoals/games;}
  const teams={};
  for(const [team,rows] of selected){
   const posRows=rows.filter(r=>r.positionTracked),n=Math.max(1,posRows.length),recent10=posRows.slice(0,10),current=posRows.filter(r=>currentSeason==null||Number(r.season)===Number(currentSeason));
-  const sum=(arr,key)=>arr.reduce((s,r)=>s+Number(r?.[key]||0),0);
-  const profile={team,games:posRows.length,currentSeasonGames:current.length,goalsAllowedPerGame:sum(posRows,'goalsAllowed')/n,recent10GoalsAllowedPerGame:recent10.length?sum(recent10,'goalsAllowed')/recent10.length:null,ppGoalsAllowedPerGame:sum(posRows,'ppGoalsAllowed')/n,position:{},source:'ESPN last 30 regular-season game summaries'};
+  const sum=(arr,key)=>arr.reduce((s,r)=>s+Number(r?.[key]||0),0),shotSum=arr=>arr.reduce((s,r)=>s+rowShotsAllowed(r),0);
+  const profile={team,games:posRows.length,currentSeasonGames:current.length,lastGameDate:posRows[0]?.date||null,goalsAllowedPerGame:sum(posRows,'goalsAllowed')/n,shotsAllowedPerGame:shotSum(posRows)/n,recent10GoalsAllowedPerGame:recent10.length?sum(recent10,'goalsAllowed')/recent10.length:null,recent10ShotsAllowedPerGame:recent10.length?shotSum(recent10)/recent10.length:null,ppGoalsAllowedPerGame:sum(posRows,'ppGoalsAllowed')/n,position:{},source:'ESPN last 30 regular-season game summaries'};
   profile.overallIndex=ratioIndex(profile.goalsAllowedPerGame,league.goalsPerGame,posRows.length,.72,1.34);
+  profile.overallShotIndex=ratioIndex(profile.shotsAllowedPerGame,league.shotsPerGame,posRows.length,.76,1.28);
+  profile.recent10OverallIndex=recent10.length?ratioIndex(profile.recent10GoalsAllowedPerGame,league.goalsPerGame,recent10.length,.72,1.34):1;
+  profile.recent10ShotIndex=recent10.length?ratioIndex(profile.recent10ShotsAllowedPerGame,league.shotsPerGame,recent10.length,.76,1.28):1;
   profile.ppIndex=ratioIndex(profile.ppGoalsAllowedPerGame,league.ppGoalsPerGame,posRows.length,.68,1.42);
+  profile.homeAway={home:defenseSplit(posRows.filter(r=>r.homeAway==='home'),league),away:defenseSplit(posRows.filter(r=>r.homeAway==='away'),league)};
   for(const p of posKeys){
    const goals=posRows.reduce((s,r)=>s+Number(r.positionGoalsAllowed?.[p]||0),0),shots=posRows.reduce((s,r)=>s+Number(r.positionShotsAllowed?.[p]||0),0),fg=posRows.reduce((s,r)=>s+Number(r.firstGoalPositionAllowed?.[p]||0),0);
    const goalsPerGame=goals/n,shotsPerGame=shots/n,firstGoalRate=fg/n;

@@ -63,32 +63,55 @@ function playerHistoryMetrics(player,research,game,atg){
  const shrunkRecent=(recentGoals+8*seasonGoal)/(n+8),shotForm=recentSogAvg!=null&&seasonSog>0?clamp(recentSogAvg/seasonSog,.75,1.25):1;
  let historyLambda=Math.max(.012,(.55*seasonGoal+.25*shrunkRecent+.20*shotGoal)*Math.pow(shotForm,.2));
  if(atg?.prob!=null){const atgLambda=-Math.log(Math.max(.02,1-clamp(atg.prob,.01,.78)));historyLambda=.58*atgLambda+.42*historyLambda;}
- const toiVals=l10.map(r=>clockToMinutes(r?.stats?.toi)).filter(v=>v!=null);
- return {historyLambda,seasonGoalRate:seasonGoal,seasonSogRate:seasonSog,shootingPct:shooting,recentGames:n,recentGoals,recentPowerPlayGoals,recentSog:recentSogAvg,recentFirstGoals,recentToi:mean(toiVals),priorGames:Number(h?.games||0)};
+ const toiVals=l10.map(r=>clockToMinutes(r?.stats?.toi)).filter(v=>v!=null),recentToi=mean(toiVals);
+ const own=teamKey(player?.team),side=own===teamKey(game?.home?.abbr)?'home':'away',opponent=teamKey(opponentFor(game,player)?.abbr);
+ const splitRows=rows.filter(r=>String(r?.homeAway||'').toLowerCase()===side).slice(0,12),h2hRows=rows.filter(r=>teamKey(r?.opponent)===opponent).slice(0,8);
+ const contextualFactor=(sample,denom)=>{
+  if(!sample.length)return 1;
+  const goals=mean(sample.map(r=>finite(r?.stats?.goals)).filter(v=>v!=null)),sog=mean(sample.map(r=>finite(r?.stats?.sog)).filter(v=>v!=null));
+  const goalRatio=goals!=null?clamp(goals/Math.max(.04,seasonGoal),.45,1.75):1,shotRatio=sog!=null?clamp(sog/Math.max(.7,seasonSog),.65,1.45):1,w=clamp(sample.length/(sample.length+denom),0,.60);
+  return clamp(1+w*(.62*(goalRatio-1)+.38*(shotRatio-1)),.91,1.09);
+ };
+ const locationFactor=contextualFactor(splitRows,10),h2hFactor=contextualFactor(h2hRows,7);
+ const baselineToi=pos==='D'?20:17.5,usageFactor=recentToi!=null?clamp(1+.20*(recentToi/baselineToi-1),.94,1.06):1;
+ const start=Date.parse(game?.startTime||''),last=Date.parse(rows[0]?.date||''),restDays=Number.isFinite(start)&&Number.isFinite(last)?Math.max(0,(start-last)/86400000):null;
+ const restFactor=restDays!=null&&restDays<=7?(restDays<1.55?.965:restDays>=3.5?1.01:1):1;
+ return {historyLambda,seasonGoalRate:seasonGoal,seasonSogRate:seasonSog,shootingPct:shooting,recentGames:n,recentGoals,recentPowerPlayGoals,recentSog:recentSogAvg,recentFirstGoals,recentToi,priorGames:Number(h?.games||0),locationSample:splitRows.length,locationFactor,h2hGames:h2hRows.length,h2hFactor,restDays,restFactor,usageFactor};
 }
 function opponentFor(game,player){
  const own=teamKey(player?.team);return [game?.away,game?.home].find(t=>teamKey(t?.abbr)!==own)||null;
 }
 function goalieContext(game,research,opponent){
  const goalies=(game?.players||[]).filter(p=>teamKey(p?.team)===teamKey(opponent?.abbr)&&teamKey(p?.position)==='G'&&p?.active!==false);
- const goalie=goalies.find(p=>p?.confirmedStarter||p?.currentGoalie)||null;if(!goalie)return {factor:1,id:null,name:null,savePct:null,verified:false};
- const prior=research?.players?.[goalie.id]||{},savePct=finite(prior?.savePct);
- if(savePct==null)return {factor:1,id:String(goalie.id),name:goalie.name||'',savePct:null,verified:true};
- return {factor:clamp(1+(.905-savePct)*2.4,.94,1.07),id:String(goalie.id),name:goalie.name||'',savePct,verified:true};
+ const goalie=goalies.find(p=>p?.confirmedStarter||p?.currentGoalie)||null;if(!goalie)return {factor:1,id:null,name:null,savePct:null,recentSavePct:null,effectiveSavePct:null,verified:false};
+ const prior=research?.players?.[goalie.id]||{},savePct=finite(prior?.savePct),recent=recentRegularRows(prior,game?.startTime).slice(0,5);
+ const saves=recent.reduce((s,r)=>s+(finite(r?.stats?.saves)||0),0),ga=recent.reduce((s,r)=>s+(finite(r?.stats?.goalsAgainst)||0),0),recentSavePct=saves+ga>0?saves/(saves+ga):null;
+ let effectiveSavePct=savePct;
+ if(recentSavePct!=null)effectiveSavePct=savePct!=null?.68*savePct+.32*recentSavePct:recentSavePct;
+ if(effectiveSavePct==null)return {factor:1,id:String(goalie.id),name:goalie.name||'',savePct,recentSavePct,effectiveSavePct:null,verified:true,recentGames:recent.length};
+ return {factor:clamp(1+(.905-effectiveSavePct)*2.7,.93,1.08),id:String(goalie.id),name:goalie.name||'',savePct,recentSavePct,effectiveSavePct,verified:true,recentGames:recent.length};
 }
 function playerMatchupContext(player,research,game,hist){
- const opponent=opponentFor(game,player),pos=nhlPositionGroup(player?.position),profile=research?.teamDefense?.teams?.[teamKey(opponent?.abbr)]||null,metric=profile?.position?.[pos]||null,goalie=goalieContext(game,research,opponent);
- const goalIndex=finite(metric?.goalIndex)??1,shotIndex=finite(metric?.shotIndex)??1,firstIndex=finite(metric?.firstGoalIndex)??1,overallIndex=finite(profile?.overallIndex)??1,ppIndex=finite(profile?.ppIndex)??1;
+ const opponent=opponentFor(game,player),opp=teamKey(opponent?.abbr),pos=nhlPositionGroup(player?.position),profile=research?.teamDefense?.teams?.[opp]||null,metric=profile?.position?.[pos]||null,goalie=goalieContext(game,research,opponent);
+ const goalIndex=finite(metric?.goalIndex)??1,shotIndex=finite(metric?.shotIndex)??1,firstIndex=finite(metric?.firstGoalIndex)??1,overallIndex=finite(profile?.overallIndex)??1,overallShotIndex=finite(profile?.overallShotIndex)??1,recentDefenseIndex=finite(profile?.recent10OverallIndex)??overallIndex,recentShotDefenseIndex=finite(profile?.recent10ShotIndex)??overallShotIndex,ppIndex=finite(profile?.ppIndex)??1;
+ const opponentSide=opp===teamKey(game?.home?.abbr)?'home':'away',venue=profile?.homeAway?.[opponentSide]||{},venueDefenseIndex=finite(venue?.overallIndex)??1,venueShotDefenseIndex=finite(venue?.shotIndex)??1;
+ const start=Date.parse(game?.startTime||''),last=Date.parse(profile?.lastGameDate||''),defenseRestDays=Number.isFinite(start)&&Number.isFinite(last)?Math.max(0,(start-last)/86400000):null;
+ const defenseRestFactor=defenseRestDays!=null&&defenseRestDays<=7?(defenseRestDays<1.55?1.04:defenseRestDays<2.4?1.012:defenseRestDays>=3.75?.99:1):1;
  const ppShare=hist?.recentGoals>0?clamp((hist?.recentPowerPlayGoals||0)/hist.recentGoals,0,.75):0;
- const anytimeFactor=clamp(1+.55*(goalIndex-1)+.20*(shotIndex-1)+.10*(overallIndex-1)+(.08+.12*ppShare)*(ppIndex-1),.78,1.28);
- const firstGoalFactor=clamp(anytimeFactor*(1+.30*(firstIndex-1)),.76,1.32);
+ const positionFactor=1+.50*(goalIndex-1)+.22*(shotIndex-1)+(.08+.12*ppShare)*(ppIndex-1);
+ const playerContext=(hist?.locationFactor||1)*(hist?.h2hFactor||1)*(hist?.usageFactor||1)*(hist?.restFactor||1);
+ const anytimeFactor=clamp(positionFactor*playerContext,.74,1.34);
+ const firstGoalFactor=clamp(anytimeFactor*(1+.32*(firstIndex-1)),.72,1.39);
  const firstFormFactor=clamp(1+((hist?.recentFirstGoals||0)-Number(hist?.recentGames||0)*.06)*.035,.94,1.10);
- const teamFactor=clamp(1+.20*(overallIndex-1)+.30*(goalie.factor-1),.94,1.06);
+ const teamFactor=clamp(1+.22*(overallIndex-1)+.10*(overallShotIndex-1)+.18*(recentDefenseIndex-1)+.07*(recentShotDefenseIndex-1)+.12*(venueDefenseIndex-1)+.05*(venueShotDefenseIndex-1)+.38*(goalie.factor-1)+(defenseRestFactor-1),.91,1.10);
  const rank=finite(metric?.goalAllowedRank),ranked=finite(metric?.rankedTeams),rate=finite(metric?.goalsPerGame),sample=finite(metric?.games)||0;
- const label=anytimeFactor>=1.08?'Favorable':anytimeFactor<=.93?'Tough':'Neutral';
+ const label=anytimeFactor>=1.08||teamFactor>=1.045?'Favorable':anytimeFactor<=.93||teamFactor<=.96?'Tough':'Neutral';
  const rankText=rank&&ranked?`#${rank} of ${ranked} in ${pos} goals allowed`:'position allowance near league baseline';
- const detail=profile&&metric?`${pos} vs ${teamKey(opponent?.abbr)} · ${rankText}${rate!=null?` · ${rate.toFixed(2)} G/GP`:''}`:`${pos} vs ${teamKey(opponent?.abbr)||'opponent'} · matchup sample pending`;
- return {opponent:teamKey(opponent?.abbr),position:pos,label,detail,sampleGames:sample,goalAllowedRank:rank,rankedTeams:ranked,goalsAllowedPerGame:rate,goalIndex,shotIndex,firstGoalIndex:firstIndex,overallDefenseIndex:overallIndex,powerPlayDefenseIndex:ppIndex,anytimeFactor,firstGoalFactor,firstFormFactor,teamFactor,goalie};
+ const recentText=Number.isFinite(recentDefenseIndex)?` · recent D ${recentDefenseIndex>=1?'+':''}${Math.round((recentDefenseIndex-1)*100)}%`:'';
+ const restText=defenseRestFactor>=1.025?' · opponent B2B':defenseRestFactor>1?' · short rest':'';
+ const goalieText=goalie?.verified&&goalie?.name?` · G ${goalie.name}`:'';
+ const detail=profile&&metric?`${pos} vs ${opp} · ${rankText}${rate!=null?` · ${rate.toFixed(2)} G/GP`:''}${recentText}${restText}${goalieText}`:`${pos} vs ${opp||'opponent'} · matchup sample pending`;
+ return {opponent:opp,position:pos,label,detail,sampleGames:sample,goalAllowedRank:rank,rankedTeams:ranked,goalsAllowedPerGame:rate,goalIndex,shotIndex,firstGoalIndex:firstIndex,overallDefenseIndex:overallIndex,overallShotDefenseIndex:overallShotIndex,recentDefenseIndex,recentShotDefenseIndex,powerPlayDefenseIndex:ppIndex,venue:opponentSide,venueDefenseIndex,venueShotDefenseIndex,venueGames:Number(venue?.games||0),defenseRestDays,defenseRestFactor,playerLocationFactor:hist?.locationFactor||1,playerH2HFactor:hist?.h2hFactor||1,playerUsageFactor:hist?.usageFactor||1,playerRestFactor:hist?.restFactor||1,anytimeFactor,firstGoalFactor,firstFormFactor,teamFactor,goalie};
 }
 function gameContext(odds,game){
  const line=(odds?.gameLines||[]).find(x=>String(x.gameId)===String(game.id))||{};
@@ -135,7 +158,7 @@ export function buildFirstGoalGame(game,research,odds){
   return {id:String(team.id||''),abbr:team.abbr,name:team.name,logo:team.logo||'',expectedGoals:group.reduce((sum,p)=>sum+Number(p.lambda||0),0),winProbability:team===game.home?ctx.homeWin:ctx.awayWin,players,atgPlayers,riskyFirstGoal:riskyFirst,riskyAtg};
  };
  const away=teamBlock(game.away),home=teamBlock(game.home);
- return {gameId:String(game.id),startTime:game.startTime,status:game.status,venue:game.venue||'',away,home,expectedGoals:totalLambda,noGoalProbability:1-goalOccurs,directFirstGoalBooks:direct.books,directMarketCoverage:direct.coverage,directMarketWeight:directWeight,model:'FGS-Hazard Ensemble v2',method:'Competing Poisson hazards anchored to sportsbook totals and scorer markets, then matchup-adjusted by opponent position scoring/shot allowance, first-goal allowance, power-play defense and verified goalie context.',top6:[...away.players,...home.players].sort((a,b)=>b.probability-a.probability),top6Atg:[...away.atgPlayers,...home.atgPlayers].sort((a,b)=>b.anytimeProbability-a.anytimeProbability)};
+ return {gameId:String(game.id),startTime:game.startTime,status:game.status,venue:game.venue||'',away,home,expectedGoals:totalLambda,noGoalProbability:1-goalOccurs,directFirstGoalBooks:direct.books,directMarketCoverage:direct.coverage,directMarketWeight:directWeight,model:'FGS-Hazard Ensemble v3',method:'Competing Poisson hazards anchored to sportsbook totals and scorer markets, then matchup-adjusted by position scoring/shot allowance, recent and venue defense, rest, power-play resistance, player usage/H2H/location form and verified goalie form.',top6:[...away.players,...home.players].sort((a,b)=>b.probability-a.probability),top6Atg:[...away.atgPlayers,...home.atgPlayers].sort((a,b)=>b.anytimeProbability-a.anytimeProbability)};
 }
 export function buildFirstGoalSlate(slate,research,odds,old=null){
  const preserve=old?.date===slate?.date?new Map((old.games||[]).map(g=>[String(g.gameId),g])):new Map();
@@ -143,5 +166,5 @@ export function buildFirstGoalSlate(slate,research,odds,old=null){
   if(g.status!=='pre'&&preserve.has(String(g.id)))return {...preserve.get(String(g.id)),status:g.status,away:{...preserve.get(String(g.id)).away,score:g.away?.score??null},home:{...preserve.get(String(g.id)).home,score:g.home?.score??null}};
   return buildFirstGoalGame(g,research,odds);
  }).filter(Boolean);
- return {version:2,source:'TSO NHL first-goal model',model:'FGS-Hazard Ensemble v2',generatedAt:new Date().toISOString(),date:slate?.date||'',season:slate?.season||'',methodology:{eventModel:'competing Poisson scoring hazards with player-specific matchup redistribution',marketAnchor:'ParlayAPI player_first_goal_scorer + player_anytime_goal',playerInputs:['verified prior-season goals/game','shots/game','regressed shooting percentage','last-10 goals/shots','last-10 first-goal occurrences','recent power-play scoring'],matchupInputs:['opponent goals allowed by C/LW/RW/D','opponent shots allowed by position','opponent first-goal scorer position','opponent PP goals allowed','recent overall defensive form','verified starting-goalie save rate when available'],gameInputs:['sportsbook total','de-vigged moneyline team strength','opponent defensive profile'],selection:'Top 3 and Risky Value are selected only after matchup-adjusted FGS and ATG probabilities are calculated.',riskyPick:'One additional player per team chosen outside the top three for a combination of long verified odds, matchup-adjusted model probability and price-vs-model edge.',note:'Sportsbook markets remain the anchor. Matchup factors are sample-shrunk and capped so small samples cannot overwhelm market and player-history evidence.'},games};
+ return {version:3,source:'TSO NHL first-goal model',model:'FGS-Hazard Ensemble v3',generatedAt:new Date().toISOString(),date:slate?.date||'',season:slate?.season||'',methodology:{eventModel:'competing Poisson scoring hazards with player-specific matchup redistribution',marketAnchor:'ParlayAPI player_first_goal_scorer + player_anytime_goal',playerInputs:['verified prior-season goals/game','shots/game','regressed shooting percentage','last-10 goals/shots','last-10 first-goal occurrences','recent power-play scoring','recent TOI/usage','home-road player split','recent head-to-head scoring and shot form','player rest'],matchupInputs:['opponent goals allowed by C/LW/RW/D','opponent shots allowed by position','opponent first-goal scorer position','opponent PP goals allowed','last-10 overall goals and shots allowed','opponent home-road defensive split','opponent rest/back-to-back context','verified starting-goalie prior + recent save rate'],gameInputs:['sportsbook total','de-vigged moneyline team strength','opponent full defensive profile'],selection:'Top 3 and Risky Value are selected only after matchup-adjusted FGS and ATG probabilities are calculated.',riskyPick:'One additional player per team chosen outside the top three for a combination of long verified odds, matchup-adjusted model probability and price-vs-model edge.',note:'Sportsbook markets remain the anchor. Position, venue, recent-defense, rest, goalie, H2H and usage factors are sample-shrunk and capped so small samples cannot overwhelm market and player-history evidence.'},games};
 }

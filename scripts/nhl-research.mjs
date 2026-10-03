@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import {API,getJSON} from '../sports/nhl/data.js';
 import {seasonPrior,eventIdFromLogItem,recentGameFromSummary,recentAverages,defenseGameFromSummary,summarizeTeamDefense} from '../sports/nhl/research.js';
 
-const RESEARCH_VERSION=3;
+const RESEARCH_VERSION=4;
 const slate=JSON.parse(await fs.readFile('slates/nhl.json','utf8'));
 // ESPN identifies the last completed NHL season by its ending year. A 2026-27 slate therefore uses 2026 as the verified completed-season baseline and 2027 as the active season code.
 const priorSeason=Number(slate.season.slice(0,4));if(!Number.isInteger(priorSeason)||priorSeason<2020)throw new Error('Unknown NHL season');
@@ -10,7 +10,7 @@ const currentSeason=priorSeason+1,now=Date.now(),DAY=86400000,HOUR=3600000;
 let cache={players:{},checked:{},recentChecked:{},defenseGames:{},teamDefense:null};try{cache=JSON.parse(await fs.readFile('slates/nhl-research.json','utf8'));}catch{}
 if(cache.season!==priorSeason)cache={players:{},checked:{},recentChecked:{},defenseGames:{},teamDefense:null};
 cache.players??={};cache.checked??={};cache.recentChecked??={};cache.defenseGames??={};
-// v3 adds opponent-by-position defensive scoring profiles and PP/goalie context. Preserve season priors but force one verified history backfill.
+// v4 adds venue splits, recent defensive pace and rest-aware matchup context. Preserve season priors but force one verified history backfill.
 if(Number(cache.version||0)<RESEARCH_VERSION)cache.recentChecked={};
 const ids=[...new Set(slate.games.flatMap(g=>g.players.map(p=>String(p.id))))];
 let index=0,failures=0;
