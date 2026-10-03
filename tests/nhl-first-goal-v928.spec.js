@@ -18,7 +18,7 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
   const d=await fetch('./slates/nhl-first-goal.json?v=browserqa').then(r=>r.json());
   return {model:d.model,games:d.games.map(g=>({id:g.gameId,awayFg:g.away?.players?.length,homeFg:g.home?.players?.length,awayAtg:g.away?.atgPlayers?.length,homeAtg:g.home?.atgPlayers?.length,ar:!!g.away?.riskyFirstGoal,hr:!!g.home?.riskyFirstGoal,aar:!!g.away?.riskyAtg,har:!!g.home?.riskyAtg}))};
  });
- expect(audit.model).toBe('FGS-Hazard Ensemble v1');
+ expect(audit.model).toBe('FGS-Hazard Ensemble v2');
  expect(audit.games.length).toBeGreaterThan(0);
  for(const g of audit.games){expect(g.awayFg).toBe(3);expect(g.homeFg).toBe(3);expect(g.awayAtg).toBe(3);expect(g.homeAtg).toBe(3);expect(g.ar&&g.hr&&g.aar&&g.har).toBe(true);}
  const first=page.locator('#hkFirstGoalPanel .fgs-game').first();
@@ -26,6 +26,7 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
  await expect(first.locator('.fgs-player.risky')).toHaveCount(2);
  await expect(first).toContainText('RISKY VALUE');
  await expect(first.locator('.fgs-prob').first()).toContainText('%');
+ await expect(first.locator('.fgs-matchup-note').first()).toContainText(/matchup/i);
  await expect(first.locator('[data-fgs-share]')).toContainText('First Goal');
  await page.locator('#hkFirstGoalPanel .fgs-market-slot [data-fgs-market="atg"]').click();
  await expect(first.locator('.fgs-player')).toHaveCount(8);
