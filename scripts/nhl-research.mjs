@@ -1,16 +1,16 @@
 import fs from 'node:fs/promises';
 import {API,getJSON} from '../sports/nhl/data.js';
-import {seasonPrior,eventIdFromLogItem,recentGameFromSummary,recentAverages} from '../sports/nhl/research.js';
+import {seasonPrior,eventIdFromLogItem,recentGameFromSummary,recentAverages,defenseGameFromSummary,summarizeTeamDefense} from '../sports/nhl/research.js';
 
-const RESEARCH_VERSION=2;
+const RESEARCH_VERSION=3;
 const slate=JSON.parse(await fs.readFile('slates/nhl.json','utf8'));
 // ESPN identifies the last completed NHL season by its ending year. A 2026-27 slate therefore uses 2026 as the verified completed-season baseline and 2027 as the active season code.
 const priorSeason=Number(slate.season.slice(0,4));if(!Number.isInteger(priorSeason)||priorSeason<2020)throw new Error('Unknown NHL season');
 const currentSeason=priorSeason+1,now=Date.now(),DAY=86400000,HOUR=3600000;
-let cache={players:{},checked:{},recentChecked:{}};try{cache=JSON.parse(await fs.readFile('slates/nhl-research.json','utf8'));}catch{}
-if(cache.season!==priorSeason)cache={players:{},checked:{},recentChecked:{}};
-cache.players??={};cache.checked??={};cache.recentChecked??={};
-// v2 adds first-goal flags to verified recent-game rows. Preserve the season priors but force one recent-history backfill.
+let cache={players:{},checked:{},recentChecked:{},defenseGames:{},teamDefense:null};try{cache=JSON.parse(await fs.readFile('slates/nhl-research.json','utf8'));}catch{}
+if(cache.season!==priorSeason)cache={players:{},checked:{},recentChecked:{},defenseGames:{},teamDefense:null};
+cache.players??={};cache.checked??={};cache.recentChecked??={};cache.defenseGames??={};
+// v3 adds opponent-by-position defensive scoring profiles and PP/goalie context. Preserve season priors but force one verified history backfill.
 if(Number(cache.version||0)<RESEARCH_VERSION)cache.recentChecked={};
 const ids=[...new Set(slate.games.flatMap(g=>g.players.map(p=>String(p.id))))];
 let index=0,failures=0;
@@ -45,11 +45,17 @@ await Promise.all(Array.from({length:8},async()=>{while(recentIndex<recentIds.le
 }}));
 
 const eventIds=[...new Set([...refsByPlayer.values()].flat().map(x=>x.eventId))];
+const eventSeason=new Map();for(const refs of refsByPlayer.values())for(const ref of refs)if(!eventSeason.has(ref.eventId))eventSeason.set(ref.eventId,ref.season);
 const summaries=new Map();let eventIndex=0;
 await Promise.all(Array.from({length:8},async()=>{while(eventIndex<eventIds.length){const eventId=eventIds[eventIndex++];
  try{summaries.set(eventId,await getJSON(`${API}/summary?event=${eventId}`));}
  catch{recentFailures++;}
 }}));
+
+for(const [eventId,summary] of summaries){
+ const defense=defenseGameFromSummary(summary,{eventId,season:eventSeason.get(eventId)});if(defense)cache.defenseGames[eventId]=defense;
+}
+cache.teamDefense=summarizeTeamDefense(cache.defenseGames,currentSeason);
 
 for(const [id,refs] of refsByPlayer){
  const rows=refs.map(ref=>recentGameFromSummary(summaries.get(ref.eventId),{playerId:id,teamId:ref.teamId,season:ref.season,eventId:ref.eventId})).filter(Boolean).sort((a,b)=>Date.parse(b.date||0)-Date.parse(a.date||0)).slice(0,30);
@@ -61,4 +67,4 @@ for(const [id,refs] of refsByPlayer){
 
 cache.version=RESEARCH_VERSION;cache.season=priorSeason;cache.currentSeason=currentSeason;cache.generatedAt=new Date(now).toISOString();
 await fs.writeFile('slates/nhl-research.json',JSON.stringify(cache,null,2)+'\n');
-console.log(`NHL research v${RESEARCH_VERSION} season ${priorSeason}: ${Object.keys(cache.players).length} verified player histories; ${refsByPlayer.size} recent logs refreshed; ${failures+recentFailures} temporary fetch failures`);
+console.log(`NHL research v${RESEARCH_VERSION} season ${priorSeason}: ${Object.keys(cache.players).length} verified player histories; ${refsByPlayer.size} recent logs refreshed; ${Object.keys(cache.teamDefense?.teams||{}).length} opponent defense profiles; ${failures+recentFailures} temporary fetch failures`);
