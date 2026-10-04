@@ -40,7 +40,7 @@ function stadiumLightBank(c,x,y,flip=1){c.save();c.translate(x,y);c.rotate(flip*
 function drawArena(c,brandBg){
  const bg=c.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#010714');bg.addColorStop(.42,'#03152c');bg.addColorStop(.70,'#04182d');bg.addColorStop(1,'#09182a');c.fillStyle=bg;c.fillRect(0,0,W,H);
  const crown=c.createRadialGradient(W/2,120,40,W/2,220,800);crown.addColorStop(0,'rgba(26,137,255,.34)');crown.addColorStop(.58,'rgba(4,49,112,.12)');crown.addColorStop(1,'rgba(0,0,0,0)');c.fillStyle=crown;c.fillRect(0,0,W,640);
- stadiumLightBank(c,82,42,1);stadiumLightBank(c,1518,42,-1);
+
  c.save();
  const leftCrowd=c.createLinearGradient(0,120,560,520);leftCrowd.addColorStop(0,'rgba(14,74,150,.30)');leftCrowd.addColorStop(1,'rgba(1,8,20,.02)');
  polygon(c,[[0,115],[575,115],[510,520],[0,610]]);c.fillStyle=leftCrowd;c.fill();
@@ -63,11 +63,23 @@ function drawArena(c,brandBg){
 }
 function drawWordmark(c,img){
  if(!img)return;
+ const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;
+ const off=document.createElement('canvas');off.width=iw;off.height=ih;
+ const oc=off.getContext('2d',{willReadFrequently:true});
+ oc.drawImage(img,0,0,iw,ih);
+ try{
+  const px=oc.getImageData(0,0,iw,ih),d=px.data;
+  for(let i=0;i<d.length;i+=4){
+   const m=Math.max(d[i],d[i+1],d[i+2]);
+   const a=Math.max(0,Math.min(255,(m-5)*1.18));
+   d[i+3]=a;
+  }
+  oc.putImageData(px,0,0);
+ }catch{}
  c.save();
- c.globalCompositeOperation='screen';
- c.globalAlpha=.98;
- c.shadowColor='#158cff';c.shadowBlur=18;
- drawAspectImage(c,img,48,24,720,126,'contain');
+ c.globalCompositeOperation='source-over';
+ c.globalAlpha=1;
+ drawAspectImage(c,off,48,24,720,126,'contain');
  c.restore();
 }
 function metallicText(c,text,x,y,maxWidth,startSize,align='right'){
