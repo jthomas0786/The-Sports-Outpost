@@ -30,6 +30,85 @@
   .identity-preview{min-height:185px!important;padding:16px!important;justify-content:center!important}
   .identity-crop{transform:scale(.88)!important;transform-origin:center!important}
 }
+
+/* Brand Lab exact-image rendering fix — direct IMG crop windows, no background sprites */
+.identity-window{
+  position:relative!important;
+  display:block!important;
+  height:210px!important;
+  overflow:hidden!important;
+  flex:none!important;
+  background:#020407!important;
+}
+.identity-window img{
+  position:absolute!important;
+  top:0!important;
+  width:982px!important;
+  height:210px!important;
+  max-width:none!important;
+  object-fit:none!important;
+  image-rendering:auto!important;
+  filter:none!important;
+}
+.identity-window--primary{width:422px!important}
+.identity-window--primary img{left:0!important}
+.identity-window--compact{width:228px!important}
+.identity-window--compact img{left:-422px!important}
+.identity-window--app{width:200px!important}
+.identity-window--app img{left:-650px!important}
+.identity-window--favicon{width:132px!important}
+.identity-window--favicon img{left:-850px!important}
+
+/* Sport family: approved target artwork only; league name replaces small lockup copy */
+.proof-sports{
+  display:grid!important;
+  grid-template-columns:repeat(4,minmax(0,1fr))!important;
+  gap:14px!important;
+  margin-top:22px!important;
+}
+.proof-sport{
+  min-width:0!important;
+  padding:12px 8px 10px!important;
+  border:1px solid #1f2630!important;
+  background:#05080d!important;
+  text-align:center!important;
+}
+.proof-sport-art{
+  display:block!important;
+  width:110px!important;
+  height:74px!important;
+  margin:0 auto 8px!important;
+  overflow:hidden!important;
+  position:relative!important;
+}
+.proof-sport-art img{
+  position:absolute!important;
+  top:0!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:92px!important;
+  max-width:none!important;
+  height:auto!important;
+  filter:none!important;
+  image-rendering:auto!important;
+}
+.proof-sport strong{
+  display:block!important;
+  font-size:20px!important;
+  line-height:1!important;
+  font-weight:1000!important;
+  letter-spacing:.14em!important;
+  font-style:italic!important;
+}
+.proof-sport--nhl strong{color:#55c7ff!important}
+.proof-sport--nfl strong{color:#ff4d1c!important}
+.proof-sport--mlb strong{color:#ff4d1c!important}
+.proof-sport--nba strong{color:#7b5cff!important}
+
+@media(max-width:720px){
+  .identity-window{transform:scale(.78)!important;transform-origin:center!important}
+  .proof-sports{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
 </style>
 </head>
 <body>
@@ -53,10 +132,10 @@
         <h3>Judge the real assets — not a reduced board preview.</h3>
         <p>These sport lockups are exact approved exports served as individual production files and rendered below native size for sharpness.</p>
         <div class="proof-sports">
-          <img src="/brand/production/tso2-sport-nhl-approved.webp" alt="Approved NHL mark"/>
-          <img src="/brand/production/tso2-sport-nfl-approved.webp" alt="Approved NFL mark"/>
-          <img src="/brand/production/tso2-sport-mlb-approved.webp" alt="Approved MLB mark"/>
-          <img src="/brand/production/tso2-sport-nba-approved.webp" alt="Approved NBA mark"/>
+          <div class="proof-sport proof-sport--nhl"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-nhl-approved.webp" alt="Approved NHL target mark"/></span><strong>NHL</strong></div>
+          <div class="proof-sport proof-sport--nfl"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-nfl-approved.webp" alt="Approved NFL target mark"/></span><strong>NFL</strong></div>
+          <div class="proof-sport proof-sport--mlb"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-mlb-approved.webp" alt="Approved MLB target mark"/></span><strong>MLB</strong></div>
+          <div class="proof-sport proof-sport--nba"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-nba-approved.webp" alt="Approved NBA target mark"/></span><strong>NBA</strong></div>
         </div>
         <div class="proof-note">NATIVE SOURCES ≈ 185 × 181 · DISPLAYED ≈ 62 × 60 · ~3× PIXEL DENSITY</div>
       </div>
@@ -69,25 +148,25 @@
     <div class="identity-grid">
       <article class="identity-card">
         <div class="identity-card-head"><div><b>Primary Logo</b><span>FOUR-SPORT TARGET + OUTPOST WORDMARK</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-crop identity-crop--primary" role="img" aria-label="Approved TSO 2.0 primary logo"></span></div>
+        <div class="identity-preview"><span class="identity-window identity-window--primary" role="img" aria-label="Approved TSO 2.0 primary logo"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 422 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card">
         <div class="identity-card-head"><div><b>Compact Logo</b><span>COMPACT STACKED BRAND MARK</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-crop identity-crop--compact" role="img" aria-label="Approved TSO 2.0 compact logo"></span></div>
+        <div class="identity-preview"><span class="identity-window identity-window--compact" role="img" aria-label="Approved TSO 2.0 compact logo"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 228 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card">
         <div class="identity-card-head"><div><b>App Icon</b><span>ROUNDED-SQUARE APP TREATMENT</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-crop identity-crop--app" role="img" aria-label="Approved TSO 2.0 app icon"></span></div>
+        <div class="identity-preview"><span class="identity-window identity-window--app" role="img" aria-label="Approved TSO 2.0 app icon"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 200 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card">
         <div class="identity-card-head"><div><b>Favicon</b><span>TARGET-ONLY MICRO MARK</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-crop identity-crop--favicon" role="img" aria-label="Approved TSO 2.0 favicon"></span></div>
+        <div class="identity-preview"><span class="identity-window identity-window--favicon" role="img" aria-label="Approved TSO 2.0 favicon"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 132 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
