@@ -380,3 +380,91 @@ body{
   .broadcast-score-strip{height:68px}
   .broadcast-title h1{font-size:34px}
 }
+
+/* TSO 2.0 VECTOR PRODUCTION ASSETS — no raster sprite scaling */
+.brand-vector,
+.nav-product-icon,
+.sport-lockup,
+.action-product-icon{
+  background:none!important;
+  background-image:none!important;
+  background-position:initial!important;
+  background-size:auto!important;
+  image-rendering:auto;
+  overflow:visible;
+}
+.brand-vector use,
+.nav-product-icon use,
+.sport-lockup use,
+.action-product-icon use{
+  width:100%;
+  height:100%;
+}
+.exact-approved-brand{
+  width:260px;
+  height:82px;
+  overflow:hidden;
+}
+.exact-approved-brand .brand-vector{
+  display:block;
+  width:258px;
+  height:78px;
+}
+.branded-product-nav .nav-product-icon{
+  display:block;
+  width:44px!important;
+  height:44px!important;
+  flex:0 0 44px!important;
+  transform:none!important;
+  filter:none!important;
+}
+.branded-product-nav .nav-item{
+  min-width:80px;
+  flex-basis:80px;
+}
+.league-tabs .sport-item{
+  min-width:92px;
+  justify-content:center;
+}
+.league-tabs .sport-item[data-league="all"]{
+  min-width:132px;
+}
+.sport-lockup{
+  display:block;
+  width:78px!important;
+  height:62px!important;
+  flex:0 0 78px;
+  transform:none!important;
+  filter:none!important;
+}
+.sport-lockup--all{
+  width:50px!important;
+  height:50px!important;
+  flex-basis:50px;
+}
+.league-tabs .sport-item:not([data-league="all"]) .sport-label{
+  display:none;
+}
+.league-tabs .sport-item[data-league="all"] .sport-label{
+  font-size:11px;
+  font-weight:950;
+}
+.branded-action-band .action-product-icon{
+  width:54px!important;
+  height:54px!important;
+  background:none!important;
+  filter:none!important;
+}
+@media(max-width:1240px) and (min-width:901px){
+  .exact-approved-brand{width:236px;height:78px}
+  .exact-approved-brand .brand-vector{width:234px;height:74px}
+  .branded-product-nav .nav-item{min-width:76px;flex-basis:76px}
+  .branded-product-nav .nav-product-icon{width:42px!important;height:42px!important;flex-basis:42px!important}
+  .sport-lockup{width:72px!important;height:58px!important;flex-basis:72px}
+}
+@media(max-width:900px){
+  .exact-approved-brand{width:92px;height:60px;overflow:hidden}
+  .exact-approved-brand .brand-vector{width:172px;height:58px;transform:none}
+  .sport-lockup{width:62px!important;height:50px!important;flex-basis:62px;transform:none!important}
+  .sport-lockup--all{width:44px!important;height:44px!important;flex-basis:44px}
+}
