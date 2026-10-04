@@ -1,84 +1,33 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>TSO 2.0 Brand Lab</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>TSO 2.0 Brand Lab — Approved Concept Locked</title>
 <style>
-:root{--ink:#05070a;--surface:#0a0d12;--surface2:#10141a;--white:#f7f7f2;--muted:#7b838f;--line:rgba(255,255,255,.1);--live:#ff4d1c;--gold:#ffd84d;--violet:#7b5cff;--green:#4fe39b;--blue:#2d7fff;font-family:Inter,system-ui,sans-serif}
-*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--white)}button{font:inherit;color:inherit}.lab-top{position:sticky;top:0;z-index:10;height:68px;padding:0 28px;display:flex;align-items:center;gap:16px;background:rgba(5,7,10,.96);border-bottom:1px solid var(--line);backdrop-filter:blur(18px)}.lab-mark{width:42px;height:42px;display:grid;place-items:center;background:var(--live);font-weight:1000;transform:skew(-4deg)}.lab-title b,.lab-title span{display:block}.lab-title b{font-size:13px}.lab-title span{font-size:9px;color:var(--muted);letter-spacing:.12em;margin-top:3px}.lab-top a{margin-left:auto;color:var(--gold);font-size:10px;font-weight:900;text-decoration:none}.lab{max-width:1480px;margin:auto;padding:34px 28px 90px}.intro{display:grid;grid-template-columns:1fr auto;gap:30px;align-items:end;padding-bottom:24px;border-bottom:1px solid var(--line)}.kicker{font-size:9px;font-weight:950;letter-spacing:.16em;color:var(--live)}h1{font-size:44px;letter-spacing:-.05em;margin:6px 0 7px}.intro p{margin:0;color:#858d99;font-size:13px}.status{display:flex;gap:8px}.pill{font-size:8px;font-weight:900;letter-spacing:.08em;padding:7px 9px;border:1px solid var(--line);background:var(--surface)}.pill.review{color:#111;background:var(--gold);border-color:var(--gold)}section{padding:32px 0;border-bottom:1px solid var(--line)}.section-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:16px}.section-head h2{font-size:24px;margin:5px 0 0}.section-head span:last-child{font-size:9px;color:var(--muted)}.logo-grid{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:10px}.logo-stage{min-height:240px;border:1px solid var(--line);background:var(--surface);padding:18px;display:flex;align-items:center;justify-content:center;position:relative}.logo-stage.light{background:#f1f0ea;color:#0a0b0d}.stage-label{position:absolute;left:14px;top:12px;font-size:8px;letter-spacing:.1em;color:#626a75}.identity-lockup{display:flex;align-items:center;gap:15px}.identity-mark{width:72px;height:72px;display:grid;place-items:center;background:var(--live);font-size:22px;font-weight:1000;transform:skew(-5deg);box-shadow:11px 11px 0 rgba(255,216,77,.13)}.identity-copy{line-height:.88}.identity-copy small{display:block;font-size:11px;letter-spacing:.2em;color:#9098a4;font-weight:900}.identity-copy strong{display:block;font-size:30px;letter-spacing:.05em;margin-top:8px}.light .identity-copy small{color:#676b72}.compact-mark{width:105px;height:105px;display:grid;place-items:center;border:2px solid var(--live);font-size:28px;font-weight:1000;transform:skew(-5deg);position:relative}.compact-mark:after{content:"";position:absolute;inset:7px;border:1px solid rgba(255,216,77,.45)}.app-mark{width:112px;height:112px;border-radius:24px;background:linear-gradient(145deg,#0f141c,#05070a);border:1px solid var(--line);display:grid;place-items:center}.app-mark span{width:67px;height:67px;background:var(--live);display:grid;place-items:center;font-size:20px;font-weight:1000;transform:skew(-5deg)}.palette{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.swatch{height:130px;padding:12px;display:flex;flex-direction:column;justify-content:flex-end}.swatch b{font-size:10px}.swatch small{font-size:8px;margin-top:3px;opacity:.72}.sport-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.sport-tile{min-height:175px;border:1px solid var(--line);background:var(--surface);padding:15px;position:relative;overflow:hidden}.sport-tile:after{content:"";position:absolute;width:180px;height:180px;border:28px solid rgba(255,255,255,.025);border-radius:50%;right:-70px;bottom:-80px}.sport-tile .num{font-size:8px;color:#555e6b;font-weight:900}.sport-symbol{height:70px;display:flex;align-items:center;font-size:38px;font-weight:1000;letter-spacing:-.08em}.sport-tile h3{font-size:15px;margin:3px 0}.sport-tile p{font-size:9px;color:#707986;margin:0;line-height:1.4}.nhl{border-top:3px solid var(--violet)}.nfl{border-top:3px solid var(--gold)}.mlb{border-top:3px solid var(--live)}.nba{border-top:3px solid var(--blue)}.product-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.product{min-height:130px;border:1px solid var(--line);background:var(--surface);padding:12px;display:flex;flex-direction:column}.product-icon{font-size:23px;color:var(--gold)}.product b{font-size:10px;margin-top:auto}.product small{font-size:8px;color:#68717e;margin-top:3px}.treatments{display:grid;grid-template-columns:1fr 1fr;gap:10px}.treatment{min-height:245px;border:1px solid var(--line);background:var(--surface);padding:17px}.treatment h3{font-size:14px;margin:0 0 15px}.mock-player{height:165px;display:grid;grid-template-columns:150px 1fr;overflow:hidden;background:linear-gradient(115deg,rgba(123,92,255,.13),transparent 52%),#080b0f}.player-cutout{display:grid;place-items:end center;font-size:70px;font-weight:1000;color:#262d37;text-shadow:0 0 0 #fff}.player-info{padding:22px 14px;display:flex;flex-direction:column;justify-content:center}.player-info span{font-size:8px;color:var(--violet);font-weight:900;letter-spacing:.11em}.player-info b{font-size:22px;margin:5px 0}.player-info small{font-size:9px;color:#747d89}.logo-demo{height:165px;display:flex;align-items:center;justify-content:center;gap:35px;background:#080b0f}.team-logo{width:94px;height:94px;display:grid;place-items:center;font-size:22px;font-weight:1000;color:#fff;position:relative}.team-logo:before{content:"";position:absolute;inset:9px;border:3px solid white;transform:rotate(45deg);opacity:.88}.team-logo span{position:relative;background:#080b0f;padding:4px}.asset-table{width:100%;border-collapse:collapse;font-size:10px}.asset-table th,.asset-table td{text-align:left;padding:11px;border-bottom:1px solid var(--line)}.asset-table th{font-size:8px;color:#646d79;letter-spacing:.09em}.tag{font-size:7px;font-weight:950;letter-spacing:.07em;padding:4px 6px}.tag.draft{background:rgba(123,92,255,.13);color:#aa98ff}.tag.review{background:rgba(255,216,77,.14);color:var(--gold)}.rule-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.rule{border:1px solid var(--line);background:var(--surface);padding:14px}.rule b{font-size:10px}.rule p{font-size:9px;color:#747d89;line-height:1.45;margin:6px 0 0}@media(max-width:900px){.intro{grid-template-columns:1fr}.logo-grid,.treatments{grid-template-columns:1fr}.palette{grid-template-columns:1fr 1fr}.sport-grid{grid-template-columns:1fr 1fr}.product-grid{grid-template-columns:repeat(3,1fr)}.rule-grid{grid-template-columns:1fr}.lab{padding:22px 14px 80px}.lab-top{padding:0 14px}h1{font-size:34px}}
+:root{--ink:#05070a;--panel:#0a0d12;--line:rgba(255,255,255,.10);--white:#f7f7f2;--muted:#7f8793;--orange:#ff4d1c;--gold:#ffd84d;font-family:Inter,system-ui,sans-serif}
+*{box-sizing:border-box}body{margin:0;background:var(--ink);color:var(--white)}header{height:68px;border-bottom:1px solid var(--line);display:flex;align-items:center;padding:0 28px;gap:14px;background:#05070a;position:sticky;top:0}.mark{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--line);font-weight:900}.title b,.title span{display:block}.title b{font-size:13px}.title span{font-size:9px;color:var(--muted);letter-spacing:.12em;margin-top:3px}a{margin-left:auto;color:var(--gold);text-decoration:none;font-size:10px;font-weight:900}.wrap{max-width:1180px;margin:0 auto;padding:54px 24px 90px}.kicker{font-size:9px;color:var(--orange);font-weight:950;letter-spacing:.16em}.hero{padding-bottom:34px;border-bottom:1px solid var(--line)}h1{font-size:48px;letter-spacing:-.05em;line-height:.98;margin:8px 0 14px}.hero p{max-width:780px;color:#9aa2ad;line-height:1.55;font-size:14px;margin:0}.lock{margin-top:26px;display:inline-flex;align-items:center;gap:10px;padding:10px 13px;border:1px solid rgba(255,216,77,.3);background:rgba(255,216,77,.07);color:var(--gold);font-size:9px;font-weight:900;letter-spacing:.1em}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:30px}.card{border:1px solid var(--line);background:var(--panel);padding:22px;min-height:150px}.card span{font-size:8px;color:#68717c;font-weight:900;letter-spacing:.12em}.card h2{font-size:20px;margin:8px 0}.card p{color:#858e9a;font-size:11px;line-height:1.5;margin:0}.rules{margin-top:30px;border-top:1px solid var(--line)}.rule{display:grid;grid-template-columns:42px 1fr;gap:16px;padding:18px 0;border-bottom:1px solid var(--line)}.rule b{font-size:12px}.rule p{margin:3px 0 0;color:#828b96;font-size:10px;line-height:1.45}.num{color:var(--orange);font-weight:950;font-size:10px}@media(max-width:720px){h1{font-size:36px}.grid{grid-template-columns:1fr}.wrap{padding:34px 16px 70px}header{padding:0 16px}}
 </style>
 </head>
 <body>
-<header class="lab-top"><div class="lab-mark">TSO</div><div class="lab-title"><b>TSO 2.0 BRAND LAB</b><span>VISUAL SYSTEM · PREVIEW ONLY</span></div><a href="/">← BACK TO SITE</a></header>
-<main class="lab">
-  <div class="intro"><div><span class="kicker">OUTPOST BROADCAST</span><h1>One visual system. Every sport.</h1><p>This page is where TSO 2.0 identity, artwork and reusable treatments get reviewed before they are allowed into the product.</p></div><div class="status"><span class="pill">v2.0</span><span class="pill review">IN REVIEW</span></div></div>
-
-  <section><div class="section-head"><div><span class="kicker">01 · IDENTITY</span><h2>Primary brand family</h2></div><span>Concept scaffolding — artwork refinement next</span></div>
-    <div class="logo-grid">
-      <div class="logo-stage"><span class="stage-label">PRIMARY · DARK</span><div class="identity-lockup"><div class="identity-mark">TSO</div><div class="identity-copy"><small>THE SPORTS</small><strong>OUTPOST</strong></div></div></div>
-      <div class="logo-stage"><span class="stage-label">COMPACT MARK</span><div class="compact-mark">TSO</div></div>
-      <div class="logo-stage"><span class="stage-label">APP ICON</span><div class="app-mark"><span>TSO</span></div></div>
-      <div class="logo-stage light"><span class="stage-label">PRIMARY · LIGHT</span><div class="identity-lockup"><div class="identity-mark">TSO</div><div class="identity-copy"><small>THE SPORTS</small><strong>OUTPOST</strong></div></div></div>
-      <div class="logo-stage light"><span class="stage-label">COMPACT · LIGHT</span><div class="compact-mark">TSO</div></div>
-      <div class="logo-stage light"><span class="stage-label">FAVICON TEST</span><div class="app-mark"><span>TSO</span></div></div>
-    </div>
+<header><div class="mark">TSO</div><div class="title"><b>TSO 2.0 BRAND LAB</b><span>QUALITY GATE</span></div><a href="/">← BACK TO SITE</a></header>
+<main class="wrap">
+  <section class="hero">
+    <span class="kicker">APPROVED MASTER CONCEPT</span>
+    <h1>Concept locked.<br/>No substitutes.</h1>
+    <p>The sports-brand board approved in this project is now the only visual reference for TSO 2.0 branding. Simplified redraws, placeholder logos, generic SVG approximations, and lower-quality “inspired by” versions are not accepted into the product.</p>
+    <div class="lock">LOCKED · EXACT-DIRECTION IMPLEMENTATION ONLY</div>
   </section>
-
-  <section><div class="section-head"><div><span class="kicker">02 · COLOR ROLES</span><h2>Color has a job</h2></div><span>No random page-by-page palettes</span></div>
-    <div class="palette">
-      <div class="swatch" style="background:#ff4d1c"><b>LIVE / ACTION</b><small>#FF4D1C</small></div>
-      <div class="swatch" style="background:#ffd84d;color:#111"><b>FEATURE / TOP PICK</b><small>#FFD84D</small></div>
-      <div class="swatch" style="background:#7b5cff"><b>MODELS / SIM</b><small>#7B5CFF</small></div>
-      <div class="swatch" style="background:#4fe39b;color:#08100c"><b>POSITIVE EDGE</b><small>#4FE39B</small></div>
-      <div class="swatch" style="background:#2d7fff"><b>INFO / SECONDARY</b><small>#2D7FFF</small></div>
-    </div>
+  <section class="grid">
+    <article class="card"><span>IDENTITY</span><h2>Primary + compact logo family</h2><p>Must preserve the premium four-sport target composition, metallic broadcast wordmark, glow, depth, and finish of the approved concept.</p></article>
+    <article class="card"><span>SPORT FAMILY</span><h2>MLB · NFL · NBA · NHL</h2><p>Each sport mark must match the approved construction, lighting, depth, typography, target geometry, and overall polish.</p></article>
+    <article class="card"><span>PRODUCT SYSTEM</span><h2>Live · Models · Research · Props · Parlay Lab</h2><p>Product icons inherit the approved illuminated sports-broadcast treatment. Flat placeholder iconography is not acceptable.</p></article>
+    <article class="card"><span>UI + SOCIAL</span><h2>Cards, badges, matchup art, share graphics</h2><p>Player cards, confidence shields, slate modules, social graphics, and gamecast artwork must visually match the approved board.</p></article>
   </section>
-
-  <section><div class="section-head"><div><span class="kicker">03 · SPORT FAMILY</span><h2>Related, not identical</h2></div><span>Same construction rules across MLB / NFL / NHL / NBA</span></div>
-    <div class="sport-grid">
-      <div class="sport-tile nhl"><span class="num">01</span><div class="sport-symbol">NHL</div><h3>Hockey</h3><p>Sharper ice/goal motion cues. Same TSO typography and geometry.</p></div>
-      <div class="sport-tile nfl"><span class="num">02</span><div class="sport-symbol">NFL</div><h3>Football</h3><p>Field/yard-line energy without becoming a separate brand.</p></div>
-      <div class="sport-tile mlb"><span class="num">03</span><div class="sport-symbol">MLB</div><h3>Baseball</h3><p>Ball-flight / diamond cues within the same system.</p></div>
-      <div class="sport-tile nba"><span class="num">04</span><div class="sport-symbol">NBA</div><h3>Basketball</h3><p>Court / rim motion cues within the same system.</p></div>
-    </div>
-  </section>
-
-  <section><div class="section-head"><div><span class="kicker">04 · PRODUCT MARKS</span><h2>Feature identity</h2></div><span>Recognizable without creating mini-brands</span></div>
-    <div class="product-grid">
-      <div class="product"><span class="product-icon">●</span><b>LIVE</b><small>Gamecasts</small></div>
-      <div class="product"><span class="product-icon">⌕</span><b>RESEARCH</b><small>Context</small></div>
-      <div class="product"><span class="product-icon">◎</span><b>MODELS</b><small>Probability</small></div>
-      <div class="product"><span class="product-icon">↗</span><b>PROPS</b><small>Markets</small></div>
-      <div class="product"><span class="product-icon">✦</span><b>PARLAY LAB</b><small>Build</small></div>
-      <div class="product"><span class="product-icon">◌</span><b>COMMUNITY</b><small>Social</small></div>
-      <div class="product"><span class="product-icon">▥</span><b>RANKINGS</b><small>Leaders</small></div>
-    </div>
-  </section>
-
-  <section><div class="section-head"><div><span class="kicker">05 · PLAYER & TEAM ART</span><h2>Presentation rules</h2></div><span>No generic circles around everything</span></div>
-    <div class="treatments">
-      <div class="treatment"><h3>Player photography</h3><div class="mock-player"><div class="player-cutout">87</div><div class="player-info"><span>ANYTIME GOAL</span><b>Sidney Crosby</b><small>Large cutout · editorial crop · team color allowed in source photo</small></div></div></div>
-      <div class="treatment"><h3>Team logos</h3><div class="logo-demo"><div class="team-logo"><span>PIT</span></div><div class="team-logo"><span>PHI</span></div></div></div>
-    </div>
-  </section>
-
-  <section><div class="section-head"><div><span class="kicker">06 · ASSET CONTROL</span><h2>Approval status</h2></div><span>Only approved files reach production</span></div>
-    <table class="asset-table"><thead><tr><th>GROUP</th><th>ASSET</th><th>STATUS</th><th>NEXT</th></tr></thead><tbody>
-      <tr><td>Identity</td><td>Primary wordmark + compact mark</td><td><span class="tag review">REVIEW</span></td><td>Final artwork concepts</td></tr>
-      <tr><td>Sports</td><td>NHL / NFL / MLB / NBA marks</td><td><span class="tag draft">DRAFT</span></td><td>Build unified family</td></tr>
-      <tr><td>Products</td><td>Live / Models / Props / Parlay Lab</td><td><span class="tag draft">DRAFT</span></td><td>Icon design</td></tr>
-      <tr><td>Artwork</td><td>Hero / matchup / sport backgrounds</td><td><span class="tag draft">DRAFT</span></td><td>Generate + approve</td></tr>
-      <tr><td>Social</td><td>X / square / story templates</td><td><span class="tag draft">DRAFT</span></td><td>Design after identity approval</td></tr>
-    </tbody></table>
-  </section>
-
-  <section><div class="section-head"><div><span class="kicker">07 · RULES</span><h2>Keep it organized forever</h2></div></div>
-    <div class="rule-grid">
-      <div class="rule"><b>ONE SOURCE OF TRUTH</b><p>Every asset lives under tso2/brand and is registered in the manifest.</p></div>
-      <div class="rule"><b>NO SPORT DRIFT</b><p>Sports get relevant artwork, but typography, framing and interaction remain TSO.</p></div>
-      <div class="rule"><b>APPROVAL BEFORE USE</b><p>Draft artwork stays in Brand Lab until approved. Production consumes approved assets only.</p></div>
-    </div>
+  <section class="rules">
+    <div class="rule"><span class="num">01</span><div><b>Nothing enters Brand Lab until it is visually comparable to the approved board.</b><p>Brand Lab is now an approval gate, not a place for rough substitute art.</p></div></div>
+    <div class="rule"><span class="num">02</span><div><b>Approved concept beats convenience.</b><p>If an asset cannot be reproduced at the required quality yet, it remains absent rather than being replaced with a cheaper-looking version.</p></div></div>
+    <div class="rule"><span class="num">03</span><div><b>Production stays untouched.</b><p>All brand work remains isolated on the TSO 2.0 branch until the visual system is approved.</p></div></div>
   </section>
 </main>
 </body>
