@@ -13,3 +13,118 @@
 @media(max-width:480px){.fgs-team{padding:10px}.fgs-team-head{padding:9px}.fgs-team-id img{width:36px;height:36px}.fgs-team-head strong{font-size:10px}.fgs-player{grid-template-columns:50px minmax(0,1fr) 126px;column-gap:8px;row-gap:5px;min-height:128px;padding:12px 9px}.fgs-metrics{width:126px;gap:5px}.fgs-metric{min-height:51px;padding:5px 4px 4px}.fgs-metric>span{font-size:6.5px}.fgs-photo-wrap{width:48px;height:48px}.fgs-photo{width:43px;height:43px}.fgs-last{font-size:16px}.fgs-stats,.fgs-matchup-note,.fgs-risk-reason{font-size:8px}.fgs-player.risky .fgs-card-badge{left:60px}.fgs-prob,.fgs-odds{font-size:15px}.fgs-book{font-size:6.5px}.fgs-actions button{flex:1 1 44%}.fgs-hero-actions button{flex:1 1 auto}.fgs-market-control{padding:10px;gap:8px;align-items:stretch;flex-direction:column}.fgs-market-label{display:block}.fgs-market-tabs{width:100%}.fgs-market-tabs button{flex:1 1 50%;min-width:0;padding:9px 8px}}
 /* v90.36: the scorer selector lives in the hero, then pins beneath the site header while scrolling on mobile. */
 @media(max-width:840px){#hkFirstGoalPanel .fgs-market-slot>.fgs-market-control.is-mobile-pinned{position:fixed!important;top:var(--fgs-mobile-market-top,64px)!important;right:10px!important;bottom:auto!important;left:10px!important;z-index:1200!important;margin:0!important;padding:8px 10px!important;align-items:center!important;flex-direction:row!important;background:rgba(5,15,28,.97)!important;box-shadow:0 12px 34px rgba(0,0,0,.42),0 0 0 1px rgba(56,189,248,.16)!important;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);transform:none!important;-webkit-transform:none!important;will-change:auto!important}.fgs-market-control.is-mobile-pinned .fgs-market-label{display:none!important}.fgs-market-control.is-mobile-pinned .fgs-market-tabs{width:100%!important}.fgs-market-control.is-mobile-pinned .fgs-market-tabs button{flex:1 1 50%!important;min-width:0!important}}
+
+
+/* v90.50: compact top-right metrics + full readable player detail lines */
+.fgs-player{
+  display:grid;
+  grid-template-columns:72px minmax(0,1fr);
+  grid-template-rows:auto auto;
+  column-gap:12px;
+  row-gap:6px;
+  align-items:start;
+  min-height:112px;
+  padding:13px 14px 12px 12px;
+}
+.fgs-photo-wrap{
+  grid-column:1;
+  grid-row:1/3;
+  align-self:start;
+  margin-top:10px;
+}
+.fgs-player-copy{
+  grid-column:2;
+  grid-row:1;
+  min-width:0;
+  min-height:55px;
+  padding:1px 160px 0 0;
+}
+.fgs-player.risky .fgs-player-copy{padding-top:17px}
+.fgs-metrics{
+  position:absolute;
+  top:12px;
+  right:12px;
+  z-index:2;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:5px;
+  width:146px;
+  min-width:0;
+}
+.fgs-metric{
+  min-width:0;
+  min-height:50px;
+  padding:5px 4px 4px;
+  border-radius:8px;
+}
+.fgs-metric>span{
+  font-size:6.5px;
+  letter-spacing:.045em;
+}
+.fgs-prob,.fgs-odds{
+  margin-top:4px;
+  font-size:16px;
+}
+.fgs-book{
+  margin-top:3px;
+  font-size:6.5px;
+}
+.fgs-player-details{
+  grid-column:2;
+  grid-row:2;
+  min-width:0;
+  padding:0;
+  margin:0;
+}
+.fgs-stats,
+.fgs-matchup-note,
+.fgs-risk-reason{
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.fgs-stats{
+  margin-top:0;
+  font-size:9px;
+  line-height:1.4;
+}
+.fgs-matchup-note{
+  margin-top:5px;
+  font-size:9px;
+  line-height:1.45;
+}
+.fgs-risk-reason{
+  margin-top:5px;
+  font-size:9px;
+  line-height:1.4;
+}
+@media(max-width:1120px){
+  .fgs-player{grid-template-columns:64px minmax(0,1fr)}
+  .fgs-player-copy{padding-right:150px}
+  .fgs-metrics{width:138px}
+  .fgs-prob,.fgs-odds{font-size:15px}
+}
+@media(max-width:840px){
+  .fgs-player{grid-template-columns:60px minmax(0,1fr);min-height:112px}
+  .fgs-player-copy{padding-right:146px}
+  .fgs-metrics{top:11px;right:11px;width:134px}
+  .fgs-photo-wrap{margin-top:9px;width:56px;height:56px}
+  .fgs-photo{width:50px;height:50px}
+  .fgs-prob,.fgs-odds{font-size:15px}
+}
+@media(max-width:480px){
+  .fgs-player{grid-template-columns:50px minmax(0,1fr);column-gap:8px;min-height:116px;padding:11px 9px 10px}
+  .fgs-player-copy{min-height:50px;padding-right:126px}
+  .fgs-metrics{top:9px;right:9px;width:118px;gap:4px}
+  .fgs-metric{min-height:46px;padding:4px 3px 3px}
+  .fgs-metric>span{font-size:6px}
+  .fgs-prob,.fgs-odds{font-size:13.5px}
+  .fgs-book{font-size:6px}
+  .fgs-photo-wrap{margin-top:8px;width:48px;height:48px}
+  .fgs-photo{width:43px;height:43px}
+  .fgs-first{font-size:9px}
+  .fgs-last{font-size:15px}
+  .fgs-stats,.fgs-matchup-note,.fgs-risk-reason{font-size:8px;line-height:1.4}
+}
