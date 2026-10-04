@@ -27,7 +27,7 @@ test('NHL First Goal Model renders 3+Risky per team for FGS and ATG',async({page
  await expect(first).toContainText('RISKY VALUE');
  await expect(first.locator('.fgs-prob').first()).toContainText('%');
  await expect(first.locator('.fgs-odds').first()).not.toContainText('Odds pending');
- await expect(first.locator('.fgs-odds').first()).toContainText(/FAIR|[+-]\\d+/);
+ await expect(first.locator('.fgs-odds').first()).toContainText(/FAIR|[+-]\d+/);
  await expect(first.locator('.fgs-matchup-note').first()).toContainText(/matchup/i);
  await expect(first.locator('[data-fgs-share]')).toContainText('First Goal');
  await page.locator('#hkFirstGoalPanel .fgs-market-slot [data-fgs-market="atg"]').click();

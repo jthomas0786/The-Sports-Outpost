@@ -113,8 +113,6 @@ for(const marker of [
   'unclip team artwork and use a soft ice halo instead of a circle',
   'tight white silhouette outline on native transparent team logos',
   'perfectly centered logo art with a matched white silhouette layer',
-  'class="fgs-logo-outline"',
-  'class="fgs-logo-art"',
   'left:50%!important',
   'top:50%!important',
   'translate(-50%,-50%) scale(1.075)',
