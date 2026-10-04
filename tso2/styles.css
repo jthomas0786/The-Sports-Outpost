@@ -111,3 +111,7 @@ body{
 @media(max-width:600px){
   .feature-game{padding:16px;min-height:330px}.feature-copy h2{font-size:25px}.feature-score{gap:11px}.feature-score>div{gap:8px}.big-team{font-size:14px}.feature-score b{font-size:38px}.feature-stats>span{min-width:95px}.feature-footer{align-items:flex-start}.feature-footer>div{display:grid}.broadcast-cta{padding:0 10px}.broadcast-section-head.major h2{font-size:21px}.broadcast-title{margin-bottom:12px}
 }
+
+.preview-lab-link{height:38px;display:flex;align-items:center;padding:0 10px;border:1px solid rgba(255,216,77,.22);background:rgba(255,216,77,.055);color:var(--outpost-gold);font-size:8px;font-weight:950;letter-spacing:.08em;text-decoration:none;border-radius:3px}
+.preview-lab-link:hover{background:rgba(255,216,77,.1);border-color:rgba(255,216,77,.42)}
+@media(max-width:900px){.preview-lab-link{display:none}}
