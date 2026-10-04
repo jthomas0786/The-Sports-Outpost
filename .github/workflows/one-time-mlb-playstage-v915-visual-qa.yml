@@ -1,12 +1,6 @@
 name: One-time MLB PlayStage v915 visual QA
 on:
   workflow_dispatch:
-  push:
-    paths:
-      - '.github/workflows/one-time-mlb-playstage-v915-visual-qa.yml'
-      - 'sports/mlb/playstage-concept-v915.js'
-      - 'sports/router.js'
-      - 'field-bg.jpg'
 permissions:
   contents: write
 jobs:
