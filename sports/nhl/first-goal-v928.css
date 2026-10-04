@@ -266,3 +266,72 @@
 
 
 /* v90.53: zoom team marks out so full artwork stays inside ice plate */
+
+
+/* v90.54: unclip team artwork and use a soft ice halo instead of a circle */
+.fgs-logo-plate{
+  width:64px;
+  height:48px;
+  overflow:visible;
+  border-radius:12px;
+  background:
+    radial-gradient(ellipse at center,rgba(248,252,255,.98) 0 28%,rgba(221,236,249,.90) 54%,rgba(157,190,219,.36) 76%,rgba(157,190,219,0) 100%);
+  border:0;
+  box-shadow:none;
+}
+.fgs-logo-plate::after{display:none}
+.fgs-logo-plate::before{
+  content:"";
+  position:absolute;
+  inset:6px 3px;
+  z-index:0;
+  pointer-events:none;
+  border-radius:50%;
+  background:rgba(255,255,255,.82);
+  filter:blur(7px);
+  box-shadow:0 0 18px rgba(var(--logo-rgb),.34);
+}
+.fgs-logo-plate img{
+  z-index:1;
+  width:60px!important;
+  height:44px!important;
+  max-width:60px!important;
+  max-height:44px!important;
+  object-fit:contain!important;
+  transform:none!important;
+  filter:
+    saturate(1.34)
+    brightness(1.16)
+    contrast(1.14)
+    drop-shadow(0 1px 1px rgba(0,0,0,.68))
+    drop-shadow(0 0 2px rgba(255,255,255,.92))!important;
+}
+.fgs-logo-plate.matchup{
+  width:66px;
+  height:50px;
+}
+.fgs-logo-plate.matchup img{
+  width:62px!important;
+  height:46px!important;
+  max-width:62px!important;
+  max-height:46px!important;
+}
+.fgs-logo-plate[data-abbr="WSH"] img,
+.fgs-logo-plate[data-abbr="TB"] img{
+  transform:none!important;
+}
+.fgs-team-id .fgs-logo-plate{
+  box-shadow:none;
+}
+@media(max-width:840px){
+  .fgs-logo-plate{width:58px;height:46px}
+  .fgs-logo-plate img{width:54px!important;height:42px!important;max-width:54px!important;max-height:42px!important}
+  .fgs-logo-plate.matchup{width:60px;height:48px}
+  .fgs-logo-plate.matchup img{width:56px!important;height:44px!important;max-width:56px!important;max-height:44px!important}
+}
+@media(max-width:480px){
+  .fgs-logo-plate{width:52px;height:42px}
+  .fgs-logo-plate img{width:48px!important;height:38px!important;max-width:48px!important;max-height:38px!important}
+  .fgs-logo-plate.matchup{width:54px;height:44px}
+  .fgs-logo-plate.matchup img{width:50px!important;height:40px!important;max-width:50px!important;max-height:40px!important}
+}
