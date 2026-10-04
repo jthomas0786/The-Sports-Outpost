@@ -24,6 +24,7 @@ const router=fs.readFileSync('sports/router.js','utf8');
 const firstGoal=fs.readFileSync('sports/nhl/sidebar-first-goal-v928.js','utf8');
 const firstGoalModel=fs.readFileSync('sports/nhl/first-goal-v928.js','utf8');
 const firstGoalCss=fs.readFileSync('sports/nhl/first-goal-v928.css','utf8');
+const firstGoalShare=fs.readFileSync('sports/nhl/first-goal-share-v928.js','utf8');
 const plj=fs.readFileSync('sports/nhl/sidebar-plj-v927.js','utf8');
 const coverBar=fs.readFileSync('sports/nhl/plj-cover-bar-v938.js','utf8');
 
@@ -50,7 +51,7 @@ for(const marker of [
 assert.ok(registry.includes("sidebar-state-v933.js?v=90.33"),'centralized NHL sidebar controller must load globally');
 assert.ok(registry.includes("sidebar-plj-v927.js?v=90.34-sidebar-exclusive"),'PLJ sidebar must use the refreshed cache-busted module');
 assert.ok(registry.includes("sidebar-first-goal-v928.js?v=90.34-sidebar-exclusive"),'First Goal sidebar must use the refreshed cache-busted module');
-assert.ok(router.includes("view-v906.js?v=90.44-approved-concept"),'router must load the team-color PLJ cover-bar NHL build');
+assert.ok(router.includes("view-v906.js?v=90.45-approved-share-card"),'router must load the team-color PLJ cover-bar NHL build');
 assert.ok(wrapper.includes("plj-cover-bar-v938.js?v=90.38-cover-bars"),'NHL wrapper must load the team-color PLJ cover-bar module');
 assert.ok(wrapper.includes('installPljCoverBarsV938();'),'NHL wrapper must install PLJ cover bars');
 for(const marker of [
@@ -62,8 +63,17 @@ for(const marker of [
   "TOR:'#003E7E'",
   "VGK:'#B4975A'",
 ]) assert.ok(coverBar.includes(marker),`missing PLJ cover-bar behavior: ${marker}`);
-assert.ok(wrapper.includes("first-goal-v928.js?v=90.44-approved-concept"),'NHL wrapper must load the mobile-pinned First Goal module');
+assert.ok(wrapper.includes("first-goal-v928.js?v=90.45-approved-share-card"),'NHL wrapper must load the mobile-pinned First Goal module');
 assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.39-matchup"),'First Goal module must cache-bust the mobile-pinned stylesheet');
+assert.ok(firstGoalModel.includes("first-goal-share-v928.js?v=90.45-approved-share-card"),'First Goal module must load the approved share-card renderer');
+for(const marker of [
+  "market==='fgs'?'FIRST GOAL SCORER':'ANYTIME GOAL SCORER'",
+  "const WORDMARK_B64=",
+  "globalCompositeOperation='screen'",
+  "drawAspectImage(c,brandBg,535,155,530,660,'contain')",
+  "TOP 3 PER TEAM + RISKY VALUE",
+]) assert.ok(firstGoalShare.includes(marker),`missing approved scorer share-card behavior: ${marker}`);
+assert.ok(!firstGoalShare.includes("metallicText(c,'MODEL'"),'approved scorer share card must not render MODEL in the title');
 for(const marker of [
   'fgs-market-slot',
   'is-mobile-pinned',
