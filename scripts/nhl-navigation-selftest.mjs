@@ -51,7 +51,7 @@ for(const marker of [
 assert.ok(registry.includes("sidebar-state-v933.js?v=90.33"),'centralized NHL sidebar controller must load globally');
 assert.ok(registry.includes("sidebar-plj-v927.js?v=90.34-sidebar-exclusive"),'PLJ sidebar must use the refreshed cache-busted module');
 assert.ok(registry.includes("sidebar-first-goal-v928.js?v=90.34-sidebar-exclusive"),'First Goal sidebar must use the refreshed cache-busted module');
-assert.ok(router.includes("view-v906.js?v=90.51-logo-rings"),'router must load the team-color PLJ cover-bar NHL build');
+assert.ok(router.includes("view-v906.js?v=90.52-ice-logo-plates"),'router must load the team-color PLJ cover-bar NHL build');
 assert.ok(wrapper.includes("plj-cover-bar-v938.js?v=90.38-cover-bars"),'NHL wrapper must load the team-color PLJ cover-bar module');
 assert.ok(wrapper.includes('installPljCoverBarsV938();'),'NHL wrapper must install PLJ cover bars');
 for(const marker of [
@@ -63,8 +63,8 @@ for(const marker of [
   "TOR:'#003E7E'",
   "VGK:'#B4975A'",
 ]) assert.ok(coverBar.includes(marker),`missing PLJ cover-bar behavior: ${marker}`);
-assert.ok(wrapper.includes("first-goal-v928.js?v=90.51-logo-rings"),'NHL wrapper must load the mobile-pinned First Goal module');
-assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.51-logo-rings"),'First Goal module must cache-bust the mobile-pinned stylesheet');
+assert.ok(wrapper.includes("first-goal-v928.js?v=90.52-ice-logo-plates"),'NHL wrapper must load the mobile-pinned First Goal module');
+assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.52-ice-logo-plates"),'First Goal module must cache-bust the mobile-pinned stylesheet');
 assert.ok(firstGoalModel.includes("first-goal-share-v928.js?v=90.47-original-wordmark"),'First Goal module must load the approved share-card renderer');
 for(const marker of [
   "market==='fgs'?'FIRST GOAL SCORER':'ANYTIME GOAL SCORER'",
@@ -88,7 +88,7 @@ for(const marker of [
   'class="fgs-card-badge"',
   'class="fgs-metrics"',
   'class="fgs-player-details"',
-  "if(!l.getAttribute('href')?.includes('90.50-readable-matchups'))l.href=href",
+  "if(!l.getAttribute('href')?.includes('90.52-ice-logo-plates'))l.href=href",
   'class="fgs-tag team"',
 ]) assert.ok(firstGoalModel.includes(marker),`missing scorer model behavior/style hook: ${marker}`);
 for(const marker of [
@@ -108,6 +108,10 @@ for(const marker of [
   'position:absolute',
   'width:146px',
   'visible logo rings for dark/low-contrast team marks',
+  'high-contrast ice medallions for dark team logos',
+  '.fgs-logo-plate',
+  'data-abbr="WSH"',
+  'data-abbr="TB"',
   'border:1.5px solid rgba(236,247,255,.78)',
   'box-shadow:0 0 0 2px rgba(var(--fgs-accent-rgb),.28)',
   '--fgs-accent-rgb',
