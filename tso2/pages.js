@@ -39,51 +39,147 @@
 
   const pages = {
     live(league){
-      return header('LIVE CENTER','Everything happening now','Scores, gamecasts, win probability, model movement and live opportunities in one place.',league,'Open Multi-Game View') +
-      filterBar(league,'<button class="filter-button active-filter">● Live only</button>') +
-      `<section class="live-layout">
-        <div class="live-board panel">
-          <div class="section-heading compact-heading"><div><span class="eyebrow">IN PROGRESS</span><h2>Live games</h2></div><span class="data-freshness">Updated 12 sec ago</span></div>
-          <div class="game-table">
-            <button class="game-row featured-game">
-              <span class="game-state live-tag"><i></i>2ND 12:34</span>
-              <span class="game-teams"><b><i class="team-badge">PIT</i> Pittsburgh</b><b><i class="team-badge">PHI</i> Philadelphia</b></span>
-              <span class="game-score"><b>2</b><b>1</b></span>
-              <span class="game-model"><small>WIN PROB</small><b>PIT 68%</b></span>
-              <span class="game-arrow">›</span>
+      return `
+      <section class="live-page broadcast-destination">
+        <section class="destination-hero live-destination-hero">
+          <div>
+            <span class="destination-kicker"><i></i> LIVE CENTER · ${leagueName(league)}</span>
+            <h1>Everything happening now.</h1>
+            <p>Scores, live win probability, model movement and market signals — organized around the games that matter.</p>
+          </div>
+          <div class="destination-actions">
+            <button class="button secondary">Save view</button>
+            <button class="button primary">MULTI-GAME VIEW →</button>
+          </div>
+        </section>
+
+        <section class="live-filter-strip">
+          <div class="segmented destination-segmented">
+            <button class="${league==='all'?'is-active':''}" data-inline-league="all">ALL</button>
+            <button class="${league==='nhl'?'is-active':''}" data-inline-league="nhl">NHL</button>
+            <button class="${league==='nfl'?'is-active':''}" data-inline-league="nfl">NFL</button>
+            <button class="${league==='mlb'?'is-active':''}" data-inline-league="mlb">MLB</button>
+            <button class="${league==='nba'?'is-active':''}" data-inline-league="nba">NBA</button>
+          </div>
+          <div class="live-filter-meta"><span class="live-pulse"></span><b>3 LIVE</b><span>·</span><small>Updated 12 sec ago</small></div>
+        </section>
+
+        <section class="live-command-grid">
+          <article class="live-gamecast-hero">
+            <div class="live-gamecast-energy live-gamecast-energy--blue"></div>
+            <div class="live-gamecast-energy live-gamecast-energy--orange"></div>
+            <div class="live-gamecast-top">
+              <span class="live-state-chip"><i></i> LIVE · 2ND 12:34</span>
+              <span>NHL · GAMECAST</span>
+            </div>
+            <div class="live-matchup-stage">
+              <div class="live-team">
+                <span>PIT</span>
+                <strong>2</strong>
+                <small>Pittsburgh</small>
+              </div>
+              <div class="live-center-mark"><b>VS</b><span>PRIME TIME</span></div>
+              <div class="live-team live-team--away">
+                <span>PHI</span>
+                <strong>1</strong>
+                <small>Philadelphia</small>
+              </div>
+            </div>
+            <div class="live-stat-strip">
+              <div><span>WIN PROB</span><b>PIT 68%</b></div>
+              <div><span>SHOTS</span><b>21–14</b></div>
+              <div><span>xG</span><b>1.94–1.12</b></div>
+              <div><span>NEXT GOAL</span><b>PIT 61%</b></div>
+            </div>
+            <div class="live-gamecast-footer">
+              <div><span>OUTPOST LIVE LEAN</span><b>PIT next goal</b><strong>+142</strong></div>
+              <button class="broadcast-cta">OPEN GAMECAST →</button>
+            </div>
+          </article>
+
+          <aside class="live-signal-board">
+            <div class="live-signal-head">
+              <div><span class="orange-kicker">LIVE SIGNALS</span><h2>What moved</h2></div>
+              <span>NOW</span>
+            </div>
+            <div class="live-signal-row">
+              <span class="signal-rank">01</span>
+              <div><b>Sidney Crosby</b><small>Anytime Goal · PIT</small></div>
+              <span class="signal-metric"><small>MODEL</small><b>34.8%</b></span>
+              <strong class="positive">+7.0%</strong>
+            </div>
+            <div class="live-signal-row">
+              <span class="signal-rank">02</span>
+              <div><b>CeeDee Lamb</b><small>100+ Receiving · DAL</small></div>
+              <span class="signal-metric"><small>MODEL</small><b>57%</b></span>
+              <strong class="positive">+16%</strong>
+            </div>
+            <div class="live-signal-row">
+              <span class="signal-rank">03</span>
+              <div><b>Connor McDavid</b><small>Shots O 3.5 · EDM</small></div>
+              <span class="signal-metric"><small>PRICE</small><b>-105</b></span>
+              <strong class="signal-up">▲</strong>
+            </div>
+            <div class="live-signal-footer"><span>42 markets tracked</span><b>2 high-edge moves</b></div>
+          </aside>
+        </section>
+
+        <section class="destination-section live-games-section">
+          <div class="destination-section-head">
+            <div><span class="gold-kicker">LIVE SCOREBOARD</span><h2>Games in progress</h2></div>
+            <button>FULL SCOREBOARD →</button>
+          </div>
+          <div class="live-score-board">
+            <button class="live-score-row is-featured">
+              <span class="live-score-state"><i></i>2ND 12:34</span>
+              <span class="live-score-matchup"><b>PIT</b><strong>2</strong><em>VS</em><strong>1</strong><b>PHI</b></span>
+              <span class="live-score-context"><small>WIN PROB</small><b>PIT 68%</b></span>
+              <span class="live-score-context"><small>NEXT GOAL</small><b>PIT 61%</b></span>
+              <span class="live-score-action">GAMECAST →</span>
             </button>
-            <button class="game-row">
-              <span class="game-state live-tag"><i></i>Q3 6:41</span>
-              <span class="game-teams"><b><i class="team-badge">DAL</i> Dallas</b><b><i class="team-badge">NYG</i> New York</b></span>
-              <span class="game-score"><b>17</b><b>10</b></span>
-              <span class="game-model"><small>NEXT SCORE</small><b>DAL 57%</b></span>
-              <span class="game-arrow">›</span>
+            <button class="live-score-row">
+              <span class="live-score-state"><i></i>Q3 6:41</span>
+              <span class="live-score-matchup"><b>DAL</b><strong>17</strong><em>VS</em><strong>10</strong><b>NYG</b></span>
+              <span class="live-score-context"><small>WIN PROB</small><b>DAL 74%</b></span>
+              <span class="live-score-context"><small>NEXT SCORE</small><b>DAL 57%</b></span>
+              <span class="live-score-action">GAMECAST →</span>
             </button>
-            <button class="game-row">
-              <span class="game-state live-tag"><i></i>3RD 8:12</span>
-              <span class="game-teams"><b><i class="team-badge">TOR</i> Toronto</b><b><i class="team-badge">MTL</i> Montreal</b></span>
-              <span class="game-score"><b>3</b><b>3</b></span>
-              <span class="game-model"><small>WIN PROB</small><b>TOR 54%</b></span>
-              <span class="game-arrow">›</span>
+            <button class="live-score-row">
+              <span class="live-score-state"><i></i>3RD 8:12</span>
+              <span class="live-score-matchup"><b>TOR</b><strong>3</strong><em>VS</em><strong>3</strong><b>MTL</b></span>
+              <span class="live-score-context"><small>WIN PROB</small><b>TOR 54%</b></span>
+              <span class="live-score-context"><small>NEXT GOAL</small><b>TOR 52%</b></span>
+              <span class="live-score-action">GAMECAST →</span>
             </button>
           </div>
-        </div>
-        <aside class="live-focus panel">
-          <div class="eyebrow">LIVE FOCUS</div><h2>PIT @ PHI</h2>
-          <div class="focus-score"><span>PIT</span><b>2</b><em>12:34 · 2ND</em><b>1</b><span>PHI</span></div>
-          <div class="focus-grid">
-            <div><span>Shots</span><b>21–14</b></div><div><span>xG</span><b>1.94–1.12</b></div><div><span>PP</span><b>1/2–0/1</b></div>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="violet-kicker">MODEL MOVEMENT</span><h2>Live probabilities changing</h2></div>
+            <button data-route-jump="models">OPEN MODELS →</button>
           </div>
-          <div class="insight-callout"><span>OUTPOST LIVE LEAN</span><b>PIT next goal · 61%</b><small>Shot share and offensive-zone time are both accelerating.</small></div>
-          <button class="button primary full">Open Gamecast</button>
-        </aside>
-      </section>
-      <section class="section-block">
-        <div class="section-heading"><div><span class="eyebrow">LIVE MODEL MOVES</span><h2>What changed since puck/kickoff</h2></div></div>
-        <div class="movement-board">
-          <div class="movement-item"><span class="league-badge">NHL</span><div><b>Sidney Crosby · Anytime Goal</b><small>Model probability climbed after 4 shots / 2 high-danger chances.</small></div><strong>28% → 35%</strong><i>+7%</i></div>
-          <div class="movement-item"><span class="league-badge">NFL</span><div><b>CeeDee Lamb · 100+ Receiving</b><small>Target share up to 38% through three quarters.</small></div><strong>41% → 57%</strong><i>+16%</i></div>
-        </div>
+          <div class="live-model-grid">
+            <article class="live-model-card live-model-card--violet">
+              <div class="live-model-top"><span>NHL · ANYTIME GOAL</span><b>HIGH CONF</b></div>
+              <div class="live-model-player"><div><h3>Sidney Crosby</h3><small>PIT · C · vs PHI</small></div><span class="live-model-badge"><small>MODEL</small><strong>34.8%</strong></span></div>
+              <div class="live-model-shift"><span><small>PREGAME</small><b>28.0%</b></span><i>→</i><span><small>LIVE</small><b>34.8%</b></span><strong class="positive">+6.8%</strong></div>
+              <div class="live-model-reason">4 shots · 2 high-danger chances · offensive-zone time rising</div>
+            </article>
+            <article class="live-model-card live-model-card--gold">
+              <div class="live-model-top"><span>NFL · RECEIVING</span><b>FAST MOVE</b></div>
+              <div class="live-model-player"><div><h3>CeeDee Lamb</h3><small>DAL · WR · at NYG</small></div><span class="live-model-badge"><small>MODEL</small><strong>57%</strong></span></div>
+              <div class="live-model-shift"><span><small>PREGAME</small><b>41%</b></span><i>→</i><span><small>LIVE</small><b>57%</b></span><strong class="positive">+16%</strong></div>
+              <div class="live-model-reason">38% target share · game script holding · route volume intact</div>
+            </article>
+            <article class="live-model-card live-model-card--orange">
+              <div class="live-model-top"><span>NHL · SHOTS</span><b>PRICE MOVE</b></div>
+              <div class="live-model-player"><div><h3>Connor McDavid</h3><small>EDM · C · vs CGY</small></div><span class="live-model-badge"><small>PRICE</small><strong>-105</strong></span></div>
+              <div class="live-model-shift"><span><small>OPEN</small><b>+115</b></span><i>→</i><span><small>NOW</small><b>-105</b></span><strong class="signal-up">▲ 20¢</strong></div>
+              <div class="live-model-reason">Market following volume · model remains ahead of current price</div>
+            </article>
+          </div>
+        </section>
       </section>`;
     },
 
