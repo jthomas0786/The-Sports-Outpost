@@ -1,7 +1,7 @@
 {
-  "version": "2.0.1",
+  "version": "2.1.0",
   "system": "Outpost Broadcast",
-  "updated": "2026-10-03",
+  "updated": "2026-10-04",
   "approved_master_reference": "TSO 2.0 concept board approved in chat on 2026-10-03",
   "quality_gate": {
     "exact_direction_required": true,
@@ -10,8 +10,141 @@
     "production_requires_explicit_approval": true
   },
   "categories": {
-    "identity": [],
-    "sports": [],
+    "identity": [
+      {
+        "id": "primary",
+        "label": "Primary logo",
+        "dimensions": [
+          417,
+          212
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          8,
+          24,
+          425,
+          236
+        ]
+      },
+      {
+        "id": "compact",
+        "label": "Compact logo",
+        "dimensions": [
+          219,
+          212
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          438,
+          25,
+          657,
+          237
+        ]
+      },
+      {
+        "id": "app_icon",
+        "label": "App icon",
+        "dimensions": [
+          186,
+          182
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          674,
+          42,
+          860,
+          224
+        ]
+      },
+      {
+        "id": "favicon",
+        "label": "Favicon mark",
+        "dimensions": [
+          119,
+          152
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          881,
+          68,
+          1000,
+          220
+        ]
+      },
+      {
+        "id": "wordmark_horizontal",
+        "label": "Horizontal wordmark",
+        "dimensions": [
+          513,
+          184
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          1015,
+          37,
+          1528,
+          221
+        ]
+      }
+    ],
+    "sports": [
+      {
+        "league": "MLB",
+        "dimensions": [
+          174,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          12,
+          272,
+          186,
+          419
+        ]
+      },
+      {
+        "league": "NFL",
+        "dimensions": [
+          178,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          200,
+          272,
+          378,
+          419
+        ]
+      },
+      {
+        "league": "NBA",
+        "dimensions": [
+          178,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          392,
+          272,
+          570,
+          419
+        ]
+      },
+      {
+        "league": "NHL",
+        "dimensions": [
+          176,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          584,
+          272,
+          760,
+          419
+        ]
+      }
+    ],
     "products": [],
     "badges": [],
     "backgrounds": [],
@@ -27,6 +160,27 @@
     "approved_board_embedded_in_brand_lab": true,
     "exact_wordmark_installed_in_masthead": true,
     "source": "Approved concept board from current ChatGPT project",
-    "rule": "Use exact approved artwork source; no simplified redraws"
+    "rule": "Use exact approved artwork source; no simplified redraws",
+    "brand_lab_preview": {
+      "current_preview_delivery": [
+        768,
+        512
+      ],
+      "native_size_only": true,
+      "upscaling_disabled": true,
+      "full_resolution_master": [
+        1536,
+        1024
+      ]
+    }
+  },
+  "master_source": {
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "format": "PNG",
+    "status": "locked",
+    "usage": "Source of truth for every TSO 2.0 brand export"
   }
 }
