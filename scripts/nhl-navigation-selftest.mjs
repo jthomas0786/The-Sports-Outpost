@@ -51,7 +51,7 @@ for(const marker of [
 assert.ok(registry.includes("sidebar-state-v933.js?v=90.33"),'centralized NHL sidebar controller must load globally');
 assert.ok(registry.includes("sidebar-plj-v927.js?v=90.34-sidebar-exclusive"),'PLJ sidebar must use the refreshed cache-busted module');
 assert.ok(registry.includes("sidebar-first-goal-v928.js?v=90.34-sidebar-exclusive"),'First Goal sidebar must use the refreshed cache-busted module');
-assert.ok(router.includes("view-v906.js?v=90.48-share-player-cards"),'router must load the team-color PLJ cover-bar NHL build');
+assert.ok(router.includes("view-v906.js?v=90.49-compact-metrics"),'router must load the team-color PLJ cover-bar NHL build');
 assert.ok(wrapper.includes("plj-cover-bar-v938.js?v=90.38-cover-bars"),'NHL wrapper must load the team-color PLJ cover-bar module');
 assert.ok(wrapper.includes('installPljCoverBarsV938();'),'NHL wrapper must install PLJ cover bars');
 for(const marker of [
@@ -63,8 +63,8 @@ for(const marker of [
   "TOR:'#003E7E'",
   "VGK:'#B4975A'",
 ]) assert.ok(coverBar.includes(marker),`missing PLJ cover-bar behavior: ${marker}`);
-assert.ok(wrapper.includes("first-goal-v928.js?v=90.48-share-player-cards"),'NHL wrapper must load the mobile-pinned First Goal module');
-assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.48-share-player-cards"),'First Goal module must cache-bust the mobile-pinned stylesheet');
+assert.ok(wrapper.includes("first-goal-v928.js?v=90.49-compact-metrics"),'NHL wrapper must load the mobile-pinned First Goal module');
+assert.ok(firstGoalModel.includes("first-goal-v928.css?v=90.49-compact-metrics"),'First Goal module must cache-bust the mobile-pinned stylesheet');
 assert.ok(firstGoalModel.includes("first-goal-share-v928.js?v=90.47-original-wordmark"),'First Goal module must load the approved share-card renderer');
 for(const marker of [
   "market==='fgs'?'FIRST GOAL SCORER':'ANYTIME GOAL SCORER'",
@@ -87,6 +87,7 @@ for(const marker of [
   'const TEAM_COLORS=',
   'class="fgs-card-badge"',
   'class="fgs-metrics"',
+  'class="fgs-player-details"',
   'class="fgs-tag team"',
 ]) assert.ok(firstGoalModel.includes(marker),`missing scorer model behavior/style hook: ${marker}`);
 for(const marker of [
@@ -100,6 +101,9 @@ for(const marker of [
   '.fgs-player-name',
   '.fgs-metrics',
   '.fgs-metric',
+  '.fgs-player-details',
+  'white-space:normal',
+  'overflow-wrap:anywhere',
   '--fgs-accent-rgb',
 ]) assert.ok(firstGoalCss.includes(marker),`missing scorer model/share-card style: ${marker}`);
 assert.ok(firstGoal.includes("closeNhlFeaturePanels('first-goal')"),'First Goal must close competing NHL feature state before opening');
