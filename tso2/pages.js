@@ -354,25 +354,250 @@
     },
 
     models(league){
-      return header('MODEL HUB','One model language. Every sport.','Compare probabilities, market expectations and Outpost confidence without relearning the interface.',league,'Run Model Board') +
-      filterBar(league,'<button class="filter-button">Sort: Edge</button><button class="filter-button">Confidence 75+</button>') +
-      `<section class="model-family-grid">
-        <button class="family-card active-family"><span>◎</span><b>Scoring</b><small>Goal · TD · HR · points</small><i>27 edges</i></button>
-        <button class="family-card"><span>◫</span><b>Player Props</b><small>Volume · yards · shots</small><i>84 edges</i></button>
-        <button class="family-card"><span>⌁</span><b>Game Models</b><small>Moneyline · totals · spreads</small><i>19 edges</i></button>
-        <button class="family-card"><span>✦</span><b>Live Models</b><small>Next score · live props</small><i>11 active</i></button>
-      </section>
-      <section class="section-block">
-        <div class="section-heading"><div><span class="eyebrow">TOP EDGES</span><h2>Best model-vs-market gaps</h2></div><span class="data-freshness">Model board refreshed 1 min ago</span></div>
-        <div class="model-grid">
-          ${modelCard('NHL','ANYTIME GOAL','Sidney Crosby','PIT · C · vs PHI','34.8','27.2','7.6','88','+268','DK','HIGH EDGE')}
-          ${modelCard('NFL','ANYTIME TD','Saquon Barkley','PHI · RB · vs DAL','63.1','55.4','7.7','84','-124','FD','HIGH EDGE')}
-          ${modelCard('MLB','HOME RUN','Pete Alonso','BAL · 1B · vs NYY','29.4','21.7','7.7','81','+360','365','VALUE')}
-        </div>
-      </section>
-      <section class="panel model-explainer">
-        <div><span class="eyebrow">CONSISTENT MODEL LANGUAGE</span><h2>Same scorecard everywhere</h2><p>Every sport uses Model %, Market %, Edge, Outpost Confidence and Best Price in the same locations. Sport-specific inputs live inside analysis, not in a completely different UI.</p></div>
-        <div class="model-key"><span><i class="key-blue"></i>Model probability</span><span><i class="key-green"></i>Positive edge</span><span><i class="key-line"></i>Market baseline</span></div>
+      return `
+      <section class="models-page broadcast-destination">
+        <section class="destination-hero models-destination-hero">
+          <div class="models-hero-copy">
+            <div class="models-title-lockup">
+              <img class="models-hero-icon" src="/brand/production/tso2-product-models-approved.webp" alt="" />
+              <span class="destination-kicker models-kicker">MODEL COMMAND CENTER · ${leagueName(league)}</span>
+            </div>
+            <h1>Where the numbers become a decision.</h1>
+            <p>Every TSO model in one command center — probabilities, market gaps, confidence, price movement and the signals driving the projection.</p>
+          </div>
+          <div class="destination-actions">
+            <button class="button secondary">MODEL HISTORY</button>
+            <button class="button primary">RUN MODEL BOARD →</button>
+          </div>
+        </section>
+
+        <section class="models-status-strip">
+          <div><span class="model-live-dot"></span><b>MODEL FEED LIVE</b><small>All engines online</small></div>
+          <span class="models-status-divider"></span>
+          <div><b>4 SPORTS</b><small>One scoring language</small></div>
+          <span class="models-status-divider"></span>
+          <div><b>6 ENGINES</b><small>Scoring · props · games · live</small></div>
+          <span class="models-status-divider"></span>
+          <div><b>42 SEC</b><small>Since latest refresh</small></div>
+        </section>
+
+        <section class="models-engine-tabs">
+          <button class="models-engine-tab is-active">
+            <span class="models-engine-mark models-engine-mark--violet">◎</span>
+            <div><b>SCORING</b><small>Goal · TD · HR</small></div>
+            <i>27 EDGES</i>
+          </button>
+          <button class="models-engine-tab">
+            <span class="models-engine-mark models-engine-mark--blue">◫</span>
+            <div><b>PLAYER PROPS</b><small>Volume · yards · shots</small></div>
+            <i>84 EDGES</i>
+          </button>
+          <button class="models-engine-tab">
+            <span class="models-engine-mark models-engine-mark--gold">⌁</span>
+            <div><b>GAME MODELS</b><small>Moneyline · spread · total</small></div>
+            <i>19 EDGES</i>
+          </button>
+          <button class="models-engine-tab">
+            <span class="models-engine-mark models-engine-mark--orange">✦</span>
+            <div><b>LIVE MODELS</b><small>Next score · live props</small></div>
+            <i>11 ACTIVE</i>
+          </button>
+        </section>
+
+        <section class="models-command-grid">
+          <article class="model-spotlight-card">
+            <div class="model-spotlight-glow"></div>
+            <div class="model-spotlight-top">
+              <span>NHL · ANYTIME GOAL</span>
+              <b>HIGH CONFIDENCE</b>
+            </div>
+
+            <div class="model-spotlight-main">
+              <div class="model-spotlight-player">
+                <span class="model-player-number">87</span>
+                <div>
+                  <small>PIT · C · vs PHI</small>
+                  <h2>Sidney Crosby</h2>
+                  <p>Anytime Goal</p>
+                </div>
+              </div>
+
+              <div class="model-probability-ring">
+                <div><small>MODEL</small><strong>34.8%</strong><span>probability</span></div>
+              </div>
+            </div>
+
+            <div class="model-score-line">
+              <div><span>MARKET</span><b>27.2%</b></div>
+              <div><span>EDGE</span><b class="positive">+7.6%</b></div>
+              <div><span>CONFIDENCE</span><b>88 / 100</b></div>
+              <div><span>BEST PRICE</span><b>+268 <small>DK</small></b></div>
+            </div>
+
+            <div class="model-confidence-band">
+              <div><span>OUTPOST CONFIDENCE</span><b>VERY HIGH</b></div>
+              <div class="model-confidence-track"><i style="width:88%"></i></div>
+            </div>
+
+            <div class="model-driver-grid">
+              <div><span>SHOT VOLUME</span><b>↑ STRONG</b><small>4.1 SOG projection</small></div>
+              <div><span>GOALIE MATCHUP</span><b>+ FAVORABLE</b><small>HD save-rate edge</small></div>
+              <div><span>POWER PLAY</span><b>TOP UNIT</b><small>PP1 role intact</small></div>
+              <div><span>MARKET GAP</span><b class="positive">+7.6%</b><small>Model ahead of price</small></div>
+            </div>
+
+            <div class="model-spotlight-footer">
+              <div><span>OUTPOST READ</span><b>Volume + matchup + price are aligned.</b><small>The current market still trails the model projection.</small></div>
+              <button class="broadcast-cta">OPEN FULL MODEL →</button>
+            </div>
+          </article>
+
+          <aside class="model-edge-board">
+            <div class="model-edge-head">
+              <div><span class="violet-kicker">EDGE BOARD</span><h2>Best gaps right now</h2></div>
+              <span>LIVE</span>
+            </div>
+            <button class="model-edge-row is-featured">
+              <span class="model-edge-rank">01</span>
+              <div><b>Sidney Crosby</b><small>NHL · Anytime Goal</small></div>
+              <span><small>MODEL</small><b>34.8%</b></span>
+              <strong class="positive">+7.6%</strong>
+            </button>
+            <button class="model-edge-row">
+              <span class="model-edge-rank">02</span>
+              <div><b>Saquon Barkley</b><small>NFL · Anytime TD</small></div>
+              <span><small>MODEL</small><b>63.1%</b></span>
+              <strong class="positive">+7.7%</strong>
+            </button>
+            <button class="model-edge-row">
+              <span class="model-edge-rank">03</span>
+              <div><b>Pete Alonso</b><small>MLB · Home Run</small></div>
+              <span><small>MODEL</small><b>29.4%</b></span>
+              <strong class="positive">+7.7%</strong>
+            </button>
+            <button class="model-edge-row">
+              <span class="model-edge-rank">04</span>
+              <div><b>Connor McDavid</b><small>NHL · O 3.5 Shots</small></div>
+              <span><small>MODEL</small><b>67.0%</b></span>
+              <strong class="positive">+8.2%</strong>
+            </button>
+            <button class="model-edge-row">
+              <span class="model-edge-rank">05</span>
+              <div><b>Travis Kelce</b><small>NFL · O 67.5 Rec Yds</small></div>
+              <span><small>MODEL</small><b>61.0%</b></span>
+              <strong class="positive">+5.8%</strong>
+            </button>
+            <div class="model-edge-footer"><span>Sorted by model-vs-market edge</span><button>FULL BOARD →</button></div>
+          </aside>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="violet-kicker">MODEL ENGINES</span><h2>Purpose-built models. One system.</h2></div>
+            <button>MODEL METHODOLOGY →</button>
+          </div>
+          <div class="model-engine-grid">
+            <article class="model-engine-card model-engine-card--violet">
+              <div class="model-engine-top"><span>NHL</span><b>SCORING</b></div>
+              <h3>First Goal</h3>
+              <p>Opening-score probability using role, shot generation, line deployment, matchup and game environment.</p>
+              <div><span>TOP SIGNAL</span><b>Crosby · 8.7%</b></div>
+              <button>OPEN ENGINE →</button>
+            </article>
+            <article class="model-engine-card model-engine-card--purple">
+              <div class="model-engine-top"><span>NHL</span><b>SCORING</b></div>
+              <h3>Anytime Goal</h3>
+              <p>Full-game scoring probability built around usage, expected chances, matchup quality and goalie context.</p>
+              <div><span>TOP SIGNAL</span><b>Crosby · 34.8%</b></div>
+              <button>OPEN ENGINE →</button>
+            </article>
+            <article class="model-engine-card model-engine-card--blue">
+              <div class="model-engine-top"><span>NFL</span><b>SCORING</b></div>
+              <h3>Anytime TD</h3>
+              <p>Touchdown probability driven by red-zone role, opportunity share, game script and defensive matchup.</p>
+              <div><span>TOP SIGNAL</span><b>Barkley · 63.1%</b></div>
+              <button>OPEN ENGINE →</button>
+            </article>
+            <article class="model-engine-card model-engine-card--gold">
+              <div class="model-engine-top"><span>MLB</span><b>POWER</b></div>
+              <h3>Home Run</h3>
+              <p>Power probability blending contact quality, pitcher profile, park, weather and expected plate appearances.</p>
+              <div><span>TOP SIGNAL</span><b>Alonso · 29.4%</b></div>
+              <button>OPEN ENGINE →</button>
+            </article>
+            <article class="model-engine-card model-engine-card--cyan">
+              <div class="model-engine-top"><span>ALL SPORTS</span><b>PROPS</b></div>
+              <h3>Player Props</h3>
+              <p>Exact-line projections for shots, yards, receptions, points, bases and other volume markets.</p>
+              <div><span>TOP SIGNAL</span><b>McDavid O3.5 · 67%</b></div>
+              <button>OPEN ENGINE →</button>
+            </article>
+            <article class="model-engine-card model-engine-card--orange">
+              <div class="model-engine-top"><span>ALL SPORTS</span><b>GAME</b></div>
+              <h3>Game Models</h3>
+              <p>Win probability, spreads and totals with consistent context across NHL, NFL, MLB and NBA.</p>
+              <div><span>TOP SIGNAL</span><b>PIT ML · 68%</b></div>
+              <button>OPEN ENGINE →</button>
+            </article>
+          </div>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="gold-kicker">MODEL BOARD</span><h2>Every projection, ranked.</h2></div>
+            <div class="models-board-actions"><button>EDGE 3%+</button><button>CONF 70+</button></div>
+          </div>
+          <div class="models-board">
+            <div class="models-board-head">
+              <span>PLAYER / MARKET</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>CONF</span><span>BEST</span><span>MOVE</span>
+            </div>
+            <button class="models-board-row">
+              <span class="models-board-player"><i>NHL</i><span><b>Sidney Crosby</b><small>Anytime Goal · PIT vs PHI</small></span></span>
+              <strong>34.8%</strong><strong>27.2%</strong><strong class="positive">+7.6%</strong><span class="models-conf models-conf--high">88</span><span class="models-price"><b>+268</b><small>DK</small></span><span class="models-move up">▲ 12¢</span>
+            </button>
+            <button class="models-board-row">
+              <span class="models-board-player"><i>NFL</i><span><b>Saquon Barkley</b><small>Anytime TD · PHI vs DAL</small></span></span>
+              <strong>63.1%</strong><strong>55.4%</strong><strong class="positive">+7.7%</strong><span class="models-conf models-conf--high">84</span><span class="models-price"><b>-124</b><small>FD</small></span><span class="models-move flat">→ 2¢</span>
+            </button>
+            <button class="models-board-row">
+              <span class="models-board-player"><i>MLB</i><span><b>Pete Alonso</b><small>Home Run · BAL at NYY</small></span></span>
+              <strong>29.4%</strong><strong>21.7%</strong><strong class="positive">+7.7%</strong><span class="models-conf models-conf--mid">81</span><span class="models-price"><b>+360</b><small>365</small></span><span class="models-move up">▲ 15¢</span>
+            </button>
+            <button class="models-board-row">
+              <span class="models-board-player"><i>NHL</i><span><b>Connor McDavid</b><small>Over 3.5 Shots · EDM vs CGY</small></span></span>
+              <strong>67.0%</strong><strong>58.8%</strong><strong class="positive">+8.2%</strong><span class="models-conf models-conf--high">90</span><span class="models-price"><b>-105</b><small>DK</small></span><span class="models-move up">▲ 20¢</span>
+            </button>
+          </div>
+        </section>
+
+        <section class="models-intelligence-grid">
+          <article class="models-framework-card">
+            <div class="models-framework-head"><span class="violet-kicker">CONFIDENCE FRAMEWORK</span><h2>Same language everywhere</h2></div>
+            <div class="models-confidence-scale">
+              <div><span>VERY HIGH</span><b>85%+</b><i style="width:96%"></i></div>
+              <div><span>HIGH</span><b>70–84%</b><i style="width:80%"></i></div>
+              <div><span>MEDIUM</span><b>55–69%</b><i style="width:64%"></i></div>
+              <div><span>LOW</span><b>&lt;55%</b><i style="width:44%"></i></div>
+            </div>
+          </article>
+
+          <article class="models-framework-card">
+            <div class="models-framework-head"><span class="gold-kicker">WHAT FEEDS THE MODEL</span><h2>Context, not one stat</h2></div>
+            <div class="models-input-grid">
+              <span><i>01</i><b>Recent Form</b><small>Usage + production trend</small></span>
+              <span><i>02</i><b>Matchup</b><small>Opponent-specific context</small></span>
+              <span><i>03</i><b>Environment</b><small>Pace · venue · weather</small></span>
+              <span><i>04</i><b>Market</b><small>Price + line movement</small></span>
+            </div>
+          </article>
+
+          <article class="models-framework-card models-run-card">
+            <div class="models-framework-head"><span class="orange-kicker">LATEST RUN</span><h2>Model pulse</h2></div>
+            <div class="models-run-stat"><span>ENGINES</span><b>6 / 6</b><small>online</small></div>
+            <div class="models-run-stat"><span>HIGH-EDGE SIGNALS</span><b>18</b><small>across current board</small></div>
+            <div class="models-run-footer"><span class="model-live-dot"></span> Next automatic refresh active</div>
+          </article>
+        </section>
       </section>`;
     },
 
