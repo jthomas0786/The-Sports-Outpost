@@ -73,8 +73,15 @@ body{
 .broadcast-nav .nav-item.is-active{color:#fff;background:transparent;box-shadow:none;border-bottom-color:var(--outpost-orange)}
 .broadcast-nav .live-nav span{width:6px;height:6px;border-radius:50%;background:var(--outpost-orange);box-shadow:0 0 0 4px rgba(255,77,28,.12)}
 .masthead-actions{display:flex;align-items:center;gap:8px}.masthead .search-trigger{width:90px;border-radius:5px;background:#0d1015}.profile-pill{height:38px;border:1px solid var(--line);background:#0c1016;border-radius:5px;display:flex;align-items:center;gap:7px;padding:0 9px;cursor:pointer}.profile-pill .avatar{width:26px;height:26px;font-size:8px}.profile-pill b{font-size:9px}
-.league-bar{height:42px;max-width:1540px;margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.045)}
-.league-tabs{height:100%;display:flex;align-items:center;gap:0}.league-tabs .sport-item{height:100%;border-radius:0;padding:0 16px;color:#6f7680;font-size:9px;font-weight:900;letter-spacing:.09em;border-bottom:2px solid transparent}.league-tabs .sport-item:hover{background:transparent;color:#d9dde3}.league-tabs .sport-item.is-active{background:transparent;color:var(--outpost-gold);border-bottom-color:var(--outpost-gold)}
+.league-bar{height:58px;max-width:1540px;margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid rgba(255,255,255,.045)}
+.league-tabs{height:100%;display:flex;align-items:stretch;gap:2px}.league-tabs .sport-item{height:100%;border-radius:0;padding:0 13px;color:#6f7680;font-size:9px;font-weight:900;letter-spacing:.09em;border-bottom:2px solid transparent;display:flex;align-items:center;gap:8px;position:relative;overflow:hidden}.league-tabs .sport-item:hover{background:rgba(255,255,255,.025);color:#d9dde3}.league-tabs .sport-item.is-active{background:linear-gradient(180deg,rgba(255,255,255,.025),rgba(255,216,77,.035));color:var(--outpost-gold);border-bottom-color:var(--outpost-gold)}
+.sport-lockup{display:block;flex:0 0 auto;background-image:url("/brand/approved/tso2-master-board-approved.webp");background-repeat:no-repeat;background-size:384px 256px;filter:saturate(1.06) contrast(1.04)}
+.sport-lockup--all{width:30px;height:38px;background-position:-220px -17px}
+.sport-lockup--mlb{width:44px;height:37px;background-position:-3px -68px}
+.sport-lockup--nfl{width:44px;height:37px;background-position:-50px -68px}
+.sport-lockup--nba{width:44px;height:37px;background-position:-98px -68px}
+.sport-lockup--nhl{width:44px;height:37px;background-position:-146px -68px}
+.sport-label{white-space:nowrap}
 .market-status{font-size:8px;font-weight:800;letter-spacing:.1em;color:#747c87;display:flex;align-items:center;gap:8px}.status-dot{width:6px;height:6px;border-radius:50%;background:var(--outpost-green);box-shadow:0 0 10px rgba(79,227,155,.65)}
 .workspace{margin-left:0}.sidebar{display:none!important}
 .broadcast-score-strip{position:relative;height:66px;background:#090c11;border-bottom:1px solid rgba(255,255,255,.08);max-width:none;padding-left:max(0px,calc((100vw - 1540px)/2))}
@@ -121,3 +128,15 @@ body{
 .exact-approved-brand img{display:block;width:252px;height:auto;object-fit:contain;filter:none}
 @media(max-width:1160px){.exact-approved-brand{width:220px}.exact-approved-brand img{width:210px}}
 @media(max-width:900px){.exact-approved-brand{width:72px;height:52px}.exact-approved-brand img{width:150px;max-width:none;transform:translateX(-1px)}}
+
+/* TSO 2.0 approved-logo integration pass */
+.exact-approved-brand{filter:drop-shadow(0 8px 18px rgba(0,0,0,.34))}
+.exact-approved-brand img{image-rendering:auto}
+.league-tabs .sport-item::before{content:"";position:absolute;inset:auto 12px 0;height:1px;background:transparent}
+.league-tabs .sport-item.is-active::before{background:linear-gradient(90deg,transparent,var(--outpost-gold),transparent)}
+@media(max-width:900px){
+  .league-bar{height:52px}
+  .league-tabs .sport-item{padding:0 10px;gap:6px}
+  .league-tabs .sport-item .sport-label{font-size:8px}
+  .sport-lockup{transform:scale(.84);transform-origin:center}
+}
