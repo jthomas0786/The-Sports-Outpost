@@ -846,3 +846,12 @@ body{
   .league-tabs .sport-item--type::before{width:4px!important;height:4px!important;flex-basis:4px!important;margin-right:6px!important}
   .league-tabs .sport-item--type .sport-tab-name{font-size:10px!important}
 }
+
+/* Clean league selector — no decorative dots */
+.league-tabs .sport-item--type::before{
+  content:none!important;
+  display:none!important;
+}
+.league-tabs .sport-item--type{
+  gap:0!important;
+}
