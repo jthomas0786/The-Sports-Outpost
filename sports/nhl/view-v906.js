@@ -9,7 +9,7 @@ import {installPuckLineJesusRoutingV924} from './puck-line-jesus-routing-v924.js
 import {installPuckLineJesusAlertsV925} from './puck-line-jesus-alerts-v925.js?v=90.37-dog-cover';
 import {installPljBeginnerGuideV930} from './plj-beginner-guide-v930.js?v=90.31';
 import {installPljCoverBarsV938} from './plj-cover-bar-v938.js?v=90.38-cover-bars';
-import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.47-original-wordmark';
+import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.48-share-player-cards';
 import {nhlShouldLiveRefresh,nhlNextRefreshDelay,NHL_IDLE_PROBE_MS} from './refresh-policy-v933.js?v=90.33';
 
 let policySlate=null,policyFetchedAt=0,policyLoading=null,schedulerTimer=null,schedulerStarted=false;
