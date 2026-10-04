@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-04T02:00:03.877Z",
+  "updatedAt": "2026-10-04T02:12:26.149Z",
   "season": "2026-27",
   "summary": {
     "tracked": 34,
-    "completed": 16,
+    "completed": 17,
     "pljLive": 1,
     "pljCashes": 0,
     "lateCashes": 1,
@@ -31,7 +31,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 7,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "pre",
       "lastState": "UPCOMING",
       "lastStateAt": "2026-10-03T10:21:23.160Z",
@@ -86,10 +86,10 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 6,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-03T10:21:23.160Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
+      "status": "in",
+      "lastState": "NEEDS_RALLY",
+      "lastStateAt": "2026-10-04T02:12:26.149Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -106,6 +106,18 @@
           "code": "UPCOMING",
           "period": 0,
           "clock": "0:00",
+          "score": {
+            "away": 0,
+            "home": 0
+          },
+          "margin": 0,
+          "goaliePulled": false
+        },
+        {
+          "at": "2026-10-04T02:12:26.149Z",
+          "code": "NEEDS_RALLY",
+          "period": 1,
+          "clock": "18:53",
           "score": {
             "away": 0,
             "home": 0
@@ -141,7 +153,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 5,
       "createdAt": "2026-10-03T13:11:40.607Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "in",
       "lastState": "SAFE_COVER",
       "lastStateAt": "2026-10-04T01:35:19.484Z",
@@ -220,7 +232,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 6,
       "createdAt": "2026-10-03T13:11:40.607Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "in",
       "lastState": "NEEDS_RALLY",
       "lastStateAt": "2026-10-04T00:16:52.871Z",
@@ -287,7 +299,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 5,
       "createdAt": "2026-10-03T13:11:40.607Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "in",
       "lastState": "NEEDS_RALLY",
       "lastStateAt": "2026-10-04T00:09:37.994Z",
@@ -354,7 +366,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 6,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "in",
       "lastState": "NEEDS_RALLY",
       "lastStateAt": "2026-10-04T00:07:10.049Z",
@@ -398,9 +410,9 @@
       "latestBook": "BetRivers",
       "lastScore": {
         "away": 0,
-        "home": 3
+        "home": 6
       },
-      "lastMargin": -3
+      "lastMargin": -6
     },
     {
       "gameId": "401891776",
@@ -421,7 +433,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 6,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "post",
       "lastState": "MISSED_ONE",
       "lastStateAt": "2026-10-04T01:41:34.479Z",
@@ -515,19 +527,22 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 7,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
-      "status": "in",
-      "lastState": "NEEDS_RALLY",
-      "lastStateAt": "2026-10-04T00:07:10.049Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
+      "status": "post",
+      "lastState": "MISSED",
+      "lastStateAt": "2026-10-04T02:12:26.149Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "liveOutcome": null,
-      "outcome": null,
-      "finalScore": null,
+      "liveOutcome": "MISSED",
+      "outcome": "MISSED",
+      "finalScore": {
+        "away": 5,
+        "home": 6
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -553,15 +568,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-04T02:12:26.149Z",
+          "code": "MISSED",
+          "period": 4,
+          "clock": "0:00",
+          "score": {
+            "away": 5,
+            "home": 6
+          },
+          "margin": -1,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 216,
       "latestBook": "Pinnacle",
       "lastScore": {
-        "away": 3,
-        "home": 5
+        "away": 5,
+        "home": 6
       },
-      "lastMargin": -2
+      "lastMargin": -1
     },
     {
       "gameId": "401892434",
@@ -582,7 +609,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 6,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "post",
       "lastState": "MISSED",
       "lastStateAt": "2026-10-04T01:51:35.984Z",
@@ -664,7 +691,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 7,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "post",
       "lastState": "COVERED",
       "lastStateAt": "2026-10-04T01:48:07.222Z",
@@ -770,7 +797,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 6,
       "createdAt": "2026-10-03T10:21:23.160Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "post",
       "lastState": "COVERED",
       "lastStateAt": "2026-10-04T01:48:07.222Z",
@@ -864,7 +891,7 @@
       "initialBook": "BetRivers",
       "sportsbookCount": 7,
       "createdAt": "2026-10-03T13:11:40.607Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "post",
       "lastState": "COVERED",
       "lastStateAt": "2026-10-04T01:48:07.222Z",
@@ -994,7 +1021,7 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 7,
       "createdAt": "2026-10-03T13:11:40.607Z",
-      "updatedAt": "2026-10-04T02:00:03.877Z",
+      "updatedAt": "2026-10-04T02:12:26.149Z",
       "status": "post",
       "lastState": "MISSED_ONE",
       "lastStateAt": "2026-10-04T01:48:07.222Z",
