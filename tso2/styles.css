@@ -684,3 +684,34 @@ body{
   .league-tabs .sport-item--clean .sport-tab-art img{width:72px!important}
   .league-tabs .sport-item--clean .sport-tab-label{font-size:12px!important}
 }
+
+/* Finished league art — league names baked into the assets */
+.league-bar{height:96px!important}
+.league-tabs .sport-item--finished{
+  width:104px!important;
+  min-width:104px!important;
+  height:96px!important;
+  padding:6px 8px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+}
+.league-tabs .sport-item--finished .sport-tab-finished{
+  display:block!important;
+  width:88px!important;
+  height:auto!important;
+  max-height:84px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  image-rendering:auto!important;
+  filter:none!important;
+  transform:none!important;
+}
+.league-tabs .sport-item--finished:hover .sport-tab-finished{transform:translateY(-1px)!important}
+.league-tabs .sport-item--finished.is-active .sport-tab-finished{filter:brightness(1.08)!important}
+@media(max-width:900px){
+  .league-bar{height:84px!important}
+  .league-tabs .sport-item--finished{width:90px!important;min-width:90px!important;height:84px!important;padding:5px 6px!important}
+  .league-tabs .sport-item--finished .sport-tab-finished{width:76px!important;max-height:72px!important}
+}
