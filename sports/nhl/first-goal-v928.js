@@ -1,5 +1,5 @@
 import {getJSON,text as esc} from './data.js?v=90.23';
-import {downloadScorerCard,shareScorerCard} from './first-goal-share-v928.js?v=90.45-approved-share-card';
+import {downloadScorerCard,shareScorerCard} from './first-goal-share-v928.js?v=90.46-wordmark-fix';
 
 let installed=false,active=false,market='fgs',data=null,observer=null,pinRaf=0;
 const price=v=>v==null?'—':`${Number(v)>0?'+':''}${Number(v)}`;
