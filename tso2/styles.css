@@ -140,3 +140,79 @@ body{
   .league-tabs .sport-item .sport-label{font-size:8px}
   .sport-lockup{transform:scale(.84);transform-origin:center}
 }
+
+/* Approved product icon family — exact crops from locked master board */
+.branded-product-nav .nav-item{
+  flex-direction:column;
+  gap:2px;
+  min-width:66px;
+  padding:5px 8px 3px;
+}
+.branded-product-nav .nav-item b{
+  font-size:8px;
+  line-height:1;
+  letter-spacing:.075em;
+  font-weight:900;
+}
+.branded-product-nav .nav-product-icon{
+  display:block;
+  width:29px!important;
+  height:29px;
+  flex:0 0 29px;
+  background-image:url("/brand/approved/tso2-master-board-approved.webp");
+  background-repeat:no-repeat;
+  background-size:430px 287px;
+  filter:saturate(1.08) contrast(1.04);
+}
+.branded-product-nav .nav-product-icon--home{
+  background-size:230px 154px;
+  background-position:-101px -6px;
+}
+.branded-product-nav .nav-product-icon--live{background-position:-220px -77px}
+.branded-product-nav .nav-product-icon--models{background-position:-249px -77px}
+.branded-product-nav .nav-product-icon--research{background-position:-279px -77px}
+.branded-product-nav .nav-product-icon--props{background-position:-308px -77px}
+.branded-product-nav .nav-product-icon--parlay{background-position:-338px -77px}
+.branded-product-nav .nav-product-icon--community{background-position:-367px -77px}
+.branded-product-nav .nav-product-icon--rankings{background-position:-396px -77px}
+.branded-product-nav .nav-item.is-active .nav-product-icon{
+  filter:saturate(1.16) contrast(1.06) brightness(1.09);
+}
+
+.branded-action-band button{
+  min-height:128px;
+  padding:18px 20px;
+  align-items:flex-start;
+  justify-content:flex-end;
+  position:relative;
+  overflow:hidden;
+}
+.branded-action-band button::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at 18% 22%,rgba(255,255,255,.055),transparent 34%);
+  pointer-events:none;
+}
+.branded-action-band .action-product-icon{
+  display:block;
+  width:40px;
+  height:41px;
+  margin-bottom:auto;
+  background-image:url("/brand/approved/tso2-master-board-approved.webp");
+  background-repeat:no-repeat;
+  background-size:614px 410px;
+  filter:saturate(1.08) contrast(1.04);
+}
+.action-product-icon--models{background-position:-356px -110px}
+.action-product-icon--research{background-position:-398px -110px}
+.action-product-icon--props{background-position:-440px -110px}
+.action-product-icon--parlay{background-position:-482px -110px}
+.branded-action-band button b{position:relative;z-index:1}
+.branded-action-band button small{position:relative;z-index:1}
+
+@media(max-width:1160px) and (min-width:901px){
+  .branded-product-nav .nav-item{min-width:56px;padding-left:5px;padding-right:5px}
+  .branded-product-nav .nav-item b{font-size:7px;letter-spacing:.04em}
+  .branded-product-nav .nav-product-icon{transform:scale(.88)}
+}
