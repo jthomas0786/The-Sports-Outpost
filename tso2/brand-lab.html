@@ -109,6 +109,23 @@
   .identity-window{transform:scale(.78)!important;transform-origin:center!important}
   .proof-sports{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* Finished production assets — direct images only */
+.proof-sports{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px!important;margin-top:22px!important}
+.proof-sport{padding:0!important;border:1px solid #1f2630!important;background:#020407!important;overflow:hidden!important}
+.proof-sport-finished{display:block!important;width:100%!important;height:auto!important;max-width:none!important;object-fit:contain!important;filter:none!important;image-rendering:auto!important}
+.identity-preview{min-height:220px!important;padding:20px!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important}
+.identity-direct{display:block!important;width:auto!important;height:auto!important;max-width:100%!important;max-height:190px!important;object-fit:contain!important;filter:none!important;image-rendering:auto!important}
+.identity-direct--primary{max-width:520px!important}
+.identity-direct--compact{max-width:310px!important}
+.identity-direct--app{max-width:240px!important}
+.identity-direct--favicon{max-width:160px!important}
+.identity-wordmark{display:block!important;width:520px!important;max-width:100%!important;height:auto!important;max-height:190px!important;object-fit:contain!important;filter:none!important;image-rendering:auto!important}
+@media(max-width:720px){
+  .proof-sports{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .identity-preview{min-height:180px!important}
+  .identity-direct{max-height:155px!important}
+}
 </style>
 </head>
 <body>
@@ -132,10 +149,10 @@
         <h3>Judge the real assets — not a reduced board preview.</h3>
         <p>These sport lockups are exact approved exports served as individual production files and rendered below native size for sharpness.</p>
         <div class="proof-sports">
-          <div class="proof-sport proof-sport--nhl"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-nhl-approved.webp" alt="Approved NHL target mark"/></span><strong>NHL</strong></div>
-          <div class="proof-sport proof-sport--nfl"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-nfl-approved.webp" alt="Approved NFL target mark"/></span><strong>NFL</strong></div>
-          <div class="proof-sport proof-sport--mlb"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-mlb-approved.webp" alt="Approved MLB target mark"/></span><strong>MLB</strong></div>
-          <div class="proof-sport proof-sport--nba"><span class="proof-sport-art"><img src="/brand/production/tso2-sport-nba-approved.webp" alt="Approved NBA target mark"/></span><strong>NBA</strong></div>
+          <div class="proof-sport"><img class="proof-sport-finished" src="/brand/production/tso2-sport-nhl-approved.webp" alt="Approved NHL mark"/></div>
+          <div class="proof-sport"><img class="proof-sport-finished" src="/brand/production/tso2-sport-nfl-approved.webp" alt="Approved NFL mark"/></div>
+          <div class="proof-sport"><img class="proof-sport-finished" src="/brand/production/tso2-sport-mlb-approved.webp" alt="Approved MLB mark"/></div>
+          <div class="proof-sport"><img class="proof-sport-finished" src="/brand/production/tso2-sport-nba-approved.webp" alt="Approved NBA mark"/></div>
         </div>
         <div class="proof-note">NATIVE SOURCES ≈ 185 × 181 · DISPLAYED ≈ 62 × 60 · ~3× PIXEL DENSITY</div>
       </div>
@@ -148,31 +165,31 @@
     <div class="identity-grid">
       <article class="identity-card">
         <div class="identity-card-head"><div><b>Primary Logo</b><span>FOUR-SPORT TARGET + OUTPOST WORDMARK</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-window identity-window--primary" role="img" aria-label="Approved TSO 2.0 primary logo"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
+        <div class="identity-preview"><img class="identity-direct identity-direct--primary" src="/brand/production/tso2-primary-logo-approved.webp" alt="Approved TSO 2.0 primary logo"/></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 422 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card">
         <div class="identity-card-head"><div><b>Compact Logo</b><span>COMPACT STACKED BRAND MARK</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-window identity-window--compact" role="img" aria-label="Approved TSO 2.0 compact logo"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
+        <div class="identity-preview"><img class="identity-direct identity-direct--compact" src="/brand/production/tso2-compact-logo-approved.webp" alt="Approved TSO 2.0 compact logo"/></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 228 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card">
         <div class="identity-card-head"><div><b>App Icon</b><span>ROUNDED-SQUARE APP TREATMENT</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-window identity-window--app" role="img" aria-label="Approved TSO 2.0 app icon"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
+        <div class="identity-preview"><img class="identity-direct identity-direct--app" src="/brand/production/tso2-app-icon-approved.webp" alt="Approved TSO 2.0 app icon"/></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 200 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card">
         <div class="identity-card-head"><div><b>Favicon</b><span>TARGET-ONLY MICRO MARK</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><span class="identity-window identity-window--favicon" role="img" aria-label="Approved TSO 2.0 favicon"><img src="/brand/production/tso2-identity-core-approved.webp" alt=""/></span></div>
+        <div class="identity-preview"><img class="identity-direct identity-direct--favicon" src="/brand/production/tso2-favicon-approved.webp" alt="Approved TSO 2.0 favicon"/></div>
         <div class="identity-note">CLEAN CROP · SOURCE REGION 132 × 210 · DISPLAYED BELOW NATIVE SIZE</div>
       </article>
 
       <article class="identity-card identity-card--wide">
         <div class="identity-card-head"><div><b>Horizontal Wordmark</b><span>WIDE MASTHEAD / HEADER LOCKUP</span></div><em>APPROVED</em></div>
-        <div class="identity-preview"><img class="identity-wordmark" src="/brand/approved/tso2-wordmark-horizontal-approved.webp" alt="Approved TSO 2.0 horizontal wordmark"/></div>
+        <div class="identity-preview"><img class="identity-wordmark" src="/brand/production/tso2-wordmark-horizontal-approved.webp" alt="Approved TSO 2.0 horizontal wordmark"/></div>
         <div class="identity-note">CLEAN APPROVED WORDMARK FILE · RENDERED BELOW NATIVE SIZE</div>
       </article>
     </div>
