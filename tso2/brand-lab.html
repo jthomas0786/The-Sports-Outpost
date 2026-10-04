@@ -126,6 +126,28 @@
   .identity-preview{min-height:180px!important}
   .identity-direct{max-height:155px!important}
 }
+
+.product-marks-section{margin-top:34px;padding:30px 0 34px;border-bottom:1px solid var(--line)}
+.product-marks-heading h2{font-size:25px;margin:6px 0}
+.product-marks-heading p{font-size:11px;color:#858e9a;line-height:1.55;margin:0;max-width:760px}
+.product-marks-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:18px}
+.product-mark-card{border:1px solid var(--line);background:#080b10;overflow:hidden;min-width:0}
+.product-mark-preview{height:128px;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.035),transparent 58%),#020407}
+.product-mark-preview img{display:block;width:auto;height:72px;max-width:76px;object-fit:contain;image-rendering:auto;filter:none}
+.product-mark-copy{padding:13px 14px 14px;border-top:1px solid var(--line)}
+.product-mark-copy b{display:block;font-size:13px;line-height:1.1}
+.product-mark-copy span{display:block;margin-top:5px;color:#747e8a;font-size:8px;font-weight:850;letter-spacing:.075em;line-height:1.3}
+.product-mark-copy em{display:block;margin-top:10px;font-style:normal;font-size:8px;font-weight:950;letter-spacing:.09em}
+.product-mark-card--live .product-mark-copy em{color:#ff4d1c}
+.product-mark-card--research .product-mark-copy em{color:#ffd84d}
+.product-mark-card--models .product-mark-copy em{color:#7b5cff}
+.product-mark-card--props .product-mark-copy em{color:#4fe39b}
+.product-mark-card--parlay .product-mark-copy em{color:#ff6a1a}
+.product-mark-card--community .product-mark-copy em{color:#2d7fff}
+.product-mark-card--rankings .product-mark-copy em{color:#ffd84d}
+.product-marks-note{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:8px;color:#4fe39b;font-weight:950;letter-spacing:.09em}
+@media(max-width:900px){.product-marks-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){.product-marks-grid{grid-template-columns:1fr}.product-mark-preview{height:116px}.product-mark-preview img{height:68px}}
 </style>
 </head>
 <body>
@@ -193,6 +215,44 @@
         <div class="identity-note">CLEAN APPROVED WORDMARK FILE · RENDERED BELOW NATIVE SIZE</div>
       </article>
     </div>
+  </section>
+  <section class="product-marks-section">
+    <div class="product-marks-heading">
+      <span class="kicker">PRODUCT MARKS</span>
+      <h2>Feature identity — approved production icons</h2>
+      <p>Each mark below is the exact approved production asset, shown below native size so quality can be judged without enlargement.</p>
+    </div>
+    <div class="product-marks-grid">
+      <article class="product-mark-card product-mark-card--live">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-live-approved.webp" alt="Approved Live product mark"/></div>
+        <div class="product-mark-copy"><b>Live</b><span>GAMECAST · LIVE ODDS</span><em>LIVE / ACTION</em></div>
+      </article>
+      <article class="product-mark-card product-mark-card--research">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-research-approved.webp" alt="Approved Research product mark"/></div>
+        <div class="product-mark-copy"><b>Research</b><span>PLAYER + MATCHUP DATA</span><em>FEATURE / TOP PICK</em></div>
+      </article>
+      <article class="product-mark-card product-mark-card--models">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-models-approved.webp" alt="Approved Models product mark"/></div>
+        <div class="product-mark-copy"><b>Models</b><span>SIMULATIONS · PROBABILITY</span><em>MODELS / SIM</em></div>
+      </article>
+      <article class="product-mark-card product-mark-card--props">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-props-approved.webp" alt="Approved Props product mark"/></div>
+        <div class="product-mark-copy"><b>Props</b><span>PLAYER PROPS · MARKETS</span><em>POSITIVE EDGE</em></div>
+      </article>
+      <article class="product-mark-card product-mark-card--parlay">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-parlay-lab-approved.webp" alt="Approved Parlay Lab product mark"/></div>
+        <div class="product-mark-copy"><b>Parlay Lab</b><span>BUILD · COMPARE · OPTIMIZE</span><em>BUILD / COMBINE</em></div>
+      </article>
+      <article class="product-mark-card product-mark-card--community">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-community-approved.webp" alt="Approved Community product mark"/></div>
+        <div class="product-mark-copy"><b>Community</b><span>CHAT · POSTS · REACTIONS</span><em>INFO / SOCIAL</em></div>
+      </article>
+      <article class="product-mark-card product-mark-card--rankings">
+        <div class="product-mark-preview"><img src="/brand/production/tso2-product-rankings-approved.webp" alt="Approved Rankings product mark"/></div>
+        <div class="product-mark-copy"><b>Rankings</b><span>LEADERBOARDS · TOP PICKS</span><em>RANK / REWARD</em></div>
+      </article>
+    </div>
+    <div class="product-marks-note">NATIVE SOURCES ≈ 95–102 × 101 · BRAND LAB DISPLAY 72PX · SITE NAV DISPLAY 36PX</div>
   </section>
   <section class="grid">
     <article class="card"><span>IDENTITY</span><h2>Primary + compact logo family</h2><p>Must preserve the premium four-sport target composition, metallic broadcast wordmark, glow, depth, and finish of the approved concept.</p></article>
