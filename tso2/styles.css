@@ -468,3 +468,17 @@ body{
   .sport-lockup{width:62px!important;height:50px!important;flex-basis:62px;transform:none!important}
   .sport-lockup--all{width:44px!important;height:44px!important;flex-basis:44px}
 }
+
+/* Retina-safe exact masthead sizing */
+.exact-approved-brand img{
+  display:block;
+  width:246px!important;
+  height:auto!important;
+  max-width:none!important;
+}
+@media(max-width:1240px) and (min-width:901px){
+  .exact-approved-brand img{width:232px!important}
+}
+@media(max-width:900px){
+  .exact-approved-brand img{width:170px!important}
+}
