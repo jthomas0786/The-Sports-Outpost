@@ -216,3 +216,167 @@ body{
   .branded-product-nav .nav-item b{font-size:7px;letter-spacing:.04em}
   .branded-product-nav .nav-product-icon{transform:scale(.88)}
 }
+
+/* Broadcast scale correction — preserve premium size instead of shrinking to fit */
+.masthead{
+  height:92px;
+  padding:0 24px;
+  grid-template-columns:250px minmax(0,1fr) auto;
+  gap:18px;
+}
+.exact-approved-brand{
+  width:250px;
+  height:78px;
+}
+.exact-approved-brand img{
+  width:238px;
+}
+.broadcast-nav{
+  justify-content:flex-start;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  gap:4px;
+  padding:0 2px;
+}
+.broadcast-nav::-webkit-scrollbar{display:none}
+.branded-product-nav .nav-item{
+  flex:0 0 76px;
+  min-width:76px;
+  height:92px;
+  padding:10px 8px 7px;
+  gap:5px;
+}
+.branded-product-nav .nav-item b{
+  font-size:9.5px;
+  line-height:1;
+  letter-spacing:.055em;
+}
+.branded-product-nav .nav-product-icon{
+  width:40px!important;
+  height:40px;
+  flex-basis:40px;
+  background-size:593px 395px;
+}
+.branded-product-nav .nav-product-icon--home{
+  width:40px!important;
+  height:40px;
+  background-size:317px 212px;
+  background-position:-139px -8px;
+}
+.branded-product-nav .nav-product-icon--live{background-position:-303px -106px}
+.branded-product-nav .nav-product-icon--models{background-position:-343px -106px}
+.branded-product-nav .nav-product-icon--research{background-position:-385px -106px}
+.branded-product-nav .nav-product-icon--props{background-position:-425px -106px}
+.branded-product-nav .nav-product-icon--parlay{background-position:-467px -106px}
+.branded-product-nav .nav-product-icon--community{background-position:-506px -106px}
+.branded-product-nav .nav-product-icon--rankings{background-position:-547px -106px}
+
+.masthead-actions{gap:10px}
+.preview-lab-link{height:42px;padding:0 13px;font-size:9px}
+.profile-pill{height:42px;padding:0 10px}
+.profile-pill .avatar{width:30px;height:30px}
+.masthead .icon-btn{width:42px;height:42px}
+
+.league-bar{
+  height:72px;
+  padding:0 24px;
+  gap:18px;
+  overflow:hidden;
+}
+.league-tabs{
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  flex:1 1 auto;
+}
+.league-tabs::-webkit-scrollbar{display:none}
+.league-tabs .sport-item{
+  flex:0 0 auto;
+  padding:0 18px;
+  gap:10px;
+  font-size:10px;
+}
+.sport-lockup{
+  width:58px;
+  height:48px;
+  background-size:506px 337px;
+}
+.sport-lockup--all{
+  width:42px;
+  height:50px;
+  background-position:-290px -23px;
+}
+.sport-lockup--mlb{background-position:-4px -90px}
+.sport-lockup--nfl{background-position:-66px -90px}
+.sport-lockup--nba{background-position:-129px -90px}
+.sport-lockup--nhl{background-position:-192px -90px}
+.sport-label{font-size:10px}
+
+.broadcast-score-strip{
+  height:82px;
+}
+.broadcast-score-strip .score-strip-label{
+  min-width:90px;
+  padding:0 19px;
+  font-size:11px;
+}
+.broadcast-score-strip .score-tile{
+  min-width:205px;
+  padding:12px 16px;
+}
+.broadcast-score-strip .score-tile strong{font-size:13px}
+.broadcast-score-strip .score-tile small{font-size:10px}
+.broadcast-score-strip .league-chip{font-size:9px}
+.broadcast-score-strip .score-more{
+  min-width:165px;
+  font-size:11px;
+}
+
+.broadcast-main{
+  padding-top:34px;
+}
+.broadcast-title h1{font-size:44px}
+.broadcast-title p{font-size:13px}
+.broadcast-kicker,.orange-kicker,.gold-kicker{font-size:10px}
+
+@media(max-width:1240px) and (min-width:901px){
+  .masthead{
+    grid-template-columns:220px minmax(0,1fr) auto;
+    height:88px;
+    gap:14px;
+  }
+  .exact-approved-brand{width:220px;height:74px}
+  .exact-approved-brand img{width:210px}
+  .branded-product-nav .nav-item{
+    flex-basis:72px;
+    min-width:72px;
+    height:88px;
+    padding-left:7px;
+    padding-right:7px;
+  }
+  .branded-product-nav .nav-product-icon{
+    transform:none;
+    width:38px!important;
+    height:38px;
+    flex-basis:38px;
+  }
+  .branded-product-nav .nav-item b{
+    font-size:9px;
+    letter-spacing:.04em;
+  }
+  .league-bar{height:68px}
+  .sport-lockup{transform:none}
+}
+
+@media(max-width:900px){
+  .masthead{height:64px;grid-template-columns:88px 1fr auto;padding:0 12px}
+  .exact-approved-brand{width:88px;height:58px}
+  .exact-approved-brand img{width:170px;max-width:none;transform:translateX(-1px)}
+  .league-bar{height:58px;padding:0 8px}
+  .league-tabs .sport-item{padding:0 11px;gap:7px}
+  .sport-lockup{transform:scale(.92);transform-origin:center}
+  .sport-label{font-size:8px}
+  .broadcast-score-strip{height:68px}
+  .broadcast-title h1{font-size:34px}
+}
