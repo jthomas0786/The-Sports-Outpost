@@ -575,3 +575,41 @@ body{
   .league-tabs .sport-item--logo{width:78px!important;min-width:78px!important;padding:0 7px!important}
   .league-tabs .sport-item--logo img{width:56px!important;max-height:54px!important}
 }
+
+/* Exact approved product icons — real raster exports, no redraws */
+.branded-product-nav .nav-item--approved{
+  min-width:76px!important;
+  flex:0 0 76px!important;
+  height:82px!important;
+  padding:8px 7px 6px!important;
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:4px!important;
+}
+.branded-product-nav .nav-item--approved .nav-approved-icon{
+  display:block!important;
+  width:36px!important;
+  height:38px!important;
+  object-fit:contain!important;
+  image-rendering:auto!important;
+  filter:none!important;
+  transform:none!important;
+}
+.branded-product-nav .nav-item--approved b{
+  font-size:8.5px!important;
+  line-height:1!important;
+  letter-spacing:.045em!important;
+}
+.branded-product-nav .nav-item--approved:hover .nav-approved-icon{
+  transform:translateY(-1px)!important;
+}
+.branded-product-nav .nav-item--approved.is-active .nav-approved-icon{
+  filter:brightness(1.08)!important;
+}
+@media(max-width:1240px) and (min-width:901px){
+  .branded-product-nav .nav-item--approved{min-width:72px!important;flex-basis:72px!important}
+  .branded-product-nav .nav-item--approved .nav-approved-icon{width:34px!important;height:36px!important}
+  .branded-product-nav .nav-item--approved b{font-size:8px!important}
+}
