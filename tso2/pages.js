@@ -184,30 +184,172 @@
     },
 
     research(league){
-      return header('RESEARCH','Find the why behind the number','One research workspace for players, teams and matchups across every sport.',league,'Compare Players') +
-      filterBar(league,'<button class="filter-button">Last 10</button><button class="filter-button">Tonight</button>') +
-      `<section class="research-search panel">
-        <div class="research-search-copy"><span class="eyebrow">UNIVERSAL RESEARCH</span><h2>Player, team or matchup</h2><p>Search once. TSO assembles form, opportunity, opponent context, market data and model signals.</p></div>
-        <div class="research-input"><span>⌕</span><input placeholder="Try Connor McDavid, DAL @ NYG, Pete Alonso..." /><kbd>ENTER</kbd></div>
-      </section>
-      <section class="split-section research-panels">
-        <div class="panel">
-          <div class="section-heading compact-heading"><div><span class="eyebrow">TRENDING RESEARCH</span><h2>What users are opening</h2></div></div>
-          <div class="research-list">
-            <button><span class="watch-avatar">97</span><div><b>Connor McDavid</b><small>Shots · Points · Anytime Goal</small></div><i>12.4k</i></button>
-            <button><span class="watch-avatar">26</span><div><b>Saquon Barkley</b><small>Rushing · Receiving · Anytime TD</small></div><i>9.8k</i></button>
-            <button><span class="watch-avatar">20</span><div><b>Pete Alonso</b><small>Home Run · Total Bases · Hits</small></div><i>8.1k</i></button>
+      return `
+      <section class="research-page broadcast-destination">
+        <section class="destination-hero research-destination-hero">
+          <div>
+            <span class="destination-kicker research-kicker">RESEARCH DESK · ${leagueName(league)}</span>
+            <h1>Find the why behind the number.</h1>
+            <p>Search players, teams and matchups. TSO pulls form, usage, opponent context, market pricing and model signals into one research view.</p>
           </div>
-        </div>
-        <div class="panel">
-          <div class="section-heading compact-heading"><div><span class="eyebrow">MATCHUP RADAR</span><h2>Research flags</h2></div></div>
-          <div class="flag-grid">
-            <div class="flag-card"><span>PACE</span><b>DAL @ NYG</b><strong>↑ Fast</strong><small>Projected 8% above league average.</small></div>
-            <div class="flag-card"><span>GOALIE</span><b>PIT @ PHI</b><strong>Edge PIT</strong><small>High-danger save rate mismatch.</small></div>
-            <div class="flag-card"><span>WIND</span><b>BAL @ NYY</b><strong>+9 mph out</strong><small>HR carry environment improving.</small></div>
-            <div class="flag-card"><span>USAGE</span><b>KC @ BUF</b><strong>Kelce ↑</strong><small>Route participation + target share.</small></div>
+          <div class="destination-actions">
+            <button class="button secondary">RECENT SEARCHES</button>
+            <button class="button primary">COMPARE PLAYERS →</button>
           </div>
-        </div>
+        </section>
+
+        <section class="research-command-search">
+          <div class="research-command-copy">
+            <span class="gold-kicker">UNIVERSAL RESEARCH</span>
+            <h2>Player, team or matchup</h2>
+            <p>One search. Every sport. Same research structure.</p>
+          </div>
+          <label class="research-command-input">
+            <span>⌕</span>
+            <input placeholder="Try Connor McDavid, DAL @ NYG, Pete Alonso..." />
+            <kbd>ENTER</kbd>
+          </label>
+          <div class="research-quick-chips">
+            <button>Connor McDavid</button>
+            <button>DAL @ NYG</button>
+            <button>Pete Alonso</button>
+            <button>Sidney Crosby</button>
+          </div>
+        </section>
+
+        <section class="research-grid-primary">
+          <article class="research-radar-card">
+            <div class="research-card-head">
+              <div><span class="orange-kicker">MATCHUP RADAR</span><h2>What stands out tonight</h2></div>
+              <button>ALL FLAGS →</button>
+            </div>
+            <div class="research-radar-list">
+              <button class="research-radar-row">
+                <span class="radar-tag radar-tag--pace">PACE</span>
+                <div><b>DAL @ NYG</b><small>Projected possession / play volume</small></div>
+                <span class="radar-value"><strong>+8%</strong><small>vs avg</small></span>
+                <span class="radar-arrow">↗</span>
+              </button>
+              <button class="research-radar-row">
+                <span class="radar-tag radar-tag--goalie">GOALIE</span>
+                <div><b>PIT @ PHI</b><small>High-danger save-rate mismatch</small></div>
+                <span class="radar-value"><strong>PIT</strong><small>edge</small></span>
+                <span class="radar-arrow">↗</span>
+              </button>
+              <button class="research-radar-row">
+                <span class="radar-tag radar-tag--weather">WIND</span>
+                <div><b>BAL @ NYY</b><small>Carry environment improving</small></div>
+                <span class="radar-value"><strong>+9</strong><small>mph out</small></span>
+                <span class="radar-arrow">↗</span>
+              </button>
+              <button class="research-radar-row">
+                <span class="radar-tag radar-tag--usage">USAGE</span>
+                <div><b>KC @ BUF</b><small>Route participation + target share</small></div>
+                <span class="radar-value"><strong>Kelce</strong><small>up</small></span>
+                <span class="radar-arrow">↗</span>
+              </button>
+            </div>
+          </article>
+
+          <aside class="research-trending-card">
+            <div class="research-card-head">
+              <div><span class="violet-kicker">TRENDING</span><h2>Most opened</h2></div>
+              <span>TONIGHT</span>
+            </div>
+            <button class="research-player-row">
+              <span class="research-player-rank">01</span>
+              <span class="research-avatar">97</span>
+              <div><b>Connor McDavid</b><small>Shots · Points · Anytime Goal</small></div>
+              <span class="research-opens">12.4k</span>
+            </button>
+            <button class="research-player-row">
+              <span class="research-player-rank">02</span>
+              <span class="research-avatar">26</span>
+              <div><b>Saquon Barkley</b><small>Rushing · Receiving · Anytime TD</small></div>
+              <span class="research-opens">9.8k</span>
+            </button>
+            <button class="research-player-row">
+              <span class="research-player-rank">03</span>
+              <span class="research-avatar">20</span>
+              <div><b>Pete Alonso</b><small>Home Run · Total Bases · Hits</small></div>
+              <span class="research-opens">8.1k</span>
+            </button>
+            <button class="research-player-row">
+              <span class="research-player-rank">04</span>
+              <span class="research-avatar">87</span>
+              <div><b>Sidney Crosby</b><small>Goal · Shots · Points</small></div>
+              <span class="research-opens">7.6k</span>
+            </button>
+          </aside>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="gold-kicker">RESEARCH CARDS</span><h2>Signals worth opening</h2></div>
+            <button>VIEW ALL RESEARCH →</button>
+          </div>
+          <div class="research-signal-grid">
+            <article class="research-signal-card research-signal-card--blue">
+              <div class="research-signal-top"><span>NHL · SHOTS</span><b>OPPORTUNITY</b></div>
+              <div class="research-signal-player"><div><h3>Connor McDavid</h3><small>EDM · C · vs CGY</small></div><span class="research-score-badge"><small>MODEL</small><strong>67%</strong></span></div>
+              <div class="research-stat-grid">
+                <span><small>L5 AVG</small><b>4.8</b></span>
+                <span><small>TOI</small><b>22:14</b></span>
+                <span><small>PP SHARE</small><b>78%</b></span>
+              </div>
+              <div class="research-insight"><span>OUTPOST READ</span><b>Volume profile remains above the current line.</b><small>Shot attempts and offensive-zone deployment both trend positive.</small></div>
+              <button class="research-open-btn">OPEN RESEARCH →</button>
+            </article>
+
+            <article class="research-signal-card research-signal-card--gold">
+              <div class="research-signal-top"><span>NFL · RECEIVING</span><b>USAGE</b></div>
+              <div class="research-signal-player"><div><h3>Travis Kelce</h3><small>KC · TE · at BUF</small></div><span class="research-score-badge"><small>MODEL</small><strong>61%</strong></span></div>
+              <div class="research-stat-grid">
+                <span><small>ROUTE %</small><b>89%</b></span>
+                <span><small>TGT SHARE</small><b>27%</b></span>
+                <span><small>RED ZONE</small><b>31%</b></span>
+              </div>
+              <div class="research-insight"><span>OUTPOST READ</span><b>Role is stronger than the raw yardage line suggests.</b><small>Route participation and red-zone work remain intact.</small></div>
+              <button class="research-open-btn">OPEN RESEARCH →</button>
+            </article>
+
+            <article class="research-signal-card research-signal-card--orange">
+              <div class="research-signal-top"><span>MLB · HOME RUN</span><b>ENVIRONMENT</b></div>
+              <div class="research-signal-player"><div><h3>Pete Alonso</h3><small>BAL · 1B · at NYY</small></div><span class="research-score-badge"><small>MODEL</small><strong>29.4%</strong></span></div>
+              <div class="research-stat-grid">
+                <span><small>BARREL %</small><b>17.1</b></span>
+                <span><small>EV</small><b>92.8</b></span>
+                <span><small>WIND</small><b>+9 out</b></span>
+              </div>
+              <div class="research-insight"><span>OUTPOST READ</span><b>Power profile + environment both point the same way.</b><small>Carry conditions and contact quality are aligned.</small></div>
+              <button class="research-open-btn">OPEN RESEARCH →</button>
+            </article>
+          </div>
+        </section>
+
+        <section class="research-context-section">
+          <div class="research-context-board">
+            <div class="research-context-head">
+              <div><span class="orange-kicker">SITUATIONAL CONTEXT</span><h2>Quick-read factors</h2></div>
+              <span>LAST UPDATED · 1 MIN</span>
+            </div>
+            <div class="research-context-grid">
+              <div><span>PACE</span><b>DAL @ NYG</b><strong class="positive">FAST</strong><small>8% above league baseline</small></div>
+              <div><span>GOALIE</span><b>PIT @ PHI</b><strong>PIT EDGE</strong><small>High-danger save mismatch</small></div>
+              <div><span>WEATHER</span><b>BAL @ NYY</b><strong>HR BOOST</strong><small>Wind carrying to left-center</small></div>
+              <div><span>USAGE</span><b>KC @ BUF</b><strong class="positive">KELCE ↑</strong><small>Route share + target share up</small></div>
+            </div>
+          </div>
+
+          <aside class="research-recent-card">
+            <div class="research-card-head">
+              <div><span class="gold-kicker">RECENT</span><h2>Jump back in</h2></div>
+            </div>
+            <button><span>NHL</span><div><b>Sidney Crosby</b><small>Anytime Goal research</small></div><i>›</i></button>
+            <button><span>NFL</span><div><b>DAL @ NYG</b><small>Matchup context</small></div><i>›</i></button>
+            <button><span>MLB</span><div><b>Pete Alonso</b><small>Home Run research</small></div><i>›</i></button>
+          </aside>
+        </section>
       </section>`;
     },
 
