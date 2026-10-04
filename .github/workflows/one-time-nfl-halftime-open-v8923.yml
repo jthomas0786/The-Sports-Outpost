@@ -1,16 +1,5 @@
 name: One-time NFL Halftime Open Lab v89.23
 on:
-  push:
-    branches: [main]
-    paths:
-      - '.github/workflows/one-time-nfl-halftime-open-v8923.yml'
-      - 'sports/nfl/halftime-ui-v884.js'
-      - 'sports/nfl-preview.js'
-      - 'sports/nfl-preview-v890.js'
-      - 'sports/nfl-preview-v893.js'
-      - 'sports/router.js'
-      - 'index.html'
-      - 'scripts/nfl-halftime-open-v8923-selftest.mjs'
   workflow_dispatch:
 permissions:
   contents: read
