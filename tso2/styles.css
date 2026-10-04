@@ -482,3 +482,63 @@ body{
 @media(max-width:900px){
   .exact-approved-brand img{width:170px!important}
 }
+
+/* CLEAN HEADER RESET — approved artwork only, no redrawings */
+.branded-product-nav .nav-item{
+  min-width:auto!important;
+  flex:0 0 auto!important;
+  height:72px!important;
+  padding:0 15px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+}
+.branded-product-nav .nav-item b{
+  font-size:10px!important;
+  letter-spacing:.07em!important;
+  line-height:1!important;
+}
+.nav-product-icon,.sport-lockup,.action-product-icon{display:none!important}
+
+.league-bar{
+  height:52px!important;
+  padding:0 24px!important;
+}
+.league-tabs{
+  align-items:stretch!important;
+  gap:0!important;
+}
+.league-tabs .sport-item{
+  min-width:auto!important;
+  height:100%!important;
+  padding:0 18px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  font-size:10px!important;
+  letter-spacing:.08em!important;
+  border-bottom:2px solid transparent!important;
+}
+.league-tabs .sport-item.is-active{
+  border-bottom-color:var(--outpost-gold)!important;
+  color:var(--outpost-gold)!important;
+  background:transparent!important;
+}
+.league-tabs .sport-item:not([data-league="all"]) .sport-label,
+.league-tabs .sport-item[data-league="all"] .sport-label{display:initial!important}
+
+.clean-action-band button{
+  min-height:104px!important;
+  padding:18px 20px!important;
+}
+.clean-action-band .action-product-icon{display:none!important}
+
+@media(max-width:1240px) and (min-width:901px){
+  .branded-product-nav .nav-item{
+    min-width:auto!important;
+    flex-basis:auto!important;
+    padding:0 12px!important;
+  }
+  .branded-product-nav .nav-item b{font-size:9px!important}
+}
