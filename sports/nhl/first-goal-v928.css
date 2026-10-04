@@ -128,3 +128,38 @@
   .fgs-last{font-size:15px}
   .fgs-stats,.fgs-matchup-note,.fgs-risk-reason{font-size:8px;line-height:1.4}
 }
+
+
+/* v90.51: visible logo rings for dark/low-contrast team marks */
+.fgs-matchup img{
+  width:44px;
+  height:44px;
+  box-sizing:border-box;
+  object-fit:contain;
+  border-radius:50%;
+  padding:5px;
+  background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.075),rgba(6,17,31,.96) 68%);
+  border:1.5px solid rgba(236,247,255,.78);
+  box-shadow:0 0 0 2px rgba(45,127,255,.18),0 0 14px rgba(45,127,255,.18),inset 0 0 10px rgba(255,255,255,.025);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.35));
+}
+.fgs-team-id img{
+  width:46px;
+  height:46px;
+  box-sizing:border-box;
+  object-fit:contain;
+  border-radius:50%;
+  padding:5px;
+  background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.07),rgba(5,15,28,.96) 70%);
+  border:1.5px solid rgba(237,247,255,.80);
+  box-shadow:0 0 0 2px rgba(var(--fgs-accent-rgb),.28),0 0 16px rgba(var(--fgs-accent-rgb),.22),inset 0 0 10px rgba(255,255,255,.025);
+  filter:drop-shadow(0 2px 4px rgba(0,0,0,.34));
+}
+@media(max-width:840px){
+  .fgs-matchup img{width:42px;height:42px;padding:4px}
+  .fgs-team-id img{width:42px;height:42px;padding:4px}
+}
+@media(max-width:480px){
+  .fgs-matchup img{width:38px;height:38px;padding:4px}
+  .fgs-team-id img{width:38px;height:38px;padding:4px}
+}
