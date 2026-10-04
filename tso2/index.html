@@ -3,290 +3,210 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="theme-color" content="#070b12" />
-  <title>The Sports Outpost 2.0 — Preview</title>
+  <meta name="theme-color" content="#05070a" />
+  <title>The Sports Outpost 2.0 — Broadcast Preview</title>
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
-  <div class="app-shell" data-league="all">
-    <aside class="sidebar" aria-label="Primary">
-      <a class="brand" href="#home" aria-label="The Sports Outpost">
-        <span class="brand-mark">TSO</span>
-        <span class="brand-copy">
-          <strong>The Sports</strong>
-          <span>Outpost</span>
-        </span>
-      </a>
-
-      <nav class="primary-nav">
-        <button class="nav-item is-active" data-route="home"><span>⌂</span><b>Home</b></button>
-        <button class="nav-item" data-route="live"><span>●</span><b>Live</b></button>
-        <button class="nav-item" data-route="research"><span>⌕</span><b>Research</b></button>
-        <button class="nav-item" data-route="models"><span>◎</span><b>Models</b></button>
-        <button class="nav-item" data-route="props"><span>↗</span><b>Props</b></button>
-        <button class="nav-item" data-route="parlays"><span>✦</span><b>Parlay Lab</b></button>
-        <button class="nav-item" data-route="community"><span>◌</span><b>Community</b></button>
-        <button class="nav-item" data-route="leaderboard"><span>▥</span><b>Leaderboard</b></button>
-      </nav>
-
-      <div class="sidebar-section">
-        <span class="sidebar-label">SPORT</span>
-        <div class="sport-list">
-          <button class="sport-item is-active" data-league="all"><span class="sport-dot"></span>All Sports</button>
-          <button class="sport-item" data-league="nhl"><span class="sport-dot"></span>NHL</button>
-          <button class="sport-item" data-league="nfl"><span class="sport-dot"></span>NFL</button>
-          <button class="sport-item" data-league="mlb"><span class="sport-dot"></span>MLB</button>
-          <button class="sport-item" data-league="nba"><span class="sport-dot"></span>NBA</button>
-        </div>
-      </div>
-
-      <div class="sidebar-footer">
-        <button class="profile-mini">
-          <span class="avatar">JT</span>
-          <span><b>justcallme_jt</b><small>View profile</small></span>
-          <i>›</i>
+  <div class="app-shell broadcast-shell" data-league="all">
+    <header class="broadcast-header">
+      <div class="masthead">
+        <button class="broadcast-brand" data-route="home" aria-label="The Sports Outpost home">
+          <span class="brand-badge">TSO</span>
+          <span class="broadcast-brand-copy"><b>THE SPORTS</b><strong>OUTPOST</strong></span>
         </button>
-      </div>
-    </aside>
 
-    <div class="workspace">
-      <header class="topbar">
-        <div class="mobile-brand">THE SPORTS OUTPOST</div>
-        <button class="search-trigger"><span>⌕</span><span>Search players, teams, props...</span><kbd>⌘ K</kbd></button>
-        <div class="top-actions">
+        <nav class="broadcast-nav" aria-label="Primary">
+          <button class="nav-item is-active" data-route="home">HOME</button>
+          <button class="nav-item live-nav" data-route="live"><span></span>LIVE</button>
+          <button class="nav-item" data-route="research">RESEARCH</button>
+          <button class="nav-item" data-route="models">MODELS</button>
+          <button class="nav-item" data-route="props">PROPS</button>
+          <button class="nav-item" data-route="parlays">PARLAY LAB</button>
+          <button class="nav-item" data-route="community">COMMUNITY</button>
+          <button class="nav-item" data-route="leaderboard">RANKINGS</button>
+        </nav>
+
+        <div class="masthead-actions">
+          <button class="search-trigger"><span>⌕</span><span>Search</span></button>
           <button class="icon-btn" aria-label="Notifications">♢<span class="notification-dot"></span></button>
-          <button class="icon-btn" aria-label="Settings">⚙</button>
-          <span class="live-pill"><i></i> LIVE DATA</span>
+          <button class="profile-pill" data-route="profile"><span class="avatar">JT</span><b>JT</b></button>
         </div>
-      </header>
+      </div>
 
-      <section class="score-strip" aria-label="Live and upcoming games">
-        <div class="score-strip-label"><span class="pulse"></span>LIVE</div>
-        <button class="score-tile">
-          <span class="league-chip">NHL</span>
-          <strong>PIT <em>2</em></strong><strong>PHI <em>1</em></strong>
-          <small>12:34 · 2ND</small>
-        </button>
-        <button class="score-tile">
-          <span class="league-chip">NFL</span>
-          <strong>DAL <em>17</em></strong><strong>NYG <em>10</em></strong>
-          <small>6:41 · Q3</small>
-        </button>
-        <button class="score-tile">
-          <span class="league-chip">NHL</span>
-          <strong>NYR</strong><strong>BOS</strong>
-          <small>8:00 PM</small>
-        </button>
-        <button class="score-tile">
-          <span class="league-chip">NFL</span>
-          <strong>KC</strong><strong>BUF</strong>
-          <small>8:20 PM</small>
-        </button>
-        <button class="score-more">View all live →</button>
+      <div class="league-bar">
+        <div class="league-tabs">
+          <button class="sport-item is-active" data-league="all">ALL SPORTS</button>
+          <button class="sport-item" data-league="nhl">NHL</button>
+          <button class="sport-item" data-league="nfl">NFL</button>
+          <button class="sport-item" data-league="mlb">MLB</button>
+          <button class="sport-item" data-league="nba">NBA</button>
+        </div>
+        <div class="market-status"><span class="status-dot"></span> MODELS & ODDS LIVE</div>
+      </div>
+    </header>
+
+    <section class="score-strip broadcast-score-strip" aria-label="Live and upcoming games">
+      <div class="score-strip-label"><span class="pulse"></span>LIVE</div>
+      <button class="score-tile hot-game">
+        <span class="league-chip">NHL</span>
+        <strong>PIT <em>2</em></strong><strong>PHI <em>1</em></strong>
+        <small>12:34 · 2ND</small>
+      </button>
+      <button class="score-tile">
+        <span class="league-chip">NFL</span>
+        <strong>DAL <em>17</em></strong><strong>NYG <em>10</em></strong>
+        <small>6:41 · Q3</small>
+      </button>
+      <button class="score-tile">
+        <span class="league-chip">NHL</span>
+        <strong>NYR</strong><strong>BOS</strong>
+        <small>8:00 PM</small>
+      </button>
+      <button class="score-tile">
+        <span class="league-chip">NFL</span>
+        <strong>KC</strong><strong>BUF</strong>
+        <small>8:20 PM</small>
+      </button>
+      <button class="score-tile">
+        <span class="league-chip">MLB</span>
+        <strong>BAL</strong><strong>NYY</strong>
+        <small>8:35 PM</small>
+      </button>
+      <button class="score-more" data-route-jump="live">FULL SCOREBOARD →</button>
+    </section>
+
+    <main class="broadcast-main" id="pageContent">
+      <section class="broadcast-title">
+        <div>
+          <span class="broadcast-kicker">SATURDAY NIGHT · OCTOBER 3</span>
+          <h1>Tonight at The Outpost</h1>
+        </div>
+        <p>Live games. Market movement. Model edges. One board.</p>
       </section>
 
-      <div class="content-grid">
-        <main class="content" id="pageContent">
-          <section class="hero">
-            <div>
-              <div class="eyebrow">SATURDAY · OCTOBER 3</div>
-              <h1>Tonight at <span>The Outpost</span></h1>
-              <p>Your command center for live games, model edges, player props and parlays.</p>
+      <section class="headline-grid">
+        <article class="feature-game">
+          <div class="feature-game-bg"></div>
+          <div class="feature-topline">
+            <span class="feature-live"><i></i> LIVE · 2ND 12:34</span>
+            <span>NHL · GAMECAST</span>
+          </div>
+          <div class="feature-copy">
+            <span class="feature-label">PRIME TIME</span>
+            <h2>Pittsburgh <em>at</em> Philadelphia</h2>
+            <div class="feature-score">
+              <div><span class="big-team">PIT</span><b>2</b></div>
+              <span class="score-divider">—</span>
+              <div><b>1</b><span class="big-team">PHI</span></div>
             </div>
-            <div class="hero-actions">
-              <button class="button secondary">Customize</button>
-              <button class="button primary">Open Live Center</button>
+            <div class="feature-stats">
+              <span><small>WIN PROB</small><b>PIT 68%</b></span>
+              <span><small>SHOTS</small><b>21–14</b></span>
+              <span><small>xG</small><b>1.94–1.12</b></span>
+              <span><small>NEXT GOAL</small><b>PIT 61%</b></span>
             </div>
-          </section>
+          </div>
+          <div class="feature-footer">
+            <div><span>OUTPOST LIVE LEAN</span><b>PIT next goal</b><strong>+142</strong></div>
+            <button class="broadcast-cta" data-route-jump="live">OPEN GAMECAST →</button>
+          </div>
+        </article>
 
-          <section class="kpi-row">
-            <article class="kpi-card"><span>GAMES</span><strong>14</strong><small>4 live now</small></article>
-            <article class="kpi-card"><span>MODEL EDGES</span><strong>27</strong><small>9 high confidence</small></article>
-            <article class="kpi-card"><span>TRACKED PROPS</span><strong>187</strong><small>42 moved today</small></article>
-            <article class="kpi-card"><span>MY ACTIVE PICKS</span><strong>6</strong><small>+2.4u projected</small></article>
-          </section>
-
-          <section class="section-block">
-            <div class="section-heading">
-              <div><span class="eyebrow">MODEL HUB</span><h2>Top model opportunities</h2></div>
-              <button class="text-action" data-route-jump="models">View all models →</button>
-            </div>
-
-            <div class="model-grid">
-              <article class="model-card featured">
-                <div class="card-top">
-                  <div><span class="league-badge">NHL</span><span class="status-badge strong">HIGH EDGE</span></div>
-                  <button class="more-btn">•••</button>
-                </div>
-                <div class="entity-row">
-                  <div class="entity-avatar">87</div>
-                  <div><small>ANYTIME GOAL</small><h3>Sidney Crosby</h3><p>PIT · C · vs PHI</p></div>
-                </div>
-                <div class="metric-row">
-                  <div><span>MODEL</span><strong>34.8%</strong></div>
-                  <div><span>MARKET</span><strong>27.2%</strong></div>
-                  <div><span>EDGE</span><strong class="positive">+7.6%</strong></div>
-                </div>
-                <div class="confidence">
-                  <div><span>Outpost Confidence</span><b>88</b></div>
-                  <div class="confidence-track"><i style="width:88%"></i></div>
-                </div>
-                <div class="card-footer">
-                  <div class="best-odds"><small>BEST PRICE</small><b>+268</b><span>DK</span></div>
-                  <button class="button compact">View analysis</button>
-                </div>
-              </article>
-
-              <article class="model-card">
-                <div class="card-top">
-                  <div><span class="league-badge">NFL</span><span class="status-badge">TRENDING</span></div>
-                  <button class="more-btn">•••</button>
-                </div>
-                <div class="entity-row">
-                  <div class="entity-avatar">26</div>
-                  <div><small>ANYTIME TD</small><h3>Saquon Barkley</h3><p>PHI · RB · vs DAL</p></div>
-                </div>
-                <div class="metric-row">
-                  <div><span>MODEL</span><strong>63.1%</strong></div>
-                  <div><span>MARKET</span><strong>55.4%</strong></div>
-                  <div><span>EDGE</span><strong class="positive">+7.7%</strong></div>
-                </div>
-                <div class="confidence">
-                  <div><span>Outpost Confidence</span><b>84</b></div>
-                  <div class="confidence-track"><i style="width:84%"></i></div>
-                </div>
-                <div class="card-footer">
-                  <div class="best-odds"><small>BEST PRICE</small><b>-124</b><span>FD</span></div>
-                  <button class="button compact">View analysis</button>
-                </div>
-              </article>
-
-              <article class="model-card">
-                <div class="card-top">
-                  <div><span class="league-badge">MLB</span><span class="status-badge">VALUE</span></div>
-                  <button class="more-btn">•••</button>
-                </div>
-                <div class="entity-row">
-                  <div class="entity-avatar">20</div>
-                  <div><small>HOME RUN</small><h3>Pete Alonso</h3><p>BAL · 1B · vs NYY</p></div>
-                </div>
-                <div class="metric-row">
-                  <div><span>MODEL</span><strong>29.4%</strong></div>
-                  <div><span>MARKET</span><strong>21.7%</strong></div>
-                  <div><span>EDGE</span><strong class="positive">+7.7%</strong></div>
-                </div>
-                <div class="confidence">
-                  <div><span>Outpost Confidence</span><b>81</b></div>
-                  <div class="confidence-track"><i style="width:81%"></i></div>
-                </div>
-                <div class="card-footer">
-                  <div class="best-odds"><small>BEST PRICE</small><b>+360</b><span>365</span></div>
-                  <button class="button compact">View analysis</button>
-                </div>
-              </article>
-            </div>
-          </section>
-
-          <section class="split-section">
-            <div class="panel">
-              <div class="section-heading compact-heading">
-                <div><span class="eyebrow">LIVE CENTER</span><h2>Games in motion</h2></div>
-                <button class="text-action" data-route-jump="live">Open Live →</button>
-              </div>
-              <div class="live-game-list">
-                <article class="live-game">
-                  <div class="live-game-meta"><span class="live-tag"><i></i>2ND · 12:34</span><span>NHL</span></div>
-                  <div class="matchup">
-                    <div><span class="team-badge">PIT</span><b>Penguins</b><strong>2</strong></div>
-                    <div><span class="team-badge">PHI</span><b>Flyers</b><strong>1</strong></div>
-                  </div>
-                  <div class="game-insight"><span>Win probability</span><b>PIT 68%</b></div>
-                </article>
-                <article class="live-game">
-                  <div class="live-game-meta"><span class="live-tag"><i></i>Q3 · 6:41</span><span>NFL</span></div>
-                  <div class="matchup">
-                    <div><span class="team-badge">DAL</span><b>Cowboys</b><strong>17</strong></div>
-                    <div><span class="team-badge">NYG</span><b>Giants</b><strong>10</strong></div>
-                  </div>
-                  <div class="game-insight"><span>Next score lean</span><b>DAL 57%</b></div>
-                </article>
-              </div>
-            </div>
-
-            <div class="panel">
-              <div class="section-heading compact-heading">
-                <div><span class="eyebrow">MARKET RADAR</span><h2>Biggest moves</h2></div>
-                <button class="text-action" data-route-jump="props">All props →</button>
-              </div>
-              <div class="movement-list">
-                <button class="movement-row">
-                  <span class="movement-rank">01</span>
-                  <span><b>Connor McDavid</b><small>Shots O 3.5</small></span>
-                  <span class="movement-price"><b>-105</b><small>from +115</small></span>
-                  <span class="movement-arrow">↑</span>
-                </button>
-                <button class="movement-row">
-                  <span class="movement-rank">02</span>
-                  <span><b>Travis Kelce</b><small>Rec Yds O 67.5</small></span>
-                  <span class="movement-price"><b>-112</b><small>from +102</small></span>
-                  <span class="movement-arrow">↑</span>
-                </button>
-                <button class="movement-row">
-                  <span class="movement-rank">03</span>
-                  <span><b>Auston Matthews</b><small>Anytime Goal</small></span>
-                  <span class="movement-price"><b>+118</b><small>from +135</small></span>
-                  <span class="movement-arrow">↑</span>
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section class="section-block">
-            <div class="section-heading">
-              <div><span class="eyebrow">EXPLORE</span><h2>Built around how you actually use TSO</h2></div>
-            </div>
-            <div class="destination-grid">
-              <button class="destination-card" data-route-jump="research"><span>⌕</span><b>Research</b><small>Players, matchups, trends and situational context.</small><i>→</i></button>
-              <button class="destination-card" data-route-jump="models"><span>◎</span><b>Models</b><small>Scoring models, simulations and model-vs-market edges.</small><i>→</i></button>
-              <button class="destination-card" data-route-jump="props"><span>↗</span><b>Props</b><small>Exact lines, books, alternate markets and movement.</small><i>→</i></button>
-              <button class="destination-card" data-route-jump="parlays"><span>✦</span><b>Parlay Lab</b><small>Build, optimize, save and track multi-leg plays.</small><i>→</i></button>
-            </div>
-          </section>
-        </main>
-
-        <aside class="right-rail">
-          <section class="rail-card">
-            <div class="rail-heading"><span>MY OUTPOST</span><button>•••</button></div>
-            <div class="record">
-              <div class="record-ring"><span>68%</span></div>
-              <div><b>17–8</b><small>Last 25 tracked picks</small><strong>+8.7 pts</strong></div>
-            </div>
-          </section>
-
-          <section class="rail-card">
-            <div class="rail-heading"><span>TRENDING NOW</span><button>View all</button></div>
-            <div class="trend-list">
-              <button><span>🔥</span><div><b>Crosby anytime goal</b><small>1,284 watching</small></div><i>+268</i></button>
-              <button><span>⚡</span><div><b>Barkley anytime TD</b><small>932 watching</small></div><i>-124</i></button>
-              <button><span>👀</span><div><b>McDavid shots O3.5</b><small>817 watching</small></div><i>-105</i></button>
-            </div>
-          </section>
-
-          <section class="rail-card">
-            <div class="rail-heading"><span>WATCHLIST</span><button>Manage</button></div>
-            <div class="watch-row"><span class="watch-avatar">97</span><div><b>Connor McDavid</b><small>EDM · C</small></div><span class="watch-alert">2 alerts</span></div>
-            <div class="watch-row"><span class="watch-avatar">87</span><div><b>Sidney Crosby</b><small>PIT · C</small></div><span class="watch-alert">Live</span></div>
-          </section>
-
-          <section class="rail-card rail-cta">
-            <span class="eyebrow">OUTPOST ALERTS</span>
-            <h3>Stop checking. Let TSO tell you.</h3>
-            <p>Price moves, model jumps, lineup changes and scoring alerts.</p>
-            <button class="button primary full">Configure alerts</button>
-          </section>
+        <aside class="heat-panel">
+          <div class="broadcast-section-head">
+            <div><span class="orange-kicker">HEAT CHECK</span><h2>Moving right now</h2></div>
+            <button data-route-jump="props">ALL PROPS</button>
+          </div>
+          <button class="heat-row">
+            <span class="heat-rank">01</span>
+            <span class="heat-player"><b>Connor McDavid</b><small>Shots O 3.5 · EDM</small></span>
+            <span class="heat-move"><b>-105</b><small>was +115</small></span>
+            <span class="heat-arrow">▲</span>
+          </button>
+          <button class="heat-row">
+            <span class="heat-rank">02</span>
+            <span class="heat-player"><b>Sidney Crosby</b><small>Anytime Goal · PIT</small></span>
+            <span class="heat-move"><b>+268</b><small>model 34.8%</small></span>
+            <span class="heat-arrow gold">★</span>
+          </button>
+          <button class="heat-row">
+            <span class="heat-rank">03</span>
+            <span class="heat-player"><b>Saquon Barkley</b><small>Anytime TD · PHI</small></span>
+            <span class="heat-move"><b>-124</b><small>edge +7.7%</small></span>
+            <span class="heat-arrow violet">◆</span>
+          </button>
+          <div class="heat-footer">
+            <span><i></i> 42 markets moved in the last hour</span>
+          </div>
         </aside>
-      </div>
-    </div>
+      </section>
+
+      <section class="broadcast-section model-board-section">
+        <div class="broadcast-section-head major">
+          <div><span class="gold-kicker">OUTPOST MODEL BOARD</span><h2>Top edges tonight</h2></div>
+          <button data-route-jump="models">OPEN ALL MODELS →</button>
+        </div>
+        <div class="broadcast-model-rail">
+          <article class="broadcast-model-card violet-card">
+            <div class="broadcast-card-top"><span>NHL · ANYTIME GOAL</span><b>88 CONF</b></div>
+            <div class="broadcast-player"><span class="player-number">87</span><div><h3>Sidney Crosby</h3><small>PIT vs PHI</small></div></div>
+            <div class="broadcast-edge"><span><small>MODEL</small><b>34.8%</b></span><span><small>MARKET</small><b>27.2%</b></span><span><small>EDGE</small><b class="positive">+7.6%</b></span></div>
+            <div class="broadcast-price"><span>BEST PRICE</span><strong>+268</strong><button>VIEW PICK →</button></div>
+          </article>
+
+          <article class="broadcast-model-card gold-card">
+            <div class="broadcast-card-top"><span>NFL · ANYTIME TD</span><b>84 CONF</b></div>
+            <div class="broadcast-player"><span class="player-number">26</span><div><h3>Saquon Barkley</h3><small>PHI vs DAL</small></div></div>
+            <div class="broadcast-edge"><span><small>MODEL</small><b>63.1%</b></span><span><small>MARKET</small><b>55.4%</b></span><span><small>EDGE</small><b class="positive">+7.7%</b></span></div>
+            <div class="broadcast-price"><span>BEST PRICE</span><strong>-124</strong><button>VIEW PICK →</button></div>
+          </article>
+
+          <article class="broadcast-model-card orange-card">
+            <div class="broadcast-card-top"><span>MLB · HOME RUN</span><b>81 CONF</b></div>
+            <div class="broadcast-player"><span class="player-number">20</span><div><h3>Pete Alonso</h3><small>BAL vs NYY</small></div></div>
+            <div class="broadcast-edge"><span><small>MODEL</small><b>29.4%</b></span><span><small>MARKET</small><b>21.7%</b></span><span><small>EDGE</small><b class="positive">+7.7%</b></span></div>
+            <div class="broadcast-price"><span>BEST PRICE</span><strong>+360</strong><button>VIEW PICK →</button></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="broadcast-section">
+        <div class="broadcast-section-head major">
+          <div><span class="orange-kicker">TONIGHT'S SLATE</span><h2>Games worth watching</h2></div>
+          <button data-route-jump="research">MATCHUP RESEARCH →</button>
+        </div>
+        <div class="slate-rail">
+          <button class="slate-card">
+            <span class="slate-time live-state">LIVE · Q3</span>
+            <div class="slate-teams"><span>DAL</span><b>17</b><i>at</i><b>10</b><span>NYG</span></div>
+            <div class="slate-note"><span>Outpost lean</span><b>DAL next score 57%</b></div>
+          </button>
+          <button class="slate-card">
+            <span class="slate-time">8:20 PM · NFL</span>
+            <div class="slate-teams"><span>KC</span><b>—</b><i>at</i><b>—</b><span>BUF</span></div>
+            <div class="slate-note"><span>Top model</span><b>Kelce O67.5 rec yds</b></div>
+          </button>
+          <button class="slate-card">
+            <span class="slate-time">8:35 PM · MLB</span>
+            <div class="slate-teams"><span>BAL</span><b>—</b><i>at</i><b>—</b><span>NYY</span></div>
+            <div class="slate-note"><span>Top model</span><b>Alonso HR +360</b></div>
+          </button>
+          <button class="slate-card">
+            <span class="slate-time">9:00 PM · NHL</span>
+            <div class="slate-teams"><span>EDM</span><b>—</b><i>at</i><b>—</b><span>CGY</span></div>
+            <div class="slate-note"><span>Market watch</span><b>McDavid shots moving</b></div>
+          </button>
+        </div>
+      </section>
+
+      <section class="broadcast-action-band">
+        <button data-route-jump="research"><span>01</span><b>RESEARCH</b><small>Matchups & player context</small></button>
+        <button data-route-jump="models"><span>02</span><b>MODELS</b><small>Probabilities & edges</small></button>
+        <button data-route-jump="props"><span>03</span><b>PROP BOARD</b><small>Lines & movement</small></button>
+        <button data-route-jump="parlays"><span>04</span><b>PARLAY LAB</b><small>Build & track</small></button>
+      </section>
+    </main>
 
     <nav class="mobile-nav">
       <button class="is-active" data-route="home"><span>⌂</span><b>Home</b></button>
