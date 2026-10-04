@@ -615,82 +615,12 @@ body{
 }
 
 
-/* Clean league family tabs — approved target art + larger league name */
-.league-bar{height:86px!important}
-.league-tabs .sport-item--clean{
-  width:96px!important;
-  min-width:96px!important;
-  height:86px!important;
-  padding:6px 10px 7px!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:5px!important;
-}
-.league-tabs .sport-item--clean .sport-tab-art{
-  position:relative!important;
-  display:block!important;
-  width:82px!important;
-  height:46px!important;
-  overflow:hidden!important;
-  flex:none!important;
-}
-.league-tabs .sport-item--clean .sport-tab-art img{
-  position:absolute!important;
-  top:0!important;
-  left:50%!important;
-  transform:translateX(-50%)!important;
-  width:82px!important;
-  max-width:none!important;
-  height:auto!important;
-  object-fit:initial!important;
-  filter:none!important;
-  image-rendering:auto!important;
-}
-.league-tabs .sport-item--clean .sport-tab-label{
-  display:block!important;
-  font-size:13.5px!important;
-  line-height:1!important;
-  font-weight:1000!important;
-  font-style:italic!important;
-  letter-spacing:.12em!important;
-  color:#f7f7f2!important;
-}
-.league-tabs .sport-item--clean[data-league="nhl"] .sport-tab-label{color:#55c7ff!important}
-.league-tabs .sport-item--clean[data-league="nfl"] .sport-tab-label{color:#ff4d1c!important}
-.league-tabs .sport-item--clean[data-league="mlb"] .sport-tab-label{color:#ff6b45!important}
-.league-tabs .sport-item--clean[data-league="nba"] .sport-tab-label{color:#8f73ff!important}
-.league-tabs .sport-item--clean:hover .sport-tab-art img{
-  transform:translateX(-50%) translateY(-1px)!important;
-}
-.league-tabs .sport-item--clean.is-active .sport-tab-label{
-  text-shadow:0 0 14px currentColor!important;
-}
-
-@media(max-width:900px){
-  .league-bar{height:76px!important}
-  .league-tabs .sport-item--clean{
-    width:84px!important;
-    min-width:84px!important;
-    height:76px!important;
-    padding:5px 7px!important;
-    gap:3px!important;
-  }
-  .league-tabs .sport-item--clean .sport-tab-art{
-    width:72px!important;
-    height:40px!important;
-  }
-  .league-tabs .sport-item--clean .sport-tab-art img{width:72px!important}
-  .league-tabs .sport-item--clean .sport-tab-label{font-size:12px!important}
-}
-
 /* Finished league art — league names baked into the assets */
-.league-bar{height:96px!important}
+.league-bar{height:104px!important}
 .league-tabs .sport-item--finished{
-  width:104px!important;
-  min-width:104px!important;
-  height:96px!important;
+  width:112px!important;
+  min-width:112px!important;
+  height:104px!important;
   padding:6px 8px!important;
   display:flex!important;
   align-items:center!important;
@@ -699,9 +629,9 @@ body{
 }
 .league-tabs .sport-item--finished .sport-tab-finished{
   display:block!important;
-  width:88px!important;
+  width:100px!important;
   height:auto!important;
-  max-height:84px!important;
+  max-height:92px!important;
   max-width:none!important;
   object-fit:contain!important;
   image-rendering:auto!important;
@@ -711,7 +641,7 @@ body{
 .league-tabs .sport-item--finished:hover .sport-tab-finished{transform:translateY(-1px)!important}
 .league-tabs .sport-item--finished.is-active .sport-tab-finished{filter:brightness(1.08)!important}
 @media(max-width:900px){
-  .league-bar{height:84px!important}
-  .league-tabs .sport-item--finished{width:90px!important;min-width:90px!important;height:84px!important;padding:5px 6px!important}
-  .league-tabs .sport-item--finished .sport-tab-finished{width:76px!important;max-height:72px!important}
+  .league-bar{height:90px!important}
+  .league-tabs .sport-item--finished{width:96px!important;min-width:96px!important;height:90px!important;padding:5px 6px!important}
+  .league-tabs .sport-item--finished .sport-tab-finished{width:84px!important;max-height:80px!important}
 }
