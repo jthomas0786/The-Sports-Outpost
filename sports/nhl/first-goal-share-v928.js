@@ -132,7 +132,7 @@ function shareText(game,market){return `${market==='fgs'?'🏒 NHL First Goal Sc
 export async function downloadScorerCard(game,market='fgs'){const blob=await scorerCardBlob(game,market);if(!blob)throw new Error('Card render failed');const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename(game,market);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);return blob;}
 export async function shareScorerCard(game,market='fgs'){
  const blob=await scorerCardBlob(game,market);if(!blob)throw new Error('Card render failed');const file=new File([blob],filename(game,market),{type:'image/png'}),text=shareText(game,market);
- if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:'The Sports Outpost NHL Scorer Model',text,files:[file]});return 'shared';}
+ if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({title:'The Sports Outpost NHL Scorer',text,files:[file]});return 'shared';}
  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename(game,market);a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1500);window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text+'\n\nCard downloaded — attach the PNG to this post.')}`,'_blank','noopener,noreferrer');return 'downloaded';
 }
 export const __SCORER_CARD_TEST__={aspectBox,TEAM_COLORS,BRAND_BG,BRAND_WORDMARK};
