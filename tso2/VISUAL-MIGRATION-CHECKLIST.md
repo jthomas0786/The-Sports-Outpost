@@ -41,8 +41,9 @@ Used across NHL, NFL, and MLB player analysis:
 - shared chart shell across sports
 - selectable range chips inside the chart header
 
-**Status:** NEEDS FULL MIGRATION  
-**Existing 2.0 foundation:** exact-line L5/L10/season calculations already exist in Prop Intelligence.
+**Status:** PARTIAL — SHARED 2.0 CHART SHELL MIGRATED  
+**Existing 2.0 foundation:** Prop Intelligence now renders verified per-game bars against the exact selected threshold, with hit / miss / push states and L5 / L10 / L15 / L30 / season range controls when enough verified game-log rows exist. Exact-line L5/L10/season calculations remain in the same panel.  
+**Still required for full parity:** opponent labels where the source exposes them, sport-specific Home/Away and verified H2H filtering, and reuse of the same shell inside Deep Research sport modules.
 
 ---
 
@@ -158,8 +159,8 @@ NFL/NHL player analysis exposed simulation distribution / outcome distribution v
 - H2H when verified opponent history exists
 - season range when full verified log exists
 
-**Status:** PARTIAL  
-**Existing 2.0 foundation:** Prop Intelligence currently renders L5/L10/season numeric hit-rate cards and recent outcome sequence.
+**Status:** PARTIAL / VISUAL MIGRATION ACTIVE  
+**Existing 2.0 foundation:** Prop Intelligence renders L5/L10/season numeric hit-rate cards, recent outcome sequence, and the shared exact-line per-game bar chart with selectable recent/season ranges.
 
 ---
 
