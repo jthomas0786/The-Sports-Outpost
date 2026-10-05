@@ -611,8 +611,8 @@
             <kbd>ENTER</kbd>
           </label>
           <div class="props-filter-actions">
-            <button data-props-market-filter>MARKET: ALL⌄</button>
-            <button data-props-book-filter>BOOK: ALL⌄</button>
+            <select data-props-market-filter aria-label="Filter prop market"><option value="">MARKET: ALL</option></select>
+            <select data-props-book-filter aria-label="Filter sportsbook"><option value="">BOOK: ALL</option></select>
             <button data-props-refresh>REFRESH ODDS ↻</button>
           </div>
         </section>
