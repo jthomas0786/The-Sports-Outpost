@@ -3745,3 +3745,24 @@ body{
   .props-feed-badge{display:none}
   .props-live-feature{min-height:0}
 }
+
+
+/* Props real-data filter controls */
+.props-filter-actions select{
+  min-height:34px;
+  padding:0 30px 0 11px;
+  border:1px solid rgba(255,255,255,.09);
+  background:#090d12;
+  color:#77828e;
+  font:inherit;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.06em;
+  outline:0;
+  cursor:pointer;
+  appearance:auto;
+}
+.props-filter-actions select:focus{
+  border-color:rgba(255,216,77,.28);
+  color:#e7ebef;
+}
