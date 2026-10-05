@@ -1103,6 +1103,41 @@ body{
   color:#aeb5bf!important;
   font-size:8px!important;
 }
+.home-model-loading,.home-model-empty{
+  min-height:255px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:12px!important;
+  padding:24px!important;
+  color:#7d8793!important;
+  text-align:center!important;
+}
+.home-model-loading--wide,.home-model-empty--wide{
+  width:100%!important;
+  min-height:260px!important;
+  border:1px solid rgba(255,255,255,.09)!important;
+  background:linear-gradient(160deg,#090d12,#05070a)!important;
+}
+.home-model-loading b,.home-model-loading small,.home-model-empty b,.home-model-empty small{display:block!important}
+.home-model-loading b,.home-model-empty b{color:#d9dee5!important;font-size:11px!important}
+.home-model-loading small,.home-model-empty small{margin-top:5px!important;color:#68737f!important;font-size:8px!important;line-height:1.5!important}
+.home-model-meta{
+  grid-template-columns:minmax(0,1fr) auto!important;
+}
+.home-model-meta>span{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+.home-model-meta>b{
+  min-width:max-content!important;
+  color:#aeb6c1!important;
+  font-size:8px!important;
+  letter-spacing:.04em!important;
+}
+
 
 /* MODEL CARDS */
 .concept-model-rail{
