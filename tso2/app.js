@@ -873,13 +873,14 @@
   }
 
   function parlaySuggestionMarkup(row,label='COMPATIBLE'){
-    const edge=Number(row?.model?.edgePct);
+    const hasModel=Number.isFinite(Number(row?.model?.probabilityPct));
+    const edge=hasModel?Number(row.model.edgePct):null;
     return '<button class="parlay-suggestion-card" data-parlay-suggest="'+esc(row.key)+'">'
-      +'<div><span>'+esc(leagueLabel(row.sport))+'</span><b>'+esc(label)+'</b></div>'
+      +'<div><span>'+esc(leagueLabel(row.sport))+'</span><b>'+esc(hasModel?label:'MARKET ONLY')+'</b></div>'
       +propHeadshotMarkup(row,'parlay-suggestion-headshot')
       +'<h3>'+esc(row.player)+' · '+esc(row.marketLabel||row.market)+' '+esc(propSelectionText(row))+'</h3>'
       +'<p>'+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+' · exact selection</p>'
-      +'<section><span><small>MODEL</small><b>'+pct1(row.model?.probabilityPct)+'</b></span><span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span><span><small>BEST</small><b>'+esc(americanPrice(row.price))+'</b></span></section>'
+      +'<section><span><small>MODEL</small><b>'+(hasModel?pct1(row.model.probabilityPct):'—')+'</b></span><span><small>EDGE</small><b class="'+(hasModel?(edge>=0?'positive':'negative'):'')+'">'+(hasModel?edgeText(edge):'—')+'</b></span><span><small>BEST</small><b>'+esc(americanPrice(row.price))+'</b></span></section>'
       +'<i>＋ ADD EXACT LEG</i>'
     +'</button>';
   }
@@ -893,9 +894,10 @@
     const all=parlayCandidateRows(selectedKeys);
     const safe=all.filter(row=>!selectedPlayers.has(String(row.player||'').toLowerCase())&&(!parlayEventKey(row)||!selectedEvents.has(parlayEventKey(row))));
     const visible=(safe.length?safe:all).slice(0,6);
-    node.innerHTML=visible.length ? visible.map(row=>parlaySuggestionMarkup(row,safe.includes(row)?'NO SAME EVENT':'REVIEW OVERLAP')).join('') : '<div class="live-board-loading home-model-empty--wide"><div><b>No additional exact modeled selections for this filter.</b><small>Open Props for market-only rows.</small></div></div>';
+    const modeled=visible.filter(row=>Number.isFinite(Number(row?.model?.probabilityPct))).length;
+    node.innerHTML=visible.length ? visible.map(row=>parlaySuggestionMarkup(row,safe.includes(row)?'NO SAME EVENT':'REVIEW OVERLAP')).join('') : '<div class="live-board-loading home-model-empty--wide"><div><b>No additional exact selections for this filter.</b><small>Open Player Props to choose another verified leg.</small></div></div>';
     const title=root.querySelector('[data-parlay-suggestions-title]');
-    if(title) title.textContent=visible.length?visible.length+' exact model suggestions':'No modeled suggestions';
+    if(title) title.textContent=visible.length?(modeled===visible.length?visible.length+' exact model suggestions':visible.length+' exact market suggestions'):'No exact suggestions';
   }
 
   function renderParlayReplacements(root,rows,weakest){
