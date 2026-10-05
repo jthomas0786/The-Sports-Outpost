@@ -3201,6 +3201,96 @@ body{
 
 
 
+
+
+/* =========================================================
+   TSO 2.0 — LIVE RESEARCH DESK
+   ========================================================= */
+.research-status-strip{
+  min-height:60px;display:flex;align-items:center;gap:16px;padding:10px 14px;margin:14px 0 18px;
+  overflow-x:auto;border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(90deg,rgba(255,216,77,.03),rgba(45,127,255,.028),transparent)
+}
+.research-status-strip>div{display:flex;align-items:center;gap:7px;min-width:max-content}
+.research-status-strip b,.research-status-strip small{display:block}
+.research-status-strip b{font-size:8px;letter-spacing:.055em}
+.research-status-strip small{color:#68747f;font-size:7px}
+.research-command-search--live{
+  display:grid;grid-template-columns:minmax(260px,.75fr) minmax(360px,1.5fr) auto;gap:18px;align-items:center;
+  padding:19px 20px;margin-bottom:16px;border:1px solid rgba(255,255,255,.1);background:linear-gradient(145deg,#090e15,#06090e)
+}
+.research-command-copy h2{margin:5px 0 4px;font-size:20px}
+.research-command-copy p{margin:0;color:#6d7884;font-size:8px}
+.research-command-input{
+  height:48px;display:flex;align-items:center;gap:10px;padding:0 13px;border:1px solid rgba(255,255,255,.12);background:#070b11
+}
+.research-command-input>span{color:#8b96a2;font-size:14px}
+.research-command-input input{flex:1;min-width:0;border:0;outline:0;background:transparent;color:#f4f6f8;font-size:10px}
+.research-command-input kbd{padding:4px 6px;border:1px solid rgba(79,227,155,.18);background:rgba(79,227,155,.045);color:#70e8ab;font-size:6px;font-weight:900}
+.research-clear-button{
+  height:48px;padding:0 14px;border:1px solid rgba(255,255,255,.09);background:#090d13;color:#7d8894;font-size:7px;font-weight:900;letter-spacing:.07em
+}
+.research-grid-primary--live{margin-bottom:24px}
+.research-game-row{grid-template-columns:58px minmax(0,1fr) 100px 20px!important}
+.research-game-teams b{display:flex!important;align-items:center;gap:6px!important}
+.research-game-logo{width:24px;height:24px}
+.research-player-row--live{grid-template-columns:30px 42px minmax(0,1fr) auto!important}
+.research-depth-value{font-size:8px!important;font-weight:900!important;color:#70e8ab!important}
+.research-results-board{
+  overflow:hidden;border:1px solid rgba(255,255,255,.1);background:#070b10
+}
+.research-result-row{
+  width:100%;min-height:72px;display:grid;grid-template-columns:minmax(240px,1.55fr) 86px 78px 78px 78px 120px;
+  gap:10px;align-items:center;padding:10px 14px;border:0;border-top:1px solid rgba(255,255,255,.07);
+  background:transparent;color:#f4f6f8;text-align:left;cursor:pointer
+}
+.research-result-row:first-child{border-top:0}
+.research-result-row:hover{background:rgba(45,127,255,.025)}
+.research-result-row.has-model{box-shadow:inset 3px 0 0 rgba(79,227,155,.46)}
+.research-result-row.is-market-only{box-shadow:inset 3px 0 0 rgba(255,255,255,.08)}
+.research-result-player{display:flex;align-items:center;gap:10px;min-width:0}
+.research-result-player>span{min-width:0}
+.research-result-player b,.research-result-player small{display:block}
+.research-result-player b{font-size:10px}
+.research-result-player small{margin-top:4px;color:#67727e;font-size:7px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.research-result-headshot{width:40px!important;height:40px!important;border-radius:50%!important}
+.research-result-row>strong{font-size:10px}
+.research-result-row>span:not(.research-result-player) small,.research-result-row>span:not(.research-result-player) b,.research-result-row>span:not(.research-result-player) em{display:block}
+.research-result-row>span:not(.research-result-player) small{color:#56616d;font-size:6px;font-weight:900;letter-spacing:.06em}
+.research-result-row>span:not(.research-result-player) b{margin-top:4px;font-size:9px}
+.research-result-row>span:not(.research-result-player) em{margin-top:3px;color:#67727e;font-size:6px;font-style:normal}
+.research-signal-card--real{min-height:310px}
+.research-stat-grid--real b{font-size:10px!important}
+.research-context-section--live{margin-top:26px}
+.research-context-grid--live>div b{font-size:13px}
+.research-recent-card--live [data-research-sport-depth]>button{
+  width:100%;min-height:64px;display:grid;grid-template-columns:44px 1fr 20px;gap:10px;align-items:center;
+  padding:10px 12px;border:0;border-top:1px solid rgba(255,255,255,.07);background:transparent;color:#f4f6f8;text-align:left;cursor:pointer
+}
+.research-recent-card--live [data-research-sport-depth]>button:first-child{border-top:0}
+.research-recent-card--live [data-research-sport-depth]>button:hover{background:rgba(123,92,255,.025)}
+.research-recent-card--live [data-research-sport-depth]>button>span{
+  min-height:26px;display:grid;place-items:center;border:1px solid rgba(123,92,255,.16);color:#aa98ff;font-size:7px;font-weight:900
+}
+.research-recent-card--live [data-research-sport-depth] b,
+.research-recent-card--live [data-research-sport-depth] small{display:block}
+.research-recent-card--live [data-research-sport-depth] b{font-size:9px}
+.research-recent-card--live [data-research-sport-depth] small{margin-top:4px;color:#66727e;font-size:7px}
+.research-recent-card--live [data-research-sport-depth] i{color:#687581;font-style:normal}
+
+@media(max-width:1050px){
+  .research-command-search--live{grid-template-columns:1fr}
+  .research-clear-button{width:100%}
+  .research-result-row{grid-template-columns:minmax(210px,1.5fr) 70px 65px 65px 90px}
+  .research-result-row>span:nth-child(5){display:none}
+}
+@media(max-width:720px){
+  .research-game-row{grid-template-columns:48px minmax(0,1fr) 74px!important}
+  .research-game-row .radar-arrow{display:none}
+  .research-result-row{grid-template-columns:minmax(180px,1fr) 64px 72px}
+  .research-result-row>span:nth-child(3),.research-result-row>span:nth-child(4),.research-result-row>span:nth-child(5){display:none}
+  .research-signal-grid{grid-template-columns:1fr!important}
+}
 /* =========================================================
    TSO 2.0 — HONEST PROFILE
    ========================================================= */
