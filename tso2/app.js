@@ -28,6 +28,10 @@
   };
   const deepResearchCache = new Map();
   const propHistoryCache = new Map();
+  let nhlScorerCache = null;
+  let nhlScorerFetchedAt = 0;
+  let nhlScorerInFlight = null;
+  let nhlScorerMarket = 'fgs';
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
   const PROPS_FEED_TTL = 30000;
@@ -574,6 +578,160 @@
     bindMediaFallbacks();
   }
 
+  const NHL_SCORER_TEAM_COLORS={
+    ANA:'#fc4c02',BOS:'#ffb81c',BUF:'#003087',CGY:'#d2001c',CAR:'#cc0000',CHI:'#cf0a2c',
+    COL:'#6f263d',CBJ:'#002654',DAL:'#006847',DET:'#ce1126',EDM:'#ff4c00',FLA:'#c8102e',
+    LA:'#a2aaad',MIN:'#154734',MTL:'#af1e2d',NSH:'#ffb81c',NJ:'#ce1126',NYI:'#00539b',
+    NYR:'#0038a8',OTT:'#c52032',PHI:'#f74902',PIT:'#fcb514',SJ:'#006d75',SEA:'#99d9d9',
+    STL:'#002f87',TB:'#002868',TOR:'#003e7e',UTA:'#69b3e7',VAN:'#00205b',VGK:'#b4975a',
+    WSH:'#041e42',WPG:'#041e42'
+  };
+
+  function nhlScorerRgb(hex){
+    const h=String(hex||'#7b5cff').replace('#','').padEnd(6,'0').slice(0,6);
+    return [parseInt(h.slice(0,2),16)||123,parseInt(h.slice(2,4),16)||92,parseInt(h.slice(4,6),16)||255].join(',');
+  }
+
+  function nhlScorerPct(value){
+    const n=Number(value);
+    if(!Number.isFinite(n))return '—';
+    const pct=n*100;
+    return pct.toFixed(pct>=10?1:2)+'%';
+  }
+
+  function nhlScorerStat(value){
+    const n=Number(value);
+    return Number.isFinite(n)?n.toFixed(2):'—';
+  }
+
+  function nhlScorerLine(p){
+    const fgs=nhlScorerMarket==='fgs';
+    const probability=fgs?p?.probability:p?.anytimeProbability;
+    const odds=fgs?p?.bestOdds:p?.bestAtgOdds;
+    const book=fgs?p?.bestBook:p?.bestAtgBook;
+    const fair=fgs?p?.fairOdds:p?.fairAtgOdds;
+    return {probability,odds,book,fair,live:Number.isFinite(Number(odds))};
+  }
+
+  function nhlScorerHeadshot(p){
+    const initials=esc(playerInitials(p?.name));
+    if(!p?.photo)return '<span class="nhl-scorer-photo is-missing"><span>'+initials+'</span></span>';
+    return '<span class="nhl-scorer-photo"><span>'+initials+'</span><img data-player-headshot src="'+esc(p.photo)+'" alt="'+esc(p.name||'NHL player')+'" loading="lazy" /></span>';
+  }
+
+  function nhlScorerPlayerMarkup(p,team,risky=false,index=0){
+    if(!p)return '';
+    const line=nhlScorerLine(p);
+    const matchup=p.matchup||{};
+    const accent=NHL_SCORER_TEAM_COLORS[String(team?.abbr||p.team||'').toUpperCase()]||'#7b5cff';
+    const oddsShown=line.live?americanPrice(line.odds):(Number.isFinite(Number(line.fair))?americanPrice(line.fair):'—');
+    const oddsLabel=line.live?(line.book?String(line.book).toUpperCase():'LIVE ODDS'):'FAIR';
+    const fairNote=line.live&&Number.isFinite(Number(line.fair))?'FAIR '+americanPrice(line.fair):line.live?'VERIFIED PRICE':'MODEL PRICE';
+    const rank=p.teamRank||index+1;
+    const details=[
+      nhlScorerStat(p.seasonGoalRate)+' G/GP',
+      nhlScorerStat(p.seasonSogRate)+' SOG/GP',
+      'L10 '+String(p.recentGoals??0)+' G'
+    ];
+    if(nhlScorerMarket==='fgs')details.push(String(p.recentFirstGoals??0)+' FIRST');
+    const matchupText=matchup.detail?((matchup.label||'Neutral')+' · '+matchup.detail):(matchup.label||'Matchup context pending');
+    return '<article class="nhl-scorer-player '+(risky?'is-risky':'')+'" style="--scorer-accent:'+esc(accent)+';--scorer-rgb:'+esc(nhlScorerRgb(accent))+'">'
+      +'<span class="nhl-scorer-rank">'+(risky?'RISKY VALUE':'#'+esc(rank))+'</span>'
+      +nhlScorerHeadshot(p)
+      +'<div class="nhl-scorer-player-copy"><small>'+esc(String(p.position||'NHL'))+' · '+esc(String(p.team||team?.abbr||''))+'</small><h4>'+esc(p.name||'Player')+'</h4><p>'+esc(details.join(' · '))+'</p></div>'
+      +'<div class="nhl-scorer-player-metrics"><span><small>MODEL</small><b>'+esc(nhlScorerPct(line.probability))+'</b></span><span><small>'+esc(oddsLabel)+'</small><b>'+esc(oddsShown)+'</b><em>'+esc(fairNote)+'</em></span></div>'
+      +'<div class="nhl-scorer-matchup"><span>'+esc(matchupText)+'</span>'+(risky&&p.riskyReason?'<strong>'+esc(p.riskyReason)+'</strong>':'')+'</div>'
+      +'</article>';
+  }
+
+  function nhlScorerTeamMarkup(team){
+    const accent=NHL_SCORER_TEAM_COLORS[String(team?.abbr||'').toUpperCase()]||'#7b5cff';
+    const players=nhlScorerMarket==='fgs'?(team?.players||[]):(team?.atgPlayers||[]);
+    const risky=nhlScorerMarket==='fgs'?team?.riskyFirstGoal:team?.riskyAtg;
+    return '<section class="nhl-scorer-team" style="--scorer-accent:'+esc(accent)+';--scorer-rgb:'+esc(nhlScorerRgb(accent))+'">'
+      +'<header><div>'+teamLogoMarkup(team,'nhl-scorer-team-logo')+'<span><small>'+esc(team?.abbr||'NHL')+'</small><b>'+esc(team?.name||'Team')+'</b></span></div><strong>'+esc(Number(team?.expectedGoals||0).toFixed(2))+' <small>MODEL GOALS</small></strong></header>'
+      +'<div class="nhl-scorer-players">'+players.slice(0,3).map((p,i)=>nhlScorerPlayerMarkup(p,team,false,i)).join('')+(risky?nhlScorerPlayerMarkup(risky,team,true,3):'')+'</div>'
+      +'</section>';
+  }
+
+  function nhlScorerGameMarkup(game){
+    const when=game?.startTime?new Date(game.startTime):null;
+    const time=when&&!Number.isNaN(when.getTime())?when.toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'Time pending';
+    const status=String(game?.status||'').toUpperCase();
+    return '<article class="nhl-scorer-game">'
+      +'<header class="nhl-scorer-game-head"><div class="nhl-scorer-matchup-title">'+teamLogoMarkup(game?.away,'nhl-scorer-matchup-logo')+'<b>'+esc(game?.away?.abbr||'AWAY')+'</b><span>@</span><b>'+esc(game?.home?.abbr||'HOME')+'</b>'+teamLogoMarkup(game?.home,'nhl-scorer-matchup-logo')+'</div><div><span>'+esc(status||'SCHEDULED')+'</span><b>'+esc(time)+'</b><small>'+esc(game?.venue||'NHL')+'</small></div></header>'
+      +'<div class="nhl-scorer-team-grid">'+nhlScorerTeamMarkup(game?.away)+nhlScorerTeamMarkup(game?.home)+'</div>'
+      +'</article>';
+  }
+
+  function bindNhlScorerActions(root){
+    root?.querySelectorAll('[data-nhl-scorer-market]').forEach(btn=>btn.onclick=()=>{
+      const next=String(btn.dataset.nhlScorerMarket||'fgs');
+      if(next===nhlScorerMarket)return;
+      nhlScorerMarket=next;
+      renderNhlScorerModel();
+    });
+  }
+
+  function renderNhlScorerModel(){
+    const root=document.querySelector('[data-nhl-scorer-shell]');
+    if(!root)return;
+    root.querySelectorAll('[data-nhl-scorer-market]').forEach(btn=>{
+      const active=btn.dataset.nhlScorerMarket===nhlScorerMarket;
+      btn.classList.toggle('is-active',active);
+      btn.setAttribute('aria-pressed',active?'true':'false');
+    });
+    const body=root.querySelector('[data-nhl-scorer-body]');
+    const meta=root.querySelector('[data-nhl-scorer-meta]');
+    if(!body)return;
+    if(!nhlScorerCache){
+      body.innerHTML='<div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading the real NHL scorer model…</b><small>Same generated board used by TSO 1.0.</small></div></div>';
+      return;
+    }
+    const games=Array.isArray(nhlScorerCache.games)?nhlScorerCache.games:[];
+    if(meta){
+      meta.innerHTML='<span><b>'+esc(nhlScorerCache.model||'FGS-Hazard Ensemble v3')+'</b><small>'+esc(nhlScorerCache.season||'NHL')+' · generated '+esc(ageText(nhlScorerCache.generatedAt))+' ago</small></span>'
+        +'<span><b>TOP 3 + RISKY VALUE</b><small>per team</small></span>'
+        +'<span><b>'+games.length+' MATCHUPS</b><small>'+esc(nhlScorerMarket==='fgs'?'First Goal':'Anytime Goal')+' board</small></span>'
+        +'<span><b>MATCHUP ADJUSTED</b><small>form · defense · goalie · rest</small></span>';
+    }
+    if(!games.length){
+      body.innerHTML='<div class="live-board-loading"><div><b>The scorer model is waiting for the next verified NHL slate.</b><small>No fake candidates will be shown.</small></div></div>';
+      return;
+    }
+    body.innerHTML=games.map(nhlScorerGameMarkup).join('');
+    bindNhlScorerActions(root);
+    bindMediaFallbacks();
+  }
+
+  function refreshNhlScorerData(force=false){
+    const root=document.querySelector('[data-nhl-scorer-shell]');
+    if(!root)return Promise.resolve(null);
+    const now=Date.now();
+    if(!force&&nhlScorerCache&&now-nhlScorerFetchedAt<60000){
+      renderNhlScorerModel();
+      return Promise.resolve(nhlScorerCache);
+    }
+    if(nhlScorerInFlight)return nhlScorerInFlight;
+    nhlScorerInFlight=fetch('/api/nhl-scorer-model',{cache:'no-store'})
+      .then(async response=>{
+        const payload=await response.json();
+        if(!response.ok||payload?.available===false)throw new Error(payload?.error||'NHL scorer model unavailable');
+        nhlScorerCache=payload;
+        nhlScorerFetchedAt=Date.now();
+        renderNhlScorerModel();
+        return payload;
+      })
+      .catch(error=>{
+        console.error('TSO NHL scorer model:',error);
+        const body=document.querySelector('[data-nhl-scorer-body]');
+        if(body)body.innerHTML='<div class="live-board-loading"><div><b>NHL scorer model feed unavailable.</b><small>TSO will not replace it with demo picks.</small></div></div>';
+        return null;
+      })
+      .finally(()=>{nhlScorerInFlight=null;});
+    return nhlScorerInFlight;
+  }
+
   function renderModelsSportSummary(root){
     const node=root.querySelector('[data-models-sport-summary]');
     if(!node) return;
@@ -675,6 +833,7 @@
   function renderModelsFeed(){
     const root=document.querySelector('[data-models-route]');
     if(currentRoute!=='models'||!root||!propsFeedCache) return;
+    refreshNhlScorerData(false);
     const rows=currentModelRows();
     const all=allModeledRows();
     const newest=propsNewestTimestamp(rows.length?rows:all);
@@ -2174,7 +2333,7 @@
       renderParlayLab();
     }));
     document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
-    document.querySelector('[data-models-refresh]')?.addEventListener('click', () => refreshPropsData(true));
+    document.querySelector('[data-models-refresh]')?.addEventListener('click', () => { refreshPropsData(true); refreshNhlScorerData(true); });
     document.querySelectorAll('[data-models-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.modelsLeague)));
     document.querySelector('[data-props-search]')?.addEventListener('input', event => {
       propsFilterState.search=event.target.value;
@@ -2208,6 +2367,8 @@
     if(currentRoute === 'home') pageContent.innerHTML = homeHTML;
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
+    bindNhlScorerActions(document.querySelector('[data-nhl-scorer-shell]'));
+    refreshNhlScorerData(false);
     refreshLiveData(false);
     refreshPropsData(false);
     if(scrollToTop){
