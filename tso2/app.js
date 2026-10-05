@@ -9,6 +9,11 @@
   const OWNER_HANDLE = 'justcallme_jt';
   let currentRoute = 'home';
   let currentLeague = 'all';
+  let liveFeedCache = null;
+  let liveFeedFetchedAt = 0;
+  let liveFeedInFlight = null;
+  const LIVE_FEED_TTL = 12000;
+  const LIVE_POLL_MS = 30000;
 
   const normalizeHandle = value => String(value || '').trim().replace(/^@/, '').toLowerCase();
   const currentUserHandle = () => normalizeHandle(
@@ -40,6 +45,253 @@
     profileMenu.classList.toggle('is-open', opening);
     profileDropdown.hidden = !opening;
     profileButton.setAttribute('aria-expanded', String(opening));
+  }
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+
+  const localDateKey = () => {
+    const d = new Date();
+    return [d.getFullYear(), String(d.getMonth()+1).padStart(2,'0'), String(d.getDate()).padStart(2,'0')].join('');
+  };
+
+  const leagueLabel = value => String(value || '').toUpperCase();
+  const stateRank = state => state === 'in' ? 0 : state === 'pre' ? 1 : 2;
+
+  function sortedGames(games=[]){
+    return [...games].sort((a,b) => {
+      const rank = stateRank(a.state) - stateRank(b.state);
+      if(rank) return rank;
+      const at = Date.parse(a.startTime || '') || 0;
+      const bt = Date.parse(b.startTime || '') || 0;
+      return a.state === 'post' ? bt-at : at-bt;
+    });
+  }
+
+  function gameStatusText(game){
+    if(game.state === 'post') return game.detail || 'FINAL';
+    if(game.state === 'in') return game.detail || [game.period ? 'P'+game.period : '', game.clock || ''].filter(Boolean).join(' · ') || 'LIVE';
+    const dt = Date.parse(game.startTime || '');
+    if(!Number.isFinite(dt)) return game.detail || 'UPCOMING';
+    return new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date(dt));
+  }
+
+  function gameShortState(game){
+    if(game.state === 'post') return 'FINAL';
+    if(game.state === 'in') return game.detail || 'LIVE';
+    return gameStatusText(game);
+  }
+
+  function currentFeedGames(){
+    const all = sortedGames(liveFeedCache?.games || []);
+    return currentLeague === 'all' ? all : all.filter(g => g.league === currentLeague);
+  }
+
+  function feedUpdatedText(){
+    const when = Date.parse(liveFeedCache?.generatedAt || '');
+    if(!Number.isFinite(when)) return 'Live scoreboard';
+    const seconds = Math.max(0,Math.round((Date.now()-when)/1000));
+    if(seconds < 10) return 'Updated just now';
+    if(seconds < 60) return 'Updated '+seconds+' sec ago';
+    return 'Updated '+Math.floor(seconds/60)+' min ago';
+  }
+
+  function liveTileMarkup(game){
+    const awayScore = game.state === 'pre' ? '' : '<em>'+esc(game.away?.score ?? 0)+'</em>';
+    const homeScore = game.state === 'pre' ? '' : '<em>'+esc(game.home?.score ?? 0)+'</em>';
+    return '<button class="score-tile '+(game.state==='in'?'hot-game':'')+'" data-live-open="'+esc(game.id)+'">'
+      +'<span class="league-chip">'+esc(leagueLabel(game.league))+'</span>'
+      +'<strong>'+esc(game.away?.abbr || 'AWAY')+' '+awayScore+'</strong>'
+      +'<strong>'+esc(game.home?.abbr || 'HOME')+' '+homeScore+'</strong>'
+      +'<small>'+esc(gameStatusText(game))+'</small>'
+      +'</button>';
+  }
+
+  function bindLiveGeneratedActions(){
+    document.querySelectorAll('[data-live-open]').forEach(btn => {
+      btn.onclick = () => setRoute('live');
+    });
+    document.querySelectorAll('[data-live-refresh]').forEach(btn => {
+      btn.onclick = () => refreshLiveData(true);
+    });
+  }
+
+  function renderGlobalScoreStrip(){
+    const strip = document.querySelector('.broadcast-score-strip');
+    if(!strip || !liveFeedCache) return;
+    const games = sortedGames(liveFeedCache.games || []);
+    const liveCount = games.filter(g => g.state === 'in').length;
+    const visible = games.slice(0,6);
+    const label = liveCount
+      ? '<div class="score-strip-label"><span class="pulse"></span>'+liveCount+' LIVE</div>'
+      : '<div class="score-strip-label"><span class="pulse is-idle"></span>TODAY</div>';
+    const tiles = visible.length
+      ? visible.map(liveTileMarkup).join('')
+      : '<div class="score-strip-empty">No games returned for today.</div>';
+    strip.innerHTML = label + tiles + '<button class="score-more" data-route-jump="live">FULL SCOREBOARD →</button>';
+    strip.querySelector('[data-route-jump="live"]')?.addEventListener('click',()=>setRoute('live'));
+    bindLiveGeneratedActions();
+  }
+
+  function featureGameMarkup(game,home=false){
+    if(!game) return '<div class="live-feed-empty"><div><b>No games on the current slate.</b><small>The live feed is connected; there is simply nothing scheduled for this filter.</small></div></div>';
+    const awayScore = game.state === 'pre' ? '—' : esc(game.away?.score ?? 0);
+    const homeScore = game.state === 'pre' ? '—' : esc(game.home?.score ?? 0);
+    const stateText = game.state === 'in' ? 'LIVE · '+gameShortState(game) : gameShortState(game);
+    const start = gameStatusText(game);
+    const venue = game.venue || 'Venue pending';
+    if(home){
+      return '<div class="feature-game-bg"></div>'
+        +'<div class="matchup-energy matchup-energy--left"></div><div class="matchup-energy matchup-energy--right"></div>'
+        +'<div class="feature-topline"><span class="feature-live '+(game.state==='in'?'':'is-upcoming')+'"><i></i>'+esc(stateText)+'</span><span>'+esc(leagueLabel(game.league))+' · LIVE SCOREBOARD</span></div>'
+        +'<div class="matchup-stage">'
+          +'<div class="matchup-side matchup-side--home"><span class="matchup-team-code">'+esc(game.away?.abbr)+'</span><strong>'+awayScore+'</strong><small>'+esc(game.away?.name)+'</small></div>'
+          +'<div class="matchup-center"><span>VS</span><b>'+esc(game.state==='in'?'LIVE NOW':'TODAY')+'</b></div>'
+          +'<div class="matchup-side matchup-side--away"><span class="matchup-team-code">'+esc(game.home?.abbr)+'</span><strong>'+homeScore+'</strong><small>'+esc(game.home?.name)+'</small></div>'
+        +'</div>'
+        +'<div class="feature-stats concept-matchup-stats">'
+          +'<span><small>STATUS</small><b>'+esc(gameShortState(game))+'</b></span>'
+          +'<span><small>PERIOD</small><b>'+esc(game.period || '—')+'</b></span>'
+          +'<span><small>CLOCK</small><b>'+esc(game.clock || '—')+'</b></span>'
+          +'<span><small>VENUE</small><b>'+esc(venue)+'</b></span>'
+        +'</div>'
+        +'<div class="feature-footer"><div><span>LIVE SCORE FEED</span><b>'+esc(game.away?.abbr)+' @ '+esc(game.home?.abbr)+'</b><strong>'+esc(start)+'</strong></div><button class="broadcast-cta" data-route-jump="live">OPEN LIVE CENTER →</button></div>';
+    }
+    return '<div class="live-gamecast-energy live-gamecast-energy--blue"></div><div class="live-gamecast-energy live-gamecast-energy--orange"></div>'
+      +'<div class="live-gamecast-top"><span class="live-state-chip '+(game.state==='in'?'':'is-upcoming')+'"><i></i>'+esc(stateText)+'</span><span>'+esc(leagueLabel(game.league))+' · SCOREBOARD</span></div>'
+      +'<div class="live-matchup-stage">'
+        +'<div class="live-team"><span>'+esc(game.away?.abbr)+'</span><strong>'+awayScore+'</strong><small>'+esc(game.away?.name)+'</small></div>'
+        +'<div class="live-center-mark"><b>VS</b><span>'+esc(game.state==='in'?'LIVE NOW':'TODAY')+'</span></div>'
+        +'<div class="live-team live-team--away"><span>'+esc(game.home?.abbr)+'</span><strong>'+homeScore+'</strong><small>'+esc(game.home?.name)+'</small></div>'
+      +'</div>'
+      +'<div class="live-stat-strip">'
+        +'<div><span>STATUS</span><b>'+esc(gameShortState(game))+'</b></div>'
+        +'<div><span>PERIOD</span><b>'+esc(game.period || '—')+'</b></div>'
+        +'<div><span>CLOCK</span><b>'+esc(game.clock || '—')+'</b></div>'
+        +'<div><span>START</span><b>'+esc(start)+'</b></div>'
+      +'</div>'
+      +'<div class="live-gamecast-footer"><div><span>LIVE SCORE FEED</span><b>'+esc(venue)+'</b><strong>'+esc(feedUpdatedText())+'</strong></div><button class="broadcast-cta" data-live-refresh>REFRESH SCORES →</button></div>';
+  }
+
+  function renderHomeLiveData(){
+    if(currentRoute !== 'home' || !liveFeedCache) return;
+    const games = sortedGames(liveFeedCache.games || []);
+    const feature = games.find(g => g.state === 'in') || games.find(g => g.state === 'pre') || games[0];
+    const hero = document.querySelector('.feature-game.concept-matchup');
+    if(hero) hero.innerHTML = featureGameMarkup(feature,true);
+
+    const kicker = document.querySelector('.broadcast-title .broadcast-kicker');
+    if(kicker){
+      const d = new Date();
+      kicker.textContent = new Intl.DateTimeFormat(undefined,{weekday:'long',month:'long',day:'numeric'}).format(d).toUpperCase();
+    }
+
+    const board = document.querySelector('.concept-slate-board');
+    if(board){
+      const head = board.querySelector('.concept-slate-head')?.outerHTML || '';
+      const rows = games.slice(0,8).map(game => {
+        const awayScore = game.state === 'pre' ? '—' : esc(game.away?.score ?? 0);
+        const homeScore = game.state === 'pre' ? '—' : esc(game.home?.score ?? 0);
+        return '<button class="concept-slate-row '+(game.state==='in'?'concept-slate-row--live':'')+'" data-live-open="'+esc(game.id)+'">'
+          +'<span class="slate-time '+(game.state==='in'?'live-state':'')+'">'+esc(gameShortState(game))+' · '+esc(leagueLabel(game.league))+'</span>'
+          +'<span class="slate-matchup"><b>'+esc(game.away?.abbr)+'</b><i>'+awayScore+'</i><em>VS</em><i>'+homeScore+'</i><b>'+esc(game.home?.abbr)+'</b></span>'
+          +'<span class="slate-signal"><small>LIVE SCOREBOARD</small><b>'+esc(game.venue || feedUpdatedText())+'</b></span>'
+          +'<span class="slate-action">'+(game.state==='in'?'LIVE':'VIEW')+' →</span>'
+          +'</button>';
+      }).join('');
+      board.innerHTML = head + (rows || '<div class="live-board-loading"><b>No games returned for today.</b></div>');
+    }
+
+    document.querySelectorAll('[data-route-jump="live"]').forEach(btn => btn.onclick=()=>setRoute('live'));
+    bindLiveGeneratedActions();
+  }
+
+  function renderLiveCenter(){
+    const root = document.querySelector('[data-live-route]');
+    if(currentRoute !== 'live' || !root || !liveFeedCache) return;
+    const games = currentFeedGames();
+    const liveCount = games.filter(g => g.state === 'in').length;
+    const upcomingCount = games.filter(g => g.state === 'pre').length;
+    const feature = games.find(g => g.state === 'in') || games.find(g => g.state === 'pre') || games[0];
+
+    const badge = root.querySelector('[data-live-feed-badge]');
+    if(badge){
+      badge.innerHTML = '<i></i> LIVE SCORE FEED';
+      badge.classList.add('is-connected');
+    }
+    const meta = root.querySelector('[data-live-filter-meta]');
+    if(meta) meta.innerHTML = '<span class="live-pulse '+(liveCount?'':'is-idle')+'"></span><b>'+liveCount+' LIVE</b><span>·</span><small>'+upcomingCount+' upcoming · '+esc(feedUpdatedText())+'</small>';
+
+    const featureNode = root.querySelector('[data-live-feature]');
+    if(featureNode){
+      featureNode.classList.remove('live-feed-loading');
+      featureNode.innerHTML = featureGameMarkup(feature,false);
+    }
+
+    const nowBoard = root.querySelector('[data-live-now-board]');
+    if(nowBoard){
+      const focus = games.slice(0,5);
+      nowBoard.innerHTML = '<div class="live-signal-head"><div><span class="orange-kicker">LIVE NOW</span><h2>Scoreboard feed</h2></div><span>REAL DATA</span></div>'
+        +(focus.length ? focus.map((game,i) => '<button class="live-signal-row" data-live-open="'+esc(game.id)+'">'
+          +'<span class="signal-rank">'+String(i+1).padStart(2,'0')+'</span>'
+          +'<div><b>'+esc(game.away?.abbr)+' @ '+esc(game.home?.abbr)+'</b><small>'+esc(leagueLabel(game.league))+' · '+esc(gameStatusText(game))+'</small></div>'
+          +'<span class="signal-metric"><small>STATUS</small><b>'+esc(game.state==='in'?'LIVE':game.state==='post'?'FINAL':'NEXT')+'</b></span>'
+          +'<strong class="'+(game.state==='in'?'positive':'')+'">'+esc(game.state==='pre'?gameStatusText(game):(game.away?.score ?? 0)+'-'+(game.home?.score ?? 0))+'</strong>'
+        +'</button>').join('') : '<div class="live-feed-side-loading"><div><b>No games for this filter.</b><small>The feed is connected.</small></div></div>')
+        +'<div class="live-signal-footer"><span>'+games.length+' games on slate</span><b>'+esc(feedUpdatedText())+'</b></div>';
+    }
+
+    const board = root.querySelector('[data-live-score-board]');
+    if(board){
+      board.innerHTML = games.length ? games.map(game => '<button class="live-score-row '+(game.state==='in'?'is-featured':'')+'" data-live-open="'+esc(game.id)+'">'
+        +'<span class="live-score-state"><i></i>'+esc(gameShortState(game))+'</span>'
+        +'<span class="live-score-matchup"><b>'+esc(game.away?.abbr)+'</b><strong>'+esc(game.state==='pre'?'—':game.away?.score ?? 0)+'</strong><em>VS</em><strong>'+esc(game.state==='pre'?'—':game.home?.score ?? 0)+'</strong><b>'+esc(game.home?.abbr)+'</b></span>'
+        +'<span class="live-score-context"><small>LEAGUE</small><b>'+esc(leagueLabel(game.league))+'</b></span>'
+        +'<span class="live-score-context"><small>VENUE</small><b>'+esc(game.venue || '—')+'</b></span>'
+        +'<span class="live-score-action">'+(game.state==='in'?'LIVE':'DETAILS')+' →</span>'
+      +'</button>').join('') : '<div class="live-board-loading"><b>No games returned for this sport today.</b></div>';
+    }
+    const title = root.querySelector('[data-live-board-title]');
+    if(title) title.textContent = currentLeague === 'all' ? 'Today’s games' : leagueLabel(currentLeague)+' games today';
+    bindLiveGeneratedActions();
+  }
+
+  function renderLiveFeed(){
+    if(!liveFeedCache) return;
+    renderGlobalScoreStrip();
+    renderHomeLiveData();
+    renderLiveCenter();
+    const status = document.querySelector('.market-status');
+    if(status) status.innerHTML = '<span class="status-dot"></span> LIVE SCORES CONNECTED';
+  }
+
+  async function refreshLiveData(force=false){
+    if(liveFeedInFlight) return liveFeedInFlight;
+    if(!force && liveFeedCache && Date.now()-liveFeedFetchedAt < LIVE_FEED_TTL){
+      renderLiveFeed();
+      return liveFeedCache;
+    }
+    liveFeedInFlight = fetch('/api/live?league=all&date='+localDateKey(),{cache:'no-store'})
+      .then(async response => {
+        if(!response.ok) throw new Error('Live feed HTTP '+response.status);
+        const payload = await response.json();
+        if(!payload || !Array.isArray(payload.games)) throw new Error('Invalid live feed');
+        liveFeedCache = payload;
+        liveFeedFetchedAt = Date.now();
+        renderLiveFeed();
+        return payload;
+      })
+      .catch(error => {
+        console.error('TSO live feed:',error);
+        const badge = document.querySelector('[data-live-feed-badge]');
+        if(badge){ badge.textContent='SCORE FEED UNAVAILABLE'; badge.classList.add('is-error'); }
+        const meta = document.querySelector('[data-live-filter-meta]');
+        if(meta) meta.innerHTML='<span class="live-pulse is-idle"></span><b>FEED OFFLINE</b><span>·</span><small>Retrying automatically</small>';
+        return null;
+      })
+      .finally(()=>{ liveFeedInFlight=null; });
+    return liveFeedInFlight;
   }
 
   const labels = {
@@ -93,6 +345,7 @@
     if(currentRoute === 'home') pageContent.innerHTML = homeHTML;
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
+    refreshLiveData(false);
     window.scrollTo({top:0,behavior:'instant'});
   }
 
@@ -162,4 +415,6 @@
   currentRoute = labels[initialRoute] ? initialRoute : 'home';
   syncNav();
   renderRoute();
+  refreshLiveData(true);
+  window.setInterval(() => refreshLiveData(true), LIVE_POLL_MS);
 })();
