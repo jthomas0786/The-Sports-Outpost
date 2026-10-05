@@ -81,7 +81,8 @@ NFL research included:
 - recent-role change indicator
 - position-specific labels
 
-**Status:** NEEDS MIGRATION
+**Status:** PARTIAL — NFL DEEP RESEARCH MIGRATED  
+**Current 2.0 implementation:** verified L5 average snap-share ring with last-game snap %, average snaps, and current depth context. No ring is shown when the source does not expose genuine snap share.
 
 ---
 
@@ -98,7 +99,8 @@ NFL research included segmented workload/mix tracks for role composition.
   - NHL: shot / scoring / assist contribution where meaningful
   - MLB: batted-ball / plate-discipline mixes where meaningful
 
-**Status:** NEEDS MIGRATION
+**Status:** PARTIAL — NFL OPPORTUNITY MIX MIGRATED  
+**Current 2.0 implementation:** NFL Deep Research now shows a source-backed L5 targets-vs-carries opportunity mix when those fields exist, explicitly labeled as opportunity mix rather than team usage share.
 
 ---
 
@@ -124,7 +126,8 @@ NHL included relative comparison bars for:
 - clearly labeled sample/source
 - one shared comparison component across sports
 
-**Status:** NEEDS MIGRATION
+**Status:** PARTIAL — NFL COMPARISON VISUAL MIGRATED  
+**Current 2.0 implementation:** NFL Deep Research now compares the current prop's L5 player average, current-season average, opponent position-group allowance, and exact sportsbook line when matching verified fields exist. No generic grade is invented.
 
 ---
 
@@ -233,7 +236,8 @@ NFL research included:
 ### TSO 2.0 redesign
 Move into NFL Deep Research and the universal Player Prop Tool.
 
-**Status:** HIGH PRIORITY
+**Status:** PARTIAL / ACTIVE  
+**Current 2.0 implementation:** NFL Deep Research now includes the redesigned snap-share role ring, L5 target/carry opportunity mix, and source-backed player-vs-opponent/exact-line comparison bars. Shared exact-line recent-game bars are available in Prop Intelligence. Simulation distribution and deeper route/red-zone fields still require verified source fields.
 
 ---
 
