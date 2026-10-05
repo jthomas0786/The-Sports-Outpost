@@ -3149,6 +3149,46 @@ body{
   .nhl-scorer-player.is-risky .nhl-scorer-rank{left:auto;right:6px}
 }
 
+
+
+.nhl-scorer-owner-actions{
+  display:flex;align-items:center;justify-content:space-between;gap:16px;margin-top:10px;padding:10px 11px;
+  border:1px solid rgba(255,216,77,.18);background:linear-gradient(90deg,rgba(255,216,77,.045),rgba(5,8,13,.82));position:relative;z-index:1
+}
+.nhl-scorer-owner-actions[hidden]{display:none!important}
+.nhl-scorer-owner-actions>div:first-child span,.nhl-scorer-owner-actions>div:first-child small{display:block}
+.nhl-scorer-owner-actions>div:first-child span{color:#ffd84d;font-size:7px;font-weight:950;letter-spacing:.09em}
+.nhl-scorer-owner-actions>div:first-child small{margin-top:4px;color:#66717d;font-size:6px}
+.nhl-scorer-owner-actions>div:last-child{display:flex;gap:6px}
+.nhl-scorer-owner-actions button{
+  min-height:34px;padding:0 11px;border:1px solid rgba(255,216,77,.22);background:rgba(255,216,77,.045);
+  color:#ffe16a;font-size:6.5px;font-weight:950;letter-spacing:.055em;cursor:pointer
+}
+.nhl-scorer-owner-actions button:hover{border-color:rgba(255,216,77,.42);background:rgba(255,216,77,.08)}
+.nhl-scorer-owner-actions button:disabled{opacity:.48;cursor:wait}
+
+.nhl-scorer-game-actions{
+  min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 12px;
+  border-top:1px solid rgba(255,255,255,.07);background:#05080c
+}
+.nhl-scorer-game-actions>span{color:#687480;font-size:6px;font-weight:950;letter-spacing:.08em}
+.nhl-scorer-game-actions>div{display:flex;gap:6px}
+.nhl-scorer-game-actions button{
+  min-height:31px;padding:0 10px;border:1px solid rgba(123,92,255,.2);background:rgba(123,92,255,.045);
+  color:#a99aff;font-size:6.5px;font-weight:950;letter-spacing:.06em;cursor:pointer
+}
+.nhl-scorer-game-actions button:last-child{border-color:rgba(255,255,255,.10);background:#090d12;color:#83909b}
+.nhl-scorer-game-actions button:hover{border-color:rgba(123,92,255,.42);color:#ddd6ff}
+.nhl-scorer-game-actions button:disabled{opacity:.5;cursor:wait}
+
+@media(max-width:720px){
+  .nhl-scorer-owner-actions{align-items:flex-start;flex-direction:column}
+  .nhl-scorer-owner-actions>div:last-child{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .nhl-scorer-owner-actions button{min-height:38px}
+  .nhl-scorer-game-actions{align-items:flex-start;flex-direction:column}
+  .nhl-scorer-game-actions>div{display:grid;grid-template-columns:1fr 1fr;width:100%}
+  .nhl-scorer-game-actions button{min-height:36px}
+}
 /* =========================================================
    TSO 2.0 — PROP INTELLIGENCE BOARD
    ========================================================= */
