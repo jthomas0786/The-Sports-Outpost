@@ -153,169 +153,106 @@
 
     research(league){
       return `
-      <section class="research-page broadcast-destination">
+      <section class="research-page broadcast-destination" data-research-route>
         <section class="destination-hero research-destination-hero">
           <div>
             <span class="destination-kicker research-kicker">RESEARCH DESK · ${leagueName(league)}</span>
-            <h1>Find the why behind the number.</h1>
-            <p>Search players, teams and matchups. TSO pulls form, usage, opponent context, market pricing and model signals into one research view.</p>
+            <h1>Search what TSO can actually verify.</h1>
+            <p>Players, teams, matchups, exact sportsbook selections and real model matches — all from the same live data layer. No invented usage, weather, pace or trend statistics.</p>
           </div>
           <div class="destination-actions">
-            <button class="button secondary">RECENT SEARCHES</button>
-            <button class="button primary">COMPARE PLAYERS →</button>
+            <button class="button secondary" data-research-refresh>REFRESH DATA</button>
+            <button class="button primary" data-route-jump="props">OPEN PROP BOARD →</button>
           </div>
         </section>
 
-        <section class="research-command-search">
+        <section class="research-status-strip" data-research-status>
+          <div><span class="props-live-dot"></span><b>CONNECTING RESEARCH DATA</b><small>Scores + verified props + models</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>— PLAYERS</b><small>verified prop coverage</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>— GAMES</b><small>current score feed</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>— MODELS</b><small>exact matches only</small></div>
+        </section>
+
+        <section class="research-command-search research-command-search--live">
           <div class="research-command-copy">
             <span class="gold-kicker">UNIVERSAL RESEARCH</span>
-            <h2>Player, team or matchup</h2>
-            <p>One search. Every sport. Same research structure.</p>
+            <h2>Player, team, matchup or market</h2>
+            <p>Search the verified TSO data currently loaded for ${leagueName(league)}.</p>
           </div>
           <label class="research-command-input">
             <span>⌕</span>
-            <input placeholder="Try Connor McDavid, DAL @ NYG, Pete Alonso..." />
-            <kbd>ENTER</kbd>
+            <input data-research-search placeholder="Search player, team, matchup, market, exact line..." autocomplete="off" />
+            <kbd>LIVE</kbd>
           </label>
-          <div class="research-quick-chips">
-            <button>Connor McDavid</button>
-            <button>DAL @ NYG</button>
-            <button>Pete Alonso</button>
-            <button>Sidney Crosby</button>
-          </div>
+          <button class="research-clear-button" data-research-clear>CLEAR</button>
         </section>
 
-        <section class="research-grid-primary">
+        <section class="research-grid-primary research-grid-primary--live">
           <article class="research-radar-card">
             <div class="research-card-head">
-              <div><span class="orange-kicker">MATCHUP RADAR</span><h2>What stands out tonight</h2></div>
-              <button>ALL FLAGS →</button>
+              <div><span class="orange-kicker">GAME BOARD</span><h2 data-research-games-title>Today's verified matchups</h2></div>
+              <button data-route-jump="live">LIVE CENTER →</button>
             </div>
-            <div class="research-radar-list">
-              <button class="research-radar-row">
-                <span class="radar-tag radar-tag--pace">PACE</span>
-                <div><b>DAL @ NYG</b><small>Projected possession / play volume</small></div>
-                <span class="radar-value"><strong>+8%</strong><small>vs avg</small></span>
-                <span class="radar-arrow">↗</span>
-              </button>
-              <button class="research-radar-row">
-                <span class="radar-tag radar-tag--goalie">GOALIE</span>
-                <div><b>PIT @ PHI</b><small>High-danger save-rate mismatch</small></div>
-                <span class="radar-value"><strong>PIT</strong><small>edge</small></span>
-                <span class="radar-arrow">↗</span>
-              </button>
-              <button class="research-radar-row">
-                <span class="radar-tag radar-tag--weather">WIND</span>
-                <div><b>BAL @ NYY</b><small>Carry environment improving</small></div>
-                <span class="radar-value"><strong>+9</strong><small>mph out</small></span>
-                <span class="radar-arrow">↗</span>
-              </button>
-              <button class="research-radar-row">
-                <span class="radar-tag radar-tag--usage">USAGE</span>
-                <div><b>KC @ BUF</b><small>Route participation + target share</small></div>
-                <span class="radar-value"><strong>Kelce</strong><small>up</small></span>
-                <span class="radar-arrow">↗</span>
-              </button>
+            <div class="research-radar-list" data-research-games>
+              <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading current games…</b><small>Real score-feed matchups only.</small></div></div>
             </div>
           </article>
 
-          <aside class="research-trending-card">
+          <aside class="research-trending-card research-trending-card--live">
             <div class="research-card-head">
-              <div><span class="violet-kicker">TRENDING</span><h2>Most opened</h2></div>
-              <span>TONIGHT</span>
+              <div><span class="violet-kicker">PLAYER COVERAGE</span><h2 data-research-player-title>Most researched by data depth</h2></div>
+              <span>REAL COVERAGE</span>
             </div>
-            <button class="research-player-row">
-              <span class="research-player-rank">01</span>
-              ${playerHeadshot("Connor McDavid","research-avatar")}
-              <div><b>Connor McDavid</b><small>Shots · Points · Anytime Goal</small></div>
-              <span class="research-opens">12.4k</span>
-            </button>
-            <button class="research-player-row">
-              <span class="research-player-rank">02</span>
-              ${playerHeadshot("Saquon Barkley","research-avatar")}
-              <div><b>Saquon Barkley</b><small>Rushing · Receiving · Anytime TD</small></div>
-              <span class="research-opens">9.8k</span>
-            </button>
-            <button class="research-player-row">
-              <span class="research-player-rank">03</span>
-              ${playerHeadshot("Pete Alonso","research-avatar")}
-              <div><b>Pete Alonso</b><small>Home Run · Total Bases · Hits</small></div>
-              <span class="research-opens">8.1k</span>
-            </button>
-            <button class="research-player-row">
-              <span class="research-player-rank">04</span>
-              ${playerHeadshot("Sidney Crosby","research-avatar")}
-              <div><b>Sidney Crosby</b><small>Goal · Shots · Points</small></div>
-              <span class="research-opens">7.6k</span>
-            </button>
+            <div data-research-players>
+              <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Aggregating verified player markets…</b></div></div>
+            </div>
           </aside>
         </section>
 
         <section class="destination-section">
           <div class="destination-section-head">
-            <div><span class="gold-kicker">RESEARCH CARDS</span><h2>Signals worth opening</h2></div>
-            <button>VIEW ALL RESEARCH →</button>
+            <div><span class="gold-kicker">SEARCH RESULTS</span><h2 data-research-results-title>Top verified player-market results</h2></div>
+            <span class="props-live-source">EXACT LINES · REAL PRICES</span>
           </div>
-          <div class="research-signal-grid">
-            <article class="research-signal-card research-signal-card--blue">
-              <div class="research-signal-top"><span>NHL · SHOTS</span><b>OPPORTUNITY</b></div>
-              <div class="research-signal-player">${playerHeadshot("Connor McDavid","research-signal-headshot")}<div><h3>Connor McDavid</h3><small>EDM · C · vs CGY</small></div><span class="research-score-badge"><small>MODEL</small><strong>67%</strong></span></div>
-              <div class="research-stat-grid">
-                <span><small>L5 AVG</small><b>4.8</b></span>
-                <span><small>TOI</small><b>22:14</b></span>
-                <span><small>PP SHARE</small><b>78%</b></span>
-              </div>
-              <div class="research-insight"><span>OUTPOST READ</span><b>Volume profile remains above the current line.</b><small>Shot attempts and offensive-zone deployment both trend positive.</small></div>
-              <button class="research-open-btn">OPEN RESEARCH →</button>
-            </article>
-
-            <article class="research-signal-card research-signal-card--gold">
-              <div class="research-signal-top"><span>NFL · RECEIVING</span><b>USAGE</b></div>
-              <div class="research-signal-player">${playerHeadshot("Travis Kelce","research-signal-headshot")}<div><h3>Travis Kelce</h3><small>KC · TE · at BUF</small></div><span class="research-score-badge"><small>MODEL</small><strong>61%</strong></span></div>
-              <div class="research-stat-grid">
-                <span><small>ROUTE %</small><b>89%</b></span>
-                <span><small>TGT SHARE</small><b>27%</b></span>
-                <span><small>RED ZONE</small><b>31%</b></span>
-              </div>
-              <div class="research-insight"><span>OUTPOST READ</span><b>Role is stronger than the raw yardage line suggests.</b><small>Route participation and red-zone work remain intact.</small></div>
-              <button class="research-open-btn">OPEN RESEARCH →</button>
-            </article>
-
-            <article class="research-signal-card research-signal-card--orange">
-              <div class="research-signal-top"><span>MLB · HOME RUN</span><b>ENVIRONMENT</b></div>
-              <div class="research-signal-player">${playerHeadshot("Pete Alonso","research-signal-headshot")}<div><h3>Pete Alonso</h3><small>BAL · 1B · at NYY</small></div><span class="research-score-badge"><small>MODEL</small><strong>29.4%</strong></span></div>
-              <div class="research-stat-grid">
-                <span><small>BARREL %</small><b>17.1</b></span>
-                <span><small>EV</small><b>92.8</b></span>
-                <span><small>WIND</small><b>+9 out</b></span>
-              </div>
-              <div class="research-insight"><span>OUTPOST READ</span><b>Power profile + environment both point the same way.</b><small>Carry conditions and contact quality are aligned.</small></div>
-              <button class="research-open-btn">OPEN RESEARCH →</button>
-            </article>
+          <div class="research-results-board" data-research-results>
+            <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading verified research rows…</b><small>Model data only appears when the exact market matches.</small></div></div>
           </div>
         </section>
 
-        <section class="research-context-section">
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="violet-kicker">TOP MODEL SIGNALS</span><h2 data-research-signals-title>Strongest exact model gaps</h2></div>
+            <button data-route-jump="models">OPEN MODELS →</button>
+          </div>
+          <div class="research-signal-grid" data-research-signals>
+            <div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Ranking exact model matches…</b></div></div>
+          </div>
+        </section>
+
+        <section class="research-context-section research-context-section--live">
           <div class="research-context-board">
             <div class="research-context-head">
-              <div><span class="orange-kicker">SITUATIONAL CONTEXT</span><h2>Quick-read factors</h2></div>
-              <span>LAST UPDATED · 1 MIN</span>
+              <div><span class="orange-kicker">DATA INTEGRITY</span><h2>What the Research Desk knows right now</h2></div>
+              <span data-research-freshness>CHECKING SOURCES</span>
             </div>
-            <div class="research-context-grid">
-              <div><span>PACE</span><b>DAL @ NYG</b><strong class="positive">FAST</strong><small>8% above league baseline</small></div>
-              <div><span>GOALIE</span><b>PIT @ PHI</b><strong>PIT EDGE</strong><small>High-danger save mismatch</small></div>
-              <div><span>WEATHER</span><b>BAL @ NYY</b><strong>HR BOOST</strong><small>Wind carrying to left-center</small></div>
-              <div><span>USAGE</span><b>KC @ BUF</b><strong class="positive">KELCE ↑</strong><small>Route share + target share up</small></div>
+            <div class="research-context-grid research-context-grid--live">
+              <div><span>SELECTIONS</span><b data-research-selection-count>—</b><strong>VERIFIED</strong><small>Exact player-market-side-line rows</small></div>
+              <div><span>MODEL MATCHES</span><b data-research-model-count>—</b><strong>EXACT ONLY</strong><small>No nearby-line probability substitution</small></div>
+              <div><span>SPORTSBOOKS</span><b data-research-book-count>—</b><strong>REAL PRICES</strong><small>Books represented in current filter</small></div>
+              <div><span>CONTEXT LIMIT</span><b>NO INVENTED STATS</b><strong>HONEST</strong><small>Pace/weather/usage only appear after a real source exists</small></div>
             </div>
           </div>
 
-          <aside class="research-recent-card">
+          <aside class="research-recent-card research-recent-card--live">
             <div class="research-card-head">
-              <div><span class="gold-kicker">RECENT</span><h2>Jump back in</h2></div>
+              <div><span class="gold-kicker">MODELED SPORTS</span><h2>Current TSO research depth</h2></div>
             </div>
-            <button><span>NHL</span><div><b>Sidney Crosby</b><small>Anytime Goal research</small></div><i>›</i></button>
-            <button><span>NFL</span><div><b>DAL @ NYG</b><small>Matchup context</small></div><i>›</i></button>
-            <button><span>MLB</span><div><b>Pete Alonso</b><small>Home Run research</small></div><i>›</i></button>
+            <div data-research-sport-depth>
+              <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Checking sport coverage…</b></div></div>
+            </div>
           </aside>
         </section>
       </section>`;
