@@ -645,7 +645,7 @@
             </div>
 
             <div class="parlay-summary-grid">
-              <div><span>BEST COMMON BOOK</span><b data-parlay-combined-price>—</b></div>
+              <div><span>DERIVED PRICE*</span><b data-parlay-combined-price>—</b></div>
               <div><span>MODEL PROB*</span><b data-parlay-model-prob>—</b></div>
               <div><span>MARKET PROB*</span><b data-parlay-market-prob>—</b></div>
               <div><span>MODEL Δ*</span><b data-parlay-combined-edge>—</b></div>
@@ -684,13 +684,13 @@
 
         <section class="destination-section">
           <div class="destination-section-head">
-            <div><span class="violet-kicker">BOOK COMPARISON</span><h2 data-parlay-book-title>Same exact ticket by sportsbook</h2></div>
+            <div><span class="violet-kicker">BOOK COMPARISON</span><h2 data-parlay-book-title>Exact-leg coverage by sportsbook</h2></div>
             <button data-parlay-refresh>REFRESH PRICES →</button>
           </div>
           <div class="parlay-book-board" data-parlay-books>
             <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Checking exact-leg sportsbook coverage…</b></div></div>
           </div>
-          <div class="parlay-math-note">* Combined model and market probabilities are simple independent-leg products. TSO does not label them correlation-adjusted. Same-event or same-player overlap is flagged separately for review.</div>
+          <div class="parlay-math-note">* Combined model/market probabilities use simple independent-leg products. Combined American prices are derived by multiplying the displayed exact leg prices; they are not sportsbook-quoted parlay payouts. TSO does not label either calculation correlation-adjusted. Same-event or same-player overlap is flagged separately for review.</div>
         </section>
       </section>`;
     },
