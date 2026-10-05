@@ -2381,7 +2381,54 @@
     return '<span><small>'+esc(label)+'</small><b>'+stats.rate.toFixed(0)+'%</b><em>'+stats.hits+'-'+stats.losses+(stats.pushes?' · '+stats.pushes+' push'+(stats.pushes===1?'':'es'):'')+' · avg '+researchRate(stats.avg,1)+'</em></span>';
   }
 
-  function renderPropHitRate(data,row){
+  function propChartRangeSeries(series,range='10'){
+    if(range==='season')return propSeasonSeries(series);
+    const count=Math.max(1,Number(range)||10);
+    return series.slice(0,count);
+  }
+
+  function propChartDateLabel(value){
+    if(!value)return '—';
+    const raw=String(value);
+    const parsed=/^\d{4}-\d{2}-\d{2}$/.test(raw)?new Date(raw+'T12:00:00'):new Date(raw);
+    if(Number.isNaN(parsed.getTime()))return raw.slice(5,10).replace('-','/');
+    return new Intl.DateTimeFormat(undefined,{month:'numeric',day:'numeric'}).format(parsed);
+  }
+
+  function renderPropRecentChart(series,row,range='10'){
+    const line=Number(row?.line);
+    const selected=propChartRangeSeries(series,range);
+    if(!selected.length||!Number.isFinite(line))return '';
+    const chronological=[...selected].reverse();
+    const values=chronological.map(item=>Number(item.value)).filter(Number.isFinite);
+    if(!values.length)return '';
+    const maxValue=Math.max(1,line,...values);
+    const ceiling=maxValue*1.12;
+    const trackHeight=112;
+    const thresholdPx=32+Math.max(0,Math.min(trackHeight,(line/ceiling)*trackHeight));
+    const ranges=[
+      ['5','L5'],['10','L10'],['15','L15'],['30','L30'],['season','SEASON']
+    ].filter(([key])=>key==='season'||series.length>=Number(key));
+    const chips=ranges.map(([key,label])=>'<button type="button" data-props-chart-range="'+key+'" class="'+(String(range)===key?'is-active':'')+'">'+label+'</button>').join('');
+    const bars=chronological.map(item=>{
+      const value=Number(item.value);
+      if(!Number.isFinite(value))return '';
+      const push=Math.abs(value-line)<1e-9;
+      const hit=!push&&(row.side==='under'?value<line:value>line);
+      const height=Math.max(4,Math.min(trackHeight,(value/ceiling)*trackHeight));
+      const state=push?'PUSH':hit?'HIT':'MISS';
+      return '<span class="prop-game-chart-cell '+(push?'is-push':hit?'is-hit':'is-miss')+'" title="'+esc(String(item.date||''))+' · '+esc(researchRate(value,1))+' · '+state+'">'
+        +'<span class="prop-game-chart-track"><i class="prop-game-chart-bar" style="--bar-h:'+height.toFixed(1)+'px"></i><b>'+esc(researchRate(value,1))+'</b></span>'
+        +'<small>'+esc(propChartDateLabel(item.date))+'</small></span>';
+    }).join('');
+    return '<section class="prop-game-chart">'
+      +'<div class="prop-game-chart-head"><div><b>RECENT GAME PERFORMANCE</b><small>verified result vs exact '+esc(propSelectionText(row))+' threshold</small></div><div class="prop-game-chart-ranges">'+chips+'</div></div>'
+      +'<div class="prop-game-chart-scroll"><div class="prop-game-chart-bars" style="--threshold-y:'+thresholdPx.toFixed(1)+'px"><span class="prop-game-chart-threshold"><em>LINE '+esc(researchRate(line,1))+'</em></span>'+bars+'</div></div>'
+      +'<div class="prop-game-chart-key"><span><i class="is-hit"></i>HIT</span><span><i class="is-miss"></i>MISS</span><span><i class="is-push"></i>PUSH</span></div>'
+      +'</section>';
+  }
+
+  function renderPropHitRate(data,row,range='10'){
     const series=propSeriesForRow(data,row);
     if(!series.length){
       return '<div class="prop-intel-empty"><b>Exact-line hit rate unavailable.</b><small>'+esc(data?.reason||'The verified game log does not expose this market yet. TSO will not infer it from season totals.')+'</small></div>';
@@ -2395,8 +2442,18 @@
     }).join('');
     const source=series[0]?.source||'verified game log';
     return '<div class="prop-intel-metrics">'+propRateCard('L5',l5)+propRateCard('L10',l10)+propRateCard('SEASON',season)+'</div>'
+      +renderPropRecentChart(series,row,range)
       +'<div class="prop-hit-sequence"><div><b>LAST '+recent.length+'</b><small>'+esc(propSelectionText(row))+' · exact threshold</small></div><div>'+dots+'</div></div>'
       +'<div class="prop-intel-source">SOURCE · '+esc(source)+' · pushes excluded from hit-rate denominator</div>';
+  }
+
+  function bindPropRecentChart(node,data,row){
+    if(!node||!data?.available)return;
+    node.querySelectorAll('[data-props-chart-range]').forEach(btn=>btn.addEventListener('click',()=>{
+      const range=String(btn.dataset.propsChartRange||'10');
+      node.innerHTML=renderPropHitRate(data,row,range);
+      bindPropRecentChart(node,data,row);
+    }));
   }
 
   function renderPropPriceHistory(data,row,book){
@@ -2430,6 +2487,7 @@
     const [researchResult,historyResult]=await Promise.allSettled([propResearchPayload(row),propHistoryPayload(row,book)]);
     if(rateNode){
       rateNode.innerHTML=researchResult.status==='fulfilled'?renderPropHitRate(researchResult.value,row):'<div class="prop-intel-empty"><b>Hit-rate research unavailable.</b><small>'+esc(researchResult.reason?.message||String(researchResult.reason||''))+'</small></div>';
+      if(researchResult.status==='fulfilled')bindPropRecentChart(rateNode,researchResult.value,row);
     }
     if(historyNode){
       historyNode.innerHTML=historyResult.status==='fulfilled'?renderPropPriceHistory(historyResult.value,row,book):'<div class="prop-intel-empty"><b>Price history unavailable.</b><small>'+esc(historyResult.reason?.message||String(historyResult.reason||''))+'</small></div>';
