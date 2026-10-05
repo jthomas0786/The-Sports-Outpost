@@ -323,247 +323,144 @@
 
     models(league){
       return `
-      <section class="models-page broadcast-destination">
+      <section class="models-page broadcast-destination" data-models-route="${league}">
         <section class="destination-hero models-destination-hero">
           <div class="models-hero-copy">
             <div class="models-title-lockup">
               <img class="models-hero-icon" src="/brand/production/tso2-product-models-approved.webp" alt="" />
               <span class="destination-kicker models-kicker">MODEL COMMAND CENTER · ${leagueName(league)}</span>
             </div>
-            <h1>Where the numbers become a decision.</h1>
-            <p>Every TSO model in one command center — probabilities, market gaps, confidence, price movement and the signals driving the projection.</p>
+            <h1>Real model outputs. Ranked against the exact market.</h1>
+            <p>TSO only ranks a selection here when the sportsbook row matches the real model on player, market, side and exact line. No model match means no invented probability, edge or confidence.</p>
           </div>
           <div class="destination-actions">
-            <button class="button secondary">MODEL HISTORY</button>
-            <button class="button primary">RUN MODEL BOARD →</button>
+            <span class="props-feed-badge" data-models-feed-badge><i></i> CONNECTING MODELS</span>
+            <button class="button primary" data-models-refresh>REFRESH MODELS ↻</button>
           </div>
         </section>
 
-        <section class="models-status-strip">
-          <div><span class="model-live-dot"></span><b>MODEL FEED LIVE</b><small>All engines online</small></div>
+        <section class="models-status-strip" data-models-status>
+          <div><span class="model-live-dot"></span><b>CONNECTING MODEL FEED</b><small>Exact model matches only</small></div>
           <span class="models-status-divider"></span>
-          <div><b>4 SPORTS</b><small>One scoring language</small></div>
+          <div><b>—</b><small>model matches</small></div>
           <span class="models-status-divider"></span>
-          <div><b>6 ENGINES</b><small>Scoring · props · games · live</small></div>
+          <div><b>—</b><small>modeled sports</small></div>
           <span class="models-status-divider"></span>
-          <div><b>42 SEC</b><small>Since latest refresh</small></div>
+          <div><b>—</b><small>model sources</small></div>
+          <span class="models-status-divider"></span>
+          <div><b>—</b><small>source freshness</small></div>
         </section>
 
-        <section class="models-engine-tabs">
+        <section class="models-engine-tabs" data-models-sport-summary>
           <button class="models-engine-tab is-active">
             <span class="models-engine-mark models-engine-mark--violet">◎</span>
-            <div><b>SCORING</b><small>Goal · TD · HR</small></div>
-            <i>27 EDGES</i>
-          </button>
-          <button class="models-engine-tab">
-            <span class="models-engine-mark models-engine-mark--blue">◫</span>
-            <div><b>PLAYER PROPS</b><small>Volume · yards · shots</small></div>
-            <i>84 EDGES</i>
-          </button>
-          <button class="models-engine-tab">
-            <span class="models-engine-mark models-engine-mark--gold">⌁</span>
-            <div><b>GAME MODELS</b><small>Moneyline · spread · total</small></div>
-            <i>19 EDGES</i>
-          </button>
-          <button class="models-engine-tab">
-            <span class="models-engine-mark models-engine-mark--orange">✦</span>
-            <div><b>LIVE MODELS</b><small>Next score · live props</small></div>
-            <i>11 ACTIVE</i>
+            <div><b>LOADING MODELS</b><small>NHL · NFL · MLB · NBA market status</small></div>
+            <i>CONNECTING</i>
           </button>
         </section>
 
         <section class="models-command-grid">
-          <article class="model-spotlight-card">
-            <div class="model-spotlight-glow"></div>
-            <div class="model-spotlight-top">
-              <span>NHL · ANYTIME GOAL</span>
-              <b>HIGH CONFIDENCE</b>
-            </div>
-
-            <div class="model-spotlight-main">
-              <div class="model-spotlight-player">
-                ${playerHeadshot("Sidney Crosby","model-player-number model-player-headshot")}
-                <div>
-                  <small>PIT · C · vs PHI</small>
-                  <h2>Sidney Crosby</h2>
-                  <p>Anytime Goal</p>
-                </div>
-              </div>
-
-              <div class="model-probability-ring">
-                <div><small>MODEL</small><strong>34.8%</strong><span>probability</span></div>
-              </div>
-            </div>
-
-            <div class="model-score-line">
-              <div><span>MARKET</span><b>27.2%</b></div>
-              <div><span>EDGE</span><b class="positive">+7.6%</b></div>
-              <div><span>CONFIDENCE</span><b>88 / 100</b></div>
-              <div><span>BEST PRICE</span><b>+268 <small>DK</small></b></div>
-            </div>
-
-            <div class="model-confidence-band">
-              <div><span>OUTPOST CONFIDENCE</span><b>VERY HIGH</b></div>
-              <div class="model-confidence-track"><i style="width:88%"></i></div>
-            </div>
-
-            <div class="model-driver-grid">
-              <div><span>SHOT VOLUME</span><b>↑ STRONG</b><small>4.1 SOG projection</small></div>
-              <div><span>GOALIE MATCHUP</span><b>+ FAVORABLE</b><small>HD save-rate edge</small></div>
-              <div><span>POWER PLAY</span><b>TOP UNIT</b><small>PP1 role intact</small></div>
-              <div><span>MARKET GAP</span><b class="positive">+7.6%</b><small>Model ahead of price</small></div>
-            </div>
-
-            <div class="model-spotlight-footer">
-              <div><span>OUTPOST READ</span><b>Volume + matchup + price are aligned.</b><small>The current market still trails the model projection.</small></div>
-              <button class="broadcast-cta">OPEN FULL MODEL →</button>
+          <article class="model-spotlight-card live-feed-loading" data-models-feature>
+            <div class="live-feed-empty">
+              <span class="live-feed-spinner"></span>
+              <div><b>Loading exact model matches…</b><small>Real TSO probability + exact sportsbook market only.</small></div>
             </div>
           </article>
 
-          <aside class="model-edge-board">
+          <aside class="model-edge-board" data-models-edge-board>
             <div class="model-edge-head">
-              <div><span class="violet-kicker">EDGE BOARD</span><h2>Best gaps right now</h2></div>
-              <span>LIVE</span>
+              <div><span class="violet-kicker">EDGE BOARD</span><h2>Best model gaps right now</h2></div>
+              <span>REAL DATA</span>
             </div>
-            <button class="model-edge-row is-featured">
-              <span class="model-edge-rank">01</span>
-              <div><b>Sidney Crosby</b><small>NHL · Anytime Goal</small></div>
-              <span><small>MODEL</small><b>34.8%</b></span>
-              <strong class="positive">+7.6%</strong>
-            </button>
-            <button class="model-edge-row">
-              <span class="model-edge-rank">02</span>
-              <div><b>Saquon Barkley</b><small>NFL · Anytime TD</small></div>
-              <span><small>MODEL</small><b>63.1%</b></span>
-              <strong class="positive">+7.7%</strong>
-            </button>
-            <button class="model-edge-row">
-              <span class="model-edge-rank">03</span>
-              <div><b>Pete Alonso</b><small>MLB · Home Run</small></div>
-              <span><small>MODEL</small><b>29.4%</b></span>
-              <strong class="positive">+7.7%</strong>
-            </button>
-            <button class="model-edge-row">
-              <span class="model-edge-rank">04</span>
-              <div><b>Connor McDavid</b><small>NHL · O 3.5 Shots</small></div>
-              <span><small>MODEL</small><b>67.0%</b></span>
-              <strong class="positive">+8.2%</strong>
-            </button>
-            <button class="model-edge-row">
-              <span class="model-edge-rank">05</span>
-              <div><b>Travis Kelce</b><small>NFL · O 67.5 Rec Yds</small></div>
-              <span><small>MODEL</small><b>61.0%</b></span>
-              <strong class="positive">+5.8%</strong>
-            </button>
-            <div class="model-edge-footer"><span>Sorted by model-vs-market edge</span><button>FULL BOARD →</button></div>
+            <div class="live-feed-side-loading">
+              <span class="live-feed-spinner"></span>
+              <div><b>Ranking exact matches</b><small>Sorted by model-vs-market edge.</small></div>
+            </div>
           </aside>
         </section>
 
+        <section class="destination-section props-board-section">
+          <div class="destination-section-head">
+            <div><span class="gold-kicker">LIVE MODEL RANKINGS</span><h2 data-models-board-title>Exact model-to-market matches</h2></div>
+            <span class="props-live-source">SOURCE · REAL TSO MODELS + VERIFIED ODDS</span>
+          </div>
+          <div class="props-board props-board-live">
+            <div class="props-board-head props-board-head-live">
+              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>BEST PRICE</span><span>BOOK</span><span>UPDATED</span><span>LINK</span>
+            </div>
+            <div data-models-board>
+              <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading ranked model matches…</b></div>
+            </div>
+          </div>
+          <div class="props-exact-note">
+            <span>✓</span>
+            <div><b>STRICT MODEL MATCHING</b><small>Same player + market + side + exact line. NHL uses the real First Goal / Anytime Goal models; NFL uses the real pregame Monte Carlo exact-line outputs; MLB uses the real daily 10,000-run model. NBA remains market-only until a real TSO NBA model exists.</small></div>
+          </div>
+        </section>
+
         <section class="destination-section">
           <div class="destination-section-head">
-            <div><span class="violet-kicker">MODEL ENGINES</span><h2>Purpose-built models. One system.</h2></div>
-            <button>MODEL METHODOLOGY →</button>
+            <div><span class="violet-kicker">MODEL ENGINES</span><h2>What is actually modeled</h2></div>
+            <span class="props-live-source">NO SYNTHETIC PROBABILITIES</span>
           </div>
           <div class="model-engine-grid">
             <article class="model-engine-card model-engine-card--violet">
-              <div class="model-engine-top"><span>NHL</span><b>SCORING</b></div>
-              <h3>First Goal</h3>
-              <p>Opening-score probability using role, shot generation, line deployment, matchup and game environment.</p>
-              <div><span>TOP SIGNAL</span><b>Crosby · 8.7%</b></div>
-              <button>OPEN ENGINE →</button>
-            </article>
-            <article class="model-engine-card model-engine-card--purple">
-              <div class="model-engine-top"><span>NHL</span><b>SCORING</b></div>
-              <h3>Anytime Goal</h3>
-              <p>Full-game scoring probability built around usage, expected chances, matchup quality and goalie context.</p>
-              <div><span>TOP SIGNAL</span><b>Crosby · 34.8%</b></div>
-              <button>OPEN ENGINE →</button>
+              <div class="model-engine-top"><span>NHL</span><b>LIVE MODEL</b></div>
+              <h3>First Goal + Anytime Goal</h3>
+              <p>Real TSO hockey scoring outputs matched to the exact verified sportsbook selection.</p>
+              <div><span>CURRENT MATCHES</span><b data-model-count="nhl">—</b></div>
+              <button data-models-league="nhl">OPEN NHL →</button>
             </article>
             <article class="model-engine-card model-engine-card--blue">
-              <div class="model-engine-top"><span>NFL</span><b>SCORING</b></div>
-              <h3>Anytime TD</h3>
-              <p>Touchdown probability driven by red-zone role, opportunity share, game script and defensive matchup.</p>
-              <div><span>TOP SIGNAL</span><b>Barkley · 63.1%</b></div>
-              <button>OPEN ENGINE →</button>
+              <div class="model-engine-top"><span>NFL</span><b>LIVE MODEL</b></div>
+              <h3>Monte Carlo Player Props</h3>
+              <p>Exact-line pregame model outputs compared only with verified pregame sportsbook prices.</p>
+              <div><span>CURRENT MATCHES</span><b data-model-count="nfl">—</b></div>
+              <button data-models-league="nfl">OPEN NFL →</button>
             </article>
             <article class="model-engine-card model-engine-card--gold">
-              <div class="model-engine-top"><span>MLB</span><b>POWER</b></div>
-              <h3>Home Run</h3>
-              <p>Power probability blending contact quality, pitcher profile, park, weather and expected plate appearances.</p>
-              <div><span>TOP SIGNAL</span><b>Alonso · 29.4%</b></div>
-              <button>OPEN ENGINE →</button>
-            </article>
-            <article class="model-engine-card model-engine-card--cyan">
-              <div class="model-engine-top"><span>ALL SPORTS</span><b>PROPS</b></div>
-              <h3>Player Props</h3>
-              <p>Exact-line projections for shots, yards, receptions, points, bases and other volume markets.</p>
-              <div><span>TOP SIGNAL</span><b>McDavid O3.5 · 67%</b></div>
-              <button>OPEN ENGINE →</button>
+              <div class="model-engine-top"><span>MLB</span><b>LIVE MODEL</b></div>
+              <h3>Daily 10,000-Run Model</h3>
+              <p>Home Run, Hits, Total Bases, RBI, H+R+RBI and Stolen Bases exact-line outputs.</p>
+              <div><span>CURRENT MATCHES</span><b data-model-count="mlb">—</b></div>
+              <button data-models-league="mlb">OPEN MLB →</button>
             </article>
             <article class="model-engine-card model-engine-card--orange">
-              <div class="model-engine-top"><span>ALL SPORTS</span><b>GAME</b></div>
-              <h3>Game Models</h3>
-              <p>Win probability, spreads and totals with consistent context across NHL, NFL, MLB and NBA.</p>
-              <div><span>TOP SIGNAL</span><b>PIT ML · 68%</b></div>
-              <button>OPEN ENGINE →</button>
+              <div class="model-engine-top"><span>NBA</span><b>MARKET ONLY</b></div>
+              <h3>No TSO Model Yet</h3>
+              <p>NBA prices can exist in Props, but this Model Command Center will not manufacture a probability or edge.</p>
+              <div><span>CURRENT MATCHES</span><b data-model-count="nba">0 BY DESIGN</b></div>
+              <button data-models-league="nba">VIEW NBA MARKET →</button>
             </article>
           </div>
         </section>
 
-        <section class="destination-section">
-          <div class="destination-section-head">
-            <div><span class="gold-kicker">MODEL BOARD</span><h2>Every projection, ranked.</h2></div>
-            <div class="models-board-actions"><button>EDGE 3%+</button><button>CONF 70+</button></div>
-          </div>
-          <div class="models-board">
-            <div class="models-board-head">
-              <span>PLAYER / MARKET</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>CONF</span><span>BEST</span><span>MOVE</span>
-            </div>
-            <button class="models-board-row">
-              <span class="models-board-player"><i>NHL</i><span><b>Sidney Crosby</b><small>Anytime Goal · PIT vs PHI</small></span></span>
-              <strong>34.8%</strong><strong>27.2%</strong><strong class="positive">+7.6%</strong><span class="models-conf models-conf--high">88</span><span class="models-price"><b>+268</b><small>DK</small></span><span class="models-move up">▲ 12¢</span>
-            </button>
-            <button class="models-board-row">
-              <span class="models-board-player"><i>NFL</i><span><b>Saquon Barkley</b><small>Anytime TD · PHI vs DAL</small></span></span>
-              <strong>63.1%</strong><strong>55.4%</strong><strong class="positive">+7.7%</strong><span class="models-conf models-conf--high">84</span><span class="models-price"><b>-124</b><small>FD</small></span><span class="models-move flat">→ 2¢</span>
-            </button>
-            <button class="models-board-row">
-              <span class="models-board-player"><i>MLB</i><span><b>Pete Alonso</b><small>Home Run · BAL at NYY</small></span></span>
-              <strong>29.4%</strong><strong>21.7%</strong><strong class="positive">+7.7%</strong><span class="models-conf models-conf--mid">81</span><span class="models-price"><b>+360</b><small>365</small></span><span class="models-move up">▲ 15¢</span>
-            </button>
-            <button class="models-board-row">
-              <span class="models-board-player"><i>NHL</i><span><b>Connor McDavid</b><small>Over 3.5 Shots · EDM vs CGY</small></span></span>
-              <strong>67.0%</strong><strong>58.8%</strong><strong class="positive">+8.2%</strong><span class="models-conf models-conf--high">90</span><span class="models-price"><b>-105</b><small>DK</small></span><span class="models-move up">▲ 20¢</span>
-            </button>
-          </div>
-        </section>
-
-        <section class="models-intelligence-grid">
+        <section class="models-framework-grid">
           <article class="models-framework-card">
-            <div class="models-framework-head"><span class="violet-kicker">CONFIDENCE FRAMEWORK</span><h2>Same language everywhere</h2></div>
-            <div class="models-confidence-scale">
-              <div><span>VERY HIGH</span><b>85%+</b><i style="width:96%"></i></div>
-              <div><span>HIGH</span><b>70–84%</b><i style="width:80%"></i></div>
-              <div><span>MEDIUM</span><b>55–69%</b><i style="width:64%"></i></div>
-              <div><span>LOW</span><b>&lt;55%</b><i style="width:44%"></i></div>
+            <div class="models-framework-head"><span class="violet-kicker">RANKING RULE</span><h2>Edge first, exactness always</h2></div>
+            <div class="models-input-grid">
+              <span><i>01</i><b>Exact Player</b><small>No name-neighbor matching</small></span>
+              <span><i>02</i><b>Exact Market</b><small>Correct prop family</small></span>
+              <span><i>03</i><b>Exact Side + Line</b><small>No nearby threshold substitution</small></span>
+              <span><i>04</i><b>Verified Price</b><small>Market probability from the exact quote</small></span>
             </div>
           </article>
 
           <article class="models-framework-card">
-            <div class="models-framework-head"><span class="gold-kicker">WHAT FEEDS THE MODEL</span><h2>Context, not one stat</h2></div>
+            <div class="models-framework-head"><span class="gold-kicker">MODEL SOURCE</span><h2>One board, real engines</h2></div>
             <div class="models-input-grid">
-              <span><i>01</i><b>Recent Form</b><small>Usage + production trend</small></span>
-              <span><i>02</i><b>Matchup</b><small>Opponent-specific context</small></span>
-              <span><i>03</i><b>Environment</b><small>Pace · venue · weather</small></span>
-              <span><i>04</i><b>Market</b><small>Price + line movement</small></span>
+              <span><i>NHL</i><b>Scoring Models</b><small>First Goal · Anytime Goal</small></span>
+              <span><i>NFL</i><b>Monte Carlo</b><small>Pregame exact-line props</small></span>
+              <span><i>MLB</i><b>10,000 Runs</b><small>Daily hitter prop simulations</small></span>
+              <span><i>NBA</i><b>Market Only</b><small>Until a real TSO model exists</small></span>
             </div>
           </article>
 
           <article class="models-framework-card models-run-card">
-            <div class="models-framework-head"><span class="orange-kicker">LATEST RUN</span><h2>Model pulse</h2></div>
-            <div class="models-run-stat"><span>ENGINES</span><b>6 / 6</b><small>online</small></div>
-            <div class="models-run-stat"><span>HIGH-EDGE SIGNALS</span><b>18</b><small>across current board</small></div>
-            <div class="models-run-footer"><span class="model-live-dot"></span> Next automatic refresh active</div>
+            <div class="models-framework-head"><span class="orange-kicker">LATEST RUN</span><h2>Live model pulse</h2></div>
+            <div class="models-run-stat"><span>EXACT MODEL MATCHES</span><b data-models-pulse-count>—</b><small>current filter</small></div>
+            <div class="models-run-stat"><span>TOP EDGE</span><b data-models-pulse-edge>—</b><small>model vs market</small></div>
+            <div class="models-run-footer"><span class="model-live-dot"></span> <span data-models-pulse-age>Waiting for verified snapshot</span></div>
           </article>
         </section>
       </section>`;
