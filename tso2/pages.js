@@ -322,8 +322,8 @@
             <span class="props-live-source">SOURCE · REAL TSO MODELS + VERIFIED ODDS</span>
           </div>
           <div class="props-board props-board-live">
-            <div class="props-board-head props-board-head-live">
-              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>BEST PRICE</span><span>BOOK</span><span>UPDATED</span><span>LINK</span>
+            <div class="props-board-head props-board-head-live props-board-head-pro">
+              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>PRICE</span><span>BOOK</span><span>UPDATED</span><span>ACTIONS</span>
             </div>
             <div data-models-board>
               <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading ranked model matches…</b></div>
@@ -433,7 +433,7 @@
           <div><b>—</b><small>source freshness</small></div>
         </section>
 
-        <section class="props-control-deck">
+        <section class="props-control-deck props-control-deck--pro">
           <div class="segmented props-sport-tabs">
             <button class="${league==='all'?'is-active':''}" data-inline-league="all">ALL</button>
             <button class="${league==='nhl'?'is-active':''}" data-inline-league="nhl">NHL</button>
@@ -443,13 +443,41 @@
           </div>
           <label class="props-command-search">
             <span>⌕</span>
-            <input data-props-search placeholder="Search player, team or exact market..." />
-            <kbd>ENTER</kbd>
+            <input data-props-search placeholder="Search player, team, matchup or exact line..." autocomplete="off" />
+            <kbd>LIVE</kbd>
           </label>
-          <div class="props-filter-actions">
+          <div class="props-filter-actions props-filter-actions--pro">
             <select data-props-market-filter aria-label="Filter prop market"><option value="">MARKET: ALL</option></select>
             <select data-props-book-filter aria-label="Filter sportsbook"><option value="">BOOK: ALL</option></select>
+            <select data-props-side-filter aria-label="Filter side">
+              <option value="">SIDE: ALL</option>
+              <option value="over">OVER / YES</option>
+              <option value="under">UNDER / NO</option>
+            </select>
+            <select data-props-model-filter aria-label="Filter model coverage">
+              <option value="">DATA: ALL</option>
+              <option value="modeled">MODELED ONLY</option>
+              <option value="market">MARKET ONLY</option>
+            </select>
+            <select data-props-sort aria-label="Sort player props">
+              <option value="edge">SORT: MODEL EDGE</option>
+              <option value="model">SORT: MODEL PROB</option>
+              <option value="books">SORT: BOOK COVERAGE</option>
+              <option value="price">SORT: BEST PRICE</option>
+              <option value="fresh">SORT: FRESHEST</option>
+              <option value="player">SORT: PLAYER A–Z</option>
+            </select>
             <button data-props-refresh>REFRESH ODDS ↻</button>
+          </div>
+        </section>
+
+        <section class="props-market-rail-shell">
+          <div class="props-market-rail-head">
+            <div><span class="violet-kicker">MARKET COMMAND</span><h2>Jump straight to a prop family</h2></div>
+            <span data-props-filter-summary>Building live market index…</span>
+          </div>
+          <div class="props-market-rail" data-props-market-rail>
+            <div class="live-feed-side-loading"><span class="live-feed-spinner"></span><div><b>Indexing verified markets…</b></div></div>
           </div>
         </section>
 
@@ -486,7 +514,7 @@
               <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading exact selections…</b></div>
             </div>
           </div>
-          <div class="props-exact-note"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every displayed price belongs to the exact line and side shown. If a sportsbook does not supply a native selection link, TSO says so instead of inventing one.</small></div></div>
+          <div class="props-exact-note"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every displayed price belongs to the exact line and side shown. Selecting a sportsbook re-prices that exact selection and recalculates market probability / edge for that book instead of continuing to show another book's price.</small></div></div>
         </section>
 
         <section class="destination-section">
