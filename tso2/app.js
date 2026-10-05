@@ -992,6 +992,102 @@
     bindParlayGeneratedActions();
   }
 
+  function currentCommunityModelRows(){
+    return sortPropsRows(allModeledRows().filter(row=>currentLeague==='all'||row.sport===currentLeague));
+  }
+
+  function communityPulseMarkup(row,index){
+    const edge=Number(row?.model?.edgePct);
+    return '<article class="post-card panel community-pulse-card" data-community-model-key="'+esc(row.key)+'">'
+      +'<div class="post-head community-pulse-head"><span class="community-system-avatar">TSO</span><div><b>Outpost Model Pulse</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(ageText(row.snapshotTime))+' snapshot</small></div><span class="community-signal-rank">#'+String(index+1).padStart(2,'0')+'</span></div>'
+      +'<p>'+esc(row.player)+' currently has one of the strongest exact model-to-market edges in the '+esc(currentLeague==='all'?'TSO board':leagueLabel(currentLeague)+' board')+'.</p>'
+      +'<div class="shared-pick community-real-pick">'
+        +'<span class="league-badge">'+esc(leagueLabel(row.sport))+'</span>'
+        +'<div><b>'+esc(row.player)+' · '+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</b><small>Model '+pct1(row.model?.probabilityPct)+' · Market '+pct1(row.impliedPct)+' · '+esc(row.book||'verified book')+'</small></div>'
+        +'<strong class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</strong>'
+      +'</div>'
+      +'<div class="community-pulse-meta"><span><small>BEST PRICE</small><b>'+esc(americanPrice(row.price))+'</b></span><span><small>MODEL SOURCE</small><b>'+esc(modelSourceText(row))+'</b></span><span><small>BOOKS</small><b>'+esc(row.bookCount||row.books?.length||1)+'</b></span></div>'
+      +'<div class="post-actions community-pulse-actions"><button data-community-open-model>OPEN MODEL →</button><button data-community-open-prop>OPEN PROP BOARD →</button></div>'
+    +'</article>';
+  }
+
+  function renderCommunity(){
+    const root=document.querySelector('[data-community-route]');
+    if(currentRoute!=='community'||!root||!propsFeedCache) return;
+    const rows=currentCommunityModelRows();
+    const newest=propsNewestTimestamp(rows);
+    const freshness=freshnessLabel(newest);
+    const sports=new Set(rows.map(row=>row.sport));
+    const status=root.querySelector('[data-community-status]');
+    if(status){
+      status.innerHTML='<div><span class="props-live-dot"></span><b>REAL OUTPOST MODEL PULSE</b><small>'+esc(freshness.label)+(newest?' · '+esc(ageText(newest))+' old':'')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' SIGNALS</b><small>exact model matches</small></div><span class="props-status-divider"></span><div><b>'+sports.size+' MODELED SPORTS</b><small>real feed only</small></div><span class="props-status-divider"></span><div><b>MEMBER POSTS OFFLINE</b><small>no simulated activity</small></div>';
+    }
+    const feed=root.querySelector('[data-community-feed]');
+    if(feed){
+      feed.innerHTML=rows.length
+        ? rows.slice(0,6).map(communityPulseMarkup).join('')
+        : '<div class="live-board-loading community-feed-loading panel"><div><b>No exact model signals for this filter.</b><small>TSO will not fill Community with fake member posts.</small></div></div>';
+    }
+    root.querySelectorAll('[data-community-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
+    root.querySelectorAll('[data-community-open-prop]').forEach(btn=>btn.onclick=()=>setRoute('props'));
+    root.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
+    bindMediaFallbacks();
+  }
+
+  function rankingsPodiumCard(row,rank){
+    if(!row) return '';
+    const edge=Number(row?.model?.edgePct);
+    return '<article class="'+(rank===1?'winner':'')+'"><span>'+rank+'</span>'
+      +propHeadshotMarkup(row,'rankings-podium-headshot')
+      +'<b>'+esc(row.player)+'</b>'
+      +'<small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</small>'
+      +'<strong class="rankings-podium-edge '+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</strong>'
+    +'</article>';
+  }
+
+  function renderLeaderboard(){
+    const root=document.querySelector('[data-leaderboard-route]');
+    if(currentRoute!=='leaderboard'||!root||!propsFeedCache) return;
+    const rows=currentCommunityModelRows();
+    const newest=propsNewestTimestamp(rows);
+    const freshness=freshnessLabel(newest);
+    const status=root.querySelector('[data-rankings-status]');
+    if(status){
+      status.innerHTML='<div><span class="props-live-dot"></span><b>REAL MODEL RANKING</b><small>'+esc(freshness.label)+(newest?' · '+esc(ageText(newest))+' old':'')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' EXACT MATCHES</b><small>ranked by model edge</small></div><span class="props-status-divider"></span><div><b>USER STANDINGS OFFLINE</b><small>verified history required</small></div><span class="props-status-divider"></span><div><b>NO FAKE RECORDS</b><small>0 simulated users</small></div>';
+    }
+
+    const title=root.querySelector('[data-rankings-title]');
+    if(title) title.textContent=rows.length?(currentLeague==='all'?'All sports':leagueLabel(currentLeague))+' · '+rows.length+' exact model matches':'No modeled rows for this filter';
+
+    const podium=root.querySelector('[data-rankings-podium]');
+    if(podium){
+      if(rows.length){
+        const first=rows[0],second=rows[1],third=rows[2];
+        podium.innerHTML=rankingsPodiumCard(second,2)+rankingsPodiumCard(first,1)+rankingsPodiumCard(third,3);
+      }else{
+        podium.innerHTML='<div class="live-board-loading home-model-empty--wide"><div><b>No model ranking available for this filter.</b><small>User standings remain offline until real tracked-pick history exists.</small></div></div>';
+      }
+    }
+
+    const board=root.querySelector('[data-rankings-board]');
+    if(board){
+      board.innerHTML=rows.length ? rows.slice(0,25).map((row,i)=>{
+        const edge=Number(row?.model?.edgePct);
+        return '<button class="leader-row rankings-model-row" data-rankings-open-model>'
+          +'<b>'+String(i+1).padStart(2,'0')+'</b>'
+          +'<span>'+propHeadshotMarkup(row,'rankings-row-headshot')+'<span><strong>'+esc(row.player)+'</strong><small>'+esc(row.marketLabel||row.market)+'</small></span></span>'
+          +'<em>'+esc(leagueLabel(row.sport))+'</em>'
+          +'<em>'+esc(propSelectionText(row))+'</em>'
+          +'<strong>'+pct1(row.model?.probabilityPct)+'</strong>'
+          +'<span class="rankings-edge '+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</span>'
+        +'</button>';
+      }).join('') : '<div class="live-board-loading"><div><b>No exact model rows for this filter.</b></div></div>';
+    }
+    root.querySelectorAll('[data-rankings-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
+    root.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
+    bindMediaFallbacks();
+  }
+
   function renderPropsFeature(root,rows){
     const node=root.querySelector('[data-props-feature]');
     if(!node) return;
@@ -1133,6 +1229,8 @@
       renderModelsFeed();
       renderHomeModels();
       renderParlayLab();
+      renderCommunity();
+      renderLeaderboard();
       return propsFeedCache;
     }
     propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
@@ -1146,6 +1244,8 @@
         renderModelsFeed();
         renderHomeModels();
         renderParlayLab();
+        renderCommunity();
+        renderLeaderboard();
         return payload;
       })
       .catch(error=>{
@@ -1173,6 +1273,10 @@
           const parlayLegs=parlayRoot.querySelector('[data-parlay-legs]');
           if(parlayLegs) parlayLegs.innerHTML='<div class="live-board-loading"><div><b>Verified Props/model feed unavailable.</b><small>Retrying automatically. No preview parlay is being shown.</small></div></div>';
         }
+        const communityFeed=document.querySelector('[data-community-feed]');
+        if(currentRoute==='community'&&communityFeed) communityFeed.innerHTML='<div class="live-board-loading panel"><div><b>Model Pulse unavailable.</b><small>No fake Community activity will be substituted.</small></div></div>';
+        const rankingsBoard=document.querySelector('[data-rankings-board]');
+        if(currentRoute==='leaderboard'&&rankingsBoard) rankingsBoard.innerHTML='<div class="live-board-loading"><div><b>Real model ranking unavailable.</b><small>User standings remain offline.</small></div></div>';
         return null;
       })
       .finally(()=>{propsFeedInFlight=null});
@@ -1211,6 +1315,7 @@
     }));
 
     document.querySelectorAll('[data-parlay-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
+    document.querySelectorAll('[data-community-refresh],[data-rankings-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
     document.querySelector('[data-parlay-new]')?.addEventListener('click', () => resetParlayBuild());
     document.querySelector('[data-parlay-add]')?.addEventListener('click', () => {
       const next=chooseParlayRows(1,parlayLegKeys)[0];
