@@ -571,32 +571,30 @@
 
     props(league){
       return `
-      <section class="props-page broadcast-destination">
+      <section class="props-page broadcast-destination" data-props-route="${league}">
         <section class="destination-hero props-destination-hero">
           <div>
             <div class="props-title-lockup">
               <img class="props-hero-icon" src="/brand/production/tso2-product-props-approved.webp" alt="" />
               <span class="destination-kicker props-kicker">PROP INTELLIGENCE · ${leagueName(league)}</span>
             </div>
-            <h1>Find the line before the market catches up.</h1>
-            <p>Exact player props, model probability, market probability, best price, line movement and sportsbook comparison — one board, one exact selection.</p>
+            <h1>Exact lines. Real sportsbook prices.</h1>
+            <p>Verified sportsbook snapshots from the existing TSO odds feeds. Exact player, market, threshold, side and book are preserved — nearby lines are never substituted.</p>
           </div>
           <div class="destination-actions">
-            <button class="button secondary">SAVED PROPS</button>
-            <button class="button primary">BUILD FROM PROPS →</button>
+            <span class="props-feed-badge" data-props-feed-badge><i></i> CONNECTING ODDS</span>
+            <button class="button primary" data-route-jump="parlays">BUILD FROM PROPS →</button>
           </div>
         </section>
 
-        <section class="props-status-strip">
-          <div><span class="props-live-dot"></span><b>PROP FEED LIVE</b></div>
+        <section class="props-status-strip" data-props-status>
+          <div><span class="props-live-dot"></span><b>CONNECTING VERIFIED FEED</b></div>
           <span class="props-status-divider"></span>
-          <div><b>1,284</b><small>markets tracked</small></div>
+          <div><b>—</b><small>exact selections</small></div>
           <span class="props-status-divider"></span>
-          <div><b>86</b><small>model edges 3%+</small></div>
+          <div><b>—</b><small>sportsbooks</small></div>
           <span class="props-status-divider"></span>
-          <div><b>11</b><small>steam moves</small></div>
-          <span class="props-status-divider"></span>
-          <div><b>18 SEC</b><small>latest refresh</small></div>
+          <div><b>—</b><small>source freshness</small></div>
         </section>
 
         <section class="props-control-deck">
@@ -609,173 +607,78 @@
           </div>
           <label class="props-command-search">
             <span>⌕</span>
-            <input placeholder="Search player, team or exact market..." />
+            <input data-props-search placeholder="Search player, team or exact market..." />
             <kbd>ENTER</kbd>
           </label>
           <div class="props-filter-actions">
-            <button>MARKET: ALL⌄</button>
-            <button>BOOK: ALL⌄</button>
-            <button>EDGE 3%+⌄</button>
+            <button data-props-market-filter>MARKET: ALL⌄</button>
+            <button data-props-book-filter>BOOK: ALL⌄</button>
+            <button data-props-refresh>REFRESH ODDS ↻</button>
           </div>
         </section>
 
-        <section class="props-market-tabs">
-          <button class="is-active"><span>✦</span><div><b>TOP EDGES</b><small>86 active</small></div></button>
-          <button><span>◎</span><div><b>SCORING</b><small>Goals · TD · HR</small></div></button>
-          <button><span>↗</span><div><b>VOLUME</b><small>Shots · Yards · Attempts</small></div></button>
-          <button><span>▦</span><div><b>COMBOS</b><small>Points · PRA · SGP</small></div></button>
-          <button><span>≋</span><div><b>MOVERS</b><small>Steam · stale lines</small></div></button>
-        </section>
-
         <section class="props-command-grid">
-          <article class="prop-spotlight">
-            <div class="prop-spotlight-glow"></div>
-            <div class="prop-spotlight-top">
-              <span>FEATURED PROP · NHL SHOTS</span>
-              <b>HIGH EDGE</b>
-            </div>
-            <div class="prop-spotlight-main">
-              <div class="prop-spotlight-player">
-                ${playerHeadshot("Connor McDavid","prop-player-number prop-player-headshot")}
-                <div>
-                  <small>EDM · C · vs CGY</small>
-                  <h2>Connor McDavid</h2>
-                  <p>Shots on Goal · <strong>Over 3.5</strong></p>
-                </div>
-              </div>
-              <div class="prop-edge-ring">
-                <div><small>MODEL</small><strong>67%</strong><span>probability</span></div>
-              </div>
-            </div>
-            <div class="prop-score-line">
-              <div><span>EXACT LINE</span><b>O 3.5</b></div>
-              <div><span>MARKET</span><b>58.8%</b></div>
-              <div><span>EDGE</span><b class="positive">+8.2%</b></div>
-              <div><span>CONFIDENCE</span><b>86 / 100</b></div>
-            </div>
-            <div class="prop-best-price">
-              <div>
-                <span>BEST AVAILABLE PRICE</span>
-                <strong>-105</strong>
-                <small>DraftKings · exact O 3.5 selection</small>
-              </div>
-              <div class="prop-line-lock"><i>✓</i><span><b>EXACT LINE LOCKED</b><small>No nearby-line substitution</small></span></div>
-            </div>
-            <div class="prop-book-strip">
-              <div class="is-best"><span>DK</span><b>-105</b><small>BEST</small></div>
-              <div><span>FD</span><b>-110</b><small>O 3.5</small></div>
-              <div><span>365</span><b>-115</b><small>O 3.5</small></div>
-              <div><span>MGM</span><b>-120</b><small>O 3.5</small></div>
-            </div>
-            <div class="prop-spotlight-footer">
-              <div><span>OUTPOST READ</span><b>Volume is holding while the best price still trails model value.</b><small>Recent attempt rate + matchup pace keep the Over ahead of market.</small></div>
-              <button class="broadcast-cta">OPEN PROP ANALYSIS →</button>
+          <article class="prop-spotlight props-live-feature live-feed-loading" data-props-feature>
+            <div class="live-feed-empty">
+              <span class="live-feed-spinner"></span>
+              <div><b>Loading verified sportsbook markets…</b><small>Exact lines and prices only.</small></div>
             </div>
           </article>
 
-          <aside class="props-movers-board">
+          <aside class="props-movers-board props-live-books" data-props-books>
             <div class="props-movers-head">
-              <div><span class="orange-kicker">MARKET WATCH</span><h2>Fastest movers</h2></div>
-              <span>LIVE</span>
+              <div><span class="orange-kicker">SPORTSBOOK COVERAGE</span><h2>Exact-line books</h2></div>
+              <span>REAL DATA</span>
             </div>
-            <button class="props-mover-row is-steam prop-row">
-              <span class="props-mover-tag">STEAM</span>
-              <div><b>McDavid O 3.5 Shots</b><small>EDM · exact line</small></div>
-              <span><small>OPEN</small><b>+115</b></span>
-              <strong>-105</strong>
-            </button>
-            <button class="props-mover-row is-value prop-row">
-              <span class="props-mover-tag">VALUE</span>
-              <div><b>Barkley Anytime TD</b><small>PHI · Yes</small></div>
-              <span><small>MODEL</small><b>63.1%</b></span>
-              <strong class="positive">+7.7%</strong>
-            </button>
-            <button class="props-mover-row is-stale prop-row">
-              <span class="props-mover-tag">STALE</span>
-              <div><b>Alonso Home Run</b><small>BAL · Yes</small></div>
-              <span><small>BEST</small><b>+360</b></span>
-              <strong>+15¢</strong>
-            </button>
-            <button class="props-mover-row is-value prop-row">
-              <span class="props-mover-tag">VALUE</span>
-              <div><b>Kelce O 67.5 Rec Yds</b><small>KC · exact line</small></div>
-              <span><small>MODEL</small><b>61.0%</b></span>
-              <strong class="positive">+5.8%</strong>
-            </button>
-            <button class="props-mover-row is-steam prop-row">
-              <span class="props-mover-tag">STEAM</span>
-              <div><b>Crosby Anytime Goal</b><small>PIT · Yes</small></div>
-              <span><small>OPEN</small><b>+290</b></span>
-              <strong>+268</strong>
-            </button>
-            <div class="props-movers-footer"><span>11 steam moves detected</span><button>ALL MOVERS →</button></div>
+            <div class="live-feed-side-loading">
+              <span class="live-feed-spinner"></span>
+              <div><b>Loading books</b><small>Coverage for the current exact selections.</small></div>
+            </div>
           </aside>
         </section>
 
         <section class="destination-section props-board-section">
           <div class="destination-section-head">
-            <div><span class="gold-kicker">PROP BOARD</span><h2>Best model-to-market gaps</h2></div>
-            <div class="props-board-actions"><button>CONFIDENCE⌄</button><button>EDGE⌄</button></div>
+            <div><span class="gold-kicker">REAL PROP BOARD</span><h2 data-props-board-title>Verified sportsbook selections</h2></div>
+            <span class="props-live-source">SOURCE · TSO ODDS SNAPSHOTS</span>
           </div>
-          <div class="props-board">
-            <div class="props-board-head">
-              <span>PLAYER / MARKET</span><span>LINE</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>CONF</span><span>BEST PRICE</span><span>MOVE</span><span>FLAG</span>
+          <div class="props-board props-board-live">
+            <div class="props-board-head props-board-head-live">
+              <span>PLAYER / MARKET</span><span>EXACT</span><span>BEST PRICE</span><span>BOOK</span><span>IMPLIED</span><span>UPDATED</span><span>LINK</span>
             </div>
-            <button class="props-board-row prop-row">
-              <span class="props-board-player"><i>NHL</i><span><b>Connor McDavid</b><small>EDM · Shots on Goal</small></span></span>
-              <strong>O 3.5</strong><strong>67.0%</strong><strong>58.8%</strong><strong class="positive">+8.2%</strong>
-              <span class="props-conf props-conf--high">86</span><span class="props-price"><b>-105</b><small>DK</small></span><span class="props-move up">▲ 20¢</span><span class="props-flag props-flag--steam">STEAM</span>
-            </button>
-            <button class="props-board-row prop-row">
-              <span class="props-board-player"><i>NFL</i><span><b>Saquon Barkley</b><small>PHI · Anytime TD</small></span></span>
-              <strong>YES</strong><strong>63.1%</strong><strong>55.4%</strong><strong class="positive">+7.7%</strong>
-              <span class="props-conf props-conf--high">88</span><span class="props-price"><b>-124</b><small>FD</small></span><span class="props-move flat">→ 2¢</span><span class="props-flag props-flag--value">VALUE</span>
-            </button>
-            <button class="props-board-row prop-row">
-              <span class="props-board-player"><i>MLB</i><span><b>Pete Alonso</b><small>BAL · Home Run</small></span></span>
-              <strong>YES</strong><strong>29.4%</strong><strong>21.7%</strong><strong class="positive">+7.7%</strong>
-              <span class="props-conf props-conf--high">84</span><span class="props-price"><b>+360</b><small>365</small></span><span class="props-move up">▲ 15¢</span><span class="props-flag props-flag--stale">STALE</span>
-            </button>
-            <button class="props-board-row prop-row">
-              <span class="props-board-player"><i>NHL</i><span><b>Sidney Crosby</b><small>PIT · Anytime Goal</small></span></span>
-              <strong>YES</strong><strong>34.8%</strong><strong>27.2%</strong><strong class="positive">+7.6%</strong>
-              <span class="props-conf props-conf--high">88</span><span class="props-price"><b>+268</b><small>DK</small></span><span class="props-move up">▲ 12¢</span><span class="props-flag props-flag--value">VALUE</span>
-            </button>
-            <button class="props-board-row prop-row">
-              <span class="props-board-player"><i>NFL</i><span><b>Travis Kelce</b><small>KC · Receiving Yards</small></span></span>
-              <strong>O 67.5</strong><strong>61.0%</strong><strong>55.2%</strong><strong class="positive">+5.8%</strong>
-              <span class="props-conf props-conf--mid">79</span><span class="props-price"><b>-118</b><small>MGM</small></span><span class="props-move up">▲ 8¢</span><span class="props-flag props-flag--value">VALUE</span>
-            </button>
+            <div data-props-board>
+              <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading exact selections…</b></div>
+            </div>
           </div>
-          <div class="props-exact-note"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every displayed sportsbook price is tied to the line shown on that row. TSO does not present a nearby threshold as if it were the exact prop.</small></div></div>
+          <div class="props-exact-note"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every displayed price belongs to the exact line and side shown. If a sportsbook does not supply a native selection link, TSO says so instead of inventing one.</small></div></div>
         </section>
 
         <section class="destination-section">
           <div class="destination-section-head">
-            <div><span class="violet-kicker">MARKET INTELLIGENCE</span><h2>How the board is reading tonight</h2></div>
-            <button data-route-jump="models">OPEN MODELS →</button>
+            <div><span class="violet-kicker">FEED INTEGRITY</span><h2>What is real right now</h2></div>
+            <button data-route-jump="models">MODEL LAYER NEXT →</button>
           </div>
-          <div class="props-intelligence-grid">
+          <div class="props-intelligence-grid" data-props-integrity>
             <article class="props-intel-card">
-              <span class="orange-kicker">STEAM</span>
-              <h3>11 fast price moves</h3>
-              <p>Markets where the same exact selection is moving quickly across multiple books.</p>
-              <div><span>McDavid O 3.5 Shots</span><b>+115 → -105</b></div>
-              <div><span>Crosby Anytime Goal</span><b>+290 → +268</b></div>
+              <span class="gold-kicker">VERIFIED PRICES</span>
+              <h3>Real sportsbook snapshots</h3>
+              <p>Prices come from the existing TSO ParlayAPI-backed odds files. Sample rows are rejected from this view.</p>
+              <div><span>Selection policy</span><b>Exact only</b></div>
+              <div><span>Nearby substitutions</span><b>Never</b></div>
             </article>
             <article class="props-intel-card">
-              <span class="gold-kicker">VALUE GAPS</span>
-              <h3>86 edges above 3%</h3>
-              <p>Model probability compared with the implied probability of the best exact-line price.</p>
-              <div><span>High confidence</span><b>18</b></div>
-              <div><span>Very high confidence</span><b>7</b></div>
+              <span class="orange-kicker">FRESHNESS</span>
+              <h3 data-props-freshness-title>Checking source age</h3>
+              <p data-props-freshness-copy>The page labels source freshness from the verified snapshot timestamp instead of pretending old prices are live.</p>
+              <div><span>Auto refresh</span><b>60 sec</b></div>
+              <div><span>Preserved rows</span><b data-props-preserved>—</b></div>
             </article>
             <article class="props-intel-card">
-              <span class="violet-kicker">STALE LINES</span>
-              <h3>6 books lagging market</h3>
-              <p>Exact thresholds where one sportsbook has not yet followed broader price movement.</p>
-              <div><span>Largest gap</span><b>15¢</b></div>
-              <div><span>Markets watched</span><b>1,284</b></div>
+              <span class="violet-kicker">MODEL LAYER</span>
+              <h3>Not faked</h3>
+              <p>Model probability, edge and confidence stay off this real-data board until the existing TSO model outputs are connected.</p>
+              <div><span>Sportsbook data</span><b>CONNECTED</b></div>
+              <div><span>Model data</span><b>NEXT PHASE</b></div>
             </article>
           </div>
         </section>
