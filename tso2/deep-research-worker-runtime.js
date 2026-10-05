@@ -291,4 +291,20 @@ async function buildPropHistory(u){
   };
 }
 
+
+async function buildNhlScorerModel(){
+  const doc=await deepResearchFetch("slates/nhl-first-goal.json",60);
+  return {
+    available:Array.isArray(doc?.games)&&doc.games.length>0,
+    version:doc?.version||null,
+    source:doc?.source||"TSO NHL first-goal model",
+    model:doc?.model||"FGS-Hazard Ensemble v3",
+    generatedAt:doc?.generatedAt||null,
+    date:doc?.date||null,
+    season:doc?.season||null,
+    methodology:doc?.methodology||null,
+    games:Array.isArray(doc?.games)?doc.games:[]
+  };
+}
+
 // TSO2_DEEP_RESEARCH_RUNTIME_END
