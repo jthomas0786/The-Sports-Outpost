@@ -18,6 +18,7 @@
   let parlayLegKeys = [];
   let parlayTarget = 3;
   let researchQuery = '';
+  const deepResearchCache = new Map();
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
   const PROPS_FEED_TTL = 30000;
@@ -1170,6 +1171,200 @@
     bindMediaFallbacks();
   }
 
+  function researchRowByKey(key){
+    return (propsFeedCache?.rows||[]).find(row=>String(row.key)===String(key))||null;
+  }
+
+  function researchOpponentForRow(row){
+    const team=String(row?.team||'').toUpperCase();
+    const home=String(row?.homeTeam||'').toUpperCase();
+    const away=String(row?.awayTeam||'').toUpperCase();
+    if(team&&team===home)return row.awayTeam||'';
+    if(team&&team===away)return row.homeTeam||'';
+    return '';
+  }
+
+  function researchValue(value,digits=1,suffix=''){
+    const n=Number(value);
+    if(!Number.isFinite(n))return '—';
+    const out=digits===0?Math.round(n).toLocaleString():n.toFixed(digits).replace(/\.0$/,'');
+    return out+suffix;
+  }
+
+  function researchRate(value,digits=1){
+    const n=Number(value);
+    return Number.isFinite(n)?researchValue(n,digits):'—';
+  }
+
+  function researchAge(value){
+    return value?ageText(value)+' old':'timestamp unavailable';
+  }
+
+  function researchDetailMetric(label,value,note=''){
+    return '<span><small>'+esc(label)+'</small><b>'+esc(value==null||value===''?'—':value)+'</b>'+(note?'<em>'+esc(note)+'</em>':'')+'</span>';
+  }
+
+  function nflResearchDetail(data,row){
+    const p=data.player||{},last=p.last5?.avg||{},cur=p.currentSeason?.perGame||{},prev=p.previousSeason?.perGame||{};
+    const snap=p.snapTrend||{},allowed=p.matchup?.previousSeasonAllowed?.perGame||{};
+    const injury=p.injury?.status||p.injury?.detail||null;
+    const metrics=[
+      ['L5 TARGETS',researchRate(last.targets), 'per game'],
+      ['L5 RECEPTIONS',researchRate(last.receptions),'per game'],
+      ['L5 REC YDS',researchRate(last.recYds),'per game'],
+      ['L5 CARRIES',researchRate(last.carries),'per game'],
+      ['L5 RUSH YDS',researchRate(last.rushYds),'per game'],
+      ['L5 PASS YDS',researchRate(last.passYds),'per game'],
+      ['L5 TD',researchRate(last.tds,2),'per game'],
+      ['SNAP SHARE',researchValue(snap.avgOffensePct,1,'%'),'L5 avg']
+    ].filter(x=>x[1]!=='—').slice(0,8);
+    const season=[
+      ['CUR TARGETS',researchRate(cur.targets),'per game'],
+      ['CUR REC YDS',researchRate(cur.recYds),'per game'],
+      ['CUR RUSH YDS',researchRate(cur.rushYds),'per game'],
+      ['CUR PASS YDS',researchRate(cur.passYds),'per game'],
+      ['PREV TARGETS',researchRate(prev.targets),'per game'],
+      ['PREV REC YDS',researchRate(prev.recYds),'per game'],
+      ['PREV RUSH YDS',researchRate(prev.rushYds),'per game'],
+      ['PREV PASS YDS',researchRate(prev.passYds),'per game']
+    ].filter(x=>x[1]!=='—').slice(0,8);
+    const matchup=[
+      ['OPP YDS',researchRate(allowed.yards),'pos group / game'],
+      ['OPP TARGETS',researchRate(allowed.targets),'pos group / game'],
+      ['OPP REC YDS',researchRate(allowed.recYds),'pos group / game'],
+      ['OPP RUSH YDS',researchRate(allowed.rushYds),'pos group / game'],
+      ['OPP TD',researchRate(allowed.tds,2),'pos group / game'],
+      ['LAST SNAP %',researchValue(snap.lastOffensePct,1,'%'),'offense'],
+      ['AVG SNAPS',researchRate(snap.avgOffenseSnaps),'L5 offense'],
+      ['DEPTH',p.depth?.rank?('#'+p.depth.rank+' '+(p.depth.position||p.position||'')):(p.depth?.position||p.position||'—'),'current']
+    ].filter(x=>x[1]!=='—').slice(0,8);
+    const games=(p.gameLog||[]).slice(0,8).map(g=>'<div class="research-detail-log-row"><span>'+esc(g.date||('W'+(g.week||'')))+'</span><b>'+esc((g.team||p.team||'')+' vs '+(g.opponent||'—'))+'</b><em>'+esc('TGT '+researchRate(g.targets)+' · REC '+researchRate(g.receptions)+' · '+researchRate(g.recYds,0)+' REC YD · '+researchRate(g.rushYds,0)+' RUSH YD')+'</em></div>').join('');
+    return '<section class="research-detail-status"><span class="deep-source-chip">NFLVERSE + ESPN</span><b>'+esc(p.rosterStatus||'Roster status unavailable')+'</b><small>'+esc(injury?('Injury: '+injury):'No current injury status attached')+'</small></section>'
+      +'<section class="research-detail-block"><div class="research-detail-block-head"><span>RECENT FORM</span><b>Last five verified games</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
+      +(season.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>SEASON PRODUCTION</span><b>Current + previous season</b></div><div class="research-detail-metrics">'+season.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +(matchup.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>ROLE + MATCHUP</span><b>'+esc(p.opponent?('vs '+p.opponent):'Verified context')+'</b></div><div class="research-detail-metrics">'+matchup.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +(games?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Most recent verified production</b></div><div class="research-detail-log">'+games+'</div></section>':'');
+  }
+
+  function nhlWindow(rows,count,key){
+    const vals=(rows||[]).slice(0,count).map(g=>Number(g?.stats?.[key])).filter(Number.isFinite);
+    return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
+  }
+
+  function nhlResearchDetail(data,row){
+    const p=data.player||{},games=p.recentGames||[],rates=p.rates||{},d=data.opponentDefense||{};
+    const metrics=[
+      ['L5 SOG',researchRate(nhlWindow(games,5,'sog')),'per game'],
+      ['L10 SOG',researchRate(nhlWindow(games,10,'sog')),'per game'],
+      ['L30 SOG',researchRate(nhlWindow(games,30,'sog')),'per game'],
+      ['L5 GOALS',researchRate(nhlWindow(games,5,'goals'),2),'per game'],
+      ['L10 GOALS',researchRate(nhlWindow(games,10,'goals'),2),'per game'],
+      ['L10 POINTS',researchRate(nhlWindow(games,10,'points'),2),'per game'],
+      ['SEASON SOG',researchRate(rates.sog),'per game'],
+      ['SHOOTING %',Number.isFinite(Number(p.shootingPct))?researchValue(Number(p.shootingPct)*100,1,'%'):'—','regressed rate']
+    ].filter(x=>x[1]!=='—');
+    const defense=[
+      ['OPP GA',researchRate(d.recent10GoalsAllowedPerGame),'recent 10 / game'],
+      ['OPP SHOTS',researchRate(d.recent10ShotsAllowedPerGame),'recent 10 / game'],
+      ['GOAL INDEX',researchRate(d.recent10OverallIndex,2),'1.00 = league avg'],
+      ['SHOT INDEX',researchRate(d.recent10ShotPaceIndex,2),'1.00 = league avg'],
+      ['PP INDEX',researchRate(d.ppIndex,2),'1.00 = league avg'],
+      ['OPP OFFENSE',researchRate(d.recent10OffenseIndex,2),'1.00 = league avg']
+    ].filter(x=>x[1]!=='—');
+    const logs=games.slice(0,10).map(g=>'<div class="research-detail-log-row"><span>'+esc(String(g.date||'').slice(0,10))+'</span><b>'+esc((g.team||'')+' '+(g.homeAway==='away'?'@':'vs')+' '+(g.opponent||'—'))+'</b><em>'+esc('SOG '+researchRate(g.stats?.sog,0)+' · G '+researchRate(g.stats?.goals,0)+' · A '+researchRate(g.stats?.assists,0)+' · PTS '+researchRate(g.stats?.points,0)+(g.firstGoal?' · FIRST GOAL':''))+'</em></div>').join('');
+    return '<section class="research-detail-status"><span class="deep-source-chip">ESPN VERIFIED HISTORY</span><b>'+esc(games.length+' recent game'+(games.length===1?'':'s')+' loaded')+'</b><small>'+esc('Research snapshot '+researchAge(data.generatedAt))+'</small></section>'
+      +'<section class="research-detail-block"><div class="research-detail-block-head"><span>FORM WINDOWS</span><b>L5 · L10 · L30</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
+      +(defense.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>OPPONENT DEFENSE</span><b>'+esc(p.opponent||researchOpponentForRow(row)||'Current matchup')+'</b></div><div class="research-detail-metrics">'+defense.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +(logs?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Verified box-score history</b></div><div class="research-detail-log">'+logs+'</div></section>':'');
+  }
+
+  function mlbResearchDetail(data,row){
+    const p=data.player||{},game=data.game||{},w=game.weather||{},venue=game.venue||{},opp=data.opponent||{},pitcher=opp.pitcher||{};
+    const sc=p.statcast||{},l5=p.statcastL5||{},l10=p.statcastL10||{},bvp=p.vsPitcher||{};
+    const weather=[
+      ['TEMP',researchValue(w.tempF,0,'°F'),w.indoor?'indoor':'forecast'],
+      ['WIND',researchValue(w.windMph,0,' mph'),w.wind?.label||''],
+      ['PRECIP',researchValue(w.precipChance,0,'%'),'chance'],
+      ['HUMIDITY',researchValue(w.humidity,0,'%'),''],
+      ['PARK',venue.name||'—',venue.roof||''],
+      ['STARTER',pitcher.name||'—',pitcher.throws?('throws '+pitcher.throws):'']
+    ].filter(x=>x[1]!=='—');
+    const statcast=[
+      ['BARREL %',researchValue(sc.barrelPct,1,'%'),'season'],
+      ['EXIT VELO',researchValue(sc.exitVelo,1,' mph'),'season'],
+      ['HARD HIT',researchValue(sc.hardHitPct,1,'%'),'season'],
+      ['xwOBA',researchRate(sc.xwoba,3),'season'],
+      ['xSLG',researchRate(sc.xslg,3),'season'],
+      ['SPRINT',researchValue(sc.sprintSpeed,1,' ft/s'),'season'],
+      ['L5 BARREL',researchValue(l5.barrelPct,1,'%'),'recent'],
+      ['L10 BARREL',researchValue(l10.barrelPct,1,'%'),'recent']
+    ].filter(x=>x[1]!=='—');
+    const bvpMetrics=[
+      ['PA',researchRate(bvp.pa,0),'vs '+(pitcher.name||'starter')],
+      ['HITS',researchRate(bvp.h,0),'head-to-head'],
+      ['HR',researchRate(bvp.hr,0),'head-to-head'],
+      ['AVG',researchRate(bvp.avg,3),'head-to-head'],
+      ['OBP',researchRate(bvp.obp,3),'head-to-head'],
+      ['SLG',researchRate(bvp.slg,3),'head-to-head']
+    ].filter(x=>x[1]!=='—');
+    const pitchTypes=Object.entries(p.detail?.pitchTypes||{}).map(([code,v])=>({code,...v})).sort((a,b)=>Number(b.seen||0)-Number(a.seen||0)).slice(0,6);
+    const pitchMarkup=pitchTypes.map(pt=>'<div class="research-detail-pitch-row"><b>'+esc(pt.code)+'</b><span>'+esc(researchRate(pt.seen,0)+' seen')+'</span><em>'+esc('AVG '+researchRate(pt.avg,3)+' · EV '+researchRate(pt.ev)+' · WHIFF '+(Number.isFinite(Number(pt.whiffPct))?researchValue(pt.whiffPct,1,'%'):'—')+' · HR '+researchRate(pt.hr,0))+'</em></div>').join('');
+    return '<section class="research-detail-status"><span class="deep-source-chip">MLB STATS + SAVANT + OPEN-METEO</span><b>'+esc((p.team||'MLB')+' · '+(p.position||'Player')+(p.battingOrder?' · batting #'+p.battingOrder:''))+'</b><small>'+esc('Slate '+researchAge(data.generatedAt)+(data.statcastEnrichedAt?' · Statcast '+researchAge(data.statcastEnrichedAt):''))+'</small></section>'
+      +'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME ENVIRONMENT</span><b>'+esc(venue.name||'Current park')+'</b></div><div class="research-detail-metrics">'+weather.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
+      +(statcast.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>STATCAST</span><b>Contact quality + recent windows</b></div><div class="research-detail-metrics">'+statcast.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +(bvpMetrics.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>BATTER VS STARTER</span><b>'+esc(pitcher.name||'Probable starter')+'</b></div><div class="research-detail-metrics">'+bvpMetrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +(pitchMarkup?'<section class="research-detail-block"><div class="research-detail-block-head"><span>PITCH-TYPE RESULTS</span><b>Recent Savant window</b></div><div class="research-detail-pitch-list">'+pitchMarkup+'</div></section>':'');
+  }
+
+  function researchDetailBody(data,row){
+    if(!data?.available)return '<div class="research-detail-empty"><b>Deep research not available for this player yet.</b><small>'+esc(data?.reason||data?.error||'No verified detail source returned.')+'</small></div>';
+    if(data.sport==='nfl')return nflResearchDetail(data,row);
+    if(data.sport==='nhl')return nhlResearchDetail(data,row);
+    if(data.sport==='mlb')return mlbResearchDetail(data,row);
+    return '<div class="research-detail-empty"><b>Deep research source is not connected for '+esc(String(data.sport||row?.sport||'this sport').toUpperCase())+'.</b></div>';
+  }
+
+  function closeResearchDetail(){
+    document.querySelector('.research-detail-overlay')?.remove();
+    document.body.classList.remove('research-detail-open');
+  }
+
+  async function openResearchDetail(row){
+    if(!row)return;
+    closeResearchDetail();
+    const opponent=researchOpponentForRow(row);
+    const key=[row.sport,row.playerId||'',row.player,row.team||'',opponent].join('|');
+    const overlay=document.createElement('div');
+    overlay.className='research-detail-overlay';
+    overlay.innerHTML='<div class="research-detail-shell" role="dialog" aria-modal="true">'
+      +'<div class="research-detail-hero"><button class="research-detail-close" data-research-detail-close aria-label="Close">×</button>'
+      +'<div class="research-detail-player">'+propHeadshotMarkup(row,'research-detail-headshot')+'<div><span>'+esc(leagueLabel(row.sport))+' DEEP RESEARCH</span><h2>'+esc(row.player)+'</h2><p>'+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</p></div></div>'
+      +'<div class="research-detail-market"><span><small>MODEL</small><b>'+pct1(row.model?.probabilityPct)+'</b></span><span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span><span><small>BEST</small><b>'+esc(americanPrice(row.price))+'</b><em>'+esc(row.book||'—')+'</em></span></div>'
+      +'</div><div class="research-detail-content" data-research-detail-content><div class="live-board-loading research-detail-loading"><span class="live-feed-spinner"></span><div><b>Loading verified deep research…</b><small>TSO is reading the existing sport research feed for this player.</small></div></div></div>'
+      +'<div class="research-detail-footer"><span>NO INVENTED CONTEXT · SOURCE-BACKED FIELDS ONLY</span><button data-research-detail-props>OPEN PROP BOARD →</button></div></div>';
+    document.body.appendChild(overlay);
+    document.body.classList.add('research-detail-open');
+    overlay.querySelector('[data-research-detail-close]')?.addEventListener('click',closeResearchDetail);
+    overlay.addEventListener('click',e=>{if(e.target===overlay)closeResearchDetail();});
+    overlay.querySelector('[data-research-detail-props]')?.addEventListener('click',()=>{closeResearchDetail();setRoute('props');});
+    bindMediaFallbacks();
+
+    const content=overlay.querySelector('[data-research-detail-content]');
+    try{
+      let payload=deepResearchCache.get(key);
+      if(!payload){
+        const qs=new URLSearchParams({sport:String(row.sport||''),playerId:String(row.playerId||''),name:String(row.player||''),team:String(row.team||''),opponent:String(opponent||''),eventId:String(row.eventId||'')});
+        const response=await fetch('/api/research-detail?'+qs.toString(),{cache:'no-store'});
+        payload=await response.json();
+        if(!response.ok&&!payload?.reason)throw new Error(payload?.error||('Research HTTP '+response.status));
+        deepResearchCache.set(key,payload);
+      }
+      if(content)content.innerHTML=researchDetailBody(payload,row);
+    }catch(error){
+      if(content)content.innerHTML='<div class="research-detail-empty"><b>Verified deep research could not be loaded.</b><small>'+esc(error?.message||String(error))+'</small></div>';
+    }
+  }
+
   function researchPropsRows(){
     return (propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
   }
@@ -1222,9 +1417,9 @@
   }
 
   function researchPlayerMarkup(group,index){
-    const row=group.rows[0]||{};
+    const row=sortPropsRows(group.rows)[0]||group.rows[0]||{};
     const edge=group.bestEdge;
-    return '<button class="research-player-row research-player-row--live" data-research-player="'+esc(group.player)+'">'
+    return '<button class="research-player-row research-player-row--live" data-research-detail-key="'+esc(row.key||'')+'">'
       +'<span class="research-player-rank">'+String(index+1).padStart(2,'0')+'</span>'
       +propHeadshotMarkup(row,'research-avatar')
       +'<div><b>'+esc(group.player)+'</b><small>'+esc(leagueLabel(group.sport))+' · '+group.rows.length+' exact selection'+(group.rows.length===1?'':'s')+' · '+group.modeled+' modeled</small></div>'
@@ -1249,7 +1444,7 @@
     const model=row.model||null;
     const hasModel=Number.isFinite(Number(model?.probabilityPct));
     const edge=hasModel?Number(model.edgePct):null;
-    return '<button class="research-result-row '+(hasModel?'has-model':'is-market-only')+'" data-research-open-props>'
+    return '<button class="research-result-row '+(hasModel?'has-model':'is-market-only')+'" data-research-detail-key="'+esc(row.key)+'">'
       +'<span class="research-result-player">'+propHeadshotMarkup(row,'research-result-headshot')+'<span><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></span></span>'
       +'<strong>'+esc(propSelectionText(row))+'</strong>'
       +'<span><small>MODEL</small><b>'+ (hasModel?pct1(model.probabilityPct):'—') +'</b></span>'
@@ -1268,7 +1463,7 @@
       +'<div class="research-signal-player">'+propHeadshotMarkup(row,'research-signal-headshot')+'<div><h3>'+esc(row.player)+'</h3><small>'+esc(row.team||'PLAYER')+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></div><span class="research-score-badge"><small>MODEL</small><strong>'+pct1(model.probabilityPct)+'</strong></span></div>'
       +'<div class="research-stat-grid research-stat-grid--real"><span><small>EXACT</small><b>'+esc(propSelectionText(row))+'</b></span><span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span><span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span></div>'
       +'<div class="research-insight"><span>VERIFIED MARKET</span><b>'+esc(americanPrice(row.price))+' · '+esc(row.book||'Sportsbook')+'</b><small>'+esc(modelSourceText(row))+' · '+esc(row.bookCount||row.books?.length||1)+' sportsbook'+((row.bookCount||row.books?.length||1)===1?'':'s')+' on this exact selection.</small></div>'
-      +'<button class="research-open-btn" data-research-open-model>OPEN MODEL →</button>'
+      +'<button class="research-open-btn" data-research-detail-key="'+esc(row.key)+'">OPEN DEEP RESEARCH →</button>'
     +'</article>';
   }
 
@@ -1347,14 +1542,13 @@
       depth.innerHTML=sportRows.map(x=>'<button data-research-sport="'+esc(x.sport)+'"><span>'+esc(leagueLabel(x.sport))+'</span><div><b>'+x.selections+' selections</b><small>'+x.players+' players · '+(x.models?x.models+' exact model matches':'MARKET ONLY')+'</small></div><i>›</i></button>').join('');
     }
 
-    root.querySelectorAll('[data-research-player]').forEach(btn=>btn.onclick=()=>{
-      researchQuery=String(btn.dataset.researchPlayer||'');
-      renderResearch();
+    root.querySelectorAll('[data-research-detail-key]').forEach(btn=>btn.onclick=event=>{
+      event.stopPropagation();
+      const row=researchRowByKey(btn.dataset.researchDetailKey);
+      if(row)openResearchDetail(row);
     });
     root.querySelectorAll('[data-research-sport]').forEach(btn=>btn.onclick=()=>setLeague(btn.dataset.researchSport));
     root.querySelectorAll('[data-research-game]').forEach(btn=>btn.onclick=()=>setRoute('live'));
-    root.querySelectorAll('[data-research-open-props]').forEach(btn=>btn.onclick=()=>setRoute('props'));
-    root.querySelectorAll('[data-research-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
     root.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
     bindMediaFallbacks();
   }
@@ -1702,7 +1896,7 @@
   });
 
   document.addEventListener('keydown', event => {
-    if(event.key === 'Escape') closeProfileMenu();
+    if(event.key === 'Escape'){ closeProfileMenu(); closeResearchDetail(); }
   });
 
   syncOwnerTools();
