@@ -3199,6 +3199,107 @@ body{
 .parlay-health-ring--live small{letter-spacing:.08em;font-weight:900}
 .parlay-math-note{margin-top:9px;padding:10px 12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.018);color:#65717d;font-size:7px;line-height:1.55}
 
+
+
+/* =========================================================
+   TSO 2.0 — HONEST PROFILE
+   ========================================================= */
+.profile-destination-hero .button:disabled{cursor:not-allowed;opacity:.48}
+.profile-hero--live{
+  border-color:rgba(45,127,255,.14)!important;
+  background:linear-gradient(145deg,rgba(45,127,255,.035),#080c12)!important;
+}
+.profile-identity h2{font-size:22px!important;letter-spacing:-.035em}
+.profile-identity p{margin-top:5px!important;line-height:1.45!important}
+.profile-stats--real{min-width:520px}
+.profile-stats--real>div{
+  min-width:108px;padding:11px 12px;border:1px solid rgba(255,255,255,.07);
+  background:#090e15
+}
+.profile-stats--real span{font-size:6px!important;font-weight:900;letter-spacing:.07em}
+.profile-stats--real b{font-size:16px!important}
+.profile-integrity-strip{
+  min-height:60px;display:flex;align-items:center;gap:16px;padding:10px 14px;margin:12px 0 20px;
+  overflow-x:auto;border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(90deg,rgba(45,127,255,.035),rgba(79,227,155,.022),transparent)
+}
+.profile-integrity-strip>div{display:flex;align-items:center;gap:7px;min-width:max-content}
+.profile-integrity-strip b,.profile-integrity-strip small{display:block}
+.profile-integrity-strip b{font-size:8px;letter-spacing:.055em}
+.profile-integrity-strip small{color:#68747f;font-size:7px}
+.profile-state-grid{margin-bottom:18px}
+.profile-state-card{padding:18px!important}
+.profile-state-badge{
+  min-height:24px;display:inline-flex;align-items:center;padding:0 8px;border:1px solid rgba(255,156,94,.22);
+  background:rgba(255,156,94,.045);color:#ffad7c;font-size:6px;font-weight:900;letter-spacing:.075em
+}
+.profile-empty-state{
+  min-height:140px;display:grid;grid-template-columns:44px 1fr;gap:13px;align-items:center;
+  margin-top:10px;padding:18px;border:1px solid rgba(255,255,255,.07);background:#080c12
+}
+.profile-empty-state>span{
+  width:40px;height:40px;display:grid;place-items:center;border:1px solid rgba(123,92,255,.18);
+  background:rgba(123,92,255,.05);color:#aa98ff;font-size:15px
+}
+.profile-empty-state b,.profile-empty-state small{display:block}
+.profile-empty-state b{font-size:10px}
+.profile-empty-state small{margin-top:6px;color:#697581;font-size:8px;line-height:1.55}
+.profile-readiness{
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(520px,.9fr);gap:24px;align-items:center;
+  padding:20px;margin-bottom:28px;border-color:rgba(123,92,255,.14)!important;
+  background:linear-gradient(145deg,rgba(123,92,255,.025),#080b10)!important
+}
+.profile-readiness h2{margin:5px 0 6px;font-size:21px}
+.profile-readiness p{margin:0;color:#717c88;font-size:9px;line-height:1.55}
+.profile-readiness-grid{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid rgba(255,255,255,.08)}
+.profile-readiness-grid span{padding:12px;border-right:1px solid rgba(255,255,255,.07)}
+.profile-readiness-grid span:last-child{border-right:0}
+.profile-readiness-grid small,.profile-readiness-grid b{display:block}
+.profile-readiness-grid small{color:#596470;font-size:6px;font-weight:900;letter-spacing:.07em}
+.profile-readiness-grid b{margin-top:5px;color:#70e8ab;font-size:8px}
+.profile-readiness-grid b.is-offline{color:#ffad7c}
+.profile-readiness-grid b.is-partial{color:#ffe16a}
+.profile-signal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.profile-signal-card{
+  position:relative;overflow:hidden;min-height:235px;padding:15px;border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(155deg,#0a0f16,#06090e);cursor:pointer
+}
+.profile-signal-card .concept-card-accent{width:3px!important}
+.profile-signal-top{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-left:5px}
+.profile-signal-top span{color:#67727e;font-size:7px;font-weight:900;letter-spacing:.07em}
+.profile-signal-top b{font-size:7px;color:#b8c0c9}
+.profile-signal-player{display:flex;align-items:center;gap:11px;margin:20px 0 15px;padding-left:5px}
+.profile-signal-headshot{width:52px!important;height:52px!important;border-radius:50%!important}
+.profile-signal-player h3{margin:0;font-size:17px;letter-spacing:-.03em}
+.profile-signal-player small{display:block;margin-top:5px;color:#65717d;font-size:7px}
+.profile-signal-metrics{
+  display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,.07);
+  border-bottom:1px solid rgba(255,255,255,.07)
+}
+.profile-signal-metrics span{padding:11px 5px}
+.profile-signal-metrics small,.profile-signal-metrics b{display:block}
+.profile-signal-metrics small{color:#56616d;font-size:6px;font-weight:900;letter-spacing:.07em}
+.profile-signal-metrics b{margin-top:5px;font-size:10px}
+.profile-signal-footer{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:12px 5px 2px}
+.profile-signal-footer small,.profile-signal-footer b{display:block}
+.profile-signal-footer small{color:#56616d;font-size:6px;font-weight:900;letter-spacing:.07em}
+.profile-signal-footer b{margin-top:4px;font-size:9px}
+.profile-signal-footer strong{color:#8995a2;font-size:7px;letter-spacing:.06em}
+
+@media(max-width:1100px){
+  .profile-stats--real{min-width:0}
+  .profile-readiness{grid-template-columns:1fr}
+  .profile-signal-grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:760px){
+  .profile-hero--live{grid-template-columns:58px 1fr!important}
+  .profile-stats--real{grid-column:1/-1;grid-template-columns:repeat(2,1fr)!important}
+  .profile-readiness-grid{grid-template-columns:repeat(2,1fr)}
+  .profile-readiness-grid span:nth-child(2){border-right:0}
+  .profile-readiness-grid span{border-bottom:1px solid rgba(255,255,255,.07)}
+  .profile-readiness-grid span:nth-last-child(-n+2){border-bottom:0}
+  .profile-signal-grid{grid-template-columns:1fr}
+}
 /* =========================================================
    TSO 2.0 — HONEST COMMUNITY + RANKINGS
    ========================================================= */
