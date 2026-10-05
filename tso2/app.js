@@ -727,7 +727,7 @@
     const available=parlayRows();
     const valid=new Set(available.map(row=>String(row.key)));
     parlayLegKeys=parlayLegKeys.filter(key=>valid.has(String(key)));
-    if(parlayLegKeys.length>target) parlayLegKeys=parlayLegKeys.slice(0,target);
+    if(target<5&&parlayLegKeys.length>target) parlayLegKeys=parlayLegKeys.slice(0,target);
     if(parlayLegKeys.length<target){
       const needed=target-parlayLegKeys.length;
       parlayLegKeys.push(...chooseParlayRows(needed,parlayLegKeys).map(row=>String(row.key)));
