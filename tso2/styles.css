@@ -3656,8 +3656,9 @@ body{
 .props-board-head-live,
 .props-board-row-live{
   display:grid!important;
-  grid-template-columns:minmax(270px,1.8fr) 82px 92px 110px 76px 84px 76px!important;
+  grid-template-columns:minmax(270px,1.8fr) 76px 72px 72px 78px 92px 92px 106px 82px 76px!important;
   align-items:center!important;
+  column-gap:8px!important;
 }
 .props-board-head-live{
   min-height:42px;
@@ -3673,6 +3674,43 @@ body{
 }
 .props-board-row-live:last-child{border-bottom:0}
 .props-board-row-live:hover{background:rgba(255,216,77,.018)}
+.props-board-row-live.has-model{background:linear-gradient(90deg,rgba(123,92,255,.035),transparent 36%)}
+.props-board-row-live.has-model:hover{background:linear-gradient(90deg,rgba(123,92,255,.055),rgba(255,216,77,.016) 42%,transparent)}
+.props-model-prob{color:#d7ccff!important}
+.props-model-empty{color:#515c67!important}
+.props-edge-value{font-size:9px!important}
+.props-edge-value.negative{color:#ff9778!important}
+.props-model-tag{
+  min-height:24px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:max-content;
+  max-width:86px;
+  padding:0 7px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#090d12;
+  color:#7a8590;
+  font-size:6px;
+  font-weight:950;
+  letter-spacing:.05em;
+  white-space:nowrap;
+}
+.props-model-tag.is-strong{
+  border-color:rgba(79,227,155,.22);
+  background:rgba(79,227,155,.04);
+  color:#70e8ab;
+}
+.props-model-tag.is-model{
+  border-color:rgba(123,92,255,.22);
+  background:rgba(123,92,255,.045);
+  color:#b6a5ff;
+}
+.props-model-tag.is-neutral{color:#9aa4af}
+.props-model-tag.is-market-only{color:#5e6975}
+.prop-edge-ring.has-model{
+  box-shadow:0 0 0 1px rgba(123,92,255,.15),0 0 34px rgba(123,92,255,.09);
+}
 .props-board-player-live{
   display:flex!important;
   align-items:center!important;
@@ -3739,7 +3777,7 @@ body{
 
 @media(max-width:1180px){
   .props-board-live{overflow-x:auto}
-  .props-board-head-live,.props-board-row-live{min-width:920px}
+  .props-board-head-live,.props-board-row-live{min-width:1240px}
 }
 @media(max-width:900px){
   .props-feed-badge{display:none}
