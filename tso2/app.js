@@ -276,6 +276,7 @@
     renderGlobalScoreStrip();
     renderHomeLiveData();
     renderLiveCenter();
+    renderProfile();
     const status = document.querySelector('.market-status');
     if(status) status.innerHTML = '<span class="status-dot"></span> LIVE SCORES CONNECTED';
   }
@@ -302,6 +303,7 @@
         if(badge){ badge.textContent='SCORE FEED UNAVAILABLE'; badge.classList.add('is-error'); }
         const meta = document.querySelector('[data-live-filter-meta]');
         if(meta) meta.innerHTML='<span class="live-pulse is-idle"></span><b>FEED OFFLINE</b><span>·</span><small>Retrying automatically</small>';
+        renderProfile();
         return null;
       })
       .finally(()=>{ liveFeedInFlight=null; });
@@ -1088,6 +1090,83 @@
     bindMediaFallbacks();
   }
 
+  function profileRows(){
+    return (propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
+  }
+
+  function profileModelRows(){
+    return sortPropsRows(profileRows().filter(row=>Number.isFinite(Number(row?.model?.probabilityPct))));
+  }
+
+  function profileSignalMarkup(row,index){
+    const edge=Number(row?.model?.edgePct);
+    const tone=homeModelTone(row,index);
+    return '<article class="profile-signal-card '+tone+'-card" data-profile-open-model>'
+      +'<div class="concept-card-accent"></div>'
+      +'<div class="profile-signal-top"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+'</span><b>'+esc(modelTagText(row))+'</b></div>'
+      +'<div class="profile-signal-player">'+propHeadshotMarkup(row,'profile-signal-headshot')+'<div><h3>'+esc(row.player)+'</h3><small>'+esc(propSelectionText(row))+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></div></div>'
+      +'<div class="profile-signal-metrics"><span><small>MODEL</small><b>'+pct1(row.model?.probabilityPct)+'</b></span><span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span><span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span></div>'
+      +'<div class="profile-signal-footer"><span><small>BEST</small><b>'+esc(americanPrice(row.price))+' · '+esc(row.book||'—')+'</b></span><strong>OPEN MODEL →</strong></div>'
+    +'</article>';
+  }
+
+  function renderProfile(){
+    const root=document.querySelector('.profile-page[data-profile-route]');
+    if(currentRoute!=='profile'||!root) return;
+
+    const handle=currentUserHandle()||'account';
+    const owner=isOwner();
+    const initials=owner?'JT':handle.split(/[^a-z0-9]+/i).filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'ME';
+    const rows=profileRows();
+    const modeled=profileModelRows();
+    const books=new Set();
+    rows.forEach(row=>(row.books||[{book:row.book}]).forEach(book=>{if(book?.book) books.add(String(book.book));}));
+    const games=(liveFeedCache?.games||[]).filter(game=>currentLeague==='all'||game.league===currentLeague);
+    const newest=propsNewestTimestamp(rows);
+    const freshness=freshnessLabel(newest);
+
+    const avatar=root.querySelector('[data-profile-avatar]');
+    if(avatar) avatar.textContent=initials;
+    const role=root.querySelector('[data-profile-role]');
+    if(role) role.textContent=owner?'OWNER ACCOUNT':'MEMBER ACCOUNT';
+    const handleNode=root.querySelector('[data-profile-handle]');
+    if(handleNode) handleNode.textContent='@'+handle;
+    const context=root.querySelector('[data-profile-context]');
+    if(context) context.textContent=(currentLeague==='all'?'All Sports':leagueLabel(currentLeague))+' context · session identity present · pick history not connected';
+
+    const setText=(sel,value)=>{const node=root.querySelector(sel);if(node)node.textContent=value;};
+    setText('[data-profile-props]',propsFeedCache?String(rows.length):'—');
+    setText('[data-profile-models]',propsFeedCache?String(modeled.length):'—');
+    setText('[data-profile-books]',propsFeedCache?String(books.size):'—');
+    setText('[data-profile-games]',liveFeedCache?String(games.length):'—');
+
+    const status=root.querySelector('[data-profile-status]');
+    if(status){
+      const feedLabel=propsFeedCache&&liveFeedCache?'SPORTS DATA CONNECTED':propsFeedCache?'PROP DATA CONNECTED':liveFeedCache?'SCORE DATA CONNECTED':'CONNECTING SPORTS DATA';
+      status.innerHTML='<div><span class="props-live-dot"></span><b>'+feedLabel+'</b><small>'+(newest?esc(freshness.label)+' · '+esc(ageText(newest))+' old':'waiting for verified snapshots')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' VERIFIED PROPS</b><small>'+modeled.length+' exact model matches</small></div><span class="props-status-divider"></span><div><b>PICK HISTORY OFFLINE</b><small>no fake record or streak</small></div><span class="props-status-divider"></span><div><b>ALERT STATE OFFLINE</b><small>no fake subscriptions</small></div>';
+    }
+
+    const identityState=root.querySelector('[data-profile-identity-state]');
+    if(identityState) identityState.textContent=handle?'CONNECTED':'UNAVAILABLE';
+    const feedState=root.querySelector('[data-profile-feed-state]');
+    if(feedState){
+      feedState.textContent=propsFeedCache&&liveFeedCache?'CONNECTED':propsFeedCache||liveFeedCache?'PARTIAL':'CONNECTING';
+      feedState.classList.toggle('is-partial',Boolean((propsFeedCache||liveFeedCache)&&!(propsFeedCache&&liveFeedCache)));
+    }
+
+    const title=root.querySelector('[data-profile-signals-title]');
+    if(title) title.textContent=modeled.length?(currentLeague==='all'?'All sports':leagueLabel(currentLeague))+' · top current model edges':'No exact model signals for this filter';
+    const signals=root.querySelector('[data-profile-signals]');
+    if(signals){
+      signals.innerHTML=modeled.length
+        ? modeled.slice(0,3).map(profileSignalMarkup).join('')
+        : '<div class="live-board-loading home-model-empty--wide"><div><b>No exact model signals for this filter.</b><small>This area does not substitute fake tracked picks.</small></div></div>';
+    }
+    root.querySelectorAll('[data-profile-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
+    root.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
+    bindMediaFallbacks();
+  }
+
   function renderPropsFeature(root,rows){
     const node=root.querySelector('[data-props-feature]');
     if(!node) return;
@@ -1231,6 +1310,7 @@
       renderParlayLab();
       renderCommunity();
       renderLeaderboard();
+      renderProfile();
       return propsFeedCache;
     }
     propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
@@ -1246,6 +1326,7 @@
         renderParlayLab();
         renderCommunity();
         renderLeaderboard();
+        renderProfile();
         return payload;
       })
       .catch(error=>{
@@ -1277,6 +1358,9 @@
         if(currentRoute==='community'&&communityFeed) communityFeed.innerHTML='<div class="live-board-loading panel"><div><b>Model Pulse unavailable.</b><small>No fake Community activity will be substituted.</small></div></div>';
         const rankingsBoard=document.querySelector('[data-rankings-board]');
         if(currentRoute==='leaderboard'&&rankingsBoard) rankingsBoard.innerHTML='<div class="live-board-loading"><div><b>Real model ranking unavailable.</b><small>User standings remain offline.</small></div></div>';
+        const profileSignals=document.querySelector('.profile-page [data-profile-signals]');
+        if(currentRoute==='profile'&&profileSignals) profileSignals.innerHTML='<div class="live-board-loading home-model-empty--wide"><div><b>Verified model feed unavailable.</b><small>Profile will not substitute fake tracked picks or performance history.</small></div></div>';
+        renderProfile();
         return null;
       })
       .finally(()=>{propsFeedInFlight=null});
@@ -1316,6 +1400,10 @@
 
     document.querySelectorAll('[data-parlay-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
     document.querySelectorAll('[data-community-refresh],[data-rankings-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
+    document.querySelector('[data-profile-refresh]')?.addEventListener('click', () => {
+      refreshLiveData(true);
+      refreshPropsData(true);
+    });
     document.querySelector('[data-parlay-new]')?.addEventListener('click', () => resetParlayBuild());
     document.querySelector('[data-parlay-add]')?.addEventListener('click', () => {
       const next=chooseParlayRows(1,parlayLegKeys)[0];
