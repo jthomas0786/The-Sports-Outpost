@@ -800,17 +800,95 @@
     },
 
     profile(league){
-      return header('MY OUTPOST','Your history, alerts and edge profile','Everything you track, save and follow in one persistent account view.',league,'Edit Profile') +
-      `<section class="profile-hero panel"><div class="profile-avatar">JT</div><div><span class="eyebrow">MEMBER</span><h2>justcallme_jt</h2><p>Tracking NHL · NFL · MLB</p></div><div class="profile-stats"><div><span>RECORD</span><b>68–32</b></div><div><span>WIN RATE</span><b>68%</b></div><div><span>POINTS</span><b class="positive">+34.1</b></div><div><span>STREAK</span><b>W5</b></div></div></section>
-      <section class="split-section">
-        <div class="panel"><div class="section-heading compact-heading"><div><span class="eyebrow">ACTIVE</span><h2>Tracked picks</h2></div><button class="text-action">View all</button></div>
-          <div class="tracked-list"><div><span class="league-badge">NHL</span><div><b>Crosby anytime goal</b><small>+268 · PIT vs PHI</small></div><span class="tracked-status live">LIVE</span></div><div><span class="league-badge">NFL</span><div><b>Barkley anytime TD</b><small>-124 · PHI vs DAL</small></div><span class="tracked-status">8:20 PM</span></div></div>
-        </div>
-        <div class="panel"><div class="section-heading compact-heading"><div><span class="eyebrow">ALERTS</span><h2>Watching for you</h2></div><button class="text-action">Manage</button></div>
-          <div class="alert-list"><div><span>↗</span><div><b>Price move alerts</b><small>4 active markets</small></div><i>ON</i></div><div><span>◎</span><div><b>Model jump alerts</b><small>Confidence +5 or more</small></div><i>ON</i></div><div><span>●</span><div><b>Scoring alerts</b><small>Tracked players</small></div><i>ON</i></div></div>
-        </div>
+      return `
+      <section class="profile-page broadcast-destination" data-profile-route>
+        <section class="destination-hero profile-destination-hero">
+          <div>
+            <span class="destination-kicker">MY OUTPOST · ${leagueName(league)}</span>
+            <h1>Your account without invented history.</h1>
+            <p>Identity and live TSO data are shown now. Records, win rate, points, streaks, tracked picks and alerts stay empty until those systems have real persisted account data.</p>
+          </div>
+          <div class="destination-actions">
+            <button class="button secondary" data-profile-refresh>REFRESH DATA</button>
+            <button class="button primary" data-profile-edit disabled>EDIT PROFILE · COMING SOON</button>
+          </div>
+        </section>
+
+        <section class="profile-hero panel profile-hero--live">
+          <div class="profile-avatar" data-profile-avatar>JT</div>
+          <div class="profile-identity">
+            <span class="eyebrow" data-profile-role>ACCOUNT</span>
+            <h2 data-profile-handle>@justcallme_jt</h2>
+            <p data-profile-context>Reading current session identity…</p>
+          </div>
+          <div class="profile-stats profile-stats--real">
+            <div><span>VERIFIED PROPS</span><b data-profile-props>—</b></div>
+            <div><span>MODEL MATCHES</span><b data-profile-models>—</b></div>
+            <div><span>SPORTSBOOKS</span><b data-profile-books>—</b></div>
+            <div><span>TODAY'S GAMES</span><b data-profile-games>—</b></div>
+          </div>
+        </section>
+
+        <section class="profile-integrity-strip" data-profile-status>
+          <div><span class="props-live-dot"></span><b>CONNECTING ACCOUNT VIEW</b><small>Real feed metrics only</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>RECORD</b><small>not connected</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>POINTS</b><small>not connected</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>ALERTS</b><small>not connected</small></div>
+        </section>
+
+        <section class="split-section profile-state-grid">
+          <article class="panel profile-state-card">
+            <div class="section-heading compact-heading">
+              <div><span class="gold-kicker">TRACKED PICKS</span><h2>Nothing fabricated here.</h2></div>
+              <span class="profile-state-badge">NOT CONNECTED</span>
+            </div>
+            <div class="profile-empty-state">
+              <span>◎</span>
+              <div><b>No persisted tracked-pick history is connected to this account yet.</b><small>When real pick tracking and settlement storage exist, this is where active and completed picks will appear.</small></div>
+            </div>
+          </article>
+
+          <article class="panel profile-state-card">
+            <div class="section-heading compact-heading">
+              <div><span class="violet-kicker">ALERTS</span><h2>No fake subscriptions.</h2></div>
+              <span class="profile-state-badge">NOT CONNECTED</span>
+            </div>
+            <div class="profile-empty-state">
+              <span>♢</span>
+              <div><b>No persisted alert preferences are connected yet.</b><small>Price moves, model changes and scoring alerts will only show ON after real user preferences and delivery state exist.</small></div>
+            </div>
+          </article>
+        </section>
+
+        <section class="profile-readiness panel">
+          <div>
+            <span class="orange-kicker">ACCOUNT DATA READINESS</span>
+            <h2>What this profile can prove today.</h2>
+            <p>TSO separates current session identity and live sports data from future account-history features.</p>
+          </div>
+          <div class="profile-readiness-grid">
+            <span><small>SESSION IDENTITY</small><b data-profile-identity-state>CONNECTED</b></span>
+            <span><small>LIVE SPORTS DATA</small><b data-profile-feed-state>CONNECTING</b></span>
+            <span><small>PICK HISTORY</small><b class="is-offline">NOT CONNECTED</b></span>
+            <span><small>POINTS LEDGER</small><b class="is-offline">NOT CONNECTED</b></span>
+          </div>
+        </section>
+
+        <section class="destination-section profile-signals-section">
+          <div class="destination-section-head">
+            <div><span class="gold-kicker">CURRENT OUTPOST SIGNALS · NOT YOUR PICK HISTORY</span><h2 data-profile-signals-title>Loading real model signals…</h2></div>
+            <button data-route-jump="models">OPEN MODELS →</button>
+          </div>
+          <div class="profile-signal-grid" data-profile-signals>
+            <div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Loading exact model matches…</b></div></div>
+          </div>
+        </section>
       </section>`;
     }
+
   };
 
   window.TSO2Pages = pages;
