@@ -307,6 +307,12 @@
                 <p>Same FGS-Hazard Ensemble v3 used in TSO 1.0 — rebuilt inside the 2.0 command-center layout.</p>
               </div>
             </div>
+            <div class="nhl-scorer-meta" data-nhl-scorer-meta>
+              <span><b>FGS-Hazard Ensemble v3</b><small>competing scoring hazards</small></span>
+              <span><b>TOP 3 + RISKY VALUE</b><small>per team</small></span>
+              <span><b>MARKET ANCHORED</b><small>verified scorer prices</small></span>
+              <span><b>MATCHUP ADJUSTED</b><small>form · defense · goalie · rest</small></span>
+            </div>
             <div class="nhl-scorer-market">
               <span>SCORER MARKET</span>
               <div>
@@ -314,12 +320,6 @@
                 <button data-nhl-scorer-market="atg">ANYTIME GOAL</button>
               </div>
             </div>
-          </div>
-          <div class="nhl-scorer-meta" data-nhl-scorer-meta>
-            <span><b>FGS-Hazard Ensemble v3</b><small>competing scoring hazards</small></span>
-            <span><b>TOP 3 + RISKY VALUE</b><small>per team</small></span>
-            <span><b>MARKET ANCHORED</b><small>verified scorer prices</small></span>
-            <span><b>MATCHUP ADJUSTED</b><small>form · defense · goalie · rest</small></span>
           </div>
           <div class="nhl-scorer-body" data-nhl-scorer-body>
             <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading the real NHL scorer model…</b><small>Same generated board used by TSO 1.0.</small></div></div>
