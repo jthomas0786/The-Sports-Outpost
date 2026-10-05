@@ -421,6 +421,101 @@
 
   const modelSourceText = row => row?.model?.sourceLabel || row?.model?.source || 'TSO MODEL';
 
+  function homeModeledRows(){
+    return allModeledRows().filter(row=>currentLeague==='all'||row.sport===currentLeague);
+  }
+
+  function homeModelTone(row,index=0){
+    if(row?.sport==='nhl') return 'violet';
+    if(row?.sport==='nfl') return 'gold';
+    if(row?.sport==='mlb') return 'orange';
+    return ['violet','gold','orange'][index%3];
+  }
+
+  function homeModelCardMarkup(row,index){
+    const model=row.model||{};
+    const edge=Number(model.edgePct);
+    const tone=homeModelTone(row,index);
+    const source=modelSourceText(row);
+    const tag=modelTagText(row);
+    return '<article class="broadcast-model-card concept-model-card '+tone+'-card">'
+      +'<div class="concept-card-accent"></div>'
+      +'<div class="broadcast-card-top"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</span><b>'+esc(tag)+'</b></div>'
+      +'<div class="concept-model-main"><div class="broadcast-player">'
+        +propHeadshotMarkup(row,'player-number home-model-headshot')
+        +'<div><h3>'+esc(row.player)+'</h3><small>'+esc(row.team||'PLAYER')+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></div>'
+      +'</div><div class="model-badge model-badge--'+tone+'"><small>MODEL</small><strong>'+pct1(model.probabilityPct)+'</strong></div></div>'
+      +'<div class="broadcast-edge concept-metrics"><span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span><span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span><span><small>ODDS</small><b>'+esc(americanPrice(row.price))+'</b></span></div>'
+      +'<div class="concept-confidence home-model-meta"><span>MODEL SOURCE · '+esc(source)+'</span><b>'+esc(row.book||'VERIFIED')+'</b></div>'
+      +'<div class="broadcast-price concept-price"><button data-home-open-model>OPEN MODEL →</button></div>'
+      +'</article>';
+  }
+
+  function renderHomeModels(){
+    if(currentRoute!=='home'||!propsFeedCache) return;
+    const rows=homeModeledRows();
+    const sorted=sortPropsRows(rows);
+    const picks=sorted.slice(0,3);
+    const newest=propsNewestTimestamp(rows.length?rows:allModeledRows());
+    const freshness=freshnessLabel(newest);
+    const picksRoot=document.querySelector('[data-home-picks]');
+    if(picksRoot){
+      if(!rows.length){
+        const nba=currentLeague==='nba';
+        picksRoot.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS · '+(nba?'MARKET ONLY':'REAL MODELS')+'</span><h2>'+(nba?'NBA model not available yet':'No exact model matches right now')+'</h2></div><button data-route-jump="'+(nba?'props':'models')+'">'+(nba?'OPEN PROPS':'ALL MODELS')+' →</button></div>'
+          +'<div class="home-model-empty"><b>'+(nba?'TSO will not invent an NBA model.':'No sportsbook row currently passes the exact model-match rules for this filter.')+'</b><small>'+(nba?'Verified NBA market prices remain available on Props until a real TSO NBA model exists.':'Same player + market + side + exact line is required.')+'</small></div>';
+      }else{
+        picksRoot.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS · REAL MODELS</span><h2>Best exact edges right now</h2></div><button data-route-jump="models">ALL PICKS →</button></div>'
+          +picks.map((row,i)=>{
+            const edge=Number(row.model?.edgePct);
+            const rankClass=i===0?'pick-rank--gold':i===2?'pick-rank--orange':'';
+            return '<button class="concept-pick-row" data-home-open-model>'
+              +'<span class="pick-rank '+rankClass+'">'+(i+1)+'</span>'
+              +'<span class="pick-name pick-name--with-photo">'+propHeadshotMarkup(row,'home-pick-headshot')+'<span><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</small></span></span>'
+              +'<span class="pick-model"><small>MODEL</small><b>'+pct1(row.model?.probabilityPct)+'</b></span>'
+              +'<span class="pick-edge '+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</span>'
+              +'</button>';
+          }).join('')
+          +'<div class="concept-picks-footer"><span>'+rows.length+' exact model match'+(rows.length===1?'':'es')+'</span><b>'+esc(freshness.label)+(newest?' · '+esc(ageText(newest))+' old':'')+'</b></div>';
+      }
+    }
+
+    const board=document.querySelector('[data-home-model-board]');
+    const cards=board?.querySelector('[data-home-model-cards]');
+    const title=board?.querySelector('[data-home-model-title]');
+    if(cards){
+      if(!rows.length){
+        cards.innerHTML='<div class="home-model-empty home-model-empty--wide"><b>'+(currentLeague==='nba'?'NBA remains MARKET ONLY.':'No exact model cards for this filter.')+'</b><small>'+(currentLeague==='nba'?'TSO shows no probability or edge until a real NBA model exists.':'No fake fallback cards are displayed.')+'</small></div>';
+        if(title) title.textContent=currentLeague==='nba'?'NBA · market prices only':'No exact model matches';
+      }else{
+        let selected=[];
+        if(currentLeague==='all'){
+          for(const sport of ['nhl','nfl','mlb']){
+            const top=sortPropsRows(rows.filter(row=>row.sport===sport))[0];
+            if(top) selected.push(top);
+          }
+          if(selected.length<3){
+            for(const row of sorted){
+              if(selected.includes(row)) continue;
+              selected.push(row);
+              if(selected.length===3) break;
+            }
+          }
+        }else{
+          selected=sorted.slice(0,3);
+        }
+        cards.innerHTML=selected.map(homeModelCardMarkup).join('');
+        if(title) title.textContent=currentLeague==='all'?'Top exact match from each live TSO engine':leagueLabel(currentLeague)+' · top exact model matches';
+      }
+    }
+
+    document.querySelectorAll('[data-home-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
+    document.querySelectorAll('[data-route-jump]').forEach(btn=>{
+      if(btn.dataset.routeJump) btn.onclick=()=>setRoute(btn.dataset.routeJump);
+    });
+    bindMediaFallbacks();
+  }
+
   function renderModelsSportSummary(root){
     const node=root.querySelector('[data-models-sport-summary]');
     if(!node) return;
@@ -701,6 +796,7 @@
     if(!force && propsFeedCache && Date.now()-propsFeedFetchedAt < PROPS_FEED_TTL){
       renderPropsFeed();
       renderModelsFeed();
+      renderHomeModels();
       return propsFeedCache;
     }
     propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
@@ -712,6 +808,7 @@
         propsFeedFetchedAt=Date.now();
         renderPropsFeed();
         renderModelsFeed();
+        renderHomeModels();
         return payload;
       })
       .catch(error=>{
@@ -728,6 +825,10 @@
         if(modelsBoard) modelsBoard.innerHTML='<div class="live-board-loading props-empty-board"><b>Real model feed unavailable because the verified Props source could not be loaded. Retrying automatically.</b></div>';
         const modelsFeature=modelsRoot?.querySelector('[data-models-feature]');
         if(modelsFeature){modelsFeature.classList.remove('live-feed-loading');modelsFeature.innerHTML='<div class="live-feed-empty"><div><b>Model feed unavailable.</b><small>TSO will not substitute preview values while the real source is unavailable.</small></div></div>';}
+        const homePicks=document.querySelector('[data-home-picks]');
+        if(currentRoute==='home'&&homePicks) homePicks.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS</span><h2>Model feed unavailable</h2></div></div><div class="home-model-empty"><b>Real model data could not be loaded.</b><small>TSO will not fall back to preview picks.</small></div>';
+        const homeCards=document.querySelector('[data-home-model-cards]');
+        if(currentRoute==='home'&&homeCards) homeCards.innerHTML='<div class="home-model-empty home-model-empty--wide"><b>Real model cards unavailable.</b><small>Retrying automatically.</small></div>';
         return null;
       })
       .finally(()=>{propsFeedInFlight=null});
