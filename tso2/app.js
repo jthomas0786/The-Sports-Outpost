@@ -364,22 +364,64 @@
     return Number.isFinite(line) ? side+' '+line : side;
   }
 
+  function americanImpliedPct(value){
+    const n=Number(value);
+    if(!Number.isFinite(n)||n===0)return null;
+    return n<0?((-n)/((-n)+100))*100:(100/(n+100))*100;
+  }
+
+  function propsRepriceToBook(row,bookName){
+    if(!bookName)return row;
+    const book=(row.books||[]).find(b=>String(b?.book||'').toLowerCase()===String(bookName).toLowerCase());
+    if(!book)return null;
+    const implied=americanImpliedPct(book.price);
+    const model=row.model&&Number.isFinite(Number(row.model.probabilityPct))
+      ? {...row.model,marketProbabilityPct:implied,edgePct:Number.isFinite(implied)?Number(row.model.probabilityPct)-implied:null}
+      : row.model||null;
+    return {...row,book:book.book,price:book.price,link:book.link||null,sid:book.sid||null,snapshotTime:book.snapshotTime||row.snapshotTime,preserved:book.preserved===true,priceKind:book.priceKind||row.priceKind,impliedPct:implied,model};
+  }
+
+  function propsSortMode(root){
+    return String(root?.querySelector('[data-props-sort]')?.value||'edge');
+  }
+
+  function sortPropsToolRows(rows,mode='edge'){
+    const copy=[...rows];
+    if(mode==='model')return copy.sort((a,b)=>(Number(b?.model?.probabilityPct)||-1)-(Number(a?.model?.probabilityPct)||-1));
+    if(mode==='books')return copy.sort((a,b)=>(Number(b.bookCount)||0)-(Number(a.bookCount)||0)||String(a.player||'').localeCompare(String(b.player||'')));
+    if(mode==='price')return copy.sort((a,b)=>(Number(b.price)||-999999)-(Number(a.price)||-999999));
+    if(mode==='fresh')return copy.sort((a,b)=>(Date.parse(b.snapshotTime||'')||0)-(Date.parse(a.snapshotTime||'')||0));
+    if(mode==='player')return copy.sort((a,b)=>String(a.player||'').localeCompare(String(b.player||''))||String(a.marketLabel||a.market||'').localeCompare(String(b.marketLabel||b.market||'')));
+    return sortPropsRows(copy);
+  }
+
+
   function currentPropsRows(){
     const root=document.querySelector('[data-props-route]');
     if(!root || !propsFeedCache) return [];
     const search=String(root.querySelector('[data-props-search]')?.value||'').trim().toLowerCase();
     const market=String(root.querySelector('[data-props-market-filter]')?.value||'');
     const book=String(root.querySelector('[data-props-book-filter]')?.value||'').toLowerCase();
-    return (propsFeedCache.rows||[]).filter(row => {
-      if(currentLeague!=='all' && row.sport!==currentLeague) return false;
-      if(market && row.market!==market) return false;
+    const side=String(root.querySelector('[data-props-side-filter]')?.value||'');
+    const modelFilter=String(root.querySelector('[data-props-model-filter]')?.value||'');
+    return (propsFeedCache.rows||[]).flatMap(original => {
+      if(currentLeague!=='all' && original.sport!==currentLeague) return [];
+      if(market && original.market!==market) return [];
+      if(side && original.side!==side) return [];
+      const hasModel=Number.isFinite(Number(original?.model?.probabilityPct));
+      if(modelFilter==='modeled'&&!hasModel) return [];
+      if(modelFilter==='market'&&hasModel) return [];
+      let row=original;
       if(book){
-        const hasBook=(row.books||[{book:row.book}]).some(b=>String(b?.book||'').toLowerCase()===book);
-        if(!hasBook) return false;
+        row=propsRepriceToBook(original,book);
+        if(!row)return [];
       }
-      if(!search) return true;
-      return [row.player,row.team,row.market,row.marketLabel,row.homeTeam,row.awayTeam,row.book,propSelectionText(row)]
-        .filter(Boolean).join(' ').toLowerCase().includes(search);
+      if(search){
+        const matches=[row.player,row.team,row.market,row.marketLabel,row.homeTeam,row.awayTeam,row.book,propSelectionText(row),row.line]
+          .filter(v=>v!==null&&v!==undefined&&v!=='').join(' ').toLowerCase().includes(search);
+        if(!matches)return [];
+      }
+      return [row];
     });
   }
 
@@ -678,11 +720,17 @@
   };
 
   function parlayRows(){
-    return allModeledRows().filter(row=>{
+    return (propsFeedCache?.rows||[]).filter(row=>{
       if(currentLeague!=='all'&&row.sport!==currentLeague) return false;
+      if(!Number.isFinite(Number(row.price))||Number(row.price)===0)return false;
+      if(String(row.sourceFile||'').toLowerCase()==='nfl-live-odds.json')return false;
       const phase=String(row?.model?.phase||'pregame').toLowerCase();
-      return phase==='pregame' && Number.isFinite(Number(row.price)) && Number(row.price)!==0;
+      return phase==='pregame';
     });
+  }
+
+  function autoParlayRows(){
+    return parlayRows().filter(row=>Number.isFinite(Number(row?.model?.probabilityPct)));
   }
 
   function parlayRowByKey(key){
@@ -699,7 +747,9 @@
 
   function parlayCandidateRows(excludedKeys=[]){
     const excluded=new Set(excludedKeys.map(String));
-    return sortPropsRows(parlayRows().filter(row=>!excluded.has(String(row.key))));
+    const modeled=autoParlayRows().filter(row=>!excluded.has(String(row.key)));
+    const base=modeled.length?modeled:parlayRows().filter(row=>!excluded.has(String(row.key)));
+    return sortPropsRows(base);
   }
 
   function chooseParlayRows(target=3,excludedKeys=[]){
@@ -787,31 +837,34 @@
   }
 
   function parlayCombinedMath(rows){
-    let model=1,market=1,valid=rows.length>0;
+    let model=1,market=1;
+    let modelValid=rows.length>0,marketValid=rows.length>0;
     for(const row of rows){
       const mp=Number(row?.model?.probabilityPct),ip=Number(row.impliedPct);
-      if(!Number.isFinite(mp)||!Number.isFinite(ip)){valid=false;break;}
-      model*=mp/100;
-      market*=ip/100;
+      if(Number.isFinite(ip))market*=ip/100;else marketValid=false;
+      if(Number.isFinite(mp))model*=mp/100;else modelValid=false;
     }
-    return valid ? {modelPct:model*100,marketPct:market*100,deltaPct:(model-market)*100} : {modelPct:null,marketPct:null,deltaPct:null};
+    const marketPct=marketValid?market*100:null;
+    const modelPct=modelValid?model*100:null;
+    return {modelPct,marketPct,deltaPct:Number.isFinite(modelPct)&&Number.isFinite(marketPct)?modelPct-marketPct:null};
   }
 
   function parlayLegMarkup(row,index,weakKey){
-    const model=row.model||{};
-    const edge=Number(model.edgePct);
-    const weak=String(row.key)===String(weakKey);
-    return '<div class="parlay-leg '+(weak?'parlay-leg--weak':'parlay-leg--strong')+'" data-parlay-leg-key="'+esc(row.key)+'">'
+    const model=row.model||null;
+    const hasModel=Number.isFinite(Number(model?.probabilityPct));
+    const edge=hasModel?Number(model.edgePct):null;
+    const weak=hasModel&&String(row.key)===String(weakKey);
+    return '<div class="parlay-leg '+(weak?'parlay-leg--weak':hasModel?'parlay-leg--strong':'parlay-leg--market')+'" data-parlay-leg-key="'+esc(row.key)+'">'
       +'<div class="parlay-leg-index">'+String(index+1).padStart(2,'0')+'</div>'
       +'<div class="parlay-leg-main"><div class="parlay-leg-identity">'+propHeadshotMarkup(row,'parlay-leg-headshot')+'<div>'
-        +'<div class="parlay-leg-meta"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+'</span><b>'+(weak?'WEAKEST EDGE':esc(modelTagText(row)))+'</b></div>'
+        +'<div class="parlay-leg-meta"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+'</span><b>'+(weak?'WEAKEST EDGE':hasModel?esc(modelTagText(row)):'MARKET ONLY')+'</b></div>'
         +'<h3>'+esc(row.player)+' · '+esc(propSelectionText(row))+'</h3>'
         +'<small>'+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+' · exact selection</small>'
       +'</div></div>'
       +'<div class="parlay-leg-metrics">'
-        +'<span><small>MODEL</small><b>'+pct1(model.probabilityPct)+'</b></span>'
+        +'<span><small>MODEL</small><b>'+(hasModel?pct1(model.probabilityPct):'—')+'</b></span>'
         +'<span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span>'
-        +'<span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span>'
+        +'<span><small>EDGE</small><b class="'+(hasModel?(edge>=0?'positive':'negative'):'')+'">'+(hasModel?edgeText(edge):'—')+'</b></span>'
         +'<span><small>BOOKS</small><b>'+esc(row.bookCount||row.books?.length||1)+'</b></span>'
       +'</div></div>'
       +'<div class="parlay-leg-price"><span>BEST</span><strong>'+esc(americanPrice(row.price))+'</strong><small>'+esc(row.book||'BOOK')+'</small></div>'
@@ -937,20 +990,21 @@
     if(currentRoute!=='parlays'||!root||!propsFeedCache) return;
     fillParlayToTarget(parlayTarget);
     const rows=parlayLegRows();
-    const sortedWeak=[...rows].sort((a,b)=>Number(a.model?.edgePct)-Number(b.model?.edgePct));
+    const sortedWeak=rows.filter(row=>Number.isFinite(Number(row?.model?.edgePct))).sort((a,b)=>Number(a.model?.edgePct)-Number(b.model?.edgePct));
     const weakest=sortedWeak[0]||null;
+    const marketOnlyCount=rows.filter(row=>!Number.isFinite(Number(row?.model?.probabilityPct))).length;
     const newest=propsNewestTimestamp(parlayRows());
     const freshness=freshnessLabel(newest);
     const allBooks=new Set();
     parlayRows().forEach(row=>(row.books||[]).forEach(book=>{if(book?.book)allBooks.add(String(book.book))}));
 
     const status=root.querySelector('[data-parlay-status]');
-    if(status) status.innerHTML='<div><span class="parlays-preview-dot"></span><b>REAL EXACT-SELECTION FEED</b><small>'+esc(freshness.label)+(newest?' · '+esc(ageText(newest))+' old':'')+'</small></div><span class="parlays-status-divider"></span><div><b>'+parlayRows().length+' MODELED</b><small>pregame exact matches</small></div><span class="parlays-status-divider"></span><div><b>'+allBooks.size+' BOOKS</b><small>verified exact prices</small></div><span class="parlays-status-divider"></span><div><b>NO SUBSTITUTIONS</b><small>same line + side only</small></div>';
+    if(status) status.innerHTML='<div><span class="parlays-preview-dot"></span><b>REAL EXACT-SELECTION FEED</b><small>'+esc(freshness.label)+(newest?' · '+esc(ageText(newest))+' old':'')+'</small></div><span class="parlays-status-divider"></span><div><b>'+parlayRows().length+' EXACT</b><small>'+autoParlayRows().length+' modeled</small></div><span class="parlays-status-divider"></span><div><b>'+allBooks.size+' BOOKS</b><small>verified exact prices</small></div><span class="parlays-status-divider"></span><div><b>NO SUBSTITUTIONS</b><small>same line + side only</small></div>';
 
     const legs=root.querySelector('[data-parlay-legs]');
-    if(legs) legs.innerHTML=rows.length ? rows.map((row,i)=>parlayLegMarkup(row,i,weakest?.key)).join('') : '<div class="live-board-loading"><div><b>No exact modeled selections for this sport filter.</b><small>NBA is market-only until a TSO model exists. Open Props to view verified prices.</small></div></div>';
+    if(legs) legs.innerHTML=rows.length ? rows.map((row,i)=>parlayLegMarkup(row,i,weakest?.key)).join('') : '<div class="live-board-loading"><div><b>No exact selections in the current build.</b><small>Add verified props from the Player Prop Tool. Model probabilities remain blank for market-only legs.</small></div></div>';
     const buildTitle=root.querySelector('[data-parlay-build-title]');
-    if(buildTitle) buildTitle.textContent=rows.length+'-leg exact model parlay';
+    if(buildTitle) buildTitle.textContent=rows.length+'-leg exact '+(marketOnlyCount?'selection':'model')+' parlay';
 
     root.querySelectorAll('[data-parlay-target]').forEach(btn=>btn.classList.toggle('is-active',Number(btn.dataset.parlayTarget)===parlayTarget));
 
@@ -975,13 +1029,13 @@
     const combinedEdge=root.querySelector('[data-parlay-combined-edge]');
     if(combinedEdge){
       combinedEdge.textContent=Number.isFinite(math.deltaPct)?edgeText(math.deltaPct):'—';
-      combinedEdge.className=Number(math.deltaPct)>=0?'positive':'negative';
+      combinedEdge.className=Number.isFinite(math.deltaPct)?(Number(math.deltaPct)>=0?'positive':'negative'):'';
     }
 
     const healthTitle=root.querySelector('[data-parlay-health-title]');
     const healthCopy=root.querySelector('[data-parlay-health-copy]');
-    if(healthTitle) healthTitle.textContent=!rows.length?'No modeled legs':overlap.hasOverlap?'Exact legs · review overlap':bestCommon?'Exact build ready':'Exact legs · split books';
-    if(healthCopy) healthCopy.textContent=!rows.length?'No modeled rows are available for this filter.':overlap.hasOverlap?'Same-event or same-player overlap exists. Combined probability remains an unadjusted independent estimate.':bestCommon?'All legs exist exactly at '+bestCommon.name+'. Combined probability is still labeled as an independent-leg estimate.':'The legs are exact, but no single sportsbook currently carries every exact selection.';
+    if(healthTitle) healthTitle.textContent=!rows.length?'No legs yet':marketOnlyCount?'Exact build · market-only leg'+(marketOnlyCount===1?'':'s'):overlap.hasOverlap?'Exact legs · review overlap':bestCommon?'Exact build ready':'Exact legs · split books';
+    if(healthCopy) healthCopy.textContent=!rows.length?'Add exact selections from Player Props.':marketOnlyCount?marketOnlyCount+' leg'+(marketOnlyCount===1?' is':'s are')+' market-only, so TSO leaves combined model probability and model delta blank instead of inventing them.':overlap.hasOverlap?'Same-event or same-player overlap exists. Combined probability remains an unadjusted independent estimate.':bestCommon?'All legs exist exactly at '+bestCommon.name+'. Combined probability is still labeled as an independent-leg estimate.':'The legs are exact, but no single sportsbook currently carries every exact selection.';
 
     const checks=root.querySelector('[data-parlay-checks]');
     if(checks){
@@ -1553,6 +1607,35 @@
     bindMediaFallbacks();
   }
 
+  function renderPropsMarketRail(root,rows){
+    const rail=root.querySelector('[data-props-market-rail]');
+    if(!rail)return;
+    const all=(propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
+    const counts=new Map();
+    for(const row of all){
+      const key=String(row.market||'');
+      if(!key)continue;
+      const item=counts.get(key)||{key,label:row.marketLabel||row.market,count:0,modeled:0};
+      item.count++;
+      if(Number.isFinite(Number(row?.model?.probabilityPct)))item.modeled++;
+      counts.set(key,item);
+    }
+    const active=String(root.querySelector('[data-props-market-filter]')?.value||'');
+    const items=[...counts.values()].sort((a,b)=>b.count-a.count||String(a.label).localeCompare(String(b.label)));
+    rail.innerHTML='<button class="props-market-chip '+(!active?'is-active':'')+'" data-props-market-chip=""><b>ALL MARKETS</b><span>'+all.length+'</span><small>'+all.filter(r=>Number.isFinite(Number(r?.model?.probabilityPct))).length+' modeled</small></button>'
+      +items.map(item=>'<button class="props-market-chip '+(active===item.key?'is-active':'')+'" data-props-market-chip="'+esc(item.key)+'"><b>'+esc(String(item.label).toUpperCase())+'</b><span>'+item.count+'</span><small>'+item.modeled+' modeled</small></button>').join('');
+    rail.querySelectorAll('[data-props-market-chip]').forEach(btn=>btn.onclick=()=>{
+      const select=root.querySelector('[data-props-market-filter]');
+      if(select)select.value=btn.dataset.propsMarketChip||'';
+      renderPropsFeed();
+    });
+    const summary=root.querySelector('[data-props-filter-summary]');
+    if(summary){
+      const players=new Set(rows.map(r=>String(r.player||'').toLowerCase())).size;
+      summary.textContent=rows.length+' selections · '+players+' players · '+items.length+' market'+(items.length===1?'':'s');
+    }
+  }
+
   function renderPropsFeature(root,rows){
     const node=root.querySelector('[data-props-feature]');
     if(!node) return;
@@ -1605,7 +1688,7 @@
   function renderPropsBoard(root,rows){
     const board=root.querySelector('[data-props-board]');
     if(!board) return;
-    const visible=sortPropsRows(rows).slice(0,160);
+    const visible=sortPropsToolRows(rows,propsSortMode(root)).slice(0,200);
     if(!visible.length){
       board.innerHTML='<div class="live-board-loading props-empty-board"><b>No verified sportsbook selections for '+esc(currentLeague==='all'?'this filter':leagueLabel(currentLeague))+'.</b></div>';
       return;
@@ -1614,19 +1697,25 @@
       const model=row.model||null;
       const hasModel=Number.isFinite(Number(model?.probabilityPct));
       const edge=hasModel?Number(model.edgePct):null;
-      return '<div class="props-board-row props-board-row-live '+(hasModel?'has-model':'is-market-only')+'">'
+      const hasResearch=['nhl','nfl','mlb'].includes(String(row.sport));
+      return '<div class="props-board-row props-board-row-live props-board-row-pro '+(hasModel?'has-model':'is-market-only')+'" data-props-row-key="'+esc(row.key)+'">'
         +'<span class="props-board-player props-board-player-live">'+propHeadshotMarkup(row,'props-board-headshot')+'<span><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></span></span>'
         +'<strong>'+esc(propSelectionText(row))+'</strong>'
         +'<strong class="'+(hasModel?'props-model-prob':'props-model-empty')+'">'+(hasModel?pct1(model.probabilityPct):'—')+'</strong>'
         +'<strong>'+esc(pct1(row.impliedPct))+'</strong>'
         +'<strong class="props-edge-value '+(hasModel?(edge>=0?'positive':'negative'):'')+'">'+(hasModel?edgeText(edge):'—')+'</strong>'
         +'<span class="props-model-tag '+(hasModel?modelTagClass(row):'is-market-only')+'">'+esc(hasModel?modelTagText(row):'MARKET ONLY')+'</span>'
-        +'<span class="props-price"><b>'+esc(americanPrice(row.price))+'</b><small>'+esc(row.bookCount||1)+' book'+((row.bookCount||1)===1?'':'s')+'</small></span>'
+        +'<span class="props-price"><b>'+esc(americanPrice(row.price))+'</b><small>'+esc(row.bookCount||row.books?.length||1)+' book'+((row.bookCount||row.books?.length||1)===1?'':'s')+'</small></span>'
         +'<strong class="props-book-name">'+esc(row.book||'—')+'</strong>'
         +'<span class="props-snapshot-age">'+esc(ageText(row.snapshotTime))+'</span>'
-        +(row.link?'<a class="props-native-link" href="'+esc(row.link)+'" target="_blank" rel="noopener">OPEN →</a>':'<span class="props-no-link">NO LINK</span>')
+        +'<span class="props-row-actions">'
+          +'<button data-props-compare="'+esc(row.key)+'">BOOKS</button>'
+          +'<button '+(hasResearch?'':'disabled')+' data-props-research="'+esc(row.key)+'">RESEARCH</button>'
+          +'<button class="is-primary" data-props-parlay="'+esc(row.key)+'">+ PARLAY</button>'
+        +'</span>'
       +'</div>';
     }).join('');
+    bindPropsGeneratedActions();
     bindMediaFallbacks();
   }
 
@@ -1648,6 +1737,70 @@
     }
   }
 
+  function closePropsCompare(){
+    document.querySelector('.props-compare-overlay')?.remove();
+    document.body.classList.remove('props-compare-open');
+  }
+
+  function addPropToParlay(row){
+    if(!row)return;
+    const key=String(row.key||'');
+    if(!key)return;
+    if(!parlayLegKeys.includes(key)){
+      if(parlayLegKeys.length>=8){notify('Parlay Lab supports up to 8 exact selections.');return;}
+      parlayLegKeys.push(key);
+    }
+    parlayTarget=Math.max(2,Math.min(5,parlayLegKeys.length));
+    closePropsCompare();
+    setRoute('parlays');
+    notify(row.player+' '+propSelectionText(row)+' added to Parlay Lab.');
+  }
+
+  function openPropsCompare(row){
+    if(!row)return;
+    closePropsCompare();
+    const original=(propsFeedCache?.rows||[]).find(x=>String(x.key)===String(row.key))||row;
+    const books=[...(original.books||[])].filter(b=>Number.isFinite(Number(b?.price))).sort((a,b)=>Number(b.price)-Number(a.price));
+    const hasModel=Number.isFinite(Number(original?.model?.probabilityPct));
+    const overlay=document.createElement('div');
+    overlay.className='props-compare-overlay';
+    overlay.innerHTML='<div class="props-compare-shell" role="dialog" aria-modal="true">'
+      +'<div class="props-compare-hero"><button class="props-compare-close" data-props-compare-close aria-label="Close">×</button>'
+      +'<div class="props-compare-player">'+propHeadshotMarkup(original,'props-compare-headshot')+'<div><span>'+esc(leagueLabel(original.sport))+' · EXACT BOOK COMPARISON</span><h2>'+esc(original.player)+'</h2><p>'+esc(original.marketLabel||original.market)+' · '+esc(propSelectionText(original))+' · '+esc(original.awayTeam||'')+' @ '+esc(original.homeTeam||'')+'</p></div></div>'
+      +'<div class="props-compare-summary"><span><small>BOOKS</small><b>'+books.length+'</b></span><span><small>MODEL</small><b>'+(hasModel?pct1(original.model.probabilityPct):'—')+'</b></span><span><small>BEST</small><b>'+esc(americanPrice(original.price))+'</b></span></div></div>'
+      +'<div class="props-compare-table"><div class="props-compare-head"><span>SPORTSBOOK</span><span>PRICE</span><span>IMPLIED</span><span>MODEL EDGE</span><span>UPDATED</span><span>ACTION</span></div>'
+      +(books.length?books.map((book,index)=>{
+        const implied=americanImpliedPct(book.price);
+        const edge=hasModel&&Number.isFinite(implied)?Number(original.model.probabilityPct)-implied:null;
+        return '<div class="props-compare-row '+(index===0?'is-best':'')+'"><span><b>'+esc(book.book||'Sportsbook')+'</b><small>'+(index===0?'BEST VERIFIED PRICE':'exact selection')+'</small></span><strong>'+esc(americanPrice(book.price))+'</strong><strong>'+pct1(implied)+'</strong><strong class="'+(Number.isFinite(edge)?(edge>=0?'positive':'negative'):'')+'">'+(Number.isFinite(edge)?edgeText(edge):'—')+'</strong><span>'+esc(ageText(book.snapshotTime||original.snapshotTime))+'</span>'+(book.link?'<a href="'+esc(book.link)+'" target="_blank" rel="noopener">OPEN →</a>':'<em>NO LINK</em>')+'</div>';
+      }).join(''):'<div class="research-detail-empty"><b>No exact sportsbook rows are attached to this selection.</b></div>')+'</div>'
+      +'<div class="props-compare-footer"><div><span>EXACT PLAYER + MARKET + SIDE + LINE</span><small>'+(hasModel?'Edge recalculated independently for every sportsbook price.':'Market-only selection · no model probability invented.')+'</small></div><div><button data-props-compare-research '+(['nhl','nfl','mlb'].includes(String(original.sport))?'':'disabled')+'>DEEP RESEARCH</button><button class="is-primary" data-props-compare-parlay>+ PARLAY LAB</button></div></div>'
+      +'</div>';
+    document.body.appendChild(overlay);
+    document.body.classList.add('props-compare-open');
+    overlay.querySelector('[data-props-compare-close]')?.addEventListener('click',closePropsCompare);
+    overlay.addEventListener('click',event=>{if(event.target===overlay)closePropsCompare();});
+    overlay.querySelector('[data-props-compare-research]')?.addEventListener('click',()=>{closePropsCompare();openResearchDetail(original);});
+    overlay.querySelector('[data-props-compare-parlay]')?.addEventListener('click',()=>addPropToParlay(original));
+    bindMediaFallbacks();
+  }
+
+  function bindPropsGeneratedActions(){
+    document.querySelectorAll('[data-props-compare]').forEach(btn=>btn.onclick=event=>{
+      event.stopPropagation();
+      openPropsCompare(researchRowByKey(btn.dataset.propsCompare));
+    });
+    document.querySelectorAll('[data-props-research]').forEach(btn=>btn.onclick=event=>{
+      event.stopPropagation();
+      const row=researchRowByKey(btn.dataset.propsResearch);
+      if(row)openResearchDetail(row);
+    });
+    document.querySelectorAll('[data-props-parlay]').forEach(btn=>btn.onclick=event=>{
+      event.stopPropagation();
+      addPropToParlay(researchRowByKey(btn.dataset.propsParlay));
+    });
+  }
+
   function renderPropsFeed(){
     const root=document.querySelector('[data-props-route]');
     if(currentRoute!=='props' || !root || !propsFeedCache) return;
@@ -1667,7 +1820,8 @@
     const modelMatched=rows.filter(row=>Number.isFinite(Number(row?.model?.probabilityPct))).length;
     const status=root.querySelector('[data-props-status]');
     if(status){
-      status.innerHTML='<div><span class="props-live-dot"></span><b>VERIFIED SPORTSBOOK + MODEL DATA</b></div><span class="props-status-divider"></span><div><b>'+rows.length+'</b><small>exact selections</small></div><span class="props-status-divider"></span><div><b>'+modelMatched+'</b><small>model matched</small></div><span class="props-status-divider"></span><div><b>'+books.size+'</b><small>sportsbooks</small></div><span class="props-status-divider"></span><div><b>'+esc(newest?ageText(newest):'—')+'</b><small>source freshness</small></div>';
+      const players=new Set(rows.map(row=>String(row.player||'').toLowerCase())).size;
+      status.innerHTML='<div><span class="props-live-dot"></span><b>UNIVERSAL PROP ENGINE</b><small>exact sportsbook selections</small></div><span class="props-status-divider"></span><div><b>'+rows.length+'</b><small>exact selections</small></div><span class="props-status-divider"></span><div><b>'+players+'</b><small>players</small></div><span class="props-status-divider"></span><div><b>'+modelMatched+'</b><small>model matched</small></div><span class="props-status-divider"></span><div><b>'+books.size+'</b><small>sportsbooks</small></div><span class="props-status-divider"></span><div><b>'+esc(newest?ageText(newest):'—')+'</b><small>source freshness</small></div>';
     }
     const title=root.querySelector('[data-props-board-title]');
     if(title) title.textContent=(currentLeague==='all'?'All sports':leagueLabel(currentLeague))+' · '+rows.length+' verified · '+modelMatched+' exact model matches';
@@ -1682,7 +1836,8 @@
     const preservedNode=root.querySelector('[data-props-preserved]');
     if(preservedNode) preservedNode.textContent=String(preserved);
 
-    renderPropsFeature(root,rows);
+    renderPropsMarketRail(root,rows);
+    renderPropsFeature(root,sortPropsToolRows(rows,propsSortMode(root)));
     renderPropsBooks(root,rows);
     renderPropsBoard(root,rows);
   }
@@ -1827,6 +1982,9 @@
     document.querySelector('[data-props-search]')?.addEventListener('input', () => renderPropsFeed());
     document.querySelector('[data-props-market-filter]')?.addEventListener('change', () => renderPropsFeed());
     document.querySelector('[data-props-book-filter]')?.addEventListener('change', () => renderPropsFeed());
+    document.querySelector('[data-props-side-filter]')?.addEventListener('change', () => renderPropsFeed());
+    document.querySelector('[data-props-model-filter]')?.addEventListener('change', () => renderPropsFeed());
+    document.querySelector('[data-props-sort]')?.addEventListener('change', () => renderPropsFeed());
     bindMediaFallbacks();
   }
 
@@ -1896,7 +2054,7 @@
   });
 
   document.addEventListener('keydown', event => {
-    if(event.key === 'Escape'){ closeProfileMenu(); closeResearchDetail(); }
+    if(event.key === 'Escape'){ closeProfileMenu(); closeResearchDetail(); closePropsCompare(); }
   });
 
   syncOwnerTools();
