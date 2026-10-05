@@ -326,6 +326,183 @@ Once verified NBA game-log/research sources are connected, NBA must use the same
 
 ---
 
+
+## 16. Universal Player Prop Tool — TSO 1.0 decision-information parity
+
+### Reference behavior
+The TSO 1.0 prop board exposed the decision-making fields together in one dense research view. TSO 2.0 must preserve that information depth while redesigning the presentation.
+
+### Shared 2.0 prop intelligence schema
+Every sport uses this same conceptual sequence when verified data exists:
+
+1. **Player**
+   - headshot
+   - team
+   - opponent / matchup
+   - game date/time
+
+2. **Prop Line**
+   - exact market
+   - exact threshold
+   - exact side
+
+3. **Pick / Best Book**
+   - sportsbook identity
+   - selected side + exact line
+   - best verified price
+   - native sportsbook link when supplied
+
+4. **Projection**
+   - model projection
+   - difference vs exact line
+   - projection source / freshness
+
+5. **L10 Average**
+   - exact stat average over the verified last-10 sample
+
+6. **Cover Probability**
+   - genuine model probability of the selected side covering the exact line
+   - grade / confidence visual only when supported by a real model
+
+7. **Edge**
+   - model cover probability minus exact-book implied probability
+   - recalculated independently for the selected sportsbook
+
+8. **Defense vs Prop**
+   - opponent allowance for the relevant stat / position / market
+   - qualitative read (Great / Good / Neutral / Poor) derived from the real source
+   - sample / season context visible
+
+9. **Matchup**
+   - sport-aware player-vs-opponent matchup verdict
+   - team/opponent identity
+   - position / role context
+   - no generic matchup grade without a source-backed basis
+
+10. **Sim Defense**
+    - simulation defensive stop / suppression probability where an actual simulation field exists
+    - unavailable state when the model does not supply this field
+
+11. **L5**
+    - exact-line selected-side record
+    - e.g. 4/5 UNDER, 3/5 OVER
+
+12. **L10**
+    - exact-line selected-side record
+
+13. **H2H**
+    - verified head-to-head exact-line record vs the current opponent
+    - never infer H2H from unrelated season totals
+
+### Desktop presentation
+- Preserve the dense professional-table feel from 1.0.
+- Use a horizontally scrollable command table when necessary rather than deleting useful columns.
+- Freeze / visually anchor the player identity column.
+- Keep column headers aligned with every row.
+- Sorting is available on the research metrics where meaningful.
+- Color is semantic:
+  - positive / favorable
+  - neutral
+  - negative / unfavorable
+  - no decorative green/red that implies unsupported conclusions.
+
+### Mobile presentation
+Do **not** force the entire desktop table into a tiny unreadable grid.
+
+Use:
+- compact player + exact-pick summary card,
+- primary projection / cover probability / edge strip,
+- L5 / L10 / H2H quick row,
+- expandable research tray for defense, matchup, simulation, usage and charts.
+
+The mobile information must be the **same information**, reorganized rather than removed.
+
+### Sport-specific mapping
+
+#### NFL
+Add / surface:
+- pass / rush / receiving projection
+- snaps
+- target share / carry share
+- routes / usage where sourced
+- red-zone work
+- defense allowed by position / prop
+- exact-line L5 / L10 / H2H
+- role / usage ring
+- workload-mix visual
+- player-vs-defense comparison bars
+- simulation distribution where real simulation data exists
+
+#### NHL
+Add / surface:
+- SOG / goals / assists / points / blocks / saves projection
+- TOI / recent TOI
+- shot / scoring / assist rates
+- opponent shots / goals allowed
+- goalie context
+- exact-line L5 / L10 / H2H
+- recent-game exact-line chart
+- matchup factor visual
+- simulation / distribution only when genuinely supplied
+
+#### MLB
+Add / surface:
+- hits / total bases / HR / RBI / H+R+RBI / SB and supported pitching props
+- exact projection vs line
+- L10 average
+- exact-line L5 / L10 / H2H when verified
+- probable pitcher
+- handedness / platoon split
+- BvP with sample-size warning
+- Statcast quality
+- pitch mix / arsenal
+- zone matchup
+- park factor
+- weather / wind
+- recent-game exact-line chart
+- Statcast and pitch-zone visual suite
+
+#### NBA
+Required parity once verified NBA research is connected:
+- points / rebounds / assists / threes / PRA and supported combinations
+- projection vs exact line
+- L10 average
+- exact-line L5 / L10 / H2H
+- minutes
+- usage
+- starter / bench role
+- injuries / lineup context
+- opponent positional defense
+- pace
+- role / minutes trend
+- matchup comparison
+- distribution only after a genuine NBA model/simulation feed exists
+
+### Visual detail tied to each prop row
+The INTEL / Deep Research experience should include the redesigned 2.0 versions of:
+- exact-line recent-game bar chart,
+- projection vs line comparison,
+- L5 / L10 / H2H hit-rate visualization,
+- player vs opponent comparison bars,
+- role / usage visualization,
+- model / market probability comparison,
+- simulation distribution where real data exists,
+- sportsbook price / line movement timeline,
+- sport-specific visual modules (Statcast, pitch zones, goalie/defense context, etc.).
+
+### Integrity rules
+- Exact player + market + side + threshold only.
+- No nearby-line historical substitution.
+- No fake projection.
+- No fake cover probability.
+- No fake defense grade.
+- No fake simulation stop percentage.
+- No fake H2H.
+- If one field is unsupported for a sport/market, show **— / unavailable** while keeping the rest of the row useful.
+- Market-only rows remain usable but do not pretend to have a TSO model.
+
+**Status:** HARD REQUIREMENT / UNIVERSAL PROP MIGRATION IN PROGRESS
+
 # Migration order
 
 1. Shared 2.0 chart shell + exact-line recent-game bars
