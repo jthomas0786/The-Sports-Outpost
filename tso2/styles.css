@@ -3578,3 +3578,170 @@ body{
   }
   .broadcast-score-strip .score-team-logo{width:22px!important;height:22px!important}
 }
+
+
+/* =========================================================
+   TSO 2.0 — VERIFIED PROPS FEED
+   ========================================================= */
+.props-feed-badge{
+  min-height:34px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:0 10px;
+  border:1px solid rgba(255,216,77,.20);
+  background:rgba(255,216,77,.04);
+  color:#ffe16a;
+  font-size:7px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.props-feed-badge i{
+  width:7px;height:7px;border-radius:50%;background:#ffd84d;
+  box-shadow:0 0 10px rgba(255,216,77,.45)
+}
+.props-feed-badge.is-live{
+  border-color:rgba(79,227,155,.24);
+  background:rgba(79,227,155,.04);
+  color:#70e8ab;
+}
+.props-feed-badge.is-live i{background:#4fe39b;box-shadow:0 0 10px rgba(79,227,155,.55)}
+.props-feed-badge.is-recent{
+  border-color:rgba(45,127,255,.22);
+  background:rgba(45,127,255,.04);
+  color:#8eb7ff;
+}
+.props-feed-badge.is-recent i{background:#2d7fff;box-shadow:0 0 10px rgba(45,127,255,.5)}
+.props-feed-badge.is-stale{
+  border-color:rgba(255,156,94,.22);
+  background:rgba(255,156,94,.04);
+  color:#ffad7c;
+}
+.props-feed-badge.is-stale i{background:#ff9c5e;box-shadow:0 0 10px rgba(255,156,94,.45)}
+.props-feed-badge.is-error{
+  border-color:rgba(255,77,28,.24);
+  background:rgba(255,77,28,.05);
+  color:#ff9678;
+}
+.props-feed-badge.is-error i{background:#ff4d1c}
+
+.props-live-feature{min-height:430px}
+.props-live-source{
+  color:#66717d;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.props-link-unavailable{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:0 10px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#090d12;
+  color:#68737f;
+  font-size:7px;
+  font-weight:900;
+  letter-spacing:.06em;
+}
+.props-book-link{text-decoration:none}
+
+.props-book-coverage-row{
+  grid-template-columns:38px minmax(0,1fr) 56px 48px!important;
+  cursor:default!important;
+}
+.props-book-coverage-row:hover{background:transparent!important}
+
+.props-board-live{overflow:hidden}
+.props-board-head-live,
+.props-board-row-live{
+  display:grid!important;
+  grid-template-columns:minmax(270px,1.8fr) 82px 92px 110px 76px 84px 76px!important;
+  align-items:center!important;
+}
+.props-board-head-live{
+  min-height:42px;
+  padding:0 14px;
+}
+.props-board-row-live{
+  width:100%;
+  min-height:78px;
+  padding:0 14px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:transparent;
+  color:#f5f6f8;
+}
+.props-board-row-live:last-child{border-bottom:0}
+.props-board-row-live:hover{background:rgba(255,216,77,.018)}
+.props-board-player-live{
+  display:flex!important;
+  align-items:center!important;
+  gap:10px!important;
+  min-width:0;
+}
+.props-board-player-live>span:last-child{min-width:0}
+.props-board-player-live b{
+  display:block;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+}
+.props-board-player-live small{
+  display:block;
+  margin-top:4px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  color:#606b77;
+  font-size:7px;
+}
+.props-board-headshot{
+  width:42px!important;
+  height:42px!important;
+  border-radius:50%!important;
+}
+.props-book-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:8px!important;
+}
+.props-snapshot-age{
+  color:#7d8894;
+  font-size:8px;
+  font-weight:900;
+}
+.props-native-link,
+.props-no-link{
+  min-height:26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border:1px solid rgba(255,255,255,.08);
+  background:#090d12;
+  font-size:6px;
+  font-weight:900;
+  letter-spacing:.06em;
+  text-decoration:none;
+}
+.props-native-link{
+  color:#ffe16a;
+  border-color:rgba(255,216,77,.18);
+  background:rgba(255,216,77,.035);
+}
+.props-no-link{color:#606b77}
+.props-empty-board{min-height:160px}
+.props-feed-headshot{
+  background:#0b1016!important;
+  border-color:rgba(255,255,255,.13)!important;
+}
+
+@media(max-width:1180px){
+  .props-board-live{overflow-x:auto}
+  .props-board-head-live,.props-board-row-live{min-width:920px}
+}
+@media(max-width:900px){
+  .props-feed-badge{display:none}
+  .props-live-feature{min-height:0}
+}
