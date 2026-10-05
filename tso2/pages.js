@@ -296,6 +296,41 @@
           </button>
         </section>
 
+        ${(league==='nhl'||league==='all')?`
+        <section class="nhl-scorer-command" data-nhl-scorer-shell>
+          <div class="nhl-scorer-hero">
+            <div class="nhl-scorer-title">
+              <span class="nhl-scorer-target">◎</span>
+              <div>
+                <span class="violet-kicker">NHL SCORER MODEL · TSO 1.0 ENGINE</span>
+                <h2>First Goal / Anytime Goal Scorer</h2>
+                <p>Same FGS-Hazard Ensemble v3 used in TSO 1.0 — rebuilt inside the 2.0 command-center layout.</p>
+              </div>
+            </div>
+            <div class="nhl-scorer-market">
+              <span>SCORER MARKET</span>
+              <div>
+                <button class="is-active" data-nhl-scorer-market="fgs">FIRST GOAL</button>
+                <button data-nhl-scorer-market="atg">ANYTIME GOAL</button>
+              </div>
+            </div>
+          </div>
+          <div class="nhl-scorer-meta" data-nhl-scorer-meta>
+            <span><b>FGS-Hazard Ensemble v3</b><small>competing scoring hazards</small></span>
+            <span><b>TOP 3 + RISKY VALUE</b><small>per team</small></span>
+            <span><b>MARKET ANCHORED</b><small>verified scorer prices</small></span>
+            <span><b>MATCHUP ADJUSTED</b><small>form · defense · goalie · rest</small></span>
+          </div>
+          <div class="nhl-scorer-body" data-nhl-scorer-body>
+            <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading the real NHL scorer model…</b><small>Same generated board used by TSO 1.0.</small></div></div>
+          </div>
+          <div class="nhl-scorer-note">
+            <span>MODEL SOURCE · FGS-HAZARD ENSEMBLE V3</span>
+            <small>Sportsbook scorer markets remain the anchor. When no live scorer price exists, TSO shows the model FAIR price instead of inventing a sportsbook quote.</small>
+          </div>
+        </section>
+        `:''}
+
         <section class="models-command-grid">
           <article class="model-spotlight-card live-feed-loading" data-models-feature>
             <div class="live-feed-empty">
