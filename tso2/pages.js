@@ -320,6 +320,13 @@
                 <button data-nhl-scorer-market="atg">ANYTIME GOAL</button>
               </div>
             </div>
+            <div class="nhl-scorer-owner-actions" data-owner-only hidden aria-hidden="true">
+              <div><span>OWNER SHARE STUDIO</span><small>Build one card containing every team on the current scorer slate.</small></div>
+              <div>
+                <button data-nhl-scorer-slate-share="fgs">SHARE FIRST GOAL SLATE</button>
+                <button data-nhl-scorer-slate-share="atg">SHARE ANYTIME GOAL SLATE</button>
+              </div>
+            </div>
           </div>
           <div class="nhl-scorer-body" data-nhl-scorer-body>
             <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading the real NHL scorer model…</b><small>Same generated board used by TSO 1.0.</small></div></div>
