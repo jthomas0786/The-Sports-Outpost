@@ -12,8 +12,13 @@
   let liveFeedCache = null;
   let liveFeedFetchedAt = 0;
   let liveFeedInFlight = null;
+  let propsFeedCache = null;
+  let propsFeedFetchedAt = 0;
+  let propsFeedInFlight = null;
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
+  const PROPS_FEED_TTL = 30000;
+  const PROPS_POLL_MS = 60000;
 
   const normalizeHandle = value => String(value || '').trim().replace(/^@/, '').toLowerCase();
   const currentUserHandle = () => normalizeHandle(
@@ -301,6 +306,204 @@
     return liveFeedInFlight;
   }
 
+  const americanPrice = value => {
+    const n=Number(value);
+    if(!Number.isFinite(n)) return '—';
+    return n>0 ? '+'+Math.round(n) : String(Math.round(n));
+  };
+
+  const pct1 = value => Number.isFinite(Number(value)) ? Number(value).toFixed(1)+'%' : '—';
+
+  const ageText = value => {
+    const t=Date.parse(value||'');
+    if(!Number.isFinite(t)) return 'Unknown';
+    const sec=Math.max(0,Math.round((Date.now()-t)/1000));
+    if(sec<60) return sec+' sec';
+    const min=Math.floor(sec/60);
+    if(min<60) return min+' min';
+    const hr=Math.floor(min/60);
+    if(hr<24) return hr+'h '+(min%60)+'m';
+    return Math.floor(hr/24)+'d '+(hr%24)+'h';
+  };
+
+  const freshnessLabel = value => {
+    const t=Date.parse(value||'');
+    if(!Number.isFinite(t)) return {label:'UNKNOWN AGE',tone:'stale'};
+    const min=Math.max(0,(Date.now()-t)/60000);
+    if(min<=5) return {label:'LIVE SNAPSHOT',tone:'live'};
+    if(min<=30) return {label:'RECENT SNAPSHOT',tone:'recent'};
+    return {label:'VERIFIED SNAPSHOT',tone:'stale'};
+  };
+
+  const playerInitials = name => String(name||'Player').split(/\s+/).filter(Boolean).map(p=>p[0]).join('').slice(0,2).toUpperCase();
+
+  function propHeadshotMarkup(row,className=''){
+    const sport=esc(row?.sport||'generic');
+    const name=esc(row?.player||'Player');
+    const initials=esc(playerInitials(row?.player));
+    if(!row?.headshotUrl){
+      return '<span class="player-headshot player-sport--'+sport+' props-feed-headshot '+esc(className)+'"><span class="player-headshot-fallback">'+initials+'</span></span>';
+    }
+    return '<span class="player-headshot player-sport--'+sport+' props-feed-headshot '+esc(className)+'"><span class="player-headshot-fallback">'+initials+'</span><img data-player-headshot src="'+esc(row.headshotUrl)+'" alt="'+name+'" loading="lazy" /></span>';
+  }
+
+  function propSelectionText(row){
+    if(row?.selection) return row.selection;
+    const market=String(row?.market||'').toLowerCase();
+    if(['atd','atg','fgs','hr'].includes(market) && row.side !== 'under') return 'YES';
+    const line=Number(row?.line);
+    const side=row?.side==='under'?'U':'O';
+    return Number.isFinite(line) ? side+' '+line : side;
+  }
+
+  function currentPropsRows(){
+    const root=document.querySelector('[data-props-route]');
+    if(!root || !propsFeedCache) return [];
+    const search=String(root.querySelector('[data-props-search]')?.value||'').trim().toLowerCase();
+    return (propsFeedCache.rows||[]).filter(row => {
+      if(currentLeague!=='all' && row.sport!==currentLeague) return false;
+      if(!search) return true;
+      return [row.player,row.team,row.market,row.marketLabel,row.homeTeam,row.awayTeam,row.book,propSelectionText(row)]
+        .filter(Boolean).join(' ').toLowerCase().includes(search);
+    });
+  }
+
+  function propsNewestTimestamp(rows){
+    let newest=0,iso=null;
+    for(const row of rows){
+      const t=Date.parse(row.snapshotTime||'');
+      if(Number.isFinite(t)&&t>newest){newest=t;iso=row.snapshotTime}
+    }
+    return iso;
+  }
+
+  function renderPropsFeature(root,rows){
+    const node=root.querySelector('[data-props-feature]');
+    if(!node) return;
+    if(!rows.length){
+      node.classList.remove('live-feed-loading');
+      node.innerHTML='<div class="live-feed-empty"><div><b>No verified sportsbook rows for this filter.</b><small>The source may be empty, between refresh windows, or have no current player props.</small></div></div>';
+      return;
+    }
+    const row=[...rows].sort((a,b)=>(b.bookCount||0)-(a.bookCount||0) || (Date.parse(b.snapshotTime||'')||0)-(Date.parse(a.snapshotTime||'')||0))[0];
+    const implied=Math.max(0,Math.min(100,Number(row.impliedPct)||0));
+    const books=Array.isArray(row.books)?row.books.slice(0,4):[];
+    node.classList.remove('live-feed-loading');
+    node.innerHTML=
+      '<div class="prop-spotlight-glow"></div>'
+      +'<div class="prop-spotlight-top"><span>FEATURED PROP · '+esc(leagueLabel(row.sport))+' '+esc(row.marketLabel||row.market)+'</span><b>VERIFIED PRICE</b></div>'
+      +'<div class="prop-spotlight-main"><div class="prop-spotlight-player">'
+        +propHeadshotMarkup(row,'prop-player-number prop-player-headshot')
+        +'<div><small>'+esc(row.team||'PLAYER')+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small><h2>'+esc(row.player)+'</h2><p>'+esc(row.marketLabel||row.market)+' · <strong>'+esc(propSelectionText(row))+'</strong></p></div>'
+      +'</div><div class="prop-edge-ring" style="background:conic-gradient(var(--prop-gold) 0 '+implied+'%,rgba(255,255,255,.08) '+implied+'% 100%)"><div><small>IMPLIED</small><strong>'+pct1(row.impliedPct)+'</strong><span>best price</span></div></div></div>'
+      +'<div class="prop-score-line"><div><span>EXACT</span><b>'+esc(propSelectionText(row))+'</b></div><div><span>BEST PRICE</span><b>'+esc(americanPrice(row.price))+'</b></div><div><span>BOOKS</span><b>'+esc(row.bookCount||books.length||1)+'</b></div><div><span>UPDATED</span><b>'+esc(ageText(row.snapshotTime))+'</b></div></div>'
+      +'<div class="prop-best-price"><div><span>BEST VERIFIED PRICE</span><strong>'+esc(americanPrice(row.price))+'</strong><small>'+esc(row.book||'Sportsbook')+' · '+esc(propSelectionText(row))+'</small></div><div class="prop-line-lock"><i>✓</i><span><b>EXACT LINE LOCKED</b><small>No nearby-line substitution</small></span></div></div>'
+      +(books.length?'<div class="prop-book-strip">'+books.map((book,i)=>'<div class="'+(i===0?'is-best':'')+'"><span>'+esc(book.book)+'</span><b>'+esc(americanPrice(book.price))+'</b><small>'+(i===0?'BEST':esc(propSelectionText(row)))+'</small></div>').join('')+'</div>':'')
+      +'<div class="prop-spotlight-footer"><div><span>SNAPSHOT INTEGRITY</span><b>'+esc(row.priceKind||'verified-snapshot')+'</b><small>'+esc(row.preserved?'Preserved verified pregame price':'Current verified snapshot row')+'</small></div>'
+      +(row.link?'<a class="broadcast-cta props-book-link" href="'+esc(row.link)+'" target="_blank" rel="noopener">OPEN SPORTSBOOK →</a>':'<span class="props-link-unavailable">NATIVE LINK NOT SUPPLIED</span>')+'</div>';
+  }
+
+  function renderPropsBooks(root,rows){
+    const node=root.querySelector('[data-props-books]');
+    if(!node) return;
+    const counts=new Map();
+    for(const row of rows){
+      for(const book of row.books||[{book:row.book}]){
+        if(!book?.book) continue;
+        counts.set(book.book,(counts.get(book.book)||0)+1);
+      }
+    }
+    const ranked=[...counts.entries()].sort((a,b)=>b[1]-a[1]).slice(0,6);
+    const newest=propsNewestTimestamp(rows);
+    node.innerHTML='<div class="props-movers-head"><div><span class="orange-kicker">SPORTSBOOK COVERAGE</span><h2>Exact-line books</h2></div><span>REAL DATA</span></div>'
+      +(ranked.length?ranked.map(([book,count],i)=>'<div class="props-mover-row props-book-coverage-row"><span class="signal-rank">'+String(i+1).padStart(2,'0')+'</span><div><b>'+esc(book)+'</b><small>exact selections currently represented</small></div><span><small>ROWS</small><b>'+count+'</b></span><strong>'+Math.round((count/Math.max(1,rows.length))*100)+'%</strong></div>').join(''):'<div class="live-feed-side-loading"><div><b>No book coverage for this filter.</b><small>The source returned no exact selections.</small></div></div>')
+      +'<div class="props-movers-footer"><span>'+rows.length+' exact selections</span><b>'+esc(newest?ageText(newest)+' old':'No timestamp')+'</b></div>';
+  }
+
+  function renderPropsBoard(root,rows){
+    const board=root.querySelector('[data-props-board]');
+    if(!board) return;
+    const visible=rows.slice(0,120);
+    if(!visible.length){
+      board.innerHTML='<div class="live-board-loading props-empty-board"><b>No verified sportsbook selections for '+esc(currentLeague==='all'?'this filter':leagueLabel(currentLeague))+'.</b></div>';
+      return;
+    }
+    board.innerHTML=visible.map(row =>
+      '<div class="props-board-row props-board-row-live">'
+        +'<span class="props-board-player props-board-player-live">'+propHeadshotMarkup(row,'props-board-headshot')+'<span><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></span></span>'
+        +'<strong>'+esc(propSelectionText(row))+'</strong>'
+        +'<span class="props-price"><b>'+esc(americanPrice(row.price))+'</b><small>'+esc(row.bookCount||1)+' book'+((row.bookCount||1)===1?'':'s')+'</small></span>'
+        +'<strong class="props-book-name">'+esc(row.book||'—')+'</strong>'
+        +'<strong>'+esc(pct1(row.impliedPct))+'</strong>'
+        +'<span class="props-snapshot-age">'+esc(ageText(row.snapshotTime))+'</span>'
+        +(row.link?'<a class="props-native-link" href="'+esc(row.link)+'" target="_blank" rel="noopener">OPEN →</a>':'<span class="props-no-link">NO LINK</span>')
+      +'</div>'
+    ).join('');
+    bindMediaFallbacks();
+  }
+
+  function renderPropsFeed(){
+    const root=document.querySelector('[data-props-route]');
+    if(currentRoute!=='props' || !root || !propsFeedCache) return;
+    const rows=currentPropsRows();
+    const newest=propsNewestTimestamp(rows);
+    const freshness=freshnessLabel(newest);
+    const books=new Set();
+    rows.forEach(row=>(row.books||[{book:row.book}]).forEach(b=>{if(b?.book)books.add(b.book)}));
+    const preserved=rows.filter(row=>row.preserved).length;
+
+    const badge=root.querySelector('[data-props-feed-badge]');
+    if(badge){
+      badge.className='props-feed-badge is-'+freshness.tone;
+      badge.innerHTML='<i></i> '+esc(freshness.label);
+    }
+    const status=root.querySelector('[data-props-status]');
+    if(status){
+      status.innerHTML='<div><span class="props-live-dot"></span><b>VERIFIED SPORTSBOOK DATA</b></div><span class="props-status-divider"></span><div><b>'+rows.length+'</b><small>exact selections</small></div><span class="props-status-divider"></span><div><b>'+books.size+'</b><small>sportsbooks</small></div><span class="props-status-divider"></span><div><b>'+esc(newest?ageText(newest):'—')+'</b><small>source freshness</small></div>';
+    }
+    const title=root.querySelector('[data-props-board-title]');
+    if(title) title.textContent=(currentLeague==='all'?'All sports':leagueLabel(currentLeague))+' · '+rows.length+' verified selections';
+    const freshTitle=root.querySelector('[data-props-freshness-title]');
+    if(freshTitle) freshTitle.textContent=freshness.label;
+    const freshCopy=root.querySelector('[data-props-freshness-copy]');
+    if(freshCopy) freshCopy.textContent=newest?'Newest exact-selection snapshot is '+ageText(newest)+' old. TSO keeps the timestamp visible instead of relabeling an older quote as live.':'No verified timestamp is available for this filter.';
+    const preservedNode=root.querySelector('[data-props-preserved]');
+    if(preservedNode) preservedNode.textContent=String(preserved);
+
+    renderPropsFeature(root,rows);
+    renderPropsBooks(root,rows);
+    renderPropsBoard(root,rows);
+  }
+
+  async function refreshPropsData(force=false){
+    if(propsFeedInFlight) return propsFeedInFlight;
+    if(!force && propsFeedCache && Date.now()-propsFeedFetchedAt < PROPS_FEED_TTL){
+      renderPropsFeed();
+      return propsFeedCache;
+    }
+    propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
+      .then(async response=>{
+        if(!response.ok) throw new Error('Props feed HTTP '+response.status);
+        const payload=await response.json();
+        if(!payload || !Array.isArray(payload.rows)) throw new Error('Invalid props feed');
+        propsFeedCache=payload;
+        propsFeedFetchedAt=Date.now();
+        renderPropsFeed();
+        return payload;
+      })
+      .catch(error=>{
+        console.error('TSO props feed:',error);
+        const root=document.querySelector('[data-props-route]');
+        const badge=root?.querySelector('[data-props-feed-badge]');
+        if(badge){badge.className='props-feed-badge is-error';badge.innerHTML='<i></i> ODDS FEED UNAVAILABLE';}
+        const board=root?.querySelector('[data-props-board]');
+        if(board) board.innerHTML='<div class="live-board-loading props-empty-board"><b>Verified sportsbook feed unavailable. Retrying automatically.</b></div>';
+        return null;
+      })
+      .finally(()=>{propsFeedInFlight=null});
+    return propsFeedInFlight;
+  }
+
   const labels = {
     home:'Home', live:'Live Center', research:'Research', models:'Models',
     props:'Player Props', parlays:'Parlay Lab', community:'Community',
@@ -357,6 +560,8 @@
     document.querySelectorAll('.parlay-leg-remove').forEach(btn => btn.addEventListener('click', () => {
       notify('Preview interaction only — live builder state comes with the data migration.');
     }));
+    document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
+    document.querySelector('[data-props-search]')?.addEventListener('input', () => renderPropsFeed());
     bindMediaFallbacks();
   }
 
@@ -365,6 +570,7 @@
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
     refreshLiveData(false);
+    refreshPropsData(false);
     window.scrollTo({top:0,behavior:'instant'});
   }
 
@@ -435,5 +641,7 @@
   syncNav();
   renderRoute();
   refreshLiveData(true);
+  refreshPropsData(true);
   window.setInterval(() => refreshLiveData(true), LIVE_POLL_MS);
+  window.setInterval(() => refreshPropsData(true), PROPS_POLL_MS);
 })();
