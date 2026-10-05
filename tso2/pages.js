@@ -322,8 +322,8 @@
             <span class="props-live-source">SOURCE · REAL TSO MODELS + VERIFIED ODDS</span>
           </div>
           <div class="props-board props-board-live">
-            <div class="props-board-head props-board-head-live props-board-head-pro">
-              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>PRICE</span><span>BOOK</span><span>UPDATED</span><span>ACTIONS</span>
+            <div class="props-board-head props-board-head-live">
+              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>BEST PRICE</span><span>BOOK</span><span>UPDATED</span><span>LINK</span>
             </div>
             <div data-models-board>
               <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading ranked model matches…</b></div>
@@ -507,8 +507,8 @@
             <span class="props-live-source">SOURCE · TSO ODDS SNAPSHOTS</span>
           </div>
           <div class="props-board props-board-live">
-            <div class="props-board-head props-board-head-live">
-              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>BEST PRICE</span><span>BOOK</span><span>UPDATED</span><span>LINK</span>
+            <div class="props-board-head props-board-head-live props-board-head-pro">
+              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>PRICE</span><span>BOOK</span><span>UPDATED</span><span>ACTIONS</span>
             </div>
             <div data-props-board>
               <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading exact selections…</b></div>
