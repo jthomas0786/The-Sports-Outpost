@@ -3205,6 +3205,137 @@ body{
 
 
 
+
+
+/* =========================================================
+   TSO 2.0 — UNIVERSAL PLAYER PROP TOOL
+   ========================================================= */
+.props-control-deck--pro{grid-template-columns:auto minmax(320px,1fr);align-items:start}
+.props-control-deck--pro .props-filter-actions--pro{grid-column:1/-1;display:grid;grid-template-columns:repeat(5,minmax(145px,1fr)) auto}
+.props-control-deck--pro .props-filter-actions--pro select,
+.props-control-deck--pro .props-filter-actions--pro button{width:100%}
+
+.props-market-rail-shell{
+  margin-top:12px;border:1px solid rgba(255,255,255,.09);
+  background:linear-gradient(145deg,#080c12,#05080c)
+}
+.props-market-rail-head{
+  min-height:56px;display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 14px;
+  border-bottom:1px solid rgba(255,255,255,.07)
+}
+.props-market-rail-head h2{margin:4px 0 0;font-size:16px;letter-spacing:-.025em}
+.props-market-rail-head>span{color:#65717d;font-size:7px;font-weight:900;letter-spacing:.06em}
+.props-market-rail{
+  display:flex;gap:7px;overflow-x:auto;padding:9px;scrollbar-width:thin
+}
+.props-market-chip{
+  min-width:144px;min-height:60px;display:grid;grid-template-columns:1fr auto;grid-template-rows:auto auto;gap:3px 10px;
+  align-items:center;padding:9px 10px;border:1px solid rgba(255,255,255,.08);background:#080c11;color:#f4f6f8;text-align:left;cursor:pointer
+}
+.props-market-chip b{font-size:7px;letter-spacing:.065em;white-space:nowrap}
+.props-market-chip span{grid-row:1/3;grid-column:2;font-size:17px;font-weight:950;color:#cbd2da}
+.props-market-chip small{font-size:6px;color:#606b77}
+.props-market-chip:hover{border-color:rgba(255,216,77,.18);background:rgba(255,216,77,.025)}
+.props-market-chip.is-active{border-color:rgba(255,216,77,.34);background:linear-gradient(120deg,rgba(255,216,77,.07),#080c11 58%);box-shadow:inset 3px 0 0 var(--prop-gold)}
+.props-market-chip.is-active b,.props-market-chip.is-active span{color:#ffe16a}
+
+.props-board-head-pro,
+.props-board-row-pro{
+  grid-template-columns:minmax(265px,1.65fr) 68px 68px 68px 72px 86px 82px 92px 72px 184px!important
+}
+.props-row-actions{display:grid;grid-template-columns:1fr 1fr 1.12fr;gap:5px}
+.props-row-actions button{
+  min-height:28px;padding:0 6px;border:1px solid rgba(255,255,255,.08);background:#090d12;color:#75818d;
+  font-size:5.5px;font-weight:950;letter-spacing:.055em;cursor:pointer;white-space:nowrap
+}
+.props-row-actions button:hover{border-color:rgba(255,216,77,.22);color:#f2f4f6}
+.props-row-actions button.is-primary{border-color:rgba(123,92,255,.24);background:rgba(123,92,255,.055);color:#b5a5ff}
+.props-row-actions button:disabled{opacity:.35;cursor:not-allowed}
+
+body.props-compare-open{overflow:hidden}
+.props-compare-overlay{
+  position:fixed;inset:0;z-index:125;display:flex;align-items:flex-start;justify-content:center;padding:38px 18px;
+  overflow:auto;background:rgba(2,4,8,.84);backdrop-filter:blur(15px)
+}
+.props-compare-shell{
+  width:min(1080px,100%);border:1px solid rgba(255,216,77,.16);
+  background:linear-gradient(155deg,#0a0f15,#05080c 70%);box-shadow:0 42px 110px rgba(0,0,0,.62)
+}
+.props-compare-hero{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:center;padding:20px 22px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  background:radial-gradient(circle at 12% 0%,rgba(255,216,77,.07),transparent 26rem)
+}
+.props-compare-close{
+  position:absolute;right:9px;top:7px;width:30px;height:30px;border:0;background:transparent;color:#74808c;font-size:23px;cursor:pointer
+}
+.props-compare-close:hover{color:#fff}
+.props-compare-player{display:flex;align-items:center;gap:13px;min-width:0}
+.props-compare-headshot{width:62px!important;height:62px!important;border-radius:50%!important}
+.props-compare-player>div{min-width:0}
+.props-compare-player span{display:block;color:#897f51;font-size:7px;font-weight:950;letter-spacing:.10em}
+.props-compare-player h2{margin:5px 0 3px;font-size:25px;letter-spacing:-.035em}
+.props-compare-player p{margin:0;color:#66727e;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.props-compare-summary{display:grid;grid-template-columns:repeat(3,minmax(78px,1fr));margin-right:30px;border:1px solid rgba(255,255,255,.08)}
+.props-compare-summary>span{padding:10px;border-left:1px solid rgba(255,255,255,.06)}
+.props-compare-summary>span:first-child{border-left:0}
+.props-compare-summary small,.props-compare-summary b{display:block}
+.props-compare-summary small{color:#596571;font-size:6px;font-weight:900;letter-spacing:.07em}
+.props-compare-summary b{margin-top:4px;font-size:13px}
+
+.props-compare-table{padding:12px 14px}
+.props-compare-head,.props-compare-row{
+  display:grid;grid-template-columns:minmax(180px,1.3fr) 92px 92px 104px 110px 90px;gap:9px;align-items:center
+}
+.props-compare-head{min-height:34px;padding:0 10px;color:#58636f;font-size:6px;font-weight:950;letter-spacing:.075em}
+.props-compare-row{
+  min-height:60px;padding:8px 10px;border-top:1px solid rgba(255,255,255,.065);background:transparent
+}
+.props-compare-row.is-best{background:linear-gradient(90deg,rgba(255,216,77,.045),transparent 62%);box-shadow:inset 3px 0 0 rgba(255,216,77,.55)}
+.props-compare-row span b,.props-compare-row span small{display:block}
+.props-compare-row span b{font-size:9px}
+.props-compare-row span small{margin-top:3px;color:#68737f;font-size:6px}
+.props-compare-row>strong{font-size:10px}
+.props-compare-row>span:not(:first-child){font-size:7px;color:#7c8792}
+.props-compare-row>a,.props-compare-row>em{
+  min-height:27px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.08);background:#090d12;
+  color:#67727e;font-size:6px;font-weight:900;font-style:normal;text-decoration:none
+}
+.props-compare-row>a{border-color:rgba(255,216,77,.18);background:rgba(255,216,77,.035);color:#ffe16a}
+.props-compare-footer{
+  min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 16px;
+  border-top:1px solid rgba(255,255,255,.08);background:#06090d
+}
+.props-compare-footer>div:first-child span,.props-compare-footer>div:first-child small{display:block}
+.props-compare-footer>div:first-child span{color:#6fe8aa;font-size:6px;font-weight:950;letter-spacing:.08em}
+.props-compare-footer>div:first-child small{margin-top:4px;color:#65717d;font-size:7px}
+.props-compare-footer>div:last-child{display:flex;gap:7px}
+.props-compare-footer button{
+  min-height:34px;padding:0 10px;border:1px solid rgba(255,255,255,.09);background:#090d12;color:#82909b;
+  font-size:7px;font-weight:900;letter-spacing:.055em
+}
+.props-compare-footer button.is-primary{border-color:rgba(123,92,255,.25);background:rgba(123,92,255,.06);color:#b7a7ff}
+.props-compare-footer button:disabled{opacity:.35}
+.parlay-leg--market::before{background:#7b5cff}
+.parlay-leg--market .parlay-leg-meta b{border-color:rgba(123,92,255,.24);background:rgba(123,92,255,.05);color:#b5a4ff}
+
+@media(max-width:1180px){
+  .props-control-deck--pro{grid-template-columns:1fr}
+  .props-control-deck--pro .props-filter-actions--pro{grid-template-columns:repeat(3,minmax(150px,1fr))}
+  .props-board-head-pro,.props-board-row-pro{min-width:1390px!important}
+}
+@media(max-width:760px){
+  .props-control-deck--pro .props-filter-actions--pro{display:flex;overflow-x:auto}
+  .props-control-deck--pro .props-filter-actions--pro select,.props-control-deck--pro .props-filter-actions--pro button{min-width:150px}
+  .props-market-rail-head{align-items:flex-start;flex-direction:column;padding:12px 13px}
+  .props-compare-overlay{padding:0}
+  .props-compare-shell{min-height:100vh;border:0}
+  .props-compare-hero{grid-template-columns:1fr;padding:16px}
+  .props-compare-summary{margin-right:0}
+  .props-compare-table{overflow-x:auto}
+  .props-compare-head,.props-compare-row{min-width:760px}
+  .props-compare-footer{align-items:flex-start;flex-direction:column}
+}
 /* =========================================================
    TSO 2.0 — DEEP RESEARCH DETAIL
    ========================================================= */
