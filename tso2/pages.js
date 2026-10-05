@@ -12,10 +12,12 @@
   };
 
   const playerInitials = name => String(name||'Player').split(/\s+/).filter(Boolean).map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const playerCropKey = name => String(name||'player').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   const playerHeadshot = (name,className='') => {
     const src=PLAYER_HEADSHOTS[name];
     const initials=playerInitials(name);
-    return `<span class="player-headshot ${className}" title="${name}">
+    const crop=playerCropKey(name);
+    return `<span class="player-headshot player-crop--${crop} ${className}" title="${name}">
       <span class="player-headshot-fallback">${initials}</span>
       ${src?`<img data-player-headshot src="${src}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('is-missing')" />`:''}
     </span>`;
