@@ -2203,13 +2203,18 @@
     bindMediaFallbacks();
   }
 
-  function renderRoute(){
+  function renderRoute({scrollToTop=false,preserveScroll=false}={}){
+    const previousScroll=window.scrollY||document.documentElement.scrollTop||0;
     if(currentRoute === 'home') pageContent.innerHTML = homeHTML;
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
     refreshLiveData(false);
     refreshPropsData(false);
-    window.scrollTo({top:0,behavior:'instant'});
+    if(scrollToTop){
+      window.scrollTo({top:0,behavior:'instant'});
+    }else if(preserveScroll){
+      requestAnimationFrame(()=>window.scrollTo({top:previousScroll,behavior:'instant'}));
+    }
   }
 
   function syncNav(){
@@ -2220,18 +2225,20 @@
   function setRoute(route){
     if(!labels[route]) return;
     closeProfileMenu();
+    const routeChanged=route!==currentRoute;
     currentRoute = route;
     syncNav();
-    renderRoute();
+    renderRoute({scrollToTop:routeChanged});
     history.replaceState(null, '', '#' + route);
   }
 
   function setLeague(league){
     closeProfileMenu();
+    if(league===currentLeague)return;
     currentLeague = league;
     shell.dataset.league = league;
     syncNav();
-    renderRoute();
+    renderRoute({preserveScroll:true});
   }
 
   document.querySelectorAll('[data-route]').forEach(btn => btn.addEventListener('click', () => setRoute(btn.dataset.route)));
