@@ -100,7 +100,7 @@
   function teamLogoMarkup(team,className=''){
     const abbr = esc(team?.abbr || 'TEAM');
     if(!team?.logo) return '<span class="team-logo-fallback '+esc(className)+'">'+abbr.slice(0,2)+'</span>';
-    return '<span class="team-logo-shell '+esc(className)+'"><img data-team-logo src="'+esc(team.logo)+'" alt="'+abbr+' logo" loading="lazy" /></span>';
+    return '<span class="team-logo-shell '+esc(className)+'"><span class="team-logo-fallback-text">'+abbr.slice(0,2)+'</span><img data-team-logo src="'+esc(team.logo)+'" alt="'+abbr+' logo" loading="lazy" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'is-missing\')" /></span>';
   }
 
   function liveTileMarkup(game){
@@ -121,6 +121,7 @@
     document.querySelectorAll('[data-live-refresh]').forEach(btn => {
       btn.onclick = () => refreshLiveData(true);
     });
+    bindMediaFallbacks();
   }
 
   function renderGlobalScoreStrip(){
@@ -313,6 +314,17 @@
     window.__tso2Toast = setTimeout(() => toast.classList.remove('show'), 1700);
   }
 
+  function bindMediaFallbacks(){
+    document.querySelectorAll('img[data-player-headshot],img[data-team-logo]').forEach(img => {
+      if(img.dataset.mediaBound) return;
+      img.dataset.mediaBound='1';
+      img.addEventListener('error',() => {
+        img.style.display='none';
+        img.parentElement?.classList.add('is-missing');
+      });
+    });
+  }
+
   function bindDynamic(){
     document.querySelectorAll('[data-route-jump]').forEach(btn => btn.addEventListener('click', () => setRoute(btn.dataset.routeJump)));
     document.querySelectorAll('[data-inline-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.inlineLeague)));
@@ -345,6 +357,7 @@
     document.querySelectorAll('.parlay-leg-remove').forEach(btn => btn.addEventListener('click', () => {
       notify('Preview interaction only — live builder state comes with the data migration.');
     }));
+    bindMediaFallbacks();
   }
 
   function renderRoute(){
