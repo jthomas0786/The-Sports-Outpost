@@ -15,6 +15,8 @@
   let propsFeedCache = null;
   let propsFeedFetchedAt = 0;
   let propsFeedInFlight = null;
+  let parlayLegKeys = [];
+  let parlayTarget = 3;
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
   const PROPS_FEED_TTL = 30000;
@@ -657,6 +659,339 @@
     renderModelsBoard(root,rows);
   }
 
+  const americanToDecimal = value => {
+    const n=Number(value);
+    if(!Number.isFinite(n)||n===0) return null;
+    return n>0 ? 1+n/100 : 1+100/Math.abs(n);
+  };
+
+  const decimalToAmerican = value => {
+    const d=Number(value);
+    if(!Number.isFinite(d)||d<=1) return null;
+    return d>=2 ? Math.round((d-1)*100) : Math.round(-100/(d-1));
+  };
+
+  function parlayRows(){
+    return allModeledRows().filter(row=>{
+      if(currentLeague!=='all'&&row.sport!==currentLeague) return false;
+      const phase=String(row?.model?.phase||'pregame').toLowerCase();
+      return phase==='pregame' && Number.isFinite(Number(row.price)) && Number(row.price)!==0;
+    });
+  }
+
+  function parlayRowByKey(key){
+    return parlayRows().find(row=>String(row.key)===String(key))||null;
+  }
+
+  function parlayLegRows(){
+    return parlayLegKeys.map(parlayRowByKey).filter(Boolean);
+  }
+
+  function parlayEventKey(row){
+    return row?.eventId ? String(row.sport||'')+'|'+String(row.eventId) : '';
+  }
+
+  function parlayCandidateRows(excludedKeys=[]){
+    const excluded=new Set(excludedKeys.map(String));
+    return sortPropsRows(parlayRows().filter(row=>!excluded.has(String(row.key))));
+  }
+
+  function chooseParlayRows(target=3,excludedKeys=[]){
+    const candidates=parlayCandidateRows(excludedKeys);
+    const chosen=[];
+    const players=new Set();
+    const events=new Set();
+    for(const row of candidates){
+      const player=String(row.player||'').toLowerCase();
+      const event=parlayEventKey(row);
+      if(players.has(player)||(event&&events.has(event))) continue;
+      chosen.push(row);
+      players.add(player);
+      if(event) events.add(event);
+      if(chosen.length>=target) return chosen;
+    }
+    for(const row of candidates){
+      if(chosen.some(x=>String(x.key)===String(row.key))) continue;
+      chosen.push(row);
+      if(chosen.length>=target) break;
+    }
+    return chosen;
+  }
+
+  function resetParlayBuild(){
+    parlayLegKeys=chooseParlayRows(parlayTarget).map(row=>String(row.key));
+    renderParlayLab();
+  }
+
+  function fillParlayToTarget(target=parlayTarget){
+    const available=parlayRows();
+    const valid=new Set(available.map(row=>String(row.key)));
+    parlayLegKeys=parlayLegKeys.filter(key=>valid.has(String(key)));
+    if(parlayLegKeys.length>target) parlayLegKeys=parlayLegKeys.slice(0,target);
+    if(parlayLegKeys.length<target){
+      const needed=target-parlayLegKeys.length;
+      parlayLegKeys.push(...chooseParlayRows(needed,parlayLegKeys).map(row=>String(row.key)));
+    }
+  }
+
+  function parlayOverlapInfo(rows){
+    let sameEventPairs=0,samePlayerPairs=0;
+    for(let i=0;i<rows.length;i++){
+      for(let j=i+1;j<rows.length;j++){
+        const a=rows[i],b=rows[j];
+        if(parlayEventKey(a)&&parlayEventKey(a)===parlayEventKey(b)) sameEventPairs++;
+        if(String(a.player||'').toLowerCase()===String(b.player||'').toLowerCase()) samePlayerPairs++;
+      }
+    }
+    return {sameEventPairs,samePlayerPairs,hasOverlap:sameEventPairs>0||samePlayerPairs>0};
+  }
+
+  function parlayBookCoverage(rows){
+    const coverage=new Map();
+    for(const row of rows){
+      const seen=new Set();
+      for(const book of row.books||[]){
+        const key=String(book?.book||'').trim().toLowerCase();
+        if(!key||seen.has(key)||!Number.isFinite(Number(book.price))||Number(book.price)===0) continue;
+        seen.add(key);
+        let item=coverage.get(key);
+        if(!item){item={key,name:String(book.book),legs:[],complete:false,combinedDecimal:null,combinedAmerican:null};coverage.set(key,item);}
+        item.legs.push({row,book});
+      }
+    }
+    const items=[...coverage.values()];
+    for(const item of items){
+      item.complete=rows.length>0&&item.legs.length===rows.length;
+      if(item.complete){
+        let decimal=1;
+        for(const leg of item.legs){
+          const d=americanToDecimal(leg.book.price);
+          if(!d){decimal=null;break;}
+          decimal*=d;
+        }
+        item.combinedDecimal=decimal;
+        item.combinedAmerican=decimalToAmerican(decimal);
+      }
+    }
+    return items.sort((a,b)=>{
+      if(a.complete!==b.complete) return a.complete?-1:1;
+      if(a.complete&&b.complete) return Number(b.combinedDecimal||0)-Number(a.combinedDecimal||0);
+      return b.legs.length-a.legs.length;
+    });
+  }
+
+  function parlayCombinedMath(rows){
+    let model=1,market=1,valid=rows.length>0;
+    for(const row of rows){
+      const mp=Number(row?.model?.probabilityPct),ip=Number(row.impliedPct);
+      if(!Number.isFinite(mp)||!Number.isFinite(ip)){valid=false;break;}
+      model*=mp/100;
+      market*=ip/100;
+    }
+    return valid ? {modelPct:model*100,marketPct:market*100,deltaPct:(model-market)*100} : {modelPct:null,marketPct:null,deltaPct:null};
+  }
+
+  function parlayLegMarkup(row,index,weakKey){
+    const model=row.model||{};
+    const edge=Number(model.edgePct);
+    const weak=String(row.key)===String(weakKey);
+    return '<div class="parlay-leg '+(weak?'parlay-leg--weak':'parlay-leg--strong')+'" data-parlay-leg-key="'+esc(row.key)+'">'
+      +'<div class="parlay-leg-index">'+String(index+1).padStart(2,'0')+'</div>'
+      +'<div class="parlay-leg-main"><div class="parlay-leg-identity">'+propHeadshotMarkup(row,'parlay-leg-headshot')+'<div>'
+        +'<div class="parlay-leg-meta"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+'</span><b>'+(weak?'WEAKEST EDGE':esc(modelTagText(row)))+'</b></div>'
+        +'<h3>'+esc(row.player)+' · '+esc(propSelectionText(row))+'</h3>'
+        +'<small>'+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+' · exact selection</small>'
+      +'</div></div>'
+      +'<div class="parlay-leg-metrics">'
+        +'<span><small>MODEL</small><b>'+pct1(model.probabilityPct)+'</b></span>'
+        +'<span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span>'
+        +'<span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span>'
+        +'<span><small>BOOKS</small><b>'+esc(row.bookCount||row.books?.length||1)+'</b></span>'
+      +'</div></div>'
+      +'<div class="parlay-leg-price"><span>BEST</span><strong>'+esc(americanPrice(row.price))+'</strong><small>'+esc(row.book||'BOOK')+'</small></div>'
+      +'<button class="parlay-leg-remove" data-parlay-remove="'+esc(row.key)+'" aria-label="Remove '+esc(row.player)+'">×</button>'
+    +'</div>';
+  }
+
+  function parlaySuggestionMarkup(row,label='COMPATIBLE'){
+    const edge=Number(row?.model?.edgePct);
+    return '<button class="parlay-suggestion-card" data-parlay-suggest="'+esc(row.key)+'">'
+      +'<div><span>'+esc(leagueLabel(row.sport))+'</span><b>'+esc(label)+'</b></div>'
+      +propHeadshotMarkup(row,'parlay-suggestion-headshot')
+      +'<h3>'+esc(row.player)+' · '+esc(row.marketLabel||row.market)+' '+esc(propSelectionText(row))+'</h3>'
+      +'<p>'+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+' · exact selection</p>'
+      +'<section><span><small>MODEL</small><b>'+pct1(row.model?.probabilityPct)+'</b></span><span><small>EDGE</small><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></span><span><small>BEST</small><b>'+esc(americanPrice(row.price))+'</b></span></section>'
+      +'<i>＋ ADD EXACT LEG</i>'
+    +'</button>';
+  }
+
+  function renderParlaySuggestions(root,rows){
+    const node=root.querySelector('[data-parlay-suggestions]');
+    if(!node) return;
+    const selectedKeys=rows.map(row=>String(row.key));
+    const selectedPlayers=new Set(rows.map(row=>String(row.player||'').toLowerCase()));
+    const selectedEvents=new Set(rows.map(parlayEventKey).filter(Boolean));
+    const all=parlayCandidateRows(selectedKeys);
+    const safe=all.filter(row=>!selectedPlayers.has(String(row.player||'').toLowerCase())&&(!parlayEventKey(row)||!selectedEvents.has(parlayEventKey(row))));
+    const visible=(safe.length?safe:all).slice(0,6);
+    node.innerHTML=visible.length ? visible.map(row=>parlaySuggestionMarkup(row,safe.includes(row)?'NO SAME EVENT':'REVIEW OVERLAP')).join('') : '<div class="live-board-loading home-model-empty--wide"><div><b>No additional exact modeled selections for this filter.</b><small>Open Props for market-only rows.</small></div></div>';
+    const title=root.querySelector('[data-parlay-suggestions-title]');
+    if(title) title.textContent=visible.length?visible.length+' exact model suggestions':'No modeled suggestions';
+  }
+
+  function renderParlayReplacements(root,rows,weakest){
+    const node=root.querySelector('[data-parlay-replacements]');
+    const title=root.querySelector('[data-parlay-weakest-title]');
+    if(!node) return;
+    if(!weakest){
+      node.innerHTML='<div class="live-board-loading home-model-empty--wide"><div><b>Add at least one modeled leg to compare replacements.</b></div></div>';
+      if(title) title.textContent='No leg selected';
+      return;
+    }
+    if(title) title.textContent=weakest.player+' · '+edgeText(weakest.model?.edgePct)+' edge';
+    const other=rows.filter(row=>String(row.key)!==String(weakest.key));
+    const otherPlayers=new Set(other.map(row=>String(row.player||'').toLowerCase()));
+    const otherEvents=new Set(other.map(parlayEventKey).filter(Boolean));
+    const candidates=parlayCandidateRows(rows.map(row=>String(row.key))).filter(row=>!otherPlayers.has(String(row.player||'').toLowerCase())&&(!parlayEventKey(row)||!otherEvents.has(parlayEventKey(row))));
+    const weakEdge=Number(weakest.model?.edgePct),weakProb=Number(weakest.model?.probabilityPct);
+    const safer=candidates.find(row=>Number(row.model?.probabilityPct)>weakProb);
+    const moreEdge=candidates.find(row=>Number(row.model?.edgePct)>weakEdge&&String(row.key)!==String(safer?.key));
+    const replacements=[safer,moreEdge].filter(Boolean);
+    node.innerHTML='<article class="parlay-replace-current"><div class="parlay-replace-label">CURRENT WEAKEST EDGE</div><span>'+esc(leagueLabel(weakest.sport))+' · '+esc(weakest.marketLabel||weakest.market)+'</span>'
+      +propHeadshotMarkup(weakest,'parlay-card-headshot')+'<h3>'+esc(weakest.player)+'</h3><p>'+esc(propSelectionText(weakest))+' · '+esc(americanPrice(weakest.price))+' '+esc(weakest.book||'')+'</p>'
+      +'<div><span>MODEL</span><b>'+pct1(weakest.model?.probabilityPct)+'</b></div><div><span>EDGE</span><b class="'+(weakEdge>=0?'positive':'negative')+'">'+edgeText(weakEdge)+'</b></div></article>'
+      +'<div class="parlay-replace-arrow">→</div>'
+      +(replacements.length?replacements.map((row,i)=>{
+        const edge=Number(row.model?.edgePct);
+        return '<button class="parlay-replacement-card" data-parlay-replace="'+esc(row.key)+'" data-parlay-replace-old="'+esc(weakest.key)+'"><span class="parlay-replacement-badge">'+(i===0?'HIGHER MODEL PROB':'MORE EDGE')+'</span><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+'</small>'
+          +propHeadshotMarkup(row,'parlay-card-headshot')+'<h3>'+esc(row.player)+' · '+esc(propSelectionText(row))+'</h3>'
+          +'<div><span>MODEL</span><b>'+pct1(row.model?.probabilityPct)+'</b></div><div><span>EDGE</span><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></div>'
+          +'<strong>'+esc(americanPrice(row.price))+'</strong><em>REPLACE EXACT LEG →</em></button>';
+      }).join(''):'<div class="home-model-empty"><b>No cleaner replacement found.</b><small>Current filter has no unselected candidate with a higher model probability or edge.</small></div>');
+  }
+
+  function renderParlayBooks(root,rows){
+    const node=root.querySelector('[data-parlay-books]');
+    const title=root.querySelector('[data-parlay-book-title]');
+    if(!node) return;
+    if(rows.length<2){
+      node.innerHTML='<div class="live-board-loading"><div><b>Add at least 2 exact legs for sportsbook comparison.</b></div></div>';
+      if(title) title.textContent='Same exact ticket by sportsbook';
+      return;
+    }
+    const books=parlayBookCoverage(rows);
+    const complete=books.filter(x=>x.complete);
+    if(title) title.textContent=complete.length ? rows.length+' exact legs · '+complete.length+' common sportsbook'+(complete.length===1?'':'s') : rows.length+' exact legs · no common sportsbook';
+    const visible=(complete.length?complete:books).slice(0,7);
+    if(!visible.length){
+      node.innerHTML='<div class="live-board-loading"><div><b>No sportsbook coverage returned for these legs.</b></div></div>';
+      return;
+    }
+    node.innerHTML=visible.map((item,i)=>{
+      const links=item.legs.map(x=>x.book.link).filter(Boolean);
+      const initials=item.name.split(/\s+/).map(x=>x[0]).join('').slice(0,3).toUpperCase();
+      const coverage=item.legs.length+'/'+rows.length;
+      return '<div class="parlay-book-row '+(item.complete&&i===0?'is-best':'')+'"><span class="parlay-book-name">'+esc(initials)+'</span><div><b>'+esc(item.name)+'</b><small>'+coverage+' exact legs · '+links.length+' native selection link'+(links.length===1?'':'s')+'</small></div>'
+        +'<strong>'+(item.complete?esc(americanPrice(item.combinedAmerican)):'—')+'</strong>'
+        +'<span class="'+(item.complete&&i===0?'parlay-book-value':'')+'">'+(item.complete?(i===0?'BEST COMPLETE PRICE':'COMPLETE TICKET'):'PARTIAL COVERAGE')+'</span>'
+        +'<button data-parlay-book-open="'+esc(item.key)+'" '+(!links.length?'disabled':'')+'>'+(links.length?'OPEN EXACT LINKS →':'NO LINKS')+'</button></div>';
+    }).join('');
+  }
+
+  function bindParlayGeneratedActions(){
+    document.querySelectorAll('[data-parlay-remove]').forEach(btn=>btn.onclick=()=>{
+      parlayLegKeys=parlayLegKeys.filter(key=>String(key)!==String(btn.dataset.parlayRemove));
+      renderParlayLab();
+    });
+    document.querySelectorAll('[data-parlay-suggest]').forEach(btn=>btn.onclick=()=>{
+      const key=String(btn.dataset.parlaySuggest||'');
+      if(key&&!parlayLegKeys.includes(key)&&parlayLegKeys.length<8) parlayLegKeys.push(key);
+      renderParlayLab();
+    });
+    document.querySelectorAll('[data-parlay-replace]').forEach(btn=>btn.onclick=()=>{
+      const next=String(btn.dataset.parlayReplace||''),old=String(btn.dataset.parlayReplaceOld||'');
+      const i=parlayLegKeys.findIndex(key=>String(key)===old);
+      if(i>=0&&next) parlayLegKeys[i]=next;
+      renderParlayLab();
+    });
+    document.querySelectorAll('[data-parlay-book-open]').forEach(btn=>btn.onclick=()=>{
+      const key=String(btn.dataset.parlayBookOpen||'');
+      const item=parlayBookCoverage(parlayLegRows()).find(x=>x.key===key);
+      const links=(item?.legs||[]).map(x=>x.book.link).filter(Boolean);
+      if(!links.length) return;
+      links.forEach(link=>window.open(link,'_blank','noopener'));
+      notify('Opened '+links.length+' exact '+item.name+' selection link'+(links.length===1?'':'s')+'.');
+    });
+    document.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
+    bindMediaFallbacks();
+  }
+
+  function renderParlayLab(){
+    const root=document.querySelector('[data-parlays-route]');
+    if(currentRoute!=='parlays'||!root||!propsFeedCache) return;
+    fillParlayToTarget(parlayTarget);
+    const rows=parlayLegRows();
+    const sortedWeak=[...rows].sort((a,b)=>Number(a.model?.edgePct)-Number(b.model?.edgePct));
+    const weakest=sortedWeak[0]||null;
+    const newest=propsNewestTimestamp(parlayRows());
+    const freshness=freshnessLabel(newest);
+    const allBooks=new Set();
+    parlayRows().forEach(row=>(row.books||[]).forEach(book=>{if(book?.book)allBooks.add(String(book.book))}));
+
+    const status=root.querySelector('[data-parlay-status]');
+    if(status) status.innerHTML='<div><span class="parlays-preview-dot"></span><b>REAL EXACT-SELECTION FEED</b><small>'+esc(freshness.label)+(newest?' · '+esc(ageText(newest))+' old':'')+'</small></div><span class="parlays-status-divider"></span><div><b>'+parlayRows().length+' MODELED</b><small>pregame exact matches</small></div><span class="parlays-status-divider"></span><div><b>'+allBooks.size+' BOOKS</b><small>verified exact prices</small></div><span class="parlays-status-divider"></span><div><b>NO SUBSTITUTIONS</b><small>same line + side only</small></div>';
+
+    const legs=root.querySelector('[data-parlay-legs]');
+    if(legs) legs.innerHTML=rows.length ? rows.map((row,i)=>parlayLegMarkup(row,i,weakest?.key)).join('') : '<div class="live-board-loading"><div><b>No exact modeled selections for this sport filter.</b><small>NBA is market-only until a TSO model exists. Open Props to view verified prices.</small></div></div>';
+    const buildTitle=root.querySelector('[data-parlay-build-title]');
+    if(buildTitle) buildTitle.textContent=rows.length+'-leg exact model parlay';
+
+    root.querySelectorAll('[data-parlay-target]').forEach(btn=>btn.classList.toggle('is-active',Number(btn.dataset.parlayTarget)===parlayTarget));
+
+    const math=parlayCombinedMath(rows);
+    const overlap=parlayOverlapInfo(rows);
+    const coverage=parlayBookCoverage(rows);
+    const bestCommon=coverage.find(x=>x.complete)||null;
+
+    const legTotal=root.querySelector('[data-parlay-leg-total]');
+    if(legTotal) legTotal.textContent=String(rows.length);
+    const ring=root.querySelector('[data-parlay-ring]');
+    if(ring){
+      const completePct=rows.length?Math.round((rows.filter(row=>(row.books||[]).length>0).length/rows.length)*100):0;
+      ring.style.background='conic-gradient(#7b5cff 0 '+completePct+'%,rgba(255,255,255,.07) '+completePct+'% 100%)';
+    }
+    const combinedPrice=root.querySelector('[data-parlay-combined-price]');
+    if(combinedPrice) combinedPrice.textContent=bestCommon?americanPrice(bestCommon.combinedAmerican):'NO COMMON BOOK';
+    const modelProb=root.querySelector('[data-parlay-model-prob]');
+    if(modelProb) modelProb.textContent=Number.isFinite(math.modelPct)?pct1(math.modelPct):'—';
+    const marketProb=root.querySelector('[data-parlay-market-prob]');
+    if(marketProb) marketProb.textContent=Number.isFinite(math.marketPct)?pct1(math.marketPct):'—';
+    const combinedEdge=root.querySelector('[data-parlay-combined-edge]');
+    if(combinedEdge){
+      combinedEdge.textContent=Number.isFinite(math.deltaPct)?edgeText(math.deltaPct):'—';
+      combinedEdge.className=Number(math.deltaPct)>=0?'positive':'negative';
+    }
+
+    const healthTitle=root.querySelector('[data-parlay-health-title]');
+    const healthCopy=root.querySelector('[data-parlay-health-copy]');
+    if(healthTitle) healthTitle.textContent=!rows.length?'No modeled legs':overlap.hasOverlap?'Exact legs · review overlap':bestCommon?'Exact build ready':'Exact legs · split books';
+    if(healthCopy) healthCopy.textContent=!rows.length?'No modeled rows are available for this filter.':overlap.hasOverlap?'Same-event or same-player overlap exists. Combined probability remains an unadjusted independent estimate.':bestCommon?'All legs exist exactly at '+bestCommon.name+'. Combined probability is still labeled as an independent-leg estimate.':'The legs are exact, but no single sportsbook currently carries every exact selection.';
+
+    const checks=root.querySelector('[data-parlay-checks]');
+    if(checks){
+      const exactCount=rows.filter(row=>(row.books||[]).length>0).length;
+      checks.innerHTML='<div class="'+(exactCount===rows.length&&rows.length?'is-good':'is-warn')+'"><span>'+(exactCount===rows.length&&rows.length?'✓':'!')+'</span><div><b>Exact lines verified</b><small>'+exactCount+'/'+rows.length+' legs have verified exact sportsbook selections.</small></div></div>'
+        +'<div class="'+(overlap.hasOverlap?'is-warn':'is-good')+'"><span>'+(overlap.hasOverlap?'!':'✓')+'</span><div><b>Dependency check</b><small>'+(overlap.hasOverlap?(overlap.sameEventPairs+' same-event pair(s), '+overlap.samePlayerPairs+' same-player pair(s). Review correlation manually.'):'No same-event or same-player overlap detected. This is not a full correlation model.')+'</small></div></div>'
+        +'<div class="'+(bestCommon?'is-good':'is-warn')+'"><span>'+(bestCommon?'✓':'!')+'</span><div><b>Common sportsbook</b><small>'+(bestCommon?bestCommon.name+' carries every exact leg at the displayed thresholds.':'No sportsbook in the feed currently carries every exact leg.')+'</small></div></div>'
+        +(weakest?'<div class="is-warn"><span>↘</span><div><b>Weakest real edge</b><small>'+esc(weakest.player)+' '+esc(propSelectionText(weakest))+' · '+edgeText(weakest.model?.edgePct)+'</small></div></div>':'');
+    }
+
+    renderParlayReplacements(root,rows,weakest);
+    renderParlaySuggestions(root,rows);
+    renderParlayBooks(root,rows);
+    bindParlayGeneratedActions();
+  }
+
   function renderPropsFeature(root,rows){
     const node=root.querySelector('[data-props-feature]');
     if(!node) return;
@@ -797,6 +1132,7 @@
       renderPropsFeed();
       renderModelsFeed();
       renderHomeModels();
+      renderParlayLab();
       return propsFeedCache;
     }
     propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
@@ -809,6 +1145,7 @@
         renderPropsFeed();
         renderModelsFeed();
         renderHomeModels();
+        renderParlayLab();
         return payload;
       })
       .catch(error=>{
@@ -829,6 +1166,13 @@
         if(currentRoute==='home'&&homePicks) homePicks.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS</span><h2>Model feed unavailable</h2></div></div><div class="home-model-empty"><b>Real model data could not be loaded.</b><small>TSO will not fall back to preview picks.</small></div>';
         const homeCards=document.querySelector('[data-home-model-cards]');
         if(currentRoute==='home'&&homeCards) homeCards.innerHTML='<div class="home-model-empty home-model-empty--wide"><b>Real model cards unavailable.</b><small>Retrying automatically.</small></div>';
+        const parlayRoot=document.querySelector('[data-parlays-route]');
+        if(currentRoute==='parlays'&&parlayRoot){
+          const parlayStatus=parlayRoot.querySelector('[data-parlay-status]');
+          if(parlayStatus) parlayStatus.innerHTML='<div><span class="parlays-preview-dot"></span><b>PARLAY FEED UNAVAILABLE</b><small>TSO will not substitute demo legs.</small></div>';
+          const parlayLegs=parlayRoot.querySelector('[data-parlay-legs]');
+          if(parlayLegs) parlayLegs.innerHTML='<div class="live-board-loading"><div><b>Verified Props/model feed unavailable.</b><small>Retrying automatically. No preview parlay is being shown.</small></div></div>';
+        }
         return null;
       })
       .finally(()=>{propsFeedInFlight=null});
@@ -866,30 +1210,20 @@
       notify('Shared detail drawer pattern — same interaction across every sport.');
     }));
 
-    document.querySelectorAll('.parlays-mode-tabs button').forEach(btn => btn.addEventListener('click', () => {
-      document.querySelectorAll('.parlays-mode-tabs button').forEach(x => x.classList.toggle('is-active', x === btn));
-      notify(btn.querySelector('b')?.textContent + ' builder selected.');
-    }));
-
-    document.querySelectorAll('.parlay-leg-count button').forEach(btn => btn.addEventListener('click', () => {
-      document.querySelectorAll('.parlay-leg-count button').forEach(x => x.classList.toggle('is-active', x === btn));
-      notify(btn.textContent.trim() + '-leg target selected.');
-    }));
-
-    document.querySelectorAll('.parlay-add-leg,.parlay-suggestion-card').forEach(btn => btn.addEventListener('click', () => {
-      notify('Leg picker will use exact selections from the live Props feed.');
-    }));
-
-    document.querySelectorAll('.parlay-replacement-card').forEach(btn => btn.addEventListener('click', () => {
-      notify('Replacement preview selected — exact-line recalculation will run here.');
-    }));
-
-    document.querySelectorAll('.parlay-book-row button').forEach(btn => btn.addEventListener('click', () => {
-      notify('Sportsbook handoff will use the exact selection links supplied by the odds feed.');
-    }));
-
-    document.querySelectorAll('.parlay-leg-remove').forEach(btn => btn.addEventListener('click', () => {
-      notify('Preview interaction only — live builder state comes with the data migration.');
+    document.querySelectorAll('[data-parlay-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
+    document.querySelector('[data-parlay-new]')?.addEventListener('click', () => resetParlayBuild());
+    document.querySelector('[data-parlay-add]')?.addEventListener('click', () => {
+      const next=chooseParlayRows(1,parlayLegKeys)[0];
+      if(next&&parlayLegKeys.length<8){
+        parlayLegKeys.push(String(next.key));
+        if(parlayLegKeys.length>parlayTarget) parlayTarget=Math.min(5,parlayLegKeys.length);
+        renderParlayLab();
+      }else notify('No additional exact modeled selection is available for this filter.');
+    });
+    document.querySelectorAll('[data-parlay-target]').forEach(btn => btn.addEventListener('click', () => {
+      parlayTarget=Math.max(2,Math.min(5,Number(btn.dataset.parlayTarget)||3));
+      fillParlayToTarget(parlayTarget);
+      renderParlayLab();
     }));
     document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
     document.querySelector('[data-models-refresh]')?.addEventListener('click', () => refreshPropsData(true));
