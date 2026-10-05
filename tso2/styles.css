@@ -3203,6 +3203,116 @@ body{
 
 
 
+
+
+/* =========================================================
+   TSO 2.0 — DEEP RESEARCH DETAIL
+   ========================================================= */
+body.research-detail-open{overflow:hidden}
+.research-detail-overlay{
+  position:fixed;inset:0;z-index:120;background:rgba(2,4,8,.82);backdrop-filter:blur(14px);
+  display:flex;align-items:flex-start;justify-content:center;padding:34px 18px;overflow:auto
+}
+.research-detail-shell{
+  width:min(1120px,100%);min-height:520px;border:1px solid rgba(255,255,255,.13);
+  background:linear-gradient(160deg,#0a0f16,#05080d 68%);box-shadow:0 40px 100px rgba(0,0,0,.58)
+}
+.research-detail-hero{
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:24px;align-items:center;
+  padding:22px 24px;border-bottom:1px solid rgba(255,255,255,.09);
+  background:
+    radial-gradient(circle at 8% 0%,rgba(45,127,255,.10),transparent 28rem),
+    linear-gradient(90deg,rgba(255,255,255,.025),transparent)
+}
+.research-detail-close{
+  position:absolute;right:10px;top:8px;width:32px;height:32px;border:0;background:transparent;color:#76828e;
+  font-size:24px;line-height:1;cursor:pointer
+}
+.research-detail-close:hover{color:#fff}
+.research-detail-player{display:flex;align-items:center;gap:14px;min-width:0}
+.research-detail-headshot{width:68px!important;height:68px!important;border-radius:50%!important;flex:0 0 auto}
+.research-detail-player>div{min-width:0}
+.research-detail-player span{display:block;color:#75818d;font-size:7px;font-weight:950;letter-spacing:.12em}
+.research-detail-player h2{margin:5px 0 4px;font-size:28px;letter-spacing:-.045em}
+.research-detail-player p{margin:0;color:#697581;font-size:8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.research-detail-market{display:grid;grid-template-columns:repeat(3,minmax(92px,1fr));border:1px solid rgba(255,255,255,.08);margin-right:32px}
+.research-detail-market>span{padding:11px 12px;border-left:1px solid rgba(255,255,255,.07)}
+.research-detail-market>span:first-child{border-left:0}
+.research-detail-market small,.research-detail-market b,.research-detail-market em{display:block}
+.research-detail-market small{color:#596571;font-size:6px;font-weight:900;letter-spacing:.08em}
+.research-detail-market b{margin-top:5px;font-size:13px}
+.research-detail-market em{margin-top:3px;color:#6d7884;font-size:6px;font-style:normal}
+.research-detail-content{padding:18px 20px 8px}
+.research-detail-loading{min-height:360px}
+.research-detail-status{
+  display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center;padding:13px 14px;margin-bottom:12px;
+  border:1px solid rgba(79,227,155,.12);background:rgba(79,227,155,.025)
+}
+.deep-source-chip{
+  grid-row:1/3;min-height:32px;display:inline-flex;align-items:center;padding:0 9px;
+  border:1px solid rgba(79,227,155,.18);background:rgba(79,227,155,.05);
+  color:#70e8ab;font-size:6px;font-weight:950;letter-spacing:.09em
+}
+.research-detail-status b,.research-detail-status small{display:block}
+.research-detail-status b{font-size:9px}.research-detail-status small{color:#65717d;font-size:7px}
+.research-detail-block{
+  margin-top:12px;border:1px solid rgba(255,255,255,.085);background:#070b10
+}
+.research-detail-block-head{
+  min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:0 13px;
+  border-bottom:1px solid rgba(255,255,255,.07)
+}
+.research-detail-block-head span{color:#ffcc5c;font-size:7px;font-weight:950;letter-spacing:.10em}
+.research-detail-block-head b{font-size:9px;color:#aab3bd}
+.research-detail-metrics{display:grid;grid-template-columns:repeat(4,1fr)}
+.research-detail-metrics>span{min-height:78px;padding:13px;border-left:1px solid rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.04)}
+.research-detail-metrics>span:nth-child(4n+1){border-left:0}
+.research-detail-metrics small,.research-detail-metrics b,.research-detail-metrics em{display:block}
+.research-detail-metrics small{color:#56616d;font-size:6px;font-weight:900;letter-spacing:.075em}
+.research-detail-metrics b{margin-top:7px;font-size:15px;line-height:1.05}
+.research-detail-metrics em{margin-top:5px;color:#66727e;font-size:6px;font-style:normal;line-height:1.35}
+.research-detail-log,.research-detail-pitch-list{display:grid}
+.research-detail-log-row,.research-detail-pitch-row{
+  min-height:48px;display:grid;grid-template-columns:100px 170px 1fr;gap:12px;align-items:center;
+  padding:8px 13px;border-top:1px solid rgba(255,255,255,.06)
+}
+.research-detail-log-row:first-child,.research-detail-pitch-row:first-child{border-top:0}
+.research-detail-log-row span,.research-detail-pitch-row span{color:#66727e;font-size:7px}
+.research-detail-log-row b,.research-detail-pitch-row b{font-size:8px}
+.research-detail-log-row em,.research-detail-pitch-row em{color:#8d98a4;font-size:7px;font-style:normal}
+.research-detail-pitch-row{grid-template-columns:60px 90px 1fr}
+.research-detail-empty{
+  min-height:300px;display:grid;place-items:center;text-align:center;padding:40px;border:1px solid rgba(255,255,255,.08)
+}
+.research-detail-empty b,.research-detail-empty small{display:block}
+.research-detail-empty b{font-size:13px}.research-detail-empty small{margin-top:7px;color:#687480;font-size:8px}
+.research-detail-footer{
+  min-height:58px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:0 20px;
+  border-top:1px solid rgba(255,255,255,.08);background:#06090d
+}
+.research-detail-footer span{color:#5d6874;font-size:6px;font-weight:900;letter-spacing:.09em}
+.research-detail-footer button{height:32px;padding:0 10px;border:1px solid rgba(45,127,255,.18);background:rgba(45,127,255,.05);color:#8bb7ff;font-size:7px;font-weight:900;cursor:pointer}
+
+@media(max-width:820px){
+  .research-detail-overlay{padding:0}
+  .research-detail-shell{min-height:100vh;border:0}
+  .research-detail-hero{grid-template-columns:1fr;padding:18px}
+  .research-detail-market{margin-right:0}
+  .research-detail-player h2{font-size:23px}
+  .research-detail-metrics{grid-template-columns:repeat(2,1fr)}
+  .research-detail-metrics>span:nth-child(4n+1){border-left:1px solid rgba(255,255,255,.06)}
+  .research-detail-metrics>span:nth-child(2n+1){border-left:0}
+  .research-detail-log-row,.research-detail-pitch-row{grid-template-columns:82px 1fr}
+  .research-detail-log-row em,.research-detail-pitch-row em{grid-column:1/-1;padding-bottom:5px}
+}
+@media(max-width:520px){
+  .research-detail-headshot{width:54px!important;height:54px!important}
+  .research-detail-market{grid-template-columns:repeat(3,1fr)}
+  .research-detail-market>span{padding:9px 7px}
+  .research-detail-content{padding:12px 10px 6px}
+  .research-detail-metrics{grid-template-columns:1fr 1fr}
+  .research-detail-footer{align-items:flex-start;flex-direction:column;padding:12px}
+}
 /* =========================================================
    TSO 2.0 — LIVE RESEARCH DESK
    ========================================================= */
