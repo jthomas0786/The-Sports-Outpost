@@ -578,8 +578,8 @@
               <img class="props-hero-icon" src="/brand/production/tso2-product-props-approved.webp" alt="" />
               <span class="destination-kicker props-kicker">PROP INTELLIGENCE · ${leagueName(league)}</span>
             </div>
-            <h1>Exact lines. Real sportsbook prices.</h1>
-            <p>Verified sportsbook snapshots from the existing TSO odds feeds. Exact player, market, threshold, side and book are preserved — nearby lines are never substituted.</p>
+            <h1>Exact lines. Real model-to-market edges.</h1>
+            <p>Verified sportsbook snapshots matched to real TSO model outputs only when player, market, side and exact threshold agree. No nearby-line substitutions and no invented model probabilities.</p>
           </div>
           <div class="destination-actions">
             <span class="props-feed-badge" data-props-feed-badge><i></i> CONNECTING ODDS</span>
@@ -591,6 +591,8 @@
           <div><span class="props-live-dot"></span><b>CONNECTING VERIFIED FEED</b></div>
           <span class="props-status-divider"></span>
           <div><b>—</b><small>exact selections</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>—</b><small>model matched</small></div>
           <span class="props-status-divider"></span>
           <div><b>—</b><small>sportsbooks</small></div>
           <span class="props-status-divider"></span>
@@ -644,7 +646,7 @@
           </div>
           <div class="props-board props-board-live">
             <div class="props-board-head props-board-head-live">
-              <span>PLAYER / MARKET</span><span>EXACT</span><span>BEST PRICE</span><span>BOOK</span><span>IMPLIED</span><span>UPDATED</span><span>LINK</span>
+              <span>PLAYER / MARKET</span><span>EXACT</span><span>MODEL</span><span>MARKET</span><span>EDGE</span><span>MODEL TAG</span><span>BEST PRICE</span><span>BOOK</span><span>UPDATED</span><span>LINK</span>
             </div>
             <div data-props-board>
               <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading exact selections…</b></div>
@@ -656,7 +658,7 @@
         <section class="destination-section">
           <div class="destination-section-head">
             <div><span class="violet-kicker">FEED INTEGRITY</span><h2>What is real right now</h2></div>
-            <button data-route-jump="models">MODEL LAYER NEXT →</button>
+            <button data-route-jump="models">OPEN MODELS →</button>
           </div>
           <div class="props-intelligence-grid" data-props-integrity>
             <article class="props-intel-card">
@@ -675,10 +677,10 @@
             </article>
             <article class="props-intel-card">
               <span class="violet-kicker">MODEL LAYER</span>
-              <h3>Not faked</h3>
-              <p>Model probability, edge and confidence stay off this real-data board until the existing TSO model outputs are connected.</p>
-              <div><span>Sportsbook data</span><b>CONNECTED</b></div>
-              <div><span>Model data</span><b>NEXT PHASE</b></div>
+              <h3 data-props-model-title>Connecting exact model matches</h3>
+              <p>TSO probabilities attach only when the model and sportsbook row agree on the same player, market, side and exact threshold.</p>
+              <div><span>NHL / NFL / MLB</span><b data-props-model-coverage>CONNECTING</b></div>
+              <div><span>NBA</span><b>MARKET ONLY</b></div>
             </article>
           </div>
         </section>
