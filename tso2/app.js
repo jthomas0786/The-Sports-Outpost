@@ -19,6 +19,7 @@
   let parlayTarget = 3;
   let researchQuery = '';
   const deepResearchCache = new Map();
+  const propHistoryCache = new Map();
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
   const PROPS_FEED_TTL = 30000;
@@ -1711,7 +1712,7 @@
         +'<strong class="props-book-name">'+esc(row.book||'—')+'</strong>'
         +'<span class="props-snapshot-age">'+esc(ageText(row.snapshotTime))+'</span>'
         +'<span class="props-row-actions">'
-          +'<button data-props-compare="'+esc(row.key)+'">BOOKS</button>'
+          +'<button data-props-compare="'+esc(row.key)+'">INTEL</button>'
           +'<button '+(hasResearch?'':'disabled')+' data-props-research="'+esc(row.key)+'">RESEARCH</button>'
           +'<button class="is-primary" data-props-parlay="'+esc(row.key)+'">+ PARLAY</button>'
         +'</span>'
@@ -1736,6 +1737,172 @@
       const books=[...new Set(leagueRows.flatMap(row=>(row.books||[{book:row.book}]).map(b=>String(b?.book||'')).filter(Boolean)))].sort((a,b)=>a.localeCompare(b));
       bookSelect.innerHTML='<option value="">BOOK: ALL</option>'+books.map(book=>'<option value="'+esc(book.toLowerCase())+'">'+esc(book.toUpperCase())+'</option>').join('');
       if(books.some(book=>book.toLowerCase()===previous)) bookSelect.value=previous;
+    }
+  }
+
+  async function propResearchPayload(row){
+    if(!row||!['nfl','nhl','mlb'].includes(String(row.sport)))return {available:false,sport:row?.sport||'',reason:'Verified game-log research is not connected for this sport yet'};
+    const opponent=researchOpponentForRow(row);
+    const key=['prop-rate',row.sport,row.playerId||'',row.player,row.team||'',opponent].join('|');
+    if(deepResearchCache.has(key))return deepResearchCache.get(key);
+    const qs=new URLSearchParams({sport:String(row.sport||''),playerId:String(row.playerId||''),name:String(row.player||''),team:String(row.team||''),opponent:String(opponent||''),eventId:String(row.eventId||'')});
+    const response=await fetch('/api/research-detail?'+qs.toString(),{cache:'no-store'});
+    const payload=await response.json();
+    if(!response.ok&&!payload?.reason)throw new Error(payload?.error||('Research HTTP '+response.status));
+    deepResearchCache.set(key,payload);
+    return payload;
+  }
+
+  async function propHistoryPayload(row,book){
+    const key=['prop-history',row?.sport,row?.eventId,row?.player,row?.market,row?.line,row?.side,book||''].join('|');
+    if(propHistoryCache.has(key))return propHistoryCache.get(key);
+    const qs=new URLSearchParams({
+      sport:String(row?.sport||''),eventId:String(row?.eventId||''),player:String(row?.player||''),
+      market:String(row?.market||''),line:String(row?.line??''),side:String(row?.side||'over'),book:String(book||'')
+    });
+    const response=await fetch('/api/prop-history?'+qs.toString(),{cache:'no-store'});
+    const payload=await response.json();
+    if(!response.ok&&!payload?.reason)throw new Error(payload?.error||('History HTTP '+response.status));
+    propHistoryCache.set(key,payload);
+    return payload;
+  }
+
+  function propSeriesForRow(data,row){
+    if(!data?.available||!row)return [];
+    const sport=String(row.sport||'').toLowerCase(),market=String(row.market||'');
+    const out=[];
+    if(sport==='nfl'){
+      const p=data.player||{};
+      if(market==='firstTd'){
+        for(const g of p.periodGameLog||[])out.push({date:g.date||null,season:g.season??null,value:Number(g.firstTd||0),source:g.source||'ESPN play-by-play'});
+        return out.filter(x=>Number.isFinite(x.value));
+      }
+      const field={rushYds:'rushYds',recYds:'recYds',receptions:'receptions',passYds:'passYds',passTds:'passTds',completions:'completions',atd:'tds'}[market];
+      if(!field)return [];
+      for(const g of p.gameLog||[]){
+        const value=Number(g?.[field]);
+        if(Number.isFinite(value))out.push({date:g.date||null,season:g.season??null,value,source:'nflverse game log'});
+      }
+      return out;
+    }
+    if(sport==='nhl'){
+      const p=data.player||{};
+      for(const g of p.recentGames||[]){
+        let value=null;
+        if(market==='atg'||market==='goals')value=Number(g?.stats?.goals);
+        else if(market==='fgs')value=g?.firstGoal?1:0;
+        else if(market==='sog')value=Number(g?.stats?.sog);
+        else if(market==='assists')value=Number(g?.stats?.assists);
+        else if(market==='points')value=Number(g?.stats?.points);
+        else if(market==='blocks')value=Number(g?.stats?.blocks);
+        else if(market==='saves')value=Number(g?.stats?.saves);
+        if(Number.isFinite(value))out.push({date:g.date||null,season:g.season??null,value,source:g.source||'ESPN game summary'});
+      }
+      return out;
+    }
+    if(sport==='mlb'){
+      const p=data.player||{};
+      for(const g of p.gameLog||[]){
+        let value=null;
+        if(market==='homeRun'||market==='hr')value=Number(g.hr);
+        else if(market==='hits')value=Number(g.h);
+        else if(market==='totalBases')value=Number(g.totalBases);
+        else if(market==='rbi')value=Number(g.rbi);
+        else if(market==='runs')value=Number(g.r);
+        else if(market==='hrr')value=Number(g.h)+Number(g.r)+Number(g.rbi);
+        else if(market==='singles')value=Number(g.singles);
+        else if(market==='doubles')value=Number(g.doubles);
+        else if(market==='triples')value=Number(g.triples);
+        else if(market==='walks')value=Number(g.walks);
+        else if(market==='batterStrikeouts')value=Number(g.strikeouts);
+        else if(market==='stolenBases')value=Number(g.stolenBases);
+        if(Number.isFinite(value))out.push({date:g.date||null,season:data?.player?.gameLogCoverage?.season??null,value,source:g.source||data?.player?.gameLogCoverage?.source||'MLB Stats API'});
+      }
+      return out;
+    }
+    return [];
+  }
+
+  function propWindowStats(series,row,count=null){
+    const rows=count?series.slice(0,count):series;
+    const line=Number(row?.line);
+    if(!rows.length||!Number.isFinite(line))return null;
+    let hits=0,losses=0,pushes=0,sum=0;
+    for(const item of rows){
+      const v=Number(item.value);if(!Number.isFinite(v))continue;
+      sum+=v;
+      if(Math.abs(v-line)<1e-9){pushes++;continue;}
+      const hit=row.side==='under'?v<line:v>line;
+      if(hit)hits++;else losses++;
+    }
+    const decisions=hits+losses;
+    return {games:rows.length,hits,losses,pushes,rate:decisions?hits/decisions*100:null,avg:rows.length?sum/rows.length:null};
+  }
+
+  function propSeasonSeries(series){
+    const seasons=series.map(x=>Number(x.season)).filter(Number.isFinite);
+    if(!seasons.length)return series;
+    const latest=Math.max(...seasons);
+    return series.filter(x=>Number(x.season)===latest);
+  }
+
+  function propRateCard(label,stats){
+    if(!stats||!Number.isFinite(stats.rate))return '<span><small>'+esc(label)+'</small><b>—</b><em>verified sample unavailable</em></span>';
+    return '<span><small>'+esc(label)+'</small><b>'+stats.rate.toFixed(0)+'%</b><em>'+stats.hits+'-'+stats.losses+(stats.pushes?' · '+stats.pushes+' push'+(stats.pushes===1?'':'es'):'')+' · avg '+researchRate(stats.avg,1)+'</em></span>';
+  }
+
+  function renderPropHitRate(data,row){
+    const series=propSeriesForRow(data,row);
+    if(!series.length){
+      return '<div class="prop-intel-empty"><b>Exact-line hit rate unavailable.</b><small>'+esc(data?.reason||'The verified game log does not expose this market yet. TSO will not infer it from season totals.')+'</small></div>';
+    }
+    const l5=propWindowStats(series,row,5),l10=propWindowStats(series,row,10),season=propWindowStats(propSeasonSeries(series),row);
+    const recent=series.slice(0,10);
+    const dots=recent.map(item=>{
+      const line=Number(row.line),v=Number(item.value);
+      const push=Math.abs(v-line)<1e-9,hit=!push&&(row.side==='under'?v<line:v>line);
+      return '<span class="'+(push?'is-push':hit?'is-hit':'is-miss')+'" title="'+esc(String(item.date||''))+' · '+esc(researchRate(v,1))+'">'+esc(researchRate(v,1))+'</span>';
+    }).join('');
+    const source=series[0]?.source||'verified game log';
+    return '<div class="prop-intel-metrics">'+propRateCard('L5',l5)+propRateCard('L10',l10)+propRateCard('SEASON',season)+'</div>'
+      +'<div class="prop-hit-sequence"><div><b>LAST '+recent.length+'</b><small>'+esc(propSelectionText(row))+' · exact threshold</small></div><div>'+dots+'</div></div>'
+      +'<div class="prop-intel-source">SOURCE · '+esc(source)+' · pushes excluded from hit-rate denominator</div>';
+  }
+
+  function renderPropPriceHistory(data,row,book){
+    if(!data?.available||!data.current){
+      return '<div class="prop-intel-empty"><b>No committed movement history found.</b><small>'+esc(data?.reason||data?.error||'This exact selection has not appeared in the recent committed snapshot window.')+'</small></div>';
+    }
+    const open=data.open,current=data.current;
+    const oi=americanImpliedPct(open.price),ci=americanImpliedPct(current.price);
+    const move=Number.isFinite(oi)&&Number.isFinite(ci)?ci-oi:null;
+    const tone=Number.isFinite(move)?(move>.15?'is-shorter':move<-.15?'is-drifter':'is-flat'):'is-flat';
+    const label=Number.isFinite(move)?(move>.15?'SHORTENED':move<-.15?'DRIFTED':'UNCHANGED'):'OBSERVED';
+    const points=(data.points||[]).slice(-12);
+    const timeline=points.map((p,index)=>{
+      const implied=americanImpliedPct(p.price);
+      return '<span class="'+(index===0?'is-open ':'')+(index===points.length-1?'is-current':'')+'"><small>'+esc(new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(new Date(p.snapshotTime||p.commitTime)))+'</small><b>'+esc(americanPrice(p.price))+'</b><em>'+pct1(implied)+'</em></span>';
+    }).join('');
+    return '<div class="prop-move-summary '+tone+'">'
+      +'<span><small>TSO OPEN</small><b>'+esc(americanPrice(open.price))+'</b><em>'+pct1(oi)+'</em></span>'
+      +'<span><small>CURRENT</small><b>'+esc(americanPrice(current.price))+'</b><em>'+pct1(ci)+'</em></span>'
+      +'<span><small>IMPLIED MOVE</small><b>'+(Number.isFinite(move)?((move>0?'+':'')+move.toFixed(1)+' pp'):'—')+'</b><em>'+label+'</em></span>'
+      +'<span><small>SNAPSHOTS</small><b>'+String(data.points?.length||0)+'</b><em>'+esc(book||current.book||'best exact')+'</em></span>'
+      +'</div><div class="prop-price-timeline">'+timeline+'</div>'
+      +'<div class="prop-intel-source">TSO OPEN = earliest exact quote found in the recent committed TSO snapshot window · '+esc(String(data.commitsChecked||0))+' commits checked</div>';
+  }
+
+  async function loadPropIntel(row,overlay,book){
+    const rateNode=overlay.querySelector('[data-props-hit-rate]');
+    const historyNode=overlay.querySelector('[data-props-price-history]');
+    if(rateNode)rateNode.innerHTML='<div class="prop-intel-loading"><span class="live-feed-spinner"></span><b>Calculating exact-line hit rates…</b></div>';
+    if(historyNode)historyNode.innerHTML='<div class="prop-intel-loading"><span class="live-feed-spinner"></span><b>Reconstructing committed price history…</b></div>';
+    const [researchResult,historyResult]=await Promise.allSettled([propResearchPayload(row),propHistoryPayload(row,book)]);
+    if(rateNode){
+      rateNode.innerHTML=researchResult.status==='fulfilled'?renderPropHitRate(researchResult.value,row):'<div class="prop-intel-empty"><b>Hit-rate research unavailable.</b><small>'+esc(researchResult.reason?.message||String(researchResult.reason||''))+'</small></div>';
+    }
+    if(historyNode){
+      historyNode.innerHTML=historyResult.status==='fulfilled'?renderPropPriceHistory(historyResult.value,row,book):'<div class="prop-intel-empty"><b>Price history unavailable.</b><small>'+esc(historyResult.reason?.message||String(historyResult.reason||''))+'</small></div>';
     }
   }
 
@@ -1764,11 +1931,12 @@
     const original=(propsFeedCache?.rows||[]).find(x=>String(x.key)===String(row.key))||row;
     const books=[...(original.books||[])].filter(b=>Number.isFinite(Number(b?.price))).sort((a,b)=>Number(b.price)-Number(a.price));
     const hasModel=Number.isFinite(Number(original?.model?.probabilityPct));
+    const defaultBook=original.book||books[0]?.book||'';
     const overlay=document.createElement('div');
     overlay.className='props-compare-overlay';
     overlay.innerHTML='<div class="props-compare-shell" role="dialog" aria-modal="true">'
       +'<div class="props-compare-hero"><button class="props-compare-close" data-props-compare-close aria-label="Close">×</button>'
-      +'<div class="props-compare-player">'+propHeadshotMarkup(original,'props-compare-headshot')+'<div><span>'+esc(leagueLabel(original.sport))+' · EXACT BOOK COMPARISON</span><h2>'+esc(original.player)+'</h2><p>'+esc(original.marketLabel||original.market)+' · '+esc(propSelectionText(original))+' · '+esc(original.awayTeam||'')+' @ '+esc(original.homeTeam||'')+'</p></div></div>'
+      +'<div class="props-compare-player">'+propHeadshotMarkup(original,'props-compare-headshot')+'<div><span>'+esc(leagueLabel(original.sport))+' · PROP INTELLIGENCE</span><h2>'+esc(original.player)+'</h2><p>'+esc(original.marketLabel||original.market)+' · '+esc(propSelectionText(original))+' · '+esc(original.awayTeam||'')+' @ '+esc(original.homeTeam||'')+'</p></div></div>'
       +'<div class="props-compare-summary"><span><small>BOOKS</small><b>'+books.length+'</b></span><span><small>MODEL</small><b>'+(hasModel?pct1(original.model.probabilityPct):'—')+'</b></span><span><small>BEST</small><b>'+esc(americanPrice(original.price))+'</b></span></div></div>'
       +'<div class="props-compare-table"><div class="props-compare-head"><span>SPORTSBOOK</span><span>PRICE</span><span>IMPLIED</span><span>MODEL EDGE</span><span>UPDATED</span><span>ACTION</span></div>'
       +(books.length?books.map((book,index)=>{
@@ -1776,6 +1944,10 @@
         const edge=hasModel&&Number.isFinite(implied)?Number(original.model.probabilityPct)-implied:null;
         return '<div class="props-compare-row '+(index===0?'is-best':'')+'"><span><b>'+esc(book.book||'Sportsbook')+'</b><small>'+(index===0?'BEST VERIFIED PRICE':'exact selection')+'</small></span><strong>'+esc(americanPrice(book.price))+'</strong><strong>'+pct1(implied)+'</strong><strong class="'+(Number.isFinite(edge)?(edge>=0?'positive':'negative'):'')+'">'+(Number.isFinite(edge)?edgeText(edge):'—')+'</strong><span>'+esc(ageText(book.snapshotTime||original.snapshotTime))+'</span>'+(book.link?'<a href="'+esc(book.link)+'" target="_blank" rel="noopener">OPEN →</a>':'<em>NO LINK</em>')+'</div>';
       }).join(''):'<div class="research-detail-empty"><b>No exact sportsbook rows are attached to this selection.</b></div>')+'</div>'
+      +'<div class="prop-intel-duo">'
+        +'<article class="prop-intel-panel"><div class="prop-intel-panel-head"><div><span class="gold-kicker">EXACT-LINE PERFORMANCE</span><h3>How often has this exact side hit?</h3></div><b>'+esc(propSelectionText(original))+'</b></div><div data-props-hit-rate></div></article>'
+        +'<article class="prop-intel-panel"><div class="prop-intel-panel-head"><div><span class="violet-kicker">PRICE MOVEMENT</span><h3>TSO open → current</h3></div><select data-props-history-book aria-label="Sportsbook history">'+books.map(b=>'<option value="'+esc(b.book)+'" '+(String(b.book)===String(defaultBook)?'selected':'')+'>'+esc(String(b.book).toUpperCase())+'</option>').join('')+'</select></div><div data-props-price-history></div></article>'
+      +'</div>'
       +'<div class="props-compare-footer"><div><span>EXACT PLAYER + MARKET + SIDE + LINE</span><small>'+(hasModel?'Edge recalculated independently for every sportsbook price.':'Market-only selection · no model probability invented.')+'</small></div><div><button data-props-compare-research '+(['nhl','nfl','mlb'].includes(String(original.sport))?'':'disabled')+'>DEEP RESEARCH</button><button class="is-primary" data-props-compare-parlay>+ PARLAY LAB</button></div></div>'
       +'</div>';
     document.body.appendChild(overlay);
@@ -1784,7 +1956,14 @@
     overlay.addEventListener('click',event=>{if(event.target===overlay)closePropsCompare();});
     overlay.querySelector('[data-props-compare-research]')?.addEventListener('click',()=>{closePropsCompare();openResearchDetail(original);});
     overlay.querySelector('[data-props-compare-parlay]')?.addEventListener('click',()=>addPropToParlay(original));
+    const historySelect=overlay.querySelector('[data-props-history-book]');
+    historySelect?.addEventListener('change',()=>{
+      const node=overlay.querySelector('[data-props-price-history]');
+      if(node)node.innerHTML='<div class="prop-intel-loading"><span class="live-feed-spinner"></span><b>Loading '+esc(historySelect.value)+' history…</b></div>';
+      propHistoryPayload(original,historySelect.value).then(payload=>{if(node)node.innerHTML=renderPropPriceHistory(payload,original,historySelect.value);}).catch(error=>{if(node)node.innerHTML='<div class="prop-intel-empty"><b>Price history unavailable.</b><small>'+esc(error?.message||String(error))+'</small></div>';});
+    });
     bindMediaFallbacks();
+    loadPropIntel(original,overlay,defaultBook);
   }
 
   function bindPropsGeneratedActions(){
