@@ -20,6 +20,27 @@ async function deepResearchFetch(path,ttl=180){
 function deepResearchNameKey(value){return String(value||"").toLowerCase().replace(/[^a-z0-9]/g,"");}
 function deepResearchTeam(value){return String(value||"").toUpperCase().replace(/^LA(R|C)$/,"LA$1");}
 function deepResearchTrimGames(rows,count=30){return Array.isArray(rows)?rows.slice(0,count):[];}
+async function mlbVerifiedGameLog(playerId,season){
+  if(!playerId||!season)return [];
+  const url='https://statsapi.mlb.com/api/v1/people/'+encodeURIComponent(playerId)+'/stats?stats=gameLog&group=hitting&season='+encodeURIComponent(season);
+  try{
+    const r=await fetch(url,{headers:{accept:'application/json','user-agent':'TheSportsOutpost/2.0'},cf:{cacheTtl:600,cacheEverything:true}});
+    if(!r.ok)return [];
+    const doc=await r.json();
+    const splits=doc?.stats?.[0]?.splits||[];
+    return splits.map(x=>{
+      const st=x?.stat||{};
+      const h=Number(st.hits||0),d=Number(st.doubles||0),t=Number(st.triples||0),hr=Number(st.homeRuns||0);
+      return {
+        date:x?.date||null,opponent:x?.opponent?.abbreviation||x?.opponent?.name||null,
+        ab:Number(st.atBats||0),h,r:Number(st.runs||0),hr,rbi:Number(st.rbi||0),
+        doubles:d,triples:t,totalBases:Number(st.totalBases||0),walks:Number(st.baseOnBalls||0),
+        strikeouts:Number(st.strikeOuts||0),stolenBases:Number(st.stolenBases||0),
+        singles:Math.max(0,h-d-t-hr),source:'MLB Stats API gameLog'
+      };
+    }).filter(x=>x.date).sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
+  }catch{return [];}
+}
 async function buildDeepResearch(u){
   const sport=String(u.searchParams.get("sport")||"").toLowerCase();
   const playerId=String(u.searchParams.get("playerId")||"").trim();
@@ -45,7 +66,8 @@ async function buildDeepResearch(u){
         depth:p.depth||null,injury:p.injury||null,opponent:p.opponent||opponent||null,gameId:p.gameId||null,
         model:p.model||null,previousSeason:p.previousSeason||null,currentSeason:p.currentSeason||null,
         last5:p.last5?{...p.last5,gamesLog:deepResearchTrimGames(p.last5.gamesLog,5)}:null,
-        gameLog:deepResearchTrimGames(p.gameLog,12),snapTrend:p.snapTrend||null,matchup:p.matchup||null
+        gameLog:deepResearchTrimGames(p.gameLog,24),periodGameLog:deepResearchTrimGames(p.periodGameLog,24),
+        snapTrend:p.snapTrend||null,matchup:p.matchup||null
       }
     };
   }
@@ -108,6 +130,8 @@ async function buildDeepResearch(u){
     if(!found)return {available:false,sport,generatedAt:doc?.generatedAt||null,reason:"Player not found in current MLB slate research snapshot"};
     const {game,side,club,hitter,opp}=found;
     const detail=hitter.detail||null;
+    const seasonYear=Number(String(doc?.date||doc?.slateId||'').slice(0,4))||new Date().getUTCFullYear();
+    const verifiedGameLog=await mlbVerifiedGameLog(hitter.id||playerId,seasonYear);
     return {
       available:true,sport,generatedAt:doc?.generatedAt||null,statcastEnrichedAt:doc?.statcastEnrichedAt||null,
       sources:doc?.sources||null,warnings:doc?.warnings||[],
@@ -118,7 +142,9 @@ async function buildDeepResearch(u){
       player:{
         id:hitter.id||playerId||null,name:hitter.name||name,team:club.abbr||club.name||team||null,side,
         position:hitter.pos||null,bats:hitter.bats||null,battingOrder:hitter.battingOrder??null,
-        season:hitter.season||null,last10:hitter.last10||null,gameLog:deepResearchTrimGames(hitter.gameLog,10),
+        season:hitter.season||null,last10:hitter.last10||null,
+        gameLog:verifiedGameLog.length?deepResearchTrimGames(verifiedGameLog,180):deepResearchTrimGames(hitter.gameLog,10),
+        gameLogCoverage:verifiedGameLog.length?{season:seasonYear,games:verifiedGameLog.length,source:'MLB Stats API gameLog'}:{season:seasonYear,games:(hitter.gameLog||[]).length,source:'current slate recent log'},
         splits:hitter.splits||null,vsPitcher:hitter.vsPitcher||null,
         statcast:hitter.statcast||null,statcastL5:hitter.statcastL5||null,statcastL10:hitter.statcastL10||null,
         detail:detail?{
