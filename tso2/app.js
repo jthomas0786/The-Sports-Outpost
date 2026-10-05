@@ -1778,6 +1778,59 @@
     return '<span><small>'+esc(label)+'</small><b>'+esc(value==null||value===''?'—':value)+'</b>'+(note?'<em>'+esc(note)+'</em>':'')+'</span>';
   }
 
+  function nflRoleUsageVisual(p,last,snap){
+    const avgPct=Number(snap?.avgOffensePct),lastPct=Number(snap?.lastOffensePct),avgSnaps=Number(snap?.avgOffenseSnaps);
+    const targets=Number(last?.targets),carries=Number(last?.carries);
+    const hasRing=Number.isFinite(avgPct);
+    const targetValue=Number.isFinite(targets)?Math.max(0,targets):0;
+    const carryValue=Number.isFinite(carries)?Math.max(0,carries):0;
+    const opportunityTotal=targetValue+carryValue;
+    const hasMix=opportunityTotal>0;
+    if(!hasRing&&!hasMix)return '';
+    const ringPct=hasRing?Math.max(0,Math.min(100,avgPct)):0;
+    const targetPct=hasMix?targetValue/opportunityTotal*100:0;
+    const carryPct=hasMix?carryValue/opportunityTotal*100:0;
+    const roleCard=hasRing?'<div class="nfl-role-card"><div class="nfl-role-ring" style="--role-pct:'+ringPct.toFixed(1)+'%"><div><small>L5 AVG</small><strong>'+esc(researchValue(avgPct,1,'%'))+'</strong><span>SNAP SHARE</span></div></div><div class="nfl-role-notes">'
+      +'<span><small>LAST GAME</small><b>'+esc(Number.isFinite(lastPct)?researchValue(lastPct,1,'%'):'—')+'</b></span>'
+      +'<span><small>AVG SNAPS</small><b>'+esc(Number.isFinite(avgSnaps)?researchRate(avgSnaps):'—')+'</b></span>'
+      +'<span><small>DEPTH</small><b>'+esc(p?.depth?.rank?('#'+p.depth.rank+' '+(p.depth.position||p.position||'')):(p?.depth?.position||p?.position||'—'))+'</b></span>'
+      +'</div></div>':'';
+    const mixCard=hasMix?'<div class="nfl-usage-mix-card"><div class="nfl-usage-mix-head"><div><small>L5 OPPORTUNITY MIX</small><b>Targets vs carries</b></div><span>'+esc(researchRate(opportunityTotal))+' combined / game</span></div>'
+      +'<div class="nfl-usage-mix-track"><i class="is-target" style="width:'+targetPct.toFixed(1)+'%"></i><i class="is-carry" style="width:'+carryPct.toFixed(1)+'%"></i></div>'
+      +'<div class="nfl-usage-mix-key"><span><i class="is-target"></i><b>TARGETS</b><small>'+esc(researchRate(targetValue))+' · '+targetPct.toFixed(0)+'%</small></span><span><i class="is-carry"></i><b>CARRIES</b><small>'+esc(researchRate(carryValue))+' · '+carryPct.toFixed(0)+'%</small></span></div>'
+      +'<p>Mix is calculated only from verified L5 targets + carries; it is not presented as team usage share.</p></div>':'';
+    return '<section class="research-detail-block nfl-role-visual"><div class="research-detail-block-head"><span>ROLE + USAGE VISUAL</span><b>Verified NFL workload context</b></div><div class="nfl-role-grid">'+roleCard+mixCard+'</div></section>';
+  }
+
+  function nflMatchupComparisonVisual(row,last,cur,allowed){
+    const market=String(row?.market||'');
+    const map={
+      recYds:['RECEIVING YARDS','recYds'],
+      rushYds:['RUSHING YARDS','rushYds'],
+      passYds:['PASSING YARDS','passYds'],
+      receptions:['RECEPTIONS','receptions'],
+      passTds:['PASS TD','passTds'],
+      atd:['TOUCHDOWNS','tds']
+    };
+    const spec=map[market];
+    if(!spec)return '';
+    const key=spec[1];
+    const items=[
+      {label:'L5 PLAYER AVG',value:Number(last?.[key]),note:'recent verified production'},
+      {label:'SEASON AVG',value:Number(cur?.[key]),note:'current season / game'},
+      {label:'OPP ALLOWED',value:Number(allowed?.[key]),note:'position group / game'},
+      {label:'SPORTSBOOK LINE',value:Number(row?.line),note:'exact selected threshold'}
+    ].filter(item=>Number.isFinite(item.value));
+    if(items.length<2)return '';
+    const max=Math.max(1,...items.map(item=>Math.max(0,item.value)));
+    const bars=items.map(item=>{
+      const width=Math.max(2,Math.min(100,Math.max(0,item.value)/max*100));
+      const cls=item.label==='SPORTSBOOK LINE'?'is-line':item.label==='OPP ALLOWED'?'is-opponent':'is-player';
+      return '<div class="nfl-matchup-bar-row '+cls+'"><div><small>'+esc(item.label)+'</small><b>'+esc(researchRate(item.value,market==='atd'||market==='passTds'?2:1))+'</b><em>'+esc(item.note)+'</em></div><span><i style="width:'+width.toFixed(1)+'%"></i></span></div>';
+    }).join('');
+    return '<section class="research-detail-block nfl-matchup-visual"><div class="research-detail-block-head"><span>PLAYER VS OPPONENT</span><b>'+esc(spec[0])+' · source-backed comparison</b></div><div class="nfl-matchup-bars">'+bars+'</div></section>';
+  }
+
   function nflResearchDetail(data,row){
     const p=data.player||{},last=p.last5?.avg||{},cur=p.currentSeason?.perGame||{},prev=p.previousSeason?.perGame||{};
     const snap=p.snapTrend||{},allowed=p.matchup?.previousSeasonAllowed?.perGame||{};
@@ -1813,7 +1866,11 @@
       ['DEPTH',p.depth?.rank?('#'+p.depth.rank+' '+(p.depth.position||p.position||'')):(p.depth?.position||p.position||'—'),'current']
     ].filter(x=>x[1]!=='—').slice(0,8);
     const games=(p.gameLog||[]).slice(0,8).map(g=>'<div class="research-detail-log-row"><span>'+esc(g.date||('W'+(g.week||'')))+'</span><b>'+esc((g.team||p.team||'')+' vs '+(g.opponent||'—'))+'</b><em>'+esc('TGT '+researchRate(g.targets)+' · REC '+researchRate(g.receptions)+' · '+researchRate(g.recYds,0)+' REC YD · '+researchRate(g.rushYds,0)+' RUSH YD')+'</em></div>').join('');
+    const roleVisual=nflRoleUsageVisual(p,last,snap);
+    const comparisonVisual=nflMatchupComparisonVisual(row,last,cur,allowed);
     return '<section class="research-detail-status"><span class="deep-source-chip">NFLVERSE + ESPN</span><b>'+esc(p.rosterStatus||'Roster status unavailable')+'</b><small>'+esc(injury?('Injury: '+injury):'No current injury status attached')+'</small></section>'
+      +roleVisual
+      +comparisonVisual
       +'<section class="research-detail-block"><div class="research-detail-block-head"><span>RECENT FORM</span><b>Last five verified games</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
       +(season.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>SEASON PRODUCTION</span><b>Current + previous season</b></div><div class="research-detail-metrics">'+season.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
       +(matchup.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>ROLE + MATCHUP</span><b>'+esc(p.opponent?('vs '+p.opponent):'Verified context')+'</b></div><div class="research-detail-metrics">'+matchup.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
