@@ -61,6 +61,32 @@
     document.querySelectorAll('.model-card .button,.prop-row,.game-row').forEach(btn => btn.addEventListener('click', () => {
       notify('Shared detail drawer pattern — same interaction across every sport.');
     }));
+
+    document.querySelectorAll('.parlays-mode-tabs button').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.parlays-mode-tabs button').forEach(x => x.classList.toggle('is-active', x === btn));
+      notify(btn.querySelector('b')?.textContent + ' builder selected.');
+    }));
+
+    document.querySelectorAll('.parlay-leg-count button').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.parlay-leg-count button').forEach(x => x.classList.toggle('is-active', x === btn));
+      notify(btn.textContent.trim() + '-leg target selected.');
+    }));
+
+    document.querySelectorAll('.parlay-add-leg,.parlay-suggestion-card').forEach(btn => btn.addEventListener('click', () => {
+      notify('Leg picker will use exact selections from the live Props feed.');
+    }));
+
+    document.querySelectorAll('.parlay-replacement-card').forEach(btn => btn.addEventListener('click', () => {
+      notify('Replacement preview selected — exact-line recalculation will run here.');
+    }));
+
+    document.querySelectorAll('.parlay-book-row button').forEach(btn => btn.addEventListener('click', () => {
+      notify('Sportsbook handoff will use the exact selection links supplied by the odds feed.');
+    }));
+
+    document.querySelectorAll('.parlay-leg-remove').forEach(btn => btn.addEventListener('click', () => {
+      notify('Preview interaction only — live builder state comes with the data migration.');
+    }));
   }
 
   function renderRoute(){
