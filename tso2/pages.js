@@ -696,30 +696,106 @@
     },
 
     community(league){
-      return header('COMMUNITY','The Outpost is better with people in it','Follow bettors, share picks, react to models and talk inside sport-aware rooms without losing your research context.',league,'Create Post') +
-      filterBar(league,'<button class="filter-button active-filter">Following</button><button class="filter-button">Trending</button>') +
-      `<section class="community-layout">
-        <div class="feed">
-          <article class="post-card panel"><div class="post-head"><span class="avatar">JT</span><div><b>justcallme_jt</b><small>2 min · NHL</small></div><button>•••</button></div><p>Crosby is still my favorite goal look tonight. Model climbed again after the latest line/goalie inputs.</p><div class="shared-pick"><span class="league-badge">NHL</span><div><b>Sidney Crosby · Anytime Goal</b><small>Outpost 34.8% · Market 27.2%</small></div><strong>+268</strong></div><div class="post-actions"><button>🔥 42</button><button>💬 11</button><button>＋ Track</button><button>↗ Share</button></div></article>
-          <article class="post-card panel"><div class="post-head"><span class="avatar">AK</span><div><b>AnalyticsKing</b><small>8 min · NFL</small></div><button>•••</button></div><p>Barkley's red-zone role + Dallas front is the exact profile I want. Watching the price before kickoff.</p><div class="post-actions"><button>🔥 31</button><button>💬 8</button><button>＋ Track</button><button>↗ Share</button></div></article>
-        </div>
-        <aside class="panel room-card"><span class="eyebrow">LIVE ROOM</span><h2>NHL Tonight</h2><p>1,284 members · 183 online</p><div class="mini-chat"><div><b>@goalhunter</b><span>PHI goalie confirmed.</span></div><div><b>@iceedge</b><span>Crosby price moved again.</span></div><div><b>@justcallme_jt</b><span>Model still likes it.</span></div></div><button class="button primary full">Enter room</button></aside>
+      return `
+      <section class="community-page broadcast-destination" data-community-route>
+        <section class="destination-hero community-destination-hero">
+          <div>
+            <span class="destination-kicker">COMMUNITY · ${leagueName(league)}</span>
+            <h1>The social layer starts with real signals.</h1>
+            <p>Until member accounts, posts, reactions and rooms have a real persistence layer, TSO shows a data-backed Model Pulse instead of invented community activity.</p>
+          </div>
+          <div class="destination-actions">
+            <button class="button secondary" data-community-refresh>REFRESH PULSE</button>
+            <button class="button primary" data-community-post disabled>CREATE POST · COMING SOON</button>
+          </div>
+        </section>
+
+        <section class="community-live-strip" data-community-status>
+          <div><span class="props-live-dot"></span><b>CONNECTING MODEL PULSE</b><small>Real TSO model feed</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>NO FAKE MEMBERS</b><small>accounts not connected</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>NO FAKE REACTIONS</b><small>engagement not simulated</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>SPORT AWARE</b><small>${leagueName(league)}</small></div>
+        </section>
+
+        <section class="community-layout">
+          <div class="feed" data-community-feed>
+            <div class="live-board-loading community-feed-loading"><span class="live-feed-spinner"></span><div><b>Loading real Outpost signals…</b><small>Top exact model-to-market edges will appear here.</small></div></div>
+          </div>
+
+          <aside class="panel room-card community-launch-card">
+            <span class="violet-kicker">COMMUNITY LAUNCH STATE</span>
+            <h2>Member activity is not connected yet.</h2>
+            <p>TSO will not manufacture usernames, online counts, comments, reactions, records or chat messages.</p>
+            <div class="community-launch-list">
+              <div><span>✓</span><div><b>Real model sharing surface</b><small>Model Pulse is live now.</small></div></div>
+              <div><span>○</span><div><b>Member posts</b><small>Needs persistent account/post storage.</small></div></div>
+              <div><span>○</span><div><b>Reactions + comments</b><small>Needs real engagement records.</small></div></div>
+              <div><span>○</span><div><b>Live sport rooms</b><small>Needs real presence and messaging.</small></div></div>
+            </div>
+            <button class="button secondary full" data-route-jump="models">OPEN LIVE MODELS</button>
+          </aside>
+        </section>
       </section>`;
     },
 
     leaderboard(league){
-      return header('LEADERBOARD','Performance you can actually inspect','Rankings based on tracked picks and points with transparent records, streaks and sport filters.',league,'My Ranking') +
-      filterBar(league,'<button class="filter-button">This week</button><button class="filter-button">All markets</button>') +
-      `<section class="podium">
-        <article><span>2</span><div class="podium-avatar">AK</div><b>AnalyticsKing</b><small>71% · +28.4 pts</small></article>
-        <article class="winner"><span>1</span><div class="podium-avatar">JP</div><b>JPicks</b><small>74% · +34.8 pts</small></article>
-        <article><span>3</span><div class="podium-avatar">JT</div><b>justcallme_jt</b><small>68% · +24.1 pts</small></article>
-      </section>
-      <section class="leader-table panel">
-        <div class="leader-head"><span>RANK</span><span>USER</span><span>RECORD</span><span>WIN %</span><span>POINTS</span><span>STREAK</span></div>
-        <div class="leader-row"><b>4</b><span><i class="avatar">ME</i><strong>ModelEdge</strong></span><em>42–23</em><em>64.6%</em><strong class="positive">+21.7</strong><span class="streak">W4</span></div>
-        <div class="leader-row"><b>5</b><span><i class="avatar">SR</i><strong>SharpRoom</strong></span><em>38–22</em><em>63.3%</em><strong class="positive">+19.9</strong><span class="streak">W2</span></div>
-        <div class="leader-row"><b>6</b><span><i class="avatar">PH</i><strong>PropHunter</strong></span><em>51–32</em><em>61.4%</em><strong class="positive">+18.6</strong><span class="streak">L1</span></div>
+      return `
+      <section class="rankings-page broadcast-destination" data-leaderboard-route>
+        <section class="destination-hero rankings-destination-hero">
+          <div>
+            <span class="destination-kicker">RANKINGS · ${leagueName(league)}</span>
+            <h1>Rank what is actually measurable.</h1>
+            <p>User records, win rates, streaks and points stay offline until TSO has verified tracked-pick history. The live ranking below is the real model board — clearly labeled as model ranking, not member performance.</p>
+          </div>
+          <div class="destination-actions">
+            <button class="button secondary" data-rankings-refresh>REFRESH DATA</button>
+            <button class="button primary" data-route-jump="models">OPEN MODELS →</button>
+          </div>
+        </section>
+
+        <section class="community-live-strip rankings-live-strip" data-rankings-status>
+          <div><span class="props-live-dot"></span><b>CONNECTING REAL RANKINGS</b><small>Exact model matches</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>USER LEADERBOARD</b><small>awaiting verified history</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>MODEL RANKING</b><small>live by exact edge</small></div>
+          <span class="props-status-divider"></span>
+          <div><b>NO FAKE RECORDS</b><small>win rates not simulated</small></div>
+        </section>
+
+        <section class="rankings-integrity panel">
+          <div>
+            <span class="gold-kicker">USER LEADERBOARD · DATA INTEGRITY</span>
+            <h2>Standings activate after tracked picks have real outcomes.</h2>
+            <p>TSO needs persisted user picks, settlement results and the final points rules before a member can honestly have a record, win rate, streak or leaderboard rank.</p>
+          </div>
+          <div class="rankings-readiness">
+            <span><small>MEMBER RECORDS</small><b>NOT CONNECTED</b></span>
+            <span><small>SETTLED PICKS</small><b>NOT CONNECTED</b></span>
+            <span><small>POINTS LEDGER</small><b>NOT CONNECTED</b></span>
+          </div>
+        </section>
+
+        <section class="destination-section rankings-model-section">
+          <div class="destination-section-head">
+            <div><span class="violet-kicker">LIVE MODEL RANKING · NOT USER STANDINGS</span><h2 data-rankings-title>Loading exact model edges…</h2></div>
+            <button data-route-jump="models">FULL MODEL BOARD →</button>
+          </div>
+
+          <div class="podium rankings-model-podium" data-rankings-podium>
+            <div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Ranking real model rows…</b></div></div>
+          </div>
+
+          <section class="leader-table panel rankings-model-table">
+            <div class="leader-head rankings-model-head"><span>RANK</span><span>PLAYER</span><span>SPORT</span><span>EXACT</span><span>MODEL</span><span>EDGE</span></div>
+            <div data-rankings-board>
+              <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading exact model rankings…</b></div></div>
+            </div>
+          </section>
+        </section>
       </section>`;
     },
 
