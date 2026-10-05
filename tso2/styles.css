@@ -3223,12 +3223,29 @@ body{
   overflow:hidden;
   vertical-align:middle;
 }
+.team-logo-shell{position:relative}
 .team-logo-shell img{
+  position:relative;
+  z-index:2;
   display:block;
   width:100%;
   height:100%;
   object-fit:contain;
 }
+.team-logo-fallback-text{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  display:grid;
+  place-items:center;
+  color:#73808d;
+  font-size:6px;
+  font-style:normal;
+  font-weight:950;
+  letter-spacing:0;
+}
+.team-logo-shell:not(.is-missing) .team-logo-fallback-text{opacity:.0}
+.team-logo-shell.is-missing .team-logo-fallback-text{opacity:1}
 .team-logo-fallback{
   border:1px solid rgba(255,255,255,.1);
   background:#0a0e14;
