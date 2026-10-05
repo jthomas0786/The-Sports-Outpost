@@ -3193,6 +3193,16 @@ body{
 .parlay-summary-grid{display:grid;grid-template-columns:repeat(2,1fr);border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}.parlay-summary-grid>div{padding:12px 13px;border-right:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}.parlay-summary-grid>div:nth-child(2n){border-right:0}.parlay-summary-grid>div:nth-last-child(-n+2){border-bottom:0}.parlay-summary-grid span{display:block;color:#5c6773;font-size:6px;font-weight:900;letter-spacing:.07em}.parlay-summary-grid b{display:block;margin-top:5px;font-size:12px}
 .parlay-check-list>div{min-height:60px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:9px;padding:0 13px;border-bottom:1px solid rgba(255,255,255,.07)}.parlay-check-list>div>span{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font-size:8px;font-weight:900}.parlay-check-list b{display:block;font-size:8px}.parlay-check-list small{display:block;margin-top:4px;color:#66717d;font-size:7px}.parlay-check-list .is-good>span{background:rgba(79,227,155,.08);color:#4fe39b}.parlay-check-list .is-warn>span{background:rgba(255,156,94,.09);color:#ffac7b}
 .parlay-health-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:13px}
+.parlays-mode-tabs button:disabled{cursor:not-allowed;opacity:.42}
+.parlays-mode-tabs button:disabled:hover{background:transparent}
+.parlay-health-ring--live strong{font-size:25px}
+.parlay-health-ring--live small{letter-spacing:.08em;font-weight:900}
+.parlay-math-note{margin-top:9px;padding:10px 12px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.018);color:#65717d;font-size:7px;line-height:1.55}
+.parlay-book-row button:disabled{cursor:not-allowed;opacity:.45}
+.parlay-replacement-grid .home-model-empty{min-height:220px;border:1px solid rgba(255,255,255,.08);background:#070a0f}
+.parlay-suggestion-headshot{margin-top:16px}
+.parlay-card-headshot{margin-top:12px}
+
 
 .parlay-replacement-grid{display:grid;grid-template-columns:minmax(220px,.8fr) 48px repeat(2,minmax(220px,1fr));gap:10px;align-items:stretch}
 .parlay-replace-current,.parlay-replacement-card{min-height:220px;padding:15px;border:1px solid rgba(255,255,255,.11);background:linear-gradient(150deg,#090d12,#05070a);color:#f6f7f9;text-align:left}
