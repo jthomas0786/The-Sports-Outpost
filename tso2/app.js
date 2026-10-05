@@ -876,12 +876,12 @@
     if(!node) return;
     if(rows.length<2){
       node.innerHTML='<div class="live-board-loading"><div><b>Add at least 2 exact legs for sportsbook comparison.</b></div></div>';
-      if(title) title.textContent='Same exact ticket by sportsbook';
+      if(title) title.textContent='Exact-leg coverage by sportsbook';
       return;
     }
     const books=parlayBookCoverage(rows);
     const complete=books.filter(x=>x.complete);
-    if(title) title.textContent=complete.length ? rows.length+' exact legs · '+complete.length+' common sportsbook'+(complete.length===1?'':'s') : rows.length+' exact legs · no common sportsbook';
+    if(title) title.textContent=complete.length ? rows.length+' exact legs · '+complete.length+' complete sportsbook'+(complete.length===1?'':'s') : rows.length+' exact legs · no common sportsbook';
     const visible=(complete.length?complete:books).slice(0,7);
     if(!visible.length){
       node.innerHTML='<div class="live-board-loading"><div><b>No sportsbook coverage returned for these legs.</b></div></div>';
@@ -893,7 +893,7 @@
       const coverage=item.legs.length+'/'+rows.length;
       return '<div class="parlay-book-row '+(item.complete&&i===0?'is-best':'')+'"><span class="parlay-book-name">'+esc(initials)+'</span><div><b>'+esc(item.name)+'</b><small>'+coverage+' exact legs · '+links.length+' native selection link'+(links.length===1?'':'s')+'</small></div>'
         +'<strong>'+(item.complete?esc(americanPrice(item.combinedAmerican)):'—')+'</strong>'
-        +'<span class="'+(item.complete&&i===0?'parlay-book-value':'')+'">'+(item.complete?(i===0?'BEST COMPLETE PRICE':'COMPLETE TICKET'):'PARTIAL COVERAGE')+'</span>'
+        +'<span class="'+(item.complete&&i===0?'parlay-book-value':'')+'">'+(item.complete?(i===0?'BEST DERIVED PRICE*':'COMPLETE COVERAGE'):'PARTIAL COVERAGE')+'</span>'
         +'<button data-parlay-book-open="'+esc(item.key)+'" '+(!links.length?'disabled':'')+'>'+(links.length?'OPEN EXACT LINKS →':'NO LINKS')+'</button></div>';
     }).join('');
   }
