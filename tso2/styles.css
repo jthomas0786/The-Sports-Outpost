@@ -3170,3 +3170,34 @@ body{
 @media(max-width:600px){
   .parlays-title-lockup{gap:8px}.parlays-hero-icon{width:30px;height:30px}.parlay-slip-head{align-items:flex-start;flex-direction:column;padding:14px}.parlay-leg{grid-template-columns:34px minmax(0,1fr) 60px}.parlay-leg-remove{position:absolute;right:7px;top:7px;width:22px;height:22px}.parlay-leg-metrics{grid-template-columns:repeat(2,1fr)}.parlay-leg-price{padding-right:4px}.parlay-health-actions{grid-template-columns:1fr}.parlay-health-score{align-items:flex-start}.parlay-health-ring{width:78px;height:78px;flex-basis:78px}.parlay-health-ring::before{width:60px;height:60px}.parlay-health-ring strong{font-size:19px}
 }
+
+
+/* =========================================================
+   TSO 2.0 — LIVE DATA STATES
+   ========================================================= */
+.live-data-badge{min-height:34px;display:flex;align-items:center;gap:8px;padding:0 10px;border:1px solid rgba(255,216,77,.2);background:rgba(255,216,77,.045);color:#ffe16a;font-size:7px;font-weight:950;letter-spacing:.08em}
+.live-data-badge i{width:7px;height:7px;border-radius:50%;background:#ffd84d;box-shadow:0 0 10px rgba(255,216,77,.45)}
+.live-data-badge.is-connected{border-color:rgba(79,227,155,.22);background:rgba(79,227,155,.04);color:#70e8ab}
+.live-data-badge.is-connected i{background:#4fe39b;box-shadow:0 0 10px rgba(79,227,155,.55)}
+.live-data-badge.is-error{border-color:rgba(255,77,28,.22);background:rgba(255,77,28,.05);color:#ff9a7c}
+.live-pulse.is-idle,.pulse.is-idle{background:#66717d!important;box-shadow:none!important}
+.live-feed-loading{min-height:360px;display:grid;place-items:center}
+.live-feed-empty,.live-feed-side-loading,.live-board-loading{display:flex;align-items:center;justify-content:center;gap:12px;min-height:120px;padding:20px;color:#87919d;text-align:center}
+.live-feed-empty b,.live-feed-side-loading b,.live-board-loading b{display:block;color:#d8dde3;font-size:9px}
+.live-feed-empty small,.live-feed-side-loading small{display:block;margin-top:5px;color:#65717d;font-size:7px}
+.live-feed-spinner{width:18px;height:18px;border:2px solid rgba(255,255,255,.1);border-top-color:#4fe39b;border-radius:50%;animation:tsoLiveSpin .8s linear infinite}
+@keyframes tsoLiveSpin{to{transform:rotate(360deg)}}
+.live-source-label{color:#65717d;font-size:7px;font-weight:900;letter-spacing:.08em}
+.live-state-chip.is-upcoming,.feature-live.is-upcoming{color:#9aa4af}
+.live-state-chip.is-upcoming i,.feature-live.is-upcoming i{background:#65717d!important;box-shadow:none!important}
+.live-preview-notice{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;padding:11px 13px;border:1px solid rgba(123,92,255,.15);background:rgba(123,92,255,.035)}
+.live-preview-notice>span{min-height:22px;display:grid;place-items:center;padding:0 7px;border:1px solid rgba(123,92,255,.24);color:#aa98ff;font-size:6px;font-weight:950;letter-spacing:.08em}
+.live-preview-notice p{margin:0;color:#697480;font-size:8px;line-height:1.55}
+.score-strip-empty{min-width:280px;display:flex;align-items:center;padding:0 16px;color:#6e7985;font-size:8px}
+.market-status{white-space:nowrap}
+.feature-stats.concept-matchup-stats b{max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.live-score-context b{max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+@media(max-width:900px){
+  .live-data-badge{display:none}
+}
