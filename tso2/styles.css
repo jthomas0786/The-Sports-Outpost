@@ -4478,3 +4478,61 @@ body.research-detail-open{overflow:hidden}
   border-color:rgba(255,216,77,.28);
   color:#e7ebef;
 }
+
+/* =========================================================
+   TSO 2.0 — PLAYER PROP TABLE COLUMN LOCK
+   Header + rows must share one authoritative grid. Keep this
+   after legacy/live board rules so older declarations cannot
+   collapse the Actions track.
+   ========================================================= */
+.props-board-live{
+  --tso-props-grid:
+    minmax(300px,1.7fr)
+    76px
+    72px
+    72px
+    78px
+    92px
+    92px
+    106px
+    82px
+    196px;
+}
+.props-board-head-live.props-board-head-pro,
+.props-board-row-live.props-board-row-pro{
+  display:grid!important;
+  grid-template-columns:var(--tso-props-grid)!important;
+  column-gap:8px!important;
+  align-items:center!important;
+  width:100%!important;
+  min-width:0!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+}
+.props-board-head-live.props-board-head-pro>span,
+.props-board-row-live.props-board-row-pro>strong,
+.props-board-row-live.props-board-row-pro>span{
+  min-width:0;
+}
+.props-board-head-live.props-board-head-pro>span:nth-child(n+2):nth-child(-n+9),
+.props-board-row-live.props-board-row-pro>strong,
+.props-board-row-live.props-board-row-pro>.props-price,
+.props-board-row-live.props-board-row-pro>.props-book-name,
+.props-board-row-live.props-board-row-pro>.props-snapshot-age{
+  text-align:left;
+}
+.props-board-row-live.props-board-row-pro>.props-model-tag{
+  justify-self:start;
+}
+.props-board-row-live.props-board-row-pro>.props-row-actions{
+  width:100%;
+  min-width:0;
+}
+@media(max-width:1320px){
+  .props-board-live{overflow-x:auto}
+  .props-board-head-live.props-board-head-pro,
+  .props-board-row-live.props-board-row-pro{
+    min-width:1390px!important;
+  }
+}
+
