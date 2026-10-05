@@ -3413,38 +3413,47 @@ body{
 
 
 /* =========================================================
-   TSO 2.0 — PLAYER HEADSHOT CROPS
-   Keep original containers; frame each source so the full face
-   stays visible while still filling the existing box.
+   TSO 2.0 — NORMALIZED PLAYER HEADSHOTS
+   One visual system for NHL / NFL / MLB / NBA.
+   Same frame/background; crop rules are sport-level only.
    ========================================================= */
+.player-headshot{
+  background:#0b1016!important;
+  border-color:rgba(255,255,255,.13)!important;
+}
 .player-headshot img{
-  transform:translateY(7%) scale(1.55);
-  transform-origin:center center;
-}
-
-/* ESPN NHL headshots carry extra transparent canvas above the player. */
-.player-crop--sidney-crosby img{
-  transform:translateY(-3%) scale(1.58)!important;
+  object-fit:contain!important;
+  object-position:center bottom!important;
   transform-origin:center center!important;
 }
-.player-crop--connor-mcdavid img{
-  transform:translateY(-4%) scale(1.48)!important;
-  transform-origin:center center!important;
-}
-.player-crop--auston-matthews img{
-  transform:translateY(12%) scale(1.68)!important;
+
+/* NHL — shared ESPN crop */
+.player-sport--nhl img,
+.player-headshot img[src*="/headshots/nhl/"]{
+  transform:translateY(-3%) scale(1.52)!important;
 }
 
-/* NFL headshots need a little less crop. */
-.player-crop--saquon-barkley img,
-.player-crop--travis-kelce img{
-  transform:translateY(8%) scale(1.58)!important;
+/* NFL — shared ESPN crop */
+.player-sport--nfl img,
+.player-headshot img[src*="/headshots/nfl/"]{
+  transform:translateY(-5%) scale(1.42)!important;
 }
 
-/* MLB headshots arrive pre-cropped, so keep the zoom restrained. */
-.player-crop--pete-alonso img,
-.player-crop--aaron-judge img{
-  transform:translateY(3%) scale(1.22)!important;
+/* MLB — ESPN source, same neutral frame */
+.player-sport--mlb img,
+.player-headshot img[src*="/headshots/mlb/"]{
+  transform:translateY(-4%) scale(1.42)!important;
+}
+
+/* NBA — shared ESPN crop */
+.player-sport--nba img,
+.player-headshot img[src*="/headshots/nba/"]{
+  transform:translateY(-5%) scale(1.42)!important;
+}
+
+/* Generic fallback */
+.player-sport--generic img{
+  transform:translateY(-3%) scale(1.4)!important;
 }
 
 /* Original media-box dimensions */
