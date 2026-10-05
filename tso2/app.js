@@ -658,10 +658,289 @@
     const when=game?.startTime?new Date(game.startTime):null;
     const time=when&&!Number.isNaN(when.getTime())?when.toLocaleString([],{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'Time pending';
     const status=String(game?.status||'').toUpperCase();
+    const marketLabel=nhlScorerMarket==='fgs'?'FIRST GOAL':'ANYTIME GOAL';
     return '<article class="nhl-scorer-game">'
       +'<header class="nhl-scorer-game-head"><div class="nhl-scorer-matchup-title">'+teamLogoMarkup(game?.away,'nhl-scorer-matchup-logo')+'<b>'+esc(game?.away?.abbr||'AWAY')+'</b><span>@</span><b>'+esc(game?.home?.abbr||'HOME')+'</b>'+teamLogoMarkup(game?.home,'nhl-scorer-matchup-logo')+'</div><div><span>'+esc(status||'SCHEDULED')+'</span><b>'+esc(time)+'</b><small>'+esc(game?.venue||'NHL')+'</small></div></header>'
       +'<div class="nhl-scorer-team-grid">'+nhlScorerTeamMarkup(game?.away)+nhlScorerTeamMarkup(game?.home)+'</div>'
+      +'<div class="nhl-scorer-game-actions"><span>'+esc(marketLabel)+' SHARE CARD</span><div><button data-nhl-scorer-game-share="'+esc(game?.gameId||'')+'">SHARE CARD</button><button data-nhl-scorer-game-download="'+esc(game?.gameId||'')+'">DOWNLOAD PNG</button></div></div>'
       +'</article>';
+  }
+
+  const nhlScorerCanvasImageCache=new Map();
+
+  function nhlScorerCanvasImage(url){
+    if(!url)return Promise.resolve(null);
+    const key=String(url);
+    if(nhlScorerCanvasImageCache.has(key))return nhlScorerCanvasImageCache.get(key);
+    const promise=new Promise(resolve=>{
+      const img=new Image();
+      img.crossOrigin='anonymous';
+      let done=false;
+      const finish=value=>{if(done)return;done=true;resolve(value);};
+      const timer=setTimeout(()=>finish(null),8000);
+      img.onload=()=>{clearTimeout(timer);finish(img);};
+      img.onerror=()=>{clearTimeout(timer);finish(null);};
+      img.src=key;
+    });
+    nhlScorerCanvasImageCache.set(key,promise);
+    return promise;
+  }
+
+  function nhlScorerCanvasPath(ctx,x,y,w,h,r=12){
+    const rr=Math.max(0,Math.min(r,Math.min(w,h)/2));
+    ctx.beginPath();
+    ctx.moveTo(x+rr,y);
+    ctx.arcTo(x+w,y,x+w,y+h,rr);
+    ctx.arcTo(x+w,y+h,x,y+h,rr);
+    ctx.arcTo(x,y+h,x,y,rr);
+    ctx.arcTo(x,y,x+w,y,rr);
+    ctx.closePath();
+  }
+
+  function nhlScorerCanvasBox(ctx,x,y,w,h,r,fill,stroke=null,lineWidth=1){
+    nhlScorerCanvasPath(ctx,x,y,w,h,r);
+    if(fill){ctx.fillStyle=fill;ctx.fill();}
+    if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lineWidth;ctx.stroke();}
+  }
+
+  function nhlScorerCanvasFit(ctx,text,maxWidth,size=28,min=12,weight=800,italic=false){
+    let n=size;
+    do{
+      ctx.font=(italic?'italic ':'')+weight+' '+n+'px Inter, Arial, sans-serif';
+      if(ctx.measureText(String(text||'')).width<=maxWidth||n<=min)break;
+      n--;
+    }while(n>min);
+    return n;
+  }
+
+  function nhlScorerCanvasContain(ctx,img,x,y,w,h){
+    if(!img)return;
+    const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;
+    if(!iw||!ih)return;
+    const scale=Math.min(w/iw,h/ih),dw=iw*scale,dh=ih*scale;
+    ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);
+  }
+
+  function nhlScorerCanvasCover(ctx,img,x,y,w,h){
+    if(!img)return;
+    const iw=img.naturalWidth||img.width,ih=img.naturalHeight||img.height;
+    if(!iw||!ih)return;
+    const scale=Math.max(w/iw,h/ih),dw=iw*scale,dh=ih*scale;
+    ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
+    ctx.drawImage(img,x+(w-dw)/2,y+(h-dh)/2,dw,dh);ctx.restore();
+  }
+
+  function nhlScorerCanvasBg(ctx,w,h){
+    const bg=ctx.createLinearGradient(0,0,0,h);
+    bg.addColorStop(0,'#030712');bg.addColorStop(.52,'#07101d');bg.addColorStop(1,'#02050a');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,w,h);
+    const glow=ctx.createRadialGradient(w*.78,80,20,w*.78,80,w*.58);
+    glow.addColorStop(0,'rgba(123,92,255,.24)');glow.addColorStop(.42,'rgba(45,127,255,.08)');glow.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=glow;ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle='rgba(255,255,255,.025)';ctx.lineWidth=1;
+    for(let y=170;y<h;y+=54){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
+  }
+
+  function nhlScorerCanvasLine(p,market){
+    const fgs=market==='fgs';
+    return {
+      probability:fgs?p?.probability:p?.anytimeProbability,
+      odds:fgs?p?.bestOdds:p?.bestAtgOdds,
+      book:fgs?p?.bestBook:p?.bestAtgBook,
+      fair:fgs?p?.fairOdds:p?.fairAtgOdds
+    };
+  }
+
+  function nhlScorerCanvasPrice(line){
+    if(Number.isFinite(Number(line?.odds)))return {label:String(line.book||'ODDS').toUpperCase().slice(0,10),price:americanPrice(line.odds),note:Number.isFinite(Number(line.fair))?'FAIR '+americanPrice(line.fair):'VERIFIED'};
+    if(Number.isFinite(Number(line?.fair)))return {label:'FAIR',price:americanPrice(line.fair),note:'MODEL PRICE'};
+    return {label:'PRICE',price:'—',note:'NO LIVE PRICE'};
+  }
+
+  function nhlScorerCanvasReason(p,market){
+    const m=p?.matchup||{},parts=[];
+    if(Number.isFinite(Number(m.goalAllowedRank))&&Number.isFinite(Number(m.rankedTeams)))parts.push('#'+m.goalAllowedRank+'/'+m.rankedTeams+' '+String(m.position||p.position||'')+' goals allowed');
+    if(Number(m.defenseRestFactor)>=1.025)parts.push('opponent B2B');
+    if(Number.isFinite(Number(m.recentDefenseIndex))&&Math.abs(Number(m.recentDefenseIndex)-1)>=.035)parts.push('recent D '+(Number(m.recentDefenseIndex)>=1?'+':'')+Math.round((Number(m.recentDefenseIndex)-1)*100)+'%');
+    if(m.goalie?.verified&&m.goalie?.name)parts.push('vs '+m.goalie.name);
+    if(!parts.length)parts.push(nhlScorerStat(p?.seasonSogRate)+' SOG/G · L10 '+String(p?.recentGoals??0)+' G');
+    if(market==='fgs'&&Number(p?.recentFirstGoals)>0)parts.push('L10 '+p.recentFirstGoals+' first goals');
+    return parts.slice(0,3).join(' · ');
+  }
+
+  async function nhlScorerDrawBrand(ctx,w){
+    const logo=await nhlScorerCanvasImage('/brand/approved/tso2-wordmark-horizontal-approved.webp');
+    if(logo){
+      nhlScorerCanvasContain(ctx,logo,42,28,560,96);
+    }else{
+      ctx.textAlign='left';ctx.fillStyle='#f5f8ff';ctx.font='900 36px Inter,Arial,sans-serif';ctx.fillText('THE SPORTS OUTPOST',48,82);
+    }
+    ctx.fillStyle='rgba(255,255,255,.16)';ctx.fillRect(42,134,w-84,1);
+  }
+
+  async function nhlScorerDrawGameTeam(ctx,team,market,x,y,w,h){
+    const accent=NHL_SCORER_TEAM_COLORS[String(team?.abbr||'').toUpperCase()]||'#7b5cff';
+    const rgb=nhlScorerRgb(accent);
+    const logo=await nhlScorerCanvasImage(team?.logo);
+    nhlScorerCanvasBox(ctx,x,y,w,h,20,'rgba(4,9,16,.94)','rgba('+rgb+',.48)',2);
+    const header=ctx.createLinearGradient(x,y,x+w,y);
+    header.addColorStop(0,'rgba('+rgb+',.27)');header.addColorStop(.52,'rgba(8,14,23,.96)');header.addColorStop(1,'rgba(4,8,14,.98)');
+    nhlScorerCanvasBox(ctx,x+1,y+1,w-2,82,18,header,'rgba('+rgb+',.18)',1);
+    if(logo)nhlScorerCanvasContain(ctx,logo,x+14,y+9,66,64);
+    ctx.textAlign='left';ctx.fillStyle='rgba(225,238,250,.64)';ctx.font='800 15px Inter,Arial,sans-serif';ctx.fillText(String(team?.abbr||''),94+x,y+29);
+    nhlScorerCanvasFit(ctx,String(team?.name||'TEAM').toUpperCase(),w-270,29,17,900,true);
+    ctx.fillStyle='#fff';ctx.fillText(String(team?.name||'TEAM').toUpperCase(),94+x,y+59);
+    ctx.textAlign='right';ctx.fillStyle='#d8e7f6';ctx.font='900 27px Inter,Arial,sans-serif';ctx.fillText(Number(team?.expectedGoals||0).toFixed(2),x+w-20,y+42);
+    ctx.fillStyle='#697684';ctx.font='800 11px Inter,Arial,sans-serif';ctx.fillText('MODEL GOALS',x+w-20,y+61);
+
+    const players=market==='fgs'?(team?.players||[]):(team?.atgPlayers||[]);
+    const risky=market==='fgs'?team?.riskyFirstGoal:team?.riskyAtg;
+    const rows=[...players.slice(0,3),...(risky?[risky]:[])];
+    const rowH=(h-96)/4;
+    for(let i=0;i<rows.length;i++){
+      const p=rows[i],isRisk=i===3,line=nhlScorerCanvasLine(p,market),price=nhlScorerCanvasPrice(line);
+      const ry=y+91+i*rowH;
+      const photo=await nhlScorerCanvasImage(p?.photo);
+      nhlScorerCanvasBox(ctx,x+10,ry,w-20,rowH-7,13,isRisk?'rgba('+rgb+',.14)':'rgba(7,13,21,.92)',isRisk?'rgba(255,216,77,.28)':'rgba('+rgb+',.22)',1);
+      ctx.fillStyle=isRisk?'#ffd84d':accent;ctx.fillRect(x+10,ry,4,rowH-7);
+      ctx.save();ctx.beginPath();ctx.arc(x+54,ry+(rowH-7)/2,29,0,Math.PI*2);ctx.clip();
+      if(photo)nhlScorerCanvasCover(ctx,photo,x+25,ry+(rowH-7)/2-29,58,58);
+      else{ctx.fillStyle='#111b29';ctx.fillRect(x+25,ry+(rowH-7)/2-29,58,58);}
+      ctx.restore();ctx.strokeStyle=isRisk?'#ffd84d':'rgba('+rgb+',.78)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+54,ry+(rowH-7)/2,30,0,Math.PI*2);ctx.stroke();
+      ctx.textAlign='left';ctx.fillStyle=isRisk?'#ffd84d':'rgba(214,229,244,.62)';ctx.font='900 10px Inter,Arial,sans-serif';ctx.fillText(isRisk?'RISKY VALUE':'#'+String(p?.teamRank||i+1),x+94,ry+21);
+      nhlScorerCanvasFit(ctx,String(p?.name||'PLAYER').toUpperCase(),270,23,15,900,true);ctx.fillStyle='#fff';ctx.fillText(String(p?.name||'PLAYER').toUpperCase(),x+94,ry+46);
+      ctx.fillStyle='#7f8b98';ctx.font='700 10px Inter,Arial,sans-serif';ctx.fillText(String(p?.position||'NHL')+' · '+nhlScorerCanvasReason(p,market).toUpperCase().slice(0,72),x+94,ry+66);
+
+      const bx=x+w-226;
+      nhlScorerCanvasBox(ctx,bx,ry+12,92,rowH-31,9,'rgba(3,8,14,.95)','rgba('+rgb+',.25)',1);
+      ctx.textAlign='center';ctx.fillStyle='#687584';ctx.font='800 9px Inter,Arial,sans-serif';ctx.fillText('MODEL',bx+46,ry+30);
+      ctx.fillStyle='#fff';ctx.font='900 20px Inter,Arial,sans-serif';ctx.fillText(nhlScorerPct(line.probability),bx+46,ry+55);
+
+      nhlScorerCanvasBox(ctx,bx+102,ry+12,112,rowH-31,9,'rgba(3,8,14,.95)','rgba('+rgb+',.25)',1);
+      ctx.fillStyle='#687584';ctx.font='800 9px Inter,Arial,sans-serif';ctx.fillText(price.label,bx+158,ry+30);
+      ctx.fillStyle=Number.isFinite(Number(line.odds))?'#70e8ab':'#edf3f9';ctx.font='900 20px Inter,Arial,sans-serif';ctx.fillText(price.price,bx+158,ry+54);
+      ctx.fillStyle='#697684';ctx.font='700 8px Inter,Arial,sans-serif';ctx.fillText(price.note,bx+158,ry+68);
+    }
+  }
+
+  async function nhlScorerGameCardBlob(game,market){
+    const canvas=document.createElement('canvas');canvas.width=1600;canvas.height=900;
+    const ctx=canvas.getContext('2d');
+    nhlScorerCanvasBg(ctx,1600,900);
+    await nhlScorerDrawBrand(ctx,1600);
+    ctx.textAlign='right';ctx.fillStyle='#f4f7fb';ctx.font='900 italic 46px Inter,Arial,sans-serif';
+    ctx.fillText(market==='fgs'?'FIRST GOAL SCORER':'ANYTIME GOAL SCORER',1555,71);
+    ctx.fillStyle='#8878e0';ctx.font='900 14px Inter,Arial,sans-serif';ctx.fillText('TOP 3 PER TEAM + RISKY VALUE',1555,102);
+
+    const awayLogo=await nhlScorerCanvasImage(game?.away?.logo),homeLogo=await nhlScorerCanvasImage(game?.home?.logo);
+    if(awayLogo)nhlScorerCanvasContain(ctx,awayLogo,628,147,70,70);
+    if(homeLogo)nhlScorerCanvasContain(ctx,homeLogo,902,147,70,70);
+    ctx.textAlign='center';ctx.fillStyle='#fff';ctx.font='900 italic 34px Inter,Arial,sans-serif';ctx.fillText(String(game?.away?.abbr||'AWAY')+' @ '+String(game?.home?.abbr||'HOME'),800,182);
+    const when=game?.startTime?new Date(game.startTime):null;
+    ctx.fillStyle='#7d8996';ctx.font='800 13px Inter,Arial,sans-serif';
+    ctx.fillText((when&&!Number.isNaN(when.getTime())?when.toLocaleString([],{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'TIME PENDING')+' · '+String(game?.venue||'NHL'),800,207);
+
+    await Promise.all([
+      nhlScorerDrawGameTeam(ctx,game?.away,market,38,235,742,590),
+      nhlScorerDrawGameTeam(ctx,game?.home,market,820,235,742,590)
+    ]);
+    ctx.textAlign='left';ctx.fillStyle='#667383';ctx.font='700 11px Inter,Arial,sans-serif';ctx.fillText('FGS-Hazard Ensemble v3 · sportsbook markets remain the anchor',42,872);
+    ctx.textAlign='right';ctx.fillText('Model probabilities are estimates, not guarantees · thesportsoutpost.com',1558,872);
+    return new Promise(resolve=>canvas.toBlob(resolve,'image/png',.96));
+  }
+
+  async function nhlScorerSlateCardBlob(market){
+    const games=Array.isArray(nhlScorerCache?.games)?nhlScorerCache.games:[];
+    const teams=games.flatMap(g=>[g.away,g.home]).filter(Boolean);
+    if(!teams.length)throw new Error('No NHL scorer teams are available.');
+    const cols=2,rows=Math.ceil(teams.length/cols),width=1600,panelH=278,top=215,bottom=78,height=top+rows*panelH+bottom;
+    const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;const ctx=canvas.getContext('2d');
+    nhlScorerCanvasBg(ctx,width,height);await nhlScorerDrawBrand(ctx,width);
+    ctx.textAlign='right';ctx.fillStyle='#f4f7fb';ctx.font='900 italic 44px Inter,Arial,sans-serif';
+    ctx.fillText(market==='fgs'?'NHL FIRST GOAL — FULL SLATE':'NHL ANYTIME GOAL — FULL SLATE',1555,70);
+    ctx.fillStyle='#8f80e4';ctx.font='900 14px Inter,Arial,sans-serif';ctx.fillText('ALL TEAMS · TOP 3 + RISKY VALUE',1555,101);
+    ctx.textAlign='left';ctx.fillStyle='#788593';ctx.font='800 12px Inter,Arial,sans-serif';
+    ctx.fillText((nhlScorerCache?.model||'FGS-Hazard Ensemble v3')+' · '+teams.length+' teams · generated '+ageText(nhlScorerCache?.generatedAt)+' ago',44,174);
+
+    for(let i=0;i<teams.length;i++){
+      const team=teams[i],col=i%2,row=Math.floor(i/2),x=38+col*782,y=top+row*panelH,w=742,h=258;
+      const accent=NHL_SCORER_TEAM_COLORS[String(team?.abbr||'').toUpperCase()]||'#7b5cff',rgb=nhlScorerRgb(accent);
+      const logo=await nhlScorerCanvasImage(team?.logo);
+      nhlScorerCanvasBox(ctx,x,y,w,h,16,'rgba(5,10,17,.95)','rgba('+rgb+',.36)',1.5);
+      const grad=ctx.createLinearGradient(x,y,x+w,y);grad.addColorStop(0,'rgba('+rgb+',.24)');grad.addColorStop(.55,'rgba(7,12,20,.94)');grad.addColorStop(1,'rgba(4,8,14,.98)');
+      nhlScorerCanvasBox(ctx,x+1,y+1,w-2,54,15,grad,null,0);
+      if(logo)nhlScorerCanvasContain(ctx,logo,x+10,y+5,48,44);
+      ctx.textAlign='left';ctx.fillStyle='#fff';ctx.font='900 italic 21px Inter,Arial,sans-serif';ctx.fillText(String(team?.name||team?.abbr||'TEAM').toUpperCase(),x+70,y+34);
+      ctx.textAlign='right';ctx.fillStyle='#dbe8f4';ctx.font='900 17px Inter,Arial,sans-serif';ctx.fillText(Number(team?.expectedGoals||0).toFixed(2)+' MODEL GOALS',x+w-14,y+33);
+
+      const players=market==='fgs'?(team?.players||[]):(team?.atgPlayers||[]),risky=market==='fgs'?team?.riskyFirstGoal:team?.riskyAtg;
+      const entries=[...players.slice(0,3),...(risky?[risky]:[])];
+      for(let j=0;j<entries.length;j++){
+        const p=entries[j],isRisk=j===3,line=nhlScorerCanvasLine(p,market),price=nhlScorerCanvasPrice(line);
+        const ry=y+61+j*46;
+        if(j>0){ctx.fillStyle='rgba(255,255,255,.055)';ctx.fillRect(x+12,ry-4,w-24,1);}
+        ctx.textAlign='left';ctx.fillStyle=isRisk?'#ffd84d':'#738090';ctx.font='900 10px Inter,Arial,sans-serif';ctx.fillText(isRisk?'RISKY':'#'+String(p?.teamRank||j+1),x+16,ry+18);
+        nhlScorerCanvasFit(ctx,String(p?.name||'PLAYER').toUpperCase(),330,18,13,900,true);ctx.fillStyle='#f6f8fb';ctx.fillText(String(p?.name||'PLAYER').toUpperCase(),x+74,ry+19);
+        ctx.fillStyle='#6e7a87';ctx.font='700 9px Inter,Arial,sans-serif';ctx.fillText(String(p?.position||'NHL'),x+74,ry+34);
+        ctx.textAlign='right';ctx.fillStyle='#a99cff';ctx.font='900 17px Inter,Arial,sans-serif';ctx.fillText(nhlScorerPct(line.probability),x+w-158,ry+20);
+        ctx.fillStyle=Number.isFinite(Number(line.odds))?'#70e8ab':'#dce5ef';ctx.fillText(price.price,x+w-18,ry+20);
+        ctx.fillStyle='#687482';ctx.font='700 8px Inter,Arial,sans-serif';ctx.fillText(price.label,x+w-18,ry+34);
+      }
+    }
+    ctx.textAlign='left';ctx.fillStyle='#667383';ctx.font='700 11px Inter,Arial,sans-serif';ctx.fillText('Owner slate share · FGS-Hazard Ensemble v3 · sportsbook markets remain the anchor',42,height-31);
+    ctx.textAlign='right';ctx.fillText('Model probabilities are estimates, not guarantees · thesportsoutpost.com',1558,height-31);
+    return new Promise(resolve=>canvas.toBlob(resolve,'image/png',.96));
+  }
+
+  function nhlScorerDownloadBlob(blob,filename){
+    if(!blob)throw new Error('Card render failed');
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),1800);
+  }
+
+  async function nhlScorerShareBlob(blob,filename,title,text){
+    if(!blob)throw new Error('Card render failed');
+    const file=new File([blob],filename,{type:'image/png'});
+    if(navigator.share&&navigator.canShare?.({files:[file]})){
+      await navigator.share({title,text,files:[file]});
+      return 'shared';
+    }
+    nhlScorerDownloadBlob(blob,filename);
+    notify('Share card downloaded. Attach the PNG to your post.');
+    return 'downloaded';
+  }
+
+  function nhlScorerGameById(gameId){
+    return (nhlScorerCache?.games||[]).find(g=>String(g?.gameId||'')===String(gameId||''))||null;
+  }
+
+  async function runNhlScorerGameAction(button,gameId,action){
+    const game=nhlScorerGameById(gameId);if(!game)return;
+    const old=button.textContent;button.disabled=true;button.textContent='BUILDING CARD…';
+    try{
+      const blob=await nhlScorerGameCardBlob(game,nhlScorerMarket);
+      const marketName=nhlScorerMarket==='fgs'?'First-Goal':'Anytime-Goal';
+      const filename='TSO-NHL-'+String(game.away?.abbr||'Away')+'-'+String(game.home?.abbr||'Home')+'-'+marketName+'.png';
+      if(action==='share'){
+        await nhlScorerShareBlob(blob,filename,'The Sports Outpost NHL Scorer',(nhlScorerMarket==='fgs'?'NHL First Goal Scorer':'NHL Anytime Goal Scorer')+' · '+game.away?.abbr+' @ '+game.home?.abbr+' · Top 3 + Risky Value');
+      }else{
+        nhlScorerDownloadBlob(blob,filename);notify('Scorer card downloaded.');
+      }
+    }catch(error){
+      console.error('NHL scorer card:',error);notify('Could not build scorer card.');
+    }finally{button.disabled=false;button.textContent=old;}
+  }
+
+  async function runNhlScorerSlateShare(button,market){
+    if(!isOwner()){notify('Slate share cards are available to the owner account only.');return;}
+    const old=button.textContent;button.disabled=true;button.textContent='BUILDING FULL SLATE…';
+    try{
+      const blob=await nhlScorerSlateCardBlob(market);
+      const label=market==='fgs'?'First-Goal':'Anytime-Goal';
+      await nhlScorerShareBlob(blob,'TSO-NHL-Full-Slate-'+label+'.png','The Sports Outpost NHL Full Slate',(market==='fgs'?'NHL First Goal Scorer':'NHL Anytime Goal Scorer')+' · Full Slate · Top 3 + Risky Value for every team');
+    }catch(error){
+      console.error('NHL slate share card:',error);notify('Could not build NHL slate card.');
+    }finally{button.disabled=false;button.textContent=old;}
   }
 
   function bindNhlScorerActions(root){
@@ -671,6 +950,9 @@
       nhlScorerMarket=next;
       renderNhlScorerModel();
     });
+    root?.querySelectorAll('[data-nhl-scorer-game-share]').forEach(btn=>btn.onclick=()=>runNhlScorerGameAction(btn,btn.dataset.nhlScorerGameShare,'share'));
+    root?.querySelectorAll('[data-nhl-scorer-game-download]').forEach(btn=>btn.onclick=()=>runNhlScorerGameAction(btn,btn.dataset.nhlScorerGameDownload,'download'));
+    root?.querySelectorAll('[data-nhl-scorer-slate-share]').forEach(btn=>btn.onclick=()=>runNhlScorerSlateShare(btn,btn.dataset.nhlScorerSlateShare));
   }
 
   function renderNhlScorerModel(){
@@ -2367,6 +2649,7 @@
     if(currentRoute === 'home') pageContent.innerHTML = homeHTML;
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
+    syncOwnerTools();
     bindNhlScorerActions(document.querySelector('[data-nhl-scorer-shell]'));
     refreshNhlScorerData(false);
     refreshLiveData(false);
