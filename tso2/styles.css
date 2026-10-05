@@ -3737,6 +3737,23 @@ body.research-detail-open{overflow:hidden}
 .research-detail-metrics small{color:#56616d;font-size:6px;font-weight:900;letter-spacing:.075em}
 .research-detail-metrics b{margin-top:7px;font-size:15px;line-height:1.05}
 .research-detail-metrics em{margin-top:5px;color:#66727e;font-size:6px;font-style:normal;line-height:1.35}
+.nfl-role-grid{display:grid;grid-template-columns:minmax(260px,.8fr) minmax(320px,1.2fr);gap:12px;padding:13px}
+.nfl-role-card,.nfl-usage-mix-card{min-height:178px;border:1px solid rgba(255,255,255,.07);background:linear-gradient(145deg,#090d12,#06090d)}
+.nfl-role-card{display:grid;grid-template-columns:132px 1fr;gap:14px;align-items:center;padding:14px}
+.nfl-role-ring{width:116px;height:116px;display:grid;place-items:center;border-radius:50%;background:conic-gradient(#ffd84d 0 var(--role-pct),rgba(255,255,255,.07) var(--role-pct) 100%);box-shadow:0 0 30px rgba(255,216,77,.05)}
+.nfl-role-ring::before{content:"";grid-area:1/1;width:88px;height:88px;border-radius:50%;background:#070a0f;border:1px solid rgba(255,255,255,.08)}
+.nfl-role-ring>div{grid-area:1/1;z-index:1;text-align:center}.nfl-role-ring small,.nfl-role-ring strong,.nfl-role-ring span{display:block}
+.nfl-role-ring small{color:#7a744e;font-size:6px;font-weight:950;letter-spacing:.08em}.nfl-role-ring strong{margin-top:4px;font-size:21px}.nfl-role-ring span{margin-top:3px;color:#626d78;font-size:5.5px;font-weight:900}
+.nfl-role-notes{display:grid;gap:8px}.nfl-role-notes>span{padding:9px 10px;border:1px solid rgba(255,255,255,.06);background:#080c11}.nfl-role-notes small,.nfl-role-notes b{display:block}.nfl-role-notes small{color:#596571;font-size:5.5px;font-weight:900;letter-spacing:.07em}.nfl-role-notes b{margin-top:4px;font-size:9px}
+.nfl-usage-mix-card{padding:15px}.nfl-usage-mix-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.nfl-usage-mix-head small,.nfl-usage-mix-head b{display:block}.nfl-usage-mix-head small{color:#5f6a75;font-size:6px;font-weight:950;letter-spacing:.08em}.nfl-usage-mix-head b{margin-top:4px;font-size:13px}.nfl-usage-mix-head>span{color:#78838e;font-size:6px}
+.nfl-usage-mix-track{height:18px;display:flex;overflow:hidden;margin:20px 0 13px;border:1px solid rgba(255,255,255,.08);background:#080b10}.nfl-usage-mix-track i{height:100%;display:block}.nfl-usage-mix-track .is-target{background:linear-gradient(90deg,rgba(45,127,255,.42),rgba(45,127,255,.8))}.nfl-usage-mix-track .is-carry{background:linear-gradient(90deg,rgba(255,216,77,.38),rgba(255,216,77,.75))}
+.nfl-usage-mix-key{display:grid;grid-template-columns:1fr 1fr;gap:8px}.nfl-usage-mix-key>span{display:grid;grid-template-columns:9px 1fr;gap:3px 7px;align-items:center;padding:8px 9px;border:1px solid rgba(255,255,255,.06);background:#080c11}.nfl-usage-mix-key i{grid-row:1/3;width:8px;height:8px}.nfl-usage-mix-key i.is-target{background:#2d7fff}.nfl-usage-mix-key i.is-carry{background:#ffd84d}.nfl-usage-mix-key b{font-size:6px}.nfl-usage-mix-key small{color:#67727d;font-size:6px}
+.nfl-usage-mix-card p{margin:11px 0 0;color:#596570;font-size:6px;line-height:1.45}
+.nfl-matchup-bars{display:grid;gap:9px;padding:13px}.nfl-matchup-bar-row{display:grid;grid-template-columns:190px 1fr;gap:12px;align-items:center}.nfl-matchup-bar-row>div small,.nfl-matchup-bar-row>div b,.nfl-matchup-bar-row>div em{display:block}.nfl-matchup-bar-row>div small{color:#5b6671;font-size:5.5px;font-weight:950;letter-spacing:.07em}.nfl-matchup-bar-row>div b{margin-top:3px;font-size:11px}.nfl-matchup-bar-row>div em{margin-top:2px;color:#5f6b76;font-size:5.5px;font-style:normal}
+.nfl-matchup-bar-row>span{height:16px;display:block;border:1px solid rgba(255,255,255,.07);background:#080b10}.nfl-matchup-bar-row>span i{height:100%;display:block;background:linear-gradient(90deg,rgba(45,127,255,.3),rgba(45,127,255,.72))}.nfl-matchup-bar-row.is-opponent>span i{background:linear-gradient(90deg,rgba(255,255,255,.12),rgba(255,255,255,.34))}.nfl-matchup-bar-row.is-line>span i{background:linear-gradient(90deg,rgba(255,216,77,.35),rgba(255,216,77,.75))}
+@media(max-width:820px){.nfl-role-grid{grid-template-columns:1fr}.nfl-matchup-bar-row{grid-template-columns:150px 1fr}}
+@media(max-width:520px){.nfl-role-card{grid-template-columns:104px 1fr}.nfl-role-ring{width:94px;height:94px}.nfl-role-ring::before{width:70px;height:70px}.nfl-role-ring strong{font-size:17px}.nfl-matchup-bar-row{grid-template-columns:1fr}.nfl-matchup-bar-row>span{height:13px}}
+
 .research-detail-log,.research-detail-pitch-list{display:grid}
 .research-detail-log-row,.research-detail-pitch-row{
   min-height:48px;display:grid;grid-template-columns:100px 170px 1fr;gap:12px;align-items:center;
