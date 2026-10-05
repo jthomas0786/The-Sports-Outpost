@@ -1,23 +1,25 @@
 (() => {
   const leagueName = league => league === 'all' ? 'All Sports' : league.toUpperCase();
 
-  const PLAYER_HEADSHOTS = {
-    'Sidney Crosby':'https://a.espncdn.com/i/headshots/nhl/players/full/3114.png',
-    'Connor McDavid':'https://a.espncdn.com/i/headshots/nhl/players/full/3895074.png',
-    'Auston Matthews':'https://a.espncdn.com/i/headshots/nhl/players/full/4024123.png',
-    'Saquon Barkley':'https://a.espncdn.com/i/headshots/nfl/players/full/3929630.png',
-    'Travis Kelce':'https://a.espncdn.com/i/headshots/nfl/players/full/15847.png',
-    'Pete Alonso':'https://img.mlbstatic.com/mlb-photos/image/upload/w_213,q_100/v1/people/624413/headshot/67/current',
-    'Aaron Judge':'https://img.mlbstatic.com/mlb-photos/image/upload/w_213,q_100/v1/people/592450/headshot/67/current'
+  const PLAYER_MEDIA = {
+    'Sidney Crosby':{sport:'nhl',src:'https://a.espncdn.com/i/headshots/nhl/players/full/3114.png'},
+    'Connor McDavid':{sport:'nhl',src:'https://a.espncdn.com/i/headshots/nhl/players/full/3895074.png'},
+    'Auston Matthews':{sport:'nhl',src:'https://a.espncdn.com/i/headshots/nhl/players/full/4024123.png'},
+    'Saquon Barkley':{sport:'nfl',src:'https://a.espncdn.com/i/headshots/nfl/players/full/3929630.png'},
+    'Travis Kelce':{sport:'nfl',src:'https://a.espncdn.com/i/headshots/nfl/players/full/15847.png'},
+    'Pete Alonso':{sport:'mlb',src:'https://a.espncdn.com/i/headshots/mlb/players/full/37498.png'},
+    'Aaron Judge':{sport:'mlb',src:'https://a.espncdn.com/i/headshots/mlb/players/full/33192.png'},
+    'Darius Garland':{sport:'nba',src:'https://a.espncdn.com/i/headshots/nba/players/full/4396907.png'},
+    'Stephen Curry':{sport:'nba',src:'https://a.espncdn.com/i/headshots/nba/players/full/3975.png'}
   };
 
   const playerInitials = name => String(name||'Player').split(/\s+/).filter(Boolean).map(p=>p[0]).join('').slice(0,2).toUpperCase();
-  const playerCropKey = name => String(name||'player').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
   const playerHeadshot = (name,className='') => {
-    const src=PLAYER_HEADSHOTS[name];
+    const media=PLAYER_MEDIA[name]||{};
+    const src=media.src||'';
+    const sport=media.sport||'generic';
     const initials=playerInitials(name);
-    const crop=playerCropKey(name);
-    return `<span class="player-headshot player-crop--${crop} ${className}" title="${name}">
+    return `<span class="player-headshot player-sport--${sport} ${className}" title="${name}">
       <span class="player-headshot-fallback">${initials}</span>
       ${src?`<img data-player-headshot src="${src}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('is-missing')" />`:''}
     </span>`;
