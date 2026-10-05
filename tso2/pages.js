@@ -40,15 +40,15 @@
   const pages = {
     live(league){
       return `
-      <section class="live-page broadcast-destination">
+      <section class="live-page broadcast-destination" data-live-route="${league}">
         <section class="destination-hero live-destination-hero">
           <div>
             <span class="destination-kicker"><i></i> LIVE CENTER · ${leagueName(league)}</span>
             <h1>Everything happening now.</h1>
-            <p>Scores, live win probability, model movement and market signals — organized around the games that matter.</p>
+            <p>Real games, real scores, clocks and game state from the live scoreboard feed. Model and odds layers are being migrated into this same view next.</p>
           </div>
           <div class="destination-actions">
-            <button class="button secondary">Save view</button>
+            <span class="live-data-badge" data-live-feed-badge><i></i> CONNECTING</span>
             <button class="button primary">MULTI-GAME VIEW →</button>
           </div>
         </section>
@@ -61,122 +61,66 @@
             <button class="${league==='mlb'?'is-active':''}" data-inline-league="mlb">MLB</button>
             <button class="${league==='nba'?'is-active':''}" data-inline-league="nba">NBA</button>
           </div>
-          <div class="live-filter-meta"><span class="live-pulse"></span><b>3 LIVE</b><span>·</span><small>Updated 12 sec ago</small></div>
+          <div class="live-filter-meta" data-live-filter-meta><span class="live-pulse"></span><b>CONNECTING</b><span>·</span><small>Waiting for scoreboard</small></div>
         </section>
 
         <section class="live-command-grid">
-          <article class="live-gamecast-hero">
-            <div class="live-gamecast-energy live-gamecast-energy--blue"></div>
-            <div class="live-gamecast-energy live-gamecast-energy--orange"></div>
-            <div class="live-gamecast-top">
-              <span class="live-state-chip"><i></i> LIVE · 2ND 12:34</span>
-              <span>NHL · GAMECAST</span>
-            </div>
-            <div class="live-matchup-stage">
-              <div class="live-team">
-                <span>PIT</span>
-                <strong>2</strong>
-                <small>Pittsburgh</small>
-              </div>
-              <div class="live-center-mark"><b>VS</b><span>PRIME TIME</span></div>
-              <div class="live-team live-team--away">
-                <span>PHI</span>
-                <strong>1</strong>
-                <small>Philadelphia</small>
-              </div>
-            </div>
-            <div class="live-stat-strip">
-              <div><span>WIN PROB</span><b>PIT 68%</b></div>
-              <div><span>SHOTS</span><b>21–14</b></div>
-              <div><span>xG</span><b>1.94–1.12</b></div>
-              <div><span>NEXT GOAL</span><b>PIT 61%</b></div>
-            </div>
-            <div class="live-gamecast-footer">
-              <div><span>OUTPOST LIVE LEAN</span><b>PIT next goal</b><strong>+142</strong></div>
-              <button class="broadcast-cta">OPEN GAMECAST →</button>
+          <article class="live-gamecast-hero live-feed-loading" data-live-feature>
+            <div class="live-feed-empty">
+              <span class="live-feed-spinner"></span>
+              <div><b>Connecting to live scoreboard…</b><small>NHL · NFL · MLB · NBA</small></div>
             </div>
           </article>
 
-          <aside class="live-signal-board">
+          <aside class="live-signal-board" data-live-now-board>
             <div class="live-signal-head">
-              <div><span class="orange-kicker">LIVE SIGNALS</span><h2>What moved</h2></div>
-              <span>NOW</span>
+              <div><span class="orange-kicker">LIVE NOW</span><h2>Scoreboard feed</h2></div>
+              <span>REAL DATA</span>
             </div>
-            <div class="live-signal-row">
-              <span class="signal-rank">01</span>
-              <div><b>Sidney Crosby</b><small>Anytime Goal · PIT</small></div>
-              <span class="signal-metric"><small>MODEL</small><b>34.8%</b></span>
-              <strong class="positive">+7.0%</strong>
+            <div class="live-feed-side-loading">
+              <span class="live-feed-spinner"></span>
+              <div><b>Loading games</b><small>Current scores and game states will appear here.</small></div>
             </div>
-            <div class="live-signal-row">
-              <span class="signal-rank">02</span>
-              <div><b>CeeDee Lamb</b><small>100+ Receiving · DAL</small></div>
-              <span class="signal-metric"><small>MODEL</small><b>57%</b></span>
-              <strong class="positive">+16%</strong>
-            </div>
-            <div class="live-signal-row">
-              <span class="signal-rank">03</span>
-              <div><b>Connor McDavid</b><small>Shots O 3.5 · EDM</small></div>
-              <span class="signal-metric"><small>PRICE</small><b>-105</b></span>
-              <strong class="signal-up">▲</strong>
-            </div>
-            <div class="live-signal-footer"><span>42 markets tracked</span><b>2 high-edge moves</b></div>
           </aside>
         </section>
 
         <section class="destination-section live-games-section">
           <div class="destination-section-head">
-            <div><span class="gold-kicker">LIVE SCOREBOARD</span><h2>Games in progress</h2></div>
-            <button>FULL SCOREBOARD →</button>
+            <div><span class="gold-kicker">LIVE SCOREBOARD</span><h2 data-live-board-title>Today’s games</h2></div>
+            <span class="live-source-label">SOURCE · LIVE SCOREBOARD</span>
           </div>
-          <div class="live-score-board">
-            <button class="live-score-row is-featured">
-              <span class="live-score-state"><i></i>2ND 12:34</span>
-              <span class="live-score-matchup"><b>PIT</b><strong>2</strong><em>VS</em><strong>1</strong><b>PHI</b></span>
-              <span class="live-score-context"><small>WIN PROB</small><b>PIT 68%</b></span>
-              <span class="live-score-context"><small>NEXT GOAL</small><b>PIT 61%</b></span>
-              <span class="live-score-action">GAMECAST →</span>
-            </button>
-            <button class="live-score-row">
-              <span class="live-score-state"><i></i>Q3 6:41</span>
-              <span class="live-score-matchup"><b>DAL</b><strong>17</strong><em>VS</em><strong>10</strong><b>NYG</b></span>
-              <span class="live-score-context"><small>WIN PROB</small><b>DAL 74%</b></span>
-              <span class="live-score-context"><small>NEXT SCORE</small><b>DAL 57%</b></span>
-              <span class="live-score-action">GAMECAST →</span>
-            </button>
-            <button class="live-score-row">
-              <span class="live-score-state"><i></i>3RD 8:12</span>
-              <span class="live-score-matchup"><b>TOR</b><strong>3</strong><em>VS</em><strong>3</strong><b>MTL</b></span>
-              <span class="live-score-context"><small>WIN PROB</small><b>TOR 54%</b></span>
-              <span class="live-score-context"><small>NEXT GOAL</small><b>TOR 52%</b></span>
-              <span class="live-score-action">GAMECAST →</span>
-            </button>
+          <div class="live-score-board" data-live-score-board>
+            <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading today’s slate…</b></div>
           </div>
         </section>
 
         <section class="destination-section">
           <div class="destination-section-head">
-            <div><span class="violet-kicker">MODEL MOVEMENT</span><h2>Live probabilities changing</h2></div>
+            <div><span class="violet-kicker">MODEL MOVEMENT · PREVIEW DATA</span><h2>Live probabilities changing</h2></div>
             <button data-route-jump="models">OPEN MODELS →</button>
+          </div>
+          <div class="live-preview-notice">
+            <span>PREVIEW</span>
+            <p>The scoreboard above is live. The model movement cards below are still preview examples until the existing TSO model outputs are connected to 2.0.</p>
           </div>
           <div class="live-model-grid">
             <article class="live-model-card live-model-card--violet">
-              <div class="live-model-top"><span>NHL · ANYTIME GOAL</span><b>HIGH CONF</b></div>
-              <div class="live-model-player"><div><h3>Sidney Crosby</h3><small>PIT · C · vs PHI</small></div><span class="live-model-badge"><small>MODEL</small><strong>34.8%</strong></span></div>
+              <div class="live-model-top"><span>NHL · ANYTIME GOAL</span><b>PREVIEW</b></div>
+              <div class="live-model-player"><div><h3>Sidney Crosby</h3><small>Example model card</small></div><span class="live-model-badge"><small>MODEL</small><strong>34.8%</strong></span></div>
               <div class="live-model-shift"><span><small>PREGAME</small><b>28.0%</b></span><i>→</i><span><small>LIVE</small><b>34.8%</b></span><strong class="positive">+6.8%</strong></div>
-              <div class="live-model-reason">4 shots · 2 high-danger chances · offensive-zone time rising</div>
+              <div class="live-model-reason">Preview only · real model feed migration is next.</div>
             </article>
             <article class="live-model-card live-model-card--gold">
-              <div class="live-model-top"><span>NFL · RECEIVING</span><b>FAST MOVE</b></div>
-              <div class="live-model-player"><div><h3>CeeDee Lamb</h3><small>DAL · WR · at NYG</small></div><span class="live-model-badge"><small>MODEL</small><strong>57%</strong></span></div>
+              <div class="live-model-top"><span>NFL · RECEIVING</span><b>PREVIEW</b></div>
+              <div class="live-model-player"><div><h3>Example Receiving Model</h3><small>Preview model card</small></div><span class="live-model-badge"><small>MODEL</small><strong>57%</strong></span></div>
               <div class="live-model-shift"><span><small>PREGAME</small><b>41%</b></span><i>→</i><span><small>LIVE</small><b>57%</b></span><strong class="positive">+16%</strong></div>
-              <div class="live-model-reason">38% target share · game script holding · route volume intact</div>
+              <div class="live-model-reason">Preview only · real model feed migration is next.</div>
             </article>
             <article class="live-model-card live-model-card--orange">
-              <div class="live-model-top"><span>NHL · SHOTS</span><b>PRICE MOVE</b></div>
-              <div class="live-model-player"><div><h3>Connor McDavid</h3><small>EDM · C · vs CGY</small></div><span class="live-model-badge"><small>PRICE</small><strong>-105</strong></span></div>
+              <div class="live-model-top"><span>MARKET MOVEMENT</span><b>PREVIEW</b></div>
+              <div class="live-model-player"><div><h3>Example Price Move</h3><small>Preview market card</small></div><span class="live-model-badge"><small>PRICE</small><strong>-105</strong></span></div>
               <div class="live-model-shift"><span><small>OPEN</small><b>+115</b></span><i>→</i><span><small>NOW</small><b>-105</b></span><strong class="signal-up">▲ 20¢</strong></div>
-              <div class="live-model-reason">Market following volume · model remains ahead of current price</div>
+              <div class="live-model-reason">Preview only · real sportsbook feed migration follows scoreboard wiring.</div>
             </article>
           </div>
         </section>
