@@ -3469,3 +3469,16 @@ body{
   .parlay-leg-headshot{width:38px!important;height:38px!important}
 }
 
+
+
+/* =========================================================
+   TSO 2.0 — TIGHT HEADSHOT CROP
+   Preserve the original frame size; crop transparent source
+   canvas more aggressively so faces/upper body fill the frame.
+   ========================================================= */
+.prop-player-headshot img,
+.model-player-headshot img,
+.home-model-headshot img{
+  transform:scale(2.75)!important;
+  transform-origin:center bottom!important;
+}
