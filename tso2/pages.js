@@ -403,7 +403,7 @@
             <div><span class="violet-kicker">MODEL ENGINES</span><h2>What is actually modeled</h2></div>
             <span class="props-live-source">NO SYNTHETIC PROBABILITIES</span>
           </div>
-          <div class="model-engine-grid">
+          <div class="model-engine-grid model-engine-grid--live">
             <article class="model-engine-card model-engine-card--violet">
               <div class="model-engine-top"><span>NHL</span><b>LIVE MODEL</b></div>
               <h3>First Goal + Anytime Goal</h3>
@@ -427,10 +427,10 @@
             </article>
             <article class="model-engine-card model-engine-card--orange">
               <div class="model-engine-top"><span>NBA</span><b>MARKET ONLY</b></div>
-              <h3>No TSO Model Yet</h3>
+              <h3>Market Only Until Modeled</h3>
               <p>NBA prices can exist in Props, but this Model Command Center will not manufacture a probability or edge.</p>
               <div><span>CURRENT MATCHES</span><b data-model-count="nba">0 BY DESIGN</b></div>
-              <button data-models-league="nba">VIEW NBA MARKET →</button>
+              <button data-models-league="nba">VIEW NBA STATUS →</button>
             </article>
           </div>
         </section>
