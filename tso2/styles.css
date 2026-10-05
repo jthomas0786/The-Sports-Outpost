@@ -3413,70 +3413,59 @@ body{
 
 
 /* =========================================================
-   TSO 2.0 — 2X PLAYER HEADSHOTS
+   TSO 2.0 — PLAYER HEADSHOT ZOOM
+   Keep original card/row geometry; enlarge only the photo crop.
    ========================================================= */
-.entity-headshot{width:100px!important;height:100px!important;border-radius:18px!important}
-.home-model-headshot{width:104px!important;height:104px!important}
-.home-pick-headshot{width:68px!important;height:68px!important}
-.concept-pick-row{min-height:104px!important}
-.pick-name--with-photo{gap:13px!important}
+.player-headshot img{
+  transform:scale(2);
+  transform-origin:center 36%;
+}
 
+/* Original media-box dimensions */
+.entity-headshot{width:50px!important;height:50px!important;border-radius:12px!important}
+.home-model-headshot{width:52px!important;height:52px!important}
+.home-pick-headshot{width:34px!important;height:34px!important}
+.research-avatar{width:34px!important;height:34px!important}
+.research-signal-headshot{width:44px!important;height:44px!important}
+.live-model-headshot{width:40px!important;height:40px!important}
+.model-player-headshot{width:62px!important;height:62px!important}
+.prop-player-headshot{width:62px!important;height:62px!important}
+.parlay-leg-headshot{width:44px!important;height:44px!important}
+.parlay-card-headshot{width:52px!important;height:52px!important}
+.parlay-suggestion-headshot{width:54px!important;height:54px!important}
+
+/* Original surrounding layout dimensions */
+.concept-pick-row{min-height:82px!important}
 .research-player-row{
-  min-height:102px!important;
-  grid-template-columns:30px 72px minmax(0,1fr) 52px!important;
+  min-height:78px!important;
+  grid-template-columns:30px 38px minmax(0,1fr) 52px!important;
 }
-.research-avatar{width:68px!important;height:68px!important}
 .research-signal-player{
-  grid-template-columns:90px minmax(0,1fr) auto!important;
-  padding:20px 0!important;
+  grid-template-columns:46px minmax(0,1fr) auto!important;
+  padding:17px 0!important;
 }
-.research-signal-headshot{width:88px!important;height:88px!important}
-
-.live-model-player{grid-template-columns:82px minmax(0,1fr) auto!important}
-.live-model-headshot{width:80px!important;height:80px!important}
-
-.model-player-headshot{width:124px!important;height:124px!important}
-.model-spotlight-main{min-height:194px!important}
-.prop-player-headshot{width:124px!important;height:124px!important}
-.prop-spotlight-main{min-height:194px!important}
-
-.parlay-leg{min-height:164px!important}
-.parlay-leg-identity{grid-template-columns:90px minmax(0,1fr)!important;gap:14px!important}
-.parlay-leg-headshot{width:88px!important;height:88px!important}
-.parlay-card-headshot{width:104px!important;height:104px!important}
-.parlay-suggestion-headshot{width:108px!important;height:108px!important}
-.parlay-replace-current,.parlay-replacement-card{min-height:272px!important}
-.parlay-suggestion-card{min-height:294px!important}
-
-.broadcast-player{gap:16px!important}
-.broadcast-model-card{min-height:300px!important}
-
-@media(max-width:900px){
-  .home-pick-headshot{width:60px!important;height:60px!important}
-  .concept-pick-row{min-height:96px!important}
-  .entity-headshot{width:88px!important;height:88px!important}
-  .home-model-headshot{width:92px!important;height:92px!important}
-  .model-player-headshot{width:108px!important;height:108px!important}
-  .prop-player-headshot{width:108px!important;height:108px!important}
-}
+.live-model-player{grid-template-columns:42px minmax(0,1fr) auto!important}
+.model-spotlight-main{min-height:154px!important}
+.prop-spotlight-main{min-height:150px!important}
+.parlay-leg{min-height:132px!important}
+.parlay-leg-identity{grid-template-columns:46px minmax(0,1fr)!important;gap:10px!important}
+.parlay-replace-current,.parlay-replacement-card{min-height:220px!important}
+.parlay-suggestion-card{min-height:230px!important}
+.broadcast-model-card{min-height:245px!important}
+.broadcast-player{gap:12px!important}
+.pick-name--with-photo{gap:9px!important}
 
 @media(max-width:600px){
-  .home-pick-headshot{width:56px!important;height:56px!important}
-  .concept-pick-row{min-height:90px!important}
+  .model-player-headshot{width:48px!important;height:48px!important}
+  .prop-player-headshot{width:48px!important;height:48px!important}
   .research-player-row{
-    min-height:92px!important;
-    grid-template-columns:24px 62px minmax(0,1fr) 42px!important;
+    min-height:78px!important;
+    grid-template-columns:24px 34px minmax(0,1fr) 42px!important;
   }
-  .research-avatar{width:60px!important;height:60px!important}
-  .research-signal-player{grid-template-columns:78px minmax(0,1fr) auto!important}
-  .research-signal-headshot{width:76px!important;height:76px!important}
-  .live-model-player{grid-template-columns:72px minmax(0,1fr) auto!important}
-  .live-model-headshot{width:70px!important;height:70px!important}
-  .model-player-headshot{width:96px!important;height:96px!important}
-  .prop-player-headshot{width:96px!important;height:96px!important}
-  .parlay-leg{min-height:154px!important}
-  .parlay-leg-identity{grid-template-columns:78px minmax(0,1fr)!important}
-  .parlay-leg-headshot{width:76px!important;height:76px!important}
-  .parlay-card-headshot{width:92px!important;height:92px!important}
-  .parlay-suggestion-headshot{width:96px!important;height:96px!important}
+  .research-avatar{width:34px!important;height:34px!important}
+  .research-signal-player{grid-template-columns:40px minmax(0,1fr) auto!important}
+  .research-signal-headshot{width:38px!important;height:38px!important}
+  .parlay-leg-identity{grid-template-columns:40px minmax(0,1fr)!important}
+  .parlay-leg-headshot{width:38px!important;height:38px!important}
 }
+
