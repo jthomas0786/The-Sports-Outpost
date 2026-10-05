@@ -2121,10 +2121,6 @@
   function bindDynamic(){
     document.querySelectorAll('[data-route-jump]').forEach(btn => btn.addEventListener('click', () => setRoute(btn.dataset.routeJump)));
     document.querySelectorAll('[data-inline-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.inlineLeague)));
-    document.querySelectorAll('.model-card .button,.prop-row,.game-row').forEach(btn => btn.addEventListener('click', () => {
-      notify('Shared detail drawer pattern — same interaction across every sport.');
-    }));
-
     document.querySelectorAll('[data-parlay-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
     document.querySelectorAll('[data-community-refresh],[data-rankings-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
     document.querySelector('[data-profile-refresh]')?.addEventListener('click', () => {
@@ -2198,8 +2194,6 @@
     shell.dataset.league = league;
     syncNav();
     renderRoute();
-    const label = league === 'all' ? 'All Sports' : league.toUpperCase();
-    notify('Sport context: ' + label + ' — layout stays consistent.');
   }
 
   document.querySelectorAll('[data-route]').forEach(btn => btn.addEventListener('click', () => setRoute(btn.dataset.route)));
