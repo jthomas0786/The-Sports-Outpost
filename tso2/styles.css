@@ -1675,14 +1675,24 @@ body{
   letter-spacing:.09em;
 }
 .live-signal-row{
+  width:100%;
   min-height:82px;
   display:grid;
   grid-template-columns:34px minmax(0,1fr) 64px 50px;
   align-items:center;
   gap:10px;
   padding:0 14px;
+  border:0;
   border-bottom:1px solid rgba(255,255,255,.07);
+  background:transparent;
+  color:inherit;
+  text-align:left;
+  appearance:none;
+  -webkit-appearance:none;
+  cursor:pointer;
 }
+.live-signal-row:hover{background:rgba(255,255,255,.025)}
+.live-signal-row:last-of-type{border-bottom:1px solid rgba(255,255,255,.07)}
 .signal-rank{
   color:#5f6976;
   font-size:9px;
