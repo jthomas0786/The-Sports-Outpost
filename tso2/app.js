@@ -360,8 +360,15 @@
     const root=document.querySelector('[data-props-route]');
     if(!root || !propsFeedCache) return [];
     const search=String(root.querySelector('[data-props-search]')?.value||'').trim().toLowerCase();
+    const market=String(root.querySelector('[data-props-market-filter]')?.value||'');
+    const book=String(root.querySelector('[data-props-book-filter]')?.value||'').toLowerCase();
     return (propsFeedCache.rows||[]).filter(row => {
       if(currentLeague!=='all' && row.sport!==currentLeague) return false;
+      if(market && row.market!==market) return false;
+      if(book){
+        const hasBook=(row.books||[{book:row.book}]).some(b=>String(b?.book||'').toLowerCase()===book);
+        if(!hasBook) return false;
+      }
       if(!search) return true;
       return [row.player,row.team,row.market,row.marketLabel,row.homeTeam,row.awayTeam,row.book,propSelectionText(row)]
         .filter(Boolean).join(' ').toLowerCase().includes(search);
@@ -442,9 +449,28 @@
     bindMediaFallbacks();
   }
 
+  function syncPropsFilterOptions(root){
+    const leagueRows=(propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
+    const marketSelect=root.querySelector('[data-props-market-filter]');
+    const bookSelect=root.querySelector('[data-props-book-filter]');
+    if(marketSelect){
+      const previous=marketSelect.value;
+      const markets=[...new Map(leagueRows.map(r=>[r.market,r.marketLabel||r.market])).entries()].sort((a,b)=>String(a[1]).localeCompare(String(b[1])));
+      marketSelect.innerHTML='<option value="">MARKET: ALL</option>'+markets.map(([value,label])=>'<option value="'+esc(value)+'">'+esc(String(label).toUpperCase())+'</option>').join('');
+      if(markets.some(([value])=>value===previous)) marketSelect.value=previous;
+    }
+    if(bookSelect){
+      const previous=bookSelect.value.toLowerCase();
+      const books=[...new Set(leagueRows.flatMap(row=>(row.books||[{book:row.book}]).map(b=>String(b?.book||'')).filter(Boolean)))].sort((a,b)=>a.localeCompare(b));
+      bookSelect.innerHTML='<option value="">BOOK: ALL</option>'+books.map(book=>'<option value="'+esc(book.toLowerCase())+'">'+esc(book.toUpperCase())+'</option>').join('');
+      if(books.some(book=>book.toLowerCase()===previous)) bookSelect.value=previous;
+    }
+  }
+
   function renderPropsFeed(){
     const root=document.querySelector('[data-props-route]');
     if(currentRoute!=='props' || !root || !propsFeedCache) return;
+    syncPropsFilterOptions(root);
     const rows=currentPropsRows();
     const newest=propsNewestTimestamp(rows);
     const freshness=freshnessLabel(newest);
@@ -562,6 +588,8 @@
     }));
     document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
     document.querySelector('[data-props-search]')?.addEventListener('input', () => renderPropsFeed());
+    document.querySelector('[data-props-market-filter]')?.addEventListener('change', () => renderPropsFeed());
+    document.querySelector('[data-props-book-filter]')?.addEventListener('change', () => renderPropsFeed());
     bindMediaFallbacks();
   }
 
