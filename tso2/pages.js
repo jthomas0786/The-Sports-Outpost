@@ -1,5 +1,25 @@
 (() => {
   const leagueName = league => league === 'all' ? 'All Sports' : league.toUpperCase();
+
+  const PLAYER_HEADSHOTS = {
+    'Sidney Crosby':'https://a.espncdn.com/i/headshots/nhl/players/full/3114.png',
+    'Connor McDavid':'https://a.espncdn.com/i/headshots/nhl/players/full/3895074.png',
+    'Auston Matthews':'https://a.espncdn.com/i/headshots/nhl/players/full/4024123.png',
+    'Saquon Barkley':'https://a.espncdn.com/i/headshots/nfl/players/full/3929630.png',
+    'Travis Kelce':'https://a.espncdn.com/i/headshots/nfl/players/full/15847.png',
+    'Pete Alonso':'https://img.mlbstatic.com/mlb-photos/image/upload/w_213,q_100/v1/people/624413/headshot/67/current',
+    'Aaron Judge':'https://img.mlbstatic.com/mlb-photos/image/upload/w_213,q_100/v1/people/592450/headshot/67/current'
+  };
+
+  const playerInitials = name => String(name||'Player').split(/\s+/).filter(Boolean).map(p=>p[0]).join('').slice(0,2).toUpperCase();
+  const playerHeadshot = (name,className='') => {
+    const src=PLAYER_HEADSHOTS[name];
+    const initials=playerInitials(name);
+    return `<span class="player-headshot ${className}" title="${name}">
+      <span class="player-headshot-fallback">${initials}</span>
+      ${src?`<img data-player-headshot src="${src}" alt="${name}" loading="lazy" onerror="this.style.display='none';this.parentElement.classList.add('is-missing')" />`:''}
+    </span>`;
+  };
   const header = (eyebrow,title,desc,league,action='') => `
     <section class="page-header">
       <div>
@@ -31,7 +51,7 @@
   const modelCard = (league,market,name,meta,model,marketPct,edge,confidence,odds,book,badge='VALUE') => `
     <article class="model-card">
       <div class="card-top"><div><span class="league-badge">${league}</span><span class="status-badge ${badge==='HIGH EDGE'?'strong':''}">${badge}</span></div><button class="more-btn">•••</button></div>
-      <div class="entity-row"><div class="entity-avatar">${name.split(' ').map(p=>p[0]).join('').slice(0,2)}</div><div><small>${market}</small><h3>${name}</h3><p>${meta}</p></div></div>
+      <div class="entity-row">${playerHeadshot(name,'entity-avatar entity-headshot')}<div><small>${market}</small><h3>${name}</h3><p>${meta}</p></div></div>
       <div class="metric-row"><div><span>MODEL</span><strong>${model}%</strong></div><div><span>MARKET</span><strong>${marketPct}%</strong></div><div><span>EDGE</span><strong class="positive">+${edge}%</strong></div></div>
       <div class="confidence"><div><span>Outpost Confidence</span><b>${confidence}</b></div><div class="confidence-track"><i style="width:${confidence}%"></i></div></div>
       <div class="card-footer"><div class="best-odds"><small>BEST PRICE</small><b>${odds}</b><span>${book}</span></div><button class="button compact">View analysis</button></div>
@@ -106,7 +126,7 @@
           <div class="live-model-grid">
             <article class="live-model-card live-model-card--violet">
               <div class="live-model-top"><span>NHL · ANYTIME GOAL</span><b>PREVIEW</b></div>
-              <div class="live-model-player"><div><h3>Sidney Crosby</h3><small>Example model card</small></div><span class="live-model-badge"><small>MODEL</small><strong>34.8%</strong></span></div>
+              <div class="live-model-player">${playerHeadshot("Sidney Crosby","live-model-headshot")}<div><h3>Sidney Crosby</h3><small>Example model card</small></div><span class="live-model-badge"><small>MODEL</small><strong>34.8%</strong></span></div>
               <div class="live-model-shift"><span><small>PREGAME</small><b>28.0%</b></span><i>→</i><span><small>LIVE</small><b>34.8%</b></span><strong class="positive">+6.8%</strong></div>
               <div class="live-model-reason">Preview only · real model feed migration is next.</div>
             </article>
@@ -202,25 +222,25 @@
             </div>
             <button class="research-player-row">
               <span class="research-player-rank">01</span>
-              <span class="research-avatar">97</span>
+              ${playerHeadshot("Connor McDavid","research-avatar")}
               <div><b>Connor McDavid</b><small>Shots · Points · Anytime Goal</small></div>
               <span class="research-opens">12.4k</span>
             </button>
             <button class="research-player-row">
               <span class="research-player-rank">02</span>
-              <span class="research-avatar">26</span>
+              ${playerHeadshot("Saquon Barkley","research-avatar")}
               <div><b>Saquon Barkley</b><small>Rushing · Receiving · Anytime TD</small></div>
               <span class="research-opens">9.8k</span>
             </button>
             <button class="research-player-row">
               <span class="research-player-rank">03</span>
-              <span class="research-avatar">20</span>
+              ${playerHeadshot("Pete Alonso","research-avatar")}
               <div><b>Pete Alonso</b><small>Home Run · Total Bases · Hits</small></div>
               <span class="research-opens">8.1k</span>
             </button>
             <button class="research-player-row">
               <span class="research-player-rank">04</span>
-              <span class="research-avatar">87</span>
+              ${playerHeadshot("Sidney Crosby","research-avatar")}
               <div><b>Sidney Crosby</b><small>Goal · Shots · Points</small></div>
               <span class="research-opens">7.6k</span>
             </button>
@@ -235,7 +255,7 @@
           <div class="research-signal-grid">
             <article class="research-signal-card research-signal-card--blue">
               <div class="research-signal-top"><span>NHL · SHOTS</span><b>OPPORTUNITY</b></div>
-              <div class="research-signal-player"><div><h3>Connor McDavid</h3><small>EDM · C · vs CGY</small></div><span class="research-score-badge"><small>MODEL</small><strong>67%</strong></span></div>
+              <div class="research-signal-player">${playerHeadshot("Connor McDavid","research-signal-headshot")}<div><h3>Connor McDavid</h3><small>EDM · C · vs CGY</small></div><span class="research-score-badge"><small>MODEL</small><strong>67%</strong></span></div>
               <div class="research-stat-grid">
                 <span><small>L5 AVG</small><b>4.8</b></span>
                 <span><small>TOI</small><b>22:14</b></span>
@@ -247,7 +267,7 @@
 
             <article class="research-signal-card research-signal-card--gold">
               <div class="research-signal-top"><span>NFL · RECEIVING</span><b>USAGE</b></div>
-              <div class="research-signal-player"><div><h3>Travis Kelce</h3><small>KC · TE · at BUF</small></div><span class="research-score-badge"><small>MODEL</small><strong>61%</strong></span></div>
+              <div class="research-signal-player">${playerHeadshot("Travis Kelce","research-signal-headshot")}<div><h3>Travis Kelce</h3><small>KC · TE · at BUF</small></div><span class="research-score-badge"><small>MODEL</small><strong>61%</strong></span></div>
               <div class="research-stat-grid">
                 <span><small>ROUTE %</small><b>89%</b></span>
                 <span><small>TGT SHARE</small><b>27%</b></span>
@@ -259,7 +279,7 @@
 
             <article class="research-signal-card research-signal-card--orange">
               <div class="research-signal-top"><span>MLB · HOME RUN</span><b>ENVIRONMENT</b></div>
-              <div class="research-signal-player"><div><h3>Pete Alonso</h3><small>BAL · 1B · at NYY</small></div><span class="research-score-badge"><small>MODEL</small><strong>29.4%</strong></span></div>
+              <div class="research-signal-player">${playerHeadshot("Pete Alonso","research-signal-headshot")}<div><h3>Pete Alonso</h3><small>BAL · 1B · at NYY</small></div><span class="research-score-badge"><small>MODEL</small><strong>29.4%</strong></span></div>
               <div class="research-stat-grid">
                 <span><small>BARREL %</small><b>17.1</b></span>
                 <span><small>EV</small><b>92.8</b></span>
@@ -358,7 +378,7 @@
 
             <div class="model-spotlight-main">
               <div class="model-spotlight-player">
-                <span class="model-player-number">87</span>
+                ${playerHeadshot("Sidney Crosby","model-player-number model-player-headshot")}
                 <div>
                   <small>PIT · C · vs PHI</small>
                   <h2>Sidney Crosby</h2>
@@ -612,7 +632,7 @@
             </div>
             <div class="prop-spotlight-main">
               <div class="prop-spotlight-player">
-                <div class="prop-player-number">97</div>
+                ${playerHeadshot("Connor McDavid","prop-player-number prop-player-headshot")}
                 <div>
                   <small>EDM · C · vs CGY</small>
                   <h2>Connor McDavid</h2>
@@ -805,9 +825,10 @@
             <div class="parlay-leg parlay-leg--strong">
               <div class="parlay-leg-index">01</div>
               <div class="parlay-leg-main">
+                <div class="parlay-leg-identity">${playerHeadshot("Connor McDavid","parlay-leg-headshot")}<div>
                 <div class="parlay-leg-meta"><span>NHL · SHOTS</span><b>HIGH CONF</b></div>
                 <h3>Connor McDavid · Over 3.5 Shots</h3>
-                <small>EDM vs CGY · exact selection</small>
+                <small>EDM vs CGY · exact selection</small></div></div>
                 <div class="parlay-leg-metrics">
                   <span><small>MODEL</small><b>67.0%</b></span>
                   <span><small>MARKET</small><b>58.8%</b></span>
@@ -822,9 +843,10 @@
             <div class="parlay-leg parlay-leg--strong">
               <div class="parlay-leg-index">02</div>
               <div class="parlay-leg-main">
+                <div class="parlay-leg-identity">${playerHeadshot("Saquon Barkley","parlay-leg-headshot")}<div>
                 <div class="parlay-leg-meta"><span>NFL · ANYTIME TD</span><b>HIGH CONF</b></div>
                 <h3>Saquon Barkley · Anytime Touchdown</h3>
-                <small>PHI vs DAL · Yes</small>
+                <small>PHI vs DAL · Yes</small></div></div>
                 <div class="parlay-leg-metrics">
                   <span><small>MODEL</small><b>63.1%</b></span>
                   <span><small>MARKET</small><b>55.4%</b></span>
@@ -839,9 +861,10 @@
             <div class="parlay-leg parlay-leg--weak">
               <div class="parlay-leg-index">03</div>
               <div class="parlay-leg-main">
+                <div class="parlay-leg-identity">${playerHeadshot("Sidney Crosby","parlay-leg-headshot")}<div>
                 <div class="parlay-leg-meta"><span>NHL · ANYTIME GOAL</span><b>WEAKEST LEG</b></div>
                 <h3>Sidney Crosby · Anytime Goal</h3>
-                <small>PIT vs PHI · Yes</small>
+                <small>PIT vs PHI · Yes</small></div></div>
                 <div class="parlay-leg-metrics">
                   <span><small>MODEL</small><b>34.8%</b></span>
                   <span><small>MARKET</small><b>27.2%</b></span>
@@ -894,6 +917,7 @@
             <article class="parlay-replace-current">
               <div class="parlay-replace-label">CURRENT LEG</div>
               <span>NHL · ANYTIME GOAL</span>
+              ${playerHeadshot("Sidney Crosby","parlay-card-headshot")}
               <h3>Sidney Crosby</h3>
               <p>Anytime Goal · +268</p>
               <div><span>CONFIDENCE</span><b>78</b></div>
@@ -903,6 +927,7 @@
             <button class="parlay-replacement-card">
               <span class="parlay-replacement-badge">SAFER</span>
               <small>NFL · RECEIVING</small>
+              ${playerHeadshot("Travis Kelce","parlay-card-headshot")}
               <h3>Travis Kelce O 67.5 Yds</h3>
               <div><span>CONF</span><b>82</b></div>
               <div><span>EDGE</span><b class="positive">+5.8%</b></div>
@@ -912,6 +937,7 @@
             <button class="parlay-replacement-card">
               <span class="parlay-replacement-badge">MORE EDGE</span>
               <small>MLB · HOME RUN</small>
+              ${playerHeadshot("Pete Alonso","parlay-card-headshot")}
               <h3>Pete Alonso · Home Run</h3>
               <div><span>CONF</span><b>84</b></div>
               <div><span>EDGE</span><b class="positive">+7.7%</b></div>
@@ -929,6 +955,7 @@
           <div class="parlay-suggestion-grid">
             <button class="parlay-suggestion-card">
               <div><span>NFL</span><b>COMPATIBLE</b></div>
+              ${playerHeadshot("Travis Kelce","parlay-suggestion-headshot")}
               <h3>Travis Kelce O 67.5 Receiving Yards</h3>
               <p>KC at BUF · exact O 67.5</p>
               <section><span><small>MODEL</small><b>61%</b></span><span><small>EDGE</small><b class="positive">+5.8%</b></span><span><small>BEST</small><b>+102</b></span></section>
@@ -936,6 +963,7 @@
             </button>
             <button class="parlay-suggestion-card">
               <div><span>NHL</span><b>COMPATIBLE</b></div>
+              ${playerHeadshot("Auston Matthews","parlay-suggestion-headshot")}
               <h3>Auston Matthews · Anytime Goal</h3>
               <p>TOR vs MTL · Yes</p>
               <section><span><small>MODEL</small><b>37%</b></span><span><small>EDGE</small><b class="positive">+5.1%</b></span><span><small>BEST</small><b>+118</b></span></section>
@@ -943,6 +971,7 @@
             </button>
             <button class="parlay-suggestion-card">
               <div><span>MLB</span><b>COMPATIBLE</b></div>
+              ${playerHeadshot("Aaron Judge","parlay-suggestion-headshot")}
               <h3>Aaron Judge · 2+ Total Bases</h3>
               <p>NYY vs BAL · exact 2+</p>
               <section><span><small>MODEL</small><b>49%</b></span><span><small>EDGE</small><b class="positive">+4.7%</b></span><span><small>BEST</small><b>+130</b></span></section>
