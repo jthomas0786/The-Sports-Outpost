@@ -18,6 +18,14 @@
   let parlayLegKeys = [];
   let parlayTarget = 3;
   let researchQuery = '';
+  const propsFilterState = {
+    search:'',
+    market:'',
+    book:'',
+    side:'',
+    model:'',
+    sort:'edge'
+  };
   const deepResearchCache = new Map();
   const propHistoryCache = new Map();
   const LIVE_FEED_TTL = 12000;
@@ -382,8 +390,8 @@
     return {...row,book:book.book,price:book.price,link:book.link||null,sid:book.sid||null,snapshotTime:book.snapshotTime||row.snapshotTime,preserved:book.preserved===true,priceKind:book.priceKind||row.priceKind,impliedPct:implied,model};
   }
 
-  function propsSortMode(root){
-    return String(root?.querySelector('[data-props-sort]')?.value||'edge');
+  function propsSortMode(){
+    return String(propsFilterState.sort||'edge');
   }
 
   function sortPropsToolRows(rows,mode='edge'){
@@ -398,13 +406,12 @@
 
 
   function currentPropsRows(){
-    const root=document.querySelector('[data-props-route]');
-    if(!root || !propsFeedCache) return [];
-    const search=String(root.querySelector('[data-props-search]')?.value||'').trim().toLowerCase();
-    const market=String(root.querySelector('[data-props-market-filter]')?.value||'');
-    const book=String(root.querySelector('[data-props-book-filter]')?.value||'').toLowerCase();
-    const side=String(root.querySelector('[data-props-side-filter]')?.value||'');
-    const modelFilter=String(root.querySelector('[data-props-model-filter]')?.value||'');
+    if(!propsFeedCache) return [];
+    const search=String(propsFilterState.search||'').trim().toLowerCase();
+    const market=String(propsFilterState.market||'');
+    const book=String(propsFilterState.book||'').toLowerCase();
+    const side=String(propsFilterState.side||'');
+    const modelFilter=String(propsFilterState.model||'');
     return (propsFeedCache.rows||[]).flatMap(original => {
       if(currentLeague!=='all' && original.sport!==currentLeague) return [];
       if(market && original.market!==market) return [];
@@ -1623,13 +1630,12 @@
       if(Number.isFinite(Number(row?.model?.probabilityPct)))item.modeled++;
       counts.set(key,item);
     }
-    const active=String(root.querySelector('[data-props-market-filter]')?.value||'');
+    const active=String(propsFilterState.market||'');
     const items=[...counts.values()].sort((a,b)=>b.count-a.count||String(a.label).localeCompare(String(b.label)));
     rail.innerHTML='<button class="props-market-chip '+(!active?'is-active':'')+'" data-props-market-chip=""><b>ALL MARKETS</b><span>'+all.length+'</span><small>'+all.filter(r=>Number.isFinite(Number(r?.model?.probabilityPct))).length+' modeled</small></button>'
       +items.map(item=>'<button class="props-market-chip '+(active===item.key?'is-active':'')+'" data-props-market-chip="'+esc(item.key)+'"><b>'+esc(String(item.label).toUpperCase())+'</b><span>'+item.count+'</span><small>'+item.modeled+' modeled</small></button>').join('');
     rail.querySelectorAll('[data-props-market-chip]').forEach(btn=>btn.onclick=()=>{
-      const select=root.querySelector('[data-props-market-filter]');
-      if(select)select.value=btn.dataset.propsMarketChip||'';
+      propsFilterState.market=String(btn.dataset.propsMarketChip||'');
       renderPropsFeed();
     });
     const summary=root.querySelector('[data-props-filter-summary]');
@@ -1726,18 +1732,32 @@
     const leagueRows=(propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
     const marketSelect=root.querySelector('[data-props-market-filter]');
     const bookSelect=root.querySelector('[data-props-book-filter]');
+    const sideSelect=root.querySelector('[data-props-side-filter]');
+    const modelSelect=root.querySelector('[data-props-model-filter]');
+    const sortSelect=root.querySelector('[data-props-sort]');
+    const searchInput=root.querySelector('[data-props-search]');
+
+    const markets=[...new Map(leagueRows.map(r=>[String(r.market||''),r.marketLabel||r.market])).entries()]
+      .filter(([value])=>value)
+      .sort((a,b)=>String(a[1]).localeCompare(String(b[1])));
+    const books=[...new Set(leagueRows.flatMap(row=>(row.books||[{book:row.book}]).map(b=>String(b?.book||'')).filter(Boolean)))]
+      .sort((a,b)=>a.localeCompare(b));
+
+    if(propsFilterState.market && !markets.some(([value])=>value===propsFilterState.market)) propsFilterState.market='';
+    if(propsFilterState.book && !books.some(book=>book.toLowerCase()===propsFilterState.book)) propsFilterState.book='';
+
     if(marketSelect){
-      const previous=marketSelect.value;
-      const markets=[...new Map(leagueRows.map(r=>[r.market,r.marketLabel||r.market])).entries()].sort((a,b)=>String(a[1]).localeCompare(String(b[1])));
       marketSelect.innerHTML='<option value="">MARKET: ALL</option>'+markets.map(([value,label])=>'<option value="'+esc(value)+'">'+esc(String(label).toUpperCase())+'</option>').join('');
-      if(markets.some(([value])=>value===previous)) marketSelect.value=previous;
+      marketSelect.value=propsFilterState.market;
     }
     if(bookSelect){
-      const previous=bookSelect.value.toLowerCase();
-      const books=[...new Set(leagueRows.flatMap(row=>(row.books||[{book:row.book}]).map(b=>String(b?.book||'')).filter(Boolean)))].sort((a,b)=>a.localeCompare(b));
       bookSelect.innerHTML='<option value="">BOOK: ALL</option>'+books.map(book=>'<option value="'+esc(book.toLowerCase())+'">'+esc(book.toUpperCase())+'</option>').join('');
-      if(books.some(book=>book.toLowerCase()===previous)) bookSelect.value=previous;
+      bookSelect.value=propsFilterState.book;
     }
+    if(sideSelect) sideSelect.value=propsFilterState.side;
+    if(modelSelect) modelSelect.value=propsFilterState.model;
+    if(sortSelect) sortSelect.value=propsFilterState.sort;
+    if(searchInput && searchInput.value!==propsFilterState.search) searchInput.value=propsFilterState.search;
   }
 
   async function propResearchPayload(row){
@@ -2156,12 +2176,30 @@
     document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
     document.querySelector('[data-models-refresh]')?.addEventListener('click', () => refreshPropsData(true));
     document.querySelectorAll('[data-models-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.modelsLeague)));
-    document.querySelector('[data-props-search]')?.addEventListener('input', () => renderPropsFeed());
-    document.querySelector('[data-props-market-filter]')?.addEventListener('change', () => renderPropsFeed());
-    document.querySelector('[data-props-book-filter]')?.addEventListener('change', () => renderPropsFeed());
-    document.querySelector('[data-props-side-filter]')?.addEventListener('change', () => renderPropsFeed());
-    document.querySelector('[data-props-model-filter]')?.addEventListener('change', () => renderPropsFeed());
-    document.querySelector('[data-props-sort]')?.addEventListener('change', () => renderPropsFeed());
+    document.querySelector('[data-props-search]')?.addEventListener('input', event => {
+      propsFilterState.search=event.target.value;
+      renderPropsFeed();
+    });
+    document.querySelector('[data-props-market-filter]')?.addEventListener('change', event => {
+      propsFilterState.market=event.target.value;
+      renderPropsFeed();
+    });
+    document.querySelector('[data-props-book-filter]')?.addEventListener('change', event => {
+      propsFilterState.book=String(event.target.value||'').toLowerCase();
+      renderPropsFeed();
+    });
+    document.querySelector('[data-props-side-filter]')?.addEventListener('change', event => {
+      propsFilterState.side=event.target.value;
+      renderPropsFeed();
+    });
+    document.querySelector('[data-props-model-filter]')?.addEventListener('change', event => {
+      propsFilterState.model=event.target.value;
+      renderPropsFeed();
+    });
+    document.querySelector('[data-props-sort]')?.addEventListener('change', event => {
+      propsFilterState.sort=event.target.value||'edge';
+      renderPropsFeed();
+    });
     bindMediaFallbacks();
   }
 
