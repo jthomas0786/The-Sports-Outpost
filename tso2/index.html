@@ -28,7 +28,30 @@
         <div class="masthead-actions">
           <button class="search-trigger"><span>⌕</span><span>Search</span></button>
           <button class="icon-btn" aria-label="Notifications">♢<span class="notification-dot"></span></button>
-          <a class="preview-lab-link" href="/brand-lab">BRAND LAB</a><button class="profile-pill" data-route="profile"><span class="avatar">JT</span><b>JT</b></button>
+          <div class="profile-menu" data-user-handle="justcallme_jt">
+            <button class="profile-pill" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileDropdown">
+              <span class="avatar">JT</span>
+              <span class="profile-pill-copy"><b>JT</b><small>OWNER</small></span>
+              <span class="profile-menu-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown" role="menu" hidden>
+              <div class="profile-dropdown-account">
+                <span class="avatar">JT</span>
+                <div><b>@justcallme_jt</b><small>OWNER ACCOUNT</small></div>
+              </div>
+              <div class="profile-dropdown-divider"></div>
+              <button class="profile-dropdown-item" type="button" role="menuitem" data-profile-route="profile">
+                <span class="profile-dropdown-icon">◉</span>
+                <span><b>My Profile</b><small>History, alerts & tracked picks</small></span>
+                <i>›</i>
+              </button>
+              <a class="profile-dropdown-item profile-dropdown-owner" role="menuitem" data-owner-only href="/brand-lab">
+                <span class="profile-dropdown-icon">◆</span>
+                <span><b>Brand Lab</b><small>Owner tools & approved assets</small></span>
+                <em>OWNER</em>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
 
