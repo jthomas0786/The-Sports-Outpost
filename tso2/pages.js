@@ -815,30 +815,209 @@
     },
 
     parlays(league){
-      return header('PARLAY LAB','Build with context, not guesswork','One workspace for pregame, quarter, halftime and live combinations with transparent correlation and model context.',league,'New Parlay') +
-      filterBar(league,'<button class="filter-button active-filter">Builder</button><button class="filter-button">Saved</button>') +
-      `<section class="parlay-layout">
-        <div class="panel parlay-builder">
-          <div class="section-heading compact-heading"><div><span class="eyebrow">BUILD</span><h2>Current slip</h2></div><button class="text-action">Clear</button></div>
-          <div class="leg-card"><span class="leg-num">1</span><div><b>Sidney Crosby · Anytime Goal</b><small>PIT vs PHI · +268</small></div><span class="leg-edge">+7.6%</span><button>×</button></div>
-          <div class="leg-card"><span class="leg-num">2</span><div><b>Saquon Barkley · Anytime TD</b><small>PHI vs DAL · -124</small></div><span class="leg-edge">+7.7%</span><button>×</button></div>
-          <div class="leg-card"><span class="leg-num">3</span><div><b>McDavid · Over 3.5 Shots</b><small>EDM vs CGY · -105</small></div><span class="leg-edge">+8.2%</span><button>×</button></div>
-          <button class="add-leg">＋ Add another leg</button>
-        </div>
-        <aside class="panel parlay-summary">
-          <span class="eyebrow">OUTPOST CHECK</span><h2>3-leg build</h2>
-          <div class="summary-metrics"><div><span>COMBINED</span><b>+1280</b></div><div><span>MODEL</span><b>9.4%</b></div><div><span>MARKET</span><b>7.2%</b></div></div>
-          <div class="health-score"><div><span>Build quality</span><b>86 / 100</b></div><div class="confidence-track"><i style="width:86%"></i></div></div>
-          <div class="correlation-note good"><b>✓ Correlation check passed</b><small>No major negative dependency detected.</small></div>
-          <button class="button primary full">Save & Track Parlay</button>
-        </aside>
-      </section>
-      <section class="section-block"><div class="section-heading"><div><span class="eyebrow">SMART SUGGESTIONS</span><h2>Compatible legs with edge</h2></div></div>
-        <div class="suggestion-grid">
-          <button class="suggestion-card"><span class="league-badge">NFL</span><b>Travis Kelce O 67.5 Rec Yds</b><small>Model edge +5.8%</small><strong>+102</strong><i>＋</i></button>
-          <button class="suggestion-card"><span class="league-badge">NHL</span><b>Auston Matthews Anytime Goal</b><small>Model edge +5.1%</small><strong>+118</strong><i>＋</i></button>
-          <button class="suggestion-card"><span class="league-badge">MLB</span><b>Judge 2+ Total Bases</b><small>Model edge +4.7%</small><strong>+130</strong><i>＋</i></button>
-        </div>
+      return `
+      <section class="parlays-page broadcast-destination">
+        <section class="destination-hero parlays-destination-hero">
+          <div>
+            <div class="parlays-title-lockup">
+              <img class="parlays-hero-icon" src="/brand/production/tso2-product-parlay-lab-approved.webp" alt="" />
+              <span class="destination-kicker parlays-kicker">PARLAY COMMAND CENTER · ${leagueName(league)}</span>
+            </div>
+            <h1>Build the whole ticket with context.</h1>
+            <p>Exact selections, model probability, market probability, correlation, weakest-leg detection and sportsbook comparison — before the parlay ever leaves TSO.</p>
+          </div>
+          <div class="destination-actions">
+            <button class="button secondary">SAVED BUILDS</button>
+            <button class="button primary">NEW PARLAY →</button>
+          </div>
+        </section>
+
+        <section class="parlays-preview-strip">
+          <div><span class="parlays-preview-dot"></span><b>PREVIEW DATA</b><small>Live feed migration is next</small></div>
+          <span class="parlays-status-divider"></span>
+          <div><b>EXACT LINES</b><small>selection protected</small></div>
+          <span class="parlays-status-divider"></span>
+          <div><b>CORRELATION</b><small>checked per build</small></div>
+          <span class="parlays-status-divider"></span>
+          <div><b>4 SPORTS</b><small>NHL · NFL · MLB · NBA</small></div>
+        </section>
+
+        <section class="parlays-mode-tabs">
+          <button class="is-active"><span>01</span><div><b>PREGAME</b><small>Build before puck / kick / first pitch</small></div></button>
+          <button><span>02</span><div><b>QUARTER</b><small>In-game checkpoints</small></div></button>
+          <button><span>03</span><div><b>HALFTIME</b><small>Fresh context at the break</small></div></button>
+          <button><span>04</span><div><b>LIVE</b><small>React to current game state</small></div></button>
+        </section>
+
+        <section class="parlays-command-grid">
+          <article class="parlay-slip">
+            <div class="parlay-slip-head">
+              <div><span class="gold-kicker">CURRENT BUILD</span><h2>3-leg model parlay</h2></div>
+              <div class="parlay-leg-count">
+                <button>2</button><button class="is-active">3</button><button>4</button><button>5+</button>
+              </div>
+            </div>
+
+            <div class="parlay-leg parlay-leg--strong">
+              <div class="parlay-leg-index">01</div>
+              <div class="parlay-leg-main">
+                <div class="parlay-leg-meta"><span>NHL · SHOTS</span><b>HIGH CONF</b></div>
+                <h3>Connor McDavid · Over 3.5 Shots</h3>
+                <small>EDM vs CGY · exact selection</small>
+                <div class="parlay-leg-metrics">
+                  <span><small>MODEL</small><b>67.0%</b></span>
+                  <span><small>MARKET</small><b>58.8%</b></span>
+                  <span><small>EDGE</small><b class="positive">+8.2%</b></span>
+                  <span><small>CONF</small><b>86</b></span>
+                </div>
+              </div>
+              <div class="parlay-leg-price"><span>BEST</span><strong>-105</strong><small>DK</small></div>
+              <button class="parlay-leg-remove">×</button>
+            </div>
+
+            <div class="parlay-leg parlay-leg--strong">
+              <div class="parlay-leg-index">02</div>
+              <div class="parlay-leg-main">
+                <div class="parlay-leg-meta"><span>NFL · ANYTIME TD</span><b>HIGH CONF</b></div>
+                <h3>Saquon Barkley · Anytime Touchdown</h3>
+                <small>PHI vs DAL · Yes</small>
+                <div class="parlay-leg-metrics">
+                  <span><small>MODEL</small><b>63.1%</b></span>
+                  <span><small>MARKET</small><b>55.4%</b></span>
+                  <span><small>EDGE</small><b class="positive">+7.7%</b></span>
+                  <span><small>CONF</small><b>88</b></span>
+                </div>
+              </div>
+              <div class="parlay-leg-price"><span>BEST</span><strong>-124</strong><small>FD</small></div>
+              <button class="parlay-leg-remove">×</button>
+            </div>
+
+            <div class="parlay-leg parlay-leg--weak">
+              <div class="parlay-leg-index">03</div>
+              <div class="parlay-leg-main">
+                <div class="parlay-leg-meta"><span>NHL · ANYTIME GOAL</span><b>WEAKEST LEG</b></div>
+                <h3>Sidney Crosby · Anytime Goal</h3>
+                <small>PIT vs PHI · Yes</small>
+                <div class="parlay-leg-metrics">
+                  <span><small>MODEL</small><b>34.8%</b></span>
+                  <span><small>MARKET</small><b>27.2%</b></span>
+                  <span><small>EDGE</small><b class="positive">+7.6%</b></span>
+                  <span><small>CONF</small><b>78</b></span>
+                </div>
+              </div>
+              <div class="parlay-leg-price"><span>BEST</span><strong>+268</strong><small>DK</small></div>
+              <button class="parlay-leg-remove">×</button>
+            </div>
+
+            <button class="parlay-add-leg"><span>＋</span><div><b>ADD ANOTHER LEG</b><small>Pull from Props, Models or smart suggestions</small></div></button>
+
+            <div class="parlay-line-protection"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Each leg keeps its exact threshold and side. A nearby sportsbook line is never substituted silently.</small></div></div>
+          </article>
+
+          <aside class="parlay-health">
+            <div class="parlay-health-head"><span class="violet-kicker">OUTPOST CHECK</span><b>BUILD HEALTH</b></div>
+            <div class="parlay-health-score">
+              <div class="parlay-health-ring"><div><strong>84</strong><small>/ 100</small></div></div>
+              <div><span>QUALITY SCORE</span><h2>Strong build</h2><p>Two high-confidence legs and one leg worth reviewing.</p></div>
+            </div>
+
+            <div class="parlay-summary-grid">
+              <div><span>COMBINED PRICE</span><b>+1280</b></div>
+              <div><span>MODEL PROB</span><b>9.4%</b></div>
+              <div><span>MARKET PROB</span><b>7.2%</b></div>
+              <div><span>PARLAY EDGE</span><b class="positive">+2.2%</b></div>
+            </div>
+
+            <div class="parlay-check-list">
+              <div class="is-good"><span>✓</span><div><b>Correlation check</b><small>No major negative dependency detected</small></div></div>
+              <div class="is-good"><span>✓</span><div><b>Exact lines verified</b><small>All 3 selections match displayed thresholds</small></div></div>
+              <div class="is-warn"><span>!</span><div><b>Weakest leg found</b><small>Crosby goal carries the lowest confidence score</small></div></div>
+            </div>
+
+            <div class="parlay-health-actions">
+              <button class="button secondary">SAVE BUILD</button>
+              <button class="button primary">TRACK PARLAY →</button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="orange-kicker">WEAKEST LEG</span><h2>Should you replace it?</h2></div>
+            <button data-route-jump="props">OPEN PROP BOARD →</button>
+          </div>
+          <div class="parlay-replacement-grid">
+            <article class="parlay-replace-current">
+              <div class="parlay-replace-label">CURRENT LEG</div>
+              <span>NHL · ANYTIME GOAL</span>
+              <h3>Sidney Crosby</h3>
+              <p>Anytime Goal · +268</p>
+              <div><span>CONFIDENCE</span><b>78</b></div>
+              <div><span>EDGE</span><b class="positive">+7.6%</b></div>
+            </article>
+            <div class="parlay-replace-arrow">→</div>
+            <button class="parlay-replacement-card">
+              <span class="parlay-replacement-badge">SAFER</span>
+              <small>NFL · RECEIVING</small>
+              <h3>Travis Kelce O 67.5 Yds</h3>
+              <div><span>CONF</span><b>82</b></div>
+              <div><span>EDGE</span><b class="positive">+5.8%</b></div>
+              <strong>+102</strong>
+              <em>REPLACE LEG →</em>
+            </button>
+            <button class="parlay-replacement-card">
+              <span class="parlay-replacement-badge">MORE EDGE</span>
+              <small>MLB · HOME RUN</small>
+              <h3>Pete Alonso · Home Run</h3>
+              <div><span>CONF</span><b>84</b></div>
+              <div><span>EDGE</span><b class="positive">+7.7%</b></div>
+              <strong>+360</strong>
+              <em>REPLACE LEG →</em>
+            </button>
+          </div>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="gold-kicker">SMART SUGGESTIONS</span><h2>Compatible legs with model edge</h2></div>
+            <button data-route-jump="models">OPEN MODELS →</button>
+          </div>
+          <div class="parlay-suggestion-grid">
+            <button class="parlay-suggestion-card">
+              <div><span>NFL</span><b>COMPATIBLE</b></div>
+              <h3>Travis Kelce O 67.5 Receiving Yards</h3>
+              <p>KC at BUF · exact O 67.5</p>
+              <section><span><small>MODEL</small><b>61%</b></span><span><small>EDGE</small><b class="positive">+5.8%</b></span><span><small>BEST</small><b>+102</b></span></section>
+              <i>＋ ADD LEG</i>
+            </button>
+            <button class="parlay-suggestion-card">
+              <div><span>NHL</span><b>COMPATIBLE</b></div>
+              <h3>Auston Matthews · Anytime Goal</h3>
+              <p>TOR vs MTL · Yes</p>
+              <section><span><small>MODEL</small><b>37%</b></span><span><small>EDGE</small><b class="positive">+5.1%</b></span><span><small>BEST</small><b>+118</b></span></section>
+              <i>＋ ADD LEG</i>
+            </button>
+            <button class="parlay-suggestion-card">
+              <div><span>MLB</span><b>COMPATIBLE</b></div>
+              <h3>Aaron Judge · 2+ Total Bases</h3>
+              <p>NYY vs BAL · exact 2+</p>
+              <section><span><small>MODEL</small><b>49%</b></span><span><small>EDGE</small><b class="positive">+4.7%</b></span><span><small>BEST</small><b>+130</b></span></section>
+              <i>＋ ADD LEG</i>
+            </button>
+          </div>
+        </section>
+
+        <section class="destination-section">
+          <div class="destination-section-head">
+            <div><span class="violet-kicker">BOOK COMPARISON</span><h2>Same exact 3-leg ticket</h2></div>
+            <button>ALL BOOKS →</button>
+          </div>
+          <div class="parlay-book-board">
+            <div class="parlay-book-row is-best"><span class="parlay-book-name">DK</span><div><b>DraftKings</b><small>All exact selections available</small></div><strong>+1280</strong><span class="parlay-book-value">BEST PRICE</span><button>OPEN BOOK →</button></div>
+            <div class="parlay-book-row"><span class="parlay-book-name">FD</span><div><b>FanDuel</b><small>All exact selections available</small></div><strong>+1225</strong><span>-55 vs best</span><button>OPEN BOOK →</button></div>
+            <div class="parlay-book-row"><span class="parlay-book-name">MGM</span><div><b>BetMGM</b><small>McDavid exact line available</small></div><strong>+1190</strong><span>-90 vs best</span><button>OPEN BOOK →</button></div>
+          </div>
+        </section>
       </section>`;
     },
 
