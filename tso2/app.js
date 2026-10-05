@@ -411,6 +411,156 @@
     return iso;
   }
 
+  function allModeledRows(){
+    return (propsFeedCache?.rows||[]).filter(row=>Number.isFinite(Number(row?.model?.probabilityPct)));
+  }
+
+  function currentModelRows(){
+    return allModeledRows().filter(row=>currentLeague==='all'||row.sport===currentLeague);
+  }
+
+  const modelSourceText = row => row?.model?.sourceLabel || row?.model?.source || 'TSO MODEL';
+
+  function renderModelsSportSummary(root){
+    const node=root.querySelector('[data-models-sport-summary]');
+    if(!node) return;
+    const modeled=allModeledRows();
+    const counts={nhl:0,nfl:0,mlb:0,nba:0};
+    modeled.forEach(row=>{ if(Object.prototype.hasOwnProperty.call(counts,row.sport)) counts[row.sport]++; });
+    const meta={
+      nhl:{mark:'◎',tone:'violet',title:'NHL',copy:'First Goal · Anytime Goal'},
+      nfl:{mark:'◫',tone:'blue',title:'NFL',copy:'Monte Carlo · exact-line pregame'},
+      mlb:{mark:'⌁',tone:'gold',title:'MLB',copy:'Daily 10,000-run hitter model'},
+      nba:{mark:'✦',tone:'orange',title:'NBA',copy:'No TSO model yet · market only'}
+    };
+    node.innerHTML=['nhl','nfl','mlb','nba'].map(sport=>{
+      const item=meta[sport];
+      const active=currentLeague===sport;
+      const count=sport==='nba'?'MARKET ONLY':counts[sport]+' MATCH'+(counts[sport]===1?'':'ES');
+      return '<button class="models-engine-tab '+(active?'is-active':'')+'" data-models-league="'+sport+'">'
+        +'<span class="models-engine-mark models-engine-mark--'+item.tone+'">'+item.mark+'</span>'
+        +'<div><b>'+item.title+'</b><small>'+item.copy+'</small></div><i>'+count+'</i></button>';
+    }).join('');
+    node.querySelectorAll('[data-models-league]').forEach(btn=>btn.addEventListener('click',()=>setLeague(btn.dataset.modelsLeague)));
+    root.querySelectorAll('[data-model-count]').forEach(el=>{
+      const sport=el.dataset.modelCount;
+      el.textContent=sport==='nba'?'0 BY DESIGN':String(counts[sport]||0);
+    });
+  }
+
+  function renderModelsFeature(root,rows){
+    const node=root.querySelector('[data-models-feature]');
+    if(!node) return;
+    node.classList.remove('live-feed-loading');
+    if(!rows.length){
+      const nba=currentLeague==='nba';
+      node.innerHTML='<div class="live-feed-empty"><div><b>'+(nba?'NBA is market-only by design.':'No exact model matches for this filter.')+'</b><small>'+(nba?'TSO will not display a model probability or edge until a real NBA model exists.':'The verified odds feed is available, but no row currently passes the strict player + market + side + exact-line model match.')+'</small></div></div>';
+      return;
+    }
+    const row=sortPropsRows(rows)[0];
+    const model=row.model||{};
+    const edge=Number(model.edgePct);
+    const source=modelSourceText(row);
+    const phase=String(model.phase||'').trim();
+    const selection=propSelectionText(row);
+    const tag=modelTagText(row);
+    const updated=row.snapshotTime?ageText(row.snapshotTime)+' old':'timestamp unavailable';
+    node.innerHTML=
+      '<div class="model-spotlight-glow"></div>'
+      +'<div class="model-spotlight-top"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(selection)+'</span><b>'+esc(tag)+'</b></div>'
+      +'<div class="model-spotlight-main"><div class="model-spotlight-player">'
+        +propHeadshotMarkup(row,'model-player-number model-player-headshot')
+        +'<div><small>'+esc(row.team||'PLAYER')+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small><h2>'+esc(row.player)+'</h2><p>'+esc(row.marketLabel||row.market)+' · <strong>'+esc(selection)+'</strong></p></div>'
+      +'</div><div class="model-probability-ring"><div><small>MODEL</small><strong>'+pct1(model.probabilityPct)+'</strong><span>probability</span></div></div></div>'
+      +'<div class="model-score-line"><div><span>MARKET</span><b>'+pct1(row.impliedPct)+'</b></div><div><span>EDGE</span><b class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</b></div><div><span>EXACT LINE</span><b>'+esc(selection)+'</b></div><div><span>BEST PRICE</span><b>'+esc(americanPrice(row.price))+' <small>'+esc(row.book||'—')+'</small></b></div></div>'
+      +'<div class="model-driver-grid"><div><span>MODEL SOURCE</span><b>'+esc(source)+'</b><small>Real TSO output</small></div><div><span>PHASE</span><b>'+esc(phase?phase.toUpperCase():'MODEL OUTPUT')+'</b><small>'+(row.sport==='nfl'?'Pregame price comparison enforced':'Exact-selection match')+'</small></div><div><span>SPORTSBOOK</span><b>'+esc(row.book||'—')+'</b><small>'+esc(row.bookCount||1)+' verified book'+((row.bookCount||1)===1?'':'s')+'</small></div><div><span>UPDATED</span><b>'+esc(updated)+'</b><small>Snapshot timestamp preserved</small></div></div>'
+      +'<div class="model-spotlight-footer"><div><span>OUTPOST READ</span><b>Exact model-to-market match.</b><small>Same player, market, side and threshold. No nearby-line substitution.</small></div>'
+      +(row.link?'<a class="broadcast-cta props-book-link" href="'+esc(row.link)+'" target="_blank" rel="noopener">OPEN SPORTSBOOK →</a>':'<span class="props-link-unavailable">NATIVE LINK NOT SUPPLIED</span>')+'</div>';
+  }
+
+  function renderModelsEdgeBoard(root,rows){
+    const node=root.querySelector('[data-models-edge-board]');
+    if(!node) return;
+    const ranked=sortPropsRows(rows).slice(0,8);
+    node.innerHTML='<div class="model-edge-head"><div><span class="violet-kicker">EDGE BOARD</span><h2>Best model gaps right now</h2></div><span>REAL DATA</span></div>'
+      +(ranked.length?ranked.map((row,i)=>{
+        const edge=Number(row.model?.edgePct);
+        return '<button class="model-edge-row '+(i===0?'is-featured':'')+'"><span class="model-edge-rank">'+String(i+1).padStart(2,'0')+'</span><div><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</small></div><span><small>MODEL</small><b>'+pct1(row.model?.probabilityPct)+'</b></span><strong class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</strong></button>';
+      }).join(''):'<div class="live-feed-side-loading"><div><b>No model matches for this filter.</b><small>Only exact TSO model-to-market matches appear here.</small></div></div>')
+      +'<div class="model-edge-footer"><span>'+ranked.length+' ranked · '+rows.length+' exact model matches</span><button data-route-jump="props">OPEN PROPS →</button></div>';
+    node.querySelector('[data-route-jump="props"]')?.addEventListener('click',()=>setRoute('props'));
+  }
+
+  function renderModelsBoard(root,rows){
+    const board=root.querySelector('[data-models-board]');
+    if(!board) return;
+    const visible=sortPropsRows(rows).slice(0,160);
+    if(!visible.length){
+      board.innerHTML='<div class="live-board-loading props-empty-board"><b>'+(currentLeague==='nba'?'NBA has verified market prices but no TSO model by design.':'No exact model matches for this filter.')+'</b></div>';
+      return;
+    }
+    board.innerHTML=visible.map(row=>{
+      const model=row.model||{};
+      const edge=Number(model.edgePct);
+      return '<div class="props-board-row props-board-row-live has-model">'
+        +'<span class="props-board-player props-board-player-live">'+propHeadshotMarkup(row,'props-board-headshot')+'<span><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></span></span>'
+        +'<strong>'+esc(propSelectionText(row))+'</strong>'
+        +'<strong class="props-model-prob">'+pct1(model.probabilityPct)+'</strong>'
+        +'<strong>'+pct1(row.impliedPct)+'</strong>'
+        +'<strong class="props-edge-value '+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</strong>'
+        +'<span class="props-model-tag '+modelTagClass(row)+'">'+esc(modelTagText(row))+'</span>'
+        +'<span class="props-price"><b>'+esc(americanPrice(row.price))+'</b><small>'+esc(row.bookCount||1)+' book'+((row.bookCount||1)===1?'':'s')+'</small></span>'
+        +'<strong class="props-book-name">'+esc(row.book||'—')+'</strong>'
+        +'<span class="props-snapshot-age">'+esc(ageText(row.snapshotTime))+'</span>'
+        +(row.link?'<a class="props-native-link" href="'+esc(row.link)+'" target="_blank" rel="noopener">OPEN →</a>':'<span class="props-no-link">NO LINK</span>')
+      +'</div>';
+    }).join('');
+    bindMediaFallbacks();
+  }
+
+  function renderModelsFeed(){
+    const root=document.querySelector('[data-models-route]');
+    if(currentRoute!=='models'||!root||!propsFeedCache) return;
+    const rows=currentModelRows();
+    const all=allModeledRows();
+    const newest=propsNewestTimestamp(rows.length?rows:all);
+    const freshness=freshnessLabel(newest);
+    const sports=new Set(all.map(row=>row.sport).filter(Boolean));
+    const sources=new Set(all.map(modelSourceText).filter(Boolean));
+    const top=sortPropsRows(rows)[0]||null;
+
+    const badge=root.querySelector('[data-models-feed-badge]');
+    if(badge){
+      if(currentLeague==='nba'){
+        badge.className='props-feed-badge is-recent';
+        badge.innerHTML='<i></i> NBA · MARKET ONLY';
+      }else{
+        badge.className='props-feed-badge is-'+freshness.tone;
+        badge.innerHTML='<i></i> REAL MODEL FEED · '+esc(freshness.label);
+      }
+    }
+
+    const status=root.querySelector('[data-models-status]');
+    if(status){
+      status.innerHTML='<div><span class="model-live-dot"></span><b>REAL TSO MODEL FEED</b><small>Exact model matches only</small></div><span class="models-status-divider"></span><div><b>'+rows.length+'</b><small>model matches</small></div><span class="models-status-divider"></span><div><b>'+sports.size+'</b><small>modeled sports</small></div><span class="models-status-divider"></span><div><b>'+sources.size+'</b><small>model sources</small></div><span class="models-status-divider"></span><div><b>'+esc(newest?ageText(newest):'—')+'</b><small>source freshness</small></div>';
+    }
+
+    const title=root.querySelector('[data-models-board-title]');
+    if(title) title.textContent=(currentLeague==='all'?'All sports':leagueLabel(currentLeague))+' · '+rows.length+' exact model match'+(rows.length===1?'':'es');
+
+    const pulseCount=root.querySelector('[data-models-pulse-count]');
+    if(pulseCount) pulseCount.textContent=String(rows.length);
+    const pulseEdge=root.querySelector('[data-models-pulse-edge]');
+    if(pulseEdge) pulseEdge.textContent=top?edgeText(top.model?.edgePct):'—';
+    const pulseAge=root.querySelector('[data-models-pulse-age]');
+    if(pulseAge) pulseAge.textContent=newest?'Verified snapshot '+ageText(newest)+' old':'No modeled snapshot for this filter';
+
+    renderModelsSportSummary(root);
+    renderModelsFeature(root,rows);
+    renderModelsEdgeBoard(root,rows);
+    renderModelsBoard(root,rows);
+  }
+
   function renderPropsFeature(root,rows){
     const node=root.querySelector('[data-props-feature]');
     if(!node) return;
@@ -549,6 +699,7 @@
     if(propsFeedInFlight) return propsFeedInFlight;
     if(!force && propsFeedCache && Date.now()-propsFeedFetchedAt < PROPS_FEED_TTL){
       renderPropsFeed();
+      renderModelsFeed();
       return propsFeedCache;
     }
     propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
@@ -559,6 +710,7 @@
         propsFeedCache=payload;
         propsFeedFetchedAt=Date.now();
         renderPropsFeed();
+        renderModelsFeed();
         return payload;
       })
       .catch(error=>{
@@ -568,6 +720,13 @@
         if(badge){badge.className='props-feed-badge is-error';badge.innerHTML='<i></i> ODDS FEED UNAVAILABLE';}
         const board=root?.querySelector('[data-props-board]');
         if(board) board.innerHTML='<div class="live-board-loading props-empty-board"><b>Verified sportsbook feed unavailable. Retrying automatically.</b></div>';
+        const modelsRoot=document.querySelector('[data-models-route]');
+        const modelsBadge=modelsRoot?.querySelector('[data-models-feed-badge]');
+        if(modelsBadge){modelsBadge.className='props-feed-badge is-error';modelsBadge.innerHTML='<i></i> MODEL FEED UNAVAILABLE';}
+        const modelsBoard=modelsRoot?.querySelector('[data-models-board]');
+        if(modelsBoard) modelsBoard.innerHTML='<div class="live-board-loading props-empty-board"><b>Real model feed unavailable because the verified Props source could not be loaded. Retrying automatically.</b></div>';
+        const modelsFeature=modelsRoot?.querySelector('[data-models-feature]');
+        if(modelsFeature){modelsFeature.classList.remove('live-feed-loading');modelsFeature.innerHTML='<div class="live-feed-empty"><div><b>Model feed unavailable.</b><small>TSO will not substitute preview values while the real source is unavailable.</small></div></div>';}
         return null;
       })
       .finally(()=>{propsFeedInFlight=null});
@@ -631,6 +790,8 @@
       notify('Preview interaction only — live builder state comes with the data migration.');
     }));
     document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
+    document.querySelector('[data-models-refresh]')?.addEventListener('click', () => refreshPropsData(true));
+    document.querySelectorAll('[data-models-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.modelsLeague)));
     document.querySelector('[data-props-search]')?.addEventListener('input', () => renderPropsFeed());
     document.querySelector('[data-props-market-filter]')?.addEventListener('change', () => renderPropsFeed());
     document.querySelector('[data-props-book-filter]')?.addEventListener('change', () => renderPropsFeed());
