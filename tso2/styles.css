@@ -3605,6 +3605,34 @@ body.props-compare-open{overflow:hidden}
 .prop-hit-sequence span.is-miss{border-color:rgba(255,77,28,.17);background:rgba(255,77,28,.035);color:#ff9a7c}
 .prop-hit-sequence span.is-push{border-color:rgba(255,216,77,.18);background:rgba(255,216,77,.035);color:#ffe16a}
 
+.prop-game-chart{border-top:1px solid rgba(255,255,255,.065);background:linear-gradient(180deg,rgba(255,255,255,.012),transparent)}
+.prop-game-chart-head{min-height:52px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:9px 12px;border-bottom:1px solid rgba(255,255,255,.055)}
+.prop-game-chart-head>div:first-child b,.prop-game-chart-head>div:first-child small{display:block}
+.prop-game-chart-head>div:first-child b{font-size:7px;letter-spacing:.08em}
+.prop-game-chart-head>div:first-child small{margin-top:4px;color:#606b77;font-size:6px}
+.prop-game-chart-ranges{display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end}
+.prop-game-chart-ranges button{min-width:34px;height:24px;padding:0 7px;border:1px solid rgba(255,255,255,.08);background:#090d12;color:#687480;font-size:6px;font-weight:950;letter-spacing:.05em;cursor:pointer}
+.prop-game-chart-ranges button:hover{color:#eef2f6;border-color:rgba(255,216,77,.18)}
+.prop-game-chart-ranges button.is-active{border-color:rgba(255,216,77,.28);background:rgba(255,216,77,.05);color:#ffe16a}
+.prop-game-chart-scroll{overflow-x:auto;padding:11px 12px 3px}
+.prop-game-chart-bars{position:relative;min-width:100%;height:160px;display:grid;grid-auto-flow:column;grid-auto-columns:minmax(36px,1fr);align-items:end;gap:6px;padding-top:8px}
+.prop-game-chart-threshold{position:absolute;z-index:4;left:0;right:0;bottom:var(--threshold-y);height:1px;background:rgba(255,216,77,.72);box-shadow:0 0 10px rgba(255,216,77,.12);pointer-events:none}
+.prop-game-chart-threshold em{position:absolute;right:0;bottom:4px;padding:3px 5px;background:#171306;color:#ffe16a;font-size:5.5px;font-style:normal;font-weight:950;letter-spacing:.06em}
+.prop-game-chart-cell{position:relative;z-index:2;min-width:36px;display:grid;grid-template-rows:132px 20px;align-items:end;text-align:center}
+.prop-game-chart-track{height:132px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;position:relative}
+.prop-game-chart-track>b{position:absolute;bottom:calc(var(--bar-h) + 5px);font-size:6px;color:#9ca7b2;transform:translateY(0)}
+.prop-game-chart-bar{width:min(24px,72%);height:var(--bar-h);display:block;border:1px solid rgba(255,255,255,.12);background:#17202a}
+.prop-game-chart-cell.is-hit .prop-game-chart-bar{border-color:rgba(79,227,155,.26);background:linear-gradient(180deg,rgba(79,227,155,.62),rgba(79,227,155,.14))}
+.prop-game-chart-cell.is-miss .prop-game-chart-bar{border-color:rgba(255,77,28,.24);background:linear-gradient(180deg,rgba(255,77,28,.52),rgba(255,77,28,.12))}
+.prop-game-chart-cell.is-push .prop-game-chart-bar{border-color:rgba(255,216,77,.25);background:linear-gradient(180deg,rgba(255,216,77,.5),rgba(255,216,77,.12))}
+.prop-game-chart-cell>small{align-self:end;color:#596571;font-size:5.5px;line-height:20px}
+.prop-game-chart-key{min-height:28px;display:flex;align-items:center;gap:12px;padding:0 12px;color:#596571;font-size:5.5px;font-weight:900;letter-spacing:.05em;border-top:1px solid rgba(255,255,255,.04)}
+.prop-game-chart-key span{display:flex;align-items:center;gap:5px}
+.prop-game-chart-key i{width:7px;height:7px;display:block;border:1px solid rgba(255,255,255,.1)}
+.prop-game-chart-key i.is-hit{background:rgba(79,227,155,.55);border-color:rgba(79,227,155,.35)}
+.prop-game-chart-key i.is-miss{background:rgba(255,77,28,.5);border-color:rgba(255,77,28,.3)}
+.prop-game-chart-key i.is-push{background:rgba(255,216,77,.5);border-color:rgba(255,216,77,.3)}
+
 .prop-move-summary{display:grid;grid-template-columns:repeat(4,1fr)}
 .prop-move-summary>span{min-height:88px;padding:14px;border-left:1px solid rgba(255,255,255,.06)}
 .prop-move-summary>span:first-child{border-left:0}
@@ -3639,6 +3667,9 @@ body.props-compare-open{overflow:hidden}
   .prop-move-summary>span:nth-child(4){border-top:1px solid rgba(255,255,255,.06)}
   .prop-hit-sequence{grid-template-columns:1fr}
   .prop-hit-sequence>div:last-child{justify-content:flex-start}
+  .prop-game-chart-head{align-items:flex-start;flex-direction:column}
+  .prop-game-chart-ranges{justify-content:flex-start}
+  .prop-game-chart-bars{grid-auto-columns:42px;min-width:max-content}
 }
 /* =========================================================
    TSO 2.0 — DEEP RESEARCH DETAIL
