@@ -3002,3 +3002,100 @@ body{
 @media(max-width:600px){
   .props-title-lockup{gap:8px}.props-hero-icon{width:30px;height:30px}.props-control-deck{padding:8px}.props-sport-tabs{overflow-x:auto}.props-filter-actions button{white-space:nowrap}.prop-spotlight-main{align-items:flex-start}.prop-player-number{width:48px;height:48px;font-size:17px}.prop-spotlight-player h2{font-size:22px}.prop-edge-ring{width:94px;height:94px;flex-basis:94px}.prop-edge-ring::before{width:72px;height:72px}.prop-edge-ring strong{font-size:19px}.prop-score-line{grid-template-columns:repeat(2,1fr)}.prop-score-line>div:nth-child(2){border-right:0}.prop-score-line>div:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.06)}.prop-book-strip{grid-template-columns:repeat(2,1fr)}.prop-book-strip>div:nth-child(2){border-right:0}.prop-book-strip>div:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.06)}.prop-spotlight-footer{align-items:flex-start;flex-direction:column}.props-mover-row{grid-template-columns:44px minmax(0,1fr) 48px}.props-mover-row>strong{display:none}
 }
+
+
+/* =========================================================
+   TSO 2.0 — OWNER PROFILE MENU
+   ========================================================= */
+.profile-menu{position:relative}
+.profile-pill{min-width:94px;justify-content:flex-start}
+.profile-pill-copy{display:flex;flex-direction:column;align-items:flex-start;line-height:1}
+.profile-pill-copy b{font-size:9px}
+.profile-pill-copy small{margin-top:4px;color:#7c8793;font-size:6px;font-weight:900;letter-spacing:.08em}
+.profile-menu-chevron{margin-left:auto;color:#707b87;font-size:10px;transition:transform .18s ease}
+.profile-menu.is-open .profile-menu-chevron{transform:rotate(180deg)}
+.profile-dropdown{
+  position:absolute;
+  top:calc(100% + 9px);
+  right:0;
+  z-index:120;
+  width:304px;
+  overflow:hidden;
+  border:1px solid rgba(255,255,255,.13);
+  background:linear-gradient(155deg,#0d1219,#070a0f 72%);
+  box-shadow:0 24px 70px rgba(0,0,0,.52);
+}
+.profile-dropdown[hidden]{display:none}
+.profile-dropdown::before{
+  content:"";
+  position:absolute;
+  inset:0 0 auto 0;
+  height:2px;
+  background:linear-gradient(90deg,var(--outpost-orange),var(--outpost-gold),var(--outpost-violet));
+}
+.profile-dropdown-account{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:14px;
+  background:rgba(255,255,255,.018);
+}
+.profile-dropdown-account .avatar{width:38px;height:38px;font-size:9px}
+.profile-dropdown-account b{display:block;font-size:10px}
+.profile-dropdown-account small{display:block;margin-top:5px;color:#ffcd54;font-size:6px;font-weight:950;letter-spacing:.10em}
+.profile-dropdown-divider{height:1px;background:rgba(255,255,255,.08)}
+.profile-dropdown-item{
+  width:100%;
+  min-height:62px;
+  display:grid;
+  grid-template-columns:32px minmax(0,1fr) auto;
+  align-items:center;
+  gap:10px;
+  padding:0 13px;
+  border:0;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:transparent;
+  color:#f3f5f7;
+  text-align:left;
+  text-decoration:none;
+  cursor:pointer;
+}
+.profile-dropdown-item:last-child{border-bottom:0}
+.profile-dropdown-item:hover{background:rgba(255,255,255,.035)}
+.profile-dropdown-icon{
+  width:30px;
+  height:30px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.11);
+  background:#0a0e14;
+  color:#93a0ad;
+  font-size:11px;
+}
+.profile-dropdown-item>span:nth-child(2) b{display:block;font-size:9px}
+.profile-dropdown-item>span:nth-child(2) small{display:block;margin-top:4px;color:#65717d;font-size:7px}
+.profile-dropdown-item>i{color:#66727e;font-size:13px;font-style:normal}
+.profile-dropdown-owner{background:linear-gradient(90deg,rgba(255,216,77,.035),transparent)}
+.profile-dropdown-owner .profile-dropdown-icon{color:#ffe16a;border-color:rgba(255,216,77,.22);background:rgba(255,216,77,.045)}
+.profile-dropdown-owner em{
+  min-height:20px;
+  display:grid;
+  place-items:center;
+  padding:0 6px;
+  border:1px solid rgba(255,216,77,.22);
+  background:rgba(255,216,77,.045);
+  color:#ffe16a;
+  font-size:6px;
+  font-style:normal;
+  font-weight:950;
+  letter-spacing:.07em;
+}
+.profile-dropdown-owner[hidden]{display:none}
+
+@media(max-width:900px){
+  .profile-pill{min-width:40px;width:40px;padding:0 5px;justify-content:center}
+  .profile-pill-copy{display:none}
+  .profile-menu-chevron{display:none}
+  .profile-dropdown{position:fixed;top:58px;right:10px;width:min(304px,calc(100vw - 20px))}
+}
