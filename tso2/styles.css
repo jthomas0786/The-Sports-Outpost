@@ -6819,3 +6819,238 @@ body.tso-side-nav-open{overflow:hidden}
     transition:none!important;
   }
 }
+
+
+/* TSO2 HOME SCOREBOARD RESPONSIVE + EDGE LOGOS */
+/* Use the actual remaining app width (after the desktop side nav), not only the
+   browser viewport, to decide when Home's lead story should stack. */
+.broadcast-main{
+  container-type:inline-size;
+  container-name:tso-main-content;
+}
+.concept-headline{
+  min-width:0!important;
+}
+.concept-matchup{
+  min-width:0!important;
+  container-type:inline-size;
+  container-name:tso-home-scorecard;
+}
+
+/* Oversized edge marks: keep the score/text readable in the center while the
+   team logo becomes part of the broadcast artwork at the outer glow. */
+.concept-matchup .matchup-stage{
+  overflow:visible!important;
+}
+.concept-matchup .matchup-side{
+  position:relative!important;
+  min-height:190px!important;
+  isolation:isolate;
+}
+.concept-matchup .matchup-side>span,
+.concept-matchup .matchup-side>strong,
+.concept-matchup .matchup-side>small{
+  position:relative!important;
+  z-index:3!important;
+}
+.concept-matchup .feature-team-logo{
+  position:absolute!important;
+  top:50%!important;
+  z-index:1!important;
+  width:clamp(118px,48%,162px)!important;
+  height:clamp(118px,48%,162px)!important;
+  margin:0!important;
+  border:0!important;
+  background:transparent!important;
+  opacity:.92!important;
+  pointer-events:none!important;
+  filter:
+    drop-shadow(0 14px 30px rgba(0,0,0,.42))
+    drop-shadow(0 0 22px rgba(255,255,255,.08))!important;
+}
+.concept-matchup .matchup-side--home .feature-team-logo{
+  left:-54px!important;
+  transform:translateY(-50%) rotate(-4deg)!important;
+}
+.concept-matchup .matchup-side--away .feature-team-logo{
+  right:-54px!important;
+  transform:translateY(-50%) rotate(4deg)!important;
+}
+.concept-matchup .matchup-side--home>span,
+.concept-matchup .matchup-side--home>strong,
+.concept-matchup .matchup-side--home>small{
+  transform:translateX(22px);
+}
+.concept-matchup .matchup-side--away>span,
+.concept-matchup .matchup-side--away>strong,
+.concept-matchup .matchup-side--away>small{
+  transform:translateX(-22px);
+}
+
+/* Make the glow read as one team atmosphere behind each oversized mark. */
+.concept-matchup .matchup-energy{
+  width:54%!important;
+  opacity:.50!important;
+}
+.concept-matchup .matchup-energy--left{
+  left:-18%!important;
+}
+.concept-matchup .matchup-energy--right{
+  right:-18%!important;
+}
+
+/* The old breakpoint watched the full viewport, which meant the fixed desktop
+   side nav could squeeze this two-column layout without ever triggering mobile
+   CSS. This breakpoint watches the actual Home content width instead. */
+@container tso-main-content (max-width:980px){
+  .concept-headline{
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  .concept-matchup,
+  .concept-picks{
+    width:100%!important;
+    min-height:auto!important;
+  }
+}
+
+/* Card-local responsive behavior. It continues shrinking even when the overall
+   browser is technically "desktop" sized. */
+@container tso-home-scorecard (max-width:680px){
+  .concept-matchup{
+    padding:16px!important;
+  }
+  .concept-matchup .feature-topline{
+    gap:10px!important;
+    flex-wrap:wrap!important;
+  }
+  .concept-matchup .matchup-stage{
+    grid-template-columns:minmax(0,1fr) 54px minmax(0,1fr)!important;
+    min-height:218px!important;
+    padding:18px 0 12px!important;
+  }
+  .concept-matchup .matchup-side{
+    min-height:170px!important;
+  }
+  .concept-matchup .feature-team-logo{
+    width:128px!important;
+    height:128px!important;
+  }
+  .concept-matchup .matchup-side--home .feature-team-logo{
+    left:-48px!important;
+  }
+  .concept-matchup .matchup-side--away .feature-team-logo{
+    right:-48px!important;
+  }
+  .concept-matchup .matchup-side strong{
+    font-size:50px!important;
+  }
+  .concept-matchup .matchup-team-code{
+    font-size:20px!important;
+  }
+  .concept-matchup .matchup-center span{
+    font-size:23px!important;
+  }
+  .feature-stats.concept-matchup-stats{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    overflow:visible!important;
+    padding-top:0!important;
+  }
+  .feature-stats.concept-matchup-stats>span{
+    min-width:0!important;
+    margin:0!important;
+    padding:12px 10px!important;
+    border-right:1px solid rgba(255,255,255,.08)!important;
+    border-bottom:1px solid rgba(255,255,255,.08)!important;
+  }
+  .feature-stats.concept-matchup-stats>span:nth-child(2n){
+    border-right:0!important;
+  }
+  .feature-stats.concept-matchup-stats>span:nth-last-child(-n+2){
+    border-bottom:0!important;
+  }
+  .feature-stats.concept-matchup-stats b{
+    max-width:none!important;
+    white-space:normal!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+  }
+  .concept-matchup .feature-footer{
+    align-items:stretch!important;
+    gap:12px!important;
+  }
+  .concept-matchup .feature-footer>div{
+    min-width:0!important;
+    flex:1 1 auto!important;
+    flex-wrap:wrap!important;
+  }
+  .concept-matchup .broadcast-cta{
+    flex:0 0 auto!important;
+    white-space:nowrap!important;
+  }
+}
+
+@container tso-home-scorecard (max-width:500px){
+  .concept-matchup{
+    padding:13px!important;
+  }
+  .concept-matchup .matchup-stage{
+    grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr)!important;
+    min-height:198px!important;
+    padding-top:14px!important;
+  }
+  .concept-matchup .matchup-side{
+    min-height:154px!important;
+  }
+  .concept-matchup .feature-team-logo{
+    width:112px!important;
+    height:112px!important;
+    opacity:.86!important;
+  }
+  .concept-matchup .matchup-side--home .feature-team-logo{
+    left:-44px!important;
+  }
+  .concept-matchup .matchup-side--away .feature-team-logo{
+    right:-44px!important;
+  }
+  .concept-matchup .matchup-side--home>span,
+  .concept-matchup .matchup-side--home>strong,
+  .concept-matchup .matchup-side--home>small{
+    transform:translateX(12px);
+  }
+  .concept-matchup .matchup-side--away>span,
+  .concept-matchup .matchup-side--away>strong,
+  .concept-matchup .matchup-side--away>small{
+    transform:translateX(-12px);
+  }
+  .concept-matchup .matchup-side strong{
+    font-size:42px!important;
+  }
+  .concept-matchup .matchup-team-code{
+    font-size:18px!important;
+  }
+  .concept-matchup .matchup-side small{
+    margin-top:7px!important;
+    font-size:12px!important;
+    letter-spacing:.07em!important;
+    text-align:center!important;
+  }
+  .concept-matchup .feature-footer{
+    flex-direction:column!important;
+  }
+  .concept-matchup .feature-footer>div{
+    display:flex!important;
+  }
+  .concept-matchup .broadcast-cta{
+    width:100%!important;
+  }
+}
+
+/* Fallback for browsers without container queries. */
+@supports not (container-type:inline-size){
+  @media(max-width:1120px){
+    .concept-headline{
+      grid-template-columns:minmax(0,1fr)!important;
+    }
+  }
+}
