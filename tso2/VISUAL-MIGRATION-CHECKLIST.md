@@ -16,7 +16,7 @@
 - Historical hit-rate charts must distinguish hits, misses, and pushes.
 - Source/freshness must be visible for research visuals.
 - Mobile must preserve readability and controls; horizontal scrolling is acceptable for dense historical plots when necessary.
-- Readability floor: normal UI labels/microcopy should not fall back to the old 5–9px system. TSO 2.0 now targets roughly 10–11px minimum supporting text, with larger body/metric/title text above it.
+- Readability floor: normal UI labels/microcopy should not fall back to the old 5–9px system. TSO 2.0 now uses a 12px minimum CSS text floor, with Deep Research supporting text generally 12–14px and primary values larger.
 - Player/team headshots and logos use the same consistent media system already being standardized in TSO 2.0.
 - Filters must not reset scroll position or silently reset the selected market/range.
 
@@ -291,7 +291,9 @@ Build richer visuals than 1.0 where source coverage exists:
 - batted-ball quality distribution
 - park + weather impact panel
 
-**Status:** SOURCE READY / VISUALS NEED BUILDING
+**Status:** MIGRATED / VISUAL QA ACTIVE  
+**Current 2.0 implementation:** MLB Deep Research now includes a season/L10/L5 Statcast profile with real Savant percentile bars, starter-arsenal vs hitter pitch-type matchup bars, a source-backed 3×3 batter-vs-starter zone map using hitter performance relative to his own baseline plus the starter's actual zone usage, a recent EV/launch-angle batted-ball scatter, and a park/weather panel using the maintained HR park factor and field-relative Open-Meteo wind. All modules hide or degrade honestly when their verified source fields are absent.  
+**Still required:** visual QA across several live MLB players, mobile/ultrawide verification, and any future spray-angle/park-geometry visual only if the live research payload exposes the needed fields.
 
 ---
 
