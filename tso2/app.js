@@ -6,6 +6,11 @@
   const profileMenu = document.querySelector('.profile-menu');
   const profileButton = profileMenu?.querySelector('.profile-pill');
   const profileDropdown = profileMenu?.querySelector('.profile-dropdown');
+  const sideNav = document.querySelector('.tso-side-nav');
+  const sideNavToggle = document.querySelector('.side-nav-toggle');
+  const sideNavClose = document.querySelector('.tso-side-nav-close');
+  const sideNavBackdrop = document.querySelector('.tso-side-nav-backdrop');
+  const navCurrentLabel = document.querySelector('[data-nav-current]');
   const OWNER_HANDLE = 'justcallme_jt';
   let currentRoute = 'home';
   let currentLeague = 'all';
@@ -67,6 +72,20 @@
     profileMenu.classList.toggle('is-open', opening);
     profileDropdown.hidden = !opening;
     profileButton.setAttribute('aria-expanded', String(opening));
+  }
+
+  function setSideNavOpen(open){
+    if(!shell || !sideNav) return;
+    const allowed = window.innerWidth <= 900;
+    const next = allowed && Boolean(open);
+    shell.classList.toggle('is-side-nav-open', next);
+    document.body.classList.toggle('tso-side-nav-open', next);
+    sideNavToggle?.setAttribute('aria-expanded', String(next));
+    sideNav.setAttribute('aria-hidden', String(!next && allowed));
+  }
+
+  function closeSideNav(){
+    setSideNavOpen(false);
   }
 
   const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
@@ -295,6 +314,8 @@
     renderResearch();
     const status = document.querySelector('.market-status');
     if(status) status.innerHTML = '<span class="status-dot"></span> LIVE SCORES CONNECTED';
+    const sideStatus = document.querySelector('.tso-side-live small');
+    if(sideStatus) sideStatus.textContent = 'Connected';
   }
 
   async function refreshLiveData(force=false){
@@ -2967,6 +2988,7 @@
   function syncNav(){
     document.querySelectorAll('[data-route]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.route === currentRoute));
     document.querySelectorAll('[data-league]').forEach(btn => btn.classList.toggle('is-active', btn.dataset.league === currentLeague));
+    if(navCurrentLabel) navCurrentLabel.textContent = String(labels[currentRoute] || currentRoute || 'Home').toUpperCase();
   }
 
   function setRoute(route){
@@ -2977,6 +2999,7 @@
     syncNav();
     renderRoute({scrollToTop:routeChanged});
     history.replaceState(null, '', '#' + route);
+    if(window.innerWidth <= 900) closeSideNav();
   }
 
   function setLeague(league){
@@ -2986,10 +3009,41 @@
     shell.dataset.league = league;
     syncNav();
     renderRoute({preserveScroll:true});
+    if(window.innerWidth <= 900) closeSideNav();
   }
 
   document.querySelectorAll('[data-route]').forEach(btn => btn.addEventListener('click', () => setRoute(btn.dataset.route)));
   document.querySelectorAll('[data-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.league)));
+
+  sideNavToggle?.addEventListener('click', () => setSideNavOpen(!shell?.classList.contains('is-side-nav-open')));
+  sideNavClose?.addEventListener('click', closeSideNav);
+  sideNavBackdrop?.addEventListener('click', closeSideNav);
+
+  let sideSwipeStart = null;
+  document.addEventListener('touchstart', event => {
+    if(window.innerWidth > 900 || event.touches.length !== 1) return;
+    const touch = event.touches[0];
+    sideSwipeStart = {x:touch.clientX,y:touch.clientY,time:Date.now()};
+  }, {passive:true});
+
+  document.addEventListener('touchend', event => {
+    if(window.innerWidth > 900 || !sideSwipeStart || !event.changedTouches.length) {
+      sideSwipeStart = null;
+      return;
+    }
+    const touch = event.changedTouches[0];
+    const dx = touch.clientX - sideSwipeStart.x;
+    const dy = touch.clientY - sideSwipeStart.y;
+    const elapsed = Date.now() - sideSwipeStart.time;
+    sideSwipeStart = null;
+    if(elapsed > 900 || Math.abs(dx) < 72 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
+    if(dx > 0) setSideNavOpen(true);
+    else closeSideNav();
+  }, {passive:true});
+
+  window.addEventListener('resize', () => {
+    if(window.innerWidth > 900) closeSideNav();
+  });
 
   document.querySelector('.search-trigger')?.addEventListener('click', () => {
     notify('Global command search: players, teams, games, props and models.');
@@ -3021,7 +3075,7 @@
   });
 
   document.addEventListener('keydown', event => {
-    if(event.key === 'Escape'){ closeProfileMenu(); closeResearchDetail(); closePropsCompare(); }
+    if(event.key === 'Escape'){ closeProfileMenu(); closeResearchDetail(); closePropsCompare(); closeSideNav(); }
   });
 
   syncOwnerTools();
