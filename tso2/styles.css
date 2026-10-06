@@ -7579,3 +7579,46 @@ body.tso-side-nav-open{overflow:hidden}
   .live-scoreboard-logo-art--away{left:-10%!important}
   .live-scoreboard-logo-art--home{right:-10%!important}
 }
+
+
+/* TSO2 LIVE SCOREBOARD COMPACT CONTENT HEIGHT */
+/* Let the Live scoreboard size to its own content instead of inheriting the
+   height of the adjacent Live panel or the legacy 400px hero minimum. */
+.live-command-grid{
+  align-items:start!important;
+}
+.live-gamecast-hero{
+  min-height:0!important;
+  height:auto!important;
+  align-self:start!important;
+  padding:16px!important;
+}
+.live-matchup-stage{
+  min-height:184px!important;
+  padding:16px 10px 10px!important;
+}
+.live-gamecast-footer{
+  min-height:54px!important;
+  padding-top:12px!important;
+}
+
+/* Preserve the tighter proportions after the Live layout stacks. */
+@media(max-width:900px){
+  .live-gamecast-hero{
+    min-height:0!important;
+    height:auto!important;
+  }
+}
+@media(max-width:600px){
+  .live-gamecast-hero{
+    padding:13px!important;
+  }
+  .live-matchup-stage{
+    min-height:160px!important;
+    padding:12px 4px 8px!important;
+  }
+  .live-gamecast-footer{
+    min-height:48px!important;
+    padding-top:10px!important;
+  }
+}
