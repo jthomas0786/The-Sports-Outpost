@@ -7482,3 +7482,100 @@ body.tso-side-nav-open{overflow:hidden}
   .home-scoreboard-logo-art--away{left:-10%!important}
   .home-scoreboard-logo-art--home{right:-10%!important}
 }
+
+
+/* TSO2 LIVE SCOREBOARD BACKGROUND TEAM MARKS */
+.live-gamecast-hero{
+  isolation:isolate!important;
+  background:
+    radial-gradient(ellipse at 2% 48%,rgba(45,127,255,.11),transparent 44%),
+    radial-gradient(ellipse at 98% 48%,rgba(255,77,28,.10),transparent 44%),
+    #070a0f!important;
+}
+.live-gamecast-hero::before{
+  display:none!important;
+  content:none!important;
+}
+.live-gamecast-energy{
+  display:none!important;
+}
+
+.live-scoreboard-logo-art{
+  position:absolute!important;
+  top:52%!important;
+  z-index:1!important;
+  width:42%!important;
+  height:76%!important;
+  transform:translateY(-50%)!important;
+  opacity:.18!important;
+  pointer-events:none!important;
+  overflow:visible!important;
+}
+.live-scoreboard-logo-art--away{
+  left:-2%!important;
+}
+.live-scoreboard-logo-art--home{
+  right:-2%!important;
+}
+.live-scoreboard-logo-art .live-scoreboard-bg-logo{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:transparent!important;
+  overflow:visible!important;
+  filter:none!important;
+}
+.live-scoreboard-logo-art .live-scoreboard-bg-logo img{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  filter:none!important;
+}
+
+.live-gamecast-top,
+.live-matchup-stage,
+.live-stat-strip,
+.live-gamecast-footer{
+  position:relative!important;
+  z-index:5!important;
+}
+.live-team,
+.live-center-mark{
+  position:relative!important;
+  z-index:6!important;
+}
+.live-team>span,
+.live-team>strong,
+.live-team>small{
+  position:relative!important;
+  z-index:7!important;
+  text-shadow:0 2px 10px rgba(0,0,0,.88)!important;
+}
+
+@container tso-main-content (max-width:900px){
+  .live-scoreboard-logo-art{
+    top:51%!important;
+    width:46%!important;
+    height:72%!important;
+    opacity:.18!important;
+  }
+  .live-scoreboard-logo-art--away{left:-6%!important}
+  .live-scoreboard-logo-art--home{right:-6%!important}
+}
+@media(max-width:600px){
+  .live-scoreboard-logo-art{
+    top:50%!important;
+    width:50%!important;
+    height:68%!important;
+    opacity:.18!important;
+  }
+  .live-scoreboard-logo-art--away{left:-10%!important}
+  .live-scoreboard-logo-art--home{right:-10%!important}
+}
