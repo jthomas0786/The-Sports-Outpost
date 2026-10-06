@@ -7229,3 +7229,120 @@ body.tso-side-nav-open{overflow:hidden}
     transform:none!important;
   }
 }
+
+
+/* TSO2 HOME SCOREBOARD GIANT CROPPED LOGO ART */
+/* Final Home-card art direction: clean black broadcast card with the actual
+   team marks blown up as edge-cropped background artwork. */
+.concept-matchup{
+  background:#070a0f!important;
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.018),0 18px 42px rgba(0,0,0,.16)!important;
+}
+.concept-matchup::before,
+.concept-matchup::after,
+.concept-matchup .feature-game-bg,
+.concept-matchup .matchup-energy{
+  display:none!important;
+  content:none!important;
+  background:none!important;
+}
+
+/* Break the logos out of the "normal team logo" scale completely. */
+.concept-matchup .matchup-stage{
+  position:relative!important;
+  overflow:visible!important;
+  isolation:auto!important;
+}
+.concept-matchup .matchup-side{
+  position:relative!important;
+  overflow:visible!important;
+  isolation:auto!important;
+}
+.concept-matchup .feature-team-logo{
+  position:absolute!important;
+  top:50%!important;
+  z-index:0!important;
+  width:clamp(280px,38cqi,430px)!important;
+  height:clamp(280px,38cqi,430px)!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  background:none!important;
+  opacity:.66!important;
+  filter:none!important;
+  pointer-events:none!important;
+}
+.concept-matchup .feature-team-logo img{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  filter:none!important;
+}
+.concept-matchup .matchup-side--home .feature-team-logo{
+  left:clamp(-210px,-18cqi,-120px)!important;
+  transform:translateY(-50%)!important;
+}
+.concept-matchup .matchup-side--away .feature-team-logo{
+  right:clamp(-210px,-18cqi,-120px)!important;
+  transform:translateY(-50%)!important;
+}
+
+/* Force every informational layer above the giant marks. */
+.concept-matchup .feature-topline,
+.concept-matchup .matchup-stage,
+.concept-matchup .matchup-center,
+.concept-matchup .matchup-side>span,
+.concept-matchup .matchup-side>strong,
+.concept-matchup .matchup-side>small,
+.concept-matchup .concept-matchup-stats,
+.concept-matchup .feature-footer{
+  position:relative!important;
+  z-index:7!important;
+}
+.concept-matchup .matchup-side .feature-team-logo{
+  z-index:-1!important;
+}
+
+/* Re-center actual matchup copy; the logos now supply the edge drama themselves. */
+.concept-matchup .matchup-side--home>span,
+.concept-matchup .matchup-side--home>strong,
+.concept-matchup .matchup-side--home>small,
+.concept-matchup .matchup-side--away>span,
+.concept-matchup .matchup-side--away>strong,
+.concept-matchup .matchup-side--away>small{
+  transform:none!important;
+}
+
+/* At narrower card widths preserve the same idea: still oversized, still cropped,
+   just scaled enough to protect the center matchup. */
+@container tso-home-scorecard (max-width:680px){
+  .concept-matchup .feature-team-logo{
+    width:250px!important;
+    height:250px!important;
+    opacity:.58!important;
+  }
+  .concept-matchup .matchup-side--home .feature-team-logo{
+    left:-145px!important;
+  }
+  .concept-matchup .matchup-side--away .feature-team-logo{
+    right:-145px!important;
+  }
+}
+@container tso-home-scorecard (max-width:500px){
+  .concept-matchup .feature-team-logo{
+    width:205px!important;
+    height:205px!important;
+    opacity:.50!important;
+  }
+  .concept-matchup .matchup-side--home .feature-team-logo{
+    left:-125px!important;
+  }
+  .concept-matchup .matchup-side--away .feature-team-logo{
+    right:-125px!important;
+  }
+}
