@@ -807,7 +807,7 @@
       if(photo)nhlScorerCanvasCover(ctx,photo,x+25,ry+(rowH-7)/2-29,58,58);
       else{ctx.fillStyle='#111b29';ctx.fillRect(x+25,ry+(rowH-7)/2-29,58,58);}
       ctx.restore();ctx.strokeStyle=isRisk?'#ffd84d':'rgba('+rgb+',.78)';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+54,ry+(rowH-7)/2,30,0,Math.PI*2);ctx.stroke();
-      ctx.textAlign='left';ctx.fillStyle=isRisk?'#ffd84d':'rgba(214,229,244,.62)';ctx.font='900 10px Inter,Arial,sans-serif';ctx.fillText(isRisk?'RISKY VALUE':'#'+String(p?.teamRank||i+1),x+94,ry+21);
+      ctx.textAlign='left';ctx.fillStyle=isRisk?'#ffd84d':'rgba(214,229,244,.62)';ctx.font='900 10px Inter,Arial,sans-serif';ctx.fillText(isRisk?'RISKY':'#'+String(p?.teamRank||i+1),x+94,ry+21);
       nhlScorerCanvasFit(ctx,String(p?.name||'PLAYER').toUpperCase(),270,23,15,900,true);ctx.fillStyle='#fff';ctx.fillText(String(p?.name||'PLAYER').toUpperCase(),x+94,ry+46);
       ctx.fillStyle='#7f8b98';ctx.font='700 10px Inter,Arial,sans-serif';ctx.fillText(String(p?.position||'NHL')+' · '+nhlScorerCanvasReason(p,market).toUpperCase().slice(0,72),x+94,ry+66);
 
@@ -830,7 +830,7 @@
     await nhlScorerDrawBrand(ctx,1600);
     ctx.textAlign='right';ctx.fillStyle='#f4f7fb';ctx.font='900 italic 46px Inter,Arial,sans-serif';
     ctx.fillText(market==='fgs'?'FIRST GOAL SCORER':'ANYTIME GOAL SCORER',1555,71);
-    ctx.fillStyle='#8878e0';ctx.font='900 14px Inter,Arial,sans-serif';ctx.fillText('TOP 3 PER TEAM + RISKY VALUE',1555,102);
+    ctx.fillStyle='#8878e0';ctx.font='900 14px Inter,Arial,sans-serif';ctx.fillText('TOP 3 PER TEAM + RISKY',1555,102);
 
     const awayLogo=await nhlScorerCanvasImage(game?.away?.logo),homeLogo=await nhlScorerCanvasImage(game?.home?.logo);
     const when=game?.startTime?new Date(game.startTime):null;
@@ -916,7 +916,7 @@
     ctx.textAlign='right';ctx.fillStyle='#f4f7fb';ctx.font='900 italic 44px Inter,Arial,sans-serif';
     ctx.fillText(market==='fgs'?'NHL FIRST GOAL — FULL SLATE':'NHL ANYTIME GOAL — FULL SLATE',1555,70);
     ctx.fillStyle='#8f80e4';ctx.font='900 14px Inter,Arial,sans-serif';
-    ctx.fillText('GAME-BY-GAME · TOP 3 + RISKY VALUE',1555,101);
+    ctx.fillText('GAME-BY-GAME · TOP 3 + RISKY',1555,101);
 
     ctx.textAlign='left';ctx.fillStyle='#788593';ctx.font='800 12px Inter,Arial,sans-serif';
     ctx.fillText((nhlScorerCache?.model||'FGS-Hazard Ensemble v3')+' · '+games.length+' games · '+(games.length*2)+' teams · generated '+ageText(nhlScorerCache?.generatedAt)+' ago',44,174);
@@ -1042,7 +1042,7 @@
     const games=Array.isArray(nhlScorerCache.games)?nhlScorerCache.games:[];
     if(meta){
       meta.innerHTML='<span><b>'+esc(nhlScorerCache.model||'FGS-Hazard Ensemble v3')+'</b><small>'+esc(nhlScorerCache.season||'NHL')+' · generated '+esc(ageText(nhlScorerCache.generatedAt))+' ago</small></span>'
-        +'<span><b>TOP 3 + RISKY VALUE</b><small>per team</small></span>'
+        +'<span><b>TOP 3 + RISKY</b><small>per team</small></span>'
         +'<span><b>'+games.length+' MATCHUPS</b><small>'+esc(nhlScorerMarket==='fgs'?'First Goal':'Anytime Goal')+' board</small></span>'
         +'<span><b>MATCHUP ADJUSTED</b><small>form · defense · goalie · rest</small></span>';
     }
