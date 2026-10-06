@@ -7454,3 +7454,72 @@ body.tso-side-nav-open{overflow:hidden}
     right:-27%!important;
   }
 }
+
+
+/* TSO2 HOME SCOREBOARD FIRST-REFERENCE COMPOSITION */
+/* Match the approved first reference: logos dominate the middle/lower body,
+   are strongly edge-cropped, and remain behind every text/stat layer. */
+.concept-matchup{
+  background:
+    radial-gradient(ellipse at 2% 48%,rgba(45,127,255,.19),transparent 43%),
+    radial-gradient(ellipse at 98% 48%,rgba(255,77,28,.16),transparent 43%),
+    #070a0f!important;
+}
+.home-scoreboard-logo-art{
+  top:52%!important;
+  width:66%!important;
+  height:118%!important;
+  opacity:.82!important;
+  transform:translateY(-50%)!important;
+}
+.home-scoreboard-logo-art--away{
+  left:-31%!important;
+}
+.home-scoreboard-logo-art--home{
+  right:-31%!important;
+}
+.home-scoreboard-logo-art .home-scoreboard-bg-logo{
+  width:100%!important;
+  height:100%!important;
+  overflow:visible!important;
+}
+.home-scoreboard-logo-art .home-scoreboard-bg-logo img{
+  object-fit:contain!important;
+  object-position:center!important;
+}
+
+/* Keep the central score read centered over the huge marks. */
+.concept-matchup .matchup-stage{
+  min-height:245px!important;
+  padding-top:26px!important;
+  padding-bottom:18px!important;
+}
+.concept-matchup .matchup-side{
+  min-height:190px!important;
+}
+.concept-matchup .matchup-side>span,
+.concept-matchup .matchup-side>strong,
+.concept-matchup .matchup-side>small{
+  text-shadow:0 2px 10px rgba(0,0,0,.88)!important;
+}
+
+@container tso-home-scorecard (max-width:680px){
+  .home-scoreboard-logo-art{
+    top:51%!important;
+    width:72%!important;
+    height:108%!important;
+    opacity:.76!important;
+  }
+  .home-scoreboard-logo-art--away{left:-36%!important}
+  .home-scoreboard-logo-art--home{right:-36%!important}
+}
+@container tso-home-scorecard (max-width:500px){
+  .home-scoreboard-logo-art{
+    top:50%!important;
+    width:78%!important;
+    height:98%!important;
+    opacity:.68!important;
+  }
+  .home-scoreboard-logo-art--away{left:-42%!important}
+  .home-scoreboard-logo-art--home{right:-42%!important}
+}
