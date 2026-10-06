@@ -7368,20 +7368,10 @@ body.tso-side-nav-open{overflow:hidden}
 /* Giant marks are now positioned against the entire card, not the team columns. */
 .home-scoreboard-logo-art{
   position:absolute!important;
-  top:47%!important;
   z-index:1!important;
-  width:48%!important;
-  height:82%!important;
   transform:translateY(-50%)!important;
   pointer-events:none!important;
   overflow:visible!important;
-  opacity:.92!important;
-}
-.home-scoreboard-logo-art--away{
-  left:-17%!important;
-}
-.home-scoreboard-logo-art--home{
-  right:-17%!important;
 }
 .home-scoreboard-logo-art .home-scoreboard-bg-logo{
   width:100%!important;
@@ -7424,37 +7414,6 @@ body.tso-side-nav-open{overflow:hidden}
   transform:none!important;
 }
 
-/* Keep the large marks centered through responsive card sizes rather than
-   letting them drift to the top corners. */
-@container tso-home-scorecard (max-width:680px){
-  .home-scoreboard-logo-art{
-    top:48%!important;
-    width:54%!important;
-    height:78%!important;
-    opacity:.84!important;
-  }
-  .home-scoreboard-logo-art--away{
-    left:-22%!important;
-  }
-  .home-scoreboard-logo-art--home{
-    right:-22%!important;
-  }
-}
-@container tso-home-scorecard (max-width:500px){
-  .home-scoreboard-logo-art{
-    top:46%!important;
-    width:58%!important;
-    height:68%!important;
-    opacity:.84!important;
-  }
-  .home-scoreboard-logo-art--away{
-    left:-27%!important;
-  }
-  .home-scoreboard-logo-art--home{
-    right:-27%!important;
-  }
-}
-
 
 /* TSO2 HOME SCOREBOARD FIRST-REFERENCE COMPOSITION */
 /* Match the approved first reference: logos dominate the middle/lower body,
@@ -7467,16 +7426,16 @@ body.tso-side-nav-open{overflow:hidden}
 }
 .home-scoreboard-logo-art{
   top:52%!important;
-  width:46%!important;
-  height:84%!important;
+  width:42%!important;
+  height:76%!important;
   opacity:1!important;
   transform:translateY(-50%)!important;
 }
 .home-scoreboard-logo-art--away{
-  left:-10%!important;
+  left:-2%!important;
 }
 .home-scoreboard-logo-art--home{
-  right:-10%!important;
+  right:-2%!important;
 }
 .home-scoreboard-logo-art .home-scoreboard-bg-logo{
   width:100%!important;
@@ -7506,20 +7465,20 @@ body.tso-side-nav-open{overflow:hidden}
 @container tso-home-scorecard (max-width:680px){
   .home-scoreboard-logo-art{
     top:51%!important;
-    width:52%!important;
-    height:80%!important;
-    opacity:.98!important;
+    width:46%!important;
+    height:72%!important;
+    opacity:1!important;
   }
-  .home-scoreboard-logo-art--away{left:-15%!important}
-  .home-scoreboard-logo-art--home{right:-15%!important}
+  .home-scoreboard-logo-art--away{left:-6%!important}
+  .home-scoreboard-logo-art--home{right:-6%!important}
 }
 @container tso-home-scorecard (max-width:500px){
   .home-scoreboard-logo-art{
     top:50%!important;
-    width:56%!important;
-    height:74%!important;
-    opacity:.96!important;
+    width:50%!important;
+    height:68%!important;
+    opacity:1!important;
   }
-  .home-scoreboard-logo-art--away{left:-20%!important}
-  .home-scoreboard-logo-art--home{right:-20%!important}
+  .home-scoreboard-logo-art--away{left:-10%!important}
+  .home-scoreboard-logo-art--home{right:-10%!important}
 }
