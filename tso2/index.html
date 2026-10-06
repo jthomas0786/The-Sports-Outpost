@@ -10,20 +10,49 @@
 </head>
 <body>
   <div class="app-shell broadcast-shell" data-league="all">
-    <header class="broadcast-header">
-      <div class="masthead">
-        <button class="broadcast-brand exact-approved-brand" data-route="home" aria-label="The Sports Outpost home"><img src="/brand/approved/tso2-wordmark-horizontal-approved.webp" alt="The Sports Outpost"/></button>
+    <aside class="tso-side-nav" aria-label="The Sports Outpost navigation">
+      <div class="tso-side-nav-head">
+        <button class="tso-side-brand" data-route="home" aria-label="The Sports Outpost home">
+          <img src="/brand/approved/tso2-wordmark-horizontal-approved.webp" alt="The Sports Outpost"/>
+        </button>
+        <button class="tso-side-nav-close" type="button" aria-label="Close navigation">×</button>
+      </div>
 
-        <nav class="broadcast-nav branded-product-nav" aria-label="Primary">
-          <button class="nav-item is-active" data-route="home"><b>HOME</b></button>
-          <button class="nav-item nav-item--approved" data-route="live"><img class="nav-approved-icon" src="/brand/production/tso2-product-live-approved.webp" alt=""/><b>LIVE</b></button>
-          <button class="nav-item nav-item--approved" data-route="research"><img class="nav-approved-icon" src="/brand/production/tso2-product-research-approved.webp" alt=""/><b>RESEARCH</b></button>
-          <button class="nav-item nav-item--approved" data-route="models"><img class="nav-approved-icon" src="/brand/production/tso2-product-models-approved.webp" alt=""/><b>MODELS</b></button>
-          <button class="nav-item nav-item--approved" data-route="props"><img class="nav-approved-icon" src="/brand/production/tso2-product-props-approved.webp" alt=""/><b>PROPS</b></button>
-          <button class="nav-item nav-item--approved" data-route="parlays"><img class="nav-approved-icon" src="/brand/production/tso2-product-parlay-lab-approved.webp" alt=""/><b>PARLAY LAB</b></button>
-          <button class="nav-item nav-item--approved" data-route="community"><img class="nav-approved-icon" src="/brand/production/tso2-product-community-approved.webp" alt=""/><b>COMMUNITY</b></button>
-          <button class="nav-item nav-item--approved" data-route="leaderboard"><img class="nav-approved-icon" src="/brand/production/tso2-product-rankings-approved.webp" alt=""/><b>RANKINGS</b></button>
-        </nav>
+      <nav class="tso-side-primary" aria-label="Primary">
+        <button class="tso-side-item nav-item--approved" data-route="live"><img class="nav-approved-icon" src="/brand/production/tso2-product-live-approved.webp" alt=""/><span><b>LIVE</b><small>Games & scores</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="research"><img class="nav-approved-icon" src="/brand/production/tso2-product-research-approved.webp" alt=""/><span><b>RESEARCH</b><small>Deep analysis</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="models"><img class="nav-approved-icon" src="/brand/production/tso2-product-models-approved.webp" alt=""/><span><b>MODELS</b><small>Model boards</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="props"><img class="nav-approved-icon" src="/brand/production/tso2-product-props-approved.webp" alt=""/><span><b>PROPS</b><small>Player prop tool</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="parlays"><img class="nav-approved-icon" src="/brand/production/tso2-product-parlay-lab-approved.webp" alt=""/><span><b>PARLAY LAB</b><small>Build & track</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="community"><img class="nav-approved-icon" src="/brand/production/tso2-product-community-approved.webp" alt=""/><span><b>COMMUNITY</b><small>Outpost activity</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="leaderboard"><img class="nav-approved-icon" src="/brand/production/tso2-product-rankings-approved.webp" alt=""/><span><b>RANKINGS</b><small>Leaderboards</small></span></button>
+      </nav>
+
+      <div class="tso-side-section">
+        <div class="tso-side-section-label">SPORTS</div>
+        <div class="tso-side-sports">
+          <button class="is-active" data-league="all"><span>ALL</span><b>All Sports</b></button>
+          <button data-league="nhl"><span>NHL</span><b>Hockey</b></button>
+          <button data-league="nfl"><span>NFL</span><b>Football</b></button>
+          <button data-league="mlb"><span>MLB</span><b>Baseball</b></button>
+          <button data-league="nba"><span>NBA</span><b>Basketball</b></button>
+        </div>
+      </div>
+
+      <div class="tso-side-footer">
+        <div class="tso-side-live"><span class="status-dot"></span><div><b>LIVE SCORES</b><small>Connecting</small></div></div>
+        <small>Swipe right to open · swipe left to close on mobile</small>
+      </div>
+    </aside>
+    <button class="tso-side-nav-backdrop" type="button" aria-label="Close navigation"></button>
+
+    <header class="broadcast-header">
+      <div class="masthead tso-side-masthead">
+        <button class="side-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+        <div class="masthead-context">
+          <small>THE SPORTS OUTPOST</small>
+          <b data-nav-current>HOME</b>
+        </div>
 
         <div class="masthead-actions">
           <button class="search-trigger"><span>⌕</span><span>Search</span></button>
@@ -53,17 +82,6 @@
             </div>
           </div>
         </div>
-      </div>
-
-      <div class="league-bar">
-        <div class="league-tabs">
-          <button class="sport-item is-active sport-item--all" data-league="all">ALL SPORTS</button>
-          <button class="sport-item sport-item--type" data-league="nhl"><span class="sport-tab-name">NHL</span></button>
-          <button class="sport-item sport-item--type" data-league="nfl"><span class="sport-tab-name">NFL</span></button>
-          <button class="sport-item sport-item--type" data-league="mlb"><span class="sport-tab-name">MLB</span></button>
-          <button class="sport-item sport-item--type" data-league="nba"><span class="sport-tab-name">NBA</span></button>
-        </div>
-        <div class="market-status"><span class="status-dot"></span> LIVE SCORES CONNECTING</div>
       </div>
     </header>
 
@@ -136,14 +154,6 @@
         <button data-route-jump="parlays"><b>PARLAY LAB</b><small>Build & track</small></button>
       </section>
     </main>
-
-    <nav class="mobile-nav">
-      <button class="is-active" data-route="home"><span>⌂</span><b>Home</b></button>
-      <button data-route="live"><span>●</span><b>Live</b></button>
-      <button data-route="models"><span>◎</span><b>Models</b></button>
-      <button data-route="props"><span>↗</span><b>Props</b></button>
-      <button data-route="profile"><span>◉</span><b>Profile</b></button>
-    </nav>
 
     <div class="route-toast" aria-live="polite"></div>
   </div>
