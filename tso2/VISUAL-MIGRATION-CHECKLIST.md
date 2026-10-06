@@ -291,9 +291,9 @@ Build richer visuals than 1.0 where source coverage exists:
 - batted-ball quality distribution
 - park + weather impact panel
 
-**Status:** MIGRATED / VISUAL QA ACTIVE  
-**Current 2.0 implementation:** MLB Deep Research now includes a season/L10/L5 Statcast profile with real Savant percentile bars, starter-arsenal vs hitter pitch-type matchup bars, a source-backed 3×3 batter-vs-starter zone map using hitter performance relative to his own baseline plus the starter's actual zone usage, a recent EV/launch-angle batted-ball scatter, and a park/weather panel using the maintained HR park factor and field-relative Open-Meteo wind. All modules hide or degrade honestly when their verified source fields are absent.  
-**Still required:** visual QA across several live MLB players, mobile/ultrawide verification, and any future spray-angle/park-geometry visual only if the live research payload exposes the needed fields.
+**Status:** MIGRATED / 1.0 FIELD CONCEPT RESTORED / VISUAL QA ACTIVE  
+**Current 2.0 implementation:** MLB Deep Research includes a season/L10/L5 Statcast profile with real Savant percentile bars, starter-arsenal vs hitter pitch-type matchup bars, the approved 1.0 field surface (`field-bg.jpg`) with the original home-plate-to-outfield trajectory geometry, animated Sports Outpost blue flight path + landing point, recent contact trails using verified Savant distance/spray coordinates, a compact batter-vs-starter zone inset, and the park/weather panel using the maintained HR park factor and field-relative Open-Meteo wind. The old oversized 3×3 zone grid and generic EV/launch-angle scatter were removed from the Deep Research output.  
+**Still required:** visual QA across several live MLB players, mobile/ultrawide verification, and a fresh Statcast enrichment run so existing snapshots begin carrying the newly-added `coordX`, `coordY`, and `sprayAngle` fields for real directional trails.
 
 ---
 
