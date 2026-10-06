@@ -89,12 +89,30 @@
         </section>
 
         <section class="live-command-grid">
-          <article class="live-gamecast-hero live-feed-loading" data-live-feature>
-            <div class="live-feed-empty">
-              <span class="live-feed-spinner"></span>
-              <div><b>Connecting to live scoreboard…</b><small>NHL · NFL · MLB · NBA</small></div>
-            </div>
-          </article>
+          <div class="live-feature-stack">
+            <article class="live-gamecast-hero live-feed-loading" data-live-feature>
+              <div class="live-feed-empty">
+                <span class="live-feed-spinner"></span>
+                <div><b>Connecting to live scoreboard…</b><small>NHL · NFL · MLB · NBA</small></div>
+              </div>
+            </article>
+
+            <section class="live-game-detail" data-live-game-detail aria-label="Selected game detail">
+              <div class="live-game-detail-head">
+                <div>
+                  <span class="live-detail-kicker">GAME DETAIL</span>
+                  <h2 data-live-detail-title>Play by play</h2>
+                </div>
+                <div class="live-detail-tabs" role="tablist" aria-label="Selected game detail view">
+                  <button type="button" class="is-active" role="tab" aria-selected="true" data-live-detail-tab="plays">PLAY BY PLAY</button>
+                  <button type="button" role="tab" aria-selected="false" data-live-detail-tab="box">BOX SCORE</button>
+                </div>
+              </div>
+              <div class="live-detail-body" data-live-detail-body>
+                <div class="live-detail-loading"><span class="live-feed-spinner"></span><b>Waiting for selected game…</b></div>
+              </div>
+            </section>
+          </div>
 
           <aside class="live-signal-board" data-live-now-board>
             <div class="live-signal-head">
