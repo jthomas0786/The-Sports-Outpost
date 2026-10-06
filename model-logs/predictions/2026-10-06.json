@@ -1,0 +1,3393 @@
+{
+  "date": "2026-10-06",
+  "generatedAt": "2026-10-06T11:11:25.929Z",
+  "slateGeneratedAt": "2026-10-06T11:11:25.929Z",
+  "model": {
+    "gitSha": "50fb0f1",
+    "indexHash": "3f90b8e8fb85",
+    "configHash": "21d3bd77c781",
+    "modelHash": "b214f23e2a4f",
+    "simRuns": 10000,
+    "rngSeed": "2026-10-06:2026-10-06T11:11:25.929Z:b214f23e2a4f"
+  },
+  "props": {
+    "hr": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "homeRuns"
+    },
+    "hits": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "hits"
+    },
+    "tb": {
+      "over": 1.5,
+      "kind": "totalBases"
+    },
+    "rbi": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "rbi"
+    },
+    "hrr": {
+      "over": 1.5,
+      "kind": "hitsPlusRunsPlusRbi"
+    },
+    "sb": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "stolenBases"
+    }
+  },
+  "players": [
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.1168,
+          "pct": 11.7,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8978618254005466,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6659,
+          "pct": 66.6,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.0336210321635866,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3907,
+          "pct": 39.1,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.0043253515226778,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.5018,
+          "pct": 50.2,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.0224771340272831,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5821,
+          "pct": 58.2,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 0.9525884007330054,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0491,
+          "pct": 4.9,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.664996332,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "TWP",
+      "props": {
+        "hr": {
+          "p": 0.1456,
+          "pct": 14.6,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 0.8101771117442612,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5936,
+          "pct": 59.4,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.7983360384423062,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3466,
+          "pct": 34.7,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.7905200529718847,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2917,
+          "pct": 29.2,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.8588799623455613,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4363,
+          "pct": 43.6,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.8207989640439944,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0432,
+          "pct": 4.3,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 1.1658087870000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.1332,
+          "pct": 13.3,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.7936147958249358,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5631,
+          "pct": 56.3,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.9379990398956131,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3195,
+          "pct": 32,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.827160340085123,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2742,
+          "pct": 27.4,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.9233190151793456,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4068,
+          "pct": 40.7,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.9010072371017436,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0115,
+          "pct": 1.2,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 1.3021123829999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1138,
+          "pct": 11.4,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.7953204598023028,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6578,
+          "pct": 65.8,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 1.00668626547837,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3734,
+          "pct": 37.3,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8737345635812813,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3513,
+          "pct": 35.1,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 0.9351328959557382,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5006,
+          "pct": 50.1,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.9448109814375979,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0395,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 1.0506735525000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.0729,
+          "pct": 7.3,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.6307052015864383,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5726,
+          "pct": 57.3,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.7824891106403972,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2818,
+          "pct": 28.2,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.6515220650265757,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2397,
+          "pct": 24,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.752239711067162,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3768,
+          "pct": 37.7,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.8029555083039077,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0202,
+          "pct": 2,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 1.2484170270000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0889,
+          "pct": 8.9,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.7391130776637518,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6013,
+          "pct": 60.1,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 1.0177752686312036,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2954,
+          "pct": 29.5,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.8186213554030526,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2652,
+          "pct": 26.5,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.8871351717716845,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4157,
+          "pct": 41.6,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.9425999445306742,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.9293427000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.1188,
+          "pct": 11.9,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.7757753315765018,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6534,
+          "pct": 65.3,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 1.0419500602099876,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3671,
+          "pct": 36.7,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.8609141819090571,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2871,
+          "pct": 28.7,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.9217509212287613,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4765,
+          "pct": 47.7,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.9425999445306742,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0106,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.766191426,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0858,
+          "pct": 8.6,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.6882080396814793,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5839,
+          "pct": 58.4,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.8834988187042084,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2945,
+          "pct": 29.5,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.759249867854351,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2957,
+          "pct": 29.6,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.8714151302718294,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4132,
+          "pct": 41.3,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.9287518712715197,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0176,
+          "pct": 1.8,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 1.26337944447,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0755,
+          "pct": 7.6,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.6526406713565828,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.557,
+          "pct": 55.7,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.9585456902225898,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2738,
+          "pct": 27.4,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.7417091411620931,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2484,
+          "pct": 24.8,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.8483224309165843,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3918,
+          "pct": 39.2,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.9425999445306742,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0399,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 1.3423839000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0714,
+          "pct": 7.1,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.6350038584255298,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5047,
+          "pct": 50.5,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.7666803036036521,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.236,
+          "pct": 23.6,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.6757355237333469,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2744,
+          "pct": 27.4,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.7453974635903959,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3346,
+          "pct": 33.5,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.8317571732756783,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0426,
+          "pct": 4.3,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 1.0739071199999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0413,
+          "pct": 4.1,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6362169811080438,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3949,
+          "pct": 39.5,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.7896548260287903,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.166,
+          "pct": 16.6,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.6737390399008983,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.141,
+          "pct": 14.1,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.7451635053171809,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1846,
+          "pct": 18.5,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.8291388400964264,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.751734984,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0623,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.6459510335667464,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4164,
+          "pct": 41.6,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.7912875718806628,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1843,
+          "pct": 18.4,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7196879591624435,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1766,
+          "pct": 17.7,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.8337223115006166,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2312,
+          "pct": 23.1,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.9068160577475652,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 1.00162491,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0488,
+          "pct": 4.9,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.4232,
+          "pct": 42.3,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.6971732005130936,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1712,
+          "pct": 17.1,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.5649870350928166,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1799,
+          "pct": 18,
+          "grade": "D",
+          "percentile": 16,
+          "contextMult": 0.6957973108321699,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2404,
+          "pct": 24,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.8335027287285128,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.069,
+          "pct": 6.9,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 1.3129237364100002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "opponent": "ATL",
+      "side": "away",
+      "pitcherId": 519242,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0388,
+          "pct": 3.9,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.335,
+          "pct": 33.5,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.6518929482298488,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1292,
+          "pct": 12.9,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "rbi": {
+          "p": 0.1278,
+          "pct": 12.8,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.6595396248213398,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1499,
+          "pct": 15,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.8029555083039077,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.9293427000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 621566,
+      "name": "Matt Olson",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1881,
+          "pct": 18.8,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 0.9154410517984315,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6538,
+          "pct": 65.4,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 1.0189745440681475,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.418,
+          "pct": 41.8,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.9342311307845855,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3054,
+          "pct": 30.5,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.9527161824142668,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4929,
+          "pct": 49.3,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.9281255288320478,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0102,
+          "pct": 1,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 1.200551508,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 686948,
+      "name": "Drake Baldwin",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.1327,
+          "pct": 13.3,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 0.8283279746255671,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7268,
+          "pct": 72.7,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.1253697213193434,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.421,
+          "pct": 42.1,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 0.9240648763297902,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3451,
+          "pct": 34.5,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 0.9614206516112066,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5728,
+          "pct": 57.3,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.0009814352410027,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0122,
+          "pct": 1.2,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.96073911,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 671739,
+      "name": "Michael Harris II",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1261,
+          "pct": 12.6,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.8214535268273457,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6916,
+          "pct": 69.2,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 1.025401729605398,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4113,
+          "pct": 41.1,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 0.8881488650525061,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3393,
+          "pct": 33.9,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 0.9358495812422107,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5136,
+          "pct": 51.4,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 0.9390553682294811,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0389,
+          "pct": 3.9,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 1.2561601800000004,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 660670,
+      "name": "Ronald Acuña Jr.",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.1273,
+          "pct": 12.7,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.8466287129191599,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6357,
+          "pct": 63.6,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.9590706326831657,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3572,
+          "pct": 35.7,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8720289337931953,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2693,
+          "pct": 26.9,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.8618241703262514,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4521,
+          "pct": 45.2,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.8984172951507262,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0875,
+          "pct": 8.8,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.028760432,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 676551,
+      "name": "Brewer Hicklen",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0562,
+          "pct": 5.6,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 0.6587832217488113,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4412,
+          "pct": 44.1,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.752866516476283,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.206,
+          "pct": 20.6,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.6697947460877961,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2214,
+          "pct": 22.1,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.7268603870008323,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2806,
+          "pct": 28.1,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.8201255377648562,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.993012,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 643289,
+      "name": "Mauricio Dubón",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0631,
+          "pct": 6.3,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.6687528871662217,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6605,
+          "pct": 66.1,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 1.0351817142781758,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3393,
+          "pct": 33.9,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 0.7654323696412169,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2988,
+          "pct": 29.9,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 0.8561602719927817,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4656,
+          "pct": 46.6,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.9627560660717877,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0306,
+          "pct": 3.1,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 1.11770451684,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 657041,
+      "name": "Lane Thomas",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0621,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.6268696099508132,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4049,
+          "pct": 40.5,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.7488615784238416,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1848,
+          "pct": 18.5,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.6188028915281942,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.181,
+          "pct": 18.1,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7157646412348138,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2213,
+          "pct": 22.1,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.8075290916507929,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0422,
+          "pct": 4.2,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 1.088837658,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 573262,
+      "name": "Mike Yastrzemski",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0668,
+          "pct": 6.7,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.679469190790604,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4107,
+          "pct": 41.1,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.7774974990066861,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1916,
+          "pct": 19.2,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.7000800713162448,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1688,
+          "pct": 16.9,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.7351658013327673,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2303,
+          "pct": 23,
+          "grade": "D",
+          "percentile": 16,
+          "contextMult": 0.8328188796182584,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 1.3167339120000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 645277,
+      "name": "Ozzie Albies",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0835,
+          "pct": 8.4,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.6360901581284815,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5141,
+          "pct": 51.4,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7648883299407574,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2517,
+          "pct": 25.2,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.6224313855636691,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2139,
+          "pct": 21.4,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.7168360695944295,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3156,
+          "pct": 31.6,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.8022967217264898,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0092,
+          "pct": 0.9,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.7229127360000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 663586,
+      "name": "Austin Riley",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0743,
+          "pct": 7.4,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.6463868252069043,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4495,
+          "pct": 45,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.7024411842160491,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2064,
+          "pct": 20.6,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.6565454297020115,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2315,
+          "pct": 23.2,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.714907227920396,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2703,
+          "pct": 27,
+          "grade": "C",
+          "percentile": 25,
+          "contextMult": 0.8267144480399046,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.029,
+          "pct": 2.9,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 1.1337118702799998,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 669221,
+      "name": "Sean Murphy",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0674,
+          "pct": 6.7,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.4202,
+          "pct": 42,
+          "grade": "D",
+          "percentile": 16,
+          "contextMult": 0.6500602952883611,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1946,
+          "pct": 19.5,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "rbi": {
+          "p": 0.1638,
+          "pct": 16.4,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.6701489127501715,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2179,
+          "pct": 21.8,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.8223541397696521,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.8937108,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849819,
+      "startTimeUTC": "2026-10-06T22:00:00Z",
+      "playerId": 673490,
+      "name": "Ha-Seong Kim",
+      "team": "ATL",
+      "opponent": "LAD",
+      "side": "home",
+      "pitcherId": 808967,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0365,
+          "pct": 3.7,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3484,
+          "pct": 34.8,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.6949448832108979,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1271,
+          "pct": 12.7,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.5569684231520727,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1522,
+          "pct": 15.2,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.6684100728104979,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1566,
+          "pct": 15.7,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.8380512495425616,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0309,
+          "pct": 3.1,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 1.368370536,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1268,
+          "pct": 12.7,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 0.7441161560870809,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.558,
+          "pct": 55.8,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.8306718005722816,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3025,
+          "pct": 30.3,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.7721340818132043,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.329,
+          "pct": 32.9,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8667581389124868,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4419,
+          "pct": 44.2,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.8563824626022079,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0291,
+          "pct": 2.9,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.7886926845000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.1273,
+          "pct": 12.7,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.8126274244883191,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6935,
+          "pct": 69.4,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.9721372766783486,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4151,
+          "pct": 41.5,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 0.9102016462678403,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3062,
+          "pct": 30.6,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.954382291623814,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.547,
+          "pct": 54.7,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 0.9472279727114117,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0821,
+          "pct": 8.2,
+          "grade": "A",
+          "percentile": 86,
+          "contextMult": 1.1102862690000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.056,
+          "pct": 5.6,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.6866476343079622,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5168,
+          "pct": 51.7,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.8363576854696403,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2403,
+          "pct": 24,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 0.7172890443564638,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2569,
+          "pct": 25.7,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.7978013283540633,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3171,
+          "pct": 31.7,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.8408693615720306,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.856809,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.107,
+          "pct": 10.7,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 0.7492544701540954,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6508,
+          "pct": 65.1,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.9746666758571524,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3829,
+          "pct": 38.3,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.8616615096381175,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3979,
+          "pct": 39.8,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 0.9225737777972696,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5414,
+          "pct": 54.1,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 0.9526822604621492,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0641,
+          "pct": 6.4,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 1.0903769760000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0876,
+          "pct": 8.8,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.7055960760581456,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4714,
+          "pct": 47.1,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.9541201757125714,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2339,
+          "pct": 23.4,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.7682762357868235,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2426,
+          "pct": 24.3,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.8726752209662328,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3222,
+          "pct": 32.2,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.9189486764385664,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.82917,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0562,
+          "pct": 5.6,
+          "grade": "C",
+          "percentile": 24,
+          "contextMult": 0.6215098416874365,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4671,
+          "pct": 46.7,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.709828309767255,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2248,
+          "pct": 22.5,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.6640682855561213,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2575,
+          "pct": 25.8,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 0.759567180171216,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3123,
+          "pct": 31.2,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.8181431626106244,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0334,
+          "pct": 3.3,
+          "grade": "B",
+          "percentile": 60,
+          "contextMult": 0.8355730350000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0777,
+          "pct": 7.8,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.6854449695178199,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6011,
+          "pct": 60.1,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.8748992467161546,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2963,
+          "pct": 29.6,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.7290948021165924,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3263,
+          "pct": 32.6,
+          "grade": "B+",
+          "percentile": 81,
+          "contextMult": 0.8143201350136346,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4392,
+          "pct": 43.9,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.879049375827193,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.580419,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0495,
+          "pct": 5,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.6548097742420892,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5139,
+          "pct": 51.4,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.9322801086644441,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2198,
+          "pct": 22,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.7627151173834819,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2268,
+          "pct": 22.7,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.8708679683426863,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3166,
+          "pct": 31.7,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.9581365482128867,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0316,
+          "pct": 3.2,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.8930805810000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0455,
+          "pct": 4.6,
+          "grade": "D",
+          "percentile": 16,
+          "contextMult": 0.5826306612448386,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5599,
+          "pct": 56,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.9290565819549255,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2357,
+          "pct": 23.6,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.6871275895047813,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3133,
+          "pct": 31.3,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8300767972929374,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3941,
+          "pct": 39.4,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.9563184522959742,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1384,
+          "pct": 13.8,
+          "grade": "A+",
+          "percentile": 97,
+          "contextMult": 1.2168161880000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0699,
+          "pct": 7,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.5968379386841498,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4926,
+          "pct": 49.3,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.7084395927096954,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2432,
+          "pct": 24.3,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.6505775762442878,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2617,
+          "pct": 26.2,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.7409162410169062,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3387,
+          "pct": 33.9,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.8323717393516787,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.04,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 1.1018748000000003,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0364,
+          "pct": 3.6,
+          "grade": "D",
+          "percentile": 3,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.4519,
+          "pct": 45.2,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.8200771694480413,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1749,
+          "pct": 17.5,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6252013544523892,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1479,
+          "pct": 14.8,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.7807962037993955,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2526,
+          "pct": 25.3,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.9310824904927433,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1083,
+          "pct": 10.8,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 1.0424555565,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0387,
+          "pct": 3.9,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.4237,
+          "pct": 42.4,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.6676458563355925,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.175,
+          "pct": 17.5,
+          "grade": "D",
+          "percentile": 16,
+          "contextMult": 0.5628436208460619,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2418,
+          "pct": 24.2,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.679549802880452,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2605,
+          "pct": 26.1,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.8190324486569404,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0205,
+          "pct": 2.1,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.783105,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "opponent": "SD",
+      "side": "away",
+      "pitcherId": 601713,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0385,
+          "pct": 3.9,
+          "grade": "D",
+          "percentile": 6,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.423,
+          "pct": 42.3,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7174735552585688,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1674,
+          "pct": 16.7,
+          "grade": "D",
+          "percentile": 8,
+          "contextMult": 0.5527114340198527,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1942,
+          "pct": 19.4,
+          "grade": "C",
+          "percentile": 21,
+          "contextMult": 0.6803019051462337,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.226,
+          "pct": 22.6,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.8270360230737833,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0331,
+          "pct": 3.3,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.9212999999999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 664034,
+      "name": "Ty France",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1272,
+          "pct": 12.7,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.9369596925619956,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6881,
+          "pct": 68.8,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.1313857064915267,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4049,
+          "pct": 40.5,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 1.0261755360639988,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3623,
+          "pct": 36.2,
+          "grade": "A",
+          "percentile": 94,
+          "contextMult": 1.0327660628813817,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5196,
+          "pct": 52,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.0100942573495153,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.62894412,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 665487,
+      "name": "Fernando Tatis Jr.",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.1177,
+          "pct": 11.8,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.8320307180550496,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.7274,
+          "pct": 72.7,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.1093040172387634,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4311,
+          "pct": 43.1,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 0.9620729845283539,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3163,
+          "pct": 31.6,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.960091157080852,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5557,
+          "pct": 55.6,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.9750234285871534,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0985,
+          "pct": 9.9,
+          "grade": "A",
+          "percentile": 92,
+          "contextMult": 1.0313331,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 669392,
+      "name": "Samad Taylor",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0667,
+          "pct": 6.7,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.7271681779436933,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6711,
+          "pct": 67.1,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 1.0909390913190504,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3448,
+          "pct": 34.5,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.8866834396386395,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.341,
+          "pct": 34.1,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.920285035410951,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.522,
+          "pct": 52.2,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 1.015089987121523,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1497,
+          "pct": 15,
+          "grade": "A+",
+          "percentile": 99,
+          "contextMult": 1.1524748867999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 669134,
+      "name": "Luis Campusano",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0912,
+          "pct": 9.1,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.7887820080215683,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5593,
+          "pct": 55.9,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.9358103776031467,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.285,
+          "pct": 28.5,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.818337818610121,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2682,
+          "pct": 26.8,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.8414083680024421,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3557,
+          "pct": 35.6,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.8895622045639934,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.869508,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 701538,
+      "name": "Jackson Merrill",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.1249,
+          "pct": 12.5,
+          "grade": "B+",
+          "percentile": 82,
+          "contextMult": 0.8385202478658743,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6697,
+          "pct": 67,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.0536140287082298,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3927,
+          "pct": 39.3,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.9277289815087387,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3366,
+          "pct": 33.7,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.9723341006655968,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5046,
+          "pct": 50.5,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 1.0146971777241276,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0977,
+          "pct": 9.8,
+          "grade": "A",
+          "percentile": 90,
+          "contextMult": 1.335322758,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 806956,
+      "name": "Ethan Salas",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.1138,
+          "pct": 11.4,
+          "grade": "B+",
+          "percentile": 72,
+          "contextMult": 0.9815280160012831,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6464,
+          "pct": 64.6,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 1.1846891961747343,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3587,
+          "pct": 35.9,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 1.1221989112440187,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2424,
+          "pct": 24.2,
+          "grade": "C+",
+          "percentile": 40,
+          "contextMult": 1.082154157619054,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4447,
+          "pct": 44.5,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 1.109535467105633,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.869508,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 687957,
+      "name": "Dustin Harris",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0602,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.7225883926063413,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6236,
+          "pct": 62.4,
+          "grade": "B+",
+          "percentile": 71,
+          "contextMult": 1.071949508357874,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3025,
+          "pct": 30.3,
+          "grade": "B",
+          "percentile": 67,
+          "contextMult": 0.8259330170132502,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.372,
+          "pct": 37.2,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.881730415965775,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.486,
+          "pct": 48.6,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 0.9971315472354545,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1304,
+          "pct": 13,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.2810751200000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 609280,
+      "name": "Miguel Andujar",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0618,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 34,
+          "contextMult": 0.711702551100636,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5664,
+          "pct": 56.6,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.9636981259342989,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3011,
+          "pct": 30.1,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.8068580128248751,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1955,
+          "pct": 19.6,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.8700260344697327,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3255,
+          "pct": 32.6,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.9297294834566701,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.01,
+          "pct": 1,
+          "grade": "C",
+          "percentile": 31,
+          "contextMult": 0.6221812800000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 657757,
+      "name": "Gavin Sheets",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1058,
+          "pct": 10.6,
+          "grade": "B",
+          "percentile": 68,
+          "contextMult": 0.8303733956719358,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5582,
+          "pct": 55.8,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 1.097234308304108,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2896,
+          "pct": 29,
+          "grade": "B",
+          "percentile": 56,
+          "contextMult": 0.9426155103956454,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.241,
+          "pct": 24.1,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.9409167997550218,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3661,
+          "pct": 36.6,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 1.0250512305580473,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0171,
+          "pct": 1.7,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 1.16803908,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 592518,
+      "name": "Manny Machado",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.1167,
+          "pct": 11.7,
+          "grade": "B+",
+          "percentile": 75,
+          "contextMult": 0.7348076288315051,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5362,
+          "pct": 53.6,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.8690608161480741,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2839,
+          "pct": 28.4,
+          "grade": "B",
+          "percentile": 53,
+          "contextMult": 0.7758608845658047,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.282,
+          "pct": 28.2,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 0.8109016169831659,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.374,
+          "pct": 37.4,
+          "grade": "C+",
+          "percentile": 51,
+          "contextMult": 0.8719562859319977,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0121,
+          "pct": 1.2,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7347149376000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 669720,
+      "name": "Austin Hays",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0608,
+          "pct": 6.1,
+          "grade": "C",
+          "percentile": 32,
+          "contextMult": 0.6582347867587458,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.526,
+          "pct": 52.6,
+          "grade": "C+",
+          "percentile": 42,
+          "contextMult": 0.9551870998812744,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2358,
+          "pct": 23.6,
+          "grade": "C+",
+          "percentile": 36,
+          "contextMult": 0.8246132014366471,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.286,
+          "pct": 28.6,
+          "grade": "B",
+          "percentile": 64,
+          "contextMult": 0.8881199335075417,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3663,
+          "pct": 36.6,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.9790018827402645,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6221812800000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 593428,
+      "name": "Xander Bogaerts",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0567,
+          "pct": 5.7,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.6100858641217379,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5759,
+          "pct": 57.6,
+          "grade": "B",
+          "percentile": 62,
+          "contextMult": 1.0316198315381782,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.255,
+          "pct": 25.5,
+          "grade": "C+",
+          "percentile": 47,
+          "contextMult": 0.7647178609035516,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2198,
+          "pct": 22,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.8399227947326005,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3794,
+          "pct": 37.9,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.9898796814373786,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0772,
+          "pct": 7.7,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 1.3313133600000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 630105,
+      "name": "Jake Cronenworth",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0599,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 29,
+          "contextMult": 0.6068057336342605,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5666,
+          "pct": 56.7,
+          "grade": "B",
+          "percentile": 58,
+          "contextMult": 0.969038785288365,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2541,
+          "pct": 25.4,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.7488018044814372,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2481,
+          "pct": 24.8,
+          "grade": "C+",
+          "percentile": 44,
+          "contextMult": 0.8340203990142986,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3678,
+          "pct": 36.8,
+          "grade": "C+",
+          "percentile": 49,
+          "contextMult": 1.0116352788316068,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.042,
+          "pct": 4.2,
+          "grade": "B",
+          "percentile": 69,
+          "contextMult": 1.1826081696,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 666023,
+      "name": "Freddy Fermin",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.039,
+          "pct": 3.9,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.5517867733862347,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4162,
+          "pct": 41.6,
+          "grade": "D",
+          "percentile": 12,
+          "contextMult": 0.9018574566359505,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1709,
+          "pct": 17.1,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.657935420460414,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.185,
+          "pct": 18.5,
+          "grade": "C",
+          "percentile": 19,
+          "contextMult": 0.8079450004218105,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2197,
+          "pct": 22,
+          "grade": "D",
+          "percentile": 10,
+          "contextMult": 0.9790018827402645,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "D",
+          "percentile": 14,
+          "contextMult": 0.6086556,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849826,
+      "startTimeUTC": "2026-10-07T01:30:00Z",
+      "playerId": 687749,
+      "name": "Jase Bowen",
+      "team": "SD",
+      "opponent": "MIL",
+      "side": "home",
+      "pitcherId": 669160,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0276,
+          "pct": 2.8,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.561367249711921,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.2339,
+          "pct": 23.4,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.73389838187108,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.0799,
+          "pct": 8,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.6353699212966895,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.0835,
+          "pct": 8.4,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.747221882813964,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.093,
+          "pct": 9.3,
+          "grade": "D",
+          "percentile": 1,
+          "contextMult": 0.9064832247595042,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0507,
+          "pct": 5.1,
+          "grade": "B+",
+          "percentile": 79,
+          "contextMult": 1.19364126,
+          "saturated": false
+        }
+      }
+    }
+  ]
+}
