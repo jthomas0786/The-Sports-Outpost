@@ -636,7 +636,7 @@
     if(nhlScorerMarket==='fgs')details.push(String(p.recentFirstGoals??0)+' FIRST');
     const matchupText=matchup.detail?((matchup.label||'Neutral')+' · '+matchup.detail):(matchup.label||'Matchup context pending');
     return '<article class="nhl-scorer-player '+(risky?'is-risky':'')+'" style="--scorer-accent:'+esc(accent)+';--scorer-rgb:'+esc(nhlScorerRgb(accent))+'">'
-      +'<span class="nhl-scorer-rank">'+(risky?'RISKY VALUE':'#'+esc(rank))+'</span>'
+      +'<span class="nhl-scorer-rank">'+(risky?'RISKY':'#'+esc(rank))+'</span>'
       +nhlScorerHeadshot(p)
       +'<div class="nhl-scorer-player-copy"><small>'+esc(String(p.position||'NHL'))+' · '+esc(String(p.team||team?.abbr||''))+'</small><h4>'+esc(p.name||'Player')+'</h4><p>'+esc(details.join(' · '))+'</p></div>'
       +'<div class="nhl-scorer-player-metrics"><span><small>MODEL</small><b>'+esc(nhlScorerPct(line.probability))+'</b></span><span><small>'+esc(oddsLabel)+'</small><b>'+esc(oddsShown)+'</b><em>'+esc(fairNote)+'</em></span></div>'
