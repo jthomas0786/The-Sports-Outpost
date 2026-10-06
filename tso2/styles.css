@@ -6125,3 +6125,370 @@ body.tso-side-nav-open{overflow:hidden}
   .mlb-environment-grid{grid-template-columns:1fr}
   .mlb-park-factor{grid-column:auto}
 }
+
+
+/* TSO2 MLB 1.0 CONTACT FIELD MIGRATION */
+.mlb-field-trajectory{
+  overflow:hidden;
+}
+.mlb-field-trajectory-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1.65fr) minmax(290px,.62fr);
+  min-height:520px;
+  background:#05080d;
+}
+.mlb-field-stage{
+  position:relative;
+  min-width:0;
+  overflow:hidden;
+  aspect-ratio:3/2;
+  background:#020914;
+  border-right:1px solid rgba(255,255,255,.075);
+  isolation:isolate;
+}
+.mlb-field-stage>img{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+  user-select:none;
+  pointer-events:none;
+}
+.mlb-field-stage::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(2,6,12,.08),transparent 18%,transparent 74%,rgba(2,6,12,.34)),
+    radial-gradient(circle at 50% 62%,transparent 0 42%,rgba(2,7,14,.12) 75%,rgba(2,7,14,.42) 100%);
+}
+.mlb-field-overlay{
+  position:absolute;
+  inset:0;
+  z-index:7;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  pointer-events:none;
+}
+.mlb-field-history-path{
+  fill:none;
+  stroke:rgba(142,183,255,.18);
+  stroke-width:.34;
+  vector-effect:non-scaling-stroke;
+}
+.mlb-field-history-path.is-hit{stroke:rgba(45,127,255,.30)}
+.mlb-field-history-path.is-hr{stroke:rgba(255,106,59,.34)}
+.mlb-field-history-dot{
+  fill:#77828e;
+  stroke:#0c1118;
+  stroke-width:.25;
+  vector-effect:non-scaling-stroke;
+}
+.mlb-field-history-dot.is-hit{fill:#2d7fff}
+.mlb-field-history-dot.is-hr{fill:#ff6a3b}
+.mlb-field-primary-glow,
+.mlb-field-primary-path{
+  fill:none;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  vector-effect:non-scaling-stroke;
+}
+.mlb-field-primary-glow{
+  stroke:rgba(45,127,255,.34);
+  stroke-width:7;
+  filter:blur(2px) drop-shadow(0 0 8px rgba(45,127,255,.9));
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  animation:mlb-field-trace 2.8s ease-in-out infinite;
+}
+.mlb-field-primary-path{
+  stroke:#2d7fff;
+  stroke-width:2.5;
+  filter:drop-shadow(0 0 5px rgba(45,127,255,.98));
+  stroke-dasharray:1;
+  stroke-dashoffset:1;
+  animation:mlb-field-trace 2.8s ease-in-out infinite;
+}
+.mlb-field-flight-ball{
+  fill:#fff;
+  stroke:#d8e7ff;
+  stroke-width:.28;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 2px #fff) drop-shadow(0 0 7px rgba(45,127,255,.95));
+}
+.mlb-field-landing{
+  fill:#2d7fff;
+  stroke:#e8f2ff;
+  stroke-width:.34;
+  vector-effect:non-scaling-stroke;
+  filter:drop-shadow(0 0 6px rgba(45,127,255,1));
+  animation:mlb-field-landing-pulse 1.45s ease-in-out infinite;
+}
+@keyframes mlb-field-trace{
+  0%{stroke-dashoffset:1;opacity:.22}
+  18%{opacity:1}
+  72%{stroke-dashoffset:0;opacity:1}
+  90%,100%{stroke-dashoffset:0;opacity:.28}
+}
+@keyframes mlb-field-landing-pulse{
+  0%,100%{opacity:.45}
+  50%{opacity:1}
+}
+.mlb-field-hud{
+  position:absolute;
+  left:14px;
+  top:14px;
+  z-index:10;
+  display:grid;
+  grid-template-columns:repeat(4,minmax(88px,1fr));
+  border:1px solid rgba(85,149,229,.32);
+  background:rgba(4,13,28,.88);
+  backdrop-filter:blur(8px);
+  box-shadow:0 10px 28px rgba(0,0,0,.28);
+}
+.mlb-field-hud>span{
+  min-width:88px;
+  padding:9px 11px;
+  border-left:1px solid rgba(85,149,229,.20);
+}
+.mlb-field-hud>span:first-child{border-left:0}
+.mlb-field-hud small,
+.mlb-field-hud b{
+  display:block;
+}
+.mlb-field-hud small{
+  color:#8191a5;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.mlb-field-hud b{
+  margin-top:5px;
+  color:#fff;
+  font-size:15px;
+}
+.mlb-field-truth{
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  z-index:10;
+  max-width:82%;
+  transform:translateX(-50%);
+  padding:7px 10px;
+  border:1px solid rgba(62,126,191,.34);
+  background:rgba(2,13,30,.84);
+  color:#93a6bb;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+  text-align:center;
+  backdrop-filter:blur(7px);
+}
+.mlb-field-side{
+  display:grid;
+  align-content:start;
+  gap:10px;
+  padding:12px;
+  background:linear-gradient(180deg,#070b11,#05080d);
+}
+.mlb-field-latest,
+.mlb-field-zone-panel,
+.mlb-field-note{
+  border:1px solid rgba(255,255,255,.075);
+  background:#080c11;
+}
+.mlb-field-latest{
+  padding:13px;
+}
+.mlb-field-latest small,
+.mlb-field-latest b,
+.mlb-field-latest span{
+  display:block;
+}
+.mlb-field-latest small{
+  color:#697581;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.07em;
+}
+.mlb-field-latest b{
+  margin-top:7px;
+  color:#fff;
+  font-size:18px;
+}
+.mlb-field-latest span{
+  margin-top:6px;
+  color:#8b97a4;
+  font-size:12px;
+  line-height:1.45;
+}
+.mlb-field-zone-panel{
+  padding:12px;
+}
+.mlb-field-zone-panel header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:12px;
+  margin-bottom:10px;
+}
+.mlb-field-zone-panel header small,
+.mlb-field-zone-panel header b{
+  display:block;
+}
+.mlb-field-zone-panel header small{
+  color:#687480;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.mlb-field-zone-panel header b{
+  margin-top:4px;
+  font-size:14px;
+}
+.mlb-field-zone-panel header>span{
+  color:#8995a2;
+  font-size:12px;
+  font-weight:850;
+  text-align:right;
+}
+.mlb-field-zone-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  border:1px solid rgba(255,255,255,.11);
+  background:#05080c;
+}
+.mlb-field-zone-grid>span{
+  position:relative;
+  min-height:64px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  padding:6px;
+  border-right:1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid rgba(255,255,255,.08);
+  text-align:center;
+}
+.mlb-field-zone-grid>span:nth-child(3n){border-right:0}
+.mlb-field-zone-grid>span:nth-child(n+7){border-bottom:0}
+.mlb-field-zone-grid>span.is-hot{background:rgba(79,227,155,.075)}
+.mlb-field-zone-grid>span.is-cold{background:rgba(255,77,28,.07)}
+.mlb-field-zone-grid>span.is-neutral{background:rgba(123,92,255,.04)}
+.mlb-field-zone-grid>span.is-top{
+  box-shadow:inset 0 0 0 1px rgba(255,216,77,.34);
+}
+.mlb-field-zone-grid small,
+.mlb-field-zone-grid b,
+.mlb-field-zone-grid em{
+  display:block;
+}
+.mlb-field-zone-grid small{
+  color:#66727f;
+  font-size:12px;
+  font-weight:950;
+}
+.mlb-field-zone-grid b{
+  margin-top:3px;
+  color:#fff;
+  font-size:13px;
+}
+.mlb-field-zone-grid em{
+  margin-top:3px;
+  color:#ffe16a;
+  font-size:12px;
+  font-style:normal;
+  font-weight:900;
+}
+.mlb-field-zone-panel footer{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:8px;
+  color:#65717d;
+  font-size:12px;
+  line-height:1.35;
+}
+.mlb-field-note{
+  padding:12px;
+}
+.mlb-field-note b{
+  display:block;
+  color:#96a2af;
+  font-size:12px;
+  letter-spacing:.06em;
+}
+.mlb-field-note p{
+  margin:7px 0 0;
+  color:#6f7b87;
+  font-size:12px;
+  line-height:1.5;
+}
+
+@media(max-width:980px){
+  .mlb-field-trajectory-layout{
+    grid-template-columns:1fr;
+  }
+  .mlb-field-stage{
+    border-right:0;
+    border-bottom:1px solid rgba(255,255,255,.075);
+  }
+  .mlb-field-side{
+    grid-template-columns:1fr 1fr;
+  }
+  .mlb-field-note{
+    grid-column:1/-1;
+  }
+}
+@media(max-width:680px){
+  .mlb-field-stage{
+    aspect-ratio:3/2;
+    overflow-x:hidden;
+  }
+  .mlb-field-hud{
+    left:7px;
+    right:7px;
+    top:7px;
+    grid-template-columns:repeat(2,1fr);
+  }
+  .mlb-field-hud>span{
+    min-width:0;
+    padding:7px 8px;
+  }
+  .mlb-field-hud>span:nth-child(3){
+    border-left:0;
+    border-top:1px solid rgba(85,149,229,.20);
+  }
+  .mlb-field-hud>span:nth-child(4){
+    border-top:1px solid rgba(85,149,229,.20);
+  }
+  .mlb-field-truth{
+    bottom:6px;
+    max-width:92%;
+    padding:5px 7px;
+  }
+  .mlb-field-side{
+    grid-template-columns:1fr;
+    padding:9px;
+  }
+  .mlb-field-note{
+    grid-column:auto;
+  }
+}
+@media(prefers-reduced-motion:reduce){
+  .mlb-field-primary-glow,
+  .mlb-field-primary-path,
+  .mlb-field-landing{
+    animation:none!important;
+    stroke-dashoffset:0!important;
+    opacity:1!important;
+  }
+  .mlb-field-flight-ball{display:none}
+}
