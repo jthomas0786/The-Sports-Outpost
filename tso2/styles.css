@@ -7054,3 +7054,43 @@ body.tso-side-nav-open{overflow:hidden}
     }
   }
 }
+
+
+/* TSO2 HOME SCOREBOARD LOGOS BEHIND CONTENT */
+.concept-matchup{
+  isolation:isolate!important;
+}
+.concept-matchup .matchup-stage{
+  position:relative!important;
+  z-index:1!important;
+  isolation:isolate!important;
+}
+.concept-matchup .matchup-side{
+  position:relative!important;
+  z-index:1!important;
+  isolation:isolate!important;
+}
+.concept-matchup .feature-team-logo{
+  z-index:-1!important;
+  opacity:.34!important;
+  filter:
+    drop-shadow(0 12px 26px rgba(0,0,0,.34))
+    drop-shadow(0 0 28px rgba(255,255,255,.06))!important;
+}
+.concept-matchup .feature-team-logo img{
+  position:relative!important;
+  z-index:0!important;
+}
+.concept-matchup .matchup-side>span,
+.concept-matchup .matchup-side>strong,
+.concept-matchup .matchup-side>small,
+.concept-matchup .matchup-center,
+.concept-matchup .feature-topline,
+.concept-matchup .concept-matchup-stats,
+.concept-matchup .feature-footer{
+  position:relative!important;
+  z-index:5!important;
+}
+.concept-matchup .matchup-energy{
+  z-index:-2!important;
+}
