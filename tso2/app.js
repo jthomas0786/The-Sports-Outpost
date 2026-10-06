@@ -237,6 +237,7 @@
       : primaryTiles;
     strip.innerHTML = label + ticker + '<button class="score-more" data-route-jump="live">FULL SCOREBOARD →</button>';
     strip.querySelector('[data-route-jump="live"]')?.addEventListener('click',()=>setRoute('live'));
+    strip.querySelectorAll('.score-ticker-set--clone .score-tile').forEach(btn=>btn.tabIndex=-1);
     bindLiveGeneratedActions();
     const viewport=strip.querySelector('[data-score-ticker-viewport]');
     if(viewport)viewport.scrollLeft=0;
