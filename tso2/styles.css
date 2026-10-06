@@ -7346,3 +7346,111 @@ body.tso-side-nav-open{overflow:hidden}
     right:-125px!important;
   }
 }
+
+
+/* TSO2 HOME SCOREBOARD CARD-LEVEL LOGO ART */
+.concept-matchup{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:
+    linear-gradient(90deg,rgba(45,127,255,.055),transparent 34%,transparent 66%,rgba(255,77,28,.055)),
+    #070a0f!important;
+}
+.concept-matchup::before,
+.concept-matchup::after,
+.concept-matchup .feature-game-bg,
+.concept-matchup .matchup-energy{
+  display:none!important;
+  content:none!important;
+}
+
+/* Giant marks are now positioned against the entire card, not the team columns. */
+.home-scoreboard-logo-art{
+  position:absolute!important;
+  top:47%!important;
+  z-index:1!important;
+  width:48%!important;
+  height:82%!important;
+  transform:translateY(-50%)!important;
+  pointer-events:none!important;
+  overflow:visible!important;
+  opacity:.92!important;
+}
+.home-scoreboard-logo-art--away{
+  left:-17%!important;
+}
+.home-scoreboard-logo-art--home{
+  right:-17%!important;
+}
+.home-scoreboard-logo-art .home-scoreboard-bg-logo{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  border:0!important;
+  background:transparent!important;
+  filter:none!important;
+  overflow:visible!important;
+}
+.home-scoreboard-logo-art .home-scoreboard-bg-logo img{
+  width:100%!important;
+  height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  filter:none!important;
+}
+
+/* All scoreboard UI sits over the team marks. */
+.concept-matchup .feature-topline,
+.concept-matchup .matchup-stage,
+.concept-matchup .concept-matchup-stats,
+.concept-matchup .feature-footer{
+  position:relative!important;
+  z-index:5!important;
+}
+.concept-matchup .matchup-side,
+.concept-matchup .matchup-center{
+  position:relative!important;
+  z-index:6!important;
+}
+.concept-matchup .matchup-side>span,
+.concept-matchup .matchup-side>strong,
+.concept-matchup .matchup-side>small{
+  position:relative!important;
+  z-index:7!important;
+  transform:none!important;
+}
+
+/* Keep the large marks centered through responsive card sizes rather than
+   letting them drift to the top corners. */
+@container tso-home-scorecard (max-width:680px){
+  .home-scoreboard-logo-art{
+    top:48%!important;
+    width:54%!important;
+    height:78%!important;
+    opacity:.84!important;
+  }
+  .home-scoreboard-logo-art--away{
+    left:-22%!important;
+  }
+  .home-scoreboard-logo-art--home{
+    right:-22%!important;
+  }
+}
+@container tso-home-scorecard (max-width:500px){
+  .home-scoreboard-logo-art{
+    top:46%!important;
+    width:58%!important;
+    height:68%!important;
+    opacity:.76!important;
+  }
+  .home-scoreboard-logo-art--away{
+    left:-27%!important;
+  }
+  .home-scoreboard-logo-art--home{
+    right:-27%!important;
+  }
+}
