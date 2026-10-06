@@ -17,6 +17,11 @@
   let liveFeedCache = null;
   let liveFeedFetchedAt = 0;
   let liveFeedInFlight = null;
+  let selectedLiveGameId = null;
+  let liveDetailTab = 'plays';
+  const liveDetailCache = new Map();
+  const liveDetailFetchedAt = new Map();
+  const liveDetailInFlight = new Map();
   let propsFeedCache = null;
   let propsFeedFetchedAt = 0;
   let propsFeedInFlight = null;
@@ -159,7 +164,12 @@
 
   function bindLiveGeneratedActions(){
     document.querySelectorAll('[data-live-open]').forEach(btn => {
-      btn.onclick = () => setRoute('live');
+      btn.onclick = () => {
+        const id=String(btn.dataset.liveOpen||'');
+        if(id) selectedLiveGameId=id;
+        if(currentRoute === 'live') renderLiveCenter();
+        else setRoute('live');
+      };
     });
     document.querySelectorAll('[data-live-refresh]').forEach(btn => {
       btn.onclick = () => refreshLiveData(true);
@@ -289,6 +299,223 @@
       +'<div class="live-gamecast-footer"><div><span>LIVE SCORE FEED</span><b>'+esc(venue)+'</b><strong>'+esc(feedUpdatedText())+'</strong></div><button class="broadcast-cta" data-live-refresh>REFRESH SCORES →</button></div>';
   }
 
+  const LIVE_DETAIL_PATHS = {
+    mlb:'baseball/mlb',
+    nfl:'football/nfl',
+    nhl:'hockey/nhl',
+    nba:'basketball/nba'
+  };
+
+  const liveDetailKey = game => game ? String(game.league||'')+':'+String(game.id||'') : '';
+  const liveDetailTtl = game => game?.state === 'in' ? 15000 : 300000;
+
+  function liveDetailUrl(game){
+    const path=LIVE_DETAIL_PATHS[String(game?.league||'').toLowerCase()];
+    if(!path || !game?.id) return '';
+    return 'https://site.api.espn.com/apis/site/v2/sports/'+path+'/summary?event='+encodeURIComponent(game.id);
+  }
+
+  function liveDetailPlays(summary){
+    if(Array.isArray(summary?.plays)) return summary.plays;
+    const drives=[];
+    if(Array.isArray(summary?.drives?.previous)) drives.push(...summary.drives.previous);
+    if(summary?.drives?.current) drives.push(summary.drives.current);
+    const plays=drives.flatMap(d=>Array.isArray(d?.plays)?d.plays:[]);
+    if(plays.length) return plays;
+    return Array.isArray(summary?.scoringPlays) ? summary.scoringPlays : [];
+  }
+
+  function playPeriodLabel(play,game){
+    const period=play?.period?.displayValue ?? play?.period?.number ?? play?.period;
+    if(period==null || period==='') return game?.state==='pre' ? 'PRE' : '—';
+    if(String(game?.league||'').toLowerCase()==='mlb'){
+      const half=play?.period?.type || play?.type?.text || '';
+      const halfLabel=/top/i.test(String(half))?'TOP':/bottom|bot/i.test(String(half))?'BOT':'INN';
+      return halfLabel+' '+period;
+    }
+    return 'P'+period;
+  }
+
+  function playScoreLabel(play){
+    const away=play?.awayScore ?? play?.away?.score;
+    const home=play?.homeScore ?? play?.home?.score;
+    if(away==null || home==null) return '';
+    return String(away)+'–'+String(home);
+  }
+
+  function playByPlayMarkup(summary,game){
+    const plays=liveDetailPlays(summary)
+      .filter(p=>String(p?.text||p?.shortText||p?.description||'').trim())
+      .slice(-80)
+      .reverse();
+    if(!plays.length){
+      const msg=game?.state==='pre'
+        ? 'No plays yet. Play-by-play will begin when the game starts.'
+        : 'No play-by-play has been published for this game yet.';
+      return '<div class="live-detail-empty"><b>'+esc(msg)+'</b><small>'+esc(game?.venue||gameStatusText(game))+'</small></div>';
+    }
+    return '<div class="live-pbp-list">'+plays.map((play,index)=>{
+      const text=play.text||play.shortText||play.description||'Play update';
+      const clock=play?.clock?.displayValue || play?.clock || '';
+      const team=play?.team?.abbreviation || play?.team?.shortDisplayName || '';
+      const score=playScoreLabel(play);
+      const scoring=play?.scoringPlay===true || Number(play?.scoreValue)>0;
+      return '<article class="live-pbp-row '+(scoring?'is-scoring':'')+'">'
+        +'<div class="live-pbp-marker"><span>'+esc(playPeriodLabel(play,game))+'</span><small>'+esc(clock||String(plays.length-index).padStart(2,'0'))+'</small></div>'
+        +'<div class="live-pbp-copy">'+(team?'<b>'+esc(team)+'</b>':'')+'<p>'+esc(text)+'</p></div>'
+        +(score?'<strong>'+esc(score)+'</strong>':'<strong></strong>')
+      +'</article>';
+    }).join('')+'</div>';
+  }
+
+  function boxTeamEntry(summary,abbr,fallbackIndex){
+    const teams=Array.isArray(summary?.boxscore?.teams)?summary.boxscore.teams:[];
+    return teams.find(row=>String(row?.team?.abbreviation||'').toUpperCase()===String(abbr||'').toUpperCase()) || teams[fallbackIndex] || null;
+  }
+
+  function teamStatMap(entry){
+    const map=new Map();
+    (entry?.statistics||[]).forEach(stat=>{
+      const key=String(stat?.name||stat?.label||stat?.displayName||'').trim();
+      if(key) map.set(key,stat);
+    });
+    return map;
+  }
+
+  function teamStatsMarkup(summary,game){
+    const away=boxTeamEntry(summary,game?.away?.abbr,0);
+    const home=boxTeamEntry(summary,game?.home?.abbr,1);
+    if(!away && !home) return '';
+    const aMap=teamStatMap(away), hMap=teamStatMap(home);
+    const preferred={
+      nfl:['firstDowns','totalYards','netPassingYards','rushingYards','turnovers','possessionTime','thirdDownEff','fourthDownEff'],
+      nba:['fieldGoalPct','threePointFieldGoalPct','freeThrowPct','totalRebounds','assists','turnovers','steals','blocks'],
+      nhl:['shotsTotal','powerPlayGoals','powerPlayOpportunities','faceoffPercent','blockedShots','hits','giveaways','takeaways'],
+      mlb:['hits','errors','leftOnBase','homeRuns','strikeouts','walks','stolenBases']
+    }[String(game?.league||'').toLowerCase()] || [];
+    const all=[...new Set([...preferred,...aMap.keys(),...hMap.keys()])];
+    const rows=all.filter(key=>aMap.has(key)||hMap.has(key)).slice(0,10);
+    if(!rows.length) return '';
+    const value=stat=>stat?.displayValue ?? stat?.value ?? '—';
+    const label=key=>aMap.get(key)?.label||aMap.get(key)?.displayName||hMap.get(key)?.label||hMap.get(key)?.displayName||key.replace(/([A-Z])/g,' $1');
+    return '<section class="live-box-team-stats">'
+      +'<div class="live-box-team-stats-head"><b>'+esc(game?.away?.abbr||'AWAY')+'</b><span>TEAM STATS</span><b>'+esc(game?.home?.abbr||'HOME')+'</b></div>'
+      +rows.map(key=>'<div class="live-box-team-stat-row"><strong>'+esc(value(aMap.get(key)))+'</strong><span>'+esc(label(key))+'</span><strong>'+esc(value(hMap.get(key)))+'</strong></div>').join('')
+    +'</section>';
+  }
+
+  function playerBoxMarkup(summary){
+    const teams=Array.isArray(summary?.boxscore?.players)?summary.boxscore.players:[];
+    if(!teams.length) return '';
+    return '<div class="live-player-box">'+teams.map(teamBlock=>{
+      const teamName=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+      const groups=Array.isArray(teamBlock?.statistics)?teamBlock.statistics:[];
+      const groupMarkup=groups.map(group=>{
+        const athletes=(group?.athletes||[]).filter(row=>row?.athlete && !row?.didNotPlay).slice(0,24);
+        if(!athletes.length) return '';
+        const labels=Array.isArray(group?.labels)?group.labels:[];
+        const title=group?.displayName||group?.name||'Players';
+        return '<section class="live-player-stat-group"><h4>'+esc(title)+'</h4><div class="live-player-table-wrap"><table class="live-player-table"><thead><tr><th>PLAYER</th>'
+          +labels.map(label=>'<th>'+esc(label)+'</th>').join('')
+          +'</tr></thead><tbody>'
+          +athletes.map(row=>'<tr><td>'+esc(row?.athlete?.shortName||row?.athlete?.displayName||'Player')+'</td>'
+            +(row?.stats||[]).map(stat=>'<td>'+esc(stat??'—')+'</td>').join('')
+          +'</tr>').join('')
+          +'</tbody></table></div></section>';
+      }).join('');
+      return groupMarkup ? '<section class="live-player-team"><h3>'+esc(teamName)+'</h3>'+groupMarkup+'</section>' : '';
+    }).join('')+'</div>';
+  }
+
+  function boxScoreMarkup(summary,game){
+    const teamStats=teamStatsMarkup(summary,game);
+    const players=playerBoxMarkup(summary);
+    if(!teamStats && !players){
+      return '<div class="live-detail-empty"><b>Box score is not available yet.</b><small>'+esc(game?.state==='pre'?'Player stats will populate after the game starts.':'The live scoreboard remains connected.')+'</small></div>';
+    }
+    return teamStats+players;
+  }
+
+  async function ensureLiveGameDetail(game){
+    const key=liveDetailKey(game);
+    if(!key) return null;
+    const fetched=liveDetailFetchedAt.get(key)||0;
+    if(liveDetailCache.has(key) && Date.now()-fetched < liveDetailTtl(game)) return liveDetailCache.get(key);
+    if(liveDetailInFlight.has(key)) return liveDetailInFlight.get(key);
+    const url=liveDetailUrl(game);
+    if(!url){
+      const unavailable={error:true};
+      liveDetailCache.set(key,unavailable);
+      liveDetailFetchedAt.set(key,Date.now());
+      return unavailable;
+    }
+    const request=fetch(url,{cache:'no-store'})
+      .then(async response=>{
+        if(!response.ok) throw new Error('Game detail HTTP '+response.status);
+        const payload=await response.json();
+        liveDetailCache.set(key,payload||{});
+        liveDetailFetchedAt.set(key,Date.now());
+        return payload||{};
+      })
+      .catch(error=>{
+        console.error('TSO game detail:',error);
+        const unavailable={error:true,message:String(error?.message||error)};
+        liveDetailCache.set(key,unavailable);
+        liveDetailFetchedAt.set(key,Date.now());
+        return unavailable;
+      })
+      .finally(()=>liveDetailInFlight.delete(key));
+    liveDetailInFlight.set(key,request);
+    return request;
+  }
+
+  function bindLiveDetailTabs(root,game){
+    root.querySelectorAll('[data-live-detail-tab]').forEach(btn=>{
+      const tab=btn.dataset.liveDetailTab==='box'?'box':'plays';
+      const active=tab===liveDetailTab;
+      btn.classList.toggle('is-active',active);
+      btn.setAttribute('aria-selected',String(active));
+      btn.onclick=()=>{
+        liveDetailTab=tab;
+        renderLiveGameDetail(root,game);
+      };
+    });
+  }
+
+  function renderLiveGameDetail(root,game){
+    const panel=root?.querySelector('[data-live-game-detail]');
+    const body=panel?.querySelector('[data-live-detail-body]');
+    const title=panel?.querySelector('[data-live-detail-title]');
+    if(!panel || !body) return;
+    if(title) title.textContent=game ? (game.away?.abbr||'AWAY')+' @ '+(game.home?.abbr||'HOME') : 'Game detail';
+    bindLiveDetailTabs(root,game);
+    if(!game){
+      body.innerHTML='<div class="live-detail-empty"><b>No game selected.</b><small>Choose a game from the scoreboard feed.</small></div>';
+      return;
+    }
+
+    const key=liveDetailKey(game);
+    const cached=liveDetailCache.get(key);
+    const fetched=liveDetailFetchedAt.get(key)||0;
+    const stale=!cached || Date.now()-fetched >= liveDetailTtl(game);
+
+    if(cached?.error){
+      body.innerHTML='<div class="live-detail-empty"><b>Detailed game feed is temporarily unavailable.</b><small>The main scoreboard will keep updating automatically.</small></div>';
+    }else if(cached){
+      body.innerHTML=liveDetailTab==='box' ? boxScoreMarkup(cached,game) : playByPlayMarkup(cached,game);
+    }else{
+      body.innerHTML='<div class="live-detail-loading"><span class="live-feed-spinner"></span><div><b>Loading '+(liveDetailTab==='box'?'box score':'play by play')+'…</b><small>'+esc(game.away?.abbr)+' @ '+esc(game.home?.abbr)+'</small></div></div>';
+    }
+
+    if(stale && !liveDetailInFlight.has(key)){
+      ensureLiveGameDetail(game).then(()=>{
+        if(currentRoute!=='live' || !panel.isConnected) return;
+        const active=currentFeedGames().find(g=>String(g.id)===String(selectedLiveGameId));
+        if(active && String(active.id)===String(game.id)) renderLiveGameDetail(root,active);
+      });
+    }
+  }
+
   function renderHomeLiveData(){
     if(currentRoute !== 'home' || !liveFeedCache) return;
     const games = sortedGames(liveFeedCache.games || []);
@@ -328,7 +555,9 @@
     const games = currentFeedGames();
     const liveCount = games.filter(g => g.state === 'in').length;
     const upcomingCount = games.filter(g => g.state === 'pre').length;
-    const feature = games.find(g => g.state === 'in') || games.find(g => g.state === 'pre') || games[0];
+    let feature = games.find(g => String(g.id) === String(selectedLiveGameId));
+    if(!feature) feature = games.find(g => g.state === 'in') || games.find(g => g.state === 'pre') || games[0];
+    selectedLiveGameId = feature?.id != null ? String(feature.id) : null;
 
     const badge = root.querySelector('[data-live-feed-badge]');
     if(badge){
@@ -343,6 +572,7 @@
       featureNode.classList.remove('live-feed-loading');
       featureNode.innerHTML = featureGameMarkup(feature,false);
     }
+    renderLiveGameDetail(root,feature);
 
     const nowBoard = root.querySelector('[data-live-now-board]');
     if(nowBoard){
