@@ -5524,3 +5524,41 @@ body.tso-side-nav-open{overflow:hidden}
     display:none!important;
   }
 }
+
+
+/* TSO2 MARQUEE SCORE TICKER */
+.score-ticker-viewport{
+  flex:1 1 auto;
+  min-width:0;
+  overflow:hidden!important;
+  position:relative;
+}
+.score-ticker-track{
+  display:flex!important;
+  width:max-content!important;
+  min-width:max-content!important;
+  height:100%;
+  will-change:transform;
+  transform:translate3d(0,0,0);
+}
+.score-ticker-track.is-running{
+  animation:tso-score-marquee var(--ticker-duration,30s) linear infinite;
+}
+.score-ticker-track.is-paused{
+  animation-play-state:paused;
+}
+.score-ticker-set{
+  display:flex!important;
+  flex:0 0 auto!important;
+  height:100%;
+}
+.score-ticker-set--clone{
+  flex:0 0 auto!important;
+}
+@keyframes tso-score-marquee{
+  from{transform:translate3d(0,0,0)}
+  to{transform:translate3d(calc(-1 * var(--ticker-distance,1000px)),0,0)}
+}
+@media(prefers-reduced-motion:reduce){
+  .score-ticker-track.is-running{animation:none!important}
+}
