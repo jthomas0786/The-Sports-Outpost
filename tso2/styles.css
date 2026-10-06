@@ -5469,3 +5469,58 @@ body.tso-side-nav-open{overflow:hidden}
     top:62px!important;
   }
 }
+
+
+/* TSO2 CONTINUOUS SCORE TICKER */
+.broadcast-score-strip{
+  display:flex!important;
+  align-items:stretch!important;
+  overflow:hidden!important;
+}
+.broadcast-score-strip .score-strip-label{
+  position:relative!important;
+  left:auto!important;
+  flex:0 0 auto!important;
+  z-index:6!important;
+}
+.score-ticker-viewport{
+  flex:1 1 auto;
+  min-width:0;
+  overflow-x:auto;
+  overflow-y:hidden;
+  scrollbar-width:none;
+  scroll-behavior:auto;
+  overscroll-behavior-x:contain;
+}
+.score-ticker-viewport::-webkit-scrollbar{display:none}
+.score-ticker-track{
+  display:flex;
+  width:max-content;
+  min-width:max-content;
+  height:100%;
+}
+.score-ticker-set{
+  display:flex;
+  flex:0 0 auto;
+  height:100%;
+}
+.score-ticker-set .score-tile{
+  height:100%;
+  flex:0 0 auto!important;
+}
+.score-ticker-set--clone{
+  pointer-events:auto;
+}
+.broadcast-score-strip .score-more{
+  position:relative;
+  z-index:6;
+  flex:0 0 158px!important;
+  background:#090c11!important;
+  border-left:1px solid rgba(255,255,255,.08)!important;
+  box-shadow:-8px 0 18px rgba(0,0,0,.28);
+}
+@media(max-width:700px){
+  .broadcast-score-strip .score-more{
+    display:none!important;
+  }
+}
