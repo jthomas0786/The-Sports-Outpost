@@ -2222,7 +2222,50 @@
     return bats==='L'||bats==='R'?bats:null;
   }
 
-  function renderMlbZoneMatchup(p,pitcher){
+  const MLB_APPROVED_FIELD_SRC='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/field-bg.jpg';
+
+  function mlbFieldSprayAngle(pt){
+    const direct=mlbNumber(pt?.sprayAngle);
+    if(direct!==null)return Math.max(-Math.PI/4.05,Math.min(Math.PI/4.05,direct));
+    const x=mlbNumber(pt?.coordX),y=mlbNumber(pt?.coordY);
+    if(x===null||y===null)return null;
+    const dx=x-125,forward=199-y;
+    if(Math.abs(dx)<=1&&Math.abs(forward)<=1)return null;
+    return Math.max(-Math.PI/4.05,Math.min(Math.PI/4.05,Math.atan2(dx,Math.max(1,forward))));
+  }
+
+  function mlbFieldTrajectoryGeometry(pt){
+    const distance=mlbNumber(pt?.dist);
+    if(distance===null||distance<=0)return null;
+    const home=[50,88.5],flightFrom=[50,86];
+    const maxSpray=Math.PI/4.05;
+    const rawAngle=mlbFieldSprayAngle(pt);
+    const depthOnly=rawAngle===null;
+    const angle=rawAngle??0;
+    const t=Math.abs(angle)/maxSpray;
+    const wall=angle<0
+      ?[50+(12.5-50)*t,18.5+(28-18.5)*t]
+      :[50+(87.5-50)*t,18.5+(28-18.5)*t];
+    const fence=400+(330-400)*t;
+    const result=String(pt?.result||'').toLowerCase();
+    const isHr=result==='home_run';
+    let scale=distance/fence;
+    scale=isHr?Math.max(1.025,Math.min(1.16,scale)):Math.max(.08,Math.min(.985,scale));
+    const to=[home[0]+(wall[0]-home[0])*scale,home[1]+(wall[1]-home[1])*scale];
+    const la=mlbNumber(pt?.la);
+    const ground=la!==null&&la<5;
+    const flight=Math.hypot(to[0]-flightFrom[0],to[1]-flightFrom[1]);
+    const rise=ground
+      ?Math.max(1.5,Math.min(5,1.5+Math.max(0,la||0)*.12))
+      :Math.max(8,Math.min(30,7+Math.max(0,la??20)*.42+flight*.035));
+    const control=[(flightFrom[0]+to[0])/2,Math.max(3,Math.min(flightFrom[1],to[1])-rise)];
+    return {
+      from:flightFrom,to,control,depthOnly,isHr,
+      d:'M '+flightFrom[0].toFixed(2)+' '+flightFrom[1].toFixed(2)+' Q '+control[0].toFixed(2)+' '+control[1].toFixed(2)+' '+to[0].toFixed(2)+' '+to[1].toFixed(2)
+    };
+  }
+
+  function mlbZoneInsetData(p,pitcher){
     const detail=p?.detail||{};
     const comparison=detail.zoneComparison||{};
     const throws=String(pitcher?.throws||'').toUpperCase();
@@ -2238,10 +2281,6 @@
     const metricLabel=metricKey==='barrelPct'?'BARREL':metricKey==='hardHitPct'?'HARD HIT':metricKey==='contactPct'?'CONTACT':'AVG';
     const metricBaseline=metricKey?mlbNumber(baseline[metricKey]):null;
     const topZones=new Set((pitcherGroup?.topZones||[]).map(Number));
-    const hasBatter=Boolean(batterGroup||Object.keys(rawZones).length);
-    const hasPitcher=Boolean(pitcherGroup);
-    if(!hasBatter&&!hasPitcher)return '';
-
     const cells=Array.from({length:9},(_,i)=>i+1).map(zone=>{
       const batterZone=batterGroup?.zones?.[zone]||batterGroup?.zones?.[String(zone)]||null;
       const raw=rawZones?.[zone]||rawZones?.[String(zone)]||{};
@@ -2250,63 +2289,75 @@
       const value=metricKey?mlbNumber(batterZone?.[metricKey]):mlbNumber(raw.avg);
       const delta=value!==null&&metricBaseline!==null?value-metricBaseline:null;
       const threshold=metricKey==='contactPct'?5:2;
-      const tone=delta===null?'':delta>=threshold?'is-up':delta<=-threshold?'is-down':'is-even';
-      const top=topZones.has(zone)?' is-top-zone':'';
-      const formatted=value===null?'—':metricKey?researchValue(value,1,'%'):researchRate(value,3);
-      const deltaText=delta===null?'':((delta>=0?'+':'')+delta.toFixed(1)+' pp vs baseline');
-      return '<div class="mlb-zone-cell '+tone+top+'" style="--zone-usage:'+Math.max(0,Math.min(100,usage||0)).toFixed(1)+'%">'
-        +'<div class="mlb-zone-cell-head"><b>Z'+zone+'</b><span>'+esc(usage!==null?researchValue(usage,1,'%'):'—')+'</span></div>'
-        +'<strong>'+esc(metricLabel)+' '+esc(formatted)+'</strong>'
-        +'<small>'+esc(deltaText||('PITCHES '+researchRate(batterZone?.pitches||raw.pitches,0)))+'</small>'
-        +'<i></i>'
-      +'</div>';
-    }).join('');
-
-    const batterLabel=throws?('Batter vs '+throws+'HP'):'Batter all-pitcher sample';
-    const pitcherLabel=effectiveSide?('Starter vs '+effectiveSide+'HB'):'Starter all-batter sample';
-    return '<section class="research-detail-block mlb-zone-matchup">'
-      +'<div class="research-detail-block-head"><span>ZONE MATCHUP</span><b>'+esc(batterLabel)+' · '+esc(pitcherLabel)+'</b></div>'
-      +'<div class="mlb-zone-layout"><div class="mlb-zone-grid">'+cells+'</div><aside class="mlb-zone-legend">'
-        +'<div><small>HITTER METRIC</small><b>'+esc(metricLabel)+'</b><span>'+esc(metricBaseline!==null?('Baseline '+researchValue(metricBaseline,1,'%')):'Zone AVG shown')+'</span></div>'
-        +'<div><small>STARTER LOCATION</small><b>'+esc(pitcherGroup?researchRate(pitcherGroup.pitches,0)+' pitches':'Unavailable')+'</b><span>Bottom bar in each cell = starter zone usage.</span></div>'
-        +'<div><small>READ</small><b>Relative, not predictive</b><span>Cell shading only compares the hitter to his own baseline. It is not a model grade.</span></div>'
-      +'</aside></div>'
-      +'</section>';
+      const tone=delta===null?'':delta>=threshold?'is-hot':delta<=-threshold?'is-cold':'is-neutral';
+      return {zone,usage,value,delta,tone,top:topZones.has(zone)};
+    });
+    return {throws,effectiveSide,pitcherGroup,metricKey,metricLabel,metricBaseline,cells};
   }
 
-  function renderMlbBattedBallVisual(p){
-    const points=(p?.detail?.battedBalls||[]).filter(x=>mlbNumber(x?.ev)!==null&&mlbNumber(x?.la)!==null).slice(0,30);
-    if(points.length<3)return '';
-    const width=620,height=270,left=48,right=604,top=18,bottom=224;
-    const x=v=>left+(Math.max(60,Math.min(120,v))-60)/60*(right-left);
-    const y=v=>bottom-(Math.max(-40,Math.min(60,v))+40)/100*(bottom-top);
-    const circles=points.map(pt=>{
+  function renderMlbFieldTrajectoryVisual(p,pitcher){
+    const points=(p?.detail?.battedBalls||[])
+      .filter(pt=>mlbNumber(pt?.dist)!==null&&mlbNumber(pt?.ev)!==null&&mlbNumber(pt?.la)!==null)
+      .slice(-24)
+      .reverse();
+    const geoms=points.map(pt=>({pt,g:mlbFieldTrajectoryGeometry(pt)})).filter(x=>x.g);
+    const zone=mlbZoneInsetData(p,pitcher);
+    const hasZone=zone.cells.some(c=>c.value!==null||c.usage!==null);
+    if(!geoms.length&&!hasZone)return '';
+
+    const directional=geoms.filter(x=>!x.g.depthOnly);
+    const latest=geoms[0]||null;
+    const ghost=(directional.length?directional:geoms.slice(0,1)).slice(1,10).map(({pt,g})=>{
       const result=String(pt.result||'').toLowerCase();
-      const cls=result==='home_run'?'is-hr':['single','double','triple'].includes(result)?'is-hit':'is-ball';
-      const title=[pt.date,researchValue(pt.ev,1,' mph'),researchValue(pt.la,1,'°'),pt.result].filter(Boolean).join(' · ');
-      return '<circle class="mlb-batted-dot '+cls+'" cx="'+x(Number(pt.ev)).toFixed(1)+'" cy="'+y(Number(pt.la)).toFixed(1)+'" r="4.5"><title>'+esc(title)+'</title></circle>';
+      const cls=result==='home_run'?'is-hr':['single','double','triple'].includes(result)?'is-hit':'is-out';
+      return '<path class="mlb-field-history-path '+cls+'" d="'+g.d+'"></path><circle class="mlb-field-history-dot '+cls+'" cx="'+g.to[0].toFixed(2)+'" cy="'+g.to[1].toFixed(2)+'" r=".72"></circle>';
     }).join('');
-    const avgEv=points.reduce((a,b)=>a+Number(b.ev),0)/points.length;
-    const avgLa=points.reduce((a,b)=>a+Number(b.la),0)/points.length;
-    const hard=points.filter(pt=>Number(pt.ev)>=95).length;
-    const hrs=points.filter(pt=>String(pt.result||'').toLowerCase()==='home_run').length;
-    const x95=x(95),y0=y(0);
-    return '<section class="research-detail-block mlb-batted-visual">'
-      +'<div class="research-detail-block-head"><span>BATTED-BALL QUALITY</span><b>Recent '+points.length+' tracked balls in play</b></div>'
-      +'<div class="mlb-batted-layout"><div class="mlb-batted-chart"><svg viewBox="0 0 '+width+' '+height+'" role="img" aria-label="Recent batted balls by exit velocity and launch angle">'
-        +'<line class="mlb-batted-grid" x1="'+left+'" x2="'+right+'" y1="'+y0.toFixed(1)+'" y2="'+y0.toFixed(1)+'"></line>'
-        +'<line class="mlb-batted-guide" x1="'+x95.toFixed(1)+'" x2="'+x95.toFixed(1)+'" y1="'+top+'" y2="'+bottom+'"></line>'
-        +'<text class="mlb-batted-axis-label" x="'+(x95+5).toFixed(1)+'" y="'+(top+13)+'">95 MPH HARD-HIT LINE</text>'
-        +'<text class="mlb-batted-axis-label" x="'+left+'" y="'+(y0-6).toFixed(1)+'">0° LAUNCH ANGLE</text>'
-        +'<text class="mlb-batted-axis-label" x="'+left+'" y="'+(bottom+28)+'">60 MPH</text><text class="mlb-batted-axis-label" x="'+(right-44)+'" y="'+(bottom+28)+'">120 MPH</text>'
-        +circles
-      +'</svg></div><aside class="mlb-batted-summary">'
-        +'<span><small>AVG EV</small><b>'+esc(researchValue(avgEv,1,' mph'))+'</b></span>'
-        +'<span><small>AVG LA</small><b>'+esc(researchValue(avgLa,1,'°'))+'</b></span>'
-        +'<span><small>95+ MPH</small><b>'+hard+'/'+points.length+'</b></span>'
-        +'<span><small>HR</small><b>'+hrs+'</b></span>'
-        +'<p>Each point is an actual recent batted ball from Savant. Orange = HR, blue = hit, gray = other result.</p>'
-      +'</aside></div>'
+
+    const primary=latest?(()=>{
+      const {pt,g}=latest;
+      const title=[pt.date,pt.result,researchValue(pt.ev,1,' mph'),researchValue(pt.la,1,'°'),researchValue(pt.dist,0,' ft')].filter(Boolean).join(' · ');
+      return '<path class="mlb-field-primary-glow" pathLength="1" d="'+g.d+'"></path>'
+        +'<path class="mlb-field-primary-path" pathLength="1" d="'+g.d+'"><title>'+esc(title)+'</title></path>'
+        +'<circle class="mlb-field-landing" cx="'+g.to[0].toFixed(2)+'" cy="'+g.to[1].toFixed(2)+'" r="1.0"></circle>'
+        +'<circle class="mlb-field-flight-ball" r=".78"><animateMotion dur="2.8s" repeatCount="indefinite" path="'+g.d+'"></animateMotion></circle>';
+    })():'';
+
+    const zoneCells=zone.cells.map(c=>{
+      const val=c.value===null?'—':zone.metricKey?researchValue(c.value,1,'%'):researchRate(c.value,3);
+      const usage=c.usage===null?'':researchValue(c.usage,0,'%');
+      return '<span class="'+c.tone+(c.top?' is-top':'')+'"><small>Z'+c.zone+'</small><b>'+esc(val)+'</b><em>'+esc(usage)+'</em></span>';
+    }).join('');
+
+    const avgEv=geoms.length?geoms.reduce((sum,x)=>sum+Number(x.pt.ev),0)/geoms.length:null;
+    const avgLa=geoms.length?geoms.reduce((sum,x)=>sum+Number(x.pt.la),0)/geoms.length:null;
+    const hard=geoms.filter(x=>Number(x.pt.ev)>=95).length;
+    const latestPt=latest?.pt||{};
+    const directionalNote=directional.length
+      ?directional.length+' of '+geoms.length+' recent balls have verified spray coordinates'
+      :'Depth-only fallback until the next Statcast enrichment adds hit direction';
+
+    return '<section class="research-detail-block mlb-field-trajectory">'
+      +'<div class="research-detail-block-head"><span>CONTACT FIELD</span><b>1.0 field concept · real Statcast trajectory</b></div>'
+      +'<div class="mlb-field-trajectory-layout">'
+        +'<div class="mlb-field-stage">'
+          +'<img src="'+MLB_APPROVED_FIELD_SRC+'" alt="Approved The Sports Outpost baseball field">'
+          +'<svg class="mlb-field-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Recent batted-ball trajectories on field">'
+            +ghost+primary
+          +'</svg>'
+          +'<div class="mlb-field-hud">'
+            +'<span><small>AVG EV</small><b>'+esc(avgEv!==null?researchValue(avgEv,1,' mph'):'—')+'</b></span>'
+            +'<span><small>AVG LA</small><b>'+esc(avgLa!==null?researchValue(avgLa,1,'°'):'—')+'</b></span>'
+            +'<span><small>95+ MPH</small><b>'+hard+'/'+geoms.length+'</b></span>'
+            +'<span><small>LATEST</small><b>'+esc(mlbNumber(latestPt.dist)!==null?researchValue(latestPt.dist,0,' ft'):'—')+'</b></span>'
+          +'</div>'
+          +'<div class="mlb-field-truth">'+esc(directionalNote)+'</div>'
+        +'</div>'
+        +'<aside class="mlb-field-side">'
+          +'<div class="mlb-field-latest"><small>LATEST TRACKED CONTACT</small><b>'+esc(latestPt.result?String(latestPt.result).replaceAll('_',' ').toUpperCase():'—')+'</b><span>'+esc([latestPt.date,mlbNumber(latestPt.ev)!==null?researchValue(latestPt.ev,1,' mph'):null,mlbNumber(latestPt.la)!==null?researchValue(latestPt.la,1,'°'):null].filter(Boolean).join(' · '))+'</span></div>'
+          +(hasZone?'<div class="mlb-field-zone-panel"><header><div><small>ZONE MATCHUP</small><b>'+esc(zone.metricLabel)+'</b></div><span>'+esc(zone.throws?('Batter vs '+zone.throws+'HP'):'All pitchers')+'</span></header><div class="mlb-field-zone-grid">'+zoneCells+'</div><footer><span>Cell value = hitter</span><span>Yellow % = starter usage</span></footer></div>':'')
+          +'<div class="mlb-field-note"><b>HOW TO READ IT</b><p>The blue flight path uses the same 1.0 home-plate-to-field trajectory geometry. Recent landing paths use actual Savant distance and spray coordinates when present. The compact zone inset keeps the matchup information without turning the modal into a spreadsheet.</p></div>'
+        +'</aside>'
+      +'</div>'
       +'</section>';
   }
 
@@ -2337,16 +2388,14 @@
     const statcastVisual=renderMlbStatcastProfile(p);
     const bvpVisual=renderMlbBvpVisual(p,pitcher);
     const pitchVisual=renderMlbPitchMatchup(p,pitcher);
-    const zoneVisual=renderMlbZoneMatchup(p,pitcher);
-    const battedVisual=renderMlbBattedBallVisual(p);
+    const fieldVisual=renderMlbFieldTrajectoryVisual(p,pitcher);
     return '<section class="research-detail-status"><span class="deep-source-chip">MLB STATS + SAVANT + OPEN-METEO</span><b>'+esc((p.team||'MLB')+' · '+(p.position||'Player')+(p.battingOrder?' · batting #'+p.battingOrder:''))+'</b><small>'+esc('Slate '+researchAge(data.generatedAt)+(data.statcastEnrichedAt?' · Statcast '+researchAge(data.statcastEnrichedAt):''))+'</small></section>'
       +performanceVisual
       +environmentVisual
       +statcastVisual
       +bvpVisual
       +pitchVisual
-      +zoneVisual
-      +battedVisual;
+      +fieldVisual;
   }
 
   function researchDetailBody(data,row){
