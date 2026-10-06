@@ -3066,7 +3066,7 @@ body{
 .nhl-scorer-players{display:grid;gap:7px}
 .nhl-scorer-player{
   position:relative;display:grid;
-  grid-template-columns:58px minmax(0,1fr) 128px;
+  grid-template-columns:58px minmax(0,1fr) 152px;
   grid-template-rows:auto auto;gap:5px 10px;align-items:center;min-height:112px;padding:11px 11px 10px 10px;
   border:1px solid rgba(var(--scorer-rgb),.36);
   background:linear-gradient(100deg,rgba(var(--scorer-rgb),.12),rgba(5,10,17,.97) 38%,#05080c);
@@ -3093,14 +3093,14 @@ body{
 .nhl-scorer-player-copy small{display:block;color:#67727e;font-size:12px;font-weight:900;letter-spacing:.07em}
 .nhl-scorer-player-copy h4{margin:4px 0 0;font-size:13px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nhl-scorer-player-copy p{margin:5px 0 0;color:#7b8691;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.nhl-scorer-player-metrics{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.nhl-scorer-player-metrics{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:5px;min-width:0;width:100%;max-width:100%;overflow:hidden}
 .nhl-scorer-player-metrics>span{
-  min-height:56px;display:flex;flex-direction:column;justify-content:center;padding:7px;
-  border:1px solid rgba(var(--scorer-rgb),.22);background:#060a10;text-align:center
+  min-width:0;max-width:100%;min-height:56px;display:flex;flex-direction:column;justify-content:center;padding:7px 5px;
+  border:1px solid rgba(var(--scorer-rgb),.22);background:#060a10;text-align:center;overflow:hidden
 }
-.nhl-scorer-player-metrics small{color:#67727e;font-size:12px;font-weight:950;letter-spacing:.07em}
-.nhl-scorer-player-metrics b{margin-top:4px;color:#f2f6fb;font-size:12px}
-.nhl-scorer-player-metrics em{margin-top:3px;color:#67727e;font-size:12px;font-style:normal}
+.nhl-scorer-player-metrics small{display:block;max-width:100%;color:#67727e;font-size:12px;font-weight:950;letter-spacing:.04em;line-height:1.15;white-space:normal;overflow-wrap:break-word}
+.nhl-scorer-player-metrics b{display:block;max-width:100%;margin-top:4px;color:#f2f6fb;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nhl-scorer-player-metrics em{display:block;max-width:100%;margin-top:3px;color:#67727e;font-size:12px;font-style:normal;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .nhl-scorer-matchup{
   grid-column:2/4;display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;
   padding-top:5px;border-top:1px solid rgba(255,255,255,.055)
@@ -3133,7 +3133,7 @@ body{
   .nhl-scorer-matchup-title>b{font-size:13px}
   .nhl-scorer-matchup-logo{width:31px!important;height:31px!important}
   .nhl-scorer-team{padding:8px}
-  .nhl-scorer-player{grid-template-columns:48px minmax(0,1fr) 112px;min-height:102px;padding:9px}
+  .nhl-scorer-player{grid-template-columns:48px minmax(0,1fr) 144px;min-height:102px;padding:9px}
   .nhl-scorer-photo{width:44px;height:44px}
   .nhl-scorer-player-copy h4{font-size:12px}
   .nhl-scorer-player-metrics b{font-size:12px}
@@ -4984,4 +4984,21 @@ small{line-height:1.4}
   .research-detail-player h2{font-size:27px!important}
   .research-detail-player p{font-size:13px!important}
   .research-detail-metrics b{font-size:18px!important}
+}
+
+
+/* TSO2 NHL ODDS CELL CONTAINMENT */
+.nhl-scorer-player{overflow:hidden}
+.nhl-scorer-player-metrics{box-sizing:border-box}
+.nhl-scorer-player-metrics>span{box-sizing:border-box}
+@media(max-width:560px){
+  .nhl-scorer-player{
+    grid-template-columns:46px minmax(0,1fr);
+    grid-template-rows:auto auto auto;
+  }
+  .nhl-scorer-player-metrics{
+    grid-column:1/-1;
+    width:100%;
+  }
+  .nhl-scorer-matchup{grid-column:1/-1}
 }
