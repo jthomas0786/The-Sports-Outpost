@@ -41,9 +41,10 @@
   const LIVE_POLL_MS = 30000;
   const PROPS_FEED_TTL = 30000;
   const PROPS_POLL_MS = 60000;
-  let scoreTickerTimer = null;
+  let scoreTickerFrame = null;
   let scoreTickerPaused = false;
-  const SCORE_TICKER_MS = 3200;
+  let scoreTickerLastTs = 0;
+  const SCORE_TICKER_PX_PER_SECOND = 30;
 
   const normalizeHandle = value => String(value || '').trim().replace(/^@/, '').toLowerCase();
   const currentUserHandle = () => normalizeHandle(
@@ -169,43 +170,50 @@
   }
 
   function stopScoreTicker(){
-    if(scoreTickerTimer){
-      window.clearInterval(scoreTickerTimer);
-      scoreTickerTimer=null;
+    if(scoreTickerFrame){
+      window.cancelAnimationFrame(scoreTickerFrame);
+      scoreTickerFrame=null;
     }
-  }
-
-  function scoreTickerStep(strip){
-    if(!strip || scoreTickerPaused || strip.scrollWidth <= strip.clientWidth + 4) return;
-    const tiles=[...strip.querySelectorAll('.score-tile')];
-    if(!tiles.length) return;
-    const first=tiles[0], second=tiles[1];
-    const step=Math.max(180,second ? second.offsetLeft-first.offsetLeft : first.offsetWidth);
-    const maxScroll=Math.max(0,strip.scrollWidth-strip.clientWidth);
-    if(strip.scrollLeft >= maxScroll-step*.55){
-      strip.scrollTo({left:0,behavior:'smooth'});
-    }else{
-      strip.scrollBy({left:step,behavior:'smooth'});
-    }
+    scoreTickerLastTs=0;
   }
 
   function bindScoreTicker(strip){
     stopScoreTicker();
     if(!strip) return;
-    scoreTickerPaused=false;
+    const viewport=strip.querySelector('[data-score-ticker-viewport]');
+    const firstSet=strip.querySelector('[data-score-ticker-set="primary"]');
+    if(!viewport||!firstSet)return;
 
+    scoreTickerPaused=false;
     const pause=()=>{scoreTickerPaused=true};
-    const resume=()=>{scoreTickerPaused=false};
+    const resume=()=>{scoreTickerPaused=false;scoreTickerLastTs=0};
 
     strip.addEventListener('mouseenter',pause);
     strip.addEventListener('mouseleave',resume);
     strip.addEventListener('focusin',pause);
     strip.addEventListener('focusout',resume);
     strip.addEventListener('touchstart',pause,{passive:true});
-    strip.addEventListener('touchend',()=>window.setTimeout(resume,1200),{passive:true});
+    strip.addEventListener('touchend',()=>window.setTimeout(resume,900),{passive:true});
 
     if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-    scoreTickerTimer=window.setInterval(()=>scoreTickerStep(strip),SCORE_TICKER_MS);
+
+    const tick=ts=>{
+      if(!scoreTickerLastTs)scoreTickerLastTs=ts;
+      const delta=Math.min(48,ts-scoreTickerLastTs);
+      scoreTickerLastTs=ts;
+
+      if(!scoreTickerPaused){
+        const loopWidth=firstSet.getBoundingClientRect().width;
+        if(loopWidth>0){
+          viewport.scrollLeft += SCORE_TICKER_PX_PER_SECOND*(delta/1000);
+          if(viewport.scrollLeft>=loopWidth){
+            viewport.scrollLeft-=loopWidth;
+          }
+        }
+      }
+      scoreTickerFrame=window.requestAnimationFrame(tick);
+    };
+    scoreTickerFrame=window.requestAnimationFrame(tick);
   }
 
   function renderGlobalScoreStrip(){
@@ -218,14 +226,22 @@
     const label = liveCount
       ? '<div class="score-strip-label"><span class="pulse"></span>'+liveCount+' LIVE</div>'
       : '<div class="score-strip-label"><span class="pulse is-idle"></span>TODAY</div>';
-    const tiles = visible.length
+    const primaryTiles = visible.length
       ? visible.map(liveTileMarkup).join('')
       : '<div class="score-strip-empty">No games returned for today.</div>';
-    strip.innerHTML = label + tiles + '<button class="score-more" data-route-jump="live">FULL SCOREBOARD →</button>';
+    const cloneTiles = visible.length>1
+      ? visible.map(liveTileMarkup).join('')
+      : '';
+    const ticker = visible.length
+      ? '<div class="score-ticker-viewport" data-score-ticker-viewport><div class="score-ticker-track"><div class="score-ticker-set" data-score-ticker-set="primary">'+primaryTiles+'</div>'+(cloneTiles?'<div class="score-ticker-set score-ticker-set--clone" aria-hidden="true">'+cloneTiles+'</div>':'')+'</div></div>'
+      : primaryTiles;
+    strip.innerHTML = label + ticker + '<button class="score-more" data-route-jump="live">FULL SCOREBOARD →</button>';
     strip.querySelector('[data-route-jump="live"]')?.addEventListener('click',()=>setRoute('live'));
     bindLiveGeneratedActions();
-    strip.scrollLeft=0;
-    bindScoreTicker(strip);
+    const viewport=strip.querySelector('[data-score-ticker-viewport]');
+    if(viewport)viewport.scrollLeft=0;
+    if(visible.length>1)bindScoreTicker(strip);
+    else stopScoreTicker();
   }
 
   function featureGameMarkup(game,home=false){
