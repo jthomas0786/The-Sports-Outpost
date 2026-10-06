@@ -41,10 +41,8 @@
   const LIVE_POLL_MS = 30000;
   const PROPS_FEED_TTL = 30000;
   const PROPS_POLL_MS = 60000;
-  let scoreTickerFrame = null;
-  let scoreTickerPaused = false;
-  let scoreTickerLastTs = 0;
-  const SCORE_TICKER_PX_PER_SECOND = 30;
+  let scoreTickerResumeTimer = null;
+  const SCORE_TICKER_PX_PER_SECOND = 34;
 
   const normalizeHandle = value => String(value || '').trim().replace(/^@/, '').toLowerCase();
   const currentUserHandle = () => normalizeHandle(
@@ -170,50 +168,52 @@
   }
 
   function stopScoreTicker(){
-    if(scoreTickerFrame){
-      window.cancelAnimationFrame(scoreTickerFrame);
-      scoreTickerFrame=null;
+    if(scoreTickerResumeTimer){
+      window.clearTimeout(scoreTickerResumeTimer);
+      scoreTickerResumeTimer=null;
     }
-    scoreTickerLastTs=0;
+    document.querySelectorAll('.score-ticker-track').forEach(track=>{
+      track.classList.remove('is-running','is-paused');
+      track.style.removeProperty('--ticker-distance');
+      track.style.removeProperty('--ticker-duration');
+    });
   }
 
   function bindScoreTicker(strip){
     stopScoreTicker();
     if(!strip) return;
-    const viewport=strip.querySelector('[data-score-ticker-viewport]');
+    const track=strip.querySelector('.score-ticker-track');
     const firstSet=strip.querySelector('[data-score-ticker-set="primary"]');
-    if(!viewport||!firstSet)return;
+    if(!track||!firstSet)return;
 
-    scoreTickerPaused=false;
-    const pause=()=>{scoreTickerPaused=true};
-    const resume=()=>{scoreTickerPaused=false;scoreTickerLastTs=0};
+    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+
+    const start=()=>{
+      const loopWidth=firstSet.getBoundingClientRect().width;
+      if(loopWidth<=0)return;
+      const duration=Math.max(12,loopWidth/SCORE_TICKER_PX_PER_SECOND);
+      track.style.setProperty('--ticker-distance',loopWidth+'px');
+      track.style.setProperty('--ticker-duration',duration.toFixed(2)+'s');
+      track.classList.add('is-running');
+      track.classList.remove('is-paused');
+    };
+    const pause=()=>track.classList.add('is-paused');
+    const resume=()=>{
+      if(scoreTickerResumeTimer)window.clearTimeout(scoreTickerResumeTimer);
+      scoreTickerResumeTimer=window.setTimeout(()=>track.classList.remove('is-paused'),250);
+    };
 
     strip.addEventListener('mouseenter',pause);
     strip.addEventListener('mouseleave',resume);
     strip.addEventListener('focusin',pause);
     strip.addEventListener('focusout',resume);
     strip.addEventListener('touchstart',pause,{passive:true});
-    strip.addEventListener('touchend',()=>window.setTimeout(resume,900),{passive:true});
+    strip.addEventListener('touchend',()=>{
+      if(scoreTickerResumeTimer)window.clearTimeout(scoreTickerResumeTimer);
+      scoreTickerResumeTimer=window.setTimeout(()=>track.classList.remove('is-paused'),700);
+    },{passive:true});
 
-    if(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-
-    const tick=ts=>{
-      if(!scoreTickerLastTs)scoreTickerLastTs=ts;
-      const delta=Math.min(48,ts-scoreTickerLastTs);
-      scoreTickerLastTs=ts;
-
-      if(!scoreTickerPaused){
-        const loopWidth=firstSet.getBoundingClientRect().width;
-        if(loopWidth>0){
-          viewport.scrollLeft += SCORE_TICKER_PX_PER_SECOND*(delta/1000);
-          if(viewport.scrollLeft>=loopWidth){
-            viewport.scrollLeft-=loopWidth;
-          }
-        }
-      }
-      scoreTickerFrame=window.requestAnimationFrame(tick);
-    };
-    scoreTickerFrame=window.requestAnimationFrame(tick);
+    requestAnimationFrame(()=>requestAnimationFrame(start));
   }
 
   function renderGlobalScoreStrip(){
