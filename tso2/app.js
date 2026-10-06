@@ -1877,6 +1877,60 @@
       +(games?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Most recent verified production</b></div><div class="research-detail-log">'+games+'</div></section>':'');
   }
 
+  function nhlResearchSeriesFilter(series,row,view='all'){
+    const normalized=String(view||'all').toLowerCase();
+    if(normalized==='home')return series.filter(item=>String(item.homeAway||'').toLowerCase()==='home');
+    if(normalized==='away')return series.filter(item=>String(item.homeAway||'').toLowerCase()==='away');
+    if(normalized==='h2h'){
+      const opponent=String(researchOpponentForRow(row)||'').toUpperCase();
+      return opponent?series.filter(item=>String(item.opponent||'').toUpperCase()===opponent):[];
+    }
+    return series;
+  }
+
+  function renderNhlResearchChart(data,row,range='10',view='all'){
+    const allSeries=propSeriesForRow(data,row);
+    if(!allSeries.length||!Number.isFinite(Number(row?.line)))return '';
+    const filtered=nhlResearchSeriesFilter(allSeries,row,view);
+    const ranged=propChartRangeSeries(filtered,range);
+    const stats=propWindowStats(ranged,row);
+    const opponent=researchOpponentForRow(row);
+    const h2hCount=opponent?allSeries.filter(item=>String(item.opponent||'').toUpperCase()===String(opponent).toUpperCase()).length:0;
+    const controls=[
+      ['all','ALL'],
+      ['home','HOME'],
+      ['away','AWAY'],
+      ...(h2hCount?[['h2h','H2H '+h2hCount]]:[])
+    ];
+    const venueControls=controls.map(([key,label])=>'<button type="button" data-nhl-chart-view="'+key+'" class="'+(String(view)===key?'is-active':'')+'">'+esc(label)+'</button>').join('');
+    const summary=stats&&ranged.length
+      ?'<div class="nhl-chart-summary"><span><small>AVG</small><b>'+esc(researchRate(stats.avg,1))+'</b></span><span><small>HITS</small><b>'+stats.hits+'/'+(stats.hits+stats.losses)+'</b></span><span><small>GAMES</small><b>'+stats.games+'</b></span></div>'
+      :'';
+    const chart=filtered.length
+      ?renderPropRecentChart(filtered,row,range)
+      :'<div class="prop-intel-empty nhl-chart-empty"><b>No verified '+esc(String(view).toUpperCase())+' sample.</b><small>TSO will not backfill this filter with unrelated games.</small></div>';
+    return '<section class="research-detail-block nhl-performance-visual" data-nhl-performance-chart>'
+      +'<div class="research-detail-block-head nhl-performance-head"><div><span>EXACT-LINE PERFORMANCE</span><b>'+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</b></div><div class="nhl-chart-view-tabs">'+venueControls+'</div></div>'
+      +summary+chart
+      +'</section>';
+  }
+
+  function bindNhlResearchChart(node,data,row,state={range:'10',view:'all'}){
+    if(!node)return;
+    node.querySelectorAll('[data-props-chart-range]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.range=String(btn.dataset.propsChartRange||'10');
+      node.outerHTML=renderNhlResearchChart(data,row,state.range,state.view);
+      const replacement=document.querySelector('.research-detail-content [data-nhl-performance-chart]');
+      bindNhlResearchChart(replacement,data,row,state);
+    }));
+    node.querySelectorAll('[data-nhl-chart-view]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.view=String(btn.dataset.nhlChartView||'all');
+      node.outerHTML=renderNhlResearchChart(data,row,state.range,state.view);
+      const replacement=document.querySelector('.research-detail-content [data-nhl-performance-chart]');
+      bindNhlResearchChart(replacement,data,row,state);
+    }));
+  }
+
   function nhlWindow(rows,count,key){
     const vals=(rows||[]).slice(0,count).map(g=>Number(g?.stats?.[key])).filter(Number.isFinite);
     return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
@@ -1903,7 +1957,9 @@
       ['OPP OFFENSE',researchRate(d.recent10OffenseIndex,2),'1.00 = league avg']
     ].filter(x=>x[1]!=='—');
     const logs=games.slice(0,10).map(g=>'<div class="research-detail-log-row"><span>'+esc(String(g.date||'').slice(0,10))+'</span><b>'+esc((g.team||'')+' '+(g.homeAway==='away'?'@':'vs')+' '+(g.opponent||'—'))+'</b><em>'+esc('SOG '+researchRate(g.stats?.sog,0)+' · G '+researchRate(g.stats?.goals,0)+' · A '+researchRate(g.stats?.assists,0)+' · PTS '+researchRate(g.stats?.points,0)+(g.firstGoal?' · FIRST GOAL':''))+'</em></div>').join('');
+    const performanceVisual=renderNhlResearchChart(data,row);
     return '<section class="research-detail-status"><span class="deep-source-chip">ESPN VERIFIED HISTORY</span><b>'+esc(games.length+' recent game'+(games.length===1?'':'s')+' loaded')+'</b><small>'+esc('Research snapshot '+researchAge(data.generatedAt))+'</small></section>'
+      +performanceVisual
       +'<section class="research-detail-block"><div class="research-detail-block-head"><span>FORM WINDOWS</span><b>L5 · L10 · L30</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
       +(defense.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>OPPONENT DEFENSE</span><b>'+esc(p.opponent||researchOpponentForRow(row)||'Current matchup')+'</b></div><div class="research-detail-metrics">'+defense.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
       +(logs?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Verified box-score history</b></div><div class="research-detail-log">'+logs+'</div></section>':'');
@@ -1990,7 +2046,13 @@
         if(!response.ok&&!payload?.reason)throw new Error(payload?.error||('Research HTTP '+response.status));
         deepResearchCache.set(key,payload);
       }
-      if(content)content.innerHTML=researchDetailBody(payload,row);
+      if(content){
+        content.innerHTML=researchDetailBody(payload,row);
+        if(payload?.sport==='nhl'){
+          const chartNode=content.querySelector('[data-nhl-performance-chart]');
+          bindNhlResearchChart(chartNode,payload,row,{range:'10',view:'all'});
+        }
+      }
     }catch(error){
       if(content)content.innerHTML='<div class="research-detail-empty"><b>Verified deep research could not be loaded.</b><small>'+esc(error?.message||String(error))+'</small></div>';
     }
@@ -2383,7 +2445,7 @@
         else if(market==='points')value=Number(g?.stats?.points);
         else if(market==='blocks')value=Number(g?.stats?.blocks);
         else if(market==='saves')value=Number(g?.stats?.saves);
-        if(Number.isFinite(value))out.push({date:g.date||null,season:g.season??null,value,source:g.source||'ESPN game summary'});
+        if(Number.isFinite(value))out.push({date:g.date||null,season:g.season??null,value,opponent:g.opponent||null,homeAway:g.homeAway||null,source:g.source||'ESPN game summary'});
       }
       return out;
     }
@@ -2476,7 +2538,7 @@
       const state=push?'PUSH':hit?'HIT':'MISS';
       return '<span class="prop-game-chart-cell '+(push?'is-push':hit?'is-hit':'is-miss')+'" title="'+esc(String(item.date||''))+' · '+esc(researchRate(value,1))+' · '+state+'">'
         +'<span class="prop-game-chart-track"><i class="prop-game-chart-bar" style="--bar-h:'+height.toFixed(1)+'px"></i><b>'+esc(researchRate(value,1))+'</b></span>'
-        +'<small>'+esc(propChartDateLabel(item.date))+'</small></span>';
+        +'<small>'+esc(propChartDateLabel(item.date))+'</small>'+(item.opponent?'<em>'+esc((item.homeAway==='away'?'@ ':'vs ')+item.opponent)+'</em>':'')+'</span>';
     }).join('');
     return '<section class="prop-game-chart">'
       +'<div class="prop-game-chart-head"><div><b>RECENT GAME PERFORMANCE</b><small>verified result vs exact '+esc(propSelectionText(row))+' threshold</small></div><div class="prop-game-chart-ranges">'+chips+'</div></div>'
