@@ -2361,6 +2361,330 @@
       +'</section>';
   }
 
+  const MLB_CONTACT_DAYS=14;
+  const MLB_CONTACT_FIELD_SRC='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/preview-hero.jpg';
+  const mlbContactCache=new Map();
+  const mlbContactFeedCache=new Map();
+  const MLB_CONTACT_HOME_X=125,MLB_CONTACT_HOME_Y=199;
+  const MLB_CONTACT_PITCH_GROUP={
+    Fastball:['FF','FT','SI','FC','FA'],
+    Breaking:['SL','CU','KC','ST','CS','SC','SV'],
+    Offspeed:['CH','FS','FO','KN','EP','PO','AB']
+  };
+
+  function mlbContactBarrel(ev,la){
+    const e=Number(ev),a=Number(la);
+    if(!Number.isFinite(e)||!Number.isFinite(a)||e<98)return false;
+    const d=e-98,lo=Math.max(-9,26-d),hi=Math.min(40,30+d);
+    return a>=lo&&a<=hi;
+  }
+
+  function mlbContactPitchGroup(code){
+    const c=String(code||'').toUpperCase();
+    for(const [group,codes] of Object.entries(MLB_CONTACT_PITCH_GROUP))if(codes.includes(c))return group;
+    return null;
+  }
+
+  function mlbContactKind(outcome){
+    const o=String(outcome||'').toLowerCase();
+    if(o.includes('home run'))return 'hr';
+    if(['single','double','triple'].some(k=>o.includes(k)))return 'hit';
+    if(o.includes('error'))return 'err';
+    return 'out';
+  }
+
+  function mlbContactColor(ball){
+    const k=mlbContactKind(ball?.outcome);
+    if(k==='hr')return '#6EDCFF';
+    if(k==='hit')return '#b8c4d4';
+    if(k==='err')return '#f59e0b';
+    return '#5a6273';
+  }
+
+  async function fetchMlbContactBalls(playerId){
+    const id=String(playerId||'');
+    if(!/^\d+$/.test(id))return {balls:[],error:'no player id'};
+    const cached=mlbContactCache.get(id);
+    if(cached&&Date.now()-cached.fetchedAt<5*60*1000)return cached;
+
+    const season=new Date().getFullYear();
+    const glRes=await fetch('https://statsapi.mlb.com/api/v1/people/'+encodeURIComponent(id)+'/stats?stats=gameLog&group=hitting&season='+season+'&gameType=R',{cache:'no-store'});
+    if(!glRes.ok)throw new Error('MLB game log fetch failed');
+    const gl=await glRes.json();
+    const splits=gl?.stats?.[0]?.splits||[];
+    const cutoff=Date.now()-MLB_CONTACT_DAYS*864e5;
+    const games=[];
+    for(const split of splits){
+      const time=split?.date?Date.parse(split.date):NaN;
+      if(!Number.isFinite(time)||time<cutoff)continue;
+      games.push({
+        gamePk:split?.game?.gamePk,
+        date:split?.date,
+        opp:split?.opponent?.abbreviation
+      });
+    }
+    games.reverse();
+
+    const balls=[];
+    await Promise.all(games.map(async game=>{
+      if(!game.gamePk)return;
+      let feed=mlbContactFeedCache.get(String(game.gamePk));
+      if(!feed){
+        try{
+          const response=await fetch('https://statsapi.mlb.com/api/v1.1/game/'+encodeURIComponent(game.gamePk)+'/feed/live',{cache:'no-store'});
+          if(!response.ok)return;
+          feed=await response.json();
+          mlbContactFeedCache.set(String(game.gamePk),feed);
+        }catch(error){return;}
+      }
+      const plays=feed?.liveData?.plays?.allPlays||[];
+      for(const play of plays){
+        const matchup=play?.matchup||{};
+        if(String(matchup?.batter?.id||'')!==id)continue;
+        for(const event of play?.playEvents||[]){
+          if(!event?.hitData)continue;
+          const hit=event.hitData,details=event.details||{},type=details.type||{},coords=hit.coordinates||{},about=play.about||{};
+          balls.push({
+            ev:hit.launchSpeed!=null?Number(hit.launchSpeed):null,
+            la:hit.launchAngle!=null?Number(hit.launchAngle):null,
+            dist:hit.totalDistance!=null?Number(hit.totalDistance):null,
+            cx:coords.coordX!=null?Number(coords.coordX):null,
+            cy:coords.coordY!=null?Number(coords.coordY):null,
+            traj:hit.trajectory||null,
+            hard:hit.hardness||null,
+            pitchCode:type.code||null,
+            pitchName:type.description||null,
+            pHand:matchup?.pitchHand?.code||null,
+            outcome:play?.result?.event||null,
+            date:game.date||null,
+            opp:game.opp||null,
+            inning:about.inning||null,
+            gamePk:game.gamePk
+          });
+        }
+      }
+    }));
+    balls.sort((a,b)=>(String(a.date)<String(b.date)?1:String(a.date)>String(b.date)?-1:0)||((b.inning||0)-(a.inning||0)));
+    const result={balls,fetchedAt:Date.now(),games:games.length};
+    mlbContactCache.set(id,result);
+    return result;
+  }
+
+  function animateMlbContactTrajectories(host){
+    if(!host)return;
+    const wrap=host.querySelector('.mlb-cq-field-wrap');
+    const svg=wrap?.querySelector('.mlb-cq-field');
+    if(!wrap||!svg)return;
+
+    if(host._mlbSprayObserver){
+      try{host._mlbSprayObserver.disconnect()}catch(error){}
+      host._mlbSprayObserver=null;
+    }
+
+    const paths=[...svg.querySelectorAll('.mlb-cq-arc')];
+    const lands=[...svg.querySelectorAll('.mlb-cq-land')];
+    if(!paths.length)return;
+    const reduce=window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+
+    paths.forEach(path=>{
+      const finalOpacity=path.getAttribute('opacity')||'1';
+      path.dataset.finalOpacity=finalOpacity;
+      if(reduce)return;
+      let len=1;
+      try{
+        const userLen=Math.max(1,path.getTotalLength());
+        const ctm=path.getScreenCTM();
+        const sx=ctm?Math.hypot(ctm.a,ctm.b):1;
+        const sy=ctm?Math.hypot(ctm.c,ctm.d):sx;
+        len=Math.max(1,userLen*Math.max(.01,(sx+sy)/2));
+      }catch(error){}
+      path.dataset.pathLen=String(len);
+      path.style.transition='none';
+      path.style.strokeDasharray=len+'px '+len+'px';
+      path.style.strokeDashoffset=len+'px';
+      path.style.opacity='0';
+    });
+
+    lands.forEach(dot=>{
+      dot.dataset.finalOpacity=dot.getAttribute('opacity')||'1';
+      if(reduce)return;
+      dot.style.transition='none';
+      dot.style.opacity='0';
+      dot.style.transform='scale(.18)';
+      dot.style.transformBox='fill-box';
+      dot.style.transformOrigin='center';
+    });
+    if(reduce)return;
+
+    let started=false;
+    const start=()=>{
+      if(started)return;
+      started=true;
+      if(host._mlbSprayObserver){
+        try{host._mlbSprayObserver.disconnect()}catch(error){}
+        host._mlbSprayObserver=null;
+      }
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        paths.forEach((path,index)=>{
+          const len=Number(path.dataset.pathLen)||1;
+          const delay=Math.min(index*48,720);
+          const duration=Math.round(620+Math.min(len*.48,330));
+          path.style.transition='stroke-dashoffset '+duration+'ms cubic-bezier(.22,.61,.36,1) '+delay+'ms, opacity 160ms ease '+delay+'ms';
+          path.style.strokeDashoffset='0px';
+          path.style.opacity=path.dataset.finalOpacity||'1';
+          const finish=()=>{
+            path.style.transition='none';
+            path.style.strokeDasharray='none';
+            path.style.strokeDashoffset='0';
+            path.style.opacity=path.dataset.finalOpacity||'1';
+          };
+          window.setTimeout(finish,delay+duration+90);
+          const dot=lands[index];
+          if(dot){
+            const dotDelay=delay+Math.round(duration*.78);
+            dot.style.transition='transform 300ms cubic-bezier(.2,1.55,.45,1) '+dotDelay+'ms, opacity 170ms ease '+dotDelay+'ms';
+            dot.style.opacity=dot.dataset.finalOpacity||'1';
+            dot.style.transform='scale(1)';
+            window.setTimeout(()=>{
+              dot.style.transition='none';
+              dot.style.opacity=dot.dataset.finalOpacity||'1';
+              dot.style.transform='scale(1)';
+            },dotDelay+360);
+          }
+        });
+      }));
+    };
+
+    const rect=wrap.getBoundingClientRect();
+    const visible=rect.bottom>0&&rect.top<(window.innerHeight||document.documentElement.clientHeight)*.94;
+    if(visible)start();
+    else if('IntersectionObserver' in window){
+      host._mlbSprayObserver=new IntersectionObserver(entries=>{
+        if(entries.some(entry=>entry.isIntersecting))start();
+      },{threshold:.18});
+      host._mlbSprayObserver.observe(wrap);
+    }else start();
+  }
+
+  function renderMlbContactRecentRows(rows){
+    if(!rows.length)return '<div class="mlb-cq-empty">No matching recent batted balls.</div>';
+    return '<div class="mlb-cq-recent"><div class="mlb-cq-recent-head"><span>DATE / OPP</span><span>PITCH</span><span>EV</span><span>LA</span><span>DIST</span><span>RESULT</span></div>'
+      +rows.slice(0,12).map(ball=>{
+        const kind=mlbContactKind(ball.outcome);
+        const barrel=mlbContactBarrel(ball.ev,ball.la);
+        const result=kind==='hr'?'HR':kind==='hit'?'HIT':kind==='err'?'ERR':'OUT';
+        return '<div class="mlb-cq-recent-row '+(barrel?'is-barrel':kind==='hr'||kind==='hit'?'is-hit':'')+'">'
+          +'<span><b>'+esc(ball.date?String(ball.date).slice(5):'—')+'</b><small>'+esc(ball.opp?('vs '+ball.opp):'—')+'</small></span>'
+          +'<span><b>'+esc(ball.pitchCode||'?')+'</b><small>'+esc(ball.pitchName||'Pitch')+'</small></span>'
+          +'<span><b>'+esc(ball.ev!=null?researchValue(ball.ev,0,''):'—')+'</b><small>MPH</small></span>'
+          +'<span><b>'+esc(ball.la!=null?researchValue(ball.la,0,'°'):'—')+'</b><small>LA</small></span>'
+          +'<span><b>'+esc(ball.dist!=null?researchValue(ball.dist,0,''):'—')+'</b><small>FT</small></span>'
+          +'<span class="mlb-cq-result" style="--cq-result:'+mlbContactColor(ball)+'">'+esc(result)+'</span>'
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }
+
+  function drawMlbContactQuality(host,balls,pitcher,state){
+    if(!host?.isConnected)return;
+    let rows=[...(balls||[])];
+    if(state.hand!=='ALL')rows=rows.filter(ball=>String(ball.pHand||'').toUpperCase()===state.hand);
+    if(state.contact==='BRL')rows=rows.filter(ball=>mlbContactBarrel(ball.ev,ball.la));
+    else if(state.contact!=='ALL')rows=rows.filter(ball=>mlbContactPitchGroup(ball.pitchCode)===state.contact);
+
+    const VW=400,VH=225,CX=200,HY=214,VP=90,CAMD=30,FOCAL=205;
+    const proj=(fx,fy,fz=0)=>{
+      const d=fy+CAMD;
+      const gy=VP+(HY-VP)*CAMD/d;
+      return {sx:CX+FOCAL*fx/d,sy:gy-FOCAL*fz/d};
+    };
+    const rf=proj(233,233),lf=proj(-233,233),cf=proj(0,400),hp=proj(0,0);
+
+    const wallDistAt=theta=>{
+      const t=Math.min(1,Math.abs(theta)/(Math.PI/4));
+      const ease=(1-Math.cos(t*Math.PI))/2;
+      return 400-(400-233*Math.SQRT2)*ease;
+    };
+
+    const arcs=[];
+    rows.forEach((ball,index)=>{
+      if(ball.cx==null||ball.cy==null||!(ball.dist>0))return;
+      const theta=Math.atan2(ball.cx-MLB_CONTACT_HOME_X,MLB_CONTACT_HOME_Y-ball.cy);
+      const wallDist=wallDistAt(theta);
+      const isHr=mlbContactKind(ball.outcome)==='hr';
+      const distance=isHr?Math.max(ball.dist,wallDist*1.04):Math.min(ball.dist,wallDist*.96);
+      const lx=distance*Math.sin(theta),ly=distance*Math.cos(theta);
+      const la=(ball.la==null?15:ball.la)*Math.PI/180;
+      const apex=Math.max(2,Math.min(95,distance*Math.tan(la)/4));
+      let path='';
+      for(let k=0;k<=14;k++){
+        const t=k/14,px=lx*t,py=ly*t,pz=apex*4*t*(1-t),point=proj(px,py,pz);
+        path+=(k?' L ':'M ')+point.sx.toFixed(1)+' '+point.sy.toFixed(1);
+      }
+      arcs.push({index,path,land:proj(lx,ly,0),color:mlbContactColor(ball),kind:mlbContactKind(ball.outcome),ball});
+    });
+
+    const evs=rows.map(ball=>ball.ev).filter(Number.isFinite);
+    const avgEv=evs.length?Math.round(evs.reduce((a,b)=>a+b,0)/evs.length):null;
+    const barrels=rows.filter(ball=>mlbContactBarrel(ball.ev,ball.la)).length;
+    const barrelPct=rows.length?Math.round(barrels/rows.length*100):null;
+    const games=new Set(rows.map(ball=>ball.gamePk||[ball.date,ball.opp].join('|')).filter(Boolean)).size;
+    const handLabel=state.hand==='L'?'LHP':state.hand==='R'?'RHP':'ALL HANDS';
+
+    host.innerHTML='<div class="mlb-cq-top">'
+      +'<div class="mlb-cq-stat"><span><b>'+esc(barrelPct!=null?barrelPct+'%':'—')+'</b><small>BRL</small></span><span><b>'+esc(avgEv!=null?String(avgEv):'—')+'</b><small>EV</small></span></div>'
+      +'<div class="mlb-cq-badges"><span>'+games+' G · '+rows.length+' BALL'+(rows.length===1?'':'S')+' IN PLAY</span><span>'+handLabel+'</span></div>'
+      +'</div>'
+      +'<div class="mlb-cq-field-wrap"><svg class="mlb-cq-field" viewBox="0 0 '+VW+' '+VH+'" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Recent Contact Quality spray chart">'
+        +'<defs><linearGradient id="mlb-cq-vign" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(6,10,15,0.55)"/><stop offset="0.5" stop-color="rgba(6,10,15,0.30)"/><stop offset="1" stop-color="rgba(6,10,15,0.18)"/></linearGradient></defs>'
+        +'<image href="'+MLB_CONTACT_FIELD_SRC+'" x="0" y="0" width="'+VW+'" height="'+VH+'" preserveAspectRatio="xMidYMid slice"/>'
+        +'<rect x="0" y="0" width="'+VW+'" height="'+VH+'" fill="url(#mlb-cq-vign)"/>'
+        +'<circle cx="'+hp.sx+'" cy="'+hp.sy+'" r="3" fill="#fff" opacity=".5"/>'
+        +arcs.map(a=>'<path class="mlb-cq-arc" data-i="'+a.index+'" d="'+a.path+'" stroke="'+a.color+'" stroke-width="'+(a.kind==='hr'?2.6:1.7)+'" fill="none" opacity="'+(a.kind==='out'?.55:.92)+'"/>').join('')
+        +arcs.map(a=>'<circle class="mlb-cq-land" data-i="'+a.index+'" cx="'+a.land.sx+'" cy="'+a.land.sy+'" r="'+(a.kind==='hr'?3.8:2.6)+'" fill="'+a.color+'" opacity="'+(a.kind==='out'?.65:1)+'"/>').join('')
+      +'</svg><div class="mlb-cq-scrim"></div></div>'
+      +'<div class="mlb-cq-filters" aria-label="Contact filters">'
+        +[['ALL','#dce8f5'],['Fastball','#2d7fff'],['Breaking','#ff9f43'],['Offspeed','#a472ff'],['BRL','#f5c842']].map(([key,color])=>{
+          const label=key==='Fastball'?'FB':key==='Breaking'?'BRK':key==='Offspeed'?'OFF':key;
+          return '<button class="'+(state.contact===key?'is-active':'')+'" data-mlb-cq-filter="'+esc(key)+'"><i style="background:'+color+'"></i>'+label+'</button>';
+        }).join('')
+      +'</div>'
+      +'<div class="mlb-cq-source">Same 14-day Contact Quality trajectory system used by TSO 1.0 · actual MLB hit coordinates, distance, launch angle, pitch type and result.</div>'
+      +renderMlbContactRecentRows(rows);
+
+    animateMlbContactTrajectories(host);
+    host.querySelectorAll('[data-mlb-cq-filter]').forEach(button=>button.addEventListener('click',()=>{
+      state.contact=button.dataset.mlbCqFilter||'ALL';
+      drawMlbContactQuality(host,balls,pitcher,state);
+    }));
+  }
+
+  async function bindMlbContactQuality(host,data,row){
+    if(!host)return;
+    const playerId=data?.player?.id||row?.playerId;
+    const pitcher=data?.opponent?.pitcher||{};
+    const state={hand:['L','R'].includes(String(pitcher?.throws||'').toUpperCase())?String(pitcher.throws).toUpperCase():'ALL',contact:'ALL'};
+    host.innerHTML='<div class="mlb-cq-loading"><span class="live-feed-spinner"></span><div><b>Loading 1.0 Contact Quality trajectories…</b><small>Reading the player\'s last 14 days of MLB hit coordinates.</small></div></div>';
+    try{
+      const result=await fetchMlbContactBalls(playerId);
+      if(!host.isConnected)return;
+      if(!result?.balls?.length){
+        host.innerHTML='<div class="mlb-cq-empty">No verified batted-ball trajectories were returned for the last 14 days.</div>';
+        return;
+      }
+      drawMlbContactQuality(host,result.balls,pitcher,state);
+    }catch(error){
+      if(host.isConnected)host.innerHTML='<div class="mlb-cq-empty">The 1.0 Contact Quality feed could not be loaded. <span>'+esc(error?.message||String(error))+'</span></div>';
+    }
+  }
+
+  function renderMlbContactQualityShell(){
+    return '<section class="research-detail-block mlb-contact-quality">'
+      +'<div class="research-detail-block-head"><span>CONTACT QUALITY</span><b>TSO 1.0 trajectory view · last 14 days</b></div>'
+      +'<div class="mlb-cq-host" data-mlb-contact-quality></div>'
+      +'</section>';
+  }
+
   function renderMlbEnvironmentVisual(game,pitcher){
     const venue=game?.venue||{},w=game?.weather||{},wind=w.wind||{};
     const pf=mlbNumber(venue.parkFactor);
@@ -2388,14 +2712,14 @@
     const statcastVisual=renderMlbStatcastProfile(p);
     const bvpVisual=renderMlbBvpVisual(p,pitcher);
     const pitchVisual=renderMlbPitchMatchup(p,pitcher);
-    const fieldVisual=renderMlbFieldTrajectoryVisual(p,pitcher);
+    const contactQualityVisual=renderMlbContactQualityShell();
     return '<section class="research-detail-status"><span class="deep-source-chip">MLB STATS + SAVANT + OPEN-METEO</span><b>'+esc((p.team||'MLB')+' · '+(p.position||'Player')+(p.battingOrder?' · batting #'+p.battingOrder:''))+'</b><small>'+esc('Slate '+researchAge(data.generatedAt)+(data.statcastEnrichedAt?' · Statcast '+researchAge(data.statcastEnrichedAt):''))+'</small></section>'
       +performanceVisual
       +environmentVisual
       +statcastVisual
       +bvpVisual
       +pitchVisual
-      +fieldVisual;
+      +contactQualityVisual;
   }
 
   function researchDetailBody(data,row){
@@ -2450,6 +2774,7 @@
         if(payload?.sport==='mlb'){
           const chartNode=content.querySelector('[data-mlb-performance-chart]');
           bindMlbResearchChart(chartNode,payload,row,{range:'10'});
+          bindMlbContactQuality(content.querySelector('[data-mlb-contact-quality]'),payload,row);
         }
       }
     }catch(error){
