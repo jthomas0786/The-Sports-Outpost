@@ -5576,3 +5576,552 @@ body.tso-side-nav-open{overflow:hidden}
   width:auto!important;
   max-width:none!important;
 }
+
+
+/* TSO2 MLB STATCAST VISUAL SUITE */
+.mlb-module-source{
+  padding:11px 14px;
+  border-top:1px solid rgba(255,255,255,.055);
+  color:#697581;
+  font-size:12px;
+  line-height:1.45;
+  background:rgba(255,255,255,.012);
+}
+
+/* Statcast profile */
+.mlb-statcast-profile-body{
+  display:grid;
+  grid-template-columns:minmax(250px,.72fr) minmax(0,1.28fr);
+  gap:14px;
+  padding:14px;
+}
+.mlb-statcast-percentiles{
+  display:grid;
+  gap:10px;
+  align-content:start;
+}
+.mlb-statcast-percentile{
+  padding:12px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#080c11;
+}
+.mlb-statcast-percentile>div{
+  display:flex;
+  align-items:end;
+  justify-content:space-between;
+  gap:12px;
+}
+.mlb-statcast-percentile small{
+  color:#697581;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.065em;
+}
+.mlb-statcast-percentile b{
+  font-size:18px;
+}
+.mlb-statcast-percentile>span{
+  display:block;
+  height:9px;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#05080c;
+  overflow:hidden;
+}
+.mlb-statcast-percentile>span i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,rgba(45,127,255,.36),rgba(45,127,255,.88));
+}
+.mlb-statcast-percentile.is-elite>span i{background:linear-gradient(90deg,rgba(79,227,155,.38),rgba(79,227,155,.92))}
+.mlb-statcast-percentile.is-strong>span i{background:linear-gradient(90deg,rgba(123,92,255,.36),rgba(123,92,255,.88))}
+.mlb-statcast-percentile.is-low>span i{background:linear-gradient(90deg,rgba(255,77,28,.32),rgba(255,77,28,.82))}
+.mlb-statcast-percentile.is-soft>span i{background:linear-gradient(90deg,rgba(255,156,94,.28),rgba(255,156,94,.74))}
+.mlb-statcast-window{
+  border:1px solid rgba(255,255,255,.07);
+  background:#080c11;
+}
+.mlb-statcast-window-head,
+.mlb-statcast-window-row{
+  display:grid;
+  grid-template-columns:minmax(120px,1.2fr) repeat(3,minmax(72px,.7fr));
+  align-items:center;
+  min-height:44px;
+}
+.mlb-statcast-window-head{
+  color:#65717d;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.mlb-statcast-window-head>span,
+.mlb-statcast-window-row>*{
+  padding:0 11px;
+}
+.mlb-statcast-window-row{
+  border-bottom:1px solid rgba(255,255,255,.055);
+}
+.mlb-statcast-window-row:last-child{border-bottom:0}
+.mlb-statcast-window-row>b{
+  font-size:13px;
+}
+.mlb-statcast-window-row>span{
+  min-height:54px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  border-left:1px solid rgba(255,255,255,.05);
+}
+.mlb-statcast-window-row small{
+  color:#56626e;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.05em;
+}
+.mlb-statcast-window-row strong{
+  margin-top:5px;
+  font-size:15px;
+}
+.mlb-statcast-foot{
+  display:flex;
+  align-items:center;
+  gap:1px;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:#070a0f;
+}
+.mlb-statcast-foot>span{
+  min-width:130px;
+  padding:11px 14px;
+  border-right:1px solid rgba(255,255,255,.06);
+}
+.mlb-statcast-foot small,
+.mlb-statcast-foot b{
+  display:block;
+}
+.mlb-statcast-foot small{
+  color:#5f6a76;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.mlb-statcast-foot b{
+  margin-top:5px;
+  font-size:15px;
+}
+.mlb-statcast-foot em{
+  margin-left:auto;
+  padding:0 14px;
+  color:#64707c;
+  font-size:12px;
+  font-style:normal;
+}
+
+/* Pitch arsenal matchup */
+.mlb-pitch-match-list{
+  display:grid;
+}
+.mlb-pitch-match-row{
+  display:grid;
+  grid-template-columns:minmax(185px,.9fr) minmax(150px,1fr) minmax(320px,1.5fr);
+  gap:14px;
+  align-items:center;
+  min-height:74px;
+  padding:10px 14px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+}
+.mlb-pitch-match-row:last-child{border-bottom:0}
+.mlb-pitch-match-name{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+.mlb-pitch-match-name>strong{
+  min-height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,216,77,.16);
+  background:rgba(255,216,77,.03);
+  color:#ffe16a;
+  font-size:13px;
+}
+.mlb-pitch-match-name span{
+  min-width:0;
+}
+.mlb-pitch-match-name b,
+.mlb-pitch-match-name small{
+  display:block;
+}
+.mlb-pitch-match-name b{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:13px;
+}
+.mlb-pitch-match-name small{
+  margin-top:4px;
+  color:#626e7a;
+  font-size:12px;
+  line-height:1.35;
+}
+.mlb-pitch-match-bar{
+  height:13px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#05080c;
+}
+.mlb-pitch-match-bar i{
+  display:block;
+  height:100%;
+  background:linear-gradient(90deg,rgba(255,216,77,.28),rgba(255,77,28,.78));
+}
+.mlb-pitch-match-stats{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(50px,1fr));
+  gap:5px;
+}
+.mlb-pitch-match-stats>span{
+  min-width:0;
+  padding:7px 6px;
+  border:1px solid rgba(255,255,255,.055);
+  background:#080c11;
+  text-align:center;
+}
+.mlb-pitch-match-stats small,
+.mlb-pitch-match-stats b{
+  display:block;
+}
+.mlb-pitch-match-stats small{
+  color:#596571;
+  font-size:12px;
+  font-weight:950;
+}
+.mlb-pitch-match-stats b{
+  margin-top:4px;
+  font-size:13px;
+}
+
+/* 3x3 zone map */
+.mlb-zone-layout{
+  display:grid;
+  grid-template-columns:minmax(360px,.9fr) minmax(250px,.6fr);
+  gap:16px;
+  padding:15px;
+}
+.mlb-zone-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  border:1px solid rgba(255,255,255,.12);
+  background:#05080c;
+  aspect-ratio:1/1;
+  max-width:520px;
+  width:100%;
+}
+.mlb-zone-cell{
+  position:relative;
+  min-width:0;
+  padding:10px;
+  border-right:1px solid rgba(255,255,255,.09);
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:rgba(255,255,255,.01);
+  overflow:hidden;
+}
+.mlb-zone-cell:nth-child(3n){border-right:0}
+.mlb-zone-cell:nth-child(n+7){border-bottom:0}
+.mlb-zone-cell.is-up{background:linear-gradient(145deg,rgba(79,227,155,.08),rgba(5,8,12,.98))}
+.mlb-zone-cell.is-down{background:linear-gradient(145deg,rgba(255,77,28,.08),rgba(5,8,12,.98))}
+.mlb-zone-cell.is-even{background:linear-gradient(145deg,rgba(123,92,255,.05),rgba(5,8,12,.98))}
+.mlb-zone-cell.is-top-zone{
+  box-shadow:inset 0 0 0 1px rgba(255,216,77,.28);
+}
+.mlb-zone-cell-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+.mlb-zone-cell-head b{
+  color:#8d99a6;
+  font-size:12px;
+}
+.mlb-zone-cell-head span{
+  color:#ffe16a;
+  font-size:12px;
+  font-weight:950;
+}
+.mlb-zone-cell>strong{
+  display:block;
+  margin-top:16px;
+  font-size:14px;
+}
+.mlb-zone-cell>small{
+  display:block;
+  margin-top:6px;
+  color:#66727e;
+  font-size:12px;
+  line-height:1.35;
+}
+.mlb-zone-cell>i{
+  position:absolute;
+  left:0;
+  bottom:0;
+  height:4px;
+  width:var(--zone-usage);
+  background:linear-gradient(90deg,#ffd84d,#ff6c3d);
+}
+.mlb-zone-legend{
+  display:grid;
+  align-content:start;
+  gap:9px;
+}
+.mlb-zone-legend>div{
+  padding:12px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#080c11;
+}
+.mlb-zone-legend small,
+.mlb-zone-legend b,
+.mlb-zone-legend span{
+  display:block;
+}
+.mlb-zone-legend small{
+  color:#5d6975;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.mlb-zone-legend b{
+  margin-top:5px;
+  font-size:14px;
+}
+.mlb-zone-legend span{
+  margin-top:6px;
+  color:#687480;
+  font-size:12px;
+  line-height:1.45;
+}
+
+/* Batted-ball scatter */
+.mlb-batted-layout{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 230px;
+  gap:14px;
+  padding:14px;
+}
+.mlb-batted-chart{
+  min-width:0;
+  border:1px solid rgba(255,255,255,.07);
+  background:
+    linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px),
+    #070b10;
+  background-size:44px 44px;
+}
+.mlb-batted-chart svg{
+  display:block;
+  width:100%;
+  min-height:260px;
+}
+.mlb-batted-grid{
+  stroke:rgba(255,255,255,.14);
+  stroke-width:1;
+  stroke-dasharray:4 5;
+}
+.mlb-batted-guide{
+  stroke:rgba(255,216,77,.55);
+  stroke-width:1.2;
+  stroke-dasharray:5 4;
+}
+.mlb-batted-axis-label{
+  fill:#65717d;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+.mlb-batted-dot{
+  fill:#78828e;
+  stroke:#0a0e13;
+  stroke-width:1.5;
+}
+.mlb-batted-dot.is-hit{fill:#4d8fff}
+.mlb-batted-dot.is-hr{fill:#ff6a3b;filter:drop-shadow(0 0 4px rgba(255,106,59,.5))}
+.mlb-batted-summary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:7px;
+  align-content:start;
+}
+.mlb-batted-summary>span{
+  min-height:78px;
+  padding:11px;
+  border:1px solid rgba(255,255,255,.07);
+  background:#080c11;
+}
+.mlb-batted-summary small,
+.mlb-batted-summary b{
+  display:block;
+}
+.mlb-batted-summary small{
+  color:#5c6874;
+  font-size:12px;
+  font-weight:950;
+}
+.mlb-batted-summary b{
+  margin-top:7px;
+  font-size:17px;
+}
+.mlb-batted-summary p{
+  grid-column:1/-1;
+  margin:2px 0 0;
+  padding:11px;
+  border:1px solid rgba(255,255,255,.055);
+  color:#687480;
+  font-size:12px;
+  line-height:1.45;
+}
+
+/* Park + weather */
+.mlb-environment-grid{
+  display:grid;
+  grid-template-columns:minmax(250px,1.3fr) repeat(4,minmax(135px,.7fr));
+  gap:1px;
+  background:rgba(255,255,255,.06);
+}
+.mlb-environment-grid>*{
+  min-height:116px;
+  padding:13px;
+  background:#080c11;
+}
+.mlb-park-factor>div small,
+.mlb-park-factor>div b,
+.mlb-park-factor>div em,
+.mlb-weather-card>small,
+.mlb-weather-card>b,
+.mlb-weather-card>em{
+  display:block;
+}
+.mlb-park-factor>div small,
+.mlb-weather-card>small{
+  color:#5c6874;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.055em;
+}
+.mlb-park-factor>div b,
+.mlb-weather-card>b{
+  margin-top:7px;
+  font-size:18px;
+}
+.mlb-park-factor>div em,
+.mlb-weather-card>em{
+  margin-top:5px;
+  color:#687480;
+  font-size:12px;
+  font-style:normal;
+}
+.mlb-park-track{
+  position:relative;
+  display:block;
+  height:11px;
+  margin-top:13px;
+  border:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(90deg,rgba(45,127,255,.32),rgba(255,255,255,.06) 50%,rgba(255,77,28,.34));
+}
+.mlb-park-track>i{
+  position:absolute;
+  left:50%;
+  top:-4px;
+  bottom:-4px;
+  width:1px;
+  background:rgba(255,255,255,.52);
+}
+.mlb-park-track>b{
+  position:absolute;
+  top:50%;
+  width:8px;
+  height:18px;
+  border:2px solid #ffe16a;
+  background:#11151b;
+  transform:translate(-50%,-50%);
+}
+.mlb-park-factor footer{
+  display:flex;
+  justify-content:space-between;
+  margin-top:5px;
+  color:#596571;
+  font-size:12px;
+}
+.mlb-weather-card{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.mlb-wind-read{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-top:8px;
+}
+.mlb-wind-read>i{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  border:1px solid rgba(255,255,255,.08);
+  color:#8eb7ff;
+  font-size:20px;
+  font-style:normal;
+  transform:rotate(var(--wind-angle));
+}
+.mlb-wind-read span{
+  min-width:0;
+}
+.mlb-wind-read b,
+.mlb-wind-read em{
+  display:block;
+}
+.mlb-wind-read b{
+  font-size:15px;
+}
+.mlb-wind-read em{
+  margin-top:4px;
+  color:#687480;
+  font-size:12px;
+  font-style:normal;
+  line-height:1.35;
+}
+
+@media(max-width:980px){
+  .mlb-statcast-profile-body{grid-template-columns:1fr}
+  .mlb-pitch-match-row{grid-template-columns:minmax(180px,.8fr) minmax(130px,.8fr)}
+  .mlb-pitch-match-stats{grid-column:1/-1}
+  .mlb-zone-layout{grid-template-columns:1fr}
+  .mlb-zone-grid{max-width:600px;margin:auto}
+  .mlb-batted-layout{grid-template-columns:1fr}
+  .mlb-batted-summary{grid-template-columns:repeat(4,1fr)}
+  .mlb-batted-summary p{grid-column:1/-1}
+  .mlb-environment-grid{grid-template-columns:repeat(2,1fr)}
+  .mlb-park-factor{grid-column:1/-1}
+}
+
+@media(max-width:620px){
+  .mlb-statcast-profile-body{padding:10px}
+  .mlb-statcast-window{overflow-x:auto}
+  .mlb-statcast-window-head,
+  .mlb-statcast-window-row{min-width:520px}
+  .mlb-statcast-foot{flex-wrap:wrap}
+  .mlb-statcast-foot em{width:100%;margin:0;padding:10px 14px;border-top:1px solid rgba(255,255,255,.05)}
+  .mlb-pitch-match-row{grid-template-columns:1fr;gap:9px}
+  .mlb-pitch-match-stats{grid-template-columns:repeat(5,minmax(58px,1fr));overflow-x:auto}
+  .mlb-zone-layout{padding:10px}
+  .mlb-zone-cell{padding:7px}
+  .mlb-zone-cell>strong{margin-top:11px;font-size:12px}
+  .mlb-zone-cell>small{font-size:12px}
+  .mlb-batted-layout{padding:10px}
+  .mlb-batted-chart{overflow-x:auto}
+  .mlb-batted-chart svg{min-width:560px}
+  .mlb-batted-summary{grid-template-columns:1fr 1fr}
+  .mlb-environment-grid{grid-template-columns:1fr}
+  .mlb-park-factor{grid-column:auto}
+}
