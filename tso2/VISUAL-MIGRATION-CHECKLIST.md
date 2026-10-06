@@ -16,6 +16,7 @@
 - Historical hit-rate charts must distinguish hits, misses, and pushes.
 - Source/freshness must be visible for research visuals.
 - Mobile must preserve readability and controls; horizontal scrolling is acceptable for dense historical plots when necessary.
+- Readability floor: normal UI labels/microcopy should not fall back to the old 5–9px system. TSO 2.0 now targets roughly 10–11px minimum supporting text, with larger body/metric/title text above it.
 - Player/team headshots and logos use the same consistent media system already being standardized in TSO 2.0.
 - Filters must not reset scroll position or silently reset the selected market/range.
 
@@ -217,7 +218,9 @@ NHL player modal supported:
 ### TSO 2.0 redesign
 Move into NHL Deep Research / Prop Intelligence with the shared 2.0 chart system.
 
-**Status:** HIGH PRIORITY
+**Status:** PARTIAL / CORE RECENT-PERFORMANCE MIGRATED  
+**Current 2.0 implementation:** NHL Deep Research now uses the shared exact-line per-game chart with L5/L10/L15/L30/season ranges when enough verified history exists, opponent labels, exact selected threshold, hit/miss/push states, and verified All / Home / Away / H2H filters. Selected-sample AVG / HITS / GAMES are shown above the chart.  
+**Still required:** comparison/distribution modules only where verified source fields exist.
 
 ---
 
@@ -257,7 +260,9 @@ MLB player analysis included:
 - pitcher/batter handedness context
 - current probable pitcher identity
 
-**Status:** HIGH PRIORITY
+**Status:** PARTIAL / CORE RECENT + BvP MIGRATED  
+**Current 2.0 implementation:** MLB Deep Research now uses the shared exact-line recent-game chart with selectable verified ranges, plus a redesigned Batter-vs-Starter visual with PA/H/HR, AVG/OBP/SLG bars, pitcher handedness when supplied, and an explicit small/limited/established sample warning.  
+**Still required:** richer Statcast, pitch-mix, pitch-zone, batted-ball distribution, park/weather visual modules.
 
 ---
 
