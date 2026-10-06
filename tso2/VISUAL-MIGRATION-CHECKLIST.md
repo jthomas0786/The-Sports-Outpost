@@ -291,9 +291,9 @@ Build richer visuals than 1.0 where source coverage exists:
 - batted-ball quality distribution
 - park + weather impact panel
 
-**Status:** MIGRATED / 1.0 FIELD CONCEPT RESTORED / VISUAL QA ACTIVE  
-**Current 2.0 implementation:** MLB Deep Research includes a season/L10/L5 Statcast profile with real Savant percentile bars, starter-arsenal vs hitter pitch-type matchup bars, the approved 1.0 field surface (`field-bg.jpg`) with the original home-plate-to-outfield trajectory geometry, animated Sports Outpost blue flight path + landing point, recent contact trails using verified Savant distance/spray coordinates, a compact batter-vs-starter zone inset, and the park/weather panel using the maintained HR park factor and field-relative Open-Meteo wind. The old oversized 3×3 zone grid and generic EV/launch-angle scatter were removed from the Deep Research output.  
-**Still required:** visual QA across several live MLB players, mobile/ultrawide verification, and a fresh Statcast enrichment run so existing snapshots begin carrying the newly-added `coordX`, `coordY`, and `sprayAngle` fields for real directional trails.
+**Status:** MIGRATED / EXACT 1.0 CONTACT QUALITY PORT / VISUAL QA ACTIVE  
+**Current 2.0 implementation:** MLB Deep Research now ports the actual TSO 1.0 Player Modal Contact Quality system: a 14-day MLB Stats API game-log lookup, per-game live-feed hitData extraction, the original behind-home 2.5D projection over `preview-hero.jpg`, multiple real batted-ball trajectories from home plate using actual coordX/coordY + distance + launch angle, outcome-aware HR/hit/out landing behavior, staggered draw-on animation, ALL/FB/BRK/OFF/BRL filters, and a linked recent-contact log. This replaces the earlier 2.0 zone-grid/scatter approximation and the later Gamecast-field approximation.  
+**Still required:** visual QA in the live preview across several hitters and confirmation that browser-side MLB Stats API requests are not being blocked by preview CORS/runtime policy.
 
 ---
 
