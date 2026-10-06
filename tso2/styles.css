@@ -5431,3 +5431,41 @@ body.tso-side-nav-open{overflow:hidden}
     transition:none!important;
   }
 }
+
+
+/* TSO2 STICKY AUTO-SCROLL SCORE TICKER */
+.broadcast-score-strip{
+  position:sticky!important;
+  top:68px!important;
+  z-index:44!important;
+  overflow-x:auto!important;
+  overflow-y:hidden!important;
+  scroll-behavior:smooth;
+  overscroll-behavior-x:contain;
+  scrollbar-width:none;
+  background:rgba(6,9,14,.97)!important;
+  backdrop-filter:blur(16px);
+  box-shadow:0 8px 24px rgba(0,0,0,.22);
+}
+.broadcast-score-strip::-webkit-scrollbar{display:none}
+.broadcast-score-strip .score-strip-label{
+  position:sticky!important;
+  left:0!important;
+  z-index:5!important;
+  flex:0 0 auto!important;
+  background:linear-gradient(90deg,#160b09,#0c0b0d)!important;
+  box-shadow:8px 0 18px rgba(0,0,0,.34);
+}
+.broadcast-score-strip .score-tile,
+.broadcast-score-strip .score-more{
+  flex:0 0 auto!important;
+}
+.broadcast-score-strip .score-tile:focus-visible{
+  outline:2px solid rgba(255,216,77,.65);
+  outline-offset:-2px;
+}
+@media(max-width:900px){
+  .broadcast-score-strip{
+    top:62px!important;
+  }
+}
