@@ -272,11 +272,13 @@
         +'<div class="feature-footer"><div><span>LIVE SCORE FEED</span><b>'+esc(game.away?.abbr)+' @ '+esc(game.home?.abbr)+'</b><strong>'+esc(start)+'</strong></div><button class="broadcast-cta" data-route-jump="live">OPEN LIVE CENTER →</button></div>';
     }
     return '<div class="live-gamecast-energy live-gamecast-energy--blue"></div><div class="live-gamecast-energy live-gamecast-energy--orange"></div>'
+      +'<div class="live-scoreboard-logo-art live-scoreboard-logo-art--away">'+teamLogoMarkup(game.away,'live-scoreboard-bg-logo')+'</div>'
+      +'<div class="live-scoreboard-logo-art live-scoreboard-logo-art--home">'+teamLogoMarkup(game.home,'live-scoreboard-bg-logo')+'</div>'
       +'<div class="live-gamecast-top"><span class="live-state-chip '+(game.state==='in'?'':'is-upcoming')+'"><i></i>'+esc(stateText)+'</span><span>'+esc(leagueLabel(game.league))+' · SCOREBOARD</span></div>'
       +'<div class="live-matchup-stage">'
-        +'<div class="live-team">'+teamLogoMarkup(game.away,'live-hero-team-logo')+'<span>'+esc(game.away?.abbr)+'</span><strong>'+awayScore+'</strong><small>'+esc(game.away?.name)+'</small></div>'
+        +'<div class="live-team"><span>'+esc(game.away?.abbr)+'</span><strong>'+awayScore+'</strong><small>'+esc(game.away?.name)+'</small></div>'
         +'<div class="live-center-mark"><b>VS</b><span>'+esc(game.state==='in'?'LIVE NOW':'TODAY')+'</span></div>'
-        +'<div class="live-team live-team--away">'+teamLogoMarkup(game.home,'live-hero-team-logo')+'<span>'+esc(game.home?.abbr)+'</span><strong>'+homeScore+'</strong><small>'+esc(game.home?.name)+'</small></div>'
+        +'<div class="live-team live-team--away"><span>'+esc(game.home?.abbr)+'</span><strong>'+homeScore+'</strong><small>'+esc(game.home?.name)+'</small></div>'
       +'</div>'
       +'<div class="live-stat-strip">'
         +'<div><span>STATUS</span><b>'+esc(gameShortState(game))+'</b></div>'
