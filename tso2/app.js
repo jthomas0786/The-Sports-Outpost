@@ -1965,6 +1965,56 @@
       +(logs?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Verified box-score history</b></div><div class="research-detail-log">'+logs+'</div></section>':'');
   }
 
+  function renderMlbResearchChart(data,row,range='10'){
+    const series=propSeriesForRow(data,row);
+    if(!series.length||!Number.isFinite(Number(row?.line)))return '';
+    const selected=propChartRangeSeries(series,range);
+    const stats=propWindowStats(selected,row);
+    const summary=stats&&selected.length
+      ?'<div class="mlb-chart-summary"><span><small>AVG</small><b>'+esc(researchRate(stats.avg,1))+'</b></span><span><small>HITS</small><b>'+stats.hits+'/'+(stats.hits+stats.losses)+'</b></span><span><small>GAMES</small><b>'+stats.games+'</b></span></div>'
+      :'';
+    return '<section class="research-detail-block mlb-performance-visual" data-mlb-performance-chart>'
+      +'<div class="research-detail-block-head"><span>EXACT-LINE PERFORMANCE</span><b>'+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</b></div>'
+      +summary+renderPropRecentChart(series,row,range)
+      +'</section>';
+  }
+
+  function bindMlbResearchChart(node,data,row,state={range:'10'}){
+    if(!node)return;
+    node.querySelectorAll('[data-props-chart-range]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.range=String(btn.dataset.propsChartRange||'10');
+      node.outerHTML=renderMlbResearchChart(data,row,state.range);
+      const replacement=document.querySelector('.research-detail-content [data-mlb-performance-chart]');
+      bindMlbResearchChart(replacement,data,row,state);
+    }));
+  }
+
+  function renderMlbBvpVisual(p,pitcher){
+    const bvp=p?.vsPitcher||{};
+    const pa=Number(bvp.pa);
+    const avg=Number(bvp.avg),obp=Number(bvp.obp),slg=Number(bvp.slg);
+    const rates=[
+      ['AVG',avg,1],
+      ['OBP',obp,1],
+      ['SLG',slg,1.5]
+    ].filter(item=>Number.isFinite(item[1]));
+    const hasCounts=[bvp.h,bvp.hr,bvp.pa].some(value=>Number.isFinite(Number(value)));
+    if(!rates.length&&!hasCounts)return '';
+    const sampleLabel=Number.isFinite(pa)?(pa<10?'SMALL SAMPLE':pa<20?'LIMITED SAMPLE':'ESTABLISHED SAMPLE'):'SAMPLE SIZE UNKNOWN';
+    const sampleTone=Number.isFinite(pa)&&pa>=20?'is-strong':Number.isFinite(pa)&&pa>=10?'is-mid':'is-small';
+    const bars=rates.map(([label,value,ceiling])=>{
+      const width=Math.max(2,Math.min(100,Math.max(0,value)/ceiling*100));
+      return '<div class="mlb-bvp-rate"><div><small>'+label+'</small><b>'+esc(researchRate(value,3))+'</b></div><span><i style="width:'+width.toFixed(1)+'%"></i></span></div>';
+    }).join('');
+    return '<section class="research-detail-block mlb-bvp-visual"><div class="research-detail-block-head"><span>BATTER VS STARTER</span><b>'+esc(pitcher?.name||'Probable starter')+(pitcher?.throws?' · throws '+esc(pitcher.throws):'')+'</b></div>'
+      +'<div class="mlb-bvp-sample '+sampleTone+'"><div><small>BvP SAMPLE</small><b>'+esc(Number.isFinite(pa)?String(Math.round(pa))+' PA':'PA unavailable')+'</b></div><strong>'+sampleLabel+'</strong><p>Head-to-head history is context only; small samples are never promoted as a standalone prediction.</p></div>'
+      +'<div class="mlb-bvp-body"><div class="mlb-bvp-counts">'
+        +'<span><small>HITS</small><b>'+esc(Number.isFinite(Number(bvp.h))?researchRate(bvp.h,0):'—')+'</b></span>'
+        +'<span><small>HR</small><b>'+esc(Number.isFinite(Number(bvp.hr))?researchRate(bvp.hr,0):'—')+'</b></span>'
+        +'<span><small>PA</small><b>'+esc(Number.isFinite(pa)?researchRate(pa,0):'—')+'</b></span>'
+      +'</div><div class="mlb-bvp-rates">'+bars+'</div></div></section>';
+  }
+
   function mlbResearchDetail(data,row){
     const p=data.player||{},game=data.game||{},w=game.weather||{},venue=game.venue||{},opp=data.opponent||{},pitcher=opp.pitcher||{};
     const sc=p.statcast||{},l5=p.statcastL5||{},l10=p.statcastL10||{},bvp=p.vsPitcher||{};
@@ -1996,10 +2046,13 @@
     ].filter(x=>x[1]!=='—');
     const pitchTypes=Object.entries(p.detail?.pitchTypes||{}).map(([code,v])=>({code,...v})).sort((a,b)=>Number(b.seen||0)-Number(a.seen||0)).slice(0,6);
     const pitchMarkup=pitchTypes.map(pt=>'<div class="research-detail-pitch-row"><b>'+esc(pt.code)+'</b><span>'+esc(researchRate(pt.seen,0)+' seen')+'</span><em>'+esc('AVG '+researchRate(pt.avg,3)+' · EV '+researchRate(pt.ev)+' · WHIFF '+(Number.isFinite(Number(pt.whiffPct))?researchValue(pt.whiffPct,1,'%'):'—')+' · HR '+researchRate(pt.hr,0))+'</em></div>').join('');
+    const performanceVisual=renderMlbResearchChart(data,row);
+    const bvpVisual=renderMlbBvpVisual(p,pitcher);
     return '<section class="research-detail-status"><span class="deep-source-chip">MLB STATS + SAVANT + OPEN-METEO</span><b>'+esc((p.team||'MLB')+' · '+(p.position||'Player')+(p.battingOrder?' · batting #'+p.battingOrder:''))+'</b><small>'+esc('Slate '+researchAge(data.generatedAt)+(data.statcastEnrichedAt?' · Statcast '+researchAge(data.statcastEnrichedAt):''))+'</small></section>'
+      +performanceVisual
       +'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME ENVIRONMENT</span><b>'+esc(venue.name||'Current park')+'</b></div><div class="research-detail-metrics">'+weather.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
       +(statcast.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>STATCAST</span><b>Contact quality + recent windows</b></div><div class="research-detail-metrics">'+statcast.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
-      +(bvpMetrics.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>BATTER VS STARTER</span><b>'+esc(pitcher.name||'Probable starter')+'</b></div><div class="research-detail-metrics">'+bvpMetrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +bvpVisual
       +(pitchMarkup?'<section class="research-detail-block"><div class="research-detail-block-head"><span>PITCH-TYPE RESULTS</span><b>Recent Savant window</b></div><div class="research-detail-pitch-list">'+pitchMarkup+'</div></section>':'');
   }
 
@@ -2051,6 +2104,10 @@
         if(payload?.sport==='nhl'){
           const chartNode=content.querySelector('[data-nhl-performance-chart]');
           bindNhlResearchChart(chartNode,payload,row,{range:'10',view:'all'});
+        }
+        if(payload?.sport==='mlb'){
+          const chartNode=content.querySelector('[data-mlb-performance-chart]');
+          bindMlbResearchChart(chartNode,payload,row,{range:'10'});
         }
       }
     }catch(error){
