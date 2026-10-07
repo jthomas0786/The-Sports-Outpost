@@ -57,7 +57,26 @@
 
         <div class="masthead-actions">
           <button class="search-trigger"><span>⌕</span><span>Search</span></button>
-          <button class="icon-btn" aria-label="Notifications">♢<span class="notification-dot"></span></button>
+          <div class="notification-menu">
+            <button class="icon-btn notification-trigger" type="button" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="notificationPanel" data-notification-toggle>
+              ♢
+              <span class="notification-dot" data-notification-dot hidden></span>
+              <span class="notification-count" data-notification-count hidden>0</span>
+            </button>
+            <section class="notification-panel" id="notificationPanel" data-notification-panel hidden aria-label="TSO notifications">
+              <div class="notification-panel-head">
+                <div><span>TSO NOTIFICATIONS</span><b>Current signals & system alerts</b></div>
+                <button type="button" data-notification-read-all>MARK READ</button>
+              </div>
+              <div class="notification-capability">
+                <span class="notification-capability-dot"></span>
+                <div><b>IN-APP CENTER ACTIVE</b><small>Background push activates after saved alert preferences and delivery are connected.</small></div>
+              </div>
+              <div class="notification-list" data-notification-list>
+                <div class="notification-empty"><b>Connecting notification sources…</b><small>Live games, model signals and feed health.</small></div>
+              </div>
+            </section>
+          </div>
           <div class="profile-menu" data-user-handle="justcallme_jt">
             <button class="profile-pill" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileDropdown">
               <span class="avatar">JT</span>
