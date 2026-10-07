@@ -10170,3 +10170,44 @@ body.tso-side-nav-open{overflow:hidden}
   }
   .edge2-board-section .destination-section-head>*{max-width:100%!important}
 }
+
+
+/* TSO 2.0 feed integrity banner */
+.feed-integrity-banner{
+  margin:0;
+  padding:10px 22px;
+  border-bottom:1px solid rgba(241,200,91,.28);
+  background:rgba(241,200,91,.08);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#f4d982;
+}
+.feed-integrity-banner[hidden]{display:none!important}
+.feed-integrity-banner>span{
+  width:24px;height:24px;flex:0 0 24px;
+  display:grid;place-items:center;
+  border:1px solid rgba(241,200,91,.4);
+  font-weight:950;
+}
+.feed-integrity-banner b,.feed-integrity-banner small{display:block}
+.feed-integrity-banner b{font-size:11px;letter-spacing:.08em}
+.feed-integrity-banner small{margin-top:2px;color:#b8a86e;font-size:11px;line-height:1.35}
+.live-model-source-state{
+  margin:0 0 14px;
+  padding:10px 12px;
+  border:1px solid rgba(63,218,154,.18);
+  background:rgba(63,218,154,.045);
+  display:flex;align-items:center;gap:10px;
+}
+.live-model-source-state.is-fallback{
+  border-color:rgba(241,200,91,.3);
+  background:rgba(241,200,91,.07);
+}
+.live-model-source-state b,.live-model-source-state small{display:block}
+.live-model-source-state b{font-size:11px;letter-spacing:.07em}
+.live-model-source-state small{font-size:11px;color:var(--muted);margin-top:2px}
+@media(max-width:700px){
+  .feed-integrity-banner{padding:9px 12px}
+  .feed-integrity-banner small{font-size:10px}
+}
