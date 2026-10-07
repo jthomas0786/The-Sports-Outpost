@@ -325,15 +325,36 @@
     return Array.isArray(summary?.scoringPlays) ? summary.scoringPlays : [];
   }
 
+  function playPeriodNumber(play){
+    const value=play?.period?.number ?? play?.period?.value ?? play?.period;
+    const n=Number(value);
+    return Number.isFinite(n)?n:null;
+  }
+
   function playPeriodLabel(play,game){
-    const period=play?.period?.displayValue ?? play?.period?.number ?? play?.period;
-    if(period==null || period==='') return game?.state==='pre' ? 'PRE' : '—';
-    if(String(game?.league||'').toLowerCase()==='mlb'){
-      const half=play?.period?.type || play?.type?.text || '';
-      const halfLabel=/top/i.test(String(half))?'TOP':/bottom|bot/i.test(String(half))?'BOT':'INN';
-      return halfLabel+' '+period;
+    const league=String(game?.league||'').toLowerCase();
+    const period=playPeriodNumber(play);
+    const display=String(play?.period?.displayValue||play?.period?.name||'').trim();
+
+    if(league==='mlb'){
+      if(display) return display.toUpperCase();
+      const half=String(play?.period?.type||play?.halfInning||play?.inningHalf||'');
+      const prefix=/top/i.test(half)?'TOP':/bottom|bot/i.test(half)?'BOT':'INN';
+      return period!=null ? prefix+' '+period : 'INNING';
     }
-    return 'P'+period;
+    if(league==='nba'){
+      if(period==null) return game?.state==='pre'?'PRE':'—';
+      return period<=4 ? 'Q'+period : (period===5?'OT':(period-4)+'OT');
+    }
+    if(league==='nfl'){
+      if(period==null) return game?.state==='pre'?'PRE':'—';
+      return period<=4 ? 'Q'+period : (period===5?'OT':(period-4)+'OT');
+    }
+    if(league==='nhl'){
+      if(period==null) return game?.state==='pre'?'PRE':'—';
+      return period<=3 ? 'P'+period : (period===4?'OT':'SO');
+    }
+    return period==null ? (game?.state==='pre'?'PRE':'—') : 'P'+period;
   }
 
   function playScoreLabel(play){
@@ -343,29 +364,192 @@
     return String(away)+'–'+String(home);
   }
 
-  function playByPlayMarkup(summary,game){
-    const plays=liveDetailPlays(summary)
-      .filter(p=>String(p?.text||p?.shortText||p?.description||'').trim())
-      .slice(-80)
-      .reverse();
-    if(!plays.length){
-      const msg=game?.state==='pre'
-        ? 'No plays yet. Play-by-play will begin when the game starts.'
-        : 'No play-by-play has been published for this game yet.';
-      return '<div class="live-detail-empty"><b>'+esc(msg)+'</b><small>'+esc(game?.venue||gameStatusText(game))+'</small></div>';
+  function playTextValue(play){
+    return String(play?.text||play?.shortText||play?.description||'Play update').trim();
+  }
+
+  function playClockValue(play){
+    return String(play?.clock?.displayValue||play?.clock||'').trim();
+  }
+
+  function playTeamValue(play){
+    return String(play?.team?.abbreviation||play?.team?.shortDisplayName||play?.team?.displayName||'').trim();
+  }
+
+  function playTypeText(play){
+    return String(play?.type?.text||play?.type?.abbreviation||play?.type?.name||'').trim();
+  }
+
+  function sportPlayTag(play,league){
+    const text=(playTypeText(play)+' '+playTextValue(play)).toLowerCase();
+    if(league==='mlb'){
+      if(/home run|homered/.test(text)) return {label:'HR',tone:'score'};
+      if(/single|double|triple|hit into|singled|doubled|tripled/.test(text)) return {label:'HIT',tone:'positive'};
+      if(/walk|base on balls|intentional walk/.test(text)) return {label:'BB',tone:'neutral'};
+      if(/strikeout|struck out/.test(text)) return {label:'K',tone:'muted'};
+      if(/run scored|scores|scored/.test(text)) return {label:'RUN',tone:'score'};
+      if(/out|grounded|flied|lined|popped/.test(text)) return {label:'OUT',tone:'muted'};
+      return {label:'PLAY',tone:'neutral'};
     }
-    return '<div class="live-pbp-list">'+plays.map((play,index)=>{
-      const text=play.text||play.shortText||play.description||'Play update';
-      const clock=play?.clock?.displayValue || play?.clock || '';
-      const team=play?.team?.abbreviation || play?.team?.shortDisplayName || '';
-      const score=playScoreLabel(play);
-      const scoring=play?.scoringPlay===true || Number(play?.scoreValue)>0;
-      return '<article class="live-pbp-row '+(scoring?'is-scoring':'')+'">'
-        +'<div class="live-pbp-marker"><span>'+esc(playPeriodLabel(play,game))+'</span><small>'+esc(clock||String(plays.length-index).padStart(2,'0'))+'</small></div>'
-        +'<div class="live-pbp-copy">'+(team?'<b>'+esc(team)+'</b>':'')+'<p>'+esc(text)+'</p></div>'
-        +(score?'<strong>'+esc(score)+'</strong>':'<strong></strong>')
-      +'</article>';
-    }).join('')+'</div>';
+    if(league==='nhl'){
+      if(/goal/.test(text)) return {label:'GOAL',tone:'score'};
+      if(/penalty/.test(text)) return {label:'PEN',tone:'warning'};
+      if(/save/.test(text)) return {label:'SAVE',tone:'positive'};
+      if(/shot/.test(text)) return {label:'SHOT',tone:'neutral'};
+      if(/hit/.test(text)) return {label:'HIT',tone:'muted'};
+      if(/faceoff/.test(text)) return {label:'FO',tone:'muted'};
+      if(/block/.test(text)) return {label:'BLK',tone:'muted'};
+      return {label:'PLAY',tone:'neutral'};
+    }
+    if(league==='nba'){
+      if(/3-pt|three point|three-point/.test(text) && /made|makes/.test(text)) return {label:'3PT',tone:'score'};
+      if(/free throw/.test(text) && /made|makes/.test(text)) return {label:'FT',tone:'score'};
+      if(/makes|made/.test(text)) return {label:'2PT',tone:'score'};
+      if(/rebound/.test(text)) return {label:'REB',tone:'positive'};
+      if(/turnover/.test(text)) return {label:'TO',tone:'warning'};
+      if(/foul/.test(text)) return {label:'FOUL',tone:'warning'};
+      if(/block/.test(text)) return {label:'BLK',tone:'positive'};
+      if(/steal/.test(text)) return {label:'STL',tone:'positive'};
+      if(/timeout/.test(text)) return {label:'TIME',tone:'muted'};
+      return {label:'PLAY',tone:'neutral'};
+    }
+    if(league==='nfl'){
+      if(/touchdown/.test(text)) return {label:'TD',tone:'score'};
+      if(/field goal/.test(text) && /good|made/.test(text)) return {label:'FG',tone:'score'};
+      if(/intercept/.test(text)) return {label:'INT',tone:'warning'};
+      if(/fumble/.test(text)) return {label:'FUM',tone:'warning'};
+      if(/sack/.test(text)) return {label:'SACK',tone:'positive'};
+      if(/punt/.test(text)) return {label:'PUNT',tone:'muted'};
+      if(/pass/.test(text)) return {label:'PASS',tone:'neutral'};
+      if(/rush|run /.test(text)) return {label:'RUSH',tone:'neutral'};
+      if(/penalty/.test(text)) return {label:'PEN',tone:'warning'};
+      return {label:'PLAY',tone:'neutral'};
+    }
+    return {label:'PLAY',tone:'neutral'};
+  }
+
+  function mlbCountText(play){
+    const count=play?.count||play?.end?.count||play?.start?.count||{};
+    const balls=count?.balls;
+    const strikes=count?.strikes;
+    const outs=count?.outs;
+    const bits=[];
+    if(balls!=null || strikes!=null) bits.push((balls??0)+'-'+(strikes??0));
+    if(outs!=null) bits.push(outs+' OUT'+(Number(outs)===1?'':'S'));
+    return bits.join(' · ');
+  }
+
+  function nflDownDistance(play){
+    const spot=play?.start||play?.end||{};
+    const down=Number(spot?.down);
+    const distance=spot?.distance;
+    const yard=spot?.yardLine;
+    const team=spot?.team?.abbreviation||spot?.team?.shortDisplayName||'';
+    const parts=[];
+    if(Number.isFinite(down)&&down>0) parts.push(down+(down===1?'ST':down===2?'ND':down===3?'RD':'TH')+(distance!=null?' & '+distance:''));
+    if(team && yard!=null) parts.push(team+' '+yard);
+    else if(yard!=null) parts.push('YARD '+yard);
+    return parts.join(' · ');
+  }
+
+  function playRowMarkup(play,game,index,total){
+    const league=String(game?.league||'').toLowerCase();
+    const text=playTextValue(play);
+    const clock=playClockValue(play);
+    const team=playTeamValue(play);
+    const score=playScoreLabel(play);
+    const tag=sportPlayTag(play,league);
+    const scoring=play?.scoringPlay===true || Number(play?.scoreValue)>0 || tag.tone==='score';
+    let meta='';
+    if(league==='mlb') meta=mlbCountText(play);
+    else if(league==='nfl') meta=nflDownDistance(play);
+    else if(league==='nhl') meta=String(play?.strength?.text||play?.strength||'');
+    else if(league==='nba') meta=String(play?.shootingPlay===true?'SHOT':'');
+    return '<article class="live-pbp-row sport-'+esc(league)+' '+(scoring?'is-scoring ':'')+'tone-'+esc(tag.tone)+'">'
+      +'<div class="live-pbp-marker"><span>'+esc(playPeriodLabel(play,game))+'</span><small>'+esc(clock||String(total-index).padStart(2,'0'))+'</small></div>'
+      +'<div class="live-pbp-event-tag">'+esc(tag.label)+'</div>'
+      +'<div class="live-pbp-copy">'+(team?'<b>'+esc(team)+'</b>':'')+'<p>'+esc(text)+'</p>'+(meta?'<small>'+esc(meta)+'</small>':'')+'</div>'
+      +(score?'<strong>'+esc(score)+'</strong>':'<strong></strong>')
+    +'</article>';
+  }
+
+  function groupedSportPlayByPlay(summary,game){
+    const league=String(game?.league||'').toLowerCase();
+    const plays=liveDetailPlays(summary)
+      .filter(p=>playTextValue(p))
+      .slice(-120)
+      .reverse();
+    if(!plays.length) return '';
+
+    let previousLabel=null;
+    const rows=[];
+    plays.forEach((play,index)=>{
+      const label=playPeriodLabel(play,game);
+      if(label!==previousLabel){
+        rows.push('<div class="live-pbp-period-head"><span>'+esc(label)+'</span><small>'+esc(league==='mlb'?'INNING':'PERIOD')+'</small></div>');
+        previousLabel=label;
+      }
+      rows.push(playRowMarkup(play,game,index,plays.length));
+    });
+    return '<div class="live-pbp-list sport-'+esc(league)+'">'+rows.join('')+'</div>';
+  }
+
+  function nflDriveStartText(drive){
+    const start=drive?.start||{};
+    const period=start?.period?.number ?? start?.period;
+    const clock=start?.clock?.displayValue||start?.clock||'';
+    const yard=start?.yardLine;
+    const team=start?.team?.abbreviation||drive?.team?.abbreviation||'';
+    const parts=[];
+    if(period!=null) parts.push(Number(period)<=4?'Q'+period:(Number(period)===5?'OT':(Number(period)-4)+'OT'));
+    if(clock) parts.push(clock);
+    if(team&&yard!=null) parts.push(team+' '+yard);
+    else if(yard!=null) parts.push('YARD '+yard);
+    return parts.join(' · ');
+  }
+
+  function nflDriveMarkup(drive,game,isCurrent=false){
+    const plays=(drive?.plays||[]).filter(p=>playTextValue(p)).slice(-30).reverse();
+    if(!plays.length) return '';
+    const team=drive?.team?.abbreviation||drive?.team?.shortDisplayName||'';
+    const result=drive?.displayResult||drive?.result||drive?.description||'DRIVE';
+    const summaryBits=[];
+    if(drive?.yards!=null) summaryBits.push(drive.yards+' YDS');
+    if(drive?.timeElapsed?.displayValue) summaryBits.push(drive.timeElapsed.displayValue);
+    if(drive?.plays?.length) summaryBits.push(drive.plays.length+' PLAYS');
+
+    return '<section class="nfl-drive-card '+(isCurrent?'is-current':'')+'">'
+      +'<div class="nfl-drive-head"><div><span>'+esc(team||'DRIVE')+'</span><h4>'+esc(String(result).toUpperCase())+'</h4></div>'
+      +'<div><b>'+esc(nflDriveStartText(drive))+'</b>'+(summaryBits.length?'<small>'+esc(summaryBits.join(' · '))+'</small>':'')+'</div></div>'
+      +'<div class="nfl-drive-plays">'+plays.map((play,index)=>playRowMarkup(play,game,index,plays.length)).join('')+'</div>'
+    +'</section>';
+  }
+
+  function nflPlayByPlayMarkup(summary,game){
+    const previous=Array.isArray(summary?.drives?.previous)?summary.drives.previous:[];
+    const current=summary?.drives?.current||null;
+    const drives=[...previous.map(d=>({drive:d,current:false})),...(current?[{drive:current,current:true}]:[])]
+      .filter(x=>(x.drive?.plays||[]).some(p=>playTextValue(p)))
+      .slice(-12)
+      .reverse();
+
+    if(drives.length){
+      return '<div class="nfl-drive-feed">'+drives.map(x=>nflDriveMarkup(x.drive,game,x.current)).join('')+'</div>';
+    }
+    return groupedSportPlayByPlay(summary,game);
+  }
+
+  function playByPlayMarkup(summary,game){
+    const league=String(game?.league||'').toLowerCase();
+    let markup='';
+    if(league==='nfl') markup=nflPlayByPlayMarkup(summary,game);
+    else markup=groupedSportPlayByPlay(summary,game);
+
+    if(markup) return markup;
+    const msg=game?.state==='pre'
+      ? 'No plays yet. Play-by-play will begin when the game starts.'
+      : 'No play-by-play has been published for this game yet.';
+    return '<div class="live-detail-empty"><b>'+esc(msg)+'</b><small>'+esc(game?.venue||gameStatusText(game))+'</small></div>';
   }
 
   function boxTeamEntry(summary,abbr,fallbackIndex){
