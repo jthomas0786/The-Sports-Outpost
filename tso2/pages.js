@@ -90,12 +90,21 @@
 
         <section class="live-command-grid">
           <div class="live-feature-stack">
-            <article class="live-gamecast-hero live-feed-loading" data-live-feature>
-              <div class="live-feed-empty">
-                <span class="live-feed-spinner"></span>
-                <div><b>Connecting to live scoreboard…</b><small>NHL · NFL · MLB · NBA</small></div>
-              </div>
-            </article>
+            <div class="live-selected-game-top">
+              <article class="live-gamecast-hero live-feed-loading" data-live-feature>
+                <div class="live-feed-empty">
+                  <span class="live-feed-spinner"></span>
+                  <div><b>Connecting to live scoreboard…</b><small>NHL · NFL · MLB · NBA</small></div>
+                </div>
+              </article>
+
+              <aside class="live-player-watch live-player-watch--loading" data-live-player-watch aria-label="Player to watch">
+                <div class="live-player-watch-loading">
+                  <span class="live-feed-spinner"></span>
+                  <div><b>Finding player to watch…</b><small>Live stats from the selected game</small></div>
+                </div>
+              </aside>
+            </div>
 
             <section class="live-game-detail" data-live-game-detail aria-label="Selected game detail">
               <div class="live-game-detail-head">
@@ -125,17 +134,6 @@
               </div>
             </section>
           </div>
-
-          <aside class="live-signal-board" data-live-now-board>
-            <div class="live-signal-head">
-              <div><span class="orange-kicker">LIVE NOW</span><h2>Scoreboard feed</h2></div>
-              <span>REAL DATA</span>
-            </div>
-            <div class="live-feed-side-loading">
-              <span class="live-feed-spinner"></span>
-              <div><b>Loading games</b><small>Current scores and game states will appear here.</small></div>
-            </div>
-          </aside>
         </section>
 
         <section class="destination-section live-games-section">
