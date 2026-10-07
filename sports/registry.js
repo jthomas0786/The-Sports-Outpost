@@ -52,8 +52,9 @@ export const SPORTS = {
     matchupLabel: 'vs Opponent', lineupSource: 'injury_report',
     adapterReady: true,        seasonStart: '2026-10-20',
     uiReady: true,
-    slateUrl: './slates/nba.json',
-    modelType: 'regression',
+    slateUrl: null,
+    dataSource: 'espn-runtime',
+    modelType: 'market-consensus',
     props: ['pts', 'reb', 'ast', 'threes', 'pra'],
   },
 };
