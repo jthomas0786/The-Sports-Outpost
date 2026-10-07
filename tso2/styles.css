@@ -10446,3 +10446,19 @@ body.global-search-open{overflow:hidden}
   }
   .notification-list{max-height:calc(100dvh - 190px)}
 }
+
+
+/* Notification readiness inside Profile */
+.profile-state-badge.is-active{color:#70e8ab;border-color:rgba(79,227,155,.28);background:rgba(79,227,155,.06)}
+.profile-notification-state{border-color:rgba(45,127,255,.16)}
+.profile-readiness-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+.profile-readiness-grid span{border-bottom:1px solid rgba(255,255,255,.07)}
+.profile-readiness-grid span:nth-child(3n){border-right:0}
+.profile-readiness-grid span:nth-last-child(-n+3){border-bottom:0}
+@media(max-width:700px){
+  .profile-readiness-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .profile-readiness-grid span:nth-child(3n){border-right:1px solid rgba(255,255,255,.07)}
+  .profile-readiness-grid span:nth-child(2n){border-right:0}
+  .profile-readiness-grid span:nth-last-child(-n+3){border-bottom:1px solid rgba(255,255,255,.07)}
+  .profile-readiness-grid span:nth-last-child(-n+2){border-bottom:0}
+}
