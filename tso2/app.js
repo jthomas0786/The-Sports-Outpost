@@ -178,6 +178,22 @@
     return gameStatusText(game);
   }
 
+  function gameMarqueeStatusText(game){
+    if(game.state==='post')return 'FINAL';
+    if(game.state==='in')return game.detail||'LIVE';
+    const dt=Date.parse(game.startTime||'');
+    if(!Number.isFinite(dt))return game.detail||'UPCOMING';
+    const start=new Date(dt);
+    const now=new Date();
+    const sameDay=start.getFullYear()===now.getFullYear()
+      && start.getMonth()===now.getMonth()
+      && start.getDate()===now.getDate();
+    const time=new Intl.DateTimeFormat(undefined,{hour:'numeric',minute:'2-digit'}).format(start);
+    if(sameDay)return time;
+    const days=['SUN','MON','TUES','WED','THURS','FRI','SAT'];
+    return days[start.getDay()]+' '+time;
+  }
+
   function currentFeedGames(){
     if(currentLeague==='nfl'&&nflWeeklyFeedCache?.games){
       return sortedGames(nflWeeklyFeedCache.games);
@@ -208,7 +224,7 @@
       +'<span class="league-chip">'+esc(leagueLabel(game.league))+'</span>'
       +'<strong class="score-team-line">'+teamLogoMarkup(game.away,'score-team-logo')+'<span>'+esc(game.away?.abbr || 'AWAY')+'</span> '+awayScore+'</strong>'
       +'<strong class="score-team-line">'+teamLogoMarkup(game.home,'score-team-logo')+'<span>'+esc(game.home?.abbr || 'HOME')+'</span> '+homeScore+'</strong>'
-      +'<small>'+esc(gameStatusText(game))+'</small>'
+      +'<small>'+esc(gameMarqueeStatusText(game))+'</small>'
       +'</button>';
   }
 
