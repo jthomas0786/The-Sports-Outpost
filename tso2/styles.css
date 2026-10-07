@@ -10522,3 +10522,32 @@ body.live-multi-open{overflow:hidden}
   .live-multi-head h2{font-size:20px}
   .live-multi-grid{grid-template-columns:1fr;gap:8px;padding:8px}
 }
+
+
+/* NFL Deep Research — source-backed matchup driver ladder */
+.nfl-factor-visual>p{
+  margin:10px 0 0;color:#6f7b8b;font-size:10px;line-height:1.5
+}
+.nfl-factor-ladder{display:grid;border:1px solid rgba(255,255,255,.075)}
+.nfl-factor-row{
+  min-height:58px;display:grid;grid-template-columns:28px minmax(0,1fr) auto;
+  align-items:center;gap:11px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.012)
+}
+.nfl-factor-row:last-child{border-bottom:0}
+.nfl-factor-state{
+  width:24px;height:24px;border:1px solid rgba(255,255,255,.10);
+  display:grid;place-items:center;font-size:12px;font-weight:950;color:#8090a2;background:#0c121a
+}
+.nfl-factor-row small,.nfl-factor-row b{display:block}
+.nfl-factor-row small{font-size:9px;color:#687789;font-weight:950;letter-spacing:.09em}
+.nfl-factor-row b{font-size:11px;margin-top:3px;color:#c3ccd7;font-weight:750}
+.nfl-factor-row>strong{font-size:12px;white-space:nowrap}
+.nfl-factor-row.is-positive .nfl-factor-state,.nfl-factor-row.is-positive>strong{color:#4fe39b}
+.nfl-factor-row.is-negative .nfl-factor-state,.nfl-factor-row.is-negative>strong{color:#ff657a}
+.nfl-factor-row.is-warning .nfl-factor-state,.nfl-factor-row.is-warning>strong{color:#f1c85b}
+.nfl-factor-row.is-neutral .nfl-factor-state,.nfl-factor-row.is-neutral>strong{color:#8ea0b5}
+@media(max-width:620px){
+  .nfl-factor-row{grid-template-columns:26px minmax(0,1fr);gap:9px}
+  .nfl-factor-row>strong{grid-column:2;font-size:11px;margin-top:-4px}
+}
