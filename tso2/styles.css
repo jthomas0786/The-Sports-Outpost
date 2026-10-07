@@ -8140,3 +8140,278 @@ body.tso-side-nav-open{overflow:hidden}
   .mlb-player-table th:first-child,
   .mlb-player-table td:first-child{min-width:142px;width:142px}
 }
+
+
+/* =========================================================
+   TSO 2.0 — NHL LIVE BOX SCORE
+   ========================================================= */
+.nhl-box-score{min-width:0;background:#05080c}
+.nhl-period-score{
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:
+    radial-gradient(circle at 10% 0,rgba(45,127,255,.05),transparent 22rem),
+    #06090e;
+}
+.nhl-box-section-title{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 14px 9px;
+}
+.nhl-box-section-title span,
+.nhl-team-player-head span{
+  display:block;
+  color:#6d7884;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+.nhl-box-section-title h3,
+.nhl-team-player-head h3{
+  margin:3px 0 0;
+  color:#f4f6f8;
+  font-size:16px;
+  letter-spacing:-.015em;
+}
+.nhl-box-section-title>b{
+  color:#ffdc61;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.nhl-period-scroll{
+  width:100%;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#303b48 transparent;
+}
+.nhl-period-table{
+  width:100%;
+  min-width:520px;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.nhl-period-table th,
+.nhl-period-table td{
+  height:35px;
+  border-top:1px solid rgba(255,255,255,.055);
+  border-right:1px solid rgba(255,255,255,.035);
+  text-align:center;
+  white-space:nowrap;
+}
+.nhl-period-table thead th{
+  height:28px;
+  color:#65717d;
+  background:#05080c;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.nhl-period-table th:first-child{
+  position:sticky;
+  left:0;
+  z-index:4;
+  width:112px;
+  min-width:112px;
+  text-align:left;
+  padding-left:10px;
+  background:#070b11;
+}
+.nhl-period-table td{
+  color:#cbd2d9;
+  font-size:12px;
+  font-weight:850;
+}
+.nhl-period-table .is-current-period{
+  color:#fff6ce;
+  background:rgba(255,216,77,.065);
+  box-shadow:inset 0 -2px 0 rgba(255,216,77,.5);
+}
+.nhl-period-table .nhl-period-total{
+  color:#fff;
+  background:rgba(255,255,255,.025);
+  font-weight:950;
+}
+.nhl-period-team{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#f0f3f6!important;
+  font-size:12px!important;
+  letter-spacing:.04em;
+}
+.nhl-period-logo{
+  width:25px!important;
+  height:25px!important;
+  flex:0 0 25px!important;
+}
+.nhl-period-logo img{width:100%;height:100%;object-fit:contain}
+.nhl-team-summary{
+  padding:12px 14px 14px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:#06090e;
+}
+.nhl-team-summary-head,
+.nhl-team-summary-row{
+  display:grid;
+  grid-template-columns:84px minmax(0,1fr) 84px;
+  align-items:center;
+  text-align:center;
+}
+.nhl-team-summary-head{
+  min-height:36px;
+  color:#65717d;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.nhl-team-summary-head b{
+  color:#f1f4f6;
+  font-size:13px;
+}
+.nhl-team-summary-row{
+  min-height:32px;
+  border-top:1px solid rgba(255,255,255,.055);
+}
+.nhl-team-summary-row span{
+  color:#687481;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.03em;
+}
+.nhl-team-summary-row strong{
+  color:#e6eaee;
+  font-size:12px;
+}
+.nhl-player-sections{
+  display:grid;
+  gap:18px;
+  padding:0 14px 16px;
+}
+.nhl-team-player-block{min-width:0}
+.nhl-team-player-head{
+  min-height:56px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 0 8px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nhl-team-player-head h3{font-size:18px}
+.nhl-stat-card{
+  min-width:0;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.085);
+  background:#070b10;
+}
+.nhl-stat-card-head{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+  background:linear-gradient(90deg,rgba(45,127,255,.045),transparent 55%);
+}
+.nhl-stat-card-head span{
+  display:block;
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.nhl-stat-card-head h4{
+  margin:2px 0 0;
+  color:#f0f3f6;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.nhl-stat-card-head>b{
+  color:#647282;
+  font-size:9px;
+  letter-spacing:.06em;
+}
+.nhl-player-table-wrap{
+  width:100%;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#303b48 transparent;
+}
+.nhl-player-table{
+  width:100%;
+  min-width:1120px;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.nhl-player-table th,
+.nhl-player-table td{
+  height:31px;
+  padding:5px 7px;
+  border-top:1px solid rgba(255,255,255,.05);
+  text-align:right;
+  white-space:nowrap;
+}
+.nhl-player-table thead th{
+  color:#637180;
+  background:#05080c;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.04em;
+}
+.nhl-player-table td{
+  color:#cbd2d9;
+  font-weight:800;
+}
+.nhl-player-table th:first-child,
+.nhl-player-table td:first-child{
+  position:sticky;
+  left:0;
+  z-index:3;
+  min-width:158px;
+  width:158px;
+  text-align:left;
+  background:#070b10;
+  box-shadow:1px 0 0 rgba(255,255,255,.055);
+}
+.nhl-player-table td:first-child b{
+  display:block;
+  color:#eef1f4;
+  font-size:11px;
+}
+.nhl-player-table td:first-child small{
+  display:block;
+  margin-top:2px;
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:900;
+}
+.nhl-player-table th[data-stat-key="shotsTotal"],
+.nhl-player-table td[data-stat-key="shotsTotal"]{
+  color:#ffe16a;
+  background:rgba(255,216,77,.04);
+  font-weight:950;
+}
+.nhl-player-table th[data-stat-key="goals"],
+.nhl-player-table td[data-stat-key="goals"],
+.nhl-player-table th[data-stat-key="assists"],
+.nhl-player-table td[data-stat-key="assists"]{
+  color:#eaf4ff;
+  font-weight:950;
+}
+.nhl-player-table tbody tr:hover td{background:rgba(255,255,255,.018)}
+.nhl-player-table tbody tr:hover td:first-child{background:#0a0f15}
+
+@media(max-width:600px){
+  .nhl-box-section-title{padding-left:10px;padding-right:10px}
+  .nhl-team-summary{padding:10px}
+  .nhl-team-summary-head,
+  .nhl-team-summary-row{grid-template-columns:62px minmax(0,1fr) 62px}
+  .nhl-player-sections{padding:0 10px 12px;gap:14px}
+  .nhl-player-table{min-width:1080px}
+  .nhl-player-table th:first-child,
+  .nhl-player-table td:first-child{min-width:142px;width:142px}
+}
