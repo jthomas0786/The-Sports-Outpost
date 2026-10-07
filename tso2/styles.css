@@ -9926,3 +9926,192 @@ body.tso-side-nav-open{overflow:hidden}
 .game-edge-footnote{margin-top:14px;padding:14px 16px;border-left:3px solid rgba(45,127,255,.55);background:rgba(45,127,255,.035);border-radius:0 12px 12px 0}.game-edge-footnote span{color:#6c9ee6;font-size:10px;font-weight:900;letter-spacing:.09em}.game-edge-footnote p{margin:5px 0 0;color:#6e7d8c;font-size:10px;line-height:1.5}
 @media(max-width:1100px){.game-edge-board{grid-template-columns:1fr}}
 @media(max-width:700px){.game-edge-destination-hero{padding:17px}.game-edge-toolbar{align-items:stretch;flex-direction:column}.game-edge-toolbar-copy{text-align:left}.game-edge-league-tabs{overflow-x:auto}.game-edge-status-strip{display:flex;overflow-x:auto}.game-edge-status-strip>div{min-width:145px;border-left:1px solid rgba(255,255,255,.06)}.game-edge-status-strip>div:first-child{min-width:205px}.game-edge-card-head{grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);padding:12px 10px}.game-edge-team{gap:7px}.game-edge-team-logo{width:40px;height:40px;flex-basis:40px}.game-edge-team-logo img{width:33px;height:33px}.game-edge-team small{display:none}.game-edge-game-meta small{display:none}}
+
+
+/* =========================================================
+   TSO 2.0 — GAME EDGE COMMAND CENTER
+   Native 2.0 destination: Spread · Moneyline · Total
+   ========================================================= */
+.edge2-page{--edge-blue:#2d7fff;--edge-violet:#7b5cff;--edge-orange:#ff4d1c;--edge-green:#4fe39b}
+.edge2-hero{position:relative;overflow:hidden;border-bottom-color:rgba(45,127,255,.22)}
+.edge2-hero::after{
+  content:"";position:absolute;width:480px;height:480px;right:-210px;top:-300px;border-radius:50%;
+  background:radial-gradient(circle,rgba(45,127,255,.11),transparent 68%);pointer-events:none
+}
+.edge2-title-lockup{display:flex;align-items:center;gap:11px}
+.edge2-mark{
+  width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(45,127,255,.30);
+  background:linear-gradient(145deg,rgba(45,127,255,.12),#080c12);color:#68a9ff;font-size:22px;
+  box-shadow:0 0 22px rgba(45,127,255,.08)
+}
+.edge2-kicker{color:#75adff!important}
+.edge2-feed-badge{
+  min-height:34px;display:flex;align-items:center;gap:8px;padding:0 11px;border:1px solid rgba(255,255,255,.10);
+  background:#080c11;color:#7f8995;font-size:12px;font-weight:950;letter-spacing:.06em;white-space:nowrap
+}
+.edge2-feed-badge i,.edge2-live-dot{
+  width:7px;height:7px;flex:0 0 7px;border-radius:50%;background:#75808c;box-shadow:0 0 0 4px rgba(117,128,140,.08)
+}
+.edge2-feed-badge.is-live{color:#75e9b2;border-color:rgba(79,227,155,.20);background:rgba(79,227,155,.035)}
+.edge2-feed-badge.is-live i,.edge2-live-dot{background:#22d55e;box-shadow:0 0 12px rgba(34,213,94,.65)}
+.edge2-feed-badge.is-error{color:#ff8292;border-color:rgba(255,101,122,.24);background:rgba(255,101,122,.04)}
+.edge2-feed-badge.is-error i{background:#ff657a}
+.edge2-feed-badge.is-idle{color:#747f8b}
+
+.edge2-status-strip{
+  min-height:64px;display:flex;align-items:center;gap:18px;margin-top:18px;padding:0 18px;
+  border:1px solid rgba(45,127,255,.15);
+  background:linear-gradient(90deg,rgba(45,127,255,.05),rgba(7,10,15,.96) 27%,#06090d)
+}
+.edge2-status-strip>div{display:flex;align-items:center;gap:9px;min-width:0}
+.edge2-status-strip b{font-size:12px;letter-spacing:.08em}
+.edge2-status-strip small{color:#65717d;font-size:12px}
+.edge2-status-divider{width:1px;height:24px;background:rgba(255,255,255,.08)}
+
+.edge2-league-deck{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px
+}
+.edge2-league-tab{
+  min-height:76px;display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:11px;
+  padding:0 14px;border:1px solid rgba(255,255,255,.09);background:#070a0f;color:#f6f7f9;text-align:left;cursor:pointer
+}
+.edge2-league-tab:hover{border-color:rgba(45,127,255,.27);background:rgba(45,127,255,.025)}
+.edge2-league-tab.is-active{
+  border-color:rgba(45,127,255,.42);background:linear-gradient(120deg,rgba(45,127,255,.10),#080b10 62%);
+  box-shadow:inset 3px 0 0 var(--edge-blue)
+}
+.edge2-league-code{
+  width:40px;height:34px;display:grid;place-items:center;border:1px solid rgba(45,127,255,.24);
+  background:#090e15;color:#76aeff;font-size:12px;font-weight:1000;letter-spacing:.04em
+}
+.edge2-league-tab b{display:block;font-size:12px;letter-spacing:.07em}
+.edge2-league-tab small{display:block;margin-top:5px;color:#626d79;font-size:12px}
+.edge2-league-tab>i{color:#697582;font-size:12px;font-style:normal;font-weight:950;letter-spacing:.07em}
+.edge2-league-tab.is-active>i{color:#77adff}
+
+.edge2-board-section{margin-top:24px}
+.edge2-freshness{color:#65717d;font-size:12px;font-weight:900;letter-spacing:.055em}
+.edge2-board{display:grid;gap:14px;margin-top:14px}
+.edge2-loading{min-height:250px}
+
+.edge2-game{
+  overflow:hidden;border:1px solid rgba(255,255,255,.12);
+  background:linear-gradient(155deg,#090d13,#05070a 74%);box-shadow:0 18px 44px rgba(0,0,0,.16)
+}
+.edge2-game-head{
+  min-height:92px;display:grid;grid-template-columns:minmax(170px,.55fr) minmax(380px,1.3fr) minmax(180px,.55fr);
+  align-items:center;gap:16px;padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.08);
+  background:linear-gradient(90deg,rgba(45,127,255,.05),transparent 48%,rgba(123,92,255,.035))
+}
+.edge2-game-context span,.edge2-game-context b,.edge2-game-context small,
+.edge2-game-mode span,.edge2-game-mode b,.edge2-game-mode small{display:block}
+.edge2-game-context span,.edge2-game-mode span{color:#64707c;font-size:12px;font-weight:950;letter-spacing:.09em}
+.edge2-game-context b{margin-top:5px;font-size:13px}
+.edge2-game-context small{margin-top:4px;color:#5d6874;font-size:12px}
+.edge2-game-mode{text-align:right}
+.edge2-game-mode b{margin-top:5px;color:#8db8ff;font-size:12px;letter-spacing:.055em}
+.edge2-game-mode small{margin-top:4px;color:#5f6975;font-size:12px}
+
+.edge2-matchup{display:grid;grid-template-columns:minmax(0,1fr) 34px minmax(0,1fr);align-items:center;gap:10px}
+.edge2-team{min-width:0;display:flex;align-items:center;gap:11px}
+.edge2-team.is-home{justify-content:flex-end;text-align:right}
+.edge2-team-logo{
+  width:50px;height:50px;flex:0 0 50px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.08);
+  background:#080d13
+}
+.edge2-team-logo img{width:43px;height:43px;object-fit:contain}
+.edge2-team b,.edge2-team small{display:block}
+.edge2-team b{font-size:17px;letter-spacing:.035em}
+.edge2-team small{margin-top:4px;color:#697480;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:170px}
+.edge2-at{text-align:center;color:#56616d;font-size:12px;font-weight:950}
+
+.edge2-markets{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.07)}
+.edge2-market{min-width:0;padding:15px 16px 16px;background:#070b10;position:relative}
+.edge2-market::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;background:var(--edge-blue)}
+.edge2-market--moneyline::before{background:var(--edge-violet)}
+.edge2-market--total::before{background:var(--edge-orange)}
+.edge2-market-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.07)}
+.edge2-market-head span{display:block;color:#5e6975;font-size:12px;font-weight:950;letter-spacing:.09em}
+.edge2-market-head b{display:block;margin-top:4px;font-size:17px;letter-spacing:-.02em}
+.edge2-market-head>strong{color:#718091;font-size:12px;font-weight:900;text-align:right}
+.edge2-market-sides{display:grid;grid-template-columns:minmax(0,1fr) 30px minmax(0,1fr);align-items:center;gap:7px;padding:14px 0 9px}
+.edge2-market-sides>span{min-width:0}
+.edge2-market-sides>span:last-child{text-align:right}
+.edge2-market-sides small{display:block;color:#697582;font-size:12px;font-weight:900}
+.edge2-market-sides b{display:block;margin-top:4px;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.edge2-market-sides strong{display:block;margin-top:6px;color:#a6b0bb;font-size:20px;letter-spacing:-.035em}
+.edge2-market-sides .is-leader strong{color:#fff}
+.edge2-market-sides .is-leader b{color:#f2f6fa}
+.edge2-market--spread .is-leader strong{color:#79b0ff}
+.edge2-market--moneyline .is-leader strong{color:#ac9cff}
+.edge2-market--total .is-leader strong{color:#ff9a77}
+.edge2-market-sides em{text-align:center;color:#4f5965;font-size:12px;font-style:normal;font-weight:950}
+.edge2-bar{display:flex;height:10px;overflow:hidden;background:#101720;border:1px solid rgba(255,255,255,.07)}
+.edge2-bar>i{height:100%;display:block;transition:width .25s ease}
+.edge2-bar>i:first-child{background:linear-gradient(90deg,#1765db,#4f9dff)}
+.edge2-bar>i:last-child{background:linear-gradient(90deg,#6847e8,#9d87ff)}
+.edge2-bar.is-total>i:first-child{background:linear-gradient(90deg,#276edb,#63a5ff)}
+.edge2-bar.is-total>i:last-child{background:linear-gradient(90deg,#da5420,#ff9169)}
+.edge2-call{
+  min-height:42px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:10px;
+  padding:0 10px;border:1px solid rgba(255,255,255,.07);background:#05080c
+}
+.edge2-call span{color:#596470;font-size:12px;font-weight:950;letter-spacing:.09em}
+.edge2-call b{font-size:12px;letter-spacing:.035em;text-align:right}
+.edge2-reason{min-height:46px;margin:9px 0 0;color:#7a8692;font-size:12px;line-height:1.55}
+.edge2-reason strong{color:#e8eef6}
+
+.edge2-empty{
+  min-height:250px;display:flex;align-items:center;justify-content:center;gap:17px;padding:28px;
+  border:1px solid rgba(255,255,255,.10);background:#070a0f
+}
+.edge2-empty>span{
+  width:52px;height:52px;display:grid;place-items:center;border:1px solid rgba(45,127,255,.28);
+  color:#70aaff;font-size:28px;background:rgba(45,127,255,.04)
+}
+.edge2-empty b{display:block;font-size:16px}.edge2-empty p{max-width:680px;margin:6px 0 0;color:#6e7985;font-size:12px;line-height:1.55}
+.edge2-empty.is-error>span{color:#ff7a8e;border-color:rgba(255,101,122,.28)}
+
+.edge2-read-band{
+  display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;border:1px solid rgba(255,255,255,.09);background:#06090e
+}
+.edge2-read-band>div{min-height:76px;display:grid;grid-template-columns:30px minmax(0,1fr);grid-template-rows:auto auto;align-content:center;column-gap:10px;padding:11px 14px;border-left:1px solid rgba(255,255,255,.07)}
+.edge2-read-band>div:first-child{border-left:0}
+.edge2-read-band span{grid-row:1/3;width:27px;height:27px;display:grid;place-items:center;border:1px solid rgba(45,127,255,.2);color:#70a9ff;font-size:12px;font-weight:950}
+.edge2-read-band b{font-size:12px;letter-spacing:.08em}.edge2-read-band small{margin-top:4px;color:#616c78;font-size:12px;line-height:1.35}
+
+.tso-game-edge-nav-mark{
+  width:36px!important;height:38px!important;border:0!important;border-radius:0!important;background:transparent!important;
+  color:#67a8ff!important;font-size:28px!important;box-shadow:none!important
+}
+.tso-side-item--game-edge:hover .tso-game-edge-nav-mark,
+.tso-side-item--game-edge.is-active .tso-game-edge-nav-mark{color:#cfe2ff!important;box-shadow:none!important}
+
+@media(max-width:1180px){
+  .edge2-league-deck{grid-template-columns:repeat(2,1fr)}
+  .edge2-game-head{grid-template-columns:150px minmax(320px,1fr) 160px}
+  .edge2-markets{grid-template-columns:1fr}
+}
+@media(max-width:900px){
+  .edge2-status-strip{overflow-x:auto;white-space:nowrap}
+  .edge2-league-deck{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}
+  .edge2-league-tab{min-width:260px;scroll-snap-align:start}
+  .edge2-game-head{grid-template-columns:1fr}
+  .edge2-game-context,.edge2-game-mode{text-align:left}
+  .edge2-game-mode{padding-top:10px;border-top:1px solid rgba(255,255,255,.06)}
+  .edge2-matchup{max-width:620px;width:100%}
+}
+@media(max-width:600px){
+  .edge2-title-lockup{gap:8px}.edge2-mark{width:30px;height:30px;font-size:18px}
+  .edge2-status-strip{padding:0 12px;gap:13px}
+  .edge2-league-tab{min-width:225px}
+  .edge2-game-head{padding:13px 12px}
+  .edge2-matchup{grid-template-columns:minmax(0,1fr) 24px minmax(0,1fr)}
+  .edge2-team{gap:7px}.edge2-team-logo{width:42px;height:42px;flex-basis:42px}.edge2-team-logo img{width:36px;height:36px}
+  .edge2-team b{font-size:14px}.edge2-team small{display:none}
+  .edge2-market{padding:13px 12px 14px}
+  .edge2-market-sides strong{font-size:18px}
+  .edge2-read-band{grid-template-columns:1fr}
+  .edge2-read-band>div{border-left:0;border-top:1px solid rgba(255,255,255,.07)}
+  .edge2-read-band>div:first-child{border-top:0}
+}
