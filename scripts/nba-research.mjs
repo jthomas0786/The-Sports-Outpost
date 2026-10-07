@@ -1,4 +1,3 @@
-
 #!/usr/bin/env node
 // Build slates/nba-research.json for TSO NBA 2.0.
 // Uses ESPN teams, rosters, injuries, player event logs and completed game summaries.
