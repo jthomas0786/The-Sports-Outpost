@@ -395,7 +395,7 @@
       return {label:'PLAY',tone:'neutral'};
     }
     if(league==='nhl'){
-      if(/goal/.test(text)) return {label:'GOAL',tone:'score'};
+      if(/(^|\s)goal(\s|$)|scores/.test(text)) return {label:'GOAL',tone:'score'};
       if(/penalty/.test(text)) return {label:'PEN',tone:'warning'};
       if(/save/.test(text)) return {label:'SAVE',tone:'positive'};
       if(/shot/.test(text)) return {label:'SHOT',tone:'neutral'};
