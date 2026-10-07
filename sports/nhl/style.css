@@ -29,3 +29,8 @@
 .hk-live-watch-empty{margin-top:10px;color:#8ea6bd;font:700 9px/1.5 'JetBrains Mono',monospace}
 .hk-gc-list{width:100%;max-width:none}
 @media(max-width:900px){.hk-live-topgrid{grid-template-columns:1fr}}
+
+.hk-game-edge-btn{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:0 12px;border:1px solid rgba(56,189,248,.55);border-radius:9px;background:linear-gradient(135deg,rgba(45,127,255,.22),rgba(56,189,248,.10));color:#dff5ff;font:900 9px 'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;box-shadow:0 0 0 1px rgba(56,189,248,.06) inset}
+.hk-game-edge-btn:hover{border-color:#7dd3fc;background:linear-gradient(135deg,rgba(45,127,255,.34),rgba(56,189,248,.16))}
+.hk-game-edge-btn span{font-size:14px;line-height:1}
+@media(max-width:700px){.hk-head{align-items:flex-start;flex-direction:column}.hk-head-actions{justify-content:flex-start}.hk-game-edge-btn{order:-1}}
