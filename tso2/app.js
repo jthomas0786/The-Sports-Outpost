@@ -551,7 +551,9 @@
   }
 
   function nflDriveMarkup(drive,game,isCurrent=false){
-    const plays=(drive?.plays||[]).filter(p=>playTextValue(p)).slice(-30).reverse();
+    let plays=(drive?.plays||[]).filter(p=>playTextValue(p));
+    if(livePlayFilter==='scoring') plays=plays.filter(p=>isScoringPlay(p,'nfl'));
+    plays=plays.slice(-30).reverse();
     if(!plays.length) return '';
     const team=drive?.team?.abbreviation||drive?.team?.shortDisplayName||'';
     const result=drive?.displayResult||drive?.result||drive?.description||'DRIVE';
@@ -560,7 +562,7 @@
     if(drive?.timeElapsed?.displayValue) summaryBits.push(drive.timeElapsed.displayValue);
     if(drive?.plays?.length) summaryBits.push(drive.plays.length+' PLAYS');
 
-    return '<section class="nfl-drive-card '+(isCurrent?'is-current':'')+'">'
+    return '<section class="nfl-drive-card '+(isCurrent?'is-current':'')+' '+(livePlayFilter==='scoring'?'is-scoring-filter':'')+'">'
       +'<div class="nfl-drive-head"><div><span>'+esc(team||'DRIVE')+'</span><h4>'+esc(String(result).toUpperCase())+'</h4></div>'
       +'<div><b>'+esc(nflDriveStartText(drive))+'</b>'+(summaryBits.length?'<small>'+esc(summaryBits.join(' · '))+'</small>':'')+'</div></div>'
       +'<div class="nfl-drive-plays">'+plays.map((play,index)=>playRowMarkup(play,game,index,plays.length)).join('')+'</div>'
@@ -571,13 +573,17 @@
     const previous=Array.isArray(summary?.drives?.previous)?summary.drives.previous:[];
     const current=summary?.drives?.current||null;
     const drives=[...previous.map(d=>({drive:d,current:false})),...(current?[{drive:current,current:true}]:[])]
-      .filter(x=>(x.drive?.plays||[]).some(p=>playTextValue(p)))
+      .filter(x=>{
+        const plays=(x.drive?.plays||[]).filter(p=>playTextValue(p));
+        return livePlayFilter==='scoring' ? plays.some(p=>isScoringPlay(p,'nfl')) : plays.length>0;
+      })
       .slice(-12)
       .reverse();
 
     if(drives.length){
       return '<div class="nfl-drive-feed">'+drives.map(x=>nflDriveMarkup(x.drive,game,x.current)).join('')+'</div>';
     }
+    if(livePlayFilter==='scoring') return '<div class="live-detail-empty live-scoring-empty"><b>No scoring plays yet.</b><small>Switch to ALL PLAYS to follow every drive.</small></div>';
     return groupedSportPlayByPlay(summary,game);
   }
 
