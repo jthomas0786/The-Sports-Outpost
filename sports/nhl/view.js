@@ -17,7 +17,7 @@ const markets={atg:'Anytime Goal',sog:'Shots on Goal',points:'Points',assists:'A
 function ensureStyle(){
  if(document.getElementById('nhl-layout-v904'))return;
  document.getElementById('nhl-layout-v903')?.remove();
- const link=document.createElement('link');link.id='nhl-layout-v904';link.rel='stylesheet';link.href='./sports/nhl/style.css?v=90.4';document.head.appendChild(link);
+ const link=document.createElement('link');link.id='nhl-layout-v904';link.rel='stylesheet';link.href='./sports/nhl/style.css?v=96.0-player-watch';document.head.appendChild(link);
 }
 const empty=s=>`<div class="hk-empty"><b>${esc(s)}</b></div>`;
 const photo=p=>imageUrl(p?.photo)?`<img src="${esc(p.photo)}" alt="${esc(p.name||'Player')}" loading="lazy" decoding="async">`:'<span class="hk-avatar">🏒</span>';
