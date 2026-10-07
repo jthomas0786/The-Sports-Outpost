@@ -476,49 +476,61 @@
 
     gameedge(league){
       return `
-      <section class="game-edge-page broadcast-destination" data-game-edge-route="${league}">
-        <section class="destination-hero game-edge-destination-hero">
-          <div>
-            <div class="game-edge-title-lockup">
-              <span class="game-edge-title-mark">◎</span>
-              <span class="destination-kicker game-edge-kicker">GAME EDGE · ${leagueName(league)}</span>
+      <section class="edge2-page broadcast-destination" data-game-edge-route="${league}">
+        <section class="destination-hero edge2-hero">
+          <div class="edge2-hero-copy">
+            <div class="edge2-title-lockup">
+              <span class="edge2-mark" aria-hidden="true">◎</span>
+              <span class="destination-kicker edge2-kicker">GAME EDGE · ${leagueName(league)}</span>
             </div>
-            <h1>Spread. Moneyline. Total. One glance.</h1>
-            <p>See which side of each core game market is favored by the current two-sided price, then get one short reason why. Bars show no-vig market preference — not certainty.</p>
+            <h1>The game market in one decision view.</h1>
+            <p>Spread, Moneyline and Total sit side by side for every matchup. The stronger half of each bar shows the current no-vig market lean, followed by one short reason — no clutter and no invented numbers.</p>
           </div>
           <div class="destination-actions">
-            <span class="game-edge-feed-badge" data-game-edge-feed-badge><i></i> CONNECTING MARKET</span>
+            <span class="edge2-feed-badge" data-game-edge-feed-badge><i></i> CONNECTING MARKET</span>
             <button class="button primary" data-game-edge-refresh>REFRESH EDGE ↻</button>
           </div>
         </section>
 
-        <section class="game-edge-toolbar">
-          <div class="segmented game-edge-league-tabs" aria-label="Game Edge sport">
-            <button class="${league==='nhl'?'is-active':''}" data-inline-league="nhl">NHL</button>
-            <button class="${league==='nfl'?'is-active':''}" data-inline-league="nfl">NFL</button>
-            <button class="${league==='mlb'?'is-active':''}" data-inline-league="mlb">MLB</button>
-            <button class="${league==='nba'?'is-active':''}" data-inline-league="nba">NBA</button>
+        <section class="edge2-status-strip">
+          <div><span class="edge2-live-dot"></span><b data-game-edge-status>CONNECTING</b><small>verified two-sided game market</small></div>
+          <span class="edge2-status-divider"></span>
+          <div><b data-game-edge-game-count>—</b><small>games on slate</small></div>
+          <span class="edge2-status-divider"></span>
+          <div><b>3 CORE MARKETS</b><small>Spread · Moneyline · Total</small></div>
+          <span class="edge2-status-divider"></span>
+          <div><b>NO-VIG</b><small>market preference, not certainty</small></div>
+        </section>
+
+        <section class="edge2-league-deck" aria-label="Game Edge sport">
+          <button class="edge2-league-tab ${league==='nhl'?'is-active':''}" data-inline-league="nhl">
+            <span class="edge2-league-code">NHL</span><div><b>HOCKEY</b><small>${league==='nhl'?'LIVE GAME MARKET':'Open Game Edge'}</small></div><i>${league==='nhl'?'LIVE':'→'}</i>
+          </button>
+          <button class="edge2-league-tab ${league==='nfl'?'is-active':''}" data-inline-league="nfl">
+            <span class="edge2-league-code">NFL</span><div><b>FOOTBALL</b><small>${league==='nfl'?'CURRENT VIEW':'Game market feed next'}</small></div><i>→</i>
+          </button>
+          <button class="edge2-league-tab ${league==='mlb'?'is-active':''}" data-inline-league="mlb">
+            <span class="edge2-league-code">MLB</span><div><b>BASEBALL</b><small>${league==='mlb'?'CURRENT VIEW':'Game market feed next'}</small></div><i>→</i>
+          </button>
+          <button class="edge2-league-tab ${league==='nba'?'is-active':''}" data-inline-league="nba">
+            <span class="edge2-league-code">NBA</span><div><b>BASKETBALL</b><small>${league==='nba'?'CURRENT VIEW':'Game market feed next'}</small></div><i>→</i>
+          </button>
+        </section>
+
+        <section class="destination-section edge2-board-section">
+          <div class="destination-section-head">
+            <div><span class="edge2-kicker">CORE GAME MARKETS</span><h2 data-game-edge-market-title>${league==='nhl'?'NHL Game Edge':'Game Edge'}</h2></div>
+            <span class="edge2-freshness" data-game-edge-freshness>Spread · Moneyline · Total</span>
           </div>
-          <div class="game-edge-toolbar-copy">
-            <b data-game-edge-market-title>${league==='nhl'?'NHL GAME MARKETS':'GAME MARKET FEED'}</b>
-            <small data-game-edge-freshness>Spread · Moneyline · Total</small>
+          <div class="edge2-board" data-game-edge-board>
+            <div class="live-board-loading edge2-loading"><span class="live-feed-spinner"></span><div><b>Loading Game Edge…</b><small>Building the current three-market decision view.</small></div></div>
           </div>
         </section>
 
-        <section class="game-edge-status-strip">
-          <div><span class="game-edge-live-dot"></span><b data-game-edge-status>CONNECTING</b><small>live two-sided game price feed</small></div>
-          <div><b data-game-edge-game-count>—</b><small>games</small></div>
-          <div><b>3</b><small>markets per game</small></div>
-          <div><b>NO-VIG</b><small>side comparison</small></div>
-        </section>
-
-        <div class="game-edge-board" data-game-edge-board>
-          <div class="live-board-loading game-edge-loading"><span class="live-feed-spinner"></span><div><b>Loading Game Edge…</b><small>Current spread, moneyline and total markets.</small></div></div>
-        </div>
-
-        <section class="game-edge-footnote">
-          <span>HOW TO READ IT</span>
-          <p>The larger side of each bar is the stronger no-vig market lean from the current two-sided price. TSO does not invent a missing line, price or probability.</p>
+        <section class="edge2-read-band">
+          <div><span>01</span><b>READ THE BAR</b><small>The larger side is the stronger no-vig market preference.</small></div>
+          <div><span>02</span><b>CHECK THE PRICE</b><small>Each side keeps its current verified line and American price.</small></div>
+          <div><span>03</span><b>READ THE WHY</b><small>One short explanation tells you what is driving the lean.</small></div>
         </section>
       </section>`;
     },
