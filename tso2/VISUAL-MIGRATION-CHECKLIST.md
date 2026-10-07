@@ -201,7 +201,9 @@ NHL/NFL player research included:
 - positive/neutral/negative state
 - model contribution language must remain honest; do not imply causal weight unless the model exposes it
 
-**Status:** NEEDS MIGRATION
+**Current 2.0 implementation:** NFL and NHL Deep Research now include a shared source-backed matchup-driver ladder using exact model-vs-market gap plus verified recent form, role/opportunity or opponent context where available. Driver states are explicitly labeled as contextual reads, not causal model weights or standalone probabilities. MLB/NBA use their existing sport-specific context modules and can adopt the shared ladder where the same source-backed fields are available.
+
+**Status:** PARTIAL / NFL + NHL DRIVER LADDERS MIGRATED
 
 ---
 
