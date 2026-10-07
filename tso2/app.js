@@ -1318,9 +1318,12 @@
     }
 
     if(league==='nba'){
+      // NBA Player to Watch is intentionally based only on the big three:
+      // points, rebounds and assists.
       const cfg={
-        points:['PTS',.55],rebounds:['REB',1.25],assists:['AST',1.7],
-        steals:['STL',4.5],blocks:['BLK',4.5],threePointFieldGoalsMade:['3PM',3.2]
+        points:['PTS',.55],
+        rebounds:['REB',1.25],
+        assists:['AST',1.7]
       };
       const hit=cfg[k];
       return hit?{label:hit[0],value,display:String(raw),heat:value*hit[1]}:null;
@@ -1389,8 +1392,7 @@
       return [
         {label:'PTS',value:value('points','PTS')},
         {label:'REB',value:value('rebounds','REB')},
-        {label:'AST',value:value('assists','AST')},
-        {label:'STL',value:value('steals','STL')}
+        {label:'AST',value:value('assists','AST')}
       ];
     }
 
