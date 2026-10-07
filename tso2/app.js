@@ -1521,7 +1521,7 @@
         +'<div class="live-watch-player-copy"><h3>'+esc(name)+'</h3><small>'+esc(teamLabel)+'</small></div>'
       +'</div>'
       +'<div class="live-watch-stat"><span>ON FIRE</span><strong>'+esc(pick.metric.display)+' <em>'+esc(pick.metric.label)+'</em></strong></div>'
-      +(pick.mainStats?.length?'<div class="live-watch-game-stats"><span>THIS GAME</span><div>'+pick.mainStats.map(stat=>'<b><em>'+esc(stat.label)+'</em><strong>'+esc(stat.value)+'</strong></b>').join('')+'</div></div>':'')
+      +(pick.mainStats?.length?'<div class="live-watch-game-stats"><span>THIS GAME</span><div class="stats-count-'+pick.mainStats.length+'">'+pick.mainStats.map(stat=>'<b><em>'+esc(stat.label)+'</em><strong>'+esc(stat.value)+'</strong></b>').join('')+'</div></div>':'')
       +'<div class="live-watch-foot">'
         +(pick.team?teamLogoMarkup(pick.team,'live-watch-team-logo'):'')
         +'<span>Selected from this game’s live box score</span>'
