@@ -9534,3 +9534,302 @@ body.tso-side-nav-open{overflow:hidden}
   .live-base-state .third,
   .live-base-state .first{top:31px}
 }
+
+
+/* =========================================================
+   TSO 2.0 — SELECTED GAME + ONE PLAYER TO WATCH
+   ========================================================= */
+.live-command-grid{
+  display:block!important;
+  margin-top:18px;
+}
+.live-feature-stack{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:14px!important;
+  width:100%;
+  min-width:0;
+}
+.live-selected-game-top{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 292px;
+  gap:14px;
+  align-items:stretch;
+  min-width:0;
+}
+.live-selected-game-top>.live-gamecast-hero{
+  width:100%;
+  min-width:0;
+  height:100%!important;
+}
+.live-game-detail{
+  width:100%;
+  min-width:0;
+}
+.live-detail-body{
+  max-height:560px;
+}
+
+/* One compact player card replaces the duplicate right-side scoreboard. */
+.live-player-watch{
+  position:relative;
+  min-width:0;
+  min-height:100%;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  border:1px solid rgba(255,255,255,.13);
+  background:
+    radial-gradient(circle at 50% 18%,rgba(255,77,28,.095),transparent 46%),
+    linear-gradient(155deg,#0a0d13,#05070a 78%);
+  box-shadow:0 20px 42px rgba(0,0,0,.16);
+}
+.live-player-watch:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.022),transparent 30%);
+}
+.live-watch-top{
+  position:relative;
+  z-index:1;
+  min-height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  padding:0 13px;
+  border-bottom:1px solid rgba(255,255,255,.075);
+}
+.live-watch-top>span{
+  color:#7c8793;
+  font-size:10px;
+  font-weight:1000;
+  letter-spacing:.11em;
+}
+.live-watch-top>b{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  color:#ff9a78;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.09em;
+}
+.live-watch-top>b i{
+  width:6px;
+  height:6px;
+  border-radius:50%;
+  background:#ff5932;
+  box-shadow:0 0 10px rgba(255,89,50,.65);
+}
+.live-watch-player{
+  position:relative;
+  z-index:1;
+  flex:1 1 auto;
+  min-height:142px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 13px 10px;
+}
+.live-watch-headshot{
+  position:relative;
+  width:92px;
+  height:112px;
+  flex:0 0 92px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-bottom:2px solid rgba(255,255,255,.1);
+  background:
+    radial-gradient(circle at 50% 35%,rgba(45,127,255,.14),transparent 54%),
+    #090e15;
+}
+.live-watch-headshot>span{
+  color:#66727f;
+  font-size:26px;
+  font-weight:1000;
+  letter-spacing:-.04em;
+}
+.live-watch-headshot img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center bottom;
+}
+.live-watch-player-copy{
+  min-width:0;
+}
+.live-watch-player-copy h3{
+  margin:0;
+  color:#f5f7f9;
+  font-size:19px;
+  line-height:1.08;
+  letter-spacing:-.025em;
+}
+.live-watch-player-copy small{
+  display:block;
+  margin-top:6px;
+  color:#71808f;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.08em;
+}
+.live-watch-stat{
+  position:relative;
+  z-index:1;
+  margin:0 13px;
+  padding:12px 0;
+  border-top:1px solid rgba(255,255,255,.07);
+  border-bottom:1px solid rgba(255,255,255,.07);
+}
+.live-watch-stat>span{
+  display:block;
+  color:#ff8b68;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.11em;
+}
+.live-watch-stat>strong{
+  display:block;
+  margin-top:4px;
+  color:#fff;
+  font-size:30px;
+  line-height:1;
+  font-weight:1000;
+  letter-spacing:-.045em;
+}
+.live-watch-stat>strong em{
+  margin-left:4px;
+  color:#ffd968;
+  font-size:13px;
+  font-style:normal;
+  letter-spacing:.02em;
+}
+.live-watch-foot{
+  position:relative;
+  z-index:1;
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 13px;
+}
+.live-watch-foot>span:last-child{
+  color:#626e7a;
+  font-size:9px;
+  font-weight:800;
+  line-height:1.35;
+}
+.live-watch-team-logo{
+  width:26px!important;
+  height:26px!important;
+  flex:0 0 26px!important;
+}
+.live-watch-team-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+.live-player-watch-loading,
+.live-player-watch-empty{
+  position:relative;
+  z-index:1;
+  flex:1;
+  min-height:260px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  gap:8px;
+  padding:22px;
+  text-align:center;
+}
+.live-player-watch-loading .live-feed-spinner{
+  margin-bottom:4px;
+}
+.live-player-watch-loading b,
+.live-player-watch-empty b{
+  color:#e8ebee;
+  font-size:12px;
+}
+.live-player-watch-loading small,
+.live-player-watch-empty small{
+  max-width:210px;
+  color:#66727e;
+  font-size:10px;
+  line-height:1.45;
+}
+.live-player-watch-empty>span{
+  color:#ff8f6d;
+  font-size:9px;
+  font-weight:1000;
+  letter-spacing:.1em;
+}
+
+/* The game detail becomes the full-width console. */
+.live-feature-stack>.live-game-detail{
+  grid-column:1/-1;
+}
+.live-game-detail-head{
+  padding-left:16px;
+  padding-right:16px;
+}
+.live-detail-subbar{
+  padding-left:14px;
+  padding-right:14px;
+}
+.live-pbp-row{
+  grid-template-columns:74px 52px minmax(0,1fr) 68px;
+  padding-left:16px;
+  padding-right:16px;
+}
+.nfl-drive-feed{
+  padding:12px;
+}
+
+@media(max-width:1050px){
+  .live-selected-game-top{
+    grid-template-columns:minmax(0,1fr) 250px;
+  }
+  .live-watch-headshot{
+    width:76px;
+    height:96px;
+    flex-basis:76px;
+  }
+  .live-watch-player-copy h3{font-size:16px}
+  .live-watch-stat>strong{font-size:26px}
+}
+@media(max-width:760px){
+  .live-selected-game-top{
+    grid-template-columns:1fr;
+  }
+  .live-player-watch{
+    min-height:auto;
+  }
+  .live-watch-player{
+    min-height:112px;
+  }
+  .live-player-watch-loading,
+  .live-player-watch-empty{
+    min-height:150px;
+  }
+  .live-watch-headshot{
+    width:72px;
+    height:86px;
+    flex-basis:72px;
+  }
+  .live-detail-body{
+    max-height:500px;
+  }
+  .live-pbp-row{
+    grid-template-columns:58px 42px minmax(0,1fr) 46px;
+    padding-left:10px;
+    padding-right:10px;
+  }
+}
