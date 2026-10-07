@@ -9015,3 +9015,177 @@ body.tso-side-nav-open{overflow:hidden}
   .nba-player-table th:first-child,
   .nba-player-table td:first-child{min-width:146px;width:146px}
 }
+
+
+/* =========================================================
+   TSO 2.0 — SPORT-SPECIFIC LIVE PLAY-BY-PLAY
+   ========================================================= */
+.live-pbp-list{
+  display:grid;
+  min-width:0;
+}
+.live-pbp-period-head{
+  min-height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:6px 14px;
+  border-top:1px solid rgba(255,255,255,.08);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  background:#05080c;
+  position:sticky;
+  top:0;
+  z-index:5;
+}
+.live-pbp-period-head:first-child{border-top:0}
+.live-pbp-period-head span{
+  color:#f2f4f6;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.live-pbp-period-head small{
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.1em;
+}
+.live-pbp-row{
+  grid-template-columns:64px 46px minmax(0,1fr) 54px;
+}
+.live-pbp-event-tag{
+  min-width:38px;
+  height:22px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  justify-self:start;
+  padding:0 6px;
+  border:1px solid rgba(255,255,255,.08);
+  background:#0a0f15;
+  color:#7e8995;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.live-pbp-row.tone-score .live-pbp-event-tag{
+  color:#fff1bd;
+  border-color:rgba(255,216,77,.26);
+  background:rgba(255,216,77,.08);
+}
+.live-pbp-row.tone-positive .live-pbp-event-tag{
+  color:#dcecff;
+  border-color:rgba(45,127,255,.28);
+  background:rgba(45,127,255,.08);
+}
+.live-pbp-row.tone-warning .live-pbp-event-tag{
+  color:#ffc1af;
+  border-color:rgba(255,77,28,.28);
+  background:rgba(255,77,28,.08);
+}
+.live-pbp-row.tone-muted .live-pbp-event-tag{
+  color:#66727f;
+  border-color:rgba(255,255,255,.06);
+  background:#070b10;
+}
+.live-pbp-copy small{
+  display:block;
+  margin-top:5px;
+  color:#5d6874;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.02em;
+}
+.live-pbp-list.sport-mlb .live-pbp-row.is-scoring{
+  background:linear-gradient(90deg,rgba(255,77,28,.07),rgba(255,216,77,.025),transparent 76%);
+}
+.live-pbp-list.sport-nhl .live-pbp-row.is-scoring{
+  background:linear-gradient(90deg,rgba(45,127,255,.08),rgba(255,216,77,.025),transparent 76%);
+}
+.live-pbp-list.sport-nba .live-pbp-row.is-scoring{
+  background:linear-gradient(90deg,rgba(255,216,77,.055),rgba(45,127,255,.025),transparent 76%);
+}
+.nfl-drive-feed{
+  display:grid;
+  gap:10px;
+  padding:10px;
+}
+.nfl-drive-card{
+  min-width:0;
+  border:1px solid rgba(255,255,255,.08);
+  background:#060a0f;
+}
+.nfl-drive-card.is-current{
+  border-color:rgba(255,216,77,.22);
+  box-shadow:inset 2px 0 0 rgba(255,216,77,.72);
+}
+.nfl-drive-head{
+  min-height:48px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:8px 10px;
+  border-bottom:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(90deg,rgba(45,127,255,.045),transparent 60%);
+}
+.nfl-drive-head>div:first-child span{
+  display:block;
+  color:#667585;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.nfl-drive-head h4{
+  margin:2px 0 0;
+  color:#f0f3f6;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.nfl-drive-head>div:last-child{
+  text-align:right;
+}
+.nfl-drive-head b{
+  display:block;
+  color:#c9d0d7;
+  font-size:10px;
+}
+.nfl-drive-head small{
+  display:block;
+  margin-top:3px;
+  color:#5e6a76;
+  font-size:9px;
+}
+.nfl-drive-plays .live-pbp-row:last-child{
+  border-bottom:0;
+}
+.nfl-drive-plays .live-pbp-row{
+  grid-template-columns:64px 46px minmax(0,1fr) 54px;
+}
+
+@media(max-width:600px){
+  .live-pbp-period-head{padding:6px 10px}
+  .live-pbp-row,
+  .nfl-drive-plays .live-pbp-row{
+    grid-template-columns:54px 40px minmax(0,1fr) 42px;
+    gap:7px;
+  }
+  .live-pbp-event-tag{
+    min-width:34px;
+    padding:0 4px;
+    font-size:8px;
+  }
+  .nfl-drive-feed{
+    gap:8px;
+    padding:8px;
+  }
+  .nfl-drive-head{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:5px;
+    min-height:0;
+  }
+  .nfl-drive-head>div:last-child{text-align:left}
+}
