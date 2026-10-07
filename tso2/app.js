@@ -31,6 +31,13 @@
   let propsFeedInFlight = null;
   let parlayLegKeys = [];
   let parlayTarget = 3;
+  let parlayMode = 'pregame';
+  let parlayQuarterPeriod = 'q1';
+  let parlayCheckpointStrategy = 'tsoPick';
+  let parlayCheckpointLegKeys = [];
+  let nflCheckpointCache = null;
+  let nflCheckpointFetchedAt = 0;
+  let nflCheckpointInFlight = null;
   let researchQuery = '';
   const propsFilterState = {
     search:'',
@@ -60,6 +67,8 @@
   const GAME_EDGE_RAW_BASE = 'https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/';
   const GAME_EDGE_SCOREBOARD_BASE = 'https://tso2-game-edge.jthomas0786-tso.workers.dev/';
   const NBA_MODEL_BASE = 'https://tso2-nba-model.jthomas0786-tso.workers.dev/';
+  const NFL_CHECKPOINT_BASE = 'https://tso2-nfl-checkpoints.jthomas0786-tso.workers.dev/';
+  const NFL_CHECKPOINT_TTL = 30000;
   let scoreTickerResumeTimer = null;
   const SCORE_TICKER_PX_PER_SECOND = 34;
 
@@ -3274,9 +3283,300 @@
     bindMediaFallbacks();
   }
 
+  function checkpointMarketLabel(market){
+    return ({
+      rushYds:'Rush Yds',recYds:'Receiving Yds',passYds:'Passing Yds',receptions:'Receptions',
+      passTds:'Pass TDs',completions:'Completions',atd:'Anytime TD',firstTd:'First TD'
+    })[String(market||'')]||String(market||'Prop').replace(/([a-z])([A-Z])/g,'$1 $2');
+  }
+
+  function checkpointSelection(candidate){
+    const market=String(candidate?.market||'');
+    if(market==='atd'||market==='firstTd')return market==='firstTd'?'First TD':'Anytime TD';
+    const line=Number(candidate?.line);
+    const side=String(candidate?.side||'over').toLowerCase()==='under'?'Under':'Over';
+    return side+(Number.isFinite(line)?' '+(Number.isInteger(line)?line:line.toFixed(1)):'')+' '+checkpointMarketLabel(market);
+  }
+
+  function checkpointSource(){
+    return parlayMode==='quarter'?nflCheckpointCache?.quarter:nflCheckpointCache?.halftime;
+  }
+
+  function checkpointCandidates(){
+    const source=checkpointSource();
+    if(!source?.ready)return [];
+    const out=[];
+    if(parlayMode==='quarter'){
+      for(const game of source.games||[]){
+        const board=game?.periods?.[parlayQuarterPeriod];
+        if(!board?.ready)continue;
+        const byId=new Map((board.candidates||[]).map(c=>[String(c.id),c]));
+        const ranked=(board?.rankings?.[parlayCheckpointStrategy]||board?.rankings?.tsoPick||[]).map(String);
+        const ordered=[];
+        const seen=new Set();
+        for(const id of ranked){const c=byId.get(id);if(c&&!seen.has(id)){ordered.push(c);seen.add(id);}}
+        for(const c of board.candidates||[]){const id=String(c.id);if(!seen.has(id)){ordered.push(c);seen.add(id);}}
+        ordered.forEach((c,rank)=>out.push({...c,_key:'quarter|'+parlayQuarterPeriod+'|'+String(c.id),_rank:rank,_matchup:game.matchup,_period:parlayQuarterPeriod}));
+      }
+    }else if(parlayMode==='halftime'){
+      for(const game of source.games||[]){
+        const byId=new Map((game.candidates||[]).map(c=>[String(c.id),c]));
+        const ranked=(game?.rankings?.[parlayCheckpointStrategy]||game?.rankings?.tsoPick||[]).map(String);
+        const ordered=[];
+        const seen=new Set();
+        for(const id of ranked){const c=byId.get(id);if(c&&!seen.has(id)){ordered.push(c);seen.add(id);}}
+        for(const c of game.candidates||[]){const id=String(c.id);if(!seen.has(id)){ordered.push(c);seen.add(id);}}
+        ordered.forEach((c,rank)=>out.push({...c,_key:'halftime|'+String(c.id),_rank:rank,_matchup:game.matchup,_period:'halftime'}));
+      }
+    }
+    return out.sort((a,b)=>Number(a._rank||0)-Number(b._rank||0)||Number(b.simProbability||0)-Number(a.simProbability||0));
+  }
+
+  function fillCheckpointToTarget(){
+    const all=checkpointCandidates();
+    const valid=new Set(all.map(c=>String(c._key)));
+    parlayCheckpointLegKeys=parlayCheckpointLegKeys.filter(key=>valid.has(String(key)));
+    if(parlayCheckpointLegKeys.length>parlayTarget)parlayCheckpointLegKeys=parlayCheckpointLegKeys.slice(0,parlayTarget);
+    const selectedPlayers=new Set(parlayCheckpointLegKeys.map(key=>all.find(c=>c._key===key)?.name).filter(Boolean).map(x=>String(x).toLowerCase()));
+    for(const c of all){
+      if(parlayCheckpointLegKeys.length>=parlayTarget)break;
+      if(parlayCheckpointLegKeys.includes(c._key))continue;
+      const player=String(c.name||'').toLowerCase();
+      if(player&&selectedPlayers.has(player))continue;
+      parlayCheckpointLegKeys.push(c._key);
+      if(player)selectedPlayers.add(player);
+    }
+  }
+
+  function checkpointSelected(){
+    const byKey=new Map(checkpointCandidates().map(c=>[String(c._key),c]));
+    return parlayCheckpointLegKeys.map(key=>byKey.get(String(key))).filter(Boolean);
+  }
+
+  function checkpointIndependentMath(rows){
+    let model=1,market=1,modelValid=rows.length>0,marketValid=rows.length>0,decimal=1,priceValid=rows.length>0;
+    for(const row of rows){
+      const p=Number(row.simProbability);
+      if(Number.isFinite(p)&&p>0&&p<1)model*=p;else modelValid=false;
+      const mp=Number(row.bookFairProbability);
+      if(Number.isFinite(mp)&&mp>0&&mp<1)market*=mp;else marketValid=false;
+      const d=americanToDecimal(row.price);
+      if(Number.isFinite(d))decimal*=d;else priceValid=false;
+    }
+    const modelPct=modelValid?model*100:null,marketPct=marketValid?market*100:null;
+    return {
+      modelPct,marketPct,
+      deltaPct:Number.isFinite(modelPct)&&Number.isFinite(marketPct)?modelPct-marketPct:null,
+      derivedPrice:priceValid?decimalToAmerican(decimal):null
+    };
+  }
+
+  function checkpointLegMarkup(row,index){
+    const p=Number(row.simProbability)*100;
+    const edge=Number(row.edge);
+    const isHalf=parlayMode==='halftime';
+    return '<div class="parlay-leg parlay-leg--strong checkpoint-leg" data-checkpoint-leg="'+esc(row._key)+'">'
+      +'<div class="parlay-leg-index">'+String(index+1).padStart(2,'0')+'</div>'
+      +'<div class="parlay-leg-main"><div class="parlay-leg-identity"><span class="checkpoint-player-mark">NFL</span><div>'
+        +'<div class="parlay-leg-meta"><span>NFL · '+esc(row._period.toUpperCase())+' · '+esc(checkpointMarketLabel(row.market))+'</span><b>'+esc(row.grade||'50K MODEL')+'</b></div>'
+        +'<h3>'+esc(row.name)+' · '+esc(checkpointSelection(row))+'</h3>'
+        +'<small>'+esc(row._matchup||row.matchup||'NFL checkpoint')+' · '+(isHalf?'halftime checkpoint':'pregame period simulation')+'</small>'
+      +'</div></div>'
+      +'<div class="parlay-leg-metrics">'
+        +'<span><small>50K SIM</small><b>'+pct1(p)+'</b></span>'
+        +'<span><small>EDGE</small><b class="'+(Number.isFinite(edge)?(edge>=0?'positive':'negative'):'')+'">'+(Number.isFinite(edge)?(isHalf?edgeText(edge*100):(edge>=0?'+':'')+edge.toFixed(2)+'σ'):'—')+'</b></span>'
+        +'<span><small>ITER</small><b>'+esc(row.iterations?Number(row.iterations).toLocaleString():'50K')+'</b></span>'
+        +'<span><small>SOURCE</small><b>'+(isHalf&&row.book?esc(row.book):'TSO')+'</b></span>'
+      +'</div></div>'
+      +'<div class="parlay-leg-price"><span>'+(isHalf&&Number.isFinite(Number(row.price))?'BOOK':'PERIOD')+'</span><strong>'+(isHalf&&Number.isFinite(Number(row.price))?esc(americanPrice(row.price)):esc(row._period.toUpperCase()))+'</strong><small>'+(isHalf&&row.book?esc(row.book):'MODEL ONLY')+'</small></div>'
+      +'<button class="parlay-leg-remove" data-checkpoint-remove="'+esc(row._key)+'" aria-label="Remove '+esc(row.name)+'">×</button>'
+    +'</div>';
+  }
+
+  function checkpointSuggestionMarkup(row){
+    const isHalf=parlayMode==='halftime';
+    const edge=Number(row.edge);
+    return '<button class="parlay-suggestion-card checkpoint-suggestion" data-checkpoint-add="'+esc(row._key)+'">'
+      +'<div><span>NFL · '+esc(row._period.toUpperCase())+'</span><b>'+esc(parlayCheckpointStrategy.toUpperCase())+'</b></div>'
+      +'<span class="checkpoint-player-mark">NFL</span>'
+      +'<h3>'+esc(row.name)+' · '+esc(checkpointSelection(row))+'</h3>'
+      +'<p>'+esc(row._matchup||row.matchup||'NFL')+'</p>'
+      +'<section><span><small>50K SIM</small><b>'+pct1(Number(row.simProbability)*100)+'</b></span><span><small>EDGE</small><b class="'+(Number.isFinite(edge)?(edge>=0?'positive':'negative'):'')+'">'+(Number.isFinite(edge)?(isHalf?edgeText(edge*100):(edge>=0?'+':'')+edge.toFixed(2)+'σ'):'—')+'</b></span><span><small>'+(isHalf?'PRICE':'SOURCE')+'</small><b>'+(isHalf&&Number.isFinite(Number(row.price))?esc(americanPrice(row.price)):'TSO')+'</b></span></section>'
+      +'<i>＋ ADD LEG</i>'
+    +'</button>';
+  }
+
+  function setParlayMode(mode){
+    if(!['pregame','quarter','halftime'].includes(mode))return;
+    if(mode===parlayMode)return;
+    parlayMode=mode;
+    parlayCheckpointLegKeys=[];
+    if(mode!=='pregame'&&currentLeague!=='nfl'){
+      currentLeague='nfl';
+      shell.dataset.league='nfl';
+      syncNav();
+      renderRoute({preserveScroll:true});
+      return;
+    }
+    renderParlayLab();
+    if(mode!=='pregame')refreshNflCheckpointData(true);
+  }
+
+  async function refreshNflCheckpointData(force=false){
+    if(!force&&nflCheckpointCache&&Date.now()-nflCheckpointFetchedAt<NFL_CHECKPOINT_TTL){
+      if(currentRoute==='parlays'&&parlayMode!=='pregame')renderParlayLab();
+      return nflCheckpointCache;
+    }
+    if(nflCheckpointInFlight)return nflCheckpointInFlight;
+    nflCheckpointInFlight=fetch(NFL_CHECKPOINT_BASE,{cache:'no-store'})
+      .then(async response=>{
+        if(!response.ok)throw new Error('NFL checkpoint HTTP '+response.status);
+        const payload=await response.json();
+        if(!payload||!payload.weekKey)throw new Error('Invalid NFL checkpoint payload');
+        nflCheckpointCache=payload;
+        nflCheckpointFetchedAt=Date.now();
+        if(currentRoute==='parlays'&&parlayMode!=='pregame')renderParlayLab();
+        return payload;
+      })
+      .catch(error=>{
+        console.error('TSO NFL checkpoint:',error);
+        if(currentRoute==='parlays'&&parlayMode!=='pregame'){
+          const root=document.querySelector('[data-parlays-route]');
+          const state=root?.querySelector('[data-parlay-checkpoint-state]');
+          if(state)state.innerHTML='<span class="parlays-preview-dot is-error"></span><div><b>CHECKPOINT FEED UNAVAILABLE</b><small>'+esc(error?.message||String(error))+'</small></div>';
+        }
+        return null;
+      })
+      .finally(()=>{nflCheckpointInFlight=null;});
+    return nflCheckpointInFlight;
+  }
+
+  function renderCheckpointParlayLab(root){
+    const controls=root.querySelector('[data-parlay-checkpoint-controls]');
+    if(controls)controls.hidden=false;
+    const periodSwitch=root.querySelector('[data-parlay-period-switch]');
+    if(periodSwitch)periodSwitch.hidden=parlayMode!=='quarter';
+    const strategy=root.querySelector('[data-parlay-checkpoint-strategy]');
+    if(strategy)strategy.value=parlayCheckpointStrategy;
+    root.querySelectorAll('[data-parlay-period]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.parlayPeriod===parlayQuarterPeriod));
+
+    const source=checkpointSource();
+    const state=root.querySelector('[data-parlay-checkpoint-state]');
+    if(!nflCheckpointCache){
+      if(state)state.innerHTML='<span class="parlays-preview-dot"></span><div><b>CHECKING CURRENT NFL WEEK</b><small>Stale checkpoint boards are rejected automatically.</small></div>';
+      refreshNflCheckpointData(false);
+    }else if(!source?.available){
+      if(state)state.innerHTML='<span class="parlays-preview-dot is-idle"></span><div><b>WAITING FOR CURRENT WEEK</b><small>'+esc(source?.reason||'The current NFL checkpoint board has not published yet.')+'</small></div>';
+    }else if(!source?.ready){
+      if(state)state.innerHTML='<span class="parlays-preview-dot is-idle"></span><div><b>'+esc(parlayMode==='halftime'?'WAITING FOR HALFTIME CHECKPOINT':'CURRENT WEEK CONNECTED')+'</b><small>'+esc(source?.reason||'No ready checkpoint board yet.')+'</small></div>';
+    }else{
+      if(state)state.innerHTML='<span class="parlays-preview-dot"></span><div><b>CURRENT WEEK · '+esc(String(nflCheckpointCache.weekKey).toUpperCase())+'</b><small>'+esc(parlayMode==='quarter'?'50K period simulation boards ready':'Ready halftime boards with live checkpoint context')+'</small></div>';
+    }
+
+    root.querySelectorAll('[data-parlay-mode]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.parlayMode===parlayMode));
+    const status=root.querySelector('[data-parlay-status]');
+    if(status)status.innerHTML='<div><span class="parlays-preview-dot"></span><b>'+esc(parlayMode==='quarter'?'NFL QUARTER MODEL':'NFL HALFTIME MODEL')+'</b><small>'+esc(nflCheckpointCache?.weekKey||'checking week')+'</small></div><span class="parlays-status-divider"></span><div><b>50,000</b><small>simulation worlds</small></div><span class="parlays-status-divider"></span><div><b>'+esc(parlayMode==='quarter'?'MODEL-ONLY PERIOD LINES':'LIVE CHECKPOINT GATED')+'</b><small>'+esc(parlayMode==='quarter'?'not sportsbook period quotes':'book context only when supplied')+'</small></div><span class="parlays-status-divider"></span><div><b>STALE BLOCKED</b><small>week key enforced</small></div>';
+
+    const candidates=checkpointCandidates();
+    fillCheckpointToTarget();
+    const rows=checkpointSelected();
+    const ready=Boolean(source?.ready&&candidates.length);
+    const legs=root.querySelector('[data-parlay-legs]');
+    if(legs)legs.innerHTML=ready
+      ? (rows.length?rows.map(checkpointLegMarkup).join(''):'<div class="live-board-loading"><div><b>No checkpoint legs selected.</b><small>Add a verified 50K candidate below.</small></div></div>')
+      : '<div class="live-board-loading"><div><b>'+esc(source?.available?(source?.reason||'Checkpoint not ready.'):(source?.reason||'Waiting for current-week board.'))+'</b><small>TSO will not reuse a stale NFL checkpoint slate.</small></div></div>';
+
+    const buildTitle=root.querySelector('[data-parlay-build-title]');
+    if(buildTitle)buildTitle.textContent=ready?(rows.length+'-leg '+(parlayMode==='quarter'?parlayQuarterPeriod.toUpperCase():'halftime')+' 50K build'):(parlayMode==='quarter'?'Quarter model waiting':'Halftime model waiting');
+    const addButton=root.querySelector('[data-parlay-add]');
+    if(addButton){
+      addButton.disabled=!ready;
+      const copy=addButton.querySelector('small');
+      if(copy)copy.textContent=parlayMode==='quarter'?'Add another current '+parlayQuarterPeriod.toUpperCase()+' 50K candidate':'Add another ready halftime candidate';
+    }
+
+    root.querySelectorAll('[data-parlay-target]').forEach(btn=>btn.classList.toggle('is-active',Number(btn.dataset.parlayTarget)===parlayTarget));
+    const math=checkpointIndependentMath(rows);
+    const legTotal=root.querySelector('[data-parlay-leg-total]');
+    if(legTotal)legTotal.textContent=String(rows.length);
+    const ring=root.querySelector('[data-parlay-ring]');
+    if(ring){const pct=rows.length?Math.min(100,rows.length/Math.max(1,parlayTarget)*100):0;ring.style.background='conic-gradient(#7b5cff 0 '+pct+'%,rgba(255,255,255,.07) '+pct+'% 100%)';}
+    const combinedPrice=root.querySelector('[data-parlay-combined-price]');
+    if(combinedPrice)combinedPrice.textContent=Number.isFinite(math.derivedPrice)?americanPrice(math.derivedPrice):'—';
+    const modelProb=root.querySelector('[data-parlay-model-prob]');
+    if(modelProb)modelProb.textContent=Number.isFinite(math.modelPct)?pct1(math.modelPct):'—';
+    const marketProb=root.querySelector('[data-parlay-market-prob]');
+    if(marketProb)marketProb.textContent=Number.isFinite(math.marketPct)?pct1(math.marketPct):'—';
+    const combinedEdge=root.querySelector('[data-parlay-combined-edge]');
+    if(combinedEdge){combinedEdge.textContent=Number.isFinite(math.deltaPct)?edgeText(math.deltaPct):'—';combinedEdge.className=Number.isFinite(math.deltaPct)?(math.deltaPct>=0?'positive':'negative'):'';}
+
+    const healthTitle=root.querySelector('[data-parlay-health-title]');
+    const healthCopy=root.querySelector('[data-parlay-health-copy]');
+    if(healthTitle)healthTitle.textContent=!ready?'Checkpoint waiting':parlayMode==='quarter'?'50K period-model build':rows.some(r=>!r.book)?'Halftime model ready':'Halftime book context ready';
+    if(healthCopy)healthCopy.textContent=!ready
+      ? 'The current-week gate is holding this mode until its verified board is ready.'
+      : parlayMode==='quarter'
+        ? 'Quarter legs come from the frozen 50K pregame period simulation. They are model lines, not sportsbook period quotes, so sportsbook payout and market probability stay blank.'
+        : 'Halftime candidates come from the live checkpoint board. Combined probability below is an independent-leg estimate; correlation tags are context until same-world parlay evaluation is ported into 2.0.';
+
+    const checks=root.querySelector('[data-parlay-checks]');
+    if(checks){
+      const iterations=rows.map(r=>Number(r.iterations||0)).filter(Boolean);
+      const all50=iterations.length?iterations.every(n=>n>=50000):false;
+      const corr=rows.filter(r=>Number(r.correlationLift)>0).length;
+      checks.innerHTML='<div class="'+(source?.available?'is-good':'is-warn')+'"><span>'+(source?.available?'✓':'!')+'</span><div><b>Current-week gate</b><small>'+(source?.available?'Source week matches '+esc(nflCheckpointCache?.weekKey||'current slate')+'.':'Stale source blocked.')+'</small></div></div>'
+        +'<div class="'+(all50?'is-good':'is-warn')+'"><span>'+(all50?'✓':'!')+'</span><div><b>Simulation depth</b><small>'+(rows.length?(all50?'Every selected leg is from a 50K board.':'One or more selected rows report fewer than 50K iterations.'):'Waiting for selected legs.')+'</small></div></div>'
+        +'<div class="'+(parlayMode==='quarter'?'is-warn':'is-good')+'"><span>'+(parlayMode==='quarter'?'!':'✓')+'</span><div><b>Sportsbook context</b><small>'+(parlayMode==='quarter'?'Quarter thresholds are TSO simulation lines; no sportsbook period price is implied.':'Halftime sportsbook fields are shown only when the checkpoint feed supplies them.')+'</small></div></div>'
+        +(rows.length?'<div class="'+(corr?'is-good':'')+'"><span>'+(corr?'↗':'○')+'</span><div><b>Correlation context</b><small>'+corr+' selected leg'+(corr===1?'':'s')+' carry a positive simulation-correlation flag. Combined probability is still shown as independent in 2.0.</small></div></div>':'');
+    }
+
+    const replacement=root.querySelector('[data-parlay-replacements]');
+    const replacementTitle=root.querySelector('[data-parlay-weakest-title]');
+    if(replacementTitle)replacementTitle.textContent=rows.length?'Lowest selected 50K probability':'No checkpoint leg selected';
+    if(replacement){
+      if(!rows.length)replacement.innerHTML='<div class="live-board-loading home-model-empty--wide"><div><b>No selected checkpoint leg to compare.</b></div></div>';
+      else{
+        const weakest=[...rows].sort((a,b)=>Number(a.simProbability)-Number(b.simProbability))[0];
+        const alternate=candidates.find(c=>!parlayCheckpointLegKeys.includes(c._key)&&String(c.name||'').toLowerCase()!==String(weakest.name||'').toLowerCase());
+        replacement.innerHTML='<article class="parlay-replace-current"><div class="parlay-replace-label">LOWEST 50K HIT RATE</div><span>NFL · '+esc(weakest._period.toUpperCase())+'</span><span class="checkpoint-player-mark">NFL</span><h3>'+esc(weakest.name)+'</h3><p>'+esc(checkpointSelection(weakest))+'</p><div><span>50K SIM</span><b>'+pct1(Number(weakest.simProbability)*100)+'</b></div></article>'
+          +'<div class="parlay-replace-arrow">→</div>'
+          +(alternate?'<button class="parlay-replacement-card checkpoint-replacement" data-checkpoint-replace="'+esc(alternate._key)+'" data-checkpoint-replace-old="'+esc(weakest._key)+'"><span class="parlay-replacement-badge">NEXT RANKED</span><small>NFL · '+esc(alternate._period.toUpperCase())+'</small><span class="checkpoint-player-mark">NFL</span><h3>'+esc(alternate.name)+' · '+esc(checkpointSelection(alternate))+'</h3><div><span>50K SIM</span><b>'+pct1(Number(alternate.simProbability)*100)+'</b></div><em>REPLACE LEG →</em></button>':'<div class="home-model-empty"><b>No alternate candidate is available.</b></div>');
+      }
+    }
+
+    const suggestions=root.querySelector('[data-parlay-suggestions]');
+    const suggestionsTitle=root.querySelector('[data-parlay-suggestions-title]');
+    const remaining=candidates.filter(c=>!parlayCheckpointLegKeys.includes(c._key)).slice(0,6);
+    if(suggestionsTitle)suggestionsTitle.textContent=remaining.length?remaining.length+' '+(parlayMode==='quarter'?parlayQuarterPeriod.toUpperCase():'halftime')+' 50K suggestions':'No additional checkpoint suggestions';
+    if(suggestions)suggestions.innerHTML=remaining.length?remaining.map(checkpointSuggestionMarkup).join(''):'<div class="live-board-loading home-model-empty--wide"><div><b>No additional ready candidates.</b></div></div>';
+
+    const books=root.querySelector('[data-parlay-books]');
+    const booksTitle=root.querySelector('[data-parlay-book-title]');
+    if(booksTitle)booksTitle.textContent=parlayMode==='quarter'?'Quarter model source':'Halftime sportsbook context';
+    if(books){
+      if(parlayMode==='quarter'){
+        books.innerHTML='<div class="live-board-loading"><div><b>TSO 50K MODEL · NO PERIOD SPORTSBOOK QUOTE</b><small>These quarter thresholds come from the simulation board. TSO does not invent a book price or payout for them.</small></div></div>';
+      }else{
+        books.innerHTML=rows.length?rows.map(row=>'<div class="parlay-book-row '+(row.book?'is-best':'')+'"><span class="parlay-book-name">HT</span><div><b>'+esc(row.name)+' · '+esc(checkpointSelection(row))+'</b><small>'+esc(row.book||'No sportsbook attached')+' · '+esc(row._matchup||'')+'</small></div><strong>'+(Number.isFinite(Number(row.price))?esc(americanPrice(row.price)):'—')+'</strong><span>'+(row.book?'LIVE CHECKPOINT':'MODEL ONLY')+'</span>'+(row.link?'<button data-checkpoint-open="'+esc(row.link)+'">OPEN →</button>':'<button disabled>NO LINK</button>')+'</div>').join(''):'<div class="live-board-loading"><div><b>No selected halftime legs yet.</b></div></div>';
+      }
+    }
+
+    root.querySelectorAll('[data-checkpoint-remove]').forEach(btn=>btn.onclick=()=>{parlayCheckpointLegKeys=parlayCheckpointLegKeys.filter(k=>k!==btn.dataset.checkpointRemove);renderParlayLab();});
+    root.querySelectorAll('[data-checkpoint-add]').forEach(btn=>btn.onclick=()=>{if(parlayCheckpointLegKeys.length<8&&!parlayCheckpointLegKeys.includes(btn.dataset.checkpointAdd))parlayCheckpointLegKeys.push(btn.dataset.checkpointAdd);renderParlayLab();});
+    root.querySelectorAll('[data-checkpoint-replace]').forEach(btn=>btn.onclick=()=>{const at=parlayCheckpointLegKeys.indexOf(btn.dataset.checkpointReplaceOld);if(at>=0)parlayCheckpointLegKeys[at]=btn.dataset.checkpointReplace;renderParlayLab();});
+    root.querySelectorAll('[data-checkpoint-open]').forEach(btn=>btn.onclick=()=>window.open(btn.dataset.checkpointOpen,'_blank','noopener'));
+  }
+
   function renderParlayLab(){
     const root=document.querySelector('[data-parlays-route]');
     if(currentRoute!=='parlays'||!root||!propsFeedCache) return;
+    root.querySelectorAll('[data-parlay-mode]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.parlayMode===parlayMode));
+    const checkpointControls=root.querySelector('[data-parlay-checkpoint-controls]');
+    if(parlayMode!=='pregame'){
+      renderCheckpointParlayLab(root);
+      return;
+    }
+    if(checkpointControls)checkpointControls.hidden=true;
     fillParlayToTarget(parlayTarget);
     const rows=parlayLegRows();
     const sortedWeak=rows.filter(row=>Number.isFinite(Number(row?.model?.edgePct))).sort((a,b)=>Number(a.model?.edgePct)-Number(b.model?.edgePct));
