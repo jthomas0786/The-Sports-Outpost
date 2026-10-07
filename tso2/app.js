@@ -1996,6 +1996,17 @@
       +'</article>';
   }
 
+  function renderFeedIntegrity(){
+    const node=document.querySelector('[data-feed-integrity]');
+    if(!node)return;
+    if(!propsFeedCache){node.hidden=true;node.innerHTML='';return;}
+    const integrity=propsFeedIntegrityState();
+    if(!integrity.fallback){node.hidden=true;node.innerHTML='';return;}
+    const newest=propsNewestTimestamp(propsFeedCache.rows||[]);
+    node.hidden=false;
+    node.innerHTML='<span>!</span><div><b>VERIFIED FALLBACK SNAPSHOT IN USE</b><small>'+esc(integrity.warnings[0]||'One or more live sources are unavailable and TSO is using an older verified snapshot.')+(newest?' · newest row '+esc(ageText(newest))+' old':'')+'</small></div>';
+  }
+
   function renderLiveModelPulse(){
     if(currentRoute!=='live')return;
     const root=document.querySelector('[data-live-route]');
@@ -5141,6 +5152,7 @@
     if(propsFeedInFlight) return propsFeedInFlight;
     if(!force && propsFeedCache && Date.now()-propsFeedFetchedAt < PROPS_FEED_TTL){
       renderPropsFeed();
+      renderFeedIntegrity();
       renderModelsFeed();
       renderHomeModels();
       renderLiveModelPulse();
@@ -5159,6 +5171,7 @@
         propsFeedCache=payload;
         propsFeedFetchedAt=Date.now();
         renderPropsFeed();
+        renderFeedIntegrity();
         renderModelsFeed();
         renderHomeModels();
         renderLiveModelPulse();
@@ -5171,6 +5184,8 @@
       })
       .catch(error=>{
         console.error('TSO props feed:',error);
+        const integrityNode=document.querySelector('[data-feed-integrity]');
+        if(integrityNode){integrityNode.hidden=false;integrityNode.innerHTML='<span>!</span><div><b>VERIFIED PROPS / MODEL FEED OFFLINE</b><small>TSO is not substituting example data. Automatic retry remains active.</small></div>';}
         const root=document.querySelector('[data-props-route]');
         const badge=root?.querySelector('[data-props-feed-badge]');
         if(badge){badge.className='props-feed-badge is-error';badge.innerHTML='<i></i> ODDS FEED UNAVAILABLE';}
