@@ -108,6 +108,17 @@
                   <button type="button" role="tab" aria-selected="false" data-live-detail-tab="box">BOX SCORE</button>
                 </div>
               </div>
+              <div class="live-detail-subbar" data-live-play-controls>
+                <div class="live-play-filters" role="group" aria-label="Play by play filter">
+                  <button type="button" class="is-active" data-live-play-filter="all">ALL PLAYS <span data-live-play-count="all"></span></button>
+                  <button type="button" data-live-play-filter="scoring">SCORING <span data-live-play-count="scoring"></span></button>
+                </div>
+                <div class="live-detail-freshness" data-live-detail-freshness>
+                  <span class="live-pulse"></span>
+                  <b>LIVE</b>
+                  <small>Waiting for feed</small>
+                </div>
+              </div>
               <div class="live-detail-body" data-live-detail-body>
                 <div class="live-detail-loading"><span class="live-feed-spinner"></span><b>Waiting for selected game…</b></div>
               </div>
