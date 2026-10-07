@@ -1262,6 +1262,156 @@
     return 'Updated '+Math.floor(age/60)+' min ago';
   }
 
+  function liveWatchNumber(value){
+    if(value==null || value==='') return null;
+    if(typeof value==='number') return Number.isFinite(value)?value:null;
+    const match=String(value).replace(/,/g,'').match(/-?\d+(?:\.\d+)?/);
+    if(!match) return null;
+    const n=Number(match[0]);
+    return Number.isFinite(n)?n:null;
+  }
+
+  function liveWatchMetric(league,groupName,key,label,raw){
+    const value=liveWatchNumber(raw);
+    if(value==null || value<=0) return null;
+    const group=String(groupName||'').toLowerCase();
+    const k=String(key||'');
+    const l=String(label||key||'').toUpperCase();
+
+    if(league==='mlb'){
+      const pitching=/pitch/.test(group);
+      const cfg=pitching ? {
+        strikeouts:['K',2.8],saves:['SV',22],holds:['HLD',12],wins:['W',14]
+      } : {
+        homeRuns:['HR',14],RBIs:['RBI',4.5],hits:['H',3.6],runs:['R',2.8],stolenBases:['SB',6],walks:['BB',1.8]
+      };
+      const hit=cfg[k];
+      return hit?{label:hit[0],value,display:String(raw),heat:value*hit[1]}:null;
+    }
+
+    if(league==='nhl'){
+      const cfg={
+        goals:['G',14],assists:['A',8],points:['PTS',9],shotsTotal:['SOG',2.4],
+        saves:['SV',.65],powerPlayGoals:['PPG',11],shortHandedGoals:['SHG',14]
+      };
+      const hit=cfg[k];
+      return hit?{label:hit[0],value,display:String(raw),heat:value*hit[1]}:null;
+    }
+
+    if(league==='nfl'){
+      const cfg={
+        passingTouchdowns:['PASS TD',15],rushingTouchdowns:['RUSH TD',17],receivingTouchdowns:['REC TD',17],
+        passingYards:['PASS YDS',.035],rushingYards:['RUSH YDS',.095],receivingYards:['REC YDS',.095],
+        receptions:['REC',2.2],sacks:['SACK',9],interceptions:['INT',11],totalTackles:['TACKLES',1.5],
+        tackles:['TACKLES',1.5],fieldGoalsMade:['FG',5]
+      };
+      const hit=cfg[k];
+      return hit?{label:hit[0],value,display:String(raw),heat:value*hit[1]}:null;
+    }
+
+    if(league==='nba'){
+      const cfg={
+        points:['PTS',.55],rebounds:['REB',1.25],assists:['AST',1.7],
+        steals:['STL',4.5],blocks:['BLK',4.5],threePointFieldGoalsMade:['3PM',3.2]
+      };
+      const hit=cfg[k];
+      return hit?{label:hit[0],value,display:String(raw),heat:value*hit[1]}:null;
+    }
+
+    return null;
+  }
+
+  function liveWatchAthleteName(athlete){
+    return String(athlete?.shortName||athlete?.displayName||athlete?.fullName||athlete?.name||'Player').trim();
+  }
+
+  function liveWatchHeadshotMarkup(athlete,name){
+    const src=athlete?.headshot?.href||athlete?.headshot?.url||athlete?.image?.href||athlete?.image?.url||'';
+    const initials=String(name||'P').split(/\s+/).filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase();
+    if(!src) return '<span class="live-watch-headshot"><span>'+esc(initials)+'</span></span>';
+    return '<span class="live-watch-headshot"><span>'+esc(initials)+'</span><img src="'+esc(src)+'" alt="'+esc(name)+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>';
+  }
+
+  function livePlayerToWatch(summary,game){
+    const league=String(game?.league||'').toLowerCase();
+    let best=null;
+
+    for(const teamBlock of summary?.boxscore?.players||[]){
+      const teamAbbr=String(teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||'').toUpperCase();
+      const gameTeam=String(game?.away?.abbr||'').toUpperCase()===teamAbbr ? game.away
+        : String(game?.home?.abbr||'').toUpperCase()===teamAbbr ? game.home : null;
+
+      for(const group of teamBlock?.statistics||[]){
+        const keys=Array.isArray(group?.keys)?group.keys:[];
+        const labels=Array.isArray(group?.labels)?group.labels:[];
+        const groupName=group?.name||group?.displayName||'';
+
+        for(const row of group?.athletes||[]){
+          if(!row?.athlete || row?.didNotPlay) continue;
+          const stats=Array.isArray(row?.stats)?row.stats:[];
+          let hottest=null;
+          for(let i=0;i<Math.max(keys.length,labels.length,stats.length);i++){
+            const metric=liveWatchMetric(league,groupName,keys[i]||'',labels[i]||keys[i]||'',stats[i]);
+            if(metric && (!hottest || metric.heat>hottest.heat)) hottest=metric;
+          }
+          if(!hottest) continue;
+
+          const starterBonus=row?.starter===true ? .35 : 0;
+          const score=hottest.heat+starterBonus;
+          if(!best || score>best.score){
+            best={
+              score,
+              metric:hottest,
+              athlete:row.athlete,
+              team:gameTeam,
+              teamAbbr:teamAbbr||gameTeam?.abbr||'',
+              position:row?.athlete?.position?.abbreviation||row?.position?.abbreviation||''
+            };
+          }
+        }
+      }
+    }
+    return best;
+  }
+
+  function renderLivePlayerWatch(root,game,summary){
+    const node=root?.querySelector('[data-live-player-watch]');
+    if(!node) return;
+
+    if(!game){
+      node.classList.add('live-player-watch--loading');
+      node.innerHTML='<div class="live-player-watch-loading"><div><b>No game selected</b><small>Select a game from Today’s games below.</small></div></div>';
+      return;
+    }
+
+    if(!summary || summary?.error){
+      node.classList.add('live-player-watch--loading');
+      node.innerHTML='<div class="live-player-watch-loading"><span class="live-feed-spinner"></span><div><b>Finding player to watch…</b><small>Reading live '+esc(leagueLabel(game.league))+' stats</small></div></div>';
+      return;
+    }
+
+    const pick=livePlayerToWatch(summary,game);
+    if(!pick){
+      node.classList.add('live-player-watch--loading');
+      node.innerHTML='<div class="live-player-watch-empty"><span>PLAYER TO WATCH</span><b>Waiting for a hot stat</b><small>Live player stats will appear here as the game develops.</small></div>';
+      return;
+    }
+
+    node.classList.remove('live-player-watch--loading');
+    const name=liveWatchAthleteName(pick.athlete);
+    const teamLabel=[pick.teamAbbr,pick.position].filter(Boolean).join(' · ');
+    node.innerHTML='<div class="live-watch-top"><span>PLAYER TO WATCH</span><b><i></i> HOT NOW</b></div>'
+      +'<div class="live-watch-player">'
+        +liveWatchHeadshotMarkup(pick.athlete,name)
+        +'<div class="live-watch-player-copy"><h3>'+esc(name)+'</h3><small>'+esc(teamLabel)+'</small></div>'
+      +'</div>'
+      +'<div class="live-watch-stat"><span>ON FIRE</span><strong>'+esc(pick.metric.display)+' <em>'+esc(pick.metric.label)+'</em></strong></div>'
+      +'<div class="live-watch-foot">'
+        +(pick.team?teamLogoMarkup(pick.team,'live-watch-team-logo'):'')
+        +'<span>Selected from this game’s live box score</span>'
+      +'</div>';
+  }
+
   function liveSummaryCompetition(summary){
     return summary?.header?.competitions?.[0] || null;
   }
@@ -1537,7 +1687,8 @@
     if(!game){
       bindLivePlayControls(root,null,null,0);
       renderLiveSituation(root,null,null);
-      body.innerHTML='<div class="live-detail-empty"><b>No game selected.</b><small>Choose a game from the scoreboard feed.</small></div>';
+      renderLivePlayerWatch(root,null,null);
+      body.innerHTML='<div class="live-detail-empty"><b>No game selected.</b><small>Choose a game from Today’s games below.</small></div>';
       return;
     }
 
@@ -1547,6 +1698,7 @@
     const stale=!cached || Date.now()-fetched >= liveDetailTtl(game);
     bindLivePlayControls(root,game,cached,fetched);
     renderLiveSituation(root,game,cached);
+    renderLivePlayerWatch(root,game,cached);
 
     if(cached?.error){
       body.innerHTML='<div class="live-detail-empty"><b>Detailed game feed is temporarily unavailable.</b><small>The main scoreboard will keep updating automatically.</small></div>';
@@ -1646,19 +1798,6 @@
       featureNode.innerHTML = featureGameMarkup(feature,false);
     }
     renderLiveGameDetail(root,feature);
-
-    const nowBoard = root.querySelector('[data-live-now-board]');
-    if(nowBoard){
-      const focus = games.slice(0,5);
-      nowBoard.innerHTML = '<div class="live-signal-head"><div><span class="orange-kicker">LIVE NOW</span><h2>Scoreboard feed</h2></div><span>REAL DATA</span></div>'
-        +(focus.length ? focus.map((game,i) => '<button class="live-signal-row" data-live-open="'+esc(game.id)+'">'
-          +'<span class="signal-rank">'+String(i+1).padStart(2,'0')+'</span>'
-          +'<div class="live-signal-matchup"><span class="live-signal-teams">'+teamLogoMarkup(game.away,'live-row-team-logo')+teamLogoMarkup(game.home,'live-row-team-logo')+'</span><span><b>'+esc(game.away?.abbr)+' @ '+esc(game.home?.abbr)+'</b><small>'+esc(leagueLabel(game.league))+' · '+esc(gameStatusText(game))+'</small></span></div>'
-          +'<span class="signal-metric"><small>STATUS</small><b>'+esc(game.state==='in'?'LIVE':game.state==='post'?'FINAL':'NEXT')+'</b></span>'
-          +'<strong class="'+(game.state==='in'?'positive':'')+'">'+esc(game.state==='pre'?gameStatusText(game):(game.away?.score ?? 0)+'-'+(game.home?.score ?? 0))+'</strong>'
-        +'</button>').join('') : '<div class="live-feed-side-loading"><div><b>No games for this filter.</b><small>The feed is connected.</small></div></div>')
-        +'<div class="live-signal-footer"><span>'+games.length+' games on slate</span><b>'+esc(feedUpdatedText())+'</b></div>';
-    }
 
     const board = root.querySelector('[data-live-score-board]');
     if(board){
