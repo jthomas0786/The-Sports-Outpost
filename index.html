@@ -7548,7 +7548,8 @@ function renderSidebarSports(){
     } else if(key === 'nhl'){
       panelInner = Object.entries({slate:'Slate',live:'Live',feed:'Goal Feed',props:'Props'}).map(([id,label])=>`<button type="button" class="sb-sub-item ${window.DW_nhlTab===id?'is-active':''}" data-nhl-tab="${id}">${label}</button>`).join('');
     } else if(key === 'nba'){
-      panelInner = `<button type="button" class="sb-sub-item ${currentSport==='nba'?'is-active':''}" data-nba-tab="live">Live Center</button>`;
+      const nbaTab = window.DW_nbaTab || 'slate';
+      panelInner = Object.entries({slate:'Slate',live:'Live Center',props:'Player Props'}).map(([id,label])=>`<button type="button" class="sb-sub-item ${currentSport==='nba'&&nbaTab===id?'is-active':''}" data-nba-tab="${id}">${label}</button>`).join('');
     } else {
       panelInner = `<div class="sb-soon-note">${s.brand} isn't connected yet — this section is ready and waiting.</div>`;
     }
@@ -7577,7 +7578,7 @@ function renderSidebarSports(){
     });
   });
   host.querySelectorAll('[data-nhl-tab]').forEach(btn=>btn.addEventListener('click',()=>{window.DW_nhlPendingTab=btn.dataset.nhlTab;if(location.hash!=='#nhl')location.hash='nhl';else window.DW_openNhlTab?.(btn.dataset.nhlTab);}));
-  host.querySelectorAll('[data-nba-tab]').forEach(btn=>btn.addEventListener('click',()=>{if(location.hash!=='#nba')location.hash='nba';}));
+  host.querySelectorAll('[data-nba-tab]').forEach(btn=>btn.addEventListener('click',()=>{window.DW_nbaPendingTab=btn.dataset.nbaTab;if(location.hash!=='#nba')location.hash='nba';else window.DW_openNbaTab?.(btn.dataset.nbaTab);}));
   // NFL preview rows use a pending-tab handoff instead of a fixed timeout.
   // That makes Slate/Live reliable even when the NFL module has not finished
   // lazy-loading yet (or the browser is doing a cold network fetch).
@@ -21970,7 +21971,7 @@ document.addEventListener('visibilitychange', ()=>{
 </div>
 
 <!-- Phase 0: sport switcher + #hash routing (mlb active; nfl/nhl/nba "coming soon") -->
-<script type="module" src="./sports/router.js?v=96.0-tso2-live&nhlprops=1&nflprop=937&nhlpljdog=1"></script>
+<script type="module" src="./sports/router.js?v=96.1-nba-slate-props&nhlprops=1&nflprop=937&nhlpljdog=1"></script>
 <script type="module" src="./sports/nfl/command-center-client.js?v=89.21"></script>
 <script>/* gifenc removed — animated clip is now a native MP4 via MediaRecorder */</script>
 
