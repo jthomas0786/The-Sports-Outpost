@@ -4390,6 +4390,83 @@
       +'</section>';
   }
 
+  function renderNbaResearchChart(data,row,range='10'){
+    const series=propSeriesForRow(data,row);
+    if(!series.length||!Number.isFinite(Number(row?.line)))return '';
+    const selected=propChartRangeSeries(series,range);
+    const stats=propWindowStats(selected,row);
+    const summary=stats&&selected.length
+      ?'<div class="mlb-chart-summary"><span><small>AVG</small><b>'+esc(researchRate(stats.avg,1))+'</b></span><span><small>HITS</small><b>'+stats.hits+'/'+(stats.hits+stats.losses)+'</b></span><span><small>GAMES</small><b>'+stats.games+'</b></span></div>'
+      :'';
+    return '<section class="research-detail-block nba-performance-visual" data-nba-performance-chart>'
+      +'<div class="research-detail-block-head"><span>EXACT-LINE PERFORMANCE</span><b>'+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</b></div>'
+      +summary+renderPropRecentChart(series,row,range)
+      +'</section>';
+  }
+
+  function bindNbaResearchChart(node,data,row,state={range:'10'}){
+    if(!node)return;
+    node.querySelectorAll('[data-props-chart-range]').forEach(btn=>btn.addEventListener('click',()=>{
+      state.range=String(btn.dataset.propsChartRange||'10');
+      node.outerHTML=renderNbaResearchChart(data,row,state.range);
+      const replacement=document.querySelector('.research-detail-content [data-nba-performance-chart]');
+      bindNbaResearchChart(replacement,data,row,state);
+    }));
+  }
+
+  function nbaFactorVisual(row){
+    const factors=row?.model?.factors||{};
+    const specs=[
+      ['MINUTES','minutes'],['USAGE','usage'],['VENUE','venue'],['OPPONENT','opponent'],
+      ['PACE','pace'],['REST','rest'],['INJURY','injury']
+    ];
+    const rows=specs.map(([label,key])=>{
+      const factor=Number(factors?.[key]);
+      if(!Number.isFinite(factor))return '';
+      const delta=(factor-1)*100;
+      const tone=delta>.15?'is-player':delta<-.15?'is-opponent':'is-line';
+      const width=Math.max(4,Math.min(100,50+delta*8));
+      return '<div class="nfl-matchup-bar-row '+tone+'"><div><small>'+label+'</small><b>'+(delta>0?'+':'')+delta.toFixed(1)+'%</b><em>regression adjustment</em></div><span><i style="width:'+width.toFixed(1)+'%"></i></span></div>';
+    }).join('');
+    return rows?'<section class="research-detail-block nfl-matchup-visual nba-factor-visual"><div class="research-detail-block-head"><span>REGRESSION DRIVERS</span><b>Source-backed model adjustments</b></div><div class="nfl-matchup-bars">'+rows+'</div></section>':'';
+  }
+
+  function nbaResearchDetail(data,row){
+    const p=data.player||{},matchup=data.matchup||{},def=data.opponentDefense||{},league=data.league||{},model=row?.model||{};
+    const market=String(row?.market||'');
+    const injury=p?.injury?.status||p?.injury?.detail||null;
+    const defenseValue=Number(def?.[market]),leagueDefense=Number(league?.allowance?.[market]);
+    const expectedPace=Number(model.expectedPace),leaguePace=Number(model.leaguePace??matchup.leaguePace);
+    const metrics=[
+      ['PROJECTION',researchRate(model.projection,1),'vs '+researchRate(row?.line,1)+' line'],
+      ['L5 AVG',researchRate(model.last5,1),market],
+      ['L10 AVG',researchRate(model.last10,1),market],
+      ['SEASON BASE',researchRate(model.seasonBaseline,1),'weighted history'],
+      ['AVG MIN',researchRate(model.averageMinutes,1),'projection sample'],
+      ['RECENT MIN',researchRate(model.recentMinutes,1),'current role'],
+      ['USAGE PROXY',researchRate(model.recentUsageProxy,1),'recent opportunity'],
+      ['REST',Number.isFinite(Number(model.restDays))?String(model.restDays)+' day'+(Number(model.restDays)===1?'':'s'):'—','before game']
+    ].filter(x=>x[1]!=='—');
+    const matchupMetrics=[
+      ['OPP ALLOWED',Number.isFinite(defenseValue)?researchRate(defenseValue,1):'—',p.position||matchup.positionGroup||'position group'],
+      ['LEAGUE ALLOWED',Number.isFinite(leagueDefense)?researchRate(leagueDefense,1):'—','same position group'],
+      ['EXPECTED PACE',Number.isFinite(expectedPace)?researchRate(expectedPace,1):'—','possessions estimate'],
+      ['LEAGUE PACE',Number.isFinite(leaguePace)?researchRate(leaguePace,1):'—','baseline'],
+      ['VENUE',String(model.venue||'—').toUpperCase(),'player team'],
+      ['INJURY',injury||'No current tag','ESPN injury feed']
+    ].filter(x=>x[1]!=='—');
+    const logs=(p.recentGames||[]).slice(0,10).map(g=>{
+      const stats=g.stats||{};
+      return '<div class="research-detail-log-row"><span>'+esc(String(g.date||'').slice(0,10))+'</span><b>'+esc((g.homeAway==='away'?'@ ':'vs ')+(g.opponent||'—'))+'</b><em>'+esc('MIN '+researchRate(g.minutes,0)+' · PTS '+researchRate(stats.points,0)+' · REB '+researchRate(stats.rebounds,0)+' · AST '+researchRate(stats.assists,0)+' · PRA '+researchRate(stats.pra,0))+'</em></div>';
+    }).join('');
+    return '<section class="research-detail-status"><span class="deep-source-chip">ESPN NBA HISTORY + REGRESSION v1</span><b>'+esc((p.team||'NBA')+' · '+(p.position||'Player'))+'</b><small>'+esc('Research snapshot '+researchAge(data.generatedAt)+(injury?' · '+injury:''))+'</small></section>'
+      +renderNbaResearchChart(data,row)
+      +nbaFactorVisual(row)
+      +'<section class="research-detail-block"><div class="research-detail-block-head"><span>MODEL CONTEXT</span><b>Minutes · usage · recent production</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
+      +(matchupMetrics.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>MATCHUP CONTEXT</span><b>'+esc(model.opponent||matchup.opponent?.name||researchOpponentForRow(row)||'Current opponent')+'</b></div><div class="research-detail-metrics">'+matchupMetrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
+      +(logs?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Verified recent NBA box scores</b></div><div class="research-detail-log">'+logs+'</div></section>':'');
+  }
+
   function mlbResearchDetail(data,row){
     const p=data.player||{},game=data.game||{},opp=data.opponent||{},pitcher=opp.pitcher||{};
     const performanceVisual=renderMlbResearchChart(data,row);
@@ -4412,6 +4489,7 @@
     if(data.sport==='nfl')return nflResearchDetail(data,row);
     if(data.sport==='nhl')return nhlResearchDetail(data,row);
     if(data.sport==='mlb')return mlbResearchDetail(data,row);
+    if(data.sport==='nba')return nbaResearchDetail(data,row);
     return '<div class="research-detail-empty"><b>Deep research source is not connected for '+esc(String(data.sport||row?.sport||'this sport').toUpperCase())+'.</b></div>';
   }
 
@@ -4460,6 +4538,10 @@
           const chartNode=content.querySelector('[data-mlb-performance-chart]');
           bindMlbResearchChart(chartNode,payload,row,{range:'10'});
           bindMlbContactQuality(content.querySelector('[data-mlb-contact-quality]'),payload,row);
+        }
+        if(payload?.sport==='nba'){
+          const chartNode=content.querySelector('[data-nba-performance-chart]');
+          bindNbaResearchChart(chartNode,payload,row,{range:'10'});
         }
       }
     }catch(error){
@@ -4744,7 +4826,7 @@
       const model=row.model||null;
       const hasModel=Number.isFinite(Number(model?.probabilityPct));
       const edge=hasModel?Number(model.edgePct):null;
-      const hasResearch=['nhl','nfl','mlb'].includes(String(row.sport));
+      const hasResearch=['nhl','nfl','mlb','nba'].includes(String(row.sport));
       return '<div class="props-board-row props-board-row-live props-board-row-pro '+(hasModel?'has-model':'is-market-only')+'" data-props-row-key="'+esc(row.key)+'">'
         +'<span class="props-board-player props-board-player-live">'+propHeadshotMarkup(row,'props-board-headshot')+'<span><b>'+esc(row.player)+'</b><small>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></span></span>'
         +'<strong>'+esc(propSelectionText(row))+'</strong>'
@@ -4799,7 +4881,7 @@
   }
 
   async function propResearchPayload(row){
-    if(!row||!['nfl','nhl','mlb'].includes(String(row.sport)))return {available:false,sport:row?.sport||'',reason:'Verified game-log research is not connected for this sport yet'};
+    if(!row||!['nfl','nhl','mlb','nba'].includes(String(row.sport)))return {available:false,sport:row?.sport||'',reason:'Verified game-log research is not connected for this sport yet'};
     const opponent=researchOpponentForRow(row);
     const key=['prop-rate',row.sport,row.playerId||'',row.player,row.team||'',opponent].join('|');
     if(deepResearchCache.has(key))return deepResearchCache.get(key);
@@ -4855,6 +4937,22 @@
         else if(market==='blocks')value=Number(g?.stats?.blocks);
         else if(market==='saves')value=Number(g?.stats?.saves);
         if(Number.isFinite(value))out.push({date:g.date||null,season:g.season??null,value,opponent:g.opponent||null,homeAway:g.homeAway||null,source:g.source||'ESPN game summary'});
+      }
+      return out;
+    }
+    if(sport==='nba'){
+      const p=data.player||{};
+      for(const g of p.recentGames||[]){
+        const value=Number(g?.stats?.[market]);
+        if(Number.isFinite(value))out.push({
+          date:g.date||null,season:g.season??null,value,
+          opponent:g.opponent||null,homeAway:g.homeAway||null,
+          minutes:Number.isFinite(Number(g.minutes))?Number(g.minutes):null,
+          pace:Number.isFinite(Number(g.pace))?Number(g.pace):null,
+          seasonType:g.seasonType??null,
+          usedInProjection:g.usedInProjection!==false,
+          source:'ESPN verified NBA box score'
+        });
       }
       return out;
     }
