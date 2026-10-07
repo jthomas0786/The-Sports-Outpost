@@ -1340,6 +1340,102 @@
     return '<span class="live-watch-headshot"><span>'+esc(initials)+'</span><img src="'+esc(src)+'" alt="'+esc(name)+'" loading="lazy" onerror="this.style.display=\'none\'" /></span>';
   }
 
+  function liveWatchStatMap(keys,labels,stats){
+    const map=new Map();
+    const count=Math.max(keys?.length||0,labels?.length||0,stats?.length||0);
+    for(let i=0;i<count;i++){
+      const key=String(keys?.[i]||'').trim();
+      const label=String(labels?.[i]||'').trim();
+      const value=stats?.[i];
+      if(key) map.set(key,value);
+      if(label) map.set(label,value);
+    }
+    return map;
+  }
+
+  function liveWatchMainStats(league,groupName,position,keys,labels,stats){
+    const map=liveWatchStatMap(keys,labels,stats);
+    const pos=String(position||'').toUpperCase();
+    const group=String(groupName||'').toLowerCase();
+    const pitching=/pitch/.test(group) || /^(P|SP|RP|CL)$/.test(pos);
+
+    const value=(...names)=>{
+      for(const name of names){
+        if(map.has(name)){
+          const v=map.get(name);
+          if(v!=null && v!=='') return String(v);
+        }
+      }
+      return '—';
+    };
+
+    if(league==='mlb'){
+      if(pitching){
+        return [
+          {label:'K',value:value('strikeouts','K')},
+          {label:'IP',value:value('fullInnings.partInnings','IP')},
+          {label:'ER',value:value('earnedRuns','ER')}
+        ];
+      }
+      return [
+        {label:'H',value:value('hits','H')},
+        {label:'HR',value:value('homeRuns','HR')},
+        {label:'RBI',value:value('RBIs','RBI')},
+        {label:'R',value:value('runs','R')}
+      ];
+    }
+
+    if(league==='nba'){
+      return [
+        {label:'PTS',value:value('points','PTS')},
+        {label:'REB',value:value('rebounds','REB')},
+        {label:'AST',value:value('assists','AST')},
+        {label:'STL',value:value('steals','STL')}
+      ];
+    }
+
+    if(league==='nhl'){
+      return [
+        {label:'G',value:value('goals','G')},
+        {label:'A',value:value('assists','A')},
+        {label:'SOG',value:value('shotsTotal','SOG','S')},
+        {label:'TOI',value:value('timeOnIce','TOI')}
+      ];
+    }
+
+    if(league==='nfl'){
+      if(/pass/.test(group)){
+        return [
+          {label:'YDS',value:value('passingYards','YDS')},
+          {label:'TD',value:value('passingTouchdowns','TD')},
+          {label:'CMP/ATT',value:value('completionsAttempts','C/ATT','CMP/ATT')}
+        ];
+      }
+      if(/rush/.test(group)){
+        return [
+          {label:'CAR',value:value('rushingAttempts','CAR')},
+          {label:'YDS',value:value('rushingYards','YDS')},
+          {label:'TD',value:value('rushingTouchdowns','TD')}
+        ];
+      }
+      if(/receiv/.test(group)){
+        return [
+          {label:'REC',value:value('receptions','REC')},
+          {label:'YDS',value:value('receivingYards','YDS')},
+          {label:'TD',value:value('receivingTouchdowns','TD')},
+          {label:'TGT',value:value('receivingTargets','TGTS','TGT')}
+        ];
+      }
+      return [
+        {label:'TACK',value:value('totalTackles','tackles','TOT')},
+        {label:'SACK',value:value('sacks','SACK')},
+        {label:'INT',value:value('interceptions','INT')}
+      ];
+    }
+
+    return [];
+  }
+
   function livePlayerToWatch(summary,game){
     const league=String(game?.league||'').toLowerCase();
     let best=null;
@@ -1374,13 +1470,15 @@
           const starterBonus=row?.starter===true ? .35 : 0;
           const score=hottest.heat+starterBonus;
           if(!best || score>best.score){
+            const position=row?.athlete?.position?.abbreviation||row?.position?.abbreviation||'';
             best={
               score,
               metric:hottest,
               athlete:row.athlete,
               team:gameTeam,
               teamAbbr:teamAbbr||gameTeam?.abbr||'',
-              position:row?.athlete?.position?.abbreviation||row?.position?.abbreviation||''
+              position,
+              mainStats:liveWatchMainStats(league,groupName,position,keys,labels,stats)
             };
           }
         }
@@ -1421,6 +1519,7 @@
         +'<div class="live-watch-player-copy"><h3>'+esc(name)+'</h3><small>'+esc(teamLabel)+'</small></div>'
       +'</div>'
       +'<div class="live-watch-stat"><span>ON FIRE</span><strong>'+esc(pick.metric.display)+' <em>'+esc(pick.metric.label)+'</em></strong></div>'
+      +(pick.mainStats?.length?'<div class="live-watch-game-stats"><span>THIS GAME</span><div>'+pick.mainStats.map(stat=>'<b><em>'+esc(stat.label)+'</em><strong>'+esc(stat.value)+'</strong></b>').join('')+'</div></div>':'')
       +'<div class="live-watch-foot">'
         +(pick.team?teamLogoMarkup(pick.team,'live-watch-team-logo'):'')
         +'<span>Selected from this game’s live box score</span>'
