@@ -9,12 +9,12 @@
       "AFL",
       "BOXING"
     ],
-    "fetchedAt": "2026-10-06T18:27:07.694Z",
+    "fetchedAt": "2026-10-07T06:08:12.078Z",
     "market": "matchWinner",
     "settlementConnected": false,
-    "rows": 30,
+    "rows": 26,
     "maxPaidSportKeysPerRun": 5,
-    "reportedCreditsUsed": 2,
+    "reportedCreditsUsed": 3,
     "probabilityPolicy": "Only complete two-sided Pinnacle h2h markets are accepted and de-vigged. Three-way/draw markets, started events and ambiguous outcomes are rejected.",
     "coveragePolicy": "Active league keys are discovered for free. At most five league keys with upcoming events are priced per run, prioritizing family diversity and nearest starts.",
     "discoveredByFamily": {
@@ -27,8 +27,10 @@
       },
       "CRICKET": {
         "catalogKeys": 2,
-        "keysWithFutureEvents": 0,
-        "selectedKeys": []
+        "keysWithFutureEvents": 1,
+        "selectedKeys": [
+          "cricket_test_match"
+        ]
       },
       "RUGBY_LEAGUE": {
         "catalogKeys": 1,
@@ -52,14 +54,21 @@
       {
         "sport": "VOLLEYBALL",
         "sportKey": "volleyball",
-        "futureEvents": 17,
-        "acceptedRows": 8,
+        "futureEvents": 4,
+        "acceptedRows": 4,
+        "reportedCredits": 1
+      },
+      {
+        "sport": "CRICKET",
+        "sportKey": "cricket_test_match",
+        "futureEvents": 1,
+        "acceptedRows": 0,
         "reportedCredits": 1
       },
       {
         "sport": "BOXING",
         "sportKey": "boxing_boxing",
-        "futureEvents": 1,
+        "futureEvents": 4,
         "acceptedRows": 22,
         "reportedCredits": 1
       }
@@ -67,148 +76,76 @@
   },
   "rows": [
     {
-      "eventId": "331d216ba43b1520",
+      "eventId": "7d0705bae8141b27",
       "sport": "VOLLEYBALL",
       "sportLabel": "Volleyball",
       "sportKey": "volleyball",
-      "commenceTime": "2026-10-06T23:00:00.000Z",
-      "homeTeam": "Enfoque",
-      "awayTeam": "Bage",
-      "selection": "Bage",
-      "side": "away",
-      "market": "matchWinner",
-      "book": "Pinnacle",
-      "bookKey": "pinnacle",
-      "price": -119,
-      "impliedProbability": 0.54337899543379,
-      "fairProbability": 0.5080942166821806,
-      "snapshotTime": "2026-10-06T18:10:27.000Z"
-    },
-    {
-      "eventId": "331d216ba43b1520",
-      "sport": "VOLLEYBALL",
-      "sportLabel": "Volleyball",
-      "sportKey": "volleyball",
-      "commenceTime": "2026-10-06T23:00:00.000Z",
-      "homeTeam": "Enfoque",
-      "awayTeam": "Bage",
-      "selection": "Enfoque",
+      "commenceTime": "2026-10-07T15:30:00.000Z",
+      "homeTeam": "Arctic Volley",
+      "awayTeam": "Jymy Volley",
+      "selection": "Arctic Volley",
       "side": "home",
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -111,
-      "impliedProbability": 0.5260663507109005,
-      "fairProbability": 0.4919057833178194,
-      "snapshotTime": "2026-10-06T18:10:27.000Z"
+      "price": -177,
+      "impliedProbability": 0.6389891696750902,
+      "fairProbability": 0.5950884373629587,
+      "snapshotTime": "2026-10-07T05:43:03.000Z"
     },
     {
-      "eventId": "7774f0abd7143e59",
+      "eventId": "7d0705bae8141b27",
       "sport": "VOLLEYBALL",
       "sportLabel": "Volleyball",
       "sportKey": "volleyball",
-      "commenceTime": "2026-10-07T00:15:00.000Z",
-      "homeTeam": "CBPS Azul",
-      "awayTeam": "CBPS Rojo",
-      "selection": "CBPS Azul",
-      "side": "home",
-      "market": "matchWinner",
-      "book": "Pinnacle",
-      "bookKey": "pinnacle",
-      "price": -459,
-      "impliedProbability": 0.8211091234347049,
-      "fairProbability": 0.7839847282226464,
-      "snapshotTime": "2026-10-06T18:09:51.000Z"
-    },
-    {
-      "eventId": "7774f0abd7143e59",
-      "sport": "VOLLEYBALL",
-      "sportLabel": "Volleyball",
-      "sportKey": "volleyball",
-      "commenceTime": "2026-10-07T00:15:00.000Z",
-      "homeTeam": "CBPS Azul",
-      "awayTeam": "CBPS Rojo",
-      "selection": "CBPS Rojo",
+      "commenceTime": "2026-10-07T15:30:00.000Z",
+      "homeTeam": "Arctic Volley",
+      "awayTeam": "Jymy Volley",
+      "selection": "Jymy Volley",
       "side": "away",
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": 342,
-      "impliedProbability": 0.22624434389140272,
-      "fairProbability": 0.21601527177735355,
-      "snapshotTime": "2026-10-06T18:09:51.000Z"
+      "price": 130,
+      "impliedProbability": 0.43478260869565216,
+      "fairProbability": 0.40491156263704137,
+      "snapshotTime": "2026-10-07T05:43:03.000Z"
     },
     {
-      "eventId": "1c929f40076b52a4",
+      "eventId": "4d0cfa7b8bd11895",
       "sport": "VOLLEYBALL",
       "sportLabel": "Volleyball",
       "sportKey": "volleyball",
-      "commenceTime": "2026-10-07T00:30:00.000Z",
-      "homeTeam": "GELP",
-      "awayTeam": "Estudiantes de La Plata",
-      "selection": "Estudiantes de La Plata",
-      "side": "away",
-      "market": "matchWinner",
-      "book": "Pinnacle",
-      "bookKey": "pinnacle",
-      "price": 227,
-      "impliedProbability": 0.3058103975535168,
-      "fairProbability": 0.29196749881176015,
-      "snapshotTime": "2026-10-06T18:25:30.000Z"
-    },
-    {
-      "eventId": "1c929f40076b52a4",
-      "sport": "VOLLEYBALL",
-      "sportLabel": "Volleyball",
-      "sportKey": "volleyball",
-      "commenceTime": "2026-10-07T00:30:00.000Z",
-      "homeTeam": "GELP",
-      "awayTeam": "Estudiantes de La Plata",
-      "selection": "GELP",
+      "commenceTime": "2026-10-07T15:30:00.000Z",
+      "homeTeam": "LP Kangasala",
+      "awayTeam": "LP Vampula",
+      "selection": "LP Kangasala",
       "side": "home",
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -287,
-      "impliedProbability": 0.7416020671834626,
-      "fairProbability": 0.7080325011882398,
-      "snapshotTime": "2026-10-06T18:25:30.000Z"
+      "price": -330,
+      "impliedProbability": 0.7674418604651163,
+      "fairProbability": 0.7080391091797936,
+      "snapshotTime": "2026-10-07T05:27:50.000Z"
     },
     {
-      "eventId": "e351f2ba6310e839",
+      "eventId": "4d0cfa7b8bd11895",
       "sport": "VOLLEYBALL",
       "sportLabel": "Volleyball",
       "sportKey": "volleyball",
-      "commenceTime": "2026-10-07T00:30:00.000Z",
-      "homeTeam": "San Lorenzo",
-      "awayTeam": "Gimnasia Y Esgrima La Plata",
-      "selection": "Gimnasia Y Esgrima La Plata",
+      "commenceTime": "2026-10-07T15:30:00.000Z",
+      "homeTeam": "LP Kangasala",
+      "awayTeam": "LP Vampula",
+      "selection": "LP Vampula",
       "side": "away",
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -165,
-      "impliedProbability": 0.6226415094339622,
-      "fairProbability": 0.5802312688103912,
-      "snapshotTime": "2026-10-06T17:59:11.000Z"
-    },
-    {
-      "eventId": "e351f2ba6310e839",
-      "sport": "VOLLEYBALL",
-      "sportLabel": "Volleyball",
-      "sportKey": "volleyball",
-      "commenceTime": "2026-10-07T00:30:00.000Z",
-      "homeTeam": "San Lorenzo",
-      "awayTeam": "Gimnasia Y Esgrima La Plata",
-      "selection": "San Lorenzo",
-      "side": "home",
-      "market": "matchWinner",
-      "book": "Pinnacle",
-      "bookKey": "pinnacle",
-      "price": 122,
-      "impliedProbability": 0.45045045045045046,
-      "fairProbability": 0.4197687311896088,
-      "snapshotTime": "2026-10-06T17:59:11.000Z"
+      "price": 216,
+      "impliedProbability": 0.31645569620253167,
+      "fairProbability": 0.29196089082020643,
+      "snapshotTime": "2026-10-07T05:27:50.000Z"
     },
     {
       "eventId": "c4bd63d5b1714f3c",
@@ -226,7 +163,7 @@
       "price": 935,
       "impliedProbability": 0.0966183574879227,
       "fairProbability": 0.09262748676041811,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "c4bd63d5b1714f3c",
@@ -244,7 +181,7 @@
       "price": -1768,
       "impliedProbability": 0.9464668094218416,
       "fairProbability": 0.9073725132395819,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "8572168fd657ea09",
@@ -262,7 +199,7 @@
       "price": -2872,
       "impliedProbability": 0.9663526244952894,
       "fairProbability": 0.9264772821728684,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "8572168fd657ea09",
@@ -280,7 +217,7 @@
       "price": 1204,
       "impliedProbability": 0.07668711656441718,
       "fairProbability": 0.07352271782713157,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "8d4418d9c1b649a1",
@@ -298,7 +235,7 @@
       "price": -1223,
       "impliedProbability": 0.9244142101284959,
       "fairProbability": 0.8862707375381355,
-      "snapshotTime": "2026-10-06T18:12:05.000Z"
+      "snapshotTime": "2026-10-07T05:01:14.000Z"
     },
     {
       "eventId": "8d4418d9c1b649a1",
@@ -316,7 +253,7 @@
       "price": 743,
       "impliedProbability": 0.11862396204033215,
       "fairProbability": 0.1137292624618646,
-      "snapshotTime": "2026-10-06T18:12:05.000Z"
+      "snapshotTime": "2026-10-07T05:01:14.000Z"
     },
     {
       "eventId": "ada553f498a2f72b",
@@ -334,7 +271,7 @@
       "price": 847,
       "impliedProbability": 0.10559662090813093,
       "fairProbability": 0.1012337867763366,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "ada553f498a2f72b",
@@ -352,7 +289,7 @@
       "price": -1500,
       "impliedProbability": 0.9375,
       "fairProbability": 0.8987662132236635,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "f6146c264a253f70",
@@ -367,10 +304,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -775,
-      "impliedProbability": 0.8857142857142857,
-      "fairProbability": 0.8492419021364577,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "price": -1000,
+      "impliedProbability": 0.9090909090909091,
+      "fairProbability": 0.8714953271028038,
+      "snapshotTime": "2026-10-07T05:17:09.000Z"
     },
     {
       "eventId": "f6146c264a253f70",
@@ -385,10 +322,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": 536,
-      "impliedProbability": 0.15723270440251572,
-      "fairProbability": 0.15075809786354238,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "price": 646,
+      "impliedProbability": 0.13404825737265416,
+      "fairProbability": 0.12850467289719628,
+      "snapshotTime": "2026-10-07T05:17:09.000Z"
     },
     {
       "eventId": "b1ce7de4051ba3b0",
@@ -406,7 +343,7 @@
       "price": -400,
       "impliedProbability": 0.8,
       "fairProbability": 0.7667910447761195,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "b1ce7de4051ba3b0",
@@ -424,7 +361,7 @@
       "price": 311,
       "impliedProbability": 0.24330900243309003,
       "fairProbability": 0.2332089552238806,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "9dffbc0c79d14cb3",
@@ -442,7 +379,7 @@
       "price": -1700,
       "impliedProbability": 0.9444444444444444,
       "fairProbability": 0.9054522533879609,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "9dffbc0c79d14cb3",
@@ -460,7 +397,7 @@
       "price": 914,
       "impliedProbability": 0.09861932938856016,
       "fairProbability": 0.09454774661203907,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "3695229064e4d950",
@@ -478,7 +415,7 @@
       "price": -465,
       "impliedProbability": 0.8230088495575221,
       "fairProbability": 0.7888718657748216,
-      "snapshotTime": "2026-10-06T18:12:05.000Z"
+      "snapshotTime": "2026-10-07T05:48:12.000Z"
     },
     {
       "eventId": "3695229064e4d950",
@@ -496,7 +433,7 @@
       "price": 354,
       "impliedProbability": 0.22026431718061673,
       "fairProbability": 0.21112813422517845,
-      "snapshotTime": "2026-10-06T18:12:05.000Z"
+      "snapshotTime": "2026-10-07T05:48:12.000Z"
     },
     {
       "eventId": "158c09ee97ca8fbf",
@@ -514,7 +451,7 @@
       "price": 881,
       "impliedProbability": 0.1019367991845056,
       "fairProbability": 0.09772361462405149,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "158c09ee97ca8fbf",
@@ -532,7 +469,7 @@
       "price": -1600,
       "impliedProbability": 0.9411764705882353,
       "fairProbability": 0.9022763853759485,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "e4015d96d7a0e195",
@@ -550,7 +487,7 @@
       "price": -944,
       "impliedProbability": 0.9042145593869731,
       "fairProbability": 0.8630582605775688,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "e4015d96d7a0e195",
@@ -568,7 +505,7 @@
       "price": 597,
       "impliedProbability": 0.14347202295552366,
       "fairProbability": 0.13694173942243115,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "bc0b65431d0d0885",
@@ -586,7 +523,7 @@
       "price": 154,
       "impliedProbability": 0.3937007874015748,
       "fairProbability": 0.3807593272338794,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     },
     {
       "eventId": "bc0b65431d0d0885",
@@ -604,7 +541,7 @@
       "price": -178,
       "impliedProbability": 0.6402877697841727,
       "fairProbability": 0.6192406727661207,
-      "snapshotTime": "2026-10-06T17:58:39.000Z"
+      "snapshotTime": "2026-10-07T05:32:45.000Z"
     }
   ]
 }
