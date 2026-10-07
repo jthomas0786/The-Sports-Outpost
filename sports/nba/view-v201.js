@@ -1,5 +1,5 @@
 
-import {buildNbaProjection,marketFairOver,nbaModelPlayer} from './model-v202.js?v=2.2';
+import {buildNbaProjection,marketFairOver,nbaModelPlayer} from './model-v202.js?v=2.3-calibrated';
 
 const ESPN_SCOREBOARD='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard';
 const ESPN_SUMMARY='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary';
