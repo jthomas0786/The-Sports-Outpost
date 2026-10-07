@@ -6,6 +6,15 @@
   const profileMenu = document.querySelector('.profile-menu');
   const profileButton = profileMenu?.querySelector('.profile-pill');
   const profileDropdown = profileMenu?.querySelector('.profile-dropdown');
+  const notificationMenu = document.querySelector('.notification-menu');
+  const notificationButton = document.querySelector('[data-notification-toggle]');
+  const notificationPanel = document.querySelector('[data-notification-panel]');
+  const notificationList = document.querySelector('[data-notification-list]');
+  const notificationDot = document.querySelector('[data-notification-dot]');
+  const notificationCount = document.querySelector('[data-notification-count]');
+  const notificationReadIds = new Set();
+  let liveFeedError = null;
+  let propsFeedError = null;
   const sideNav = document.querySelector('.tso-side-nav');
   const sideNavToggle = document.querySelector('.side-nav-toggle');
   const sideNavClose = document.querySelector('.tso-side-nav-close');
@@ -102,6 +111,21 @@
     profileMenu.classList.toggle('is-open', opening);
     profileDropdown.hidden = !opening;
     profileButton.setAttribute('aria-expanded', String(opening));
+  }
+
+  function closeNotificationCenter(){
+    if(!notificationPanel||!notificationButton)return;
+    notificationPanel.hidden=true;
+    notificationButton.setAttribute('aria-expanded','false');
+  }
+
+  function toggleNotificationCenter(){
+    if(!notificationPanel||!notificationButton)return;
+    const opening=notificationPanel.hidden;
+    if(opening)closeProfileMenu();
+    notificationPanel.hidden=!opening;
+    notificationButton.setAttribute('aria-expanded',String(opening));
+    if(opening)renderNotificationCenter();
   }
 
   function setSideNavOpen(open){
@@ -1963,6 +1987,109 @@
     return {fallback,warnings};
   }
 
+  function notificationEntries(){
+    const entries=[];
+    const now=Date.now();
+
+    if(liveFeedError){
+      entries.push({id:'system:live-feed',tone:'warning',mark:'!',eyebrow:'SYSTEM',title:'Live score feed needs attention',copy:liveFeedError,time:'retrying',route:'live'});
+    }
+    if(propsFeedError){
+      entries.push({id:'system:props-feed',tone:'warning',mark:'!',eyebrow:'SYSTEM',title:'Props / model feed needs attention',copy:propsFeedError,time:'retrying',route:'props'});
+    }
+
+    if(propsFeedCache){
+      const integrity=propsFeedIntegrityState();
+      if(integrity.fallback){
+        const newest=propsNewestTimestamp(propsFeedCache.rows||[]);
+        entries.push({
+          id:'system:fallback-snapshot',tone:'warning',mark:'!',eyebrow:'DATA HEALTH',
+          title:'Verified fallback snapshot in use',
+          copy:integrity.warnings[0]||'A live source is unavailable; TSO is showing an older verified snapshot.',
+          time:newest?ageText(newest)+' old':'verified cache',route:'props'
+        });
+      }
+    }
+
+    const liveGames=sortedGames(liveFeedCache?.games||[]).filter(game=>game.state==='in').slice(0,3);
+    liveGames.forEach(game=>{
+      entries.push({
+        id:'live:'+String(game.league)+':'+String(game.id),tone:'live',mark:'●',eyebrow:leagueLabel(game.league)+' LIVE',
+        title:String(game.away?.abbr||'AWAY')+' '+String(game.away?.score??'')+' · '+String(game.home?.abbr||'HOME')+' '+String(game.home?.score??''),
+        copy:game.detail||gameShortState(game),time:'now',route:'live',league:game.league,gameId:String(game.id)
+      });
+    });
+
+    const soon=sortedGames(liveFeedCache?.games||[]).filter(game=>{
+      if(game.state!=='pre')return false;
+      const t=Date.parse(game.startTime||'');
+      return Number.isFinite(t)&&t>=now&&t-now<=90*60000;
+    }).slice(0,2);
+    soon.forEach(game=>{
+      const mins=Math.max(0,Math.round((Date.parse(game.startTime)-now)/60000));
+      entries.push({
+        id:'soon:'+String(game.league)+':'+String(game.id),tone:'default',mark:'◷',eyebrow:leagueLabel(game.league)+' STARTING SOON',
+        title:String(game.away?.abbr||'AWAY')+' @ '+String(game.home?.abbr||'HOME'),
+        copy:(game.venue||'Venue pending')+' · opens in Live Center',time:mins+'m',route:'live',league:game.league,gameId:String(game.id)
+      });
+    });
+
+    const modeled=sortPropsRows(allModeledRows()).filter(row=>Number.isFinite(Number(row?.model?.edgePct))).slice(0,3);
+    modeled.forEach(row=>{
+      const edge=Number(row.model.edgePct);
+      entries.push({
+        id:'model:'+String(row.key),tone:'model',mark:'◎',eyebrow:leagueLabel(row.sport)+' MODEL SIGNAL',
+        title:String(row.player)+' · '+propSelectionText(row),
+        copy:'Model '+pct1(row.model.probabilityPct)+' · edge '+edgeText(edge)+' · '+americanPrice(row.price)+' '+String(row.book||'verified book'),
+        time:row.snapshotTime?ageText(row.snapshotTime)+' old':'current',route:'models',league:row.sport
+      });
+    });
+
+    return entries.slice(0,9);
+  }
+
+  function notificationItemMarkup(entry){
+    const unread=!notificationReadIds.has(entry.id);
+    return '<button class="notification-item '+(unread?'is-unread ':'')+'is-'+esc(entry.tone||'default')+'" data-notification-id="'+esc(entry.id)+'" data-notification-route="'+esc(entry.route||'home')+'" data-notification-league="'+esc(entry.league||'')+'" data-notification-game="'+esc(entry.gameId||'')+'">'
+      +'<span class="notification-item-mark">'+esc(entry.mark||'•')+'</span>'
+      +'<span class="notification-item-copy"><span>'+esc(entry.eyebrow||'TSO')+'</span><b>'+esc(entry.title||'Notification')+'</b><small>'+esc(entry.copy||'')+'</small></span>'
+      +'<span class="notification-item-time">'+esc(entry.time||'')+'</span>'
+      +'</button>';
+  }
+
+  function renderNotificationCenter(){
+    if(!notificationList||!notificationButton)return;
+    const entries=notificationEntries();
+    const unread=entries.filter(entry=>!notificationReadIds.has(entry.id)).length;
+    if(notificationDot)notificationDot.hidden=unread===0;
+    if(notificationCount){
+      notificationCount.hidden=unread===0;
+      notificationCount.textContent=unread>9?'9+':String(unread);
+    }
+    notificationButton.setAttribute('aria-label',unread?('Notifications · '+unread+' unread'):'Notifications');
+    notificationList.innerHTML=entries.length
+      ? entries.map(notificationItemMarkup).join('')
+      : '<div class="notification-empty"><b>No current alerts.</b><small>Live games, model signals and system warnings will appear here automatically.</small></div>';
+
+    notificationList.querySelectorAll('[data-notification-id]').forEach(btn=>btn.onclick=()=>{
+      const id=String(btn.dataset.notificationId||'');
+      if(id)notificationReadIds.add(id);
+      const league=String(btn.dataset.notificationLeague||'');
+      const route=String(btn.dataset.notificationRoute||'home');
+      const gameId=String(btn.dataset.notificationGame||'');
+      if(league&&league!==currentLeague)setLeague(league);
+      if(gameId)selectedLiveGameId=gameId;
+      renderNotificationCenter();
+      closeNotificationCenter();
+      setRoute(route);
+    });
+  }
+
+  function markAllNotificationsRead(){
+    notificationEntries().forEach(entry=>notificationReadIds.add(entry.id));
+    renderNotificationCenter();
+  }
+
   function livePulseRows(){
     const all=(propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
     const modeled=sortPropsRows(all.filter(row=>Number.isFinite(Number(row?.model?.probabilityPct))));
@@ -2049,6 +2176,7 @@
     renderHomeLiveData();
     renderLiveCenter();
     renderLiveModelPulse();
+    renderNotificationCenter();
     renderProfile();
     renderResearch();
     const status = document.querySelector('.market-status');
@@ -2095,17 +2223,20 @@
         if(!payload || !Array.isArray(payload.games)) throw new Error('Invalid live feed');
         liveFeedCache = payload;
         liveFeedFetchedAt = Date.now();
+        liveFeedError = null;
         renderLiveFeed();
         return payload;
       })
       .catch(error => {
         console.error('TSO live feed:',error);
+        liveFeedError=String(error?.message||error);
         const badge = document.querySelector('[data-live-feed-badge]');
         if(badge){ badge.textContent='SCORE FEED UNAVAILABLE'; badge.classList.add('is-error'); }
         const meta = document.querySelector('[data-live-filter-meta]');
         if(meta) meta.innerHTML='<span class="live-pulse is-idle"></span><b>FEED OFFLINE</b><span>·</span><small>Retrying automatically</small>';
         renderProfile();
         renderResearch();
+        renderNotificationCenter();
         return null;
       })
       .finally(()=>{ liveFeedInFlight=null; });
@@ -5655,6 +5786,8 @@
     if(!force && propsFeedCache && Date.now()-propsFeedFetchedAt < PROPS_FEED_TTL){
       renderPropsFeed();
       renderFeedIntegrity();
+      propsFeedError=null;
+      renderNotificationCenter();
       renderModelsFeed();
       renderHomeModels();
       renderLiveModelPulse();
@@ -5680,6 +5813,8 @@
         propsFeedFetchedAt=Date.now();
         renderPropsFeed();
         renderFeedIntegrity();
+        propsFeedError=null;
+        renderNotificationCenter();
         renderModelsFeed();
         renderHomeModels();
         renderLiveModelPulse();
@@ -5692,6 +5827,7 @@
       })
       .catch(error=>{
         console.error('TSO props feed:',error);
+        propsFeedError=String(error?.message||error);
         const integrityNode=document.querySelector('[data-feed-integrity]');
         if(integrityNode){integrityNode.hidden=false;integrityNode.innerHTML='<span>!</span><div><b>VERIFIED PROPS / MODEL FEED OFFLINE</b><small>TSO is not substituting example data. Automatic retry remains active.</small></div>';}
         const root=document.querySelector('[data-props-route]');
@@ -5733,6 +5869,7 @@
         }
         renderProfile();
         renderResearch();
+        renderNotificationCenter();
         return null;
       })
       .finally(()=>{propsFeedInFlight=null});
@@ -6401,6 +6538,13 @@
     toggleProfileMenu();
   });
 
+  notificationButton?.addEventListener('click', event=>{
+    event.stopPropagation();
+    toggleNotificationCenter();
+  });
+  notificationPanel?.addEventListener('click',event=>event.stopPropagation());
+  document.querySelector('[data-notification-read-all]')?.addEventListener('click',markAllNotificationsRead);
+
   profileDropdown?.addEventListener('click', event => event.stopPropagation());
 
   document.querySelector('[data-profile-route="profile"]')?.addEventListener('click', () => {
@@ -6419,6 +6563,7 @@
 
   document.addEventListener('click', event => {
     if(profileMenu && !profileMenu.contains(event.target)) closeProfileMenu();
+    if(notificationMenu && !notificationMenu.contains(event.target)) closeNotificationCenter();
   });
 
   document.addEventListener('keydown', event => {
@@ -6426,6 +6571,7 @@
   });
 
   syncOwnerTools();
+  renderNotificationCenter();
 
   const initialRoute = location.hash.replace('#','');
   currentRoute = labels[initialRoute] ? initialRoute : 'home';
