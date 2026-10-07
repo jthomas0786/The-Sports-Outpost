@@ -119,6 +119,7 @@
                   <small>Waiting for feed</small>
                 </div>
               </div>
+              <div class="live-current-situation" data-live-current-situation hidden></div>
               <div class="live-detail-body" data-live-detail-body>
                 <div class="live-detail-loading"><span class="live-feed-spinner"></span><b>Waiting for selected game…</b></div>
               </div>
