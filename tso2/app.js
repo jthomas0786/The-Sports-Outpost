@@ -5286,7 +5286,7 @@
       renderGameEdge();return Promise.resolve(gameEdgeCache);
     }
     const badge=root.querySelector('[data-game-edge-feed-badge]');
-    if(badge){badge.className='game-edge-feed-badge';badge.innerHTML='<i></i> CONNECTING NHL MARKET';}
+    if(badge){badge.className='edge2-feed-badge';badge.innerHTML='<i></i> CONNECTING NHL MARKET';}
     gameEdgeInFlight=Promise.all([gameEdgeJson('nhl.json'),gameEdgeJson('nhl-puck-lines.json')])
       .then(([slate,lines])=>{gameEdgeCache={slate,lines};gameEdgeFetchedAt=Date.now();renderGameEdge();return gameEdgeCache;})
       .catch(error=>{
@@ -5294,8 +5294,8 @@
         const board=root.querySelector('[data-game-edge-board]');
         const status=root.querySelector('[data-game-edge-status]');
         if(status)status.textContent='MARKET FEED OFFLINE';
-        if(badge){badge.className='game-edge-feed-badge is-error';badge.innerHTML='<i></i> MARKET FEED UNAVAILABLE';}
-        if(board)board.innerHTML='<div class="game-edge-empty is-error"><span>!</span><div><b>Game Edge market feed is unavailable.</b><p>'+esc(error?.message||error)+'</p></div></div>';
+        if(badge){badge.className='edge2-feed-badge is-error';badge.innerHTML='<i></i> MARKET FEED UNAVAILABLE';}
+        if(board)board.innerHTML='<div class="edge2-empty is-error"><span>!</span><div><b>Game Edge market feed is unavailable.</b><p>'+esc(error?.message||error)+'</p></div></div>';
         return null;
       }).finally(()=>{gameEdgeInFlight=null;});
     return gameEdgeInFlight;
