@@ -3922,7 +3922,7 @@
     const status=root.querySelector('[data-profile-status]');
     if(status){
       const feedLabel=propsFeedCache&&liveFeedCache?'SPORTS DATA CONNECTED':propsFeedCache?'PROP DATA CONNECTED':liveFeedCache?'SCORE DATA CONNECTED':'CONNECTING SPORTS DATA';
-      status.innerHTML='<div><span class="props-live-dot"></span><b>'+feedLabel+'</b><small>'+(newest?esc(freshness.label)+' · '+esc(ageText(newest))+' old':'waiting for verified snapshots')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' VERIFIED PROPS</b><small>'+modeled.length+' exact model matches</small></div><span class="props-status-divider"></span><div><b>PICK HISTORY OFFLINE</b><small>no fake record or streak</small></div><span class="props-status-divider"></span><div><b>ALERT STATE OFFLINE</b><small>no fake subscriptions</small></div>';
+      status.innerHTML='<div><span class="props-live-dot"></span><b>'+feedLabel+'</b><small>'+(newest?esc(freshness.label)+' · '+esc(ageText(newest))+' old':'waiting for verified snapshots')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' VERIFIED PROPS</b><small>'+modeled.length+' exact model matches</small></div><span class="props-status-divider"></span><div><b>PICK HISTORY OFFLINE</b><small>no fake record or streak</small></div><span class="props-status-divider"></span><div><b>IN-APP NOTIFICATIONS ACTIVE</b><small>background push pending</small></div>';
     }
 
     const identityState=root.querySelector('[data-profile-identity-state]');
