@@ -1,4 +1,4 @@
-import * as base from './view.js?v=96.0-player-watch&props=2&launch=1';
+import * as base from './view.js?v=96.1-game-edge-access&props=2&launch=1';
 import {installNhlSlateV906} from './slate-v906.js?v=90.22';
 import {installNhlPlayerModalV921} from './player-modal-v921.js?v=90.22';
 import {installNhlPropsDailyGuardV920} from './props-daily-guard-v920.js?v=90.22';
