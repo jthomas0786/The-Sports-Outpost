@@ -25,11 +25,11 @@ function closeFirstGoal(){
 }
 
 function closePuckLineJesus(){
-  const close=document.querySelector('#hkPuckLineJesusPanel [data-plj-close]');
-  if(close)close.click();
+  if(typeof window!=='undefined'&&typeof window.DW_closeGameEdge==='function')window.DW_closeGameEdge();
   else{
-    const headerButton=document.getElementById('hkPuckLineJesusBtn');
-    if(headerButton?.getAttribute('aria-pressed')==='true')headerButton.click();
+    const edge=document.querySelector('#hkGameEdgePanel [data-ge-close]');
+    if(edge)edge.click();
+    else document.querySelector('#hkPuckLineJesusPanel [data-plj-close]')?.click();
   }
   setExclusiveNhlSidebarActive(NHL_PLJ_ATTR,false);
 }
