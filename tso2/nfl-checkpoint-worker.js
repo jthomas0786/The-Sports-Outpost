@@ -1,7 +1,9 @@
 addEventListener('fetch',event=>event.respondWith(handle(event.request)));
 
 const RAW='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/';
-const SOURCE_TTL=20;
+const SOURCE_TTL=45;
+let memoryCache=null;
+let memoryCachedAt=0;
 
 async function getJson(file,ttl=SOURCE_TTL){
   const r=await fetch(RAW+file,{headers:{Accept:'application/json','User-Agent':'TheSportsOutpost/2.0'},cf:{cacheTtl:ttl,cacheEverything:true}});
@@ -59,19 +61,17 @@ function compactPeriod(board,gameId,matchup,period){
   }
   return {ready:candidates.length>0,iterations:Number(board.iterations||candidates[0]?.iterations||0)||null,candidates,rankings};
 }
-function compactQuarter(sim){
+function compactQuarter(doc){
   const games=[];
-  for(const row of sim?.games||[]){
-    const gameId=String(row?.game?.gameId||row?.gameId||'');
+  for(const row of doc?.games||[]){
+    const gameId=String(row?.gameId||'');
     if(!gameId)continue;
-    const away=row?.game?.away?.abbr||row?.game?.away||'AWY';
-    const home=row?.game?.home?.abbr||row?.game?.home||'HME';
-    const matchup=String(away)+' @ '+String(home);
+    const matchup=String(row?.matchup||'NFL matchup');
     const periods={};
     for(const key of ['q1','q2','q3','q4','1h','2h']){
-      periods[key]=compactPeriod(row?.propPeriods?.[key]||row?.quarters?.periods?.[key],gameId,matchup,key);
+      periods[key]=compactPeriod(row?.periods?.[key]||row?.quarters?.[key]||row?.halves?.[key],gameId,matchup,key);
     }
-    if(Object.values(periods).some(p=>p.ready))games.push({gameId,matchup,startTime:row?.game?.startTimeUTC||null,periods});
+    if(Object.values(periods).some(p=>p.ready))games.push({gameId,matchup,startTime:row?.startTimeUTC||null,periods});
   }
   return games;
 }
@@ -106,33 +106,34 @@ async function handle(req){
   if(req.method==='OPTIONS')return new Response('',{headers:cors()});
   if(req.method!=='GET')return json({error:'method not allowed'},405);
   try{
-    const [slateR,simR,halfR]=await Promise.allSettled([
-      getJson('nfl.json',20),getJson('nfl-sim.json',20),getJson('nfl-halftime.json',10)
+    if(memoryCache&&Date.now()-memoryCachedAt<45000)return json(memoryCache);
+    const [slateR,quarterR,halfR]=await Promise.allSettled([
+      getJson('nfl.json',30),getJson('nfl-quarter.json',45),getJson('nfl-halftime.json',15)
     ]);
     if(slateR.status!=='fulfilled')throw slateR.reason;
     const slate=slateR.value;
     const weekKey=currentWeekKey(slate);
-    const sim=simR.status==='fulfilled'?simR.value:null;
+    const quarter=quarterR.status==='fulfilled'?quarterR.value:null;
     const halftime=halfR.status==='fulfilled'?halfR.value:null;
-    const simWeek=String(sim?.meta?.weekKey||sim?.weekKey||'');
+    const quarterWeek=String(quarter?.weekKey||'');
     const halfWeek=String(halftime?.weekKey||'');
-    const simCurrent=Boolean(weekKey&&simWeek&&weekKey===simWeek);
+    const quarterCurrent=Boolean(weekKey&&quarterWeek&&weekKey===quarterWeek);
     const halfCurrent=Boolean(weekKey&&halfWeek&&weekKey===halfWeek);
-    const quarterGames=simCurrent?compactQuarter(sim):[];
+    const quarterGames=quarterCurrent?compactQuarter(quarter):[];
     const halftimeGames=halfCurrent?compactHalftime(halftime):[];
     const quarterReady=quarterGames.some(g=>Object.values(g.periods||{}).some(p=>p.ready));
     const halftimeReady=halftimeGames.length>0;
-    return json({
+    const payload={
       source:'tso-nfl-checkpoints',
       generatedAt:new Date().toISOString(),
       weekKey,
       slate:{season:slate?.season??null,seasonType:slate?.seasonType??null,week:slate?.week??null,generatedAt:slate?.generatedAt||null},
       quarter:{
-        available:simCurrent,
+        available:quarterCurrent,
         ready:quarterReady,
-        sourceWeekKey:simWeek||null,
-        reason:!simCurrent?'Current-week NFL simulation board has not published yet':quarterReady?null:'Current-week simulation has no ready period boards yet',
-        generatedAt:sim?.generatedAt||null,
+        sourceWeekKey:quarterWeek||null,
+        reason:!quarterCurrent?'Current-week NFL quarter board has not published yet':quarterReady?null:'Current-week quarter board has no ready period candidates yet',
+        generatedAt:quarter?.generatedAt||null,
         games:quarterGames
       },
       halftime:{
@@ -143,7 +144,10 @@ async function handle(req){
         generatedAt:halftime?.generatedAt||null,
         games:halftimeGames
       }
-    });
+    };
+    memoryCache=payload;
+    memoryCachedAt=Date.now();
+    return json(payload);
   }catch(e){return json({error:String(e?.message||e)},502)}
 }
 function cors(){return {'access-control-allow-origin':'*','access-control-allow-methods':'GET,OPTIONS','access-control-allow-headers':'Content-Type','cache-control':'no-store'}}
