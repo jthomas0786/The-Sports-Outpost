@@ -507,13 +507,13 @@
             <span class="edge2-league-code">NHL</span><div><b>HOCKEY</b><small>${league==='nhl'?'LIVE GAME MARKET':'Open Game Edge'}</small></div><i>${league==='nhl'?'LIVE':'→'}</i>
           </button>
           <button class="edge2-league-tab ${league==='nfl'?'is-active':''}" data-inline-league="nfl">
-            <span class="edge2-league-code">NFL</span><div><b>FOOTBALL</b><small>${league==='nfl'?'CURRENT VIEW':'Game market feed next'}</small></div><i>→</i>
+            <span class="edge2-league-code">NFL</span><div><b>FOOTBALL</b><small>${league==='nfl'?'CURRENT VIEW':'GAME EDGE READY'}</small></div><i>→</i>
           </button>
           <button class="edge2-league-tab ${league==='mlb'?'is-active':''}" data-inline-league="mlb">
-            <span class="edge2-league-code">MLB</span><div><b>BASEBALL</b><small>${league==='mlb'?'CURRENT VIEW':'Game market feed next'}</small></div><i>→</i>
+            <span class="edge2-league-code">MLB</span><div><b>BASEBALL</b><small>${league==='mlb'?'CURRENT VIEW':'GAME EDGE READY'}</small></div><i>→</i>
           </button>
           <button class="edge2-league-tab ${league==='nba'?'is-active':''}" data-inline-league="nba">
-            <span class="edge2-league-code">NBA</span><div><b>BASKETBALL</b><small>${league==='nba'?'CURRENT VIEW':'Game market feed next'}</small></div><i>→</i>
+            <span class="edge2-league-code">NBA</span><div><b>BASKETBALL</b><small>${league==='nba'?'CURRENT VIEW':'GAME EDGE READY'}</small></div><i>→</i>
           </button>
         </section>
 
