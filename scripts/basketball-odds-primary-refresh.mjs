@@ -2,6 +2,7 @@
 import fs from 'node:fs/promises';
 import { spawnSync } from 'node:child_process';
 import { nextFutureStartMs, refreshState } from './parlayapi-pregame-cadence.mjs';
+import { plausibleBasketballPropRow } from './lib/basketball-odds-quality.mjs';
 
 const API=process.env.PARLAY_API_BASE||'https://parlay-api.com/v1';
 const KEY=process.env.PARLAY_API_KEY||'';
@@ -18,7 +19,7 @@ function verifiedSnapshot(doc){return doc?.meta?.source==='parlayapi'&&doc?.meta
 async function sanitizeSnapshot(slug){
   const doc=await readSnapshot(slug);if(!doc||!Array.isArray(doc.rows))return 0;
   const before=doc.rows.length;
-  doc.rows=doc.rows.filter(row=>!matchupLabel(row?.player));
+  doc.rows=doc.rows.filter(row=>!matchupLabel(row?.player)&&plausibleBasketballPropRow(row?.market,row?.line,row?.player));
   const removed=before-doc.rows.length;
   if(!removed)return 0;
   if(doc.meta&&typeof doc.meta==='object'){
