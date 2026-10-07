@@ -6064,6 +6064,95 @@
     return task;
   }
 
+  function closeGlobalSearch(){
+    document.querySelector('.global-search-overlay')?.remove();
+    document.body.classList.remove('global-search-open');
+  }
+
+  function globalSearchResults(query){
+    const q=String(query||'').trim().toLowerCase();
+    if(!q)return [];
+    const out=[];
+    for(const game of sortedGames(liveFeedCache?.games||[])){
+      const hay=[game?.away?.name,game?.away?.abbr,game?.home?.name,game?.home?.abbr,game?.venue,leagueLabel(game?.league)].filter(Boolean).join(' ').toLowerCase();
+      if(hay.includes(q)){
+        out.push({type:'game',key:'game|'+game.league+'|'+game.id,league:game.league,title:(game.away?.abbr||'AWAY')+' @ '+(game.home?.abbr||'HOME'),sub:leagueLabel(game.league)+' · '+gameStatusText(game),game});
+      }
+    }
+    const seenPlayers=new Set();
+    for(const row of propsFeedCache?.rows||[]){
+      const hay=[row.player,row.team,row.market,row.marketLabel,row.homeTeam,row.awayTeam,row.book,propSelectionText(row),leagueLabel(row.sport)].filter(Boolean).join(' ').toLowerCase();
+      if(!hay.includes(q))continue;
+      const model=Number.isFinite(Number(row?.model?.probabilityPct));
+      const pk=[row.sport,String(row.player||'').toLowerCase()].join('|');
+      if(!seenPlayers.has(pk)){
+        seenPlayers.add(pk);
+        out.push({type:'player',key:'player|'+pk,league:row.sport,title:row.player,sub:leagueLabel(row.sport)+' · '+(row.team||((row.awayTeam||'')+' @ '+(row.homeTeam||''))),row});
+      }
+      out.push({type:model?'model':'prop',key:'prop|'+row.key,league:row.sport,title:row.player+' · '+(row.marketLabel||row.market)+' · '+propSelectionText(row),sub:(model?'MODEL '+pct1(row.model.probabilityPct)+' · ':'')+americanPrice(row.price)+' '+(row.book||'verified book'),row});
+      if(out.length>=40)break;
+    }
+    const rank={game:0,player:1,model:2,prop:3};
+    return out.sort((a,b)=>(rank[a.type]??9)-(rank[b.type]??9)||String(a.title).localeCompare(String(b.title))).slice(0,24);
+  }
+
+  function globalSearchResultMarkup(result){
+    const icon=result.type==='game'?'▣':result.type==='model'?'◎':result.type==='player'?'◉':'↗';
+    const label=result.type==='game'?'GAME':result.type==='model'?'MODEL':result.type==='player'?'PLAYER':'PROP';
+    return '<button class="global-search-result" data-global-search-result="'+esc(result.key)+'"><span class="global-search-result-icon">'+icon+'</span><div><small>'+esc(label)+' · '+esc(leagueLabel(result.league))+'</small><b>'+esc(result.title)+'</b><em>'+esc(result.sub||'')+'</em></div><strong>OPEN →</strong></button>';
+  }
+
+  function renderGlobalSearchResults(overlay,query){
+    const host=overlay?.querySelector('[data-global-search-results]');
+    if(!host)return;
+    const results=globalSearchResults(query);
+    overlay.__tsoResults=results;
+    host.innerHTML=query
+      ? (results.length?results.map(globalSearchResultMarkup).join(''):'<div class="global-search-empty"><b>No verified TSO result matches that search.</b><small>Try a player, team, matchup, market or sportsbook.</small></div>')
+      : '<div class="global-search-empty"><b>Search the current Outpost.</b><small>Games, players, props and exact model rows are indexed from the feeds already loaded in 2.0.</small></div>';
+    host.querySelectorAll('[data-global-search-result]').forEach(btn=>btn.addEventListener('click',()=>{
+      const result=(overlay.__tsoResults||[]).find(x=>x.key===btn.dataset.globalSearchResult);
+      if(!result)return;
+      closeGlobalSearch();
+      if(result.type==='game'){
+        currentLeague=result.league||'all';
+        shell.dataset.league=currentLeague;
+        selectedLiveGameId=String(result.game?.id||'');
+        syncNav();
+        setRoute('live');
+        return;
+      }
+      currentLeague=result.league||'all';
+      shell.dataset.league=currentLeague;
+      propsFilterState.search=String(result.row?.player||'');
+      syncNav();
+      setRoute(result.type==='model'?'models':result.type==='player'?'research':'props');
+      if(result.type==='player'){
+        researchQuery=String(result.row?.player||'');
+        renderResearch();
+      }
+    }));
+  }
+
+  function openGlobalSearch(){
+    closeGlobalSearch();
+    const overlay=document.createElement('div');
+    overlay.className='global-search-overlay';
+    overlay.innerHTML='<section class="global-search-shell" role="dialog" aria-modal="true" aria-label="Search The Sports Outpost">'
+      +'<div class="global-search-head"><span>⌕</span><input data-global-search-input type="search" autocomplete="off" placeholder="Search players, teams, games, props, models…" /><button data-global-search-close aria-label="Close search">×</button></div>'
+      +'<div class="global-search-meta"><span>LIVE GAMES</span><span>VERIFIED PROPS</span><span>EXACT MODELS</span></div>'
+      +'<div class="global-search-results" data-global-search-results></div>'
+      +'</section>';
+    document.body.appendChild(overlay);
+    document.body.classList.add('global-search-open');
+    const input=overlay.querySelector('[data-global-search-input]');
+    renderGlobalSearchResults(overlay,'');
+    input?.addEventListener('input',()=>renderGlobalSearchResults(overlay,input.value));
+    overlay.querySelector('[data-global-search-close]')?.addEventListener('click',closeGlobalSearch);
+    overlay.addEventListener('click',event=>{if(event.target===overlay)closeGlobalSearch();});
+    requestAnimationFrame(()=>input?.focus());
+  }
+
   const labels = {
     home:'Home', live:'Live Center', research:'Research', models:'Models',
     gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Lab', community:'Community',
@@ -6269,9 +6358,7 @@
     if(window.innerWidth > 900) closeSideNav();
   });
 
-  document.querySelector('.search-trigger')?.addEventListener('click', () => {
-    notify('Global command search: players, teams, games, props and models.');
-  });
+  document.querySelector('.search-trigger')?.addEventListener('click', openGlobalSearch);
 
   profileButton?.addEventListener('click', event => {
     event.stopPropagation();
@@ -6299,7 +6386,7 @@
   });
 
   document.addEventListener('keydown', event => {
-    if(event.key === 'Escape'){ closeProfileMenu(); closeResearchDetail(); closePropsCompare(); closeSideNav(); }
+    if(event.key === 'Escape'){ closeProfileMenu(); closeGlobalSearch(); closeResearchDetail(); closePropsCompare(); closeSideNav(); }
   });
 
   syncOwnerTools();
