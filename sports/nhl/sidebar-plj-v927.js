@@ -33,12 +33,13 @@ function openPuckLineJesus(){
 function ensureItem(){
   const panel=panelForNhl();
   if(!panel)return;
-  let btn=panel.querySelector(`.sb-sub-item[${ITEM_ATTR}]`);
+  let btn=panel.querySelector('.sb-sub-item[data-nhl-game-edge],'+`.sb-sub-item[${ITEM_ATTR}]`);
   if(!btn){
     btn=document.createElement('button');
     btn.type='button';
     btn.className='sb-sub-item';
     btn.setAttribute(ITEM_ATTR,'1');
+    btn.setAttribute('data-nhl-game-edge','1');
     btn.textContent='Game Edge';
     btn.addEventListener('click',openPuckLineJesus);
     const live=panel.querySelector('.sb-sub-item[data-nhl-tab="live"]');
