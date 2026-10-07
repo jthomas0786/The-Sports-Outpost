@@ -69,7 +69,7 @@
           <div>
             <span class="destination-kicker"><i></i> LIVE CENTER · ${leagueName(league)}</span>
             <h1>Everything happening now.</h1>
-            <p>Real games, real scores, clocks and game state from the live scoreboard feed. Model and odds layers are being migrated into this same view next.</p>
+            <p>Real games, scores, clocks and game state from the live scoreboard feed, with current verified TSO model and sportsbook signals in the same view.</p>
           </div>
           <div class="destination-actions">
             <span class="live-data-badge" data-live-feed-badge><i></i> CONNECTING</span>
@@ -146,34 +146,17 @@
           </div>
         </section>
 
-        <section class="destination-section">
+        <section class="destination-section live-model-pulse-section">
           <div class="destination-section-head">
-            <div><span class="violet-kicker">MODEL MOVEMENT · PREVIEW DATA</span><h2>Live probabilities changing</h2></div>
+            <div><span class="violet-kicker">MODEL / MARKET PULSE · REAL DATA</span><h2 data-live-model-title>Current TSO signals</h2></div>
             <button data-route-jump="models">OPEN MODELS →</button>
           </div>
-          <div class="live-preview-notice">
-            <span>PREVIEW</span>
-            <p>The scoreboard above is live. The model movement cards below are still preview examples until the existing TSO model outputs are connected to 2.0.</p>
+          <div class="live-model-source-state" data-live-model-source>
+            <span class="live-pulse"></span>
+            <div><b>CONNECTING VERIFIED MODEL FEED</b><small>Exact model-to-market rows only</small></div>
           </div>
-          <div class="live-model-grid">
-            <article class="live-model-card live-model-card--violet">
-              <div class="live-model-top"><span>NHL · ANYTIME GOAL</span><b>PREVIEW</b></div>
-              <div class="live-model-player">${playerHeadshot("Sidney Crosby","live-model-headshot")}<div><h3>Sidney Crosby</h3><small>Example model card</small></div><span class="live-model-badge"><small>MODEL</small><strong>34.8%</strong></span></div>
-              <div class="live-model-shift"><span><small>PREGAME</small><b>28.0%</b></span><i>→</i><span><small>LIVE</small><b>34.8%</b></span><strong class="positive">+6.8%</strong></div>
-              <div class="live-model-reason">Preview only · real model feed migration is next.</div>
-            </article>
-            <article class="live-model-card live-model-card--gold">
-              <div class="live-model-top"><span>NFL · RECEIVING</span><b>PREVIEW</b></div>
-              <div class="live-model-player"><div><h3>Example Receiving Model</h3><small>Preview model card</small></div><span class="live-model-badge"><small>MODEL</small><strong>57%</strong></span></div>
-              <div class="live-model-shift"><span><small>PREGAME</small><b>41%</b></span><i>→</i><span><small>LIVE</small><b>57%</b></span><strong class="positive">+16%</strong></div>
-              <div class="live-model-reason">Preview only · real model feed migration is next.</div>
-            </article>
-            <article class="live-model-card live-model-card--orange">
-              <div class="live-model-top"><span>MARKET MOVEMENT</span><b>PREVIEW</b></div>
-              <div class="live-model-player"><div><h3>Example Price Move</h3><small>Preview market card</small></div><span class="live-model-badge"><small>PRICE</small><strong>-105</strong></span></div>
-              <div class="live-model-shift"><span><small>OPEN</small><b>+115</b></span><i>→</i><span><small>NOW</small><b>-105</b></span><strong class="signal-up">▲ 20¢</strong></div>
-              <div class="live-model-reason">Preview only · real sportsbook feed migration follows scoreboard wiring.</div>
-            </article>
+          <div class="live-model-grid" data-live-model-grid>
+            <div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Loading real model signals…</b><small>No preview cards will be substituted.</small></div></div>
           </div>
         </section>
       </section>`;
