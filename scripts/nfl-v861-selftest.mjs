@@ -14,6 +14,7 @@ const sim=read('scripts/nfl-sim-auto.mjs');
 ok('simulation state rolls weekly',sim.includes('previousWeekKey')&&sim.includes('schemaVersion:2,engineVersion:config.engineVersion,weekKey'));
 const wf=read('.github/workflows/nfl-slate.yml');
 ok('Tuesday weekly slate cron is DST-safe',wf.includes("cron: '5 9 * * 2'")&&wf.includes("cron: '35 9 * * 2'")&&!wf.includes("cron: '0 8 * * 2'")&&wf.includes("America/Chicago"));
+ok('full-season week probe',wf.includes("const maxWeek = type === 2 ? 22")&&wf.includes("current.week?.number")&&wf.includes("full season probe"));
 const router=read('sports/router.js');
 ok('v86.1 cache bust',router.includes("nfl-preview.js?v=86.1"));
 console.log('✓ v86.1 NFL weekly hotfix self-test passed');
