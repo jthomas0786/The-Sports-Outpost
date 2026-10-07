@@ -44,6 +44,17 @@ assert.ok(p.overProbability>0&&p.overProbability<1);
 assert.ok(p.sampleGames>=15);
 assert.ok(p.factors.opponent>=1,'above-league opponent allowance should not reduce projection');
 
+const preseason=structuredClone(research);
+preseason.players.p1.recentGames=[
+  {
+    date:'2026-10-05T00:00:00Z',season:2027,seasonType:1,homeAway:'home',minutes:8,usageProxy:3,pace:101,
+    opponent:'Preseason',stats:{points:2,rebounds:1,assists:1,threes:0,pra:4}
+  },
+  ...games
+];
+const pre=buildNbaProjection({research:preseason,row,market:'points',line:24.5,fairOverProb:fair});
+assert.ok(Math.abs(pre.projection-p.projection)<.05,'preseason cameo must not distort a full competitive projection sample');
+
 const injured=structuredClone(research);
 injured.players.p1.injury={status:'Out'};
 const out=buildNbaProjection({research:injured,row,market:'points',line:24.5,fairOverProb:fair});
