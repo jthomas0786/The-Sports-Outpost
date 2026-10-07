@@ -4090,6 +4090,61 @@
     return '<section class="research-detail-block nfl-matchup-visual"><div class="research-detail-block-head"><span>PLAYER VS OPPONENT</span><b>'+esc(spec[0])+' · source-backed comparison</b></div><div class="nfl-matchup-bars">'+bars+'</div></section>';
   }
 
+  function nflMatchupDriverVisual(p,row,last,cur,allowed,snap){
+    const market=String(row?.market||'');
+    const statMap={recYds:'recYds',rushYds:'rushYds',passYds:'passYds',receptions:'receptions',passTds:'passTds',atd:'tds'};
+    const stat=statMap[market];
+    const side=String(row?.side||'over').toLowerCase();
+    const factors=[];
+    const push=(label,detail,value,tone='neutral')=>{
+      factors.push({label,detail,value,tone:['positive','negative','neutral','warning'].includes(tone)?tone:'neutral'});
+    };
+    const sideTone=delta=>{
+      if(!Number.isFinite(delta)||Math.abs(delta)<0.01)return 'neutral';
+      const supports=side==='under'?delta<0:delta>0;
+      return supports?'positive':'negative';
+    };
+
+    const edge=Number(row?.model?.edgePct);
+    if(Number.isFinite(edge)){
+      push('MODEL VS MARKET','Exact selected side',edgeText(edge),edge>1?'positive':edge<-1?'negative':'neutral');
+    }
+
+    if(stat){
+      const l5=Number(last?.[stat]),season=Number(cur?.[stat]);
+      if(Number.isFinite(l5)&&Number.isFinite(season)){
+        const delta=l5-season;
+        push('RECENT FORM','L5 '+researchRate(l5,1)+' vs season '+researchRate(season,1),(delta>=0?'+':'')+researchRate(delta,1),sideTone(delta));
+      }
+
+      const opp=Number(allowed?.[stat]);
+      if(Number.isFinite(opp)&&Number.isFinite(season)){
+        const delta=opp-season;
+        push('OPPONENT ALLOWANCE','Position group '+researchRate(opp,1)+' vs player season '+researchRate(season,1),(delta>=0?'+':'')+researchRate(delta,1),sideTone(delta));
+      }
+    }
+
+    const lastSnap=Number(snap?.lastOffensePct),avgSnap=Number(snap?.avgOffensePct);
+    if(Number.isFinite(lastSnap)&&Number.isFinite(avgSnap)){
+      const delta=lastSnap-avgSnap;
+      push('ROLE TREND','Last game '+researchValue(lastSnap,1,'%')+' vs L5 '+researchValue(avgSnap,1,'%'),(delta>=0?'+':'')+researchValue(delta,1,' pp'),sideTone(delta));
+    }
+
+    const depthRank=Number(p?.depth?.rank);
+    if(Number.isFinite(depthRank)){
+      push('DEPTH ROLE',p?.depth?.position||p?.position||'Current depth chart','#'+depthRank,depthRank===1?'positive':'neutral');
+    }
+
+    const injury=String(p?.injury?.status||p?.injury?.detail||'').trim();
+    if(injury){
+      push('AVAILABILITY','Current injury listing',injury,/out|doubt|question|injur/i.test(injury)?'warning':'neutral');
+    }
+
+    if(!factors.length)return '';
+    const rows=factors.map(f=>'<div class="nfl-factor-row is-'+f.tone+'"><span class="nfl-factor-state">'+(f.tone==='positive'?'＋':f.tone==='negative'?'−':f.tone==='warning'?'!':'•')+'</span><div><small>'+esc(f.label)+'</small><b>'+esc(f.detail)+'</b></div><strong>'+esc(f.value)+'</strong></div>').join('');
+    return '<section class="research-detail-block nfl-factor-visual"><div class="research-detail-block-head"><span>MATCHUP DRIVERS</span><b>Selected-side context · source-backed</b></div><div class="nfl-factor-ladder">'+rows+'</div><p>Driver states summarize verified context for the selected side. They are not presented as causal model weights or independent probabilities.</p></section>';
+  }
+
   function renderModelDistribution(row,compact=false){
     const d=row?.model?.projection;
     if(!d||typeof d!=='object')return '';
@@ -4161,9 +4216,11 @@
     const games=(p.gameLog||[]).slice(0,8).map(g=>'<div class="research-detail-log-row"><span>'+esc(g.date||('W'+(g.week||'')))+'</span><b>'+esc((g.team||p.team||'')+' vs '+(g.opponent||'—'))+'</b><em>'+esc('TGT '+researchRate(g.targets)+' · REC '+researchRate(g.receptions)+' · '+researchRate(g.recYds,0)+' REC YD · '+researchRate(g.rushYds,0)+' RUSH YD')+'</em></div>').join('');
     const roleVisual=nflRoleUsageVisual(p,last,snap);
     const comparisonVisual=nflMatchupComparisonVisual(row,last,cur,allowed);
+    const driverVisual=nflMatchupDriverVisual(p,row,last,cur,allowed,snap);
     return '<section class="research-detail-status"><span class="deep-source-chip">NFLVERSE + ESPN</span><b>'+esc(p.rosterStatus||'Roster status unavailable')+'</b><small>'+esc(injury?('Injury: '+injury):'No current injury status attached')+'</small></section>'
       +roleVisual
       +renderModelDistribution(row)
+      +driverVisual
       +comparisonVisual
       +'<section class="research-detail-block"><div class="research-detail-block-head"><span>RECENT FORM</span><b>Last five verified games</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
       +(season.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>SEASON PRODUCTION</span><b>Current + previous season</b></div><div class="research-detail-metrics">'+season.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
