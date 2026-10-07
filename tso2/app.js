@@ -707,10 +707,145 @@
     return '<div class="nhl-box-score">'+periods+teamStats+(players||'<div class="live-detail-empty"><b>Player stats are not available yet.</b><small>Skater and goalie lines will populate as the game feed updates.</small></div>')+'</div>';
   }
 
+  function nflSummaryCompetitor(summary,game,side){
+    const rows=summary?.header?.competitions?.[0]?.competitors || [];
+    const abbr=String(game?.[side]?.abbr||'').toUpperCase();
+    return rows.find(row=>row?.homeAway===side)
+      || rows.find(row=>String(row?.team?.abbreviation||'').toUpperCase()===abbr)
+      || null;
+  }
+
+  function nflQuarterValue(row,index){
+    const item=Array.isArray(row?.linescores)?row.linescores[index]:null;
+    const value=item?.displayValue ?? item?.value ?? item;
+    return value==null || value==='' ? '—' : String(value);
+  }
+
+  function nflQuarterScoreMarkup(summary,game){
+    const away=nflSummaryCompetitor(summary,game,'away');
+    const home=nflSummaryCompetitor(summary,game,'home');
+    const awayLines=Array.isArray(away?.linescores)?away.linescores:[];
+    const homeLines=Array.isArray(home?.linescores)?home.linescores:[];
+    const played=Math.max(awayLines.length,homeLines.length,Number(game?.period)||0);
+    const quarters=Math.max(4,played);
+    const columns=Array.from({length:quarters},(_,i)=>{
+      const n=i+1;
+      if(n<=4) return {index:i,label:'Q'+n};
+      if(n===5) return {index:i,label:'OT'};
+      return {index:i,label:(n-4)+'OT'};
+    });
+    const current=game?.state==='in' ? Number(game?.period)||0 : 0;
+    const rowMarkup=(side,row)=>{
+      const team=game?.[side]||{};
+      const total=row?.score ?? team?.score ?? '—';
+      return '<tr>'
+        +'<th class="nfl-quarter-team">'+teamLogoMarkup(team,'nfl-quarter-logo')+'<span>'+esc(team.abbr||side.toUpperCase())+'</span></th>'
+        +columns.map(col=>'<td class="'+(col.index+1===current?'is-current-quarter':'')+'">'+esc(nflQuarterValue(row,col.index))+'</td>').join('')
+        +'<td class="nfl-quarter-total">'+esc(total)+'</td>'
+      +'</tr>';
+    };
+    return '<section class="nfl-quarter-score">'
+      +'<div class="nfl-box-section-title"><div><span>NFL BOX SCORE</span><h3>Scoring by quarter</h3></div><b>'+esc(gameShortState(game))+'</b></div>'
+      +'<div class="nfl-quarter-scroll"><table class="nfl-quarter-table"><thead><tr><th>TEAM</th>'
+        +columns.map(col=>'<th class="'+(col.index+1===current?'is-current-quarter':'')+'">'+esc(col.label)+'</th>').join('')
+        +'<th>T</th>'
+      +'</tr></thead><tbody>'+rowMarkup('away',away)+rowMarkup('home',home)+'</tbody></table></div>'
+    +'</section>';
+  }
+
+  const NFL_TEAM_STAT_ORDER=[
+    'firstDowns','firstDownsPassing','firstDownsRushing','firstDownsPenalty',
+    'thirdDownEff','fourthDownEff','totalOffensivePlays','totalYards','yardsPerPlay','totalDrives',
+    'netPassingYards','completionAttempts','yardsPerPass','interceptions','sacksYardsLost',
+    'rushingYards','rushingAttempts','yardsPerRushAttempt','redZoneAttempts',
+    'totalPenaltiesYards','turnovers','fumblesLost','defensiveTouchdowns','possessionTime'
+  ];
+
+  function nflTeamStatsMarkup(summary,game){
+    const away=boxTeamEntry(summary,game?.away?.abbr,0);
+    const home=boxTeamEntry(summary,game?.home?.abbr,1);
+    const aMap=teamStatMap(away), hMap=teamStatMap(home);
+    const keys=[...new Set([...NFL_TEAM_STAT_ORDER,...aMap.keys(),...hMap.keys()])]
+      .filter(key=>aMap.has(key)||hMap.has(key));
+    if(!keys.length) return '';
+    const value=stat=>stat?.displayValue ?? stat?.value ?? '—';
+    const label=key=>aMap.get(key)?.label||aMap.get(key)?.displayName||hMap.get(key)?.label||hMap.get(key)?.displayName||key.replace(/([A-Z])/g,' $1');
+    return '<section class="nfl-team-summary">'
+      +'<div class="nfl-team-summary-head"><b>'+esc(game?.away?.abbr||'AWAY')+'</b><span>TEAM STATS</span><b>'+esc(game?.home?.abbr||'HOME')+'</b></div>'
+      +keys.map(key=>'<div class="nfl-team-summary-row"><strong>'+esc(value(aMap.get(key)))+'</strong><span>'+esc(label(key))+'</span><strong>'+esc(value(hMap.get(key)))+'</strong></div>').join('')
+    +'</section>';
+  }
+
+  function nflGroupTitle(name){
+    const map={
+      passing:'PASSING',rushing:'RUSHING',receiving:'RECEIVING',fumbles:'FUMBLES',
+      defensive:'DEFENSE',interceptions:'INTERCEPTIONS',kickreturns:'KICK RETURNS',
+      puntreturns:'PUNT RETURNS',kicking:'KICKING',punting:'PUNTING'
+    };
+    const key=String(name||'').replace(/\s+/g,'').toLowerCase();
+    return map[key]||String(name||'PLAYERS').replace(/([a-z])([A-Z])/g,'$1 $2').toUpperCase();
+  }
+
+  function nflStatColumns(group){
+    const keys=Array.isArray(group?.keys)?group.keys:[];
+    const labels=Array.isArray(group?.labels)?group.labels:[];
+    const descriptions=Array.isArray(group?.descriptions)?group.descriptions:[];
+    const count=Math.max(keys.length,labels.length);
+    return Array.from({length:count},(_,index)=>({
+      key:keys[index]||'stat'+index,
+      label:labels[index]||keys[index]||('STAT '+(index+1)),
+      description:descriptions[index]||labels[index]||keys[index]||''
+    }));
+  }
+
+  function nflPlayerGroupMarkup(teamBlock,group){
+    const athletes=(group?.athletes||[]).filter(row=>row?.athlete && !row?.didNotPlay);
+    if(!athletes.length) return '';
+    const team=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+    const cols=nflStatColumns(group);
+    const title=nflGroupTitle(group?.name||group?.displayName);
+    return '<section class="nfl-stat-card" data-nfl-group="'+esc(String(group?.name||''))+'">'
+      +'<div class="nfl-stat-card-head"><div><span>'+esc(team)+'</span><h4>'+esc(title)+'</h4></div><b>'+athletes.length+' PLAYERS</b></div>'
+      +'<div class="nfl-player-table-wrap"><table class="nfl-player-table"><thead><tr><th>PLAYER</th>'
+        +cols.map(col=>'<th title="'+esc(col.description)+'" data-stat-key="'+esc(col.key)+'">'+esc(col.label)+'</th>').join('')
+      +'</tr></thead><tbody>'
+        +athletes.map(row=>{
+          const player=row?.athlete?.shortName||row?.athlete?.displayName||'Player';
+          const pos=row?.athlete?.position?.abbreviation||row?.position?.abbreviation||'';
+          const stats=Array.isArray(row?.stats)?row.stats:[];
+          return '<tr><td><b>'+esc(player)+'</b>'+(pos?'<small>'+esc(pos)+'</small>':'')+'</td>'
+            +cols.map((col,index)=>'<td data-stat-key="'+esc(col.key)+'">'+esc(stats[index]??'—')+'</td>').join('')
+          +'</tr>';
+        }).join('')
+      +'</tbody></table></div>'
+    +'</section>';
+  }
+
+  function nflPlayerBoxMarkup(summary){
+    const teams=Array.isArray(summary?.boxscore?.players)?summary.boxscore.players:[];
+    if(!teams.length) return '';
+    return '<div class="nfl-player-sections">'+teams.map(teamBlock=>{
+      const cards=(teamBlock?.statistics||[])
+        .filter(group=>(group?.athletes||[]).some(row=>row?.athlete&&!row?.didNotPlay))
+        .map(group=>nflPlayerGroupMarkup(teamBlock,group))
+        .join('');
+      const team=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+      return cards ? '<section class="nfl-team-player-block"><div class="nfl-team-player-head"><span>PLAYER STATS</span><h3>'+esc(team)+'</h3></div>'+cards+'</section>' : '';
+    }).join('')+'</div>';
+  }
+
+  function nflBoxScoreMarkup(summary,game){
+    const quarters=nflQuarterScoreMarkup(summary,game);
+    const teamStats=nflTeamStatsMarkup(summary,game);
+    const players=nflPlayerBoxMarkup(summary);
+    return '<div class="nfl-box-score">'+quarters+teamStats+(players||'<div class="live-detail-empty"><b>Player stats are not available yet.</b><small>Passing, rushing, receiving and defensive lines will populate as the game feed updates.</small></div>')+'</div>';
+  }
+
   function boxScoreMarkup(summary,game){
     const league=String(game?.league||'').toLowerCase();
     if(league==='mlb') return mlbBoxScoreMarkup(summary,game);
     if(league==='nhl') return nhlBoxScoreMarkup(summary,game);
+    if(league==='nfl') return nflBoxScoreMarkup(summary,game);
     const teamStats=teamStatsMarkup(summary,game);
     const players=playerBoxMarkup(summary);
     if(!teamStats && !players){
