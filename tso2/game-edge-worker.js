@@ -42,7 +42,23 @@ async function fetchScoreboard(base,date){
 }
 function team(c,side){
  const rows=c?.competitors||[];const r=rows.find(x=>x?.homeAway===side)||(side==='away'?rows[1]:rows[0]);if(!r)return null;
- const t=r.team||{};return {id:String(t.id||r.id||''),abbr:t.abbreviation||t.shortDisplayName||'',name:t.displayName||t.name||'',logo:t.logo||t.logos?.[0]?.href||'',score:num(r.score)};
+ const t=r.team||{};
+ const records=Array.isArray(r.records)?r.records:[];
+ const recordBy=(names)=>{
+  const wanted=names.map(v=>String(v).toLowerCase());
+  const hit=records.find(rec=>wanted.includes(String(rec?.name||rec?.type||rec?.abbreviation||'').toLowerCase()));
+  return String(hit?.summary||'').trim()||null;
+ };
+ return {
+  id:String(t.id||r.id||''),
+  abbr:t.abbreviation||t.shortDisplayName||'',
+  name:t.displayName||t.name||'',
+  logo:t.logo||t.logos?.[0]?.href||'',
+  score:num(r.score),
+  record:recordBy(['overall','total']),
+  homeRecord:recordBy(['home']),
+  awayRecord:recordBy(['away','road'])
+ };
 }
 function market(c){
  const o=c?.odds?.[0];if(!o)return null;
