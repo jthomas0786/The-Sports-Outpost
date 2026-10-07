@@ -1,0 +1,120 @@
+
+#nbaView{display:block;min-width:0;color:#eef6ff;background:
+radial-gradient(circle at 80% 0%,rgba(168,85,247,.16),transparent 30rem),
+linear-gradient(180deg,#020813 0%,#04101d 44%,#020813 100%);min-height:calc(100vh - 70px)}
+#nbaView[hidden]{display:none!important}
+.nba2{--nba:#a855f7;--line:#17395e;--panel:#061426;--panel2:#081a30;max-width:1580px;margin:0 auto;padding:18px 22px 56px;font-family:Inter,"Segoe UI",Arial,sans-serif}
+.nba2 *{box-sizing:border-box}
+.nba2 button{font:inherit}
+.nba2-top{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin:4px 0 14px}
+.nba2-kicker{font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#c9a7ff}
+.nba2-title{margin:5px 0 0;font-size:clamp(26px,3vw,42px);line-height:1;font-weight:950;letter-spacing:-.04em}
+.nba2-sub{margin-top:8px;color:#8fa9c4;font-size:13px}
+.nba2-fresh{display:flex;align-items:center;gap:8px;color:#91a9c2;font-size:12px;white-space:nowrap}
+.nba2-fresh i{width:8px;height:8px;border-radius:999px;background:#22c55e;box-shadow:0 0 14px rgba(34,197,94,.75)}
+.nba2-rail-shell{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:14px;background:#04101f;margin-bottom:14px}
+.nba2-rail-label{display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid #102e50;color:#a7bad0;font-size:11px;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.nba2-rail{display:flex;gap:10px;overflow-x:auto;padding:10px;scrollbar-width:thin}
+.nba2-game{flex:0 0 270px;border:1px solid #173b61;border-radius:12px;background:#07172a;color:#eaf3ff;padding:10px;text-align:left;cursor:pointer;transition:.16s ease}
+.nba2-game:hover,.nba2-game.active{border-color:#8b5cf6;box-shadow:0 0 0 1px rgba(168,85,247,.28),0 10px 30px rgba(0,0,0,.18);transform:translateY(-1px)}
+.nba2-game-top{display:flex;justify-content:space-between;gap:8px;color:#829bb6;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
+.nba2-game.live .nba2-game-top span:first-child{color:#86efac}
+.nba2-mini-team{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:8px;margin-top:8px}
+.nba2-mini-team img{width:24px;height:24px;object-fit:contain}
+.nba2-mini-team b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13px}
+.nba2-mini-team strong{font-size:18px}
+.nba2-card{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(8,26,48,.98),rgba(3,13,27,.98));box-shadow:0 18px 50px rgba(0,0,0,.22)}
+.nba2-tabs{display:flex;gap:7px;padding:8px;border-bottom:1px solid #163653}
+.nba2-tab{border:1px solid transparent;background:transparent;color:#8fa8c0;padding:8px 12px;border-radius:8px;font-size:12px;font-weight:850;cursor:pointer}
+.nba2-tab:hover{background:#0a2038;color:#fff}
+.nba2-tab.active{color:#fff;background:#17213d;border-color:#6d3bd1;box-shadow:inset 0 -2px 0 #a855f7}
+.nba2-body{padding:12px}
+.nba2-topgrid{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(300px,.75fr);gap:12px;align-items:stretch}
+.nba2-score{min-height:190px;padding:16px 18px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:18px;position:relative;overflow:hidden}
+.nba2-score:before{content:"";position:absolute;inset:auto -60px -120px 34%;height:240px;background:radial-gradient(circle,rgba(168,85,247,.18),transparent 65%);pointer-events:none}
+.nba2-team{display:flex;align-items:center;gap:12px;min-width:0}
+.nba2-team.home{justify-content:flex-end;text-align:right}
+.nba2-team img{width:76px;height:76px;object-fit:contain;filter:drop-shadow(0 6px 18px rgba(0,0,0,.28))}
+.nba2-team-copy{min-width:0}
+.nba2-team-copy b{display:block;font-size:clamp(18px,2vw,28px);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nba2-team-copy span{display:block;margin-top:6px;color:#8ba1b8;font-size:12px}
+.nba2-team-score{font-size:clamp(34px,5vw,64px);font-weight:950;letter-spacing:-.05em}
+.nba2-score-mid{text-align:center;min-width:106px;z-index:1}
+.nba2-score-mid strong{display:block;color:#d6c5ff;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+.nba2-score-mid span{display:block;margin-top:6px;color:#8199b2;font-size:12px}
+.nba2-watch{padding:14px 15px;display:flex;flex-direction:column;justify-content:center}
+.nba2-watch-head{display:flex;align-items:center;justify-content:space-between;gap:8px;color:#d8c6ff;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.11em}
+.nba2-watch-hot{display:inline-flex;align-items:center;gap:5px;color:#fb923c}
+.nba2-watch-hot i{width:7px;height:7px;border-radius:50%;background:#fb923c;box-shadow:0 0 12px rgba(251,146,60,.8)}
+.nba2-player{display:flex;align-items:center;gap:12px;margin-top:12px;min-width:0}
+.nba2-player-photo{width:64px;height:64px;border-radius:13px;background:#0b223b;border:1px solid #20476e;overflow:hidden;display:grid;place-items:center;font-size:20px;font-weight:900}
+.nba2-player-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
+.nba2-player-copy{min-width:0}
+.nba2-player-copy b{display:block;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nba2-player-copy span{display:block;margin-top:4px;color:#89a0b9;font-size:12px}
+.nba2-watch-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+.nba2-watch-stat{border:1px solid #173f69;border-radius:9px;background:#07192d;padding:9px 7px;text-align:center}
+.nba2-watch-stat b{display:block;font-size:22px}
+.nba2-watch-stat span{display:block;margin-top:2px;color:#829ab4;font-size:9px;font-weight:900;letter-spacing:.08em}
+.nba2-empty-watch{margin-top:14px;color:#91a7bd;font-size:13px;line-height:1.45}
+.nba2-court{position:relative;margin-top:12px;height:300px;border:1px solid #7f4b25;border-radius:14px;overflow:hidden;background:
+linear-gradient(90deg,transparent 49.7%,rgba(49,28,16,.55) 49.7% 50.3%,transparent 50.3%),
+repeating-linear-gradient(90deg,rgba(92,50,23,.08) 0 54px,rgba(255,255,255,.035) 54px 108px),
+linear-gradient(180deg,#bf7b42,#9f5f30)}
+.nba2-court:before{content:"";position:absolute;left:50%;top:50%;width:92px;height:92px;border:3px solid rgba(255,255,255,.72);border-radius:50%;transform:translate(-50%,-50%)}
+.nba2-court-line{position:absolute;inset:22px;border:3px solid rgba(255,255,255,.7);border-radius:2px}
+.nba2-key{position:absolute;top:50%;width:145px;height:118px;border:3px solid rgba(255,255,255,.72);transform:translateY(-50%)}
+.nba2-key.left{left:22px;border-left:0}.nba2-key.right{right:22px;border-right:0}
+.nba2-arc{position:absolute;top:50%;width:190px;height:190px;border:3px solid rgba(255,255,255,.68);border-radius:50%;transform:translateY(-50%)}
+.nba2-arc.left{left:-75px}.nba2-arc.right{right:-75px}
+.nba2-hoop{position:absolute;top:50%;width:15px;height:15px;border:3px solid #f97316;border-radius:50%;transform:translateY(-50%)}
+.nba2-hoop.left{left:66px}.nba2-hoop.right{right:66px}
+.nba2-court-overlay{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(560px,70%);padding:12px 14px;border:1px solid rgba(20,45,70,.75);border-radius:11px;background:rgba(3,12,23,.82);backdrop-filter:blur(5px);text-align:center;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+.nba2-court-overlay b{display:block;font-size:15px}
+.nba2-court-overlay span{display:block;margin-top:5px;color:#c5d3e1;font-size:12px}
+.nba2-section{margin-top:12px}
+.nba2-section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid #153653;color:#f0f6ff;font-size:13px;font-weight:900}
+.nba2-section-head small{color:#7891ab;font-weight:700}
+.nba2-pbp{max-height:430px;overflow:auto}
+.nba2-play{display:grid;grid-template-columns:64px 1fr auto;gap:11px;align-items:start;padding:10px 12px;border-top:1px solid #102d49}
+.nba2-play:first-child{border-top:0}
+.nba2-play-time{color:#9cb1c7;font-size:11px;font-weight:800;white-space:nowrap}
+.nba2-play-text{color:#dce8f5;font-size:13px;line-height:1.35}
+.nba2-play.scoring .nba2-play-text{color:#fff;font-weight:850}
+.nba2-play-badge{color:#d3baff;background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.32);border-radius:999px;padding:3px 6px;font-size:9px;font-weight:900}
+.nba2-box-team{margin-top:12px;overflow:hidden}
+.nba2-box-team-head{display:flex;align-items:center;gap:9px;padding:10px 12px;border-bottom:1px solid #153653;font-weight:900}
+.nba2-box-team-head img{width:28px;height:28px;object-fit:contain}
+.nba2-tablewrap{overflow:auto}
+.nba2-table{width:100%;border-collapse:collapse;min-width:650px}
+.nba2-table th,.nba2-table td{padding:9px 10px;border-top:1px solid #102d49;text-align:right;font-size:12px}
+.nba2-table th{color:#7893ad;font-size:10px;text-transform:uppercase;letter-spacing:.07em;background:#061426}
+.nba2-table th:first-child,.nba2-table td:first-child{text-align:left;position:sticky;left:0;background:#07182b}
+.nba2-table td:first-child{font-weight:800;color:#e8f2fc}
+.nba2-loading,.nba2-empty{padding:34px;text-align:center;color:#8da5bd}
+.nba2-error{padding:18px;border:1px solid #7f1d1d;background:#2a0b0b;border-radius:12px;color:#fecaca}
+@media(max-width:900px){
+ .nba2{padding:12px 12px 42px}
+ .nba2-top{align-items:flex-start;flex-direction:column}
+ .nba2-topgrid{grid-template-columns:1fr}
+ .nba2-score{min-height:160px;padding:13px;gap:9px}
+ .nba2-team{gap:7px;flex-direction:column;text-align:center}
+ .nba2-team.home{flex-direction:column-reverse;text-align:center}
+ .nba2-team img{width:52px;height:52px}
+ .nba2-team-copy b{font-size:15px;max-width:120px}
+ .nba2-team-copy span{display:none}
+ .nba2-score-mid{min-width:76px}
+ .nba2-court{height:230px}
+}
+@media(max-width:560px){
+ .nba2{padding-left:8px;padding-right:8px}
+ .nba2-game{flex-basis:225px}
+ .nba2-score{grid-template-columns:1fr 82px 1fr}
+ .nba2-team-score{font-size:34px}
+ .nba2-team img{width:44px;height:44px}
+ .nba2-score-mid strong{font-size:10px}
+ .nba2-play{grid-template-columns:48px 1fr}
+ .nba2-play-badge{display:none}
+ .nba2-court{height:190px}
+ .nba2-court-overlay{width:78%}
+}
