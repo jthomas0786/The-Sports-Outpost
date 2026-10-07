@@ -144,7 +144,9 @@ NFL/NHL player analysis exposed simulation distribution / outcome distribution v
 - probability above/below line
 - simulation count + model source
 
-**Status:** NEEDS MIGRATION  
+**Status:** PARTIAL / NFL DISTRIBUTION MIGRATED  
+**Current 2.0 implementation:** NFL exact model rows now render the real 50,000-run Monte Carlo distribution in Prop Intel and NFL Deep Research using source-supplied mean, median, P10, P25, P75, P90 and the exact sportsbook line. No synthetic curve is generated.  
+**Still required:** NHL distribution only where its source exposes genuine outcome-distribution fields; NBA distribution remains off unless a genuine simulation distribution source is added.  
 **Important:** Only show a distribution when actual simulation/distribution fields exist.
 
 ---
@@ -240,7 +242,7 @@ NFL research included:
 Move into NFL Deep Research and the universal Player Prop Tool.
 
 **Status:** PARTIAL / ACTIVE  
-**Current 2.0 implementation:** NFL Deep Research now includes the redesigned snap-share role ring, L5 target/carry opportunity mix, and source-backed player-vs-opponent/exact-line comparison bars. Shared exact-line recent-game bars are available in Prop Intelligence. Simulation distribution and deeper route/red-zone fields still require verified source fields.
+**Current 2.0 implementation:** NFL Deep Research now includes the redesigned snap-share role ring, L5 target/carry opportunity mix, and source-backed player-vs-opponent/exact-line comparison bars. Shared exact-line recent-game bars are available in Prop Intelligence. The real 50K Monte Carlo distribution is now migrated for NFL exact model rows; deeper route/red-zone fields still require verified source fields.
 
 ---
 
