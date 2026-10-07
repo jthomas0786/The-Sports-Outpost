@@ -1,0 +1,47 @@
+name: NBA Research Refresh
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/nba-research.mjs'
+      - 'scripts/nba-model-v202-selftest.mjs'
+      - 'sports/nba/model-v202.js'
+      - 'slates/nba-odds.json'
+      - '.github/workflows/nba-research.yml'
+  schedule:
+    - cron: '37 */6 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nba-research-refresh
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Validate NBA regression engine
+        run: node scripts/nba-model-v202-selftest.mjs
+      - name: Build NBA research data
+        run: node scripts/nba-research.mjs
+      - name: Commit updated NBA research data
+        run: |
+          if git diff --quiet -- slates/nba-research.json slates/nba-research-cache.json; then
+            echo "NBA research data is unchanged."
+            exit 0
+          fi
+          git config user.name "TSO NBA Research Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add slates/nba-research.json slates/nba-research-cache.json
+          git commit -m "Refresh NBA research data"
+          git push
