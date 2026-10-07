@@ -13,7 +13,7 @@
  * toggle `hidden` on its containers vs the sport-specific view containers.
  * MLB v916 field-actors note: desktop overlay geometry is preserved on mobile with a native-width readable responsive shell.
  */
-import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=95.11-nhl-nav-idle';
+import { SPORTS, SPORT_ORDER, DEFAULT_SPORT, sportFromHash, isViewable, isPreview } from './registry.js?v=96.0-nba2';
 import { installMobileEdgeSwipeV894 } from './mobile-edge-swipe-v894.js?v=93.5';
 import { installGamblyWebFallbackV895 } from './gambly-web-fallback-v895.js?v=89.5';
 import { installPlayerModalStickyHeaderV901 } from './player-modal-sticky-header-v901.js?v=90.7';
@@ -96,13 +96,25 @@ function setVisible(el, visible) {
   else el.setAttribute('hidden', '');
 }
 
+function ensureNbaView(){
+  let view=document.getElementById('nbaView');
+  if(view) return view;
+  view=document.createElement('section');
+  view.id='nbaView';
+  view.setAttribute('hidden','');
+  (document.querySelector('.app-main')||document.body).appendChild(view);
+  return view;
+}
+
 async function swapView(active) {
   const nflView = document.getElementById('nflView');
+  const nbaView = ensureNbaView();
   const showingMlb = active === 'mlb';
 
   MLB_SELECTORS.forEach(sel => setVisible(document.querySelector(sel), showingMlb));
   setVisible(nflView, active === 'nfl');
   setVisible(document.getElementById('nhlView'), active === 'nhl');
+  setVisible(nbaView, active === 'nba');
   if(active === 'nhl'){
     try { await (await import('./nhl/view-v906.js?v=90.56-centered-logo-outline&props=2&slate=3&launch=1&scorer=18&pljguide=2&fgs=23&nav=2&idle=1&pljdog=1&pljbar=1')).mount(); }
     catch { document.getElementById('nhlView').textContent='Hockey is temporarily unavailable. Please try again shortly.'; }
@@ -167,6 +179,15 @@ async function swapView(active) {
       conceptV924.installMlbPlaystageConceptV924DesktopFit?.();
     } catch (e) {
       console.warn('[MLB] enhancement unavailable:', e);
+    }
+  }
+
+  if (active === 'nba') {
+    try {
+      const mod = await import('./nba/view-v200.js?v=2.0');
+      await mod.mount();
+    } catch (e) {
+      if (nbaView) nbaView.innerHTML = '<div class="nba2-error" style="margin:20px"><b>Could not load NBA 2.0.</b><div>' + String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
     }
   }
 
