@@ -19,6 +19,7 @@
   let liveFeedInFlight = null;
   let selectedLiveGameId = null;
   let liveDetailTab = 'plays';
+  let livePlayFilter = 'all';
   const liveDetailCache = new Map();
   const liveDetailFetchedAt = new Map();
   const liveDetailInFlight = new Map();
@@ -44,6 +45,8 @@
   let nhlScorerMarket = 'fgs';
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
+  const LIVE_DETAIL_POLL_MS = 10000;
+  const LIVE_DETAIL_LIVE_TTL = 8000;
   const PROPS_FEED_TTL = 30000;
   const PROPS_POLL_MS = 60000;
   let scoreTickerResumeTimer = null;
@@ -307,7 +310,7 @@
   };
 
   const liveDetailKey = game => game ? String(game.league||'')+':'+String(game.id||'') : '';
-  const liveDetailTtl = game => game?.state === 'in' ? 15000 : 300000;
+  const liveDetailTtl = game => game?.state === 'in' ? LIVE_DETAIL_LIVE_TTL : 300000;
 
   function liveDetailUrl(game){
     const league=String(game?.league||'').toLowerCase();
@@ -1173,11 +1176,11 @@
     return teamStats+players;
   }
 
-  async function ensureLiveGameDetail(game){
+  async function ensureLiveGameDetail(game,force=false){
     const key=liveDetailKey(game);
     if(!key) return null;
     const fetched=liveDetailFetchedAt.get(key)||0;
-    if(liveDetailCache.has(key) && Date.now()-fetched < liveDetailTtl(game)) return liveDetailCache.get(key);
+    if(!force && liveDetailCache.has(key) && Date.now()-fetched < liveDetailTtl(game)) return liveDetailCache.get(key);
     if(liveDetailInFlight.has(key)) return liveDetailInFlight.get(key);
     const url=liveDetailUrl(game);
     if(!url){
