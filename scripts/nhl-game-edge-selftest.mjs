@@ -23,6 +23,12 @@ for(const marker of [
   "DW_closeGameEdge",
 ]) assert.ok(view.includes(marker),`NHL wrapper missing Game Edge marker: ${marker}`);
 
+const baseView=fs.readFileSync('sports/nhl/view.js','utf8');
+const baseCss=fs.readFileSync('sports/nhl/style.css','utf8');
+assert.ok(baseView.includes('data-hk-game-edge'),'NHL page header must expose visible Game Edge access');
+assert.ok(baseView.includes('window.DW_openGameEdge'),'NHL page header must open Game Edge');
+assert.ok(baseCss.includes('.hk-game-edge-btn'),'visible NHL Game Edge header control must be styled');
+
 for(const marker of [
   "Spread",
   "Moneyline",
