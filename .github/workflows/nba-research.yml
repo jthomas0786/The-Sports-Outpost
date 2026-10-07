@@ -44,4 +44,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git add slates/nba-research.json slates/nba-research-cache.json
           git commit -m "Refresh NBA research data"
+          git pull --rebase origin main
           git push
