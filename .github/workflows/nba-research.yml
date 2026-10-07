@@ -36,7 +36,7 @@ jobs:
         run: node scripts/nba-research.mjs
       - name: Commit updated NBA research data
         run: |
-          if git diff --quiet -- slates/nba-research.json slates/nba-research-cache.json; then
+          if [ -z "$(git status --porcelain -- slates/nba-research.json slates/nba-research-cache.json)" ]; then
             echo "NBA research data is unchanged."
             exit 0
           fi
