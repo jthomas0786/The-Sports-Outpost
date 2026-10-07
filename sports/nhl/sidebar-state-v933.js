@@ -6,7 +6,7 @@ function nhlPanel(){
 }
 function mode(){
  if(document.getElementById('hkFirstGoalPanel'))return 'first-goal';
- if(document.getElementById('hkPuckLineJesusPanel'))return 'plj';
+ if(document.getElementById('hkGameEdgePanel')||document.getElementById('hkPuckLineJesusPanel'))return 'plj';
  return String(window.DW_nhlTab||'slate');
 }
 function sync(){
@@ -26,7 +26,7 @@ function queueSync(){
  if(queued)return;queued=true;
  requestAnimationFrame(()=>{queued=false;sync();});
 }
-function closePlj(){document.querySelector('#hkPuckLineJesusPanel [data-plj-close]')?.click();}
+function closePlj(){if(typeof window.DW_closeGameEdge==='function')window.DW_closeGameEdge();else{document.querySelector('#hkGameEdgePanel [data-ge-close]')?.click();document.querySelector('#hkGameEdgePanel,#hkPuckLineJesusPanel [data-plj-close]')?.click();}}
 function closeFirstGoal(){window.DW_closeNhlFirstGoal?.();}
 function onClick(event){
  const target=event.target?.closest?.('button,.sb-sub-item');if(!target)return;
@@ -37,8 +37,8 @@ function onClick(event){
 }
 function relevant(node){
  if(node?.nodeType!==1)return false;
- return node.matches?.('#sbSportAccordion,#hkFirstGoalPanel,#hkPuckLineJesusPanel,.sb-sport-panel,.sb-sub-item')||
-  !!node.querySelector?.('#sbSportAccordion,#hkFirstGoalPanel,#hkPuckLineJesusPanel,.sb-sport-panel,.sb-sub-item');
+ return node.matches?.('#sbSportAccordion,#hkFirstGoalPanel,#hkGameEdgePanel,#hkPuckLineJesusPanel,.sb-sport-panel,.sb-sub-item')||
+  !!node.querySelector?.('#sbSportAccordion,#hkFirstGoalPanel,#hkGameEdgePanel,#hkPuckLineJesusPanel,.sb-sport-panel,.sb-sub-item');
 }
 function needsSync(records){
  return records.some(record=>record.type==='childList'&&(
