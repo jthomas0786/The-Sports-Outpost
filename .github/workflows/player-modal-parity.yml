@@ -12,6 +12,10 @@ on:
       - 'sports/nhl/player-modal-v918.css'
       - 'sports/nhl/player-modal-v921.js'
       - 'sports/nhl/view-v906.js'
+      - 'sports/nba/view-v201.js'
+      - 'sports/nba/view-v201.css'
+      - 'sports/nba/model-v202.js'
+      - 'scripts/nba-player-intelligence-selftest.mjs'
       - 'scripts/player-modal-parity-selftest.mjs'
       - '.github/workflows/player-modal-parity.yml'
 
@@ -34,5 +38,9 @@ jobs:
           node --check sports/mlb/player-modal-parity-v901.js
           node --check sports/nhl/player-modal-v918.js
           node --check sports/nhl/player-modal-v921.js
+          node --check sports/nba/view-v201.js
+          node --check sports/nba/model-v202.js
       - name: Player modal parity regression
         run: node scripts/player-modal-parity-selftest.mjs
+      - name: NBA player intelligence regression
+        run: node scripts/nba-player-intelligence-selftest.mjs
