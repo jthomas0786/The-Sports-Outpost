@@ -5189,6 +5189,77 @@
     +'</section>';
   }
 
+  function gameEdgeTeamLabel(team){
+    return String(team?.name||team?.abbr||'Team');
+  }
+
+  function gameEdgeRecordText(team,side){
+    const name=gameEdgeTeamLabel(team);
+    const overall=String(team?.record||'').trim();
+    const split=String(side==='home'?(team?.homeRecord||''):(team?.awayRecord||'')).trim();
+    if(overall&&split&&split!==overall)return name+' is '+overall+' overall and '+split+' '+(side==='home'?'at home':'on the road');
+    if(overall)return name+' is '+overall+' overall';
+    if(split)return name+' is '+split+' '+(side==='home'?'at home':'on the road');
+    return name+' is '+(side==='home'?'at home':'on the road');
+  }
+
+  function gameEdgeSpreadReason(game,leanSide,lineValue,lineName){
+    const side=leanSide==='away'?'away':'home';
+    const team=game?.[side]||{};
+    const oppSide=side==='away'?'home':'away';
+    const opp=game?.[oppSide]||{};
+    const teamName=gameEdgeTeamLabel(team);
+    const oppName=gameEdgeTeamLabel(opp);
+    const signed=gameEdgeLineNumber(lineValue,true);
+    const n=Number(lineValue);
+    const unit=currentLeague==='mlb'?'runs':currentLeague==='nhl'?'goals':'points';
+    const location=side==='home'?'has home-field advantage':'is being trusted on the road';
+    const lineRead=Number.isFinite(n)
+      ? (n<0
+          ? 'the line asks '+teamName+' to clear a '+gameEdgeLineNumber(Math.abs(n))+'-'+unit+' margin'
+          : n>0
+            ? teamName+' gets a '+gameEdgeLineNumber(Math.abs(n))+'-'+unit+' cushion even if the game stays tight'
+            : 'the matchup is effectively priced as a pick’em')
+      : 'the current spread still leans to '+teamName;
+    const oppRecord=String(opp?.record||'').trim();
+    return '<strong>'+esc(teamName+' '+signed)+'</strong> is the '+esc(lineName.toLowerCase())+' lean because '+esc(gameEdgeRecordText(team,side))+', '+esc(location)+', and '+esc(lineRead)+' against '+esc(oppName)+(oppRecord?' ('+esc(oppRecord)+' overall)':'')+'.';
+  }
+
+  function gameEdgeMoneylineReason(game,leanSide,leanPrice,otherPrice){
+    const side=leanSide==='away'?'away':'home';
+    const team=game?.[side]||{};
+    const oppSide=side==='away'?'home':'away';
+    const opp=game?.[oppSide]||{};
+    const teamName=gameEdgeTeamLabel(team);
+    const oppName=gameEdgeTeamLabel(opp);
+    const location=side==='home'?'gets the home-field edge':'is favored despite playing on the road';
+    const oppRecord=String(opp?.record||'').trim();
+    const prices=Number.isFinite(Number(leanPrice))&&Number.isFinite(Number(otherPrice))
+      ? ', and its '+gameEdgeAmerican(leanPrice)+' moneyline is shorter than '+oppName+' at '+gameEdgeAmerican(otherPrice)
+      : '';
+    return '<strong>'+esc(teamName+' to win')+'</strong> is the outright lean because '+esc(gameEdgeRecordText(team,side))+', '+esc(location)+prices+(oppRecord?', while '+esc(oppName)+' enters '+esc(oppRecord)+' overall':'')+'.';
+  }
+
+  function gameEdgeTotalReason(game,lean,line){
+    const away=gameEdgeTeamLabel(game?.away);
+    const home=gameEdgeTeamLabel(game?.home);
+    const n=Number(line);
+    const unit=currentLeague==='mlb'?'runs':currentLeague==='nhl'?'goals':'points';
+    const lineLabel=gameEdgeLineNumber(line);
+    if(!Number.isFinite(n))return 'The total is not fully posted yet, so there is not enough verified information to explain a scoring lean.';
+    const perTeam=(n/2).toFixed(1).replace(/\.0$/,'');
+    if(lean==='Under'){
+      const extra=(currentLeague==='nfl'||currentLeague==='nba')
+        ? ' — roughly '+perTeam+' '+unit+' per team if scoring is split evenly'
+        : '';
+      return '<strong>Under '+esc(lineLabel)+'</strong> is the scoring lean because the current total price is shaded toward '+esc(away)+' and '+esc(home)+' staying below '+esc(lineLabel)+' combined '+unit+extra+'.';
+    }
+    const extra=(currentLeague==='nfl'||currentLeague==='nba')
+      ? ' — roughly '+perTeam+' '+unit+' per team if scoring is split evenly'
+      : '';
+    return '<strong>Over '+esc(lineLabel)+'</strong> is the scoring lean because the current total price is shaded toward '+esc(away)+' and '+esc(home)+' clearing '+esc(lineLabel)+' combined '+unit+extra+'.';
+  }
+
   function gameEdgeSpread(game,lineRow){
     if(currentLeague==='nhl'){
       const s=lineRow?.puckLine;
@@ -5206,8 +5277,9 @@
       const lean=p.left>p.right
         ? String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true)
         : String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true);
+      const leanSide=p.left>p.right?'away':'home';
       const reason=pair
-        ? '<strong>'+esc(lean)+'</strong> carries the stronger no-vig cover probability from the current two-sided puck-line price across '+Number(s.sportsbookCount||0)+' book'+(Number(s.sportsbookCount||0)===1?'':'s')+'.'
+        ? gameEdgeSpreadReason(game,leanSide,leanSide==='away'?awayLine:homeLine,'Puck Line')
         : 'The puck line is posted, but both side prices are not available yet.';
       return gameEdgeMarketMarkup({
         title:'Spread',lineText:'Puck Line',
@@ -5230,9 +5302,9 @@
     const lean=p.left>p.right
       ? String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true)
       : String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true);
-    const provider=lineRow?.provider?' at '+esc(lineRow.provider):'';
+    const leanSide=p.left>p.right?'away':'home';
     const reason=pair
-      ? '<strong>'+esc(lean)+'</strong> has the stronger no-vig cover side from the current two-sided '+lineName.toLowerCase()+provider+'.'
+      ? gameEdgeSpreadReason(game,leanSide,leanSide==='away'?awayLine:homeLine,lineName)
       : 'No verified two-sided '+lineName.toLowerCase()+' is posted yet.';
     return gameEdgeMarketMarkup({
       title:'Spread',lineText:lineName,
@@ -5254,9 +5326,9 @@
     }):null;
     const p=gameEdgePercentages(pair);
     const lean=p.left>p.right?String(game?.away?.abbr||'AWAY'):String(game?.home?.abbr||'HOME');
-    const source=lineRow?.provider?' at '+esc(lineRow.provider):(Number(m?.books||0)?' across '+Number(m.books)+' books':'');
+    const leanSide=p.left>p.right?'away':'home';
     const reason=pair
-      ? '<strong>'+esc(lean)+' moneyline</strong> is the market favorite at '+Math.max(p.left,p.right).toFixed(0)+'% no-vig win probability'+source+'.'
+      ? gameEdgeMoneylineReason(game,leanSide,leanSide==='away'?awayPrice:homePrice,leanSide==='away'?homePrice:awayPrice)
       : 'No verified two-sided moneyline is available yet.';
     return gameEdgeMarketMarkup({
       title:'Moneyline',lineText:'Win outright',
@@ -5274,9 +5346,8 @@
     const pair=t?gameEdgeFairPair({leftPrice:underPrice,rightPrice:overPrice}):null;
     const p=gameEdgePercentages(pair);
     const lean=p.left>p.right?'Under':'Over';
-    const provider=lineRow?.provider?' at '+esc(lineRow.provider):'';
     const reason=pair
-      ? '<strong>'+esc(lean)+' '+esc(gameEdgeLineNumber(line))+'</strong> has the stronger no-vig total side at '+Math.max(p.left,p.right).toFixed(0)+'% from the current two-sided price'+provider+'.'
+      ? gameEdgeTotalReason(game,lean,line)
       : 'The total is '+esc(gameEdgeLineNumber(line))+', but there is not enough verified two-sided price data for a lean yet.';
     return gameEdgeMarketMarkup({
       title:'Total',lineText:line!=null?'O/U '+gameEdgeLineNumber(line):'No total',
