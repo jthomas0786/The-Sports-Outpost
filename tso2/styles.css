@@ -8695,3 +8695,323 @@ body.tso-side-nav-open{overflow:hidden}
   .nfl-player-table th:first-child,
   .nfl-player-table td:first-child{min-width:146px;width:146px}
 }
+
+
+/* =========================================================
+   TSO 2.0 — NBA LIVE BOX SCORE
+   ========================================================= */
+.nba-box-score{min-width:0;background:#05080c}
+.nba-quarter-score{
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:
+    radial-gradient(circle at 10% 0,rgba(45,127,255,.05),transparent 22rem),
+    #06090e;
+}
+.nba-box-section-title{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 14px 9px;
+}
+.nba-box-section-title span,
+.nba-team-player-head span{
+  display:block;
+  color:#6d7884;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+.nba-box-section-title h3,
+.nba-team-player-head h3{
+  margin:3px 0 0;
+  color:#f4f6f8;
+  font-size:16px;
+  letter-spacing:-.015em;
+}
+.nba-box-section-title>b{
+  color:#ffdc61;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.nba-quarter-scroll{
+  width:100%;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#303b48 transparent;
+}
+.nba-quarter-table{
+  width:100%;
+  min-width:560px;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.nba-quarter-table th,
+.nba-quarter-table td{
+  height:35px;
+  border-top:1px solid rgba(255,255,255,.055);
+  border-right:1px solid rgba(255,255,255,.035);
+  text-align:center;
+  white-space:nowrap;
+}
+.nba-quarter-table thead th{
+  height:28px;
+  color:#65717d;
+  background:#05080c;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.nba-quarter-table th:first-child{
+  position:sticky;
+  left:0;
+  z-index:4;
+  width:116px;
+  min-width:116px;
+  text-align:left;
+  padding-left:10px;
+  background:#070b11;
+}
+.nba-quarter-table td{
+  color:#cbd2d9;
+  font-size:12px;
+  font-weight:850;
+}
+.nba-quarter-table .is-current-quarter{
+  color:#fff6ce;
+  background:rgba(255,216,77,.065);
+  box-shadow:inset 0 -2px 0 rgba(255,216,77,.5);
+}
+.nba-quarter-table .nba-quarter-total{
+  color:#fff;
+  background:rgba(255,255,255,.025);
+  font-weight:950;
+}
+.nba-quarter-team{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#f0f3f6!important;
+  font-size:12px!important;
+  letter-spacing:.04em;
+}
+.nba-quarter-logo{
+  width:25px!important;
+  height:25px!important;
+  flex:0 0 25px!important;
+}
+.nba-quarter-logo img{width:100%;height:100%;object-fit:contain}
+.nba-team-summary{
+  padding:12px 14px 14px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:#06090e;
+}
+.nba-team-summary-head,
+.nba-team-summary-row{
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) 92px;
+  align-items:center;
+  text-align:center;
+}
+.nba-team-summary-head{
+  min-height:36px;
+  color:#65717d;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.nba-team-summary-head b{
+  color:#f1f4f6;
+  font-size:13px;
+}
+.nba-team-summary-row{
+  min-height:32px;
+  border-top:1px solid rgba(255,255,255,.055);
+}
+.nba-team-summary-row span{
+  color:#687481;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+.nba-team-summary-row strong{
+  color:#e6eaee;
+  font-size:12px;
+}
+.nba-player-sections{
+  display:grid;
+  gap:18px;
+  padding:0 14px 16px;
+}
+.nba-team-player-block{min-width:0}
+.nba-team-player-head{
+  min-height:56px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 0 8px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nba-team-player-head h3{font-size:18px}
+.nba-stat-card{
+  min-width:0;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.085);
+  background:#070b10;
+}
+.nba-stat-card-head{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+  background:linear-gradient(90deg,rgba(45,127,255,.045),transparent 55%);
+}
+.nba-stat-card-head span{
+  display:block;
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.nba-stat-card-head h4{
+  margin:2px 0 0;
+  color:#f0f3f6;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.nba-stat-card-head>b{
+  color:#647282;
+  font-size:9px;
+  letter-spacing:.06em;
+}
+.nba-player-table-wrap{
+  width:100%;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#303b48 transparent;
+}
+.nba-player-table{
+  width:100%;
+  min-width:980px;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.nba-player-table th,
+.nba-player-table td{
+  height:31px;
+  padding:5px 8px;
+  border-top:1px solid rgba(255,255,255,.05);
+  text-align:right;
+  white-space:nowrap;
+}
+.nba-player-table thead th{
+  color:#637180;
+  background:#05080c;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.04em;
+}
+.nba-player-table td{
+  color:#cbd2d9;
+  font-weight:800;
+}
+.nba-player-table th:first-child,
+.nba-player-table td:first-child{
+  position:sticky;
+  left:0;
+  z-index:3;
+  min-width:168px;
+  width:168px;
+  text-align:left;
+  background:#070b10;
+  box-shadow:1px 0 0 rgba(255,255,255,.055);
+}
+.nba-player-table td:first-child b{
+  display:block;
+  color:#eef1f4;
+  font-size:11px;
+}
+.nba-player-table td:first-child small{
+  display:block;
+  margin-top:2px;
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:900;
+}
+.nba-player-table tr.is-starter td:first-child b:before{
+  content:'★';
+  margin-right:5px;
+  color:#ffe16a;
+  font-size:9px;
+}
+.nba-player-table th[data-stat-key="points"],
+.nba-player-table td[data-stat-key="points"]{
+  color:#ffe16a;
+  background:rgba(255,216,77,.04);
+  font-weight:950;
+}
+.nba-player-table th[data-stat-key="rebounds"],
+.nba-player-table td[data-stat-key="rebounds"],
+.nba-player-table th[data-stat-key="assists"],
+.nba-player-table td[data-stat-key="assists"]{
+  color:#eaf4ff;
+  font-weight:950;
+}
+.nba-player-table th[data-stat-key="plusMinus"],
+.nba-player-table td[data-stat-key="plusMinus"]{
+  font-weight:950;
+}
+.nba-player-table tbody tr:hover td{background:rgba(255,255,255,.018)}
+.nba-player-table tbody tr:hover td:first-child{background:#0a0f15}
+.nba-stat-empty{
+  min-height:72px;
+  display:flex;
+  align-items:center;
+  padding:12px 10px;
+  color:#687481;
+  font-size:11px;
+}
+.nba-dnp-block{
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  gap:10px;
+  padding:10px;
+  border-top:1px solid rgba(255,255,255,.065);
+  background:#05080c;
+}
+.nba-dnp-block>span{
+  color:#ff9b7f;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.nba-dnp-block>div{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px 12px;
+}
+.nba-dnp-block b{
+  color:#cbd2d9;
+  font-size:10px;
+}
+.nba-dnp-block small{
+  color:#687481;
+  font-size:9px;
+}
+
+@media(max-width:600px){
+  .nba-box-section-title{padding-left:10px;padding-right:10px}
+  .nba-team-summary{padding:10px}
+  .nba-team-summary-head,
+  .nba-team-summary-row{grid-template-columns:70px minmax(0,1fr) 70px}
+  .nba-player-sections{padding:0 10px 12px;gap:14px}
+  .nba-player-table{min-width:940px}
+  .nba-player-table th:first-child,
+  .nba-player-table td:first-child{min-width:146px;width:146px}
+}
