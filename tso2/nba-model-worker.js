@@ -93,7 +93,7 @@ function buildProjection({research,row,market,line,fairOverProb=null}){
   let sigma=Math.max(FLOOR_SD[m]||1,rawSd||0);if(leagueSd!=null)sigma=sigma*.75+leagueSd*.25;sigma*=1+(1-injury.confidence)*.25;
   const modelOver=injury.available?overProbability(ln,projection,sigma):.01,fair=finite(fairOverProb),edge=fair==null?null:modelOver-fair,lean=modelOver>=.5?'Over':'Under',confidence=Math.max(modelOver,1-modelOver)*injury.confidence,g=grade(edge??(confidence-.5),games.length,injury.available);
   return {
-    version:'nba-regression-v1',playerId:player.id,player:player.name,team:player.team,teamId:player.teamId,position:player.position,
+    version:'nba-regression-v1',playerId:player.id,player:player.name,team:player.team,teamId:player.teamId,position:player.position,headshot:player.headshot||null,
     opponent:matchup.opponent.name,opponentId:matchup.opponent.id,venue:matchup.venue,market:m,line:ln,
     projection:+projection.toFixed(2),sigma:+sigma.toFixed(2),overProbability:+modelOver.toFixed(4),underProbability:+(1-modelOver).toFixed(4),
     lean,confidence:+confidence.toFixed(4),fairMarketOver:fair==null?null:+fair.toFixed(4),edge:edge==null?null:+edge.toFixed(4),grade:g.letter,gradeTone:g.tone,
