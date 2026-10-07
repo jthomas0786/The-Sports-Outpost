@@ -101,3 +101,31 @@ export function resolveWnbaQuoteEvent(row,relevantEvents,teamHint){
   }
   return null;
 }
+
+
+const BASKETBALL_PROP_BOUNDS = {
+  points:[4.5,69.5],
+  rebounds:[0.5,29.5],
+  assists:[0.5,24.5],
+  threes:[0.5,14.5],
+  pra:[9.5,99.5],
+  steals:[0.5,9.5],
+  blocks:[0.5,9.5],
+  turnovers:[0.5,14.5],
+  ptsRebs:[7.5,89.5],
+  ptsAsts:[7.5,89.5],
+  rebsAsts:[3.5,49.5],
+  doubleDouble:[0.5,0.5],
+  tripleDouble:[0.5,0.5]
+};
+
+export function plausibleBasketballPropRow(market,line,player){
+  const bounds=BASKETBALL_PROP_BOUNDS[String(market||'')];
+  const value=Number(line);
+  const name=String(player||'').trim();
+  if(!bounds||!Number.isFinite(value)||value<bounds[0]||value>bounds[1])return false;
+  if(!name||name.length<3||name.length>80)return false;
+  if(/\b(?:alt|team\s+total|game\s+total|first\s+(?:quarter|half)|second\s+half|more|less)\b/i.test(name))return false;
+  const words=name.match(/[A-Za-zÀ-ÖØ-öø-ÿ][A-Za-zÀ-ÖØ-öø-ÿ.'’\-]+/g)||[];
+  return words.length>=2;
+}
