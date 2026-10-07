@@ -1280,10 +1280,46 @@
     return String(person?.shortName||person?.displayName||person?.fullName||person?.name||'').trim();
   }
 
-  function liveParticipantName(play,types=[]){
+  function livePersonId(value){
+    if(!value) return '';
+    const person=value?.athlete||value?.player||value;
+    return String(person?.playerId||person?.id||person?.uid||'').trim();
+  }
+
+  function livePlayerRecordById(summary,id){
+    const key=String(id||'').trim();
+    if(!key) return null;
+
+    for(const team of summary?.boxscore?.players||[]){
+      for(const group of team?.statistics||[]){
+        for(const row of group?.athletes||[]){
+          const athlete=row?.athlete||{};
+          if(String(athlete?.id||athlete?.playerId||athlete?.uid||'').trim()===key) return athlete;
+        }
+      }
+    }
+
+    for(const team of summary?.rosters||[]){
+      for(const row of team?.roster||team?.athletes||[]){
+        const athlete=row?.athlete||row;
+        if(String(athlete?.id||athlete?.playerId||athlete?.uid||'').trim()===key) return athlete;
+      }
+    }
+    return null;
+  }
+
+  function liveResolvedPersonName(summary,value){
+    const direct=livePersonName(value);
+    if(direct) return direct;
+    const id=livePersonId(value);
+    const record=livePlayerRecordById(summary,id);
+    return livePersonName(record);
+  }
+
+  function liveParticipantName(summary,play,types=[]){
     const wanted=types.map(x=>String(x).toLowerCase());
     const row=(play?.participants||[]).find(p=>wanted.includes(String(p?.type||p?.role||'').toLowerCase()));
-    return livePersonName(row);
+    return liveResolvedPersonName(summary,row);
   }
 
   function liveSituationStat(summary,game,side,key){
@@ -1319,10 +1355,10 @@
     const balls=count?.balls ?? situation?.balls;
     const strikes=count?.strikes ?? situation?.strikes;
     const outs=count?.outs ?? situation?.outs;
-    const batter=livePersonName(situation?.batter||situation?.currentBatter)
-      || liveParticipantName(latest,['batter','hitter']);
-    const pitcher=livePersonName(situation?.pitcher||situation?.currentPitcher)
-      || liveParticipantName(latest,['pitcher']);
+    const batter=liveResolvedPersonName(summary,situation?.batter||situation?.currentBatter)
+      || liveParticipantName(summary,latest,['batter','hitter']);
+    const pitcher=liveResolvedPersonName(summary,situation?.pitcher||situation?.currentPitcher)
+      || liveParticipantName(summary,latest,['pitcher']);
     const first=mlbBaseActive(situation,'first');
     const second=mlbBaseActive(situation,'second');
     const third=mlbBaseActive(situation,'third');
@@ -1330,7 +1366,7 @@
     const countText=(balls!=null||strikes!=null)?String(balls??0)+'-'+String(strikes??0):'—';
     const outText=outs!=null?String(outs)+' OUT'+(Number(outs)===1?'':'S'):'—';
     return '<div class="live-situation-layout sport-mlb">'
-      +'<div class="live-situation-primary"><span>AT BAT</span><b>'+esc(batter||'Current batter')+'</b><small>'+esc(inning)+'</small></div>'
+      +'<div class="live-situation-primary"><span>AT BAT</span><b>'+esc(batter||'—')+'</b><small>'+esc(inning)+'</small></div>'
       +'<div class="live-base-state" aria-label="Base runners">'
         +'<i class="base second '+(second?'is-on':'')+'"></i>'
         +'<i class="base third '+(third?'is-on':'')+'"></i>'
@@ -1338,7 +1374,7 @@
       +'</div>'
       +liveMetric('COUNT',countText)
       +liveMetric('OUTS',outText)
-      +'<div class="live-situation-primary is-secondary"><span>PITCHING</span><b>'+esc(pitcher||'Current pitcher')+'</b><small>'+esc(game?.away?.abbr+' @ '+game?.home?.abbr)+'</small></div>'
+      +'<div class="live-situation-primary is-secondary"><span>PITCHING</span><b>'+esc(pitcher||'—')+'</b><small>'+esc(game?.away?.abbr+' @ '+game?.home?.abbr)+'</small></div>'
     +'</div>';
   }
 
