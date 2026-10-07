@@ -7,6 +7,7 @@ const view=fs.readFileSync('sports/nhl/view-v906.js','utf8');
 const edge=fs.readFileSync('sports/nhl/game-edge-v940.js','utf8');
 const sidebar=fs.readFileSync('sports/nhl/sidebar-plj-v927.js','utf8');
 const state=fs.readFileSync('sports/nhl/sidebar-state-v933.js','utf8');
+const index=fs.readFileSync('index.html','utf8');
 const lines=JSON.parse(fs.readFileSync('slates/nhl-puck-lines.json','utf8'));
 
 const even=fairPair({leftPrice:-110,rightPrice:-110});
@@ -32,7 +33,9 @@ for(const marker of [
   "no-vig",
 ]) assert.ok(edge.includes(marker),`NHL Game Edge missing: ${marker}`);
 
-assert.ok(sidebar.includes("btn.textContent='Game Edge'"),'NHL sidebar must display Game Edge');
+assert.ok(sidebar.includes("btn.textContent='Game Edge'"),'fallback NHL sidebar injector must display Game Edge');
+assert.ok(index.includes('data-nhl-game-edge="1">Game Edge</button>'),'Game Edge must be native to the TSO 2.0 NHL sidebar template');
+assert.ok(index.includes("host.querySelectorAll('[data-nhl-game-edge]')"),'native Game Edge sidebar button must have a click handler');
 assert.ok(sidebar.includes('DW_openGameEdge'),'sidebar must open Game Edge');
 assert.ok(state.includes('hkGameEdgePanel'),'centralized sidebar state must track Game Edge');
 assert.ok(!view.includes('installPuckLineJesusV923();'),'NHL 2.0 must not install the old Puck Line Jesus runtime');
