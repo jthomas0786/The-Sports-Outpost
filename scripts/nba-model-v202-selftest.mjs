@@ -62,6 +62,13 @@ assert.equal(out.available,false);
 assert.equal(out.grade,'OUT');
 assert.ok(out.overProbability<=.01);
 
+const dayToDay=structuredClone(research);
+dayToDay.players.p1.injury={status:'Day-To-Day'};
+const dtd=buildNbaProjection({research:dayToDay,row,market:'points',line:24.5,fairOverProb:fair});
+assert.equal(dtd.available,true);
+assert.ok(dtd.factors.injury<1,'Day-To-Day should reduce projection');
+assert.ok(dtd.confidence<p.confidence,'Day-To-Day should reduce confidence');
+
 assert.equal(__NBA_MODEL_V202_TEST__.positionGroup('PG'),'G');
 assert.equal(__NBA_MODEL_V202_TEST__.positionGroup('PF'),'F');
 assert.equal(__NBA_MODEL_V202_TEST__.positionGroup('C'),'C');
