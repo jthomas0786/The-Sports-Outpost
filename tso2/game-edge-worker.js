@@ -8,6 +8,23 @@ const SPORTS={
 const num=v=>{if(v==null||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null};
 const amer=v=>{if(v==null||v==='')return null;const n=Number(String(v).replace(/[^0-9+\-.]/g,''));return Number.isFinite(n)?n:null};
 const line=v=>{if(v==null||v==='')return null;const n=Number(String(v).replace(/[^0-9+\-.]/g,''));return Number.isFinite(n)?n:null};
+const NFL_TZ='America/Chicago';
+function nflWeekDateRange(now=new Date()){
+ const parts=new Intl.DateTimeFormat('en-US',{timeZone:NFL_TZ,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',hourCycle:'h23'}).formatToParts(now);
+ const get=t=>Number(parts.find(p=>p.type===t)?.value);
+ const y=get('year'),m=get('month'),d=get('day'),hour=get('hour');
+ const localDay=new Date(Date.UTC(y,m-1,d));
+ const dow=localDay.getUTCDay();
+ let daysSinceTuesday=(dow-2+7)%7;
+ if(dow===2&&hour<3)daysSinceTuesday=7;
+ const startMs=Date.UTC(y,m-1,d)-daysSinceTuesday*86400000;
+ const endMs=startMs+6*86400000;
+ const fmt=ms=>{
+  const dt=new Date(ms);
+  return String(dt.getUTCFullYear())+String(dt.getUTCMonth()+1).padStart(2,'0')+String(dt.getUTCDate()).padStart(2,'0');
+ };
+ return {start:fmt(startMs),end:fmt(endMs),timeZone:NFL_TZ,rolloverHourLocal:3};
+}
 function team(c,side){
  const rows=c?.competitors||[];const r=rows.find(x=>x?.homeAway===side)||(side==='away'?rows[1]:rows[0]);if(!r)return null;
  const t=r.team||{};return {id:String(t.id||r.id||''),abbr:t.abbreviation||t.shortDisplayName||'',name:t.displayName||t.name||'',logo:t.logo||t.logos?.[0]?.href||'',score:num(r.score)};
@@ -31,11 +48,14 @@ async function handle(req){
  const u=new URL(req.url);if(req.method==='OPTIONS')return new Response('',{headers:cors()});
  const league=String(u.searchParams.get('league')||'nfl').toLowerCase();const base=SPORTS[league];
  if(!base)return json({error:'unsupported league'},400);
- const d=String(u.searchParams.get('date')||'').replace(/\D/g,'');const url=base+(d?'?dates='+encodeURIComponent(d):'');
+ const d=String(u.searchParams.get('date')||'').replace(/\D/g,'');
+ const nflWeek=league==='nfl'?nflWeekDateRange():null;
+ const dateQuery=league==='nfl'?(nflWeek.start+'-'+nflWeek.end):d;
+ const url=base+(dateQuery?'?dates='+encodeURIComponent(dateQuery):'');
  try{
   const r=await fetch(url,{headers:{Accept:'application/json','User-Agent':'okhttp/4.12.0'},cf:{cacheTtl:15,cacheEverything:true}});
   if(!r.ok)throw new Error('ESPN HTTP '+r.status);const doc=await r.json();const games=(doc.events||[]).map(e=>game(e,league)).filter(Boolean);
-  return json({source:'espn-scoreboard',generatedAt:new Date().toISOString(),league,date:d||null,games,marketGames:games.filter(g=>g.gameLines).length});
+  return json({source:'espn-scoreboard',generatedAt:new Date().toISOString(),league,date:league==='nfl'?null:(d||null),weekRange:nflWeek,games,marketGames:games.filter(g=>g.gameLines).length});
  }catch(e){return json({error:String(e?.message||e)},502)}
 }
 function cors(){return {'access-control-allow-origin':'*','access-control-allow-methods':'GET,OPTIONS','access-control-allow-headers':'Content-Type','cache-control':'no-store'}}
