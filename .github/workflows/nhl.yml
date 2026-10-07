@@ -37,6 +37,8 @@ jobs:
           node --check scripts/nhl-odds.mjs
           node --check sports/nhl/view.js
           node --check sports/nhl/view-v906.js
+          node --check sports/shared/game-edge-v100.js
+          node --check sports/nhl/game-edge-v940.js
           node --check sports/nhl/launch-v922.js
           node --check sports/nhl/puck-line-jesus.js
           node --check sports/nhl/puck-line-jesus-alerts-v925.js
@@ -67,7 +69,7 @@ jobs:
           node scripts/nhl-live-roster-selftest.mjs
           node scripts/nhl-daily-slate-selftest.mjs
           node scripts/nhl-midnight-rollover-selftest.mjs
-          node scripts/nhl-navigation-selftest.mjs
+          node scripts/nhl-game-edge-selftest.mjs
           node scripts/nhl-props-baseline-selftest.mjs
           node scripts/nhl-v901-selftest.mjs
           node scripts/nhl-lineups-selftest.mjs
