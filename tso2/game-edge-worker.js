@@ -69,9 +69,17 @@ async function handle(req){
   let events=[];
   if(league==='nfl'){
    const dates=nflWeekDates();
-   const docs=await Promise.all(dates.map(date=>fetchScoreboard(base,date)));
+   const settled=await Promise.allSettled(dates.map(date=>fetchScoreboard(base,date)));
    const byId=new Map();
-   for(const doc of docs)for(const event of doc?.events||[])byId.set(String(event?.id||event?.competitions?.[0]?.id||Math.random()),event);
+   const failures=[];
+   settled.forEach((result,index)=>{
+    if(result.status==='rejected'){failures.push({date:dates[index],error:String(result.reason?.message||result.reason)});return;}
+    for(const event of result.value?.events||[]){
+      const id=String(event?.id||event?.competitions?.[0]?.id||'');
+      if(id)byId.set(id,event);
+    }
+   });
+   if(!byId.size&&failures.length===dates.length)throw new Error('All NFL scoreboard dates failed: '+failures.map(x=>x.date+' '+x.error).join('; '));
    events=[...byId.values()];
   }else{
    const dateQuery=d||'';
