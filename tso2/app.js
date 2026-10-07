@@ -1943,11 +1943,94 @@
     bindLiveGeneratedActions();
   }
 
+  function propsFeedIntegrityState(){
+    const warnings=Array.isArray(propsFeedCache?.warnings)?propsFeedCache.warnings.filter(Boolean):[];
+    const sportStates=Object.values(propsFeedCache?.sports||{});
+    const fallback=String(propsFeedCache?.sourceMode||'').toLowerCase().includes('fallback')
+      || String(propsFeedCache?.sourceMode||'').toLowerCase().includes('mixed')
+      || sportStates.some(x=>String(x?.fetchMode||'').toLowerCase().includes('fallback'))
+      || warnings.length>0;
+    return {fallback,warnings};
+  }
+
+  function livePulseRows(){
+    const all=(propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
+    const modeled=sortPropsRows(all.filter(row=>Number.isFinite(Number(row?.model?.probabilityPct))));
+    if(currentLeague==='nba'){
+      return [...all].sort((a,b)=>(Date.parse(b.snapshotTime||'')||0)-(Date.parse(a.snapshotTime||'')||0)).slice(0,3);
+    }
+    if(currentLeague!=='all') return modeled.slice(0,3);
+    const selected=[];
+    for(const sport of ['nhl','nfl','mlb']){
+      const row=modeled.find(x=>x.sport===sport);
+      if(row)selected.push(row);
+    }
+    if(selected.length<3){
+      for(const row of modeled){
+        if(selected.includes(row))continue;
+        selected.push(row);
+        if(selected.length===3)break;
+      }
+    }
+    return selected;
+  }
+
+  function livePulseCardMarkup(row,index){
+    const model=row?.model||null;
+    const hasModel=Number.isFinite(Number(model?.probabilityPct));
+    const tone=homeModelTone(row,index);
+    const edge=hasModel?Number(model.edgePct):null;
+    const selection=propSelectionText(row);
+    const source=hasModel?modelSourceText(row):'VERIFIED MARKET';
+    const snapshot=row?.snapshotTime?ageText(row.snapshotTime)+' old':'timestamp unavailable';
+    const topTag=hasModel?modelTagText(row):'MARKET ONLY';
+    const metric=hasModel?pct1(model.probabilityPct):americanPrice(row.price);
+    const comparison=hasModel
+      ? '<div class="live-model-shift"><span><small>MARKET</small><b>'+pct1(row.impliedPct)+'</b></span><i>→</i><span><small>MODEL</small><b>'+pct1(model.probabilityPct)+'</b></span><strong class="'+(edge>=0?'positive':'negative')+'">'+edgeText(edge)+'</strong></div>'
+      : '<div class="live-model-shift"><span><small>SELECTION</small><b>'+esc(selection)+'</b></span><i>·</i><span><small>PRICE</small><b>'+esc(americanPrice(row.price))+'</b></span><strong>'+esc(row.book||'VERIFIED')+'</strong></div>';
+    return '<article class="live-model-card live-model-card--'+tone+'">'
+      +'<div class="live-model-top"><span>'+esc(leagueLabel(row.sport))+' · '+esc(row.marketLabel||row.market)+'</span><b>'+esc(topTag)+'</b></div>'
+      +'<div class="live-model-player">'+propHeadshotMarkup(row,'live-model-headshot')+'<div><h3>'+esc(row.player)+'</h3><small>'+esc(selection)+' · '+esc(row.awayTeam||'')+' @ '+esc(row.homeTeam||'')+'</small></div><span class="live-model-badge"><small>'+(hasModel?'MODEL':'PRICE')+'</small><strong>'+esc(metric)+'</strong></span></div>'
+      +comparison
+      +'<div class="live-model-reason">'+esc(source)+' · '+esc(row.book||'verified book')+' · '+esc(snapshot)+'</div>'
+      +'</article>';
+  }
+
+  function renderLiveModelPulse(){
+    if(currentRoute!=='live')return;
+    const root=document.querySelector('[data-live-route]');
+    if(!root)return;
+    const grid=root.querySelector('[data-live-model-grid]');
+    const sourceNode=root.querySelector('[data-live-model-source]');
+    const title=root.querySelector('[data-live-model-title]');
+    if(!propsFeedCache){
+      if(grid)grid.innerHTML='<div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Loading real model signals…</b><small>No preview cards will be substituted.</small></div></div>';
+      return;
+    }
+    const integrity=propsFeedIntegrityState();
+    const rows=livePulseRows();
+    const newest=propsNewestTimestamp((propsFeedCache.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague));
+    if(sourceNode){
+      sourceNode.classList.toggle('is-fallback',integrity.fallback);
+      sourceNode.innerHTML=integrity.fallback
+        ? '<span class="live-pulse is-idle"></span><div><b>FALLBACK SNAPSHOT</b><small>'+esc(integrity.warnings[0]||'A live source is unavailable; verified cached data is being shown.')+(newest?' · newest '+esc(ageText(newest))+' old':'')+'</small></div>'
+        : '<span class="live-pulse"></span><div><b>VERIFIED LIVE SOURCE</b><small>'+(newest?'Newest exact snapshot '+esc(ageText(newest))+' old':'Current exact model-to-market feed')+'</small></div>';
+    }
+    if(title)title.textContent=currentLeague==='nba'?'NBA current market signals':(currentLeague==='all'?'Current TSO model signals':leagueLabel(currentLeague)+' current model signals');
+    if(grid){
+      grid.innerHTML=rows.length
+        ? rows.map(livePulseCardMarkup).join('')
+        : '<div class="live-board-loading home-model-empty--wide"><div><b>'+(currentLeague==='nba'?'No verified NBA market rows for this filter.':'No exact model signals for this sport right now.')+'</b><small>TSO will not insert example probabilities or fake movement.</small></div></div>';
+    }
+    bindMediaFallbacks();
+  }
+
   function renderLiveFeed(){
     if(!liveFeedCache) return;
     renderGlobalScoreStrip();
     renderHomeLiveData();
     renderLiveCenter();
+    renderLiveModelPulse();
     renderProfile();
     renderResearch();
     const status = document.querySelector('.market-status');
@@ -5060,6 +5143,7 @@
       renderPropsFeed();
       renderModelsFeed();
       renderHomeModels();
+      renderLiveModelPulse();
       renderParlayLab();
       renderCommunity();
       renderLeaderboard();
@@ -5077,6 +5161,7 @@
         renderPropsFeed();
         renderModelsFeed();
         renderHomeModels();
+        renderLiveModelPulse();
         renderParlayLab();
         renderCommunity();
         renderLeaderboard();
@@ -5117,6 +5202,12 @@
         if(currentRoute==='profile'&&profileSignals) profileSignals.innerHTML='<div class="live-board-loading home-model-empty--wide"><div><b>Verified model feed unavailable.</b><small>Profile will not substitute fake tracked picks or performance history.</small></div></div>';
         const researchResults=document.querySelector('[data-research-results]');
         if(currentRoute==='research'&&researchResults) researchResults.innerHTML='<div class="live-board-loading"><div><b>Verified prop/model feed unavailable.</b><small>Research will not substitute preview statistics.</small></div></div>';
+        if(currentRoute==='live'){
+          const liveGrid=document.querySelector('[data-live-model-grid]');
+          const liveSource=document.querySelector('[data-live-model-source]');
+          if(liveSource){liveSource.classList.add('is-fallback');liveSource.innerHTML='<span class="live-pulse is-idle"></span><div><b>MODEL / MARKET FEED UNAVAILABLE</b><small>TSO will not substitute example cards.</small></div>';}
+          if(liveGrid)liveGrid.innerHTML='<div class="live-board-loading home-model-empty--wide"><div><b>Verified model signals unavailable.</b><small>Retrying automatically. No preview data is shown.</small></div></div>';
+        }
         renderProfile();
         renderResearch();
         return null;
