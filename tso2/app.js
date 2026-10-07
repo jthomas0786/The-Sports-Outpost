@@ -310,9 +310,9 @@
   const liveDetailTtl = game => game?.state === 'in' ? 15000 : 300000;
 
   function liveDetailUrl(game){
-    const path=LIVE_DETAIL_PATHS[String(game?.league||'').toLowerCase()];
-    if(!path || !game?.id) return '';
-    return 'https://site.api.espn.com/apis/site/v2/sports/'+path+'/summary?event='+encodeURIComponent(game.id);
+    const league=String(game?.league||'').toLowerCase();
+    if(!LIVE_DETAIL_PATHS[league] || !game?.id) return '';
+    return '/api/game-detail?league='+encodeURIComponent(league)+'&event='+encodeURIComponent(game.id);
   }
 
   function liveDetailPlays(summary){
