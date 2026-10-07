@@ -8,12 +8,13 @@ name: Build NFL slate
 
 on:
   schedule:
-    # NFL is a WEEKLY Tuesday→Monday product. Primary roll is 08:00 UTC Tuesday
-    # (03:00 Central during daylight time). A 08:30 UTC catch-up protects against
-    # GitHub delaying/dropping a top-of-hour scheduled run; it skips automatically
-    # when the correct weekly slate already exists.
-    - cron: '0 8 * * 2'
-    - cron: '30 8 * * 2'
+    # NFL is a WEEKLY Tuesday→Monday product and the product window rolls at
+    # 03:00 America/Chicago. Use 09:05 UTC so the scheduled reset is always
+    # AFTER 03:00 Central in both CDT (04:05) and CST (03:05). A 09:35 UTC
+    # catch-up protects against a delayed/dropped primary run and no-ops when
+    # the correct weekly slate already exists.
+    - cron: '5 9 * * 2'
+    - cron: '35 9 * * 2'
     # Same-week Sunday refresh: updates roster/inactive context without creating
     # a new slate/week. The slateId remains the same until the next Tuesday roll.
     - cron: '0 16 * * 0'
@@ -46,6 +47,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
+
+      - name: Verify Tuesday rollover is after 03:00 Central
+        if: github.event_name == 'schedule' && (github.event.schedule == '5 9 * * 2' || github.event.schedule == '35 9 * * 2')
+        run: |
+          node --input-type=module <<'NODE'
+          const parts = Object.fromEntries(new Intl.DateTimeFormat('en-US', {
+            timeZone: 'America/Chicago',
+            weekday: 'short', hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+          }).formatToParts(new Date()).map(p => [p.type, p.value]));
+          const minutes = Number(parts.hour) * 60 + Number(parts.minute);
+          if (parts.weekday !== 'Tue' || minutes < 180) {
+            throw new Error(`NFL weekly rollover guard: scheduled run resolved to ${parts.weekday} ${parts.hour}:${parts.minute} America/Chicago, before Tuesday 03:00.`);
+          }
+          console.log(`✓ NFL weekly rollover is safely after Tuesday 03:00 Central (${parts.hour}:${parts.minute}).`);
+          NODE
 
       - name: Resolve current or upcoming NFL week
         run: |
@@ -110,7 +126,7 @@ jobs:
           NODE
 
       - name: Skip catch-up when primary weekly roll already succeeded
-        if: github.event_name == 'schedule' && github.event.schedule == '30 8 * * 2'
+        if: github.event_name == 'schedule' && github.event.schedule == '35 9 * * 2'
         run: |
           node --input-type=module <<'NODE'
           import { existsSync, readFileSync, appendFileSync } from 'node:fs';
