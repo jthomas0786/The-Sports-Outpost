@@ -427,7 +427,131 @@
     }).join('')+'</div>';
   }
 
+  function mlbSummaryCompetitor(summary,game,side){
+    const rows=summary?.header?.competitions?.[0]?.competitors || [];
+    const abbr=String(game?.[side]?.abbr||'').toUpperCase();
+    return rows.find(row=>row?.homeAway===side)
+      || rows.find(row=>String(row?.team?.abbreviation||'').toUpperCase()===abbr)
+      || null;
+  }
+
+  function mlbLineValue(row,index){
+    const item=Array.isArray(row?.linescores)?row.linescores[index]:null;
+    if(item==null) return '—';
+    const value=item?.displayValue ?? item?.value ?? item;
+    return value==null || value==='' ? '—' : String(value);
+  }
+
+  function mlbTeamBoxStat(summary,game,side,key){
+    const entry=boxTeamEntry(summary,game?.[side]?.abbr,side==='away'?0:1);
+    const map=teamStatMap(entry);
+    const stat=map.get(key);
+    return stat?.displayValue ?? stat?.value ?? '—';
+  }
+
+  function mlbLineScoreMarkup(summary,game){
+    const away=mlbSummaryCompetitor(summary,game,'away');
+    const home=mlbSummaryCompetitor(summary,game,'home');
+    const awayLines=Array.isArray(away?.linescores)?away.linescores:[];
+    const homeLines=Array.isArray(home?.linescores)?home.linescores:[];
+    const played=Math.max(awayLines.length,homeLines.length,Number(game?.period)||0);
+    const innings=Math.max(9,played);
+    const current=game?.state==='in' ? Number(game?.period)||0 : 0;
+    const columns=Array.from({length:innings},(_,i)=>i+1);
+
+    const total=(side,row)=>{
+      const liveScore=game?.[side]?.score;
+      const raw=row?.score ?? liveScore;
+      return raw==null || raw==='' ? '—' : String(raw);
+    };
+    const hits=side=>mlbTeamBoxStat(summary,game,side,'hits');
+    const errors=side=>mlbTeamBoxStat(summary,game,side,'errors');
+
+    const teamRow=(side,row)=>{
+      const team=game?.[side]||{};
+      return '<tr>'
+        +'<th class="mlb-line-team">'+teamLogoMarkup(team,'mlb-line-logo')+'<span>'+esc(team.abbr||side.toUpperCase())+'</span></th>'
+        +columns.map(n=>'<td class="'+(n===current?'is-current-inning':'')+'">'+esc(mlbLineValue(row,n-1))+'</td>').join('')
+        +'<td class="mlb-line-total">'+esc(total(side,row))+'</td>'
+        +'<td class="mlb-line-total">'+esc(hits(side))+'</td>'
+        +'<td class="mlb-line-total">'+esc(errors(side))+'</td>'
+      +'</tr>';
+    };
+
+    return '<section class="mlb-line-score">'
+      +'<div class="mlb-box-section-title"><div><span>MLB BOX SCORE</span><h3>Line score</h3></div><b>'+esc(gameShortState(game))+'</b></div>'
+      +'<div class="mlb-line-scroll"><table class="mlb-line-table"><thead><tr><th>TEAM</th>'
+        +columns.map(n=>'<th class="'+(n===current?'is-current-inning':'')+'">'+n+'</th>').join('')
+        +'<th>R</th><th>H</th><th>E</th>'
+      +'</tr></thead><tbody>'
+        +teamRow('away',away)
+        +teamRow('home',home)
+      +'</tbody></table></div>'
+    +'</section>';
+  }
+
+  function mlbGroupKind(group){
+    const labels=(group?.labels||[]).map(x=>String(x).toUpperCase());
+    const name=String(group?.name||group?.displayName||'').toLowerCase();
+    if(labels.includes('IP') || /pitch/.test(name)) return 'pitching';
+    return 'batting';
+  }
+
+  function mlbPlayerGroupMarkup(teamBlock,group,kind){
+    const team=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+    const labels=Array.isArray(group?.labels)?group.labels:[];
+    const athletes=(group?.athletes||[]).filter(row=>row?.athlete && !row?.didNotPlay);
+    const title=team+' '+(kind==='pitching'?'PITCHING':'BATTING');
+
+    if(!athletes.length){
+      return '<section class="mlb-stat-card"><div class="mlb-stat-card-head"><h4>'+esc(title)+'</h4><span>'+esc(kind.toUpperCase())+'</span></div>'
+        +'<div class="mlb-stat-empty">'+(kind==='pitching'?'Pitching lines':'Batting lines')+' will populate after first pitch.</div></section>';
+    }
+
+    return '<section class="mlb-stat-card">'
+      +'<div class="mlb-stat-card-head"><h4>'+esc(title)+'</h4><span>'+esc(kind.toUpperCase())+'</span></div>'
+      +'<div class="mlb-player-table-wrap"><table class="mlb-player-table"><thead><tr><th>PLAYER</th>'
+        +labels.map(label=>'<th>'+esc(label)+'</th>').join('')
+      +'</tr></thead><tbody>'
+        +athletes.map(row=>{
+          const player=row?.athlete?.shortName||row?.athlete?.displayName||'Player';
+          const pos=row?.athlete?.position?.abbreviation||row?.position?.abbreviation||'';
+          return '<tr><td><b>'+esc(player)+'</b>'+(pos?'<small>'+esc(pos)+'</small>':'')+'</td>'
+            +(row?.stats||[]).map(stat=>'<td>'+esc(stat??'—')+'</td>').join('')
+          +'</tr>';
+        }).join('')
+      +'</tbody></table></div>'
+    +'</section>';
+  }
+
+  function mlbPlayerBoxMarkup(summary){
+    const teams=Array.isArray(summary?.boxscore?.players)?summary.boxscore.players:[];
+    if(!teams.length) return '';
+    const batting=[];
+    const pitching=[];
+    teams.forEach(teamBlock=>{
+      (teamBlock?.statistics||[]).forEach(group=>{
+        const kind=mlbGroupKind(group);
+        const markup=mlbPlayerGroupMarkup(teamBlock,group,kind);
+        if(kind==='pitching') pitching.push(markup);
+        else batting.push(markup);
+      });
+    });
+    if(!batting.length && !pitching.length) return '';
+    return '<div class="mlb-box-player-sections">'
+      +(batting.length?'<section class="mlb-box-category"><div class="mlb-category-head"><span>OFFENSE</span><h3>Batting</h3></div>'+batting.join('')+'</section>':'')
+      +(pitching.length?'<section class="mlb-box-category"><div class="mlb-category-head"><span>ON THE MOUND</span><h3>Pitching</h3></div>'+pitching.join('')+'</section>':'')
+    +'</div>';
+  }
+
+  function mlbBoxScoreMarkup(summary,game){
+    const line=mlbLineScoreMarkup(summary,game);
+    const players=mlbPlayerBoxMarkup(summary);
+    return '<div class="mlb-box-score">'+line+(players||'<div class="live-detail-empty"><b>Player box score is not available yet.</b><small>Batting and pitching lines will populate when the game starts.</small></div>')+'</div>';
+  }
+
   function boxScoreMarkup(summary,game){
+    if(String(game?.league||'').toLowerCase()==='mlb') return mlbBoxScoreMarkup(summary,game);
     const teamStats=teamStatsMarkup(summary,game);
     const players=playerBoxMarkup(summary);
     if(!teamStats && !players){
