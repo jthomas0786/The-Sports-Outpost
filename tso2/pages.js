@@ -693,10 +693,37 @@
         </section>
 
         <section class="parlays-mode-tabs" data-parlay-mode-tabs>
-          <button class="is-active" data-parlay-mode="pregame"><span>01</span><div><b>PREGAME</b><small>Connected to verified Props feed</small></div></button>
-          <button data-parlay-mode="quarter" disabled><span>02</span><div><b>QUARTER</b><small>Live checkpoint feed not connected yet</small></div></button>
-          <button data-parlay-mode="halftime" disabled><span>03</span><div><b>HALFTIME</b><small>Live checkpoint feed not connected yet</small></div></button>
-          <button data-parlay-mode="live" disabled><span>04</span><div><b>LIVE</b><small>Live prop builder not connected yet</small></div></button>
+          <button class="is-active" data-parlay-mode="pregame"><span>01</span><div><b>PREGAME</b><small>Verified sportsbook props + models</small></div></button>
+          <button data-parlay-mode="quarter"><span>02</span><div><b>QUARTER</b><small>Current-week 50K period simulation</small></div></button>
+          <button data-parlay-mode="halftime"><span>03</span><div><b>HALFTIME</b><small>Activates at a ready halftime checkpoint</small></div></button>
+          <button data-parlay-mode="live" disabled><span>04</span><div><b>LIVE</b><small>General live prop builder not activated yet</small></div></button>
+        </section>
+
+        <section class="parlay-checkpoint-controls" data-parlay-checkpoint-controls hidden>
+          <div class="parlay-checkpoint-state" data-parlay-checkpoint-state>
+            <span class="parlays-preview-dot"></span><div><b>CHECKING CURRENT NFL WEEK</b><small>Stale checkpoint boards are rejected automatically.</small></div>
+          </div>
+          <div class="parlay-period-switch" data-parlay-period-switch hidden>
+            <span>PERIOD</span>
+            <div>
+              <button class="is-active" data-parlay-period="q1">Q1</button>
+              <button data-parlay-period="q2">Q2</button>
+              <button data-parlay-period="q3">Q3</button>
+              <button data-parlay-period="q4">Q4</button>
+              <button data-parlay-period="1h">1H</button>
+              <button data-parlay-period="2h">2H</button>
+            </div>
+          </div>
+          <label class="parlay-checkpoint-strategy">BUILD STYLE
+            <select data-parlay-checkpoint-strategy>
+              <option value="tsoPick">TSO PICK</option>
+              <option value="safest">SAFEST</option>
+              <option value="bestEdge">BEST EDGE</option>
+              <option value="balanced">BALANCED</option>
+              <option value="longshot">LONGSHOT</option>
+              <option value="correlated">CORRELATED</option>
+            </select>
+          </label>
         </section>
 
         <section class="parlays-command-grid">
