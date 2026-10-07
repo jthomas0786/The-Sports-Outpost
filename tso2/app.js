@@ -1254,6 +1254,14 @@
     return request;
   }
 
+  function liveDetailFreshnessText(timestamp){
+    const age=Math.max(0,Math.round((Date.now()-Number(timestamp||0))/1000));
+    if(!timestamp) return 'Waiting for feed';
+    if(age<5) return 'Updated just now';
+    if(age<60) return 'Updated '+age+' sec ago';
+    return 'Updated '+Math.floor(age/60)+' min ago';
+  }
+
   function bindLiveDetailTabs(root,game){
     root.querySelectorAll('[data-live-detail-tab]').forEach(btn=>{
       const tab=btn.dataset.liveDetailTab==='box'?'box':'plays';
@@ -1262,19 +1270,56 @@
       btn.setAttribute('aria-selected',String(active));
       btn.onclick=()=>{
         liveDetailTab=tab;
-        renderLiveGameDetail(root,game);
+        renderLiveGameDetail(root,game,{preserveScroll:false});
       };
     });
   }
 
-  function renderLiveGameDetail(root,game){
+  function bindLivePlayControls(root,game,cached,fetched){
+    const controls=root?.querySelector('[data-live-play-controls]');
+    if(!controls) return;
+    controls.hidden=liveDetailTab!=='plays';
+
+    const counts=cached&&!cached.error ? playCounts(cached,game) : {all:0,scoring:0};
+    controls.querySelectorAll('[data-live-play-count]').forEach(node=>{
+      const key=node.dataset.livePlayCount==='scoring'?'scoring':'all';
+      node.textContent=counts[key] ? '('+counts[key]+')' : '';
+    });
+
+    controls.querySelectorAll('[data-live-play-filter]').forEach(btn=>{
+      const filter=btn.dataset.livePlayFilter==='scoring'?'scoring':'all';
+      const active=filter===livePlayFilter;
+      btn.classList.toggle('is-active',active);
+      btn.setAttribute('aria-pressed',String(active));
+      btn.onclick=()=>{
+        livePlayFilter=filter;
+        renderLiveGameDetail(root,game,{preserveScroll:false});
+      };
+    });
+
+    const freshness=controls.querySelector('[data-live-detail-freshness]');
+    if(freshness){
+      const live=game?.state==='in';
+      freshness.classList.toggle('is-live',live);
+      freshness.classList.toggle('is-final',game?.state==='post');
+      const label=freshness.querySelector('b');
+      const small=freshness.querySelector('small');
+      if(label) label.textContent=live?'LIVE':game?.state==='post'?'FINAL':'UPCOMING';
+      if(small) small.textContent=liveDetailFreshnessText(fetched);
+    }
+  }
+
+  function renderLiveGameDetail(root,game,{preserveScroll=true}={}){
     const panel=root?.querySelector('[data-live-game-detail]');
     const body=panel?.querySelector('[data-live-detail-body]');
     const title=panel?.querySelector('[data-live-detail-title]');
     if(!panel || !body) return;
+    const previousScroll=preserveScroll ? body.scrollTop : 0;
+    const previousHeight=preserveScroll ? body.scrollHeight : 0;
     if(title) title.textContent=game ? (game.away?.abbr||'AWAY')+' @ '+(game.home?.abbr||'HOME') : 'Game detail';
     bindLiveDetailTabs(root,game);
     if(!game){
+      bindLivePlayControls(root,null,null,0);
       body.innerHTML='<div class="live-detail-empty"><b>No game selected.</b><small>Choose a game from the scoreboard feed.</small></div>';
       return;
     }
@@ -1283,6 +1328,7 @@
     const cached=liveDetailCache.get(key);
     const fetched=liveDetailFetchedAt.get(key)||0;
     const stale=!cached || Date.now()-fetched >= liveDetailTtl(game);
+    bindLivePlayControls(root,game,cached,fetched);
 
     if(cached?.error){
       body.innerHTML='<div class="live-detail-empty"><b>Detailed game feed is temporarily unavailable.</b><small>The main scoreboard will keep updating automatically.</small></div>';
@@ -1292,13 +1338,37 @@
       body.innerHTML='<div class="live-detail-loading"><span class="live-feed-spinner"></span><div><b>Loading '+(liveDetailTab==='box'?'box score':'play by play')+'…</b><small>'+esc(game.away?.abbr)+' @ '+esc(game.home?.abbr)+'</small></div></div>';
     }
 
+    if(preserveScroll){
+      requestAnimationFrame(()=>{
+        if(!body.isConnected) return;
+        if(previousScroll<=20) body.scrollTop=0;
+        else body.scrollTop=Math.max(0,previousScroll+(body.scrollHeight-previousHeight));
+      });
+    }else{
+      body.scrollTop=0;
+    }
+
     if(stale && !liveDetailInFlight.has(key)){
       ensureLiveGameDetail(game).then(()=>{
         if(currentRoute!=='live' || !panel.isConnected) return;
         const active=currentFeedGames().find(g=>String(g.id)===String(selectedLiveGameId));
-        if(active && String(active.id)===String(game.id)) renderLiveGameDetail(root,active);
+        if(active && String(active.id)===String(game.id)) renderLiveGameDetail(root,active,{preserveScroll:true});
       });
     }
+  }
+
+  function refreshSelectedLiveDetail(){
+    if(currentRoute!=='live' || document.hidden || liveDetailTab!=='plays') return;
+    const game=currentFeedGames().find(g=>String(g.id)===String(selectedLiveGameId));
+    if(!game || game.state!=='in') return;
+    const root=document.querySelector('[data-page-route="live"]') || pageContent || document;
+    const panel=root?.querySelector?.('[data-live-game-detail]');
+    if(!panel) return;
+    ensureLiveGameDetail(game,true).then(()=>{
+      if(currentRoute!=='live' || !panel.isConnected || liveDetailTab!=='plays') return;
+      const active=currentFeedGames().find(g=>String(g.id)===String(selectedLiveGameId));
+      if(active && String(active.id)===String(game.id)) renderLiveGameDetail(root,active,{preserveScroll:true});
+    });
   }
 
   function renderHomeLiveData(){
@@ -4752,5 +4822,6 @@
   refreshLiveData(true);
   refreshPropsData(true);
   window.setInterval(() => refreshLiveData(true), LIVE_POLL_MS);
+  window.setInterval(() => refreshSelectedLiveDetail(), LIVE_DETAIL_POLL_MS);
   window.setInterval(() => refreshPropsData(true), PROPS_POLL_MS);
 })();
