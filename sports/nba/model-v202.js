@@ -95,7 +95,7 @@ function injuryFactor(player){
   const text=String(player?.injury?.status||player?.injury?.detail||'').toLowerCase();
   if(/\bout\b|suspension|injured reserve/.test(text))return {available:false,factor:0,confidence:.2,status:player?.injury?.status||'Out'};
   if(/doubtful/.test(text))return {available:true,factor:.90,confidence:.58,status:player?.injury?.status||'Doubtful'};
-  if(/questionable|game.?time/.test(text))return {available:true,factor:.97,confidence:.78,status:player?.injury?.status||'Questionable'};
+  if(/questionable|game.?time|day.?to.?day/.test(text))return {available:true,factor:.97,confidence:.78,status:player?.injury?.status||'Questionable'};
   return {available:true,factor:1,confidence:1,status:player?.injury?.status||null};
 }
 function grade(edge,n,available=true){
@@ -116,6 +116,8 @@ export function buildNbaProjection({research,row,market,line,fairOverProb=null})
   if(!research||!m||ln==null)return null;
   const player=resolvePlayer(research,row?.player);
   if(!player)return null;
+  const displayGames=(player?.recentGames||[]).filter(g=>metric(g,m)!=null&&finite(g.minutes)!=null&&Number(g.minutes)>=4)
+    .sort((a,b)=>Date.parse(b.date||0)-Date.parse(a.date||0));
   const games=gamesFor(player,m);
   if(games.length<4)return null;
   const matchup=matchupFor(research,row,player);
@@ -212,9 +214,10 @@ export function buildNbaProjection({research,row,market,line,fairOverProb=null})
     leaguePositionAllowance:opp.league==null?null:+opp.league.toFixed(2),
     expectedPace:pace.expected==null?null:+pace.expected.toFixed(1),
     leaguePace:pace.league==null?null:+pace.league.toFixed(1),
-    recentGames:games.slice(0,10).map(g=>({
+    recentGames:displayGames.slice(0,10).map(g=>({
       date:g.date,opponent:g.opponent,homeAway:g.homeAway,minutes:g.minutes,
-      value:metric(g,m),pace:g.pace,season:g.season,seasonType:g.seasonType
+      value:metric(g,m),pace:g.pace,season:g.season,seasonType:g.seasonType,
+      usedInProjection:Number(g.seasonType)!==1||games.length<6
     }))
   };
 }
