@@ -385,7 +385,7 @@
           </div>
           <div class="props-exact-note">
             <span>✓</span>
-            <div><b>STRICT MODEL MATCHING</b><small>Same player + market + side + exact line. NHL uses the real First Goal / Anytime Goal models; NFL uses the real pregame Monte Carlo exact-line outputs; MLB uses the real daily 10,000-run model. NBA remains market-only until a real TSO NBA model exists.</small></div>
+            <div><b>STRICT MODEL MATCHING</b><small>Same player + market + side + exact line. NHL uses the real First Goal / Anytime Goal models; NFL uses the real pregame Monte Carlo exact-line outputs; MLB uses the real daily 10,000-run model; NBA uses Regression v1 from verified ESPN history and matchup context.</small></div>
           </div>
         </section>
 
@@ -417,8 +417,8 @@
               <button data-models-league="mlb">OPEN MLB →</button>
             </article>
             <article class="model-engine-card model-engine-card--orange">
-              <div class="model-engine-top"><span>NBA</span><b>MARKET ONLY</b></div>
-              <h3>Market Only Until Modeled</h3>
+              <div class="model-engine-top"><span>NBA</span><b>REGRESSION v1</b></div>
+              <h3>History + Matchup Regression</h3>
               <p>NBA prices can exist in Props, but this Model Command Center will not manufacture a probability or edge.</p>
               <div><span>CURRENT MATCHES</span><b data-model-count="nba">0 BY DESIGN</b></div>
               <button data-models-league="nba">VIEW NBA STATUS →</button>
@@ -443,7 +443,7 @@
               <span><i>NHL</i><b>Scoring Models</b><small>First Goal · Anytime Goal</small></span>
               <span><i>NFL</i><b>Monte Carlo</b><small>Pregame exact-line props</small></span>
               <span><i>MLB</i><b>10,000 Runs</b><small>Daily hitter prop simulations</small></span>
-              <span><i>NBA</i><b>Market Only</b><small>Until a real TSO model exists</small></span>
+              <span><i>NBA</i><b>Regression v1</b><small>History · minutes · usage · matchup · pace</small></span>
             </div>
           </article>
 
@@ -657,7 +657,7 @@
               <h3 data-props-model-title>Connecting exact model matches</h3>
               <p>TSO probabilities attach only when the model and sportsbook row agree on the same player, market, side and exact threshold.</p>
               <div><span>NHL / NFL / MLB</span><b data-props-model-coverage>CONNECTING</b></div>
-              <div><span>NBA</span><b>MARKET ONLY</b></div>
+              <div><span>NBA</span><b>REGRESSION v1</b></div>
             </article>
           </div>
         </section>
