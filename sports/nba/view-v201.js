@@ -58,7 +58,7 @@ function ensureCss(){
   const link=document.createElement('link');
   link.id=CSS_ID;
   link.rel='stylesheet';
-  link.href=new URL('./view-v201.css?v=2.2-regression',import.meta.url).href;
+  link.href=new URL('./view-v201.css?v=2.5-intelligence',import.meta.url).href;
   document.head.appendChild(link);
 }
 
@@ -374,7 +374,7 @@ function propRowHTML(g){
   const edge=projection?.edge,edgeText=edge==null?'—':`${edge>=0?'+':''}${(edge*100).toFixed(1)} pp`;
   const best=g.chosen,link=g.lean==='Under'?best?.underLink:best?.overLink,price=g.lean==='Under'?best?.underPrice:best?.overPrice;
   const sub=researchPlayer?`${researchPlayer.team} · ${researchPlayer.position||'NBA'}`:(info?.team||matchupLabel(g));
-  return `<tr data-nba-prop-player="${esc(g.player)}"><td><div class="nba3-prop-player"><div class="nba3-prop-avatar">${photo?`<img src="${esc(photo)}" alt="">`:esc(initials(g.player))}</div><div><b>${esc(g.player)}</b><span>${esc(sub)}</span></div></div></td>
+  return `<tr data-nba-prop-player="${esc(g.player)}" data-nba-prop-market="${esc(g.market)}"><td><div class="nba3-prop-player"><div class="nba3-prop-avatar">${photo?`<img src="${esc(photo)}" alt="">`:esc(initials(g.player))}</div><div><b>${esc(g.player)}</b><span>${esc(sub)}</span></div></div></td>
     <td class="nba3-market">${esc(MARKET_LABELS[g.market])}</td><td class="nba3-line">${esc(g.line)}</td><td class="nba3-projection">${esc(projectionText)}<small>${projection?'TSO':'warming'}</small></td>
     <td class="nba3-lean ${g.lean.toLowerCase()}">${esc(g.lean)}</td><td><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></td>
     <td class="nba3-prob">${esc(confidence)}<small>${projection?'MODEL PROB':g.modelKind==='two-sided'?'NO-VIG':'MARKET FALLBACK'}</small></td><td class="nba3-edge ${edge!=null&&edge>=0?'positive':edge!=null?'negative':''}">${esc(edgeText)}</td>
@@ -557,7 +557,29 @@ async function hydratePropPlayers(){
   return state.hydration;
 }
 
+
 function factorLabel(key){return ({minutes:'Minutes',usage:'Usage',venue:'Venue',opponent:'Opponent',pace:'Pace',rest:'Rest',injury:'Injury'})[key]||key;}
+function uiPositionGroup(pos){
+  const p=String(pos||'').toUpperCase();
+  if(['PG','SG','G'].includes(p))return 'G';
+  if(['SF','PF','F'].includes(p))return 'F';
+  if(['C','FC','F-C','C-F'].includes(p))return 'C';
+  return p||'ALL';
+}
+function competitiveRecent(p){return (p?.recentGames||[]).filter(g=>g.usedInProjection!==false);}
+function recentHitRate(p,count){
+  const rows=competitiveRecent(p).slice(0,count);
+  if(!rows.length)return null;
+  let hits=0,pushes=0;
+  for(const r of rows){
+    const v=Number(r.value),line=Number(p.line);
+    if(!Number.isFinite(v)||!Number.isFinite(line))continue;
+    if(v===line){pushes++;continue;}
+    if(p.lean==='Under'?v<line:v>line)hits++;
+  }
+  const decisions=Math.max(1,rows.length-pushes);
+  return {hits,games:rows.length,pushes,rate:hits/decisions};
+}
 function recentModelBars(p){
   const rows=p?.recentGames||[];if(!rows.length)return '<div class="nba3-modal-note">Recent verified games are not available for this market yet.</div>';
   const max=Math.max(...rows.map(r=>Number(r.value)||0),Number(p.line)||1,1);
@@ -567,6 +589,15 @@ function recentModelBars(p){
     return `<div class="nba3-recent-row"><span>${esc(date)}${pre?' PRE':''}</span><div class="nba3-recent-track"><i class="${hit?'hit':''}${r.usedInProjection===false?' excluded':''}" style="width:${w.toFixed(1)}%"></i><em style="left:${Math.min(98,p.line/max*100).toFixed(1)}%"></em></div><b>${esc(v)}</b></div>`;
   }).join('')}</div>`;
 }
+function minutesTrendHTML(p){
+  const rows=(p?.recentGames||[]).slice(0,10);
+  if(!rows.length)return '<div class="nba3-modal-note">Minutes history is not available yet.</div>';
+  return `<div class="nba3-minutes-chart">${rows.map(r=>{
+    const min=Number(r.minutes)||0,w=Math.min(100,min/48*100),pre=Number(r.seasonType)===1;
+    const date=r.date?new Date(r.date).toLocaleDateString([],{month:'short',day:'numeric'}):'—';
+    return `<div class="nba3-min-row"><span>${esc(date)}${pre?' PRE':''}</span><div><i class="${r.usedInProjection===false?'excluded':''}" style="width:${w.toFixed(1)}%"></i></div><b>${min.toFixed(0)}</b></div>`;
+  }).join('')}</div>`;
+}
 function modelFactorHTML(p){
   if(!p?.factors)return '';
   return `<div class="nba3-factor-grid">${Object.entries(p.factors).map(([k,v])=>{
@@ -574,23 +605,118 @@ function modelFactorHTML(p){
     return `<div class="nba3-factor ${tone}"><span>${esc(factorLabel(k))}</span><b>${pct>=0?'+':''}${pct.toFixed(1)}%</b></div>`;
   }).join('')}</div>`;
 }
-
-function playerModal(player){
+function defenseRank(p,info){
+  if(!p?.opponentId||!state.research)return null;
+  const pos=uiPositionGroup(info?.position),market=p.market;
+  const rows=Object.entries(state.research.teamDefense||{}).map(([id,v])=>({id,value:finite(v?.byPosition?.[pos]?.[market])}))
+    .filter(x=>x.value!=null).sort((a,b)=>a.value-b.value);
+  const i=rows.findIndex(x=>String(x.id)===String(p.opponentId));
+  if(i<0)return null;
+  const rank=i+1,n=rows.length;
+  const suffix=rank%10===1&&rank%100!==11?'st':rank%10===2&&rank%100!==12?'nd':rank%10===3&&rank%100!==13?'rd':'th';
+  return {rank,n,label:`${rank}${suffix} toughest`,position:pos};
+}
+function projectionVsLineHTML(p){
+  const projection=Number(p?.projection),line=Number(p?.line);
+  if(!Number.isFinite(projection)||!Number.isFinite(line))return '';
+  const vals=[projection,line,Number(p.last5),Number(p.last10)].filter(Number.isFinite);
+  let lo=Math.max(0,Math.min(...vals)*.78),hi=Math.max(...vals)*1.18;
+  if(hi-lo<5)hi=lo+5;
+  const position=v=>Math.max(3,Math.min(97,(v-lo)/(hi-lo)*100));
+  const gap=projection-line;
+  return `<div class="nba3-projline">
+    <div class="nba3-projline-scale"><span>${lo.toFixed(1)}</span><span>${hi.toFixed(1)}</span></div>
+    <div class="nba3-projline-track">
+      <i class="line" style="left:${position(line).toFixed(1)}%"><em>LINE ${esc(line)}</em></i>
+      <i class="projection" style="left:${position(projection).toFixed(1)}%"><em>TSO ${esc(projection.toFixed(1))}</em></i>
+    </div>
+    <div class="nba3-projline-foot"><b class="${gap>=0?'over':'under'}">${gap>=0?'+':''}${gap.toFixed(1)}</b><span>projection vs sportsbook line</span></div>
+  </div>`;
+}
+function matchupIntelligenceHTML(p,info){
+  const rank=defenseRank(p,info),opp=finite(p.opponentAllowance),league=finite(p.leaguePositionAllowance);
+  const diff=opp!=null&&league?((opp/league)-1)*100:null;
+  const pace=finite(p.expectedPace),leaguePace=finite(p.leaguePace),paceDiff=pace!=null&&leaguePace?pace-leaguePace:null;
+  const pos=rank?.position||uiPositionGroup(info?.position);
+  return `<div class="nba3-match-grid">
+    <div class="nba3-match-card"><span>Opponent vs ${esc(pos)}</span><b>${opp==null?'—':opp.toFixed(1)}</b><small>${esc(MARKET_LABELS[p.market])} allowed per game to position group</small></div>
+    <div class="nba3-match-card"><span>Defensive Rank</span><b>${rank?esc(rank.label):'—'}</b><small>${rank?`of ${rank.n} teams · lower allowance = tougher`:'position rank unavailable'}</small></div>
+    <div class="nba3-match-card"><span>vs League</span><b class="${diff!=null&&diff>0?'good':diff!=null&&diff<0?'bad':''}">${diff==null?'—':`${diff>=0?'+':''}${diff.toFixed(1)}%`}</b><small>${league==null?'league baseline unavailable':`league ${league.toFixed(1)}`}</small></div>
+    <div class="nba3-match-card"><span>Expected Pace</span><b>${pace==null?'—':pace.toFixed(1)}</b><small>${paceDiff==null?'pace baseline unavailable':`${paceDiff>=0?'+':''}${paceDiff.toFixed(1)} vs league`}</small></div>
+  </div>`;
+}
+function hitRateHTML(p){
+  const l5=recentHitRate(p,5),l10=recentHitRate(p,10);
+  const card=(label,x)=>`<div class="nba3-hit-card"><span>${label}</span><b>${x?`${Math.round(x.rate*100)}%`:'—'}</b><small>${x?`${x.hits}/${x.games}${x.pushes?` · ${x.pushes} push`:''}`:'no sample'}</small></div>`;
+  return `<div class="nba3-hit-grid">${card('L5 HIT RATE',l5)}${card('L10 HIT RATE',l10)}<div class="nba3-hit-card"><span>L5 AVG</span><b>${p.last5==null?'—':esc(p.last5)}</b><small>vs ${esc(p.line)} line</small></div><div class="nba3-hit-card"><span>L10 AVG</span><b>${p.last10==null?'—':esc(p.last10)}</b><small>vs ${esc(p.line)} line</small></div></div>`;
+}
+function whyTsoHTML(p,info){
+  const reasons=[],lean=p.lean||'Lean',gap=Number(p.projection)-Number(p.line),rank=defenseRank(p,info);
+  reasons.push(`<b>Projection:</b> TSO has ${esc(info?.name||p.player)} at <strong>${esc(Number(p.projection).toFixed(1))}</strong>, ${Math.abs(gap).toFixed(1)} ${gap>=0?'above':'below'} the ${esc(p.line)} line.`);
+  if(p.last5!=null)reasons.push(`<b>Recent form:</b> the competitive L5 average is <strong>${esc(p.last5)}</strong>${p.last10!=null?` and L10 is <strong>${esc(p.last10)}</strong>`:''}.`);
+  if(rank&&p.opponentAllowance!=null&&p.leaguePositionAllowance!=null){
+    const d=(Number(p.opponentAllowance)/Number(p.leaguePositionAllowance)-1)*100;
+    reasons.push(`<b>Matchup:</b> ${esc(p.opponent)} ranks <strong>${esc(rank.label)}</strong> against ${esc(rank.position)} groups in ${esc(MARKET_LABELS[p.market])}, allowing ${esc(Number(p.opponentAllowance).toFixed(1))} (${d>=0?'+':''}${d.toFixed(1)}% vs league).`);
+  }
+  const pacePct=(Number(p.factors?.pace||1)-1)*100;
+  if(Math.abs(pacePct)>=.5)reasons.push(`<b>Pace:</b> expected game pace is ${esc(p.expectedPace??'—')}, applying a ${pacePct>=0?'+':''}${pacePct.toFixed(1)}% pace adjustment.`);
+  const venuePct=(Number(p.factors?.venue||1)-1)*100;
+  if(Math.abs(venuePct)>=.7)reasons.push(`<b>Venue split:</b> the ${esc(p.venue)} split contributes ${venuePct>=0?'+':''}${venuePct.toFixed(1)}% after shrinkage.`);
+  if(info?.injury?.status)reasons.push(`<b>Availability:</b> ESPN lists ${esc(info.injury.status)}${info.injury.detail?` — ${esc(info.injury.detail)}`:''}; the model reduces projection/confidence when appropriate.`);
+  const edge=p.edge==null?null:Number(p.edge)*100;
+  return `<div class="nba3-why"><div class="nba3-why-title"><span>WHY TSO LIKES ${esc(lean.toUpperCase())}</span><b>${edge==null?'':`${edge>=0?'+':''}${edge.toFixed(1)} pp edge`}</b></div><ul>${reasons.slice(0,5).map(x=>`<li>${x}</li>`).join('')}</ul></div>`;
+}
+function marketDetailHTML(g,info,active){
+  const p=g.projection;
+  if(!p)return `<section class="nba3-detail-panel${active?' active':''}" data-nba-detail-panel="${esc(g.market)}"><div class="nba3-modal-note">TSO regression history is not ready for this market yet.</div></section>`;
+  return `<section class="nba3-detail-panel${active?' active':''}" data-nba-detail-panel="${esc(g.market)}">
+    <div class="nba3-intel-hero">
+      <div><span>TSO PROJECTION</span><b>${esc(p.projection.toFixed(1))}</b><small>${esc(MARKET_LABELS[g.market])} · line ${esc(g.line)}</small></div>
+      <div><span>MODEL LEAN</span><b class="${String(p.lean).toLowerCase()}">${esc(p.lean)}</b><small>${(p.confidence*100).toFixed(1)}% model confidence</small></div>
+      <div><span>MODEL EDGE</span><b>${p.edge==null?'—':`${p.edge>=0?'+':''}${(p.edge*100).toFixed(1)} pp`}</b><small>vs fair sportsbook probability</small></div>
+      <div><span>GRADE</span><b>${esc(p.grade)}</b><small>${p.sampleGames} competitive games</small></div>
+    </div>
+    <div class="nba3-model-section"><div class="nba3-section-head"><span>Projection vs Sportsbook Line</span><small>independent TSO mean</small></div>${projectionVsLineHTML(p)}</div>
+    <div class="nba3-intel-grid">
+      <div class="nba3-model-section"><div class="nba3-section-head"><span>Recent ${esc(MARKET_LABELS[g.market])}</span><small>line ${esc(g.line)} · PRE dimmed</small></div>${recentModelBars(p)}${hitRateHTML(p)}</div>
+      <div class="nba3-model-section"><div class="nba3-section-head"><span>Minutes Trend</span><small>last 10 verified appearances</small></div>${minutesTrendHTML(p)}</div>
+    </div>
+    <div class="nba3-model-section"><div class="nba3-section-head"><span>Opponent Matchup</span><small>${esc(p.opponent)} · ${esc(p.venue)}</small></div>${matchupIntelligenceHTML(p,info)}</div>
+    <div class="nba3-model-section"><div class="nba3-section-head"><span>Projection Factors</span><small>guarded multipliers vs baseline</small></div>${modelFactorHTML(p)}</div>
+    ${whyTsoHTML(p,info)}
+  </section>`;
+}
+function playerModal(player,initialMarket=''){
   const groups=propGroups().filter(g=>norm(g.player)===norm(player));
   if(!groups.length)return;
-  const info=nbaModelPlayer(state.research,player)||propPlayerInfo(player),match=groups[0],modeled=groups.filter(g=>g.projection);
+  const info=nbaModelPlayer(state.research,player)||propPlayerInfo(player),match=groups[0];
+  const focus=groups.find(g=>g.market===initialMarket&&g.projection)||groups.filter(g=>g.projection).sort((a,b)=>Math.abs(b.projection?.edge??0)-Math.abs(a.projection?.edge??0))[0]||groups[0];
+  const photo=info?.headshot||info?.photo||'',team=state.research?.teams?.[String(info?.teamId)]||null;
   const el=document.createElement('div');el.className='nba3-modal-backdrop';
-  el.innerHTML=`<section class="nba3-modal" role="dialog" aria-modal="true"><div class="nba3-modal-head"><div><h3>${esc(player)}</h3><span>${esc(info?.team||matchupLabel(match))}${info?.position?` · ${esc(info.position)}`:''}${info?.injury?.status?` · ${esc(info.injury.status)}`:''}</span></div><button type="button" class="nba3-modal-x" data-nba-modal-close>×</button></div><div class="nba3-modal-body">
-    <div class="nba3-modal-markets">${groups.map(g=>{
-      const p=g.projection,conf=g.confidence??.5,pos=Math.max(2,Math.min(98,(g.overProb??.5)*100)),price=g.lean==='Under'?g.chosen?.underPrice:g.chosen?.overPrice;
-      const edge=p?.edge==null?'—':`${p.edge>=0?'+':''}${(p.edge*100).toFixed(1)} pp`;
-      return `<article class="nba3-modal-market"><div class="nba3-modal-market-top"><b>${esc(MARKET_LABELS[g.market])} · ${esc(g.line)}</b><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></div><div class="nba3-meter"><i style="left:${pos.toFixed(1)}%"></i></div><div class="nba3-modal-market-grid"><div><span>TSO PROJ</span><b>${p?esc(p.projection.toFixed(1)):'—'}</b></div><div><span>MODEL PROB</span><b>${esc((conf*100).toFixed(1))}%</b></div><div><span>EDGE</span><b>${esc(edge)}</b></div><div><span>PRICE</span><b>${esc(american(price))}</b></div></div>${p?`<div class="nba3-model-meta">L5 ${esc(p.last5??'—')} · L10 ${esc(p.last10??'—')} · baseline ${esc(p.seasonBaseline??'—')} · ${esc(p.recentMinutes??'—')} recent MPG · ${esc(p.restDays??'—')} rest days</div>`:''}</article>`;
-    }).join('')}</div>
-    ${modeled[0]?.projection?`<div class="nba3-model-section"><div class="nba3-section-head"><span>Recent Verified Games · ${esc(MARKET_LABELS[modeled[0].market])}</span><small>line ${esc(modeled[0].line)} · PRE dimmed</small></div>${recentModelBars(modeled[0].projection)}</div><div class="nba3-model-section"><div class="nba3-section-head"><span>Projection Factors</span><small>multipliers vs baseline</small></div>${modelFactorHTML(modeled[0].projection)}</div>`:''}
-    <div class="nba3-modal-note">${modeled.length?'TSO Regression v1 uses verified ESPN completed-game history. Recent production is regressed toward the position baseline, then adjusted within guarded caps for minutes, usage proxy, venue split, opponent positional allowance, pace, rest and injury status. Sportsbook fair probability is used only for edge.':'Regression history is not ready for this player/matchup yet, so this modal is showing the market fallback only.'}</div>
-  </div></section>`;
+  el.innerHTML=`<section class="nba3-modal nba3-intel-modal" role="dialog" aria-modal="true">
+    <div class="nba3-modal-head nba3-intel-head">
+      <div class="nba3-intel-person">${photo?`<img src="${esc(photo)}" alt="">`:`<div class="nba3-intel-initials">${esc(initials(player))}</div>`}<div><h3>${esc(player)}</h3><span>${esc(info?.team||matchupLabel(match))}${info?.position?` · ${esc(info.position)}`:''}${info?.injury?.status?` · ${esc(info.injury.status)}`:''}</span></div></div>
+      <div class="nba3-intel-team">${team?.logo?`<img src="${esc(team.logo)}" alt="${esc(team.abbr||'')}">`:''}<button type="button" class="nba3-modal-x" data-nba-modal-close>×</button></div>
+    </div>
+    <div class="nba3-modal-body">
+      <div class="nba3-intel-market-tabs">${groups.map(g=>{
+        const p=g.projection,active=g.market===focus.market;
+        return `<button type="button" class="nba3-intel-market-tab${active?' active':''}" data-nba-detail-market="${esc(g.market)}"><span>${esc(MARKET_LABELS[g.market])} ${esc(g.line)}</span><b>${p?`${esc(p.lean)} · ${esc(p.projection.toFixed(1))}`:'Warming'}</b><small>${p?.edge==null?'':`${p.edge>=0?'+':''}${(p.edge*100).toFixed(1)} pp`}</small></button>`;
+      }).join('')}</div>
+      <div class="nba3-detail-host">${groups.map(g=>marketDetailHTML(g,info,g.market===focus.market)).join('')}</div>
+      <div class="nba3-modal-note"><b>How to read this:</b> TSO projection is generated independently from sportsbook odds using verified ESPN history. The sportsbook's no-vig probability is used only to calculate model edge. Preseason games remain visible for context but are dimmed when excluded from the competitive regression baseline.</div>
+    </div>
+  </section>`;
   const close=()=>el.remove();
-  el.addEventListener('click',e=>{if(e.target===el||e.target.closest('[data-nba-modal-close]'))close();});
+  el.addEventListener('click',e=>{
+    if(e.target===el||e.target.closest('[data-nba-modal-close]')){close();return;}
+    const btn=e.target.closest('[data-nba-detail-market]');
+    if(btn){
+      const market=btn.dataset.nbaDetailMarket;
+      el.querySelectorAll('[data-nba-detail-market]').forEach(x=>x.classList.toggle('active',x.dataset.nbaDetailMarket===market));
+      el.querySelectorAll('[data-nba-detail-panel]').forEach(x=>x.classList.toggle('active',x.dataset.nbaDetailPanel===market));
+    }
+  });
   document.body.appendChild(el);
 }
 
@@ -601,7 +727,7 @@ function bind(root){
     const open=e.target.closest('[data-nba-open-live]');if(open){await chooseGame(open.dataset.nbaOpenLive);return;}
     const tab=e.target.closest('[data-nba-gameview]');if(tab){state.gameView=tab.dataset.nbaGameview||'gamecast';renderMain();return;}
     const market=e.target.closest('[data-nba-market]');if(market){state.propMarket=market.dataset.nbaMarket||'all';renderMain();return;}
-    const row=e.target.closest('[data-nba-prop-player]');if(row&&!e.target.closest('a'))playerModal(row.dataset.nbaPropPlayer);
+    const row=e.target.closest('[data-nba-prop-player]');if(row&&!e.target.closest('a'))playerModal(row.dataset.nbaPropPlayer,row.dataset.nbaPropMarket||'');
   });
   root.addEventListener('input',e=>{
     if(e.target.id==='nbaPropSearch'){
