@@ -7506,7 +7506,7 @@ const SB_SPORTS = {
   mlb: { brand:'MLB', accent:'#22c55e', adapterReady:true, seasonStart:null },
   nfl: { brand:'NFL', accent:'#f59e0b', adapterReady:true, seasonStart:null },
   nhl: { brand:'NHL', accent:'#38bdf8', adapterReady:true, seasonStart:'2026-09-19' },
-  nba: { brand:'NBA', accent:'#a855f7', adapterReady:false, seasonStart:'2026-10-20' },
+  nba: { brand:'NBA', accent:'#a855f7', adapterReady:true, seasonStart:'2026-10-20' },
 };
 const SB_SPORT_ORDER = ['mlb','nfl','nhl','nba'];
 let sbExpandedSport = 'mlb';
@@ -7547,6 +7547,8 @@ function renderSidebarSports(){
       `;
     } else if(key === 'nhl'){
       panelInner = Object.entries({slate:'Slate',live:'Live',feed:'Goal Feed',props:'Props'}).map(([id,label])=>`<button type="button" class="sb-sub-item ${window.DW_nhlTab===id?'is-active':''}" data-nhl-tab="${id}">${label}</button>`).join('');
+    } else if(key === 'nba'){
+      panelInner = `<button type="button" class="sb-sub-item ${currentSport==='nba'?'is-active':''}" data-nba-tab="live">Live Center</button>`;
     } else {
       panelInner = `<div class="sb-soon-note">${s.brand} isn't connected yet — this section is ready and waiting.</div>`;
     }
@@ -7575,6 +7577,7 @@ function renderSidebarSports(){
     });
   });
   host.querySelectorAll('[data-nhl-tab]').forEach(btn=>btn.addEventListener('click',()=>{window.DW_nhlPendingTab=btn.dataset.nhlTab;if(location.hash!=='#nhl')location.hash='nhl';else window.DW_openNhlTab?.(btn.dataset.nhlTab);}));
+  host.querySelectorAll('[data-nba-tab]').forEach(btn=>btn.addEventListener('click',()=>{if(location.hash!=='#nba')location.hash='nba';}));
   // NFL preview rows use a pending-tab handoff instead of a fixed timeout.
   // That makes Slate/Live reliable even when the NFL module has not finished
   // lazy-loading yet (or the browser is doing a cold network fetch).
