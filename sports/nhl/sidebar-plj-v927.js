@@ -7,20 +7,20 @@ function panelForNhl(){
   return head?.closest('.sb-sport-block')?.querySelector('.sb-sport-panel')||null;
 }
 
-function isPanelOpen(){return !!document.getElementById('hkPuckLineJesusPanel');}
+function isPanelOpen(){return !!document.getElementById('hkGameEdgePanel');}
 function syncActive(){setExclusiveNhlSidebarActive(ITEM_ATTR,isPanelOpen());}
 
 function openPuckLineJesus(){
   closeNhlFeaturePanels('plj');
-  window.DW_nhlPendingPlj=true;
+  window.DW_nhlPendingGameEdge=true;
   if(location.hash!=='#nhl') location.hash='nhl';
   if(retryTimer) clearTimeout(retryTimer);
   const started=Date.now();
   const attempt=()=>{
-    if(typeof window.DW_openPuckLineJesus==='function'){
+    if(typeof window.DW_openGameEdge==='function'){
       retryTimer=null;
-      window.DW_nhlPendingPlj=false;
-      window.DW_openPuckLineJesus();
+      window.DW_nhlPendingGameEdge=false;
+      window.DW_openGameEdge();
       syncActive();
       return;
     }
@@ -39,7 +39,7 @@ function ensureItem(){
     btn.type='button';
     btn.className='sb-sub-item';
     btn.setAttribute(ITEM_ATTR,'1');
-    btn.textContent='Puck Line Jesus';
+    btn.textContent='Game Edge';
     btn.addEventListener('click',openPuckLineJesus);
     const live=panel.querySelector('.sb-sub-item[data-nhl-tab="live"]');
     if(live) live.insertAdjacentElement('afterend',btn);
@@ -75,7 +75,7 @@ export function installNhlSidebarPuckLineJesusV927(){
     observer=new MutationObserver(records=>{if(mutationNeedsSync(records))queueSync();});
     observer.observe(document.body,{childList:true,subtree:true});
     window.addEventListener('hashchange',()=>setTimeout(queueSync,0));
-    window.DW_openPuckLineJesusFromSidebar=openPuckLineJesus;
+    window.DW_openGameEdgeFromSidebar=openPuckLineJesus;
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
   else start();
