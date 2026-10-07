@@ -913,7 +913,7 @@
           <div>
             <span class="destination-kicker">MY OUTPOST · ${leagueName(league)}</span>
             <h1>Your account without invented history.</h1>
-            <p>Identity and live TSO data are shown now. Records, win rate, points, streaks, tracked picks and alerts stay empty until those systems have real persisted account data.</p>
+            <p>Identity and live TSO data are shown now. The in-app Notification Center is active; records, points, tracked picks, saved alert preferences and background push still wait for persisted account data.</p>
           </div>
           <div class="destination-actions">
             <button class="button secondary" data-profile-refresh>REFRESH DATA</button>
@@ -943,7 +943,7 @@
           <span class="props-status-divider"></span>
           <div><b>POINTS</b><small>not connected</small></div>
           <span class="props-status-divider"></span>
-          <div><b>ALERTS</b><small>not connected</small></div>
+          <div><b>NOTIFICATIONS</b><small>in-app active · push pending</small></div>
         </section>
 
         <section class="split-section profile-state-grid">
@@ -960,12 +960,12 @@
 
           <article class="panel profile-state-card">
             <div class="section-heading compact-heading">
-              <div><span class="violet-kicker">ALERTS</span><h2>No fake subscriptions.</h2></div>
-              <span class="profile-state-badge">NOT CONNECTED</span>
+              <div><span class="violet-kicker">NOTIFICATIONS</span><h2>Current TSO alerts are active.</h2></div>
+              <span class="profile-state-badge is-active">IN-APP ACTIVE</span>
             </div>
-            <div class="profile-empty-state">
+            <div class="profile-empty-state profile-notification-state">
               <span>♢</span>
-              <div><b>No persisted alert preferences are connected yet.</b><small>Price moves, model changes and scoring alerts will only show ON after real user preferences and delivery state exist.</small></div>
+              <div><b>Live games, model signals and system/data-health warnings now appear in the top Notification Center.</b><small>Saved alert preferences and background/device push are still pending the persisted account + delivery layer.</small></div>
             </div>
           </article>
         </section>
@@ -981,6 +981,8 @@
             <span><small>LIVE SPORTS DATA</small><b data-profile-feed-state>CONNECTING</b></span>
             <span><small>PICK HISTORY</small><b class="is-offline">NOT CONNECTED</b></span>
             <span><small>POINTS LEDGER</small><b class="is-offline">NOT CONNECTED</b></span>
+              <span><small>IN-APP NOTIFICATIONS</small><b>ACTIVE</b></span>
+              <span><small>BACKGROUND PUSH</small><b class="is-offline">NOT CONNECTED</b></span>
           </div>
         </section>
 
