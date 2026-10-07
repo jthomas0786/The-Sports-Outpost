@@ -14,7 +14,7 @@ function sync(){
  const current=mode();
  for(const button of panel.querySelectorAll('.sb-sub-item')){
   const isFirst=button.hasAttribute('data-nhl-first-goal');
-  const isPlj=button.hasAttribute('data-nhl-plj');
+  const isPlj=button.hasAttribute('data-nhl-plj')||button.hasAttribute('data-nhl-game-edge');
   const tab=button.getAttribute('data-nhl-tab');
   if(!isFirst&&!isPlj&&!tab)continue;
   const on=current==='first-goal'?isFirst:current==='plj'?isPlj:!!tab&&tab===current;
@@ -31,7 +31,7 @@ function closeFirstGoal(){window.DW_closeNhlFirstGoal?.();}
 function onClick(event){
  const target=event.target?.closest?.('button,.sb-sub-item');if(!target)return;
  if(target.matches('#hkFirstGoalBtn,[data-nhl-first-goal]'))closePlj();
- else if(target.matches('#hkPuckLineJesusBtn,[data-nhl-plj]'))closeFirstGoal();
+ else if(target.matches('#hkPuckLineJesusBtn,[data-nhl-plj],[data-nhl-game-edge]'))closeFirstGoal();
  else if(target.matches('.sb-sub-item[data-nhl-tab]')){closeFirstGoal();closePlj();}
  if(target.closest('#sbSportAccordion')||target.matches('#hkFirstGoalBtn,#hkPuckLineJesusBtn,[data-plj-close],[data-fgs-close]'))setTimeout(queueSync,0);
 }
