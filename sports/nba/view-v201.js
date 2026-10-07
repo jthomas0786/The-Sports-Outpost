@@ -1,11 +1,15 @@
 
+import {buildNbaProjection,marketFairOver,nbaModelPlayer} from './model-v202.js?v=2.2';
+
 const ESPN_SCOREBOARD='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard';
 const ESPN_SUMMARY='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary';
 const ESPN_TEAMS='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams';
 const ODDS_URL='./slates/nba-odds.json';
+const RESEARCH_URL='./slates/nba-research.json';
 const CSS_ID='tso-nba-v201-css';
 const REFRESH_MS=30000;
 const ODDS_REFRESH_MS=120000;
+const RESEARCH_REFRESH_MS=300000;
 
 const state={
   events:[],
@@ -18,6 +22,8 @@ const state={
   refreshedAt:null,
   odds:null,
   oddsAt:0,
+  research:null,
+  researchAt:0,
   propMarket:'points',
   propQuery:'',
   teamDirectory:null,
@@ -52,7 +58,7 @@ function ensureCss(){
   const link=document.createElement('link');
   link.id=CSS_ID;
   link.rel='stylesheet';
-  link.href=new URL('./view-v201.css?v=2.1',import.meta.url).href;
+  link.href=new URL('./view-v201.css?v=2.2-regression',import.meta.url).href;
   document.head.appendChild(link);
 }
 
@@ -313,26 +319,30 @@ function propGroups(){
   }
   const groups=[];
   for(const g of map.values()){
-    const probs=g.rows.map(r=>noVig(r.overPrice,r.underPrice)).filter(v=>v!=null);
-    let overProb=probs.length?probs.reduce((a,b)=>a+b,0)/probs.length:null;
-    let modelKind='two-sided';
-    if(overProb==null){
+    const fairOver=marketFairOver(g.rows);
+    let fallbackOver=fairOver,modelKind='two-sided';
+    if(fallbackOver==null){
       const one=g.rows.map(r=>r.overImplied!=null?finite(r.overImplied):implied(r.overPrice)).filter(v=>v!=null);
-      if(one.length){overProb=one.reduce((a,b)=>a+b,0)/one.length;modelKind='one-sided';}
+      if(one.length){fallbackOver=one.reduce((a,b)=>a+b,0)/one.length;modelKind='one-sided';}
     }
-    const lean=overProb==null?'—':overProb>=.5?'Over':'Under';
-    const confidence=overProb==null?null:Math.max(overProb,1-overProb);
-    const grade=gradeFor(confidence,modelKind);
+    const projection=buildNbaProjection({research:state.research,row:g,market:g.market,line:g.line,fairOverProb:fairOver});
+    const overProb=projection?.overProbability??fallbackOver;
+    const lean=projection?.lean??(overProb==null?'—':overProb>=.5?'Over':'Under');
+    const confidence=projection?.confidence??(overProb==null?null:Math.max(overProb,1-overProb));
+    const grade=projection?{letter:projection.grade,cls:projection.gradeTone}:gradeFor(confidence,modelKind);
     const bestOver=[...g.rows].filter(r=>finite(r.overPrice)!=null).sort((a,b)=>Number(b.overPrice)-Number(a.overPrice))[0]||null;
     const bestUnder=[...g.rows].filter(r=>finite(r.underPrice)!=null).sort((a,b)=>Number(b.underPrice)-Number(a.underPrice))[0]||null;
     const chosen=lean==='Under'?bestUnder:bestOver;
     const books=[...new Set(g.rows.map(r=>r.book).filter(Boolean))];
-    groups.push({...g,overProb,confidence,lean,grade,modelKind,bestOver,bestUnder,chosen,books});
+    groups.push({...g,fairOver,overProb,confidence,lean,grade,modelKind:projection?'tso-regression':modelKind,projection,bestOver,bestUnder,chosen,books});
   }
-  return groups.sort((a,b)=>(b.confidence??0)-(a.confidence??0)||a.player.localeCompare(b.player));
+  return groups.sort((a,b)=>{
+    const ae=Math.abs(a.projection?.edge??0),be=Math.abs(b.projection?.edge??0);
+    return be-ae||(b.confidence??0)-(a.confidence??0)||a.player.localeCompare(b.player);
+  });
 }
 
-function gradeFor(confidence,kind){
+function gradeForfunction gradeFor(confidence,kind){
   if(confidence==null)return {letter:'—',cls:'d'};
   if(kind==='one-sided'){
     if(confidence>=.62)return {letter:'B',cls:'b'};
@@ -358,14 +368,16 @@ function matchupLabel(g){
 }
 
 function propRowHTML(g){
-  const info=propPlayerInfo(g.player),photo=info?.photo;
+  const researchPlayer=nbaModelPlayer(state.research,g.player),info=propPlayerInfo(g.player),photo=researchPlayer?.headshot||info?.photo;
   const confidence=g.confidence!=null?`${(g.confidence*100).toFixed(1)}%`:'—';
-  const best=g.chosen;
-  const link=g.lean==='Under'?best?.underLink:best?.overLink;
-  const price=g.lean==='Under'?best?.underPrice:best?.overPrice;
-  return `<tr data-nba-prop-player="${esc(g.player)}"><td><div class="nba3-prop-player"><div class="nba3-prop-avatar">${photo?`<img src="${esc(photo)}" alt="">`:esc(initials(g.player))}</div><div><b>${esc(g.player)}</b><span>${esc(info?.team||matchupLabel(g))}</span></div></div></td>
-    <td class="nba3-market">${esc(MARKET_LABELS[g.market])}</td><td class="nba3-line">${esc(g.line)}</td><td class="nba3-lean ${g.lean.toLowerCase()}">${esc(g.lean)}</td>
-    <td><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></td><td class="nba3-prob">${esc(confidence)}<small>${g.modelKind==='two-sided'?'NO-VIG':'ONE-SIDED CAP'}</small></td>
+  const projection=g.projection,projectionText=projection?`${projection.projection.toFixed(1)}`:'—';
+  const edge=projection?.edge,edgeText=edge==null?'—':`${edge>=0?'+':''}${(edge*100).toFixed(1)} pp`;
+  const best=g.chosen,link=g.lean==='Under'?best?.underLink:best?.overLink,price=g.lean==='Under'?best?.underPrice:best?.overPrice;
+  const sub=researchPlayer?`${researchPlayer.team} · ${researchPlayer.position||'NBA'}`:(info?.team||matchupLabel(g));
+  return `<tr data-nba-prop-player="${esc(g.player)}"><td><div class="nba3-prop-player"><div class="nba3-prop-avatar">${photo?`<img src="${esc(photo)}" alt="">`:esc(initials(g.player))}</div><div><b>${esc(g.player)}</b><span>${esc(sub)}</span></div></div></td>
+    <td class="nba3-market">${esc(MARKET_LABELS[g.market])}</td><td class="nba3-line">${esc(g.line)}</td><td class="nba3-projection">${esc(projectionText)}<small>${projection?'TSO':'warming'}</small></td>
+    <td class="nba3-lean ${g.lean.toLowerCase()}">${esc(g.lean)}</td><td><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></td>
+    <td class="nba3-prob">${esc(confidence)}<small>${projection?'MODEL PROB':g.modelKind==='two-sided'?'NO-VIG':'MARKET FALLBACK'}</small></td><td class="nba3-edge ${edge!=null&&edge>=0?'positive':edge!=null?'negative':''}">${esc(edgeText)}</td>
     <td><div class="nba3-books">${g.books.map(b=>`<span class="nba3-book">${esc(b)}</span>`).join('')}</div></td>
     <td class="nba3-price">${esc(american(price))}<small>${best?esc(best.book):'No price'}</small></td>
     <td><div class="nba3-bet">${link?`<a href="${esc(link)}" target="_blank" rel="noopener">Open book</a>`:'<span class="nba3-book">No native link</span>'}</div></td></tr>`;
@@ -375,13 +387,15 @@ function propsHTML(){
   const all=propGroups(),q=norm(state.propQuery);
   const filtered=all.filter(g=>(state.propMarket==='all'||g.market===state.propMarket)&&(!q||norm(g.player).includes(q)||norm(g.homeTeam).includes(q)||norm(g.awayTeam).includes(q)));
   const withheld=(state.odds?.rows||[]).filter(validPropRow).filter(r=>propIdentityState(r)==='mismatch').length;
-  return `<section class="nba3-card nba3-props-hero"><div><div class="nba3-kicker">NBA PLAYER PROP TOOL</div><h2>Verified Lines + Market Model</h2><p>Exact sportsbook lines are preserved. The current grade is a transparent market-consensus signal built from two-sided prices when available; it is not being mislabeled as the future TSO regression model.</p></div><div class="nba3-model-badge"><b>MODEL v1 · MARKET CONSENSUS</b><span>two-sided prices → no-vig probability</span></div></section>
-  <section class="nba3-card nba3-prop-toolbar"><input class="nba3-search" id="nbaPropSearch" value="${esc(state.propQuery)}" placeholder="Search player or matchup…"><div class="nba3-market-chips">${[['all','All'],...Object.entries(MARKET_LABELS)].map(([k,v])=>`<button type="button" class="${state.propMarket===k?'active':''}" data-nba-market="${esc(k)}">${esc(v)}</button>`).join('')}</div><div class="nba3-prop-count">${filtered.length} modeled line${filtered.length===1?'':'s'}</div></section>
-  <div class="nba3-prop-tablewrap"><table class="nba3-prop-table"><thead><tr><th>Player</th><th>Market</th><th>Line</th><th>Lean</th><th>Grade</th><th>Confidence</th><th>Books</th><th>Best Price</th><th>Link</th></tr></thead><tbody>${filtered.length?filtered.map(propRowHTML).join(''):`<tr><td colspan="9"><div class="nba3-empty">No verified player props match this filter right now.</div></td></tr>`}</tbody></table></div>
-  <div class="nba3-source-note"><b>Data policy:</b> sportsbook quotes come from the current ParlayAPI NBA snapshot. Zero-line alternate/special rows and implausible team-total lines are withheld. Current ESPN rosters are used as an identity cross-check when available; ${withheld} row${withheld===1?'':'s'} currently fail that event-roster check and are hidden. Single-sided prices are capped at a lower grade ceiling. Exact sportsbook links are shown only when the provider supplies them.</div>`;
+  const projected=all.filter(g=>g.projection).length,researchPlayers=Object.keys(state.research?.players||{}).length;
+  const modelReady=projected>0;
+  return `<section class="nba3-card nba3-props-hero"><div><div class="nba3-kicker">NBA PLAYER PROP TOOL</div><h2>${modelReady?'TSO NBA Regression v1':'Regression Model Warming Up'}</h2><p>${modelReady?'Real ESPN game history now drives the projection: recent production, minutes, usage proxy, venue split, opponent positional allowance, pace, rest and injury context. Sportsbook prices remain a separate comparison layer.':'Exact sportsbook lines remain live while the ESPN history file is building. Until research is available, rows fall back to transparent market consensus rather than invented projections.'}</p></div><div class="nba3-model-badge"><b>${modelReady?'TSO REGRESSION v1':'MARKET FALLBACK'}</b><span>${modelReady?`${researchPlayers} research players · ${projected} modeled lines`:'waiting for nba-research.json'}</span></div></section>
+  <section class="nba3-card nba3-prop-toolbar"><input class="nba3-search" id="nbaPropSearch" value="${esc(state.propQuery)}" placeholder="Search player or matchup…"><div class="nba3-market-chips">${[['all','All'],...Object.entries(MARKET_LABELS)].map(([k,v])=>`<button type="button" class="${state.propMarket===k?'active':''}" data-nba-market="${esc(k)}">${esc(v)}</button>`).join('')}</div><div class="nba3-prop-count">${filtered.length} line${filtered.length===1?'':'s'} · ${projected} TSO modeled</div></section>
+  <div class="nba3-prop-tablewrap"><table class="nba3-prop-table"><thead><tr><th>Player</th><th>Market</th><th>Line</th><th>TSO Proj</th><th>Lean</th><th>Grade</th><th>Model Prob</th><th>Edge</th><th>Books</th><th>Best Price</th><th>Link</th></tr></thead><tbody>${filtered.length?filtered.map(propRowHTML).join(''):`<tr><td colspan="11"><div class="nba3-empty">No verified player props match this filter right now.</div></td></tr>`}</tbody></table></div>
+  <div class="nba3-source-note"><b>Model policy:</b> TSO Regression v1 never uses sportsbook probability as its projection. ESPN completed-game history supplies the player baseline and contextual factors; fair sportsbook probability is used only to calculate the displayed model edge. ${withheld} row${withheld===1?'':'s'} currently fail event-roster verification and remain hidden.</div>`;
 }
 
-function renderMain(){
+function renderMain()function renderMain(){
   const host=document.querySelector('#nbaView .nba3-main');
   if(!host)return;
   host.innerHTML=state.page==='props'?propsHTML():state.page==='live'?liveHTML():slateHTML();
@@ -439,10 +453,20 @@ async function loadOdds(force=false){
   }catch(error){console.warn('[NBA 2.0] sportsbook snapshot unavailable',error);}
 }
 
+async function loadResearch(force=false){
+  if(!force&&state.research&&Date.now()-state.researchAt<RESEARCH_REFRESH_MS)return;
+  try{
+    state.research=await fetchJson(`${RESEARCH_URL}?v=2.2-${Date.now()}`);
+    state.researchAt=Date.now();
+  }catch(error){
+    if(!state.research)console.warn('[NBA 2.0] regression research unavailable; market fallback remains active',error);
+  }
+}
+
 async function refresh({preserveSelection=true}={}){
   try{
     const existing=preserveSelection?String(state.selectedId||''):'';
-    const [slate]=await Promise.all([findSlate(),loadOdds()]);
+    const [slate]=await Promise.all([findSlate(),loadOdds(),loadResearch()]);
     state.events=slate.events;state.slateDate=slate.key;
     const chosen=state.events.find(e=>String(e.id)===existing)||bestDefault(state.events);
     state.selectedId=chosen?String(chosen.id):'';
@@ -466,7 +490,7 @@ async function selectPage(page){
   if(!['slate','live','props'].includes(page))page='slate';
   state.page=page;window.DW_nbaPendingTab=null;refreshNav();renderMain();
   if(page==='live'&&state.selectedId&&!state.summary)await loadSummary(state.selectedId);
-  if(page==='props'){await loadOdds();renderMain();}
+  if(page==='props'){await Promise.all([loadOdds(),loadResearch()]);renderMain();}
 }
 
 function parseTeamDirectory(doc){
@@ -533,22 +557,44 @@ async function hydratePropPlayers(){
   return state.hydration;
 }
 
+function factorLabel(key){return ({minutes:'Minutes',usage:'Usage',venue:'Venue',opponent:'Opponent',pace:'Pace',rest:'Rest',injury:'Injury'})[key]||key;}
+function recentModelBars(p){
+  const rows=p?.recentGames||[];if(!rows.length)return '<div class="nba3-modal-note">Recent verified games are not available for this market yet.</div>';
+  const max=Math.max(...rows.map(r=>Number(r.value)||0),Number(p.line)||1,1);
+  return `<div class="nba3-recent-chart">${rows.map(r=>{
+    const v=Number(r.value)||0,w=Math.max(3,Math.min(100,v/max*100)),hit=p.lean==='Under'?v<p.line:v>p.line;
+    const date=r.date?new Date(r.date).toLocaleDateString([],{month:'short',day:'numeric'}):'—';
+    return `<div class="nba3-recent-row"><span>${esc(date)}</span><div class="nba3-recent-track"><i class="${hit?'hit':''}" style="width:${w.toFixed(1)}%"></i><em style="left:${Math.min(98,p.line/max*100).toFixed(1)}%"></em></div><b>${esc(v)}</b></div>`;
+  }).join('')}</div>`;
+}
+function modelFactorHTML(p){
+  if(!p?.factors)return '';
+  return `<div class="nba3-factor-grid">${Object.entries(p.factors).map(([k,v])=>{
+    const pct=(Number(v)-1)*100,tone=pct>1?'up':pct<-1?'down':'flat';
+    return `<div class="nba3-factor ${tone}"><span>${esc(factorLabel(k))}</span><b>${pct>=0?'+':''}${pct.toFixed(1)}%</b></div>`;
+  }).join('')}</div>`;
+}
+
 function playerModal(player){
   const groups=propGroups().filter(g=>norm(g.player)===norm(player));
   if(!groups.length)return;
-  const info=propPlayerInfo(player),match=groups[0];
+  const info=nbaModelPlayer(state.research,player)||propPlayerInfo(player),match=groups[0],modeled=groups.filter(g=>g.projection);
   const el=document.createElement('div');el.className='nba3-modal-backdrop';
-  el.innerHTML=`<section class="nba3-modal" role="dialog" aria-modal="true"><div class="nba3-modal-head"><div><h3>${esc(player)}</h3><span>${esc(info?.team||matchupLabel(match))}</span></div><button type="button" class="nba3-modal-x" data-nba-modal-close>×</button></div><div class="nba3-modal-body"><div class="nba3-modal-markets">${groups.map(g=>{
-    const conf=g.confidence??.5,pos=Math.max(2,Math.min(98,(g.overProb??.5)*100));
-    const price=g.lean==='Under'?g.chosen?.underPrice:g.chosen?.overPrice;
-    return `<article class="nba3-modal-market"><div class="nba3-modal-market-top"><b>${esc(MARKET_LABELS[g.market])} · ${esc(g.line)}</b><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></div><div class="nba3-meter"><i style="left:${pos.toFixed(1)}%"></i></div><div class="nba3-modal-market-grid"><div><span>LEAN</span><b>${esc(g.lean)}</b></div><div><span>CONF</span><b>${esc((conf*100).toFixed(1))}%</b></div><div><span>PRICE</span><b>${esc(american(price))}</b></div><div><span>BOOKS</span><b>${g.books.length}</b></div></div></article>`;
-  }).join('')}</div><div class="nba3-modal-note">The meter places the no-vig market probability for the Over from 0–100%. This first NBA model layer is deliberately market-derived. Player-history regression, recent-form trends and opponent defensive splits will only appear after their NBA research adapter is backed by real data.</div></div></section>`;
+  el.innerHTML=`<section class="nba3-modal" role="dialog" aria-modal="true"><div class="nba3-modal-head"><div><h3>${esc(player)}</h3><span>${esc(info?.team||matchupLabel(match))}${info?.position?` · ${esc(info.position)}`:''}${info?.injury?.status?` · ${esc(info.injury.status)}`:''}</span></div><button type="button" class="nba3-modal-x" data-nba-modal-close>×</button></div><div class="nba3-modal-body">
+    <div class="nba3-modal-markets">${groups.map(g=>{
+      const p=g.projection,conf=g.confidence??.5,pos=Math.max(2,Math.min(98,(g.overProb??.5)*100)),price=g.lean==='Under'?g.chosen?.underPrice:g.chosen?.overPrice;
+      const edge=p?.edge==null?'—':`${p.edge>=0?'+':''}${(p.edge*100).toFixed(1)} pp`;
+      return `<article class="nba3-modal-market"><div class="nba3-modal-market-top"><b>${esc(MARKET_LABELS[g.market])} · ${esc(g.line)}</b><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></div><div class="nba3-meter"><i style="left:${pos.toFixed(1)}%"></i></div><div class="nba3-modal-market-grid"><div><span>TSO PROJ</span><b>${p?esc(p.projection.toFixed(1)):'—'}</b></div><div><span>MODEL PROB</span><b>${esc((conf*100).toFixed(1))}%</b></div><div><span>EDGE</span><b>${esc(edge)}</b></div><div><span>PRICE</span><b>${esc(american(price))}</b></div></div>${p?`<div class="nba3-model-meta">L5 ${esc(p.last5??'—')} · L10 ${esc(p.last10??'—')} · baseline ${esc(p.seasonBaseline??'—')} · ${esc(p.recentMinutes??'—')} recent MPG · ${esc(p.restDays??'—')} rest days</div>`:''}</article>`;
+    }).join('')}</div>
+    ${modeled[0]?.projection?`<div class="nba3-model-section"><div class="nba3-section-head"><span>Recent Verified Games · ${esc(MARKET_LABELS[modeled[0].market])}</span><small>line ${esc(modeled[0].line)}</small></div>${recentModelBars(modeled[0].projection)}</div><div class="nba3-model-section"><div class="nba3-section-head"><span>Projection Factors</span><small>multipliers vs baseline</small></div>${modelFactorHTML(modeled[0].projection)}</div>`:''}
+    <div class="nba3-modal-note">${modeled.length?'TSO Regression v1 uses verified ESPN completed-game history. Recent production is regressed toward the position baseline, then adjusted within guarded caps for minutes, usage proxy, venue split, opponent positional allowance, pace, rest and injury status. Sportsbook fair probability is used only for edge.':'Regression history is not ready for this player/matchup yet, so this modal is showing the market fallback only.'}</div>
+  </div></section>`;
   const close=()=>el.remove();
   el.addEventListener('click',e=>{if(e.target===el||e.target.closest('[data-nba-modal-close]'))close();});
   document.body.appendChild(el);
 }
 
-function bind(root){
+function bind(root)function bind(root){
   root.addEventListener('click',async e=>{
     const page=e.target.closest('[data-nba-page]');if(page){await selectPage(page.dataset.nbaPage);return;}
     const game=e.target.closest('[data-nba-game]');if(game){await chooseGame(game.dataset.nbaGame);return;}
@@ -572,7 +618,7 @@ function startPolling(){
   if(state.poll)clearInterval(state.poll);
   state.poll=setInterval(()=>{
     if(isActive()&&document.visibilityState!=='hidden'&&state.page!=='props')refresh({preserveSelection:true});
-    else if(isActive()&&state.page==='props')loadOdds(true).then(()=>renderMain());
+    else if(isActive()&&state.page==='props')Promise.all([loadOdds(),loadResearch()]).then(()=>renderMain());
   },REFRESH_MS);
 }
 
