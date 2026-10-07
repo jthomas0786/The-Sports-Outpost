@@ -1262,6 +1262,186 @@
     return 'Updated '+Math.floor(age/60)+' min ago';
   }
 
+  function liveSummaryCompetition(summary){
+    return summary?.header?.competitions?.[0] || null;
+  }
+
+  function liveLatestPlay(summary){
+    const plays=liveDetailPlays(summary).filter(p=>playTextValue(p));
+    if(plays.length) return plays[plays.length-1];
+    const current=summary?.drives?.current?.plays;
+    if(Array.isArray(current)&&current.length) return current[current.length-1];
+    return null;
+  }
+
+  function livePersonName(value){
+    if(!value) return '';
+    const person=value?.athlete||value?.player||value;
+    return String(person?.shortName||person?.displayName||person?.fullName||person?.name||'').trim();
+  }
+
+  function liveParticipantName(play,types=[]){
+    const wanted=types.map(x=>String(x).toLowerCase());
+    const row=(play?.participants||[]).find(p=>wanted.includes(String(p?.type||p?.role||'').toLowerCase()));
+    return livePersonName(row);
+  }
+
+  function liveSituationStat(summary,game,side,key){
+    const entry=boxTeamEntry(summary,game?.[side]?.abbr,side==='away'?0:1);
+    const stat=teamStatMap(entry).get(key);
+    return stat?.displayValue ?? stat?.value ?? '—';
+  }
+
+  function liveMetric(label,value,extraClass=''){
+    return '<div class="live-situation-metric '+esc(extraClass)+'"><span>'+esc(label)+'</span><b>'+esc(value==null||value===''?'—':value)+'</b></div>';
+  }
+
+  function mlbBaseActive(situation,key){
+    const aliases={
+      first:['onFirst','first','runnerOnFirst'],
+      second:['onSecond','second','runnerOnSecond'],
+      third:['onThird','third','runnerOnThird']
+    }[key]||[];
+    return aliases.some(name=>{
+      const value=situation?.[name];
+      if(value==null) return false;
+      if(typeof value==='boolean') return value;
+      if(typeof value==='number') return value!==0;
+      return true;
+    });
+  }
+
+  function mlbSituationMarkup(summary,game){
+    const comp=liveSummaryCompetition(summary);
+    const latest=liveLatestPlay(summary)||{};
+    const situation=summary?.situation||comp?.situation||latest?.situation||{};
+    const count=situation?.count||latest?.count||latest?.end?.count||latest?.start?.count||{};
+    const balls=count?.balls ?? situation?.balls;
+    const strikes=count?.strikes ?? situation?.strikes;
+    const outs=count?.outs ?? situation?.outs;
+    const batter=livePersonName(situation?.batter||situation?.currentBatter)
+      || liveParticipantName(latest,['batter','hitter']);
+    const pitcher=livePersonName(situation?.pitcher||situation?.currentPitcher)
+      || liveParticipantName(latest,['pitcher']);
+    const first=mlbBaseActive(situation,'first');
+    const second=mlbBaseActive(situation,'second');
+    const third=mlbBaseActive(situation,'third');
+    const inning=playPeriodLabel(latest,game);
+    const countText=(balls!=null||strikes!=null)?String(balls??0)+'-'+String(strikes??0):'—';
+    const outText=outs!=null?String(outs)+' OUT'+(Number(outs)===1?'':'S'):'—';
+    return '<div class="live-situation-layout sport-mlb">'
+      +'<div class="live-situation-primary"><span>AT BAT</span><b>'+esc(batter||'Current batter')+'</b><small>'+esc(inning)+'</small></div>'
+      +'<div class="live-base-state" aria-label="Base runners">'
+        +'<i class="base second '+(second?'is-on':'')+'"></i>'
+        +'<i class="base third '+(third?'is-on':'')+'"></i>'
+        +'<i class="base first '+(first?'is-on':'')+'"></i>'
+      +'</div>'
+      +liveMetric('COUNT',countText)
+      +liveMetric('OUTS',outText)
+      +'<div class="live-situation-primary is-secondary"><span>PITCHING</span><b>'+esc(pitcher||'Current pitcher')+'</b><small>'+esc(game?.away?.abbr+' @ '+game?.home?.abbr)+'</small></div>'
+    +'</div>';
+  }
+
+  function nflSituationMarkup(summary,game){
+    const previous=Array.isArray(summary?.drives?.previous)?summary.drives.previous:[];
+    const drive=summary?.drives?.current || previous[previous.length-1] || null;
+    const latest=(drive?.plays||[]).filter(p=>playTextValue(p)).slice(-1)[0] || liveLatestPlay(summary) || {};
+    const spot=latest?.end||latest?.start||drive?.end||drive?.start||{};
+    const down=Number(spot?.down);
+    const distance=spot?.distance;
+    const yard=spot?.yardLine;
+    const spotTeam=spot?.team?.abbreviation||drive?.team?.abbreviation||'';
+    const offense=drive?.team?.abbreviation||playTeamValue(latest)||'';
+    const downText=Number.isFinite(down)&&down>0
+      ? down+(down===1?'ST':down===2?'ND':down===3?'RD':'TH')+(distance!=null?' & '+distance:'')
+      : '—';
+    const fieldText=yard!=null ? (spotTeam?spotTeam+' '+yard:'YARD '+yard) : '—';
+    const driveBits=[];
+    const drivePlays=drive?.offensivePlays ?? drive?.plays?.length;
+    if(drivePlays!=null) driveBits.push(drivePlays+' PLAYS');
+    if(drive?.yards!=null) driveBits.push(drive.yards+' YDS');
+    if(drive?.timeElapsed?.displayValue) driveBits.push(drive.timeElapsed.displayValue);
+    const teamObj=playTeamObject(game,offense);
+    return '<div class="live-situation-layout sport-nfl">'
+      +'<div class="live-situation-team">'+(teamObj?teamLogoMarkup(teamObj,'live-situation-team-logo'):'')+'<div><span>POSSESSION</span><b>'+esc(offense||'—')+'</b><small>'+esc(drive?.displayResult||drive?.description||'Current drive')+'</small></div></div>'
+      +liveMetric('DOWN',downText,'is-featured')
+      +liveMetric('FIELD POSITION',fieldText)
+      +liveMetric('CLOCK',String(game?.clock||'—'))
+      +'<div class="live-situation-drive"><span>DRIVE</span><b>'+esc(driveBits.join(' · ')||'In progress')+'</b></div>'
+    +'</div>';
+  }
+
+  function nhlSituationMarkup(summary,game){
+    const comp=liveSummaryCompetition(summary);
+    const competitors=comp?.competitors||[];
+    const awayComp=competitors.find(x=>x?.homeAway==='away')||null;
+    const homeComp=competitors.find(x=>x?.homeAway==='home')||null;
+    const latest=liveLatestPlay(summary)||{};
+    let strength=String(latest?.strength?.text||latest?.strength||'').trim();
+    if(awayComp?.powerPlay===true) strength=(game?.away?.abbr||'AWAY')+' POWER PLAY';
+    else if(homeComp?.powerPlay===true) strength=(game?.home?.abbr||'HOME')+' POWER PLAY';
+    if(!strength) strength='EVEN STRENGTH';
+    const awaySog=liveSituationStat(summary,game,'away','shotsTotal');
+    const homeSog=liveSituationStat(summary,game,'home','shotsTotal');
+    return '<div class="live-situation-layout sport-nhl">'
+      +'<div class="live-situation-primary"><span>ON ICE</span><b>'+esc(strength)+'</b><small>'+esc(gameShortState(game))+'</small></div>'
+      +liveMetric((game?.away?.abbr||'AWAY')+' SOG',awaySog)
+      +liveMetric((game?.home?.abbr||'HOME')+' SOG',homeSog)
+      +liveMetric('PERIOD',String(game?.period||'—'))
+      +liveMetric('CLOCK',String(game?.clock||'—'))
+    +'</div>';
+  }
+
+  function nbaPossessionAbbr(summary,game,latest){
+    const comp=liveSummaryCompetition(summary);
+    const situation=summary?.situation||comp?.situation||{};
+    const raw=situation?.possession?.abbreviation||situation?.possession?.team?.abbreviation||situation?.possession;
+    if(typeof raw==='string'&&raw.trim()) return raw.trim().toUpperCase();
+    const possessed=(comp?.competitors||[]).find(x=>x?.possession===true);
+    if(possessed?.team?.abbreviation) return String(possessed.team.abbreviation).toUpperCase();
+    return playTeamValue(latest).toUpperCase();
+  }
+
+  function nbaSituationMarkup(summary,game){
+    const latest=liveLatestPlay(summary)||{};
+    const possession=nbaPossessionAbbr(summary,game,latest);
+    const teamObj=playTeamObject(game,possession);
+    const explicit=Boolean((summary?.situation||liveSummaryCompetition(summary)?.situation)?.possession)
+      || Boolean((liveSummaryCompetition(summary)?.competitors||[]).some(x=>x?.possession===true));
+    const awayFouls=liveSituationStat(summary,game,'away','fouls');
+    const homeFouls=liveSituationStat(summary,game,'home','fouls');
+    return '<div class="live-situation-layout sport-nba">'
+      +'<div class="live-situation-team">'+(teamObj?teamLogoMarkup(teamObj,'live-situation-team-logo'):'')+'<div><span>'+esc(explicit?'POSSESSION':'LAST ACTION')+'</span><b>'+esc(possession||'—')+'</b><small>'+esc(playTypeText(latest)||'Live game')+'</small></div></div>'
+      +liveMetric('QUARTER',String(game?.period||'—'),'is-featured')
+      +liveMetric('CLOCK',String(game?.clock||'—'))
+      +liveMetric((game?.away?.abbr||'AWAY')+' FOULS',awayFouls)
+      +liveMetric((game?.home?.abbr||'HOME')+' FOULS',homeFouls)
+    +'</div>';
+  }
+
+  function liveSituationMarkup(summary,game){
+    const league=String(game?.league||'').toLowerCase();
+    if(league==='mlb') return mlbSituationMarkup(summary,game);
+    if(league==='nfl') return nflSituationMarkup(summary,game);
+    if(league==='nhl') return nhlSituationMarkup(summary,game);
+    if(league==='nba') return nbaSituationMarkup(summary,game);
+    return '';
+  }
+
+  function renderLiveSituation(root,game,cached){
+    const node=root?.querySelector('[data-live-current-situation]');
+    if(!node) return;
+    const show=liveDetailTab==='plays' && game?.state==='in' && cached && !cached?.error;
+    if(!show){
+      node.hidden=true;
+      node.innerHTML='';
+      return;
+    }
+    const markup=liveSituationMarkup(cached,game);
+    node.innerHTML=markup;
+    node.hidden=!markup;
+  }
+
   function bindLiveDetailTabs(root,game){
     root.querySelectorAll('[data-live-detail-tab]').forEach(btn=>{
       const tab=btn.dataset.liveDetailTab==='box'?'box':'plays';
@@ -1320,6 +1500,7 @@
     bindLiveDetailTabs(root,game);
     if(!game){
       bindLivePlayControls(root,null,null,0);
+      renderLiveSituation(root,null,null);
       body.innerHTML='<div class="live-detail-empty"><b>No game selected.</b><small>Choose a game from the scoreboard feed.</small></div>';
       return;
     }
@@ -1329,6 +1510,7 @@
     const fetched=liveDetailFetchedAt.get(key)||0;
     const stale=!cached || Date.now()-fetched >= liveDetailTtl(game);
     bindLivePlayControls(root,game,cached,fetched);
+    renderLiveSituation(root,game,cached);
 
     if(cached?.error){
       body.innerHTML='<div class="live-detail-empty"><b>Detailed game feed is temporarily unavailable.</b><small>The main scoreboard will keep updating automatically.</small></div>';
