@@ -1286,6 +1286,7 @@
       // A pitcher allowing hits/runs is never treated as "hot."
       if(pitching){
         if(k!=='strikeouts') return null;
+        if(value<6) return null;
         return {label:'K',value,display:String(raw),heat:value*2.8};
       }
 
