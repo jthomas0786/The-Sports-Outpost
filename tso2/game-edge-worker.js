@@ -25,6 +25,21 @@ function nflWeekDateRange(now=new Date()){
  };
  return {start:fmt(startMs),end:fmt(endMs),timeZone:NFL_TZ,rolloverHourLocal:3};
 }
+function nflWeekDates(now=new Date()){
+ const range=nflWeekDateRange(now);
+ const y=Number(range.start.slice(0,4)),m=Number(range.start.slice(4,6)),d=Number(range.start.slice(6,8));
+ const start=Date.UTC(y,m-1,d);
+ return Array.from({length:7},(_,i)=>{
+  const dt=new Date(start+i*86400000);
+  return String(dt.getUTCFullYear())+String(dt.getUTCMonth()+1).padStart(2,'0')+String(dt.getUTCDate()).padStart(2,'0');
+ });
+}
+async function fetchScoreboard(base,date){
+ const url=base+'?dates='+encodeURIComponent(date);
+ const r=await fetch(url,{headers:{Accept:'application/json','User-Agent':'okhttp/4.12.0'},cf:{cacheTtl:15,cacheEverything:true}});
+ if(!r.ok)throw new Error('ESPN HTTP '+r.status+' for '+date);
+ return r.json();
+}
 function team(c,side){
  const rows=c?.competitors||[];const r=rows.find(x=>x?.homeAway===side)||(side==='away'?rows[1]:rows[0]);if(!r)return null;
  const t=r.team||{};return {id:String(t.id||r.id||''),abbr:t.abbreviation||t.shortDisplayName||'',name:t.displayName||t.name||'',logo:t.logo||t.logos?.[0]?.href||'',score:num(r.score)};
@@ -50,11 +65,23 @@ async function handle(req){
  if(!base)return json({error:'unsupported league'},400);
  const d=String(u.searchParams.get('date')||'').replace(/\D/g,'');
  const nflWeek=league==='nfl'?nflWeekDateRange():null;
- const dateQuery=league==='nfl'?(nflWeek.start+'-'+nflWeek.end):d;
- const url=base+(dateQuery?'?dates='+encodeURIComponent(dateQuery):'');
  try{
-  const r=await fetch(url,{headers:{Accept:'application/json','User-Agent':'okhttp/4.12.0'},cf:{cacheTtl:15,cacheEverything:true}});
-  if(!r.ok)throw new Error('ESPN HTTP '+r.status);const doc=await r.json();const games=(doc.events||[]).map(e=>game(e,league)).filter(Boolean);
+  let events=[];
+  if(league==='nfl'){
+   const dates=nflWeekDates();
+   const docs=await Promise.all(dates.map(date=>fetchScoreboard(base,date)));
+   const byId=new Map();
+   for(const doc of docs)for(const event of doc?.events||[])byId.set(String(event?.id||event?.competitions?.[0]?.id||Math.random()),event);
+   events=[...byId.values()];
+  }else{
+   const dateQuery=d||'';
+   const url=base+(dateQuery?'?dates='+encodeURIComponent(dateQuery):'');
+   const r=await fetch(url,{headers:{Accept:'application/json','User-Agent':'okhttp/4.12.0'},cf:{cacheTtl:15,cacheEverything:true}});
+   if(!r.ok)throw new Error('ESPN HTTP '+r.status);
+   const doc=await r.json();
+   events=doc?.events||[];
+  }
+  const games=events.map(e=>game(e,league)).filter(Boolean).sort((a,b)=>String(a.startTime||'').localeCompare(String(b.startTime||'')));
   return json({source:'espn-scoreboard',generatedAt:new Date().toISOString(),league,date:league==='nfl'?null:(d||null),weekRange:nflWeek,games,marketGames:games.filter(g=>g.gameLines).length});
  }catch(e){return json({error:String(e?.message||e)},502)}
 }
