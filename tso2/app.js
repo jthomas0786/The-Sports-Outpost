@@ -2357,6 +2357,44 @@
     return n<0?((-n)/((-n)+100))*100:(100/(n+100))*100;
   }
 
+  function guardPublishedModelRow(row){
+    if(row?.sport!=='nfl'||!row?.model)return row;
+    const rawPct=Number(row.model.probabilityPct);
+    if(!Number.isFinite(rawPct))return row;
+    const marketPct=Number(row.impliedPct);
+    const extreme=rawPct<=0.05||rawPct>=99.95;
+    const divergence=Number.isFinite(marketPct)?Math.abs(rawPct-marketPct):0;
+    if(extreme||divergence>35){
+      return {
+        ...row,
+        model:null,
+        modelGuardrail:{
+          reason:extreme?'extreme-simulation-output':'model-market-divergence',
+          rawProbabilityPct:rawPct,
+          marketProbabilityPct:Number.isFinite(marketPct)?marketPct:null,
+          divergencePct:Number.isFinite(marketPct)?Number(divergence.toFixed(2)):null
+        }
+      };
+    }
+    const probabilityPct=Math.max(2.5,Math.min(97.5,rawPct));
+    const edgePct=Number.isFinite(marketPct)?probabilityPct-marketPct:null;
+    return {
+      ...row,
+      model:{
+        ...row.model,
+        rawProbabilityPct:rawPct,
+        probabilityPct:Number(probabilityPct.toFixed(2)),
+        edgePct:Number.isFinite(edgePct)?Number(edgePct.toFixed(2)):row.model.edgePct,
+        displayGuarded:Math.abs(probabilityPct-rawPct)>0.001
+      }
+    };
+  }
+
+  function guardPublishedModels(payload){
+    if(!payload||!Array.isArray(payload.rows))return payload;
+    return {...payload,rows:payload.rows.map(guardPublishedModelRow)};
+  }
+
   function propsRepriceToBook(row,bookName){
     if(!bookName)return row;
     const book=(row.books||[]).find(b=>String(b?.book||'').toLowerCase()===String(bookName).toLowerCase());
@@ -5974,7 +6012,7 @@
       fetchNbaModels()
     ])
       .then(([payload,nbaModels])=>{
-        const merged=mergeNbaModels(payload,nbaModels);
+        const merged=guardPublishedModels(mergeNbaModels(payload,nbaModels));
         propsFeedCache=merged;
         propsFeedFetchedAt=Date.now();
         renderPropsFeed();
