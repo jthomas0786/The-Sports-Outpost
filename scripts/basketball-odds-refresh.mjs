@@ -2,7 +2,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
-import { normalizeBasketballPlayerIdentity, resolveWnbaQuoteEvent } from './lib/basketball-odds-quality.mjs';
+import { normalizeBasketballPlayerIdentity, resolveWnbaQuoteEvent, plausibleBasketballPropRow } from './lib/basketball-odds-quality.mjs';
 
 const API = process.env.PARLAY_API_BASE || 'https://parlay-api.com/v1';
 const KEY = process.env.PARLAY_API_KEY || '';
@@ -188,7 +188,7 @@ async function refreshLeague(sport){
     const player=identity.player;
     const period=String(r?.period||'FULL').toUpperCase();
     if(!info||!player||!SPORTSBOOK_KEYS.has(bk)||!['FULL','UNKNOWN',''].includes(period))continue;
-    if(!plausiblePlayerName(player)){rejectedNonPlayers++;continue;}
+    if(!plausiblePlayerName(player)||!plausibleBasketballPropRow(info.market,info.line,player)){rejectedNonPlayers++;continue;}
 
     let resolvedContext=null;
     if(sport==='WNBA'){
