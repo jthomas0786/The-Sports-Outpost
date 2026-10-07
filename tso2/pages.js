@@ -484,7 +484,7 @@
               <span class="destination-kicker edge2-kicker">GAME EDGE · ${leagueName(league)}</span>
             </div>
             <h1>The game market in one decision view.</h1>
-            <p>Spread, Moneyline and Total sit side by side for every matchup. The stronger half of each bar shows the current no-vig market lean, followed by one short reason — no clutter and no invented numbers.</p>
+            <p>Spread, Moneyline and Total sit side by side for every matchup. Each bar shows the current market lean, followed by a matchup-specific reason using the team, opponent, venue, available record context and the actual line.</p>
           </div>
           <div class="destination-actions">
             <span class="edge2-feed-badge" data-game-edge-feed-badge><i></i> CONNECTING MARKET</span>
@@ -499,7 +499,7 @@
           <span class="edge2-status-divider"></span>
           <div><b>3 CORE MARKETS</b><small>Spread · Moneyline · Total</small></div>
           <span class="edge2-status-divider"></span>
-          <div><b>NO-VIG</b><small>market preference, not certainty</small></div>
+          <div><b>MATCHUP READ</b><small>context behind the lean</small></div>
         </section>
 
         <section class="edge2-league-deck" aria-label="Game Edge sport">
@@ -528,9 +528,9 @@
         </section>
 
         <section class="edge2-read-band">
-          <div><span>01</span><b>READ THE BAR</b><small>The larger side is the stronger no-vig market preference.</small></div>
+          <div><span>01</span><b>READ THE BAR</b><small>The larger side is the stronger current market lean.</small></div>
           <div><span>02</span><b>CHECK THE PRICE</b><small>Each side keeps its current verified line and American price.</small></div>
-          <div><span>03</span><b>READ THE WHY</b><small>One short explanation tells you what is driving the lean.</small></div>
+          <div><span>03</span><b>READ THE WHY</b><small>A matchup-specific sentence explains why that side or total gets the edge.</small></div>
         </section>
       </section>`;
     },
