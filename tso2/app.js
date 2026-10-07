@@ -43,9 +43,9 @@
   let nhlScorerFetchedAt = 0;
   let nhlScorerInFlight = null;
   let nhlScorerMarket = 'fgs';
-  let gameEdgeCache = null;
-  let gameEdgeFetchedAt = 0;
-  let gameEdgeInFlight = null;
+  const gameEdgeCache = new Map();
+  const gameEdgeFetchedAt = new Map();
+  const gameEdgeInFlight = new Map();
   const LIVE_FEED_TTL = 12000;
   const LIVE_POLL_MS = 30000;
   const LIVE_DETAIL_POLL_MS = 10000;
@@ -55,6 +55,7 @@
   const GAME_EDGE_TTL = 30000;
   const GAME_EDGE_POLL_MS = 60000;
   const GAME_EDGE_RAW_BASE = 'https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/';
+  const GAME_EDGE_SCOREBOARD_BASE = 'https://tso2-game-edge.jthomas0786-tso.workers.dev/';
   let scoreTickerResumeTimer = null;
   const SCORE_TICKER_PX_PER_SECOND = 34;
 
@@ -5131,9 +5132,10 @@
   }
 
   function gameEdgeGameStatus(game){
-    if(game?.status==='post')return 'FINAL';
-    if(game?.status==='in')return game?.detail||('P'+(game?.period||'—')+' '+(game?.clock||''));
-    const t=Date.parse(game?.startTime||'');
+    const state=String(game?.status||game?.state||'').toLowerCase();
+    if(state==='post')return 'FINAL';
+    if(state==='in')return game?.detail||('P'+(game?.period||'—')+' '+(game?.clock||''));
+    const t=Date.parse(game?.startTime||game?.startDateUTC||'');
     return Number.isFinite(t)?new Date(t).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}):'SCHEDULED';
   }
 
@@ -5157,46 +5159,78 @@
   }
 
   function gameEdgeSpread(game,lineRow){
-    const s=lineRow?.puckLine;
-    if(!s)return gameEdgeMarketMarkup({
-      title:'Spread',lineText:'Puck Line',leftLabel:game?.away?.abbr||'AWAY',leftSub:'—',
-      rightLabel:game?.home?.abbr||'HOME',rightSub:'—',pair:null,
-      reason:'No verified two-sided spread market is available yet.'
-    });
-    const favAway=String(s.favoriteAbbr||'')===String(game?.away?.abbr||'');
-    const favoritePair=gameEdgeFairPair({leftPrice:s.price,rightPrice:s.underdogPrice});
-    const pair=favoritePair?(favAway?favoritePair:{left:favoritePair.right,right:favoritePair.left}):null;
-    const awayLine=favAway?s.line:s.underdogLine;
-    const homeLine=favAway?s.underdogLine:s.line;
+    if(currentLeague==='nhl'){
+      const s=lineRow?.puckLine;
+      if(!s)return gameEdgeMarketMarkup({
+        title:'Spread',lineText:'Puck Line',leftLabel:game?.away?.abbr||'AWAY',leftSub:'—',
+        rightLabel:game?.home?.abbr||'HOME',rightSub:'—',pair:null,
+        reason:'No verified two-sided puck-line market is available yet.'
+      });
+      const favAway=String(s.favoriteAbbr||'')===String(game?.away?.abbr||'');
+      const favoritePair=gameEdgeFairPair({leftPrice:s.price,rightPrice:s.underdogPrice});
+      const pair=favoritePair?(favAway?favoritePair:{left:favoritePair.right,right:favoritePair.left}):null;
+      const awayLine=favAway?s.line:s.underdogLine;
+      const homeLine=favAway?s.underdogLine:s.line;
+      const p=gameEdgePercentages(pair);
+      const lean=p.left>p.right
+        ? String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true)
+        : String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true);
+      const reason=pair
+        ? '<strong>'+esc(lean)+'</strong> carries the stronger no-vig cover probability from the current two-sided puck-line price across '+Number(s.sportsbookCount||0)+' book'+(Number(s.sportsbookCount||0)===1?'':'s')+'.'
+        : 'The puck line is posted, but both side prices are not available yet.';
+      return gameEdgeMarketMarkup({
+        title:'Spread',lineText:'Puck Line',
+        leftLabel:String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true),
+        leftSub:favAway?gameEdgeAmerican(s.price):gameEdgeAmerican(s.underdogPrice),
+        rightLabel:String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true),
+        rightSub:favAway?gameEdgeAmerican(s.underdogPrice):gameEdgeAmerican(s.price),
+        pair,reason
+      });
+    }
+
+    const s=lineRow?.spread;
+    const awayLine=s?.away?.point;
+    const homeLine=s?.home?.point;
+    const awayPrice=s?.away?.price;
+    const homePrice=s?.home?.price;
+    const pair=s?gameEdgeFairPair({leftPrice:awayPrice,rightPrice:homePrice}):null;
     const p=gameEdgePercentages(pair);
+    const lineName=currentLeague==='mlb'?'Run Line':'Point Spread';
     const lean=p.left>p.right
       ? String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true)
       : String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true);
+    const provider=lineRow?.provider?' at '+esc(lineRow.provider):'';
     const reason=pair
-      ? '<strong>'+esc(lean)+'</strong> carries the stronger no-vig cover probability from the current two-sided puck-line price across '+Number(s.sportsbookCount||0)+' book'+(Number(s.sportsbookCount||0)===1?'':'s')+'.'
-      : 'The spread is posted, but both side prices are not available yet.';
+      ? '<strong>'+esc(lean)+'</strong> has the stronger no-vig cover side from the current two-sided '+lineName.toLowerCase()+provider+'.'
+      : 'No verified two-sided '+lineName.toLowerCase()+' is posted yet.';
     return gameEdgeMarketMarkup({
-      title:'Spread',lineText:'Puck Line',
-      leftLabel:String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true),
-      leftSub:favAway?gameEdgeAmerican(s.price):gameEdgeAmerican(s.underdogPrice),
-      rightLabel:String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true),
-      rightSub:favAway?gameEdgeAmerican(s.underdogPrice):gameEdgeAmerican(s.price),
+      title:'Spread',lineText:lineName,
+      leftLabel:String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true),leftSub:gameEdgeAmerican(awayPrice),
+      rightLabel:String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true),rightSub:gameEdgeAmerican(homePrice),
       pair,reason
     });
   }
 
   function gameEdgeMoneyline(game,lineRow){
     const m=lineRow?.moneyline;
-    const pair=m?gameEdgeFairPair({leftProbability:m.awayFair,rightProbability:m.homeFair}):null;
+    const awayPrice=m?.awayBest ?? m?.away?.price;
+    const homePrice=m?.homeBest ?? m?.home?.price;
+    const pair=m?gameEdgeFairPair({
+      leftProbability:m.awayFair,
+      rightProbability:m.homeFair,
+      leftPrice:awayPrice,
+      rightPrice:homePrice
+    }):null;
     const p=gameEdgePercentages(pair);
     const lean=p.left>p.right?String(game?.away?.abbr||'AWAY'):String(game?.home?.abbr||'HOME');
+    const source=lineRow?.provider?' at '+esc(lineRow.provider):(Number(m?.books||0)?' across '+Number(m.books)+' books':'');
     const reason=pair
-      ? '<strong>'+esc(lean)+' moneyline</strong> is the market favorite at '+Math.max(p.left,p.right).toFixed(0)+'% fair win probability across '+Number(m.books||0)+' books.'
-      : 'No verified two-sided moneyline consensus is available yet.';
+      ? '<strong>'+esc(lean)+' moneyline</strong> is the market favorite at '+Math.max(p.left,p.right).toFixed(0)+'% no-vig win probability'+source+'.'
+      : 'No verified two-sided moneyline is available yet.';
     return gameEdgeMarketMarkup({
       title:'Moneyline',lineText:'Win outright',
-      leftLabel:game?.away?.abbr||'AWAY',leftSub:gameEdgeAmerican(m?.awayBest),
-      rightLabel:game?.home?.abbr||'HOME',rightSub:gameEdgeAmerican(m?.homeBest),
+      leftLabel:game?.away?.abbr||'AWAY',leftSub:gameEdgeAmerican(awayPrice),
+      rightLabel:game?.home?.abbr||'HOME',rightSub:gameEdgeAmerican(homePrice),
       pair,reason
     });
   }
@@ -5204,32 +5238,35 @@
   function gameEdgeTotal(game,lineRow){
     const t=lineRow?.total;
     const line=t?.line;
-    const pair=t?gameEdgeFairPair({leftPrice:t.underPrice,rightPrice:t.overPrice}):null;
+    const underPrice=t?.underPrice ?? t?.under?.price;
+    const overPrice=t?.overPrice ?? t?.over?.price;
+    const pair=t?gameEdgeFairPair({leftPrice:underPrice,rightPrice:overPrice}):null;
     const p=gameEdgePercentages(pair);
     const lean=p.left>p.right?'Under':'Over';
+    const provider=lineRow?.provider?' at '+esc(lineRow.provider):'';
     const reason=pair
-      ? '<strong>'+esc(lean)+' '+esc(gameEdgeLineNumber(line))+'</strong> has the stronger no-vig side at '+Math.max(p.left,p.right).toFixed(0)+'% from the current two-sided total price.'
-      : 'The total is '+esc(gameEdgeLineNumber(line))+', but there is not enough two-sided price data for a lean yet.';
+      ? '<strong>'+esc(lean)+' '+esc(gameEdgeLineNumber(line))+'</strong> has the stronger no-vig total side at '+Math.max(p.left,p.right).toFixed(0)+'% from the current two-sided price'+provider+'.'
+      : 'The total is '+esc(gameEdgeLineNumber(line))+', but there is not enough verified two-sided price data for a lean yet.';
     return gameEdgeMarketMarkup({
       title:'Total',lineText:line!=null?'O/U '+gameEdgeLineNumber(line):'No total',
-      leftLabel:'Under '+gameEdgeLineNumber(line),leftSub:gameEdgeAmerican(t?.underPrice),
-      rightLabel:'Over '+gameEdgeLineNumber(line),rightSub:gameEdgeAmerican(t?.overPrice),
+      leftLabel:'Under '+gameEdgeLineNumber(line),leftSub:gameEdgeAmerican(underPrice),
+      rightLabel:'Over '+gameEdgeLineNumber(line),rightSub:gameEdgeAmerican(overPrice),
       pair,total:true,reason
     });
   }
 
   function gameEdgeCard(game,lineRow){
     const status=gameEdgeGameStatus(game);
-    const venue=String(game?.venue||'NHL');
+    const venue=String(game?.venue||leagueLabel(currentLeague));
     return '<article class="edge2-game">'
       +'<header class="edge2-game-head">'
-        +'<div class="edge2-game-context"><span>NHL GAME EDGE</span><b>'+esc(status)+'</b><small>'+esc(venue)+'</small></div>'
+        +'<div class="edge2-game-context"><span>'+esc(String(currentLeague).toUpperCase())+' GAME EDGE</span><b>'+esc(status)+'</b><small>'+esc(venue)+'</small></div>'
         +'<div class="edge2-matchup">'
           +'<div class="edge2-team"><span class="edge2-team-logo"><img data-team-logo src="'+esc(game?.away?.logo||'')+'" alt="" /></span><div><b>'+esc(game?.away?.abbr||'AWAY')+'</b><small>'+esc(game?.away?.name||'Away')+'</small></div></div>'
           +'<span class="edge2-at">@</span>'
           +'<div class="edge2-team is-home"><div><b>'+esc(game?.home?.abbr||'HOME')+'</b><small>'+esc(game?.home?.name||'Home')+'</small></div><span class="edge2-team-logo"><img data-team-logo src="'+esc(game?.home?.logo||'')+'" alt="" /></span></div>'
         +'</div>'
-        +'<div class="edge2-game-mode"><span>DECISION VIEW</span><b>SPREAD · ML · TOTAL</b><small>Current verified market</small></div>'
+        +'<div class="edge2-game-mode"><span>DECISION VIEW</span><b>SPREAD · ML · TOTAL</b><small>'+(lineRow?'Current verified market':'Lines pending')+'</small></div>'
       +'</header>'
       +'<div class="edge2-markets">'+gameEdgeSpread(game,lineRow)+gameEdgeMoneyline(game,lineRow)+gameEdgeTotal(game,lineRow)+'</div>'
     +'</article>';
@@ -5238,35 +5275,30 @@
   function renderGameEdge(){
     const root=document.querySelector('[data-game-edge-route]');
     if(!root)return;
+    const league=currentLeague;
+    const cache=gameEdgeCache.get(league);
+    if(!cache)return;
     const board=root.querySelector('[data-game-edge-board]');
     const badge=root.querySelector('[data-game-edge-feed-badge]');
     const status=root.querySelector('[data-game-edge-status]');
     const count=root.querySelector('[data-game-edge-game-count]');
     const fresh=root.querySelector('[data-game-edge-freshness]');
     const title=root.querySelector('[data-game-edge-market-title]');
-    if(currentLeague!=='nhl'){
-      if(title)title.textContent=leagueLabel(currentLeague)+' Game Edge';
-      if(status)status.textContent='FEED NOT CONNECTED';
-      if(count)count.textContent='0';
-      if(fresh)fresh.textContent='NHL is live now · '+leagueLabel(currentLeague)+' game markets are not connected yet';
-      if(badge){badge.className='edge2-feed-badge is-idle';badge.innerHTML='<i></i> MARKET FEED NOT CONNECTED';}
-      if(board)board.innerHTML='<div class="edge2-empty"><span>◎</span><div><b>'+esc(leagueLabel(currentLeague))+' Game Edge is not live yet.</b><p>TSO will not manufacture Spread, Moneyline or Total percentages without a verified two-sided game market. NHL is the first live Game Edge sport.</p></div></div>';
-      return;
-    }
-    if(!gameEdgeCache)return;
-    const slate=gameEdgeCache.slate||{};
-    const lines=gameEdgeCache.lines||{};
-    const lineMap=new Map((lines.games||[]).map(row=>[String(row.gameId),row]));
-    const games=Array.isArray(slate.games)?slate.games:[];
-    if(title)title.textContent='NHL Game Edge';
-    if(status)status.textContent='NHL MARKET CONNECTED';
+    const games=Array.isArray(cache.games)?cache.games:[];
+    const lineFor=game=>league==='nhl'?(cache.linesById?.[String(game.id)]||null):(game?.gameLines||null);
+    const marketGames=games.filter(game=>lineFor(game)).length;
+    if(title)title.textContent=leagueLabel(league)+' Game Edge';
+    if(status)status.textContent=marketGames?leagueLabel(league).toUpperCase()+' MARKET CONNECTED':leagueLabel(league).toUpperCase()+' LINES PENDING';
     if(count)count.textContent=String(games.length);
-    if(fresh)fresh.textContent='Updated '+ageText(lines.generatedAt||slate.generatedAt)+' ago · Spread · Moneyline · Total';
-    if(badge){badge.className='edge2-feed-badge is-live';badge.innerHTML='<i></i> LIVE NHL MARKET';}
+    if(fresh)fresh.textContent='Updated '+ageText(cache.generatedAt)+' ago · '+marketGames+'/'+games.length+' games with verified markets';
+    if(badge){
+      badge.className='edge2-feed-badge '+(marketGames?'is-live':'is-idle');
+      badge.innerHTML='<i></i> '+(marketGames?'LIVE '+leagueLabel(league).toUpperCase()+' MARKET':leagueLabel(league).toUpperCase()+' LINES PENDING');
+    }
     if(board){
       board.innerHTML=games.length
-        ? games.map(game=>gameEdgeCard(game,lineMap.get(String(game.id))||null)).join('')
-        : '<div class="edge2-empty"><span>◎</span><div><b>No NHL games on the current slate.</b><p>Game Edge will populate automatically when the next verified game market appears.</p></div></div>';
+        ? games.map(game=>gameEdgeCard(game,lineFor(game))).join('')
+        : '<div class="edge2-empty"><span>◎</span><div><b>No '+esc(leagueLabel(league))+' games on the current slate.</b><p>Game Edge will populate automatically when the next scheduled game and verified market are posted.</p></div></div>';
     }
     bindMediaFallbacks();
   }
@@ -5277,28 +5309,59 @@
     return response.json();
   }
 
+  async function gameEdgeScoreboard(league){
+    const response=await fetch(GAME_EDGE_SCOREBOARD_BASE+'?league='+encodeURIComponent(league)+'&date='+encodeURIComponent(localDateKey()),{cache:'no-store'});
+    if(!response.ok)throw new Error('Game Edge scoreboard HTTP '+response.status);
+    const payload=await response.json();
+    if(!payload||!Array.isArray(payload.games))throw new Error('Invalid Game Edge scoreboard payload');
+    return payload;
+  }
+
   function refreshGameEdgeData(force=false){
     const root=document.querySelector('[data-game-edge-route]');
     if(!root)return Promise.resolve(null);
-    if(currentLeague!=='nhl'){renderGameEdge();return Promise.resolve(null);}
-    if(gameEdgeInFlight)return gameEdgeInFlight;
-    if(!force&&gameEdgeCache&&Date.now()-gameEdgeFetchedAt<GAME_EDGE_TTL){
-      renderGameEdge();return Promise.resolve(gameEdgeCache);
+    const league=currentLeague==='all'?'nhl':currentLeague;
+    if(league!==currentLeague){currentLeague=league;}
+    const cached=gameEdgeCache.get(league);
+    const fetchedAt=gameEdgeFetchedAt.get(league)||0;
+    if(!force&&cached&&Date.now()-fetchedAt<GAME_EDGE_TTL){
+      renderGameEdge();return Promise.resolve(cached);
     }
+    if(gameEdgeInFlight.has(league))return gameEdgeInFlight.get(league);
     const badge=root.querySelector('[data-game-edge-feed-badge]');
-    if(badge){badge.className='edge2-feed-badge';badge.innerHTML='<i></i> CONNECTING NHL MARKET';}
-    gameEdgeInFlight=Promise.all([gameEdgeJson('nhl.json'),gameEdgeJson('nhl-puck-lines.json')])
-      .then(([slate,lines])=>{gameEdgeCache={slate,lines};gameEdgeFetchedAt=Date.now();renderGameEdge();return gameEdgeCache;})
-      .catch(error=>{
-        console.error('TSO Game Edge:',error);
+    if(badge){badge.className='edge2-feed-badge';badge.innerHTML='<i></i> CONNECTING '+leagueLabel(league).toUpperCase()+' MARKET';}
+    const task=(league==='nhl'
+      ? Promise.all([gameEdgeJson('nhl.json'),gameEdgeJson('nhl-puck-lines.json')]).then(([slate,lines])=>({
+          league,
+          generatedAt:lines.generatedAt||slate.generatedAt||new Date().toISOString(),
+          games:Array.isArray(slate.games)?slate.games:[],
+          linesById:Object.fromEntries((lines.games||[]).map(row=>[String(row.gameId),row]))
+        }))
+      : gameEdgeScoreboard(league).then(payload=>({
+          league,
+          generatedAt:payload.generatedAt||new Date().toISOString(),
+          games:payload.games||[],
+          marketGames:Number(payload.marketGames||0),
+          source:payload.source||'espn-scoreboard'
+        }))
+    ).then(cache=>{
+      gameEdgeCache.set(league,cache);
+      gameEdgeFetchedAt.set(league,Date.now());
+      if(currentRoute==='gameedge'&&currentLeague===league)renderGameEdge();
+      return cache;
+    }).catch(error=>{
+      console.error('TSO Game Edge:',error);
+      if(currentRoute==='gameedge'&&currentLeague===league){
         const board=root.querySelector('[data-game-edge-board]');
         const status=root.querySelector('[data-game-edge-status]');
         if(status)status.textContent='MARKET FEED OFFLINE';
         if(badge){badge.className='edge2-feed-badge is-error';badge.innerHTML='<i></i> MARKET FEED UNAVAILABLE';}
-        if(board)board.innerHTML='<div class="edge2-empty is-error"><span>!</span><div><b>Game Edge market feed is unavailable.</b><p>'+esc(error?.message||error)+'</p></div></div>';
-        return null;
-      }).finally(()=>{gameEdgeInFlight=null;});
-    return gameEdgeInFlight;
+        if(board)board.innerHTML='<div class="edge2-empty is-error"><span>!</span><div><b>'+esc(leagueLabel(league))+' Game Edge feed is unavailable.</b><p>'+esc(error?.message||error)+'</p></div></div>';
+      }
+      return null;
+    }).finally(()=>{gameEdgeInFlight.delete(league);});
+    gameEdgeInFlight.set(league,task);
+    return task;
   }
 
   const labels = {
