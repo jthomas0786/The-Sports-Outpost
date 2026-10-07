@@ -74,15 +74,16 @@ function opponentFactor(research,opponent,player,market){
   const allow=research?.teamDefense?.[String(opponent?.id)]?.byPosition?.[pos]?.[market];
   const league=research?.league?.allowByPosition?.[pos]?.[market];
   if(!Number.isFinite(Number(allow))||!Number.isFinite(Number(league))||Number(league)<=0)return {factor:1,value:null,league:null};
-  return {factor:clamp(Number(allow)/Number(league),.92,1.08),value:Number(allow),league:Number(league)};
+  const raw=Number(allow)/Number(league);
+  return {factor:clamp(1+(raw-1)*.5,.96,1.04),value:Number(allow),league:Number(league)};
 }
 function paceFactor(research,player,opponent){
   const league=finite(research?.league?.pace);
   const own=finite(research?.teamProfiles?.[String(player?.teamId)]?.pace);
   const opp=finite(research?.teamProfiles?.[String(opponent?.id)]?.pace);
   if(league==null||league<=0||own==null||opp==null)return {factor:1,expected:null,league};
-  const expected=(own+opp)/2;
-  return {factor:clamp(expected/league,.95,1.05),expected,league};
+  const expected=(own+opp)/2,raw=expected/league;
+  return {factor:clamp(1+(raw-1)*.6,.97,1.03),expected,league};
 }
 function daysRest(row,games){
   const start=Date.parse(row?.commenceTime||'');
@@ -131,15 +132,17 @@ export function buildNbaProjection({research,row,market,line,fairOverProb=null})
   const shrink=leaguePos==null?base:(base*(1-clamp(4/(games.length+32),.05,.13))+leaguePos*clamp(4/(games.length+32),.05,.13));
 
   const avgMin=weighted(games,g=>g.minutes,(g,i)=>gameWeight(g,i,currentSeason));
-  const recentMin=mean(games.slice(0,5).map(g=>finite(g.minutes)).filter(v=>v!=null));
-  const minuteFactor=avgMin&&recentMin?clamp((recentMin/avgMin)**.55,.90,1.10):1;
+  const currentRoleGames=games.filter(g=>Number(g.season)===Number(currentSeason)&&Number(g.seasonType)!==1).slice(0,5);
+  const recentMin=currentRoleGames.length>=3?mean(currentRoleGames.map(g=>finite(g.minutes)).filter(v=>v!=null)):avgMin;
+  const minuteFactor=currentRoleGames.length>=3&&avgMin&&recentMin?clamp((recentMin/avgMin)**.45,.93,1.07):1;
 
   const avgUsage=weighted(games,g=>g.usageProxy,(g,i)=>gameWeight(g,i,currentSeason));
-  const recentUsage=mean(games.slice(0,5).map(g=>finite(g.usageProxy)).filter(v=>v!=null));
-  const usageFactor=avgUsage&&recentUsage?clamp((recentUsage/avgUsage)**.28,.94,1.06):1;
+  const recentUsage=currentRoleGames.length>=3?mean(currentRoleGames.map(g=>finite(g.usageProxy)).filter(v=>v!=null)):avgUsage;
+  const usageFactor=currentRoleGames.length>=3&&avgUsage&&recentUsage?clamp((recentUsage/avgUsage)**.22,.96,1.04):1;
 
   const split=splitMean(games,m,matchup.venue);
-  const venueFactor=split&&fullMean?clamp(split/fullMean,.95,1.05):1;
+  const rawVenue=split&&fullMean?split/fullMean:1;
+  const venueFactor=clamp(1+(rawVenue-1)*.5,.975,1.025);
   const opp=opponentFactor(research,matchup.opponent,player,m);
   const pace=paceFactor(research,player,matchup.opponent);
   const rest=daysRest(row,games);
