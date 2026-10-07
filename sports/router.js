@@ -186,7 +186,7 @@ async function swapView(active) {
 
   if (active === 'nba') {
     try {
-      const mod = await import('./nba/view-v201.js?v=2.4-injury-preseason');
+      const mod = await import('./nba/view-v201.js?v=2.5-intelligence');
       await mod.mount();
       const pendingTab = window.DW_nbaPendingTab;
       if (pendingTab && typeof mod.selectTab === 'function') {
