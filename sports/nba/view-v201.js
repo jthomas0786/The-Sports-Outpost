@@ -342,7 +342,7 @@ function propGroups(){
   });
 }
 
-function gradeForfunction gradeFor(confidence,kind){
+function gradeFor(confidence,kind){
   if(confidence==null)return {letter:'—',cls:'d'};
   if(kind==='one-sided'){
     if(confidence>=.62)return {letter:'B',cls:'b'};
@@ -395,7 +395,7 @@ function propsHTML(){
   <div class="nba3-source-note"><b>Model policy:</b> TSO Regression v1 never uses sportsbook probability as its projection. ESPN completed-game history supplies the player baseline and contextual factors; fair sportsbook probability is used only to calculate the displayed model edge. ${withheld} row${withheld===1?'':'s'} currently fail event-roster verification and remain hidden.</div>`;
 }
 
-function renderMain()function renderMain(){
+function renderMain(){
   const host=document.querySelector('#nbaView .nba3-main');
   if(!host)return;
   host.innerHTML=state.page==='props'?propsHTML():state.page==='live'?liveHTML():slateHTML();
@@ -594,7 +594,7 @@ function playerModal(player){
   document.body.appendChild(el);
 }
 
-function bind(root)function bind(root){
+function bind(root){
   root.addEventListener('click',async e=>{
     const page=e.target.closest('[data-nba-page]');if(page){await selectPage(page.dataset.nbaPage);return;}
     const game=e.target.closest('[data-nba-game]');if(game){await chooseGame(game.dataset.nbaGame);return;}
