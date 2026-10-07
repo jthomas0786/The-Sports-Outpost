@@ -4287,6 +4287,55 @@
     return vals.length?vals.reduce((a,b)=>a+b,0)/vals.length:null;
   }
 
+  function nhlMatchupDriverVisual(data,row){
+    const p=data?.player||{},games=p.recentGames||[],rates=p.rates||{},d=data?.opponentDefense||{};
+    const market=String(row?.market||'');
+    const side=String(row?.side||'over').toLowerCase();
+    const statMap={sog:'sog',goals:'goals',atg:'goals',fgs:'goals',assists:'assists',points:'points',blocks:'blocks',saves:'saves'};
+    const stat=statMap[market];
+    const indexMap={sog:'recent10ShotPaceIndex',goals:'recent10OverallIndex',atg:'recent10OverallIndex',fgs:'recent10OverallIndex',assists:'recent10OverallIndex',points:'recent10OverallIndex',blocks:'recent10ShotPaceIndex',saves:'recent10OffenseIndex'};
+    const factors=[];
+    const push=(label,detail,value,tone='neutral')=>factors.push({label,detail,value,tone});
+    const sideTone=delta=>{
+      if(!Number.isFinite(delta)||Math.abs(delta)<.01)return 'neutral';
+      const supports=side==='under'?delta<0:delta>0;
+      return supports?'positive':'negative';
+    };
+
+    const edge=Number(row?.model?.edgePct);
+    if(Number.isFinite(edge))push('MODEL VS MARKET','Exact selected side',edgeText(edge),edge>1?'positive':edge<-1?'negative':'neutral');
+
+    if(stat){
+      const l5=nhlWindow(games,5,stat),season=Number(rates?.[stat]);
+      if(Number.isFinite(l5)&&Number.isFinite(season)){
+        const delta=l5-season;
+        push('RECENT FORM','L5 '+researchRate(l5,2)+' vs season '+researchRate(season,2),(delta>=0?'+':'')+researchRate(delta,2),sideTone(delta));
+      }
+    }
+
+    const indexKey=indexMap[market];
+    const oppIndex=Number(indexKey?d?.[indexKey]:null);
+    if(Number.isFinite(oppIndex)){
+      const delta=oppIndex-1;
+      const label=market==='saves'?'OPPONENT OFFENSE':(market==='sog'||market==='blocks'?'SHOT ENVIRONMENT':'OPPONENT DEFENSE');
+      push(label,'Opponent index · 1.00 = league average',researchRate(oppIndex,2),sideTone(delta));
+    }
+
+    const shotsAllowed=Number(d?.recent10ShotsAllowedPerGame);
+    if(Number.isFinite(shotsAllowed)&&(market==='sog'||market==='blocks'||market==='saves')){
+      push('SHOT VOLUME','Opponent recent 10 allowed',researchRate(shotsAllowed,1)+' / game','neutral');
+    }
+
+    const goalsAllowed=Number(d?.recent10GoalsAllowedPerGame);
+    if(Number.isFinite(goalsAllowed)&&(market==='goals'||market==='atg'||market==='fgs'||market==='points')){
+      push('GOAL ENVIRONMENT','Opponent recent 10 allowed',researchRate(goalsAllowed,2)+' / game','neutral');
+    }
+
+    if(!factors.length)return '';
+    const rows=factors.map(f=>'<div class="nfl-factor-row is-'+esc(f.tone)+'"><span class="nfl-factor-state">'+(f.tone==='positive'?'＋':f.tone==='negative'?'−':'•')+'</span><div><small>'+esc(f.label)+'</small><b>'+esc(f.detail)+'</b></div><strong>'+esc(f.value)+'</strong></div>').join('');
+    return '<section class="research-detail-block nfl-factor-visual nhl-factor-visual"><div class="research-detail-block-head"><span>MATCHUP DRIVERS</span><b>Selected-side context · source-backed</b></div><div class="nfl-factor-ladder">'+rows+'</div><p>Driver states summarize verified recent form and opponent context for the selected side. They are not causal model weights or standalone probabilities.</p></section>';
+  }
+
   function nhlResearchDetail(data,row){
     const p=data.player||{},games=p.recentGames||[],rates=p.rates||{},d=data.opponentDefense||{};
     const metrics=[
@@ -4309,8 +4358,10 @@
     ].filter(x=>x[1]!=='—');
     const logs=games.slice(0,10).map(g=>'<div class="research-detail-log-row"><span>'+esc(String(g.date||'').slice(0,10))+'</span><b>'+esc((g.team||'')+' '+(g.homeAway==='away'?'@':'vs')+' '+(g.opponent||'—'))+'</b><em>'+esc('SOG '+researchRate(g.stats?.sog,0)+' · G '+researchRate(g.stats?.goals,0)+' · A '+researchRate(g.stats?.assists,0)+' · PTS '+researchRate(g.stats?.points,0)+(g.firstGoal?' · FIRST GOAL':''))+'</em></div>').join('');
     const performanceVisual=renderNhlResearchChart(data,row);
+    const driverVisual=nhlMatchupDriverVisual(data,row);
     return '<section class="research-detail-status"><span class="deep-source-chip">ESPN VERIFIED HISTORY</span><b>'+esc(games.length+' recent game'+(games.length===1?'':'s')+' loaded')+'</b><small>'+esc('Research snapshot '+researchAge(data.generatedAt))+'</small></section>'
       +performanceVisual
+      +driverVisual
       +'<section class="research-detail-block"><div class="research-detail-block-head"><span>FORM WINDOWS</span><b>L5 · L10 · L30</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
       +(defense.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>OPPONENT DEFENSE</span><b>'+esc(p.opponent||researchOpponentForRow(row)||'Current matchup')+'</b></div><div class="research-detail-metrics">'+defense.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
       +(logs?'<section class="research-detail-block"><div class="research-detail-block-head"><span>GAME LOG</span><b>Verified box-score history</b></div><div class="research-detail-log">'+logs+'</div></section>':'');
