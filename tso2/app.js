@@ -1991,6 +1991,48 @@
     const title = root.querySelector('[data-live-board-title]');
     if(title) title.textContent = currentLeague === 'all' ? 'Today’s games' : currentLeague==='nfl' ? 'NFL weekly slate · Tuesday–Monday' : leagueLabel(currentLeague)+' games today';
     bindLiveGeneratedActions();
+    root.querySelector('[data-live-multi]')?.addEventListener('click',openLiveMultiGame);
+  }
+
+  function closeLiveMultiGame(){
+    document.querySelector('.live-multi-overlay')?.remove();
+    document.body.classList.remove('live-multi-open');
+  }
+
+  function liveMultiGameCard(game){
+    const awayScore=game.state==='pre'?'—':String(game.away?.score??0);
+    const homeScore=game.state==='pre'?'—':String(game.home?.score??0);
+    const status=game.state==='pre'?gameMarqueeStatusText(game):gameShortState(game);
+    return '<button class="live-multi-card '+(game.state==='in'?'is-live':'')+'" data-live-multi-open="'+esc(game.id)+'">'
+      +'<div class="live-multi-card-top"><span>'+esc(leagueLabel(game.league))+'</span><b>'+esc(status)+'</b></div>'
+      +'<div class="live-multi-team"><span>'+teamLogoMarkup(game.away,'live-multi-logo')+'<b>'+esc(game.away?.abbr||'AWAY')+'</b><small>'+esc(game.away?.name||'')+'</small></span><strong>'+esc(awayScore)+'</strong></div>'
+      +'<div class="live-multi-team"><span>'+teamLogoMarkup(game.home,'live-multi-logo')+'<b>'+esc(game.home?.abbr||'HOME')+'</b><small>'+esc(game.home?.name||'')+'</small></span><strong>'+esc(homeScore)+'</strong></div>'
+      +'<div class="live-multi-card-foot"><span>'+esc(game.venue||'Venue pending')+'</span><b>OPEN GAME →</b></div>'
+      +'</button>';
+  }
+
+  function openLiveMultiGame(){
+    closeLiveMultiGame();
+    const games=currentFeedGames();
+    const overlay=document.createElement('div');
+    overlay.className='live-multi-overlay';
+    overlay.innerHTML='<section class="live-multi-shell" role="dialog" aria-modal="true" aria-label="Multi-game view">'
+      +'<div class="live-multi-head"><div><span>MULTI-GAME COMMAND VIEW</span><h2>'+(currentLeague==='all'?'Today across The Outpost':esc(leagueLabel(currentLeague))+(currentLeague==='nfl'?' weekly slate':' today'))+'</h2><small>'+games.length+' game'+(games.length===1?'':'s')+' in the current filter</small></div><button type="button" data-live-multi-close aria-label="Close multi-game view">×</button></div>'
+      +'<div class="live-multi-grid">'+(games.length?games.map(liveMultiGameCard).join(''):'<div class="notification-empty"><b>No games in this filter.</b><small>The live feed is connected, but nothing is scheduled here right now.</small></div>')+'</div>'
+      +'</section>';
+    document.body.appendChild(overlay);
+    document.body.classList.add('live-multi-open');
+    overlay.querySelector('[data-live-multi-close]')?.addEventListener('click',closeLiveMultiGame);
+    overlay.addEventListener('click',event=>{if(event.target===overlay)closeLiveMultiGame();});
+    overlay.querySelectorAll('[data-live-multi-open]').forEach(btn=>btn.addEventListener('click',()=>{
+      const id=String(btn.dataset.liveMultiOpen||'');
+      if(id)selectedLiveGameId=id;
+      closeLiveMultiGame();
+      setRoute('live');
+      renderLiveCenter();
+      document.querySelector('[data-live-feature]')?.scrollIntoView({behavior:'smooth',block:'start'});
+    }));
+    bindMediaFallbacks();
   }
 
   function propsFeedIntegrityState(){
