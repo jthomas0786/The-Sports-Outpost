@@ -54,7 +54,7 @@ export const SPORTS = {
     uiReady: true,
     slateUrl: null,
     dataSource: 'espn-runtime',
-    modelType: 'market-consensus',
+    modelType: 'regression',
     props: ['pts', 'reb', 'ast', 'threes', 'pra'],
   },
 };
