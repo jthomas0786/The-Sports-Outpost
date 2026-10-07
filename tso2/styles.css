@@ -10115,3 +10115,58 @@ body.tso-side-nav-open{overflow:hidden}
   .edge2-read-band>div{border-left:0;border-top:1px solid rgba(255,255,255,.07)}
   .edge2-read-band>div:first-child{border-top:0}
 }
+
+
+/* TSO 2.0 Game Edge — mobile containment */
+@media (max-width: 700px){
+  .edge2-page{overflow-x:hidden}
+  .edge2-status-strip{
+    display:grid!important;
+    grid-auto-flow:column!important;
+    grid-auto-columns:minmax(150px,72vw)!important;
+    grid-template-columns:none!important;
+    gap:0!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+  }
+  .edge2-status-strip>div{
+    min-width:0!important;
+    width:auto!important;
+    overflow:hidden!important;
+    scroll-snap-align:start;
+    padding:14px 16px!important;
+  }
+  .edge2-status-strip b,
+  .edge2-status-strip small{
+    display:block!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  .edge2-league-deck{
+    display:grid!important;
+    grid-auto-flow:column!important;
+    grid-auto-columns:minmax(250px,82vw)!important;
+    grid-template-columns:none!important;
+    overflow-x:auto!important;
+    overflow-y:hidden!important;
+    scroll-snap-type:x proximity;
+    -webkit-overflow-scrolling:touch;
+  }
+  .edge2-league-tab{scroll-snap-align:start;min-width:0!important}
+  .edge2-board-section,.edge2-game,.edge2-market{min-width:0!important;max-width:100%!important}
+  .edge2-game-head{min-width:0!important}
+  .edge2-matchup{min-width:0!important}
+  .edge2-team{min-width:0!important}
+  .edge2-team div{min-width:0!important}
+  .edge2-team small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .edge2-board-section .destination-section-head{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:flex-start!important;
+    gap:6px!important;
+  }
+  .edge2-board-section .destination-section-head>*{max-width:100%!important}
+}
