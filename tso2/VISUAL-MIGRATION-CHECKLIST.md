@@ -326,7 +326,7 @@ Build richer visuals than 1.0 where source coverage exists:
 NBA did not have equivalent mature 1.0 research depth.
 
 ### TSO 2.0 requirement
-Once verified NBA game-log/research sources are connected, NBA must use the same shared visual system:
+TSO 2.0 now has verified NBA game-log/research sources connected and uses the shared visual system. Remaining parity targets:
 - exact-line recent-game chart
 - L5/L10/season hit rate
 - minutes/usage trend
@@ -334,7 +334,10 @@ Once verified NBA game-log/research sources are connected, NBA must use the same
 - opponent positional matchup
 - distribution/model visuals only after a genuine NBA model exists
 
-**Status:** DATA/RESEARCH CONNECTION REQUIRED
+**Status:** PARTIAL / NBA REGRESSION + DEEP RESEARCH ACTIVE  
+**Current 2.0 implementation:** NBA Regression v1 is active from current `nba-research.json` + exact `nba-odds.json` rows. The model uses verified recent history, minutes, usage proxy, venue split, opponent positional allowance, pace, rest and injury context. NBA Deep Research now exposes exact-line recent-game charts, projection, L5/L10/season baselines, minutes/usage, pace, injury state, regression drivers and opponent positional allowance.  
+**Still required:** broader visual QA across NBA markets/players, richer lineup/start-status presentation, and simulation/distribution visuals only if a genuine NBA simulation distribution source is added.
+
 
 ---
 
@@ -524,7 +527,7 @@ The INTEL / Deep Research experience should include the redesigned 2.0 versions 
 5. MLB recent-performance + BvP
 6. MLB Statcast / pitch-zone visual suite
 7. Shared matchup-factor visual
-8. NBA versions after verified NBA research is connected
+8. Continue NBA parity/QA now that Regression v1 + Deep Research are connected
 
 # Definition of done
 
