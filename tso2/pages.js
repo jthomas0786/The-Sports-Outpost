@@ -300,6 +300,7 @@
           </div>
           <div class="destination-actions">
             <span class="props-feed-badge" data-models-feed-badge><i></i> CONNECTING MODELS</span>
+            ${(league==='nhl'||league==='all')?'<button class="button secondary" data-route-jump="gameedge">GAME EDGE →</button>':''}
             <button class="button primary" data-models-refresh>REFRESH MODELS ↻</button>
           </div>
         </section>
@@ -469,6 +470,55 @@
             <div class="models-run-stat"><span>TOP EDGE</span><b data-models-pulse-edge>—</b><small>model vs market</small></div>
             <div class="models-run-footer"><span class="model-live-dot"></span> <span data-models-pulse-age>Waiting for verified snapshot</span></div>
           </article>
+        </section>
+      </section>`;
+    },
+
+    gameedge(league){
+      return `
+      <section class="game-edge-page broadcast-destination" data-game-edge-route="${league}">
+        <section class="destination-hero game-edge-destination-hero">
+          <div>
+            <div class="game-edge-title-lockup">
+              <span class="game-edge-title-mark">◎</span>
+              <span class="destination-kicker game-edge-kicker">GAME EDGE · ${leagueName(league)}</span>
+            </div>
+            <h1>Spread. Moneyline. Total. One glance.</h1>
+            <p>See which side of each core game market is favored by the current two-sided price, then get one short reason why. Bars show no-vig market preference — not certainty.</p>
+          </div>
+          <div class="destination-actions">
+            <span class="game-edge-feed-badge" data-game-edge-feed-badge><i></i> CONNECTING MARKET</span>
+            <button class="button primary" data-game-edge-refresh>REFRESH EDGE ↻</button>
+          </div>
+        </section>
+
+        <section class="game-edge-toolbar">
+          <div class="segmented game-edge-league-tabs" aria-label="Game Edge sport">
+            <button class="${league==='nhl'?'is-active':''}" data-inline-league="nhl">NHL</button>
+            <button class="${league==='nfl'?'is-active':''}" data-inline-league="nfl">NFL</button>
+            <button class="${league==='mlb'?'is-active':''}" data-inline-league="mlb">MLB</button>
+            <button class="${league==='nba'?'is-active':''}" data-inline-league="nba">NBA</button>
+          </div>
+          <div class="game-edge-toolbar-copy">
+            <b data-game-edge-market-title>${league==='nhl'?'NHL GAME MARKETS':'GAME MARKET FEED'}</b>
+            <small data-game-edge-freshness>Spread · Moneyline · Total</small>
+          </div>
+        </section>
+
+        <section class="game-edge-status-strip">
+          <div><span class="game-edge-live-dot"></span><b data-game-edge-status>CONNECTING</b><small>live two-sided game price feed</small></div>
+          <div><b data-game-edge-game-count>—</b><small>games</small></div>
+          <div><b>3</b><small>markets per game</small></div>
+          <div><b>NO-VIG</b><small>side comparison</small></div>
+        </section>
+
+        <div class="game-edge-board" data-game-edge-board>
+          <div class="live-board-loading game-edge-loading"><span class="live-feed-spinner"></span><div><b>Loading Game Edge…</b><small>Current spread, moneyline and total markets.</small></div></div>
+        </div>
+
+        <section class="game-edge-footnote">
+          <span>HOW TO READ IT</span>
+          <p>The larger side of each bar is the stronger no-vig market lean from the current two-sided price. TSO does not invent a missing line, price or probability.</p>
         </section>
       </section>`;
     },
