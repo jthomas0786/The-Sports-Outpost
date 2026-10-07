@@ -8415,3 +8415,283 @@ body.tso-side-nav-open{overflow:hidden}
   .nhl-player-table th:first-child,
   .nhl-player-table td:first-child{min-width:142px;width:142px}
 }
+
+
+/* =========================================================
+   TSO 2.0 — NFL LIVE BOX SCORE
+   ========================================================= */
+.nfl-box-score{min-width:0;background:#05080c}
+.nfl-quarter-score{
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:
+    radial-gradient(circle at 10% 0,rgba(45,127,255,.05),transparent 22rem),
+    #06090e;
+}
+.nfl-box-section-title{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:14px;
+  padding:12px 14px 9px;
+}
+.nfl-box-section-title span,
+.nfl-team-player-head span{
+  display:block;
+  color:#6d7884;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.11em;
+}
+.nfl-box-section-title h3,
+.nfl-team-player-head h3{
+  margin:3px 0 0;
+  color:#f4f6f8;
+  font-size:16px;
+  letter-spacing:-.015em;
+}
+.nfl-box-section-title>b{
+  color:#ffdc61;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.nfl-quarter-scroll{
+  width:100%;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#303b48 transparent;
+}
+.nfl-quarter-table{
+  width:100%;
+  min-width:560px;
+  border-collapse:collapse;
+  table-layout:fixed;
+}
+.nfl-quarter-table th,
+.nfl-quarter-table td{
+  height:35px;
+  border-top:1px solid rgba(255,255,255,.055);
+  border-right:1px solid rgba(255,255,255,.035);
+  text-align:center;
+  white-space:nowrap;
+}
+.nfl-quarter-table thead th{
+  height:28px;
+  color:#65717d;
+  background:#05080c;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.05em;
+}
+.nfl-quarter-table th:first-child{
+  position:sticky;
+  left:0;
+  z-index:4;
+  width:116px;
+  min-width:116px;
+  text-align:left;
+  padding-left:10px;
+  background:#070b11;
+}
+.nfl-quarter-table td{
+  color:#cbd2d9;
+  font-size:12px;
+  font-weight:850;
+}
+.nfl-quarter-table .is-current-quarter{
+  color:#fff6ce;
+  background:rgba(255,216,77,.065);
+  box-shadow:inset 0 -2px 0 rgba(255,216,77,.5);
+}
+.nfl-quarter-table .nfl-quarter-total{
+  color:#fff;
+  background:rgba(255,255,255,.025);
+  font-weight:950;
+}
+.nfl-quarter-team{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:#f0f3f6!important;
+  font-size:12px!important;
+  letter-spacing:.04em;
+}
+.nfl-quarter-logo{
+  width:25px!important;
+  height:25px!important;
+  flex:0 0 25px!important;
+}
+.nfl-quarter-logo img{width:100%;height:100%;object-fit:contain}
+.nfl-team-summary{
+  padding:12px 14px 14px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:#06090e;
+}
+.nfl-team-summary-head,
+.nfl-team-summary-row{
+  display:grid;
+  grid-template-columns:92px minmax(0,1fr) 92px;
+  align-items:center;
+  text-align:center;
+}
+.nfl-team-summary-head{
+  min-height:36px;
+  color:#65717d;
+  font-size:10px;
+  font-weight:950;
+  letter-spacing:.09em;
+}
+.nfl-team-summary-head b{
+  color:#f1f4f6;
+  font-size:13px;
+}
+.nfl-team-summary-row{
+  min-height:32px;
+  border-top:1px solid rgba(255,255,255,.055);
+}
+.nfl-team-summary-row span{
+  color:#687481;
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+.nfl-team-summary-row strong{
+  color:#e6eaee;
+  font-size:12px;
+}
+.nfl-player-sections{
+  display:grid;
+  gap:18px;
+  padding:0 14px 16px;
+}
+.nfl-team-player-block{min-width:0}
+.nfl-team-player-head{
+  min-height:56px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 0 8px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.nfl-team-player-head h3{font-size:18px}
+.nfl-stat-card{
+  min-width:0;
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.085);
+  background:#070b10;
+}
+.nfl-stat-card-head{
+  min-height:42px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:7px 10px;
+  border-bottom:1px solid rgba(255,255,255,.065);
+  background:linear-gradient(90deg,rgba(45,127,255,.045),transparent 55%);
+}
+.nfl-stat-card-head span{
+  display:block;
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.08em;
+}
+.nfl-stat-card-head h4{
+  margin:2px 0 0;
+  color:#f0f3f6;
+  font-size:12px;
+  font-weight:950;
+  letter-spacing:.06em;
+}
+.nfl-stat-card-head>b{
+  color:#647282;
+  font-size:9px;
+  letter-spacing:.06em;
+}
+.nfl-player-table-wrap{
+  width:100%;
+  overflow-x:auto;
+  scrollbar-width:thin;
+  scrollbar-color:#303b48 transparent;
+}
+.nfl-player-table{
+  width:100%;
+  min-width:720px;
+  border-collapse:collapse;
+  font-size:11px;
+}
+.nfl-player-table th,
+.nfl-player-table td{
+  height:31px;
+  padding:5px 8px;
+  border-top:1px solid rgba(255,255,255,.05);
+  text-align:right;
+  white-space:nowrap;
+}
+.nfl-player-table thead th{
+  color:#637180;
+  background:#05080c;
+  font-size:9px;
+  font-weight:950;
+  letter-spacing:.04em;
+}
+.nfl-player-table td{
+  color:#cbd2d9;
+  font-weight:800;
+}
+.nfl-player-table th:first-child,
+.nfl-player-table td:first-child{
+  position:sticky;
+  left:0;
+  z-index:3;
+  min-width:168px;
+  width:168px;
+  text-align:left;
+  background:#070b10;
+  box-shadow:1px 0 0 rgba(255,255,255,.055);
+}
+.nfl-player-table td:first-child b{
+  display:block;
+  color:#eef1f4;
+  font-size:11px;
+}
+.nfl-player-table td:first-child small{
+  display:block;
+  margin-top:2px;
+  color:#5f6b78;
+  font-size:9px;
+  font-weight:900;
+}
+.nfl-player-table th[data-stat-key="passingTouchdowns"],
+.nfl-player-table td[data-stat-key="passingTouchdowns"],
+.nfl-player-table th[data-stat-key="rushingTouchdowns"],
+.nfl-player-table td[data-stat-key="rushingTouchdowns"],
+.nfl-player-table th[data-stat-key="receivingTouchdowns"],
+.nfl-player-table td[data-stat-key="receivingTouchdowns"]{
+  color:#ffe16a;
+  background:rgba(255,216,77,.04);
+  font-weight:950;
+}
+.nfl-player-table th[data-stat-key="passingYards"],
+.nfl-player-table td[data-stat-key="passingYards"],
+.nfl-player-table th[data-stat-key="rushingYards"],
+.nfl-player-table td[data-stat-key="rushingYards"],
+.nfl-player-table th[data-stat-key="receivingYards"],
+.nfl-player-table td[data-stat-key="receivingYards"]{
+  color:#eaf4ff;
+  font-weight:950;
+}
+.nfl-player-table tbody tr:hover td{background:rgba(255,255,255,.018)}
+.nfl-player-table tbody tr:hover td:first-child{background:#0a0f15}
+
+@media(max-width:600px){
+  .nfl-box-section-title{padding-left:10px;padding-right:10px}
+  .nfl-team-summary{padding:10px}
+  .nfl-team-summary-head,
+  .nfl-team-summary-row{grid-template-columns:70px minmax(0,1fr) 70px}
+  .nfl-player-sections{padding:0 10px 12px;gap:14px}
+  .nfl-player-table th:first-child,
+  .nfl-player-table td:first-child{min-width:146px;width:146px}
+}
