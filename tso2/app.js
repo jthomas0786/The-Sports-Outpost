@@ -5495,6 +5495,7 @@
 
   function setLeague(league){
     closeProfileMenu();
+    if(currentRoute==='gameedge'&&league==='all') league='nhl';
     if(league===currentLeague)return;
     currentLeague = league;
     shell.dataset.league = league;
