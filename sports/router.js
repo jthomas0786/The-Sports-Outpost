@@ -186,10 +186,15 @@ async function swapView(active) {
 
   if (active === 'nba') {
     try {
-      const mod = await import('./nba/view-v200.js?v=2.0');
+      const mod = await import('./nba/view-v201.js?v=2.1');
       await mod.mount();
+      const pendingTab = window.DW_nbaPendingTab;
+      if (pendingTab && typeof mod.selectTab === 'function') {
+        await mod.selectTab(pendingTab);
+        window.DW_nbaPendingTab = null;
+      }
     } catch (e) {
-      if (nbaView) nbaView.innerHTML = '<div class="nba2-error" style="margin:20px"><b>Could not load NBA 2.0.</b><div>' + String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
+      if (nbaView) nbaView.innerHTML = '<div class="nba3-error" style="margin:20px"><b>Could not load NBA 2.0.</b><div>' + String(e && e.message ? e.message : e).replace(/[<>&]/g, '') + '</div></div>';
     }
   }
 
