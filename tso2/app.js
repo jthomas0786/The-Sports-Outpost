@@ -550,8 +550,167 @@
     return '<div class="mlb-box-score">'+line+(players||'<div class="live-detail-empty"><b>Player box score is not available yet.</b><small>Batting and pitching lines will populate when the game starts.</small></div>')+'</div>';
   }
 
+  const NHL_STAT_LABELS={
+    blockedShots:'BLK',hits:'HIT',takeaways:'TK','plusMinus':'+/-',
+    timeOnIce:'TOI',powerPlayTimeOnIce:'PP TOI',shortHandedTimeOnIce:'SH TOI',evenStrengthTimeOnIce:'EV TOI',
+    shifts:'SHFT',goals:'G',ytdGoals:'YTD G',assists:'A',
+    shotsTotal:'SOG',shotsMissed:'MISS',shootoutGoals:'SO G',
+    faceoffsWon:'FW',faceoffsLost:'FL',faceoffPercent:'FO%',
+    giveaways:'GV',penalties:'PEN',penaltyMinutes:'PIM',
+    goalsAgainst:'GA',shotsAgainst:'SA',shootoutSaves:'SO SV',shootoutShotsAgainst:'SO SA',
+    saves:'SV',savePct:'SV%',evenStrengthSaves:'EV SV',powerPlaySaves:'PP SV',shortHandedSaves:'SH SV'
+  };
+
+  function nhlSummaryCompetitor(summary,game,side){
+    const rows=summary?.header?.competitions?.[0]?.competitors || [];
+    const abbr=String(game?.[side]?.abbr||'').toUpperCase();
+    return rows.find(row=>row?.homeAway===side)
+      || rows.find(row=>String(row?.team?.abbreviation||'').toUpperCase()===abbr)
+      || null;
+  }
+
+  function nhlPeriodScore(row,index){
+    const item=Array.isArray(row?.linescores)?row.linescores[index]:null;
+    const value=item?.displayValue ?? item?.value ?? item;
+    return value==null || value==='' ? '—' : String(value);
+  }
+
+  function nhlPeriodScoreMarkup(summary,game){
+    const away=nhlSummaryCompetitor(summary,game,'away');
+    const home=nhlSummaryCompetitor(summary,game,'home');
+    const awayLines=Array.isArray(away?.linescores)?away.linescores:[];
+    const homeLines=Array.isArray(home?.linescores)?home.linescores:[];
+    const played=Math.max(awayLines.length,homeLines.length,Number(game?.period)||0);
+    const periods=Math.max(3,played);
+    const columns=Array.from({length:periods},(_,i)=>{
+      const n=i+1;
+      if(n<=3) return {index:i,label:String(n)};
+      if(n===4) return {index:i,label:'OT'};
+      return {index:i,label:'OT'+(n-3)};
+    });
+    const current=game?.state==='in' ? Number(game?.period)||0 : 0;
+    const rowMarkup=(side,row)=>{
+      const team=game?.[side]||{};
+      const total=row?.score ?? team?.score ?? '—';
+      return '<tr>'
+        +'<th class="nhl-period-team">'+teamLogoMarkup(team,'nhl-period-logo')+'<span>'+esc(team.abbr||side.toUpperCase())+'</span></th>'
+        +columns.map(col=>'<td class="'+(col.index+1===current?'is-current-period':'')+'">'+esc(nhlPeriodScore(row,col.index))+'</td>').join('')
+        +'<td class="nhl-period-total">'+esc(total)+'</td>'
+      +'</tr>';
+    };
+    return '<section class="nhl-period-score">'
+      +'<div class="nhl-box-section-title"><div><span>NHL BOX SCORE</span><h3>Period scoring</h3></div><b>'+esc(gameShortState(game))+'</b></div>'
+      +'<div class="nhl-period-scroll"><table class="nhl-period-table"><thead><tr><th>TEAM</th>'
+        +columns.map(col=>'<th class="'+(col.index+1===current?'is-current-period':'')+'">'+esc(col.label)+'</th>').join('')
+        +'<th>T</th>'
+      +'</tr></thead><tbody>'+rowMarkup('away',away)+rowMarkup('home',home)+'</tbody></table></div>'
+    +'</section>';
+  }
+
+  function nhlTeamStatValue(summary,game,side,key){
+    const entry=boxTeamEntry(summary,game?.[side]?.abbr,side==='away'?0:1);
+    const stat=teamStatMap(entry).get(key);
+    return stat?.displayValue ?? stat?.value ?? '—';
+  }
+
+  function nhlTeamSummaryMarkup(summary,game){
+    const rows=[
+      ['shotsTotal','SOG'],
+      ['powerPlayGoals','PP GOALS'],
+      ['powerPlayOpportunities','PP OPP'],
+      ['faceoffPercent','FO%'],
+      ['hits','HITS'],
+      ['blockedShots','BLOCKS'],
+      ['takeaways','TAKEAWAYS'],
+      ['giveaways','GIVEAWAYS'],
+      ['penalties','PENALTIES'],
+      ['penaltyMinutes','PIM']
+    ];
+    return '<section class="nhl-team-summary">'
+      +'<div class="nhl-team-summary-head"><b>'+esc(game?.away?.abbr||'AWAY')+'</b><span>TEAM STATS</span><b>'+esc(game?.home?.abbr||'HOME')+'</b></div>'
+      +rows.map(([key,label])=>'<div class="nhl-team-summary-row"><strong>'+esc(nhlTeamStatValue(summary,game,'away',key))+'</strong><span>'+esc(label)+'</span><strong>'+esc(nhlTeamStatValue(summary,game,'home',key))+'</strong></div>').join('')
+    +'</section>';
+  }
+
+  function nhlStatColumns(group){
+    const keys=Array.isArray(group?.keys)?group.keys:[];
+    const labels=Array.isArray(group?.labels)?group.labels:[];
+    const descriptions=Array.isArray(group?.descriptions)?group.descriptions:[];
+    const count=Math.max(keys.length,labels.length);
+    return Array.from({length:count},(_,index)=>{
+      const key=keys[index]||'stat'+index;
+      const rawLabel=labels[index]||key;
+      return {
+        key,
+        label:NHL_STAT_LABELS[key]||rawLabel,
+        rawLabel,
+        description:descriptions[index]||''
+      };
+    });
+  }
+
+  function nhlGroupTitle(name){
+    const value=String(name||'').toLowerCase();
+    if(value==='forwards') return 'FORWARDS';
+    if(value==='defenses'||value==='defensemen') return 'DEFENSE';
+    if(value==='goalies') return 'GOALIES';
+    if(value==='skaters') return 'SKATERS';
+    return String(name||'PLAYERS').toUpperCase();
+  }
+
+  function nhlPlayerGroupMarkup(teamBlock,group){
+    const team=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+    const athletes=(group?.athletes||[]).filter(row=>row?.athlete && !row?.didNotPlay);
+    if(!athletes.length) return '';
+    const cols=nhlStatColumns(group);
+    const groupName=String(group?.name||group?.displayName||'players');
+    return '<section class="nhl-stat-card">'
+      +'<div class="nhl-stat-card-head"><div><span>'+esc(team)+'</span><h4>'+esc(nhlGroupTitle(groupName))+'</h4></div><b>'+athletes.length+' PLAYERS</b></div>'
+      +'<div class="nhl-player-table-wrap"><table class="nhl-player-table"><thead><tr><th>PLAYER</th>'
+        +cols.map(col=>'<th title="'+esc(col.description||col.rawLabel)+'" data-stat-key="'+esc(col.key)+'">'+esc(col.label)+'</th>').join('')
+      +'</tr></thead><tbody>'
+        +athletes.map(row=>{
+          const player=row?.athlete?.shortName||row?.athlete?.displayName||'Player';
+          const pos=row?.athlete?.position?.abbreviation||row?.position?.abbreviation||'';
+          const stats=Array.isArray(row?.stats)?row.stats:[];
+          return '<tr><td><b>'+esc(player)+'</b>'+(pos?'<small>'+esc(pos)+'</small>':'')+'</td>'
+            +cols.map((col,index)=>'<td data-stat-key="'+esc(col.key)+'">'+esc(stats[index]??'—')+'</td>').join('')
+          +'</tr>';
+        }).join('')
+      +'</tbody></table></div>'
+    +'</section>';
+  }
+
+  function nhlPlayerBoxMarkup(summary){
+    const teams=Array.isArray(summary?.boxscore?.players)?summary.boxscore.players:[];
+    if(!teams.length) return '';
+    return '<div class="nhl-player-sections">'+teams.map(teamBlock=>{
+      const groups=Array.isArray(teamBlock?.statistics)?teamBlock.statistics:[];
+      const hasSplitSkaters=groups.some(group=>['forwards','defenses','defensemen'].includes(String(group?.name||'').toLowerCase()) && (group?.athletes||[]).some(row=>row?.athlete&&!row?.didNotPlay));
+      const cards=groups
+        .filter(group=>{
+          const name=String(group?.name||'').toLowerCase();
+          if(name==='skaters' && hasSplitSkaters) return false;
+          return (group?.athletes||[]).some(row=>row?.athlete&&!row?.didNotPlay);
+        })
+        .map(group=>nhlPlayerGroupMarkup(teamBlock,group))
+        .join('');
+      const team=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+      return cards ? '<section class="nhl-team-player-block"><div class="nhl-team-player-head"><span>PLAYER STATS</span><h3>'+esc(team)+'</h3></div>'+cards+'</section>' : '';
+    }).join('')+'</div>';
+  }
+
+  function nhlBoxScoreMarkup(summary,game){
+    const periods=nhlPeriodScoreMarkup(summary,game);
+    const teamStats=nhlTeamSummaryMarkup(summary,game);
+    const players=nhlPlayerBoxMarkup(summary);
+    return '<div class="nhl-box-score">'+periods+teamStats+(players||'<div class="live-detail-empty"><b>Player stats are not available yet.</b><small>Skater and goalie lines will populate as the game feed updates.</small></div>')+'</div>';
+  }
+
   function boxScoreMarkup(summary,game){
-    if(String(game?.league||'').toLowerCase()==='mlb') return mlbBoxScoreMarkup(summary,game);
+    const league=String(game?.league||'').toLowerCase();
+    if(league==='mlb') return mlbBoxScoreMarkup(summary,game);
+    if(league==='nhl') return nhlBoxScoreMarkup(summary,game);
     const teamStats=teamStatsMarkup(summary,game);
     const players=playerBoxMarkup(summary);
     if(!teamStats && !players){
