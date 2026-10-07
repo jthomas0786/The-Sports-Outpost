@@ -102,12 +102,30 @@ function props(){
  }).join('')||empty('Player rosters are not available yet.')}</div>`;
 }
 function scorebar(g){return `<div class="hk-live-scorebar"><div class="hk-live-team">${teamLogo(g.away)}<div><small>${esc(g.away.abbr)}</small><b>${esc(g.away.name)}</b></div><strong>${esc(g.away.score??'—')}</strong></div><div class="hk-live-center"><span>${esc(statusText(g))}</span><b>${esc(periodText(g))}</b><small>${esc(lineupLabel(g))}</small></div><div class="hk-live-team home"><strong>${esc(g.home.score??'—')}</strong><div><small>${esc(g.home.abbr)}</small><b>${esc(g.home.name)}</b></div>${teamLogo(g.home)}</div></div>`;}
+function playerToWatch(g){
+ const rows=(g?.players||[]).filter(p=>p.position!=='G'&&p.active!==false&&p.current);
+ if(!rows.length)return null;
+ const scored=rows.map(p=>{
+  const c=p.current||{},goals=Number(c.goals)||0,assists=Number(c.assists)||0,sog=Number(c.sog)||0,blocks=Number(c.blocks)||0;
+  return {p,goals,assists,sog,blocks,score:goals*6+assists*3+sog*1.2+blocks*.35};
+ }).filter(x=>x.goals+x.assists+x.sog+x.blocks>0);
+ if(!scored.length)return null;
+ scored.sort((a,b)=>b.score-a.score||b.goals-a.goals||b.assists-a.assists||b.sog-a.sog);
+ return scored[0];
+}
+function playerWatchHTML(g){
+ const row=playerToWatch(g);
+ if(!row)return `<section class="hk-live-watch"><div class="hk-live-watch-head"><span>✦ Player to Watch</span><em>GAME STATS</em></div><div class="hk-live-watch-empty">Waiting for enough real game production to identify the hottest skater.</div></section>`;
+ const {p,goals,assists,sog}=row;
+ return `<section class="hk-live-watch"><div class="hk-live-watch-head"><span>✦ Player to Watch</span><em><i></i> HOT</em></div><div class="hk-live-watch-player"><div class="hk-live-watch-photo">${photo(p)}</div><div><b>${esc(p.name)}</b><span>${esc(p.team||'NHL')} · ${esc(p.position||'Skater')} · this game only</span></div></div><div class="hk-live-watch-stats"><div><b>${goals}</b><span>G</span></div><div><b>${assists}</b><span>A</span></div><div><b>${sog}</b><span>SOG</span></div></div></section>`;
+}
+function liveTopHTML(g){return `<div class="hk-live-topgrid">${scorebar(g)}${playerWatchHTML(g)}</div>`;}
 function gamecastPlays(g){return g.summaryUnavailable?empty('Play-by-play is temporarily unavailable.'):g.plays.map(p=>`<div class="hk-play"><small>${p.type?esc(p.type)+' · ':''}P${esc(p.period||'?')} · ${esc(p.clock)}</small><p>${esc(p.text)}</p></div>`).join('')||empty(g.status==='pre'?'Play-by-play begins at puck drop.':'Waiting for the first reported play.');}
 function gamecastBox(g){return `<div class="hk-gc-box"><div class="hk-table"><table><thead><tr><th>Player</th><th>G</th><th>A</th><th>SOG</th><th>BLK</th><th>SV</th><th>TOI</th></tr></thead><tbody>${g.players.map(p=>`<tr><th>${esc(p.name)} <small>${esc(p.team)}</small></th>${['goals','assists','sog','blocks','saves','toi'].map(k=>`<td>${esc(p.current?.[k]??'—')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>${g.players.length?'':empty(g.status==='pre'?'Box score opens at puck drop.':'Player box score is not available yet.')}</div>`;}
 function live(){
  const games=doc?.games||[],g=games.find(g=>g.id===gameId)||games.find(g=>g.status==='in')||games[0];if(!g)return empty('No NHL games are scheduled for this slate.');
  const body=gamecastTab==='box'?gamecastBox(g):gamecastTab==='pbp'?`<div class="hk-gc-list">${gamecastPlays(g)}</div>`:renderNhlGamecastHTML(g);
- return `<div class="hk-live-toolbar"><label>Game<select id="hk-game">${games.map(x=>`<option value="${esc(x.id)}" ${x.id===g.id?'selected':''}>${esc(x.away.abbr)} @ ${esc(x.home.abbr)}</option>`).join('')}</select></label><span>${g.status==='in'&&freshGame(g)?'● LIVE · auto-refreshing':esc(time(g))}</span></div>${scorebar(g)}<div class="hk-gc-tabs" role="tablist" aria-label="Hockey Gamecast views"><button type="button" class="hk-gc-tab ${gamecastTab==='game'?'active':''}" data-hk-gc-tab="game">Game</button><button type="button" class="hk-gc-tab ${gamecastTab==='box'?'active':''}" data-hk-gc-tab="box">Box Score</button><button type="button" class="hk-gc-tab ${gamecastTab==='pbp'?'active':''}" data-hk-gc-tab="pbp">Play-by-Play</button></div><div class="hk-gc-body">${body}</div>`;
+ return `<div class="hk-live-toolbar"><label>Game<select id="hk-game">${games.map(x=>`<option value="${esc(x.id)}" ${x.id===g.id?'selected':''}>${esc(x.away.abbr)} @ ${esc(x.home.abbr)}</option>`).join('')}</select></label><span>${g.status==='in'&&freshGame(g)?'● LIVE · auto-refreshing':esc(time(g))}</span></div>${liveTopHTML(g)}<div class="hk-gc-tabs" role="tablist" aria-label="Hockey Gamecast views"><button type="button" class="hk-gc-tab ${gamecastTab==='game'?'active':''}" data-hk-gc-tab="game">Game</button><button type="button" class="hk-gc-tab ${gamecastTab==='box'?'active':''}" data-hk-gc-tab="box">Box Score</button><button type="button" class="hk-gc-tab ${gamecastTab==='pbp'?'active':''}" data-hk-gc-tab="pbp">Play-by-Play</button></div><div class="hk-gc-body">${body}</div>`;
 }
 export function commandCenterHTML(){const games=doc?.games||[],liveGames=games.filter(g=>freshGame(g)),alerts=threats(doc);return `<div class="cc-col-title">Hockey</div><div class="cc-kpi-row"><div class="cc-kpi-tile"><b>${liveGames.length}</b><span>Live Now</span></div><div class="cc-kpi-tile"><b>${games.some(g=>g.summaryUnavailable)?'—':games.reduce((n,g)=>n+(g.goals?.length||0),0)}</b><span>Goals</span></div><div class="cc-kpi-tile"><b>${alerts.length}</b><span>Threat Alerts</span></div></div><div class="cc-section"><div class="cc-section-label">Threat Alerts</div>${alerts.map(a=>`<button class="cc-alert-row hk-alert" data-hk-game="${esc(a.gameId)}"><span class="cc-alert-text">${esc(a.title)}<small>${esc(a.detail)}</small></span><span class="cc-alert-time">WATCH →</span></button>`).join('')||empty(error?'Waiting for fresh hockey data.':liveGames.length?'No active threats right now.':'No live NHL games right now. Power-play, shot and hat-trick watches appear during games.')}</div>`;}
 function contentHTML(){if(!doc)return empty('Connecting to the NHL feed…');if(tab==='slate')return `<div class="hk-matchup-slate">${gameCards(doc.games)}</div>${doc.games.length?'':empty('No games are scheduled for this slate.')}`;if(tab==='feed')return goals();if(tab==='props')return props();return live();}
