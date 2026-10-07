@@ -5434,12 +5434,31 @@
     const badge=root.querySelector('[data-game-edge-feed-badge]');
     if(badge){badge.className='edge2-feed-badge';badge.innerHTML='<i></i> CONNECTING '+leagueLabel(league).toUpperCase()+' MARKET';}
     const task=(league==='nhl'
-      ? Promise.all([gameEdgeJson('nhl.json'),gameEdgeJson('nhl-puck-lines.json')]).then(([slate,lines])=>({
-          league,
-          generatedAt:lines.generatedAt||slate.generatedAt||new Date().toISOString(),
-          games:Array.isArray(slate.games)?slate.games:[],
-          linesById:Object.fromEntries((lines.games||[]).map(row=>[String(row.gameId),row]))
-        }))
+      ? Promise.all([
+          gameEdgeJson('nhl.json'),
+          gameEdgeJson('nhl-puck-lines.json'),
+          gameEdgeScoreboard('nhl').catch(()=>({games:[]}))
+        ]).then(([slate,lines,context])=>{
+          const byId=new Map((context.games||[]).map(game=>[String(game.id),game]));
+          const byTeams=new Map((context.games||[]).map(game=>[
+            String(game?.away?.abbr||'')+'@'+String(game?.home?.abbr||''),game
+          ]));
+          const games=(Array.isArray(slate.games)?slate.games:[]).map(game=>{
+            const ctx=byId.get(String(game.id))||byTeams.get(String(game?.away?.abbr||'')+'@'+String(game?.home?.abbr||''));
+            if(!ctx)return game;
+            return {
+              ...game,
+              away:{...game.away,record:ctx.away?.record||game.away?.record||null,awayRecord:ctx.away?.awayRecord||game.away?.awayRecord||null},
+              home:{...game.home,record:ctx.home?.record||game.home?.record||null,homeRecord:ctx.home?.homeRecord||game.home?.homeRecord||null}
+            };
+          });
+          return {
+            league,
+            generatedAt:lines.generatedAt||slate.generatedAt||new Date().toISOString(),
+            games,
+            linesById:Object.fromEntries((lines.games||[]).map(row=>[String(row.gameId),row]))
+          };
+        })
       : gameEdgeScoreboard(league).then(payload=>({
           league,
           generatedAt:payload.generatedAt||new Date().toISOString(),
