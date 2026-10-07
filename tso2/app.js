@@ -17,6 +17,9 @@
   let liveFeedCache = null;
   let liveFeedFetchedAt = 0;
   let liveFeedInFlight = null;
+  let nflWeeklyFeedCache = null;
+  let nflWeeklyFetchedAt = 0;
+  let nflWeeklyInFlight = null;
   let selectedLiveGameId = null;
   let liveDetailTab = 'plays';
   let livePlayFilter = 'all';
@@ -142,6 +145,9 @@
   }
 
   function currentFeedGames(){
+    if(currentLeague==='nfl'&&nflWeeklyFeedCache?.games){
+      return sortedGames(nflWeeklyFeedCache.games);
+    }
     const all = sortedGames(liveFeedCache?.games || []);
     return currentLeague === 'all' ? all : all.filter(g => g.league === currentLeague);
   }
@@ -239,7 +245,7 @@
   function renderGlobalScoreStrip(){
     const strip = document.querySelector('.broadcast-score-strip');
     if(!strip || !liveFeedCache) return;
-    const games = sortedGames(liveFeedCache.games || []);
+    const games = currentFeedGames();
     const liveGames = games.filter(g => g.state === 'in');
     const liveCount = liveGames.length;
     const visible = liveCount ? liveGames : games.slice(0,8);
@@ -1930,10 +1936,10 @@
         +'<span class="live-score-context"><small>LEAGUE</small><b>'+esc(leagueLabel(game.league))+'</b></span>'
         +'<span class="live-score-context"><small>VENUE</small><b>'+esc(game.venue || '—')+'</b></span>'
         +'<span class="live-score-action">'+(game.state==='in'?'LIVE':'DETAILS')+' →</span>'
-      +'</button>').join('') : '<div class="live-board-loading"><b>No games returned for this sport today.</b></div>';
+      +'</button>').join('') : '<div class="live-board-loading"><b>'+esc(currentLeague==='nfl'?'No games returned for the current NFL weekly slate.':'No games returned for this sport today.')+'</b></div>';
     }
     const title = root.querySelector('[data-live-board-title]');
-    if(title) title.textContent = currentLeague === 'all' ? 'Today’s games' : leagueLabel(currentLeague)+' games today';
+    if(title) title.textContent = currentLeague === 'all' ? 'Today’s games' : currentLeague==='nfl' ? 'NFL weekly slate · Tuesday–Monday' : leagueLabel(currentLeague)+' games today';
     bindLiveGeneratedActions();
   }
 
@@ -1950,7 +1956,32 @@
     if(sideStatus) sideStatus.textContent = 'Connected';
   }
 
+  async function refreshNflWeeklyData(force=false){
+    if(!force&&nflWeeklyFeedCache&&Date.now()-nflWeeklyFetchedAt<LIVE_FEED_TTL){
+      renderLiveFeed();
+      return nflWeeklyFeedCache;
+    }
+    if(nflWeeklyInFlight)return nflWeeklyInFlight;
+    nflWeeklyInFlight=fetch(GAME_EDGE_SCOREBOARD_BASE+'?league=nfl',{cache:'no-store'})
+      .then(async response=>{
+        if(!response.ok)throw new Error('NFL weekly feed HTTP '+response.status);
+        const payload=await response.json();
+        if(!payload||!Array.isArray(payload.games))throw new Error('Invalid NFL weekly feed');
+        nflWeeklyFeedCache=payload;
+        nflWeeklyFetchedAt=Date.now();
+        if(currentLeague==='nfl')renderLiveFeed();
+        return payload;
+      })
+      .catch(error=>{
+        console.error('TSO NFL weekly slate:',error);
+        return null;
+      })
+      .finally(()=>{nflWeeklyInFlight=null;});
+    return nflWeeklyInFlight;
+  }
+
   async function refreshLiveData(force=false){
+    if(currentLeague==='nfl') refreshNflWeeklyData(force);
     if(liveFeedInFlight) return liveFeedInFlight;
     if(!force && liveFeedCache && Date.now()-liveFeedFetchedAt < LIVE_FEED_TTL){
       renderLiveFeed();
@@ -5310,7 +5341,8 @@
   }
 
   async function gameEdgeScoreboard(league){
-    const response=await fetch(GAME_EDGE_SCOREBOARD_BASE+'?league='+encodeURIComponent(league)+'&date='+encodeURIComponent(localDateKey()),{cache:'no-store'});
+    const datePart=league==='nfl'?'':'&date='+encodeURIComponent(localDateKey());
+    const response=await fetch(GAME_EDGE_SCOREBOARD_BASE+'?league='+encodeURIComponent(league)+datePart,{cache:'no-store'});
     if(!response.ok)throw new Error('Game Edge scoreboard HTTP '+response.status);
     const payload=await response.json();
     if(!payload||!Array.isArray(payload.games))throw new Error('Invalid Game Edge scoreboard payload');
