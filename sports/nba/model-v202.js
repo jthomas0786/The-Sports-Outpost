@@ -36,8 +36,10 @@ function metric(game,market){
   return finite(game?.stats?.[key]);
 }
 function gamesFor(player,market){
-  return (player?.recentGames||[]).filter(g=>metric(g,market)!=null&&finite(g.minutes)!=null&&Number(g.minutes)>=4)
+  const all=(player?.recentGames||[]).filter(g=>metric(g,market)!=null&&finite(g.minutes)!=null&&Number(g.minutes)>=4)
     .sort((a,b)=>Date.parse(b.date||0)-Date.parse(a.date||0));
+  const competitive=all.filter(g=>Number(g.seasonType)!==1);
+  return competitive.length>=6?competitive:all;
 }
 function gameWeight(g,i,currentSeason){
   const recency=Math.exp(-i/11);
