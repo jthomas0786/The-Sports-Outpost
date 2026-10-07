@@ -1,0 +1,51 @@
+#!/usr/bin/env node
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {fairPair,edgePercentages,edgeLeader,formatAmerican} from '../sports/shared/game-edge-v100.js';
+
+const view=fs.readFileSync('sports/nhl/view-v906.js','utf8');
+const edge=fs.readFileSync('sports/nhl/game-edge-v940.js','utf8');
+const sidebar=fs.readFileSync('sports/nhl/sidebar-plj-v927.js','utf8');
+const state=fs.readFileSync('sports/nhl/sidebar-state-v933.js','utf8');
+const lines=JSON.parse(fs.readFileSync('slates/nhl-puck-lines.json','utf8'));
+
+const even=fairPair({leftPrice:-110,rightPrice:-110});
+assert.ok(Math.abs(even.left-.5)<.001&&Math.abs(even.right-.5)<.001);
+const fav=fairPair({leftProbability:.58,rightProbability:.42});
+assert.equal(edgeLeader(fav).side,'left');
+assert.equal(Math.round(edgePercentages(fav).left),58);
+assert.equal(formatAmerican(125),'+125');
+
+for(const marker of [
+  "installNhlGameEdgeV940",
+  "#hkGameEdgePanel",
+  "DW_closeGameEdge",
+]) assert.ok(view.includes(marker),`NHL wrapper missing Game Edge marker: ${marker}`);
+
+for(const marker of [
+  "Spread",
+  "Moneyline",
+  "Total",
+  "One glance, one short reason",
+  "fairPair",
+  "ge-bar",
+  "no-vig",
+]) assert.ok(edge.includes(marker),`NHL Game Edge missing: ${marker}`);
+
+assert.ok(sidebar.includes("btn.textContent='Game Edge'"),'NHL sidebar must display Game Edge');
+assert.ok(sidebar.includes('DW_openGameEdge'),'sidebar must open Game Edge');
+assert.ok(state.includes('hkGameEdgePanel'),'centralized sidebar state must track Game Edge');
+assert.ok(!view.includes('installPuckLineJesusV923();'),'NHL 2.0 must not install the old Puck Line Jesus runtime');
+assert.ok(Array.isArray(lines.games),'NHL line snapshot must contain games');
+
+let usable=0;
+for(const g of lines.games){
+  if(g.moneyline?.homeFair!=null&&g.moneyline?.awayFair!=null){
+    const p=fairPair({leftProbability:g.moneyline.awayFair,rightProbability:g.moneyline.homeFair});
+    assert.ok(Math.abs(p.left+p.right-1)<1e-9,'moneyline fair probabilities must normalize');
+    usable++;
+  }
+}
+assert.ok(usable>0,'current NHL snapshot should expose at least one moneyline Game Edge');
+
+console.log(`✓ NHL Game Edge self-test passed (${usable} games with moneyline consensus)`);
