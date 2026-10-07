@@ -4,12 +4,8 @@ import {installNhlPlayerModalV921} from './player-modal-v921.js?v=90.22';
 import {installNhlPropsDailyGuardV920} from './props-daily-guard-v920.js?v=90.22';
 import {gradeForLean,gradeRingHTML} from './grade.js?v=90.4';
 import {installNhlLaunchV922} from './launch-v922.js?v=90.22';
-import {installPuckLineJesusV923} from './puck-line-jesus.js?v=90.37-dog-cover';
-import {installPuckLineJesusRoutingV924} from './puck-line-jesus-routing-v924.js?v=90.24';
-import {installPuckLineJesusAlertsV925} from './puck-line-jesus-alerts-v925.js?v=90.37-dog-cover';
-import {installPljBeginnerGuideV930} from './plj-beginner-guide-v930.js?v=90.31';
-import {installPljCoverBarsV938} from './plj-cover-bar-v938.js?v=90.38-cover-bars';
 import {installNhlFirstGoalV928} from './first-goal-v928.js?v=90.56-centered-logo-outline';
+import {installNhlGameEdgeV940} from './game-edge-v940.js?v=90.40';
 import {nhlShouldLiveRefresh,nhlNextRefreshDelay,NHL_IDLE_PROBE_MS} from './refresh-policy-v933.js?v=90.33';
 
 let policySlate=null,policyFetchedAt=0,policyLoading=null,schedulerTimer=null,schedulerStarted=false;
@@ -23,7 +19,7 @@ function ensureNhlModalVisibilityV910(){
  document.head.appendChild(link);
 }
 function nhlSurfaceActive(){return location.hash==='#nhl'||document.getElementById('ccHockeyCol')?.classList.contains('active');}
-function auxiliaryPanelOpen(){return !!document.querySelector('#hkFirstGoalPanel,#hkPuckLineJesusPanel');}
+function auxiliaryPanelOpen(){return !!document.querySelector('#hkFirstGoalPanel,#hkGameEdgePanel');}
 function currentRefreshWindow(){return nhlShouldLiveRefresh(policySlate?.games||[]);}
 async function fetchPolicySlate(force=false){
  if(policyLoading)return policyLoading;
@@ -75,7 +71,7 @@ function installSlateWithQuietPoll(helpers){
 }
 function closeAuxiliaryPanels(){
  window.DW_closeNhlFirstGoal?.();
- document.querySelector('#hkPuckLineJesusPanel [data-plj-close]')?.click();
+ window.DW_closeGameEdge?.();
 }
 function announceTab(next){
  window.dispatchEvent(new CustomEvent('tso:nhl-tab-change',{detail:{tab:next}}));
@@ -102,11 +98,7 @@ export async function mount(){
  installSlateWithQuietPoll({gradeForLean,gradeRingHTML});
  installNhlPlayerModalV921(host);
  await installNhlLaunchV922(host);
- installPuckLineJesusV923();
- installPuckLineJesusRoutingV924();
- installPuckLineJesusAlertsV925();
- installPljBeginnerGuideV930();
- installPljCoverBarsV938();
+ installNhlGameEdgeV940();
  installNhlFirstGoalV928();
  installNavigationBridge();
  startPolicyScheduler();
