@@ -9890,3 +9890,17 @@ body.tso-side-nav-open{overflow:hidden}
     grid-template-columns:repeat(4,minmax(0,1fr));
   }
 }
+
+.live-watch-game-stats>div.stats-count-3{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+@media(max-width:1050px){
+  .live-watch-game-stats>div.stats-count-3{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
+@media(max-width:760px){
+  .live-watch-game-stats>div.stats-count-3{
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+}
