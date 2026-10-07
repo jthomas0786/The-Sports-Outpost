@@ -251,10 +251,10 @@
     const visible = liveCount ? liveGames : games.slice(0,8);
     const label = liveCount
       ? '<div class="score-strip-label"><span class="pulse"></span>'+liveCount+' LIVE</div>'
-      : '<div class="score-strip-label"><span class="pulse is-idle"></span>TODAY</div>';
+      : '<div class="score-strip-label"><span class="pulse is-idle"></span>'+(currentLeague==='nfl'?'NFL WEEK':'TODAY')+'</div>';
     const primaryTiles = visible.length
       ? visible.map(liveTileMarkup).join('')
-      : '<div class="score-strip-empty">No games returned for today.</div>';
+      : '<div class="score-strip-empty">'+(currentLeague==='nfl'?'No NFL games returned for the current weekly slate.':'No games returned for today.')+'</div>';
     const cloneTiles = visible.length>1
       ? visible.map(liveTileMarkup).join('')
       : '';
