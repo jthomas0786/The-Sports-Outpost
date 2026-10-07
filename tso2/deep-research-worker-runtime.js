@@ -113,6 +113,49 @@ async function buildDeepResearch(u){
     };
   }
 
+  if(sport==="nba"){
+    const doc=await deepResearchFetch("slates/nba-research.json",120);
+    const nbaKey=value=>String(value||"").toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim().replace(/\s+/g," ");
+    let p=playerId?doc?.players?.[playerId]||null:null;
+    if(!p&&wanted){
+      const indexed=doc?.nameIndex?.[nbaKey(name)];
+      if(indexed)p=doc?.players?.[indexed]||null;
+    }
+    if(!p&&wanted){
+      p=Object.values(doc?.players||{}).find(x=>deepResearchNameKey(x?.name)===wanted)||null;
+    }
+    if(!p)return {available:false,sport,generatedAt:doc?.generatedAt||null,reason:"Player not found in current NBA research snapshot"};
+    const posRaw=String(p.position||"").toUpperCase();
+    const pos=["PG","SG","G"].includes(posRaw)?"G":["SF","PF","F"].includes(posRaw)?"F":["C","FC","F-C","C-F"].includes(posRaw)?"C":posRaw||"ALL";
+    const teamId=String(p.teamId||"");
+    const oppName=String(opponent||"").trim();
+    const oppId=doc?.teamIndex?.[nbaKey(oppName)]||null;
+    const oppTeam=oppId?doc?.teams?.[oppId]||null:null;
+    const defense=oppId?doc?.teamDefense?.[String(oppId)]?.byPosition?.[pos]||null:null;
+    const ownProfile=teamId?doc?.teamProfiles?.[teamId]||null:null;
+    const oppProfile=oppId?doc?.teamProfiles?.[String(oppId)]||null:null;
+    return {
+      available:true,sport,generatedAt:doc?.generatedAt||null,
+      source:doc?.source||"ESPN teams, rosters, injuries, player event logs and game-summary box scores",
+      modelDataVersion:doc?.modelDataVersion||null,currentSeason:doc?.currentSeason||null,priorSeason:doc?.priorSeason||null,
+      player:{
+        id:p.id||playerId||null,name:p.name||name,team:p.team||team||null,teamId:p.teamId||null,abbr:p.abbr||null,
+        position:p.position||null,headshot:p.headshot||null,injury:p.injury||null,gameCount:p.gameCount||0,
+        recentGames:deepResearchTrimGames(p.recentGames,30),fetchedAt:p.fetchedAt||null
+      },
+      matchup:{
+        opponent:oppTeam?{id:oppTeam.id||oppId,name:oppTeam.name||oppName,abbr:oppTeam.abbr||null}:oppName?{id:oppId,name:oppName,abbr:null}:null,
+        positionGroup:pos,teamPace:ownProfile?.pace??null,opponentPace:oppProfile?.pace??null,leaguePace:doc?.league?.pace??null
+      },
+      opponentDefense:defense,
+      league:{
+        allowance:doc?.league?.allowByPosition?.[pos]||null,
+        playerBaseline:doc?.league?.playerByPosition?.[pos]||null,
+        marketSd:doc?.league?.marketSd||null
+      }
+    };
+  }
+
   if(sport==="mlb"){
     const doc=await deepResearchFetch("slate.json",180);
     let found=null;
@@ -163,7 +206,7 @@ async function buildDeepResearch(u){
     };
   }
 
-  return {available:false,sport,reason:sport==="nba"?"NBA deep research history is not connected yet":"Unsupported research sport"};
+  return {available:false,sport,reason:"Unsupported research sport"};
 }
 
 function propHistoryFinite(value){
