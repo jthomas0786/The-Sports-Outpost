@@ -3569,7 +3569,8 @@
 
   function renderParlayLab(){
     const root=document.querySelector('[data-parlays-route]');
-    if(currentRoute!=='parlays'||!root||!propsFeedCache) return;
+    if(currentRoute!=='parlays'||!root) return;
+    if(parlayMode==='pregame'&&!propsFeedCache)return;
     root.querySelectorAll('[data-parlay-mode]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.parlayMode===parlayMode));
     const checkpointControls=root.querySelector('[data-parlay-checkpoint-controls]');
     if(parlayMode!=='pregame'){
@@ -6091,7 +6092,10 @@
     document.querySelectorAll('[data-route-jump]').forEach(btn => btn.addEventListener('click', () => setRoute(btn.dataset.routeJump)));
     document.querySelectorAll('[data-inline-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.inlineLeague)));
     document.querySelector('[data-game-edge-refresh]')?.addEventListener('click', () => refreshGameEdgeData(true));
-    document.querySelectorAll('[data-parlay-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
+    document.querySelectorAll('[data-parlay-refresh]').forEach(btn => btn.addEventListener('click', () => {
+      refreshPropsData(true);
+      if(parlayMode!=='pregame')refreshNflCheckpointData(true);
+    }));
     document.querySelectorAll('[data-community-refresh],[data-rankings-refresh]').forEach(btn => btn.addEventListener('click', () => refreshPropsData(true)));
     document.querySelector('[data-profile-refresh]')?.addEventListener('click', () => {
       refreshLiveData(true);
@@ -6109,8 +6113,17 @@
       researchQuery='';
       renderResearch();
     });
-    document.querySelector('[data-parlay-new]')?.addEventListener('click', () => resetParlayBuild());
+    document.querySelector('[data-parlay-new]')?.addEventListener('click', () => {
+      if(parlayMode==='pregame')resetParlayBuild();
+      else {parlayCheckpointLegKeys=[];fillCheckpointToTarget();renderParlayLab();}
+    });
     document.querySelector('[data-parlay-add]')?.addEventListener('click', () => {
+      if(parlayMode!=='pregame'){
+        const next=checkpointCandidates().find(c=>!parlayCheckpointLegKeys.includes(c._key));
+        if(next&&parlayCheckpointLegKeys.length<8){parlayCheckpointLegKeys.push(next._key);renderParlayLab();}
+        else notify('No additional ready checkpoint candidate is available.');
+        return;
+      }
       const next=chooseParlayRows(1,parlayLegKeys)[0];
       if(next&&parlayLegKeys.length<8){
         parlayLegKeys.push(String(next.key));
@@ -6120,9 +6133,28 @@
     });
     document.querySelectorAll('[data-parlay-target]').forEach(btn => btn.addEventListener('click', () => {
       parlayTarget=Math.max(2,Math.min(5,Number(btn.dataset.parlayTarget)||3));
-      fillParlayToTarget(parlayTarget);
+      if(parlayMode==='pregame')fillParlayToTarget(parlayTarget);
+      else fillCheckpointToTarget();
       renderParlayLab();
     }));
+    document.querySelectorAll('[data-parlay-mode]').forEach(btn=>btn.addEventListener('click',()=>{
+      if(btn.disabled)return;
+      setParlayMode(String(btn.dataset.parlayMode||'pregame'));
+    }));
+    document.querySelectorAll('[data-parlay-period]').forEach(btn=>btn.addEventListener('click',()=>{
+      const next=String(btn.dataset.parlayPeriod||'q1');
+      if(!['q1','q2','q3','q4','1h','2h'].includes(next)||next===parlayQuarterPeriod)return;
+      parlayQuarterPeriod=next;
+      parlayCheckpointLegKeys=[];
+      fillCheckpointToTarget();
+      renderParlayLab();
+    }));
+    document.querySelector('[data-parlay-checkpoint-strategy]')?.addEventListener('change',event=>{
+      parlayCheckpointStrategy=String(event.target.value||'tsoPick');
+      parlayCheckpointLegKeys=[];
+      fillCheckpointToTarget();
+      renderParlayLab();
+    });
     document.querySelector('[data-props-refresh]')?.addEventListener('click', () => refreshPropsData(true));
     document.querySelector('[data-models-refresh]')?.addEventListener('click', () => { refreshPropsData(true); refreshNhlScorerData(true); });
     document.querySelectorAll('[data-models-league]').forEach(btn => btn.addEventListener('click', () => setLeague(btn.dataset.modelsLeague)));
@@ -6163,6 +6195,7 @@
     refreshNhlScorerData(false);
     refreshLiveData(false);
     refreshPropsData(false);
+    if(currentRoute==='parlays'&&parlayMode!=='pregame')refreshNflCheckpointData(false);
     refreshGameEdgeData(false);
     if(scrollToTop){
       window.scrollTo({top:0,behavior:'instant'});
