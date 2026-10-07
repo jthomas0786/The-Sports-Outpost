@@ -3901,6 +3901,40 @@
     return '<section class="research-detail-block nfl-matchup-visual"><div class="research-detail-block-head"><span>PLAYER VS OPPONENT</span><b>'+esc(spec[0])+' · source-backed comparison</b></div><div class="nfl-matchup-bars">'+bars+'</div></section>';
   }
 
+  function renderModelDistribution(row,compact=false){
+    const d=row?.model?.projection;
+    if(!d||typeof d!=='object')return '';
+    const mean=Number(d.mean),median=Number(d.median),p10=Number(d.p10),p25=Number(d.p25),p75=Number(d.p75),p90=Number(d.p90),line=Number(row?.line);
+    if(![mean,median,p10,p25,p75,p90,line].every(Number.isFinite))return '';
+    let lo=Math.min(0,p10,line),hi=Math.max(p90,line);
+    const span=Math.max(1,hi-lo);
+    lo=Math.max(0,lo-span*.08);hi=hi+span*.10;
+    const pct=v=>Math.max(0,Math.min(100,(v-lo)/(hi-lo)*100));
+    const p10x=pct(p10),p90x=pct(p90),p25x=pct(p25),p75x=pct(p75),meanx=pct(mean),medianx=pct(median),linex=pct(line);
+    const iterations=Number(row?.model?.iterations||0);
+    const selectedProb=Number(row?.model?.probabilityPct);
+    return '<section class="model-distribution '+(compact?'is-compact':'')+'">'
+      +'<div class="model-distribution-head"><div><span>SIMULATION DISTRIBUTION</span><b>'+esc(row.marketLabel||row.market)+' · '+esc(propSelectionText(row))+'</b></div><small>'+esc(iterations?iterations.toLocaleString()+' simulations':'model distribution')+'</small></div>'
+      +'<div class="model-distribution-summary">'
+        +'<span><small>MODEL MEAN</small><b>'+esc(researchRate(mean,1))+'</b></span>'
+        +'<span><small>MEDIAN</small><b>'+esc(researchRate(median,1))+'</b></span>'
+        +'<span><small>P10 / P90</small><b>'+esc(researchRate(p10,1))+' / '+esc(researchRate(p90,1))+'</b></span>'
+        +'<span><small>SELECTED SIDE</small><b>'+esc(Number.isFinite(selectedProb)?pct1(selectedProb):'—')+'</b></span>'
+      +'</div>'
+      +'<div class="model-distribution-axis">'
+        +'<div class="model-distribution-track">'
+          +'<i class="range-90" style="left:'+p10x.toFixed(2)+'%;width:'+(p90x-p10x).toFixed(2)+'%"></i>'
+          +'<i class="range-50" style="left:'+p25x.toFixed(2)+'%;width:'+(p75x-p25x).toFixed(2)+'%"></i>'
+          +'<span class="marker is-mean" style="left:'+meanx.toFixed(2)+'%"><em>MEAN</em></span>'
+          +'<span class="marker is-median" style="left:'+medianx.toFixed(2)+'%"><em>MED</em></span>'
+          +'<span class="marker is-line" style="left:'+linex.toFixed(2)+'%"><em>LINE '+esc(researchRate(line,1))+'</em></span>'
+        +'</div>'
+        +'<div class="model-distribution-labels"><span>'+esc(researchRate(lo,0))+'</span><span>P10 '+esc(researchRate(p10,1))+'</span><span>P25 '+esc(researchRate(p25,1))+'</span><span>P75 '+esc(researchRate(p75,1))+'</span><span>P90 '+esc(researchRate(p90,1))+'</span><span>'+esc(researchRate(hi,0))+'</span></div>'
+      +'</div>'
+      +'<p>The darker band is the middle 50% of simulated outcomes; the wider band spans P10–P90. The exact sportsbook threshold is overlaid as the LINE marker.</p>'
+    +'</section>';
+  }
+
   function nflResearchDetail(data,row){
     const p=data.player||{},last=p.last5?.avg||{},cur=p.currentSeason?.perGame||{},prev=p.previousSeason?.perGame||{};
     const snap=p.snapTrend||{},allowed=p.matchup?.previousSeasonAllowed?.perGame||{};
@@ -3940,6 +3974,7 @@
     const comparisonVisual=nflMatchupComparisonVisual(row,last,cur,allowed);
     return '<section class="research-detail-status"><span class="deep-source-chip">NFLVERSE + ESPN</span><b>'+esc(p.rosterStatus||'Roster status unavailable')+'</b><small>'+esc(injury?('Injury: '+injury):'No current injury status attached')+'</small></section>'
       +roleVisual
+      +renderModelDistribution(row)
       +comparisonVisual
       +'<section class="research-detail-block"><div class="research-detail-block-head"><span>RECENT FORM</span><b>Last five verified games</b></div><div class="research-detail-metrics">'+metrics.map(x=>researchDetailMetric(...x)).join('')+'</div></section>'
       +(season.length?'<section class="research-detail-block"><div class="research-detail-block-head"><span>SEASON PRODUCTION</span><b>Current + previous season</b></div><div class="research-detail-metrics">'+season.map(x=>researchDetailMetric(...x)).join('')+'</div></section>':'')
@@ -5459,11 +5494,12 @@
         const edge=hasModel&&Number.isFinite(implied)?Number(original.model.probabilityPct)-implied:null;
         return '<div class="props-compare-row '+(index===0?'is-best':'')+'"><span><b>'+esc(book.book||'Sportsbook')+'</b><small>'+(index===0?'BEST VERIFIED PRICE':'exact selection')+'</small></span><strong>'+esc(americanPrice(book.price))+'</strong><strong>'+pct1(implied)+'</strong><strong class="'+(Number.isFinite(edge)?(edge>=0?'positive':'negative'):'')+'">'+(Number.isFinite(edge)?edgeText(edge):'—')+'</strong><span>'+esc(ageText(book.snapshotTime||original.snapshotTime))+'</span>'+(book.link?'<a href="'+esc(book.link)+'" target="_blank" rel="noopener">OPEN →</a>':'<em>NO LINK</em>')+'</div>';
       }).join(''):'<div class="research-detail-empty"><b>No exact sportsbook rows are attached to this selection.</b></div>')+'</div>'
+      +renderModelDistribution(original,true)
       +'<div class="prop-intel-duo">'
         +'<article class="prop-intel-panel"><div class="prop-intel-panel-head"><div><span class="gold-kicker">EXACT-LINE PERFORMANCE</span><h3>How often has this exact side hit?</h3></div><b>'+esc(propSelectionText(original))+'</b></div><div data-props-hit-rate></div></article>'
         +'<article class="prop-intel-panel"><div class="prop-intel-panel-head"><div><span class="violet-kicker">PRICE MOVEMENT</span><h3>TSO open → current</h3></div><select data-props-history-book aria-label="Sportsbook history">'+books.map(b=>'<option value="'+esc(b.book)+'" '+(String(b.book)===String(defaultBook)?'selected':'')+'>'+esc(String(b.book).toUpperCase())+'</option>').join('')+'</select></div><div data-props-price-history></div></article>'
       +'</div>'
-      +'<div class="props-compare-footer"><div><span>EXACT PLAYER + MARKET + SIDE + LINE</span><small>'+(hasModel?'Edge recalculated independently for every sportsbook price.':'Market-only selection · no model probability invented.')+'</small></div><div><button data-props-compare-research '+(['nhl','nfl','mlb'].includes(String(original.sport))?'':'disabled')+'>DEEP RESEARCH</button><button class="is-primary" data-props-compare-parlay>+ PARLAY LAB</button></div></div>'
+      +'<div class="props-compare-footer"><div><span>EXACT PLAYER + MARKET + SIDE + LINE</span><small>'+(hasModel?'Edge recalculated independently for every sportsbook price.':'Market-only selection · no model probability invented.')+'</small></div><div><button data-props-compare-research '+(['nhl','nfl','mlb','nba'].includes(String(original.sport))?'':'disabled')+'>DEEP RESEARCH</button><button class="is-primary" data-props-compare-parlay>+ PARLAY LAB</button></div></div>'
       +'</div>';
     document.body.appendChild(overlay);
     document.body.classList.add('props-compare-open');
