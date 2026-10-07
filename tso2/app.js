@@ -841,11 +841,146 @@
     return '<div class="nfl-box-score">'+quarters+teamStats+(players||'<div class="live-detail-empty"><b>Player stats are not available yet.</b><small>Passing, rushing, receiving and defensive lines will populate as the game feed updates.</small></div>')+'</div>';
   }
 
+  function nbaSummaryCompetitor(summary,game,side){
+    const rows=summary?.header?.competitions?.[0]?.competitors || [];
+    const abbr=String(game?.[side]?.abbr||'').toUpperCase();
+    return rows.find(row=>row?.homeAway===side)
+      || rows.find(row=>String(row?.team?.abbreviation||'').toUpperCase()===abbr)
+      || null;
+  }
+
+  function nbaQuarterValue(row,index){
+    const item=Array.isArray(row?.linescores)?row.linescores[index]:null;
+    const value=item?.displayValue ?? item?.value ?? item;
+    return value==null || value==='' ? '—' : String(value);
+  }
+
+  function nbaQuarterScoreMarkup(summary,game){
+    const away=nbaSummaryCompetitor(summary,game,'away');
+    const home=nbaSummaryCompetitor(summary,game,'home');
+    const awayLines=Array.isArray(away?.linescores)?away.linescores:[];
+    const homeLines=Array.isArray(home?.linescores)?home.linescores:[];
+    const played=Math.max(awayLines.length,homeLines.length,Number(game?.period)||0);
+    const quarters=Math.max(4,played);
+    const columns=Array.from({length:quarters},(_,i)=>{
+      const n=i+1;
+      if(n<=4) return {index:i,label:'Q'+n};
+      if(n===5) return {index:i,label:'OT'};
+      return {index:i,label:(n-4)+'OT'};
+    });
+    const current=game?.state==='in' ? Number(game?.period)||0 : 0;
+    const rowMarkup=(side,row)=>{
+      const team=game?.[side]||{};
+      const total=row?.score ?? team?.score ?? '—';
+      return '<tr>'
+        +'<th class="nba-quarter-team">'+teamLogoMarkup(team,'nba-quarter-logo')+'<span>'+esc(team.abbr||side.toUpperCase())+'</span></th>'
+        +columns.map(col=>'<td class="'+(col.index+1===current?'is-current-quarter':'')+'">'+esc(nbaQuarterValue(row,col.index))+'</td>').join('')
+        +'<td class="nba-quarter-total">'+esc(total)+'</td>'
+      +'</tr>';
+    };
+    return '<section class="nba-quarter-score">'
+      +'<div class="nba-box-section-title"><div><span>NBA BOX SCORE</span><h3>Scoring by quarter</h3></div><b>'+esc(gameShortState(game))+'</b></div>'
+      +'<div class="nba-quarter-scroll"><table class="nba-quarter-table"><thead><tr><th>TEAM</th>'
+        +columns.map(col=>'<th class="'+(col.index+1===current?'is-current-quarter':'')+'">'+esc(col.label)+'</th>').join('')
+        +'<th>T</th>'
+      +'</tr></thead><tbody>'+rowMarkup('away',away)+rowMarkup('home',home)+'</tbody></table></div>'
+    +'</section>';
+  }
+
+  const NBA_TEAM_STAT_ORDER=[
+    'fieldGoalsMade-fieldGoalsAttempted','fieldGoalPct',
+    'threePointFieldGoalsMade-threePointFieldGoalsAttempted','threePointFieldGoalPct',
+    'freeThrowsMade-freeThrowsAttempted','freeThrowPct',
+    'totalRebounds','offensiveRebounds','defensiveRebounds',
+    'assists','steals','blocks','turnovers','teamTurnovers','totalTurnovers',
+    'technicalFouls','totalTechnicalFouls','flagrantFouls',
+    'turnoverPoints','fastBreakPoints','pointsInPaint','fouls',
+    'largestLead','leadChanges','leadPercentage'
+  ];
+
+  function nbaTeamStatsMarkup(summary,game){
+    const away=boxTeamEntry(summary,game?.away?.abbr,0);
+    const home=boxTeamEntry(summary,game?.home?.abbr,1);
+    const aMap=teamStatMap(away), hMap=teamStatMap(home);
+    const keys=[...new Set([...NBA_TEAM_STAT_ORDER,...aMap.keys(),...hMap.keys()])]
+      .filter(key=>aMap.has(key)||hMap.has(key));
+    if(!keys.length) return '';
+    const value=stat=>stat?.displayValue ?? stat?.value ?? '—';
+    const label=key=>aMap.get(key)?.label||aMap.get(key)?.displayName||hMap.get(key)?.label||hMap.get(key)?.displayName||key.replace(/([A-Z])/g,' $1');
+    return '<section class="nba-team-summary">'
+      +'<div class="nba-team-summary-head"><b>'+esc(game?.away?.abbr||'AWAY')+'</b><span>TEAM STATS</span><b>'+esc(game?.home?.abbr||'HOME')+'</b></div>'
+      +keys.map(key=>'<div class="nba-team-summary-row"><strong>'+esc(value(aMap.get(key)))+'</strong><span>'+esc(label(key))+'</span><strong>'+esc(value(hMap.get(key)))+'</strong></div>').join('')
+    +'</section>';
+  }
+
+  function nbaStatColumns(group){
+    const keys=Array.isArray(group?.keys)?group.keys:[];
+    const labels=Array.isArray(group?.labels)?group.labels:[];
+    const descriptions=Array.isArray(group?.descriptions)?group.descriptions:[];
+    const count=Math.max(keys.length,labels.length);
+    return Array.from({length:count},(_,index)=>({
+      key:keys[index]||'stat'+index,
+      label:labels[index]||keys[index]||('STAT '+(index+1)),
+      description:descriptions[index]||labels[index]||keys[index]||''
+    }));
+  }
+
+  function nbaPlayerTeamMarkup(teamBlock){
+    const team=teamBlock?.team?.abbreviation||teamBlock?.team?.shortDisplayName||teamBlock?.team?.displayName||'TEAM';
+    const groups=Array.isArray(teamBlock?.statistics)?teamBlock.statistics:[];
+    const group=groups.find(g=>Array.isArray(g?.athletes)) || null;
+    if(!group) return '';
+    const cols=nbaStatColumns(group);
+    const allAthletes=group.athletes||[];
+    const active=allAthletes.filter(row=>row?.athlete && !row?.didNotPlay);
+    const dnp=allAthletes.filter(row=>row?.athlete && row?.didNotPlay);
+
+    const table=active.length
+      ? '<div class="nba-player-table-wrap"><table class="nba-player-table"><thead><tr><th>PLAYER</th>'
+          +cols.map(col=>'<th title="'+esc(col.description)+'" data-stat-key="'+esc(col.key)+'">'+esc(col.label)+'</th>').join('')
+        +'</tr></thead><tbody>'
+          +active.map(row=>{
+            const player=row?.athlete?.shortName||row?.athlete?.displayName||'Player';
+            const pos=row?.athlete?.position?.abbreviation||row?.position?.abbreviation||'';
+            const stats=Array.isArray(row?.stats)?row.stats:[];
+            const starter=row?.starter===true;
+            return '<tr class="'+(starter?'is-starter':'')+'"><td><b>'+esc(player)+'</b>'+(pos?'<small>'+esc(pos)+(starter?' · STARTER':'')+'</small>':'')+'</td>'
+              +cols.map((col,index)=>'<td data-stat-key="'+esc(col.key)+'">'+esc(stats[index]??'—')+'</td>').join('')
+            +'</tr>';
+          }).join('')
+        +'</tbody></table></div>'
+      : '<div class="nba-stat-empty">Player stats will populate when the game starts.</div>';
+
+    const dnpMarkup=dnp.length
+      ? '<div class="nba-dnp-block"><span>DNP</span><div>'+dnp.map(row=>'<b>'+esc(row?.athlete?.shortName||row?.athlete?.displayName||'Player')+'</b><small>'+esc(row?.reason||row?.comment||'Did not play')+'</small>').join('')+'</div></div>'
+      : '';
+
+    return '<section class="nba-team-player-block">'
+      +'<div class="nba-team-player-head"><span>PLAYER STATS</span><h3>'+esc(team)+'</h3></div>'
+      +'<section class="nba-stat-card"><div class="nba-stat-card-head"><div><span>'+esc(team)+'</span><h4>BOX SCORE</h4></div><b>'+active.length+' ACTIVE</b></div>'
+      +table+dnpMarkup
+      +'</section></section>';
+  }
+
+  function nbaPlayerBoxMarkup(summary){
+    const teams=Array.isArray(summary?.boxscore?.players)?summary.boxscore.players:[];
+    if(!teams.length) return '';
+    return '<div class="nba-player-sections">'+teams.map(nbaPlayerTeamMarkup).join('')+'</div>';
+  }
+
+  function nbaBoxScoreMarkup(summary,game){
+    const quarters=nbaQuarterScoreMarkup(summary,game);
+    const teamStats=nbaTeamStatsMarkup(summary,game);
+    const players=nbaPlayerBoxMarkup(summary);
+    return '<div class="nba-box-score">'+quarters+teamStats+(players||'<div class="live-detail-empty"><b>Player stats are not available yet.</b><small>Full player lines will populate as the game feed updates.</small></div>')+'</div>';
+  }
+
   function boxScoreMarkup(summary,game){
     const league=String(game?.league||'').toLowerCase();
     if(league==='mlb') return mlbBoxScoreMarkup(summary,game);
     if(league==='nhl') return nhlBoxScoreMarkup(summary,game);
     if(league==='nfl') return nflBoxScoreMarkup(summary,game);
+    if(league==='nba') return nbaBoxScoreMarkup(summary,game);
     const teamStats=teamStatsMarkup(summary,game);
     const players=playerBoxMarkup(summary);
     if(!teamStats && !players){
