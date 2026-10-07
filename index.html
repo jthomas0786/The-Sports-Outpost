@@ -7546,7 +7546,14 @@ function renderSidebarSports(){
         <button type="button" class="sb-sub-item ${nflTab==='props'?'is-active':''}" data-nfl-preview-tab="props">Props</button>
       `;
     } else if(key === 'nhl'){
-      panelInner = Object.entries({slate:'Slate',live:'Live',feed:'Goal Feed',props:'Props'}).map(([id,label])=>`<button type="button" class="sb-sub-item ${window.DW_nhlTab===id?'is-active':''}" data-nhl-tab="${id}">${label}</button>`).join('');
+      const nhlTab = window.DW_nhlTab || 'slate';
+      panelInner = `
+        <button type="button" class="sb-sub-item ${nhlTab==='slate'?'is-active':''}" data-nhl-tab="slate">Slate</button>
+        <button type="button" class="sb-sub-item ${nhlTab==='live'?'is-active':''}" data-nhl-tab="live">Live</button>
+        <button type="button" class="sb-sub-item ${document.getElementById('hkGameEdgePanel')?'is-active':''}" data-nhl-game-edge="1">Game Edge</button>
+        <button type="button" class="sb-sub-item ${nhlTab==='feed'?'is-active':''}" data-nhl-tab="feed">Goal Feed</button>
+        <button type="button" class="sb-sub-item ${nhlTab==='props'?'is-active':''}" data-nhl-tab="props">Props</button>
+      `;
     } else if(key === 'nba'){
       const nbaTab = window.DW_nbaTab || 'slate';
       panelInner = Object.entries({slate:'Slate',live:'Live Center',props:'Player Props'}).map(([id,label])=>`<button type="button" class="sb-sub-item ${currentSport==='nba'&&nbaTab===id?'is-active':''}" data-nba-tab="${id}">${label}</button>`).join('');
@@ -7578,6 +7585,11 @@ function renderSidebarSports(){
     });
   });
   host.querySelectorAll('[data-nhl-tab]').forEach(btn=>btn.addEventListener('click',()=>{window.DW_nhlPendingTab=btn.dataset.nhlTab;if(location.hash!=='#nhl')location.hash='nhl';else window.DW_openNhlTab?.(btn.dataset.nhlTab);}));
+  host.querySelectorAll('[data-nhl-game-edge]').forEach(btn=>btn.addEventListener('click',()=>{
+    window.DW_nhlPendingGameEdge=true;
+    if(location.hash!=='#nhl') location.hash='nhl';
+    else if(typeof window.DW_openGameEdge==='function'){window.DW_nhlPendingGameEdge=false;window.DW_openGameEdge();}
+  }));
   host.querySelectorAll('[data-nba-tab]').forEach(btn=>btn.addEventListener('click',()=>{window.DW_nbaPendingTab=btn.dataset.nbaTab;if(location.hash!=='#nba')location.hash='nba';else window.DW_openNbaTab?.(btn.dataset.nbaTab);}));
   // NFL preview rows use a pending-tab handoff instead of a fixed timeout.
   // That makes Slate/Live reliable even when the NFL module has not finished
