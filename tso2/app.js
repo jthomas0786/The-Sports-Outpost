@@ -1271,7 +1271,7 @@
     return Number.isFinite(n)?n:null;
   }
 
-  function liveWatchMetric(league,groupName,key,label,raw){
+  function liveWatchMetric(league,groupName,key,label,raw,position=''){
     const value=liveWatchNumber(raw);
     if(value==null || value<=0) return null;
     const group=String(groupName||'').toLowerCase();
@@ -1279,10 +1279,17 @@
     const l=String(label||key||'').toUpperCase();
 
     if(league==='mlb'){
-      const pitching=/pitch/.test(group);
-      const cfg=pitching ? {
-        strikeouts:['K',2.8],saves:['SV',22],holds:['HLD',12],wins:['W',14]
-      } : {
+      const pos=String(position||'').toUpperCase();
+      const pitching=/pitch/.test(group) || /^(P|SP|RP|CL)$/.test(pos);
+
+      // For Player to Watch, pitchers qualify ONLY on strikeouts.
+      // A pitcher allowing hits/runs is never treated as "hot."
+      if(pitching){
+        if(k!=='strikeouts') return null;
+        return {label:'K',value,display:String(raw),heat:value*2.8};
+      }
+
+      const cfg={
         homeRuns:['HR',14],RBIs:['RBI',4.5],hits:['H',3.6],runs:['R',2.8],stolenBases:['SB',6],walks:['BB',1.8]
       };
       const hit=cfg[k];
@@ -1351,7 +1358,14 @@
           const stats=Array.isArray(row?.stats)?row.stats:[];
           let hottest=null;
           for(let i=0;i<Math.max(keys.length,labels.length,stats.length);i++){
-            const metric=liveWatchMetric(league,groupName,keys[i]||'',labels[i]||keys[i]||'',stats[i]);
+            const metric=liveWatchMetric(
+              league,
+              groupName,
+              keys[i]||'',
+              labels[i]||keys[i]||'',
+              stats[i],
+              row?.athlete?.position?.abbreviation||row?.position?.abbreviation||''
+            );
             if(metric && (!hottest || metric.heat>hottest.heat)) hottest=metric;
           }
           if(!hottest) continue;
