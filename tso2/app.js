@@ -59,6 +59,7 @@
   const GAME_EDGE_POLL_MS = 60000;
   const GAME_EDGE_RAW_BASE = 'https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/';
   const GAME_EDGE_SCOREBOARD_BASE = 'https://tso2-game-edge.jthomas0786-tso.workers.dev/';
+  const NBA_MODEL_BASE = 'https://tso2-nba-model.jthomas0786-tso.workers.dev/';
   let scoreTickerResumeTimer = null;
   const SCORE_TICKER_PX_PER_SECOND = 34;
 
@@ -1956,9 +1957,6 @@
   function livePulseRows(){
     const all=(propsFeedCache?.rows||[]).filter(row=>currentLeague==='all'||row.sport===currentLeague);
     const modeled=sortPropsRows(all.filter(row=>Number.isFinite(Number(row?.model?.probabilityPct))));
-    if(currentLeague==='nba'){
-      return [...all].sort((a,b)=>(Date.parse(b.snapshotTime||'')||0)-(Date.parse(a.snapshotTime||'')||0)).slice(0,3);
-    }
     if(currentLeague!=='all') return modeled.slice(0,3);
     const selected=[];
     for(const sport of ['nhl','nfl','mlb']){
@@ -2027,11 +2025,11 @@
         ? '<span class="live-pulse is-idle"></span><div><b>FALLBACK SNAPSHOT</b><small>'+esc(integrity.warnings[0]||'A live source is unavailable; verified cached data is being shown.')+(newest?' · newest '+esc(ageText(newest))+' old':'')+'</small></div>'
         : '<span class="live-pulse"></span><div><b>VERIFIED LIVE SOURCE</b><small>'+(newest?'Newest exact snapshot '+esc(ageText(newest))+' old':'Current exact model-to-market feed')+'</small></div>';
     }
-    if(title)title.textContent=currentLeague==='nba'?'NBA current market signals':(currentLeague==='all'?'Current TSO model signals':leagueLabel(currentLeague)+' current model signals');
+    if(title)title.textContent=currentLeague==='all'?'Current TSO model signals':leagueLabel(currentLeague)+' current model signals';
     if(grid){
       grid.innerHTML=rows.length
         ? rows.map(livePulseCardMarkup).join('')
-        : '<div class="live-board-loading home-model-empty--wide"><div><b>'+(currentLeague==='nba'?'No verified NBA market rows for this filter.':'No exact model signals for this sport right now.')+'</b><small>TSO will not insert example probabilities or fake movement.</small></div></div>';
+        : '<div class="live-board-loading home-model-empty--wide"><div><b>No exact model signals for this sport right now.</b><small>TSO will not insert example probabilities or fake movement.</small></div></div>';
     }
     bindMediaFallbacks();
   }
@@ -2301,9 +2299,8 @@
     const picksRoot=document.querySelector('[data-home-picks]');
     if(picksRoot){
       if(!rows.length){
-        const nba=currentLeague==='nba';
-        picksRoot.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS · '+(nba?'MARKET ONLY':'REAL MODELS')+'</span><h2>'+(nba?'NBA model not available yet':'No exact model matches right now')+'</h2></div><button data-route-jump="'+(nba?'props':'models')+'">'+(nba?'OPEN PROPS':'ALL MODELS')+' →</button></div>'
-          +'<div class="home-model-empty"><b>'+(nba?'TSO will not invent an NBA model.':'No sportsbook row currently passes the exact model-match rules for this filter.')+'</b><small>'+(nba?'Verified NBA market prices remain available on Props until a real TSO NBA model exists.':'Same player + market + side + exact line is required.')+'</small></div>';
+        picksRoot.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS · REAL MODELS</span><h2>No exact model matches right now</h2></div><button data-route-jump="models">ALL MODELS →</button></div>'
+          +'<div class="home-model-empty"><b>No sportsbook row currently passes the exact model-match rules for this filter.</b><small>Same player + market + side + exact line is required.</small></div>';
       }else{
         picksRoot.innerHTML='<div class="concept-picks-head"><div><span class="gold-kicker">♛ TOP OUTPOST PICKS · REAL MODELS</span><h2>Best exact edges right now</h2></div><button data-route-jump="models">ALL PICKS →</button></div>'
           +picks.map((row,i)=>{
@@ -2325,8 +2322,8 @@
     const title=board?.querySelector('[data-home-model-title]');
     if(cards){
       if(!rows.length){
-        cards.innerHTML='<div class="home-model-empty home-model-empty--wide"><b>'+(currentLeague==='nba'?'NBA remains MARKET ONLY.':'No exact model cards for this filter.')+'</b><small>'+(currentLeague==='nba'?'TSO shows no probability or edge until a real NBA model exists.':'No fake fallback cards are displayed.')+'</small></div>';
-        if(title) title.textContent=currentLeague==='nba'?'NBA · market prices only':'No exact model matches';
+        cards.innerHTML='<div class="home-model-empty home-model-empty--wide"><b>No exact model cards for this filter.</b><small>No fake fallback cards are displayed.</small></div>';
+        if(title) title.textContent='No exact model matches';
       }else{
         let selected=[];
         if(currentLeague==='all'){
@@ -2871,12 +2868,12 @@
       nhl:{mark:'◎',tone:'violet',title:'NHL',copy:'First Goal · Anytime Goal'},
       nfl:{mark:'◫',tone:'blue',title:'NFL',copy:'Monte Carlo · exact-line pregame'},
       mlb:{mark:'⌁',tone:'gold',title:'MLB',copy:'Daily 10,000-run hitter model'},
-      nba:{mark:'✦',tone:'orange',title:'NBA',copy:'No TSO model yet · market only'}
+      nba:{mark:'✦',tone:'orange',title:'NBA',copy:'Regression v1 · history + matchup'}
     };
     node.innerHTML=['nhl','nfl','mlb','nba'].map(sport=>{
       const item=meta[sport];
       const active=currentLeague===sport;
-      const count=sport==='nba'?(counts.nba?counts.nba+' MATCH'+(counts.nba===1?'':'ES'):'MARKET ONLY'):counts[sport]+' MATCH'+(counts[sport]===1?'':'ES');
+      const count=counts[sport]+' MATCH'+(counts[sport]===1?'':'ES');
       return '<button class="models-engine-tab '+(active?'is-active':'')+'" data-models-league="'+sport+'">'
         +'<span class="models-engine-mark models-engine-mark--'+item.tone+'">'+item.mark+'</span>'
         +'<div><b>'+item.title+'</b><small>'+item.copy+'</small></div><i>'+count+'</i></button>';
@@ -2884,7 +2881,7 @@
     node.querySelectorAll('[data-models-league]').forEach(btn=>btn.addEventListener('click',()=>setLeague(btn.dataset.modelsLeague)));
     root.querySelectorAll('[data-model-count]').forEach(el=>{
       const sport=el.dataset.modelCount;
-      el.textContent=sport==='nba'?(counts.nba?String(counts.nba):'0 BY DESIGN'):String(counts[sport]||0);
+      el.textContent=String(counts[sport]||0);
     });
   }
 
@@ -2893,8 +2890,7 @@
     if(!node) return;
     node.classList.remove('live-feed-loading');
     if(!rows.length){
-      const nba=currentLeague==='nba';
-      node.innerHTML='<div class="live-feed-empty"><div><b>'+(nba?'NBA is market-only by design.':'No exact model matches for this filter.')+'</b><small>'+(nba?'TSO will not display a model probability or edge until a real NBA model exists.':'The verified odds feed is available, but no row currently passes the strict player + market + side + exact-line model match.')+'</small></div></div>';
+      node.innerHTML='<div class="live-feed-empty"><div><b>No exact model matches for this filter.</b><small>The verified odds feed is available, but no row currently passes the strict player + market + side + exact-line model match.</small></div></div>';
       return;
     }
     const row=sortPropsRows(rows)[0];
@@ -2937,7 +2933,7 @@
     if(!board) return;
     const visible=sortPropsRows(rows).slice(0,160);
     if(!visible.length){
-      board.innerHTML='<div class="live-board-loading props-empty-board"><b>'+(currentLeague==='nba'?'NBA has verified market prices but no TSO model by design.':'No exact model matches for this filter.')+'</b></div>';
+      board.innerHTML='<div class="live-board-loading props-empty-board"><b>No exact model matches for this filter.</b></div>';
       return;
     }
     board.innerHTML=visible.map(row=>{
@@ -2973,13 +2969,8 @@
 
     const badge=root.querySelector('[data-models-feed-badge]');
     if(badge){
-      if(currentLeague==='nba' && !rows.length){
-        badge.className='props-feed-badge is-recent';
-        badge.innerHTML='<i></i> NBA · MARKET ONLY';
-      }else{
-        badge.className='props-feed-badge is-'+freshness.tone;
-        badge.innerHTML='<i></i> REAL MODEL FEED · '+esc(freshness.label);
-      }
+      badge.className='props-feed-badge is-'+freshness.tone;
+      badge.innerHTML='<i></i> REAL MODEL FEED · '+esc(freshness.label);
     }
 
     const status=root.querySelector('[data-models-status]');
@@ -5148,6 +5139,82 @@
     renderPropsBoard(root,rows);
   }
 
+  function nbaModelKey(row){
+    const player=String(row?.player||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
+    return [String(row?.eventId||''),player,String(row?.market||''),Number(row?.line)].join('|');
+  }
+
+  function mergeNbaModels(payload,nbaDoc){
+    if(!payload||!Array.isArray(payload.rows)||!Array.isArray(nbaDoc?.models))return payload;
+    const byKey=new Map(nbaDoc.models.map(model=>[String(model.key||''),model]));
+    const rows=payload.rows.map(row=>{
+      if(String(row?.sport||'').toLowerCase()!=='nba')return row;
+      const modelRow=byKey.get(nbaModelKey(row));
+      if(!modelRow)return row;
+      const base={
+        ...row,
+        playerId:modelRow.playerId||row.playerId||null,
+        team:modelRow.team||row.team||null,
+        headshotUrl:modelRow.headshot||row.headshotUrl||null
+      };
+      if(modelRow.available===false)return base;
+      const side=String(row.side||'over').toLowerCase();
+      const probability=(side==='under'?Number(modelRow.underProbability):Number(modelRow.overProbability))*100;
+      if(!Number.isFinite(probability))return base;
+      const implied=Number(row.impliedPct);
+      const edge=Number.isFinite(implied)?probability-implied:null;
+      return {
+        ...base,
+        model:{
+          source:'nba-regression-v1',
+          sourceLabel:'NBA REGRESSION v1',
+          phase:'pregame',
+          probabilityPct:probability,
+          marketProbabilityPct:Number.isFinite(implied)?implied:null,
+          edgePct:edge,
+          projection:modelRow.projection,
+          sigma:modelRow.sigma,
+          grade:modelRow.grade,
+          tag:modelRow.grade,
+          confidencePct:Number(modelRow.confidence)*100,
+          sampleGames:modelRow.sampleGames,
+          last5:modelRow.last5,
+          last10:modelRow.last10,
+          seasonBaseline:modelRow.seasonBaseline,
+          averageMinutes:modelRow.averageMinutes,
+          recentMinutes:modelRow.recentMinutes,
+          usageProxy:modelRow.usageProxy,
+          recentUsageProxy:modelRow.recentUsageProxy,
+          restDays:modelRow.restDays,
+          injury:modelRow.injury||null,
+          opponent:modelRow.opponent||null,
+          venue:modelRow.venue||null,
+          opponentAllowance:modelRow.opponentAllowance,
+          leaguePositionAllowance:modelRow.leaguePositionAllowance,
+          expectedPace:modelRow.expectedPace,
+          leaguePace:modelRow.leaguePace,
+          factors:modelRow.factors||null,
+          generatedAt:modelRow.researchGeneratedAt||nbaDoc.researchGeneratedAt||nbaDoc.generatedAt||null,
+          version:modelRow.version||'nba-regression-v1'
+        }
+      };
+    });
+    return {...payload,rows,nbaModel:{source:nbaDoc.source||'tso-nba-regression-v1',generatedAt:nbaDoc.generatedAt||null,count:nbaDoc.models.length}};
+  }
+
+  async function fetchNbaModels(){
+    try{
+      const response=await fetch(NBA_MODEL_BASE,{cache:'no-store'});
+      if(!response.ok)throw new Error('NBA model HTTP '+response.status);
+      const payload=await response.json();
+      if(!payload||!Array.isArray(payload.models))throw new Error('Invalid NBA model payload');
+      return payload;
+    }catch(error){
+      console.error('TSO NBA model:',error);
+      return null;
+    }
+  }
+
   async function refreshPropsData(force=false){
     if(propsFeedInFlight) return propsFeedInFlight;
     if(!force && propsFeedCache && Date.now()-propsFeedFetchedAt < PROPS_FEED_TTL){
@@ -5163,12 +5230,18 @@
       renderResearch();
       return propsFeedCache;
     }
-    propsFeedInFlight=fetch('/api/props?league=all',{cache:'no-store'})
-      .then(async response=>{
+    propsFeedInFlight=Promise.all([
+      fetch('/api/props?league=all',{cache:'no-store'}).then(async response=>{
         if(!response.ok) throw new Error('Props feed HTTP '+response.status);
         const payload=await response.json();
         if(!payload || !Array.isArray(payload.rows)) throw new Error('Invalid props feed');
-        propsFeedCache=payload;
+        return payload;
+      }),
+      fetchNbaModels()
+    ])
+      .then(([payload,nbaModels])=>{
+        const merged=mergeNbaModels(payload,nbaModels);
+        propsFeedCache=merged;
         propsFeedFetchedAt=Date.now();
         renderPropsFeed();
         renderFeedIntegrity();
@@ -5180,7 +5253,7 @@
         renderLeaderboard();
         renderProfile();
         renderResearch();
-        return payload;
+        return merged;
       })
       .catch(error=>{
         console.error('TSO props feed:',error);
