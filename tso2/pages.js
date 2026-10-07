@@ -73,7 +73,7 @@
           </div>
           <div class="destination-actions">
             <span class="live-data-badge" data-live-feed-badge><i></i> CONNECTING</span>
-            <button class="button primary">MULTI-GAME VIEW →</button>
+            <button class="button primary" type="button" data-live-multi> MULTI-GAME VIEW →</button>
           </div>
         </section>
 
