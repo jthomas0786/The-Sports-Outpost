@@ -1,5 +1,5 @@
 
-import {buildNbaProjection,marketFairOver,nbaModelPlayer} from './model-v202.js?v=2.3-calibrated';
+import {buildNbaProjection,marketFairOver,nbaModelPlayer} from './model-v202.js?v=2.4-injury-preseason';
 
 const ESPN_SCOREBOARD='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard';
 const ESPN_SUMMARY='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary';
@@ -563,8 +563,8 @@ function recentModelBars(p){
   const max=Math.max(...rows.map(r=>Number(r.value)||0),Number(p.line)||1,1);
   return `<div class="nba3-recent-chart">${rows.map(r=>{
     const v=Number(r.value)||0,w=Math.max(3,Math.min(100,v/max*100)),hit=p.lean==='Under'?v<p.line:v>p.line;
-    const date=r.date?new Date(r.date).toLocaleDateString([],{month:'short',day:'numeric'}):'—';
-    return `<div class="nba3-recent-row"><span>${esc(date)}</span><div class="nba3-recent-track"><i class="${hit?'hit':''}" style="width:${w.toFixed(1)}%"></i><em style="left:${Math.min(98,p.line/max*100).toFixed(1)}%"></em></div><b>${esc(v)}</b></div>`;
+    const date=r.date?new Date(r.date).toLocaleDateString([],{month:'short',day:'numeric'}):'—',pre=Number(r.seasonType)===1;
+    return `<div class="nba3-recent-row"><span>${esc(date)}${pre?' PRE':''}</span><div class="nba3-recent-track"><i class="${hit?'hit':''}${r.usedInProjection===false?' excluded':''}" style="width:${w.toFixed(1)}%"></i><em style="left:${Math.min(98,p.line/max*100).toFixed(1)}%"></em></div><b>${esc(v)}</b></div>`;
   }).join('')}</div>`;
 }
 function modelFactorHTML(p){
@@ -586,7 +586,7 @@ function playerModal(player){
       const edge=p?.edge==null?'—':`${p.edge>=0?'+':''}${(p.edge*100).toFixed(1)} pp`;
       return `<article class="nba3-modal-market"><div class="nba3-modal-market-top"><b>${esc(MARKET_LABELS[g.market])} · ${esc(g.line)}</b><span class="nba3-grade ${g.grade.cls}">${esc(g.grade.letter)}</span></div><div class="nba3-meter"><i style="left:${pos.toFixed(1)}%"></i></div><div class="nba3-modal-market-grid"><div><span>TSO PROJ</span><b>${p?esc(p.projection.toFixed(1)):'—'}</b></div><div><span>MODEL PROB</span><b>${esc((conf*100).toFixed(1))}%</b></div><div><span>EDGE</span><b>${esc(edge)}</b></div><div><span>PRICE</span><b>${esc(american(price))}</b></div></div>${p?`<div class="nba3-model-meta">L5 ${esc(p.last5??'—')} · L10 ${esc(p.last10??'—')} · baseline ${esc(p.seasonBaseline??'—')} · ${esc(p.recentMinutes??'—')} recent MPG · ${esc(p.restDays??'—')} rest days</div>`:''}</article>`;
     }).join('')}</div>
-    ${modeled[0]?.projection?`<div class="nba3-model-section"><div class="nba3-section-head"><span>Recent Verified Games · ${esc(MARKET_LABELS[modeled[0].market])}</span><small>line ${esc(modeled[0].line)}</small></div>${recentModelBars(modeled[0].projection)}</div><div class="nba3-model-section"><div class="nba3-section-head"><span>Projection Factors</span><small>multipliers vs baseline</small></div>${modelFactorHTML(modeled[0].projection)}</div>`:''}
+    ${modeled[0]?.projection?`<div class="nba3-model-section"><div class="nba3-section-head"><span>Recent Verified Games · ${esc(MARKET_LABELS[modeled[0].market])}</span><small>line ${esc(modeled[0].line)} · PRE dimmed</small></div>${recentModelBars(modeled[0].projection)}</div><div class="nba3-model-section"><div class="nba3-section-head"><span>Projection Factors</span><small>multipliers vs baseline</small></div>${modelFactorHTML(modeled[0].projection)}</div>`:''}
     <div class="nba3-modal-note">${modeled.length?'TSO Regression v1 uses verified ESPN completed-game history. Recent production is regressed toward the position baseline, then adjusted within guarded caps for minutes, usage proxy, venue split, opponent positional allowance, pace, rest and injury status. Sportsbook fair probability is used only for edge.':'Regression history is not ready for this player/matchup yet, so this modal is showing the market fallback only.'}</div>
   </div></section>`;
   const close=()=>el.remove();
