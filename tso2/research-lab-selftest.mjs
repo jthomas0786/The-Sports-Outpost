@@ -206,4 +206,72 @@ for(const sportCase of [
   assert.ok(root.innerHTML.includes(sportCase.expectedExtra),'Verified '+sportCase.sport+' minutes/TOI/barrel context');
 }
 
+
+// Experimental TSO FIRST TD is a model estimate, not historical hit rate
+// or a substituted sportsbook market price. Purity is a 0-100 signal.
+const modelFixture={
+  schemaVersion:1,source:'nflverse fixture',
+  seasons:{
+    '2025':{
+      gamesScanned:272,offensiveFirstTdGames:250,
+      teams:{DAL:{gamesPlayed:17,firstTdOffenseGames:9},TB:{gamesPlayed:17,firstTdOffenseGames:8}},
+      players:{GSIS1:{team:'DAL',firstTdGames:3},GSIS2:{team:'DAL',firstTdGames:2},
+        GSIS3:{team:'TB',firstTdGames:3}}
+    },
+    '2026':{
+      gamesScanned:64,offensiveFirstTdGames:60,
+      teams:{
+        DAL:{gamesPlayed:4,firstTdOffenseGames:2,redZoneOpps:49,goalLineOpps:20,carries:94,targets:145},
+        TB:{gamesPlayed:4,firstTdOffenseGames:2,redZoneOpps:40,goalLineOpps:18,carries:100,targets:140}
+      },
+      players:{
+        GSIS1:{team:'DAL',gamesWithOpportunities:4,firstTdGames:1,redZoneOpps:22,
+          goalLineOpps:11,carries:62,targets:17,goalLineSharePct:55,
+          redZoneSharePct:44.9,carrySharePct:66,targetSharePct:11.8,redZoneTdYieldPct:27.3},
+        GSIS2:{team:'DAL',gamesWithOpportunities:4,firstTdGames:1,redZoneOpps:8,
+          goalLineOpps:2,carries:12,targets:27},
+        GSIS3:{team:'TB',gamesWithOpportunities:4,firstTdGames:1,redZoneOpps:10,
+          goalLineOpps:3,carries:30,targets:15}
+      }
+    }
+  }
+};
+const modelSandbox={
+  window:{},URLSearchParams,setTimeout,console,
+  fetch:async url=>{
+    if(String(url).includes('nfl-td-opportunities.json'))
+      return {ok:true,json:async()=>modelFixture};
+    const params=new URL('https://fixture.test'+url).searchParams;
+    return {ok:true,json:async()=>({available:true,player:{
+      gsisId:params.get('name')==='Javonte Williams'?'GSIS1':'GSIS2',
+      name:params.get('name'),team:params.get('team'),position:'RB',depth:{rank:1},
+      previousSeason:{totalTds:13,games:16},currentSeason:{totalTds:6}
+    }})};
+  }
+};
+vm.runInNewContext(app.slice(0,seam),modelSandbox);
+const modeledFlow=modelSandbox.window.TSO2ResearchGameFlow;
+const modeledRoot={innerHTML:'',isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null},querySelectorAll(){return []}};
+modeledFlow.render(modeledRoot,{league:'nfl',games:[enrichedGame],rows:[
+  {...row('nfl','modeled-first','Javonte Williams','DAL','TB','atd',52.2),team:'DAL'},
+  {...row('nfl','modeled-other','Backup Runner','DAL','TB','atd',18.2),team:'DAL'}
+]});
+modeledRoot.onclick({target:{closest:()=>({
+  hasAttribute:k=>k==='data-rg2-game',
+  dataset:{rg2Game:'nfl|enrichment-fixture|TB|DAL|'+schedule}
+})}});
+await new Promise(resolve=>setTimeout(resolve,950));
+assert.match(modeledRoot.innerHTML,/<small>RB1 - DAL<\/small>/,'Role is inline beneath player name');
+assert.doesNotMatch(modeledRoot.innerHTML,/<th[^>]*>ROLE(?:\s|<)/,'No role column remains');
+assert.match(modeledRoot.innerHTML,/rg2-val-firstTd"><strong class="rg2-highlight"[^>]*>~\d+(?:\.\d+)?%<\/strong><small class="rg2-experimental">EST\.<\/small>/,
+  'First TD forecast explicitly marked experimental');
+assert.match(modeledRoot.innerHTML,/rg2-val-purity"><strong class="rg2-purity"[^>]*>41\/100<\/strong>/,
+  'Independent transparent TSO Purity score and sample-size adjustment');
+assert.match(modeledRoot.innerHTML,/not calibrated/,'Experimental label is not represented as validated odds');
+// The model may not assign >=100% to any known player or imply that only
+// the listed offensive players account for all first-TD outcomes.
+const firstForecasts=[...modeledRoot.innerHTML.matchAll(/rg2-val-firstTd"><strong[^>]*>~([\d.]+)%/g)].map(m=>Number(m[1]));
+assert.ok(firstForecasts.length>=1 && firstForecasts.every(p=>p>0&&p<52.3));
+assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for other scorers and no touchdown');
+
 console.log('PASS TSO 2.0 Research: game-card flow, all sports, native theme, verified deep-data columns, navigation and actions');
