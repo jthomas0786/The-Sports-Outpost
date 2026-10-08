@@ -1,0 +1,23 @@
+name: TSO 2.0 Launch Route Preflight
+on:
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Full public URL for TSO 2.0 preview (required for launch verification)'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  route-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Probe current production and preview frontend/API routes
+        env:
+          TSO2_PREVIEW_URL: ${{ inputs.preview_url }}
+        run: node tso2/launch-route-preflight.mjs
