@@ -22,6 +22,32 @@ const auth=window.TSO_AUTH={
   user:null,
   async signOut(){if(!client)throw new Error('Sign-out service is not connected.');const {error}=await client.auth.signOut();if(error)throw error;auth.user=null;auth.status='guest';renderIdentity();emit();},
   async refresh(){return refreshIdentity();},
+  async loadNotifications(limit=24){
+    const user=auth.user;
+    if(!client||!user?.id)return [];
+    const today=new Date().toLocaleDateString('en-CA');
+    const {data,error}=await client.from('notifications')
+      .select('id,type,payload,read,created_at,slate_date')
+      .eq('user_id',user.id)
+      .or('slate_date.is.null,slate_date.eq.'+today)
+      .order('created_at',{ascending:false})
+      .limit(Math.max(1,Math.min(40,Number(limit)||24)));
+    if(error)throw new Error(error.message||'Unable to load account notifications');
+    return Array.isArray(data)?data:[];
+  },
+  async markNotificationsRead(ids=null){
+    const user=auth.user;
+    if(!client||!user?.id)throw new Error('Sign in to mark notifications as read.');
+    let query=client.from('notifications').update({read:true}).eq('user_id',user.id).eq('read',false);
+    if(Array.isArray(ids)){
+      const safeIds=ids.map(Number).filter(x=>Number.isSafeInteger(x)&&x>0);
+      if(!safeIds.length)return;
+      query=query.in('id',safeIds);
+    }
+    const {error}=await query;
+    if(error)throw new Error(error.message||'Unable to save read status');
+  },
+
   async rpc(name,args={}){
     if(!client)throw new Error('Account data service is not connected yet.');
     const {data,error}=await client.rpc(name,args);
