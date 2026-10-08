@@ -297,6 +297,7 @@ assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for oth
   const g=games[3];
   const player={id:'n-1',name:'Source Verified Skater',team:'NYR',position:'RW',
     probability:0.071,anytimeProbability:0.291,photo:'https://example.com/player.png',
+    seasonGoalRate:0.52,seasonSogRate:3.18,recentGoals:5,recentFirstGoals:2,
     bestOdds:null,bestAtgOdds:null};
   const scorerGames=[{gameId:'nhl-fixture',startTime:schedule,
     away:{abbr:'NYR',players:[player],atgPlayers:[player]},
@@ -309,6 +310,12 @@ assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for oth
   assert.match(root.innerHTML,/29\.1%/,'TSO ATG engine output is displayed as a model percentage');
   assert.match(root.innerHTML,/7\.1%/,'TSO FGS engine output is displayed as a model percentage');
   assert.match(root.innerHTML,/TSO SCORER MODEL/,'Source is identified without claiming sportsbook odds');
+  assert.match(root.innerHTML,/GOALS\/GP/,'NHL goal rate column is named for the real stat');
+  assert.match(root.innerHTML,/SHOTS\/GP/,'NHL shots rate column is named for the real stat');
+  assert.match(root.innerHTML,/rg2-val-goalsGp\">0\.52/,'Season goal rate comes from the scorer feed');
+  assert.match(root.innerHTML,/rg2-val-sogGp\">3\.18/,'Season shots rate comes from the scorer feed');
+  assert.match(root.innerHTML,/rg2-val-l10Goals\">5/,'L10 goals comes from scorer source');
+  assert.match(root.innerHTML,/rg2-val-l10First\">2/,'L10 first goals comes from scorer source');
   assert.match(root.innerHTML,/disabled title="No verified exact sportsbook selection"/,'No add-to-slip action for model-only NHL rows');
   root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-add',dataset:{rg2Add:'0'}})}});
   assert.equal(adds,0,'Disabled scorer-only selection cannot be added to Parlay Lab');
