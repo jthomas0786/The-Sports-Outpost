@@ -3,7 +3,7 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-08T13:27:16.065Z",
+    "fetchedAt": "2026-10-08T23:28:05.593Z",
     "sportKeys": [
       "esports_cs2",
       "esports_valorant",
@@ -18,16 +18,31 @@
         "skipReason": "no-sportsbook-coverage",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
-          "player_shots_on_goal"
+          "player_headshots_on_maps_1_2",
+          "player_shots_on_goal",
+          "player_kills_on_map_1",
+          "player_headshots_on_map_1",
+          "spreads",
+          "moneyline",
+          "totals"
         ],
         "coverage": [
           {
+            "bookmaker": "sleeper",
+            "title": "Sleeper",
+            "freshRows": 13301,
+            "apiVisibleRows": 164,
+            "marketCount": 4,
+            "latestUpdate": "2026-10-08T23:22:27.000Z",
+            "status": "api_visible"
+          },
+          {
             "bookmaker": "underdog",
             "title": "Underdog Fantasy",
-            "freshRows": 1955,
-            "apiVisibleRows": 232,
-            "marketCount": 2,
-            "latestUpdate": "2026-10-08T13:26:56.000Z",
+            "freshRows": 2685,
+            "apiVisibleRows": 180,
+            "marketCount": 3,
+            "latestUpdate": "2026-10-08T23:25:00.000Z",
             "status": "api_visible"
           }
         ]
@@ -37,16 +52,28 @@
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "no-relevant-markets",
-        "discoveredMarkets": []
+        "skipReason": "discovery-error",
+        "error": "503 Service Unavailable: {\"error\":\"props_temporarily_busy\",\"detail\":\"The props board is being rebuilt under load. Retry in a couple of seconds.\"}",
+        "discoveredMarkets": [
+          "player_kills_on_maps_1_2",
+          "spreads",
+          "moneyline",
+          "totals"
+        ],
+        "coverage": null
       },
       {
         "sportKey": "esports_lol",
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "no-relevant-markets",
-        "discoveredMarkets": []
+        "skipReason": "discovery-error",
+        "error": "503 Service Unavailable: {\"error\":\"props_temporarily_busy\",\"detail\":\"The props board is being rebuilt under load. Retry in a couple of seconds.\"}",
+        "discoveredMarkets": [
+          "player_kills_on_maps_1_2_3",
+          "player_maps_1_3_kills"
+        ],
+        "coverage": null
       }
     ],
     "sportsbookRows": 0,
