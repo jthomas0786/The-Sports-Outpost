@@ -3,7 +3,7 @@
   'use strict';
   const sports=['all','nfl','nba','mlb','nhl'];
   const names={all:'ALL SPORTS',nfl:'NFL',nba:'NBA',mlb:'MLB',nhl:'NHL'};
-  const state={gameId:'',sport:'all',view:'lab',market:'all',team:'all',model:'all',query:'',sort:'edge',descending:true};
+  const state={gameId:'all',sport:'all',view:'lab',market:'all',team:'all',model:'all',query:'',sort:'edge',descending:true};
   let context=null,visibleRows=[],games=[];
   const escapeHTML=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const valid=x=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x));
@@ -118,6 +118,7 @@
     if(!root)return;
     context=props;
     const requested=props.league||'all';
+    if(state.sport!==requested)state.gameId=requested==='all'?'all':'';
     state.sport=sports.includes(requested)?requested:'all';
     const allGames=(Array.isArray(props.games)?props.games:[]).filter(g=>state.sport==='all'||g.league===state.sport);
     games=orderGames(allGames).slice(0,60).map((g,i)=>({...g,_labId:gameId(g,i)}));
@@ -135,7 +136,7 @@
     const gameMarkup=games.length?games.map(g=>'<button type="button" data-lab-game="'+escapeHTML(g._labId)+'" class="'+(g._labId===state.gameId?'is-active':'')+'" aria-pressed="'+(g._labId===state.gameId)+'"><b>'+escapeHTML(g.away?.abbr||'?')+' @ '+escapeHTML(g.home?.abbr||'?')+'</b><small>'+escapeHTML(g.state==='in'?(g.detail||'LIVE'):g.state==='post'?'FINAL':time(g.startTime))+'</small></button>').join(''):'<span class="lab2-no-games">No games on the current verified slate</span>';
     const matchup=selected?'<div class="lab2-matchup">'
       +gameTeam(selected.away,'AWAY')+'<div class="lab2-versus"><small>'+escapeHTML(names[selected.league]||abbr(selected.league))+' · '+escapeHTML(selected.state==='in'?'LIVE':selected.state==='post'?'FINAL':'SCHEDULED')+'</small><strong>'+escapeHTML(selected.state==='pre'?'VS':String(selected.away?.score??'—')+' : '+String(selected.home?.score??'—'))+'</strong><span>'+escapeHTML(time(selected.startTime))+'</span><small>'+escapeHTML(selected.venue||'Venue pending')+'</small></div>'+gameTeam(selected.home,'HOME')+'</div>':
-      '<div class="lab2-matchup lab2-matchup--empty"><b>All-sports Research Lab</b><span>Verified player props and modeled selections across NFL, NBA, MLB and NHL.</span></div>';
+      '<div class="lab2-matchup lab2-matchup--empty"><b>'+escapeHTML(state.sport==='all'?'All-sports Research Lab':names[state.sport]+' · All Games')+'</b><span>Verified player props and modeled selections. Select a game above to narrow the board.</span></div>';
     root.innerHTML='<div class="lab2-top"><div><span class="lab2-eyebrow">TSO 2.0 · RESEARCH</span><h1>Research Lab</h1><p>Game-by-game research · exact sportsbook lines · verified model intelligence</p></div><div class="lab2-top-actions"><button data-lab-refresh type="button">↻ REFRESH</button><button data-lab-props type="button">PROP BOARD →</button></div></div>'
       +'<div class="lab2-sports" role="group" aria-label="Choose sport">'+sports.map(s=>'<button type="button" data-lab-sport="'+s+'" aria-pressed="'+(state.sport===s)+'" class="'+(state.sport===s?'is-active':'')+'">'+names[s]+'</button>').join('')+'</div>'
       +'<div class="lab2-game-bar"><div class="lab2-game-heading"><b>GAME SELECTOR</b><button type="button" data-lab-all-games class="'+(state.gameId==='all'?'is-active':'')+'">ALL GAMES</button></div><div class="lab2-game-list">'+gameMarkup+'</div></div>'
