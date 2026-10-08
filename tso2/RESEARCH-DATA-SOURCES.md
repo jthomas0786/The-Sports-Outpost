@@ -10,7 +10,7 @@ original video's proprietary estimates.
 | Column | Actual TSO definition | Source / present status |
 | --- | --- | --- |
 | Player subtitle | Verified position and depth rank, e.g. RB1 - DAL | Under player name in the same cell; the separate Role column is removed across every sport |
-| ANYTIME % | Exact modeled anytime TD probability | Existing validated prop model matched to selection and game; dash when unavailable |
+| ANYTIME TD % | Exact validated game-specific TSO probability; otherwise clearly labeled bookmaker-implied % or observed recent-game TD occurrence % | MODEL = validated exact player-market model; MARKET = exact affirmative sportsbook odds (including vig); HIST · nG = verified TD-scoring game share in 3–10 completed games; dash if none available. The three measures are **not interchangeable probabilities**. |
 | FIRST % | TSO two-stage model of player scoring the first offensive game TD | Experimental and uncalibrated; marked EST. and prefixed ~; exact validated market model always takes priority when present |
 | 2025 1ST | Games with first touchdown scored / previous-season games played | New nflverse PBP first-TD event attribution + existing season games (e.g. 3/16). Excludes postseason, doesn't invent defensive/ST player credit |
 | 2025 TDs | Season rushing plus receiving TD total | nflverse 2025 player-season snapshot |
@@ -22,6 +22,8 @@ original video's proprietary estimates.
 | TGT % | Verified target share (%) | Existing nflverse player-season target share |
 | RZ % | Player carries+targets at/inside opponent 20 / team equivalents (%) | New nflverse 2026 PBP |
 | TSO PURITY | Original TSO opportunity-quality index, 0–100 | Experimental 2026 usage/TD conversion composite; NOT probability, hit rate, or the reference site's proprietary score |
+
+**NFL ANYTIME TD % fallbacks:** A MODEL value requires an existing validated exact player-market match. Otherwise, if that exact game has an affirmative sportsbook selection with numeric price and implied percentage, Research shows the bookmaker's implied % and labels it MARKET (including vig, not no-vig). If neither source exists, Research may show the share of up to ten recent *completed* verified NFL game logs in which the player scored at least one rushing or receiving TD, requiring at least three observed games. This displays as HIST · nG and is explicitly **not a prediction of the upcoming game**. Neither bookmaker-implied nor historical numbers should be sorted or interpreted as calibrated modeled win probabilities. Missing verified input stays —.
 
 **2025 1ST** is historical first-TD hit count, not a model probability.
 **YIELD, GL %, CARRY %, RZ %** are independently defined TSO ratios; their
