@@ -11090,3 +11090,261 @@ body.live-multi-open{overflow:hidden}
 .rg2-pbp-stats strong{font-size:22px;color:#f4f9ff;font-variant-numeric:tabular-nums}
 .rg2-pbp-disclaimer{font-size:11px;line-height:1.65;color:#91a9c6;margin:18px 0 0}
 @media(max-width:600px){.rg2-pbp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.rg2-pbp-stats strong{font-size:19px}}
+
+
+/* ============================================================
+   RESEARCH / TSO 2.0 BROADCAST SHELL PARITY
+   Uses the same destination hero, status deck, section headers,
+   charcoal surfaces and control proportions as Live/Models/Props.
+   Blue/cyan only identify Research — never reuse the old 1.0 UI.
+   ============================================================ */
+.broadcast-main:has(> .rg2-page){
+  width:100%;max-width:1540px;min-width:0;margin:0 auto;
+  padding:28px 24px 80px;
+}
+.rg2-page{
+  --rg-bg:#070b12;
+  --rg-panel:#0d121b;
+  --rg-line:rgba(255,255,255,.10);
+  --rg-blue:#2d7fff;
+  --rg-cyan:#77d9fa;
+  width:100%;max-width:100%;min-width:0;
+  color:#eef3fa;
+}
+.rg2-page .rg2-destination-hero{
+  display:flex;align-items:flex-end;justify-content:space-between;
+  gap:20px;padding:25px 0 24px;
+  border-bottom:1px solid rgba(255,255,255,.09);
+  background:none;position:relative;overflow:visible;
+}
+.rg2-page .rg2-destination-hero::after{content:none}
+.rg2-destination-copy{min-width:0;max-width:760px}
+.rg2-title-lockup{display:flex;align-items:center;gap:12px}
+.rg2-hero-icon{
+  width:41px;height:41px;flex:0 0 41px;object-fit:contain;
+  filter:drop-shadow(0 2px 12px rgba(45,127,255,.2))
+}
+.rg2-page .rg2-destination-kicker{
+  display:inline-flex;align-items:center;gap:8px;min-width:0;
+  font-size:11px;font-weight:950;letter-spacing:.13em;color:#84baff
+}
+.rg2-page .rg2-destination-kicker i{
+  width:7px;height:7px;flex:0 0 7px;border-radius:50%;
+  background:#2d7fff;box-shadow:0 0 12px rgba(45,127,255,.5)
+}
+.rg2-destination-hero h1{
+  margin:13px 0 9px;font-size:clamp(29px,3.05vw,41px);
+  letter-spacing:-.045em;line-height:1.09;font-weight:950;color:#f4f7fc
+}
+.rg2-destination-hero h1 em{font-style:normal;color:#77c4ff}
+.rg2-destination-hero p{
+  margin:0;max-width:700px;font-size:13px;line-height:1.65;color:#8492a7
+}
+.rg2-page .rg2-destination-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.rg2-page .rg2-source-status{color:#91a3b9;letter-spacing:.07em}
+.rg2-page .rg2-refresh.button.primary{
+  min-height:39px;background:#2d7fff;border:1px solid #5597ff;
+  color:white;box-shadow:none;border-radius:3px;
+  padding:0 16px;font-size:11px!important;font-weight:900;
+  white-space:nowrap;
+}
+.rg2-page .rg2-refresh.button.primary:hover{background:#418aff;border-color:#73acff}
+.rg2-status-deck{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:0;min-width:0;min-height:67px;margin:17px 0 14px;
+  border:1px solid rgba(255,255,255,.10);
+  background:linear-gradient(90deg,rgba(45,127,255,.035),#0b1019 37%,#090d14);
+}
+.rg2-status-item{
+  min-width:0;display:flex;flex-direction:column;justify-content:center;gap:7px;
+  padding:13px 17px;border-right:1px solid rgba(255,255,255,.075)
+}
+.rg2-status-item:last-child{border-right:none}
+.rg2-status-item span{
+  font-size:9px;letter-spacing:.13em;font-weight:850;color:#6c829e
+}
+.rg2-status-item strong{font-size:12px;font-weight:950;letter-spacing:.04em;color:#e1edff}
+.rg2-status-item--last strong{color:#75c3fc}
+.rg2-page .rg2-filter-row.live-filter-strip{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:14px;min-width:0;min-height:56px;
+  padding:9px 11px;margin:0 0 20px;
+  border:1px solid rgba(255,255,255,.09);
+  background:#0a0e16;
+}
+.rg2-page .rg2-leagues.segmented{
+  display:flex;align-items:center;gap:2px;max-width:100%;
+  padding:3px;min-width:0;border:1px solid rgba(255,255,255,.08);
+  border-radius:3px;background:#070b12;flex-wrap:nowrap;
+  overflow-x:auto;scrollbar-width:none
+}
+.rg2-page .rg2-leagues.segmented button{
+  flex:0 0 auto;min-height:33px;line-height:1.1;padding:9px 15px;
+  font-size:11px;font-weight:900;border:1px solid transparent;
+  border-radius:2px;white-space:nowrap;
+  color:#8c9aad;background:transparent;box-shadow:none;
+}
+.rg2-page .rg2-leagues.segmented button.is-active{
+  color:#fff;background:#203958;border-color:#3f79ca;
+  box-shadow:inset 0 -2px #2d7fff;
+}
+.rg2-page .rg2-leagues.segmented button:hover:not(.is-active){color:#e9f3ff;background:#141e2d}
+.rg2-page .rg2-count{
+  flex:0 0 auto;font-size:11px;font-weight:700;color:#778aa3;
+  padding:0 6px
+}
+.rg2-page .rg2-game-section{margin-top:23px;min-width:0}
+.rg2-page .rg2-section-header{
+  min-height:55px;display:flex;justify-content:space-between;align-items:flex-end;
+  gap:10px;padding:0 0 12px;border-bottom:1px solid rgba(255,255,255,.09)
+}
+.rg2-page .rg2-section-kicker{
+  display:block;font-size:10px;font-weight:900;letter-spacing:.15em;color:#74aaff
+}
+.rg2-page .rg2-section-header h2{
+  color:#edf4fe;font-size:23px;line-height:1.2;letter-spacing:-.02em;
+  font-weight:900;margin:5px 0 0
+}
+.rg2-page .rg2-section-header>small{
+  color:#72879d;font-size:10px;font-weight:850;letter-spacing:.06em;white-space:nowrap
+}
+.rg2-page .rg2-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:14px}
+.rg2-page .rg2-game-card{
+  min-width:0;min-height:206px;border-radius:4px;overflow:hidden;
+  background:#0c121b;border:1px solid rgba(255,255,255,.105);
+  box-shadow:none;transition:border-color .15s,background .15s,transform .15s
+}
+.rg2-page .rg2-game-card::before{
+  height:2px;opacity:.9;background:linear-gradient(90deg,#2d7fff,#7bdaff,transparent 85%)
+}
+.rg2-page .rg2-game-card:hover{
+  background:#101b2a;border-color:rgba(85,157,250,.55);transform:translateY(-1px)
+}
+.rg2-page .rg2-game-card-top{
+  padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.065)
+}
+.rg2-page .rg2-game-card-top span{color:#97a8c1;font-weight:850}
+.rg2-page .rg2-card-matchup{padding:14px 16px}
+.rg2-page .rg2-logo{background:transparent;box-shadow:none}
+.rg2-page .rg2-game-lines{gap:6px;margin-bottom:12px}
+.rg2-page .rg2-game-lines>span{
+  border:1px solid rgba(255,255,255,.07);border-radius:2px;
+  background:#090f18;padding:8px 6px
+}
+.rg2-page .rg2-game-foot{padding:11px 0;border-top:1px solid rgba(255,255,255,.07)}
+.rg2-page .rg2-game-foot b{color:#79baff}
+.rg2-page .rg2-empty{border-radius:4px;background:#0d131d;border-color:rgba(255,255,255,.11)}
+.rg2-page .rg2-detail-top{
+  display:flex;flex-wrap:wrap;align-items:center;gap:14px;
+  justify-content:space-between;margin:18px 0 12px;min-width:0;
+}
+.rg2-page .rg2-detail-top .rg2-kicker{color:#79a9e7}
+.rg2-page .rg2-matchup-strip{
+  min-width:0;min-height:140px;border-radius:4px;
+  border:1px solid rgba(255,255,255,.11);
+  background:linear-gradient(106deg,rgba(45,127,255,.07),transparent 43%),#0c141f;
+  box-shadow:inset 3px 0 #2d7fff;padding:20px 22px;
+}
+.rg2-page .rg2-matchup-markets{border-color:rgba(255,255,255,.1)}
+.rg2-page .rg2-matchup-markets>span{border-color:rgba(255,255,255,.07)}
+.rg2-page .rg2-game-rail{
+  display:flex;gap:7px;padding:9px 0 5px;max-width:100%;
+  overflow-x:auto;overscroll-behavior-inline:contain
+}
+.rg2-page .rg2-game-rail button{
+  border-radius:3px;background:#0a111a;border-color:rgba(255,255,255,.105);
+  min-height:54px;min-width:143px;flex:0 0 auto;color:#9baec3
+}
+.rg2-page .rg2-game-rail button.is-active{
+  color:#f0f6ff;background:#152239;border-color:#2d7fff;
+  box-shadow:inset 0 -2px #2d7fff
+}
+.rg2-page .rg2-detail{min-width:0;margin-top:12px}
+.rg2-page .rg2-detail-nav{
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  min-width:0;padding:12px;gap:12px;
+  border:1px solid rgba(255,255,255,.105);background:#0b111b
+}
+.rg2-page .rg2-tabs{min-width:0;display:flex;gap:3px;overflow-x:auto;max-width:100%}
+.rg2-page .rg2-tabs button{
+  border-radius:2px;white-space:nowrap;min-height:38px;
+  color:#95a4b8;padding:8px 12px;font-weight:850
+}
+.rg2-page .rg2-tabs button.is-active{
+  border-color:rgba(45,127,255,.36);box-shadow:inset 0 -2px #2d7fff;
+  background:#172c48;color:#f0f6ff
+}
+.rg2-page .rg2-view{border-radius:3px;background:#080c14;border-color:rgba(255,255,255,.12)}
+.rg2-page .rg2-view button{border-radius:2px}
+.rg2-page .rg2-view button.is-active{background:#2d7fff;color:white;box-shadow:none}
+.rg2-page .rg2-lab-heading{padding:22px 0 15px;border-bottom:1px solid rgba(255,255,255,.08)}
+.rg2-page .rg2-lab-heading h2{color:#f1f6ff;font-size:clamp(23px,2.4vw,29px)}
+.rg2-page .rg2-lab-heading h2 em{color:#6db5ff}
+.rg2-page .rg2-searchbar{padding:15px 0}
+.rg2-page .rg2-searchbar select,.rg2-page .rg2-find{
+  background:#0c131e!important;color:#eaf4ff;
+  border:1px solid rgba(255,255,255,.13)!important;border-radius:3px;
+}
+.rg2-page .rg2-table-scroll{
+  min-width:0;max-width:100%;width:100%;border-radius:4px;
+  border-color:rgba(255,255,255,.12);background:#0b1119
+}
+.rg2-page .rg2-table{min-width:1140px;border-spacing:0 2px}
+.rg2-page .rg2-table th{background:#121a27;border-color:rgba(255,255,255,.11);color:#9ba9bc}
+.rg2-page .rg2-table th:first-child{background:#152132}
+.rg2-page .rg2-table td{background:#0e1622;border-color:rgba(255,255,255,.045);color:#e7edf7}
+.rg2-page .rg2-table td:first-child{background:#101b2a}
+.rg2-page .rg2-table tr:hover td{background:#19283a}
+.rg2-page .rg2-highlight{
+  color:#c3e6ff;background:rgba(45,127,255,.16);border-color:rgba(75,151,255,.37);
+  border-radius:3px;min-height:30px;
+}
+.rg2-page .rg2-player-card,.rg2-page .rg2-rank-row{
+  border-radius:4px;box-shadow:none;background:#0d1623;
+  border:1px solid rgba(255,255,255,.11)
+}
+.rg2-page .rg2-player-card{padding:16px}
+.rg2-page .rg2-rank-row{padding:12px 13px}
+.rg2-page .rg2-action button,.rg2-page .rg2-player-card button,.rg2-page .rg2-rank-actions button{
+  border-radius:3px;background:#112035;border:1px solid rgba(96,143,214,.3);
+  color:#d7eaff
+}
+.rg2-page .rg2-method{background:#0b131e;border-radius:3px}
+@media(max-width:1000px){
+  .rg2-page .rg2-destination-hero{align-items:flex-start;flex-direction:column}
+  .rg2-page .rg2-destination-actions{justify-content:flex-start}
+  .rg2-page .rg2-status-deck{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rg2-page .rg2-status-item:nth-child(2){border-right:0}
+  .rg2-page .rg2-status-item:nth-child(-n+2){border-bottom:1px solid rgba(255,255,255,.07)}
+}
+@media(max-width:800px){
+  .rg2-page .rg2-cards{grid-template-columns:1fr}
+  .rg2-page .rg2-detail-nav{flex-direction:column;align-items:stretch}
+  .rg2-page .rg2-tabs{width:100%}
+}
+@media(max-width:600px){
+  .broadcast-main:has(> .rg2-page){padding:16px 12px 80px}
+  .rg2-page .rg2-destination-hero{padding:11px 0 18px;gap:13px}
+  .rg2-page .rg2-hero-icon{width:32px;height:32px;flex-basis:32px}
+  .rg2-page .rg2-destination-kicker{font-size:9px;letter-spacing:.07em}
+  .rg2-page .rg2-destination-hero h1{font-size:clamp(28px,7.5vw,34px);margin:12px 0 7px}
+  .rg2-page .rg2-destination-hero p{font-size:12px;line-height:1.5}
+  .rg2-page .rg2-status-deck{min-height:0;margin:12px 0}
+  .rg2-page .rg2-status-item{padding:11px 12px;gap:5px}
+  .rg2-page .rg2-status-item span{font-size:8px}
+  .rg2-page .rg2-status-item strong{font-size:11px}
+  .rg2-page .rg2-filter-row.live-filter-strip{flex-direction:column;align-items:flex-start;gap:8px;padding:7px 8px}
+  .rg2-page .rg2-leagues.segmented{width:100%;max-width:100%}
+  .rg2-page .rg2-leagues.segmented button{flex:1 0 auto;padding:9px 10px}
+  .rg2-page .rg2-count{padding:0 4px 3px}
+  .rg2-page .rg2-game-section{margin-top:18px}
+  .rg2-page .rg2-section-header h2{font-size:20px}
+  .rg2-page .rg2-section-header>small{white-space:normal;text-align:right}
+  .rg2-page .rg2-game-card{min-height:200px}
+  .rg2-page .rg2-detail-top{justify-content:flex-start;gap:8px;margin-top:12px}
+  .rg2-page .rg2-detail-top .rg2-kicker{width:100%;order:-1}
+  .rg2-page .rg2-matchup-strip{padding:13px 12px}
+  .rg2-page .rg2-matchup-markets{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .rg2-page .rg2-lab-heading{padding-top:16px}
+  .rg2-page .rg2-player-grid{grid-template-columns:1fr}
+}
