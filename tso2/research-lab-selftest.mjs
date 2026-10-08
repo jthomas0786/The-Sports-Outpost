@@ -230,6 +230,56 @@ assert.match(enrichedRoot.innerHTML,/rg2-val-firstTd"><span class="rg2-na"/,'Pre
     'No guaranteed touchdown probability inferred from historical outcomes');
 }
 
+// A real nflverse-only player is named "J.Williams", not "Javonte Williams".
+// The GSIS join must hydrate verified completed-game statistics and a full
+// headshot without requiring an exact sportsbook price or guessing identity.
+{
+  const gsis='00-0036997';
+  const source={schemaVersion:1,source:'nflverse fixture',
+    generatedAt:new Date().toISOString(),seasons:{
+      '2025':{players:{[gsis]:{name:'J.Williams',team:'DAL',firstTdGames:1}}},
+      '2026':{players:{[gsis]:{name:'J.Williams',team:'DAL',
+        carries:62,targets:17,gamesWithOpportunities:4,firstTdGames:2}}}
+    }};
+  let seenPlayerId='';
+  const sandbox={window:{},URLSearchParams,setTimeout,console,
+    fetch:async url=>{
+      if(String(url).includes('nfl-td-opportunities.json'))
+        return {ok:true,json:async()=>source};
+      const u=new URL('https://fixture.test'+url);
+      seenPlayerId=u.searchParams.get('playerId')||'';
+      if(seenPlayerId!==gsis)return {ok:true,json:async()=>({available:false})};
+      return {ok:true,json:async()=>({available:true,player:{
+        name:'Javonte Williams',gsisId:gsis,team:'DAL',position:'RB',
+        headshot:'https://a.espncdn.com/i/headshots/nfl/players/full/4361579.png',
+        currentSeason:{totalTds:6},previousSeason:{totalTds:13,games:16},
+        gameLog:[
+          {date:'2026-10-04',tds:3},{date:'2026-09-27',tds:1},
+          {date:'2026-09-20',tds:0},{date:'2026-09-13',tds:2}
+        ]
+      }})};
+    }};
+  vm.runInNewContext(app.slice(0,seam),sandbox);
+  const flow=sandbox.window.TSO2ResearchGameFlow;
+  const root={innerHTML:'',dataset:{},isConnected:true,contains:()=>true,
+    scrollIntoView(){},querySelector(){return null}};
+  const game={id:'gsis-join',league:'nfl',state:'pre',startTime:schedule,
+    away:{abbr:'TB',name:'Tampa Bay Buccaneers'},
+    home:{abbr:'DAL',name:'Dallas Cowboys'}};
+  flow.render(root,{league:'nfl',games:[game],rows:[]});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:'nfl|gsis-join|TB|DAL|'+schedule}})}});
+  await new Promise(resolve=>setTimeout(resolve,1050));
+  assert.equal(seenPlayerId,gsis,'Correct verified GSIS ID is used for NFL detail');
+  assert.match(root.innerHTML,/Javonte Williams/,'Use source-verified full name, not short initial');
+  assert.match(root.innerHTML,/headshots\/nfl\/players\/full\/4361579\.png/,
+    'Use player-linked ESPN headshot from verified GSIS record');
+  assert.match(root.innerHTML,/rg2-val-atd"><span class="rg2-atd-stack"[^>]*>[\s\S]*?75%<\/strong><small>HIST · 4G/,
+    'Three touchdowns-scoring games out of four render 75% as historical');
+  assert.match(root.innerHTML,/rg2-val-yearTD">6/,'Actual current-season TD total is populated');
+  assert.match(root.innerHTML,/rg2-val-prevTD">13/,'Actual prior-season TD total is populated');
+}
+
 // Verified NBA, NHL and MLB game logs fill historical L5 hit rates. These
 // rates are NOT model win probabilities and never replace model percentages.
 for(const sportCase of [
