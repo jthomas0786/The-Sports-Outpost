@@ -468,13 +468,14 @@
       +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
       +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
       +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats and model signals from verified feeds.'+(scorer.length?' NHL scorer-model rows are not sportsbook selections.':'')+(pbp.length?' NFL PBP usage is historical data'+(pbpSnapshot?' as of '+pbpSnapshot:'')+', not a sportsbook offer.':'')+(roster.length?' ESPN NBA roster rows display only verified historical box-score stats. No sportsbook line, projection, or probability is inferred.':'')+'</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
+      +(g.league==='nfl'&&['td','key'].includes(state.tab)?'<div class="rg2-atd-legend" aria-label="Anytime touchdown percentage sources"><b>ANYTIME TD % SOURCES</b><span><i class="rg2-source-pip rg2-source-pip--model"></i> MODEL: TSO chance</span><span><i class="rg2-source-pip rg2-source-pip--market"></i> MARKET: sportsbook implied (vig)</span><span><i class="rg2-source-pip rg2-source-pip--history"></i> HIST: actual TD game rate (not a prediction)</span></div>':'')
       +'<div class="rg2-mode-description"><span class="rg2-mode-indicator">'+esc(state.view.toUpperCase())+' VIEW</span><p>'+esc(state.view==='board'?'Player cards focused on model strength, market and edge.':state.view==='rank'?(historicalOnly?'Ranked by verified 2026 carries + targets, not predicted touchdown probability.':nbaHistoryOnly?'Ranked by verified last-five game averages, not predicted probabilities.':'Ranked players using the active column and sort direction.'):'Full statistical lab: compare player production, usage and model context side by side.')+'</p></div>'
       +'<div class="rg2-searchbar"><label class="rg2-find"><span>⌕</span><input data-rg2-search type="search" placeholder="Search players or stats" value="'+esc(state.query)+'" aria-label="Filter players"></label>'
       +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
       +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
       +(visible.length?board:nbaRosterLoading?'<div class="rg2-empty" role="status"><b>Loading verified NBA rosters…</b><span>Connecting to ESPN player records. Historical research will appear independently of sportsbook availability.</span></div>':'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
-      +'<details class="rg2-method"><summary>ABOUT THESE NUMBERS <span>Data sources &amp; methodology ↓</span></summary><div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental uncalibrated NFL first-TD estimate. All TSO PURITY scores are separate 0–100 data-quality/opportunity consistency indexes, not probabilities; NBA/NHL/MLB depend on selected-market recent verified game logs. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div></details>'
+      +'<details class="rg2-method"><summary>ABOUT THESE NUMBERS <span>Data sources &amp; methodology ↓</span></summary><div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. ANYTIME TD % prefers a validated game-specific model, then exact sportsbook-implied percentage including margin, then a verified historical last-up-to-10-games TD hit rate labeled HIST. Bookmaker and historic percentages must not be mistaken for model probabilities. FIRST % is an experimental uncalibrated NFL first-TD estimate. All TSO PURITY scores are separate 0–100 data-quality/opportunity consistency indexes, not probabilities; NBA/NHL/MLB depend on selected-market recent verified game logs. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div></details>'
       +'</section>';
   }
   function groupPlayers(rows){
@@ -719,6 +720,25 @@
     const sampleFactor=0.7+0.3*Math.min(1,games/8);
     return Math.round(Math.max(0,Math.min(100,sourceScore*sampleFactor)));
   }
+  // Distinguish game-specific model probability, exact bookmaker implied
+  // percentage (including vig), and observed touchdown occurrence in game logs.
+  function nflAnytimeSource(p){
+    const exact=forP(p,'atd');
+    if(exact&&validModel(exact))return {value:mode(exact),kind:'model',sample:0};
+    if(exact&&!exact.researchPbpRow&&yes(exact)&&
+       num(exact.impliedPct)!==null&&num(exact.price)!==null){
+      const implied=num(exact.impliedPct);
+      if(implied>=0&&implied<=100)return {value:implied,kind:'market',sample:0};
+    }
+    const g=gameList.find(game=>id(game)===state.gameKey);
+    const deep=getDetails(g,p)?.player||{};
+    const logs=(Array.isArray(deep.gameLog)?deep.gameLog:[])
+      .filter(r=>Number.isFinite(Date.parse(r?.date||''))&&num(r?.tds)!==null&&num(r.tds)>=0)
+      .sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,10);
+    if(logs.length<3)return null;
+    const scored=logs.filter(r=>Number(r.tds)>=1).length;
+    return {value:+(scored/logs.length*100).toFixed(1),kind:'history',sample:logs.length};
+  }
   function columnData(p,key,sport){
     const r=best(p)||{},m=r.model||{},pModel=validModel(r);
     const selectedGame=gameList.find(g=>id(g)===state.gameKey);
@@ -770,7 +790,8 @@
       case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds'])??num(current.totalTds);
       case 'opps':return currentPbp?(num(currentPbp.carries)??0)+(num(currentPbp.targets)??0):null;
       case 'firstTd':return marketLine&&validModel(marketLine)?mode(marketLine):firstTdEstimate(selectedGame,p);
-      case 'atd':case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
+      case 'atd':return sport==='nfl'?nflAnytimeSource(p)?.value??null:(marketLine&&validModel(marketLine)?mode(marketLine):null);
+      case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
         return marketLine&&validModel(marketLine)?mode(marketLine):null;
       default:return null;
     }
@@ -794,6 +815,15 @@
     }
     if(['prevTD','yearTD','opps'].includes(key))return fmt(value,0);
     if(key==='purity'){const notes={nfl:'Opportunity quality: goal-line share 30%, red-zone share 30%, position opportunity share 20%, red-zone TD yield 20%.',nba:'Selected exact-line last-10 hit rate 45%, production consistency 35%, recent minutes 20%.',nhl:'Selected exact-line last-10 hit rate 45%, production consistency 35%, time-on-ice stability 20%.',mlb:'Selected exact-line last-10 hit rate 45%, hard-hit percentage 30%, barrel percentage relative to 20% reference 25%.'};return '<strong class="rg2-purity" title="Experimental TSO Purity, 0–100 opportunity-quality index; not a probability. '+esc(notes[sport]||'')+' Sample-size adjusted.">'+fmt(value,0)+'/100</strong>';}
+    if(key==='atd'&&sport==='nfl'){
+      const info=nflAnytimeSource(p);
+      if(!info)return '<span class="rg2-na" title="No verified anytime model, exact market price or completed-game history">—</span>';
+      const tooltip=info.kind==='model'?'Exact-match validated TSO touchdown model':
+        info.kind==='market'?'Exact sportsbook-implied percentage, INCLUDING bookmaker margin. Not a TSO model prediction.':
+        'Observed TD hit rate in '+info.sample+' completed games. Historical rate ONLY, NOT a prediction.';
+      const badge=info.kind==='model'?'MODEL':info.kind==='market'?'MARKET':'HIST · '+info.sample+'G';
+      return '<span class="rg2-atd-stack" title="'+esc(tooltip)+'"><strong class="rg2-highlight rg2-atd--'+info.kind+'">'+percent(info.value)+'</strong><small>'+esc(badge)+'</small></span>';
+    }
     if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">'+percent(value)+'</strong>';
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
     if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
@@ -810,9 +840,9 @@
   }
   function columns(sport,tab){
     if(tab==='all'||tab==='props')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
-    if(sport==='nfl'&&tab==='td')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['opps','2026 OPPS'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','TSO PURITY']];
+    if(sport==='nfl'&&tab==='td')return [['atd','ANYTIME TD %'],['firstTd','FIRST %'],['opps','2026 OPPS'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','TSO PURITY']];
     if(sport==='nfl'&&tab==='defense')return [['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
-    if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
+    if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME TD %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
     if(sport==='nhl'&&tab==='goals')return [['atg','ANYTIME %'],['fgs','FIRST %'],['goalsGp','GOALS/GP'],['sogGp','SHOTS/GP'],['toi','TOI MIN'],['l10Goals','L10 GOALS'],['l10First','L10 FIRST'],['l5','L5 %'],['edge','EDGE'],['price','ODDS'],['purity','TSO PURITY']];
     if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
