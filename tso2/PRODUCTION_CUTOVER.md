@@ -110,3 +110,13 @@ The authoritative Cloudflare zone is active with SSL mode `full` and **no produc
 - Notifications: **in-app live signals plus authenticated saved-account inbox are implemented**. Browser end-to-end review, saved alert read-back after reload, realtime subscription testing, alert preferences, and background device push remain **unverified or incomplete**; do not mark push ready.
 - Four static UI integration checks passed in source-level validation; module syntax checked for `app.js`, `admin.js`, `auth.js`. This does not replace a successful full GitHub Actions run.
 - Frozen candidate currently pinned to `bd991ec4dd34e679b0bf8dc886e6094c646cc32e` on `tso2-release-candidate`. Main and production routing are untouched.
+
+## Owner-approved TSO 2.0 application icon (October 8, 2026)
+
+- Source of truth: `tso2/brand/identity/tso2-app-icon-master-approved.png` — exact owner-approved generated TSO lettermark artwork, 1254×1254.
+- Optimized derivative assets: 192px and 512px PNG for Android/installable manifest, 180px PNG for iOS Add to Home Screen, multi-size 16/32/48 ICO and 32px PNG for browsers, and 512px WebP for Brand Lab preview.
+- TSO 2.0's `index.html` now links the new icon family and `manifest.webmanifest`. The live site still uses TSO 1.0 until explicit approval.
+- `tso2/brand-lab.html` and the staging/release Worker Brand Lab surfaces show the newly approved app icon instead of the retired cropped icon. Original primary logo and horizontal wordmark remain unchanged.
+- Both TSO 2.0 Workers now route `/manifest.webmanifest` and `/favicon.ico`, and serve PNG/ICO/WebP with the proper MIME types.
+- Release candidate currently pinned to `4ed2a8f80024e2367ce3bb4adcc9e4c22e8ce0ef`. It must pass the latest CI preflight and actual browser installation QA before launch.
+- PWA icon art is approved; this does not mean background push notifications or offline functionality are launch-ready.
