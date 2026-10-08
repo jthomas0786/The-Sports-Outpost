@@ -19,6 +19,35 @@
   // Odds probabilities still come ONLY from the exact player-market model rows.
   const detailCache=new Map(), detailPending=new Set(), detailQueue=[];
   const DETAIL_TTL_MS=180000;
+  // A compact, branch-isolated source derived from nflverse PBP (CC BY 4.0).
+  // GSIS IDs prevent accidentally assigning another player's shares/history.
+  const NFL_PBP_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-2.0-restructure/tso2/data/nfl-td-opportunities.json';
+  const pbpState={data:null,fetchedAt:0,pending:null};
+  function pbpPlayer(deep,year){
+    const gsis=String(deep?.gsisId||'').trim();
+    if(!gsis||pbpState.data?.schemaVersion!==1)return null;
+    return pbpState.data.seasons?.[String(year)]?.players?.[gsis]||null;
+  }
+  function requestNflPbp(){
+    if(typeof fetch!=='function')return;
+    if(pbpState.pending||Date.now()-pbpState.fetchedAt<300000)return;
+    pbpState.fetchedAt=Date.now();
+    pbpState.pending=fetch(NFL_PBP_URL+'?v='+Math.floor(Date.now()/300000),{cache:'no-store'})
+      .then(async response=>{
+        if(!response.ok)throw Error('NFL source HTTP '+response.status);
+        const payload=await response.json();
+        if(payload?.schemaVersion!==1||!payload?.source?.includes('nflverse')
+          ||!payload?.seasons?.['2025']?.players||!payload?.seasons?.['2026']?.players)throw Error('Unverified NFL PBP payload');
+        pbpState.data=payload;
+        queueRefresh();
+      })
+      .catch(error=>{
+        // The optional situational data may not have been published yet.
+        // Keep these columns unavailable rather than substituting an estimate.
+        console.warn('TSO NFL PBP enrichment unavailable:',String(error?.message||error));
+      })
+      .finally(()=>{pbpState.pending=null;});
+  }
   let activeRequests=0,hostRoot=null,refreshTimer=null;
   const detailsKey=(g,p)=>[g.league,id(g),String(p?.name||'').toLowerCase(),String(p?.team||'').toLowerCase()].join('|');
   const getDetails=(g,p)=>{
@@ -150,6 +179,7 @@
     const selectedRows=state.tab==='key'?selection.filter(validModel):selection;
     const players=(state.tab==='all'||state.tab==='props')?selectedRows.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selectedRows);
     queuePlayerDetails(g,players);
+    if(g.league==='nfl')requestNflPbp();
     const cols=columns(g.league,state.tab);
     const sortValue=p=>cellRaw(p,state.sort,g.league);
     players.sort((a,b)=>{const x=sortValue(a),y=sortValue(b);if(x===null&&y!==null)return 1;if(x!==null&&y===null)return -1;
@@ -174,7 +204,7 @@
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
       +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
       +(visible.length?board:'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
-      +'<div class="rg2-note">— means this statistic is not provided by a verified feed. No estimated history, usage, probabilities or fake players. INTEL opens the existing TSO Deep Research panel.</div>'
+      +'<div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. First-TD predictions and Purity require separately validated models. INTEL opens Deep Research.</div>'
       +'</section>';
   }
   function groupPlayers(rows){
@@ -195,6 +225,7 @@
     const selectedGame=gameList.find(g=>id(g)===state.gameKey);
     const deep=getDetails(selectedGame,p)?.player||{};
     const previous=deep.previousSeason||{},current=deep.currentSeason||{},recent=deep.last5||{};
+    const prevPbp=pbpPlayer(deep,2025),currentPbp=pbpPlayer(deep,2026);
     const recentTdRate=num(recent.avg?.tds),seasonTdRate=num(current.perGame?.tds);
     const marketLine=forP(p,key)||null;
     switch(key){
@@ -207,16 +238,16 @@
       case 'projected':return project(r);
       case 'line':return num(r.line);
       case 'form':return val(m,['trendPct','formPct','form.score'])??val(r,['stats.formPct'])??(recentTdRate!==null&&seasonTdRate!==null?recentTdRate-seasonTdRate:null);
-      case 'yield':return val(m,['yieldPct','yield']);
+      case 'yield':return currentPbp?.redZoneTdYieldPct??val(m,['yieldPct','yield']);
       case 'purity':return val(m,['purity','purityScore']);
       case 'usage':return val(m,['usagePct','usage.usagePct','context.usagePct']);
       case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes'])??num(deep.recentAverages?.minutes);
       case 'toi':return val(m,['toi','usage.toi'])??num(deep.recentAverages?.toi);
       case 'snap':return val(m,['snapPct','usage.snapPct'])??num(deep.snapTrend?.avgOffensePct);
-      case 'gl':return val(m,['goalLinePct','usage.goalLinePct']);
-      case 'carry':return val(m,['carryPct','usage.carryPct']);
+      case 'gl':return currentPbp?.goalLineSharePct??val(m,['goalLinePct','usage.goalLinePct']);
+      case 'carry':return currentPbp?.carrySharePct??val(m,['carryPct','usage.carryPct']);
       case 'target':return val(m,['targetPct','usage.targetPct'])??num(current.targetShare);
-      case 'rz':return val(m,['redZonePct','usage.redZonePct']);
+      case 'rz':return currentPbp?.redZoneSharePct??val(m,['redZonePct','usage.redZonePct']);
       case 'barrel':return val(m,['barrelPct','contact.barrelPct'])??num(deep.statcast?.barrelPct);
       case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct'])??num(deep.statcast?.hardHitPct);
       case 'l5':return val(m,['hitRateL5','last5RatePct','history.l5Pct']);
@@ -225,7 +256,7 @@
       case 'opprush':return num(deep.matchup?.previousSeasonAllowed?.perGame?.rushYds);
       case 'opprec':return num(deep.matchup?.previousSeasonAllowed?.perGame?.recYds);
       case 'oppcarries':return num(deep.matchup?.previousSeasonAllowed?.perGame?.carries);
-      case 'prevFirst':return val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds'])??num(previous.firstTdGames);
+      case 'prevFirst':return prevPbp?.firstTdGames??val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds'])??num(previous.firstTdGames);
       case 'prevTD':return val(m,['previousSeasonTds','history.prevSeasonTds'])??num(previous.totalTds);
       case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds'])??num(current.totalTds);
       case 'atd':case 'firstTd':case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
@@ -244,7 +275,12 @@
     const value=columnData(p,key,sport);
     if(value===null)return '<span class="rg2-na" title="Source data unavailable">—</span>';
     if(['projected','minutes','toi','opptds','opprush','opprec','oppcarries'].includes(key))return fmt(value,2);
-    if(['prevFirst','prevTD','yearTD'].includes(key))return fmt(value,0);
+    if(key==='prevFirst'){
+      const deep=getDetails(gameList.find(g=>id(g)===state.gameKey),p)?.player||{};
+      const games=num(deep.previousSeason?.games);
+      return fmt(value,0)+(games!==null&&games>0?'/'+fmt(games,0):'');
+    }
+    if(['prevTD','yearTD'].includes(key))return fmt(value,0);
     if(key==='purity')return fmt(value,0);
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
     if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
