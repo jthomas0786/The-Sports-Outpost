@@ -62,10 +62,23 @@ is present. No current-season player data or no reliable GSIS match
 means the model displays a dash.
 
 This is an **experimental heuristic** using real source features
-and deliberately simple, disclosed weights. It has **not yet been
-backtested or probability calibrated**; forecasts are marked EST. and
-shown with a leading approximation symbol. They are neither sportsbook
-lines nor assured win probabilities.
+and deliberately simple, disclosed weights. The **full player-level
+model** has not yet been backtested or probability calibrated.
+Estimates are marked EST. and shown with a leading approximation
+symbol; they are not sportsbook lines or validated win probabilities.
+The FIRST % estimate and TSO Purity are withheld if the source
+snapshot is more than ten days old.
+
+### Preliminary 2025-to-2026 holdout: team component only
+
+Using 2025 team offensive-first-touchdown rates to forecast the
+first four weeks of 2026 (32 teams, 128 team-game observations),
+the simple prior produced a **0.2456 Brier score** versus **0.2495**
+from a constant 2025 league-average first-TD team rate (1.55%
+relative improvement). This is a small early-season holdout of the
+*team propensity component only*. It does not validate the full
+two-team normalized model or any player's first-touchdown likelihood.
+Player-level temporal backtesting and calibration are still required.
 
 ### TSO Purity — experimental opportunity-quality index
 
