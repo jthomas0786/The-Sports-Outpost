@@ -210,7 +210,7 @@ for(const sportCase of [
 // Experimental TSO FIRST TD is a model estimate, not historical hit rate
 // or a substituted sportsbook market price. Purity is a 0-100 signal.
 const modelFixture={
-  schemaVersion:1,source:'nflverse fixture',
+  schemaVersion:1,generatedAt:new Date().toISOString(),source:'nflverse fixture',
   seasons:{
     '2025':{
       gamesScanned:272,offensiveFirstTdGames:250,
