@@ -169,7 +169,49 @@
     }
     return rows;
   }
-  const exactActionRow=p=>choose((p?.rows||[]).filter(r=>!r.researchScorerModel))||null;
+  // Verified GSIS-keyed nflverse 2026 PBP opportunities remain useful even
+  // when no sportsbook offers an exact player market for the chosen game.
+  // These historical rows are NOT bets and never get implied/model odds.
+  function pbpNameMatches(shortName,fullName){
+    const match=String(shortName||'').trim().match(/^([A-Za-z])\.\s*(.+)$/);
+    if(!match)return sameName(shortName,fullName);
+    const parts=String(fullName||'').trim().split(/\s+/);
+    if(parts.length<2||up(parts[0][0])!==up(match[1]))return false;
+    return slug(parts.slice(1).join(' '))===slug(match[2]);
+  }
+  function nflPbpResearchRows(game){
+    if(game?.league!=='nfl'||!pbpState.data?.seasons?.['2026']?.players)return [];
+    const sourceAge=Date.parse(pbpState.data.generatedAt||'');
+    if(!Number.isFinite(sourceAge)||Date.now()-sourceAge>10*86400000)return [];
+    const all=pbpState.data.seasons['2026'].players;
+    const extras=[];
+    for(const team of [up(game.away?.abbr),up(game.home?.abbr)]){
+      if(!team)continue;
+      const choices=Object.entries(all).filter(([gsis,p])=>
+        /^00-\d{7}$/.test(gsis)&&up(p?.team)===team
+        &&(num(p.carries)??0)+(num(p.targets)??0)>0
+        &&Number(p.gamesWithOpportunities||0)>=1
+        &&String(p.name||'').trim()
+      ).sort((a,b)=>(Number(b[1].carries||0)+Number(b[1].targets||0))
+        -(Number(a[1].carries||0)+Number(a[1].targets||0))).slice(0,18);
+      for(const [gsis,p] of choices){
+        const possible=(ctx?.rows||[]).filter(r=>r.sport==='nfl'&&up(r.team)===team
+          &&pbpNameMatches(p.name,r.player));
+        const known=possible.length===1?possible[0]:null;
+        extras.push({
+          key:'nfl-pbp|'+id(game)+'|'+gsis,sport:'nfl',
+          player:known?.player||p.name,playerId:known?.playerId||'',nflPbpId:gsis,
+          headshotUrl:known?.headshotUrl||'',team,position:known?.position||'',
+          market:'atd',marketLabel:'Touchdown opportunities',side:'yes',
+          selection:'Historical data only',researchPbpRow:true,
+          homeTeam:game.home?.abbr,awayTeam:game.away?.abbr,
+          commenceTime:game.startTime
+        });
+      }
+    }
+    return extras;
+  }
+  const exactActionRow=p=>choose((p?.rows||[]).filter(r=>!r.researchScorerModel&&!r.researchPbpRow))||null;
   const addActionButton=(p,i)=>'<button type="button" data-rg2-add="'+i+'"'
     +(exactActionRow(p)?'':' disabled title="No verified exact sportsbook selection"')
     +'>+ ADD</button>';
@@ -217,9 +259,17 @@
     const g=gameList.find(x=>id(x)===state.gameKey);
     if(!g){state.stage='games';return cards()}
     const m=markets(g),all=ctx.rows||[];
-    const exact=all.filter(r=>relevance(g,r));
+    const matched=all.filter(r=>relevance(g,r));
+    const pbp=nflPbpResearchRows(g);
+    const exact=matched.map(r=>{
+      const info=pbp.find(p=>up(p.team)===up(r.team)&&pbpNameMatches(p.player,r.player));
+      return info?{...r,nflPbpId:info.nflPbpId}:r;
+    });
     const scorer=nhlScorerResearchRows(g,ctx.scorerGames);
-    const actual=[...exact,...scorer.filter(row=>!exact.some(existing=>sameName(existing.player,row.player)&&up(existing.team)===up(row.team)&&up(existing.market)===up(row.market)&&yes(existing)))];
+    const actual=[...exact,
+      ...pbp.filter(row=>!exact.some(existing=>up(existing.team)===up(row.team)
+        &&(existing.nflPbpId===row.nflPbpId||pbpNameMatches(row.player,existing.player)))),
+      ...scorer.filter(row=>!exact.some(existing=>sameName(existing.player,row.player)&&up(existing.team)===up(row.team)&&up(existing.market)===up(row.market)&&yes(existing)))];
     const tabs=categories[g.league]||[['all','All Props',null]];
     if(!tabs.some(t=>t[0]===state.tab)){state.tab=primary[g.league]||'all';state.sort=g.league==='nfl'?'atd':g.league==='mlb'?'hr':g.league==='nhl'?'atg':'points';}
     const active=tabs.find(t=>t[0]===state.tab)||tabs[0];
@@ -230,7 +280,7 @@
       &&(!state.query||[r.player,r.team,r.market,r.marketLabel].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase())));
     const selectedRows=state.tab==='key'?selection.filter(validModel):selection;
     const players=(state.tab==='all'||state.tab==='props')?selectedRows.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selectedRows);
-    queuePlayerDetails(g,players);
+    queuePlayerDetails(g,players.filter(p=>p.rows.some(r=>!r.researchPbpRow)));
     if(g.league==='nfl')requestNflPbp();
     const cols=columns(g.league,state.tab);
     const sortValue=p=>cellRaw(p,state.sort,g.league);
@@ -240,7 +290,7 @@
     visible=players.slice(0,180);
     const modeInfo=actual.filter(r=>validModel(r)).length;
     const ticker=gameList.filter(v=>v.league===g.league).map(v=>'<button type="button" data-rg2-game="'+esc(id(v))+'" class="'+(id(v)===state.gameKey?'is-active':'')+'">'+esc(up(v.away?.abbr))+' @ '+esc(up(v.home?.abbr))+' <small>'+esc(v.state==='pre'?day(v.startTime):v.state==='in'?'LIVE':'FINAL')+'</small></button>').join('');
-    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status '+(actual.length?'':'is-pending')+'"><i></i>'+(actual.length?(exact.length?'VERIFIED PLAYER FEED':'TSO SCORER MODEL'):'PLAYER FEED UNAVAILABLE')+'</span></div>'
+    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status '+(actual.length?'':'is-pending')+'"><i></i>'+(actual.length?(exact.length?'VERIFIED PLAYER FEED':pbp.length?'NFLVERSE PBP DATA':'TSO SCORER MODEL'):'PLAYER FEED UNAVAILABLE')+'</span></div>'
       +'<div class="rg2-matchup-strip"><div class="rg2-matchup-teams">'+team(g.away)+ '<span class="rg2-at">'+(g.state==='pre'?'@':esc(String(g.away?.score??'—')+' – '+String(g.home?.score??'—')))+'</span>'+team(g.home)+'</div>'
       +'<div class="rg2-matchup-markets"><span><small>SPREAD</small><strong>'+esc(m.spread)+'</strong></span><span><small>TOTAL</small><strong>'+esc(m.total)+'</strong></span><span><small>MONEYLINE</small><strong>'+esc(m.money)+'</strong></span><span><small>'+esc(g.state==='in'?'LIVE':g.state==='post'?'FINAL':'START')+'</small><strong>'+esc(day(g.startTime))+'</strong></span></div></div>'
       +'<div class="rg2-game-rail-heading"><b>ON THE SLATE</b><small>Switch games without leaving Research</small></div><div class="rg2-game-rail" role="group" aria-label="Choose another game">'+ticker+'</div>';
@@ -271,7 +321,7 @@
     return header+'<section class="rg2-detail">'
       +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
       +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
-      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats and model signals from verified feeds.'+(scorer.length?' NHL scorer-model rows are not sportsbook selections.':'')+'</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
+      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats and model signals from verified feeds.'+(scorer.length?' NHL scorer-model rows are not sportsbook selections.':'')+(pbp.length?' NFL PBP usage is historical data, not a sportsbook offer.':'')+'</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
       +'<div class="rg2-mode-description"><span class="rg2-mode-indicator">'+esc(state.view.toUpperCase())+' VIEW</span><p>'+esc(state.view==='board'?'Player cards focused on model strength, market and edge.':state.view==='rank'?'Ranked players using the active column and sort direction.':'Full statistical lab: compare player production, usage and model context side by side.')+'</p></div>'
       +'<div class="rg2-searchbar"><label class="rg2-find"><span>⌕</span><input data-rg2-search type="search" placeholder="Search players or stats" value="'+esc(state.query)+'" aria-label="Filter players"></label>'
       +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
@@ -444,7 +494,7 @@
     if(!past?.teams||!current?.teams||!Number.isFinite(Number(past.offensiveFirstTdGames))
       ||!Number.isFinite(Number(current.offensiveFirstTdGames)))return null;
     const detail=getDetails(game,player)?.player||{};
-    const playerId=String(detail.gsisId||'');
+    const playerId=String(detail.gsisId||player?.rows?.find(r=>r.nflPbpId)?.nflPbpId||'');
     const team=up(detail.team||player?.team);
     if(!playerId||!team||!(oneOf(team,game.home)||oneOf(team,game.away)))return null;
     const recent=current.players?.[playerId],prior=past.players?.[playerId];
@@ -528,7 +578,8 @@
     const selectedGame=gameList.find(g=>id(g)===state.gameKey);
     const deep=getDetails(selectedGame,p)?.player||{};
     const previous=deep.previousSeason||{},current=deep.currentSeason||{},recent=deep.last5||{};
-    const prevPbp=pbpPlayer(deep,2025),currentPbp=pbpPlayer(deep,2026);
+    const pbpIdentity={...deep,gsisId:deep.gsisId||p.rows?.find(r=>r.nflPbpId)?.nflPbpId};
+    const prevPbp=pbpPlayer(pbpIdentity,2025),currentPbp=pbpPlayer(pbpIdentity,2026);
     const recentTdRate=num(recent.avg?.tds),seasonTdRate=num(current.perGame?.tds);
     const marketLine=forP(p,key)||null;
     const scorerStats=p.rows?.find(row=>row.researchScorerStats)?.researchScorerStats;
@@ -554,7 +605,7 @@
       case 'snap':return val(m,['snapPct','usage.snapPct'])??num(deep.snapTrend?.avgOffensePct);
       case 'gl':return currentPbp?.goalLineSharePct??val(m,['goalLinePct','usage.goalLinePct']);
       case 'carry':return currentPbp?.carrySharePct??val(m,['carryPct','usage.carryPct']);
-      case 'target':return val(m,['targetPct','usage.targetPct'])??num(current.targetShare);
+      case 'target':return currentPbp?.targetSharePct??val(m,['targetPct','usage.targetPct'])??num(current.targetShare);
       case 'rz':return currentPbp?.redZoneSharePct??val(m,['redZonePct','usage.redZonePct']);
       case 'barrel':return val(m,['barrelPct','contact.barrelPct'])??num(deep.statcast?.barrelPct);
       case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct'])??num(deep.statcast?.hardHitPct);
@@ -638,7 +689,7 @@
       if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort=state.tab==='td'?'atd':state.tab==='defense'?'opptds':state.tab==='hitters'||state.tab==='hr'?'hr':state.tab==='goals'?'atg':state.tab==='points'?'points':'model';render(root,ctx);return}
       if(t.hasAttribute('data-rg2-view')){state.view=t.dataset.rg2View;if(state.view==='rank'){state.sort='model';state.descending=true}render(root,ctx);return}
       if(t.hasAttribute('data-rg2-sort')){const key=t.dataset.rg2Sort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='role'}render(root,ctx);return}
-      if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=exactActionRow(p)||best(p||{rows:[]});if(row)props.openDetail?.(row);return}
+      if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=exactActionRow(p)||best(p||{rows:[]});if(row&&!row.researchPbpRow)props.openDetail?.(row);return}
       if(t.hasAttribute('data-rg2-add')){const p=visible[Number(t.dataset.rg2Add)];const row=exactActionRow(p);if(row)props.addSelection?.(row);return}
       if(t.hasAttribute('data-rg2-refresh')){props.refresh?.();return}
     };
