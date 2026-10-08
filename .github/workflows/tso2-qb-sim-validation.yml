@@ -4,6 +4,8 @@ on:
     branches: [tso-2.0-restructure]
     paths:
       - 'sports/nfl/sim/engine.js'
+      - 'sports/nfl/sim/full-prop-board-v942.js'
+      - 'tso2/nfl-candidate-eligibility-selftest.mjs'
       - 'sports/nfl/sim/config.json'
       - 'tso2/qb-playing-time-selftest.mjs'
       - 'scripts/nfl-sim-auto.mjs'
@@ -31,6 +33,8 @@ jobs:
           node --check tso2/qb-playing-time-selftest.mjs
       - name: QB rotation scenarios
         run: node tso2/qb-playing-time-selftest.mjs
+      - name: Candidate eligibility checks
+        run: node tso2/nfl-candidate-eligibility-selftest.mjs
       - name: Full NFL simulation regression
         run: node scripts/nfl-sim-selftest.mjs
       - name: Automated NFL simulation regression
