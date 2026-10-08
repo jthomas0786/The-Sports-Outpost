@@ -220,6 +220,62 @@
   }
   function best(p){return choose(p.rows.filter(r=>validModel(r)))||choose(p.rows)||null}
   function forP(p,market){return forMarket(p.rows,market,true)}
+  // Verified game logs can fill historical form columns independently of
+  // predictive model probabilities. Every rate uses the EXACT sportsbook line
+  // and side, and pushes are omitted from the decisions denominator.
+  function recentPropStats(p,sport,windowSize){
+    const pick=best(p||{rows:[]});
+    const game=gameList.find(g=>id(g)===state.gameKey);
+    const deep=getDetails(game,p)?.player||{};
+    if(!pick||!Object.keys(deep).length)return null;
+    const market=String(pick.market||'');
+    const binary=['atd','firstTd','atg','fgs','hr'].includes(market);
+    const line=num(pick.line)??(binary?0.5:null);
+    if(line===null)return null;
+    const source=sport==='nfl'?deep.gameLog: sport==='mlb'?deep.gameLog:deep.recentGames;
+    if(!Array.isArray(source))return null;
+    const mapped={nfl:{atd:'tds',recYds:'recYds',rushYds:'rushYds',passYds:'passYds',passTds:'passTds',receptions:'receptions',completions:'completions'},
+      nba:{points:'points',rebounds:'rebounds',assists:'assists',threes:'threes',pra:'pra'},
+      nhl:{atg:'goals',fgs:'firstGoal',sog:'sog',points:'points',assists:'assists',saves:'saves'},
+      mlb:{hr:'hr',hits:'h',rbi:'rbi',runs:'r',totalBases:'totalBases',stolenBases:'stolenBases'}}[sport]||{};
+    const stat=mapped[market];
+    if(!stat)return null;
+    const sorted=[...source].sort((a,b)=>{
+      const x=Date.parse(a.date||''),y=Date.parse(b.date||'');
+      return Number.isFinite(x)&&Number.isFinite(y)?y-x:0;
+    });
+    const decisions=[];
+    for(const row of sorted){
+      let v;
+      if(sport==='nfl')v=num(row[stat]);
+      else if(sport==='mlb')v=num(row[stat]);
+      else if(sport==='nhl'&&stat==='firstGoal')v=typeof row.firstGoal==='boolean'?(row.firstGoal?1:0):null;
+      else v=num(row.stats?.[stat]);
+      if(v!==null){decisions.push(v);if(decisions.length>=windowSize)break;}
+    }
+    if(!decisions.length)return null;
+    const under=pick.side==='under';
+    const pushes=decisions.filter(x=>Math.abs(x-line)<1e-9).length;
+    const hits=decisions.filter(x=>under?x<line:x>line).length;
+    const nonPush=decisions.length-pushes;
+    return nonPush?{rate:+(hits/nonPush*100).toFixed(1),hits,nonPush,actual:decisions.length,market,line,side:pick.side}:null;
+  }
+  function recentMinutes(deep,sport){
+    const games=deep?.recentGames;
+    if(!Array.isArray(games))return null;
+    const values=[];
+    for(const row of games.slice(0,5)){
+      let minutes=num(row.minutes);
+      if(sport==='nhl'){
+        const raw=row.stats?.toi||row.stats?.timeOnIce||row.toi;
+        if(typeof raw==='string'&&/^\d{1,2}:\d\d$/.test(raw)){
+          const [min,sec]=raw.split(':').map(Number);minutes=min+sec/60;
+        }else minutes=num(raw);
+      }
+      if(minutes!==null)values.push(minutes);
+    }
+    return values.length?+(values.reduce((a,b)=>a+b,0)/values.length).toFixed(2):null;
+  }
   function columnData(p,key,sport){
     const r=best(p)||{},m=r.model||{},pModel=validModel(r);
     const selectedGame=gameList.find(g=>id(g)===state.gameKey);
@@ -241,8 +297,8 @@
       case 'yield':return currentPbp?.redZoneTdYieldPct??val(m,['yieldPct','yield']);
       case 'purity':return val(m,['purity','purityScore']);
       case 'usage':return val(m,['usagePct','usage.usagePct','context.usagePct']);
-      case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes'])??num(deep.recentAverages?.minutes);
-      case 'toi':return val(m,['toi','usage.toi'])??num(deep.recentAverages?.toi);
+      case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes'])??num(deep.recentAverages?.minutes)??recentMinutes(deep,sport);
+      case 'toi':return val(m,['toi','usage.toi'])??num(deep.recentAverages?.toi)??recentMinutes(deep,sport);
       case 'snap':return val(m,['snapPct','usage.snapPct'])??num(deep.snapTrend?.avgOffensePct);
       case 'gl':return currentPbp?.goalLineSharePct??val(m,['goalLinePct','usage.goalLinePct']);
       case 'carry':return currentPbp?.carrySharePct??val(m,['carryPct','usage.carryPct']);
@@ -250,8 +306,8 @@
       case 'rz':return currentPbp?.redZoneSharePct??val(m,['redZonePct','usage.redZonePct']);
       case 'barrel':return val(m,['barrelPct','contact.barrelPct'])??num(deep.statcast?.barrelPct);
       case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct'])??num(deep.statcast?.hardHitPct);
-      case 'l5':return val(m,['hitRateL5','last5RatePct','history.l5Pct']);
-      case 'l10':return val(m,['hitRateL10','last10RatePct','history.l10Pct']);
+      case 'l5':return recentPropStats(p,sport,5)?.rate??val(m,['hitRateL5','last5RatePct','history.l5Pct']);
+      case 'l10':return recentPropStats(p,sport,10)?.rate??val(m,['hitRateL10','last10RatePct','history.l10Pct']);
       case 'opptds':return num(deep.matchup?.previousSeasonAllowed?.perGame?.tds);
       case 'opprush':return num(deep.matchup?.previousSeasonAllowed?.perGame?.rushYds);
       case 'opprec':return num(deep.matchup?.previousSeasonAllowed?.perGame?.recYds);
@@ -298,7 +354,7 @@
     if(sport==='nfl'&&tab==='defense')return [['role','ROLE'],['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl'&&tab==='key')return [['role','ROLE'],['atd','ANYTIME %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl')return [['role','ROLE'],['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
-    if(sport==='nhl')return [['role','ROLE'],['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
+    if(sport==='nhl')return [['role','ROLE'],['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
     if(sport==='mlb')return [['role','ROLE'],['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
     return [['role','ROLE'],['points','POINTS %'],['rebounds','REB %'],['assists','AST %'],['threes','3PT %'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
   }
