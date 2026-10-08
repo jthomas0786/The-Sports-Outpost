@@ -371,6 +371,22 @@ assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for oth
   assert.doesNotMatch(root.innerHTML,/VERIFIED MODEL CHANCE/,'Unpriced NBA history is not a model');
 }
 
+// Network failures must not strand mobile NBA Research on an endless spinner.
+{
+  const sandbox={window:{},setTimeout,console,URLSearchParams,fetch:async()=>{throw Error('ESPN fixture offline')}};
+  vm.runInNewContext(app.slice(0,seam),sandbox);
+  const flow=sandbox.window.TSO2ResearchGameFlow;
+  const root={innerHTML:'',dataset:{},isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null}};
+  const game={id:'nba-offline',league:'nba',state:'pre',startTime:schedule,
+    away:{abbr:'BOS',name:'Boston Celtics'},home:{abbr:'CLE',name:'Cleveland Cavaliers'}};
+  flow.render(root,{league:'nba',games:[game],rows:[]});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:'nba|nba-offline|BOS|CLE|'+schedule}})}});
+  await new Promise(resolve=>setTimeout(resolve,620));
+  assert.match(root.innerHTML,/PLAYER FEED UNAVAILABLE/,'Unavailable ESPN source clearly identified');
+  assert.doesNotMatch(root.innerHTML,/Loading verified NBA rosters/,'No infinite loading screen on failure');
+}
+
 // The existing NHL FGS/ATG scorer model should fill a matchup even when
 // sportsbook props are missing. A model row must never become a fake
 // sportsbook add-to-slip selection.
