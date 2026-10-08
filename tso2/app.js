@@ -24,7 +24,7 @@
   const NFL_PBP_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-2.0-restructure/tso2/data/nfl-td-opportunities.json';
   const pbpState={data:null,fetchedAt:0,pending:null};
   const nbaRosterCache=new Map(),nbaRosterPending=new Set();
-  const nbaTeamCode=v=>({GSW:'GS',NYK:'NY',NOP:'NO',SAS:'SA',UTA:'UTAH',PHX:'PHO'}[up(v)]||up(v));
+  const nbaTeamCode=v=>({GSW:'GS',NYK:'NY',NOP:'NO',SAS:'SA',UTA:'UTAH'}[up(v)]||up(v));
   function requestNbaRoster(g){
     if(g?.league!=='nba'||typeof fetch!=='function')return;
     for(const t of [g.away,g.home]){
@@ -44,7 +44,8 @@
         nbaRosterCache.set(team,{time:Date.now(),snapshot:payload.timestamp||null,players});
         queueRefresh();
       }).catch(error=>{
-        nbaRosterCache.set(team,{time:Date.now(),snapshot:null,players:[]});
+        // Retry transient upstream failures after 30 seconds, not ten minutes.
+        nbaRosterCache.set(team,{time:Date.now()-570000,snapshot:null,players:[]});
         console.warn('TSO NBA verified roster unavailable:',String(error?.message||error));
       }).finally(()=>nbaRosterPending.delete(team));
     }
@@ -57,7 +58,7 @@
       if(!entry?.players?.length)continue;
       for(const athlete of entry.players.slice(0,30)){
         for(const market of ['points','rebounds','assists','threes']){
-          if(exactRows.some(r=>r.sport==='nba'&&nbaTeamCode(r.team)===team
+          if(exactRows.some(r=>r.sport==='nba'&&matchesGameTeam(r.team,side,'nba')
             &&(String(r.playerId||'')===athlete.id||sameName(r.player,athlete.name))
             &&up(r.market)===up(market)))continue;
           rows.push({
@@ -383,9 +384,13 @@
       &&(state.role==='all'||String(r.position||r.role||'')===state.role)
       &&(!state.query||[r.player,r.team,r.market,r.marketLabel].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase())));
     const selectedRows=state.tab==='key'?selection.filter(validModel):selection;
-    const players=(state.tab==='all'||state.tab==='props')?selectedRows.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selectedRows);
+    const players=(state.tab==='all'||state.tab==='props')?
+      [...selectedRows.filter(r=>!r.researchRosterRow).map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})),
+       ...groupPlayers(selectedRows.filter(r=>r.researchRosterRow))]
+      :groupPlayers(selectedRows);
     const historicalOnly=g.league==='nfl'&&state.tab==='td'&&selectedRows.some(r=>r.researchPbpRow)&&!selectedRows.some(validModel);
     const nbaHistoryOnly=g.league==='nba'&&selectedRows.some(r=>r.researchRosterRow)&&!selectedRows.some(validModel);
+    const nbaRosterLoading=g.league==='nba'&&[g.away,g.home].some(side=>nbaRosterPending.has(nbaTeamCode(side?.abbr)));
     const nbaRankKey={points:'nbaL5Pts',rebounds:'nbaL5Reb',assists:'nbaL5Ast',threes:'nbaL5Threes'}[state.tab]||'nbaL5Pts';
     if(historicalOnly&&['model','atd'].includes(state.sort))state.sort='opps';
     if(nbaHistoryOnly&&['model','points','rebounds','assists','threes'].includes(state.sort))state.sort=nbaRankKey;
@@ -404,7 +409,7 @@
     const historyKey=p=>onlyPbp(p)?'opps':nbaRankKey;
     const historyLabel=p=>onlyPbp(p)?'2026 VERIFIED OPPORTUNITIES':'VERIFIED L5 '+({nbaL5Pts:'POINTS',nbaL5Reb:'REBOUNDS',nbaL5Ast:'ASSISTS',nbaL5Threes:'THREES'}[nbaRankKey]||'POINTS');
     const ticker=gameList.filter(v=>v.league===g.league).map(v=>'<button type="button" data-rg2-game="'+esc(id(v))+'" class="'+(id(v)===state.gameKey?'is-active':'')+'">'+esc(up(v.away?.abbr))+' @ '+esc(up(v.home?.abbr))+' <small>'+esc(v.state==='pre'?day(v.startTime):v.state==='in'?'LIVE':'FINAL')+'</small></button>').join('');
-    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status '+(actual.length?'':'is-pending')+'"><i></i>'+(actual.length?(exact.length?'VERIFIED PLAYER FEED':pbp.length?'NFLVERSE PBP DATA':roster.length?'ESPN NBA ROSTER':'TSO SCORER MODEL'):'PLAYER FEED UNAVAILABLE')+'</span></div>'
+    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status '+(actual.length?'':'is-pending')+'"><i></i>'+(actual.length?(exact.length?'VERIFIED PLAYER FEED':pbp.length?'NFLVERSE PBP DATA':roster.length?'ESPN NBA ROSTER':'TSO SCORER MODEL'):nbaRosterLoading?'CONNECTING ESPN ROSTER':'PLAYER FEED UNAVAILABLE')+'</span></div>'
       +'<div class="rg2-matchup-strip"><div class="rg2-matchup-teams">'+team(g.away)+ '<span class="rg2-at">'+(g.state==='pre'?'@':esc(String(g.away?.score??'—')+' – '+String(g.home?.score??'—')))+'</span>'+team(g.home)+'</div>'
       +'<div class="rg2-matchup-markets"><span><small>SPREAD</small><strong>'+esc(m.spread)+'</strong></span><span><small>TOTAL</small><strong>'+esc(m.total)+'</strong></span><span><small>MONEYLINE</small><strong>'+esc(m.money)+'</strong></span><span><small>'+esc(g.state==='in'?'LIVE':g.state==='post'?'FINAL':'START')+'</small><strong>'+esc(day(g.startTime))+'</strong></span></div></div>'
       +'<div class="rg2-game-rail-heading"><b>ON THE SLATE</b><small>Switch games without leaving Research</small></div><div class="rg2-game-rail" role="group" aria-label="Choose another game">'+ticker+'</div>';
@@ -441,7 +446,7 @@
       +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
       +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
-      +(visible.length?board:'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
+      +(visible.length?board:nbaRosterLoading?'<div class="rg2-empty" role="status"><b>Loading verified NBA rosters…</b><span>Connecting to ESPN player records. Historical research will appear independently of sportsbook availability.</span></div>':'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
       +'<details class="rg2-method"><summary>ABOUT THESE NUMBERS <span>Data sources &amp; methodology ↓</span></summary><div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental uncalibrated NFL first-TD estimate. All TSO PURITY scores are separate 0–100 data-quality/opportunity consistency indexes, not probabilities; NBA/NHL/MLB depend on selected-market recent verified game logs. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div></details>'
       +'</section>';
   }
