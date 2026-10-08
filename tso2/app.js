@@ -5417,6 +5417,23 @@
     const root=document.querySelector('[data-research-route]');
     if(currentRoute!=='research'||!root) return;
 
+    // The new 2.0 Research Lab shares validated props, live schedules and
+    // existing INTEL/parlay handlers; other routes retain their own UI.
+    if(window.TSO2ResearchLab?.render){
+      window.TSO2ResearchLab.render(root,{
+        league:currentLeague,
+        rows:researchPropsRows(),
+        games:currentLeague==='nfl'?currentFeedGames():researchGames(),
+        openDetail:row=>row&&openResearchDetail(row),
+        addSelection:row=>row&&addPropToParlay(row),
+        changeLeague:league=>setLeague(league),
+        refresh:()=>{refreshLiveData(true);refreshPropsData(true);},
+        openProps:()=>setRoute('props')
+      });
+      bindMediaFallbacks();
+      return;
+    }
+
     const query=String(researchQuery||'').trim().toLowerCase();
     const rows=researchPropsRows();
     const filteredRows=rows.filter(row=>researchSearchMatch(row,query));
