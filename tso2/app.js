@@ -124,7 +124,7 @@
       const row=p.rows[0]||{};
       const params=new URLSearchParams({
         sport:g.league,name:p.name,team:p.team||'',opponent:opponentFor(g,p)||'',
-        playerId:row.playerId||'',eventId:row.eventId||''
+        playerId:row.playerId||row.nflPbpId||'',eventId:row.eventId||''
       });
       detailPending.add(key);
       detailQueue.push({key,url:'/api/research-detail?'+params.toString(),g,p});
@@ -146,8 +146,12 @@
       fetch(job.url,{cache:'no-store'}).then(async response=>{
         if(!response.ok)throw Error('Research source '+response.status);
         const payload=await response.json();
-        const found=payload?.available&&payload?.player&&sameName(payload.player.name,job.p.name)
-          &&(oneOf(payload.player.team,job.g.home)||oneOf(payload.player.team,job.g.away));
+        const verifiedGsis=String(job.p.rows?.find(r=>r.nflPbpId)?.nflPbpId||'');
+        const exactGsis=verifiedGsis&&String(payload?.player?.gsisId||'')===verifiedGsis;
+        const found=payload?.available&&payload?.player
+          &&(exactGsis||(!verifiedGsis&&sameName(payload.player.name,job.p.name)))
+          &&(matchesGameTeam(payload.player.team,job.g.home,job.g.league)
+            ||matchesGameTeam(payload.player.team,job.g.away,job.g.league));
         detailCache.set(job.key,{doc:found?payload:null,time:Date.now()});
         if(found&&state.stage==='detail'&&state.gameKey===id(job.g))queueRefresh();
       }).catch(()=>{
@@ -421,7 +425,9 @@
     const nbaRankKey={points:'nbaL5Pts',rebounds:'nbaL5Reb',assists:'nbaL5Ast',threes:'nbaL5Threes'}[state.tab]||'nbaL5Pts';
     if(historicalOnly&&['model','atd'].includes(state.sort))state.sort='opps';
     if(nbaHistoryOnly&&['model','points','rebounds','assists','threes'].includes(state.sort))state.sort=nbaRankKey;
-    queuePlayerDetails(g,players.filter(p=>p.rows.some(r=>!r.researchPbpRow)));
+    // Verified GSIS-backed historical players must hydrate too, even when
+    // their sportsbook does not list an exact touchdown selection.
+    queuePlayerDetails(g,players.filter(p=>p.rows.some(r=>!r.researchPbpRow||r.nflPbpId)));
     if(g.league==='nfl')requestNflPbp();
     const cols=columns(g.league,state.tab);
     const sortValue=p=>cellRaw(p,state.sort,g.league);
@@ -481,7 +487,7 @@
   function groupPlayers(rows){
     const groups=new Map();
     for(const r of rows){
-      const k=[r.sport,slug(r.playerId||r.player),up(r.team)].join('|');
+      const k=[r.sport,slug(r.playerId||r.nflPbpId||r.player),up(r.team)].join('|');
       let p=groups.get(k);
       if(!p){p={key:k,name:r.player,team:r.team,role:r.position||r.role||'',headshotUrl:r.headshotUrl,rows:[]};groups.set(k,p)}
       if(!p.headshotUrl&&r.headshotUrl)p.headshotUrl=r.headshotUrl;
@@ -831,12 +837,16 @@
     return percent(value);
   }
   function playerTitle(p){
-    const image=p.headshotUrl||p.rows.find(r=>r.headshotUrl)?.headshotUrl;
-    const avatar=image?'<img data-player-headshot src="'+esc(image)+'" alt="" loading="lazy">':'<span class="rg2-avatar">'+esc(String(p.name||'?').charAt(0))+'</span>';
     const game=gameList.find(g=>id(g)===state.gameKey);
+    const deep=getDetails(game,p)?.player||{};
+    const sourceId=String(p.rows?.find(r=>r.nflPbpId)?.nflPbpId||'');
+    const verified=sourceId&&String(deep.gsisId||'')===sourceId;
+    const displayName=verified&&deep.name?deep.name:p.name;
+    const image=p.headshotUrl||p.rows.find(r=>r.headshotUrl)?.headshotUrl||(verified?deep.headshot:null);
+    const avatar=image?'<img data-player-headshot src="'+esc(image)+'" alt="" loading="lazy">':'<span class="rg2-avatar">'+esc(String(displayName||'?').charAt(0))+'</span>';
     const role=columnData(p,'role',game?.league||p.rows?.[0]?.sport)||null;
     const team=up(p.team)||'—';
-    return '<span class="rg2-player">'+avatar+'<span><b>'+esc(p.name||'—')+'</b><small>'+esc(role?role+' - '+team:team)+'</small></span></span>';
+    return '<span class="rg2-player">'+avatar+'<span><b>'+esc(displayName||'—')+'</b><small>'+esc(role?role+' - '+team:team)+'</small></span></span>';
   }
   function columns(sport,tab){
     if(tab==='all'||tab==='props')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
