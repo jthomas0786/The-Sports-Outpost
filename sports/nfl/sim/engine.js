@@ -398,3 +398,5 @@ export function stripPrivateSamples(result) {
   const {_samples,...publicResult}=result;
   return publicResult;
 }
+
+export const __TSO2_QB_ROTATION_TEST__={quarterbackShares};
