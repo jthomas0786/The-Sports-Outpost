@@ -77,33 +77,62 @@
               </div>
             </section>
           </div>
-          <div class="profile-menu" data-user-handle="justcallme_jt">
-            <button class="profile-pill" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="profileDropdown">
-              <span class="avatar">JT</span>
-              <span class="profile-pill-copy"><b>JT</b><small>OWNER</small></span>
+          <div class="profile-menu">
+            <button class="profile-pill" type="button" aria-label="Account menu, Guest" aria-haspopup="menu" aria-expanded="false" aria-controls="profileDropdown">
+              <span class="avatar" data-auth-avatar>?</span>
+              <span class="profile-pill-copy"><b data-auth-pill-label>Guest</b><small data-auth-pill-role>NOT SIGNED IN</small></span>
               <span class="profile-menu-chevron" aria-hidden="true">⌄</span>
             </button>
             <div class="profile-dropdown" id="profileDropdown" role="menu" hidden>
               <div class="profile-dropdown-account">
-                <span class="avatar">JT</span>
-                <div><b>@justcallme_jt</b><small>OWNER ACCOUNT</small></div>
+                <span class="avatar" data-auth-avatar>?</span>
+                <div><b data-auth-name>Guest</b><small data-auth-role>NOT SIGNED IN</small></div>
               </div>
               <div class="profile-dropdown-divider"></div>
               <button class="profile-dropdown-item" type="button" role="menuitem" data-profile-route="profile">
                 <span class="profile-dropdown-icon">◉</span>
-                <span><b>My Profile</b><small>History, alerts & tracked picks</small></span>
+                <span><b>My Profile</b><small>Account, alerts and tracked picks</small></span>
                 <i>›</i>
               </button>
-              <a class="profile-dropdown-item profile-dropdown-owner" role="menuitem" data-owner-only href="/brand-lab">
+              <a class="profile-dropdown-item profile-dropdown-owner" role="menuitem" data-owner-only hidden href="/brand-lab">
                 <span class="profile-dropdown-icon">◆</span>
                 <span><b>Brand Lab</b><small>Owner tools & approved assets</small></span>
                 <em>OWNER</em>
               </a>
+              <button class="profile-dropdown-item" type="button" role="menuitem" data-auth-open>
+                <span class="profile-dropdown-icon">↗</span>
+                <span><b>Sign In / Create Account</b><small>Use your existing TSO account</small></span>
+                <i>›</i>
+              </button>
+              <button class="profile-dropdown-item" type="button" role="menuitem" data-auth-signout hidden>
+                <span class="profile-dropdown-icon">⇥</span>
+                <span><b>Sign Out</b><small>End this device's account session</small></span>
+                <i>›</i>
+              </button>
             </div>
           </div>
         </div>
       </div>
     </header>
+
+    <dialog class="tso-auth-dialog" id="tsoAuthDialog" aria-labelledby="tsoAuthTitle">
+      <form class="tso-auth-form" method="dialog" data-auth-form>
+        <div class="tso-auth-header">
+          <div><span class="eyebrow">THE SPORTS OUTPOST</span><h2 id="tsoAuthTitle">Sign in</h2></div>
+          <button type="button" class="tso-auth-close" aria-label="Close sign-in dialog" data-auth-close>✕</button>
+        </div>
+        <div class="tso-auth-tabs" role="group" aria-label="Account action">
+          <button type="button" data-auth-tab="signin" aria-pressed="true">SIGN IN</button>
+          <button type="button" data-auth-tab="signup" aria-pressed="false">CREATE ACCOUNT</button>
+        </div>
+        <label class="tso-auth-field">Email <input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
+        <label class="tso-auth-field" data-auth-username hidden>Username <input name="username" type="text" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" placeholder="Choose a username"></label>
+        <label class="tso-auth-field">Password <input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Your password"></label>
+        <p class="tso-auth-message" data-auth-message role="status" aria-live="polite"></p>
+        <button class="tso-auth-submit" type="submit" data-auth-submit>SIGN IN</button>
+        <p class="tso-auth-privacy">Account access uses the existing TSO login service. Never share your password with anyone.</p>
+      </form>
+    </dialog>
 
     <section class="score-strip broadcast-score-strip" aria-label="Live and upcoming games">
       <div class="score-strip-label"><span class="pulse"></span>LIVE</div>
@@ -181,5 +210,6 @@
   </div>
   <script src="./pages.js?v=20261007-live-multigame-drivers"></script>
   <script src="./app.js?v=20261007-live-multigame-drivers"></script>
+  <script type="module" src="./auth.js?v=20261008-real-account-auth"></script>
 </body>
 </html>
