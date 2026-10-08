@@ -7,7 +7,7 @@
   const leagues=['all','nfl','nba','mlb','nhl'];
   const labels={all:'ALL SPORTS',nfl:'NFL',nba:'NBA',mlb:'MLB',nhl:'NHL'};
   const categories={
-    nfl:[['td','TDs',['atd','firstTd']],['receiving','Receiving',['recYds','receptions']],['rushing','Rushing',['rushYds']],['passing','Passing',['passYds','passTds','completions']],['all','All Props',null]],
+    nfl:[['defense','Defense',null],['td','TDs',['atd','firstTd']],['key','Key players',null],['props','Props',null]],
     nba:[['points','Points',['points']],['rebounds','Rebounds',['rebounds']],['assists','Assists',['assists']],['threes','Threes',['threes']],['all','All Props',null]],
     mlb:[['hitters','Hitters',['hr','hits','totalBases','tb','rbi','runs','stolenBases']],['hr','Home Runs',['hr']],['pitching','Pitching',['strikeouts','pitcherStrikeouts','outsRecorded']],['all','All Props',null]],
     nhl:[['goals','Goals',['atg','fgs']],['shots','Shots on Goal',['sog']],['points','Points',['points','assists']],['goalies','Goalies',['saves']],['all','All Props',null]]
@@ -147,7 +147,8 @@
     const selection=filtered.filter(r=>(state.team==='all'||up(r.team)===state.team||(state.team===up(g.away?.abbr)&&oneOf(r.team,g.away))||(state.team===up(g.home?.abbr)&&oneOf(r.team,g.home)))
       &&(state.role==='all'||String(r.position||r.role||'')===state.role)
       &&(!state.query||[r.player,r.team,r.market,r.marketLabel].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase())));
-    const players=state.tab==='all'?selection.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selection);
+    const selectedRows=state.tab==='key'?selection.filter(validModel):selection;
+    const players=(state.tab==='all'||state.tab==='props')?selectedRows.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selectedRows);
     queuePlayerDetails(g,players);
     const cols=columns(g.league,state.tab);
     const sortValue=p=>cellRaw(p,state.sort,g.league);
@@ -220,6 +221,10 @@
       case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct'])??num(deep.statcast?.hardHitPct);
       case 'l5':return val(m,['hitRateL5','last5RatePct','history.l5Pct']);
       case 'l10':return val(m,['hitRateL10','last10RatePct','history.l10Pct']);
+      case 'opptds':return num(deep.matchup?.previousSeasonAllowed?.perGame?.tds);
+      case 'opprush':return num(deep.matchup?.previousSeasonAllowed?.perGame?.rushYds);
+      case 'opprec':return num(deep.matchup?.previousSeasonAllowed?.perGame?.recYds);
+      case 'oppcarries':return num(deep.matchup?.previousSeasonAllowed?.perGame?.carries);
       case 'prevFirst':return val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds'])??num(previous.firstTdGames);
       case 'prevTD':return val(m,['previousSeasonTds','history.prevSeasonTds'])??num(previous.totalTds);
       case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds'])??num(current.totalTds);
@@ -238,7 +243,7 @@
     if(key==='line')return columnData(p,key,sport)===null?esc(r.selection||'—'):fmt(columnData(p,key,sport));
     const value=columnData(p,key,sport);
     if(value===null)return '<span class="rg2-na" title="Source data unavailable">—</span>';
-    if(['projected','minutes','toi'].includes(key))return fmt(value,2);
+    if(['projected','minutes','toi','opptds','opprush','opprec','oppcarries'].includes(key))return fmt(value,2);
     if(['prevFirst','prevTD','yearTD'].includes(key))return fmt(value,0);
     if(key==='purity')return fmt(value,0);
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
@@ -252,8 +257,10 @@
     return '<span class="rg2-player">'+avatar+'<span><b>'+esc(p.name||'—')+'</b><small>'+esc(up(p.team)||'—')+(p.role?' · '+esc(p.role):'')+'</small></span></span>';
   }
   function columns(sport,tab){
-    if(tab==='all')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
+    if(tab==='all'||tab==='props')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
     if(sport==='nfl'&&tab==='td')return [['role','ROLE'],['atd','ANYTIME %'],['firstTd','FIRST %'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','PURITY']];
+    if(sport==='nfl'&&tab==='defense')return [['role','ROLE'],['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
+    if(sport==='nfl'&&tab==='key')return [['role','ROLE'],['atd','ANYTIME %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl')return [['role','ROLE'],['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
     if(sport==='nhl')return [['role','ROLE'],['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
     if(sport==='mlb')return [['role','ROLE'],['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
@@ -276,7 +283,7 @@
       if(t.hasAttribute('data-rg2-game')){state.gameKey=t.dataset.rg2Game;state.stage='detail';state.tab='';state.search='';state.query='';state.team='all';state.role='all';state.sort='model';state.descending=true;render(root,ctx);root.scrollIntoView?.({block:'start'});return}
       if(t.hasAttribute('data-rg2-back')){state.stage='games';state.gameKey='';render(root,ctx);return}
       if(t.hasAttribute('data-rg2-league')){const next=t.dataset.rg2League;state.stage='games';state.gameKey='';props.changeLeague?.(next);if(next===league)render(root,ctx);return}
-      if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort=state.tab==='td'?'atd':state.tab==='hitters'||state.tab==='hr'?'hr':state.tab==='goals'?'atg':state.tab==='points'?'points':'model';render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort=state.tab==='td'?'atd':state.tab==='defense'?'opptds':state.tab==='hitters'||state.tab==='hr'?'hr':state.tab==='goals'?'atg':state.tab==='points'?'points':'model';render(root,ctx);return}
       if(t.hasAttribute('data-rg2-view')){state.view=t.dataset.rg2View;if(state.view==='rank'){state.sort='model';state.descending=true}render(root,ctx);return}
       if(t.hasAttribute('data-rg2-sort')){const key=t.dataset.rg2Sort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='role'}render(root,ctx);return}
       if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=best(p||{rows:[]});if(row)props.openDetail?.(row);return}
