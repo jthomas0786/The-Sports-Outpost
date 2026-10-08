@@ -1,7 +1,7 @@
 {
   "version": 1,
   "modelDataVersion": "nba-history-v1",
-  "generatedAt": "2026-10-07T23:16:58.717Z",
+  "generatedAt": "2026-10-08T06:34:33.272Z",
   "currentSeason": 2027,
   "priorSeason": 2026,
   "source": "ESPN teams, rosters, injuries, player event logs and game-summary box scores",
@@ -32,6 +32,14 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
+    "roster:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:ATL": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "roster:CHA": {
       "ok": true,
       "host": "site.web.api.espn.com"
@@ -40,19 +48,11 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:DEN": {
+    "roster:GS": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
     "roster:DET": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:GS": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -68,6 +68,10 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
+    "roster:MEM": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "roster:LAL": {
       "ok": true,
       "host": "site.web.api.espn.com"
@@ -76,11 +80,7 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:MEM": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:MIL": {
+    "roster:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -88,19 +88,19 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
     "roster:NY": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:OKC": {
+    "roster:MIL": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
     "roster:ORL": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:OKC": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -112,6 +112,10 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
+    "roster:SA": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "roster:POR": {
       "ok": true,
       "host": "site.web.api.espn.com"
@@ -120,19 +124,15 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:SA": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
     "roster:TOR": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:WSH": {
+    "roster:UTAH": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:UTAH": {
+    "roster:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -149,11 +149,27 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:3934672:2027": {
+    "eventlog:4065648:2026": {
+      "ok": true,
+      "host": "sports.core.api.espn.com"
+    },
+    "eventlog:4432166:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
     "eventlog:1966:2027": {
+      "ok": true,
+      "host": "sports.core.api.espn.com"
+    },
+    "eventlog:3934672:2027": {
+      "ok": true,
+      "host": "sports.core.api.espn.com"
+    },
+    "eventlog:1966:2026": {
+      "ok": true,
+      "host": "sports.core.api.espn.com"
+    },
+    "eventlog:3934672:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
@@ -165,22 +181,6 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:4065648:2026": {
-      "ok": true,
-      "host": "sports.core.api.espn.com"
-    },
-    "eventlog:4432166:2026": {
-      "ok": true,
-      "host": "sports.core.api.espn.com"
-    },
-    "eventlog:3934672:2026": {
-      "ok": true,
-      "host": "sports.core.api.espn.com"
-    },
-    "eventlog:1966:2026": {
-      "ok": true,
-      "host": "sports.core.api.espn.com"
-    },
     "eventlog:5104157:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
@@ -189,10 +189,14 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
+    "summary:401908620": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "eventCache": {
-      "referenced": 200,
-      "fetched": 0,
-      "cached": 200
+      "referenced": 201,
+      "fetched": 1,
+      "cached": 201
     }
   },
   "teams": {
@@ -1117,7 +1121,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-07T23:16:58.689Z"
+      "fetchedAt": "2026-10-08T06:34:33.255Z"
     },
     "3934672": {
       "id": "3934672",
@@ -1731,7 +1735,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-07T23:16:58.689Z"
+      "fetchedAt": "2026-10-08T06:34:33.254Z"
     },
     "4065648": {
       "id": "4065648",
@@ -2185,7 +2189,7 @@
         }
       ],
       "gameCount": 22,
-      "fetchedAt": "2026-10-07T23:16:58.689Z"
+      "fetchedAt": "2026-10-08T06:34:33.254Z"
     },
     "4278073": {
       "id": "4278073",
@@ -2197,6 +2201,26 @@
       "headshot": "https://a.espncdn.com/i/headshots/nba/players/full/4278073.png",
       "injury": null,
       "recentGames": [
+        {
+          "eventId": "401908620",
+          "date": "2026-10-08T00:00Z",
+          "season": 2027,
+          "seasonType": 1,
+          "teamId": "25",
+          "opponentTeamId": "15",
+          "opponent": "Milwaukee Bucks",
+          "homeAway": "home",
+          "pace": 108.92,
+          "minutes": 18,
+          "usageProxy": 6.76,
+          "stats": {
+            "points": 17,
+            "rebounds": 3,
+            "assists": 5,
+            "threes": 3,
+            "pra": 25
+          }
+        },
         {
           "eventId": "401810496",
           "date": "2026-01-24T01:00Z",
@@ -2776,30 +2800,10 @@
             "threes": 1,
             "pra": 44
           }
-        },
-        {
-          "eventId": "401809974",
-          "date": "2025-10-28T00:30Z",
-          "season": 2026,
-          "seasonType": 2,
-          "teamId": "25",
-          "opponentTeamId": "6",
-          "opponent": "Dallas Mavericks",
-          "homeAway": "away",
-          "pace": 99.2,
-          "minutes": 35,
-          "usageProxy": 26.88,
-          "stats": {
-            "points": 23,
-            "rebounds": 4,
-            "assists": 8,
-            "threes": 1,
-            "pra": 35
-          }
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-07T23:16:58.689Z"
+      "fetchedAt": "2026-10-08T06:34:33.255Z"
     },
     "4432166": {
       "id": "4432166",
@@ -3413,7 +3417,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-07T23:16:58.688Z"
+      "fetchedAt": "2026-10-08T06:34:33.254Z"
     },
     "5104157": {
       "id": "5104157",
@@ -4027,7 +4031,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-07T23:16:58.690Z"
+      "fetchedAt": "2026-10-08T06:34:33.255Z"
     }
   },
   "nameIndex": {
@@ -4096,8 +4100,8 @@
       "games": 7
     },
     "15": {
-      "pace": 99.03,
-      "games": 7
+      "pace": 100.26,
+      "games": 8
     },
     "16": {
       "pace": 101.26,
@@ -4136,8 +4140,8 @@
       "games": 40
     },
     "25": {
-      "pace": 102.9,
-      "games": 40
+      "pace": 103.05,
+      "games": 41
     },
     "26": {
       "pace": 106.71,
@@ -4514,24 +4518,24 @@
     "15": {
       "byPosition": {
         "G": {
-          "points": 71.71,
-          "rebounds": 16.29,
-          "assists": 18.43,
-          "threes": 8.14,
-          "pra": 106.43
+          "points": 74.75,
+          "rebounds": 17.63,
+          "assists": 19.88,
+          "threes": 9.25,
+          "pra": 112.25
         },
         "F": {
-          "points": 30.14,
-          "rebounds": 15.86,
-          "assists": 6.57,
-          "threes": 5.29,
-          "pra": 52.57
+          "points": 27.38,
+          "rebounds": 14.38,
+          "assists": 6,
+          "threes": 4.63,
+          "pra": 47.75
         },
         "C": {
-          "points": 18.29,
-          "rebounds": 11.29,
-          "assists": 2.43,
-          "threes": 1.14,
+          "points": 18.75,
+          "rebounds": 10.88,
+          "assists": 2.38,
+          "threes": 1,
           "pra": 32
         }
       }
@@ -4764,25 +4768,25 @@
     "25": {
       "byPosition": {
         "G": {
-          "points": 54.15,
-          "rebounds": 15.45,
-          "assists": 14.55,
-          "threes": 8.45,
-          "pra": 84.15
+          "points": 54.12,
+          "rebounds": 15.54,
+          "assists": 14.61,
+          "threes": 8.41,
+          "pra": 84.27
         },
         "F": {
-          "points": 42.02,
-          "rebounds": 21.07,
-          "assists": 8,
-          "threes": 5.35,
-          "pra": 71.1
+          "points": 41.78,
+          "rebounds": 20.98,
+          "assists": 8.07,
+          "threes": 5.34,
+          "pra": 70.83
         },
         "C": {
-          "points": 13.81,
-          "rebounds": 10.16,
-          "assists": 2.14,
-          "threes": 1.11,
-          "pra": 26.11
+          "points": 14.58,
+          "rebounds": 10.5,
+          "assists": 2.16,
+          "threes": 1.13,
+          "pra": 27.24
         }
       }
     },
@@ -4913,59 +4917,59 @@
     }
   },
   "league": {
-    "pace": 99.79,
+    "pace": 99.83,
     "allowByPosition": {
       "G": {
-        "points": 64.22,
-        "rebounds": 17.27,
-        "assists": 17.01,
-        "threes": 8.09,
-        "pra": 98.5
+        "points": 64.32,
+        "rebounds": 17.32,
+        "assists": 17.06,
+        "threes": 8.13,
+        "pra": 98.7
       },
       "F": {
-        "points": 35.27,
-        "rebounds": 15.26,
-        "assists": 6.68,
-        "threes": 4.53,
-        "pra": 57.22
+        "points": 35.17,
+        "rebounds": 15.21,
+        "assists": 6.67,
+        "threes": 4.51,
+        "pra": 57.05
       },
       "C": {
-        "points": 19.03,
-        "rebounds": 12.94,
+        "points": 19.07,
+        "rebounds": 12.93,
         "assists": 2.92,
         "threes": 0.83,
-        "pra": 34.89
+        "pra": 34.92
       }
     },
     "playerByPosition": {
       "G": {
-        "points": 10.94,
+        "points": 10.92,
         "rebounds": 2.96,
-        "assists": 2.92,
+        "assists": 2.91,
         "threes": 1.44,
-        "pra": 16.82
+        "pra": 16.8
       },
       "F": {
-        "points": 8.99,
+        "points": 8.98,
         "rebounds": 3.86,
         "assists": 1.7,
         "threes": 1.13,
-        "pra": 14.56
+        "pra": 14.54
       },
       "C": {
-        "points": 8.99,
+        "points": 9.01,
         "rebounds": 6.11,
-        "assists": 1.45,
+        "assists": 1.44,
         "threes": 0.46,
-        "pra": 16.54
+        "pra": 16.57
       }
     },
     "marketSd": {
-      "points": 8.62,
-      "rebounds": 3.29,
+      "points": 8.61,
+      "rebounds": 3.28,
       "assists": 2.47,
       "threes": 1.44,
-      "pra": 12
+      "pra": 11.99
     }
   }
 }
