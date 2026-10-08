@@ -157,7 +157,7 @@
         +'<div class="rg2-game-foot"><small>'+esc(g.venue||'Matchup research')+'</small><b>RESEARCH GAME →</b></div>'
       +'</button>';
     }).join('');
-    return '<div class="rg2-heading"><div><span class="rg2-kicker">THE SPORTS OUTPOST · RESEARCH</span><h1>Game Research</h1><p>Pick a game to open its player research lab.</p></div><button type="button" class="rg2-refresh" data-rg2-refresh>↻ REFRESH</button></div>'
+    return '<div class="rg2-heading"><div><span class="rg2-kicker">THE SPORTS OUTPOST / RESEARCH CENTER</span><h1>Game Research <em>Lab</em></h1><p>Select a matchup to see the player-stat board, rankings and verified research behind it.</p></div><div class="rg2-heading-tools"><span class="rg2-source-status"><i></i> VERIFIED FEEDS ONLY</span><button type="button" class="rg2-refresh" data-rg2-refresh>↻ REFRESH GAMES</button></div></div>'
       +'<div class="rg2-filter-row"><div class="rg2-leagues" role="group" aria-label="Sports">'+leagues.map(k=>'<button type="button" data-rg2-league="'+k+'" class="'+(k===state.league?'is-active':'')+'" aria-pressed="'+(k===state.league)+'">'+esc(labels[k])+'</button>').join('')+'</div><span class="rg2-count">'+gameList.length+' game'+(gameList.length===1?'':'s')+' in the current slate</span></div>'
       +'<section class="rg2-game-section"><div class="rg2-section-header"><span>'+esc(state.league==='nfl'?'THIS WEEK’S GAMES':state.league==='all'?'CURRENT GAMES':'AVAILABLE GAMES')+'</span><small>Choose a matchup to see player data</small></div>'
       +(gameList.length?'<div class="rg2-cards">'+html+'</div>':'<div class="rg2-empty"><b>No games currently listed for '+esc(labels[state.league])+'.</b><span>Check another sport or refresh when the next slate is published. No simulated games are shown.</span></div>')
@@ -188,23 +188,45 @@
     visible=players.slice(0,180);
     const modeInfo=actual.filter(r=>validModel(r)).length;
     const ticker=gameList.filter(v=>v.league===g.league).map(v=>'<button type="button" data-rg2-game="'+esc(id(v))+'" class="'+(id(v)===state.gameKey?'is-active':'')+'">'+esc(up(v.away?.abbr))+' @ '+esc(up(v.home?.abbr))+' <small>'+esc(v.state==='pre'?day(v.startTime):v.state==='in'?'LIVE':'FINAL')+'</small></button>').join('');
-    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← ALL GAMES</button><span class="rg2-kicker">'+esc(labels[g.league])+' · MATCHUP RESEARCH</span></div>'
+    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status"><i></i> LIVE SOURCE CONNECTION</span></div>'
       +'<div class="rg2-matchup-strip"><div class="rg2-matchup-teams">'+team(g.away)+ '<span class="rg2-at">'+(g.state==='pre'?'@':esc(String(g.away?.score??'—')+' – '+String(g.home?.score??'—')))+'</span>'+team(g.home)+'</div>'
       +'<div class="rg2-matchup-markets"><span><small>SPREAD</small><strong>'+esc(m.spread)+'</strong></span><span><small>TOTAL</small><strong>'+esc(m.total)+'</strong></span><span><small>MONEYLINE</small><strong>'+esc(m.money)+'</strong></span><span><small>'+esc(g.state==='in'?'LIVE':g.state==='post'?'FINAL':'START')+'</small><strong>'+esc(day(g.startTime))+'</strong></span></div></div>'
-      +'<div class="rg2-game-rail" role="group" aria-label="Choose another game">'+ticker+'</div>';
+      +'<div class="rg2-game-rail-heading"><b>ON THE SLATE</b><small>Switch games without leaving Research</small></div><div class="rg2-game-rail" role="group" aria-label="Choose another game">'+ticker+'</div>';
     const choices=(values,label,current)=>'<option value="all">'+esc(label)+'</option>'+values.map(v=>'<option value="'+esc(v)+'" '+(v===current?'selected':'')+'>'+esc(v)+'</option>').join('');
-    const board=state.view==='board'?'<div class="rg2-player-grid">'+visible.map((p,i)=>'<article class="rg2-player-card">'+playerTitle(p)+'<div class="rg2-player-card-number"><small>MODEL</small><b>'+metric(p,'model',g.league)+'</b></div><div class="rg2-player-card-values"><span>MARKET '+metric(p,'market',g.league)+'</span><span>EDGE '+metric(p,'edge',g.league)+'</span></div><button type="button" data-rg2-intel="'+i+'">DEEP RESEARCH →</button></article>').join('')+'</div>'
-      :'<div class="rg2-table-scroll" role="region" tabindex="0" aria-label="'+esc(labels[g.league])+' research table; scroll horizontally for all columns"><table class="rg2-table"><thead><tr><th scope="col">PLAYER</th>'+cols.map(([key,label])=>'<th scope="col"><button type="button" data-rg2-sort="'+key+'">'+esc(label)+' <i>'+(key===state.sort?(state.descending?'↓':'↑'):'↕')+'</i></button></th>').join('')+'<th>ACTIONS</th></tr></thead><tbody>'+visible.map((p,i)=>'<tr><td>'+playerTitle(p)+'</td>'+cols.map(([key])=>'<td class="rg2-val rg2-val-'+key+'">'+metric(p,key,g.league)+'</td>').join('')+'<td class="rg2-action"><button type="button" data-rg2-intel="'+i+'">INTEL</button><button type="button" data-rg2-add="'+i+'">+ ADD</button></td></tr>').join('')+'</tbody></table></div>';
+    const boardCards='<div class="rg2-player-grid">'+visible.map((p,i)=>'<article class="rg2-player-card">'
+      +'<div class="rg2-player-card-top">'+playerTitle(p)+'<span class="rg2-card-index">#'+String(i+1).padStart(2,'0')+'</span></div>'
+      +'<div class="rg2-player-card-number"><small>VERIFIED MODEL CHANCE</small><b>'+metric(p,'model',g.league)+'</b></div>'
+      +'<div class="rg2-player-card-values"><span>MARKET <b>'+metric(p,'market',g.league)+'</b></span><span>EDGE <b>'+metric(p,'edge',g.league)+'</b></span></div>'
+      +'<div class="rg2-player-card-actions"><button type="button" data-rg2-intel="'+i+'">PLAYER INTEL →</button><button type="button" data-rg2-add="'+i+'">+ ADD</button></div>'
+      +'</article>').join('')+'</div>';
+    const rankRows='<div class="rg2-rank-list" aria-label="Player rankings">'
+      +visible.map((p,i)=>'<article class="rg2-rank-row">'
+        +'<strong class="rg2-rank-number">'+String(i+1).padStart(2,'0')+'</strong><div class="rg2-rank-player">'+playerTitle(p)+'</div>'
+        +'<div class="rg2-rank-metric"><small>MODEL</small><b>'+metric(p,'model',g.league)+'</b></div>'
+        +'<div class="rg2-rank-metric"><small>MARKET</small><b>'+metric(p,'market',g.league)+'</b></div>'
+        +'<div class="rg2-rank-metric"><small>EDGE</small><b>'+metric(p,'edge',g.league)+'</b></div>'
+        +'<div class="rg2-rank-actions"><button type="button" data-rg2-intel="'+i+'">INTEL</button><button type="button" data-rg2-add="'+i+'">+ ADD</button></div>'
+        +'</article>').join('')+'</div>';
+    const labTable='<div class="rg2-table-scroll" role="region" tabindex="0" aria-label="'+esc(labels[g.league])+' research table; scroll horizontally for all columns">'
+      +'<table class="rg2-table"><thead><tr><th scope="col">PLAYER <span class="rg2-sticky-hint">↔ SCROLL STATS</span></th>'
+      +cols.map(([key,label])=>'<th scope="col"><button type="button" data-rg2-sort="'+key+'" aria-label="Sort '+esc(label)+'" aria-pressed="'+(key===state.sort)+'">'+esc(label)+' <i>'+(key===state.sort?(state.descending?'↓':'↑'):'↕')+'</i></button></th>').join('')
+      +'<th scope="col">ACTIONS</th></tr></thead><tbody>'
+      +visible.map((p,i)=>'<tr><td>'+playerTitle(p)+'</td>'
+        +cols.map(([key])=>'<td class="rg2-val rg2-val-'+key+'">'+metric(p,key,g.league)+'</td>').join('')
+        +'<td class="rg2-action"><button type="button" data-rg2-intel="'+i+'">INTEL</button><button type="button" data-rg2-add="'+i+'">+ ADD</button></td></tr>').join('')
+      +'</tbody></table></div>';
+    const board=state.view==='board'?boardCards:state.view==='rank'?rankRows:labTable;
     return header+'<section class="rg2-detail">'
       +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
       +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
-      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">THE OUTPOST LAB · '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' Research</h2><p>Verified player statistics and markets · experimental TSO estimates clearly marked.</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this game</small></div></div>'
+      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats, opportunity signals and exact-market models from verified feeds.</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
+      +'<div class="rg2-mode-description"><span class="rg2-mode-indicator">'+esc(state.view.toUpperCase())+' VIEW</span><p>'+esc(state.view==='board'?'Player cards focused on model strength, market and edge.':state.view==='rank'?'Ranked players using the active column and sort direction.':'Full statistical lab: compare player production, usage and model context side by side.')+'</p></div>'
       +'<div class="rg2-searchbar"><label class="rg2-find"><span>⌕</span><input data-rg2-search type="search" placeholder="Search players or stats" value="'+esc(state.query)+'" aria-label="Filter players"></label>'
       +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
       +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
       +(visible.length?board:'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
-      +'<div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental uncalibrated NFL first-TD estimate. All TSO PURITY scores are separate 0–100 data-quality/opportunity consistency indexes, not probabilities; NBA/NHL/MLB depend on selected-market recent verified game logs. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div>'
+      +'<details class="rg2-method"><summary>ABOUT THESE NUMBERS <span>Data sources &amp; methodology ↓</span></summary><div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental uncalibrated NFL first-TD estimate. All TSO PURITY scores are separate 0–100 data-quality/opportunity consistency indexes, not probabilities; NBA/NHL/MLB depend on selected-market recent verified game logs. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div></details>'
       +'</section>';
   }
   function groupPlayers(rows){
@@ -546,6 +568,7 @@
     const seen=new Set();gameList=gameList.filter(g=>{const key=id(g);if(seen.has(key))return false;seen.add(key);return true}).sort((a,b)=>({'in':0,'pre':1,'post':2}[a.state]??3)-({'in':0,'pre':1,'post':2}[b.state]??3)
       || (Date.parse(a.startTime||'')||0)-(Date.parse(b.startTime||'')||0));
     if(state.stage==='detail'&&!gameList.some(g=>id(g)===state.gameKey)){state.stage='games';state.gameKey=''}
+    root.dataset.researchMode=state.stage==='detail'?state.view:'games';
     root.innerHTML=state.stage==='detail'?detail():cards();
     root.onclick=e=>{
       const t=e.target.closest('button');
