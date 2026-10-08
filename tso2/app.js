@@ -13,6 +13,13 @@
   const notificationDot = document.querySelector('[data-notification-dot]');
   const notificationCount = document.querySelector('[data-notification-count]');
   const notificationReadIds = new Set();
+  let savedAccountNotifications=[];
+  let savedAccountNotificationOwnerId='';
+  let savedAccountNotificationFetchedAt=0;
+  let savedAccountNotificationRequest=null;
+  let savedAccountNotificationError='';
+  const ACCOUNT_NOTIFICATION_REFRESH_MS=60000;
+
   let liveFeedError = null;
   let propsFeedError = null;
   const sideNav = document.querySelector('.tso-side-nav');
@@ -121,7 +128,10 @@
     if(opening)closeProfileMenu();
     notificationPanel.hidden=!opening;
     notificationButton.setAttribute('aria-expanded',String(opening));
-    if(opening)renderNotificationCenter();
+    if(opening){
+      renderNotificationCenter();
+      void refreshSavedAccountNotifications(false);
+    }
   }
 
   function setSideNavOpen(open){
@@ -2041,10 +2051,65 @@
     return {fallback,warnings};
   }
 
+  // Existing TSO 1.0 account notifications are owned by auth.uid() under
+  // Supabase RLS. They never come from client-maintained fake history.
+  function savedNotificationEntry(row){
+    const payload=row?.payload&&typeof row.payload==='object'?row.payload:{};
+    const name=String(payload.player_name||'Player');
+    const detail=String(payload.detail||payload.result||'');
+    const time=row.created_at?ageText(row.created_at)+' old':'saved';
+    const common={id:'account:'+String(row.id),persistedRead:row.read===true,accountNotificationId:Number(row.id),time};
+    switch(String(row.type||'')){
+      case 'atbat_up':
+        return {...common,tone:'live',mark:'⚾',eyebrow:'SAVED MLB ALERT',title:name+' is at bat',copy:String(payload.game||'Watchlist at-bat alert'),route:'live',league:'mlb'};
+      case 'atbat_result':
+        return {...common,tone:'default',mark:'⚾',eyebrow:'SAVED MLB RESULT',title:name+' · '+String(payload.result||'At-bat update'),copy:detail,route:'live',league:'mlb'};
+      case 'follow':
+        return {...common,tone:'default',mark:'◉',eyebrow:'COMMUNITY',title:'New follower',copy:String(payload.username||'A member')+' followed you',route:'community'};
+      case 'comment':
+        return {...common,tone:'default',mark:'✎',eyebrow:'COMMUNITY',title:'New comment',copy:'Someone replied to your activity',route:'community'};
+      default:
+        return {...common,tone:'default',mark:'◉',eyebrow:'ACCOUNT UPDATE',title:'Saved notification',copy:'Open your account activity',route:'profile'};
+    }
+  }
+  async function refreshSavedAccountNotifications(force=false){
+    const userId=String(window.TSO_AUTH?.user?.id||'');
+    if(userId!==savedAccountNotificationOwnerId){
+      savedAccountNotificationOwnerId=userId;
+      savedAccountNotifications=[];
+      savedAccountNotificationFetchedAt=0;
+      savedAccountNotificationError='';
+      notificationReadIds.clear();
+      renderNotificationCenter();
+    }
+    if(!userId||typeof window.TSO_AUTH?.loadNotifications!=='function')return;
+    if(savedAccountNotificationRequest)return savedAccountNotificationRequest;
+    if(!force&&Date.now()-savedAccountNotificationFetchedAt<ACCOUNT_NOTIFICATION_REFRESH_MS)return;
+    const requestedId=userId;
+    savedAccountNotificationRequest=window.TSO_AUTH.loadNotifications(24)
+      .then(rows=>{
+        if(String(window.TSO_AUTH?.user?.id||'')!==requestedId)return;
+        savedAccountNotifications=Array.isArray(rows)?rows:[];
+        savedAccountNotificationFetchedAt=Date.now();
+        savedAccountNotificationError='';
+        renderNotificationCenter();
+      })
+      .catch(error=>{
+        if(String(window.TSO_AUTH?.user?.id||'')!==requestedId)return;
+        savedAccountNotificationError=String(error?.message||'Could not load saved notifications');
+        renderNotificationCenter();
+      }).finally(()=>{savedAccountNotificationRequest=null});
+    return savedAccountNotificationRequest;
+  }
+
   function notificationEntries(){
     const entries=[];
     const now=Date.now();
 
+    if(savedAccountNotificationError&&window.TSO_AUTH?.user){
+      entries.push({id:'system:saved-inbox',tone:'warning',mark:'!',eyebrow:'ACCOUNT INBOX',
+        title:'Saved notifications unavailable',copy:savedAccountNotificationError,time:'retrying',route:'profile'});
+    }
     if(liveFeedError){
       entries.push({id:'system:live-feed',tone:'warning',mark:'!',eyebrow:'SYSTEM',title:'Live score feed needs attention',copy:liveFeedError,time:'retrying',route:'live'});
     }
@@ -2099,11 +2164,15 @@
       });
     });
 
+    // Recent persisted alerts follow critical feed warnings. Keep some space
+    // for live games and model alerts even when an account inbox has history.
+    const accountEntries=savedAccountNotifications.slice(0,4).map(savedNotificationEntry);
+    entries.splice(Math.min(entries.length,2),0,...accountEntries);
     return entries.slice(0,9);
   }
 
   function notificationItemMarkup(entry){
-    const unread=!notificationReadIds.has(entry.id);
+    const unread=entry.accountNotificationId?entry.persistedRead!==true:!notificationReadIds.has(entry.id);
     return '<button class="notification-item '+(unread?'is-unread ':'')+'is-'+esc(entry.tone||'default')+'" data-notification-id="'+esc(entry.id)+'" data-notification-route="'+esc(entry.route||'home')+'" data-notification-league="'+esc(entry.league||'')+'" data-notification-game="'+esc(entry.gameId||'')+'">'
       +'<span class="notification-item-mark">'+esc(entry.mark||'•')+'</span>'
       +'<span class="notification-item-copy"><span>'+esc(entry.eyebrow||'TSO')+'</span><b>'+esc(entry.title||'Notification')+'</b><small>'+esc(entry.copy||'')+'</small></span>'
@@ -2114,7 +2183,7 @@
   function renderNotificationCenter(){
     if(!notificationList||!notificationButton)return;
     const entries=notificationEntries();
-    const unread=entries.filter(entry=>!notificationReadIds.has(entry.id)).length;
+    const unread=entries.filter(entry=>entry.accountNotificationId?entry.persistedRead!==true:!notificationReadIds.has(entry.id)).length;
     if(notificationDot)notificationDot.hidden=unread===0;
     if(notificationCount){
       notificationCount.hidden=unread===0;
@@ -2127,7 +2196,19 @@
 
     notificationList.querySelectorAll('[data-notification-id]').forEach(btn=>btn.onclick=()=>{
       const id=String(btn.dataset.notificationId||'');
-      if(id)notificationReadIds.add(id);
+      if(id.startsWith('account:')){
+        const notificationId=Number(id.slice(8));
+        if(Number.isSafeInteger(notificationId)&&notificationId>0){
+          void window.TSO_AUTH?.markNotificationsRead?.([notificationId])
+            .then(()=>{
+              const saved=savedAccountNotifications.find(x=>Number(x.id)===notificationId);
+              if(saved)saved.read=true;
+              renderNotificationCenter();
+            }).catch(error=>{
+              console.warn('[TSO2 notifications] Could not mark saved alert read:',error?.message||error);
+            });
+        }
+      }else if(id)notificationReadIds.add(id);
       const league=String(btn.dataset.notificationLeague||'');
       const route=String(btn.dataset.notificationRoute||'home');
       const gameId=String(btn.dataset.notificationGame||'');
@@ -2140,7 +2221,20 @@
   }
 
   function markAllNotificationsRead(){
-    notificationEntries().forEach(entry=>notificationReadIds.add(entry.id));
+    notificationEntries().forEach(entry=>{
+      if(!entry.accountNotificationId)notificationReadIds.add(entry.id);
+    });
+    const userId=String(window.TSO_AUTH?.user?.id||'');
+    if(userId&&typeof window.TSO_AUTH?.markNotificationsRead==='function'){
+      void window.TSO_AUTH.markNotificationsRead().then(()=>{
+        if(String(window.TSO_AUTH?.user?.id||'')!==userId)return;
+        savedAccountNotifications.forEach(row=>{row.read=true});
+        renderNotificationCenter();
+      }).catch(error=>{
+        savedAccountNotificationError=String(error?.message||'Could not save read status');
+        renderNotificationCenter();
+      });
+    }
     renderNotificationCenter();
   }
 
@@ -6783,6 +6877,7 @@
     closeProfileMenu();
     syncOwnerTools();
     if(currentRoute==='profile') renderProfile();
+    void refreshSavedAccountNotifications(true);
     if(currentRoute==='admin'){
       if(!isOwner()) setRoute('home');
       else renderRoute();
@@ -6803,6 +6898,7 @@
   refreshLiveData(true);
   refreshPropsData(true);
   window.setInterval(() => refreshLiveData(true), LIVE_POLL_MS);
+  window.setInterval(() => { void refreshSavedAccountNotifications(false); }, ACCOUNT_NOTIFICATION_REFRESH_MS);
   window.setInterval(() => refreshSelectedLiveDetail(), LIVE_DETAIL_POLL_MS);
   window.setInterval(() => refreshPropsData(true), PROPS_POLL_MS);
   window.setInterval(() => refreshGameEdgeData(true), GAME_EDGE_POLL_MS);
