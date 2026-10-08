@@ -1,0 +1,61 @@
+name: TSO 2.0 NFL TD Opportunity Research
+
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/build-nfl-td-opportunities.py'
+      - '.github/workflows/tso2-nfl-td-opportunities.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tso2-nfl-td-research
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build nflverse situational TD data for TSO 2.0 only
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+          persist-credentials: true
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify definitions and source mappings
+        run: python tso2/build-nfl-td-opportunities.py --selftest
+      - name: Build 2025 and 2026 NFL play-by-play metrics
+        run: python tso2/build-nfl-td-opportunities.py --seasons 2025 2026
+      - name: Validate player population and 2025/2026 season coverage
+        run: |
+          python - <<'PY'
+          import json
+          with open('tso2/data/nfl-td-opportunities.json') as f: doc=json.load(f)
+          assert doc['source'].startswith('nflverse')
+          assert set(doc['seasons'])=={'2025','2026'}
+          for year in ['2025','2026']:
+              group=doc['seasons'][year]
+              assert group['gamesScanned'] >= 10
+              assert group['playerCount'] > 100
+              assert any(x.get('firstTdGames',0)>0 for x in group['players'].values())
+              assert all(x.get('goalLineSharePct') is None or 0 <= x['goalLineSharePct'] <= 100 for x in group['players'].values())
+          print('PASS 2025/2026 play-by-play validation')
+          PY
+      - name: Commit only TSO 2.0 play-by-play research artifact
+        run: |
+          git config user.name "TSO 2.0 Research Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tso2/data/nfl-td-opportunities.json
+          if git diff --cached --quiet; then
+            echo "No updated TD opportunity research artifact"
+            exit 0
+          fi
+          git commit -m "TSO2 data: refresh verified nflverse TD opportunity research [skip ci]"
+          git push origin HEAD:tso-2.0-restructure
