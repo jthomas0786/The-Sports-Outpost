@@ -11348,3 +11348,195 @@ body.live-multi-open{overflow:hidden}
   .rg2-page .rg2-lab-heading{padding-top:16px}
   .rg2-page .rg2-player-grid{grid-template-columns:1fr}
 }
+
+
+/* TSO2 RESEARCH — native broadcast colors (match Live, Props, Models shell).
+   Neutral graphite/black surfaces throughout: orange + gold belong to the
+   actual Outpost brand; Research does NOT have a separate navy color system. */
+.rg2-page{
+  --rg-orange:var(--outpost-orange,#ff4d1c);
+  --rg-gold:var(--outpost-gold,#ffd84d);
+  --rg-blue:var(--outpost-orange,#ff4d1c);
+  --rg-cyan:var(--outpost-gold,#ffd84d);
+  --rg-bg:#05070a;
+  --rg-panel:#090d12;
+  --rg-line:rgba(255,255,255,.10);
+  color:#e9edf4;
+}
+.rg2-page .rg2-destination-hero,
+.rg2-page .rg2-filter-row.live-filter-strip,
+.rg2-page .rg2-detail-nav{background:#070a0e;border-color:rgba(255,255,255,.10)}
+.rg2-page .rg2-destination-kicker,
+.rg2-page .rg2-kicker,
+.rg2-page .rg2-section-kicker{color:#ff986f}
+.rg2-page .rg2-destination-kicker i{background:#ff4d1c;box-shadow:0 0 12px rgba(255,77,28,.33)}
+.rg2-page .rg2-destination-hero h1 em,
+.rg2-page .rg2-lab-heading h2 em{color:var(--rg-gold)}
+.rg2-page .rg2-hero-icon{filter:drop-shadow(0 2px 12px rgba(255,77,28,.18))}
+.rg2-page .rg2-refresh.button.primary{background:#ff4d1c;border-color:#ff653c;color:#fff}
+.rg2-page .rg2-refresh.button.primary:hover{background:#fa6739;border-color:#ff956f}
+.rg2-page .rg2-status-deck{
+  background:linear-gradient(95deg,rgba(255,77,28,.025),#090c10 36%,#070a0e);
+  border-color:rgba(255,255,255,.10)
+}
+.rg2-page .rg2-status-item{border-color:rgba(255,255,255,.08)}
+.rg2-page .rg2-status-item span{color:#808996}
+.rg2-page .rg2-status-item strong{color:#e8ebee}
+.rg2-page .rg2-status-item--last strong{color:var(--rg-gold)}
+.rg2-page .rg2-leagues.segmented{background:#05070a;border-color:rgba(255,255,255,.10)}
+.rg2-page .rg2-leagues.segmented button{color:#9ca2ae}
+.rg2-page .rg2-leagues.segmented button.is-active{
+  color:#101116;background:var(--rg-gold);border-color:var(--rg-gold);
+  box-shadow:none
+}
+.rg2-page .rg2-leagues.segmented button:hover:not(.is-active){color:#fff;background:#161b23}
+.rg2-page .rg2-count{color:#8f99a8}
+.rg2-page .rg2-section-header h2{color:#edf0f6}
+.rg2-page .rg2-section-header>small{color:#8f96a2}
+.rg2-page .rg2-game-card{
+  background:#0a0e14;border:1px solid rgba(255,255,255,.11);
+  box-shadow:none;color:#e9edf4
+}
+.rg2-page .rg2-game-card::before{background:linear-gradient(90deg,var(--rg-orange),var(--rg-gold),transparent 88%)}
+.rg2-page .rg2-game-card:hover{background:#11161e;border-color:rgba(255,216,77,.40)}
+.rg2-page .rg2-game-card-top{border-color:rgba(255,255,255,.075)}
+.rg2-page .rg2-game-card-top strong{color:#ffd84d}
+.rg2-page .rg2-team-copy>b{color:#f1f2f6}
+.rg2-page .rg2-team-copy>small{color:#8c93a0}
+.rg2-page .rg2-card-score{color:#cfd4dc}
+.rg2-page .rg2-game-lines>span{background:#070a0e;border:1px solid rgba(255,255,255,.085)}
+.rg2-page .rg2-game-lines small,
+.rg2-page .rg2-matchup-markets small{color:#8a919b}
+.rg2-page .rg2-game-lines b{color:#e7ebf2}
+.rg2-page .rg2-game-foot b{color:var(--rg-gold)}
+.rg2-page .rg2-matchup-strip{
+  background:#0b0e14;box-shadow:inset 3px 0 var(--rg-orange);
+  border-color:rgba(255,255,255,.14)
+}
+.rg2-page .rg2-matchup-markets{border-color:rgba(255,255,255,.11)}
+.rg2-page .rg2-matchup-markets strong{color:#f0f1f4}
+.rg2-page .rg2-at{color:var(--rg-gold)}
+.rg2-page .rg2-page .rg2-game-rail-heading b{color:#e9ba67}
+.rg2-page .rg2-game-rail-heading b{color:#e9ba67}
+.rg2-page .rg2-game-rail button{
+  background:#090c11;color:#b5bbc7;border-color:rgba(255,255,255,.12)
+}
+.rg2-page .rg2-game-rail button.is-active{
+  background:#15161a;color:#fff;border-color:var(--rg-orange);
+  box-shadow:inset 0 -2px var(--rg-orange)
+}
+.rg2-page .rg2-detail-nav{background:#0a0e14}
+.rg2-page .rg2-tabs button{color:#a7aeb9}
+.rg2-page .rg2-tabs button.is-active{
+  background:rgba(255,77,28,.11);color:#ffe3d3;
+  border-color:rgba(255,77,28,.36);box-shadow:inset 0 -2px var(--rg-orange)
+}
+.rg2-page .rg2-view{background:#06080d;border-color:rgba(255,255,255,.12)}
+.rg2-page .rg2-view button{color:#b3bcc6}
+.rg2-page .rg2-view button.is-active{background:var(--rg-gold);color:#111317}
+.rg2-page .rg2-lab-heading{border-color:rgba(255,255,255,.10)}
+.rg2-page .rg2-lab-status b{color:var(--rg-gold)}
+.rg2-page .rg2-mode-indicator{
+  color:#f9c36a;background:rgba(255,216,77,.05);
+  border-color:rgba(255,216,77,.25)
+}
+.rg2-page .rg2-refresh,.rg2-page .rg2-back{
+  background:#0d1119;color:#e3e6ee;border-color:rgba(255,255,255,.16)
+}
+.rg2-page .rg2-refresh:hover,.rg2-page .rg2-back:hover{
+  background:#181b22;border-color:var(--rg-orange);color:#fff
+}
+.rg2-page .rg2-searchbar select,
+.rg2-page .rg2-find{
+  color:#edf0f6;background:#0a0e14!important;
+  border-color:rgba(255,255,255,.16)!important
+}
+.rg2-page .rg2-find span{color:var(--rg-gold)}
+.rg2-page .rg2-table-scroll{background:#080b11;border-color:rgba(255,255,255,.14);scrollbar-color:#61636a #080a0e}
+.rg2-page .rg2-table{border-spacing:0 2px}
+.rg2-page .rg2-table th{
+  background:#11151c;color:#b3bac5;border-color:rgba(255,255,255,.13)
+}
+.rg2-page .rg2-table th:first-child{background:#161a20}
+.rg2-page .rg2-table th i{color:#edb85b}
+.rg2-page .rg2-table td{
+  background:#0e1219;color:#edf0f5;
+  border-color:rgba(255,255,255,.04)
+}
+.rg2-page .rg2-table th:first-child,
+.rg2-page .rg2-table td:first-child{
+  background:#15191f;box-shadow:5px 0 10px rgba(0,0,0,.23)
+}
+.rg2-page .rg2-table tr:nth-child(even) td{background:#0b0e14}
+.rg2-page .rg2-table tr:nth-child(even) td:first-child{background:#12161c}
+.rg2-page .rg2-table tr:hover td,
+.rg2-page .rg2-table tr:hover td:first-child{background:#1b1c22}
+.rg2-page .rg2-highlight{
+  background:rgba(255,77,28,.11);border:1px solid rgba(255,77,28,.25);
+  color:#ffd1b9;border-radius:3px;min-height:29px
+}
+.rg2-page .rg2-table td.rg2-val-atd:has(.rg2-highlight),
+.rg2-page .rg2-table td.rg2-val-firstTd:has(.rg2-highlight),
+.rg2-page .rg2-table td.rg2-val-atg:has(.rg2-highlight),
+.rg2-page .rg2-table td.rg2-val-model:has(.rg2-highlight){background:rgba(255,77,28,.065)}
+.rg2-page .rg2-table tr:nth-child(even) td.rg2-val-atd:has(.rg2-highlight),
+.rg2-page .rg2-table tr:nth-child(even) td.rg2-val-firstTd:has(.rg2-highlight){background:rgba(255,77,28,.08)}
+.rg2-page .rg2-sticky-hint{color:#969ca5}
+.rg2-page .rg2-avatar,.rg2-page .rg2-player>img{background:#20232a}
+.rg2-page .rg2-player small{color:#a1a9b6}
+.rg2-page .rg2-player-grid .rg2-player-card,
+.rg2-page .rg2-rank-row{background:#0d1118;border-color:rgba(255,255,255,.12)}
+.rg2-page .rg2-player-card-number b,
+.rg2-page .rg2-rank-number{color:var(--rg-gold)}
+.rg2-page .rg2-action button,.rg2-page .rg2-player-card button,.rg2-page .rg2-rank-actions button{
+  background:#151920;border:1px solid rgba(255,255,255,.15);color:#eceef2
+}
+.rg2-page .rg2-action button:last-child,
+.rg2-page .rg2-player-card-actions button:last-child,
+.rg2-page .rg2-rank-actions button:last-child{
+  background:rgba(255,77,28,.11);border-color:rgba(255,77,28,.30);color:#ffb091
+}
+.rg2-page .rg2-method,
+.rg2-page .rg2-empty{background:#0b0e13;border-color:rgba(255,255,255,.12)}
+/* Historical TD hit rates are visually distinct from model probability. */
+.rg2-page .rg2-atd-stack{
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:3px;max-width:100%
+}
+.rg2-page .rg2-atd-stack .rg2-highlight{min-width:72px;white-space:nowrap}
+.rg2-page .rg2-atd-stack>small{
+  display:block;font-size:9px;line-height:1.25;font-weight:900;
+  letter-spacing:.065em;color:#bbc1cb;white-space:nowrap
+}
+.rg2-page .rg2-highlight.rg2-atd--model{
+  background:rgba(255,77,28,.14);border-color:rgba(255,77,28,.4);
+  color:#ffb28e
+}
+.rg2-page .rg2-highlight.rg2-atd--market{
+  background:rgba(255,216,77,.095);border-color:rgba(255,216,77,.3);
+  color:#ffe193
+}
+.rg2-page .rg2-highlight.rg2-atd--history{
+  background:rgba(255,255,255,.045);border-color:rgba(255,255,255,.15);
+  color:#dde0e5
+}
+.rg2-page .rg2-atd-legend{
+  display:flex;align-items:center;gap:10px 17px;flex-wrap:wrap;
+  margin-top:14px;padding:11px 13px;
+  background:#0b0e13;border:1px solid rgba(255,255,255,.11);
+  color:#aeb7c4;font-size:10px;line-height:1.4
+}
+.rg2-page .rg2-atd-legend>b{color:var(--rg-gold);font-size:10px;letter-spacing:.09em}
+.rg2-page .rg2-atd-legend>span{display:inline-flex;align-items:center;gap:6px}
+.rg2-page .rg2-source-pip{width:7px;height:7px;flex:0 0 7px;border-radius:50%}
+.rg2-page .rg2-source-pip--model{background:#ff4d1c}
+.rg2-page .rg2-source-pip--market{background:#ffd84d}
+.rg2-page .rg2-source-pip--history{background:#b4bac3}
+.rg2-pbp-intel{background:#0a0d13;border-color:rgba(255,216,77,.38)}
+.rg2-pbp-head small,.rg2-pbp-stats strong{color:#ffe096}
+.rg2-pbp-stats>div{background:#12161d;border-color:rgba(255,255,255,.13)}
+.rg2-pbp-head button{background:#171a20;border-color:rgba(255,255,255,.2)}
+@media(max-width:600px){
+  .rg2-page .rg2-atd-legend{align-items:flex-start;gap:8px}
+  .rg2-page .rg2-atd-legend>b{flex-basis:100%}
+}
