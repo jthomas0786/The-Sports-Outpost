@@ -204,7 +204,7 @@
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
       +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
       +(visible.length?board:'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
-      +'<div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. First-TD predictions and Purity require separately validated models. INTEL opens Deep Research.</div>'
+      +'<div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental TSO two-stage game-first-TD model (not calibrated). TSO PURITY is a separate 0–100 opportunity-quality index, not probability. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div>'
       +'</section>';
   }
   function groupPlayers(rows){
@@ -276,6 +276,97 @@
     }
     return values.length?+(values.reduce((a,b)=>a+b,0)/values.length).toFixed(2):null;
   }
+  // TSO experimental FIRST touchdown forecast (v0.1).
+  // This is not a calibrated betting probability. The total probability
+  // across all players in a game is capped by observed offensive-first-TD
+  // frequency; defense, special teams, and no-TD outcomes retain mass.
+  // No undocumented third-party First%/Purity values are copied.
+  function firstTdInputs(game,player){
+    if(game?.league!=='nfl'||game.state!=='pre')return null;
+    const doc=pbpState.data;
+    const past=doc?.seasons?.['2025'],current=doc?.seasons?.['2026'];
+    if(!past?.teams||!current?.teams||!Number.isFinite(Number(past.offensiveFirstTdGames))
+      ||!Number.isFinite(Number(current.offensiveFirstTdGames)))return null;
+    const detail=getDetails(game,player)?.player||{};
+    const playerId=String(detail.gsisId||'');
+    const team=up(detail.team||player?.team);
+    if(!playerId||!team||!(oneOf(team,game.home)||oneOf(team,game.away)))return null;
+    const recent=current.players?.[playerId],prior=past.players?.[playerId];
+    if(!recent||up(recent.team)!==team||Number(recent.gamesWithOpportunities||0)<2)return null;
+    const currentTeam=current.teams[team];
+    if(!currentTeam||Number(currentTeam.gamesPlayed||0)<2)return null;
+    return {doc,past,current,team,playerId,recent,
+      prior:up(prior?.team)===team?prior:null,currentTeam};
+  }
+  function firstTdTeamStrength(yearNow,yearBefore,team){
+    const a=yearNow.teams?.[team],b=yearBefore.teams?.[team];
+    if(!a||!b)return null;
+    const cg=num(a.gamesPlayed),pg=num(b.gamesPlayed);
+    const cf=num(a.firstTdOffenseGames)||0,pf=num(b.firstTdOffenseGames)||0;
+    if(cg===null||pg===null||cg<2||pg<12)return null;
+    // Beta(0.5,0.5) prior; weight last season at 0.6 to favor current games.
+    return (cf+0.6*pf+0.5)/(cg+0.6*pg+1);
+  }
+  function firstTdPlayerWeight(recent,prior,teamStats){
+    if(!recent||!teamStats)return 0;
+    const rzDen=num(teamStats.redZoneOpps),glDen=num(teamStats.goalLineOpps);
+    const opportunityDen=(num(teamStats.carries)||0)+(num(teamStats.targets)||0);
+    const rz=rzDen?Math.max(0,(num(recent.redZoneOpps)||0)/rzDen):0;
+    const gl=glDen?Math.max(0,(num(recent.goalLineOpps)||0)/glDen):0;
+    const touches=opportunityDen?
+      Math.max(0,((num(recent.carries)||0)+(num(recent.targets)||0))/opportunityDen):0;
+    const firstNow=num(recent.firstTdGames)||0;
+    const firstPrev=num(prior?.firstTdGames)||0;
+    return 0.015 + 0.75*firstNow + 0.35*firstPrev
+      + 2.5*rz + 1.5*gl + 0.45*touches;
+  }
+  function firstTdEstimate(game,player){
+    const input=firstTdInputs(game,player);
+    if(!input)return null;
+    const {past,current,team,recent,prior,currentTeam}=input;
+    const home=up(game.home?.abbr),away=up(game.away?.abbr);
+    const homeStrength=firstTdTeamStrength(current,past,home);
+    const awayStrength=firstTdTeamStrength(current,past,away);
+    if(homeStrength===null||awayStrength===null)return null;
+    const totalGames=(num(past.gamesScanned)||0)+(num(current.gamesScanned)||0);
+    const offenseFirst=(num(past.offensiveFirstTdGames)||0)+(num(current.offensiveFirstTdGames)||0);
+    if(totalGames<200||offenseFirst<=0||offenseFirst>totalGames)return null;
+    const gameMass=offenseFirst/totalGames;
+    const teamStrength=team===home?homeStrength:awayStrength;
+    const teamMass=gameMass*teamStrength/(homeStrength+awayStrength);
+    let denom=0.8; // reserve mass for new/nonlisted offensive players.
+    for(const [id,row] of Object.entries(current.players||{})){
+      if(up(row?.team)!==team||Number(row.gamesWithOpportunities||0)<1)continue;
+      const old=past.players?.[id];
+      denom+=firstTdPlayerWeight(row,up(old?.team)===team?old:null,currentTeam);
+    }
+    const weight=firstTdPlayerWeight(recent,prior,currentTeam);
+    if(!(denom>weight&&weight>0))return null;
+    let forecast=100*teamMass*weight/denom;
+    const atd=forP(player,'atd');
+    if(validModel(atd))forecast=Math.min(forecast,num(atd.model.probabilityPct));
+    return Number.isFinite(forecast)&&forecast>=0&&forecast<=100
+      ? +forecast.toFixed(1):null;
+  }
+  // TSO PURITY: role opportunity/finishing *signal*, not a probability,
+  // calibration grade, or the source video's proprietary formula.
+  function tsoPurity(game,player){
+    const data=firstTdInputs(game,player);
+    if(!data)return null;
+    const {recent}=data;
+    const gl=num(recent.goalLineSharePct),rz=num(recent.redZoneSharePct),
+      yieldPct=num(recent.redZoneTdYieldPct);
+    const role=String(getDetails(game,player)?.player?.position||player.role||'').toUpperCase();
+    const share=role==='RB'||role==='FB'?num(recent.carrySharePct)
+      :['WR','TE'].includes(role)?num(recent.targetSharePct)
+      :Math.max(num(recent.carrySharePct)||0,num(recent.targetSharePct)||0);
+    const games=num(recent.gamesWithOpportunities);
+    if([gl,rz,yieldPct,share,games].some(v=>v===null)||games<2)return null;
+    if([gl,rz,yieldPct,share].some(v=>v<0||v>100))return null;
+    const sourceScore=0.30*gl+0.30*rz+0.20*share+0.20*yieldPct;
+    const sampleFactor=0.7+0.3*Math.min(1,games/8);
+    return Math.round(Math.max(0,Math.min(100,sourceScore*sampleFactor)));
+  }
   function columnData(p,key,sport){
     const r=best(p)||{},m=r.model||{},pModel=validModel(r);
     const selectedGame=gameList.find(g=>id(g)===state.gameKey);
@@ -295,7 +386,7 @@
       case 'line':return num(r.line);
       case 'form':return val(m,['trendPct','formPct','form.score'])??val(r,['stats.formPct'])??(recentTdRate!==null&&seasonTdRate!==null?recentTdRate-seasonTdRate:null);
       case 'yield':return currentPbp?.redZoneTdYieldPct??val(m,['yieldPct','yield']);
-      case 'purity':return val(m,['purity','purityScore']);
+      case 'purity':return sport==='nfl'?tsoPurity(selectedGame,p):null;
       case 'usage':return val(m,['usagePct','usage.usagePct','context.usagePct']);
       case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes'])??num(deep.recentAverages?.minutes)??recentMinutes(deep,sport);
       case 'toi':return val(m,['toi','usage.toi'])??num(deep.recentAverages?.toi)??recentMinutes(deep,sport);
@@ -315,7 +406,8 @@
       case 'prevFirst':return prevPbp?.firstTdGames??val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds'])??num(previous.firstTdGames);
       case 'prevTD':return val(m,['previousSeasonTds','history.prevSeasonTds'])??num(previous.totalTds);
       case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds'])??num(current.totalTds);
-      case 'atd':case 'firstTd':case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
+      case 'firstTd':return marketLine&&validModel(marketLine)?mode(marketLine):firstTdEstimate(selectedGame,p);
+      case 'atd':case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
         return marketLine&&validModel(marketLine)?mode(marketLine):null;
       default:return null;
     }
@@ -338,6 +430,8 @@
     }
     if(['prevTD','yearTD'].includes(key))return fmt(value,0);
     if(key==='purity')return fmt(value,0);
+    if(key==='purity')return '<strong class="rg2-purity" title="Experimental TSO opportunity-quality index, 0–100. Weighted 30% goal-line share, 30% red-zone share, 20% position opportunity share, 20% red-zone touchdown yield, adjusted for sample size; not a probability.">'+fmt(value,0)+'/100</strong>';
+    if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">~'+percent(value)+'</strong><small class="rg2-experimental">EST.</small>';
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
     if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
     if(['model','atd','atg','hr','firstTd','fgs'].includes(key))return '<strong class="rg2-highlight">'+percent(value)+'</strong>';
@@ -353,7 +447,7 @@
   }
   function columns(sport,tab){
     if(tab==='all'||tab==='props')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
-    if(sport==='nfl'&&tab==='td')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','PURITY']];
+    if(sport==='nfl'&&tab==='td')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','TSO PURITY']];
     if(sport==='nfl'&&tab==='defense')return [['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
