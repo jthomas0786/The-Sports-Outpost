@@ -10374,6 +10374,8 @@ body.global-search-open{overflow:hidden}
    ================================================================ */
 .notification-menu{position:relative;display:flex;align-items:center}
 .notification-trigger{display:grid;place-items:center;isolation:isolate}
+.notification-bell-icon{width:20px;height:20px;display:block;color:#dbe9ff;flex-shrink:0;pointer-events:none}
+.notification-trigger:hover .notification-bell-icon,.notification-trigger[aria-expanded="true"] .notification-bell-icon{color:#7bb9ff}
 .notification-trigger[aria-expanded="true"]{border-color:rgba(45,127,255,.48);background:rgba(45,127,255,.10)}
 .notification-dot[hidden],.notification-count[hidden]{display:none!important}
 .notification-count{
