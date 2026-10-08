@@ -6530,7 +6530,7 @@
   const labels = {
     home:'Home', live:'Live Center', research:'Research', models:'Models',
     gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Lab', community:'Community',
-    leaderboard:'Leaderboard', profile:'Profile'
+    leaderboard:'Leaderboard', profile:'Profile', admin:'Admin Control Room'
   };
 
   function notify(message){
@@ -6654,6 +6654,7 @@
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
     syncOwnerTools();
+    if(currentRoute==='admin') window.TSO2Admin?.mount?.();
     bindNhlScorerActions(document.querySelector('[data-nhl-scorer-shell]'));
     refreshNhlScorerData(false);
     refreshLiveData(false);
@@ -6675,6 +6676,7 @@
 
   function setRoute(route){
     if(!labels[route]) return;
+    if(route==='admin'&&!isOwner()){ notify('Owner access required.'); return; }
     closeProfileMenu();
     if(route==='gameedge'&&currentLeague==='all'){
       currentLeague='nhl';
@@ -6752,6 +6754,10 @@
     closeProfileMenu();
     setRoute('profile');
   });
+  document.querySelector('[data-admin-open]')?.addEventListener('click', () => {
+    closeProfileMenu();
+    if(isOwner()) setRoute('admin');
+  });
 
   document.querySelectorAll('[data-owner-only]').forEach(item => {
     item.addEventListener('click', event => {
@@ -6777,6 +6783,10 @@
     closeProfileMenu();
     syncOwnerTools();
     if(currentRoute==='profile') renderProfile();
+    if(currentRoute==='admin'){
+      if(!isOwner()) setRoute('home');
+      else renderRoute();
+    }
   });
 
   syncOwnerTools();
