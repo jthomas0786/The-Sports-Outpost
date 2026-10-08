@@ -342,6 +342,30 @@
     const image=gteam?.logo?'<img data-team-logo alt="" src="'+esc(gteam.logo)+'" loading="lazy">':'<span>'+esc(gteam?.abbr||'—')+'</span>';
     return '<span class="rg2-team '+cls+'"><span class="rg2-logo">'+image+'</span><span class="rg2-team-copy"><b>'+esc(gteam?.abbr||'—')+'</b><small>'+esc(gteam?.name||'')+'</small></span></span>';
   }
+  // The same TSO 2.0 broadcast destination header is used across Live, Models,
+  // Props and Research. Keep it visible when a matchup is opened.
+  function researchChrome(stage,game=null){
+    const selected=stage==='detail',sport=game?.league||state.league||'all';
+    const heading=selected?'Matchup <em>Research</em>':'Game Research <em>Lab</em>';
+    const description=selected
+      ?'Explore this matchup with verified player trends, model outputs and market context. Switch games below without leaving Research.'
+      :'Choose a matchup to explore the Board, Rank and Lab views, with player stats backed by the available data feeds.';
+    return '<header class="destination-hero rg2-destination-hero'+(selected?' rg2-destination-hero--detail':'')+'">'
+      +'<div class="rg2-destination-copy"><div class="rg2-title-lockup">'
+      +'<img class="rg2-hero-icon" src="/brand/production/tso2-product-research-approved.webp" alt="" loading="lazy">'
+      +'<span class="destination-kicker rg2-destination-kicker"><i></i> RESEARCH COMMAND CENTER · '+esc(labels[sport]||labels.all)+'</span></div>'
+      +'<h1>'+heading+'</h1><p>'+description+'</p></div>'
+      +'<div class="destination-actions rg2-destination-actions">'
+      +'<span class="rg2-source-status"><i></i> VERIFIED FEEDS ONLY</span>'
+      +'<button type="button" class="button primary rg2-refresh" data-rg2-refresh>↻ REFRESH DATA</button>'
+      +'</div></header>'
+      +'<div class="rg2-status-deck" aria-label="Research status">'
+      +'<div class="rg2-status-item"><span>RESEARCH DESK</span><strong>TSO 2.0</strong></div>'
+      +'<div class="rg2-status-item"><span>CURRENT SLATE</span><strong>'+gameList.length+' GAME'+(gameList.length===1?'':'S')+'</strong></div>'
+      +'<div class="rg2-status-item"><span>SELECTED SPORT</span><strong>'+esc(labels[sport]||labels.all)+'</strong></div>'
+      +'<div class="rg2-status-item rg2-status-item--last"><span>PLAYER INTELLIGENCE</span><strong>VERIFIED SOURCES</strong></div>'
+      +'</div>';
+  }
   function cards(){
     const html=gameList.map(g=>{
       const m=markets(g),live=g.state==='in',final=g.state==='post';
@@ -352,9 +376,11 @@
         +'<div class="rg2-game-foot"><small>'+esc(g.venue||'Matchup research')+'</small><b>RESEARCH GAME →</b></div>'
       +'</button>';
     }).join('');
-    return '<div class="rg2-heading"><div><span class="rg2-kicker">THE SPORTS OUTPOST / RESEARCH CENTER</span><h1>Game Research <em>Lab</em></h1><p>Select a matchup to see the player-stat board, rankings and verified research behind it.</p></div><div class="rg2-heading-tools"><span class="rg2-source-status"><i></i> VERIFIED FEEDS ONLY</span><button type="button" class="rg2-refresh" data-rg2-refresh>↻ REFRESH GAMES</button></div></div>'
-      +'<div class="rg2-filter-row"><div class="rg2-leagues" role="group" aria-label="Sports">'+leagues.map(k=>'<button type="button" data-rg2-league="'+k+'" class="'+(k===state.league?'is-active':'')+'" aria-pressed="'+(k===state.league)+'">'+esc(labels[k])+'</button>').join('')+'</div><span class="rg2-count">'+gameList.length+' game'+(gameList.length===1?'':'s')+' in the current slate</span></div>'
-      +'<section class="rg2-game-section"><div class="rg2-section-header"><span>'+esc(state.league==='nfl'?'THIS WEEK’S GAMES':state.league==='all'?'CURRENT GAMES':'AVAILABLE GAMES')+'</span><small>Choose a matchup to see player data</small></div>'
+    return researchChrome('games')
+      +'<div class="rg2-filter-row live-filter-strip" aria-label="Sport filters">'
+      +'<div class="rg2-leagues segmented destination-segmented" role="group" aria-label="Sports">'+leagues.map(k=>'<button type="button" data-rg2-league="'+k+'" class="'+(k===state.league?'is-active':'')+'" aria-pressed="'+(k===state.league)+'">'+esc(labels[k])+'</button>').join('')+'</div>'
+      +'<span class="rg2-count">'+gameList.length+' matchup'+(gameList.length===1?'':'s')+' available</span></div>'
+      +'<section class="destination-section rg2-game-section"><div class="destination-section-head rg2-section-header"><div><span class="rg2-section-kicker">MATCHUP BOARD</span><h2>'+esc(state.league==='nfl'?'This week’s games':state.league==='all'?'Current games':'Available games')+'</h2></div><small>SELECT A MATCHUP →</small></div>'
       +(gameList.length?'<div class="rg2-cards">'+html+'</div>':'<div class="rg2-empty"><b>No games currently listed for '+esc(labels[state.league])+'.</b><span>Check another sport or refresh when the next slate is published. No simulated games are shown.</span></div>')
       +'</section>';
   }
@@ -438,7 +464,7 @@
         +'<td class="rg2-action"><button type="button" data-rg2-intel="'+i+'">INTEL</button>'+addActionButton(p,i)+'</td></tr>').join('')
       +'</tbody></table></div>';
     const board=state.view==='board'?boardCards:state.view==='rank'?rankRows:labTable;
-    return header+'<section class="rg2-detail">'
+    return researchChrome('detail',g)+header+'<section class="destination-section rg2-detail">'
       +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
       +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
       +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats and model signals from verified feeds.'+(scorer.length?' NHL scorer-model rows are not sportsbook selections.':'')+(pbp.length?' NFL PBP usage is historical data'+(pbpSnapshot?' as of '+pbpSnapshot:'')+', not a sportsbook offer.':'')+(roster.length?' ESPN NBA roster rows display only verified historical box-score stats. No sportsbook line, projection, or probability is inferred.':'')+'</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
