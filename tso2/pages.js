@@ -922,10 +922,10 @@
         </section>
 
         <section class="profile-hero panel profile-hero--live">
-          <div class="profile-avatar" data-profile-avatar>JT</div>
+          <div class="profile-avatar" data-profile-avatar>?</div>
           <div class="profile-identity">
             <span class="eyebrow" data-profile-role>ACCOUNT</span>
-            <h2 data-profile-handle>@justcallme_jt</h2>
+            <h2 data-profile-handle>@guest</h2>
             <p data-profile-context>Reading current session identity…</p>
           </div>
           <div class="profile-stats profile-stats--real">
@@ -977,7 +977,7 @@
             <p>TSO separates current session identity and live sports data from future account-history features.</p>
           </div>
           <div class="profile-readiness-grid">
-            <span><small>SESSION IDENTITY</small><b data-profile-identity-state>CONNECTED</b></span>
+            <span><small>SESSION IDENTITY</small><b data-profile-identity-state>SIGNED OUT</b></span>
             <span><small>LIVE SPORTS DATA</small><b data-profile-feed-state>CONNECTING</b></span>
             <span><small>PICK HISTORY</small><b class="is-offline">NOT CONNECTED</b></span>
             <span><small>POINTS LEDGER</small><b class="is-offline">NOT CONNECTED</b></span>
