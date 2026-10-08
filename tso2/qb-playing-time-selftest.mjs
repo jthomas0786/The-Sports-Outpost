@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import { __TSO2_QB_ROTATION_TEST__ } from '../sports/nfl/sim/engine.js';
+
+const {quarterbackShares}=__TSO2_QB_ROTATION_TEST__;
+const config={qbPlayingTime:{reliefGameProbability:.08,blowoutMargin:24,blowoutReliefProbability:.18,backupAttemptShare:.18,backupShareVolatility:.20,maxBackupAttemptShare:.55}};
+const qb1={key:'starter',availabilityFactor:1};
+const qb2={key:'backup',availabilityFactor:1};
+const team={qbs:[qb1,qb2],qb:qb1};
+const regular=quarterbackShares(()=>.99,team,0,config);
+assert.equal(regular.length,1);
+assert.equal(regular[0].qb.key,'starter');
+assert.equal(regular[0].share,1);
+const relief=quarterbackShares(()=>0,team,0,config);
+assert.equal(relief.length,2);
+assert.equal(relief[1].qb.key,'backup');
+assert.ok(relief[1].share>0 && relief[1].share<1);
+assert.ok(Math.abs(relief.reduce((s,x)=>s+x.share,0)-1)<1e-10);
+assert.equal(quarterbackShares(()=>0,{qbs:[qb1]},0,config).length,1);
+assert.equal(quarterbackShares(()=>0,{qbs:[qb1,{...qb2,availabilityFactor:0}]},0,config).length,1);
+const none=quarterbackShares(()=>0,{qbs:[]},0,config);
+assert.deepEqual(none,[]);
+const noRelief={qbPlayingTime:{...config.qbPlayingTime,reliefGameProbability:0,blowoutReliefProbability:0}};
+assert.equal(quarterbackShares(()=>.5,team,35,noRelief).length,1);
+console.log('TSO 2.0 QB rotation scenarios passed');
