@@ -4,15 +4,17 @@ const targets=[
   {name:'Production homepage',url:'https://thesportsoutpost.com/',kind:'html'},
   {name:'Legacy production live API (informational)',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json',optional:true},
   {name:'Legacy production props API (informational)',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json',optional:true},
-  {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
-  {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
-  {name:'TSO 2 preview stylesheet',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/styles.css',kind:'css'},
-  {name:'TSO 2 preview app JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/app.js',kind:'js'},
-  {name:'TSO 2 preview pages JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/pages.js',kind:'js'},
-  {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
+  {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
+  {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
+  {name:'TSO 2 preview stylesheet',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/styles.css',kind:'css'},
+  {name:'TSO 2 preview app JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/app.js',kind:'js'},
+  {name:'TSO 2 preview pages JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/pages.js',kind:'js'},
+  {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
 ];
 const validate=(target,body)=>{
-  if(target.kind==='html')return /<html/i.test(body);\n  if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body);\n  if(target.kind==='js')return body.length>1000&&!/^\s*<html/i.test(body);
+  if(target.kind==='html')return /<html/i.test(body);
+  if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body);
+  if(target.kind==='js')return body.length>1000&&!/^\s*<html/i.test(body);
   let doc;try{doc=JSON.parse(body)}catch{return false}
   if(!doc||typeof doc!=='object')return false;
   if(target.url.includes('/api/live'))return Array.isArray(doc.games)&&doc.counts&&typeof doc.counts==='object';
