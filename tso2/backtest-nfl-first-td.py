@@ -158,14 +158,14 @@ def player_weight(team, pid, now, past, historical_only=False):
     return baseline + 2.5*rz + 1.5*gl + .45*overall
 
 
-def prediction(game, past, current, historical_only=False, minimum_prior=12):
+def prediction(game, past, current, historical_only=False, minimum_prior=12, min_league_games=100):
     away, home = game["away"], game["home"]
     strengths = [team_strength(t, past, current, minimum_prior) for t in (away, home)]
     if any(s is None for s in strengths):
         return None
     league_games = past["gameCount"] + current["gameCount"]
     league_offense = past["offensiveFirst"] + current["offensiveFirst"]
-    if league_games < 100:
+    if league_games < min_league_games:
         return None
     mass = league_offense / league_games
     result = {}
@@ -302,7 +302,7 @@ def fixture_test():
     a+= [g(2026,n,"A","B","A") for n in range(1,6)]
     past=aggregate([x for x in a if x["year"]==2024])
     current=aggregate([x for x in a if x["year"]==2025 and x["week"]<=4])
-    p=prediction(g(2025,5,"A","B","B"),past,current,minimum_prior=4)
+    p=prediction(g(2025,5,"A","B","B"),past,current,minimum_prior=4,min_league_games=0)
     assert p and all(0 <= v < 1 for v in p.values())
     probs=scaled_probabilities(p,1.1)
     assert abs(sum(probs.values())-1)<1e-9
