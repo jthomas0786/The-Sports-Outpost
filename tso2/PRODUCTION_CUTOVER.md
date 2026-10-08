@@ -35,3 +35,33 @@
 - Cloudflare account used for TSO 2.0 Worker does not list `thesportsoutpost.com` as a hosted zone. Determine authoritative domain/hosting control plane first.
 - Render workspace has not been selected; production deployment ownership is unverified.
 - Production cutover is not authorized until all launch gates pass.
+
+
+## Verified hosting facts (October 8, 2026)
+
+- `main/CNAME` declares `thesportsoutpost.com` and the current production homepage returns HTTP 200.
+- Production `/api/live` and `/api/props` return HTTP 404 (not routes used by the legacy site).
+- TSO 2.0 Cloudflare preview Worker is `tso2-preview.jthomas0786-tso.workers.dev`. Its homepage, `/api/live`, and `/api/props` returned HTTP 200 in the GitHub launch preflight.
+- Preview NFL model metadata confirms branch-isolated `tso2/data/nfl-sim.json`.
+- The accessible Cloudflare account does **not** have a zone for `thesportsoutpost.com`; therefore a Worker custom-domain route cannot be created in that account without first setting up domain ownership and DNS.
+- No production DNS modification, Pages-source modification, or domain cutover has occurred.
+
+## Recommended launch architecture: one origin, one API
+
+Keep GitHub as source of truth. Run a **pinned TSO 2.0 Cloudflare Worker deployment** at the apex domain so both HTML/assets and same-origin `/api/*` are served by the same host. The current preview dynamically fetches the moving GitHub branch, so for production replace moving branch reads with a pinned release SHA or immutable assets before the cutover. Preserve the TSO 1.0 GitHub Pages site as a fallback.
+
+**Precondition:** Identify the registrar and authoritative DNS nameservers, and take an export/screenshot of all DNS records, especially MX, TXT, DKIM, SPF, and CAA. If moving DNS to Cloudflare is required, migrate records and verify email delivery BEFORE routing the website. Do not assume purchasing or transferring the domain is necessary.
+
+**Alternative if DNS cannot change:** Continue GitHub Pages for the site and use a separate `api.` subdomain with explicit CORS and frontend URL configuration. This is *not* a drop-in launch path because TSO 2.0 currently calls relative `/api/*` and account/authentication paths require extra review. Do not flip GitHub Pages from 1.0 to 2.0 without implementing and validating this alternative.
+
+## Cutover execution checklist
+
+1. Verify latest preview smoke-test pass and manually test all sections, especially accounts, notifications, Game Edge, per-sport models, and owner-only controls.
+2. Snapshot production Pages settings, domain mapping, `main` commit SHA, and active DNS records. Record the last-known-good TSO 1.0 URL.
+3. Create an immutable TSO 2.0 release from a tested SHA. Ensure its Worker API uses branch-specific validated NFL models, and prevent stale embedded fallback from silently replacing missing production assets.
+4. Set up Cloudflare zone/custom-domain routing only after confirming the DNS provider and preserving every existing record; check HTTPS and `www` behavior.
+5. Perform a final read-only launch preflight. Ask for explicit cutover approval after *all* release gates pass.
+6. Cut over the domain to the pinned 2.0 deployment. Test homepage, assets, four-sport live feeds, props, account state, and owner tools from external networks.
+7. If critical checks fail, restore the captured 1.0 routing and DNS records or GitHub Pages mapping. Account for DNS TTL. Run the smoke checks again and keep 2.0 in staging.
+
+**Do not change the production domain before the owner approves the validated, pinned release.**
