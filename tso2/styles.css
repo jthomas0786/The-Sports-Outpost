@@ -10551,3 +10551,25 @@ body.live-multi-open{overflow:hidden}
   .nfl-factor-row{grid-template-columns:26px minmax(0,1fr);gap:9px}
   .nfl-factor-row>strong{grid-column:2;font-size:11px;margin-top:-4px}
 }
+
+
+/* TSO2 authenticated account access: guests are always the initial state. */
+.profile-dropdown-item[hidden], .profile-dropdown-owner[hidden], [data-auth-open][hidden], [data-auth-signout][hidden] { display:none!important; }
+.tso-auth-dialog{width:min(440px,calc(100vw - 32px));max-height:min(92vh,720px);padding:0;border:1px solid rgba(255,255,255,.18);border-radius:12px;color:#f1f5f9;background:#0a0f16;box-shadow:0 28px 110px rgba(0,0,0,.75);}
+.tso-auth-dialog::backdrop{background:rgba(0,0,0,.76);backdrop-filter:blur(5px);}
+.tso-auth-form{display:flex;flex-direction:column;gap:16px;padding:24px;}
+.tso-auth-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.tso-auth-header h2{font-size:24px;line-height:1.15;margin:6px 0 0;}
+.tso-auth-close{background:none;border:1px solid rgba(255,255,255,.2);border-radius:7px;color:#e2e8f0;width:34px;height:34px;cursor:pointer;}
+.tso-auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;background:#111925;border-radius:8px;}
+.tso-auth-tabs button{border:0;background:transparent;color:#9ca7b8;padding:10px 7px;font-size:12px;font-weight:800;cursor:pointer;border-radius:6px;}
+.tso-auth-tabs button[aria-pressed="true"]{color:#fff;background:#25354a;}
+.tso-auth-field{display:flex;flex-direction:column;gap:7px;color:#cbd5e1;font-weight:650;font-size:13px;}
+.tso-auth-field[hidden]{display:none!important;}
+.tso-auth-field input{min-height:46px;width:100%;border:1px solid #344153;border-radius:7px;background:#111923;color:#fff;padding:0 13px;font:inherit;}
+.tso-auth-field input:focus-visible{outline:2px solid #2d7fff;outline-offset:2px;}
+.tso-auth-message{min-height:0;margin:0;color:#82cfff;font-size:12px;line-height:1.55;}
+.tso-auth-message.is-error{color:#ff9e9e;}
+.tso-auth-submit{min-height:46px;border:0;border-radius:7px;background:#2d7fff;color:#fff;font-weight:850;cursor:pointer;}
+.tso-auth-submit:disabled{opacity:.55;cursor:wait;}
+.tso-auth-privacy{margin:0;color:#8695a9;font-size:11px;line-height:1.5;}
