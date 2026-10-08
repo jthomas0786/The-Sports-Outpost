@@ -28,14 +28,17 @@
 6. Immediately verify HTTPS, homepage, APIs, mobile navigation, account sign-in, and 4-sport game pages.
 7. On any critical failure, restore the exact captured TSO 1.0 route/deployment. Recheck HTTPS and API health; investigate TSO 2.0 in staging.
 
-## Current known blockers
+## Remaining launch blockers (updated 2026-10-08)
 
-- Workflow outcome and 50K NFL output artifact have not been verified.
-- The TSO 2.0 preview NFL feed previously consumed main's simulation slate; branch-specific integration still requires verification.
-- Cloudflare account used for TSO 2.0 Worker does not list `thesportsoutpost.com` as a hosted zone. Determine authoritative domain/hosting control plane first.
-- Render workspace has not been selected; production deployment ownership is unverified.
-- Production cutover is not authorized until all launch gates pass.
+- **Run outcome not verified yet:** The GitHub workflow now checks full staging and release HTML, CSS, JS, logo, Game Edge SVG, 4-sport live feed, 2.0 NFL props source, and anonymous Admin access. Obtain a green workflow run for the **latest preflight code** before switching.
+- **Browser QA:** Owner-approved sidebar and sign-in were reviewed, but full release mobile QA, sign-out, public notice save/display/disable, and logged-in/guest flows across all sections still need explicit confirmation.
+- **Member authorization:** Owner dashboard RPCs are checked in Supabase, and anonymous access is covered by CI, but an actual signed-in non-owner negative test is still required.
+- **Notifications:** In-app notification center is implemented; persisted saved alert preferences, background/device push, and full user account data integrations are still pending. Decide whether to mark these features clearly as unavailable at initial public launch or complete them before launch.
+- **Sports & model QA:** Review NFL QB probability sanity, model identity/line matching, four-sport schedules, Game Edge reasons, and empty off-season behavior on the pinned release.
+- **Cutover & rollback rehearsal:** Production domain is still on GitHub Pages TSO 1.0. Confirm exact Worker custom-domain change and `www` handling; take a final DNS snapshot and test recovery plan.
+- **Owner approval:** Obtain new explicit approval only after all mandatory gates are green. Never interpret approval of a design element as permission to cut over.
 
+Cloudflare DNS ownership is now **resolved**. The active zone, TSO 2.0 Workers, staging and release custom domains are in the same account. Render is not involved in The Sports Outpost hosting.
 
 ## Verified hosting facts (October 8, 2026)
 
@@ -70,7 +73,7 @@ Keep GitHub as source of truth. Run a **pinned TSO 2.0 Cloudflare Worker deploym
 ## Frozen candidate (October 8, 2026)
 
 - Preview (moving development branch): `https://staging.thesportsoutpost.com` → Cloudflare Worker `tso2-preview`.
-- **Pinned launch candidate:** `https://release.thesportsoutpost.com` → separate Worker `tso2-release-candidate`, frontend assets frozen at Git commit `ea955ebbb49e2003d54eac96381e1ae39f6077f4`.
+- **Pinned launch candidate:** `https://release.thesportsoutpost.com` → separate Worker `tso2-release-candidate`, frontend and production brand assets frozen at Git commit `a82ba6f2e903d409e1848674f53b2e8983d5f6f3` (owner-approved sidebar layout).
 - The candidate intentionally retains `X-Robots-Tag: noindex, nofollow` while in prelaunch. Remove for public pages **before** or during an explicitly approved production deployment; preserve noindex for private staging hosts.
 - Live NFL model JSON remains branch-specific at `tso-2.0-restructure/tso2/data/nfl-sim.json`, not `main`. The released frontend is immutable; validated model data is independently refreshable.
 - The domain is now active in the Cloudflare account containing TSO 2.0 Workers; original GitHub Pages A records and `www` CNAME remain DNS-only, with Porkbun MX and TXT records preserved.
@@ -84,3 +87,17 @@ Apex `thesportsoutpost.com` currently has four DNS-only GitHub Pages A records:
 `www.thesportsoutpost.com` has a DNS-only CNAME to `jthomas0786.github.io`.
 Retain a record of DNS IDs and values before a cutover. Custom domain attachment may replace conflicting website DNS records. Plan apex and `www` together (custom domain plus redirect or separate custom-domain attachment) so users never see mixed TSO versions.
 For emergency rollback, detach the TSO 2.0 custom-domain mapping and restore the four GitHub Pages A records and `www` CNAME exactly as captured; verify both HTTPS hosts and the legacy page. Do not change MX, SPF, or ACME TXT records.
+
+## Final read-only production check (2026-10-08)
+
+The authoritative Cloudflare zone is active with SSL mode `full` and **no production Worker routes**.
+
+- Apex DNS: four DNS-only GitHub Pages A records for `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, and `185.199.111.153`.
+- `www` DNS: DNS-only CNAME to `jthomas0786.github.io`.
+- Email: two Porkbun MX records, priority 10 (`fwd1.porkbun.com`) and 20 (`fwd2.porkbun.com`), plus three unchanged TXT records in the zone. Do not touch them.
+- Staging Worker: `tso2-preview` at `staging.thesportsoutpost.com`.
+- Release Worker: `tso2-release-candidate` at `release.thesportsoutpost.com`; frontend/production icons pinned to `a82ba6f2e903d409e1848674f53b2e8983d5f6f3`.
+- Release and staging now serve SVG assets with explicit `image/svg+xml` content type.
+- Admin reports/settings use owner-verified Supabase RPCs; no public service-role token in frontend.
+
+**No apex or www cutover, GitHub `main` changes, or DNS record deletions have occurred.**
