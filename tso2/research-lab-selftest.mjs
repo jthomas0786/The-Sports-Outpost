@@ -139,7 +139,7 @@ const enrichedGame={
 };
 deepFlow.render(enrichedRoot,{
   league:'nfl',games:[enrichedGame],
-  rows:[row('nfl','enriched-player','Javonte Williams','DAL','TB','atd',52.2)]
+  rows:[{...row('nfl','enriched-player','Javonte Williams','DAL','TB','atd',52.2),team:'DAL'}]
 });
 enrichedRoot.onclick({target:{closest:()=>({
   hasAttribute:k=>k==='data-rg2-game',
