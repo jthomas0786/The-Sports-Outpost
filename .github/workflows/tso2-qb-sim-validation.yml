@@ -1,0 +1,32 @@
+name: TSO 2.0 QB Simulation Validation
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'sports/nfl/sim/engine.js'
+      - 'sports/nfl/sim/config.json'
+      - 'tso2/qb-playing-time-selftest.mjs'
+      - '.github/workflows/tso2-qb-sim-validation.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Syntax validation
+        run: |
+          node --check sports/nfl/sim/engine.js
+          node --check sports/nfl/sim/profile.js
+          node --check tso2/qb-playing-time-selftest.mjs
+      - name: QB rotation scenarios
+        run: node tso2/qb-playing-time-selftest.mjs
+      - name: Full NFL simulation regression
+        run: node scripts/nfl-sim-selftest.mjs
+      - name: Automated NFL simulation regression
+        run: node scripts/nfl-sim-auto-selftest.mjs
