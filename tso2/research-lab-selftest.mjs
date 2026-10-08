@@ -157,4 +157,52 @@ assert.match(enrichedRoot.innerHTML,/rg2-val-carry">61\.2%/,'PBP-backed carry sh
 assert.match(enrichedRoot.innerHTML,/rg2-val-rz">44\.9%/,'PBP-backed red-zone share');
 assert.match(enrichedRoot.innerHTML,/rg2-val-yield">27\.3%/,'PBP-backed red-zone TD yield');
 assert.match(enrichedRoot.innerHTML,/rg2-val-firstTd"><span class="rg2-na"/,'Predictive First TD missing without a verified model');
+
+// Verified NBA, NHL and MLB game logs fill historical L5 hit rates. These
+// rates are NOT model win probabilities and never replace model percentages.
+for(const sportCase of [
+  {sport:'nba',market:'points',game:games[1],player:'NBA Star',team:'BOS',
+    extra:{recentGames:[
+      {date:'2026-10-07',minutes:30,stats:{points:28}},
+      {date:'2026-10-06',minutes:31,stats:{points:22}},
+      {date:'2026-10-05',minutes:32,stats:{points:26}},
+      {date:'2026-10-04',minutes:29,stats:{points:27}},
+      {date:'2026-10-03',minutes:28,stats:{points:18}}
+    ]},expectedRate:'60%',expectedExtra:'30'},
+  {sport:'nhl',market:'atg',game:games[3],player:'NHL Star',team:'NYR',
+    extra:{recentGames:[
+      {date:'2026-10-07',stats:{goals:1,toi:'18:30'}},
+      {date:'2026-10-06',stats:{goals:0,toi:'17:30'}},
+      {date:'2026-10-05',stats:{goals:0,toi:'19:00'}},
+      {date:'2026-10-04',stats:{goals:1,toi:'19:30'}},
+      {date:'2026-10-03',stats:{goals:0,toi:'18:00'}}
+    ]},expectedRate:'40%',expectedExtra:'18.5'},
+  {sport:'mlb',market:'hr',game:games[2],player:'MLB Star',team:'NYY',
+    extra:{statcast:{barrelPct:14.2,hardHitPct:50.8},
+      gameLog:[
+        {date:'2026-10-07',hr:1},{date:'2026-10-06',hr:0},
+        {date:'2026-10-05',hr:1},{date:'2026-10-04',hr:0},
+        {date:'2026-10-03',hr:1}
+      ]},expectedRate:'60%',expectedExtra:'14.2%'}
+]){
+  const sandbox={window:{},URLSearchParams,setTimeout,console,
+    fetch:async requested=>{
+      const params=new URL('https://fixture.test'+requested).searchParams;
+      return {ok:true,json:async()=>({available:true,player:{
+        name:params.get('name'),team:params.get('team'),...sportCase.extra
+      }})};
+    }};
+  vm.runInNewContext(app.slice(0,seam),sandbox);
+  const flow=sandbox.window.TSO2ResearchGameFlow;
+  const root={innerHTML:'',isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null},querySelectorAll(){return []}};
+  const g=sportCase.game;
+  const selection={...row(sportCase.sport,'sport-case',sportCase.player,g.home.abbr,g.away.abbr,sportCase.market,55),line:sportCase.market==='points'?24.5:0.5};
+  flow.render(root,{league:sportCase.sport,games:[g],rows:[selection]});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:sportCase.sport+'|'+g.id+'|'+g.away.abbr+'|'+g.home.abbr+'|'+schedule}})}});
+  await new Promise(resolve=>setTimeout(resolve,600));
+  assert.match(root.innerHTML,new RegExp('rg2-val-l5">'+sportCase.expectedRate.replace('%','%')),'Verified '+sportCase.sport+' L5 hit rate');
+  assert.ok(root.innerHTML.includes(sportCase.expectedExtra),'Verified '+sportCase.sport+' minutes/TOI/barrel context');
+}
+
 console.log('PASS TSO 2.0 Research: game-card flow, all sports, native theme, verified deep-data columns, navigation and actions');
