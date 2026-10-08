@@ -158,7 +158,11 @@
             impliedPct:marketProb!==null&&marketProb>=0&&marketProb<=1?Math.round(marketProb*1000)/10:null,
             model:{probabilityPct:Math.round(prob*10000)/100,
               sourceLabel:'TSO NHL Scorer Model v3',phase:'pregame'},
-            researchScorerModel:true
+            researchScorerModel:true,
+            researchScorerStats:{
+              goalsGp:num(p.seasonGoalRate),sogGp:num(p.seasonSogRate),
+              l10Goals:num(p.recentGoals),l10First:num(p.recentFirstGoals)
+            }
           });
         }
       }
@@ -527,7 +531,12 @@
     const prevPbp=pbpPlayer(deep,2025),currentPbp=pbpPlayer(deep,2026);
     const recentTdRate=num(recent.avg?.tds),seasonTdRate=num(current.perGame?.tds);
     const marketLine=forP(p,key)||null;
+    const scorerStats=p.rows?.find(row=>row.researchScorerStats)?.researchScorerStats;
     switch(key){
+      case 'goalsGp':return scorerStats?.goalsGp??null;
+      case 'sogGp':return scorerStats?.sogGp??null;
+      case 'l10Goals':return scorerStats?.l10Goals??null;
+      case 'l10First':return scorerStats?.l10First??null;
       case 'role':{const position=deep.position||p.role||r.position||r.role||null;const depth=num(deep.depth?.rank);return position?(position+(depth!==null&&depth>0&&depth<10?fmt(depth,0):'')):null;}
       case 'model':return pModel?mode(r):null;
       case 'market':return num(r.impliedPct);
@@ -574,7 +583,8 @@
     if(key==='line')return columnData(p,key,sport)===null?esc(r.selection||'—'):fmt(columnData(p,key,sport));
     const value=columnData(p,key,sport);
     if(value===null)return '<span class="rg2-na" title="Source data unavailable">—</span>';
-    if(['projected','minutes','toi','opptds','opprush','opprec','oppcarries'].includes(key))return fmt(value,2);
+    if(['projected','minutes','toi','opptds','opprush','opprec','oppcarries','goalsGp','sogGp'].includes(key))return fmt(value,2);
+    if(['l10Goals','l10First'].includes(key))return fmt(value,0);
     if(key==='prevFirst'){
       const deep=getDetails(gameList.find(g=>id(g)===state.gameKey),p)?.player||{};
       const games=num(deep.previousSeason?.games);
@@ -602,6 +612,7 @@
     if(sport==='nfl'&&tab==='defense')return [['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
+    if(sport==='nhl'&&tab==='goals')return [['atg','ANYTIME %'],['fgs','FIRST %'],['goalsGp','GOALS/GP'],['sogGp','SHOTS/GP'],['l10Goals','L10 GOALS'],['l10First','L10 FIRST'],['edge','EDGE'],['price','ODDS']];
     if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
     if(sport==='mlb')return [['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
     return [['points','POINTS %'],['rebounds','REB %'],['assists','AST %'],['threes','3PT %'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
