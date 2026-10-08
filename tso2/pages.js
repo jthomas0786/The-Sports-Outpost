@@ -163,8 +163,8 @@
     },
 
     research(league){
-      return '<section class="tso2-lab broadcast-destination" data-research-route aria-label="TSO 2.0 all-sports Research Lab">'
-        +'<div class="lab2-loading"><span class="live-feed-spinner"></span><b>Connecting verified '+leagueName(league)+' research feeds…</b></div>'
+      return '<section class="rg2-page broadcast-destination" data-research-route aria-label="TSO 2.0 all-sports Research Lab">'
+        +'<div class="rg2-empty"><span class="live-feed-spinner"></span><b>Connecting verified '+leagueName(league)+' research feeds…</b></div>'
         +'</section>';
     },
 
