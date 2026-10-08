@@ -2,8 +2,8 @@
 // Non-destructive public health probe. Never changes production or DNS.
 const targets=[
   {name:'Production homepage',url:'https://thesportsoutpost.com/',kind:'html'},
-  {name:'Production live API',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json'},
-  {name:'Production props API',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json'},
+  {name:'Legacy production live API (informational)',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json',optional:true},
+  {name:'Legacy production props API (informational)',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json',optional:true},
   {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
   {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
   {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
