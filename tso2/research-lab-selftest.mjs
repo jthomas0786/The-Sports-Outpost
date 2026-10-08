@@ -324,6 +324,53 @@ assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for oth
   assert.match(root.innerHTML,/2026 OPPS/,'Rank shows correctly labeled historical counts');
 }
 
+// NBA roster/history must render from real-source-shaped ESPN data even when
+// no sportsbook odds exist for a selected NBA game. Historical rows are not bets.
+{
+  const sb={window:{},setTimeout,console,URLSearchParams,
+    fetch:async url=>{
+      const address=String(url);
+      if(address.includes('/roster')){
+        const isBos=address.includes('/BOS/roster');
+        return {ok:true,json:async()=>({
+          timestamp:'2026-10-08T12:00:00Z',team:{id:isBos?'2':'5',abbreviation:isBos?'BOS':'CLE'},
+          athletes:[{id:isBos?'nba-bos-1':'nba-cle-1',displayName:isBos?'Verified Boston Player':'Verified Cleveland Player',
+            position:{abbreviation:'G'},headshot:{href:'https://example.com/nba-player.png'}}]})};
+      }
+      const params=new URL('https://fixture.test'+address).searchParams;
+      const name=params.get('name');
+      return {ok:true,json:async()=>({available:true,sport:'nba',player:{
+        id:params.get('playerId'),name,team:name.includes('Boston')?'Boston Celtics':'Cleveland Cavaliers',
+        position:'G',recentGames:Array.from({length:5},(_,i)=>({
+          date:'2026-10-0'+(7-i)+'T00:00:00Z',minutes:30,
+          stats:{points:15,rebounds:6,assists:4,threes:2}
+        }))}})};
+    }};
+  vm.runInNewContext(app.slice(0,seam),sb);
+  const flow=sb.window.TSO2ResearchGameFlow;
+  const root={innerHTML:'',dataset:{},isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null}};
+  const g={id:'nba-zero-props',league:'nba',state:'pre',startTime:schedule,
+    away:{abbr:'BOS',name:'Boston Celtics'},home:{abbr:'CLE',name:'Cleveland Cavaliers'}};
+  let added=0;
+  flow.render(root,{league:'nba',games:[g],rows:[],addSelection:()=>added++});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:'nba|nba-zero-props|BOS|CLE|'+schedule}})}});
+  await new Promise(resolve=>setTimeout(resolve,1100));
+  assert.match(root.innerHTML,/Verified Boston Player/,'ESPN Boston roster fills NBA Research');
+  assert.match(root.innerHTML,/Verified Cleveland Player/,'ESPN Cleveland roster fills NBA Research');
+  assert.match(root.innerHTML,/ESPN NBA ROSTER/,'Source is correctly labeled');
+  assert.match(root.innerHTML,/L5 PTS/,'Sport-specific sourced history column appears');
+  assert.match(root.innerHTML,/rg2-val-nbaL5Pts">15/,'Last-five verified points per game not fake forecast');
+  assert.match(root.innerHTML,/disabled title="No verified exact sportsbook selection"/,'Historical NBA rows cannot be added as bets');
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-add',
+    dataset:{rg2Add:'0'}})}});
+  assert.equal(added,0,'No fake sportsbook selection added');
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-view',
+    dataset:{rg2View:'rank'}})}});
+  assert.match(root.innerHTML,/Ranked by verified last-five game averages/,'NBA rank uses verified production');
+  assert.doesNotMatch(root.innerHTML,/VERIFIED MODEL CHANCE/,'Unpriced NBA history is not a model');
+}
+
 // The existing NHL FGS/ATG scorer model should fill a matchup even when
 // sportsbook props are missing. A model row must never become a fake
 // sportsbook add-to-slip selection.
