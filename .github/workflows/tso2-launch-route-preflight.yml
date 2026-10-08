@@ -10,6 +10,8 @@ on:
       - 'tso2/styles.css'
       - 'tso2/auth.js'
       - 'tso2/auth-ui-selftest.mjs'
+      - 'tso2/admin.js'
+      - 'tso2/admin-ui-selftest.mjs'
       - '.github/workflows/tso2-launch-route-preflight.yml'
   workflow_dispatch:
     inputs:
@@ -31,9 +33,12 @@ jobs:
       - name: Validate account UI and auth module syntax
         run: |
           node --check tso2/auth.js
+          node --check tso2/admin.js
           node --check tso2/app.js
           node --check tso2/auth-ui-selftest.mjs
           node tso2/auth-ui-selftest.mjs
+          node --check tso2/admin-ui-selftest.mjs
+          node tso2/admin-ui-selftest.mjs
       - name: Probe current production and staging frontend/API routes
         env:
           TSO2_PREVIEW_URL: https://staging.thesportsoutpost.com
