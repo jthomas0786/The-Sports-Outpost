@@ -25,7 +25,8 @@ const auth=window.TSO_AUTH={
   async loadNotifications(limit=24){
     const user=auth.user;
     if(!client||!user?.id)return [];
-    const today=new Date().toLocaleDateString('en-CA');
+    const d=new Date();
+    const today=[d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');
     const {data,error}=await client.from('notifications')
       .select('id,type,payload,read,created_at,slate_date')
       .eq('user_id',user.id)
