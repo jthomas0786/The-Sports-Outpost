@@ -6,6 +6,7 @@ on:
       - 'sports/nfl/sim/engine.js'
       - 'sports/nfl/sim/config.json'
       - 'tso2/qb-playing-time-selftest.mjs'
+      - 'scripts/nfl-sim-auto.mjs'
       - '.github/workflows/tso2-qb-sim-validation.yml'
   workflow_dispatch:
 permissions:
@@ -30,3 +31,14 @@ jobs:
         run: node scripts/nfl-sim-selftest.mjs
       - name: Automated NFL simulation regression
         run: node scripts/nfl-sim-auto-selftest.mjs
+      - name: Generate isolated TSO 2.0 50K NFL slate
+        run: |
+          mkdir -p tso2/data
+          node scripts/nfl-sim-auto.mjs --force --no-live --out tso2/data/nfl-sim.json --state tso2/data/nfl-sim-state.json --halftime-out tso2/data/nfl-halftime.json --quarter-out tso2/data/nfl-quarter.json
+          node -e "const fs=require('fs'); const p='tso2/data/nfl-sim.json';if(!fs.existsSync(p))throw Error('No TSO2 NFL simulation produced'); const d=JSON.parse(fs.readFileSync(p)); if(!d.games?.length)throw Error('No simulated NFL games');for(const g of d.games){if(g.automation?.phase==='pregame'&&!g.propStyles?.candidates)throw Error('Pregame props missing for '+g.game?.gameId)} console.log('TSO2 games:',d.games.length)"
+      - name: Upload isolated NFL simulation for inspection
+        uses: actions/upload-artifact@v4
+        with:
+          name: tso2-nfl-simulation-candidate
+          path: tso2/data/*.json
+          retention-days: 7
