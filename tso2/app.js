@@ -218,6 +218,42 @@
     }
     return extras;
   }
+  // A source-only NFL row still deserves working Intel even without a bettable prop.
+  // This dialog contains only nflverse PBP counts/shares keyed to the exact GSIS ID.
+  function openPbpIntel(p){
+    const r=p?.rows?.find(item=>item.researchPbpRow),playerId=r?.nflPbpId;
+    const now=pbpState.data?.seasons?.['2026']?.players?.[playerId];
+    const prior=pbpState.data?.seasons?.['2025']?.players?.[playerId];
+    if(!r||!now||typeof document==='undefined')return;
+    document.querySelector('[data-rg2-pbp-intel]')?.remove();
+    const dlg=document.createElement('dialog');
+    dlg.className='rg2-pbp-intel';dlg.dataset.rg2PbpIntel='1';
+    const value=(v,suffix='')=>num(v)===null?'—':fmt(v,Number(v)%1?1:0)+suffix;
+    const items=[
+      ['2026 GAMES WITH OPPORTUNITIES',now.gamesWithOpportunities],
+      ['2026 CARRIES',now.carries],['2026 TARGETS',now.targets],
+      ['2026 RED-ZONE OPPORTUNITIES',now.redZoneOpps],
+      ['2026 GOAL-LINE OPPORTUNITIES',now.goalLineOpps],
+      ['2026 CARRY SHARE',now.carrySharePct,'%'],
+      ['2026 TARGET SHARE',now.targetSharePct,'%'],
+      ['2026 RED-ZONE SHARE',now.redZoneSharePct,'%'],
+      ['2026 GOAL-LINE SHARE',now.goalLineSharePct,'%'],
+      ['2026 RED-ZONE TD YIELD',now.redZoneTdYieldPct,'%'],
+      ['2026 FIRST TD GAMES',now.firstTdGames],
+      ['2025 FIRST TD GAMES',prior?.firstTdGames]
+    ];
+    const updated=String(pbpState.data?.generatedAt||'').slice(0,10)||'Date unavailable';
+    dlg.innerHTML='<div class="rg2-pbp-shell">'
+      +'<div class="rg2-pbp-head"><div><small>TSO 2.0 / VERIFIED NFLVERSE PBP</small><h2>'+esc(p.name)+'</h2><p>'+esc(up(p.team))+' · Historical usage snapshot as of '+esc(updated)+'</p></div>'
+      +'<button type="button" data-rg2-pbp-close aria-label="Close NFL stats">×</button></div>'
+      +'<div class="rg2-pbp-stats">'+items.map(([label,v,suffix])=>'<div><small>'+esc(label)+'</small><strong>'+esc(value(v,suffix||''))+'</strong></div>').join('')+'</div>'
+      +'<p class="rg2-pbp-disclaimer">Source: nflverse / nflfastR play-by-play (CC BY 4.0). Historical counts and team shares only. No sportsbook price or predictive probability is inferred from these values.</p></div>';
+    document.body.appendChild(dlg);
+    dlg.querySelector('[data-rg2-pbp-close]')?.addEventListener('click',()=>dlg.close());
+    dlg.addEventListener('click',event=>{if(event.target===dlg)dlg.close()});
+    dlg.addEventListener('close',()=>dlg.remove(),{once:true});
+    if(typeof dlg.showModal==='function')dlg.showModal();else dlg.setAttribute('open','');
+  }
   const exactActionRow=p=>choose((p?.rows||[]).filter(r=>!r.researchScorerModel&&!r.researchPbpRow))||null;
   const addActionButton=(p,i)=>'<button type="button" data-rg2-add="'+i+'"'
     +(exactActionRow(p)?'':' disabled title="No verified exact sportsbook selection"')
@@ -701,7 +737,7 @@
       if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort=state.tab==='td'?'atd':state.tab==='defense'?'opptds':state.tab==='hitters'||state.tab==='hr'?'hr':state.tab==='goals'?'atg':state.tab==='points'?'points':'model';render(root,ctx);return}
       if(t.hasAttribute('data-rg2-view')){state.view=t.dataset.rg2View;if(state.view==='rank'){state.sort='model';state.descending=true}render(root,ctx);return}
       if(t.hasAttribute('data-rg2-sort')){const key=t.dataset.rg2Sort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='role'}render(root,ctx);return}
-      if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=exactActionRow(p)||best(p||{rows:[]});if(row&&!row.researchPbpRow)props.openDetail?.(row);return}
+      if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=exactActionRow(p)||best(p||{rows:[]});if(row?.researchPbpRow)openPbpIntel(p);else if(row)props.openDetail?.(row);return}
       if(t.hasAttribute('data-rg2-add')){const p=visible[Number(t.dataset.rg2Add)];const row=exactActionRow(p);if(row)props.addSelection?.(row);return}
       if(t.hasAttribute('data-rg2-refresh')){props.refresh?.();return}
     };
