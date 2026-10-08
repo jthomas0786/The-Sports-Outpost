@@ -1,0 +1,141 @@
+// TSO 2.0 - use the existing TSO 1.0 Supabase Auth project.
+// A hard-coded username or a value in the DOM is never an authenticated identity.
+// This module provides the browser UI; private/owner endpoints MUST authorize
+// requests independently on the server using a validated bearer token.
+const SUPABASE_URL = 'https://hjhfbhpuuxnrexddplxd.supabase.co';
+// Existing public anon key from main/social.js. Never use the service_role key here.
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhqaGZiaHB1dXhucmV4ZGRwbHhkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0OTY5ODQsImV4cCI6MjEwMjA3Mjk4NH0.6URv-aSJgFupp1dkO65AsTqPpZF_aUckczhxJZBWVJ0';
+
+const modal=document.querySelector('#tsoAuthDialog');
+const form=modal?.querySelector('[data-auth-form]');
+const usernameField=form?.querySelector('[data-auth-username]');
+const usernameInput=form?.elements.namedItem('username');
+const submit=form?.querySelector('[data-auth-submit]');
+const message=form?.querySelector('[data-auth-message]');
+let mode='signin';
+let client=null;
+let initError='';
+let fetching=false;
+
+const auth=window.TSO_AUTH={
+  status:'loading',
+  user:null,
+  async signOut(){if(!client)throw new Error('Sign-out service is not connected.');const {error}=await client.auth.signOut();if(error)throw error;auth.user=null;auth.status='guest';renderIdentity();emit();},
+  async refresh(){return refreshIdentity();}
+};
+function emit(){window.dispatchEvent(new CustomEvent('tso2-auth-changed',{detail:{signedIn:!!auth.user}}));}
+function initialsOf(name){const letters=String(name||'').trim().split(/[^a-z0-9]+/i).filter(Boolean);return (letters.length>1?letters.slice(0,2).map(s=>s[0]).join(''):letters[0]?.slice(0,2)||'?').toUpperCase();}
+function renderIdentity(){
+  const user=auth.user;
+  const display=user?'@'+user.username:'Guest';
+  const role=user?(user.isOwner?'OWNER ACCOUNT':'MEMBER ACCOUNT'):'NOT SIGNED IN';
+  document.querySelectorAll('[data-auth-avatar]').forEach(n=>n.textContent=user?initialsOf(user.username):'?');
+  document.querySelectorAll('[data-auth-name]').forEach(n=>n.textContent=display);
+  document.querySelectorAll('[data-auth-role]').forEach(n=>n.textContent=role);
+  document.querySelectorAll('[data-auth-pill-label]').forEach(n=>n.textContent=user?user.username:'Guest');
+  document.querySelectorAll('[data-auth-pill-role]').forEach(n=>n.textContent=user?(user.isOwner?'OWNER':'MEMBER'):'NOT SIGNED IN');
+  const pill=document.querySelector('.profile-pill');
+  if(pill)pill.setAttribute('aria-label',user?'Account menu for '+user.username:'Account menu, Guest');
+  document.querySelectorAll('[data-auth-open]').forEach(n=>n.hidden=!!user);
+  document.querySelectorAll('[data-auth-signout]').forEach(n=>n.hidden=!user);
+}
+function setMessage(text='',error=false){
+  if(!message)return;
+  message.textContent=text;
+  message.classList.toggle('is-error',error);
+}
+function setMode(next){
+  mode=next==='signup'?'signup':'signin';
+  form?.reset();
+  if(usernameField)usernameField.hidden=mode!=='signup';
+  if(usernameInput)usernameInput.required=mode==='signup';
+  const password=form?.elements.namedItem('password');
+  if(password)password.autocomplete=mode==='signup'?'new-password':'current-password';
+  modal?.querySelectorAll('[data-auth-tab]').forEach(n=>n.setAttribute('aria-pressed',String(n.dataset.authTab===mode)));
+  const label=mode==='signup'?'Create account':'Sign in';
+  const title=modal?.querySelector('#tsoAuthTitle');
+  if(title)title.textContent=label;
+  if(submit)submit.textContent=label.toUpperCase();
+  setMessage('');
+}
+function openSignIn(){
+  setMode('signin');
+  if(initError)setMessage(initError,true);
+  if(modal&&!modal.open)modal.showModal();
+}
+function closeSignIn(){if(modal?.open)modal.close();}
+async function refreshIdentity(){
+  if(!client||fetching)return;
+  fetching=true;
+  try{
+    // getUser calls Supabase Auth to verify the token. getSession alone can
+    // merely return a cached/unverified local token.
+    const {data,error}=await client.auth.getUser();
+    if(error||!data?.user){auth.user=null;auth.status='guest';return;}
+    const verified=data.user;
+    const {data:profile}=await client.from('profiles').select('username').eq('id',verified.id).maybeSingle();
+    const displayName=profile?.username||verified.user_metadata?.username||'member';
+    // app_metadata is set by the auth server, unlike editable user_metadata.
+    const role=String(verified.app_metadata?.role||'').toLowerCase();
+    auth.user={id:verified.id,username:String(displayName),isOwner:role==='owner'||role==='admin'};
+    auth.status='authenticated';
+  }catch(error){
+    auth.user=null;auth.status='guest';
+    console.warn('[TSO2 auth] Could not verify session',error?.message||error);
+  }finally{fetching=false;renderIdentity();emit();}
+}
+async function submitCredentials(event){
+  event.preventDefault();
+  if(!client){setMessage(initError||'The account service is unavailable. Please try again later.',true);return;}
+  const email=String(form.elements.namedItem('email')?.value||'').trim();
+  const password=String(form.elements.namedItem('password')?.value||'');
+  const username=String(usernameInput?.value||'').trim();
+  if(mode==='signup'&&!/^[A-Za-z0-9_]{3,20}$/.test(username)){
+    setMessage('Username must be 3–20 letters, numbers, or underscores.',true);return;
+  }
+  if(submit){submit.disabled=true;submit.textContent='PLEASE WAIT…';}
+  setMessage('');
+  try{
+    if(mode==='signup'){
+      const {data,error}=await client.auth.signUp({email,password,options:{data:{username}}});
+      if(error)throw error;
+      if(!data?.session){
+        setMessage('Account created. Check your email for a confirmation link before signing in.');
+      }else{
+        await refreshIdentity();
+        if(auth.user)closeSignIn();
+      }
+    }else{
+      const {error}=await client.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      await refreshIdentity();
+      if(!auth.user)throw new Error('Sign-in succeeded but your session could not be verified.');
+      closeSignIn();
+    }
+  }catch(error){setMessage(error?.message||'Could not access account. Please try again.',true);}
+  finally{if(submit){submit.disabled=false;submit.textContent=mode==='signup'?'CREATE ACCOUNT':'SIGN IN';}}
+}
+
+document.querySelectorAll('[data-auth-open]').forEach(n=>n.addEventListener('click',openSignIn));
+modal?.querySelector('[data-auth-close]')?.addEventListener('click',closeSignIn);
+modal?.querySelectorAll('[data-auth-tab]').forEach(n=>n.addEventListener('click',()=>setMode(n.dataset.authTab)));
+form?.addEventListener('submit',submitCredentials);
+document.querySelectorAll('[data-auth-signout]').forEach(n=>n.addEventListener('click',async ()=>{
+  const previous=n.disabled;
+  n.disabled=true;
+  try{await auth.signOut();closeSignIn();}catch(error){openSignIn();setMessage('Sign out failed: '+(error?.message||'Please try again.'),true);}
+  finally{n.disabled=previous;}
+}));
+renderIdentity();emit();
+
+try{
+  const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
+  client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  await refreshIdentity();
+  client.auth.onAuthStateChange(()=>{setTimeout(()=>refreshIdentity(),0);});
+}catch(error){
+  initError='The sign-in service could not load. Check your connection and try again.';
+  auth.user=null;auth.status='unavailable';
+  renderIdentity();emit();
+  console.error('[TSO2 auth]',error);
+}
