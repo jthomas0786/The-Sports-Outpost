@@ -114,14 +114,26 @@ def season_data(rows):
             # as the game's first TD even if no offensive scorer was credited.
             previous = first_tds.get(game_id)
             if previous is None or play_id < previous[0]:
-                first_tds[game_id] = (play_id, scorer)
+                first_tds[game_id] = (play_id, scorer, team if scorer else None)
             if scorer and red_zone and team:
                 players[scorer]["redZoneTds"] += 1
                 player_teams[scorer].add(team)
 
-    for _, scorer in first_tds.values():
+    for game_id in games:
+        parts = game_id.split("_")
+        if len(parts) >= 4:
+            away, home = parts[2], parts[3]
+            if away and home and away != home:
+                teams[away]["gamesPlayed"] += 1
+                teams[home]["gamesPlayed"] += 1
+
+    first_offense_count = 0
+    for _, scorer, team in first_tds.values():
         if scorer:
             players[scorer]["firstTdGames"] += 1
+            first_offense_count += 1
+            if team:
+                teams[team]["firstTdOffenseGames"] += 1
 
     by_player = {}
     for player_id, p in players.items():
@@ -152,6 +164,7 @@ def season_data(rows):
 
     return {
         "gamesScanned": len(games), "regularSeasonPlaysScanned": rows_scanned,
+        "offensiveFirstTdGames": first_offense_count,
         "playerCount": len(by_player),
         "teams": {team: dict(row) for team, row in sorted(teams.items())},
         "players": by_player,
@@ -251,6 +264,8 @@ def fixture_test():
     assert a["redZoneTdYieldPct"] == 100
     assert b["redZoneTdYieldPct"] == 50
     assert result["gamesScanned"] == 4
+    assert result["offensiveFirstTdGames"] == 2
+    assert result["teams"]["DAL"]["firstTdOffenseGames"] == 2
     print("PASS NFL PBP touchdown first-score, carry, target, red-zone, goal-line, cancelled-play, postseason exclusions")
 
 
