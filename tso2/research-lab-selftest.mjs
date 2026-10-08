@@ -15,8 +15,10 @@ const flow=sandbox.window.TSO2ResearchGameFlow;
 assert.equal(typeof flow?.render,'function');
 assert.match(pages,/class="rg2-page broadcast-destination" data-research-route/);
 assert.match(css,/\.rg2-game-card/);
-assert.match(css,/--rg-orange:var\(--outpost-orange/);
-assert.match(css,/--rg-gold:var\(--outpost-gold/);
+assert.match(css,/\.rg2-rank-list/,'Distinct Rank list uses the native TSO theme');
+assert.match(css,/\.broadcast-main:has\(> \.rg2-page\)/,'Research fills the TSO shell with no blank gutter');
+assert.match(css,/--rg-orange:var\(--outpost-blue/);
+assert.match(css,/\.rg2-view button\.is-active\{background:#2d7fff/);
 assert.doesNotMatch(css,/\.tso2-lab\{/,'Old blue template must be removed');
 assert.match(app,/requestResearchMarkets\(false\)/);
 assert.match(app,/openDetail:row=>row&&openResearchDetail\(row\)/);
@@ -83,6 +85,12 @@ click('data-rg2-tab',{rg2Tab:'props'});
 assert.match(root.innerHTML,/EXACT PICK/,'Props tab renders exact markets');
 click('data-rg2-view',{rg2View:'board'});
 assert.match(root.innerHTML,/rg2-player-grid/,'Board view works');
+assert.match(root.innerHTML,/rg2-player-card-actions/,'Board can open Intel and add the exact selection');
+click('data-rg2-view',{rg2View:'rank'});
+assert.match(root.innerHTML,/rg2-rank-list/,'Rank view has its own layout');
+assert.doesNotMatch(root.innerHTML,/rg2-table-scroll/,'Rank is not the Lab table');
+click('data-rg2-view',{rg2View:'lab'});
+assert.match(root.innerHTML,/rg2-table-scroll/,'Lab restores dense sortable research table');
 click('data-rg2-back');
 assert.match(root.innerHTML,/rg2-game-card/);
 assert.doesNotMatch(root.innerHTML,/rg2-table-scroll/,'Back goes to cards, not table');
@@ -264,14 +272,15 @@ modeledRoot.onclick({target:{closest:()=>({
 await new Promise(resolve=>setTimeout(resolve,950));
 assert.match(modeledRoot.innerHTML,/<small>RB1 - DAL<\/small>/,'Role is inline beneath player name');
 assert.doesNotMatch(modeledRoot.innerHTML,/<th[^>]*>ROLE(?:\s|<)/,'No role column remains');
-assert.match(modeledRoot.innerHTML,/rg2-val-firstTd"><strong class="rg2-highlight"[^>]*>~\d+(?:\.\d+)?%<\/strong><small class="rg2-experimental">EST\.<\/small>/,
-  'First TD forecast explicitly marked experimental');
+assert.match(modeledRoot.innerHTML,/rg2-val-firstTd"><strong class="rg2-highlight"[^>]*>\d+(?:\.\d+)?%<\/strong>/,
+  'First TD forecast shows a clean percentage');
+assert.doesNotMatch(modeledRoot.innerHTML,/class="rg2-experimental">EST\./,'No EST badge');
 assert.match(modeledRoot.innerHTML,/rg2-val-purity"><strong class="rg2-purity"[^>]*>41\/100<\/strong>/,
   'Independent transparent TSO Purity score and sample-size adjustment');
 assert.match(modeledRoot.innerHTML,/uncalibrated|not calibrated/,'Experimental label does not represent sportsbook-calibrated probabilities');
 // The model may not assign >=100% to any known player or imply that only
 // the listed offensive players account for all first-TD outcomes.
-const firstForecasts=[...modeledRoot.innerHTML.matchAll(/rg2-val-firstTd"><strong[^>]*>~([\d.]+)%/g)].map(m=>Number(m[1]));
+const firstForecasts=[...modeledRoot.innerHTML.matchAll(/rg2-val-firstTd"><strong[^>]*>([\d.]+)%/g)].map(m=>Number(m[1]));
 assert.ok(firstForecasts.length>=1 && firstForecasts.every(p=>p>0&&p<52.3));
 assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for other scorers and no touchdown');
 
