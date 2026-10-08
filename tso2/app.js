@@ -429,7 +429,6 @@
       return fmt(value,0)+(games!==null&&games>0?'/'+fmt(games,0):'');
     }
     if(['prevTD','yearTD'].includes(key))return fmt(value,0);
-    if(key==='purity')return fmt(value,0);
     if(key==='purity')return '<strong class="rg2-purity" title="Experimental TSO opportunity-quality index, 0–100. Weighted 30% goal-line share, 30% red-zone share, 20% position opportunity share, 20% red-zone touchdown yield, adjusted for sample size; not a probability.">'+fmt(value,0)+'/100</strong>';
     if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">~'+percent(value)+'</strong><small class="rg2-experimental">EST.</small>';
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
