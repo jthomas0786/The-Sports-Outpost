@@ -106,10 +106,19 @@ assert.match(root.innerHTML,/No games currently listed/,'No fabricated off-seaso
 const deepSandbox={
   window:{},URLSearchParams,setTimeout,
   fetch:async requested=>{
+    if(String(requested).includes('nfl-td-opportunities.json'))
+      return {ok:true,json:async()=>({
+        schemaVersion:1,source:'nflverse fixture',
+        seasons:{
+          '2025':{players:{GSIS1:{firstTdGames:3}}},
+          '2026':{players:{GSIS1:{goalLineSharePct:55,carrySharePct:61.2,
+            redZoneSharePct:44.9,redZoneTdYieldPct:27.3}}}
+        }
+      })};
     const params=new URL('https://fixture.test'+requested).searchParams;
     return {ok:true,json:async()=>({
       available:true,player:{
-        name:params.get('name'),team:params.get('team'),position:'RB',
+        gsisId:'GSIS1',name:params.get('name'),team:params.get('team'),position:'RB',
         previousSeason:{totalTds:13,games:16},
         currentSeason:{totalTds:6,targetShare:11.8,perGame:{tds:1.5}},
         last5:{avg:{tds:1.6}},depth:{rank:1}
@@ -136,9 +145,16 @@ enrichedRoot.onclick({target:{closest:()=>({
   hasAttribute:k=>k==='data-rg2-game',
   dataset:{rg2Game:'nfl|enrichment-fixture|TB|DAL|'+schedule}
 })}});
-await new Promise(resolve=>setTimeout(resolve,650));
+await new Promise(resolve=>setTimeout(resolve,1000));
 assert.match(enrichedRoot.innerHTML,/rg2-val-prevTD">13</,'Real 2025 TD value from deep research');
 assert.match(enrichedRoot.innerHTML,/rg2-val-yearTD">6</,'Real 2026 TD value from deep research');
 assert.match(enrichedRoot.innerHTML,/rg2-val-target">11\.8%/,'Real target share from deep research');
 assert.match(enrichedRoot.innerHTML,/rg2-val-role">RB1</,'Source-backed player role and depth');
+
+assert.match(enrichedRoot.innerHTML,/rg2-val-prevFirst">3\/16/,'PBP-backed first TD count / 2025 games');
+assert.match(enrichedRoot.innerHTML,/rg2-val-gl">55%/,'PBP-backed goal-line share');
+assert.match(enrichedRoot.innerHTML,/rg2-val-carry">61\.2%/,'PBP-backed carry share');
+assert.match(enrichedRoot.innerHTML,/rg2-val-rz">44\.9%/,'PBP-backed red-zone share');
+assert.match(enrichedRoot.innerHTML,/rg2-val-yield">27\.3%/,'PBP-backed red-zone TD yield');
+assert.match(enrichedRoot.innerHTML,/rg2-val-firstTd"><span class="rg2-na"/,'Predictive First TD missing without a verified model');
 console.log('PASS TSO 2.0 Research: game-card flow, all sports, native theme, verified deep-data columns, navigation and actions');
