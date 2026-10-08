@@ -10626,3 +10626,24 @@ body.live-multi-open{overflow:hidden}
 .tso2-public-notice[hidden]{display:none!important}
 @media(max-width:1100px){.tso-admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-admin-grid{grid-template-columns:1fr}}
 @media(max-width:600px){.tso-admin-hero{align-items:stretch;flex-direction:column;padding:19px}.tso-admin-page{padding:18px 12px 48px}.tso-admin-stats{gap:7px}.tso-admin-stats article{padding:13px}.tso-admin-stats article b{font-size:25px}.tso-admin-panel{padding:14px}.tso-admin-shortcuts{grid-template-columns:1fr}.tso-admin-panel-heading{flex-wrap:wrap}}
+
+
+/* 2026-10-08 Sidebar polish — approved brand, no dark rectangular matte.
+   Lighten blends only the baked-in near-black pixels into the real sidebar,
+   keeping the approved artwork, strokes and typography intact. */
+.tso-side-brand{background:none!important;box-shadow:none!important;isolation:auto}
+.tso-side-brand .tso-side-brand-image--unboxed{
+  background:transparent!important;
+  box-shadow:none!important;
+  mix-blend-mode:lighten;
+  width:202px;
+  max-width:100%;
+  height:auto;
+}
+.tso-side-item--game-edge .nav-approved-icon{
+  width:36px!important;height:38px!important;object-fit:contain!important;
+  filter:none!important;display:block!important;
+}
+.tso-side-item--game-edge:hover .nav-approved-icon{transform:translateY(-1px)}
+/* Gesture behavior remains available on mobile; no visible instruction clutter. */
+.tso-side-footer>small{display:none!important}
