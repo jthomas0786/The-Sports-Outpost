@@ -268,7 +268,7 @@ assert.match(modeledRoot.innerHTML,/rg2-val-firstTd"><strong class="rg2-highligh
   'First TD forecast explicitly marked experimental');
 assert.match(modeledRoot.innerHTML,/rg2-val-purity"><strong class="rg2-purity"[^>]*>41\/100<\/strong>/,
   'Independent transparent TSO Purity score and sample-size adjustment');
-assert.match(modeledRoot.innerHTML,/not calibrated/,'Experimental label is not represented as validated odds');
+assert.match(modeledRoot.innerHTML,/uncalibrated|not calibrated/,'Experimental label does not represent sportsbook-calibrated probabilities');
 // The model may not assign >=100% to any known player or imply that only
 // the listed offensive players account for all first-TD outcomes.
 const firstForecasts=[...modeledRoot.innerHTML.matchAll(/rg2-val-firstTd"><strong[^>]*>~([\d.]+)%/g)].map(m=>Number(m[1]));
