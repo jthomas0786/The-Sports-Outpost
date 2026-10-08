@@ -10,10 +10,11 @@ const targets=[
   {name:'TSO 2 preview app JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/app.js',kind:'js'},
   {name:'TSO 2 preview pages JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/pages.js',kind:'js'},
   {name:'TSO 2 preview authentication JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/auth.js',kind:'js'},
+  {name:'TSO 2 preview Admin JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/admin.js',kind:'js'},
   {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
 ];
 const validate=(target,body)=>{
-  if(target.kind==='html')return /<html/i.test(body)&&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/Guest/.test(body)));
+  if(target.kind==='html')return /<html/i.test(body)&&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/admin\.js/.test(body)&&/data-admin-open/.test(body)&&/Guest/.test(body)));
   if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body);
   if(target.kind==='js')return body.length>1000&&!/^\s*<html/i.test(body);
   let doc;try{doc=JSON.parse(body)}catch{return false}
