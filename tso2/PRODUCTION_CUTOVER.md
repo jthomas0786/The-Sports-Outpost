@@ -73,7 +73,7 @@ Keep GitHub as source of truth. Run a **pinned TSO 2.0 Cloudflare Worker deploym
 ## Frozen candidate (October 8, 2026)
 
 - Preview (moving development branch): `https://staging.thesportsoutpost.com` → Cloudflare Worker `tso2-preview`.
-- **Pinned launch candidate:** `https://release.thesportsoutpost.com` → separate Worker `tso2-release-candidate`, frontend and production brand assets frozen at Git commit `a82ba6f2e903d409e1848674f53b2e8983d5f6f3` (owner-approved sidebar layout).
+- **Pinned launch candidate:** `https://release.thesportsoutpost.com` → separate Worker `tso2-release-candidate`, frontend and production brand assets frozen at Git commit `bd991ec4dd34e679b0bf8dc886e6094c646cc32e` (owner-approved sidebar layout).
 - The candidate intentionally retains `X-Robots-Tag: noindex, nofollow` while in prelaunch. Remove for public pages **before** or during an explicitly approved production deployment; preserve noindex for private staging hosts.
 - Live NFL model JSON remains branch-specific at `tso-2.0-restructure/tso2/data/nfl-sim.json`, not `main`. The released frontend is immutable; validated model data is independently refreshable.
 - The domain is now active in the Cloudflare account containing TSO 2.0 Workers; original GitHub Pages A records and `www` CNAME remain DNS-only, with Porkbun MX and TXT records preserved.
@@ -96,8 +96,17 @@ The authoritative Cloudflare zone is active with SSL mode `full` and **no produc
 - `www` DNS: DNS-only CNAME to `jthomas0786.github.io`.
 - Email: two Porkbun MX records, priority 10 (`fwd1.porkbun.com`) and 20 (`fwd2.porkbun.com`), plus three unchanged TXT records in the zone. Do not touch them.
 - Staging Worker: `tso2-preview` at `staging.thesportsoutpost.com`.
-- Release Worker: `tso2-release-candidate` at `release.thesportsoutpost.com`; frontend/production icons pinned to `a82ba6f2e903d409e1848674f53b2e8983d5f6f3`.
+- Release Worker: `tso2-release-candidate` at `release.thesportsoutpost.com`; frontend/production icons pinned to `bd991ec4dd34e679b0bf8dc886e6094c646cc32e`.
 - Release and staging now serve SVG assets with explicit `image/svg+xml` content type.
 - Admin reports/settings use owner-verified Supabase RPCs; no public service-role token in frontend.
 
 **No apex or www cutover, GitHub `main` changes, or DNS record deletions have occurred.**
+
+## Launch checkpoint: preflight run #22 and inbox bridge (2026-10-08)
+
+- Screenshot evidence: GitHub Actions **TSO 2.0 Launch Route Preflight #22** on commit `f71ad202` passed in 30 seconds. This verified the stage/release asset and anonymous Admin access checks existing in that revision.
+- The launch workflow now uses `actions/checkout@v5`, `actions/setup-node@v5`, Node 24 to avoid the Node 20 runtime deprecation notice. A later green run after these revisions must still be confirmed.
+- Saved account notifications now load from the existing, per-user RLS-protected Supabase `notifications` table. Existing watchlist/at-bat records remain filtered to their valid slate date. Opening an alert or choosing Mark Read persists to the account via Supabase rather than a page-only Set.
+- Notifications: **in-app live signals plus authenticated saved-account inbox are implemented**. Browser end-to-end review, saved alert read-back after reload, realtime subscription testing, alert preferences, and background device push remain **unverified or incomplete**; do not mark push ready.
+- Four static UI integration checks passed in source-level validation; module syntax checked for `app.js`, `admin.js`, `auth.js`. This does not replace a successful full GitHub Actions run.
+- Frozen candidate currently pinned to `bd991ec4dd34e679b0bf8dc886e6094c646cc32e` on `tso2-release-candidate`. Main and production routing are untouched.
