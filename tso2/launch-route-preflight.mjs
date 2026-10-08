@@ -13,11 +13,27 @@ const targets=[
   {name:'TSO 2 preview Admin JavaScript',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/admin.js',kind:'js'},
   {name:'TSO 2 approved wordmark',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/approved/tso2-wordmark-horizontal-approved.webp',kind:'webp'},
   {name:'TSO 2 Game Edge icon',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-product-game-edge-approved.svg',kind:'svg'},
+  {name:'TSO 2 install manifest',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/manifest.webmanifest',kind:'manifest'},
+  {name:'TSO 2 Android app icon 192',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-app-icon-192.png',kind:'png'},
+  {name:'TSO 2 Android app icon 512',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-app-icon-512.png',kind:'png'},
+  {name:'TSO 2 iPhone app icon',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-apple-touch-icon-180.png',kind:'png'},
+  {name:'TSO 2 browser favicon',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-favicon.ico',kind:'ico'}
   {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
 ];
 const validate=(target,body)=>{
   if(target.kind==='html')return /<html/i.test(body)&&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/admin\.js/.test(body)&&/data-admin-open/.test(body)&&/Guest/.test(body)));
   if(target.kind==='webp')return body.slice(0,4)==='RIFF'&&body.slice(8,12)==='WEBP';
+  if(target.kind==='png')return body.slice(0,8)==='\\x89PNG\\r\\n\\x1a\\n';
+  if(target.kind==='ico')return body.charCodeAt(0)===0&&body.charCodeAt(1)===0&&body.charCodeAt(2)===1&&body.charCodeAt(3)===0;
+  if(target.kind==='manifest'){
+    try{
+      const m=JSON.parse(body);
+      return m.short_name==='TSO'&&m.display==='standalone'
+        &&Array.isArray(m.icons)
+        &&m.icons.some(i=>i.sizes==='192x192'&&i.type==='image/png')
+        &&m.icons.some(i=>i.sizes==='512x512'&&i.type==='image/png');
+    }catch{return false}
+  }
   if(target.kind==='svg')return /<svg[\s>]/i.test(body)&&/viewBox="0 0 64 64"/.test(body)&&/EDGE/.test(body);
   if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body);
   if(target.kind==='js')return body.length>1000&&!/^\s*<html/i.test(body);
@@ -41,9 +57,9 @@ for(const target of targets){
     let response;
     try{response=await fetch(target.url,{signal:controller.signal,redirect:'follow',headers:{accept:target.kind==='json'?'application/json':'text/html'}})}finally{clearTimeout(timer)}
     const contentType=response.headers.get('content-type')||'';
-    const bytes=target.kind==='webp'?new Uint8Array(await response.arrayBuffer()):null;
+    const bytes=['webp','png','ico'].includes(target.kind)?new Uint8Array(await response.arrayBuffer()):null;
     const body=bytes ? (bytes.length>=12?String.fromCharCode(...bytes.slice(0,12)):'') : await response.text();
-    const validType=target.kind==='webp'?/image\/webp/i.test(contentType):target.kind==='svg'?/image\/svg\+xml/i.test(contentType):target.kind==='json'?/json/i.test(contentType)&&body.trim().startsWith('{'):target.kind==='html'?/html/i.test(contentType)&&/<html/i.test(body):target.kind==='css'?/css/i.test(contentType):/javascript|ecmascript/i.test(contentType);
+    const validType=target.kind==='png'?/image\/png/i.test(contentType):target.kind==='ico'?/image\/(x-icon|vnd\.microsoft\.icon)/i.test(contentType):target.kind==='manifest'?/application\/(manifest\+json|json)/i.test(contentType):target.kind==='webp'?/image\/webp/i.test(contentType):target.kind==='svg'?/image\/svg\+xml/i.test(contentType):target.kind==='json'?/json/i.test(contentType)&&body.trim().startsWith('{'):target.kind==='html'?/html/i.test(contentType)&&/<html/i.test(body):target.kind==='css'?/css/i.test(contentType):/javascript|ecmascript/i.test(contentType);
     const ok=response.ok&&validType&&validate(target,body);
     if(!ok&&!target.optional)failed++;
     console.log(JSON.stringify({name:target.name,url:target.url,status:response.status,contentType,ok,optional:!!target.optional,preview:body.slice(0,100),modelSource:target.url.includes('/api/props')&&target.name.startsWith('TSO 2')?(()=>{try{return JSON.parse(body).modelMeta?.nfl||null}catch{return null}})():undefined}));
