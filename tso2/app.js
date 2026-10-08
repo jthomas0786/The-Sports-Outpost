@@ -512,7 +512,7 @@
     }
     if(['prevTD','yearTD'].includes(key))return fmt(value,0);
     if(key==='purity'){const notes={nfl:'Opportunity quality: goal-line share 30%, red-zone share 30%, position opportunity share 20%, red-zone TD yield 20%.',nba:'Selected exact-line last-10 hit rate 45%, production consistency 35%, recent minutes 20%.',nhl:'Selected exact-line last-10 hit rate 45%, production consistency 35%, time-on-ice stability 20%.',mlb:'Selected exact-line last-10 hit rate 45%, hard-hit percentage 30%, barrel percentage relative to 20% reference 25%.'};return '<strong class="rg2-purity" title="Experimental TSO Purity, 0–100 opportunity-quality index; not a probability. '+esc(notes[sport]||'')+' Sample-size adjusted.">'+fmt(value,0)+'/100</strong>';}
-    if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">~'+percent(value)+'</strong><small class="rg2-experimental">EST.</small>';
+    if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">'+percent(value)+'</strong>';
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
     if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
     if(['model','atd','atg','hr','firstTd','fgs'].includes(key))return '<strong class="rg2-highlight">'+percent(value)+'</strong>';
