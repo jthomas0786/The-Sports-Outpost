@@ -47,6 +47,7 @@
         // Retry transient upstream failures after 30 seconds, not ten minutes.
         nbaRosterCache.set(team,{time:Date.now()-570000,snapshot:null,players:[]});
         console.warn('TSO NBA verified roster unavailable:',String(error?.message||error));
+        queueRefresh();
       }).finally(()=>nbaRosterPending.delete(team));
     }
   }
