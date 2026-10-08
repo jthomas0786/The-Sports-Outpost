@@ -13,6 +13,7 @@ on:
       - 'tso2/admin.js'
       - 'tso2/admin-ui-selftest.mjs'
       - 'tso2/sidebar-polish-selftest.mjs'
+      - 'tso2/launch-owner-auth-preflight.mjs'
       - 'tso2/brand/production/tso2-product-game-edge-approved.svg'
       - '.github/workflows/tso2-launch-route-preflight.yml'
   workflow_dispatch:
@@ -43,6 +44,10 @@ jobs:
           node tso2/admin-ui-selftest.mjs
           node --check tso2/sidebar-polish-selftest.mjs
           node tso2/sidebar-polish-selftest.mjs
+      - name: Verify owner-only API access is denied to anonymous visitors
+        run: |
+          node --check tso2/launch-owner-auth-preflight.mjs
+          node tso2/launch-owner-auth-preflight.mjs
       - name: Probe current production and staging frontend/API routes
         env:
           TSO2_PREVIEW_URL: https://staging.thesportsoutpost.com
