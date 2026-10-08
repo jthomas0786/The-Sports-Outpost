@@ -21,7 +21,13 @@ const auth=window.TSO_AUTH={
   status:'loading',
   user:null,
   async signOut(){if(!client)throw new Error('Sign-out service is not connected.');const {error}=await client.auth.signOut();if(error)throw error;auth.user=null;auth.status='guest';renderIdentity();emit();},
-  async refresh(){return refreshIdentity();}
+  async refresh(){return refreshIdentity();},
+  async rpc(name,args={}){
+    if(!client)throw new Error('Account data service is not connected yet.');
+    const {data,error}=await client.rpc(name,args);
+    if(error)throw new Error(error.message||'Account data request failed');
+    return data;
+  }
 };
 function emit(){window.dispatchEvent(new CustomEvent('tso2-auth-changed',{detail:{signedIn:!!auth.user}}));}
 function initialsOf(name){const letters=String(name||'').trim().split(/[^a-z0-9]+/i).filter(Boolean);return (letters.length>1?letters.slice(0,2).map(s=>s[0]).join(''):letters[0]?.slice(0,2)||'?').toUpperCase();}
