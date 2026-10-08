@@ -1,0 +1,11 @@
+import assert from 'node:assert/strict';
+import {__NFL_FULL_PROP_BOARD_V942_TEST__} from '../sports/nfl/sim/full-prop-board-v942.js';
+const {publishableCandidate:eligible}=__NFL_FULL_PROP_BOARD_V942_TEST__;
+const backup={position:'QB',depthRank:2},starter={position:'QB',depthRank:1};
+assert.equal(eligible(backup,'completions',17.5,.9999,.528,{mean:.45}),false,'backup completions');
+assert.equal(eligible(backup,'passYds',181.5,.9999,.533,{mean:3.7}),false,'backup passing yards');
+assert.equal(eligible(starter,'rushYds',286.5,1,.535,{mean:16.58}),false,'implausible rushing yards line');
+assert.equal(eligible(starter,'passYds',240.5,.61,.54,{mean:235}),true,'plausible starter passing yards');
+assert.equal(eligible({position:'WR',depthRank:1},'recYds',62.5,.58,.53,{mean:65}),true,'plausible receiver yards');
+assert.equal(eligible(starter,'passYds',250.5,.95,.45,{mean:240}),false,'suspicious model-market divergence');
+console.log('TSO 2.0 candidate eligibility scenarios passed');
