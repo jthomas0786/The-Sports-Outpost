@@ -82,14 +82,10 @@
   const SCORE_TICKER_PX_PER_SECOND = 34;
 
   const normalizeHandle = value => String(value || '').trim().replace(/^@/, '').toLowerCase();
-  const currentUserHandle = () => normalizeHandle(
-    window.TSO_CURRENT_USER?.username ||
-    window.TSO_CURRENT_USER?.handle ||
-    document.querySelector('.app-shell')?.dataset.userHandle ||
-    profileMenu?.dataset.userHandle ||
-    ''
-  );
-  const isOwner = () => currentUserHandle() === OWNER_HANDLE;
+  // Identity must come from Supabase Auth's server-verified getUser() result;
+  // never treat a hard-coded DOM username as an authenticated user.
+  const currentUserHandle = () => normalizeHandle(window.TSO_AUTH?.user?.username || '');
+  const isOwner = () => Boolean(window.TSO_AUTH?.user?.isOwner === true);
 
   function syncOwnerTools(){
     document.querySelectorAll('[data-owner-only]').forEach(item => {
@@ -3989,7 +3985,8 @@
     const root=document.querySelector('.profile-page[data-profile-route]');
     if(currentRoute!=='profile'||!root) return;
 
-    const handle=currentUserHandle()||'account';
+    const signedIn=Boolean(window.TSO_AUTH?.user);
+    const handle=currentUserHandle()||'guest';
     const owner=isOwner();
     const initials=owner?'JT':handle.split(/[^a-z0-9]+/i).filter(Boolean).map(x=>x[0]).join('').slice(0,2).toUpperCase()||'ME';
     const rows=profileRows();
@@ -4003,11 +4000,11 @@
     const avatar=root.querySelector('[data-profile-avatar]');
     if(avatar) avatar.textContent=initials;
     const role=root.querySelector('[data-profile-role]');
-    if(role) role.textContent=owner?'OWNER ACCOUNT':'MEMBER ACCOUNT';
+    if(role) role.textContent=!signedIn?'GUEST — NOT SIGNED IN':owner?'OWNER ACCOUNT':'MEMBER ACCOUNT';
     const handleNode=root.querySelector('[data-profile-handle]');
     if(handleNode) handleNode.textContent='@'+handle;
     const context=root.querySelector('[data-profile-context]');
-    if(context) context.textContent=(currentLeague==='all'?'All Sports':leagueLabel(currentLeague))+' context · session identity present · pick history not connected';
+    if(context) context.textContent=signedIn?(currentLeague==='all'?'All Sports':leagueLabel(currentLeague))+' context · account verified · pick history not connected':'Guest access · sign in from the account menu to use your TSO account';
 
     const setText=(sel,value)=>{const node=root.querySelector(sel);if(node)node.textContent=value;};
     setText('[data-profile-props]',propsFeedCache?String(rows.length):'—');
@@ -4022,7 +4019,7 @@
     }
 
     const identityState=root.querySelector('[data-profile-identity-state]');
-    if(identityState) identityState.textContent=handle?'CONNECTED':'UNAVAILABLE';
+    if(identityState) identityState.textContent=signedIn?'VERIFIED':'SIGNED OUT';
     const feedState=root.querySelector('[data-profile-feed-state]');
     if(feedState){
       feedState.textContent=propsFeedCache&&liveFeedCache?'CONNECTED':propsFeedCache||liveFeedCache?'PARTIAL':'CONNECTING';
@@ -6772,6 +6769,14 @@
 
   document.addEventListener('keydown', event => {
     if(event.key === 'Escape'){ closeProfileMenu(); closeGlobalSearch(); closeResearchDetail(); closePropsCompare(); closeSideNav(); }
+  });
+
+  // Supabase auth loads asynchronously. Refresh owner/menu-dependent UI
+  // only after the login service verifies (or clears) the session.
+  window.addEventListener('tso2-auth-changed', () => {
+    closeProfileMenu();
+    syncOwnerTools();
+    if(currentRoute==='profile') renderProfile();
   });
 
   syncOwnerTools();
