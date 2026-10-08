@@ -197,7 +197,7 @@ for(const sportCase of [
   const flow=sandbox.window.TSO2ResearchGameFlow;
   const root={innerHTML:'',isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null},querySelectorAll(){return []}};
   const g=sportCase.game;
-  const selection={...row(sportCase.sport,'sport-case',sportCase.player,g.home.abbr,g.away.abbr,sportCase.market,55),line:sportCase.market==='points'?24.5:0.5};
+  const selection={...row(sportCase.sport,'sport-case',sportCase.player,g.home.abbr,g.away.abbr,sportCase.market,55),line:sportCase.market==='points'?24.5:null};
   flow.render(root,{league:sportCase.sport,games:[g],rows:[selection]});
   root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
     dataset:{rg2Game:sportCase.sport+'|'+g.id+'|'+g.away.abbr+'|'+g.home.abbr+'|'+schedule}})}});
