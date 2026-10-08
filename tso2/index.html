@@ -94,6 +94,11 @@
                 <span><b>My Profile</b><small>Account, alerts and tracked picks</small></span>
                 <i>›</i>
               </button>
+              <button class="profile-dropdown-item profile-dropdown-owner" type="button" role="menuitem" data-owner-only data-admin-open hidden>
+                <span class="profile-dropdown-icon">⚙</span>
+                <span><b>Admin Dashboard</b><small>Site controls, data reports &amp; users</small></span>
+                <em>OWNER</em>
+              </button>
               <a class="profile-dropdown-item profile-dropdown-owner" role="menuitem" data-owner-only hidden href="/brand-lab">
                 <span class="profile-dropdown-icon">◆</span>
                 <span><b>Brand Lab</b><small>Owner tools & approved assets</small></span>
@@ -133,6 +138,10 @@
         <p class="tso-auth-privacy">Account access uses the existing TSO login service. Never share your password with anyone.</p>
       </form>
     </dialog>
+
+    <aside class="tso2-public-notice" data-tso2-public-notice role="status" hidden>
+      <span>OUTPOST NOTICE</span><p data-tso2-public-notice-text></p>
+    </aside>
 
     <section class="score-strip broadcast-score-strip" aria-label="Live and upcoming games">
       <div class="score-strip-label"><span class="pulse"></span>LIVE</div>
@@ -211,5 +220,6 @@
   <script src="./pages.js?v=20261007-live-multigame-drivers"></script>
   <script src="./app.js?v=20261007-live-multigame-drivers"></script>
   <script type="module" src="./auth.js?v=20261008-real-account-auth"></script>
+  <script type="module" src="./admin.js?v=20261008-owner-admin"></script>
 </body>
 </html>
