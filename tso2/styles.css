@@ -10573,3 +10573,56 @@ body.live-multi-open{overflow:hidden}
 .tso-auth-submit{min-height:46px;border:0;border-radius:7px;background:#2d7fff;color:#fff;font-weight:850;cursor:pointer;}
 .tso-auth-submit:disabled{opacity:.55;cursor:wait;}
 .tso-auth-privacy{margin:0;color:#8695a9;font-size:11px;line-height:1.5;}
+
+
+/* TSO 2.0 private Owner Control Room */
+.tso-admin-page{max-width:1580px;margin:auto;padding:28px clamp(16px,2.4vw,36px) 72px;color:#eef3f9}
+.tso-admin-hero{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:27px;border:1px solid #273443;background:linear-gradient(125deg,#101a27,#090e16 75%);margin-bottom:18px}
+.tso-admin-hero h1{font-size:clamp(26px,3vw,40px);letter-spacing:-.03em;margin:8px 0}
+.tso-admin-hero p,.tso-admin-panel-heading p{font-size:13px;color:#93a3b5;line-height:1.7;margin:6px 0}
+.tso-admin-hero-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.tso-admin-private{padding:8px 12px;border:1px solid rgba(255,213,100,.38);color:#ffdc7a;font-size:11px;font-weight:800;letter-spacing:.08em}
+.tso-admin-message{border-left:3px solid #2d7fff;background:#0e1724;color:#bbd2eb;padding:12px 16px;font-size:12px;margin:0 0 18px;min-height:42px}
+.tso-admin-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:18px}
+.tso-admin-stats article{min-width:0;background:#0d141e;border:1px solid #27313f;padding:19px;display:flex;flex-direction:column;gap:8px}
+.tso-admin-stats article span,.tso-admin-panel-heading span{font-size:10px;font-weight:850;letter-spacing:.12em;color:#8da1b8}
+.tso-admin-stats article b{font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.tso-admin-stats article small,.tso-admin-subline{color:#8391a2;font-size:11px;line-height:1.5}
+.tso-admin-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(290px,1fr);gap:14px;margin-top:14px}
+.tso-admin-panel{background:#0b111a;border:1px solid #263443;padding:20px;min-width:0}
+.tso-admin-panel-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:19px}
+.tso-admin-panel-heading h2{font-size:20px;letter-spacing:-.02em;margin:6px 0}
+.tso-admin-panel-heading>[data-admin-feed-state]{font-size:10px;letter-spacing:.09em;font-weight:850;color:#72dfb1}
+.tso-admin-feed-summary{border:1px solid #263443;background:#101b27;padding:13px;color:#dcecff;font-size:12px;font-weight:700;margin-bottom:14px}
+.tso-admin-table-wrap{max-width:100%;overflow-x:auto}
+.tso-admin-table{width:100%;border-collapse:collapse;white-space:nowrap;font-variant-numeric:tabular-nums}
+.tso-admin-table th,.tso-admin-table td{padding:10px 12px;text-align:left;border-bottom:1px solid #27313d;font-size:12px}
+.tso-admin-table thead th{color:#8393a8;font-size:10px;letter-spacing:.06em}
+.tso-admin-table tbody th{color:#e5ebf3}
+.tso-admin-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.tso-admin-shortcuts a{padding:15px;border:1px solid #293849;color:#e3edf8;text-decoration:none;font-size:13px;font-weight:800;background:#111b28;display:flex;flex-direction:column;gap:6px}
+.tso-admin-shortcuts a:hover{border-color:#2d7fff}
+.tso-admin-shortcuts a small{font-weight:500;color:#91a2b5;font-size:11px}
+.tso-admin-settings-form{display:flex;flex-direction:column;gap:10px}
+.tso-admin-settings-form>label:not(.tso-admin-checkbox){font-size:12px;font-weight:800;color:#cfdae8}
+.tso-admin-settings-form textarea{width:100%;min-height:80px;resize:vertical;border:1px solid #334154;background:#101823;color:#f5f8ff;border-radius:4px;padding:12px;font:13px/1.5 inherit}
+.tso-admin-settings-form textarea:focus-visible{outline:2px solid #2d7fff;outline-offset:1px}
+.tso-admin-checkbox{display:flex;align-items:center;gap:9px;color:#cbd7e4;font-size:12px;margin:5px 0 8px}
+.tso-admin-checkbox input{width:16px;height:16px;accent-color:#2d7fff}
+.tso-admin-form-bottom{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.tso-admin-form-bottom small{color:#8393a8;font-size:11px}
+.tso-admin-audit{display:flex;flex-direction:column;gap:9px}
+.tso-admin-audit article{display:grid;grid-template-columns:1fr auto;gap:6px;border-bottom:1px solid #202b38;padding-bottom:10px}
+.tso-admin-audit article b{font-size:12px}
+.tso-admin-audit article span,.tso-admin-audit article small{color:#91a0b1;font-size:11px}
+.tso-admin-audit article small{grid-column:1/-1}
+.tso-admin-locked{padding:70px 24px;margin:auto;max-width:700px;text-align:center}
+.tso-admin-locked span{letter-spacing:.12em;color:#ffdc7a;font-size:12px;font-weight:900}
+.tso-admin-locked h1{font-size:32px;margin:13px 0}
+.tso-admin-locked p{color:#9baabd;line-height:1.7}
+.tso2-public-notice:not([hidden]){display:flex;gap:14px;align-items:center;justify-content:center;flex-wrap:wrap;padding:12px 22px;background:#13243c;color:#fff;border-bottom:1px solid rgba(97,161,255,.5)}
+.tso2-public-notice>span{font-size:10px;letter-spacing:.12em;font-weight:900;color:#82b8ff}
+.tso2-public-notice p{margin:0;font-size:12px;line-height:1.6;font-weight:600}
+.tso2-public-notice[hidden]{display:none!important}
+@media(max-width:1100px){.tso-admin-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-admin-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.tso-admin-hero{align-items:stretch;flex-direction:column;padding:19px}.tso-admin-page{padding:18px 12px 48px}.tso-admin-stats{gap:7px}.tso-admin-stats article{padding:13px}.tso-admin-stats article b{font-size:25px}.tso-admin-panel{padding:14px}.tso-admin-shortcuts{grid-template-columns:1fr}.tso-admin-panel-heading{flex-wrap:wrap}}
