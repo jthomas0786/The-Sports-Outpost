@@ -204,6 +204,7 @@ for(const sportCase of [
   await new Promise(resolve=>setTimeout(resolve,600));
   assert.match(root.innerHTML,new RegExp('rg2-val-l5">'+sportCase.expectedRate.replace('%','%')),'Verified '+sportCase.sport+' L5 hit rate');
   assert.ok(root.innerHTML.includes(sportCase.expectedExtra),'Verified '+sportCase.sport+' minutes/TOI/barrel context');
+  assert.match(root.innerHTML,/rg2-val-purity"><strong class="rg2-purity"[^>]*>\d+\/100<\/strong>/, 'Sourced '+sportCase.sport+' TSO Purity displays a labeled 0-100 score');
 }
 
 
