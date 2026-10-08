@@ -23,6 +23,64 @@
   // GSIS IDs prevent accidentally assigning another player's shares/history.
   const NFL_PBP_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-2.0-restructure/tso2/data/nfl-td-opportunities.json';
   const pbpState={data:null,fetchedAt:0,pending:null};
+  const nbaRosterCache=new Map(),nbaRosterPending=new Set();
+  const nbaTeamCode=v=>({GSW:'GS',NYK:'NY',NOP:'NO',SAS:'SA',UTA:'UTAH',PHX:'PHO'}[up(v)]||up(v));
+  function requestNbaRoster(g){
+    if(g?.league!=='nba'||typeof fetch!=='function')return;
+    for(const t of [g.away,g.home]){
+      const team=nbaTeamCode(t?.abbr),entry=nbaRosterCache.get(team);
+      if(!team||nbaRosterPending.has(team)||(entry&&Date.now()-entry.time<600000))continue;
+      nbaRosterPending.add(team);
+      const endpoint='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/teams/'+encodeURIComponent(team)+'/roster';
+      fetch(endpoint,{cache:'no-store'}).then(async response=>{
+        if(!response.ok)throw Error('ESPN NBA roster HTTP '+response.status);
+        const payload=await response.json();
+        if(!Array.isArray(payload?.athletes)||!payload?.team?.id||
+          nbaTeamCode(payload.team.abbreviation)!==team)throw Error('NBA roster identity mismatch');
+        const players=payload.athletes.filter(a=>a?.id&&a?.displayName).map(a=>({
+          id:String(a.id),name:String(a.displayName),position:a.position?.abbreviation||'',
+          headshot:a.headshot?.href||'',team
+        }));
+        nbaRosterCache.set(team,{time:Date.now(),snapshot:payload.timestamp||null,players});
+        queueRefresh();
+      }).catch(error=>{
+        nbaRosterCache.set(team,{time:Date.now(),snapshot:null,players:[]});
+        console.warn('TSO NBA verified roster unavailable:',String(error?.message||error));
+      }).finally(()=>nbaRosterPending.delete(team));
+    }
+  }
+  function nbaRosterResearchRows(game,exactRows){
+    if(game?.league!=='nba')return [];
+    const rows=[];
+    for(const side of [game.away,game.home]){
+      const team=nbaTeamCode(side?.abbr),entry=nbaRosterCache.get(team);
+      if(!entry?.players?.length)continue;
+      for(const athlete of entry.players.slice(0,30)){
+        for(const market of ['points','rebounds','assists','threes']){
+          if(exactRows.some(r=>r.sport==='nba'&&nbaTeamCode(r.team)===team
+            &&(String(r.playerId||'')===athlete.id||sameName(r.player,athlete.name))
+            &&up(r.market)===up(market)))continue;
+          rows.push({
+            key:'nba-verified-roster|'+id(game)+'|'+team+'|'+athlete.id+'|'+market,
+            sport:'nba',player:athlete.name,playerId:athlete.id,team:up(side.abbr),
+            position:athlete.position,headshotUrl:athlete.headshot,
+            homeTeam:game.home.abbr,awayTeam:game.away.abbr,commenceTime:game.startTime,
+            market,marketLabel:market[0].toUpperCase()+market.slice(1),
+            selection:'Historical stats only',researchRosterRow:true,
+            rosterSnapshot:entry.snapshot,side:'historical'
+          });
+        }
+      }
+    }
+    return rows;
+  }
+  function nbaRecentAverage(deep,field){
+    const source=deep?.recentGames;
+    if(!Array.isArray(source))return null;
+    const games=[...source].sort((a,b)=>(Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0));
+    const values=games.map(g=>num(g.stats?.[field])).filter(v=>v!==null).slice(0,5);
+    return values.length?Math.round(values.reduce((a,b)=>a+b,0)/values.length*100)/100:null;
+  }
   function pbpPlayer(deep,year){
     const gsis=String(deep?.gsisId||'').trim();
     if(!gsis||pbpState.data?.schemaVersion!==1)return null;
@@ -254,7 +312,7 @@
     dlg.addEventListener('close',()=>dlg.remove(),{once:true});
     if(typeof dlg.showModal==='function')dlg.showModal();else dlg.setAttribute('open','');
   }
-  const exactActionRow=p=>choose((p?.rows||[]).filter(r=>!r.researchScorerModel&&!r.researchPbpRow))||null;
+  const exactActionRow=p=>choose((p?.rows||[]).filter(r=>!r.researchScorerModel&&!r.researchPbpRow&&!r.researchRosterRow))||null;
   const addActionButton=(p,i)=>'<button type="button" data-rg2-add="'+i+'"'
     +(exactActionRow(p)?'':' disabled title="No verified exact sportsbook selection"')
     +'>+ ADD</button>';
@@ -309,10 +367,13 @@
       return info?{...r,nflPbpId:info.nflPbpId}:r;
     });
     const scorer=nhlScorerResearchRows(g,ctx.scorerGames);
+    if(g.league==='nba')requestNbaRoster(g);
+    const roster=nbaRosterResearchRows(g,exact);
     const actual=[...exact,
       ...pbp.filter(row=>!exact.some(existing=>up(existing.team)===up(row.team)
         &&(existing.nflPbpId===row.nflPbpId||pbpNameMatches(row.player,existing.player)))),
-      ...scorer.filter(row=>!exact.some(existing=>sameName(existing.player,row.player)&&up(existing.team)===up(row.team)&&up(existing.market)===up(row.market)&&yes(existing)))];
+      ...scorer.filter(row=>!exact.some(existing=>sameName(existing.player,row.player)&&up(existing.team)===up(row.team)&&up(existing.market)===up(row.market)&&yes(existing))),
+      ...roster];
     const tabs=categories[g.league]||[['all','All Props',null]];
     if(!tabs.some(t=>t[0]===state.tab)){state.tab=primary[g.league]||'all';state.sort=g.league==='nfl'?'atd':g.league==='mlb'?'hr':g.league==='nhl'?'atg':'points';}
     const active=tabs.find(t=>t[0]===state.tab)||tabs[0];
@@ -324,7 +385,10 @@
     const selectedRows=state.tab==='key'?selection.filter(validModel):selection;
     const players=(state.tab==='all'||state.tab==='props')?selectedRows.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selectedRows);
     const historicalOnly=g.league==='nfl'&&state.tab==='td'&&selectedRows.some(r=>r.researchPbpRow)&&!selectedRows.some(validModel);
+    const nbaHistoryOnly=g.league==='nba'&&selectedRows.some(r=>r.researchRosterRow)&&!selectedRows.some(validModel);
+    const nbaRankKey={points:'nbaL5Pts',rebounds:'nbaL5Reb',assists:'nbaL5Ast',threes:'nbaL5Threes'}[state.tab]||'nbaL5Pts';
     if(historicalOnly&&['model','atd'].includes(state.sort))state.sort='opps';
+    if(nbaHistoryOnly&&['model','points','rebounds','assists','threes'].includes(state.sort))state.sort=nbaRankKey;
     queuePlayerDetails(g,players.filter(p=>p.rows.some(r=>!r.researchPbpRow)));
     if(g.league==='nfl')requestNflPbp();
     const cols=columns(g.league,state.tab);
@@ -336,24 +400,27 @@
     const modeInfo=actual.filter(r=>validModel(r)).length;
     const pbpSnapshot=pbp.length&&pbpState.data?.generatedAt?String(pbpState.data.generatedAt).slice(0,10):null;
     const onlyPbp=p=>!!p?.rows?.length&&p.rows.every(r=>r.researchPbpRow);
+    const onlyRoster=p=>!!p?.rows?.length&&p.rows.every(r=>r.researchRosterRow);
+    const historyKey=p=>onlyPbp(p)?'opps':nbaRankKey;
+    const historyLabel=p=>onlyPbp(p)?'2026 VERIFIED OPPORTUNITIES':'VERIFIED L5 '+({nbaL5Pts:'POINTS',nbaL5Reb:'REBOUNDS',nbaL5Ast:'ASSISTS',nbaL5Threes:'THREES'}[nbaRankKey]||'POINTS');
     const ticker=gameList.filter(v=>v.league===g.league).map(v=>'<button type="button" data-rg2-game="'+esc(id(v))+'" class="'+(id(v)===state.gameKey?'is-active':'')+'">'+esc(up(v.away?.abbr))+' @ '+esc(up(v.home?.abbr))+' <small>'+esc(v.state==='pre'?day(v.startTime):v.state==='in'?'LIVE':'FINAL')+'</small></button>').join('');
-    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status '+(actual.length?'':'is-pending')+'"><i></i>'+(actual.length?(exact.length?'VERIFIED PLAYER FEED':pbp.length?'NFLVERSE PBP DATA':'TSO SCORER MODEL'):'PLAYER FEED UNAVAILABLE')+'</span></div>'
+    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← BACK TO MATCHUPS</button><span class="rg2-kicker">THE SPORTS OUTPOST / '+esc(labels[g.league])+' GAME LAB</span><span class="rg2-source-status '+(actual.length?'':'is-pending')+'"><i></i>'+(actual.length?(exact.length?'VERIFIED PLAYER FEED':pbp.length?'NFLVERSE PBP DATA':roster.length?'ESPN NBA ROSTER':'TSO SCORER MODEL'):'PLAYER FEED UNAVAILABLE')+'</span></div>'
       +'<div class="rg2-matchup-strip"><div class="rg2-matchup-teams">'+team(g.away)+ '<span class="rg2-at">'+(g.state==='pre'?'@':esc(String(g.away?.score??'—')+' – '+String(g.home?.score??'—')))+'</span>'+team(g.home)+'</div>'
       +'<div class="rg2-matchup-markets"><span><small>SPREAD</small><strong>'+esc(m.spread)+'</strong></span><span><small>TOTAL</small><strong>'+esc(m.total)+'</strong></span><span><small>MONEYLINE</small><strong>'+esc(m.money)+'</strong></span><span><small>'+esc(g.state==='in'?'LIVE':g.state==='post'?'FINAL':'START')+'</small><strong>'+esc(day(g.startTime))+'</strong></span></div></div>'
       +'<div class="rg2-game-rail-heading"><b>ON THE SLATE</b><small>Switch games without leaving Research</small></div><div class="rg2-game-rail" role="group" aria-label="Choose another game">'+ticker+'</div>';
     const choices=(values,label,current)=>'<option value="all">'+esc(label)+'</option>'+values.map(v=>'<option value="'+esc(v)+'" '+(v===current?'selected':'')+'>'+esc(v)+'</option>').join('');
     const boardCards='<div class="rg2-player-grid">'+visible.map((p,i)=>'<article class="rg2-player-card">'
       +'<div class="rg2-player-card-top">'+playerTitle(p)+'<span class="rg2-card-index">#'+String(i+1).padStart(2,'0')+'</span></div>'
-      +'<div class="rg2-player-card-number"><small>'+(onlyPbp(p)?'2026 VERIFIED OPPORTUNITIES':'VERIFIED MODEL CHANCE')+'</small><b>'+metric(p,onlyPbp(p)?'opps':'model',g.league)+'</b></div>'
-      +'<div class="rg2-player-card-values">'+(onlyPbp(p)?'<span>GOAL LINE <b>'+metric(p,'gl',g.league)+'</b></span><span>TARGET SHARE <b>'+metric(p,'target',g.league)+'</b></span>':'<span>MARKET <b>'+metric(p,'market',g.league)+'</b></span><span>EDGE <b>'+metric(p,'edge',g.league)+'</b></span>')+'</div>'
+      +'<div class="rg2-player-card-number"><small>'+(onlyPbp(p)||onlyRoster(p)?historyLabel(p):'VERIFIED MODEL CHANCE')+'</small><b>'+metric(p,onlyPbp(p)||onlyRoster(p)?historyKey(p):'model',g.league)+'</b></div>'
+      +'<div class="rg2-player-card-values">'+(onlyPbp(p)?'<span>GOAL LINE <b>'+metric(p,'gl',g.league)+'</b></span><span>TARGET SHARE <b>'+metric(p,'target',g.league)+'</b></span>':onlyRoster(p)?'<span>L5 PTS <b>'+metric(p,'nbaL5Pts',g.league)+'</b></span><span>L5 REB <b>'+metric(p,'nbaL5Reb',g.league)+'</b></span>':'<span>MARKET <b>'+metric(p,'market',g.league)+'</b></span><span>EDGE <b>'+metric(p,'edge',g.league)+'</b></span>')+'</div>'
       +'<div class="rg2-player-card-actions"><button type="button" data-rg2-intel="'+i+'">PLAYER INTEL →</button>'+addActionButton(p,i)+'</div>'
       +'</article>').join('')+'</div>';
     const rankRows='<div class="rg2-rank-list" aria-label="Player rankings">'
       +visible.map((p,i)=>'<article class="rg2-rank-row">'
         +'<strong class="rg2-rank-number">'+String(i+1).padStart(2,'0')+'</strong><div class="rg2-rank-player">'+playerTitle(p)+'</div>'
-        +'<div class="rg2-rank-metric"><small>'+(onlyPbp(p)?'2026 OPPS':'MODEL')+'</small><b>'+metric(p,onlyPbp(p)?'opps':'model',g.league)+'</b></div>'
-        +'<div class="rg2-rank-metric"><small>'+(onlyPbp(p)?'GOAL LINE':'MARKET')+'</small><b>'+metric(p,onlyPbp(p)?'gl':'market',g.league)+'</b></div>'
-        +'<div class="rg2-rank-metric"><small>'+(onlyPbp(p)?'TGT SHARE':'EDGE')+'</small><b>'+metric(p,onlyPbp(p)?'target':'edge',g.league)+'</b></div>'
+        +'<div class="rg2-rank-metric"><small>'+(onlyPbp(p)?'2026 OPPS':onlyRoster(p)?'VERIFIED L5':'MODEL')+'</small><b>'+metric(p,onlyPbp(p)||onlyRoster(p)?historyKey(p):'model',g.league)+'</b></div>'
+        +'<div class="rg2-rank-metric"><small>'+(onlyPbp(p)?'GOAL LINE':onlyRoster(p)?'L5 PTS':'MARKET')+'</small><b>'+metric(p,onlyPbp(p)?'gl':onlyRoster(p)?'nbaL5Pts':'market',g.league)+'</b></div>'
+        +'<div class="rg2-rank-metric"><small>'+(onlyPbp(p)?'TGT SHARE':onlyRoster(p)?'L5 AST':'EDGE')+'</small><b>'+metric(p,onlyPbp(p)?'target':onlyRoster(p)?'nbaL5Ast':'edge',g.league)+'</b></div>'
         +'<div class="rg2-rank-actions"><button type="button" data-rg2-intel="'+i+'">INTEL</button>'+addActionButton(p,i)+'</div>'
         +'</article>').join('')+'</div>';
     const labTable='<div class="rg2-table-scroll" role="region" tabindex="0" aria-label="'+esc(labels[g.league])+' research table; scroll horizontally for all columns">'
@@ -368,8 +435,8 @@
     return header+'<section class="rg2-detail">'
       +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
       +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
-      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats and model signals from verified feeds.'+(scorer.length?' NHL scorer-model rows are not sportsbook selections.':'')+(pbp.length?' NFL PBP usage is historical data'+(pbpSnapshot?' as of '+pbpSnapshot:'')+', not a sportsbook offer.':'')+'</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
-      +'<div class="rg2-mode-description"><span class="rg2-mode-indicator">'+esc(state.view.toUpperCase())+' VIEW</span><p>'+esc(state.view==='board'?'Player cards focused on model strength, market and edge.':state.view==='rank'?(historicalOnly?'Ranked by verified 2026 carries + targets, not predicted touchdown probability.':'Ranked players using the active column and sort direction.'):'Full statistical lab: compare player production, usage and model context side by side.')+'</p></div>'
+      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">OUTPOST RESEARCH / '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' <em>Lab</em></h2><p>Game-specific stats and model signals from verified feeds.'+(scorer.length?' NHL scorer-model rows are not sportsbook selections.':'')+(pbp.length?' NFL PBP usage is historical data'+(pbpSnapshot?' as of '+pbpSnapshot:'')+', not a sportsbook offer.':'')+(roster.length?' ESPN NBA roster rows display only verified historical box-score stats. No sportsbook line, projection, or probability is inferred.':'')+'</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this matchup</small></div></div>'
+      +'<div class="rg2-mode-description"><span class="rg2-mode-indicator">'+esc(state.view.toUpperCase())+' VIEW</span><p>'+esc(state.view==='board'?'Player cards focused on model strength, market and edge.':state.view==='rank'?(historicalOnly?'Ranked by verified 2026 carries + targets, not predicted touchdown probability.':nbaHistoryOnly?'Ranked by verified last-five game averages, not predicted probabilities.':'Ranked players using the active column and sort direction.'):'Full statistical lab: compare player production, usage and model context side by side.')+'</p></div>'
       +'<div class="rg2-searchbar"><label class="rg2-find"><span>⌕</span><input data-rg2-search type="search" placeholder="Search players or stats" value="'+esc(state.query)+'" aria-label="Filter players"></label>'
       +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
@@ -631,6 +698,10 @@
     const marketLine=forP(p,key)||null;
     const scorerStats=p.rows?.find(row=>row.researchScorerStats)?.researchScorerStats;
     switch(key){
+      case 'nbaL5Pts':return nbaRecentAverage(deep,'points');
+      case 'nbaL5Reb':return nbaRecentAverage(deep,'rebounds');
+      case 'nbaL5Ast':return nbaRecentAverage(deep,'assists');
+      case 'nbaL5Threes':return nbaRecentAverage(deep,'threes');
       case 'goalsGp':return scorerStats?.goalsGp??null;
       case 'sogGp':return scorerStats?.sogGp??null;
       case 'l10Goals':return scorerStats?.l10Goals??null;
@@ -682,7 +753,7 @@
     if(key==='line')return columnData(p,key,sport)===null?esc(r.selection||'—'):fmt(columnData(p,key,sport));
     const value=columnData(p,key,sport);
     if(value===null)return '<span class="rg2-na" title="Source data unavailable">—</span>';
-    if(['projected','minutes','toi','opptds','opprush','opprec','oppcarries','goalsGp','sogGp'].includes(key))return fmt(value,2);
+    if(['projected','minutes','toi','opptds','opprush','opprec','oppcarries','goalsGp','sogGp','nbaL5Pts','nbaL5Reb','nbaL5Ast','nbaL5Threes'].includes(key))return fmt(value,2);
     if(['l10Goals','l10First'].includes(key))return fmt(value,0);
     if(key==='prevFirst'){
       const deep=getDetails(gameList.find(g=>id(g)===state.gameKey),p)?.player||{};
@@ -714,7 +785,7 @@
     if(sport==='nhl'&&tab==='goals')return [['atg','ANYTIME %'],['fgs','FIRST %'],['goalsGp','GOALS/GP'],['sogGp','SHOTS/GP'],['toi','TOI MIN'],['l10Goals','L10 GOALS'],['l10First','L10 FIRST'],['l5','L5 %'],['edge','EDGE'],['price','ODDS'],['purity','TSO PURITY']];
     if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
     if(sport==='mlb')return [['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
-    return [['points','POINTS %'],['rebounds','REB %'],['assists','AST %'],['threes','3PT %'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
+    return [['points','POINTS %'],['nbaL5Pts','L5 PTS'],['rebounds','REB %'],['nbaL5Reb','L5 REB'],['assists','AST %'],['nbaL5Ast','L5 AST'],['threes','3PT %'],['nbaL5Threes','L5 3PT'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
   }
   function render(root,props){
     if(!root)return;
