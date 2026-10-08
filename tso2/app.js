@@ -58,7 +58,7 @@
       :p?.home&&num(p.home.point)!==null?up(g.home?.abbr)+' '+(Number(p.home.point)>0?'+':'')+fmt(p.home.point)
       :p?.away&&num(p.away.point)!==null?up(g.away?.abbr)+' '+(Number(p.away.point)>0?'+':'')+fmt(p.away.point):'—';
     const total=l?.total&&num(l.total.line)!==null?fmt(l.total.line):'—';
-    const money=l?.moneyline?(num(l.money.homeBest??l.money.home?.price)!==null?up(g.home?.abbr)+' '+odds(l.money.homeBest??l.money.home?.price):'—'):'—';
+    const money=l?.moneyline?(num(l.moneyline.homeBest??l.moneyline.home?.price)!==null?up(g.home?.abbr)+' '+odds(l.moneyline.homeBest??l.moneyline.home?.price):'—'):'—';
     return {spread,total,money};
   }
   function team(gteam,cls=''){
