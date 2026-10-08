@@ -568,7 +568,7 @@
     const seen=new Set();gameList=gameList.filter(g=>{const key=id(g);if(seen.has(key))return false;seen.add(key);return true}).sort((a,b)=>({'in':0,'pre':1,'post':2}[a.state]??3)-({'in':0,'pre':1,'post':2}[b.state]??3)
       || (Date.parse(a.startTime||'')||0)-(Date.parse(b.startTime||'')||0));
     if(state.stage==='detail'&&!gameList.some(g=>id(g)===state.gameKey)){state.stage='games';state.gameKey=''}
-    root.dataset.researchMode=state.stage==='detail'?state.view:'games';
+    if(root.dataset)root.dataset.researchMode=state.stage==='detail'?state.view:'games';
     root.innerHTML=state.stage==='detail'?detail():cards();
     root.onclick=e=>{
       const t=e.target.closest('button');
