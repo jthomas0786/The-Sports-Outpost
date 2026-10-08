@@ -9,9 +9,9 @@ original video's proprietary estimates.
 
 | Column | Actual TSO definition | Source / present status |
 | --- | --- | --- |
-| ROLE | Position and verified depth rank | Existing TSO NFL / ESPN + nflverse research snapshot via \`/api/research-detail\` |
+| Player subtitle | Verified position and depth rank, e.g. RB1 - DAL | Under player name in the same cell; the separate Role column is removed across every sport |
 | ANYTIME % | Exact modeled anytime TD probability | Existing validated prop model matched to selection and game; dash when unavailable |
-| FIRST % | Exact modeled first TD scorer probability | **Model work outstanding**. Historical first-TD frequency is **not** a forward probability |
+| FIRST % | TSO two-stage model of player scoring the first offensive game TD | Experimental and uncalibrated; marked EST. and prefixed ~; exact validated market model always takes priority when present |
 | 2025 1ST | Games with first touchdown scored / previous-season games played | New nflverse PBP first-TD event attribution + existing season games (e.g. 3/16). Excludes postseason, doesn't invent defensive/ST player credit |
 | 2025 TDs | Season rushing plus receiving TD total | nflverse 2025 player-season snapshot |
 | 2026 TDs | This-season rushing plus receiving TD total | nflverse 2026 player-season snapshot |
@@ -21,7 +21,7 @@ original video's proprietary estimates.
 | CARRY % | Player rush attempts / team rush attempts (%) | New nflverse 2026 PBP |
 | TGT % | Verified target share (%) | Existing nflverse player-season target share |
 | RZ % | Player carries+targets at/inside opponent 20 / team equivalents (%) | New nflverse 2026 PBP |
-| PURITY | Proprietary/undefined metric in reference | **Definition and validated TSO-owned model needed**; no manufactured rank/score |
+| TSO PURITY | Original TSO opportunity-quality index, 0–100 | Experimental 2026 usage/TD conversion composite; NOT probability, hit rate, or the reference site's proprietary score |
 
 **2025 1ST** is historical first-TD hit count, not a model probability.
 **YIELD, GL %, CARRY %, RZ %** are independently defined TSO ratios; their
@@ -29,6 +29,63 @@ values will not necessarily match the reference video. They are computed
 using regular-season PBP, matched through GSIS player IDs. For traded players
 with multiple teams in the same season, team-share ratios are suppressed
 rather than combining mismatched team denominators.
+
+## How the new models work (NFL only)
+
+### First touchdown forecast — experimental, not calibrated
+
+The new TSO v0.1 first-touchdown model uses two linked questions:
+which offense scores the first touchdown, and which verified player
+on that team is credited with it? Defensive scores, special teams and
+no-touchdown games retain a portion of the total probability.
+
+**Team portion.** Calculate each team's first-offensive-TD rate from
+2026 game counts plus 60% of 2025 game counts, with a half-success
+and half-failure Bayesian smoothing prior. Normalize the two teams'
+rates, and scale them by the observed league share of first TD events
+that were offensive rushing or receiving TDs.
+
+**Player portion.** Score verified GSIS-identified players on that team:
+
+    W = 0.015 + 0.75 * 2026FirstTDCount
+        + 0.35 * 2025FirstTDCount
+        + 2.50 * currentRedZoneOpportunityShare
+        + 1.50 * currentGoalLineOpportunityShare
+        + 0.45 * currentTotalOpportunityShare
+
+The shares in this expression are fractions from 0 to 1, not
+percentages. Divide the player's weight by the sum of all eligible
+current-season player weights **plus 0.8** reserved for other players;
+multiply by that team's first-offensive-TD portion. Cap the resulting
+estimate at the existing modeled anytime-TD probability, when one
+is present. No current-season player data or no reliable GSIS match
+means the model displays a dash.
+
+This is an **experimental heuristic** using real source features
+and deliberately simple, disclosed weights. It has **not yet been
+backtested or probability calibrated**; forecasts are marked EST. and
+shown with a leading approximation symbol. They are neither sportsbook
+lines nor assured win probabilities.
+
+### TSO Purity — experimental opportunity-quality index
+
+TSO Purity is a completely separate 0–100 index:
+
+    S = 0.30 * GLsharePct
+        + 0.30 * RZsharePct
+        + 0.20 * roleOpportunitySharePct
+        + 0.20 * RZtouchdownYieldPct
+
+    Purity = round(S * (0.7 + 0.3 * min(gamesWithOpportunities / 8, 1)))
+
+RB/FB use the share of team rushing attempts for role opportunity;
+WR/TE use the share of team targets; other roles use the higher
+of those two shares. The sample factor discounts small four-game
+samples. Every input must be source-verified, with two or more
+2026 games with player opportunities. It is **not a 0–100% chance
+of scoring**, and weights still require out-of-sample outcome validation.
+Purity remains a dash for NHL, NBA and MLB until sport-appropriate
+definitions and inputs have been validated.
 
 ## Other sports
 
@@ -69,10 +126,10 @@ specific GSIS-matched player. Unmapped identities are not guessed.
 
 ### What to develop next
 
-1. Decide and document a TSO-specific **First TD predictive model**. Train
+1. Backtest and calibrate the TSO First TD v0.1 experimental heuristic against later held-out games; validate against market implied probabilities. Train
    and validate it on multiple seasons of first TD and team-scoring context;
    show uncertainty and avoid mixing backward hit rates with forecasts.
-2. Define a transparent TSO-specific **Purity** or **Research Confidence**
+2. Evaluate the transparent TSO Purity v0.1 index out of sample (not equivalent to Research Confidence)
    score using verified inputs and test calibration; do not reproduce an
    undocumented third-party metric.
 3. Provide separately validated and sourced opportunity/usage data for
