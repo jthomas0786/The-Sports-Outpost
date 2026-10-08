@@ -4,9 +4,9 @@ const targets=[
   {name:'Production homepage',url:'https://thesportsoutpost.com/',kind:'html'},
   {name:'Production live API',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json'},
   {name:'Production props API',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json'},
-  {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786.workers.dev/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
-  {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786.workers.dev').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
-  {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786.workers.dev').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
+  {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
+  {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
+  {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://tso2-preview.jthomas0786-tso.workers.dev').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
 ];
 let failed=0;
 for(const target of targets){
