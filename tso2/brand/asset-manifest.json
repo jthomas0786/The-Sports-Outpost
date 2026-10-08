@@ -1,7 +1,7 @@
 {
   "version": "2.1.0",
   "system": "Outpost Broadcast",
-  "updated": "2026-10-04",
+  "updated": "2026-10-08",
   "approved_master_reference": "TSO 2.0 concept board approved in chat on 2026-10-03",
   "quality_gate": {
     "exact_direction_required": true,
@@ -145,7 +145,20 @@
         ]
       }
     ],
-    "products": [],
+    "products": [
+      {
+        "id": "game_edge",
+        "label": "Game Edge navigation tile",
+        "format": "svg",
+        "dimensions": [
+          64,
+          64
+        ],
+        "file": "production/tso2-product-game-edge-approved.svg",
+        "status": "review",
+        "notes": "Requested sidebar icon replacement; 2.0 staging/release preview only, pending visual acceptance."
+      }
+    ],
     "badges": [],
     "backgrounds": [],
     "players": [],
