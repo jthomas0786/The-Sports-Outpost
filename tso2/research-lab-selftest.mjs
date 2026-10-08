@@ -97,4 +97,44 @@ for(const league of ['nfl','nba','mlb','nhl']){
 flow.reset();
 flow.render(root,{...context,league:'nhl',games:[]});
 assert.match(root.innerHTML,/No games currently listed/,'No fabricated off-season games');
-console.log('PASS TSO 2.0 Research: cards first, game detail, native theme, video NFL columns, 4 sports, exact source-only metrics, back/tabs/add/Intel');
+// Verify the actual player-data enrichment path, not just the column headings.
+// Fixture-only values are isolated to this unit test and are never displayed by the site.
+const deepSandbox={
+  window:{},URLSearchParams,setTimeout,
+  fetch:async requested=>{
+    const params=new URL('https://fixture.test'+requested).searchParams;
+    return {ok:true,json:async()=>({
+      available:true,player:{
+        name:params.get('name'),team:params.get('team'),position:'RB',
+        previousSeason:{totalTds:13,games:16},
+        currentSeason:{totalTds:6,targetShare:11.8,perGame:{tds:1.5}},
+        last5:{avg:{tds:1.6}},depth:{rank:1}
+      }
+    })};
+  }
+};
+vm.runInNewContext(app.slice(0,seam),deepSandbox);
+const deepFlow=deepSandbox.window.TSO2ResearchGameFlow;
+const enrichedRoot={
+  innerHTML:'',isConnected:true,contains:()=>true,scrollIntoView:()=>{},
+  querySelector(){return null},querySelectorAll(){return []}
+};
+const enrichedGame={
+  id:'enrichment-fixture',league:'nfl',state:'pre',startTime:schedule,
+  away:{abbr:'TB',name:'Tampa Bay Buccaneers'},
+  home:{abbr:'DAL',name:'Dallas Cowboys'}
+};
+deepFlow.render(enrichedRoot,{
+  league:'nfl',games:[enrichedGame],
+  rows:[row('nfl','enriched-player','Javonte Williams','DAL','TB','atd',52.2)]
+});
+enrichedRoot.onclick({target:{closest:()=>({
+  hasAttribute:k=>k==='data-rg2-game',
+  dataset:{rg2Game:'nfl|enrichment-fixture|TB|DAL|'+schedule}
+})}});
+await new Promise(resolve=>setTimeout(resolve,650));
+assert.match(enrichedRoot.innerHTML,/rg2-val-prevTD">13</,'Real 2025 TD value from deep research');
+assert.match(enrichedRoot.innerHTML,/rg2-val-yearTD">6</,'Real 2026 TD value from deep research');
+assert.match(enrichedRoot.innerHTML,/rg2-val-target">11\.8%/,'Real target share from deep research');
+assert.match(enrichedRoot.innerHTML,/rg2-val-role">RB1</,'Source-backed player role and depth');
+console.log('PASS TSO 2.0 Research: game-card flow, all sports, native theme, verified deep-data columns, navigation and actions');
