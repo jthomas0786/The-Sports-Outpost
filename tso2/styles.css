@@ -11060,9 +11060,13 @@ body.live-multi-open{overflow:hidden}
  .rg2-tabs{width:100%}
  .rg2-view{width:100%;justify-content:center}
  .rg2-player-grid{grid-template-columns:1fr}
- .rg2-rank-row{grid-template-columns:28px minmax(110px,1fr) auto;padding:10px 8px;gap:7px}
+ .rg2-rank-row{grid-template-columns:28px minmax(104px,1fr) 66px auto;padding:10px 8px;gap:7px}
  .rg2-rank-number{font-size:16px}
- .rg2-rank-metric:nth-of-type(n+2){display:none}
+ .rg2-rank-metric:nth-of-type(n+3){display:none}
  .rg2-rank-actions button{padding:8px}
  .rg2-method summary span{float:none;display:block;margin-top:6px}
 }
+
+/* Honest live-feed status for matchups with no verified player selections. */
+.rg2-source-status.is-pending{color:#d6a86f}
+.rg2-source-status.is-pending i{background:#f7a940;box-shadow:0 0 10px rgba(247,169,64,.25)}
