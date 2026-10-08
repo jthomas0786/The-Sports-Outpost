@@ -69,6 +69,35 @@ symbol; they are not sportsbook lines or validated win probabilities.
 The FIRST % estimate and TSO Purity are withheld if the source
 snapshot is more than ten days old.
 
+### Full player-level first TD historical validation — 2026-10-08
+
+2024 nflverse PBP is the prior for 2025; 2025 is the prior for
+early 2026. The next week is evaluated using **completed prior
+weeks only**, without looking ahead. Model adjustment is selected
+from 2025 weeks 7–12 (85 games) and then scored on **126
+unseen games**: 94 from later 2025 and 32 from early 2026.
+
+The actual first-TD player was in the eligible modeled set for
+111/126 holdout games; all other outcomes had a separate OTHER class.
+
+| Held-out model | Multiclass log loss | Multiclass Brier |
+| --- | ---: | ---: |
+| Simplified historical scorer baseline | 3.65012 | 0.95770 |
+| TSO opportunity-weighted model | **3.03294** | **0.93111** |
+| Scaled-calibration candidate | 3.03294 | 0.93111 |
+
+Lower is better. Calibration selected **scale 1.0** (no change).
+The automatic production promotion gate stayed **false**. These
+results support additional testing, not a claim of calibrated
+probabilities. The evaluation excludes historical pregame
+ATD probability caps because reliable historical, timestamped
+model data is unavailable.
+
+Report: tso2/data/nfl-first-td-backtest.json.
+Source script: tso2/backtest-nfl-first-td.py.
+Workflow: .github/workflows/tso2-first-td-backtest.yml.
+The live site retains EST. and ~ labels.
+
 ### Preliminary 2025-to-2026 holdout: team component only
 
 Using 2025 team offensive-first-touchdown rates to forecast the
@@ -97,8 +126,52 @@ of those two shares. The sample factor discounts small four-game
 samples. Every input must be source-verified, with two or more
 2026 games with player opportunities. It is **not a 0–100% chance
 of scoring**, and weights still require out-of-sample outcome validation.
-Purity remains a dash for NHL, NBA and MLB until sport-appropriate
-definitions and inputs have been validated.
+NBA, NHL, and MLB now have separate **experimental, market-specific** Purity calculations. Missing verified data or fewer than five matching game logs retain a dash.
+
+## NBA, NHL and MLB Purity v0.1 (experimental)
+
+Every score below is an original TSO **0–100 descriptive index**, not a
+probability, calibrated player forecast, or third-party rating. All
+formulas use the exact sportsbook **selected line and side**, and
+verified game logs returned by the existing sport-specific deep
+research feed. Pushes are omitted from recent hit-rate denominators.
+
+**Sample factor for every sport:** 0.65 + 0.35 × (min(validGames,10)/10).
+All require five or more exact-market game results, with up to 10
+used in scoring. Values remain unavailable if mandatory source
+inputs are missing.
+
+### NBA formula
+
+Purity = sampleFactor × (45% last-10 exact-line hit rate
++ 35% production consistency + 20% playing-time index).
+
+Production consistency = 100/(1+stddev(stat)/max(1,mean(stat))).
+Playing-time index = min(100,mean(minutes)/36×100).
+Requires five verified NBA box-score stats and minute observations.
+
+### NHL formula
+
+Purity = sampleFactor × (45% last-10 exact-line hit rate
++ 35% production consistency + 20% time-on-ice consistency).
+
+Time-on-ice consistency = 100/(1+stddev(TOImin)/max(1,mean(TOImin))).
+Requires five verified NHL game stats and five time-on-ice values.
+
+### MLB hitters formula
+
+Purity = sampleFactor × (45% last-10 exact-line hit rate
++ 30% verified Statcast hard-hit % + 25% barrel reference index).
+
+Barrel reference index = min(100,barrelPct/20×100).
+The 20% value is a TSO indexing scale, **not an assertion about
+the league average**. Requires five verified hitting game logs,
+plus actual Statcast hard-hit and barrel percentages. Does not
+substitute unsupported pitches/guessed probabilities.
+
+Scores depend on the **selected market**: they may differ for a
+player's points vs rebounds, or goals vs shots. A dash remains when
+a source has no eligible logs.
 
 ## Other sports
 
