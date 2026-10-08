@@ -284,9 +284,14 @@
     const detail=getDetails(game,p);
     const d=detail?.player||{},row=best(p);
     if(!d||!row||!['nba','nhl','mlb'].includes(sport))return null;
-    const line=num(row.line);
-    if(line===null)return null;
     const market=String(row.market||'');
+    // A yes/no goal or HR occurrence is exactly the >0.5 event, not
+    // a nearby substituted sportsbook line. Other markets require
+    // their source-supplied numeric threshold.
+    const yesNo=['atg','hr'].includes(market)
+      &&['yes','over'].includes(String(row.side||'').toLowerCase());
+    const line=num(row.line)??(yesNo?0.5:null);
+    if(line===null)return null;
     const leagueMarkets={
       nba:{points:'points',rebounds:'rebounds',assists:'assists',threes:'threes'},
       nhl:{atg:'goals',sog:'sog',points:'points',assists:'assists',saves:'saves'},
