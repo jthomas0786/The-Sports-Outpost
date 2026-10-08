@@ -17,7 +17,7 @@ const targets=[
 ];
 const validate=(target,body)=>{
   if(target.kind==='html')return /<html/i.test(body)&&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/admin\.js/.test(body)&&/data-admin-open/.test(body)&&/Guest/.test(body)));
-  if(target.kind==='webp')return /^RIFF.{4}WEBP/.test(body);
+  if(target.kind==='webp')return body.slice(0,4)==='RIFF'&&body.slice(8,12)==='WEBP';
   if(target.kind==='svg')return /<svg[\s>]/i.test(body)&&/viewBox="0 0 64 64"/.test(body)&&/EDGE/.test(body);
   if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body);
   if(target.kind==='js')return body.length>1000&&!/^\s*<html/i.test(body);
