@@ -204,7 +204,7 @@
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
       +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
       +(visible.length?board:'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
-      +'<div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental TSO two-stage game-first-TD model (not calibrated). TSO PURITY is a separate 0–100 opportunity-quality index, not probability. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div>'
+      +'<div class="rg2-note">— means the exact statistic is unavailable. NFL TD usage: carry share = player / team carries; GL = share of opportunities inside 5 yards; RZ = share of carries + targets inside 20; yield = RZ TDs / RZ opportunities. 2025 1ST = first TDs scored / games played. These are TSO calculations from nflverse PBP, not the reference app’s proprietary scoring. FIRST % is an experimental uncalibrated NFL first-TD estimate. All TSO PURITY scores are separate 0–100 data-quality/opportunity consistency indexes, not probabilities; NBA/NHL/MLB depend on selected-market recent verified game logs. Estimates require verified 2025/2026 nflverse GSIS data and at least two 2026 player games. INTEL opens Deep Research.</div>'
       +'</section>';
   }
   function groupPlayers(rows){
@@ -275,6 +275,81 @@
       if(minutes!==null)values.push(minutes);
     }
     return values.length?+(values.reduce((a,b)=>a+b,0)/values.length).toFixed(2):null;
+  }
+  // Market-specific TSO Purity for non-NFL sports.
+  // A descriptive opportunity/consistency index, never a scoring chance.
+  // All factors below are derived from the selected player's verified
+  // historical game log / Statcast; no odds, model %, or fabricated defaults.
+  function otherSportPurity(game,p,sport){
+    const detail=getDetails(game,p);
+    const d=detail?.player||{},row=best(p);
+    if(!d||!row||!['nba','nhl','mlb'].includes(sport))return null;
+    const line=num(row.line);
+    if(line===null)return null;
+    const market=String(row.market||'');
+    const leagueMarkets={
+      nba:{points:'points',rebounds:'rebounds',assists:'assists',threes:'threes'},
+      nhl:{atg:'goals',sog:'sog',points:'points',assists:'assists',saves:'saves'},
+      mlb:{hr:'hr',hits:'h',rbi:'rbi',runs:'r',totalBases:'totalBases'}
+    };
+    const field=leagueMarkets[sport]?.[market];
+    if(!field)return null;
+    const games=sport==='mlb'?d.gameLog:d.recentGames;
+    if(!Array.isArray(games))return null;
+    const values=[],minutes=[];
+    for(const g of [...games].sort((a,b)=>(Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0))){
+      if(sport==='nba'&&g.usedInProjection===false)continue;
+      let value=sport==='mlb'?num(g[field]):num(g.stats?.[field]);
+      if(value===null)continue;
+      values.push(value);
+      if(sport==='nba'){
+        const time=num(g.minutes);
+        if(time!==null&&time>=0&&time<65)minutes.push(time);
+      }
+      if(sport==='nhl'){
+        const raw=g.stats?.toi||g.stats?.timeOnIce||g.toi;
+        let time=num(raw);
+        if(typeof raw==='string'&&/^\d{1,3}:\d{2}$/.test(raw)){
+          const [mm,ss]=raw.split(':').map(Number);
+          time=ss<60?mm+ss/60:null;
+        }
+        if(time!==null&&time>=0&&time<=70)minutes.push(time);
+      }
+      if(values.length===10)break;
+    }
+    if(values.length<5)return null;
+    const yes=String(row.side||'').toLowerCase()==='under';
+    const pushes=values.filter(x=>Math.abs(x-line)<1e-9).length;
+    const trials=values.length-pushes;
+    if(trials<5)return null;
+    const wins=values.filter(x=>yes?x<line:x>line).length;
+    const hitRate=100*wins/trials;
+    const mean=values.reduce((a,b)=>a+b,0)/values.length;
+    const sd=Math.sqrt(values.reduce((a,b)=>a+(b-mean)**2,0)/values.length);
+    const stability=100/(1+sd/Math.max(1,mean));
+    const clamp=v=>Math.max(0,Math.min(100,v));
+    const sampleScale=0.65+0.35*Math.min(values.length/10,1);
+    let strength=null;
+    if(sport==='nba'){
+      if(minutes.length<5)return null;
+      const minMean=minutes.reduce((a,b)=>a+b,0)/minutes.length;
+      strength=clamp(minMean/36*100);
+      return Math.round(clamp((0.45*hitRate+0.35*stability+0.20*strength)*sampleScale));
+    }
+    if(sport==='nhl'){
+      if(minutes.length<5)return null;
+      const avg=minutes.reduce((a,b)=>a+b,0)/minutes.length;
+      const deviation=Math.sqrt(minutes.reduce((a,b)=>a+(b-avg)**2,0)/minutes.length);
+      strength=100/(1+deviation/Math.max(1,avg));
+      return Math.round(clamp((0.45*hitRate+0.35*stability+0.20*strength)*sampleScale));
+    }
+    if(sport==='mlb'){
+      const hardHit=num(d.statcast?.hardHitPct),barrel=num(d.statcast?.barrelPct);
+      if(hardHit===null||barrel===null||hardHit<0||hardHit>100||barrel<0||barrel>100)return null;
+      const contact=clamp(hardHit),power=clamp(barrel/20*100);
+      return Math.round(clamp((0.45*hitRate+0.30*contact+0.25*power)*sampleScale));
+    }
+    return null;
   }
   // TSO experimental FIRST touchdown forecast (v0.1).
   // This is not a calibrated betting probability. The total probability
@@ -388,7 +463,7 @@
       case 'line':return num(r.line);
       case 'form':return val(m,['trendPct','formPct','form.score'])??val(r,['stats.formPct'])??(recentTdRate!==null&&seasonTdRate!==null?recentTdRate-seasonTdRate:null);
       case 'yield':return currentPbp?.redZoneTdYieldPct??val(m,['yieldPct','yield']);
-      case 'purity':return sport==='nfl'?tsoPurity(selectedGame,p):null;
+      case 'purity':return sport==='nfl'?tsoPurity(selectedGame,p):otherSportPurity(selectedGame,p,sport);
       case 'usage':return val(m,['usagePct','usage.usagePct','context.usagePct']);
       case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes'])??num(deep.recentAverages?.minutes)??recentMinutes(deep,sport);
       case 'toi':return val(m,['toi','usage.toi'])??num(deep.recentAverages?.toi)??recentMinutes(deep,sport);
@@ -431,7 +506,7 @@
       return fmt(value,0)+(games!==null&&games>0?'/'+fmt(games,0):'');
     }
     if(['prevTD','yearTD'].includes(key))return fmt(value,0);
-    if(key==='purity')return '<strong class="rg2-purity" title="Experimental TSO opportunity-quality index, 0–100. Weighted 30% goal-line share, 30% red-zone share, 20% position opportunity share, 20% red-zone touchdown yield, adjusted for sample size; not a probability.">'+fmt(value,0)+'/100</strong>';
+    if(key==='purity'){const notes={nfl:'Opportunity quality: goal-line share 30%, red-zone share 30%, position opportunity share 20%, red-zone TD yield 20%.',nba:'Selected exact-line last-10 hit rate 45%, production consistency 35%, recent minutes 20%.',nhl:'Selected exact-line last-10 hit rate 45%, production consistency 35%, time-on-ice stability 20%.',mlb:'Selected exact-line last-10 hit rate 45%, hard-hit percentage 30%, barrel percentage relative to 20% reference 25%.'};return '<strong class="rg2-purity" title="Experimental TSO Purity, 0–100 opportunity-quality index; not a probability. '+esc(notes[sport]||'')+' Sample-size adjusted.">'+fmt(value,0)+'/100</strong>';}
     if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">~'+percent(value)+'</strong><small class="rg2-experimental">EST.</small>';
     if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
     if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
@@ -452,9 +527,9 @@
     if(sport==='nfl'&&tab==='defense')return [['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
     if(sport==='nfl')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
-    if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
-    if(sport==='mlb')return [['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
-    return [['points','POINTS %'],['rebounds','REB %'],['assists','AST %'],['threes','3PT %'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
+    if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
+    if(sport==='mlb')return [['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
+    return [['points','POINTS %'],['rebounds','REB %'],['assists','AST %'],['threes','3PT %'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
   }
   function render(root,props){
     if(!root)return;
