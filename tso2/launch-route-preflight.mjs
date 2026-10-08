@@ -17,13 +17,13 @@ const targets=[
   {name:'TSO 2 Android app icon 192',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-app-icon-192.png',kind:'png'},
   {name:'TSO 2 Android app icon 512',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-app-icon-512.png',kind:'png'},
   {name:'TSO 2 iPhone app icon',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-apple-touch-icon-180.png',kind:'png'},
-  {name:'TSO 2 browser favicon',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-favicon.ico',kind:'ico'}
+  {name:'TSO 2 browser favicon',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/brand/production/tso2-favicon.ico',kind:'ico'},
   {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
 ];
 const validate=(target,body)=>{
   if(target.kind==='html')return /<html/i.test(body)&&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/admin\.js/.test(body)&&/data-admin-open/.test(body)&&/Guest/.test(body)));
   if(target.kind==='webp')return body.slice(0,4)==='RIFF'&&body.slice(8,12)==='WEBP';
-  if(target.kind==='png')return body.slice(0,8)==='\\x89PNG\\r\\n\\x1a\\n';
+  if(target.kind==='png')return body.slice(0,8)==='\x89PNG\r\n\x1a\n';
   if(target.kind==='ico')return body.charCodeAt(0)===0&&body.charCodeAt(1)===0&&body.charCodeAt(2)===1&&body.charCodeAt(3)===0;
   if(target.kind==='manifest'){
     try{
