@@ -15,6 +15,7 @@ on:
       - 'tso2/sidebar-polish-selftest.mjs'
       - 'tso2/launch-owner-auth-preflight.mjs'
       - 'tso2/notifications-selftest.mjs'
+      - 'tso2/research-lab-selftest.mjs'
       - 'tso2/app-icon-selftest.mjs'
       - 'tso2/manifest.webmanifest'
       - 'tso2/brand/asset-manifest.json'
@@ -55,6 +56,8 @@ jobs:
           node tso2/sidebar-polish-selftest.mjs
           node --check tso2/notifications-selftest.mjs
           node tso2/notifications-selftest.mjs
+          node --check tso2/research-lab-selftest.mjs
+          node tso2/research-lab-selftest.mjs
           node --check tso2/app-icon-selftest.mjs
           node tso2/app-icon-selftest.mjs
       - name: Verify owner-only API access is denied to anonymous visitors
