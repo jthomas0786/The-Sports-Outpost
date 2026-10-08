@@ -149,7 +149,8 @@ await new Promise(resolve=>setTimeout(resolve,1000));
 assert.match(enrichedRoot.innerHTML,/rg2-val-prevTD">13</,'Real 2025 TD value from deep research');
 assert.match(enrichedRoot.innerHTML,/rg2-val-yearTD">6</,'Real 2026 TD value from deep research');
 assert.match(enrichedRoot.innerHTML,/rg2-val-target">11\.8%/,'Real target share from deep research');
-assert.match(enrichedRoot.innerHTML,/rg2-val-role">RB1</,'Source-backed player role and depth');
+assert.match(enrichedRoot.innerHTML,/<small>RB1 - DAL<\/small>/,'Role and team share the player name cell');
+assert.doesNotMatch(enrichedRoot.innerHTML,/<th[^>]*>ROLE(?:\s|<)/,'No separate role column');
 
 assert.match(enrichedRoot.innerHTML,/rg2-val-prevFirst">3\/16/,'PBP-backed first TD count / 2025 games');
 assert.match(enrichedRoot.innerHTML,/rg2-val-gl">55%/,'PBP-backed goal-line share');
