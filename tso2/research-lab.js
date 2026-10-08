@@ -121,12 +121,12 @@
     state.sport=sports.includes(requested)?requested:'all';
     const allGames=(Array.isArray(props.games)?props.games:[]).filter(g=>state.sport==='all'||g.league===state.sport);
     games=orderGames(allGames).slice(0,60).map((g,i)=>({...g,_labId:gameId(g,i)}));
-    if(!games.some(g=>g._labId===state.gameId)){
+    if(state.gameId!=='all'&&!games.some(g=>g._labId===state.gameId)){
       const withMarkets=games.find(g=>(props.rows||[]).some(r=>rowGameMatch(r,g)));
       state.gameId=(withMarkets||games[0])?._labId||'';
     }
-    const selected=games.find(g=>g._labId===state.gameId)||null;
-    const options=htmlOptions=(items,label)=>'<option value="all">'+escapeHTML(label)+'</option>'+items.map(x=>'<option value="'+escapeHTML(x)+'">'+escapeHTML(x)+'</option>').join('');
+    const selected=state.gameId==='all'?null:(games.find(g=>g._labId===state.gameId)||null);
+    const htmlOptions=(items,label)=>'<option value="all">'+escapeHTML(label)+'</option>'+items.map(x=>'<option value="'+escapeHTML(x)+'">'+escapeHTML(x)+'</option>').join('');
     const marketValues=[...new Set((props.rows||[]).filter(r=>state.sport==='all'||r.sport===state.sport).map(r=>String(r.market||r.marketLabel||'')).filter(Boolean))].sort();
     const teams=[...new Set((props.rows||[]).filter(r=>state.sport==='all'||r.sport===state.sport).map(teamFor).filter(t=>t!=='—'))].sort();
     if(!marketValues.includes(state.market))state.market='all';
@@ -138,7 +138,7 @@
       '<div class="lab2-matchup lab2-matchup--empty"><b>All-sports Research Lab</b><span>Verified player props and modeled selections across NFL, NBA, MLB and NHL.</span></div>';
     root.innerHTML='<div class="lab2-top"><div><span class="lab2-eyebrow">TSO 2.0 · RESEARCH</span><h1>Research Lab</h1><p>Game-by-game research · exact sportsbook lines · verified model intelligence</p></div><div class="lab2-top-actions"><button data-lab-refresh type="button">↻ REFRESH</button><button data-lab-props type="button">PROP BOARD →</button></div></div>'
       +'<div class="lab2-sports" role="group" aria-label="Choose sport">'+sports.map(s=>'<button type="button" data-lab-sport="'+s+'" aria-pressed="'+(state.sport===s)+'" class="'+(state.sport===s?'is-active':'')+'">'+names[s]+'</button>').join('')+'</div>'
-      +'<div class="lab2-game-bar"><div class="lab2-game-heading"><b>GAME SELECTOR</b><button type="button" data-lab-all-games class="'+(!state.gameId?'is-active':'')+'">ALL GAMES</button></div><div class="lab2-game-list">'+gameMarkup+'</div></div>'
+      +'<div class="lab2-game-bar"><div class="lab2-game-heading"><b>GAME SELECTOR</b><button type="button" data-lab-all-games class="'+(state.gameId==='all'?'is-active':'')+'">ALL GAMES</button></div><div class="lab2-game-list">'+gameMarkup+'</div></div>'
       +matchup
       +'<section class="lab2-board"><div class="lab2-board-head"><div><span class="lab2-eyebrow">SOURCE-BACKED PLAYER INTELLIGENCE</span><h2>'+escapeHTML((selected?.league||state.sport)==='all'?'All Sports':names[selected?.league||state.sport]||'All Sports')+' Props Research</h2><p>Projection, probability, book, and edge appear only when verified for the exact pick.</p></div><div class="lab2-view" role="group" aria-label="Research view">'+['board','rank','lab'].map(v=>'<button data-lab-view="'+v+'" type="button" class="'+(state.view===v?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
       +'<div class="lab2-filters"><label class="lab2-search"><span>⌕</span><input type="search" data-lab-search placeholder="Search player, team, market or sportsbook" value="'+escapeHTML(state.query)+'" aria-label="Search research selections"></label>'
@@ -156,7 +156,7 @@
       if(!target||!root.contains(target))return;
       if(target.hasAttribute('data-lab-sport')){state.gameId='';state.market='all';state.team='all';props.changeLeague?.(target.dataset.labSport);return}
       if(target.hasAttribute('data-lab-game')){state.gameId=target.dataset.labGame;state.team='all';state.market='all';render(root,context);return}
-      if(target.hasAttribute('data-lab-all-games')){state.gameId='';const g=games;render(root,context);state.gameId='';const all=root.querySelector('[data-lab-all-games]');if(all)all.classList.add('is-active');root.querySelectorAll('[data-lab-game]').forEach(b=>{b.classList.remove('is-active');b.setAttribute('aria-pressed','false')});const matchupNode=root.querySelector('.lab2-matchup');if(matchupNode)matchupNode.innerHTML='<b>ALL GAMES · '+escapeHTML(names[state.sport]||'ALL SPORTS')+'</b><span>Showing all verified selections for this sport</span>';drawTable(root);return}
+      if(target.hasAttribute('data-lab-all-games')){state.gameId='all';state.market='all';state.team='all';render(root,context);return}
       if(target.hasAttribute('data-lab-view')){state.view=target.dataset.labView;root.querySelectorAll('[data-lab-view]').forEach(b=>b.classList.toggle('is-active',b===target));drawTable(root);return}
       if(target.hasAttribute('data-lab-sort')){const key=target.dataset.labSort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='player'}drawTable(root);return}
       if(target.hasAttribute('data-lab-detail')){props.openDetail?.(visibleRows[Number(target.dataset.labDetail)]);return}
