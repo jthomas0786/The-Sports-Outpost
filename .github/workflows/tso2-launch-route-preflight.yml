@@ -12,6 +12,8 @@ on:
       - 'tso2/auth-ui-selftest.mjs'
       - 'tso2/admin.js'
       - 'tso2/admin-ui-selftest.mjs'
+      - 'tso2/sidebar-polish-selftest.mjs'
+      - 'tso2/brand/production/tso2-product-game-edge-approved.svg'
       - '.github/workflows/tso2-launch-route-preflight.yml'
   workflow_dispatch:
     inputs:
@@ -39,6 +41,8 @@ jobs:
           node tso2/auth-ui-selftest.mjs
           node --check tso2/admin-ui-selftest.mjs
           node tso2/admin-ui-selftest.mjs
+          node --check tso2/sidebar-polish-selftest.mjs
+          node tso2/sidebar-polish-selftest.mjs
       - name: Probe current production and staging frontend/API routes
         env:
           TSO2_PREVIEW_URL: https://staging.thesportsoutpost.com
