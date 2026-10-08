@@ -65,3 +65,22 @@ Keep GitHub as source of truth. Run a **pinned TSO 2.0 Cloudflare Worker deploym
 7. If critical checks fail, restore the captured 1.0 routing and DNS records or GitHub Pages mapping. Account for DNS TTL. Run the smoke checks again and keep 2.0 in staging.
 
 **Do not change the production domain before the owner approves the validated, pinned release.**
+
+
+## Frozen candidate (October 8, 2026)
+
+- Preview (moving development branch): `https://staging.thesportsoutpost.com` → Cloudflare Worker `tso2-preview`.
+- **Pinned launch candidate:** `https://release.thesportsoutpost.com` → separate Worker `tso2-release-candidate`, frontend assets frozen at Git commit `ea955ebbb49e2003d54eac96381e1ae39f6077f4`.
+- The candidate intentionally retains `X-Robots-Tag: noindex, nofollow` while in prelaunch. Remove for public pages **before** or during an explicitly approved production deployment; preserve noindex for private staging hosts.
+- Live NFL model JSON remains branch-specific at `tso-2.0-restructure/tso2/data/nfl-sim.json`, not `main`. The released frontend is immutable; validated model data is independently refreshable.
+- The domain is now active in the Cloudflare account containing TSO 2.0 Workers; original GitHub Pages A records and `www` CNAME remain DNS-only, with Porkbun MX and TXT records preserved.
+- `.github/workflows/tso2-launch-route-preflight.yml` probes staging **and** frozen release candidate for HTML, CSS, JS, live API, and branch-specific props/model metadata.
+- Before approval, inspect the last successful workflow result, verify user account flows and notifications, and manually test both mobile and desktop on **release** (not just staging).
+
+### Apex and www strategy / rollback
+
+Apex `thesportsoutpost.com` currently has four DNS-only GitHub Pages A records:
+`185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`.
+`www.thesportsoutpost.com` has a DNS-only CNAME to `jthomas0786.github.io`.
+Retain a record of DNS IDs and values before a cutover. Custom domain attachment may replace conflicting website DNS records. Plan apex and `www` together (custom domain plus redirect or separate custom-domain attachment) so users never see mixed TSO versions.
+For emergency rollback, detach the TSO 2.0 custom-domain mapping and restore the four GitHub Pages A records and `www` CNAME exactly as captured; verify both HTTPS hosts and the legacy page. Do not change MX, SPF, or ACME TXT records.
