@@ -22,7 +22,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Probe current production and preview frontend/API routes
+      - name: Probe current production and staging frontend/API routes
         env:
-          TSO2_PREVIEW_URL: ${{ inputs.preview_url || 'https://staging.thesportsoutpost.com' }}
+          TSO2_PREVIEW_URL: https://staging.thesportsoutpost.com
+        run: node tso2/launch-route-preflight.mjs
+      - name: Probe pinned TSO 2.0 release candidate frontend/API routes
+        env:
+          TSO2_PREVIEW_URL: https://release.thesportsoutpost.com
         run: node tso2/launch-route-preflight.mjs
