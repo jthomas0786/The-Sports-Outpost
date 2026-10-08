@@ -175,6 +175,61 @@ assert.match(enrichedRoot.innerHTML,/rg2-val-rz">44\.9%/,'PBP-backed red-zone sh
 assert.match(enrichedRoot.innerHTML,/rg2-val-yield">27\.3%/,'PBP-backed red-zone TD yield');
 assert.match(enrichedRoot.innerHTML,/rg2-val-firstTd"><span class="rg2-na"/,'Predictive First TD missing without a verified model');
 
+// NFL ANYTIME TD research must distinguish model forecasts, the exact
+// bookmaker's implied percentage (including vig), and verified historical
+// game-log touchdown occurrence. No rate may be silently mislabeled a model.
+{
+  const g={id:'td-source-fixture',league:'nfl',state:'pre',startTime:schedule,
+    away:{abbr:'TB',name:'Tampa Bay Buccaneers'},
+    home:{abbr:'DAL',name:'Dallas Cowboys'}};
+  const picks=[
+    {...row('nfl','modeled-atd','Model Player','DAL','TB','atd',43.7),
+      team:'DAL',price:-110,impliedPct:52.4},
+    {...row('nfl','market-atd','Market Player','DAL','TB','atd',null),
+      team:'DAL',price:180,impliedPct:35.7},
+    {...row('nfl','historical-atd','History Player','DAL','TB','atd',null),
+      team:'DAL',price:null,impliedPct:null,model:null},
+    {...row('nfl','missing-atd','No Data Player','DAL','TB','atd',null),
+      team:'DAL',price:null,impliedPct:null,model:null}
+  ];
+  const ctx={window:{},URLSearchParams,setTimeout,console,
+    fetch:async url=>{
+      const value=String(url);
+      if(value.includes('nfl-td-opportunities.json'))
+        return {ok:false,status:503};
+      const params=new URL('https://fixture.test'+value).searchParams;
+      const name=params.get('name');
+      const games=name==='History Player'?[
+        {date:'2026-10-06',tds:1},{date:'2026-09-29',tds:0},
+        {date:'2026-09-22',tds:1},{date:'2026-09-15',tds:0},
+        {date:'2026-09-08',tds:1}
+      ]:[];
+      return {ok:true,json:async()=>({
+        available:true,player:{name,team:'DAL',position:'RB',gameLog:games}
+      })};
+    }};
+  vm.runInNewContext(app.slice(0,seam),ctx);
+  const flow=ctx.window.TSO2ResearchGameFlow;
+  const root={innerHTML:'',isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null}};
+  flow.render(root,{league:'nfl',games:[g],rows:picks});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:'nfl|td-source-fixture|TB|DAL|'+schedule}})}});
+  await new Promise(resolve=>setTimeout(resolve,1100));
+  assert.match(root.innerHTML,/ANYTIME TD %/,'Exact NFL touchdown column label');
+  assert.match(root.innerHTML,/rg2-atd--model">43\.7%<\/strong><small>MODEL/,
+    'A validated exact model outranks other odds and game logs');
+  assert.match(root.innerHTML,/rg2-atd--market">35\.7%<\/strong><small>MARKET/,
+    'Exact sportsbook-implied price is labeled MARKET, not MODEL');
+  assert.match(root.innerHTML,/rg2-atd--history">60%<\/strong><small>HIST · 5G/,
+    'Three actual touchdown games out of five show 60%, clearly historical');
+  assert.match(root.innerHTML,/HIST: actual TD game rate \(not a prediction\)/,
+    'The source legend prohibits interpreting historical hit rate as a forecast');
+  assert.match(root.innerHTML,/No Data Player[\s\S]*?rg2-val-atd"><span class="rg2-na"/,
+    'Absent sources remain unavailable and are not fabricated');
+  assert.doesNotMatch(root.innerHTML,/rg2-atd--history">100%/,
+    'No guaranteed touchdown probability inferred from historical outcomes');
+}
+
 // Verified NBA, NHL and MLB game logs fill historical L5 hit rates. These
 // rates are NOT model win probabilities and never replace model percentages.
 for(const sportCase of [
