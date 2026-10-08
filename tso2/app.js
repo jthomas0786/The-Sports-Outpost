@@ -198,7 +198,7 @@
     return header+'<section class="rg2-detail">'
       +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
       +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
-      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">THE OUTPOST LAB · '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' Research</h2><p>One player per row with sport-specific research signals. Exact verified models only.</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this game</small></div></div>'
+      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">THE OUTPOST LAB · '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' Research</h2><p>Verified player statistics and markets · experimental TSO estimates clearly marked.</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this game</small></div></div>'
       +'<div class="rg2-searchbar"><label class="rg2-find"><span>⌕</span><input data-rg2-search type="search" placeholder="Search players or stats" value="'+esc(state.query)+'" aria-label="Filter players"></label>'
       +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
       +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
@@ -285,6 +285,8 @@
     if(game?.league!=='nfl'||game.state!=='pre')return null;
     const doc=pbpState.data;
     const past=doc?.seasons?.['2025'],current=doc?.seasons?.['2026'];
+    const sourceAge=Date.parse(doc?.generatedAt||'');
+    if(!Number.isFinite(sourceAge)||Date.now()-sourceAge>10*24*3600*1000)return null;
     if(!past?.teams||!current?.teams||!Number.isFinite(Number(past.offensiveFirstTdGames))
       ||!Number.isFinite(Number(current.offensiveFirstTdGames)))return null;
     const detail=getDetails(game,player)?.player||{};
