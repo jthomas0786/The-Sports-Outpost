@@ -1,181 +1,246 @@
-/* TSO 2.0 research board: verified feeds only, shared across all four sports. */
+/* TSO 2.0 · game-first research, inspired by the approved video.
+ * Presentation is native to the existing Outpost 2.0 broadcast shell.
+ * All numeric values must originate in verified game/props/model data.
+ */
 (() => {
   'use strict';
-  const sports=['all','nfl','nba','mlb','nhl'];
-  const names={all:'ALL SPORTS',nfl:'NFL',nba:'NBA',mlb:'MLB',nhl:'NHL'};
-  const state={gameId:'all',sport:'all',view:'lab',market:'all',team:'all',model:'all',query:'',sort:'edge',descending:true};
-  let context=null,visibleRows=[],games=[];
-  const escapeHTML=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const valid=x=>x!==null&&x!==undefined&&x!==''&&Number.isFinite(Number(x));
-  const number=x=>valid(x)?Number(x):null;
-  const fixed=(x,d=1)=>number(x)===null?'—':Number(x).toFixed(d).replace(/\.0$/,'');
-  const pct=x=>number(x)===null?'—':fixed(x,1)+'%';
-  const posneg=x=>number(x)===null?'—':(Number(x)>0?'+':'')+fixed(x,1)+' pp';
-  const price=x=>number(x)===null?'—':(Number(x)>0?'+':'')+Math.round(Number(x));
-  const abbr=x=>String(x??'').trim().toUpperCase();
-  const time=x=>{const t=Date.parse(x||'');return Number.isFinite(t)?new Intl.DateTimeFormat(undefined,{weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(t)):'Time pending';};
-  const sourceTime=x=>{const t=Date.parse(x||'');return Number.isFinite(t)?'Updated '+new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(t)):'Timestamp unavailable';};
-  const identity=x=>[abbr(x?.away?.abbr||x?.awayTeam),abbr(x?.home?.abbr||x?.homeTeam)].join('|');
-  const gameId=(g,i)=>String(g?.id||'')+'|'+identity(g)+'|'+String(g?.startTime||'')+'|'+i;
-  const orderGames=arr=>[...arr].sort((a,b)=>({in:0,pre:1,post:2}[a.state]??3)-({in:0,pre:1,post:2}[b.state]??3)||((Date.parse(a.startTime||'')||0)-(Date.parse(b.startTime||'')||0)));
-  const matchedModel=r=>valid(r?.model?.probabilityPct);
-  const marketName=r=>String(r?.marketLabel||r?.market||'Market').trim();
-  const sideText=r=>String(r?.selection||(['atd','atg','fgs','hr'].includes(String(r?.market||'').toLowerCase()) && r.side!=='under'?'YES':(r.side==='under'?'UNDER':'OVER')+(valid(r.line)?' '+r.line:'')));
-  const keyFor=r=>String(r?.key||'')+'|'+String(r?.player||'')+'|'+String(r?.market||'');
-  const rowGameMatch=(r,g)=>{
-    if(!g)return true;
-    const home=abbr(g.home?.abbr),away=abbr(g.away?.abbr);
-    const rowHome=abbr(r.homeTeam),rowAway=abbr(r.awayTeam),team=abbr(r.team);
-    if(rowHome&&rowAway)return (rowHome===home&&rowAway===away)||(rowHome===away&&rowAway===home);
-    return !!team&&(team===home||team===away);
+  const leagues=['all','nfl','nba','mlb','nhl'];
+  const labels={all:'ALL SPORTS',nfl:'NFL',nba:'NBA',mlb:'MLB',nhl:'NHL'};
+  const categories={
+    nfl:[['td','TDs',['atd','firstTd']],['receiving','Receiving',['recYds','receptions']],['rushing','Rushing',['rushYds']],['passing','Passing',['passYds','passTds','completions']],['all','All Props',null]],
+    nba:[['points','Points',['points']],['rebounds','Rebounds',['rebounds']],['assists','Assists',['assists']],['threes','Threes',['threes']],['all','All Props',null]],
+    mlb:[['hitters','Hitters',['hr','hits','totalBases','tb','rbi','runs','stolenBases']],['hr','Home Runs',['hr']],['pitching','Pitching',['strikeouts','pitcherStrikeouts','outsRecorded']],['all','All Props',null]],
+    nhl:[['goals','Goals',['atg','fgs']],['shots','Shots on Goal',['sog']],['points','Points',['points','assists']],['goalies','Goalies',['saves']],['all','All Props',null]]
   };
-  const teamFor=r=>abbr(r?.team)||'—';
-  const sportRow=r=>names[r?.sport]||abbr(r?.sport)||'SPORT';
-  const sortMetric=(r,sort)=>({
-    edge:number(r.model?.edgePct),model:number(r.model?.probabilityPct),
-    market:number(r.impliedPct),price:number(r.price),line:number(r.line),
-    projected:number(r.model?.projection?.mean??r.model?.projection?.median),
-    books:number(r.bookCount),player:String(r.player||'').toLowerCase()
-  }[sort]??null);
-  const metric=(r,field)=>{
-    if(field==='player')return '<span class="lab2-player">'+(r.headshotUrl?'<img src="'+escapeHTML(r.headshotUrl)+'" alt="" loading="lazy" data-player-headshot>':'<span class="lab2-avatar">'+escapeHTML(String(r.player||'?').trim().charAt(0))+'</span>')+
-      '<span><b>'+escapeHTML(r.player||'Player')+'</b><small>'+escapeHTML(teamFor(r))+' · '+escapeHTML(sportRow(r))+'</small></span></span>';
-    if(field==='selection')return '<span class="lab2-selection"><b>'+escapeHTML(marketName(r))+'</b><small>'+escapeHTML(sideText(r))+'</small></span>';
-    if(field==='model')return matchedModel(r)?'<strong class="lab2-cell-accent">'+pct(r.model.probabilityPct)+'</strong>':'<span class="lab2-unavailable">—</span>';
-    if(field==='market')return pct(r.impliedPct);
-    if(field==='edge')return matchedModel(r)&&valid(r.model?.edgePct)?'<strong class="'+(Number(r.model.edgePct)>=0?'lab2-positive':'lab2-negative')+'">'+posneg(r.model.edgePct)+'</strong>':'—';
-    if(field==='projected')return fixed(r.model?.projection?.mean??r.model?.projection?.median,2);
-    if(field==='line')return valid(r.line)?escapeHTML(r.line):escapeHTML(sideText(r));
-    if(field==='price')return '<b>'+price(r.price)+'</b>';
-    if(field==='book')return escapeHTML(r.book||'—');
-    if(field==='books')return valid(r.bookCount)?escapeHTML(r.bookCount):escapeHTML(r.books?.length||'—');
-    if(field==='source')return '<span class="lab2-source" title="'+escapeHTML(String(r.model?.sourceLabel||r.model?.source||r.snapshotTime||''))+'">'+escapeHTML(matchedModel(r)?(r.model.sourceLabel||r.model.source||'Verified model'):'Market only')+'</span>';
-    if(field==='role')return escapeHTML(r.position||r.role||'—');
-    const extras={
-      nfl:{'usage':r.model?.usage?.snapPct??r.research?.snapPct,'sport2':r.model?.usage?.redZonePct??r.research?.redZonePct},
-      nba:{'usage':r.model?.usage?.minutes??r.research?.minutes,'sport2':r.model?.usage?.usagePct??r.research?.usagePct},
-      mlb:{'usage':r.model?.contact?.barrelPct??r.research?.barrelPct,'sport2':r.model?.contact?.hardHitPct??r.research?.hardHitPct},
-      nhl:{'usage':r.model?.usage?.toi??r.research?.toi,'sport2':r.model?.usage?.shotsPerGame??r.research?.shotsPerGame}
-    };
-    let value=extras[r.sport]?.[field];
-    if(!valid(value))return '<span class="lab2-unavailable" title="Not verified for this exact selection">—</span>';
-    return escapeHTML(fixed(value,1)+(field==='sport2'&&r.sport!=='nhl'?'%':field==='usage'&&['nfl','mlb'].includes(r.sport)?'%':''));
-  };
-  const fieldsFor=s=>{
-    const columns=[['player','PLAYER'],['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTED'],['line','LINE'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
-    const extra={
-      nfl:[['usage','SNAPS %'],['sport2','RZ %']],
-      nba:[['usage','MINUTES'],['sport2','USAGE %']],
-      mlb:[['usage','BARREL %'],['sport2','HARD HIT %']],
-      nhl:[['usage','TOI'],['sport2','SHOTS / GAME']]
-    };
-    if(extra[s])columns.splice(7,0,...extra[s]);
-    columns.push(['books','BOOKS'],['source','MODEL SOURCE']);
-    return columns;
-  };
-  const gameTeam=(team,label)=>{
-    const image=team?.logo?'<img src="'+escapeHTML(team.logo)+'" alt="" loading="lazy" data-team-logo>':'<span class="lab2-team-fallback">'+escapeHTML(team?.abbr||label)+'</span>';
-    return '<span class="lab2-team">'+image+'<span><small>'+escapeHTML(team?.abbr||label)+'</small><strong>'+escapeHTML(team?.name||team?.abbr||label)+'</strong></span></span>';
-  };
-  function drawTable(root){
-    if(!root||!context)return;
-    const rows=(context.rows||[]);
-    const selected=games.find(g=>g._labId===state.gameId)||null;
-    let filtered=rows.filter(r=>
-      (state.sport==='all'||r.sport===state.sport)
-      &&(!selected||rowGameMatch(r,selected))
-      &&(state.market==='all'||String(r.market||r.marketLabel)===state.market)
-      &&(state.team==='all'||teamFor(r)===state.team)
-      &&(state.model!=='matched'||matchedModel(r))
-      &&(state.model!=='market'||!matchedModel(r))
-      &&(state.view!=='rank'||matchedModel(r))
-      &&(!state.query||[r.player,r.team,r.market,r.marketLabel,r.book,r.homeTeam,r.awayTeam,sideText(r)].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase()))
-    );
-    filtered.sort((a,b)=>{
-      const x=sortMetric(a,state.sort),y=sortMetric(b,state.sort);
-      if(x==null&&y!=null)return 1;
-      if(x!=null&&y==null)return -1;
-      let cmp=(typeof x==='string'||typeof y==='string')?String(x??'').localeCompare(String(y??'')):(Number(x||0)-Number(y||0));
-      return (state.descending?-1:1)*cmp || String(a.player||'').localeCompare(String(b.player||''));
-    });
-    visibleRows=filtered.slice(0,180);
-    const sport=state.sport==='all'?(selected?.league||'all'):state.sport;
-    const fields=fieldsFor(sport);
-    const table=root.querySelector('[data-lab-table]');
-    if(table){
-      table.innerHTML='<table><thead><tr>'+fields.map(([k,title])=>'<th scope="col">'+
-        (['player','model','market','projected','line','edge','price','books'].includes(k)?'<button type="button" data-lab-sort="'+k+'" aria-label="Sort by '+escapeHTML(title)+'">'+escapeHTML(title)+' <i>'+((state.sort===k)?(state.descending?'↓':'↑'):'↕')+'</i></button>':escapeHTML(title))+'</th>').join('')+
-        '<th scope="col">ACTION</th></tr></thead><tbody>'+visibleRows.map((r,i)=>'<tr class="'+(matchedModel(r)?'is-modeled':'is-market')+'">'+fields.map(([k])=>'<td data-label="'+escapeHTML(fields.find(f=>f[0]===k)?.[1])+'">'+metric(r,k)+'</td>').join('')+
-        '<td class="lab2-actions"><button type="button" data-lab-add="'+i+'" aria-label="Add '+escapeHTML(r.player)+' to parlay">+ ADD</button><button type="button" data-lab-detail="'+i+'" aria-label="Research '+escapeHTML(r.player)+'">INTEL</button></td></tr>').join('')+'</tbody></table>';
-      if(!filtered.length)table.innerHTML='<div class="lab2-empty"><b>No verified selections match these filters.</b><span>'+escapeHTML(selected?'Try a different game, market or sport.':'Choose another sport or wait for a verified feed update.')+'</span></div>';
+  const primary={nfl:'td',nba:'points',mlb:'hitters',nhl:'goals'};
+  const state={league:null,stage:'games',gameKey:'',tab:'',view:'lab',sort:'model',descending:true,query:'',team:'all',role:'all'};
+  let ctx=null,gameList=[],visible=[];
+  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const num=v=>v===null||v===undefined||v===''||!Number.isFinite(Number(v))?null:Number(v);
+  const fmt=(v,d=1)=>num(v)===null?'—':Number(v).toFixed(d).replace(/\.0$/,'');
+  const percent=v=>num(v)===null?'—':fmt(v)+'%';
+  const edge=v=>num(v)===null?'—':(Number(v)>0?'+':'')+fmt(v)+' pp';
+  const odds=v=>num(v)===null?'—':(Number(v)>0?'+':'')+fmt(v,0);
+  const up=v=>String(v??'').toUpperCase().trim();
+  const slug=v=>up(v).replace(/[^A-Z0-9]/g,'');
+  const day=v=>{const x=Date.parse(v||'');return Number.isFinite(x)?new Intl.DateTimeFormat(undefined,{weekday:'short',hour:'numeric',minute:'2-digit'}).format(new Date(x)):'Time TBD'};
+  const sameName=(a,b)=>!!a&&!!b&&(slug(a)===slug(b)||((String(a).trim().split(/\s+/).length>1 || String(b).trim().split(/\s+/).length>1)&&slug(a).endsWith(slug(b))&&slug(b).length>=5)|| (slug(b).endsWith(slug(a))&&slug(a).length>=5));
+  const oneOf=(v,team)=>!!v&&!!team&&(sameName(v,team.abbr)||sameName(v,team.name)||sameName(v,team.displayName));
+  const id=g=>[String(g.league||''),String(g.id||''),up(g.away?.abbr),up(g.home?.abbr),String(g.startTime||'')].join('|');
+  const relevance=(g,r)=>{
+    if(!g||g.league!==r.sport)return false;
+    const eid=String(r.eventId||'').trim(),gid=String(g.id||'').trim();
+    // IDs are authoritative only when they originate from the same fixture source.
+    if(eid&&gid&&eid===gid)return true;
+    const home=String(r.homeTeam||''),away=String(r.awayTeam||'');
+    if(!home||!away)return false;
+    if(!((oneOf(home,g.home)&&oneOf(away,g.away))||(oneOf(home,g.away)&&oneOf(away,g.home))))return false;
+    if(r.commenceTime&&g.startTime){
+      const drift=Math.abs(Date.parse(r.commenceTime)-Date.parse(g.startTime));
+      if(Number.isFinite(drift)&&drift>36*60*60*1000)return false;
     }
-    const count=root.querySelector('[data-lab-count]');
-    if(count)count.textContent=visibleRows.length+' of '+filtered.length+' exact selections';
-    const modeled=root.querySelector('[data-lab-modeled]');
-    if(modeled)modeled.textContent=filtered.filter(matchedModel).length+' exact model matches';
+    return true;
+  };
+  const mode=r=>num(r?.model?.probabilityPct);
+  const validModel=r=>mode(r)!==null;
+  const rowName=r=>up(r.market);
+  const yes=r=>['yes','over'].includes(String(r.side||'').toLowerCase())||String(r.selection||'').toUpperCase()==='YES';
+  const choose=rows=>[...rows].sort((a,b)=>(validModel(b)?1:0)-(validModel(a)?1:0)
+    || (num(b?.model?.edgePct)??-999)-(num(a?.model?.edgePct)??-999)
+    || String(a.player||'').localeCompare(String(b.player||'')))[0];
+  const forMarket=(rows,market,onlyYes=false)=>choose(rows.filter(r=>rowName(r)===up(market)&&(!onlyYes||yes(r))))||null;
+  const project=r=>num(r?.model?.projection?.mean??r?.model?.projection?.median??r?.model?.projectedValue);
+  const val=(obj,keys)=>{for(const key of keys){const parts=key.split('.');let x=obj;for(const p of parts)x=x?.[p];if(num(x)!==null)return num(x)}return null};
+  const gameLine=(g)=>ctx?.lineFor?.(g)||g.gameLines||null;
+  function markets(g){
+    const l=gameLine(g),p=l?.puckLine||l?.spread;
+    const spread=l?.puckLine?(p?.favoriteAbbr&&num(p.line)!==null?String(p.favoriteAbbr)+' '+(Number(p.line)>0?'+':'')+fmt(p.line):'—')
+      :p?.home&&num(p.home.point)!==null?up(g.home?.abbr)+' '+(Number(p.home.point)>0?'+':'')+fmt(p.home.point)
+      :p?.away&&num(p.away.point)!==null?up(g.away?.abbr)+' '+(Number(p.away.point)>0?'+':'')+fmt(p.away.point):'—';
+    const total=l?.total&&num(l.total.line)!==null?fmt(l.total.line):'—';
+    const money=l?.moneyline?(num(l.money.homeBest??l.money.home?.price)!==null?up(g.home?.abbr)+' '+odds(l.money.homeBest??l.money.home?.price):'—'):'—';
+    return {spread,total,money};
+  }
+  function team(gteam,cls=''){
+    const image=gteam?.logo?'<img data-team-logo alt="" src="'+esc(gteam.logo)+'" loading="lazy">':'<span>'+esc(gteam?.abbr||'—')+'</span>';
+    return '<span class="rg2-team '+cls+'"><span class="rg2-logo">'+image+'</span><span class="rg2-team-copy"><b>'+esc(gteam?.abbr||'—')+'</b><small>'+esc(gteam?.name||'')+'</small></span></span>';
+  }
+  function cards(){
+    const html=gameList.map(g=>{
+      const m=markets(g),live=g.state==='in',final=g.state==='post';
+      return '<button type="button" class="rg2-game-card '+(live?'rg2-live':'')+'" data-rg2-game="'+esc(id(g))+'">'
+        +'<div class="rg2-game-card-top"><span>'+esc(labels[g.league]||up(g.league))+' · '+esc(live?'LIVE':final?'FINAL':day(g.startTime))+'</span><strong>'+(live?'● LIVE':final?'FINAL':'OPEN GAME →')+'</strong></div>'
+        +'<div class="rg2-card-matchup">'+team(g.away,'rg2-away')+'<span class="rg2-card-score">'+(g.state==='pre'?'@':esc(String(g.away?.score??'—')+' – '+String(g.home?.score??'—')))+'</span>'+team(g.home,'rg2-home')+'</div>'
+        +'<div class="rg2-game-lines"><span><small>SPREAD</small><b>'+esc(m.spread)+'</b></span><span><small>TOTAL</small><b>'+esc(m.total)+'</b></span><span><small>MONEYLINE</small><b>'+esc(m.money)+'</b></span></div>'
+        +'<div class="rg2-game-foot"><small>'+esc(g.venue||'Matchup research')+'</small><b>RESEARCH GAME →</b></div>'
+      +'</button>';
+    }).join('');
+    return '<div class="rg2-heading"><div><span class="rg2-kicker">THE SPORTS OUTPOST · RESEARCH</span><h1>Game Research</h1><p>Pick a game to open its player research lab.</p></div><button type="button" class="rg2-refresh" data-rg2-refresh>↻ REFRESH</button></div>'
+      +'<div class="rg2-filter-row"><div class="rg2-leagues" role="group" aria-label="Sports">'+leagues.map(k=>'<button type="button" data-rg2-league="'+k+'" class="'+(k===state.league?'is-active':'')+'" aria-pressed="'+(k===state.league)+'">'+esc(labels[k])+'</button>').join('')+'</div><span class="rg2-count">'+gameList.length+' game'+(gameList.length===1?'':'s')+' in the current slate</span></div>'
+      +'<section class="rg2-game-section"><div class="rg2-section-header"><span>'+esc(state.league==='nfl'?'THIS WEEK’S GAMES':state.league==='all'?'CURRENT GAMES':'AVAILABLE GAMES')+'</span><small>Choose a matchup to see player data</small></div>'
+      +(gameList.length?'<div class="rg2-cards">'+html+'</div>':'<div class="rg2-empty"><b>No games currently listed for '+esc(labels[state.league])+'.</b><span>Check another sport or refresh when the next slate is published. No simulated games are shown.</span></div>')
+      +'</section>';
+  }
+  function detail(){
+    const g=gameList.find(x=>id(x)===state.gameKey);
+    if(!g){state.stage='games';return cards()}
+    const m=markets(g),all=ctx.rows||[];
+    const actual=all.filter(r=>relevance(g,r));
+    const tabs=categories[g.league]||[['all','All Props',null]];
+    if(!tabs.some(t=>t[0]===state.tab)){state.tab=primary[g.league]||'all';state.sort=g.league==='nfl'?'atd':g.league==='mlb'?'hr':g.league==='nhl'?'atg':'points';}
+    const active=tabs.find(t=>t[0]===state.tab)||tabs[0];
+    const filtered=active[2]?actual.filter(r=>active[2].includes(r.market)):actual;
+    const roleChoices=[...new Set(filtered.map(r=>String(r.position||r.role||'').trim()).filter(Boolean))].sort();
+    const selection=filtered.filter(r=>(state.team==='all'||up(r.team)===state.team||(state.team===up(g.away?.abbr)&&oneOf(r.team,g.away))||(state.team===up(g.home?.abbr)&&oneOf(r.team,g.home)))
+      &&(state.role==='all'||String(r.position||r.role||'')===state.role)
+      &&(!state.query||[r.player,r.team,r.market,r.marketLabel].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase())));
+    const players=state.tab==='all'?selection.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selection);
+    const cols=columns(g.league,state.tab);
+    const sortValue=p=>cellRaw(p,state.sort,g.league);
+    players.sort((a,b)=>{const x=sortValue(a),y=sortValue(b);if(x===null&&y!==null)return 1;if(x!==null&&y===null)return -1;
+      const cmp=typeof x==='string'||typeof y==='string'?String(x||'').localeCompare(String(y||'')):(Number(x||0)-Number(y||0));
+      return (state.descending?-1:1)*cmp||String(a.name).localeCompare(String(b.name))});
+    visible=players.slice(0,180);
+    const modeInfo=actual.filter(r=>validModel(r)).length;
+    const ticker=gameList.filter(v=>v.league===g.league).map(v=>'<button type="button" data-rg2-game="'+esc(id(v))+'" class="'+(id(v)===state.gameKey?'is-active':'')+'">'+esc(up(v.away?.abbr))+' @ '+esc(up(v.home?.abbr))+' <small>'+esc(v.state==='pre'?day(v.startTime):v.state==='in'?'LIVE':'FINAL')+'</small></button>').join('');
+    const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← ALL GAMES</button><span class="rg2-kicker">'+esc(labels[g.league])+' · MATCHUP RESEARCH</span></div>'
+      +'<div class="rg2-matchup-strip"><div class="rg2-matchup-teams">'+team(g.away)+ '<span class="rg2-at">'+(g.state==='pre'?'@':esc(String(g.away?.score??'—')+' – '+String(g.home?.score??'—')))+'</span>'+team(g.home)+'</div>'
+      +'<div class="rg2-matchup-markets"><span><small>SPREAD</small><strong>'+esc(m.spread)+'</strong></span><span><small>TOTAL</small><strong>'+esc(m.total)+'</strong></span><span><small>MONEYLINE</small><strong>'+esc(m.money)+'</strong></span><span><small>'+esc(g.state==='in'?'LIVE':g.state==='post'?'FINAL':'START')+'</small><strong>'+esc(day(g.startTime))+'</strong></span></div></div>'
+      +'<div class="rg2-game-rail" role="group" aria-label="Choose another game">'+ticker+'</div>';
+    const choices=(values,label,current)=>'<option value="all">'+esc(label)+'</option>'+values.map(v=>'<option value="'+esc(v)+'" '+(v===current?'selected':'')+'>'+esc(v)+'</option>').join('');
+    const board=state.view==='board'?'<div class="rg2-player-grid">'+visible.map((p,i)=>'<article class="rg2-player-card">'+playerTitle(p)+'<div class="rg2-player-card-number"><small>MODEL</small><b>'+metric(p,'model',g.league)+'</b></div><div class="rg2-player-card-values"><span>MARKET '+metric(p,'market',g.league)+'</span><span>EDGE '+metric(p,'edge',g.league)+'</span></div><button type="button" data-rg2-intel="'+i+'">DEEP RESEARCH →</button></article>').join('')+'</div>'
+      :'<div class="rg2-table-scroll" role="region" tabindex="0" aria-label="'+esc(labels[g.league])+' research table; scroll horizontally for all columns"><table class="rg2-table"><thead><tr><th scope="col">PLAYER</th>'+cols.map(([key,label])=>'<th scope="col"><button type="button" data-rg2-sort="'+key+'">'+esc(label)+' <i>'+(key===state.sort?(state.descending?'↓':'↑'):'↕')+'</i></button></th>').join('')+'<th>ACTIONS</th></tr></thead><tbody>'+visible.map((p,i)=>'<tr><td>'+playerTitle(p)+'</td>'+cols.map(([key])=>'<td class="rg2-val rg2-val-'+key+'">'+metric(p,key,g.league)+'</td>').join('')+'<td class="rg2-action"><button type="button" data-rg2-intel="'+i+'">INTEL</button><button type="button" data-rg2-add="'+i+'">+ ADD</button></td></tr>').join('')+'</tbody></table></div>';
+    return header+'<section class="rg2-detail">'
+      +'<div class="rg2-detail-nav"><div class="rg2-tabs" role="group" aria-label="Research category">'+tabs.map(([v,l])=>'<button type="button" data-rg2-tab="'+v+'" class="'+(v===state.tab?'is-active':'')+'">'+esc(l)+'</button>').join('')+'</div>'
+      +'<div class="rg2-view" role="group" aria-label="Research display">'+['board','rank','lab'].map(v=>'<button type="button" data-rg2-view="'+v+'" class="'+(v===state.view?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
+      +'<div class="rg2-lab-heading"><div><span class="rg2-kicker">THE OUTPOST LAB · '+esc(labels[g.league])+'</span><h2>'+esc(active[1])+' Research</h2><p>One player per row with sport-specific research signals. Exact verified models only.</p></div><div class="rg2-lab-status"><b>'+visible.length+' PLAYERS</b><small>'+modeInfo+' modeled selections for this game</small></div></div>'
+      +'<div class="rg2-searchbar"><label class="rg2-find"><span>⌕</span><input data-rg2-search type="search" placeholder="Search players or stats" value="'+esc(state.query)+'" aria-label="Filter players"></label>'
+      +'<label>TEAM <select data-rg2-team>'+choices([up(g.away?.abbr),up(g.home?.abbr)].filter(Boolean),'Both teams',state.team)+'</select></label>'
+      +'<label>ROLE <select data-rg2-role>'+choices(roleChoices,'All positions',state.role)+'</select></label>'
+      +'<button type="button" data-rg2-refresh class="rg2-refresh">↻ REFRESH</button></div>'
+      +(visible.length?board:'<div class="rg2-empty"><b>No verified '+esc(active[1].toLowerCase())+' player data available for this matchup.</b><span>Sportsbook markets and exact player models will appear here when their source feed has this game. Try another tab or game.</span></div>')
+      +'<div class="rg2-note">— means this statistic is not provided by a verified feed. No estimated history, usage, probabilities or fake players. INTEL opens the existing TSO Deep Research panel.</div>'
+      +'</section>';
+  }
+  function groupPlayers(rows){
+    const groups=new Map();
+    for(const r of rows){
+      const k=[r.sport,slug(r.playerId||r.player),up(r.team)].join('|');
+      let p=groups.get(k);
+      if(!p){p={key:k,name:r.player,team:r.team,role:r.position||r.role||'',headshotUrl:r.headshotUrl,rows:[]};groups.set(k,p)}
+      if(!p.headshotUrl&&r.headshotUrl)p.headshotUrl=r.headshotUrl;
+      p.rows.push(r);
+    }
+    return [...groups.values()];
+  }
+  function best(p){return choose(p.rows.filter(r=>validModel(r)))||choose(p.rows)||null}
+  function forP(p,market){return forMarket(p.rows,market,true)}
+  function columnData(p,key,sport){
+    const r=best(p)||{},m=r.model||{},pModel=validModel(r);
+    const marketLine=forP(p,key)||null;
+    switch(key){
+      case 'role':return p.role||r.position||r.role||null;
+      case 'model':return pModel?mode(r):null;
+      case 'market':return num(r.impliedPct);
+      case 'edge':return pModel?num(m.edgePct):null;
+      case 'price':return num(r.price);
+      case 'book':return r.book||null;
+      case 'projected':return project(r);
+      case 'line':return num(r.line);
+      case 'form':return val(m,['trendPct','formPct','form.score'])??val(r,['stats.formPct']);
+      case 'yield':return val(m,['yieldPct','yield']);
+      case 'purity':return val(m,['purity','purityScore']);
+      case 'usage':return val(m,['usagePct','usage.usagePct','context.usagePct']);
+      case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes']);
+      case 'toi':return val(m,['toi','usage.toi']);
+      case 'snap':return val(m,['snapPct','usage.snapPct']);
+      case 'gl':return val(m,['goalLinePct','usage.goalLinePct']);
+      case 'carry':return val(m,['carryPct','usage.carryPct']);
+      case 'target':return val(m,['targetPct','usage.targetPct']);
+      case 'rz':return val(m,['redZonePct','usage.redZonePct']);
+      case 'barrel':return val(m,['barrelPct','contact.barrelPct']);
+      case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct']);
+      case 'l5':return val(m,['hitRateL5','last5RatePct','history.l5Pct']);
+      case 'l10':return val(m,['hitRateL10','last10RatePct','history.l10Pct']);
+      case 'prevFirst':return val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds']);
+      case 'prevTD':return val(m,['previousSeasonTds','history.prevSeasonTds']);
+      case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds']);
+      case 'atd':case 'firstTd':case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
+        return marketLine&&validModel(marketLine)?mode(marketLine):null;
+      default:return null;
+    }
+  }
+  function cellRaw(p,key,sport){if(key==='player')return String(p.name).toLowerCase();return columnData(p,key,sport)}
+  function metric(p,key,sport){
+    const r=best(p)||{};
+    if(key==='selection')return '<span class="rg2-cell-label">'+esc(r.marketLabel||r.market||'—')+'</span><small>'+esc(r.selection||((r.side==='under'?'U ':'O ')+(num(r.line)===null?'':fmt(r.line))))+'</small>';
+    if(key==='book')return esc(r.book||'—');
+    if(key==='price'){const v=columnData(p,key,sport);return v===null?'—':odds(v)}
+    if(key==='role')return esc(columnData(p,key,sport)||'—');
+    if(key==='line')return columnData(p,key,sport)===null?esc(r.selection||'—'):fmt(columnData(p,key,sport));
+    const value=columnData(p,key,sport);
+    if(value===null)return '<span class="rg2-na" title="Source data unavailable">—</span>';
+    if(['projected','minutes','toi'].includes(key))return fmt(value,2);
+    if(['prevFirst','prevTD','yearTD'].includes(key))return fmt(value,0);
+    if(key==='purity')return fmt(value,0);
+    if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
+    if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
+    if(['model','atd','atg','hr','firstTd','fgs'].includes(key))return '<strong class="rg2-highlight">'+percent(value)+'</strong>';
+    return percent(value);
+  }
+  function playerTitle(p){
+    const image=p.headshotUrl||p.rows.find(r=>r.headshotUrl)?.headshotUrl;
+    const avatar=image?'<img data-player-headshot src="'+esc(image)+'" alt="" loading="lazy">':'<span class="rg2-avatar">'+esc(String(p.name||'?').charAt(0))+'</span>';
+    return '<span class="rg2-player">'+avatar+'<span><b>'+esc(p.name||'—')+'</b><small>'+esc(up(p.team)||'—')+(p.role?' · '+esc(p.role):'')+'</small></span></span>';
+  }
+  function columns(sport,tab){
+    if(tab==='all')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
+    if(sport==='nfl'&&tab==='td')return [['role','ROLE'],['atd','ANYTIME %'],['firstTd','FIRST %'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','PURITY']];
+    if(sport==='nfl')return [['role','ROLE'],['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
+    if(sport==='nhl')return [['role','ROLE'],['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
+    if(sport==='mlb')return [['role','ROLE'],['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
+    return [['role','ROLE'],['points','POINTS %'],['rebounds','REB %'],['assists','AST %'],['threes','3PT %'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','PURITY']];
   }
   function render(root,props){
     if(!root)return;
-    context=props;
-    const requested=props.league||'all';
-    if(state.sport!==requested)state.gameId=requested==='all'?'all':'';
-    state.sport=sports.includes(requested)?requested:'all';
-    const allGames=(Array.isArray(props.games)?props.games:[]).filter(g=>state.sport==='all'||g.league===state.sport);
-    games=orderGames(allGames).slice(0,60).map((g,i)=>({...g,_labId:gameId(g,i)}));
-    if(state.gameId!=='all'&&!games.some(g=>g._labId===state.gameId)){
-      const withMarkets=games.find(g=>(props.rows||[]).some(r=>rowGameMatch(r,g)));
-      state.gameId=(withMarkets||games[0])?._labId||'';
-    }
-    const selected=state.gameId==='all'?null:(games.find(g=>g._labId===state.gameId)||null);
-    const htmlOptions=(items,label)=>'<option value="all">'+escapeHTML(label)+'</option>'+items.map(x=>'<option value="'+escapeHTML(x)+'">'+escapeHTML(x)+'</option>').join('');
-    const marketValues=[...new Set((props.rows||[]).filter(r=>state.sport==='all'||r.sport===state.sport).map(r=>String(r.market||r.marketLabel||'')).filter(Boolean))].sort();
-    const teams=[...new Set((props.rows||[]).filter(r=>state.sport==='all'||r.sport===state.sport).map(teamFor).filter(t=>t!=='—'))].sort();
-    if(!marketValues.includes(state.market))state.market='all';
-    if(!teams.includes(state.team))state.team='all';
-    const newest=(props.rows||[]).reduce((acc,r)=>Date.parse(r.snapshotTime||'')>(Date.parse(acc||'')||0)?r.snapshotTime:acc,'');
-    const gameMarkup=games.length?games.map(g=>'<button type="button" data-lab-game="'+escapeHTML(g._labId)+'" class="'+(g._labId===state.gameId?'is-active':'')+'" aria-pressed="'+(g._labId===state.gameId)+'"><b>'+escapeHTML(g.away?.abbr||'?')+' @ '+escapeHTML(g.home?.abbr||'?')+'</b><small>'+escapeHTML(g.state==='in'?(g.detail||'LIVE'):g.state==='post'?'FINAL':time(g.startTime))+'</small></button>').join(''):'<span class="lab2-no-games">No games on the current verified slate</span>';
-    const matchup=selected?'<div class="lab2-matchup">'
-      +gameTeam(selected.away,'AWAY')+'<div class="lab2-versus"><small>'+escapeHTML(names[selected.league]||abbr(selected.league))+' · '+escapeHTML(selected.state==='in'?'LIVE':selected.state==='post'?'FINAL':'SCHEDULED')+'</small><strong>'+escapeHTML(selected.state==='pre'?'VS':String(selected.away?.score??'—')+' : '+String(selected.home?.score??'—'))+'</strong><span>'+escapeHTML(time(selected.startTime))+'</span><small>'+escapeHTML(selected.venue||'Venue pending')+'</small></div>'+gameTeam(selected.home,'HOME')+'</div>':
-      '<div class="lab2-matchup lab2-matchup--empty"><b>'+escapeHTML(state.sport==='all'?'All-sports Research Lab':names[state.sport]+' · All Games')+'</b><span>Verified player props and modeled selections. Select a game above to narrow the board.</span></div>';
-    root.innerHTML='<div class="lab2-top"><div><span class="lab2-eyebrow">TSO 2.0 · RESEARCH</span><h1>Research Lab</h1><p>Game-by-game research · exact sportsbook lines · verified model intelligence</p></div><div class="lab2-top-actions"><button data-lab-refresh type="button">↻ REFRESH</button><button data-lab-props type="button">PROP BOARD →</button></div></div>'
-      +'<div class="lab2-sports" role="group" aria-label="Choose sport">'+sports.map(s=>'<button type="button" data-lab-sport="'+s+'" aria-pressed="'+(state.sport===s)+'" class="'+(state.sport===s?'is-active':'')+'">'+names[s]+'</button>').join('')+'</div>'
-      +'<div class="lab2-game-bar"><div class="lab2-game-heading"><b>GAME SELECTOR</b><button type="button" data-lab-all-games class="'+(state.gameId==='all'?'is-active':'')+'">ALL GAMES</button></div><div class="lab2-game-list">'+gameMarkup+'</div></div>'
-      +matchup
-      +'<section class="lab2-board"><div class="lab2-board-head"><div><span class="lab2-eyebrow">SOURCE-BACKED PLAYER INTELLIGENCE</span><h2>'+escapeHTML((selected?.league||state.sport)==='all'?'All Sports':names[selected?.league||state.sport]||'All Sports')+' Props Research</h2><p>Projection, probability, book, and edge appear only when verified for the exact pick.</p></div><div class="lab2-view" role="group" aria-label="Research view">'+['board','rank','lab'].map(v=>'<button data-lab-view="'+v+'" type="button" class="'+(state.view===v?'is-active':'')+'">'+v.toUpperCase()+'</button>').join('')+'</div></div>'
-      +'<div class="lab2-filters"><label class="lab2-search"><span>⌕</span><input type="search" data-lab-search placeholder="Search player, team, market or sportsbook" value="'+escapeHTML(state.query)+'" aria-label="Search research selections"></label>'
-      +'<label>MARKET<select data-lab-market>'+htmlOptions(marketValues.map(x=>x), 'All markets')+'</select></label>'
-      +'<label>TEAM<select data-lab-team>'+htmlOptions(teams,'All teams')+'</select></label>'
-      +'<label>DATA<select data-lab-model><option value="all">All verified</option><option value="matched">Modeled</option><option value="market">Market only</option></select></label></div>'
-      +'<div class="lab2-summary"><span data-lab-count>Loading exact selections…</span><span data-lab-modeled></span><span>'+escapeHTML(sourceTime(newest))+'</span></div>'
-      +'<div class="lab2-table-wrap" role="region" aria-label="Research data table (scroll horizontally for more metrics)" tabindex="0" data-lab-table></div>'
-      +'<p class="lab2-disclaimer">No made-up probabilities, player roles, lineup metrics or usage stats. A dash means the current validated feed does not supply the value. Tap INTEL for existing detailed research; + ADD sends an exact selection to Parlay Lab.</p></section>';
-    root.querySelector('[data-lab-market]').value=state.market;
-    root.querySelector('[data-lab-team]').value=state.team;
-    root.querySelector('[data-lab-model]').value=state.model;
-    root.onclick=ev=>{
-      const target=ev.target.closest('button');
-      if(!target||!root.contains(target))return;
-      if(target.hasAttribute('data-lab-sport')){state.gameId='';state.market='all';state.team='all';props.changeLeague?.(target.dataset.labSport);return}
-      if(target.hasAttribute('data-lab-game')){state.gameId=target.dataset.labGame;state.team='all';state.market='all';render(root,context);return}
-      if(target.hasAttribute('data-lab-all-games')){state.gameId='all';state.market='all';state.team='all';render(root,context);return}
-      if(target.hasAttribute('data-lab-view')){state.view=target.dataset.labView;root.querySelectorAll('[data-lab-view]').forEach(b=>b.classList.toggle('is-active',b===target));drawTable(root);return}
-      if(target.hasAttribute('data-lab-sort')){const key=target.dataset.labSort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='player'}drawTable(root);return}
-      if(target.hasAttribute('data-lab-detail')){props.openDetail?.(visibleRows[Number(target.dataset.labDetail)]);return}
-      if(target.hasAttribute('data-lab-add')){props.addSelection?.(visibleRows[Number(target.dataset.labAdd)]);return}
-      if(target.hasAttribute('data-lab-refresh')){props.refresh?.();return}
-      if(target.hasAttribute('data-lab-props')){props.openProps?.();return}
+    ctx=props||{};
+    const league=leagues.includes(props.league)?props.league:'all';
+    if(state.league!==league){state.league=league;state.stage='games';state.gameKey='';state.tab='';state.query='';state.team='all';state.role='all';state.sort='model';state.view='lab'}
+    gameList=(Array.isArray(props.games)?props.games:[]).filter(g=>league==='all'||g.league===league);
+    const seen=new Set();gameList=gameList.filter(g=>{const key=id(g);if(seen.has(key))return false;seen.add(key);return true}).sort((a,b)=>({'in':0,'pre':1,'post':2}[a.state]??3)-({'in':0,'pre':1,'post':2}[b.state]??3)
+      || (Date.parse(a.startTime||'')||0)-(Date.parse(b.startTime||'')||0));
+    if(state.stage==='detail'&&!gameList.some(g=>id(g)===state.gameKey)){state.stage='games';state.gameKey=''}
+    root.innerHTML=state.stage==='detail'?detail():cards();
+    root.onclick=e=>{
+      const t=e.target.closest('button');
+      if(!t||!root.contains(t))return;
+      if(t.hasAttribute('data-rg2-game')){state.gameKey=t.dataset.rg2Game;state.stage='detail';state.tab='';state.search='';state.query='';state.team='all';state.role='all';state.sort='model';state.descending=true;render(root,ctx);root.scrollIntoView?.({block:'start'});return}
+      if(t.hasAttribute('data-rg2-back')){state.stage='games';state.gameKey='';render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-league')){const next=t.dataset.rg2League;state.stage='games';state.gameKey='';props.changeLeague?.(next);if(next===league)render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort=state.tab==='td'?'atd':state.tab==='hitters'||state.tab==='hr'?'hr':state.tab==='goals'?'atg':state.tab==='points'?'points':'model';render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-view')){state.view=t.dataset.rg2View;if(state.view==='rank'){state.sort='model';state.descending=true}render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-sort')){const key=t.dataset.rg2Sort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='role'}render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=best(p||{rows:[]});if(row)props.openDetail?.(row);return}
+      if(t.hasAttribute('data-rg2-add')){const p=visible[Number(t.dataset.rg2Add)];const row=best(p||{rows:[]});if(row)props.addSelection?.(row);return}
+      if(t.hasAttribute('data-rg2-refresh')){props.refresh?.();return}
     };
-    root.oninput=ev=>{if(ev.target.matches('[data-lab-search]')){state.query=ev.target.value;drawTable(root)}};
-    root.onchange=ev=>{
-      if(ev.target.matches('[data-lab-market]'))state.market=ev.target.value;
-      else if(ev.target.matches('[data-lab-team]'))state.team=ev.target.value;
-      else if(ev.target.matches('[data-lab-model]'))state.model=ev.target.value;
+    root.onchange=e=>{
+      if(e.target.matches('[data-rg2-team]'))state.team=e.target.value;
+      else if(e.target.matches('[data-rg2-role]'))state.role=e.target.value;
       else return;
-      drawTable(root);
+      render(root,ctx);
     };
-    drawTable(root);
+    root.oninput=e=>{
+      if(!e.target.matches('[data-rg2-search]'))return;
+      const input=e.target,from=input.selectionStart;
+      state.query=input.value;
+      render(root,ctx);
+      const fresh=root.querySelector('[data-rg2-search]');
+      fresh?.focus?.({preventScroll:true});
+      try{fresh?.setSelectionRange(from,from)}catch{}
+    };
   }
-  window.TSO2ResearchLab={render};
+  window.TSO2ResearchGameFlow={render,reset:()=>{state.stage='games';state.gameKey=''}};
 })();
 
 (() => {
