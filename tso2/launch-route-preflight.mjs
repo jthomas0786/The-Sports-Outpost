@@ -35,8 +35,14 @@ const validate=(target,body)=>{
     }catch{return false}
   }
   if(target.kind==='svg')return /<svg[\s>]/i.test(body)&&/viewBox="0 0 64 64"/.test(body)&&/EDGE/.test(body);
-  if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body);
-  if(target.kind==='js')return body.length>1000&&!/^\s*<html/i.test(body);
+  if(target.kind==='css')return body.length>1000&&/\{[^}]*\}/.test(body)
+    &&(!target.name.includes('preview stylesheet')||(/\.rg2-game-card/.test(body)&&/--rg-orange:var\(--outpost-orange/.test(body)&&!/\.tso2-lab\{/.test(body)));
+  if(target.kind==='js'){
+    if(body.length<=1000||/^\s*<html/i.test(body))return false;
+    if(target.name.includes('preview app JavaScript'))return /TSO2ResearchGameFlow/.test(body)&&/requestResearchMarkets/.test(body);
+    if(target.name.includes('preview pages JavaScript'))return /class="rg2-page broadcast-destination"/.test(body);
+    return true;
+  }
   let doc;try{doc=JSON.parse(body)}catch{return false}
   if(!doc||typeof doc!=='object')return false;
   if(target.url.includes('/api/live'))return Array.isArray(doc.games)&&doc.counts&&typeof doc.counts==='object';
