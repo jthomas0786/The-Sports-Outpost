@@ -15,6 +15,14 @@ on:
       - 'tso2/sidebar-polish-selftest.mjs'
       - 'tso2/launch-owner-auth-preflight.mjs'
       - 'tso2/notifications-selftest.mjs'
+      - 'tso2/app-icon-selftest.mjs'
+      - 'tso2/manifest.webmanifest'
+      - 'tso2/brand/asset-manifest.json'
+      - 'tso2/brand/identity/tso2-app-icon-master-approved.png'
+      - 'tso2/brand/production/tso2-app-icon-*.png'
+      - 'tso2/brand/production/tso2-app-icon-*.webp'
+      - 'tso2/brand/production/tso2-apple-touch-icon-180.png'
+      - 'tso2/brand/production/tso2-favicon*'
       - 'tso2/brand/production/tso2-product-game-edge-approved.svg'
       - '.github/workflows/tso2-launch-route-preflight.yml'
   workflow_dispatch:
@@ -47,6 +55,8 @@ jobs:
           node tso2/sidebar-polish-selftest.mjs
           node --check tso2/notifications-selftest.mjs
           node tso2/notifications-selftest.mjs
+          node --check tso2/app-icon-selftest.mjs
+          node tso2/app-icon-selftest.mjs
       - name: Verify owner-only API access is denied to anonymous visitors
         run: |
           node --check tso2/launch-owner-auth-preflight.mjs
