@@ -285,6 +285,45 @@ assert.ok(firstForecasts.length>=1 && firstForecasts.every(p=>p>0&&p<52.3));
 assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for other scorers and no touchdown');
 
 
+// Alias reconciliation and bookmaker-independent NFL PBP must work on the real
+// NHL/NFL game-first module, with no false player associations from coincident IDs.
+{
+  const source={
+    schemaVersion:1,generatedAt:new Date().toISOString(),source:'nflverse fixture',
+    seasons:{'2025':{players:{'00-0000001':{name:'A.Runner',team:'WAS',firstTdGames:2}}},
+      '2026':{players:{
+        '00-0000001':{name:'A.Runner',team:'WAS',gamesWithOpportunities:4,carries:53,targets:12,
+          goalLineSharePct:25,targetSharePct:8.1},
+        '00-0000002':{name:'B.Receiver',team:'WAS',gamesWithOpportunities:4,carries:0,targets:34}
+      }}}
+  };
+  const sb={window:{},setTimeout,console,URLSearchParams,
+    fetch:async url=>String(url).includes('nfl-td-opportunities.json')
+      ?{ok:true,json:async()=>source}:{ok:false,status:404}};
+  vm.runInNewContext(app.slice(0,seam),sb);
+  const flow=sb.window.TSO2ResearchGameFlow;
+  const root={innerHTML:'',dataset:{},isConnected:true,contains:()=>true,scrollIntoView(){},querySelector(){return null}};
+  const g={id:'local-1',league:'nfl',state:'pre',startTime:schedule,
+    away:{abbr:'NYG',name:'New York Giants'},home:{abbr:'WSH',name:'Washington Commanders'}};
+  const wrong={...row('nfl','collision','Wrong Game Player','BAL','CIN','atd',91),eventId:g.id};
+  flow.render(root,{league:'nfl',games:[g],rows:[wrong]});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:'nfl|local-1|NYG|WSH|'+schedule}})}});
+  await new Promise(resolve=>setTimeout(resolve,750));
+  assert.match(root.innerHTML,/A.Runner/,'WSH/WAS maps to verified NFL fallback');
+  assert.match(root.innerHTML,/B.Receiver/,'Multiple verified fallback players appear without sportsbook markets');
+  assert.doesNotMatch(root.innerHTML,/Wrong Game Player/,'Matching event ID cannot bypass team verification');
+  assert.match(root.innerHTML,/2026 OPPS/,'Exact carries plus targets remain accessible in Lab');
+  assert.match(root.innerHTML,/rg2-val-opps\">65/,'Verified 2026 opportunities are 53 carries plus 12 targets');
+  assert.match(root.innerHTML,/as of \d{4}-\d\d-\d\d/,'Historical feed date remains visible');
+  assert.doesNotMatch(root.innerHTML,/91%/,'Do not show wrong-game probability');
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-view',dataset:{rg2View:'board'}})}});
+  assert.match(root.innerHTML,/2026 VERIFIED OPPORTUNITIES/,'Board shows actual opportunity totals not unavailable model %');
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-view',dataset:{rg2View:'rank'}})}});
+  assert.match(root.innerHTML,/Ranked by verified 2026 carries \+ targets/,'Ranking is source-backed rather than alphabetical');
+  assert.match(root.innerHTML,/2026 OPPS/,'Rank shows correctly labeled historical counts');
+}
+
 // The existing NHL FGS/ATG scorer model should fill a matchup even when
 // sportsbook props are missing. A model row must never become a fake
 // sportsbook add-to-slip selection.
