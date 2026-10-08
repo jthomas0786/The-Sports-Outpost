@@ -284,4 +284,35 @@ const firstForecasts=[...modeledRoot.innerHTML.matchAll(/rg2-val-firstTd"><stron
 assert.ok(firstForecasts.length>=1 && firstForecasts.every(p=>p>0&&p<52.3));
 assert.ok(firstForecasts.reduce((a,b)=>a+b,0) < 100,'Reserve probability for other scorers and no touchdown');
 
+
+// The existing NHL FGS/ATG scorer model should fill a matchup even when
+// sportsbook props are missing. A model row must never become a fake
+// sportsbook add-to-slip selection.
+{
+  const root={innerHTML:'',dataset:{},isConnected:true,contains:()=>true,
+    scrollIntoView(){},querySelector(){return null},querySelectorAll(){return []}};
+  const sb={window:{}};
+  vm.runInNewContext(app.slice(0,seam),sb);
+  const nhlFlow=sb.window.TSO2ResearchGameFlow;
+  const g=games[3];
+  const player={id:'n-1',name:'Source Verified Skater',team:'NYR',position:'RW',
+    probability:0.071,anytimeProbability:0.291,photo:'https://example.com/player.png',
+    bestOdds:null,bestAtgOdds:null};
+  const scorerGames=[{gameId:'nhl-fixture',startTime:schedule,
+    away:{abbr:'NYR',players:[player],atgPlayers:[player]},
+    home:{abbr:'TOR',players:[],atgPlayers:[]}}];
+  let adds=0;
+  nhlFlow.render(root,{league:'nhl',games:[g],rows:[],scorerGames,addSelection:()=>adds++});
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-game',
+    dataset:{rg2Game:'nhl|004|NYR|TOR|'+schedule}})}});
+  assert.match(root.innerHTML,/Source Verified Skater/,'Existing scorer engine fills otherwise-empty NHL Research');
+  assert.match(root.innerHTML,/29\.1%/,'TSO ATG engine output is displayed as a model percentage');
+  assert.match(root.innerHTML,/7\.1%/,'TSO FGS engine output is displayed as a model percentage');
+  assert.match(root.innerHTML,/TSO SCORER MODEL/,'Source is identified without claiming sportsbook odds');
+  assert.match(root.innerHTML,/disabled title="No verified exact sportsbook selection"/,'No add-to-slip action for model-only NHL rows');
+  root.onclick({target:{closest:()=>({hasAttribute:k=>k==='data-rg2-add',dataset:{rg2Add:'0'}})}});
+  assert.equal(adds,0,'Disabled scorer-only selection cannot be added to Parlay Lab');
+  assert.doesNotMatch(root.innerHTML,/Verified example/,'Synthetic sportsbook odds are never introduced into model fallback');
+}
+
 console.log('PASS TSO 2.0 Research: game-card flow, all sports, native theme, verified deep-data columns, navigation and actions');
