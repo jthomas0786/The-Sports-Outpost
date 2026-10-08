@@ -15,6 +15,59 @@
   const primary={nfl:'td',nba:'points',mlb:'hitters',nhl:'goals'};
   const state={league:null,stage:'games',gameKey:'',tab:'',view:'lab',sort:'model',descending:true,query:'',team:'all',role:'all'};
   let ctx=null,gameList=[],visible=[];
+  // Populate selected-game columns with the existing source-backed TSO player feed.
+  // Odds probabilities still come ONLY from the exact player-market model rows.
+  const detailCache=new Map(), detailPending=new Set(), detailQueue=[];
+  const DETAIL_TTL_MS=180000;
+  let activeRequests=0,hostRoot=null,refreshTimer=null;
+  const detailsKey=(g,p)=>[g.league,id(g),String(p?.name||'').toLowerCase(),String(p?.team||'').toLowerCase()].join('|');
+  const getDetails=(g,p)=>{
+    if(!g||!p)return null;
+    const entry=detailCache.get(detailsKey(g,p));
+    return entry&&Date.now()-entry.time<DETAIL_TTL_MS?entry.doc:null;
+  };
+  const opponentFor=(g,p)=>oneOf(p.team,g.home)?g.away?.abbr:oneOf(p.team,g.away)?g.home?.abbr:'';
+  function queuePlayerDetails(g,players){
+    if(typeof fetch!=='function'||!g||!players?.length)return;
+    for(const p of players.slice(0,40)){
+      const key=detailsKey(g,p),existing=detailCache.get(key);
+      if((existing&&Date.now()-existing.time<DETAIL_TTL_MS)||detailPending.has(key))continue;
+      const row=p.rows[0]||{};
+      const params=new URLSearchParams({
+        sport:g.league,name:p.name,team:p.team||'',opponent:opponentFor(g,p)||'',
+        playerId:row.playerId||'',eventId:row.eventId||''
+      });
+      detailPending.add(key);
+      detailQueue.push({key,url:'/api/research-detail?'+params.toString(),g,p});
+    }
+    pumpPlayerDetails();
+  }
+  function queueRefresh(){
+    if(refreshTimer!==null||typeof setTimeout!=='function')return;
+    refreshTimer=setTimeout(()=>{
+      refreshTimer=null;
+      if(state.stage!=='detail'||!hostRoot||!hostRoot.isConnected)return;
+      render(hostRoot,ctx);
+    },350);
+  }
+  function pumpPlayerDetails(){
+    while(activeRequests<4&&detailQueue.length){
+      const job=detailQueue.shift();
+      activeRequests++;
+      fetch(job.url,{cache:'no-store'}).then(async response=>{
+        if(!response.ok)throw Error('Research source '+response.status);
+        const payload=await response.json();
+        const found=payload?.available&&payload?.player&&sameName(payload.player.name,job.p.name)
+          &&(oneOf(payload.player.team,job.g.home)||oneOf(payload.player.team,job.g.away));
+        detailCache.set(job.key,{doc:found?payload:null,time:Date.now()});
+        if(found&&state.stage==='detail'&&state.gameKey===id(job.g))queueRefresh();
+      }).catch(()=>{
+        detailCache.set(job.key,{doc:null,time:Date.now()});
+      }).finally(()=>{
+        activeRequests--;detailPending.delete(job.key);pumpPlayerDetails();
+      });
+    }
+  }
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const num=v=>v===null||v===undefined||v===''||!Number.isFinite(Number(v))?null:Number(v);
   const fmt=(v,d=1)=>num(v)===null?'—':Number(v).toFixed(d).replace(/\.0$/,'');
@@ -95,6 +148,7 @@
       &&(state.role==='all'||String(r.position||r.role||'')===state.role)
       &&(!state.query||[r.player,r.team,r.market,r.marketLabel].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase())));
     const players=state.tab==='all'?selection.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selection);
+    queuePlayerDetails(g,players);
     const cols=columns(g.league,state.tab);
     const sortValue=p=>cellRaw(p,state.sort,g.league);
     players.sort((a,b)=>{const x=sortValue(a),y=sortValue(b);if(x===null&&y!==null)return 1;if(x!==null&&y===null)return -1;
@@ -137,9 +191,13 @@
   function forP(p,market){return forMarket(p.rows,market,true)}
   function columnData(p,key,sport){
     const r=best(p)||{},m=r.model||{},pModel=validModel(r);
+    const selectedGame=gameList.find(g=>id(g)===state.gameKey);
+    const deep=getDetails(selectedGame,p)?.player||{};
+    const previous=deep.previousSeason||{},current=deep.currentSeason||{},recent=deep.last5||{};
+    const recentTdRate=num(recent.avg?.tds),seasonTdRate=num(current.perGame?.tds);
     const marketLine=forP(p,key)||null;
     switch(key){
-      case 'role':return p.role||r.position||r.role||null;
+      case 'role':{const position=deep.position||p.role||r.position||r.role||null;const depth=num(deep.depth?.rank);return position?(position+(depth!==null&&depth>0&&depth<10?fmt(depth,0):'')):null;}
       case 'model':return pModel?mode(r):null;
       case 'market':return num(r.impliedPct);
       case 'edge':return pModel?num(m.edgePct):null;
@@ -147,24 +205,24 @@
       case 'book':return r.book||null;
       case 'projected':return project(r);
       case 'line':return num(r.line);
-      case 'form':return val(m,['trendPct','formPct','form.score'])??val(r,['stats.formPct']);
+      case 'form':return val(m,['trendPct','formPct','form.score'])??val(r,['stats.formPct'])??(recentTdRate!==null&&seasonTdRate!==null?recentTdRate-seasonTdRate:null);
       case 'yield':return val(m,['yieldPct','yield']);
       case 'purity':return val(m,['purity','purityScore']);
       case 'usage':return val(m,['usagePct','usage.usagePct','context.usagePct']);
-      case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes']);
-      case 'toi':return val(m,['toi','usage.toi']);
-      case 'snap':return val(m,['snapPct','usage.snapPct']);
+      case 'minutes':return val(m,['minutes','usage.minutes','projection.minutes'])??num(deep.recentAverages?.minutes);
+      case 'toi':return val(m,['toi','usage.toi'])??num(deep.recentAverages?.toi);
+      case 'snap':return val(m,['snapPct','usage.snapPct'])??num(deep.snapTrend?.avgOffensePct);
       case 'gl':return val(m,['goalLinePct','usage.goalLinePct']);
       case 'carry':return val(m,['carryPct','usage.carryPct']);
-      case 'target':return val(m,['targetPct','usage.targetPct']);
+      case 'target':return val(m,['targetPct','usage.targetPct'])??num(current.targetShare);
       case 'rz':return val(m,['redZonePct','usage.redZonePct']);
-      case 'barrel':return val(m,['barrelPct','contact.barrelPct']);
-      case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct']);
+      case 'barrel':return val(m,['barrelPct','contact.barrelPct'])??num(deep.statcast?.barrelPct);
+      case 'hardhit':return val(m,['hardHitPct','contact.hardHitPct'])??num(deep.statcast?.hardHitPct);
       case 'l5':return val(m,['hitRateL5','last5RatePct','history.l5Pct']);
       case 'l10':return val(m,['hitRateL10','last10RatePct','history.l10Pct']);
-      case 'prevFirst':return val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds']);
-      case 'prevTD':return val(m,['previousSeasonTds','history.prevSeasonTds']);
-      case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds']);
+      case 'prevFirst':return val(m,['previousSeasonFirstTds','history.prevSeasonFirstTds'])??num(previous.firstTdGames);
+      case 'prevTD':return val(m,['previousSeasonTds','history.prevSeasonTds'])??num(previous.totalTds);
+      case 'yearTD':return val(m,['currentSeasonTds','history.currentSeasonTds'])??num(current.totalTds);
       case 'atd':case 'firstTd':case 'atg':case 'fgs':case 'hr':case 'hits':case 'sog':case 'points':case 'rebounds':case 'assists':case 'threes':case 'pra':case 'rbi':
         return marketLine&&validModel(marketLine)?mode(marketLine):null;
       default:return null;
@@ -203,6 +261,7 @@
   }
   function render(root,props){
     if(!root)return;
+    hostRoot=root;
     ctx=props||{};
     const league=leagues.includes(props.league)?props.league:'all';
     if(state.league!==league){state.league=league;state.stage='games';state.gameKey='';state.tab='';state.query='';state.team='all';state.role='all';state.sort='model';state.view='lab'}
