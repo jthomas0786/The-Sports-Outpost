@@ -24,6 +24,16 @@ assert.match(css,/\.rg2-page \.rg2-game-card\{/,'Research cards inherit consiste
 assert.match(css,/\.broadcast-main:has\(> \.rg2-page\)/,'Research fills the TSO shell with no blank gutter');
 assert.match(css,/--rg-orange:var\(--outpost-blue/);
 assert.match(css,/\.rg2-view button\.is-active\{background:#2d7fff/);
+// Guard the FINAL cascade, not an earlier obsolete blue Research declaration.
+const paletteTail=css.slice(css.lastIndexOf('TSO2 RESEARCH — native broadcast colors'));
+assert.ok(paletteTail.length>4500,'Final Research charcoal theme is present');
+assert.match(paletteTail,/--rg-orange:var\(--outpost-orange/,'Research inherits the actual brand orange');
+assert.match(paletteTail,/--rg-gold:var\(--outpost-gold/,'Research inherits the actual brand gold');
+assert.match(paletteTail,/\.rg2-page \.rg2-table td\{\s*background:#0e1219/,
+  'Research table rows use charcoal instead of bright navy');
+assert.match(paletteTail,/rg2-atd--history/,'Historical rates remain visually distinct');
+assert.match(app,/HIST · ['"]?\+info\.sample/,'Historical source is labeled beside each rate');
+
 assert.doesNotMatch(css,/\.tso2-lab\{/,'Old blue template must be removed');
 assert.match(app,/requestResearchMarkets\(false\)/);
 assert.match(app,/openDetail:row=>row&&openResearchDetail\(row\)/);
