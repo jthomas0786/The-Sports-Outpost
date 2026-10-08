@@ -87,11 +87,11 @@
     const m=markets(g),all=ctx.rows||[];
     const actual=all.filter(r=>relevance(g,r));
     const tabs=categories[g.league]||[['all','All Props',null]];
-    if(!tabs.some(t=>t[0]===state.tab))state.tab=primary[g.league]||'all';
+    if(!tabs.some(t=>t[0]===state.tab)){state.tab=primary[g.league]||'all';state.sort=g.league==='nfl'?'atd':g.league==='mlb'?'hr':g.league==='nhl'?'atg':'points';}
     const active=tabs.find(t=>t[0]===state.tab)||tabs[0];
     const filtered=active[2]?actual.filter(r=>active[2].includes(r.market)):actual;
     const roleChoices=[...new Set(filtered.map(r=>String(r.position||r.role||'').trim()).filter(Boolean))].sort();
-    const selection=filtered.filter(r=>(state.team==='all'||up(r.team)===state.team)
+    const selection=filtered.filter(r=>(state.team==='all'||up(r.team)===state.team||(state.team===up(g.away?.abbr)&&oneOf(r.team,g.away))||(state.team===up(g.home?.abbr)&&oneOf(r.team,g.home)))
       &&(state.role==='all'||String(r.position||r.role||'')===state.role)
       &&(!state.query||[r.player,r.team,r.market,r.marketLabel].filter(Boolean).join(' ').toLowerCase().includes(state.query.toLowerCase())));
     const players=state.tab==='all'?selection.map(r=>({key:String(r.key),name:r.player,team:r.team,role:r.position||r.role||'',rows:[r]})):groupPlayers(selection);
@@ -101,7 +101,6 @@
       const cmp=typeof x==='string'||typeof y==='string'?String(x||'').localeCompare(String(y||'')):(Number(x||0)-Number(y||0));
       return (state.descending?-1:1)*cmp||String(a.name).localeCompare(String(b.name))});
     visible=players.slice(0,180);
-    const chosen=choose(actual.filter(r=>validModel(r)))||null;
     const modeInfo=actual.filter(r=>validModel(r)).length;
     const ticker=gameList.filter(v=>v.league===g.league).map(v=>'<button type="button" data-rg2-game="'+esc(id(v))+'" class="'+(id(v)===state.gameKey?'is-active':'')+'">'+esc(up(v.away?.abbr))+' @ '+esc(up(v.home?.abbr))+' <small>'+esc(v.state==='pre'?day(v.startTime):v.state==='in'?'LIVE':'FINAL')+'</small></button>').join('');
     const header='<div class="rg2-detail-top"><button type="button" class="rg2-back" data-rg2-back>← ALL GAMES</button><span class="rg2-kicker">'+esc(labels[g.league])+' · MATCHUP RESEARCH</span></div>'
@@ -218,7 +217,7 @@
       if(t.hasAttribute('data-rg2-game')){state.gameKey=t.dataset.rg2Game;state.stage='detail';state.tab='';state.search='';state.query='';state.team='all';state.role='all';state.sort='model';state.descending=true;render(root,ctx);root.scrollIntoView?.({block:'start'});return}
       if(t.hasAttribute('data-rg2-back')){state.stage='games';state.gameKey='';render(root,ctx);return}
       if(t.hasAttribute('data-rg2-league')){const next=t.dataset.rg2League;state.stage='games';state.gameKey='';props.changeLeague?.(next);if(next===league)render(root,ctx);return}
-      if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort='model';render(root,ctx);return}
+      if(t.hasAttribute('data-rg2-tab')){state.tab=t.dataset.rg2Tab;state.query='';state.role='all';state.sort=state.tab==='td'?'atd':state.tab==='hitters'||state.tab==='hr'?'hr':state.tab==='goals'?'atg':state.tab==='points'?'points':'model';render(root,ctx);return}
       if(t.hasAttribute('data-rg2-view')){state.view=t.dataset.rg2View;if(state.view==='rank'){state.sort='model';state.descending=true}render(root,ctx);return}
       if(t.hasAttribute('data-rg2-sort')){const key=t.dataset.rg2Sort;if(state.sort===key)state.descending=!state.descending;else{state.sort=key;state.descending=key!=='role'}render(root,ctx);return}
       if(t.hasAttribute('data-rg2-intel')){const p=visible[Number(t.dataset.rg2Intel)];const row=best(p||{rows:[]});if(row)props.openDetail?.(row);return}
