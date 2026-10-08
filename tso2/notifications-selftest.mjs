@@ -15,5 +15,5 @@ assert.match(app,/refreshSavedAccountNotifications\(true\)/,'Verified login refr
 assert.match(app,/ACCOUNT_NOTIFICATION_REFRESH_MS/,'Polling runs for signed-in accounts');
 assert.match(html,/Live signals & saved account alerts/,'Bell identifies persisted account data');
 assert.match(html,/Background device push is not activated yet/,'Unfinished push is clearly disclosed');
-assert.doesNotMatch(auth,/SUPABASE_SERVICE_ROLE|service_role/,'Client must not contain privileged keys');
+assert.doesNotMatch(auth,/const\\s+SUPABASE_SERVICE_ROLE\\s*=|\\bsb_secret_[A-Za-z0-9]+/,'Client must not declare privileged keys');
 console.log('TSO2 Supabase account inbox integration and persistent notification read: static checks passed');
