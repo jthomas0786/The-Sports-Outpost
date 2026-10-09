@@ -27,7 +27,7 @@ function description(item){
     return {title:'⭐ '+safeText(item.playerName||'NFL player'),body:safeText([item.text,item.totals,score].filter(Boolean).join(' · ')),url:'/#live'};
   }
   if(sport==='nfl')return {title:'🏈 '+safeText(item.scorer||'NFL')+' — TOUCHDOWN',body:safeText([item.text,item.away,item.awayScore,'·',item.home,item.homeScore].filter(x=>x!=null).join(' ')),url:'/#live'};
-  if(sport==='mlb'||item.batter||item.homeRun)return {title:'⚾ '+safeText(item.batter||'MLB')+' — HOME RUN',body:safeText([item.battingTeam,item.opponent,item.inning?'Inning '+item.inning:''].filter(Boolean).join(' · ')),url:'/#live'};
+  if(sport==='mlb'||item.batter||item.homeRun)return {title:'⚾ '+safeText(item.batter||'MLB')+(kind==='multi_homer'?' — '+safeText(item.homeRunCount||'2')+' HOME RUNS':' — HOME RUN'),body:safeText([item.battingTeam,item.opponent,item.inning?'Inning '+item.inning:''].filter(Boolean).join(' · ')),url:'/#live'};
   return {title:safeText(item.title||'The Sports Outpost'),body:safeText(item.body||'A new sports alert is available.'),url:target(item.url||'/#live')};
 }
 self.addEventListener('install',event=>event.waitUntil(self.skipWaiting()));
