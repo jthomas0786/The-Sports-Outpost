@@ -19,6 +19,8 @@ on:
       - 'tso2/mobile-side-swipe-selftest.mjs'
       - 'tso2/launch-owner-auth-preflight.mjs'
       - 'tso2/notifications-selftest.mjs'
+      - 'tso2/sw.js'
+      - 'tso2/push-client.js'
       - 'tso2/verified-hit-selftest.mjs'
       - 'tso2/functions/verify-mlb-hr/index.ts'
       - 'tso2/migrations/20261009_verified_hit_alerts.sql'
@@ -69,6 +71,8 @@ jobs:
           node tso2/sidebar-polish-selftest.mjs
           node --check tso2/mobile-side-swipe-selftest.mjs
           node tso2/mobile-side-swipe-selftest.mjs
+          node --check tso2/sw.js
+          node --check tso2/push-client.js
           node --check tso2/notifications-selftest.mjs
           node tso2/notifications-selftest.mjs
           node --check tso2/verified-hit-selftest.mjs
@@ -81,6 +85,19 @@ jobs:
         run: |
           node --check tso2/launch-owner-auth-preflight.mjs
           node tso2/launch-owner-auth-preflight.mjs
+      - name: Confirm TSO 2.0 preview serves real service-worker JavaScript
+        run: |
+          node --input-type=module <<'NODE'
+          const root='https://staging.thesportsoutpost.com';
+          for(const [path,pattern] of [['/sw.js',/showNotification\\(/],['/push-client.js',/pushManager\\.subscribe/]]){
+            const r=await fetch(root+path,{headers:{'cache-control':'no-cache'},signal:AbortSignal.timeout(20000)});
+            const src=await r.text();
+            if(!r.ok||!r.headers.get('content-type')?.includes('javascript')||!pattern.test(src)){
+              throw Error('TSO2 background push route '+path+' failed HTTP '+r.status+' content-type='+r.headers.get('content-type'));
+            }
+            console.log('✓ '+path+' serves application/javascript with expected source');
+          }
+          NODE
       - name: Probe current production and staging frontend/API routes
         env:
           TSO2_PREVIEW_URL: https://staging.thesportsoutpost.com
