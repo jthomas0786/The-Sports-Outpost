@@ -50,14 +50,47 @@ const auth=window.TSO_AUTH={
     if(error)throw new Error(error.message||'Could not read device push status.');
     return !!data&&String(auth.user?.id||'')===String(owner);
   },
+  async getPushPreferences(endpoint){
+    const owner=auth.user?.id;
+    if(!client||!owner||!endpoint)return null;
+    const {data,error}=await client.from('push_subscriptions')
+      .select('alert_preferences').eq('user_id',owner).eq('endpoint',String(endpoint)).maybeSingle();
+    if(error)throw new Error(error.message||'Unable to read alert preferences.');
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while reading alert settings.');
+    return data?.alert_preferences||null;
+  },
+  async savePushPreferences(endpoint,preferences){
+    const owner=auth.user?.id;
+    if(!client||!owner||!endpoint)throw new Error('Sign in and enable device alerts before changing preferences.');
+    const allowed={mlb:['home_runs','multi_homer','model_alerts'],nfl:['touchdowns','watchlist','model_alerts'],
+      nhl:['goals','hat_tricks','game_edge','model_alerts'],nba:['milestones','model_alerts']};
+    const cleaned={};
+    for(const [sport,keys] of Object.entries(allowed)){
+      if(!preferences?.[sport]||typeof preferences[sport]!=='object')throw new Error('Incomplete alert settings.');
+      cleaned[sport]={};
+      for(const key of keys){
+        if(typeof preferences[sport][key]!=='boolean')throw new Error('Invalid alert preference '+sport+'.'+key);
+        cleaned[sport][key]=preferences[sport][key];
+      }
+    }
+    // Keep the legacy NHL PLJ sender in sync; it only sees opted-in devices.
+    const {data,error}=await client.from('push_subscriptions')
+      .update({alert_preferences:cleaned,plj_enabled:cleaned.nhl.game_edge,updated_at:new Date().toISOString()})
+      .eq('user_id',owner).eq('endpoint',String(endpoint)).select('id').maybeSingle();
+    if(error||!data)throw new Error(error?.message||'Could not update this device. Check that alerts are enabled.');
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while saving alert settings.');
+    return cleaned;
+  },
   async savePushSubscription(subscription){
     const owner=auth.user?.id;
     if(!client||!owner)throw new Error('Sign in before enabling device alerts.');
     const endpoint=String(subscription?.endpoint||'');
     const p256dh=String(subscription?.keys?.p256dh||''),authKey=String(subscription?.keys?.auth||'');
     if(!endpoint.startsWith('https://')||!p256dh||!authKey)throw new Error('Invalid push subscription.');
-    const row={user_id:owner,endpoint,p256dh,auth_key:authKey,plj_enabled:true,
+    const prior=await auth.getPushPreferences(endpoint);
+    const row={user_id:owner,endpoint,p256dh,auth_key:authKey,plj_enabled:prior?.nhl?.game_edge??true,
       user_agent:navigator.userAgent.slice(0,450),updated_at:new Date().toISOString()};
+    if(prior)row.alert_preferences=prior;
     const {error}=await client.from('push_subscriptions').upsert(row,{onConflict:'endpoint'});
     if(error)throw new Error(error.message||'Device subscription could not be saved.');
     if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while saving device alerts.');
