@@ -8032,27 +8032,57 @@
   sideNavClose?.addEventListener('click', closeSideNav);
   sideNavBackdrop?.addEventListener('click', closeSideNav);
 
+  // Keep swipe-anywhere navigation, but never steal a horizontal table,
+  // card rail or chart swipe. A deliberate nav gesture is now longer and much
+  // more horizontal than vertical; buttons/backdrop remain unchanged.
+  const SIDE_SWIPE_OPEN_MIN_PX = 120;
+  const SIDE_SWIPE_CLOSE_MIN_PX = 90;
+  const SIDE_SWIPE_DIRECTION_RATIO = 1.8;
+  function isHorizontalScrollGestureTarget(node){
+    for(let el=node?.nodeType===1?node:node?.parentElement;
+        el&&el!==document.body&&el!==document.documentElement;
+        el=el.parentElement){
+      if(el.matches?.('input[type="range"],[role="slider"],[data-horizontal-scroll]'))return true;
+      const overflow=getComputedStyle(el).overflowX;
+      if((overflow==='auto'||overflow==='scroll'||overflow==='overlay')
+        &&el.scrollWidth>el.clientWidth+10)return true;
+    }
+    return false;
+  }
+  function mobileSideSwipeDecision(start,end,elapsed,navWasOpen){
+    if(!start||!end||elapsed>900||elapsed<0)return '';
+    const dx=end.x-start.x,dy=end.y-start.y;
+    if(Math.abs(dx)<Math.abs(dy)*SIDE_SWIPE_DIRECTION_RATIO)return '';
+    if(navWasOpen)return dx<=-SIDE_SWIPE_CLOSE_MIN_PX?'close':'';
+    return !start.horizontalScroll&&dx>=SIDE_SWIPE_OPEN_MIN_PX?'open':'';
+  }
   let sideSwipeStart = null;
   document.addEventListener('touchstart', event => {
-    if(window.innerWidth > 900 || event.touches.length !== 1) return;
-    const touch = event.touches[0];
-    sideSwipeStart = {x:touch.clientX,y:touch.clientY,time:Date.now()};
-  }, {passive:true});
-
-  document.addEventListener('touchend', event => {
-    if(window.innerWidth > 900 || !sideSwipeStart || !event.changedTouches.length) {
-      sideSwipeStart = null;
-      return;
-    }
-    const touch = event.changedTouches[0];
-    const dx = touch.clientX - sideSwipeStart.x;
-    const dy = touch.clientY - sideSwipeStart.y;
-    const elapsed = Date.now() - sideSwipeStart.time;
-    sideSwipeStart = null;
-    if(elapsed > 900 || Math.abs(dx) < 72 || Math.abs(dx) < Math.abs(dy) * 1.35) return;
-    if(dx > 0) setSideNavOpen(true);
-    else closeSideNav();
-  }, {passive:true});
+    sideSwipeStart=null;
+    if(window.innerWidth>900||event.touches.length!==1)return;
+    const touch=event.touches[0];
+    sideSwipeStart={
+      x:touch.clientX,y:touch.clientY,time:Date.now(),id:touch.identifier,
+      horizontalScroll:isHorizontalScrollGestureTarget(event.target),
+      navWasOpen:!!shell?.classList.contains('is-side-nav-open')
+    };
+  },{passive:true});
+  document.addEventListener('touchmove',event=>{
+    if(event.touches.length!==1)sideSwipeStart=null;
+  },{passive:true});
+  document.addEventListener('touchcancel',()=>{sideSwipeStart=null;},{passive:true});
+  document.addEventListener('touchend',event=>{
+    const start=sideSwipeStart;
+    sideSwipeStart=null;
+    if(window.innerWidth>900||!start||event.touches.length>0)return;
+    const touch=Array.from(event.changedTouches).find(t=>t.identifier===start.id);
+    if(!touch)return;
+    const action=mobileSideSwipeDecision(start,{
+      x:touch.clientX,y:touch.clientY
+    },Date.now()-start.time,start.navWasOpen);
+    if(action==='open')setSideNavOpen(true);
+    else if(action==='close')closeSideNav();
+  },{passive:true});
 
   window.addEventListener('resize', () => {
     if(window.innerWidth > 900) closeSideNav();
