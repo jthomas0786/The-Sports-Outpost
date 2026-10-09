@@ -83,6 +83,72 @@ const auth=window.TSO_AUTH={
     };
   },
 
+  // Existing database constraints permit over/under selections only.
+  // RLS enforces auth.uid() = user_id on every insert/delete. Persist the
+  // precise source key so another line or side is never substituted.
+  openSignIn(){openSignIn();},
+  async savePickSelection(selection){
+    const owner=auth.user?.id;
+    if(!client||!owner)throw new Error('Sign in to save a pick.');
+    const sport=String(selection?.sport||'').toLowerCase();
+    const side=String(selection?.side||'').toLowerCase();
+    const key=String(selection?.key||'').trim();
+    const player=String(selection?.player||'').trim();
+    const market=String(selection?.market||'').trim();
+    const numericLine=Number(selection?.line);
+    if(!['nfl','nhl','nba','mlb'].includes(sport)||!['over','under'].includes(side)
+      ||!key||key.length>450||!player||!market||!Number.isFinite(numericLine)
+      ||String(selection?.selection||'').toUpperCase()==='YES'){
+      throw new Error('Only exact Over/Under prop selections can be saved. Yes/No markets are not supported yet.');
+    }
+    const date=String(selection?.slateDate||'');
+    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))throw new Error('A valid save date is required.');
+    const parsedPrice=Number(selection?.price);
+    const price=Number.isSafeInteger(parsedPrice)&&parsedPrice!==0?parsedPrice:null;
+    const note=['TSO 2.0',sport.toUpperCase(),String(selection?.book||'').slice(0,40),
+      String(selection?.eventId||'').slice(0,55),
+      String(selection?.dateSource==='event'?'event date':'saved on date')]
+      .filter(Boolean).join(' · ').slice(0,280);
+    const record={user_id:owner,prop_key:key,player:player.slice(0,160),
+      market:market.slice(0,100),line:String(selection.line),side,price,
+      slate_date:date,note};
+    const {error}=await client.from('picks').insert(record);
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while saving. Check your new account before continuing.');
+    if(error?.code==='23505')return {alreadySaved:true};
+    if(error)throw new Error(error.message||'Could not save the selection.');
+    return {saved:true};
+  },
+  async saveWatchlistPlayer(selection){
+    const owner=auth.user?.id;
+    if(!client||!owner)throw new Error('Sign in to save a player.');
+    const sport=String(selection?.sport||'').toLowerCase();
+    const playerId=Number(selection?.playerId);
+    const name=String(selection?.player||'').trim();
+    const date=String(selection?.slateDate||'');
+    if(!['nfl','nhl','nba','mlb'].includes(sport)
+       ||!Number.isSafeInteger(playerId)||playerId<=0||!name
+       ||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){
+      throw new Error('A verified numeric player ID and save date are required for watchlists.');
+    }
+    const {error}=await client.from('watchlist').insert({
+      user_id:owner,sport,player_id:playerId,player_name:name.slice(0,160),
+      team:String(selection?.team||'').slice(0,40)||null,slate_date:date
+    });
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while saving. Check your new account before continuing.');
+    if(error?.code==='23505')return {alreadySaved:true};
+    if(error)throw new Error(error.message||'Could not save this player.');
+    return {saved:true};
+  },
+  async removeSavedActivity(kind,id){
+    const owner=auth.user?.id;
+    if(!client||!owner)throw new Error('Sign in to remove saved activity.');
+    if(!['picks','watchlist'].includes(kind)||!Number.isSafeInteger(Number(id))||Number(id)<=0)
+      throw new Error('Unsupported saved activity.');
+    const {error}=await client.from(kind).delete().eq('id',Number(id)).eq('user_id',owner);
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while removing activity.');
+    if(error)throw new Error(error.message||'Could not remove saved activity.');
+    return {removed:true};
+  },
   async rpc(name,args={}){
     if(!client)throw new Error('Account data service is not connected yet.');
     const {data,error}=await client.rpc(name,args);
