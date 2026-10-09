@@ -1,0 +1,12 @@
+import assert from 'node:assert/strict';
+import {nflLiveWindowOpen} from './nfl-live-window.mjs';
+const now=Date.parse('2026-10-09T20:00:00Z');
+const game=(state,time)=>({date:new Date(now+time).toISOString(),status:{type:{state}}});
+assert.equal(nflLiveWindowOpen({events:[game('pre',3*86400000)]},now),false,'off-day skips live function');
+assert.equal(nflLiveWindowOpen({events:[game('pre',5*60000)]},now),true,'pregame opens monitoring');
+assert.equal(nflLiveWindowOpen({events:[game('in',-3600000)]},now),true,'live games always monitored');
+assert.equal(nflLiveWindowOpen({events:[game('post',-3600000)]},now),false,'finished games idle');
+assert.equal(nflLiveWindowOpen({events:[game('pre',-12*60000)]},now),true,'kickoff feed delay safe');
+assert.equal(nflLiveWindowOpen({events:[]},now),true,'uncertain scoreboard fails open');
+assert.equal(nflLiveWindowOpen(null,now),true,'missing scoreboard fails open');
+console.log('NFL off-day egress gate: PASS — live, imminent, and unknown games remain monitored');
