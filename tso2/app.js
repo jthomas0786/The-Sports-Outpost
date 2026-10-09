@@ -6720,7 +6720,7 @@
         staleProfileAfterSave();
         notify(saved+' leg'+(saved===1?'':'s')+' saved · '+duplicate+' already saved'+(failed?' · '+failed+' failed':'')+'. No wager placed.');
       }
-    }finally{button.disabled=false;button.textContent='SAVE ELIGIBLE LEGS';}
+    }finally{button.disabled=false;button.textContent='SAVE EXACT LEGS';}
   }
 
   function renderPropsBoard(root,rows){
