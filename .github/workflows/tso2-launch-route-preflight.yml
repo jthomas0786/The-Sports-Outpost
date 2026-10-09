@@ -10,6 +10,7 @@ on:
       - 'tso2/styles.css'
       - 'tso2/auth.js'
       - 'tso2/auth-ui-selftest.mjs'
+      - 'tso2/profile-activity-selftest.mjs'
       - 'tso2/admin.js'
       - 'tso2/admin-ui-selftest.mjs'
       - 'tso2/sidebar-polish-selftest.mjs'
@@ -50,6 +51,8 @@ jobs:
           node --check tso2/app.js
           node --check tso2/auth-ui-selftest.mjs
           node tso2/auth-ui-selftest.mjs
+          node --check tso2/profile-activity-selftest.mjs
+          node tso2/profile-activity-selftest.mjs
           node --check tso2/admin-ui-selftest.mjs
           node tso2/admin-ui-selftest.mjs
           node --check tso2/sidebar-polish-selftest.mjs
