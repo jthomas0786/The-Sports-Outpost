@@ -146,7 +146,7 @@ export function checkVapidKeysMatch() {
 
 // ---------------------------------------------------------------- push subscriptions
 export async function fetchAllSubscriptions() {
-  const url = `${SUPABASE_URL}/rest/v1/push_subscriptions?select=id,endpoint,p256dh,auth_key,user_id`;
+  const url = `${SUPABASE_URL}/rest/v1/push_subscriptions?select=id,endpoint,p256dh,auth_key,user_id,alert_preferences`;
   const res = await fetch(url, {
     headers: {
       apikey: SUPABASE_SERVICE_ROLE_KEY,
@@ -301,9 +301,12 @@ async function main() {
   });
   console.log(`  wrote ${LATEST_FILE} with ${Math.min(fresh.length, 5)} HR`);
 
-  const list = DRY && (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)
+  const allSubscribed = DRY && (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY)
     ? []   // dry-run without Supabase configured yet: still show what WOULD be sent
     : await fetchAllSubscriptions();
+  // Legacy bare-push fallback only represents regular home runs. Multi-HR-only
+  // subscribers get their targeted milestone from the encrypted realtime sender.
+  const list = allSubscribed.filter(sub => sub.alert_preferences?.mlb?.home_runs !== false);
   console.log(`  ${list.length} subscribed device(s)`);
 
   if (DRY) {
