@@ -11540,3 +11540,42 @@ body.live-multi-open{overflow:hidden}
   .rg2-page .rg2-atd-legend{align-items:flex-start;gap:8px}
   .rg2-page .rg2-atd-legend>b{flex-basis:100%}
 }
+
+
+/* TSO 2.0 Profile — verified signed-in account history */
+.profile-page [data-profile-activity].profile-activity-loaded{
+  display:block;min-width:0;margin-top:14px;
+}
+.profile-activity-summary{
+  display:flex;flex-direction:column;gap:6px;padding:13px 15px;margin-bottom:14px;
+  background:#0b1017;border:1px solid rgba(255,255,255,.10);
+  border-left:3px solid var(--outpost-orange,#ff4d1c);
+}
+.profile-activity-summary>span{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  color:#9caaba;font-size:11px;font-weight:850;letter-spacing:.07em
+}
+.profile-activity-summary strong{font-size:18px;color:#f2f6fa;letter-spacing:0}
+.profile-activity-summary>small{font-size:11px;color:#8e9bab;line-height:1.45}
+.profile-activity-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;min-width:0}
+.profile-activity-group{min-width:0;background:#0b1017;border:1px solid rgba(255,255,255,.1);padding:12px}
+.profile-activity-group h3{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:10px;margin:0 0 9px;font-size:12px;font-weight:950;letter-spacing:.07em;color:#f0f4f8
+}
+.profile-activity-group h3 small{font-size:10px;color:#8392a4;white-space:nowrap}
+.profile-activity-group>p{margin:8px 0 2px;font-size:12px;line-height:1.5;color:#9da8b7}
+.profile-activity-items{display:flex;flex-direction:column;gap:1px}
+.profile-activity-item{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;min-width:0;padding:10px 6px;border-top:1px solid rgba(255,255,255,.075)
+}
+.profile-activity-item>div{min-width:0;display:flex;flex-direction:column;gap:3px}
+.profile-activity-item b{font-size:12px;font-weight:850;overflow-wrap:anywhere;color:#e8edf7}
+.profile-activity-item small{font-size:11px;color:#909eae;overflow-wrap:anywhere}
+.profile-activity-item>em{flex:0 0 auto;max-width:38%;text-align:right;font-size:11px;font-weight:800;font-style:normal;color:#f5c66f;overflow-wrap:anywhere}
+.profile-activity-warning{margin:10px 0 0;color:#f3c28a;font-size:12px;line-height:1.5}
+@media(max-width:600px){
+  .profile-activity-summary>span{align-items:flex-start;flex-direction:column;gap:3px}
+  .profile-activity-item>em{max-width:34%}
+}
