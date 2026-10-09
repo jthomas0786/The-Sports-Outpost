@@ -29,13 +29,15 @@ function makeHarness(client,{email='qa@example.invalid',password='short',mode='s
   const builder=new Function('state',`
     let {auth,client,form,submit,usernameInput,mode,initError}=state;
     let identityFlight=null;
+    let resolveClientReady;
+    const clientReady=new Promise(resolve=>{resolveClientReady=resolve});
     const renderIdentity=()=>{state.renderCount++};
     const emit=()=>{state.emitCount++};
     const closeSignIn=()=>{state.closeCount++};
     const setMessage=(text,error=false)=>{state.messages.push({text,error})};
     const console={warn(){}};
     ${methods}
-    return {refreshIdentity,submitCredentials};
+    return {refreshIdentity,submitCredentials,connectClient(next){client=next;resolveClientReady(true)}};
   `);
   state.messages=messages;
   return {state,...builder(state)};
@@ -74,6 +76,26 @@ const verified={id:'test-user',user_metadata:{username:'VerifiedMember'},app_met
     'Progress feedback appears immediately');
 }
 {
+  // The form can be opened while the remote auth module is still loading.
+  // Its first click must remain queued and log in when the client connects.
+  let attempts=0;
+  const client={from:profile,auth:{
+    async getUser(){return {data:{user:verified},error:null}},
+    async signInWithPassword(){attempts++;return {error:null}}
+  }};
+  const h=makeHarness(null);
+  const pending=h.submitCredentials({preventDefault(){}});
+  assert.ok(h.state.messages.some(m=>/Connecting to secure sign-in/.test(m.text)),
+    'Early submit visibly waits for a connection');
+  assert.equal(h.state.submit.disabled,true);
+  assert.equal(attempts,0);
+  h.connectClient(client);
+  await pending;
+  assert.equal(attempts,1,'Only a single original click was needed');
+  assert.equal(h.state.auth.user.id,'test-user');
+  assert.equal(h.state.closeCount,1);
+}
+{
   let attempts=0;
   const client={from:profile,auth:{
     async getUser(){return {data:{user:null},error:null}},
@@ -100,4 +122,4 @@ const verified={id:'test-user',user_metadata:{username:'VerifiedMember'},app_met
   assert.equal(attempts,0,'Invalid inputs must be rejected visibly before network');
   assert.ok(h.state.messages.some(m=>m.error&&/valid email/.test(m.text)));
 }
-console.log('TSO2 sign-in test passed: short existing password, login error, verified success race and visible feedback');
+console.log('TSO2 sign-in test passed: early SDK loading, short existing password, login error, verified success race, and visible feedback');
