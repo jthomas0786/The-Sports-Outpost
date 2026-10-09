@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import {inflateSync} from 'node:zlib';
 const base='tso2/brand/';
 const pngs=[
   ['identity/tso2-app-icon-master-approved.png',1254,1254],
@@ -13,6 +14,25 @@ for(const [file,width,height] of pngs){
   assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a','Not a PNG: '+file);
   assert.equal(bytes.readUInt32BE(16),width,'PNG width mismatch '+file);
   assert.equal(bytes.readUInt32BE(20),height,'PNG height mismatch '+file);
+}
+// These are real RGBA app icons, not black-cornered RGB screenshots.
+for(const [name] of pngs.filter(([file])=>file.startsWith('production/'))){
+  const png=fs.readFileSync(base+name);
+  assert.equal(png[24],8,'8-bit depth required: '+name);
+  assert.equal(png[25],6,'True-color RGBA required: '+name);
+  const idats=[];
+  for(let cursor=8;cursor+12<=png.length;){
+    const len=png.readUInt32BE(cursor);
+    const kind=png.toString('ascii',cursor+4,cursor+8);
+    if(kind==='IDAT')idats.push(png.subarray(cursor+8,cursor+8+len));
+    cursor+=12+len;
+    if(kind==='IEND')break;
+  }
+  assert.ok(idats.length,'Missing PNG image data: '+name);
+  const raw=inflateSync(Buffer.concat(idats));
+  // In the top row, every standard PNG filter has zero previous row and
+  // zero left neighbor; byte 4 is the top-left pixel's alpha channel.
+  assert.equal(raw[4],0,'Top-left corner must actually be transparent: '+name);
 }
 const ico=fs.readFileSync(base+'production/tso2-favicon.ico');
 assert.equal(ico.readUInt16LE(2),1,'Favicon ICO type');
