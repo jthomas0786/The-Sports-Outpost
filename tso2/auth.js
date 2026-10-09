@@ -15,7 +15,7 @@ const message=form?.querySelector('[data-auth-message]');
 let mode='signin';
 let client=null;
 let initError='';
-let fetching=false;
+let identityFlight=null;
 
 const auth=window.TSO_AUTH={
   status:'loading',
@@ -129,37 +129,67 @@ function openSignIn(){
   if(modal&&!modal.open)modal.showModal();
 }
 function closeSignIn(){if(modal?.open)modal.close();}
-async function refreshIdentity(){
-  if(!client||fetching)return;
-  fetching=true;
-  try{
-    // getUser calls Supabase Auth to verify the token. getSession alone can
-    // merely return a cached/unverified local token.
+// Auth callbacks and form submissions can both refresh the identity at the
+// same time. A successful sign-in MUST wait for a new verified request, rather
+// than returning early while an older guest refresh is still running.
+async function refreshIdentity(forceAfterInFlight=false){
+  if(!client)return null;
+  if(identityFlight){
+    if(!forceAfterInFlight)return identityFlight;
+    try{await identityFlight;}catch(_){}
+  }
+  const request=(async()=>{
     const {data,error}=await client.auth.getUser();
-    if(error||!data?.user){auth.user=null;auth.status='guest';return;}
+    if(error||!data?.user){auth.user=null;auth.status='guest';return null;}
     const verified=data.user;
-    const {data:profile}=await client.from('profiles').select('username').eq('id',verified.id).maybeSingle();
+    let profile=null;
+    try{
+      const result=await client.from('profiles').select('username').eq('id',verified.id).maybeSingle();
+      profile=result?.data||null;
+    }catch(error){
+      // A profile read issue must not prevent a verified Auth session.
+      console.warn('[TSO2 auth] Profile name temporarily unavailable:',error?.message||error);
+    }
     const displayName=profile?.username||verified.user_metadata?.username||'member';
-    // app_metadata is set by the auth server, unlike editable user_metadata.
     const role=String(verified.app_metadata?.role||'').toLowerCase();
     auth.user={id:verified.id,username:String(displayName),isOwner:role==='owner'||role==='admin'};
     auth.status='authenticated';
-  }catch(error){
+    return auth.user;
+  })();
+  identityFlight=request;
+  try{return await request;}
+  catch(error){
     auth.user=null;auth.status='guest';
     console.warn('[TSO2 auth] Could not verify session',error?.message||error);
-  }finally{fetching=false;renderIdentity();emit();}
+    return null;
+  }finally{
+    if(identityFlight===request)identityFlight=null;
+    renderIdentity();emit();
+  }
 }
 async function submitCredentials(event){
   event.preventDefault();
-  if(!client){setMessage(initError||'The account service is unavailable. Please try again later.',true);return;}
-  const email=String(form.elements.namedItem('email')?.value||'').trim();
-  const password=String(form.elements.namedItem('password')?.value||'');
+  const email=String(form?.elements.namedItem('email')?.value||'').trim();
+  const password=String(form?.elements.namedItem('password')?.value||'');
   const username=String(usernameInput?.value||'').trim();
+  // Native HTML form validation can silently cancel submit (including for
+  // existing accounts with an older short password). Display an actual error.
+  if(!email||!form?.elements.namedItem('email')?.validity?.valid){
+    setMessage('Enter a valid email address.',true);return;
+  }
+  if(!password){setMessage('Enter your password to sign in.',true);return;}
+  if(mode==='signup'&&password.length<6){
+    setMessage('New passwords must be at least 6 characters.',true);return;
+  }
   if(mode==='signup'&&!/^[A-Za-z0-9_]{3,20}$/.test(username)){
     setMessage('Username must be 3–20 letters, numbers, or underscores.',true);return;
   }
-  if(submit){submit.disabled=true;submit.textContent='PLEASE WAIT…';}
-  setMessage('');
+  if(!client){
+    setMessage(initError||'Secure sign-in is still connecting. Please try again in a moment.',true);
+    return;
+  }
+  if(submit){submit.disabled=true;submit.textContent=mode==='signup'?'CREATING ACCOUNT…':'SIGNING IN…';}
+  setMessage(mode==='signup'?'Creating your account…':'Verifying your account…');
   try{
     if(mode==='signup'){
       const {data,error}=await client.auth.signUp({email,password,options:{data:{username}}});
@@ -167,14 +197,15 @@ async function submitCredentials(event){
       if(!data?.session){
         setMessage('Account created. Check your email for a confirmation link before signing in.');
       }else{
-        await refreshIdentity();
+        await refreshIdentity(true);
         if(auth.user)closeSignIn();
       }
     }else{
       const {error}=await client.auth.signInWithPassword({email,password});
       if(error)throw error;
-      await refreshIdentity();
-      if(!auth.user)throw new Error('Sign-in succeeded but your session could not be verified.');
+      // Wait out any pre-login getUser() refresh and confirm the NEW token.
+      const verified=await refreshIdentity(true);
+      if(!verified?.id)throw new Error('Sign-in succeeded but session verification failed. Please try again.');
       closeSignIn();
     }
   }catch(error){setMessage(error?.message||'Could not access account. Please try again.',true);}
@@ -197,7 +228,7 @@ try{
   const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
   client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
   await refreshIdentity();
-  client.auth.onAuthStateChange(()=>{setTimeout(()=>refreshIdentity(),0);});
+  client.auth.onAuthStateChange(()=>{setTimeout(()=>{void refreshIdentity();},0);});
 }catch(error){
   initError='The sign-in service could not load. Check your connection and try again.';
   auth.user=null;auth.status='unavailable';
