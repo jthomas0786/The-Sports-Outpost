@@ -40,7 +40,7 @@ function eligible(subscription,event){
  return typeof stored==='boolean'?stored:DEFAULTS[event.sport]?.[event.preference]===true;
 }
 function makeEvent(sport,preference,key,title,body,gameId){
- return {sport,kind:preference,key,ts:Date.now(),title,body,url:'/#live',gameId:String(gameId)};
+ return {sport,kind:preference,preference,key,ts:Date.now(),title,body,url:'/#live',gameId:String(gameId)};
 }
 export function nhlGoalEvents(game,baseline){
  const goals=Array.isArray(game.goals)?game.goals:[];
