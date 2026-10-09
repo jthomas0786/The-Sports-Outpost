@@ -77,7 +77,12 @@
               </div>
               <div class="notification-capability">
                 <span class="notification-capability-dot"></span>
-                <div><b>IN-APP CENTER ACTIVE</b><small>Signed-in members see official MLB home-run hit alerts in the bell while the site is open. NFL/NHL verification and background device push are not active yet.</small></div>
+                <div class="notification-push-controls">
+                   <b>BACKGROUND DEVICE ALERTS</b>
+                   <small>Receive verified sports alerts even when TSO is closed. Enable per device; iPhone requires the Home Screen app.</small>
+                   <button type="button" class="button secondary notification-push-toggle" data-push-toggle hidden>ENABLE DEVICE ALERTS</button>
+                   <small data-push-status role="status" aria-live="polite">Checking device support…</small>
+                 </div>
               </div>
               <div class="notification-list" data-notification-list>
                 <div class="notification-empty"><b>Connecting notification sources…</b><small>Live games, model signals and feed health.</small></div>
@@ -227,6 +232,7 @@
   <script src="./pages.js?v=20261009-verified-hr-bell-v1"></script>
   <script src="./app.js?v=20261009-side-swipe-calm-v1"></script>
   <script type="module" src="./auth.js?v=20261009-auth-verified-hr-v1"></script>
+  <script type="module" src="./push-client.js?v=20261009-device-push-v1"></script>
   <script type="module" src="./admin.js?v=20261008-owner-admin"></script>
 </body>
 </html>
