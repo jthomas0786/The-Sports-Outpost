@@ -93,19 +93,33 @@ const BATCH = 5;
  * device has its own p256dh/auth key pair), which is exactly the crypto
  * send-push.js deliberately avoided hand-rolling.
  */
-async function pushBatch(hrs) {
+async function pushBatch(hrs, allHrs=hrs) {
   if (DRY) return { ok: 0, total: 0, pruned: 0 };   // dry run never sends or fetches
   const subs = await fetchAllSubscriptions();
-  const payload = JSON.stringify(hrs.slice(-BATCH));
+  const totals = new Map();
+  for(const h of allHrs){
+    const who=String(h.batterId||h.batter||'').toLowerCase();
+    if(who)totals.set(who,(totals.get(who)||0)+1);
+  }
 
   let ok = 0;
   const deadIds = [];
   for (const sub of subs) {
     if (!sub?.endpoint || !sub.p256dh || !sub.auth_key) continue;
+    const regular=sub.alert_preferences?.mlb?.home_runs!==false;
+    const multi=sub.alert_preferences?.mlb?.multi_homer!==false;
+    if(!regular&&!multi)continue;
+    const selected=hrs.slice(-BATCH).flatMap(h=>{
+      const count=totals.get(String(h.batterId||h.batter||'').toLowerCase())||0;
+      if(count>=2&&multi)return [{...h,kind:'multi_homer',homeRun:true,homeRunCount:count,
+        key:'mlb:multi:'+h.key,title:h.batter+' — '+count+' HOME RUNS'}];
+      return regular?[h]:[];
+    });
+    if(!selected.length)continue;
     try {
       await webpush.sendNotification(
         { endpoint: sub.endpoint, keys: { p256dh: sub.p256dh, auth: sub.auth_key } },
-        payload,
+        JSON.stringify(selected),
         { TTL: 900, urgency: 'high' },
       );
       ok++;
@@ -157,7 +171,7 @@ async function loop() {
       const fresh = all.filter(h => !pushed.has(h.key));
       if (fresh.length) {
         console.log(`  [${new Date().toISOString().slice(11,19)}] ${all.length} HR · ${fresh.length} new · ${live} live — pushing`);
-        const res = await pushBatch(fresh);
+        const res = await pushBatch(fresh, all);
         if (DRY) {
           fresh.slice(-BATCH).forEach(h => console.log(`  would notify: ${h.batter} ${h.exitVelo ?? '?'} mph ${h.distance ?? '?'} ft`));
         } else {
