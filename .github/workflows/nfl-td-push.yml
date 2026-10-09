@@ -8,6 +8,8 @@ on:
       - 'scripts/nfl-td-push.mjs'
       - 'scripts/lib/nfl-touchdowns.mjs'
       - 'scripts/lib/nfl-watchlist-events.mjs'
+      - 'scripts/lib/nfl-live-window.mjs'
+      - 'scripts/lib/nfl-live-window-selftest.mjs'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -29,6 +31,8 @@ jobs:
         with:
           node-version: 20
       - run: npm ci --no-audit --no-fund
+      - name: Verify NFL live window throttle
+        run: node scripts/lib/nfl-live-window-selftest.mjs && node --check scripts/nfl-td-push.mjs
       - name: Watch touchdowns and NFL watchlist events
         env:
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
