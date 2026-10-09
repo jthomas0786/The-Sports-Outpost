@@ -2,6 +2,7 @@ import webpush from 'web-push';
 import { fetchAllSubscriptions, pruneDeadSubscriptions, checkVapidKeysMatch } from '../send-push.js';
 import { touchdownDelta } from './lib/nfl-touchdowns.mjs';
 import { nflWatchlistEventDelta } from './lib/nfl-watchlist-events.mjs';
+import { nflLiveWindowOpen } from './lib/nfl-live-window.mjs';
 const dry=process.argv.includes('--dry-run');
 if(!dry){
  if(!process.env.SUPABASE_URL||!process.env.SUPABASE_SERVICE_ROLE_KEY||!checkVapidKeysMatch())throw new Error('Push configuration unavailable');
@@ -12,6 +13,24 @@ const endpoint=process.env.NFL_LIVE_ENDPOINT||'https://hjhfbhpuuxnrexddplxd.supa
 const maxTicks=Number(process.env.MAX_TICKS||0);
 const supabaseBase=String(process.env.SUPABASE_URL||'').replace(/\/rest\/v1\/?$/,'').replace(/\/+$/,'');
 let watchlists=new Map(),watchlistsAt=0;
+// One lightweight ESPN schedule lookup per minute prevents 25-second
+// Supabase requests 24/7, while polling at full speed during actual games.
+const schedule='https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard?limit=100';
+let liveWindow=true,liveWindowCheckedAt=0;
+async function shouldPollLive(now){
+ if(now-liveWindowCheckedAt<60000)return liveWindow;
+ liveWindowCheckedAt=now;
+ try{
+  const r=await fetch(schedule,{signal:AbortSignal.timeout(12000),cache:'no-store'});
+  if(!r.ok)throw Error('ESPN schedule HTTP '+r.status);
+  liveWindow=nflLiveWindowOpen(await r.json(),now);
+ }catch(error){
+  liveWindow=true; // provider uncertainty must never silently skip a touchdown
+  console.warn('NFL schedule check failed; retaining live monitoring: '+String(error.message||error));
+ }
+ return liveWindow;
+}
+
 async function fetchNflWatchlists(){
  const key=process.env.SUPABASE_SERVICE_ROLE_KEY;if(!supabaseBase||!key)return new Map();
  const url=`${supabaseBase}/rest/v1/nfl_watchlist?select=user_id,player_id`;
@@ -38,6 +57,12 @@ function shouldSend(sub,event){
 }
 for(let tick=1;;tick++){
  try{
+  if(!await shouldPollLive(Date.now())){
+    if(tick===1||tick%144===0)console.log('NFL push idle: no live or imminent NFL games — Supabase polling suspended');
+    if(maxTicks&&tick>=maxTicks)break;
+    await new Promise(r=>setTimeout(r,25000));
+    continue;
+  }
   const response=await fetch(endpoint,{signal:AbortSignal.timeout(15000),cache:'no-store'});
   if(!response.ok)throw new Error(`Live feed HTTP ${response.status}`);
   const now=Date.now(),doc=await response.json();
