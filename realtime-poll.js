@@ -96,10 +96,12 @@ const BATCH = 5;
 async function pushBatch(hrs, allHrs=hrs) {
   if (DRY) return { ok: 0, total: 0, pruned: 0 };   // dry run never sends or fetches
   const subs = await fetchAllSubscriptions();
-  const totals = new Map();
+  const totals = new Map(), countsByKey=new Map();
   for(const h of allHrs){
     const who=String(h.batterId||h.batter||'').toLowerCase();
-    if(who)totals.set(who,(totals.get(who)||0)+1);
+    if(!who)continue;
+    totals.set(who,(totals.get(who)||0)+1);
+    countsByKey.set(h.key,totals.get(who));
   }
 
   let ok = 0;
@@ -110,9 +112,9 @@ async function pushBatch(hrs, allHrs=hrs) {
     const multi=sub.alert_preferences?.mlb?.multi_homer!==false;
     if(!regular&&!multi)continue;
     const selected=hrs.slice(-BATCH).flatMap(h=>{
-      const count=totals.get(String(h.batterId||h.batter||'').toLowerCase())||0;
+      const count=countsByKey.get(h.key)||0;
       if(count>=2&&multi)return [{...h,kind:'multi_homer',homeRun:true,homeRunCount:count,
-        key:'mlb:multi:'+h.key,title:h.batter+' — '+count+' HOME RUNS'}];
+        key:h.key,title:h.batter+' — '+count+' HOME RUNS'}];
       return regular?[h]:[];
     });
     if(!selected.length)continue;
