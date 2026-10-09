@@ -128,7 +128,7 @@
     </header>
 
     <dialog class="tso-auth-dialog" id="tsoAuthDialog" aria-labelledby="tsoAuthTitle">
-      <form class="tso-auth-form" method="dialog" data-auth-form>
+      <form class="tso-auth-form" method="dialog" novalidate data-auth-form>
         <div class="tso-auth-header">
           <div><span class="eyebrow">THE SPORTS OUTPOST</span><h2 id="tsoAuthTitle">Sign in</h2></div>
           <button type="button" class="tso-auth-close" aria-label="Close sign-in dialog" data-auth-close>✕</button>
@@ -139,7 +139,7 @@
         </div>
         <label class="tso-auth-field">Email <input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
         <label class="tso-auth-field" data-auth-username hidden>Username <input name="username" type="text" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" placeholder="Choose a username"></label>
-        <label class="tso-auth-field">Password <input name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Your password"></label>
+        <label class="tso-auth-field">Password <input name="password" type="password" autocomplete="current-password" required placeholder="Your password"></label>
         <p class="tso-auth-message" data-auth-message role="status" aria-live="polite"></p>
         <button class="tso-auth-submit" type="submit" data-auth-submit>SIGN IN</button>
         <p class="tso-auth-privacy">Account access uses the existing TSO login service. Never share your password with anyone.</p>
@@ -226,7 +226,7 @@
   </div>
   <script src="./pages.js?v=20261009-profile-history-v1"></script>
   <script src="./app.js?v=20261009-profile-history-v1"></script>
-  <script type="module" src="./auth.js?v=20261008-real-account-auth"></script>
+  <script type="module" src="./auth.js?v=20261009-signin-reliability-v2"></script>
   <script type="module" src="./admin.js?v=20261008-owner-admin"></script>
 </body>
 </html>
