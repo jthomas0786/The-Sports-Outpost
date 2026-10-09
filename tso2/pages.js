@@ -871,8 +871,8 @@
         <section class="destination-hero profile-destination-hero">
           <div>
             <span class="destination-kicker">MY OUTPOST · ${leagueName(league)}</span>
-            <h1>Your account without invented history.</h1>
-            <p>Identity and live TSO data are shown now. The in-app Notification Center is active; records, points, tracked picks, saved alert preferences and background push still wait for persisted account data.</p>
+            <h1>Your Outpost account.</h1>
+            <p>View your verified profile, saved point-wager activity, player watchlist, saved picks and notifications from the existing Outpost account. Background device push and new 2.0 pick tracking are still being built.</p>
           </div>
           <div class="destination-actions">
             <button class="button secondary" data-profile-refresh>REFRESH DATA</button>
@@ -898,9 +898,9 @@
         <section class="profile-integrity-strip" data-profile-status>
           <div><span class="props-live-dot"></span><b>CONNECTING ACCOUNT VIEW</b><small>Real feed metrics only</small></div>
           <span class="props-status-divider"></span>
-          <div><b>RECORD</b><small>not connected</small></div>
+          <div><b>ACCOUNT HISTORY</b><small data-profile-history-state>sign in to load</small></div>
           <span class="props-status-divider"></span>
-          <div><b>POINTS</b><small>not connected</small></div>
+          <div><b>POINTS</b><small data-profile-points-state>sign in to load</small></div>
           <span class="props-status-divider"></span>
           <div><b>NOTIFICATIONS</b><small>in-app active · push pending</small></div>
         </section>
@@ -908,12 +908,12 @@
         <section class="split-section profile-state-grid">
           <article class="panel profile-state-card">
             <div class="section-heading compact-heading">
-              <div><span class="gold-kicker">TRACKED PICKS</span><h2>Nothing fabricated here.</h2></div>
-              <span class="profile-state-badge">NOT CONNECTED</span>
+              <div><span class="gold-kicker">MY SAVED ACTIVITY</span><h2>Real account history.</h2></div>
+              <span class="profile-state-badge" data-profile-activity-badge>SIGN IN</span>
             </div>
-            <div class="profile-empty-state">
+            <div class="profile-empty-state" data-profile-activity>
               <span>◎</span>
-              <div><b>No persisted tracked-pick history is connected to this account yet.</b><small>When real pick tracking and settlement storage exist, this is where active and completed picks will appear.</small></div>
+              <div><b>Sign in to view your saved picks, point wagers and watchlist.</b><small>Only your account's existing records will be displayed. No example results are inserted.</small></div>
             </div>
           </article>
 
@@ -932,14 +932,14 @@
         <section class="profile-readiness panel">
           <div>
             <span class="orange-kicker">ACCOUNT DATA READINESS</span>
-            <h2>What this profile can prove today.</h2>
-            <p>TSO separates current session identity and live sports data from future account-history features.</p>
+            <h2>Verified account data.</h2>
+            <p>Saved history is read from your account using Supabase row-level security. Live sports signals are shown separately from your personal activity.</p>
           </div>
           <div class="profile-readiness-grid">
             <span><small>SESSION IDENTITY</small><b data-profile-identity-state>SIGNED OUT</b></span>
             <span><small>LIVE SPORTS DATA</small><b data-profile-feed-state>CONNECTING</b></span>
-            <span><small>PICK HISTORY</small><b class="is-offline">NOT CONNECTED</b></span>
-            <span><small>POINTS LEDGER</small><b class="is-offline">NOT CONNECTED</b></span>
+            <span><small>SAVED HISTORY</small><b data-profile-history-ready>SIGN IN</b></span>
+            <span><small>POINTS BALANCE</small><b data-profile-points-ready>SIGN IN</b></span>
               <span><small>IN-APP NOTIFICATIONS</small><b>ACTIVE</b></span>
               <span><small>BACKGROUND PUSH</small><b class="is-offline">NOT CONNECTED</b></span>
           </div>
