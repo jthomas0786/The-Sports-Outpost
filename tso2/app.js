@@ -4829,9 +4829,9 @@
 
     root.querySelectorAll('[data-parlay-target]').forEach(btn=>btn.classList.toggle('is-active',Number(btn.dataset.parlayTarget)===parlayTarget));
     const saveNote=root.querySelector('[data-parlay-save-note]');
-    if(saveNote)saveNote.textContent=rows.length&&!rows.every(canSaveExactPick)
-      ?'Contains Yes/No or unsupported legs. Save individual Over/Under picks in Player Props instead.'
-      :'Saves all Over/Under legs separately to Profile. No ticket is placed and no points are wagered.';
+    if(saveNote)saveNote.textContent=rows.length&&!rows.every(row=>canSaveExactPick(row)||canSaveBinaryPick(row))
+      ?'Some legs have no supported exact binary or Over/Under selection; nothing will be saved.'
+      :'Saves exact Over/Under and YES/NO legs separately to Profile. No ticket is placed and no points are wagered.';
 
     const math=parlayCombinedMath(rows);
     const overlap=parlayOverlapInfo(rows);
@@ -5021,15 +5021,17 @@
     const stamp=v=>{const n=Date.parse(String(v||''));return Number.isFinite(n)?new Date(n).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'Date unavailable';};
     return '<div class="profile-activity-group"><h3>'+esc(title)+' <small>'+rows.length+' RECENT</small></h3>'
       +(rows.length?'<div class="profile-activity-items">'+rows.map(r=>{
-        const title=kind==='wager'?String(r.sport||'Sports').toUpperCase()+' point wager':kind==='pick'?(r.player||'Saved player'):(r.player_name||'Saved player');
+        const title=kind==='wager'?String(r.sport||'Sports').toUpperCase()+' point wager':
+          kind==='pick'||kind==='binary'?String(r.player||'Saved player'):(r.player_name||'Saved player');
         const description=kind==='wager'?String(r.status||'Pending')+' · '+stamp(r.placed_at):
           kind==='pick'?[r.market,r.side,r.line].filter(v=>v!==null&&v!==undefined&&v!=='').join(' · '):
+          kind==='binary'?[String(r.sport||'').toUpperCase(),r.market,String(r.selection||'').toUpperCase(),r.source_line?('LINE '+r.source_line):'NO THRESHOLD',r.sportsbook].filter(Boolean).join(' · '):
           [r.sport,r.team].filter(Boolean).join(' · ');
         const aside=kind==='wager'?(Number.isFinite(Number(r.stake))?Number(r.stake).toLocaleString()+' PTS':'—'):
           String(r.slate_date||stamp(r.created_at));
         return '<div class="profile-activity-item"><div><b>'+esc(title)+'</b><small>'+esc(description)+'</small></div><em>'+esc(aside)+'</em>'
           +(kind!=='wager'&&Number.isSafeInteger(Number(r.id))
-            ?'<button type="button" class="profile-activity-remove" data-profile-remove-saved="'+(kind==='pick'?'picks':'watchlist')+'" data-profile-remove-id="'+esc(r.id)+'" aria-label="Remove '+esc(title)+' from saved activity">REMOVE</button>':'')
+            ?'<button type="button" class="profile-activity-remove" data-profile-remove-saved="'+(kind==='pick'?'picks':kind==='binary'?'tso2_saved_selections':'watchlist')+'" data-profile-remove-id="'+esc(r.id)+'" aria-label="Remove '+esc(title)+' from saved activity">REMOVE</button>':'')
           +'</div>';
       }).join('')+'</div>':'<p>No '+esc(title.toLowerCase())+' saved to this account yet.</p>')+'</div>';
   }
@@ -5056,6 +5058,7 @@
         +'<div class="profile-activity-grid">'
         +profileSavedGroup('Point wagers',data.wagers,'wager')
         +profileSavedGroup('Saved picks',data.picks,'pick')
+        +profileSavedGroup('YES / NO picks',data.binarySelections,'binary')
         +profileSavedGroup('Player watchlist',data.watchlist,'watch')+'</div>'
         +(data.issues?.length?'<p class="profile-activity-warning">Some records unavailable: '+esc(data.issues.join('; '))+'</p>':'');
       if(badge)badge.textContent=data.issues?.length?'PARTIAL':'CONNECTED';
@@ -5128,7 +5131,7 @@
     root.querySelectorAll('[data-profile-remove-saved]').forEach(btn=>btn.onclick=async()=>{
       if(!requireSignedInSave())return;
       const kind=String(btn.dataset.profileRemoveSaved||''),id=Number(btn.dataset.profileRemoveId);
-      if(!['picks','watchlist'].includes(kind)||!Number.isSafeInteger(id)||id<=0)return;
+      if(!['picks','watchlist','tso2_saved_selections'].includes(kind)||!Number.isSafeInteger(id)||id<=0)return;
       const owner=String(window.TSO_AUTH.user.id);
       btn.disabled=true;btn.textContent='REMOVING…';
       try{
@@ -6576,6 +6579,37 @@
       &&String(row.selection||'').toUpperCase()!=='YES'
       &&Number.isFinite(Number(row.line))&&!!row.key&&!!row.player&&!!row.market;
   }
+  // The source itself must label a binary outcome as YES or NO. A U 0.5
+  // selection is NOT reinterpreted as "NO" without an explicit source label.
+  function exactBinaryDecision(row){
+    const market=String(row?.market||'').toLowerCase();
+    const side=String(row?.side||'').toLowerCase();
+    if(!['atd','atg','fgs','hr'].includes(market)
+      ||!['over','under','yes','no'].includes(side))return null;
+    const text=String(row?.selection||propSelectionText(row)||'').trim().toUpperCase();
+    if(text==='YES'&&['over','yes'].includes(side))return 'yes';
+    if(text==='NO'&&['under','no'].includes(side))return 'no';
+    return null;
+  }
+  function canSaveBinaryPick(row){
+    return !!row&&['nfl','nhl','nba','mlb'].includes(String(row.sport||'').toLowerCase())
+      &&!!row.key&&!!row.player&&!!exactBinaryDecision(row);
+  }
+  function binaryPickInput(row){
+    const date=savedActivityDate(row);
+    return {sport:row.sport,key:row.key,player:row.player,market:row.market,
+      selection:exactBinaryDecision(row),sourceSide:row.side,
+      line:row.line,team:row.team,book:row.book,eventId:row.eventId,
+      price:row.price,slateDate:date.date,dateSource:date.source};
+  }
+  async function persistExactSavedPick(row){
+    if(canSaveBinaryPick(row)){
+      if(typeof window.TSO_AUTH?.saveBinarySelection!=='function')throw new Error('Yes/No storage is unavailable.');
+      return window.TSO_AUTH.saveBinarySelection(binaryPickInput(row));
+    }
+    if(canSaveExactPick(row))return window.TSO_AUTH.savePickSelection(exactPickInput(row));
+    throw new Error('This selection cannot be saved without changing its exact meaning.');
+  }
   function canWatchPlayer(row){
     const id=Number(row?.playerId);
     return !!row&&['nfl','nba','nhl','mlb'].includes(row.sport)
@@ -6618,11 +6652,14 @@
   }
   async function savePropsPick(row,button){
     if(!requireSignedInSave())return;
-    if(!canSaveExactPick(row)){notify('Only exact Over/Under props can be saved currently.');return;}
+    if(!canSaveExactPick(row)&&!canSaveBinaryPick(row)){
+      notify('This exact selection is not supported for saving yet.');
+      return;
+    }
     const owner=String(window.TSO_AUTH.user.id);
     button.disabled=true;button.textContent='SAVING…';
     try{
-      const answer=await window.TSO_AUTH.savePickSelection(exactPickInput(row));
+      const answer=await persistExactSavedPick(row);
       if(String(window.TSO_AUTH?.user?.id)!==owner)return;
       button.textContent='✓ SAVED';button.classList.add('is-saved');
       notify(answer.alreadySaved?'This pick is already saved.':'Pick saved to Profile.');
@@ -6660,9 +6697,10 @@
     }
     const rows=parlayLegRows();
     if(!rows.length){notify('Add legs before saving.');return;}
-    // A batch must never quietly omit YES/NO markets or change them to OVER.
-    if(!rows.every(canSaveExactPick)){
-      notify('This build includes Yes/No or unsupported markets. Save an all-Over/Under build only.');
+    // Each leg must have a supported, exact source meaning. Never coerce
+    // a touchdown YES into Over, or silently skip an unsupported leg.
+    if(!rows.every(row=>canSaveExactPick(row)||canSaveBinaryPick(row))){
+      notify('One or more legs cannot be saved without changing the source selection.');
       return;
     }
     const owner=String(window.TSO_AUTH.user.id);
@@ -6672,7 +6710,7 @@
       for(const row of rows){
         if(String(window.TSO_AUTH?.user?.id||'')!==owner)break;
         try{
-          const res=await window.TSO_AUTH.savePickSelection(exactPickInput(row));
+          const res=await persistExactSavedPick(row);
           if(res?.alreadySaved)duplicate++;else saved++;
         }catch(error){
           failed++;console.warn('[TSO2 save build]',error?.message||error);
@@ -6712,7 +6750,9 @@
           +'<button data-props-compare="'+esc(row.key)+'">INTEL</button>'
           +'<button '+(hasResearch?'':'disabled')+' data-props-research="'+esc(row.key)+'">RESEARCH</button>'
           +'<button class="is-primary" data-props-parlay="'+esc(row.key)+'">+ PARLAY</button>'
-          +(canSaveExactPick(row)?'<button class="props-save-action" data-props-save="'+esc(row.key)+'">SAVE</button>':'')
+          +(canSaveExactPick(row)||canSaveBinaryPick(row)
+            ?'<button class="props-save-action" data-props-save="'+esc(row.key)+'" title="Save exact sportsbook selection">'
+             +(canSaveBinaryPick(row)?'SAVE '+exactBinaryDecision(row).toUpperCase():'SAVE PICK')+'</button>':'')
           +(canWatchPlayer(row)?'<button class="props-watch-action" data-props-watch="'+esc(row.key)+'">+ WATCH</button>':'')
         +'</span>'
       +'</div>';
