@@ -32,8 +32,9 @@ async function ensureWatchlists(now){
  return watchlists;
 }
 function shouldSend(sub,event){
- if(event.kind!=='watchlist')return true;
- return !!sub.user_id&&watchlists.get(sub.user_id)?.has(String(event.playerId));
+ const flags=sub.alert_preferences?.nfl||{};
+ if(event.kind!=='watchlist')return flags.touchdowns!==false;
+ return flags.watchlist!==false&&!!sub.user_id&&watchlists.get(sub.user_id)?.has(String(event.playerId));
 }
 for(let tick=1;;tick++){
  try{
