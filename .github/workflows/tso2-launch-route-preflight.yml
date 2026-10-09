@@ -12,6 +12,7 @@ on:
       - 'tso2/auth-ui-selftest.mjs'
       - 'tso2/auth-signin-selftest.mjs'
       - 'tso2/profile-activity-selftest.mjs'
+      - 'tso2/saved-activity-selftest.mjs'
       - 'tso2/admin.js'
       - 'tso2/admin-ui-selftest.mjs'
       - 'tso2/sidebar-polish-selftest.mjs'
@@ -56,6 +57,8 @@ jobs:
           node tso2/auth-signin-selftest.mjs
           node --check tso2/profile-activity-selftest.mjs
           node tso2/profile-activity-selftest.mjs
+          node --check tso2/saved-activity-selftest.mjs
+          node tso2/saved-activity-selftest.mjs
           node --check tso2/admin-ui-selftest.mjs
           node tso2/admin-ui-selftest.mjs
           node --check tso2/sidebar-polish-selftest.mjs
