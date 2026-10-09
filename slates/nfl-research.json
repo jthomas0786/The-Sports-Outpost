@@ -2,25 +2,13 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-10-08T23:21:55.500Z",
+  "generatedAt": "2026-10-09T06:09:55.046Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
     "tso": "Existing slates/nfl.json model fields"
   },
   "sourceHealth": {
-    "nflverseSchedule": {
-      "ok": true,
-      "rows": 7548
-    },
-    "nflverseCurrentSnaps": {
-      "ok": true,
-      "rows": 5970
-    },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 3032
-    },
     "espnTeams": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -29,21 +17,41 @@
       ],
       "rows": 32
     },
-    "nflverseCurrentWeekly": {
+    "nflverseRosterCurrent": {
       "ok": true,
-      "rows": 4449
+      "rows": 3032
+    },
+    "nflversePlayers": {
+      "ok": true,
+      "rows": 24844
     },
     "nflversePrevRegular": {
       "ok": true,
       "rows": 2020
     },
+    "nflverseCurrentRegular": {
+      "ok": true,
+      "rows": 1522
+    },
+    "nflverseCurrentSnaps": {
+      "ok": true,
+      "rows": 5970
+    },
+    "nflverseCurrentWeekly": {
+      "ok": true,
+      "rows": 4517
+    },
     "nflversePrevSnaps": {
       "ok": true,
       "rows": 26613
     },
-    "nflverseCurrentRegular": {
+    "nflversePrevWeekly": {
       "ok": true,
-      "rows": 1519
+      "rows": 19422
+    },
+    "nflverseSchedule": {
+      "ok": true,
+      "rows": 7548
     },
     "espnInjuries": {
       "ok": true,
@@ -52,43 +60,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "nflversePrevWeekly": {
-      "ok": true,
-      "rows": 19422
-    },
-    "nflversePlayers": {
-      "ok": true,
-      "rows": 24844
-    },
-    "espnDepth:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
+    "espnDepth:BAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -102,7 +74,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:BAL": {
+    "espnRoster:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -116,21 +95,42 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:BUF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:BAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CAR": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:BAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -151,7 +151,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CIN": {
+    "espnDepth:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -165,14 +165,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CLE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DAL": {
+    "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -186,21 +179,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DEN": {
+    "espnRoster:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DET": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DEN": {
+    "espnRoster:CLE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -214,7 +200,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:GB": {
+    "espnRoster:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -228,7 +214,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:HOU": {
+    "espnRoster:DET": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -242,14 +228,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:IND": {
+    "espnDepth:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:HOU": {
+    "espnRoster:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -263,13 +256,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:JAX": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -277,7 +263,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:KC": {
+    "espnRoster:IND": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:JAX": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -285,6 +278,13 @@
       ]
     },
     "espnDepth:LV": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -305,6 +305,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -319,7 +326,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:LAC": {
+    "espnDepth:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -340,7 +347,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
+    "espnDepth:NO": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -354,7 +361,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NE": {
+    "espnDepth:NE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -368,14 +375,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NO": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NE": {
+    "espnRoster:NE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -396,14 +396,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NYJ": {
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NYJ": {
+    "espnRoster:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -424,14 +424,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PIT": {
+    "espnRoster:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PHI": {
+    "espnRoster:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -445,21 +445,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:SEA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:SEA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -473,7 +459,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:TB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:SEA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -487,14 +487,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TEN": {
+    "espnDepth:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:WSH": {
+    "espnRoster:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -510,7 +510,7 @@
     }
   },
   "teamCount": 32,
-  "playerCount": 2610,
+  "playerCount": 2611,
   "teams": [
     {
       "id": "22",
@@ -742,7 +742,7 @@
       "name": "Seattle Seahawks",
       "shortName": "Seahawks",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",
-      "rosterCount": 83
+      "rosterCount": 84
     },
     {
       "id": "27",
@@ -20291,7 +20291,7 @@
       "team": "ATL",
       "name": "Jam Miller",
       "position": "RB",
-      "jersey": "30",
+      "jersey": "38",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4685477.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -48751,7 +48751,7 @@
       "team": "BAL",
       "name": "Gage Larvadain",
       "position": "WR",
-      "jersey": "84",
+      "jersey": "82",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4877203.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -130346,7 +130346,7 @@
       "team": "CLE",
       "name": "John FitzPatrick",
       "position": "TE",
-      "jersey": "86",
+      "jersey": "87",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4379401.png",
       "rosterStatus": "Practice Squad",
       "active": true,
@@ -149889,11 +149889,11 @@
         "fantasyPpr": 37
       },
       "currentSeason": {
-        "games": 3,
-        "carries": 2,
+        "games": 4,
+        "carries": 3,
         "targets": 1,
         "receptions": 1,
-        "rushYds": 8,
+        "rushYds": 13,
         "recYds": 2,
         "passYds": 0,
         "completions": 0,
@@ -149902,15 +149902,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 3,
-        "scrimmageYds": 10,
+        "touches": 4,
+        "scrimmageYds": 15,
         "perGame": {
-          "carries": 0.7,
+          "carries": 0.8,
           "targets": 0.3,
           "receptions": 0.3,
-          "rushYds": 2.7,
-          "recYds": 0.7,
-          "scrimmageYds": 3.3,
+          "rushYds": 3.3,
+          "recYds": 0.5,
+          "scrimmageYds": 3.8,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -149919,21 +149919,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 0.7,
-        "airYardsShare": 0.2,
-        "fantasyPpr": 2
+        "targetShare": 0.5,
+        "airYardsShare": 0.1,
+        "fantasyPpr": 2.5
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 2.2,
-          "targets": 0.6,
-          "receptions": 0.6,
+          "carries": 1,
+          "targets": 0.4,
+          "receptions": 0.4,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 10,
-          "recYds": 4,
-          "scrimmageYds": 14,
+          "rushYds": 5,
+          "recYds": 1.2,
+          "scrimmageYds": 6.2,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -149942,6 +149942,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 1,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 5,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 5
+          },
           {
             "season": 2026,
             "week": 4,
@@ -150029,32 +150051,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 16
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "DAL",
-            "opponent": "WSH",
-            "date": "2025-12-25",
-            "homeAway": "away",
-            "gameId": "2025_17_DAL_WAS",
-            "carries": 7,
-            "targets": 1,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 30,
-            "recYds": 14,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 44
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 1,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 5,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 5
+        },
         {
           "season": 2026,
           "week": 4,
@@ -150595,59 +150617,81 @@
         "fantasyPpr": 313.8
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 12,
         "targets": 0,
         "receptions": 0,
         "rushYds": 66,
         "recYds": 0,
-        "passYds": 1065,
-        "completions": 105,
-        "attempts": 150,
-        "passTds": 8,
+        "passYds": 1381,
+        "completions": 129,
+        "attempts": 192,
+        "passTds": 9,
         "rushTds": 0,
         "recTds": 0,
-        "totalTds": 8,
+        "totalTds": 9,
         "touches": 12,
         "scrimmageYds": 66,
         "perGame": {
-          "carries": 3,
+          "carries": 2.4,
           "targets": 0,
           "receptions": 0,
-          "rushYds": 16.5,
+          "rushYds": 13.2,
           "recYds": 0,
-          "scrimmageYds": 16.5,
-          "passYds": 266.3,
-          "completions": 26.3,
-          "attempts": 37.5,
-          "passTds": 2,
+          "scrimmageYds": 13.2,
+          "passYds": 276.2,
+          "completions": 25.8,
+          "attempts": 38.4,
+          "passTds": 1.8,
           "rushTds": 0,
           "recTds": 0,
           "tds": 0
         },
         "targetShare": 0,
         "airYardsShare": 0,
-        "fantasyPpr": 81.2
+        "fantasyPpr": 93.8
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 2.8,
+          "carries": 2.4,
           "targets": 0,
           "receptions": 0,
-          "completions": 22.4,
-          "attempts": 32.2,
-          "rushYds": 13,
+          "completions": 25.8,
+          "attempts": 38.4,
+          "rushYds": 13.2,
           "recYds": 0,
-          "scrimmageYds": 13,
-          "passYds": 227,
-          "passTds": 1.6,
+          "scrimmageYds": 13.2,
+          "passYds": 276.2,
+          "passTds": 1.8,
           "rushTds": 0,
           "recTds": 0,
-          "tds": 1.6
+          "tds": 1.8
         },
-        "tdGames": 4,
+        "tdGames": 5,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 24,
+            "attempts": 42,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 316,
+            "passTds": 1,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 1,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -150735,32 +150779,32 @@
             "recTds": 0,
             "tds": 2,
             "scrimmageYds": 14
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 2,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 7,
-            "attempts": 11,
-            "rushYds": -1,
-            "recYds": 0,
-            "passYds": 70,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": -1
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 24,
+          "attempts": 42,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 316,
+          "passTds": 1,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 1,
+          "scrimmageYds": 0
+        },
         {
           "season": 2026,
           "week": 4,
@@ -151325,51 +151369,51 @@
         "fantasyPpr": 242.8
       },
       "currentSeason": {
-        "games": 4,
-        "carries": 62,
-        "targets": 17,
-        "receptions": 15,
-        "rushYds": 231,
-        "recYds": 77,
+        "games": 5,
+        "carries": 74,
+        "targets": 20,
+        "receptions": 17,
+        "rushYds": 276,
+        "recYds": 94,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
         "passTds": 0,
-        "rushTds": 5,
+        "rushTds": 6,
         "recTds": 1,
-        "totalTds": 6,
-        "touches": 77,
-        "scrimmageYds": 308,
+        "totalTds": 7,
+        "touches": 91,
+        "scrimmageYds": 370,
         "perGame": {
-          "carries": 15.5,
-          "targets": 4.3,
-          "receptions": 3.8,
-          "rushYds": 57.8,
-          "recYds": 19.3,
-          "scrimmageYds": 77,
+          "carries": 14.8,
+          "targets": 4,
+          "receptions": 3.4,
+          "rushYds": 55.2,
+          "recYds": 18.8,
+          "scrimmageYds": 74,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
-          "rushTds": 1.25,
-          "recTds": 0.25,
-          "tds": 1.5
+          "rushTds": 1.2,
+          "recTds": 0.2,
+          "tds": 1.4
         },
-        "targetShare": 11.8,
-        "airYardsShare": -2.9,
-        "fantasyPpr": 81.8
+        "targetShare": 10.8,
+        "airYardsShare": -1.8,
+        "fantasyPpr": 96
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 15,
-          "targets": 3.8,
-          "receptions": 3,
+          "carries": 14.8,
+          "targets": 4,
+          "receptions": 3.4,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 57,
-          "recYds": 15.4,
-          "scrimmageYds": 72.4,
+          "rushYds": 55.2,
+          "recYds": 18.8,
+          "scrimmageYds": 74,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 1.2,
@@ -151378,6 +151422,28 @@
         },
         "tdGames": 4,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 12,
+            "targets": 3,
+            "receptions": 2,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 45,
+            "recYds": 17,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 1,
+            "recTds": 0,
+            "tds": 1,
+            "scrimmageYds": 62
+          },
           {
             "season": 2026,
             "week": 4,
@@ -151465,32 +151531,32 @@
             "recTds": 1,
             "tds": 2,
             "scrimmageYds": 72
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "DAL",
-            "opponent": "WSH",
-            "date": "2025-12-25",
-            "homeAway": "away",
-            "gameId": "2025_17_DAL_WAS",
-            "carries": 13,
-            "targets": 2,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 54,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 1,
-            "recTds": 0,
-            "tds": 1,
-            "scrimmageYds": 54
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 12,
+          "targets": 3,
+          "receptions": 2,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 45,
+          "recYds": 17,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 1,
+          "recTds": 0,
+          "tds": 1,
+          "scrimmageYds": 62
+        },
         {
           "season": 2026,
           "week": 4,
@@ -152033,12 +152099,12 @@
         "fantasyPpr": 188.1
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
-        "targets": 15,
-        "receptions": 12,
+        "targets": 21,
+        "receptions": 15,
         "rushYds": 0,
-        "recYds": 83,
+        "recYds": 102,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -152046,38 +152112,38 @@
         "rushTds": 0,
         "recTds": 3,
         "totalTds": 3,
-        "touches": 12,
-        "scrimmageYds": 83,
+        "touches": 15,
+        "scrimmageYds": 102,
         "perGame": {
           "carries": 0,
-          "targets": 3.8,
+          "targets": 4.2,
           "receptions": 3,
           "rushYds": 0,
-          "recYds": 20.8,
-          "scrimmageYds": 20.8,
+          "recYds": 20.4,
+          "scrimmageYds": 20.4,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
           "rushTds": 0,
-          "recTds": 0.75,
-          "tds": 0.75
+          "recTds": 0.6,
+          "tds": 0.6
         },
-        "targetShare": 10.4,
-        "airYardsShare": 6,
-        "fantasyPpr": 36.3
+        "targetShare": 11.3,
+        "airYardsShare": 6.5,
+        "fantasyPpr": 41.2
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
-          "targets": 3.4,
-          "receptions": 2.6,
+          "targets": 4.2,
+          "receptions": 3,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 17.6,
-          "scrimmageYds": 17.6,
+          "recYds": 20.4,
+          "scrimmageYds": 20.4,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -152086,6 +152152,28 @@
         },
         "tdGames": 2,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 6,
+            "receptions": 3,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 19,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 19
+          },
           {
             "season": 2026,
             "week": 4,
@@ -152173,32 +152261,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 6
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 2,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 5,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 5
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 6,
+          "receptions": 3,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 19,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 19
+        },
         {
           "season": 2026,
           "week": 4,
@@ -152763,12 +152851,12 @@
         "fantasyPpr": 200.9
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 2,
-        "targets": 46,
-        "receptions": 37,
+        "targets": 51,
+        "receptions": 39,
         "rushYds": -6,
-        "recYds": 498,
+        "recYds": 507,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -152776,38 +152864,38 @@
         "rushTds": 0,
         "recTds": 4,
         "totalTds": 4,
-        "touches": 39,
-        "scrimmageYds": 492,
+        "touches": 41,
+        "scrimmageYds": 501,
         "perGame": {
-          "carries": 0.5,
-          "targets": 11.5,
-          "receptions": 9.3,
-          "rushYds": -1.5,
-          "recYds": 124.5,
-          "scrimmageYds": 123,
+          "carries": 0.4,
+          "targets": 10.2,
+          "receptions": 7.8,
+          "rushYds": -1.2,
+          "recYds": 101.4,
+          "scrimmageYds": 100.2,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
           "rushTds": 0,
-          "recTds": 1,
-          "tds": 1
+          "recTds": 0.8,
+          "tds": 0.8
         },
-        "targetShare": 31.9,
-        "airYardsShare": 43.3,
-        "fantasyPpr": 112.2
+        "targetShare": 27.4,
+        "airYardsShare": 36.5,
+        "fantasyPpr": 115.1
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0.4,
-          "targets": 9.4,
-          "receptions": 7.6,
+          "targets": 10.2,
+          "receptions": 7.8,
           "completions": 0,
           "attempts": 0,
           "rushYds": -1.2,
-          "recYds": 100.4,
-          "scrimmageYds": 99.2,
+          "recYds": 101.4,
+          "scrimmageYds": 100.2,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -152816,6 +152904,28 @@
         },
         "tdGames": 3,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 5,
+            "receptions": 2,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 9,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 9
+          },
           {
             "season": 2026,
             "week": 4,
@@ -152903,32 +153013,32 @@
             "recTds": 1,
             "tds": 1,
             "scrimmageYds": 44
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 4,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 4
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 5,
+          "receptions": 2,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 9,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 9
+        },
         {
           "season": 2026,
           "week": 4,
@@ -153799,8 +153909,8 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 1.4,
-        "airYardsShare": -0.6,
+        "targetShare": 1.1,
+        "airYardsShare": -0.5,
         "fantasyPpr": 3.9
       },
       "last5": {
@@ -154301,9 +154411,9 @@
         "fantasyPpr": 24
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
-        "targets": 4,
+        "targets": 6,
         "receptions": 3,
         "rushYds": 0,
         "recYds": 33,
@@ -154318,11 +154428,11 @@
         "scrimmageYds": 33,
         "perGame": {
           "carries": 0,
-          "targets": 1,
-          "receptions": 0.8,
+          "targets": 1.2,
+          "receptions": 0.6,
           "rushYds": 0,
-          "recYds": 8.3,
-          "scrimmageYds": 8.3,
+          "recYds": 6.6,
+          "scrimmageYds": 6.6,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -154331,21 +154441,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 2.8,
-        "airYardsShare": 0.6,
+        "targetShare": 3.2,
+        "airYardsShare": -0.1,
         "fantasyPpr": 6.3
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
-          "targets": 1.4,
-          "receptions": 1,
+          "targets": 1.2,
+          "receptions": 0.6,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 12.6,
-          "scrimmageYds": 12.6,
+          "recYds": 6.6,
+          "scrimmageYds": 6.6,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -154354,6 +154464,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 2,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -154441,32 +154573,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 14
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 3,
-            "receptions": 2,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 30,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 30
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 2,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
         {
           "season": 2026,
           "week": 4,
@@ -155009,59 +155141,81 @@
         "fantasyPpr": 291.9
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
-        "targets": 28,
-        "receptions": 18,
+        "targets": 41,
+        "receptions": 27,
         "rushYds": 0,
-        "recYds": 225,
+        "recYds": 355,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
         "passTds": 0,
         "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 18,
-        "scrimmageYds": 225,
+        "recTds": 1,
+        "totalTds": 1,
+        "touches": 27,
+        "scrimmageYds": 355,
         "perGame": {
           "carries": 0,
-          "targets": 7,
-          "receptions": 4.5,
+          "targets": 8.2,
+          "receptions": 5.4,
           "rushYds": 0,
-          "recYds": 56.3,
-          "scrimmageYds": 56.3,
+          "recYds": 71,
+          "scrimmageYds": 71,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
           "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
+          "recTds": 0.2,
+          "tds": 0.2
         },
-        "targetShare": 19.4,
-        "airYardsShare": 31.3,
-        "fantasyPpr": 40.5
+        "targetShare": 22,
+        "airYardsShare": 32.4,
+        "fantasyPpr": 68.5
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
-          "targets": 6.2,
-          "receptions": 3.8,
+          "targets": 8.2,
+          "receptions": 5.4,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 46.8,
-          "scrimmageYds": 46.8,
+          "recYds": 71,
+          "scrimmageYds": 71,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
+          "recTds": 0.2,
+          "tds": 0.2
         },
-        "tdGames": 0,
+        "tdGames": 1,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 13,
+            "receptions": 9,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 130,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 1,
+            "tds": 1,
+            "scrimmageYds": 130
+          },
           {
             "season": 2026,
             "week": 4,
@@ -155149,32 +155303,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 28
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 3,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 9,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 9
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 13,
+          "receptions": 9,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 130,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 1,
+          "tds": 1,
+          "scrimmageYds": 130
+        },
         {
           "season": 2026,
           "week": 4,
@@ -156379,12 +156533,12 @@
         "fantasyPpr": 27.2
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
-        "targets": 2,
-        "receptions": 2,
+        "targets": 3,
+        "receptions": 3,
         "rushYds": 0,
-        "recYds": 21,
+        "recYds": 30,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -156392,15 +156546,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 2,
-        "scrimmageYds": 21,
+        "touches": 3,
+        "scrimmageYds": 30,
         "perGame": {
           "carries": 0,
           "targets": 1,
           "receptions": 1,
           "rushYds": 0,
-          "recYds": 10.5,
-          "scrimmageYds": 10.5,
+          "recYds": 10,
+          "scrimmageYds": 10,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -156409,9 +156563,9 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 1.4,
-        "airYardsShare": 1.7,
-        "fantasyPpr": 4.1
+        "targetShare": 1.6,
+        "airYardsShare": 1.6,
+        "fantasyPpr": 6
       },
       "last5": {
         "games": 5,
@@ -156422,8 +156576,8 @@
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 15.4,
-          "scrimmageYds": 15.4,
+          "recYds": 11.4,
+          "scrimmageYds": 11.4,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -156432,6 +156586,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 9,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 9
+          },
           {
             "season": 2026,
             "week": 3,
@@ -156519,32 +156695,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 15
-          },
-          {
-            "season": 2025,
-            "week": 15,
-            "team": "DAL",
-            "opponent": "MIN",
-            "date": "2025-12-14",
-            "homeAway": "home",
-            "gameId": "2025_15_MIN_DAL",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 29,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 29
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 9,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 9
+        },
         {
           "season": 2026,
           "week": 3,
@@ -156999,12 +157175,12 @@
         "fantasyPpr": 114
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
-        "targets": 23,
-        "receptions": 13,
+        "targets": 27,
+        "receptions": 16,
         "rushYds": 0,
-        "recYds": 104,
+        "recYds": 194,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -157012,15 +157188,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 13,
-        "scrimmageYds": 104,
+        "touches": 16,
+        "scrimmageYds": 194,
         "perGame": {
           "carries": 0,
-          "targets": 5.8,
-          "receptions": 3.3,
+          "targets": 5.4,
+          "receptions": 3.2,
           "rushYds": 0,
-          "recYds": 26,
-          "scrimmageYds": 26,
+          "recYds": 38.8,
+          "scrimmageYds": 38.8,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -157029,21 +157205,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 16,
-        "airYardsShare": 11.3,
-        "fantasyPpr": 23.4
+        "targetShare": 14.5,
+        "airYardsShare": 12,
+        "fantasyPpr": 35.4
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
-          "targets": 6,
-          "receptions": 3.6,
+          "targets": 5.4,
+          "receptions": 3.2,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 34.4,
-          "scrimmageYds": 34.4,
+          "recYds": 38.8,
+          "scrimmageYds": 38.8,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -157052,6 +157228,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 4,
+            "receptions": 3,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 90,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 90
+          },
           {
             "season": 2026,
             "week": 4,
@@ -157139,32 +157337,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 22
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 7,
-            "receptions": 5,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 68,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 68
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 4,
+          "receptions": 3,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 90,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 90
+        },
         {
           "season": 2026,
           "week": 4,
@@ -158371,12 +158569,12 @@
         "fantasyPpr": 84.5
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 2,
-        "targets": 3,
-        "receptions": 2,
+        "targets": 7,
+        "receptions": 4,
         "rushYds": 10,
-        "recYds": 17,
+        "recYds": 39,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -158384,38 +158582,38 @@
         "rushTds": 1,
         "recTds": 0,
         "totalTds": 1,
-        "touches": 4,
-        "scrimmageYds": 27,
+        "touches": 6,
+        "scrimmageYds": 49,
         "perGame": {
-          "carries": 0.5,
-          "targets": 0.8,
-          "receptions": 0.5,
-          "rushYds": 2.5,
-          "recYds": 4.3,
-          "scrimmageYds": 6.8,
+          "carries": 0.4,
+          "targets": 1.4,
+          "receptions": 0.8,
+          "rushYds": 2,
+          "recYds": 7.8,
+          "scrimmageYds": 9.8,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
-          "rushTds": 0.25,
+          "rushTds": 0.2,
           "recTds": 0,
-          "tds": 0.25
+          "tds": 0.2
         },
-        "targetShare": 2.1,
-        "airYardsShare": 1.5,
-        "fantasyPpr": 10.7
+        "targetShare": 3.8,
+        "airYardsShare": 3,
+        "fantasyPpr": 14.9
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 0.6,
-          "targets": 0.8,
-          "receptions": 0.4,
+          "carries": 0.4,
+          "targets": 1.4,
+          "receptions": 0.8,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 3.4,
-          "recYds": 3.4,
-          "scrimmageYds": 6.8,
+          "rushYds": 2,
+          "recYds": 7.8,
+          "scrimmageYds": 9.8,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0.2,
@@ -158424,6 +158622,28 @@
         },
         "tdGames": 1,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 4,
+            "receptions": 2,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 22,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 22
+          },
           {
             "season": 2026,
             "week": 4,
@@ -158511,32 +158731,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 8
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 1,
-            "targets": 1,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 7,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 7
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 4,
+          "receptions": 2,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 22,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 22
+        },
         {
           "season": 2026,
           "week": 4,
@@ -159121,12 +159341,12 @@
         "fantasyPpr": 3.5
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
-        "targets": 3,
-        "receptions": 1,
+        "targets": 7,
+        "receptions": 3,
         "rushYds": 0,
-        "recYds": 10,
+        "recYds": 30,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -159134,15 +159354,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 1,
-        "scrimmageYds": 10,
+        "touches": 3,
+        "scrimmageYds": 30,
         "perGame": {
           "carries": 0,
-          "targets": 1.5,
-          "receptions": 0.5,
+          "targets": 2.3,
+          "receptions": 1,
           "rushYds": 0,
-          "recYds": 5,
-          "scrimmageYds": 5,
+          "recYds": 10,
+          "scrimmageYds": 10,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -159151,21 +159371,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 2.1,
-        "airYardsShare": 2.5,
-        "fantasyPpr": 2
+        "targetShare": 3.8,
+        "airYardsShare": 6.4,
+        "fantasyPpr": 6
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
-          "targets": 1.2,
-          "receptions": 0.2,
+          "targets": 1.8,
+          "receptions": 0.6,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 2,
-          "scrimmageYds": 2,
+          "recYds": 6,
+          "scrimmageYds": 6,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -159174,6 +159394,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 4,
+            "receptions": 2,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 20,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 20
+          },
           {
             "season": 2026,
             "week": 4,
@@ -159261,32 +159503,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "DAL",
-            "opponent": "LAC",
-            "date": "2025-12-21",
-            "homeAway": "home",
-            "gameId": "2025_16_LAC_DAL",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "TB",
+          "date": "2026-10-08",
+          "homeAway": "home",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 4,
+          "receptions": 2,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 20,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 20
+        },
         {
           "season": 2026,
           "week": 4,
@@ -159938,9 +160180,43 @@
         "airYardsShare": 0,
         "fantasyPpr": 0
       },
-      "currentSeason": null,
-      "last5": {
+      "currentSeason": {
         "games": 1,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "last5": {
+        "games": 2,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -159958,6 +160234,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2025,
             "week": 16,
@@ -160281,7 +160579,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -160316,7 +160614,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 3,
+        "games": 4,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -160334,6 +160632,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -160933,7 +161253,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -160986,6 +161306,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -161060,28 +161402,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 15,
-            "team": "DAL",
-            "opponent": "MIN",
-            "date": "2025-12-14",
-            "homeAway": "home",
-            "gameId": "2025_15_MIN_DAL",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -161590,7 +161910,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -161643,6 +161963,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -161730,28 +162072,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "DAL",
-            "opponent": "LAC",
-            "date": "2025-12-21",
-            "homeAway": "home",
-            "gameId": "2025_16_LAC_DAL",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -161822,7 +162142,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 3,
+        "games": 4,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -161875,6 +162195,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 3,
@@ -161949,28 +162291,6 @@
             "date": "2025-12-25",
             "homeAway": "away",
             "gameId": "2025_17_DAL_WAS",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "DAL",
-            "opponent": "LAC",
-            "date": "2025-12-21",
-            "homeAway": "home",
-            "gameId": "2025_16_LAC_DAL",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -162605,7 +162925,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -162658,6 +162978,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -162745,28 +163087,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -162803,7 +163123,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -162838,7 +163158,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 4,
+        "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -162856,6 +163176,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -163013,7 +163355,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -163066,6 +163408,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -163140,28 +163504,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "LAC",
-            "opponent": "DEN",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_LAC_DEN",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -163245,7 +163587,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -163298,6 +163640,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -163372,28 +163736,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -163727,7 +164069,41 @@
         "airYardsShare": 0,
         "fantasyPpr": 0
       },
-      "currentSeason": null,
+      "currentSeason": {
+        "games": 1,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
       "last5": {
         "games": 5,
         "avg": {
@@ -163747,6 +164123,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2025,
             "week": 17,
@@ -163821,28 +164219,6 @@
             "date": "2025-11-03",
             "homeAway": "home",
             "gameId": "2025_09_ARI_DAL",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 7,
-            "team": "DAL",
-            "opponent": "WSH",
-            "date": "2025-10-19",
-            "homeAway": "home",
-            "gameId": "2025_07_WAS_DAL",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -164356,7 +164732,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -164409,6 +164785,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -164483,28 +164881,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "SF",
-            "opponent": "SEA",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_SEA_SF",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -164820,7 +165196,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -164873,6 +165249,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -164960,28 +165358,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -165052,7 +165428,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -165087,7 +165463,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 4,
+        "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -165105,6 +165481,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -165460,7 +165858,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -165495,7 +165893,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 1,
+        "games": 2,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -165513,6 +165911,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -165570,7 +165990,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -165605,7 +166025,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 4,
+        "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -165623,6 +166043,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -165978,7 +166420,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -166031,6 +166473,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -166118,28 +166582,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "GB",
-            "opponent": "BAL",
-            "date": "2025-12-27",
-            "homeAway": "home",
-            "gameId": "2025_17_BAL_GB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -166210,7 +166652,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -166263,6 +166705,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -166337,28 +166801,6 @@
             "date": "2025-12-25",
             "homeAway": "away",
             "gameId": "2025_17_DAL_WAS",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "DAL",
-            "opponent": "LAC",
-            "date": "2025-12-21",
-            "homeAway": "home",
-            "gameId": "2025_16_LAC_DAL",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -167863,7 +168305,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -167916,6 +168358,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -167990,28 +168454,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -168095,7 +168537,7 @@
         "fantasyPpr": 0.6
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -168148,6 +168590,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -168222,28 +168686,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -168525,7 +168967,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -168560,7 +169002,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 4,
+        "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -168578,6 +169020,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -168966,7 +169430,41 @@
         "airYardsShare": 0,
         "fantasyPpr": 0
       },
-      "currentSeason": null,
+      "currentSeason": {
+        "games": 1,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
       "last5": {
         "games": 5,
         "avg": {
@@ -168986,6 +169484,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2025,
             "week": 9,
@@ -169073,28 +169593,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 3,
-            "team": "DAL",
-            "opponent": "CHI",
-            "date": "2025-09-21",
-            "homeAway": "away",
-            "gameId": "2025_03_DAL_CHI",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -169165,7 +169663,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -169218,6 +169716,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -169305,28 +169825,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "DAL",
-            "opponent": "LAC",
-            "date": "2025-12-21",
-            "homeAway": "home",
-            "gameId": "2025_16_LAC_DAL",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -169397,7 +169895,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -169450,6 +169948,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "DAL",
+            "opponent": "TB",
+            "date": "2026-10-08",
+            "homeAway": "home",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -169524,28 +170044,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_DAL_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "DAL",
-            "opponent": "NYG",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_DAL_NYG",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -213484,7 +213982,7 @@
       "position": "RB",
       "jersey": "22",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4249836.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 4,
       "age": 27,
@@ -514519,7 +515017,7 @@
       "team": "SEA",
       "name": "Robert Henry Jr.",
       "position": "RB",
-      "jersey": "30",
+      "jersey": "34",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/5151317.png",
       "rosterStatus": "Active",
       "active": true,
@@ -524576,6 +525074,160 @@
       "gameLog": null,
       "snapTrend": {
         "games": 5,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
+      "matchup": null
+    },
+    {
+      "espnId": "4427190",
+      "gsisId": "00-0038866",
+      "pfrId": "FinlAJ00",
+      "team": "SEA",
+      "name": "AJ Finley",
+      "position": "S",
+      "jersey": "30",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4427190.png",
+      "rosterStatus": "Practice Squad",
+      "active": true,
+      "experience": 4,
+      "age": 25,
+      "depth": {
+        "rank": null,
+        "position": "S",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": null,
+      "currentSeason": {
+        "games": 3,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "last5": {
+        "games": 3,
+        "avg": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "tdGames": 0,
+        "gamesLog": [
+          {
+            "season": 2026,
+            "week": 4,
+            "team": "SEA",
+            "opponent": "LAC",
+            "date": "2026-10-04",
+            "homeAway": "home",
+            "gameId": "2026_04_LAC_SEA",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2026,
+            "week": 3,
+            "team": "SEA",
+            "opponent": "WSH",
+            "date": "2026-09-27",
+            "homeAway": "away",
+            "gameId": "2026_03_SEA_WAS",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2026,
+            "week": 2,
+            "team": "SEA",
+            "opponent": "ARI",
+            "date": "2026-09-20",
+            "homeAway": "away",
+            "gameId": "2026_02_SEA_ARI",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          }
+        ]
+      },
+      "gameLog": null,
+      "snapTrend": {
+        "games": 3,
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
@@ -535698,12 +536350,12 @@
       "team": "SF",
       "name": "Dante Pettis",
       "position": "WR",
-      "jersey": "18",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3127306.png",
-      "rosterStatus": "Practice Squad",
+      "jersey": null,
+      "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/xz70t2ahl2ak2q9mqtia",
+      "rosterStatus": "Slate player",
       "active": true,
-      "experience": 3,
-      "age": 30,
+      "experience": null,
+      "age": null,
       "depth": {
         "rank": 9,
         "position": "WR",
@@ -547468,59 +548120,81 @@
         "fantasyPpr": 138.5
       },
       "currentSeason": {
-        "games": 4,
-        "carries": 56,
-        "targets": 15,
-        "receptions": 13,
-        "rushYds": 241,
-        "recYds": 61,
+        "games": 5,
+        "carries": 77,
+        "targets": 18,
+        "receptions": 15,
+        "rushYds": 406,
+        "recYds": 71,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
         "passTds": 0,
-        "rushTds": 1,
-        "recTds": 0,
-        "totalTds": 1,
-        "touches": 69,
-        "scrimmageYds": 302,
+        "rushTds": 2,
+        "recTds": 1,
+        "totalTds": 3,
+        "touches": 92,
+        "scrimmageYds": 477,
         "perGame": {
-          "carries": 14,
-          "targets": 3.8,
-          "receptions": 3.3,
-          "rushYds": 60.3,
-          "recYds": 15.3,
-          "scrimmageYds": 75.5,
+          "carries": 15.4,
+          "targets": 3.6,
+          "receptions": 3,
+          "rushYds": 81.2,
+          "recYds": 14.2,
+          "scrimmageYds": 95.4,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
-          "rushTds": 0.25,
-          "recTds": 0,
-          "tds": 0.25
+          "rushTds": 0.4,
+          "recTds": 0.2,
+          "tds": 0.6
         },
-        "targetShare": 12.4,
-        "airYardsShare": -3.1,
-        "fantasyPpr": 47.2
+        "targetShare": 12.3,
+        "airYardsShare": -2.7,
+        "fantasyPpr": 78.7
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 16.4,
-          "targets": 3.4,
-          "receptions": 2.8,
+          "carries": 15.4,
+          "targets": 3.6,
+          "receptions": 3,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 65.2,
-          "recYds": 14.8,
-          "scrimmageYds": 80,
+          "rushYds": 81.2,
+          "recYds": 14.2,
+          "scrimmageYds": 95.4,
           "passYds": 0,
           "passTds": 0,
-          "rushTds": 0.2,
-          "recTds": 0,
-          "tds": 0.2
+          "rushTds": 0.4,
+          "recTds": 0.2,
+          "tds": 0.6
         },
-        "tdGames": 1,
+        "tdGames": 2,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 21,
+            "targets": 3,
+            "receptions": 2,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 165,
+            "recYds": 10,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 1,
+            "recTds": 1,
+            "tds": 2,
+            "scrimmageYds": 175
+          },
           {
             "season": 2026,
             "week": 4,
@@ -547608,32 +548282,32 @@
             "recTds": 0,
             "tds": 1,
             "scrimmageYds": 93
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 26,
-            "targets": 2,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 85,
-            "recYds": 13,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 98
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 21,
+          "targets": 3,
+          "receptions": 2,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 165,
+          "recYds": 10,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 1,
+          "recTds": 1,
+          "tds": 2,
+          "scrimmageYds": 175
+        },
         {
           "season": 2026,
           "week": 4,
@@ -548044,12 +548718,12 @@
         "fantasyPpr": 122.2
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
-        "targets": 23,
-        "receptions": 15,
+        "targets": 27,
+        "receptions": 18,
         "rushYds": 0,
-        "recYds": 157,
+        "recYds": 182,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -548057,15 +548731,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 15,
-        "scrimmageYds": 157,
+        "touches": 18,
+        "scrimmageYds": 182,
         "perGame": {
           "carries": 0,
-          "targets": 5.8,
-          "receptions": 3.8,
+          "targets": 5.4,
+          "receptions": 3.6,
           "rushYds": 0,
-          "recYds": 39.3,
-          "scrimmageYds": 39.3,
+          "recYds": 36.4,
+          "scrimmageYds": 36.4,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -548074,29 +548748,51 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 19,
-        "airYardsShare": 15,
-        "fantasyPpr": 30.7
+        "targetShare": 18.5,
+        "airYardsShare": 15.7,
+        "fantasyPpr": 36.2
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
-          "targets": 6.4,
-          "receptions": 4.4,
+          "targets": 5.4,
+          "receptions": 3.6,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 50.2,
-          "scrimmageYds": 50.2,
+          "recYds": 36.4,
+          "scrimmageYds": 36.4,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
-          "recTds": 0.2,
-          "tds": 0.2
+          "recTds": 0,
+          "tds": 0
         },
-        "tdGames": 1,
+        "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 4,
+            "receptions": 3,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 25,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 25
+          },
           {
             "season": 2026,
             "week": 4,
@@ -548184,32 +548880,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 26
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 9,
-            "receptions": 7,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 94,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 1,
-            "tds": 1,
-            "scrimmageYds": 94
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 4,
+          "receptions": 3,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 25,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 25
+        },
         {
           "season": 2026,
           "week": 4,
@@ -548730,59 +549426,81 @@
         "fantasyPpr": 195.7
       },
       "currentSeason": {
-        "games": 4,
-        "carries": 1,
-        "targets": 24,
-        "receptions": 15,
-        "rushYds": -3,
-        "recYds": 154,
+        "games": 5,
+        "carries": 2,
+        "targets": 33,
+        "receptions": 21,
+        "rushYds": 11,
+        "recYds": 192,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
         "passTds": 0,
-        "rushTds": 0,
+        "rushTds": 1,
         "recTds": 1,
-        "totalTds": 1,
-        "touches": 16,
-        "scrimmageYds": 151,
+        "totalTds": 2,
+        "touches": 23,
+        "scrimmageYds": 203,
         "perGame": {
-          "carries": 0.3,
-          "targets": 6,
-          "receptions": 3.8,
-          "rushYds": -0.8,
-          "recYds": 38.5,
-          "scrimmageYds": 37.8,
+          "carries": 0.4,
+          "targets": 6.6,
+          "receptions": 4.2,
+          "rushYds": 2.2,
+          "recYds": 38.4,
+          "scrimmageYds": 40.6,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0.25,
-          "tds": 0.25
+          "rushTds": 0.2,
+          "recTds": 0.2,
+          "tds": 0.4
         },
-        "targetShare": 19.8,
-        "airYardsShare": 25,
-        "fantasyPpr": 36.1
+        "targetShare": 22.6,
+        "airYardsShare": 28.7,
+        "fantasyPpr": 53.3
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 0.2,
-          "targets": 5.4,
-          "receptions": 3.2,
+          "carries": 0.4,
+          "targets": 6.6,
+          "receptions": 4.2,
           "completions": 0,
           "attempts": 0,
-          "rushYds": -0.6,
-          "recYds": 32.4,
-          "scrimmageYds": 31.8,
+          "rushYds": 2.2,
+          "recYds": 38.4,
+          "scrimmageYds": 40.6,
           "passYds": 0,
           "passTds": 0,
-          "rushTds": 0,
+          "rushTds": 0.2,
           "recTds": 0.2,
-          "tds": 0.2
+          "tds": 0.4
         },
-        "tdGames": 1,
+        "tdGames": 2,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 1,
+            "targets": 9,
+            "receptions": 6,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 14,
+            "recYds": 38,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 1,
+            "recTds": 0,
+            "tds": 1,
+            "scrimmageYds": 52
+          },
           {
             "season": 2026,
             "week": 4,
@@ -548870,32 +549588,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 63
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 3,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 8,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 8
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 1,
+          "targets": 9,
+          "receptions": 6,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 14,
+          "recYds": 38,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 1,
+          "recTds": 0,
+          "tds": 1,
+          "scrimmageYds": 52
+        },
         {
           "season": 2026,
           "week": 4,
@@ -549426,59 +550144,81 @@
       },
       "previousSeason": null,
       "currentSeason": {
-        "games": 2,
-        "carries": 9,
+        "games": 3,
+        "carries": 16,
         "targets": 0,
         "receptions": 0,
-        "rushYds": 64,
+        "rushYds": 87,
         "recYds": 0,
-        "passYds": 148,
-        "completions": 19,
-        "attempts": 30,
-        "passTds": 1,
+        "passYds": 337,
+        "completions": 38,
+        "attempts": 55,
+        "passTds": 2,
         "rushTds": 0,
         "recTds": 0,
-        "totalTds": 1,
-        "touches": 9,
-        "scrimmageYds": 64,
+        "totalTds": 2,
+        "touches": 16,
+        "scrimmageYds": 87,
         "perGame": {
-          "carries": 4.5,
+          "carries": 5.3,
           "targets": 0,
           "receptions": 0,
-          "rushYds": 32,
+          "rushYds": 29,
           "recYds": 0,
-          "scrimmageYds": 32,
-          "passYds": 74,
-          "completions": 9.5,
-          "attempts": 15,
-          "passTds": 0.5,
+          "scrimmageYds": 29,
+          "passYds": 112.3,
+          "completions": 12.7,
+          "attempts": 18.3,
+          "passTds": 0.67,
           "rushTds": 0,
           "recTds": 0,
           "tds": 0
         },
         "targetShare": 0,
         "airYardsShare": 0,
-        "fantasyPpr": 10.3
+        "fantasyPpr": 24.2
       },
       "last5": {
-        "games": 2,
+        "games": 3,
         "avg": {
-          "carries": 4.5,
+          "carries": 5.3,
           "targets": 0,
           "receptions": 0,
-          "completions": 9.5,
-          "attempts": 15,
-          "rushYds": 32,
+          "completions": 12.7,
+          "attempts": 18.3,
+          "rushYds": 29,
           "recYds": 0,
-          "scrimmageYds": 32,
-          "passYds": 74,
-          "passTds": 0.5,
+          "scrimmageYds": 29,
+          "passYds": 112.3,
+          "passTds": 0.67,
           "rushTds": 0,
           "recTds": 0,
-          "tds": 0.5
+          "tds": 0.67
         },
-        "tdGames": 1,
+        "tdGames": 2,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 7,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 19,
+            "attempts": 25,
+            "rushYds": 23,
+            "recYds": 0,
+            "passYds": 189,
+            "passTds": 1,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 1,
+            "scrimmageYds": 23
+          },
           {
             "season": 2026,
             "week": 4,
@@ -549526,6 +550266,28 @@
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 7,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 19,
+          "attempts": 25,
+          "rushYds": 23,
+          "recYds": 0,
+          "passYds": 189,
+          "passTds": 1,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 1,
+          "scrimmageYds": 23
+        },
         {
           "season": 2026,
           "week": 4,
@@ -549672,12 +550434,12 @@
         "fantasyPpr": 221.3
       },
       "currentSeason": {
-        "games": 4,
-        "carries": 13,
-        "targets": 12,
-        "receptions": 8,
-        "rushYds": 26,
-        "recYds": 44,
+        "games": 5,
+        "carries": 17,
+        "targets": 16,
+        "receptions": 11,
+        "rushYds": 44,
+        "recYds": 54,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -549685,46 +550447,68 @@
         "rushTds": 0,
         "recTds": 1,
         "totalTds": 1,
-        "touches": 21,
-        "scrimmageYds": 70,
+        "touches": 28,
+        "scrimmageYds": 98,
         "perGame": {
-          "carries": 3.3,
-          "targets": 3,
-          "receptions": 2,
-          "rushYds": 6.5,
-          "recYds": 11,
-          "scrimmageYds": 17.5,
+          "carries": 3.4,
+          "targets": 3.2,
+          "receptions": 2.2,
+          "rushYds": 8.8,
+          "recYds": 10.8,
+          "scrimmageYds": 19.6,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
           "rushTds": 0,
-          "recTds": 0.25,
-          "tds": 0.25
+          "recTds": 0.2,
+          "tds": 0.2
         },
-        "targetShare": 9.9,
-        "airYardsShare": -0.6,
-        "fantasyPpr": 21
+        "targetShare": 11,
+        "airYardsShare": -2.8,
+        "fantasyPpr": 26.8
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 3.6,
-          "targets": 4.2,
-          "receptions": 3.2,
+          "carries": 3.4,
+          "targets": 3.2,
+          "receptions": 2.2,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 7.2,
-          "recYds": 21.6,
-          "scrimmageYds": 28.8,
+          "rushYds": 8.8,
+          "recYds": 10.8,
+          "scrimmageYds": 19.6,
           "passYds": 0,
           "passTds": 0,
-          "rushTds": 0.2,
+          "rushTds": 0,
           "recTds": 0.2,
-          "tds": 0.4
+          "tds": 0.2
         },
-        "tdGames": 2,
+        "tdGames": 1,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 4,
+            "targets": 4,
+            "receptions": 3,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 18,
+            "recYds": 10,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 28
+          },
           {
             "season": 2026,
             "week": 4,
@@ -549812,32 +550596,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 18
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "PIT",
-            "opponent": "BAL",
-            "date": "2026-01-04",
-            "homeAway": "home",
-            "gameId": "2025_18_BAL_PIT",
-            "carries": 5,
-            "targets": 9,
-            "receptions": 8,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 10,
-            "recYds": 64,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 1,
-            "recTds": 0,
-            "tds": 1,
-            "scrimmageYds": 74
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 4,
+          "targets": 4,
+          "receptions": 3,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 18,
+          "recYds": 10,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 28
+        },
         {
           "season": 2026,
           "week": 4,
@@ -550402,12 +551186,12 @@
         "fantasyPpr": 2.1
       },
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
-        "targets": 1,
-        "receptions": 0,
+        "targets": 2,
+        "receptions": 1,
         "rushYds": 0,
-        "recYds": 0,
+        "recYds": 5,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -550415,15 +551199,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
+        "touches": 1,
+        "scrimmageYds": 5,
         "perGame": {
           "carries": 0,
           "targets": 1,
-          "receptions": 0,
+          "receptions": 0.5,
           "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
+          "recYds": 2.5,
+          "scrimmageYds": 2.5,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -550432,21 +551216,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 0.8,
-        "airYardsShare": 0.4,
-        "fantasyPpr": 0
+        "targetShare": 1.4,
+        "airYardsShare": 0.5,
+        "fantasyPpr": 1.5
       },
       "last5": {
         "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0.8,
-          "receptions": 0.2,
+          "receptions": 0.4,
           "completions": 0,
           "attempts": 0,
           "rushYds": 0,
-          "recYds": 2.2,
-          "scrimmageYds": 2.2,
+          "recYds": 3.2,
+          "scrimmageYds": 3.2,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -550455,6 +551239,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 5,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 5
+          },
           {
             "season": 2026,
             "week": 3,
@@ -550542,32 +551348,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 11
-          },
-          {
-            "season": 2025,
-            "week": 10,
-            "team": "TB",
-            "opponent": "NE",
-            "date": "2025-11-09",
-            "homeAway": "home",
-            "gameId": "2025_10_NE_TB",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 5,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 5
+        },
         {
           "season": 2026,
           "week": 3,
@@ -550868,12 +551674,12 @@
         "fantasyPpr": 83
       },
       "currentSeason": {
-        "games": 4,
-        "carries": 2,
-        "targets": 18,
-        "receptions": 16,
-        "rushYds": 15,
-        "recYds": 142,
+        "games": 5,
+        "carries": 3,
+        "targets": 21,
+        "receptions": 19,
+        "rushYds": 18,
+        "recYds": 179,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -550881,15 +551687,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 18,
-        "scrimmageYds": 157,
+        "touches": 22,
+        "scrimmageYds": 197,
         "perGame": {
-          "carries": 0.5,
-          "targets": 4.5,
-          "receptions": 4,
-          "rushYds": 3.8,
-          "recYds": 35.5,
-          "scrimmageYds": 39.3,
+          "carries": 0.6,
+          "targets": 4.2,
+          "receptions": 3.8,
+          "rushYds": 3.6,
+          "recYds": 35.8,
+          "scrimmageYds": 39.4,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -550898,21 +551704,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 14.9,
-        "airYardsShare": 6.3,
-        "fantasyPpr": 31.7
+        "targetShare": 14.4,
+        "airYardsShare": 6.2,
+        "fantasyPpr": 38.7
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 0.4,
-          "targets": 3.8,
-          "receptions": 3.4,
+          "carries": 0.6,
+          "targets": 4.2,
+          "receptions": 3.8,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 3,
-          "recYds": 30,
-          "scrimmageYds": 33,
+          "rushYds": 3.6,
+          "recYds": 35.8,
+          "scrimmageYds": 39.4,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -550921,6 +551727,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 1,
+            "targets": 3,
+            "receptions": 3,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 3,
+            "recYds": 37,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 40
+          },
           {
             "season": 2026,
             "week": 4,
@@ -551008,32 +551836,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 43
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 1,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 8,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 8
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 1,
+          "targets": 3,
+          "receptions": 3,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 3,
+          "recYds": 37,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 40
+        },
         {
           "season": 2026,
           "week": 4,
@@ -551654,11 +552482,11 @@
         "fantasyPpr": 91.4
       },
       "currentSeason": {
-        "games": 1,
-        "carries": 3,
+        "games": 2,
+        "carries": 8,
         "targets": 0,
         "receptions": 0,
-        "rushYds": 10,
+        "rushYds": 28,
         "recYds": 0,
         "passYds": 0,
         "completions": 0,
@@ -551667,46 +552495,68 @@
         "rushTds": 1,
         "recTds": 0,
         "totalTds": 1,
-        "touches": 3,
-        "scrimmageYds": 10,
+        "touches": 8,
+        "scrimmageYds": 28,
         "perGame": {
-          "carries": 3,
+          "carries": 4,
           "targets": 0,
           "receptions": 0,
-          "rushYds": 10,
+          "rushYds": 14,
           "recYds": 0,
-          "scrimmageYds": 10,
+          "scrimmageYds": 14,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
           "passTds": 0,
-          "rushTds": 1,
+          "rushTds": 0.5,
           "recTds": 0,
-          "tds": 1
+          "tds": 0.5
         },
         "targetShare": 0,
         "airYardsShare": 0,
-        "fantasyPpr": 7
+        "fantasyPpr": 8.8
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 3.4,
+          "carries": 3.6,
           "targets": 0.2,
           "receptions": 0,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 4.8,
+          "rushYds": 7,
           "recYds": 0,
-          "scrimmageYds": 4.8,
+          "scrimmageYds": 7,
           "passYds": 0,
           "passTds": 0,
-          "rushTds": 0.6,
+          "rushTds": 0.4,
           "recTds": 0,
-          "tds": 0.6
+          "tds": 0.4
         },
-        "tdGames": 3,
+        "tdGames": 2,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 5,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 18,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 18
+          },
           {
             "season": 2026,
             "week": 4,
@@ -551794,32 +552644,32 @@
             "recTds": 0,
             "tds": 1,
             "scrimmageYds": 3
-          },
-          {
-            "season": 2025,
-            "week": 15,
-            "team": "TB",
-            "opponent": "ATL",
-            "date": "2025-12-11",
-            "homeAway": "home",
-            "gameId": "2025_15_ATL_TB",
-            "carries": 4,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 7,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 1,
-            "recTds": 0,
-            "tds": 1,
-            "scrimmageYds": 7
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 5,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 18,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 18
+        },
         {
           "season": 2026,
           "week": 4,
@@ -552673,8 +553523,8 @@
           "recTds": 0.25,
           "tds": 0.25
         },
-        "targetShare": 13.2,
-        "airYardsShare": 25.9,
+        "targetShare": 11,
+        "airYardsShare": 23.5,
         "fantasyPpr": 26.8
       },
       "last5": {
@@ -553233,7 +554083,7 @@
       },
       "previousSeason": null,
       "currentSeason": {
-        "games": 3,
+        "games": 4,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -553268,7 +554118,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 3,
+        "games": 4,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -553286,6 +554136,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -553355,6 +554227,28 @@
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
         {
           "season": 2026,
           "week": 4,
@@ -553523,12 +554417,12 @@
         "fantasyPpr": 92.4
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 2,
-        "targets": 9,
-        "receptions": 4,
+        "targets": 10,
+        "receptions": 5,
         "rushYds": 6,
-        "recYds": 74,
+        "recYds": 138,
         "passYds": 0,
         "completions": 0,
         "attempts": 0,
@@ -553536,15 +554430,15 @@
         "rushTds": 0,
         "recTds": 0,
         "totalTds": 0,
-        "touches": 6,
-        "scrimmageYds": 80,
+        "touches": 7,
+        "scrimmageYds": 144,
         "perGame": {
-          "carries": 0.5,
-          "targets": 2.3,
+          "carries": 0.4,
+          "targets": 2,
           "receptions": 1,
-          "rushYds": 1.5,
-          "recYds": 18.5,
-          "scrimmageYds": 20,
+          "rushYds": 1.2,
+          "recYds": 27.6,
+          "scrimmageYds": 28.8,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -553553,21 +554447,21 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 7.4,
-        "airYardsShare": 21,
-        "fantasyPpr": 12
+        "targetShare": 6.8,
+        "airYardsShare": 21.9,
+        "fantasyPpr": 19.4
       },
       "last5": {
         "games": 5,
         "avg": {
-          "carries": 0.6,
+          "carries": 0.4,
           "targets": 2,
           "receptions": 1,
           "completions": 0,
           "attempts": 0,
-          "rushYds": 2.2,
-          "recYds": 18.2,
-          "scrimmageYds": 20.4,
+          "rushYds": 1.2,
+          "recYds": 27.6,
+          "scrimmageYds": 28.8,
           "passYds": 0,
           "passTds": 0,
           "rushTds": 0,
@@ -553576,6 +554470,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 64,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 64
+          },
           {
             "season": 2026,
             "week": 4,
@@ -553663,32 +554579,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": -4
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 1,
-            "targets": 1,
-            "receptions": 1,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 5,
-            "recYds": 17,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 22
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 64,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 64
+        },
         {
           "season": 2026,
           "week": 4,
@@ -554209,7 +555125,7 @@
         "fantasyPpr": 17.7
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 2,
         "receptions": 1,
@@ -554226,11 +555142,11 @@
         "scrimmageYds": 3,
         "perGame": {
           "carries": 0,
-          "targets": 0.5,
-          "receptions": 0.3,
+          "targets": 0.4,
+          "receptions": 0.2,
           "rushYds": 0,
-          "recYds": 0.8,
-          "scrimmageYds": 0.8,
+          "recYds": 0.6,
+          "scrimmageYds": 0.6,
           "passYds": 0,
           "completions": 0,
           "attempts": 0,
@@ -554239,7 +555155,7 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 1.7,
+        "targetShare": 1.4,
         "airYardsShare": 0.2,
         "fantasyPpr": 1.3
       },
@@ -554262,6 +555178,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -554349,32 +555287,32 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
       "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "TB",
+          "opponent": "DAL",
+          "date": "2026-10-08",
+          "homeAway": "away",
+          "gameId": "2026_05_TB_DAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
         {
           "season": 2026,
           "week": 4,
@@ -556029,8 +556967,8 @@
           "recTds": 0,
           "tds": 0
         },
-        "targetShare": 0.8,
-        "airYardsShare": 1.4,
+        "targetShare": 0.7,
+        "airYardsShare": 1.3,
         "fantasyPpr": 0
       },
       "last5": {
@@ -556561,7 +557499,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 3,
+        "games": 4,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -556614,6 +557552,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -556688,28 +557648,6 @@
             "date": "2025-12-28",
             "homeAway": "away",
             "gameId": "2025_17_TB_MIA",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2025-12-21",
-            "homeAway": "away",
-            "gameId": "2025_16_TB_CAR",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -557191,7 +558129,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 3,
+        "games": 4,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -557244,6 +558182,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -557318,28 +558278,6 @@
             "date": "2026-01-03",
             "homeAway": "home",
             "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "TB",
-            "opponent": "MIA",
-            "date": "2025-12-28",
-            "homeAway": "away",
-            "gameId": "2025_17_TB_MIA",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -557587,7 +558525,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -557622,7 +558560,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 4,
+        "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -557640,6 +558578,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -557797,7 +558757,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -557850,6 +558810,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -557924,28 +558906,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_TB_CIN",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "KC",
-            "opponent": "LV",
-            "date": "2026-01-04",
-            "homeAway": "away",
-            "gameId": "2025_18_KC_LV",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -558029,7 +558989,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -558082,6 +559042,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -558156,28 +559138,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_TB_CIN",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 15,
-            "team": "TB",
-            "opponent": "ATL",
-            "date": "2025-12-11",
-            "homeAway": "home",
-            "gameId": "2025_15_ATL_TB",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -558493,7 +559453,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -558546,6 +559506,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -558633,28 +559615,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "CAR",
-            "opponent": "TB",
-            "date": "2026-01-03",
-            "homeAway": "away",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -558725,7 +559685,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 3,
+        "games": 4,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -558778,6 +559738,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 3,
@@ -558852,28 +559834,6 @@
             "date": "2026-01-03",
             "homeAway": "home",
             "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 2,
-            "team": "TB",
-            "opponent": "HOU",
-            "date": "2025-09-15",
-            "homeAway": "away",
-            "gameId": "2025_02_TB_HOU",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -559479,7 +560439,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -559532,6 +560492,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -559619,28 +560601,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -559711,7 +560671,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -559746,7 +560706,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 3,
+        "games": 4,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -559764,6 +560724,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 2,
@@ -560550,7 +561532,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -560603,6 +561585,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -560677,28 +561681,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_TB_CIN",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "DET",
-            "opponent": "MIN",
-            "date": "2025-12-25",
-            "homeAway": "away",
-            "gameId": "2025_17_DET_MIN",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -561048,7 +562030,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -561101,6 +562083,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -561188,28 +562192,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 16,
-            "team": "CAR",
-            "opponent": "TB",
-            "date": "2025-12-21",
-            "homeAway": "home",
-            "gameId": "2025_16_TB_CAR",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -561246,7 +562228,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -561281,7 +562263,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 4,
+        "games": 5,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -561299,6 +562281,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -561451,7 +562455,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 3,
+        "games": 4,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -561486,7 +562490,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 3,
+        "games": 4,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -561504,6 +562508,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -561639,7 +562665,7 @@
       "model": null,
       "previousSeason": null,
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -561674,7 +562700,7 @@
         "fantasyPpr": 0
       },
       "last5": {
-        "games": 1,
+        "games": 2,
         "avg": {
           "carries": 0,
           "targets": 0,
@@ -561692,6 +562718,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 1,
@@ -562044,7 +563092,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -562097,6 +563145,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -562171,28 +563241,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_TB_CIN",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -562650,7 +563698,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -562703,6 +563751,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 3,
@@ -562777,28 +563847,6 @@
             "date": "2025-11-30",
             "homeAway": "home",
             "gameId": "2025_13_ARI_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 12,
-            "team": "TB",
-            "opponent": "LA",
-            "date": "2025-11-23",
-            "homeAway": "away",
-            "gameId": "2025_12_TB_LA",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -562911,7 +563959,7 @@
         "fantasyPpr": 7.2
       },
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -562964,6 +564012,28 @@
         },
         "tdGames": 1,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 1,
@@ -563051,28 +564121,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 6,
-            "team": "TB",
-            "opponent": "SF",
-            "date": "2025-10-12",
-            "homeAway": "home",
-            "gameId": "2025_06_SF_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -563101,238 +564149,6 @@
       "depth": {
         "rank": null,
         "position": "P",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": {
-        "games": 17,
-        "carries": 0,
-        "targets": 0,
-        "receptions": 0,
-        "rushYds": 0,
-        "recYds": 0,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
-        "perGame": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 0,
-        "airYardsShare": 0,
-        "fantasyPpr": 0
-      },
-      "currentSeason": {
-        "games": 3,
-        "carries": 0,
-        "targets": 0,
-        "receptions": 0,
-        "rushYds": 0,
-        "recYds": 0,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
-        "perGame": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 0,
-        "airYardsShare": 0,
-        "fantasyPpr": 0
-      },
-      "last5": {
-        "games": 5,
-        "avg": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "tdGames": 0,
-        "gamesLog": [
-          {
-            "season": 2026,
-            "week": 4,
-            "team": "TB",
-            "opponent": "GB",
-            "date": "2026-10-04",
-            "homeAway": "home",
-            "gameId": "2026_04_GB_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2026,
-            "week": 3,
-            "team": "TB",
-            "opponent": "MIN",
-            "date": "2026-09-27",
-            "homeAway": "home",
-            "gameId": "2026_03_MIN_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2026,
-            "week": 2,
-            "team": "TB",
-            "opponent": "CLE",
-            "date": "2026-09-20",
-            "homeAway": "home",
-            "gameId": "2026_02_CLE_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "TB",
-            "opponent": "MIA",
-            "date": "2025-12-28",
-            "homeAway": "away",
-            "gameId": "2025_17_TB_MIA",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          }
-        ]
-      },
-      "gameLog": null,
-      "snapTrend": {
-        "games": 5,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
-      },
-      "matchup": null
-    },
-    {
-      "espnId": "3150744",
-      "gsisId": "00-0035358",
-      "pfrId": "McLaCh00",
-      "team": "TB",
-      "name": "Chase McLaughlin",
-      "position": "PK",
-      "jersey": "4",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3150744.png",
-      "rosterStatus": "Active",
-      "active": true,
-      "experience": 8,
-      "age": 30,
-      "depth": {
-        "rank": null,
-        "position": "PK",
         "slot": null
       },
       "injury": null,
@@ -563430,6 +564246,260 @@
         "gamesLog": [
           {
             "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2026,
+            "week": 4,
+            "team": "TB",
+            "opponent": "GB",
+            "date": "2026-10-04",
+            "homeAway": "home",
+            "gameId": "2026_04_GB_TB",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2026,
+            "week": 3,
+            "team": "TB",
+            "opponent": "MIN",
+            "date": "2026-09-27",
+            "homeAway": "home",
+            "gameId": "2026_03_MIN_TB",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2026,
+            "week": 2,
+            "team": "TB",
+            "opponent": "CLE",
+            "date": "2026-09-20",
+            "homeAway": "home",
+            "gameId": "2026_02_CLE_TB",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 18,
+            "team": "TB",
+            "opponent": "CAR",
+            "date": "2026-01-03",
+            "homeAway": "home",
+            "gameId": "2025_18_CAR_TB",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          }
+        ]
+      },
+      "gameLog": null,
+      "snapTrend": {
+        "games": 5,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
+      "matchup": null
+    },
+    {
+      "espnId": "3150744",
+      "gsisId": "00-0035358",
+      "pfrId": "McLaCh00",
+      "team": "TB",
+      "name": "Chase McLaughlin",
+      "position": "PK",
+      "jersey": "4",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3150744.png",
+      "rosterStatus": "Active",
+      "active": true,
+      "experience": 8,
+      "age": 30,
+      "depth": {
+        "rank": null,
+        "position": "PK",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": {
+        "games": 17,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "currentSeason": {
+        "games": 5,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "last5": {
+        "games": 5,
+        "avg": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "tdGames": 0,
+        "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2026,
             "week": 4,
             "team": "TB",
             "opponent": "GB",
@@ -563502,28 +564572,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_TB_CIN",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -563839,7 +564887,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 1,
+        "games": 2,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -563892,6 +564940,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 3,
@@ -563979,28 +565049,6 @@
             "recTds": 0,
             "tds": 0,
             "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 15,
-            "team": "MIA",
-            "opponent": "PIT",
-            "date": "2025-12-15",
-            "homeAway": "away",
-            "gameId": "2025_15_MIA_PIT",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
           }
         ]
       },
@@ -564022,7 +565070,7 @@
       "position": "S",
       "jersey": "36",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4566165.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 2,
       "age": 25,
@@ -564100,7 +565148,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 2,
+        "games": 3,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -564153,6 +565201,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -564227,28 +565297,6 @@
             "date": "2025-09-21",
             "homeAway": "away",
             "gameId": "2025_03_PIT_NE",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 2,
-            "team": "PIT",
-            "opponent": "SEA",
-            "date": "2025-09-14",
-            "homeAway": "home",
-            "gameId": "2025_02_SEA_PIT",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -564361,7 +565409,7 @@
         "fantasyPpr": 0
       },
       "currentSeason": {
-        "games": 4,
+        "games": 5,
         "carries": 0,
         "targets": 0,
         "receptions": 0,
@@ -564414,6 +565462,28 @@
         },
         "tdGames": 0,
         "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "TB",
+            "opponent": "DAL",
+            "date": "2026-10-08",
+            "homeAway": "away",
+            "gameId": "2026_05_TB_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
           {
             "season": 2026,
             "week": 4,
@@ -564488,28 +565558,6 @@
             "date": "2026-09-13",
             "homeAway": "away",
             "gameId": "2026_01_TB_CIN",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "TB",
-            "opponent": "CAR",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_CAR_TB",
             "carries": 0,
             "targets": 0,
             "receptions": 0,
@@ -589071,12 +590119,12 @@
       "team": "WSH",
       "name": "Kaytron Allen",
       "position": "RB",
-      "jersey": "31",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4685246.png",
-      "rosterStatus": "Active",
+      "jersey": null,
+      "headshot": "https://static.www.nfl.com/image/upload/f_auto,q_auto/league/vbhwkqty94alwjyz8cin",
+      "rosterStatus": "Slate player",
       "active": true,
-      "experience": 0,
-      "age": 23,
+      "experience": null,
+      "age": null,
       "depth": {
         "rank": 3,
         "position": "RB",
