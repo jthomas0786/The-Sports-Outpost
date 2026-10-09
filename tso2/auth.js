@@ -24,6 +24,37 @@ const auth=window.TSO_AUTH={
   user:null,
   async signOut(){if(!client)throw new Error('Sign-out service is not connected.');const {error}=await client.auth.signOut();if(error)throw error;auth.user=null;auth.status='guest';renderIdentity();emit();},
   async refresh(){return refreshIdentity();},
+  // Browser keys belong only to this signed-in account. Supabase RLS enforces
+  // auth.uid() = user_id; never write service-role credentials in a browser.
+  async getPushSubscription(endpoint){
+    const owner=auth.user?.id;
+    if(!client||!owner||!endpoint)return false;
+    const {data,error}=await client.from('push_subscriptions')
+      .select('id').eq('user_id',owner).eq('endpoint',String(endpoint)).maybeSingle();
+    if(error)throw new Error(error.message||'Could not read device push status.');
+    return !!data&&String(auth.user?.id||'')===String(owner);
+  },
+  async savePushSubscription(subscription){
+    const owner=auth.user?.id;
+    if(!client||!owner)throw new Error('Sign in before enabling device alerts.');
+    const endpoint=String(subscription?.endpoint||'');
+    const p256dh=String(subscription?.keys?.p256dh||''),authKey=String(subscription?.keys?.auth||'');
+    if(!endpoint.startsWith('https://')||!p256dh||!authKey)throw new Error('Invalid push subscription.');
+    const row={user_id:owner,endpoint,p256dh,auth_key:authKey,
+      user_agent:navigator.userAgent.slice(0,450),updated_at:new Date().toISOString()};
+    const {error}=await client.from('push_subscriptions').upsert(row,{onConflict:'endpoint'});
+    if(error)throw new Error(error.message||'Device subscription could not be saved.');
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while saving device alerts.');
+    return true;
+  },
+  async removePushSubscription(endpoint){
+    const owner=auth.user?.id;
+    if(!client||!owner||!endpoint)throw new Error('Sign in to disable device alerts.');
+    const {error}=await client.from('push_subscriptions').delete()
+      .eq('user_id',owner).eq('endpoint',String(endpoint));
+    if(error)throw new Error(error.message||'Could not disable device alerts.');
+    return true;
+  },
   async loadNotifications(limit=24){
     const user=auth.user;
     if(!client||!user?.id)return [];
