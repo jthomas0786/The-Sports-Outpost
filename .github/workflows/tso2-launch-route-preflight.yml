@@ -16,6 +16,7 @@ on:
       - 'tso2/admin.js'
       - 'tso2/admin-ui-selftest.mjs'
       - 'tso2/sidebar-polish-selftest.mjs'
+      - 'tso2/mobile-side-swipe-selftest.mjs'
       - 'tso2/launch-owner-auth-preflight.mjs'
       - 'tso2/notifications-selftest.mjs'
       - 'tso2/verified-hit-selftest.mjs'
@@ -66,6 +67,8 @@ jobs:
           node tso2/admin-ui-selftest.mjs
           node --check tso2/sidebar-polish-selftest.mjs
           node tso2/sidebar-polish-selftest.mjs
+          node --check tso2/mobile-side-swipe-selftest.mjs
+          node tso2/mobile-side-swipe-selftest.mjs
           node --check tso2/notifications-selftest.mjs
           node tso2/notifications-selftest.mjs
           node --check tso2/verified-hit-selftest.mjs
