@@ -11579,3 +11579,38 @@ body.live-multi-open{overflow:hidden}
   .profile-activity-summary>span{align-items:flex-start;flex-direction:column;gap:3px}
   .profile-activity-item>em{max-width:34%}
 }
+
+
+/* TSO2 signed-in saves · compact on all four sport boards */
+.props-board-row-pro .props-row-actions{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;
+  align-content:center;min-width:170px
+}
+.props-row-actions button.props-save-action{
+  color:#ffd84d;border-color:rgba(255,216,77,.38);
+  background:rgba(255,216,77,.07)
+}
+.props-row-actions button.props-watch-action{
+  color:#ff9b7c;border-color:rgba(255,77,28,.35);
+  background:rgba(255,77,28,.075)
+}
+.props-row-actions button.is-saved{color:#79dfa9;border-color:rgba(121,223,169,.4)}
+.props-row-actions button:disabled{cursor:not-allowed}
+.parlay-save-tools{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+  margin:10px 0 14px;padding:12px;border:1px solid rgba(255,216,77,.17);
+  background:rgba(255,216,77,.025)}
+.parlay-save-tools[hidden],.parlay-save-tools button[hidden]{display:none!important}
+.parlay-save-tools button{font-size:12px;font-weight:900;white-space:nowrap}
+.parlay-save-tools small{flex:1;min-width:160px;font-size:12px;line-height:1.5;color:#a8b3c1}
+.profile-activity-item{flex-wrap:wrap}
+.profile-activity-remove{border:1px solid rgba(255,77,28,.25);
+  background:rgba(255,77,28,.07);color:#ffb5a3;padding:7px 9px;
+  font-size:10px;font-weight:950;letter-spacing:.04em;cursor:pointer}
+.profile-activity-remove:hover{border-color:#ff4d1c;color:#fff}
+.profile-activity-remove:disabled{opacity:.55;cursor:wait}
+@media(max-width:600px){
+  .props-board-row-pro .props-row-actions{min-width:155px}
+  .parlay-save-tools{align-items:stretch}
+  .parlay-save-tools button{width:100%}
+  .profile-activity-item>em{margin-left:auto}
+}
