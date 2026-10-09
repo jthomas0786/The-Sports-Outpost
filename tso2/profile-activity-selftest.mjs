@@ -11,7 +11,8 @@ const records={
   point_balances:{balance:1250,updated_at:'2026-10-08T00:00:00Z'},
   wagers:[{id:31,sport:'nfl',stake:50,status:'open'}],
   watchlist:[{id:5,player_name:'Verified Player',sport:'nfl'}],
-  picks:[{id:7,player:'Verified Player',market:'atd'}]
+  picks:[{id:7,player:'Verified Player',market:'points'}],
+  tso2_saved_selections:[{id:9,player:'Verified Player',market:'atd',selection:'yes'}]
 };
 function mock(denied=''){
   const calls=[];
@@ -44,8 +45,9 @@ function mock(denied=''){
   assert.equal(result.wagers[0].id,31);
   assert.equal(result.watchlist[0].player_name,'Verified Player');
   assert.equal(result.picks[0].id,7);
+  assert.equal(result.binarySelections[0].selection,'yes');
   assert.equal(result.issues.length,0);
-  assert.equal(calls.length,4);
+  assert.equal(calls.length,5);
   assert.deepEqual(new Set(calls.map(c=>c.table)),new Set(Object.keys(records)));
   for(const call of calls)
     assert.deepEqual(call.scopes,[['user_id','signed-in-account']],
@@ -71,4 +73,4 @@ function mock(denied=''){
   auth.user={id:'second-member'};
   await assert.rejects(pending,/Account changed/,'Do not leak the previous user on sign-out/account switch');
 }
-console.log('TSO 2.0 signed-in profile: four scoped reads, partial denial, signed-out guard, account-switch guard passed');
+console.log('TSO 2.0 signed-in profile: five scoped reads, partial denial, signed-out guard, account-switch guard passed');
