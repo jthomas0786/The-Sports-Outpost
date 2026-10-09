@@ -18,6 +18,9 @@ on:
       - 'tso2/sidebar-polish-selftest.mjs'
       - 'tso2/launch-owner-auth-preflight.mjs'
       - 'tso2/notifications-selftest.mjs'
+      - 'tso2/verified-hit-selftest.mjs'
+      - 'tso2/functions/verify-mlb-hr/index.ts'
+      - 'tso2/migrations/20261009_verified_hit_alerts.sql'
       - 'tso2/research-lab-selftest.mjs'
       - 'tso2/app-icon-selftest.mjs'
       - 'tso2/manifest.webmanifest'
@@ -65,6 +68,8 @@ jobs:
           node tso2/sidebar-polish-selftest.mjs
           node --check tso2/notifications-selftest.mjs
           node tso2/notifications-selftest.mjs
+          node --check tso2/verified-hit-selftest.mjs
+          node tso2/verified-hit-selftest.mjs
           node --check tso2/research-lab-selftest.mjs
           node tso2/research-lab-selftest.mjs
           node --check tso2/app-icon-selftest.mjs
