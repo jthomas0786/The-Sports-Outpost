@@ -35,7 +35,7 @@ function eventFor(x){
 }
 async function fetchSubscriptions(){
  if(!SUPABASE_URL||!SERVICE_KEY)return [];
- const url=`${SUPABASE_URL}/rest/v1/push_subscriptions?select=id,endpoint,p256dh,auth_key,user_id&plj_enabled=eq.true`;
+ const url=`${SUPABASE_URL}/rest/v1/push_subscriptions?select=id,endpoint,p256dh,auth_key,user_id,alert_preferences&plj_enabled=eq.true`;
  const r=await fetch(url,{headers:{apikey:SERVICE_KEY,Authorization:`Bearer ${SERVICE_KEY}`},signal:AbortSignal.timeout(10000),cache:'no-store'});
  if(!r.ok)throw new Error(`Supabase subscriptions HTTP ${r.status}`);return r.json();
 }
@@ -59,6 +59,7 @@ async function deliver(events){
  const subs=await fetchSubscriptions();if(!subs.length){console.log(`PLJ push: ${events.length} event(s), 0 opted-in devices`);return;}
  const dead=[];let accepted=0,failures=0;
  for(const sub of subs){
+  if(sub.alert_preferences?.nhl?.game_edge===false)continue;
   if(!sub.endpoint||!sub.p256dh||!sub.auth_key){failures++;continue;}
   const target={endpoint:sub.endpoint,keys:{p256dh:sub.p256dh,auth:sub.auth_key}};
   for(const event of events){
