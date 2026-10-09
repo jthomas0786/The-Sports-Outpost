@@ -11614,3 +11614,13 @@ body.live-multi-open{overflow:hidden}
   .parlay-save-tools button{width:100%}
   .profile-activity-item>em{margin-left:auto}
 }
+
+/* Background web push in the TSO 2.0 notification bell */
+.notification-push-controls{display:flex;flex-direction:column;align-items:flex-start;gap:8px;min-width:0}
+.notification-push-controls>b{font-size:12px;letter-spacing:.08em;color:var(--text,#f5f8fc)}
+.notification-push-controls>small{color:var(--muted,#a4afc0);font-size:11px;line-height:1.45}
+.notification-push-toggle{font-size:11px!important;font-weight:750!important;letter-spacing:.06em;padding:10px 13px!important;border-radius:9px!important;border:1px solid rgba(45,127,255,.36)!important;background:rgba(45,127,255,.14)!important;color:#bcdcff!important;max-width:100%;white-space:normal;text-align:center}
+.notification-push-toggle[hidden]{display:none!important}
+.notification-push-toggle:disabled{opacity:.65;cursor:default}
+[data-push-status][data-state="enabled"]{color:#57d6ac!important}
+[data-push-status][data-state="error"]{color:#ff8d96!important}
