@@ -102,7 +102,7 @@ const auth=window.TSO_AUTH={
       throw new Error('Only exact Over/Under prop selections can be saved. Yes/No markets are not supported yet.');
     }
     const date=String(selection?.slateDate||'');
-    if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))throw new Error('A valid save date is required.');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date))throw new Error('A valid save date is required.');
     const parsedPrice=Number(selection?.price);
     const price=Number.isSafeInteger(parsedPrice)&&parsedPrice!==0?parsedPrice:null;
     const note=['TSO 2.0',sport.toUpperCase(),String(selection?.book||'').slice(0,40),
@@ -127,7 +127,7 @@ const auth=window.TSO_AUTH={
     const date=String(selection?.slateDate||'');
     if(!['nfl','nhl','nba','mlb'].includes(sport)
        ||!Number.isSafeInteger(playerId)||playerId<=0||!name
-       ||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){
+       ||!/^\d{4}-\d{2}-\d{2}$/.test(date)){
       throw new Error('A verified numeric player ID and save date are required for watchlists.');
     }
     const {error}=await client.from('watchlist').insert({
