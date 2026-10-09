@@ -4,13 +4,13 @@ const CACHE='tso2-push-seen-v1';
 const ICON='/brand/production/tso2-app-icon-192.png';
 const BADGE='/brand/production/tso2-app-icon-192.png';
 const HR_SNAPSHOT='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/latest-hr.json';
-const seen=async key=>{
+const cacheKey=key=>new URL('/__tso2-push-seen?key='+encodeURIComponent(key),self.location.origin).href;
+const alreadySeen=async key=>Boolean(await (await caches.open(CACHE)).match(cacheKey(key)));
+const remember=async key=>{
   const cache=await caches.open(CACHE);
-  if(await cache.match('k:'+encodeURIComponent(key)))return true;
-  await cache.put('k:'+encodeURIComponent(key),new Response('1'));
+  await cache.put(cacheKey(key),new Response('1'));
   const keys=await cache.keys();
   if(keys.length>200)await Promise.all(keys.slice(0,keys.length-200).map(k=>cache.delete(k)));
-  return false;
 };
 const target=path=>{
   try{
@@ -48,11 +48,12 @@ self.addEventListener('push',event=>event.waitUntil((async()=>{
     if(event.ts&&Number.isFinite(Number(event.ts))&&Math.abs(Date.now()-Number(event.ts))>15*60*1000)continue;
     const content=description(event);
     const key=safeText(event.key||[content.title,content.body].join(':'),300);
-    if(await seen(key))continue;
+    if(await alreadySeen(key))continue;
     await self.registration.showNotification(content.title,{
       body:content.body,icon:ICON,badge:BADGE,tag:key,
       data:{url:target(event.url||content.url)},renotify:false
     });
+    await remember(key);
   }
 })()));
 self.addEventListener('notificationclick',event=>{
