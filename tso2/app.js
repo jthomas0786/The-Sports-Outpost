@@ -6540,6 +6540,91 @@
       +'<div class="props-movers-footer"><span>'+rows.length+' exact selections</span><b>'+esc(newest?ageText(newest)+' old':'No timestamp')+'</b></div>';
   }
 
+  // Existing saved-picks storage supports exact Over/Under props, not binary
+  // Yes/No touchdown, goal, or HR selections. Never recode a Yes as an Over.
+  function canSaveExactPick(row){
+    return !!row&&['nfl','nba','nhl','mlb'].includes(row.sport)
+      &&['over','under'].includes(row.side)
+      &&!['atd','atg','fgs','hr'].includes(String(row.market||'').toLowerCase())
+      &&String(row.selection||'').toUpperCase()!=='YES'
+      &&Number.isFinite(Number(row.line))&&!!row.key&&!!row.player&&!!row.market;
+  }
+  function canWatchPlayer(row){
+    const id=Number(row?.playerId);
+    return !!row&&['nfl','nba','nhl','mlb'].includes(row.sport)
+      &&Number.isSafeInteger(id)&&id>0&&!!row.player;
+  }
+  function savedActivityDate(row){
+    const chicagoDate=value=>{
+      const raw=String(value||'');
+      if(/^\\d{4}-\\d{2}-\\d{2}$/.test(raw))return raw;
+      const dt=new Date(value);
+      if(!Number.isFinite(dt.valueOf()))return '';
+      const dateParts=new Intl.DateTimeFormat('en-US',{
+        timeZone:'America/Chicago',year:'numeric',month:'2-digit',day:'2-digit'
+      }).formatToParts(dt);
+      const part=name=>dateParts.find(p=>p.type===name)?.value||'';
+      return [part('year'),part('month'),part('day')].join('-');
+    };
+    for(const k of ['slateDate','gameDate','eventDate','eventStart','startTime','startsAt','commenceTime']){
+      const date=chicagoDate(row?.[k]);
+      if(date)return {date,source:'event'};
+    }
+    return {date:chicagoDate(new Date()),source:'saved'};
+  }
+  function exactPickInput(row){
+    const date=savedActivityDate(row);
+    return {sport:row.sport,key:row.key,player:row.player,market:row.market,
+      line:row.line,side:row.side,price:row.price,selection:propSelectionText(row),
+      slateDate:date.date,dateSource:date.source,book:row.book,eventId:row.eventId};
+  }
+  function requireSignedInSave(){
+    if(window.TSO_AUTH?.user?.id)return true;
+    window.TSO_AUTH?.openSignIn?.();
+    notify('Sign in to save your Outpost selections.');
+    return false;
+  }
+  function staleProfileAfterSave(){
+    profileActivitySnapshot=null;
+    profileActivityFetchedAt=0;
+    if(currentRoute==='profile')renderProfile();
+  }
+  async function savePropsPick(row,button){
+    if(!requireSignedInSave())return;
+    if(!canSaveExactPick(row)){notify('Only exact Over/Under props can be saved currently.');return;}
+    const owner=String(window.TSO_AUTH.user.id);
+    button.disabled=true;button.textContent='SAVING…';
+    try{
+      const answer=await window.TSO_AUTH.savePickSelection(exactPickInput(row));
+      if(String(window.TSO_AUTH?.user?.id)!==owner)return;
+      button.textContent='✓ SAVED';button.classList.add('is-saved');
+      notify(answer.alreadySaved?'This pick is already saved.':'Pick saved to Profile.');
+      staleProfileAfterSave();
+    }catch(error){
+      button.disabled=false;button.textContent='SAVE';
+      notify('Save failed: '+String(error?.message||error));
+    }
+  }
+  async function watchPropsPlayer(row,button){
+    if(!requireSignedInSave())return;
+    if(!canWatchPlayer(row)){notify('A verified numeric player ID is required.');return;}
+    const owner=String(window.TSO_AUTH.user.id);
+    button.disabled=true;button.textContent='SAVING…';
+    try{
+      const answer=await window.TSO_AUTH.saveWatchlistPlayer({
+        sport:row.sport,playerId:row.playerId,player:row.player,team:row.team,
+        slateDate:savedActivityDate(row).date
+      });
+      if(String(window.TSO_AUTH?.user?.id)!==owner)return;
+      button.textContent='✓ WATCHING';button.classList.add('is-saved');
+      notify(answer.alreadySaved?'Player is already on your watchlist.':'Player added to watchlist.');
+      staleProfileAfterSave();
+    }catch(error){
+      button.disabled=false;button.textContent='+ WATCH';
+      notify('Watchlist save failed: '+String(error?.message||error));
+    }
+  }
+
   function renderPropsBoard(root,rows){
     const board=root.querySelector('[data-props-board]');
     if(!board) return;
@@ -6567,6 +6652,8 @@
           +'<button data-props-compare="'+esc(row.key)+'">INTEL</button>'
           +'<button '+(hasResearch?'':'disabled')+' data-props-research="'+esc(row.key)+'">RESEARCH</button>'
           +'<button class="is-primary" data-props-parlay="'+esc(row.key)+'">+ PARLAY</button>'
+          +(canSaveExactPick(row)?'<button class="props-save-action" data-props-save="'+esc(row.key)+'">SAVE</button>':'')
+          +(canWatchPlayer(row)?'<button class="props-watch-action" data-props-watch="'+esc(row.key)+'">+ WATCH</button>':'')
         +'</span>'
       +'</div>';
     }).join('');
@@ -6920,6 +7007,12 @@
     document.querySelectorAll('[data-props-parlay]').forEach(btn=>btn.onclick=event=>{
       event.stopPropagation();
       addPropToParlay(researchRowByKey(btn.dataset.propsParlay));
+    });
+    document.querySelectorAll('[data-props-save]').forEach(btn=>btn.onclick=event=>{
+      event.stopPropagation();void savePropsPick(researchRowByKey(btn.dataset.propsSave),btn);
+    });
+    document.querySelectorAll('[data-props-watch]').forEach(btn=>btn.onclick=event=>{
+      event.stopPropagation();void watchPropsPlayer(researchRowByKey(btn.dataset.propsWatch),btn);
     });
   }
 
@@ -7842,6 +7935,9 @@
   window.addEventListener('tso2-auth-changed', () => {
     closeProfileMenu();
     syncOwnerTools();
+    profileActivityOwnerId='';
+    profileActivitySnapshot=null;
+    profileActivityFetchedAt=0;
     if(currentRoute==='profile') renderProfile();
     void refreshSavedAccountNotifications(true);
     if(currentRoute==='admin'){
