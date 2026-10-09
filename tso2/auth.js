@@ -56,7 +56,7 @@ const auth=window.TSO_AUTH={
     const endpoint=String(subscription?.endpoint||'');
     const p256dh=String(subscription?.keys?.p256dh||''),authKey=String(subscription?.keys?.auth||'');
     if(!endpoint.startsWith('https://')||!p256dh||!authKey)throw new Error('Invalid push subscription.');
-    const row={user_id:owner,endpoint,p256dh,auth_key:authKey,
+    const row={user_id:owner,endpoint,p256dh,auth_key:authKey,plj_enabled:true,
       user_agent:navigator.userAgent.slice(0,450),updated_at:new Date().toISOString()};
     const {error}=await client.from('push_subscriptions').upsert(row,{onConflict:'endpoint'});
     if(error)throw new Error(error.message||'Device subscription could not be saved.');
