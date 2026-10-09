@@ -67,11 +67,12 @@ const auth=window.TSO_AUTH={
       take(client.from('point_balances').select('balance,updated_at').eq('user_id',userId).maybeSingle()),
       take(client.from('wagers').select('id,sport,stake,status,placed_at,settled_at').eq('user_id',userId).order('placed_at',{ascending:false}).limit(8)),
       take(client.from('watchlist').select('id,player_name,team,sport,slate_date,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(8)),
-      take(client.from('picks').select('id,player,market,line,side,slate_date,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(8))
+      take(client.from('picks').select('id,player,market,line,side,slate_date,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(8)),
+      take(client.from('tso2_saved_selections').select('id,player,sport,market,selection,source_side,source_line,team,sportsbook,american_price,slate_date,date_source,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(12))
     ];
     const results=await Promise.allSettled(requests);
     if(String(auth.user?.id||'')!==userId)throw new Error('Account changed while loading.');
-    const names=['points','wagers','watchlist','picks'],issues=[];
+    const names=['points','wagers','watchlist','picks','binarySelections'],issues=[];
     const values=results.map((r,i)=>{
       if(r.status==='fulfilled')return r.value;
       issues.push(names[i]+': '+String(r.reason?.message||'unavailable'));
@@ -79,7 +80,7 @@ const auth=window.TSO_AUTH={
     });
     return {
       userId,points:values[0],wagers:values[1],watchlist:values[2],
-      picks:values[3],issues,fetchedAt:new Date().toISOString()
+      picks:values[3],binarySelections:values[4],issues,fetchedAt:new Date().toISOString()
     };
   },
 
@@ -118,6 +119,44 @@ const auth=window.TSO_AUTH={
     if(error)throw new Error(error.message||'Could not save the selection.');
     return {saved:true};
   },
+  // New isolated TSO2 table supports explicit YES/NO picks without
+  // relaxing legacy picks.side CHECK or modifying TSO 1.0.
+  async saveBinarySelection(input){
+    const owner=auth.user?.id;
+    if(!client||!owner)throw new Error('Sign in to save an Anytime TD, Goal or HR pick.');
+    const sport=String(input?.sport||'').toLowerCase();
+    const market=String(input?.market||'').toLowerCase();
+    const side=String(input?.selection||'').toLowerCase();
+    const sourceSide=String(input?.sourceSide||'').toLowerCase();
+    const key=String(input?.key||'').trim();
+    const player=String(input?.player||'').trim();
+    const date=String(input?.slateDate||'');
+    if(!['nfl','nhl','nba','mlb'].includes(sport)
+      ||!['atd','atg','fgs','hr'].includes(market)
+      ||!['yes','no'].includes(side)
+      ||!['yes','no','over','under'].includes(sourceSide)
+      ||(side==='yes'&&(sourceSide==='under'||sourceSide==='no'))
+      ||(side==='no'&&(sourceSide==='over'||sourceSide==='yes'))
+      ||!key||key.length>450||!player||player.length>160
+      ||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){
+      throw new Error('A verified exact YES/NO selection and valid date are required.');
+    }
+    const price=Number(input?.price);
+    const payload={
+      user_id:owner,sport,market,selection:side,source_side:sourceSide,
+      prop_key:key,player,team:String(input?.team||'').slice(0,60)||null,
+      source_line:input?.line===null||input?.line===undefined?null:String(input.line).slice(0,40),
+      event_id:String(input?.eventId||'').slice(0,140)||null,
+      sportsbook:String(input?.book||'').slice(0,100)||null,
+      american_price:Number.isSafeInteger(price)&&price!==0?price:null,
+      slate_date:date,date_source:input?.dateSource==='event'?'event':'saved'
+    };
+    const {error}=await client.from('tso2_saved_selections').insert(payload);
+    if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed during save. Check your current account.');
+    if(error?.code==='23505')return {alreadySaved:true};
+    if(error)throw new Error(error.message||'Could not save this YES/NO selection.');
+    return {saved:true};
+  },
   async saveWatchlistPlayer(selection){
     const owner=auth.user?.id;
     if(!client||!owner)throw new Error('Sign in to save a player.');
@@ -142,7 +181,7 @@ const auth=window.TSO_AUTH={
   async removeSavedActivity(kind,id){
     const owner=auth.user?.id;
     if(!client||!owner)throw new Error('Sign in to remove saved activity.');
-    if(!['picks','watchlist'].includes(kind)||!Number.isSafeInteger(Number(id))||Number(id)<=0)
+    if(!['picks','watchlist','tso2_saved_selections'].includes(kind)||!Number.isSafeInteger(Number(id))||Number(id)<=0)
       throw new Error('Unsupported saved activity.');
     const {error}=await client.from(kind).delete().eq('id',Number(id)).eq('user_id',owner);
     if(String(auth.user?.id||'')!==String(owner))throw new Error('Account changed while removing activity.');
