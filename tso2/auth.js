@@ -16,6 +16,8 @@ let mode='signin';
 let client=null;
 let initError='';
 let identityFlight=null;
+let resolveClientReady;
+const clientReady=new Promise(resolve=>{resolveClientReady=resolve;});
 
 const auth=window.TSO_AUTH={
   status:'loading',
@@ -185,8 +187,19 @@ async function submitCredentials(event){
     setMessage('Username must be 3–20 letters, numbers, or underscores.',true);return;
   }
   if(!client){
-    setMessage(initError||'Secure sign-in is still connecting. Please try again in a moment.',true);
-    return;
+    // The dialog may open while esm.sh/Supabase is still downloading. Keep
+    // this submission alive instead of making the user press Sign In twice.
+    if(submit){submit.disabled=true;submit.textContent='CONNECTING…';}
+    setMessage('Connecting to secure sign-in…');
+    const ready=await Promise.race([
+      clientReady,
+      new Promise(resolve=>setTimeout(()=>resolve(false),12000))
+    ]);
+    if(!ready||!client){
+      setMessage(initError||'The sign-in connection timed out. Please check your connection and try again.',true);
+      if(submit){submit.disabled=false;submit.textContent=mode==='signup'?'CREATE ACCOUNT':'SIGN IN';}
+      return;
+    }
   }
   if(submit){submit.disabled=true;submit.textContent=mode==='signup'?'CREATING ACCOUNT…':'SIGNING IN…';}
   setMessage(mode==='signup'?'Creating your account…':'Verifying your account…');
@@ -227,9 +240,11 @@ renderIdentity();emit();
 try{
   const {createClient}=await import('https://esm.sh/@supabase/supabase-js@2');
   client=createClient(SUPABASE_URL,SUPABASE_ANON_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  resolveClientReady(true);
   await refreshIdentity();
   client.auth.onAuthStateChange(()=>{setTimeout(()=>{void refreshIdentity();},0);});
 }catch(error){
+  resolveClientReady(false);
   initError='The sign-in service could not load. Check your connection and try again.';
   auth.user=null;auth.status='unavailable';
   renderIdentity();emit();
