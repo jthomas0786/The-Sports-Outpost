@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 // Non-destructive public health probe. Never changes production or DNS.
 const targets=[
-  {name:'Production homepage',url:'https://thesportsoutpost.com/',kind:'html'},
-  {name:'Legacy production live API (informational)',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json',optional:true},
-  {name:'Legacy production props API (informational)',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json',optional:true},
+  {name:'TSO 2 production homepage',url:'https://thesportsoutpost.com/',kind:'html'},
+  {name:'TSO 2 www canonical redirect',url:'https://www.thesportsoutpost.com/',kind:'redirect'},
+  {name:'TSO 2 production live API',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json'},
+  {name:'TSO 2 production props API',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json'},
   {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
   {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
   {name:'TSO 2 preview stylesheet',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/styles.css',kind:'css'},
@@ -21,7 +22,9 @@ const targets=[
   {name:'TSO 2 preview props API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/props?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
 ];
 const validate=(target,body)=>{
-  if(target.kind==='html')return /<html/i.test(body)&&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/admin\.js/.test(body)&&/data-admin-open/.test(body)&&/Guest/.test(body)));
+  if(target.kind==='html')return /<html/i.test(body)
+    &&(!target.name.startsWith('TSO 2')||(/data-auth-signout/.test(body)&&/auth\.js/.test(body)&&/admin\.js/.test(body)&&/data-admin-open/.test(body)&&/Guest/.test(body)))
+    &&(!target.name.includes('production homepage')||(/TSO2|The Sports Outpost 2\.0|Research Command Center|broadcast-shell/i.test(body)&&/app\.js/.test(body)));
   if(target.kind==='webp')return body.slice(0,4)==='RIFF'&&body.slice(8,12)==='WEBP';
   if(target.kind==='png')return body.slice(0,8)==='\x89PNG\r\n\x1a\n';
   if(target.kind==='ico')return body.charCodeAt(0)===0&&body.charCodeAt(1)===0&&body.charCodeAt(2)===1&&body.charCodeAt(3)===0;
@@ -61,12 +64,20 @@ for(const target of targets){
   try{
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
     let response;
-    try{response=await fetch(target.url,{signal:controller.signal,redirect:'follow',headers:{accept:target.kind==='json'?'application/json':'text/html'}})}finally{clearTimeout(timer)}
+    try{response=await fetch(target.url,{signal:controller.signal,redirect:target.kind==='redirect'?'manual':'follow',headers:{accept:target.kind==='json'?'application/json':'text/html'}})}finally{clearTimeout(timer)}
     const contentType=response.headers.get('content-type')||'';
+    if(target.kind==='redirect'){
+      const location=response.headers.get('location')||'';
+      const ok=[301,302,307,308].includes(response.status)&&/^https:\/\/thesportsoutpost\.com\/?(?:$|[?#])/.test(location);
+      if(!ok&&!target.optional)failed++;
+      console.log(JSON.stringify({name:target.name,url:target.url,status:response.status,location,ok}));
+      continue;
+    }
     const bytes=['webp','png','ico'].includes(target.kind)?new Uint8Array(await response.arrayBuffer()):null;
     const body=bytes ? (bytes.length>=12?String.fromCharCode(...bytes.slice(0,12)):'') : await response.text();
     const validType=target.kind==='png'?/image\/png/i.test(contentType):target.kind==='ico'?/image\/(x-icon|vnd\.microsoft\.icon)/i.test(contentType):target.kind==='manifest'?/application\/(manifest\+json|json)/i.test(contentType):target.kind==='webp'?/image\/webp/i.test(contentType):target.kind==='svg'?/image\/svg\+xml/i.test(contentType):target.kind==='json'?/json/i.test(contentType)&&body.trim().startsWith('{'):target.kind==='html'?/html/i.test(contentType)&&/<html/i.test(body):target.kind==='css'?/css/i.test(contentType):/javascript|ecmascript/i.test(contentType);
-    const ok=response.ok&&validType&&validate(target,body);
+    const ok=response.ok&&validType&&validate(target,body)
+      &&(target.name!=='TSO 2 production homepage'||!(/<meta[^>]+name=["']robots["'][^>]+noindex/i.test(body)));
     if(!ok&&!target.optional)failed++;
     console.log(JSON.stringify({name:target.name,url:target.url,status:response.status,contentType,ok,optional:!!target.optional,preview:body.slice(0,100),modelSource:target.url.includes('/api/props')&&target.name.startsWith('TSO 2')?(()=>{try{return JSON.parse(body).modelMeta?.nfl||null}catch{return null}})():undefined}));
   }catch(error){
