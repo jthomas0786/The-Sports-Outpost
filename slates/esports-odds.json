@@ -3,7 +3,7 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-08T23:28:05.593Z",
+    "fetchedAt": "2026-10-09T06:07:29.166Z",
     "sportKeys": [
       "esports_cs2",
       "esports_valorant",
@@ -20,29 +20,42 @@
           "player_kills_on_maps_1_2",
           "player_headshots_on_maps_1_2",
           "player_shots_on_goal",
+          "player_maps_1_2_kills",
+          "player_maps_1_2_headshots",
+          "player_map_1_kills",
           "player_kills_on_map_1",
           "player_headshots_on_map_1",
+          "player_map_1_headshots",
           "spreads",
           "moneyline",
           "totals"
         ],
         "coverage": [
           {
+            "bookmaker": "prizepicks",
+            "title": "PrizePicks",
+            "freshRows": 1656,
+            "apiVisibleRows": 382,
+            "marketCount": 4,
+            "latestUpdate": "2026-10-09T06:05:37.000Z",
+            "status": "api_visible"
+          },
+          {
             "bookmaker": "sleeper",
             "title": "Sleeper",
-            "freshRows": 13301,
-            "apiVisibleRows": 164,
+            "freshRows": 9513,
+            "apiVisibleRows": 153,
             "marketCount": 4,
-            "latestUpdate": "2026-10-08T23:22:27.000Z",
+            "latestUpdate": "2026-10-09T06:06:32.000Z",
             "status": "api_visible"
           },
           {
             "bookmaker": "underdog",
             "title": "Underdog Fantasy",
-            "freshRows": 2685,
-            "apiVisibleRows": 180,
+            "freshRows": 3529,
+            "apiVisibleRows": 235,
             "marketCount": 3,
-            "latestUpdate": "2026-10-08T23:25:00.000Z",
+            "latestUpdate": "2026-10-09T06:07:06.000Z",
             "status": "api_visible"
           }
         ]
@@ -52,28 +65,67 @@
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "discovery-error",
-        "error": "503 Service Unavailable: {\"error\":\"props_temporarily_busy\",\"detail\":\"The props board is being rebuilt under load. Retry in a couple of seconds.\"}",
+        "skipReason": "no-sportsbook-coverage",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
+          "player_maps_1_2_kills",
+          "player_maps_1_2_first_bloods",
+          "player_maps_1_2_kills_combo",
           "spreads",
           "moneyline",
           "totals"
         ],
-        "coverage": null
+        "coverage": [
+          {
+            "bookmaker": "prizepicks",
+            "title": "PrizePicks",
+            "freshRows": 217,
+            "apiVisibleRows": 52,
+            "marketCount": 3,
+            "latestUpdate": "2026-10-09T06:05:37.000Z",
+            "status": "api_visible"
+          },
+          {
+            "bookmaker": "underdog",
+            "title": "Underdog Fantasy",
+            "freshRows": 603,
+            "apiVisibleRows": 40,
+            "marketCount": 1,
+            "latestUpdate": "2026-10-09T06:07:06.000Z",
+            "status": "api_visible"
+          }
+        ]
       },
       {
         "sportKey": "esports_lol",
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "discovery-error",
-        "error": "503 Service Unavailable: {\"error\":\"props_temporarily_busy\",\"detail\":\"The props board is being rebuilt under load. Retry in a couple of seconds.\"}",
+        "skipReason": "no-sportsbook-coverage",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2_3",
           "player_maps_1_3_kills"
         ],
-        "coverage": null
+        "coverage": [
+          {
+            "bookmaker": "prizepicks",
+            "title": "PrizePicks",
+            "freshRows": 176,
+            "apiVisibleRows": 39,
+            "marketCount": 1,
+            "latestUpdate": "2026-10-09T06:07:21.000Z",
+            "status": "api_visible"
+          },
+          {
+            "bookmaker": "underdog",
+            "title": "Underdog Fantasy",
+            "freshRows": 286,
+            "apiVisibleRows": 19,
+            "marketCount": 1,
+            "latestUpdate": "2026-10-09T06:07:06.000Z",
+            "status": "api_visible"
+          }
+        ]
       }
     ],
     "sportsbookRows": 0,
