@@ -34,7 +34,7 @@ jobs:
           cache: npm
       - name: Install runtime dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
-      - name: Verify trigger logic and service worker syntax
+      - name: Verify trigger logic, preferences, and service worker syntax
         run: |
           node --check tso2/sw.js
           node --check tso2/push-client.js
