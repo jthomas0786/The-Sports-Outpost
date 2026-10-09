@@ -138,7 +138,7 @@ const auth=window.TSO_AUTH={
       ||(side==='yes'&&(sourceSide==='under'||sourceSide==='no'))
       ||(side==='no'&&(sourceSide==='over'||sourceSide==='yes'))
       ||!key||key.length>450||!player||player.length>160
-      ||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)){
+      ||!/^\d{4}-\d{2}-\d{2}$/.test(date)){
       throw new Error('A verified exact YES/NO selection and valid date are required.');
     }
     const price=Number(input?.price);
