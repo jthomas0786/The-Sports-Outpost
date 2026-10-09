@@ -5021,7 +5021,10 @@
           [r.sport,r.team].filter(Boolean).join(' · ');
         const aside=kind==='wager'?(Number.isFinite(Number(r.stake))?Number(r.stake).toLocaleString()+' PTS':'—'):
           String(r.slate_date||stamp(r.created_at));
-        return '<div class="profile-activity-item"><div><b>'+esc(title)+'</b><small>'+esc(description)+'</small></div><em>'+esc(aside)+'</em></div>';
+        return '<div class="profile-activity-item"><div><b>'+esc(title)+'</b><small>'+esc(description)+'</small></div><em>'+esc(aside)+'</em>'
+          +(kind!=='wager'&&Number.isSafeInteger(Number(r.id))
+            ?'<button type="button" class="profile-activity-remove" data-profile-remove-saved="'+(kind==='pick'?'picks':'watchlist')+'" data-profile-remove-id="'+esc(r.id)+'" aria-label="Remove '+esc(title)+' from saved activity">REMOVE</button>':'')
+          +'</div>';
       }).join('')+'</div>':'<p>No '+esc(title.toLowerCase())+' saved to this account yet.</p>')+'</div>';
   }
   function showProfileActivity(root,signedIn){
@@ -5116,6 +5119,24 @@
     }
     root.querySelectorAll('[data-profile-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
     root.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
+    root.querySelectorAll('[data-profile-remove-saved]').forEach(btn=>btn.onclick=async()=>{
+      if(!requireSignedInSave())return;
+      const kind=String(btn.dataset.profileRemoveSaved||''),id=Number(btn.dataset.profileRemoveId);
+      if(!['picks','watchlist'].includes(kind)||!Number.isSafeInteger(id)||id<=0)return;
+      const owner=String(window.TSO_AUTH.user.id);
+      btn.disabled=true;btn.textContent='REMOVING…';
+      try{
+        await window.TSO_AUTH.removeSavedActivity(kind,id);
+        if(String(window.TSO_AUTH?.user?.id||'')!==owner)return;
+        notify('Removed from Profile.');
+        profileActivitySnapshot=null;
+        profileActivityFetchedAt=0;
+        renderProfile();
+      }catch(error){
+        btn.disabled=false;btn.textContent='REMOVE';
+        notify('Could not remove item: '+String(error?.message||error));
+      }
+    });
     bindMediaFallbacks();
     void refreshProfileActivity(false);
   }
