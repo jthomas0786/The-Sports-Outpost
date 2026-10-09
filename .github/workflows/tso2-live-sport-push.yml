@@ -48,9 +48,9 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           POLL_MS: '45000'
-          MAX_TICKS: ${{ github.event_name == 'push' && '2' || (inputs.dry_run == true && '2' || '0') }}
+          MAX_TICKS: ${{ inputs.dry_run == true && '2' || '0' }}
         run: |
-          if [ "${{ github.event_name }}" = "push" ] || [ "${{ inputs.dry_run }}" = "true" ]; then
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
             node tso2/tools/live-sports-push.mjs --dry-run
           else
             node tso2/tools/live-sports-push.mjs
