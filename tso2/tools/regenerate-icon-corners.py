@@ -47,6 +47,10 @@ while q:
     if y > 0: offer(x, y - 1)
     if y + 1 < h: offer(x, y + 1)
 
+# Do not destroy artwork if a dark gap connects the background to the center.
+if sum(visited) > (w * h * .40):
+    raise SystemExit("Exterior selection reached too much of the artwork; refusing export")
+
 new_alpha = image.getchannel("A")
 p = new_alpha.load()
 exterior = 0
