@@ -11637,3 +11637,12 @@ body.live-multi-open{overflow:hidden}
 .push-pref-upcoming{color:#8b9caf}
 .notification-push-hint{font-size:10px!important;color:#8a9bab!important}
 @media(max-width:540px){.notification-push-preferences{grid-template-columns:minmax(0,1fr)}}
+
+/* Keep the bell usable when all four leagues are expanded on a phone. */
+.notification-panel{display:flex;flex-direction:column;overflow:hidden}
+.notification-panel .notification-capability{flex:0 0 auto;max-height:min(46vh,360px);overflow-y:auto;overscroll-behavior:contain}
+.notification-panel .notification-list{flex:1 1 auto;min-height:90px;max-height:none;overflow-y:auto}
+@media(max-width:540px){
+  .notification-panel{max-height:min(85dvh,710px)}
+  .notification-panel .notification-capability{max-height:min(56dvh,410px)}
+}
