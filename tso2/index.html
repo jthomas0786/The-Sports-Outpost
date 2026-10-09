@@ -82,6 +82,10 @@
                    <small>Receive verified sports alerts even when TSO is closed. Enable per device; iPhone requires the Home Screen app.</small>
                    <button type="button" class="button secondary notification-push-toggle" data-push-toggle hidden>ENABLE DEVICE ALERTS</button>
                    <small data-push-status role="status" aria-live="polite">Checking device support…</small>
+                   <div class="notification-push-preferences" data-push-preferences hidden aria-label="Device alert preferences">
+                     <span class="push-pref-loading">Loading sports preferences…</span>
+                   </div>
+                   <small class="notification-push-hint" data-push-pref-note hidden>Only verified live events trigger pushes. Model alerts will become available once their triggers are validated.</small>
                  </div>
               </div>
               <div class="notification-list" data-notification-list>
@@ -232,7 +236,7 @@
   <script src="./pages.js?v=20261009-verified-hr-bell-v1"></script>
   <script src="./app.js?v=20261009-side-swipe-calm-v1"></script>
   <script type="module" src="./auth.js?v=20261009-auth-verified-hr-v1"></script>
-  <script type="module" src="./push-client.js?v=20261009-device-push-v1"></script>
+  <script type="module" src="./push-client.js?v=20261009-sports-preferences-v2"></script>
   <script type="module" src="./admin.js?v=20261008-owner-admin"></script>
 </body>
 </html>
