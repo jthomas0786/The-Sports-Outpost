@@ -4802,6 +4802,8 @@
     if(parlayMode==='pregame'&&!propsFeedCache)return;
     root.querySelectorAll('[data-parlay-mode]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.parlayMode===parlayMode));
     const checkpointControls=root.querySelector('[data-parlay-checkpoint-controls]');
+    const saveButton=root.querySelector('[data-parlay-save-legs]');
+    if(saveButton)saveButton.hidden=parlayMode!=='pregame';
     if(parlayMode!=='pregame'){
       renderCheckpointParlayLab(root);
       return;
@@ -4826,6 +4828,10 @@
     if(buildTitle) buildTitle.textContent=rows.length+'-leg exact '+(marketOnlyCount?'selection':'model')+' parlay';
 
     root.querySelectorAll('[data-parlay-target]').forEach(btn=>btn.classList.toggle('is-active',Number(btn.dataset.parlayTarget)===parlayTarget));
+    const saveNote=root.querySelector('[data-parlay-save-note]');
+    if(saveNote)saveNote.textContent=rows.length&&!rows.every(canSaveExactPick)
+      ?'Contains Yes/No or unsupported legs. Save individual Over/Under picks in Player Props instead.'
+      :'Saves all Over/Under legs separately to Profile. No ticket is placed and no points are wagered.';
 
     const math=parlayCombinedMath(rows);
     const overlap=parlayOverlapInfo(rows);
@@ -6646,6 +6652,39 @@
     }
   }
 
+  async function savePregameParlayLegs(button){
+    if(!requireSignedInSave())return;
+    if(parlayMode!=='pregame'){
+      notify('Quarter and halftime model-only selections cannot be saved as pregame props.');
+      return;
+    }
+    const rows=parlayLegRows();
+    if(!rows.length){notify('Add legs before saving.');return;}
+    // A batch must never quietly omit YES/NO markets or change them to OVER.
+    if(!rows.every(canSaveExactPick)){
+      notify('This build includes Yes/No or unsupported markets. Save an all-Over/Under build only.');
+      return;
+    }
+    const owner=String(window.TSO_AUTH.user.id);
+    button.disabled=true;button.textContent='SAVING…';
+    let saved=0,duplicate=0,failed=0;
+    try{
+      for(const row of rows){
+        if(String(window.TSO_AUTH?.user?.id||'')!==owner)break;
+        try{
+          const res=await window.TSO_AUTH.savePickSelection(exactPickInput(row));
+          if(res?.alreadySaved)duplicate++;else saved++;
+        }catch(error){
+          failed++;console.warn('[TSO2 save build]',error?.message||error);
+        }
+      }
+      if(String(window.TSO_AUTH?.user?.id||'')===owner){
+        staleProfileAfterSave();
+        notify(saved+' leg'+(saved===1?'':'s')+' saved · '+duplicate+' already saved'+(failed?' · '+failed+' failed':'')+'. No wager placed.');
+      }
+    }finally{button.disabled=false;button.textContent='SAVE ELIGIBLE LEGS';}
+  }
+
   function renderPropsBoard(root,rows){
     const board=root.querySelector('[data-props-board]');
     if(!board) return;
@@ -7753,6 +7792,7 @@
       if(parlayMode==='pregame')resetParlayBuild();
       else {parlayCheckpointLegKeys=[];fillCheckpointToTarget();renderParlayLab();}
     });
+    document.querySelector('[data-parlay-save-legs]')?.addEventListener('click',e=>{void savePregameParlayLegs(e.currentTarget);});
     document.querySelector('[data-parlay-add]')?.addEventListener('click', () => {
       if(parlayMode!=='pregame'){
         const next=checkpointCandidates().find(c=>!parlayCheckpointLegKeys.includes(c._key));
