@@ -89,10 +89,10 @@ jobs:
         run: |
           node --input-type=module <<'NODE'
           const root='https://staging.thesportsoutpost.com';
-          for(const [path,pattern] of [['/sw.js',/showNotification\\(/],['/push-client.js',/pushManager\\.subscribe/]]){
+          for(const [path,marker] of [['/sw.js','showNotification('],['/push-client.js','pushManager.subscribe']]){
             const r=await fetch(root+path,{headers:{'cache-control':'no-cache'},signal:AbortSignal.timeout(20000)});
             const src=await r.text();
-            if(!r.ok||!r.headers.get('content-type')?.includes('javascript')||!pattern.test(src)){
+            if(!r.ok||!r.headers.get('content-type')?.includes('javascript')||!src.includes(marker)){
               throw Error('TSO2 background push route '+path+' failed HTTP '+r.status+' content-type='+r.headers.get('content-type'));
             }
             console.log('✓ '+path+' serves application/javascript with expected source');
