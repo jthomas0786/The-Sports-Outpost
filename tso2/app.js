@@ -924,6 +924,12 @@
   let savedAccountNotificationRequest=null;
   let savedAccountNotificationError='';
   const ACCOUNT_NOTIFICATION_REFRESH_MS=60000;
+  const PROFILE_ACTIVITY_REFRESH_MS=60000;
+  let profileActivityOwnerId='';
+  let profileActivitySnapshot=null;
+  let profileActivityFetchedAt=0;
+  let profileActivityRequest=null;
+  let profileActivityError='';
 
   let liveFeedError = null;
   let propsFeedError = null;
@@ -4981,6 +4987,75 @@
     +'</article>';
   }
 
+  function refreshProfileActivity(force=false){
+    const userId=String(window.TSO_AUTH?.user?.id||'');
+    if(userId!==profileActivityOwnerId){
+      profileActivityOwnerId=userId;profileActivitySnapshot=null;
+      profileActivityFetchedAt=0;profileActivityRequest=null;profileActivityError='';
+    }
+    if(!userId||typeof window.TSO_AUTH?.loadProfileActivity!=='function')return null;
+    if(profileActivityRequest)return profileActivityRequest;
+    if(!force&&Date.now()-profileActivityFetchedAt<PROFILE_ACTIVITY_REFRESH_MS)return null;
+    const request=Promise.resolve().then(()=>window.TSO_AUTH.loadProfileActivity());
+    profileActivityRequest=request;
+    request.then(data=>{
+      if(String(window.TSO_AUTH?.user?.id||'')!==userId||data?.userId!==userId)return;
+      profileActivitySnapshot=data;profileActivityFetchedAt=Date.now();profileActivityError='';
+      if(currentRoute==='profile')renderProfile();
+    }).catch(error=>{
+      if(String(window.TSO_AUTH?.user?.id||'')!==userId)return;
+      profileActivityFetchedAt=Date.now();
+      profileActivityError=String(error?.message||'Account data unavailable');
+      if(currentRoute==='profile')renderProfile();
+    }).finally(()=>{if(profileActivityRequest===request)profileActivityRequest=null;});
+    return request;
+  }
+  function profileSavedGroup(title,rows,kind){
+    if(!Array.isArray(rows))return '<div class="profile-activity-group"><h3>'+esc(title)+'</h3><p>Source unavailable.</p></div>';
+    const stamp=v=>{const n=Date.parse(String(v||''));return Number.isFinite(n)?new Date(n).toLocaleDateString(undefined,{month:'short',day:'numeric'}):'Date unavailable';};
+    return '<div class="profile-activity-group"><h3>'+esc(title)+' <small>'+rows.length+' RECENT</small></h3>'
+      +(rows.length?'<div class="profile-activity-items">'+rows.map(r=>{
+        const title=kind==='wager'?String(r.sport||'Sports').toUpperCase()+' point wager':kind==='pick'?(r.player||'Saved player'):(r.player_name||'Saved player');
+        const description=kind==='wager'?String(r.status||'Pending')+' · '+stamp(r.placed_at):
+          kind==='pick'?[r.market,r.side,r.line].filter(v=>v!==null&&v!==undefined&&v!=='').join(' · '):
+          [r.sport,r.team].filter(Boolean).join(' · ');
+        const aside=kind==='wager'?(Number.isFinite(Number(r.stake))?Number(r.stake).toLocaleString()+' PTS':'—'):
+          String(r.slate_date||stamp(r.created_at));
+        return '<div class="profile-activity-item"><div><b>'+esc(title)+'</b><small>'+esc(description)+'</small></div><em>'+esc(aside)+'</em></div>';
+      }).join('')+'</div>':'<p>No '+esc(title.toLowerCase())+' saved to this account yet.</p>')+'</div>';
+  }
+  function showProfileActivity(root,signedIn){
+    const el=root.querySelector('[data-profile-activity]'),badge=root.querySelector('[data-profile-activity-badge]');
+    const history=root.querySelector('[data-profile-history-ready]'),balance=root.querySelector('[data-profile-points-ready]');
+    if(!el)return;
+    const userId=String(window.TSO_AUTH?.user?.id||'');
+    const data=signedIn&&profileActivitySnapshot?.userId===userId?profileActivitySnapshot:null;
+    if(!signedIn){
+      el.innerHTML='<span>◎</span><div><b>Sign in to view saved wagers, picks and watchlist.</b><small>Only your account records will appear.</small></div>';
+      if(badge)badge.textContent='SIGN IN';if(history)history.textContent='SIGN IN';if(balance)balance.textContent='SIGN IN';
+    }else if(profileActivityError){
+      el.innerHTML='<span>!</span><div><b>Account activity unavailable.</b><small>'+esc(profileActivityError)+' · Try Refresh Data.</small></div>';
+      if(badge)badge.textContent='RETRY';if(history)history.textContent='UNAVAILABLE';if(balance)balance.textContent='UNAVAILABLE';
+    }else if(!data){
+      el.innerHTML='<span>◌</span><div><b>Loading saved account history…</b><small>Checking your records securely.</small></div>';
+      if(badge)badge.textContent='LOADING';if(history)history.textContent='CONNECTING';if(balance)balance.textContent='CONNECTING';
+    }else{
+      const points=data.points?.balance;
+      const pointsText=points!==null&&points!==undefined&&Number.isFinite(Number(points))?Number(points).toLocaleString()+' POINTS':'No recorded balance';
+      el.innerHTML='<div class="profile-activity-summary"><span>POINT BALANCE <strong>'+esc(pointsText)+'</strong></span>'
+        +'<small>Existing Outpost records · 8 most recent per category · points have no cash value</small></div>'
+        +'<div class="profile-activity-grid">'
+        +profileSavedGroup('Point wagers',data.wagers,'wager')
+        +profileSavedGroup('Saved picks',data.picks,'pick')
+        +profileSavedGroup('Player watchlist',data.watchlist,'watch')+'</div>'
+        +(data.issues?.length?'<p class="profile-activity-warning">Some records unavailable: '+esc(data.issues.join('; '))+'</p>':'');
+      if(badge)badge.textContent=data.issues?.length?'PARTIAL':'CONNECTED';
+      if(history)history.textContent=data.issues?.length?'PARTIAL':'CONNECTED';
+      if(balance)balance.textContent=data.points===null?'UNAVAILABLE':pointsText;
+    }
+    el.classList.toggle('profile-activity-loaded',Boolean(data));
+  }
+
   function renderProfile(){
     const root=document.querySelector('.profile-page[data-profile-route]');
     if(currentRoute!=='profile'||!root) return;
@@ -5004,18 +5079,23 @@
     const handleNode=root.querySelector('[data-profile-handle]');
     if(handleNode) handleNode.textContent='@'+handle;
     const context=root.querySelector('[data-profile-context]');
-    if(context) context.textContent=signedIn?(currentLeague==='all'?'All Sports':leagueLabel(currentLeague))+' context · account verified · pick history not connected':'Guest access · sign in from the account menu to use your TSO account';
+    if(context) context.textContent=signedIn?(currentLeague==='all'?'All Sports':leagueLabel(currentLeague))+' context · account verified · linked saved history':'Guest access · sign in from the account menu to use your TSO account';
 
     const setText=(sel,value)=>{const node=root.querySelector(sel);if(node)node.textContent=value;};
     setText('[data-profile-props]',propsFeedCache?String(rows.length):'—');
     setText('[data-profile-models]',propsFeedCache?String(modeled.length):'—');
     setText('[data-profile-books]',propsFeedCache?String(books.size):'—');
     setText('[data-profile-games]',liveFeedCache?String(games.length):'—');
+    showProfileActivity(root,signedIn);
+    const account=signedIn&&profileActivitySnapshot?.userId===String(window.TSO_AUTH?.user?.id||'')?profileActivitySnapshot:null;
+    const historyLabel=!signedIn?'SIGN IN FOR HISTORY':profileActivityError?'ACCOUNT DATA UNAVAILABLE':account?'SAVED HISTORY CONNECTED':'CONNECTING SAVED HISTORY';
+    const pointsValue=account?.points?.balance;
+    const pointsLabel=pointsValue!==null&&pointsValue!==undefined&&Number.isFinite(Number(pointsValue))?Number(pointsValue).toLocaleString()+' POINTS':'no invented points';
 
     const status=root.querySelector('[data-profile-status]');
     if(status){
       const feedLabel=propsFeedCache&&liveFeedCache?'SPORTS DATA CONNECTED':propsFeedCache?'PROP DATA CONNECTED':liveFeedCache?'SCORE DATA CONNECTED':'CONNECTING SPORTS DATA';
-      status.innerHTML='<div><span class="props-live-dot"></span><b>'+feedLabel+'</b><small>'+(newest?esc(freshness.label)+' · '+esc(ageText(newest))+' old':'waiting for verified snapshots')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' VERIFIED PROPS</b><small>'+modeled.length+' exact model matches</small></div><span class="props-status-divider"></span><div><b>PICK HISTORY OFFLINE</b><small>no fake record or streak</small></div><span class="props-status-divider"></span><div><b>IN-APP NOTIFICATIONS ACTIVE</b><small>background push pending</small></div>';
+      status.innerHTML='<div><span class="props-live-dot"></span><b>'+feedLabel+'</b><small>'+(newest?esc(freshness.label)+' · '+esc(ageText(newest))+' old':'waiting for verified snapshots')+'</small></div><span class="props-status-divider"></span><div><b>'+rows.length+' VERIFIED PROPS</b><small>'+modeled.length+' exact model matches</small></div><span class="props-status-divider"></span><div><b>'+esc(historyLabel)+'</b><small>'+esc(pointsLabel)+'</small></div><span class="props-status-divider"></span><div><b>IN-APP NOTIFICATIONS ACTIVE</b><small>background push pending</small></div>';
     }
 
     const identityState=root.querySelector('[data-profile-identity-state]');
@@ -5037,6 +5117,7 @@
     root.querySelectorAll('[data-profile-open-model]').forEach(btn=>btn.onclick=()=>setRoute('models'));
     root.querySelectorAll('[data-route-jump]').forEach(btn=>{btn.onclick=()=>setRoute(btn.dataset.routeJump)});
     bindMediaFallbacks();
+    void refreshProfileActivity(false);
   }
 
   function researchRowByKey(key){
@@ -7540,6 +7621,7 @@
     document.querySelector('[data-profile-refresh]')?.addEventListener('click', () => {
       refreshLiveData(true);
       refreshPropsData(true);
+      void refreshProfileActivity(true);
     });
     document.querySelector('[data-research-refresh]')?.addEventListener('click', () => {
       refreshLiveData(true);
