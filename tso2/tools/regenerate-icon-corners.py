@@ -94,6 +94,6 @@ image.resize((512, 512), Image.Resampling.LANCZOS).save(
 )
 image.save(
     DEST / "tso2-favicon.ico", format="ICO",
-    sizes=[(16, 16), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)]
+    sizes=[(16, 16), (32, 32), (48, 48)]
 )
 print(f"Transparent exterior pixels removed: {exterior:,}; all variants exported.")
