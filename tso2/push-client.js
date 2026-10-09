@@ -19,16 +19,23 @@ async function setupWorker(){
 }
 async function probe(){
   if(busy)return;
+  if(ios()&&!standalone()){
+    button.hidden=false;button.disabled=true;button.textContent='ADD TO HOME SCREEN FIRST';
+    copy('On iPhone: Safari → Share → Add to Home Screen. Open TSO from that icon.');
+    return;
+  }
   if(!supported()){button.hidden=true;copy('Background push is not supported on this browser.');return;}
   button.hidden=false;
   const user=window.TSO_AUTH?.user;
   if(!user){button.disabled=false;button.textContent='SIGN IN TO ENABLE';copy('Sign in to receive device alerts.');return;}
-  if(ios()&&!standalone()){button.disabled=true;button.textContent='ADD TO HOME SCREEN FIRST';copy('On iPhone: Safari → Share → Add to Home Screen. Open TSO from that icon.');return;}
   if(Notification.permission==='denied'){button.disabled=true;button.textContent='BLOCKED IN DEVICE SETTINGS';copy('Allow notifications for TSO in your device settings.');return;}
-  const reg=await setupWorker();
-  const sub=await reg.pushManager.getSubscription();
+  let reg,sub;
+  try{reg=await setupWorker();sub=await reg.pushManager.getSubscription();}
+  catch(error){button.disabled=true;button.textContent='DEVICE ALERTS UNAVAILABLE';copy('Could not register service worker: '+String(error?.message||error),'error');return;}
   if(sub){
-    const enabled=await window.TSO_AUTH?.getPushSubscription?.(sub.endpoint);
+    let enabled=false;
+    try{enabled=await window.TSO_AUTH?.getPushSubscription?.(sub.endpoint);}
+    catch(error){copy('Could not verify registration: '+String(error?.message||error),'error');button.textContent='RETRY DEVICE ALERTS';return;}
     button.disabled=false;
     button.textContent=enabled?'DISABLE DEVICE ALERTS':'ENABLE DEVICE ALERTS';
     copy(enabled?'This device is registered for background push.':'This device has a subscription, but is not registered to your account.',enabled?'enabled':'idle');
