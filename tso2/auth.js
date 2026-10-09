@@ -38,6 +38,41 @@ const auth=window.TSO_AUTH={
     if(error)throw new Error(error.message||'Unable to load account notifications');
     return Array.isArray(data)?data:[];
   },
+  // TSO2-only, trusted event-alert inbox. Browser may read or acknowledge
+  // its own events but has no INSERT privileges to forge a verified score.
+  async loadVerifiedHits(limit=16){
+    const user=auth.user;
+    if(!client||!user?.id)return [];
+    const {data,error}=await client.from('tso2_verified_hits')
+      .select('id,sport,market,player,message,event_at,read,game_id,source_url,created_at')
+      .eq('user_id',user.id)
+      .order('created_at',{ascending:false})
+      .limit(Math.max(1,Math.min(24,Number(limit)||16)));
+    if(String(auth.user?.id||'')!==String(user.id))return [];
+    if(error)throw new Error(error.message||'Could not load verified hit alerts');
+    return Array.isArray(data)?data:[];
+  },
+  async markVerifiedHitsRead(ids=null){
+    const user=auth.user;
+    if(!client||!user?.id)throw new Error('Sign in to mark verified hits read.');
+    let query=client.from('tso2_verified_hits').update({read:true}).eq('user_id',user.id).eq('read',false);
+    if(Array.isArray(ids)){
+      const safe=ids.map(Number).filter(n=>Number.isSafeInteger(n)&&n>0);
+      if(!safe.length)return;
+      query=query.in('id',safe);
+    }
+    const {error}=await query;
+    if(error)throw new Error(error.message||'Could not acknowledge verified hits');
+  },
+  async checkVerifiedHomeRuns(){
+    const user=auth.user;
+    if(!client||!user?.id)throw new Error('Sign in to check official MLB results.');
+    const {data,error}=await client.functions.invoke('tso2-verify-mlb-hr',{method:'POST',body:{}});
+    if(String(auth.user?.id||'')!==String(user.id))return null;
+    if(error)throw new Error(error.message||'Official MLB verification is temporarily unavailable');
+    if(data?.error)throw new Error(data.error);
+    return data;
+  },
   async markNotificationsRead(ids=null){
     const user=auth.user;
     if(!client||!user?.id)throw new Error('Sign in to mark notifications as read.');
