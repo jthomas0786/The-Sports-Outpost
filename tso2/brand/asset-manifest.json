@@ -1,7 +1,7 @@
 {
-  "version": "2.2.0",
+  "version": "2.3.0",
   "system": "Outpost Broadcast",
-  "updated": "2026-10-08",
+  "updated": "2026-10-09",
   "approved_master_reference": "TSO 2.0 concept board approved in chat on 2026-10-03",
   "quality_gate": {
     "exact_direction_required": true,
@@ -62,7 +62,7 @@
           "production/tso2-app-icon-512.webp",
           "production/tso2-apple-touch-icon-180.png"
         ],
-        "notes": "Owner-approved TSO lettermark with four sports and orange/blue reticle, sourced from the October 8, 2026 generated image; binary master preserved. No reinterpretation."
+        "notes": "Owner-approved TSO icon artwork with orange/blue reticle and sports; app variants regenerated from the preserved approved master with true transparent outside corners on 2026-10-09. RGBA transparency is validated by the TSO2 icon build."
       },
       {
         "id": "favicon",
@@ -82,7 +82,7 @@
         "variants": [
           "production/tso2-favicon.ico"
         ],
-        "notes": "Derived by Lanczos resizing from approved TSO app icon."
+        "notes": "32px PNG and multiresolution ICO regenerated from the approved TSO app icon, with transparent outside corners, and verified in CI."
       },
       {
         "id": "wordmark_horizontal",
@@ -199,7 +199,8 @@
         1024
       ]
     },
-    "approved_app_icon_installed_in_tso2": true
+    "approved_app_icon_installed_in_tso2": true,
+    "approved_app_icon_transparent_corners": true
   },
   "master_source": {
     "dimensions": {
