@@ -6584,7 +6584,7 @@
   function savedActivityDate(row){
     const chicagoDate=value=>{
       const raw=String(value||'');
-      if(/^\\d{4}-\\d{2}-\\d{2}$/.test(raw))return raw;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(raw))return raw;
       const dt=new Date(value);
       if(!Number.isFinite(dt.valueOf()))return '';
       const dateParts=new Intl.DateTimeFormat('en-US',{
