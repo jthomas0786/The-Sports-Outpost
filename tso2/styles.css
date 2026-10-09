@@ -11624,3 +11624,16 @@ body.live-multi-open{overflow:hidden}
 .notification-push-toggle:disabled{opacity:.65;cursor:default}
 [data-push-status][data-state="enabled"]{color:#57d6ac!important}
 [data-push-status][data-state="error"]{color:#ff8d96!important}
+
+/* TSO 2.0 compact per-device sports notification preferences */
+.notification-push-preferences[hidden],.notification-push-hint[hidden]{display:none!important}
+.notification-push-preferences{width:100%;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:5px}
+.push-pref-sport{min-width:0;margin:0;padding:9px 10px 10px;border:1px solid rgba(45,127,255,.20);border-radius:10px;background:rgba(9,17,29,.78)}
+.push-pref-sport legend{font-weight:900;font-size:10px;letter-spacing:.13em;color:#9dccff;padding:0 4px}
+.push-pref-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;min-width:0;color:#d8e6f7;font-size:10px;line-height:1.3;cursor:pointer}
+.push-pref-item input{accent-color:#2d7fff;width:14px;height:14px;flex:0 0 14px;margin:0}
+.push-pref-item span{min-width:0;overflow-wrap:anywhere}
+.push-pref-item:has(input:disabled){opacity:.48;cursor:default}
+.push-pref-upcoming{color:#8b9caf}
+.notification-push-hint{font-size:10px!important;color:#8a9bab!important}
+@media(max-width:540px){.notification-push-preferences{grid-template-columns:minmax(0,1fr)}}
