@@ -22,7 +22,23 @@ const clientReady=new Promise(resolve=>{resolveClientReady=resolve;});
 const auth=window.TSO_AUTH={
   status:'loading',
   user:null,
-  async signOut(){if(!client)throw new Error('Sign-out service is not connected.');const {error}=await client.auth.signOut();if(error)throw error;auth.user=null;auth.status='guest';renderIdentity();emit();},
+  async signOut(){
+    if(!client)throw new Error('Sign-out service is not connected.');
+    // Stop private device alerts BEFORE revoking the account JWT.
+    try{
+      const registration=await navigator.serviceWorker?.getRegistration?.('/');
+      const subscription=await registration?.pushManager?.getSubscription?.();
+      if(subscription&&auth.user?.id){
+        const {error:removeError}=await client.from('push_subscriptions').delete()
+          .eq('user_id',auth.user.id).eq('endpoint',subscription.endpoint);
+        if(removeError)console.warn('[TSO2 push] Sign-out subscription cleanup:',removeError.message);
+        await subscription.unsubscribe();
+      }
+    }catch(error){console.warn('[TSO2 push] Sign-out cleanup:',error?.message||error);}
+    const {error}=await client.auth.signOut();
+    if(error)throw error;
+    auth.user=null;auth.status='guest';renderIdentity();emit();
+  },
   async refresh(){return refreshIdentity();},
   // Browser keys belong only to this signed-in account. Supabase RLS enforces
   // auth.uid() = user_id; never write service-role credentials in a browser.
