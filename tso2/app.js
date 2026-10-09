@@ -918,6 +918,13 @@
   const notificationDot = document.querySelector('[data-notification-dot]');
   const notificationCount = document.querySelector('[data-notification-count]');
   const notificationReadIds = new Set();
+  let verifiedHitAlerts=[];
+  let verifiedHitOwnerId='';
+  let verifiedHitFetchedAt=0;
+  let verifiedHitLastCheckAt=0;
+  let verifiedHitRequest=null;
+  let verifiedHitError='';
+  const VERIFIED_HIT_POLL_MS=5*60*1000;
   let savedAccountNotifications=[];
   let savedAccountNotificationOwnerId='';
   let savedAccountNotificationFetchedAt=0;
@@ -2964,6 +2971,49 @@
 
   // Existing TSO 1.0 account notifications are owned by auth.uid() under
   // Supabase RLS. They never come from client-maintained fake history.
+  // Scoring alerts originate ONLY from the server's official MLB
+  // play-by-play verifier. Never infer a hit from odds, models, or score alone.
+  function verifiedHitEntry(row){
+    return {id:'hit:'+String(row.id),verifiedHitId:Number(row.id),
+      persistedRead:row.read===true,tone:'live',mark:'⚾',
+      eyebrow:'OFFICIAL MLB HR · VERIFIED',
+      title:String(row.player||'Saved player')+' · HOME RUN',
+      copy:String(row.message||'Official MLB scoring event confirmed'),
+      time:row.event_at?ageText(row.event_at)+' old':'confirmed',
+      route:'profile',league:'mlb'};
+  }
+  async function refreshVerifiedHitAlerts(force=false){
+    const userId=String(window.TSO_AUTH?.user?.id||'');
+    if(userId!==verifiedHitOwnerId){
+      verifiedHitOwnerId=userId;verifiedHitAlerts=[];
+      verifiedHitFetchedAt=0;verifiedHitLastCheckAt=0;verifiedHitError='';
+      verifiedHitRequest=null;renderNotificationCenter();
+    }
+    if(!userId||typeof window.TSO_AUTH?.loadVerifiedHits!=='function')return;
+    if(verifiedHitRequest)return verifiedHitRequest;
+    const checkDue=Date.now()-verifiedHitLastCheckAt>=VERIFIED_HIT_POLL_MS;
+    if(!force&&!checkDue&&Date.now()-verifiedHitFetchedAt<ACCOUNT_NOTIFICATION_REFRESH_MS)return;
+    verifiedHitRequest=(async()=>{
+      if(checkDue&&typeof window.TSO_AUTH?.checkVerifiedHomeRuns==='function'){
+        verifiedHitLastCheckAt=Date.now();
+        try{await window.TSO_AUTH.checkVerifiedHomeRuns();}
+        catch(error){
+          if(String(window.TSO_AUTH?.user?.id||'')===userId)
+            verifiedHitError=String(error?.message||'Official MLB verification paused');
+        }
+      }
+      const rows=await window.TSO_AUTH.loadVerifiedHits(16);
+      if(String(window.TSO_AUTH?.user?.id||'')!==userId)return;
+      verifiedHitAlerts=Array.isArray(rows)?rows:[];
+      verifiedHitFetchedAt=Date.now();
+      renderNotificationCenter();
+    })().catch(error=>{
+      if(String(window.TSO_AUTH?.user?.id||'')!==userId)return;
+      verifiedHitError=String(error?.message||'Verified hit inbox unavailable');
+      renderNotificationCenter();
+    }).finally(()=>{verifiedHitRequest=null;});
+    return verifiedHitRequest;
+  }
   function savedNotificationEntry(row){
     const payload=row?.payload&&typeof row.payload==='object'?row.payload:{};
     const name=String(payload.player_name||'Player');
@@ -2984,6 +3034,7 @@
     }
   }
   async function refreshSavedAccountNotifications(force=false){
+    void refreshVerifiedHitAlerts(force);
     const userId=String(window.TSO_AUTH?.user?.id||'');
     if(userId!==savedAccountNotificationOwnerId){
       savedAccountNotificationOwnerId=userId;
@@ -3077,13 +3128,15 @@
 
     // Recent persisted alerts follow critical feed warnings. Keep some space
     // for live games and model alerts even when an account inbox has history.
+    const officialHitEntries=verifiedHitAlerts.slice(0,4).map(verifiedHitEntry);
+    entries.unshift(...officialHitEntries);
     const accountEntries=savedAccountNotifications.slice(0,4).map(savedNotificationEntry);
-    entries.splice(Math.min(entries.length,2),0,...accountEntries);
+    entries.splice(Math.min(entries.length,Math.max(2,officialHitEntries.length)),0,...accountEntries);
     return entries.slice(0,9);
   }
 
   function notificationItemMarkup(entry){
-    const unread=entry.accountNotificationId?entry.persistedRead!==true:!notificationReadIds.has(entry.id);
+    const unread=(entry.accountNotificationId||entry.verifiedHitId)?entry.persistedRead!==true:!notificationReadIds.has(entry.id);
     return '<button class="notification-item '+(unread?'is-unread ':'')+'is-'+esc(entry.tone||'default')+'" data-notification-id="'+esc(entry.id)+'" data-notification-route="'+esc(entry.route||'home')+'" data-notification-league="'+esc(entry.league||'')+'" data-notification-game="'+esc(entry.gameId||'')+'">'
       +'<span class="notification-item-mark">'+esc(entry.mark||'•')+'</span>'
       +'<span class="notification-item-copy"><span>'+esc(entry.eyebrow||'TSO')+'</span><b>'+esc(entry.title||'Notification')+'</b><small>'+esc(entry.copy||'')+'</small></span>'
@@ -3094,7 +3147,7 @@
   function renderNotificationCenter(){
     if(!notificationList||!notificationButton)return;
     const entries=notificationEntries();
-    const unread=entries.filter(entry=>entry.accountNotificationId?entry.persistedRead!==true:!notificationReadIds.has(entry.id)).length;
+    const unread=entries.filter(entry=>(entry.accountNotificationId||entry.verifiedHitId)?entry.persistedRead!==true:!notificationReadIds.has(entry.id)).length;
     if(notificationDot)notificationDot.hidden=unread===0;
     if(notificationCount){
       notificationCount.hidden=unread===0;
@@ -3107,7 +3160,17 @@
 
     notificationList.querySelectorAll('[data-notification-id]').forEach(btn=>btn.onclick=()=>{
       const id=String(btn.dataset.notificationId||'');
-      if(id.startsWith('account:')){
+      if(id.startsWith('hit:')){
+        const hitId=Number(id.slice(4));
+        if(Number.isSafeInteger(hitId)&&hitId>0){
+          void window.TSO_AUTH?.markVerifiedHitsRead?.([hitId])
+            .then(()=>{
+              const saved=verifiedHitAlerts.find(x=>Number(x.id)===hitId);
+              if(saved)saved.read=true;
+              renderNotificationCenter();
+            }).catch(error=>console.warn('[TSO2 verified HR] Read acknowledgement failed',error?.message||error));
+        }
+      }else if(id.startsWith('account:')){
         const notificationId=Number(id.slice(8));
         if(Number.isSafeInteger(notificationId)&&notificationId>0){
           void window.TSO_AUTH?.markNotificationsRead?.([notificationId])
@@ -3133,9 +3196,16 @@
 
   function markAllNotificationsRead(){
     notificationEntries().forEach(entry=>{
-      if(!entry.accountNotificationId)notificationReadIds.add(entry.id);
+      if(!entry.accountNotificationId&&!entry.verifiedHitId)notificationReadIds.add(entry.id);
     });
     const userId=String(window.TSO_AUTH?.user?.id||'');
+    if(userId&&typeof window.TSO_AUTH?.markVerifiedHitsRead==='function'){
+      void window.TSO_AUTH.markVerifiedHitsRead().then(()=>{
+        if(String(window.TSO_AUTH?.user?.id||'')!==userId)return;
+        verifiedHitAlerts.forEach(row=>{row.read=true;});
+        renderNotificationCenter();
+      }).catch(error=>console.warn('[TSO2 verified HR] Mark-all failed',error?.message||error));
+    }
     if(userId&&typeof window.TSO_AUTH?.markNotificationsRead==='function'){
       void window.TSO_AUTH.markNotificationsRead().then(()=>{
         if(String(window.TSO_AUTH?.user?.id||'')!==userId)return;
