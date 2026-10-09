@@ -5,7 +5,7 @@ const authSrc=fs.readFileSync('tso2/auth.js','utf8');
 const html=fs.readFileSync('tso2/index.html','utf8');
 assert.match(html, /<form[^>]+novalidate[^>]+data-auth-form/);
 assert.doesNotMatch(html, /name="password"[^>]*minlength=/);
-assert.match(html, /auth\.js\?v=20261009-signin-sdk-ready-v3/);
+assert.match(html, /auth\.js\?v=20261009-auth-save-v1/);
 
 const refreshStart=authSrc.indexOf('async function refreshIdentity(forceAfterInFlight=false){');
 const submitStart=authSrc.indexOf('async function submitCredentials(event){');
