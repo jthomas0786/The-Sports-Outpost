@@ -49,6 +49,38 @@ const auth=window.TSO_AUTH={
     if(error)throw new Error(error.message||'Unable to save read status');
   },
 
+  // User-scoped, read-only connection to existing TSO account records.
+  // The Supabase RLS policies remain the authorization boundary: nothing
+  // in the browser can choose another person's user_id.
+  async loadProfileActivity(){
+    const user=auth.user;
+    if(!client||!user?.id)throw new Error('Sign in to see your saved Outpost activity.');
+    const userId=user.id;
+    const take=async query=>{
+      const {data,error}=await query;
+      if(error)throw new Error(error.message||'Account activity could not be loaded.');
+      return data;
+    };
+    const requests=[
+      take(client.from('point_balances').select('balance,updated_at').eq('user_id',userId).maybeSingle()),
+      take(client.from('wagers').select('id,sport,stake,status,placed_at,settled_at').eq('user_id',userId).order('placed_at',{ascending:false}).limit(8)),
+      take(client.from('watchlist').select('id,player_name,team,sport,slate_date,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(8)),
+      take(client.from('picks').select('id,player,market,line,side,slate_date,created_at').eq('user_id',userId).order('created_at',{ascending:false}).limit(8))
+    ];
+    const results=await Promise.allSettled(requests);
+    if(String(auth.user?.id||'')!==userId)throw new Error('Account changed while loading.');
+    const names=['points','wagers','watchlist','picks'],issues=[];
+    const values=results.map((r,i)=>{
+      if(r.status==='fulfilled')return r.value;
+      issues.push(names[i]+': '+String(r.reason?.message||'unavailable'));
+      return null;
+    });
+    return {
+      userId,points:values[0],wagers:values[1],watchlist:values[2],
+      picks:values[3],issues,fetchedAt:new Date().toISOString()
+    };
+  },
+
   async rpc(name,args={}){
     if(!client)throw new Error('Account data service is not connected yet.');
     const {data,error}=await client.rpc(name,args);
