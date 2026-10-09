@@ -4802,8 +4802,8 @@
     if(parlayMode==='pregame'&&!propsFeedCache)return;
     root.querySelectorAll('[data-parlay-mode]').forEach(btn=>btn.classList.toggle('is-active',btn.dataset.parlayMode===parlayMode));
     const checkpointControls=root.querySelector('[data-parlay-checkpoint-controls]');
-    const saveButton=root.querySelector('[data-parlay-save-legs]');
-    if(saveButton)saveButton.hidden=parlayMode!=='pregame';
+    const saveTools=root.querySelector('.parlay-save-tools');
+    if(saveTools)saveTools.hidden=parlayMode!=='pregame';
     if(parlayMode!=='pregame'){
       renderCheckpointParlayLab(root);
       return;
@@ -7069,10 +7069,10 @@
       addPropToParlay(researchRowByKey(btn.dataset.propsParlay));
     });
     document.querySelectorAll('[data-props-save]').forEach(btn=>btn.onclick=event=>{
-      event.stopPropagation();void savePropsPick(researchRowByKey(btn.dataset.propsSave),btn);
+      event.stopPropagation();void savePropsPick(currentPropsRows().find(row=>String(row.key)===String(btn.dataset.propsSave)),btn);
     });
     document.querySelectorAll('[data-props-watch]').forEach(btn=>btn.onclick=event=>{
-      event.stopPropagation();void watchPropsPlayer(researchRowByKey(btn.dataset.propsWatch),btn);
+      event.stopPropagation();void watchPropsPlayer(currentPropsRows().find(row=>String(row.key)===String(btn.dataset.propsWatch)),btn);
     });
   }
 
