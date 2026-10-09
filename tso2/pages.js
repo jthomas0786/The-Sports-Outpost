@@ -529,6 +529,7 @@
             </div>
           </div>
           <div class="props-exact-note"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every displayed price belongs to the exact line and side shown. Selecting a sportsbook re-prices that exact selection and recalculates market probability / edge for that book instead of continuing to show another book's price.</small></div></div>
+          <div class="props-exact-note props-account-save-note"><span>★</span><div><b>SAVE YOUR PICKS & FOLLOW PLAYERS</b><small>Sign in to save exact Over/Under selections or follow players with verified IDs. Saved items appear under Profile and persist across devices. Yes/No touchdown, goal and homer markets cannot be stored in the current picks format yet; no selection is silently changed.</small></div></div>
         </section>
 
         <section class="destination-section">
