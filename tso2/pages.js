@@ -639,6 +639,10 @@
             </div>
 
             <button class="parlay-add-leg" data-parlay-add><span>＋</span><div><b>ADD ANOTHER LEG</b><small>Choose from live model suggestions below</small></div></button>
+            <div class="parlay-save-tools">
+              <button class="button primary" data-parlay-save-legs type="button">SAVE ELIGIBLE LEGS</button>
+              <small data-parlay-save-note>Saves supported Over/Under legs individually to your Profile. No sportsbook bet is placed.</small>
+            </div>
 
             <div class="parlay-line-protection"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every leg keeps its exact player, market, side and threshold. Book comparison only counts a sportsbook when that exact selection is present.</small></div></div>
           </article>
