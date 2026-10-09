@@ -8,11 +8,17 @@
 name: Build daily MLB slate
 
 on:
+  # Rebuild today's slate immediately when recovery or schedule config changes.
+  # The recurring nightly schedule below still generates the *next* day's slate.
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/daily-slate.yml'
   schedule:
-    # 11:07 PM Central every night. America/Chicago automatically follows
+    # 11:13 PM Central every night. America/Chicago automatically follows
     # CST/CDT daylight-saving changes. The 7-minute offset avoids GitHub's
     # documented top-of-hour schedule congestion while staying effectively 11pm.
-    - cron: '7 23 * * *'
+    - cron: '13 23 * * *'
       timezone: 'America/Chicago'
   workflow_dispatch:      # lets you trigger a rebuild by hand from the Actions tab
     inputs:
