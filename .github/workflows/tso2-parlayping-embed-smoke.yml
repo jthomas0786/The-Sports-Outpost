@@ -66,11 +66,17 @@ jobs:
           curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$tso/app.js?qa=$nocache" -o /tmp/live-tso-app.js
           curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-submit-broadcast.css?qa=$nocache" -o /tmp/live-pp-broadcast.css
           curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-shell.js?qa=$nocache" -o /tmp/live-pp-shell.js
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-profile-broadcast.css?qa=$nocache" -o /tmp/live-pp-profile.css
           echo "Live asset sizes:"
           wc -c /tmp/live-tso-pages.js /tmp/live-tso-styles.css /tmp/live-tso-app.js /tmp/live-pp-broadcast.css /tmp/live-pp-shell.js
-          grep -Fq 'TSO ACCOUNT' /tmp/live-tso-pages.js || { echo 'STALE TSO: production pages.js still has old embedded Parlay Ping header/nav'; exit 1; }
+          grep -Fq 'data-parlayping-page="/profile">MY PARLAYS' /tmp/live-tso-pages.js || { echo 'STALE TSO: production pages.js lacks new My Parlays tab'; exit 1; }
+          if grep -Fq 'data-parlayping-page="/trending"' /tmp/live-tso-pages.js || grep -Fq 'data-parlayping-page="/profile?tab=community"' /tmp/live-tso-pages.js || grep -Fq 'data-parlayping-page="/account.html"' /tmp/live-tso-pages.js; then
+            echo 'STALE TSO: duplicate Explore, Community or Account tabs remain in production'; exit 1
+          fi
           grep -Fq 'PARLAY PING — TSO 2.0 BROADCAST PARITY' /tmp/live-tso-styles.css || { echo 'STALE TSO: production styles.css lacks orange/gold broadcast parity'; exit 1; }
           grep -Fq 'tso2-parlayping-size' /tmp/live-tso-app.js || { echo 'STALE TSO: production app.js lacks auto-height iframe'; exit 1; }
           grep -Fq -- '--pp-broadcast-orange:#ff4d1c' /tmp/live-pp-broadcast.css || { echo 'STALE PP: Render missing orange broadcast theme'; exit 1; }
           grep -Fq 'tso2-parlayping-size' /tmp/live-pp-shell.js || { echo 'STALE PP: Render missing iframe auto-height message'; exit 1; }
+          grep -Fq -- '#ff4d1c' /tmp/live-pp-profile.css || { echo 'STALE PP: My Parlays still uses old profile theme'; exit 1; }
+          grep -Fq 'Only genuine Parlay Ping functions remain inside TSO' /tmp/live-tso-styles.css || { echo 'STALE TSO: simplified tool nav CSS not deployed'; exit 1; }
           echo 'LIVE PARLAY PING TSO 2.0 THEME: VERIFIED on public origin'
