@@ -40,6 +40,14 @@ const auth=window.TSO_AUTH={
     auth.user=null;auth.status='guest';renderIdentity();emit();
   },
   async refresh(){return refreshIdentity();},
+  // First-party Parlay Ping iframe bridge. A token is only released to the
+  // allowlisted Parlay Ping origin after TSO has verified the current user.
+  async verifiedAccessToken(){
+    if(!client||!auth.user?.id)return null;
+    const {data,error}=await client.auth.getSession();
+    if(error||!data?.session?.access_token||data.session.user?.id!==auth.user.id)return null;
+    return data.session.access_token;
+  },
   // Browser keys belong only to this signed-in account. Supabase RLS enforces
   // auth.uid() = user_id; never write service-role credentials in a browser.
   async getPushSubscription(endpoint){

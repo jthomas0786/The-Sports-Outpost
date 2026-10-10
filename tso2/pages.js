@@ -570,34 +570,36 @@
       return `
       <section class="parlayping-workspace" data-parlayping-workspace>
         <header class="parlayping-workspace-head">
-          <img class="parlayping-workspace-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt="" />
-          <div class="parlayping-workspace-heading">
-            <small>THE SPORTS OUTPOST / PARLAY PING</small>
-            <h1>Parlay Ping</h1>
-            <p>Powered by The Sports Outpost <span aria-hidden="true">·</span> Tag it. Track it. Tail what's left.</p>
+          <div class="parlayping-workspace-title">
+            <img class="parlayping-workspace-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt="" />
+            <div class="parlayping-workspace-heading">
+              <small>THE SPORTS OUTPOST <span aria-hidden="true">/</span> PARLAY PING</small>
+              <h1>Parlay Ping</h1>
+              <p>Upload, verify, track and share your betslips. Powered by The Sports Outpost.</p>
+            </div>
           </div>
-          <span class="parlayping-workspace-connected"><i aria-hidden="true"></i> RENDER ENGINE</span>
+          <span class="parlayping-workspace-connected"><i aria-hidden="true"></i> TOOLS CONNECTED</span>
         </header>
-        <nav class="parlayping-workspace-nav" aria-label="Parlay Ping features" data-parlayping-nav>
-          <button class="is-active" type="button" data-parlayping-page="/submit" aria-current="page">BETSLIP BUILDER / UPLOAD</button>
+        <nav class="parlayping-workspace-nav" aria-label="Parlay Ping tools" data-parlayping-nav>
+          <button class="is-active" type="button" data-parlayping-page="/submit" aria-current="page">UPLOAD / VERIFY</button>
           <button type="button" data-parlayping-page="/profile">MY PARLAYS</button>
           <button type="button" data-parlayping-page="/trending">EXPLORE</button>
           <button type="button" data-parlayping-page="/profile?tab=community">COMMUNITY</button>
-          <button type="button" data-parlayping-page="/profile?tab=dev">DEVELOPER API</button>
-          <button type="button" data-parlayping-page="/account.html">ACCOUNT</button>
+          <button type="button" data-parlayping-page="/account.html">TSO ACCOUNT</button>
         </nav>
         <div class="parlayping-workspace-frame-shell">
           <div class="parlayping-workspace-loader" data-parlayping-loading role="status">Loading Parlay Ping tools…</div>
           <iframe
             data-parlayping-frame
-            title="Parlay Ping — live builder, tracking, community and developer API"
+            title="Parlay Ping — TSO 2.0 betslip tools"
             src="https://parlayping.thesportsoutpost.com/submit?tso_embed=1"
             loading="eager"
+            scrolling="no"
             referrerpolicy="strict-origin-when-cross-origin"
             allow="clipboard-read; clipboard-write"
           ></iframe>
         </div>
-        <p class="parlayping-workspace-footnote">Parlay Ping features run against the existing secured Render backend and Parlay Ping account. Your tracked slips, shares, plans and API keys remain in their original service.</p>
+        <p class="parlayping-workspace-footnote">Your betslips are saved to your TSO account. There is no second Parlay Ping sign-in.</p>
       </section>`;
     },
 

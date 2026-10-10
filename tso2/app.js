@@ -7991,6 +7991,8 @@
     const navigate=path=>{
       if(!buttons.some(b=>b.dataset.parlaypingPage===path))return;
       parlayPingPath=path;
+      frame.style.height='';
+      frame.parentElement?.classList.remove('is-autosized');
       const url=new URL(path,PARLAYPING_ORIGIN);
       url.searchParams.set('tso_embed','1');
       frame.src=url.toString();
@@ -7998,16 +8000,43 @@
       if(loading){loading.hidden=false;loading.textContent='Loading '+(buttons.find(b=>b.dataset.parlaypingPage===path)?.textContent||'Parlay Ping')+'…';}
       setActive(path);
     };
-    buttons.forEach(button=>button.addEventListener('click',()=>navigate(button.dataset.parlaypingPage)));
-    frame.addEventListener('load',()=>{
+    buttons.forEach(button=>button.addEventListener('click',()=>{
+      const page=button.dataset.parlaypingPage;
+      if(page==='/account.html'){setRoute('profile');return;}
+      if(page==='/profile?tab=dev'){notify('Developer API subscriptions are managed through Parlay Ping business accounts.');return;}
+      navigate(page);
+    }));
+    // The parent keeps sole control of the TSO session. Only the precisely
+    // matching, first-party Parlay Ping iframe receives its transient JWT.
+    async function sendTsoIdentity(){
+      const recipient=frame.contentWindow;
+      if(!recipient||!frame.isConnected)return;
+      let accessToken='';
+      try{accessToken=String(await window.TSO_AUTH?.verifiedAccessToken?.()||'');}
+      catch(error){console.warn('[TSO/PP] Unable to obtain current session:',error?.message||error);}
+      if(frame.contentWindow===recipient)recipient.postMessage({type:'tso2-parlayping-auth',accessToken},PARLAYPING_ORIGIN);
+    }
+    window.addEventListener('tso2-auth-changed',()=>{void sendTsoIdentity();});
+    frame.addEventListener('load',()=>{void sendTsoIdentity();
       const loading=root.querySelector('[data-parlayping-loading]');
       if(loading)loading.hidden=true;
     });
     // The iframe owns real tracked slips and /build/:id pages. Do not
     // accidentally switch the outer TSO route when those links are clicked.
     const updateFromEmbedded=event=>{
-      if(event.origin!==PARLAYPING_ORIGIN||event.source!==frame.contentWindow
-         ||event.data?.type!=='tso2-parlayping-route')return;
+      if(event.origin!==PARLAYPING_ORIGIN||event.source!==frame.contentWindow)return;
+      if(event.data?.type==='tso2-parlayping-size'){
+        const height=Number(event.data.height);
+        if(Number.isFinite(height)&&height>=300&&height<=14000){
+          frame.style.height=Math.ceil(height+2)+'px';
+          frame.parentElement?.classList.add('is-autosized');
+        }
+        return;
+      }
+      if(event.data?.type==='tso2-parlayping-auth-request'){void sendTsoIdentity();return;}
+      if(event.data?.type==='tso2-parlayping-signin-request'){window.TSO_AUTH?.openSignIn?.();return;}
+      if(event.data?.type==='tso2-parlayping-open-profile'){setRoute('profile');return;}
+      if(event.data?.type!=='tso2-parlayping-route')return;
       const pathname=String(event.data.pathname||'/');
       const search=String(event.data.search||'');
       let active=pathname;
