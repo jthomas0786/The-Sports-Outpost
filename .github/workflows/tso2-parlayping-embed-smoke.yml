@@ -39,6 +39,14 @@ jobs:
           grep -Fq 'data-route="parlays"' /tmp/tso-home.html
           grep -Fq 'data-parlayping-frame' /tmp/tso-pages.js
           grep -Fq 'tso_embed=1' /tmp/tso-pages.js
+          # Framing must not be blocked by the independent Render domain.
+          headers="$(curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSI "$pp/")"
+          if echo "$headers" | grep -Ei '^x-frame-options: *(DENY|SAMEORIGIN)' ; then
+            echo 'Parlay Ping disallows the TSO inline application iframe'; exit 1
+          fi
+          if echo "$headers" | grep -Ei "content-security-policy:.*frame-ancestors.*'none'" ; then
+            echo 'Parlay Ping CSP disallows the TSO embedded application'; exit 1
+          fi
           curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$pp/tso2-shell.js" -o /tmp/parlay-pp-shell.js
           grep -Fq 'inTsoWorkspace' /tmp/parlay-pp-shell.js
           curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$pp/healthz" -o /tmp/parlay-health.json
