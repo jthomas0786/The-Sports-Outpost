@@ -11646,3 +11646,45 @@ body.live-multi-open{overflow:hidden}
   .notification-panel{max-height:min(85dvh,710px)}
   .notification-panel .notification-capability{max-height:min(56dvh,410px)}
 }
+
+/* Parlay Ping — Powered by TSO 2.0. Real backend stays on Render. */
+.parlayping-destination-hero{
+  display:grid!important;grid-template-columns:minmax(0,1fr) minmax(200px,300px);align-items:center;gap:25px;
+  border:1px solid rgba(45,127,255,.18)!important;
+  background:linear-gradient(120deg,#080c13 0%,#0b1220 67%,#071526 100%)!important;
+  padding:25px 28px!important;min-height:230px;margin-bottom:12px;
+}
+.parlayping-destination-hero::after{background:radial-gradient(circle,rgba(45,127,255,.10),transparent 65%)!important}
+.parlayping-hero-copy{min-width:0;z-index:1}
+.parlayping-hero-brand{display:flex;align-items:center;flex-wrap:wrap;gap:14px;margin-bottom:10px}
+.parlayping-hero-brand img{display:block;width:270px;max-width:min(100%,270px);max-height:100px;object-fit:contain}
+.parlayping-hero-brand span{font-size:9px;font-weight:950;letter-spacing:.15em;color:#92aac9;white-space:nowrap}
+.parlayping-destination-hero .parlays-kicker{color:#79abff!important}
+.parlayping-destination-hero h1{font-size:clamp(27px,3vw,39px);margin:9px 0 9px!important;letter-spacing:-.035em}
+.parlayping-destination-hero h1 em{font-style:normal;color:#65a2ff}
+.parlayping-destination-hero p{font-size:12px;line-height:1.7;max-width:670px;color:#9dabbf}
+.parlayping-hero-ctas{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:18px}
+.parlayping-hero-ctas a{display:inline-flex;align-items:center;justify-content:center;min-height:35px;font-size:11px;text-decoration:none;padding:0 14px}
+.parlayping-hero-visual{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:8px;z-index:1}
+.parlayping-hero-visual img{max-width:100%;width:192px;aspect-ratio:1;object-fit:contain;border-radius:20px;filter:drop-shadow(0 4px 22px rgba(20,190,180,.10))}
+.parlayping-hero-visual span{font-size:9px;letter-spacing:.12em;color:#677f9d}
+.parlayping-feature-links{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0 16px}
+.parlayping-feature-links a{display:grid;gap:8px;padding:15px 16px;min-height:72px;background:#0b1019;border:1px solid rgba(255,255,255,.1);color:#eff5fd;text-decoration:none;transition:border-color .18s}
+.parlayping-feature-links a:hover{border-color:rgba(45,127,255,.5);background:#101b2b}
+.parlayping-feature-links b{font-size:12px;letter-spacing:.07em}
+.parlayping-feature-links small{font-size:11px;color:#8194ad;line-height:1.3}
+.parlayping-inline-builder-head{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:19px 0 15px;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.07);margin:8px 0 13px}
+.parlayping-inline-builder-head>div:first-child>span{font-size:10px;font-weight:900;color:#6ca3f2;letter-spacing:.1em}
+.parlayping-inline-builder-head h2{margin:4px 0 5px;font-size:21px}
+.parlayping-inline-builder-head p{color:#7e91aa;font-size:11px;max-width:520px;line-height:1.6;margin:0}
+.parlays-page .parlays-kicker{color:#82aafa!important}
+.parlays-page .parlay-slip,.parlays-page .parlay-health,.parlays-page .parlays-preview-strip,.parlays-page .parlays-mode-tabs button{border-color:rgba(255,255,255,.10)}
+@media(max-width:1000px){.parlayping-feature-links{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){
+ .parlayping-destination-hero{grid-template-columns:minmax(0,1fr);padding:18px!important}
+ .parlayping-hero-visual{display:none}
+ .parlayping-hero-brand img{max-width:70%}
+ .parlayping-hero-brand span{white-space:normal}
+ .parlayping-inline-builder-head{flex-direction:column;align-items:flex-start}
+}
+@media(max-width:420px){.parlayping-feature-links{grid-template-columns:minmax(0,1fr)}}
