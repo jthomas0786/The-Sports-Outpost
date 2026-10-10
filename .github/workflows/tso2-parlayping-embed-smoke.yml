@@ -36,9 +36,10 @@ jobs:
           pp="https://parlayping.thesportsoutpost.com"
           curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$tso/" -o /tmp/tso-home.html
           curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$tso/pages.js" -o /tmp/tso-pages.js
-          grep -Fq 'data-route="parlays"' /tmp/tso-home.html
-          grep -Fq 'data-parlayping-frame' /tmp/tso-pages.js
-          grep -Fq 'tso_embed=1' /tmp/tso-pages.js
+          echo "TSO / bytes $(wc -c </tmp/tso-home.html), pages.js bytes $(wc -c </tmp/tso-pages.js)"
+          grep -Fq 'data-route="parlays"' /tmp/tso-home.html || { echo 'TSO home missing Parlay Ping nav'; exit 1; }
+          grep -Fq 'data-parlayping-frame' /tmp/tso-pages.js || { echo 'TSO pages.js missing live Parlay Ping workspace'; head -c 300 /tmp/tso-pages.js; exit 1; }
+          grep -Fq 'tso_embed=1' /tmp/tso-pages.js || { echo 'TSO pages.js missing embed-mode parameter'; exit 1; }
           # Framing must not be blocked by the independent Render domain.
           headers="$(curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSI "$pp/")"
           if echo "$headers" | grep -Ei '^x-frame-options: *(DENY|SAMEORIGIN)' ; then
