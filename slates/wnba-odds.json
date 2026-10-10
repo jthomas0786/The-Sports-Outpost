@@ -4,15 +4,22 @@
     "sample": false,
     "sport": "WNBA",
     "sportKey": "basketball_wnba",
-    "fetchedAt": "2026-10-10T15:03:19.229Z",
+    "fetchedAt": "2026-10-10T22:36:52.945Z",
     "queryWindow": {
-      "from": "2026-10-09T15:03:14.288Z",
-      "to": "2026-10-17T15:03:14.288Z"
+      "from": "2026-10-09T22:36:50.944Z",
+      "to": "2026-10-17T22:36:50.944Z"
     },
-    "eventsFound": 0,
-    "relevantEvents": 0,
-    "eventPreview": [],
-    "rawRows": 0,
+    "eventsFound": 1,
+    "relevantEvents": 1,
+    "eventPreview": [
+      {
+        "eventId": "468ff298a2c6a280",
+        "commenceTime": "2026-10-17T19:30:00.000Z",
+        "awayTeam": "Atlanta Dream",
+        "homeTeam": "Golden State Valkyries"
+      }
+    ],
+    "rawRows": 2,
     "sportsbookRows": 0,
     "currentRows": 0,
     "preservedRows": 0,
@@ -26,10 +33,14 @@
       "includeSids": true
     },
     "books": [],
-    "rawBooks": [],
+    "rawBooks": [
+      "bovada"
+    ],
     "markets": [],
-    "rawMarketKeys": [],
-    "noCurrentProps": true,
+    "rawMarketKeys": [
+      "player_points"
+    ],
+    "noCurrentProps": false,
     "probabilityPolicy": "Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied and are never labeled as a proprietary model.",
     "preservationPolicy": "If an exact sportsbook player-prop quote disappears before game time, retain its last verified pregame price for up to 36 hours and no later than 30 minutes after scheduled start.",
     "identityPolicy": "WNBA player props must resolve to one current event by provider event id, matchup, or one unambiguous team identity. Recognized parenthesized team suffixes are identity metadata, not part of the player name. Orphan and ambiguous rows are quarantined.",
