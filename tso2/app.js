@@ -7974,7 +7974,7 @@
   // TSO navigation stays in charge; each Parlay Ping feature opens INSIDE the
   // workspace rather than leaving TSO or opening an external landing site.
   const PARLAYPING_ORIGIN='https://parlayping.thesportsoutpost.com';
-  let parlayPingPath='/';
+  let parlayPingPath='/submit';
   function mountParlayPingWorkspace(){
     const root=document.querySelector('[data-parlayping-workspace]');
     const frame=root?.querySelector('[data-parlayping-frame]');
@@ -8003,9 +8003,27 @@
       const loading=root.querySelector('[data-parlayping-loading]');
       if(loading)loading.hidden=true;
     });
+    // The iframe owns real tracked slips and /build/:id pages. Do not
+    // accidentally switch the outer TSO route when those links are clicked.
+    const updateFromEmbedded=event=>{
+      if(event.origin!==PARLAYPING_ORIGIN||event.source!==frame.contentWindow
+         ||event.data?.type!=='tso2-parlayping-route')return;
+      const pathname=String(event.data.pathname||'/');
+      const search=String(event.data.search||'');
+      let active=pathname;
+      if(/^\/(build|slip|share)\//.test(pathname))active='/submit';
+      else if(pathname==='/profile'&&search.includes('tab=community'))active='/profile?tab=community';
+      else if(pathname==='/profile'&&search.includes('tab=dev'))active='/profile?tab=dev';
+      const button=buttons.find(b=>b.dataset.parlaypingPage===active);
+      if(button){parlayPingPath=active;setActive(active);}
+    };
+    // Reusing the existing window listener is unnecessary once the old
+    // iframe's contentWindow no longer matches this renderer.
+    window.addEventListener('message',updateFromEmbedded);
+
     // Preserve last open Parlay Ping section while switching TSO sports and back.
     setActive(parlayPingPath);
-    if(parlayPingPath!=='/')navigate(parlayPingPath);
+    if(parlayPingPath!=='/submit')navigate(parlayPingPath);
   }
 
   function renderRoute({scrollToTop=false,preserveScroll=false}={}){
