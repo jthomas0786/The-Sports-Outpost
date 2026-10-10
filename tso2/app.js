@@ -8000,12 +8000,7 @@
       if(loading){loading.hidden=false;loading.textContent='Loading '+(buttons.find(b=>b.dataset.parlaypingPage===path)?.textContent||'Parlay Ping')+'…';}
       setActive(path);
     };
-    buttons.forEach(button=>button.addEventListener('click',()=>{
-      const page=button.dataset.parlaypingPage;
-      if(page==='/account.html'){setRoute('profile');return;}
-      if(page==='/profile?tab=dev'){notify('Developer API subscriptions are managed through Parlay Ping business accounts.');return;}
-      navigate(page);
-    }));
+    buttons.forEach(button=>button.addEventListener('click',()=>navigate(button.dataset.parlaypingPage)));
     // The parent keeps sole control of the TSO session. Only the precisely
     // matching, first-party Parlay Ping iframe receives its transient JWT.
     async function sendTsoIdentity(){
@@ -8038,11 +8033,11 @@
       if(event.data?.type==='tso2-parlayping-open-profile'){setRoute('profile');return;}
       if(event.data?.type!=='tso2-parlayping-route')return;
       const pathname=String(event.data.pathname||'/');
-      const search=String(event.data.search||'');
       let active=pathname;
       if(/^\/(build|slip|share)\//.test(pathname))active='/submit';
-      else if(pathname==='/profile'&&search.includes('tab=community'))active='/profile?tab=community';
-      else if(pathname==='/profile'&&search.includes('tab=dev'))active='/profile?tab=dev';
+      if(pathname==='/profile')active='/profile';
+      // TSO owns Community, Research/Explore, the member account and admin.
+      // Never expose Parlay Ping's separate developer credentials here.
       const button=buttons.find(b=>b.dataset.parlaypingPage===active);
       if(button){parlayPingPath=active;setActive(active);}
     };
@@ -8051,6 +8046,7 @@
     window.addEventListener('message',updateFromEmbedded);
 
     // Preserve last open Parlay Ping section while switching TSO sports and back.
+    if(!buttons.some(b=>b.dataset.parlaypingPage===parlayPingPath))parlayPingPath='/submit';
     setActive(parlayPingPath);
     if(parlayPingPath!=='/submit')navigate(parlayPingPath);
   }
