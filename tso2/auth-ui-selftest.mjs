@@ -24,7 +24,12 @@ assert.match(auth, /auth\.signInWithPassword\(/);
 assert.match(auth, /auth\.signUp\(/);
 assert.match(auth, /auth\.signOut\(/);
 assert.match(auth, /verified\.app_metadata\?\.role/);
-assert.doesNotMatch(auth, /getSession\(/);
+// Identity still requires server-verified getUser; the SSO bridge may read
+// getSession only to retrieve a JWT for the exact allowlisted PP iframe.
+const refreshHandler=auth.slice(auth.indexOf('async function refreshIdentity('),auth.indexOf('async function submitCredentials('));
+assert.doesNotMatch(refreshHandler,/getSession\\(/,'Never derive authenticated identity from a cached session');
+assert.match(auth,/async verifiedAccessToken\\(\\)/,'TSO first-party session bridge exists');
+assert.match(auth,/data\\.session\\.user\\?\\.id!==auth\\.user\\.id/,'Bridge token must match the verified TSO user');
 assert.match(css, /\.tso-auth-dialog/);
 // Existing Supabase account history must be readable only for the verified
 // user, and never leak when the app switches accounts during an async load.
