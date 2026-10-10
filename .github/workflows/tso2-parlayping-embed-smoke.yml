@@ -1,0 +1,55 @@
+name: TSO2 Parlay Ping In-Tab Smoke
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/pages.js'
+      - 'tso2/app.js'
+      - 'tso2/styles.css'
+      - 'tso2/index.html'
+      - 'tso2/parlayping-integration-selftest.mjs'
+      - '.github/workflows/tso2-parlayping-embed-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser JS and in-tab feature coverage
+        run: |
+          node --check tso2/pages.js
+          node --check tso2/app.js
+          node tso2/parlayping-integration-selftest.mjs
+      - name: Check production TSO and real Render-backed routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          tso="https://thesportsoutpost.com"
+          pp="https://parlayping.thesportsoutpost.com"
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$tso/" -o /tmp/tso-home.html
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$tso/pages.js" -o /tmp/tso-pages.js
+          echo "TSO / bytes $(wc -c </tmp/tso-home.html), pages.js bytes $(wc -c </tmp/tso-pages.js)"
+          grep -Fq 'data-route="parlays"' /tmp/tso-home.html || { echo 'TSO home missing Parlay Ping nav'; exit 1; }
+          grep -Fq 'data-parlayping-frame' /tmp/tso-pages.js || { echo 'TSO pages.js missing live Parlay Ping workspace'; head -c 300 /tmp/tso-pages.js; exit 1; }
+          grep -Fq 'tso_embed=1' /tmp/tso-pages.js || { echo 'TSO pages.js missing embed-mode parameter'; exit 1; }
+          # Framing must not be blocked by the independent Render domain.
+          headers="$(curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSI "$pp/")"
+          if echo "$headers" | grep -Ei '^x-frame-options: *(DENY|SAMEORIGIN)' ; then
+            echo 'Parlay Ping disallows the TSO inline application iframe'; exit 1
+          fi
+          if echo "$headers" | grep -Ei "content-security-policy:.*frame-ancestors.*'none'" ; then
+            echo 'Parlay Ping CSP disallows the TSO embedded application'; exit 1
+          fi
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$pp/tso2-shell.js" -o /tmp/parlay-pp-shell.js
+          grep -Fq 'inTsoWorkspace' /tmp/parlay-pp-shell.js
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$pp/healthz" -o /tmp/parlay-health.json
+          node -e 'const x=require("/tmp/parlay-health.json");if(x.runtime!=="render-node")process.exit(1)'
+          echo 'TSO2 real Parlay Ping in-tab feature wiring and backend: PASS'

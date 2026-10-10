@@ -79,6 +79,21 @@ function exactProbability(rec,market,line,side,iterations){
 }
 function rowKey(p,market){return `${String(p?.playerId||p?.espnId||p?.gsisId||`${normTeam(p?.team)}|${normName(p?.name)}`)}|${market}`;}
 function candidateId(gameId,p,market,side,line){return `${gameId}|full|${rowKey(p,market)}|${side}|${line}`;}
+// Publication eligibility: simulation outputs are not trustworthy when a QB has
+// no verified starting role or a sportsbook line is wildly out of scale.
+// Keep uncertain markets out of ALL rankings, not just the top pick.
+function publishableCandidate(player,market,line,sim,implied,distribution){
+  if(!Number.isFinite(sim)||sim<=.0005||sim>=.9995)return false;
+  if(Math.abs(sim-implied)>.35)return false;
+  const position=String(player.position||'').toUpperCase();
+  const depth=Number(player.depthRank);
+  if(position==='QB'&&['passYds','passTds','completions'].includes(market)&&Number.isFinite(depth)&&depth>1)return false;
+  const mean=Number(distribution?.mean);
+  if(Number.isFinite(mean)&&mean>=0&&['passYds','rushYds','recYds','completions','receptions'].includes(market)){
+    if(line>Math.max(8,mean*3.5))return false;
+  }
+  return true;
+}
 function payoutBonus(price){const p=finite(price);if(p==null)return 0;if(p>0)return Math.min(.22,p/1800);return Math.max(-.10,(p+110)/2200);}
 function styleScore(c,style){
   const p=c.simProbability,e=c.edge??-.5,payout=payoutBonus(c.price);
@@ -152,7 +167,7 @@ export function buildPregameFullPropBoard({result,game,odds,generatedAt=new Date
     const pub=findPublic(publicIndex,op)||{};
     const identity={
       playerId:String(pub.playerId||rec.player?.key||op.playerId||''),espnId:pub.espnId||rec.player?.espnId||null,gsisId:pub.gsisId||rec.player?.gsisId||null,
-      name:pub.name||rec.player?.name||op.name,team:normTeam(pub.team||rec.player?.team||op.team),position:pub.position||rec.player?.position||op.position||'',
+      name:pub.name||rec.player?.name||op.name,team:normTeam(pub.team||rec.player?.team||op.team),position:pub.position||rec.player?.position||op.position||'',depthRank:pub.depthRank??rec.player?.depthRank??null,
     };
     for(const [market,meta] of Object.entries(MARKET_META)){
       const slot=op?.odds?.[market];if(!slot)continue;
@@ -160,6 +175,7 @@ export function buildPregameFullPropBoard({result,game,odds,generatedAt=new Date
       for(const choice of marketChoices(slot,market)){
         const price=finite(choice.offer?.price),implied=americanImplied(price),sim=exactProbability(rec,market,choice.line,choice.side,iterations);
         if(price==null||implied==null||sim==null)continue;
+        if(!publishableCandidate(identity,market,choice.line,sim,implied,dist))continue;
         const c={
           id:candidateId(gameId,identity,market,choice.side,choice.line),key:rowKey(identity,market),gameId,...identity,
           market,marketLabel:meta.label,side:choice.side,line:Number(choice.line),price,book:choice.offer?.book||'Sportsbook',link:choice.offer?.link||null,
@@ -196,4 +212,4 @@ export function buildPregameFullPropBoard({result,game,odds,generatedAt=new Date
   return base;
 }
 
-export const __NFL_FULL_PROP_BOARD_V942_TEST__={STYLE_KEYS,MARKET_META,americanImplied,marketChoices,styleScore,qualifies,choose};
+export const __NFL_FULL_PROP_BOARD_V942_TEST__={STYLE_KEYS,MARKET_META,americanImplied,marketChoices,styleScore,qualifies,choose,publishableCandidate};

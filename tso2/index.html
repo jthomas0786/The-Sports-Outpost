@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#05070a" />
+  <meta name="application-name" content="The Sports Outpost" />
+  <meta name="apple-mobile-web-app-title" content="TSO" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="icon" href="/brand/production/tso2-favicon.ico?v=20261009-transparent-corners-v1" sizes="any" />
+  <link rel="icon" href="/brand/production/tso2-favicon-32.png?v=20261009-transparent-corners-v1" type="image/png" sizes="32x32" />
+  <link rel="apple-touch-icon" href="/brand/production/tso2-apple-touch-icon-180.png?v=20261009-transparent-corners-v1" sizes="180x180" />
+  <link rel="manifest" href="/manifest.webmanifest?v=20261009-transparent-corners-v1" />
+  <title>The Sports Outpost 2.0 — Broadcast Preview</title>
+  <link rel="stylesheet" href="./styles.css?v=20261009-verified-hr-bell-v1" />
+</head>
+<body>
+  <div class="app-shell broadcast-shell" data-league="all">
+    <aside class="tso-side-nav" aria-label="The Sports Outpost navigation">
+      <div class="tso-side-nav-head">
+        <button class="tso-side-brand" data-route="home" aria-label="The Sports Outpost home">
+          <img class="tso-side-brand-image--unboxed" src="/brand/approved/tso2-wordmark-horizontal-approved.webp" alt="The Sports Outpost"/>
+        </button>
+        <button class="tso-side-nav-close" type="button" aria-label="Close navigation">×</button>
+      </div>
+
+      <nav class="tso-side-primary" aria-label="Primary">
+        <button class="tso-side-item nav-item--approved" data-route="live"><img class="nav-approved-icon" src="/brand/production/tso2-product-live-approved.webp" alt=""/><span><b>LIVE</b><small>Games & scores</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="research"><img class="nav-approved-icon" src="/brand/production/tso2-product-research-approved.webp" alt=""/><span><b>RESEARCH</b><small>Deep analysis</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="models"><img class="nav-approved-icon" src="/brand/production/tso2-product-models-approved.webp" alt=""/><span><b>MODELS</b><small>Model boards</small></span></button>
+        <button class="tso-side-item nav-item--approved tso-side-item--game-edge" data-route="gameedge"><img class="nav-approved-icon" src="/brand/production/tso2-product-game-edge-approved.svg" alt=""/><span><b>GAME EDGE</b><small>Spread · ML · Total</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="props"><img class="nav-approved-icon" src="/brand/production/tso2-product-props-approved.webp" alt=""/><span><b>PROPS</b><small>Player prop tool</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="parlays"><img class="nav-approved-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt=""/><span><b>PARLAY PING</b><small>Tag · Track · Tail</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="community"><img class="nav-approved-icon" src="/brand/production/tso2-product-community-approved.webp" alt=""/><span><b>COMMUNITY</b><small>Outpost activity</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="leaderboard"><img class="nav-approved-icon" src="/brand/production/tso2-product-rankings-approved.webp" alt=""/><span><b>RANKINGS</b><small>Leaderboards</small></span></button>
+      </nav>
+
+      <div class="tso-side-section">
+        <div class="tso-side-section-label">SPORTS</div>
+        <div class="tso-side-sports">
+          <button class="is-active" data-league="all"><span>ALL</span><b>All Sports</b></button>
+          <button data-league="nhl"><span>NHL</span><b>Hockey</b></button>
+          <button data-league="nfl"><span>NFL</span><b>Football</b></button>
+          <button data-league="mlb"><span>MLB</span><b>Baseball</b></button>
+          <button data-league="nba"><span>NBA</span><b>Basketball</b></button>
+        </div>
+      </div>
+
+      <div class="tso-side-footer">
+        <div class="tso-side-live"><span class="status-dot"></span><div><b>LIVE SCORES</b><small>Connecting</small></div></div>
+        
+      </div>
+    </aside>
+    <button class="tso-side-nav-backdrop" type="button" aria-label="Close navigation"></button>
+
+    <header class="broadcast-header">
+      <div class="masthead tso-side-masthead">
+        <button class="side-nav-toggle" type="button" aria-label="Open navigation" aria-expanded="false">☰</button>
+        <div class="masthead-context">
+          <small>THE SPORTS OUTPOST</small>
+          <b data-nav-current>HOME</b>
+        </div>
+
+        <div class="masthead-actions">
+          <button class="search-trigger"><span>⌕</span><span>Search</span></button>
+          <div class="notification-menu">
+            <button class="icon-btn notification-trigger" type="button" aria-label="Notifications" aria-haspopup="dialog" aria-expanded="false" aria-controls="notificationPanel" data-notification-toggle>
+              <svg class="notification-bell-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg>
+              <span class="notification-dot" data-notification-dot hidden></span>
+              <span class="notification-count" data-notification-count hidden>0</span>
+            </button>
+            <section class="notification-panel" id="notificationPanel" data-notification-panel hidden aria-label="TSO notifications">
+              <div class="notification-panel-head">
+                <div><span>TSO NOTIFICATIONS</span><b>Live signals & saved account alerts</b></div>
+                <button type="button" data-notification-read-all>MARK READ</button>
+              </div>
+              <div class="notification-capability">
+                <span class="notification-capability-dot"></span>
+                <div class="notification-push-controls">
+                   <b>BACKGROUND DEVICE ALERTS</b>
+                   <small>Receive verified sports alerts even when TSO is closed. Enable per device; iPhone requires the Home Screen app.</small>
+                   <button type="button" class="button secondary notification-push-toggle" data-push-toggle hidden>ENABLE DEVICE ALERTS</button>
+                   <small data-push-status role="status" aria-live="polite">Checking device support…</small>
+                   <div class="notification-push-preferences" data-push-preferences hidden aria-label="Device alert preferences">
+                     <span class="push-pref-loading">Loading sports preferences…</span>
+                   </div>
+                   <small class="notification-push-hint" data-push-pref-note hidden>Only verified live events trigger pushes. Model alerts will become available once their triggers are validated.</small>
+                 </div>
+              </div>
+              <div class="notification-list" data-notification-list>
+                <div class="notification-empty"><b>Connecting notification sources…</b><small>Live games, model signals and feed health.</small></div>
+              </div>
+            </section>
+          </div>
+          <div class="profile-menu">
+            <button class="profile-pill" type="button" aria-label="Account menu, Guest" aria-haspopup="menu" aria-expanded="false" aria-controls="profileDropdown">
+              <span class="avatar" data-auth-avatar>?</span>
+              <span class="profile-pill-copy"><b data-auth-pill-label>Guest</b><small data-auth-pill-role>NOT SIGNED IN</small></span>
+              <span class="profile-menu-chevron" aria-hidden="true">⌄</span>
+            </button>
+            <div class="profile-dropdown" id="profileDropdown" role="menu" hidden>
+              <div class="profile-dropdown-account">
+                <span class="avatar" data-auth-avatar>?</span>
+                <div><b data-auth-name>Guest</b><small data-auth-role>NOT SIGNED IN</small></div>
+              </div>
+              <div class="profile-dropdown-divider"></div>
+              <button class="profile-dropdown-item" type="button" role="menuitem" data-profile-route="profile">
+                <span class="profile-dropdown-icon">◉</span>
+                <span><b>My Profile</b><small>Account, alerts and tracked picks</small></span>
+                <i>›</i>
+              </button>
+              <button class="profile-dropdown-item profile-dropdown-owner" type="button" role="menuitem" data-owner-only data-admin-open hidden>
+                <span class="profile-dropdown-icon">⚙</span>
+                <span><b>Admin Dashboard</b><small>Site controls, data reports &amp; users</small></span>
+                <em>OWNER</em>
+              </button>
+              <a class="profile-dropdown-item profile-dropdown-owner" role="menuitem" data-owner-only hidden href="/brand-lab">
+                <span class="profile-dropdown-icon">◆</span>
+                <span><b>Brand Lab</b><small>Owner tools & approved assets</small></span>
+                <em>OWNER</em>
+              </a>
+              <button class="profile-dropdown-item" type="button" role="menuitem" data-auth-open>
+                <span class="profile-dropdown-icon">↗</span>
+                <span><b>Sign In / Create Account</b><small>Use your existing TSO account</small></span>
+                <i>›</i>
+              </button>
+              <button class="profile-dropdown-item" type="button" role="menuitem" data-auth-signout hidden>
+                <span class="profile-dropdown-icon">⇥</span>
+                <span><b>Sign Out</b><small>End this device's account session</small></span>
+                <i>›</i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <dialog class="tso-auth-dialog" id="tsoAuthDialog" aria-labelledby="tsoAuthTitle">
+      <form class="tso-auth-form" method="dialog" novalidate data-auth-form>
+        <div class="tso-auth-header">
+          <div><span class="eyebrow">THE SPORTS OUTPOST</span><h2 id="tsoAuthTitle">Sign in</h2></div>
+          <button type="button" class="tso-auth-close" aria-label="Close sign-in dialog" data-auth-close>✕</button>
+        </div>
+        <div class="tso-auth-tabs" role="group" aria-label="Account action">
+          <button type="button" data-auth-tab="signin" aria-pressed="true">SIGN IN</button>
+          <button type="button" data-auth-tab="signup" aria-pressed="false">CREATE ACCOUNT</button>
+        </div>
+        <label class="tso-auth-field">Email <input name="email" type="email" autocomplete="email" required maxlength="254" placeholder="you@example.com"></label>
+        <label class="tso-auth-field" data-auth-username hidden>Username <input name="username" type="text" autocomplete="username" minlength="3" maxlength="20" pattern="[A-Za-z0-9_]{3,20}" placeholder="Choose a username"></label>
+        <label class="tso-auth-field">Password <input name="password" type="password" autocomplete="current-password" required placeholder="Your password"></label>
+        <p class="tso-auth-message" data-auth-message role="status" aria-live="polite"></p>
+        <button class="tso-auth-submit" type="submit" data-auth-submit>SIGN IN</button>
+        <p class="tso-auth-privacy">Account access uses the existing TSO login service. Never share your password with anyone.</p>
+      </form>
+    </dialog>
+
+    <aside class="tso2-public-notice" data-tso2-public-notice role="status" hidden>
+      <span>OUTPOST NOTICE</span><p data-tso2-public-notice-text></p>
+    </aside>
+
+    <section class="score-strip broadcast-score-strip" aria-label="Live and upcoming games">
+      <div class="score-strip-label"><span class="pulse"></span>LIVE</div>
+      <div class="score-strip-empty"><span class="live-feed-spinner"></span>&nbsp; Connecting live scoreboard…</div>
+      <button class="score-more" data-route-jump="live">FULL SCOREBOARD →</button>
+    </section>
+
+    <section class="feed-integrity-banner" data-feed-integrity hidden aria-live="polite"></section>
+
+    <main class="broadcast-main" id="pageContent">
+      <section class="broadcast-title">
+        <div>
+          <span class="broadcast-kicker">LIVE SCOREBOARD</span>
+          <h1>Tonight at The Outpost</h1>
+        </div>
+        <p>Live games, verified sportsbook markets and exact TSO model edges — all connected to the same real data layer.</p>
+      </section>
+
+      <section class="headline-grid concept-headline">
+        <article class="feature-game concept-matchup live-feed-loading">
+          <div class="live-feed-empty">
+            <span class="live-feed-spinner"></span>
+            <div><b>Connecting to today’s games…</b><small>Real scores and game state will load here.</small></div>
+          </div>
+        </article>
+
+        <aside class="heat-panel concept-picks" data-home-picks>
+          <div class="concept-picks-head">
+            <div><span class="gold-kicker">♛ TOP OUTPOST PICKS · REAL MODELS</span><h2 data-home-picks-title>Loading exact model edges…</h2></div>
+            <button data-route-jump="models">ALL PICKS →</button>
+          </div>
+          <div class="home-model-loading">
+            <span class="live-feed-spinner"></span>
+            <div><b>Connecting real TSO models…</b><small>Exact model-to-market matches only.</small></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="broadcast-section model-board-section concept-model-board" data-home-model-board>
+        <div class="broadcast-section-head major">
+          <div><span class="gold-kicker">OUTPOST MODEL BOARD · REAL DATA</span><h2 data-home-model-title>Loading top exact matches…</h2></div>
+          <button data-route-jump="models">OPEN ALL MODELS →</button>
+        </div>
+        <div class="broadcast-model-rail concept-model-rail" data-home-model-cards>
+          <div class="home-model-loading home-model-loading--wide">
+            <span class="live-feed-spinner"></span>
+            <div><b>Loading real model cards…</b><small>NHL · NFL · MLB · NBA exact model matches.</small></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="broadcast-section concept-slate-section">
+        <div class="broadcast-section-head major">
+          <div><span class="orange-kicker">TONIGHT'S SLATE</span><h2>Games worth watching</h2></div>
+          <button data-route-jump="research">MATCHUP RESEARCH →</button>
+        </div>
+        <div class="concept-slate-board">
+          <div class="concept-slate-head">
+            <b>TODAY'S SLATE</b>
+            <div class="concept-slate-tabs"><span class="is-active">ALL</span><span>NHL</span><span>NFL</span><span>MLB</span><span>NBA</span></div>
+          </div>
+          <div class="live-board-loading"><span class="live-feed-spinner"></span><b>Loading today’s slate…</b></div>
+        </div>
+      </section>
+
+      <section class="broadcast-action-band clean-action-band">
+        <button data-route-jump="research"><b>RESEARCH</b><small>Matchups & player context</small></button>
+        <button data-route-jump="models"><b>MODELS</b><small>Probabilities & edges</small></button>
+        <button data-route-jump="props"><b>PROP BOARD</b><small>Lines & movement</small></button>
+        <button data-route-jump="parlays"><b>PARLAY LAB</b><small>Build & track</small></button>
+      </section>
+    </main>
+
+    <div class="route-toast" aria-live="polite"></div>
+  </div>
+  <script src="./pages.js?v=20261009-verified-hr-bell-v1"></script>
+  <script src="./app.js?v=20261009-side-swipe-calm-v1"></script>
+  <script type="module" src="./auth.js?v=20261009-auth-verified-hr-v1"></script>
+  <script type="module" src="./push-client.js?v=20261009-sports-preferences-v2"></script>
+  <script type="module" src="./admin.js?v=20261008-owner-admin"></script>
+</body>
+</html>

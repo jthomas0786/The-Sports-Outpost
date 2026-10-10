@@ -1,0 +1,45 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+const read=p=>fs.readFileSync(p,'utf8');
+const index=read('tso2/index.html');
+const pages=read('tso2/pages.js');
+const app=read('tso2/app.js');
+const auth=read('tso2/auth.js');
+const css=read('tso2/styles.css');
+assert.match(index, /data-auth-open/);
+assert.match(index, /data-auth-signout hidden/);
+assert.match(index, /Guest<\/b>/);
+assert.doesNotMatch(index, /data-user-handle="justcallme_jt"/);
+assert.match(index, /type="module" src="\.\/auth\.js/);
+assert.match(index, /tsoAuthDialog/);
+assert.doesNotMatch(pages, /data-profile-handle>@justcallme_jt/);
+assert.match(pages, /data-profile-identity-state>SIGNED OUT/);
+assert.doesNotMatch(app, /profileMenu\?\.dataset\.userHandle/);
+assert.doesNotMatch(app, /window\.TSO_CURRENT_USER/);
+assert.match(app, /window\.TSO_AUTH\?\.user\?\.username/);
+assert.match(app, /window\.TSO_AUTH\?\.user\?\.isOwner/);
+assert.match(app, /tso2-auth-changed/);
+assert.match(auth, /auth\.getUser\(/);
+assert.match(auth, /auth\.signInWithPassword\(/);
+assert.match(auth, /auth\.signUp\(/);
+assert.match(auth, /auth\.signOut\(/);
+assert.match(auth, /verified\.app_metadata\?\.role/);
+assert.doesNotMatch(auth, /getSession\(/);
+assert.match(css, /\.tso-auth-dialog/);
+// Existing Supabase account history must be readable only for the verified
+// user, and never leak when the app switches accounts during an async load.
+assert.match(auth, /async loadProfileActivity\(\)/,'User-scoped saved profile activity API');
+for(const table of ['point_balances','wagers','watchlist','picks'])
+  assert.ok(auth.includes(".from('"+table+"')"),'Read persisted '+table+' through RLS');
+assert.match(auth, /\.eq\('user_id',userId\)/,'Every profile query must filter the verified user');
+assert.match(auth, /if\(String\(auth\.user\?\.id\|\|''\)!==userId\)/,'Reject stale response after switching users');
+assert.match(auth, /Promise\.allSettled\(requests\)/,'Partial source failures cannot suppress other account data');
+assert.match(app, /function refreshProfileActivity\(force=false\)/,'Account history refreshes on profile route');
+assert.match(app, /profileActivitySnapshot\?\.userId===userId/,'Avoid using a different account snapshot');
+assert.match(app, /function showProfileActivity\(root,signedIn\)/,'Guest and signed-in states remain separate');
+assert.match(app, /profileActivityError/,'Account read errors are visibly reported');
+assert.match(pages, /data-profile-activity/,'Real history has a dedicated profile container');
+assert.match(pages, /data-profile-points-ready/,'Points status uses real account state');
+assert.doesNotMatch(pages, /No persisted tracked-pick history is connected/,'Retired placeholder copy is removed');
+assert.match(css, /\.profile-activity-group/,'Account activity uses dedicated responsive card styles');
+console.log('TSO 2.0 guest, sign-in, and sign-out static integration checks passed');

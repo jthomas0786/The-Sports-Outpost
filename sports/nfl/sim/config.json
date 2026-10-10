@@ -85,25 +85,63 @@
     }
   },
   "depthRole": {
-    "QB": [1,0.08,0.03],
-    "RB": [1,0.62,0.34,0.18],
-    "WR": [1,0.88,0.72,0.47,0.28,0.16],
-    "TE": [1,0.52,0.26,0.12]
+    "QB": [
+      1,
+      0.08,
+      0.03
+    ],
+    "RB": [
+      1,
+      0.62,
+      0.34,
+      0.18
+    ],
+    "WR": [
+      1,
+      0.88,
+      0.72,
+      0.47,
+      0.28,
+      0.16
+    ],
+    "TE": [
+      1,
+      0.52,
+      0.26,
+      0.12
+    ]
   },
   "trackedStats": [
-    "passYds","completions","attempts","passTds","interceptions","rushYds","carries","rushTds","recYds","receptions","targets","recTds","tds"
+    "passYds",
+    "completions",
+    "attempts",
+    "passTds",
+    "interceptions",
+    "rushYds",
+    "carries",
+    "rushTds",
+    "recYds",
+    "receptions",
+    "targets",
+    "recTds",
+    "tds"
   ],
   "quarters": {
     "enabled": true,
     "pregameOnly": true,
-    "baseShare": [1.04,0.98,0.99,0.99],
+    "baseShare": [
+      1.04,
+      0.98,
+      0.99,
+      0.99
+    ],
     "teamPaceVolatility": 0.12,
     "playerUsageVolatility": 0.1,
     "candidateMinProbability": 0.54,
     "candidateMaxProbability": 0.92,
     "maxCandidatesPerQuarter": 24,
     "balancedTargetProbability": 0.72,
-    "aggressiveTargetProbability": 0.60,
+    "aggressiveTargetProbability": 0.6,
     "note": "v89.18 retains the existing 50K pregame quarter engine while live simulations use a dedicated in-game calibration layer."
   },
   "liveModel": {
@@ -129,7 +167,11 @@
     "pregameIterations": 50000,
     "halftimeIterations": 50000,
     "liveIterations": 15000,
-    "pregameCheckpointMinutes": [180,90,15],
+    "pregameCheckpointMinutes": [
+      180,
+      90,
+      15
+    ],
     "materialChangeMinIntervalMinutes": 10,
     "liveMinIntervalMinutes": 4,
     "requireResearch": true,
@@ -151,5 +193,14 @@
     "positiveLift": 0.015,
     "conflictLift": -0.015,
     "maxCandidateRetries": 8
+  },
+  "qbPlayingTime": {
+    "reliefGameProbability": 0.08,
+    "blowoutMargin": 24,
+    "blowoutReliefProbability": 0.18,
+    "backupAttemptShare": 0.18,
+    "backupShareVolatility": 0.2,
+    "maxBackupAttemptShare": 0.55,
+    "note": "Scenario assumptions for simulations, not verified player injury probabilities. Backup passing props remain publication-gated until starter status and role are verified."
   }
 }
