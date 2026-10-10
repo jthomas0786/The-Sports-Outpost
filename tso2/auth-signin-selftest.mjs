@@ -5,7 +5,7 @@ const authSrc=fs.readFileSync('tso2/auth.js','utf8');
 const html=fs.readFileSync('tso2/index.html','utf8');
 assert.match(html, /<form[^>]+novalidate[^>]+data-auth-form/);
 assert.doesNotMatch(html, /name="password"[^>]*minlength=/);
-assert.match(html, /auth\.js\?v=20261009-auth-verified-hr-v1/);
+assert.match(html, /auth\.js\?v=[A-Za-z0-9_-]+/,'Auth module must be versioned for safe cache busting');
 
 const refreshStart=authSrc.indexOf('async function refreshIdentity(forceAfterInFlight=false){');
 const submitStart=authSrc.indexOf('async function submitCredentials(event){');
