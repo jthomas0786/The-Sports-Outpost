@@ -570,28 +570,28 @@
         <section class="destination-hero parlays-destination-hero parlayping-destination-hero">
           <div class="parlayping-hero-copy">
             <div class="parlayping-hero-brand">
-              <img src="https://www.parlayping.net/parlayping-approved-wordmark.webp" alt="Parlay Ping approved logo" />
+              <img src="https://parlayping.thesportsoutpost.com/parlayping-approved-wordmark.webp" alt="Parlay Ping approved logo" />
               <span>POWERED BY THE SPORTS OUTPOST</span>
             </div>
             <span class="destination-kicker parlays-kicker">PARLAY PING · ${leagueName(league)}</span>
             <h1>Tag it. Track it. <em>Tail what's left.</em></h1>
             <p>Track original slips, analyze live legs, share picks and build from verified exact sportsbook selections. Parlay Ping uses its existing backend, accounts and API service.</p>
             <div class="parlayping-hero-ctas">
-              <a class="button primary" href="https://www.parlayping.net/submit" target="_blank" rel="noopener noreferrer">TRACK A PARLAY ↗</a>
-              <a class="button secondary" href="https://www.parlayping.net/profile" target="_blank" rel="noopener noreferrer">MY PARLAYS ↗</a>
-              <a class="button secondary" href="https://www.parlayping.net/account.html" target="_blank" rel="noopener noreferrer">DEVELOPER API ↗</a>
+              <a class="button primary" href="https://parlayping.thesportsoutpost.com/submit" target="_blank" rel="noopener noreferrer">TRACK A PARLAY ↗</a>
+              <a class="button secondary" href="https://parlayping.thesportsoutpost.com/profile" target="_blank" rel="noopener noreferrer">MY PARLAYS ↗</a>
+              <a class="button secondary" href="https://parlayping.thesportsoutpost.com/account.html" target="_blank" rel="noopener noreferrer">DEVELOPER API ↗</a>
             </div>
           </div>
           <div class="parlayping-hero-visual" aria-hidden="true">
-            <img src="https://www.parlayping.net/parlayping-approved-hero.webp" alt="" />
+            <img src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt="" />
             <span>ORIGINAL APPROVED PARLAY PING MARK</span>
           </div>
         </section>
         <section class="parlayping-feature-links" aria-label="Parlay Ping product features">
-          <a href="https://www.parlayping.net/submit" target="_blank" rel="noopener noreferrer"><b>TRACK</b><small>Upload and analyze a betslip</small></a>
-          <a href="https://www.parlayping.net/profile" target="_blank" rel="noopener noreferrer"><b>LIVE ANALYSIS</b><small>Leg status, results and insights</small></a>
-          <a href="https://www.parlayping.net/profile?tab=community" target="_blank" rel="noopener noreferrer"><b>SHARE</b><small>Community and verified cards</small></a>
-          <a href="https://www.parlayping.net/account.html" target="_blank" rel="noopener noreferrer"><b>API ACCESS</b><small>Keys, quota and plans</small></a>
+          <a href="https://parlayping.thesportsoutpost.com/submit" target="_blank" rel="noopener noreferrer"><b>TRACK</b><small>Upload and analyze a betslip</small></a>
+          <a href="https://parlayping.thesportsoutpost.com/profile" target="_blank" rel="noopener noreferrer"><b>LIVE ANALYSIS</b><small>Leg status, results and insights</small></a>
+          <a href="https://parlayping.thesportsoutpost.com/profile?tab=community" target="_blank" rel="noopener noreferrer"><b>SHARE</b><small>Community and verified cards</small></a>
+          <a href="https://parlayping.thesportsoutpost.com/account.html" target="_blank" rel="noopener noreferrer"><b>API ACCESS</b><small>Keys, quota and plans</small></a>
         </section>
         <div class="parlayping-inline-builder-head">
           <div><span>THE SPORTS OUTPOST · EXACT ODDS</span><h2>Parlay Ping Build Lab</h2><p>Keep building with the verified TSO 2.0 model-to-market engine while the complete Parlay Ping tools remain available above.</p></div>
