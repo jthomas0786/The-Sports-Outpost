@@ -7850,7 +7850,7 @@
 
   const labels = {
     home:'Home', live:'Live Center', research:'Research', models:'Models',
-    gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Lab', community:'Community',
+    gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Ping', community:'Community',
     leaderboard:'Leaderboard', profile:'Profile', admin:'Admin Control Room'
   };
 
