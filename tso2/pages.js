@@ -579,8 +579,7 @@
           <span class="parlayping-workspace-connected"><i aria-hidden="true"></i> RENDER ENGINE</span>
         </header>
         <nav class="parlayping-workspace-nav" aria-label="Parlay Ping features" data-parlayping-nav>
-          <button class="is-active" type="button" data-parlayping-page="/" aria-current="page">BUILD & ANALYZE</button>
-          <button type="button" data-parlayping-page="/submit">UPLOAD SLIP</button>
+          <button class="is-active" type="button" data-parlayping-page="/submit" aria-current="page">BETSLIP BUILDER / UPLOAD</button>
           <button type="button" data-parlayping-page="/profile">MY PARLAYS</button>
           <button type="button" data-parlayping-page="/trending">EXPLORE</button>
           <button type="button" data-parlayping-page="/profile?tab=community">COMMUNITY</button>
@@ -592,7 +591,7 @@
           <iframe
             data-parlayping-frame
             title="Parlay Ping — live builder, tracking, community and developer API"
-            src="https://parlayping.thesportsoutpost.com/?tso_embed=1"
+            src="https://parlayping.thesportsoutpost.com/submit?tso_embed=1"
             loading="eager"
             referrerpolicy="strict-origin-when-cross-origin"
             allow="clipboard-read; clipboard-write"
