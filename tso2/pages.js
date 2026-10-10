@@ -583,8 +583,7 @@
           <button type="button" data-parlayping-page="/profile">MY PARLAYS</button>
           <button type="button" data-parlayping-page="/trending">EXPLORE</button>
           <button type="button" data-parlayping-page="/profile?tab=community">COMMUNITY</button>
-          <button type="button" data-parlayping-page="/profile?tab=dev">DEVELOPER API</button>
-          <button type="button" data-parlayping-page="/account.html">ACCOUNT</button>
+          <button type="button" data-parlayping-page="/account.html">TSO PROFILE</button>
         </nav>
         <div class="parlayping-workspace-frame-shell">
           <div class="parlayping-workspace-loader" data-parlayping-loading role="status">Loading Parlay Ping tools…</div>
@@ -597,7 +596,7 @@
             allow="clipboard-read; clipboard-write"
           ></iframe>
         </div>
-        <p class="parlayping-workspace-footnote">Parlay Ping features run against the existing secured Render backend and Parlay Ping account. Your tracked slips, shares, plans and API keys remain in their original service.</p>
+        <p class="parlayping-workspace-footnote">Parlay Ping uses your signed-in TSO account here. Tracked slips and submissions are saved privately to your TSO profile; no separate Parlay Ping login is required. Standalone developer/API accounts are managed separately.</p>
       </section>`;
     },
 
