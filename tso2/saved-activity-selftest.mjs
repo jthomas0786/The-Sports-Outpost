@@ -136,6 +136,8 @@ assert.match(appCode,/data-props-watch/);
 assert.match(appCode,/data-profile-remove-saved/);
 assert.match(appCode,/rows.every\(row=>canSaveExactPick\(row\)\|\|canSaveBinaryPick\(row\)\)/,
   'Never partially save unsupported parlay legs');
-assert.match(fs.readFileSync('tso2/pages.js','utf8'),/data-parlay-save-legs/);
+const currentPages=fs.readFileSync('tso2/pages.js','utf8');
+assert.match(currentPages,/data-parlayping-frame/,'TSO native account uses the embedded Parlay Ping tracker');
+assert.doesNotMatch(currentPages,/data-parlay-save-legs/,'Retired Parlay Lab control must not reappear');
 assert.match(appCode,/profileSavedGroup\('YES \/ NO picks',data\.binarySelections,'binary'\)/,'Profile displays binary history');
 console.log('TSO2 saved selections: Over/Under and YES/NO exact source fields, guest guard, isolation, removal and mixed Parlay checks passed');
