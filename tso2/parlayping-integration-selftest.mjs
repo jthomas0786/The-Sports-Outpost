@@ -14,6 +14,17 @@ assert(!route.includes('data-parlay-mode'), 'Removed old Parlay Lab engine must 
 assert(!route.includes('target="_blank"'),'Feature controls cannot lead users off the TSO tab');
 for(const path of ['/submit','/profile','/trending','/profile?tab=community','/account.html'])
   assert(route.includes('data-parlayping-page="'+path+'"'),'Missing Parlay Ping section '+path);
+const auth=readFileSync(new URL('./auth.js',import.meta.url),'utf8');
+assert(auth.includes('async verifiedAccessToken()'), 'Only authenticated TSO sessions may cross the bridge');
+assert(auth.includes('client.auth.getSession()')&&auth.includes('data.session.user?.id!==auth.user.id'));
+assert(app.includes("event.data?.type==='tso2-parlayping-auth-request'"));
+assert(app.includes("event.data?.type==='tso2-parlayping-signin-request'"));
+assert(app.includes("event.data?.type==='tso2-parlayping-open-profile'"));
+assert(app.includes('PARLAYPING_ORIGIN')&&app.includes('event.source!==frame.contentWindow'));
+assert(app.includes('recipient.postMessage({type:\'tso2-parlayping-auth\',accessToken},PARLAYPING_ORIGIN)'));
+assert(route.includes('TSO PROFILE'));
+assert(route.includes('no separate Parlay Ping login is required'));
+assert(!route.includes('data-parlayping-page="/profile?tab=dev"'), 'Do not show the separate Parlay Ping developer account to TSO members');
 assert(app.includes('function mountParlayPingWorkspace()'));
 assert(app.includes("let parlayPingPath='/submit'"));
 assert(app.includes("pathname.startsWith('/build/')")||app.includes("/^\\/(build|slip|share)\\//"));
