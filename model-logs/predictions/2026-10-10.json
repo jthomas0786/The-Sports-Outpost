@@ -1,0 +1,1781 @@
+{
+  "date": "2026-10-10",
+  "generatedAt": "2026-10-10T10:35:28.864Z",
+  "slateGeneratedAt": "2026-10-10T10:35:28.864Z",
+  "model": {
+    "gitSha": "2ec9d7a",
+    "indexHash": "8938fd1df25f",
+    "configHash": "21d3bd77c781",
+    "modelHash": "45ee40b7dab7",
+    "simRuns": 10000,
+    "rngSeed": "2026-10-10:2026-10-10T10:35:28.864Z:45ee40b7dab7"
+  },
+  "props": {
+    "hr": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "homeRuns"
+    },
+    "hits": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "hits"
+    },
+    "tb": {
+      "over": 1.5,
+      "kind": "totalBases"
+    },
+    "rbi": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "rbi"
+    },
+    "hrr": {
+      "over": 1.5,
+      "kind": "hitsPlusRunsPlusRbi"
+    },
+    "sb": {
+      "over": 0.5,
+      "kind": "count",
+      "stat": "stolenBases"
+    }
+  },
+  "players": [
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 545341,
+      "name": "Randal Grichuk",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.1131,
+          "pct": 11.3,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 1.0317494629999686,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5194,
+          "pct": 51.9,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.9270696097769173,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3159,
+          "pct": 31.6,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 1.0559107969876633,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2719,
+          "pct": 27.2,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 1.0179381743166873,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3449,
+          "pct": 34.5,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.9008150022972083,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.992956,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 678246,
+      "name": "Miguel Vargas",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.1819,
+          "pct": 18.2,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.0196189766140118,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6855,
+          "pct": 68.6,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.0949931398216919,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4363,
+          "pct": 43.6,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.0320690084760225,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3606,
+          "pct": 36.1,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.0255079966865515,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5571,
+          "pct": 55.7,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 0.989834610990235,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0794,
+          "pct": 7.9,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.3609972999999997,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 808959,
+      "name": "Munetaka Murakami",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.2087,
+          "pct": 20.9,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.030522436912213,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6268,
+          "pct": 62.7,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 1.0794465526458903,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4045,
+          "pct": 40.5,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.1044182526682487,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3271,
+          "pct": 32.7,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.0643914299299688,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5049,
+          "pct": 50.5,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.0090136724182885,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7026243,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 671976,
+      "name": "Tristan Peters",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0691,
+          "pct": 6.9,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.7840759598994518,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4875,
+          "pct": 48.8,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.8221285947309624,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2516,
+          "pct": 25.2,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.7779973870647979,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2249,
+          "pct": 22.5,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.8356652348489926,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3019,
+          "pct": 30.2,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.851877366357521,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0282,
+          "pct": 2.8,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 1.3653145000000004,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 803011,
+      "name": "Sam Antonacci",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0558,
+          "pct": 5.6,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.6937081846161868,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6522,
+          "pct": 65.2,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.078834429014353,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3373,
+          "pct": 33.7,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8215519944416234,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2531,
+          "pct": 25.3,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.935459820411304,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4743,
+          "pct": 47.4,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.0106685683196306,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0696,
+          "pct": 7,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 1.124004606,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 805367,
+      "name": "Chase Meidroth",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0828,
+          "pct": 8.3,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.7453894544627669,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6514,
+          "pct": 65.1,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.9983437100614815,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3506,
+          "pct": 35.1,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.8857873330376264,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2623,
+          "pct": 26.2,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.939113548507904,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4722,
+          "pct": 47.2,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.9893913353023754,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0079,
+          "pct": 0.8,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 1.066909636,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 643217,
+      "name": "Andrew Benintendi",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0815,
+          "pct": 8.2,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.7643153711314354,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.488,
+          "pct": 48.8,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.8142578617711254,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2549,
+          "pct": 25.5,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.7969872494280323,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3231,
+          "pct": 32.3,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.8538248885832357,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3494,
+          "pct": 34.9,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.8899399720883889,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 1.2908428,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 691019,
+      "name": "Kyle Teel",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0834,
+          "pct": 8.3,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.6778741811748288,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5093,
+          "pct": 50.9,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.8398921315093315,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.243,
+          "pct": 24.3,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7319250852921965,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.4246,
+          "pct": 42.5,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 0.8387928173607742,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.425,
+          "pct": 42.5,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 0.9270963253018555,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.9713700000000001,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 695657,
+      "name": "Colson Montgomery",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.1316,
+          "pct": 13.2,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.7239528318567772,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4565,
+          "pct": 45.7,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.68775006861131,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2582,
+          "pct": 25.8,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.6913824938028688,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2569,
+          "pct": 25.7,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.7838066916060639,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3013,
+          "pct": 30.1,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.8156272656614564,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.8008406,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 695731,
+      "name": "Braden Montgomery",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0565,
+          "pct": 5.7,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.6079860356000909,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5443,
+          "pct": 54.4,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.9207887237380425,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2582,
+          "pct": 25.8,
+          "grade": "C+",
+          "percentile": 50,
+          "contextMult": 0.7246165234781164,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2493,
+          "pct": 24.9,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 0.8671338502472408,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.375,
+          "pct": 37.5,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.9787527187937476,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.7555099999999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 686668,
+      "name": "Brenton Doyle",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0582,
+          "pct": 5.8,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.669894891965226,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4277,
+          "pct": 42.8,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.8057110484215275,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1801,
+          "pct": 18,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.7863753802608922,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1155,
+          "pct": 11.6,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.8616736216273122,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.242,
+          "pct": 24.2,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 0.9574754857764923,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.098,
+          "pct": 9.8,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 1.32613591,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 668670,
+      "name": "Jake Rogers",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0522,
+          "pct": 5.2,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.574601002263541,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.3245,
+          "pct": 32.5,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.631014312411688,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1335,
+          "pct": 13.4,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.57545696728991,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1338,
+          "pct": 13.4,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.7021648337130874,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1554,
+          "pct": 15.5,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.824492779418646,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0109,
+          "pct": 1.1,
+          "grade": "C+",
+          "percentile": 48,
+          "contextMult": 1.2627810000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 682668,
+      "name": "Luisangel Acuña",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0293,
+          "pct": 2.9,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.3274,
+          "pct": 32.7,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.7083699432909045,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1062,
+          "pct": 10.6,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.6103789617596332,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.0874,
+          "pct": 8.7,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.7381485726176247,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1404,
+          "pct": 14,
+          "grade": "D",
+          "percentile": 2,
+          "contextMult": 0.8865513757189742,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0999,
+          "pct": 10,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 1.2298623499999999,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 502054,
+      "name": "Tommy Pham",
+      "team": "CWS",
+      "opponent": "CLE",
+      "side": "away",
+      "pitcherId": 668909,
+      "battingOrder": null,
+      "pos": "DH",
+      "props": {
+        "hr": {
+          "p": 0.0578,
+          "pct": 5.8,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.5867429146620298,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4144,
+          "pct": 41.4,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.7663827459122959,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1809,
+          "pct": 18.1,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.6854859173194222,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1547,
+          "pct": 15.5,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.8022060535353622,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.218,
+          "pct": 21.8,
+          "grade": "C",
+          "percentile": 23,
+          "contextMult": 0.9379713555106749,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.992956,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 800050,
+      "name": "Chase DeLauter",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.1123,
+          "pct": 11.2,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.9084708805393288,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6884,
+          "pct": 68.8,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.0238091598434707,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.4136,
+          "pct": 41.4,
+          "grade": "A",
+          "percentile": 95,
+          "contextMult": 0.9330548149324485,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.325,
+          "pct": 32.5,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.8766851293182016,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.5041,
+          "pct": 50.4,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.8928654307818878,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0401,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 1.1412643699999998,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 663993,
+      "name": "Nathaniel Lowe",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "1B",
+      "props": {
+        "hr": {
+          "p": 0.1077,
+          "pct": 10.8,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8513633873291242,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5539,
+          "pct": 55.4,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.9716644039173117,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2965,
+          "pct": 29.7,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.8606226898982567,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3147,
+          "pct": 31.5,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.8953009536999175,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3655,
+          "pct": 36.6,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.9163618894866743,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.8706939,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 682657,
+      "name": "Angel Martínez",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.1239,
+          "pct": 12.4,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 0.910052369637182,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6341,
+          "pct": 63.4,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 1.0375191683833247,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3774,
+          "pct": 37.7,
+          "grade": "A",
+          "percentile": 88,
+          "contextMult": 1.0066811435024876,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3384,
+          "pct": 33.8,
+          "grade": "A",
+          "percentile": 91,
+          "contextMult": 0.9594733255151152,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4546,
+          "pct": 45.5,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 0.957801098475116,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0397,
+          "pct": 4,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 1.0781437434,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 683953,
+      "name": "Travis Bazzana",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.094,
+          "pct": 9.4,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.832859630354567,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.578,
+          "pct": 57.8,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.9053862541426335,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3063,
+          "pct": 30.6,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.8203909964143178,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.2652,
+          "pct": 26.5,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.8181243154423252,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3813,
+          "pct": 38.1,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.8753024212449767,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0705,
+          "pct": 7.1,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 1.061310328,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 680757,
+      "name": "Steven Kwan",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "LF",
+      "props": {
+        "hr": {
+          "p": 0.0363,
+          "pct": 3.6,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.6473373551695891,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6884,
+          "pct": 68.8,
+          "grade": "A+",
+          "percentile": 96,
+          "contextMult": 1.1280569979526047,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3439,
+          "pct": 34.4,
+          "grade": "B+",
+          "percentile": 80,
+          "contextMult": 0.7471085736174917,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1625,
+          "pct": 16.3,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.8308631107051699,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4734,
+          "pct": 47.3,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 0.9778134358285262,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0311,
+          "pct": 3.1,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 1.0537924011,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 677587,
+      "name": "Brayan Rocchio",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "SS",
+      "props": {
+        "hr": {
+          "p": 0.0767,
+          "pct": 7.7,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.7677658008729925,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.6325,
+          "pct": 63.3,
+          "grade": "B+",
+          "percentile": 77,
+          "contextMult": 1.080814926131394,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.3274,
+          "pct": 32.7,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.8797238675731792,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.297,
+          "pct": 29.7,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 0.8959980776482506,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4383,
+          "pct": 43.8,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.9842880155605117,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0602,
+          "pct": 6,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 1.0534366336999998,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 595978,
+      "name": "Austin Hedges",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0617,
+          "pct": 6.2,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 0.6412911721272464,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4486,
+          "pct": 44.9,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 0.7787097410032526,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1941,
+          "pct": 19.4,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 0.6722335962004227,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1721,
+          "pct": 17.2,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.7093471435097659,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2322,
+          "pct": 23.2,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.7903354291610012,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.5898249,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 666176,
+      "name": "Jo Adell",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.0939,
+          "pct": 9.4,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 0.6802691258747084,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5502,
+          "pct": 55,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.8700767247446115,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.278,
+          "pct": 27.8,
+          "grade": "B",
+          "percentile": 55,
+          "contextMult": 0.7450152174479668,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.3141,
+          "pct": 31.4,
+          "grade": "B+",
+          "percentile": 73,
+          "contextMult": 0.810479709328585,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.3771,
+          "pct": 37.7,
+          "grade": "B",
+          "percentile": 59,
+          "contextMult": 0.8740682638180587,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0193,
+          "pct": 1.9,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 1.2170990000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 608070,
+      "name": "José Ramírez",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "3B",
+      "props": {
+        "hr": {
+          "p": 0.0693,
+          "pct": 6.9,
+          "grade": "C+",
+          "percentile": 52,
+          "contextMult": 0.6610451856690693,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.5933,
+          "pct": 59.3,
+          "grade": "B",
+          "percentile": 70,
+          "contextMult": 0.9816687896097167,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.2992,
+          "pct": 29.9,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 0.7294230435065162,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.24,
+          "pct": 24,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.8066118311506877,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.4088,
+          "pct": 40.9,
+          "grade": "B",
+          "percentile": 66,
+          "contextMult": 0.9079696189836314,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.1556,
+          "pct": 15.6,
+          "grade": "A+",
+          "percentile": 98,
+          "contextMult": 1.18058603,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 681807,
+      "name": "David Fry",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "RF",
+      "props": {
+        "hr": {
+          "p": 0.067,
+          "pct": 6.7,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 0.7378269565154802,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4125,
+          "pct": 41.3,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.9513351972739356,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1771,
+          "pct": 17.7,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.8138936879034135,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1375,
+          "pct": 13.8,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.8442063670262249,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2139,
+          "pct": 21.4,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.9441494186296683,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0,
+          "pct": 0,
+          "grade": "C",
+          "percentile": 18,
+          "contextMult": 0.93623,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 682177,
+      "name": "Daniel Schneemann",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0614,
+          "pct": 6.1,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.6176433590516172,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4068,
+          "pct": 40.7,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.7180564057877404,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1818,
+          "pct": 18.2,
+          "grade": "C",
+          "percentile": 30,
+          "contextMult": 0.6693546738953255,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1913,
+          "pct": 19.1,
+          "grade": "C+",
+          "percentile": 38,
+          "contextMult": 0.7133967467211884,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2272,
+          "pct": 22.7,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.8356195132102261,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0394,
+          "pct": 3.9,
+          "grade": "B",
+          "percentile": 63,
+          "contextMult": 1.150345801,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 672275,
+      "name": "Patrick Bailey",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "C",
+      "props": {
+        "hr": {
+          "p": 0.0596,
+          "pct": 6,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 0.6307491802621248,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.4034,
+          "pct": 40.3,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.7488102117732296,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1733,
+          "pct": 17.3,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.6832577315919148,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.1797,
+          "pct": 18,
+          "grade": "C",
+          "percentile": 34,
+          "contextMult": 0.7281392522354061,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.213,
+          "pct": 21.3,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.8483598152634881,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0099,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 41,
+          "contextMult": 1.0953891000000002,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 690984,
+      "name": "Petey Halpin",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "CF",
+      "props": {
+        "hr": {
+          "p": 0.0491,
+          "pct": 4.9,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.6572891672689811,
+          "saturated": false
+        },
+        "hits": {
+          "p": 0.417,
+          "pct": 41.7,
+          "grade": "C",
+          "percentile": 27,
+          "contextMult": 0.9061685761558006,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1649,
+          "pct": 16.5,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.7484285026276464,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.115,
+          "pct": 11.5,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.8062668599955347,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.2177,
+          "pct": 21.8,
+          "grade": "C",
+          "percentile": 20,
+          "contextMult": 0.9535290150742457,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0715,
+          "pct": 7.2,
+          "grade": "B+",
+          "percentile": 84,
+          "contextMult": 1.2353086735,
+          "saturated": false
+        }
+      }
+    },
+    {
+      "gamePk": 849831,
+      "startTimeUTC": "2026-10-11T00:00:00Z",
+      "playerId": 694197,
+      "name": "Angel Genao",
+      "team": "CLE",
+      "opponent": "CWS",
+      "side": "home",
+      "pitcherId": 680732,
+      "battingOrder": null,
+      "pos": "2B",
+      "props": {
+        "hr": {
+          "p": 0.0537,
+          "pct": 5.4,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.55,
+          "saturated": true
+        },
+        "hits": {
+          "p": 0.4113,
+          "pct": 41.1,
+          "grade": "C",
+          "percentile": 16,
+          "contextMult": 0.6871956053482442,
+          "saturated": false
+        },
+        "tb": {
+          "p": 0.1708,
+          "pct": 17.1,
+          "grade": "D",
+          "percentile": 13,
+          "contextMult": 0.5627817550309189,
+          "saturated": false
+        },
+        "rbi": {
+          "p": 0.0914,
+          "pct": 9.1,
+          "grade": "D",
+          "percentile": 5,
+          "contextMult": 0.6518631964448607,
+          "saturated": false
+        },
+        "hrr": {
+          "p": 0.1897,
+          "pct": 19,
+          "grade": "D",
+          "percentile": 9,
+          "contextMult": 0.7860633457601309,
+          "saturated": false
+        },
+        "sb": {
+          "p": 0.0104,
+          "pct": 1,
+          "grade": "C+",
+          "percentile": 45,
+          "contextMult": 1.26578296,
+          "saturated": false
+        }
+      }
+    }
+  ]
+}
