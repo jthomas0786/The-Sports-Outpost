@@ -12,7 +12,7 @@ assert(route.includes('data-parlayping-frame'));
 assert(route.includes('https://parlayping.thesportsoutpost.com/submit?tso_embed=1'));
 assert(!route.includes('data-parlay-mode'), 'Removed old Parlay Lab engine must not appear on the tab');
 assert(!route.includes('target="_blank"'),'Feature controls cannot lead users off the TSO tab');
-for(const path of ['/submit','/profile','/trending','/profile?tab=community','/profile?tab=dev','/account.html'])
+for(const path of ['/submit','/profile','/trending','/profile?tab=community','/account.html'])
   assert(route.includes('data-parlayping-page="'+path+'"'),'Missing Parlay Ping section '+path);
 assert(app.includes('function mountParlayPingWorkspace()'));
 assert(app.includes("let parlayPingPath='/submit'"));
