@@ -7971,11 +7971,49 @@
     bindMediaFallbacks();
   }
 
+  // TSO navigation stays in charge; each Parlay Ping feature opens INSIDE the
+  // workspace rather than leaving TSO or opening an external landing site.
+  const PARLAYPING_ORIGIN='https://parlayping.thesportsoutpost.com';
+  let parlayPingPath='/';
+  function mountParlayPingWorkspace(){
+    const root=document.querySelector('[data-parlayping-workspace]');
+    const frame=root?.querySelector('[data-parlayping-frame]');
+    if(!root||!frame)return;
+    const buttons=[...root.querySelectorAll('[data-parlayping-page]')];
+    const setActive=path=>{
+      buttons.forEach(b=>{
+        const isCurrent=b.dataset.parlaypingPage===path;
+        b.classList.toggle('is-active',isCurrent);
+        if(isCurrent)b.setAttribute('aria-current','page');
+        else b.removeAttribute('aria-current');
+      });
+    };
+    const navigate=path=>{
+      if(!buttons.some(b=>b.dataset.parlaypingPage===path))return;
+      parlayPingPath=path;
+      const url=new URL(path,PARLAYPING_ORIGIN);
+      url.searchParams.set('tso_embed','1');
+      frame.src=url.toString();
+      const loading=root.querySelector('[data-parlayping-loading]');
+      if(loading){loading.hidden=false;loading.textContent='Loading '+(buttons.find(b=>b.dataset.parlaypingPage===path)?.textContent||'Parlay Ping')+'…';}
+      setActive(path);
+    };
+    buttons.forEach(button=>button.addEventListener('click',()=>navigate(button.dataset.parlaypingPage)));
+    frame.addEventListener('load',()=>{
+      const loading=root.querySelector('[data-parlayping-loading]');
+      if(loading)loading.hidden=true;
+    });
+    // Preserve last open Parlay Ping section while switching TSO sports and back.
+    setActive(parlayPingPath);
+    if(parlayPingPath!=='/')navigate(parlayPingPath);
+  }
+
   function renderRoute({scrollToTop=false,preserveScroll=false}={}){
     const previousScroll=window.scrollY||document.documentElement.scrollTop||0;
     if(currentRoute === 'home') pageContent.innerHTML = homeHTML;
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
+    if(currentRoute==='parlays')mountParlayPingWorkspace();
     syncOwnerTools();
     if(currentRoute==='admin') window.TSO2Admin?.mount?.();
     bindNhlScorerActions(document.querySelector('[data-nhl-scorer-shell]'));
@@ -7983,7 +8021,7 @@
     refreshLiveData(false);
     refreshPropsData(false);
     if(currentRoute==='research')requestResearchMarkets(false);
-    if(currentRoute==='parlays'&&parlayMode!=='pregame')refreshNflCheckpointData(false);
+    // The legacy TSO parlay builder is no longer mounted on this route.
     refreshGameEdgeData(false);
     if(scrollToTop){
       window.scrollTo({top:0,behavior:'instant'});
