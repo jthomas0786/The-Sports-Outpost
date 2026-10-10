@@ -565,163 +565,40 @@
     },
 
     parlays(league){
+      // Parlay Ping runs on its original Render backend; every functional page
+      // now lives inside this TSO 2.0 workspace instead of external landing links.
       return `
-      <section class="parlays-page broadcast-destination" data-parlays-route>
-        <section class="destination-hero parlays-destination-hero parlayping-destination-hero">
-          <div class="parlayping-hero-copy">
-            <div class="parlayping-hero-brand">
-              <img src="https://parlayping.thesportsoutpost.com/parlayping-approved-wordmark.webp" alt="Parlay Ping approved logo" />
-              <span>POWERED BY THE SPORTS OUTPOST</span>
-            </div>
-            <span class="destination-kicker parlays-kicker">PARLAY PING · ${leagueName(league)}</span>
-            <h1>Tag it. Track it. <em>Tail what's left.</em></h1>
-            <p>Track original slips, analyze live legs, share picks and build from verified exact sportsbook selections. Parlay Ping uses its existing backend, accounts and API service.</p>
-            <div class="parlayping-hero-ctas">
-              <a class="button primary" href="https://parlayping.thesportsoutpost.com/submit" target="_blank" rel="noopener noreferrer">TRACK A PARLAY ↗</a>
-              <a class="button secondary" href="https://parlayping.thesportsoutpost.com/profile" target="_blank" rel="noopener noreferrer">MY PARLAYS ↗</a>
-              <a class="button secondary" href="https://parlayping.thesportsoutpost.com/account.html" target="_blank" rel="noopener noreferrer">DEVELOPER API ↗</a>
-            </div>
+      <section class="parlayping-workspace" data-parlayping-workspace>
+        <header class="parlayping-workspace-head">
+          <img class="parlayping-workspace-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt="" />
+          <div class="parlayping-workspace-heading">
+            <small>THE SPORTS OUTPOST / PARLAY PING</small>
+            <h1>Parlay Ping</h1>
+            <p>Powered by The Sports Outpost <span aria-hidden="true">·</span> Tag it. Track it. Tail what's left.</p>
           </div>
-          <div class="parlayping-hero-visual" aria-hidden="true">
-            <img src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt="" />
-            <span>ORIGINAL APPROVED PARLAY PING MARK</span>
-          </div>
-        </section>
-        <section class="parlayping-feature-links" aria-label="Parlay Ping product features">
-          <a href="https://parlayping.thesportsoutpost.com/submit" target="_blank" rel="noopener noreferrer"><b>TRACK</b><small>Upload and analyze a betslip</small></a>
-          <a href="https://parlayping.thesportsoutpost.com/profile" target="_blank" rel="noopener noreferrer"><b>LIVE ANALYSIS</b><small>Leg status, results and insights</small></a>
-          <a href="https://parlayping.thesportsoutpost.com/profile?tab=community" target="_blank" rel="noopener noreferrer"><b>SHARE</b><small>Community and verified cards</small></a>
-          <a href="https://parlayping.thesportsoutpost.com/account.html" target="_blank" rel="noopener noreferrer"><b>API ACCESS</b><small>Keys, quota and plans</small></a>
-        </section>
-        <div class="parlayping-inline-builder-head">
-          <div><span>THE SPORTS OUTPOST · EXACT ODDS</span><h2>Parlay Ping Build Lab</h2><p>Keep building with the verified TSO 2.0 model-to-market engine while the complete Parlay Ping tools remain available above.</p></div>
-          <div class="destination-actions">
-            <button class="button secondary" data-parlay-refresh>REFRESH DATA</button>
-            <button class="button primary" data-parlay-new>NEW PARLAY →</button>
-          </div>
+          <span class="parlayping-workspace-connected"><i aria-hidden="true"></i> RENDER ENGINE</span>
+        </header>
+        <nav class="parlayping-workspace-nav" aria-label="Parlay Ping features" data-parlayping-nav>
+          <button class="is-active" type="button" data-parlayping-page="/" aria-current="page">BUILD & ANALYZE</button>
+          <button type="button" data-parlayping-page="/submit">UPLOAD SLIP</button>
+          <button type="button" data-parlayping-page="/profile">MY PARLAYS</button>
+          <button type="button" data-parlayping-page="/trending">EXPLORE</button>
+          <button type="button" data-parlayping-page="/profile?tab=community">COMMUNITY</button>
+          <button type="button" data-parlayping-page="/profile?tab=dev">DEVELOPER API</button>
+          <button type="button" data-parlayping-page="/account.html">ACCOUNT</button>
+        </nav>
+        <div class="parlayping-workspace-frame-shell">
+          <div class="parlayping-workspace-loader" data-parlayping-loading role="status">Loading Parlay Ping tools…</div>
+          <iframe
+            data-parlayping-frame
+            title="Parlay Ping — live builder, tracking, community and developer API"
+            src="https://parlayping.thesportsoutpost.com/?tso_embed=1"
+            loading="eager"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="clipboard-read; clipboard-write"
+          ></iframe>
         </div>
-
-        <section class="parlays-preview-strip" data-parlay-status>
-          <div><span class="parlays-preview-dot"></span><b>CONNECTING REAL DATA</b><small>Verifying exact selections</small></div>
-          <span class="parlays-status-divider"></span>
-          <div><b>EXACT LINES</b><small>selection protected</small></div>
-          <span class="parlays-status-divider"></span>
-          <div><b>MODEL MATH</b><small>independent estimate labeled</small></div>
-          <span class="parlays-status-divider"></span>
-          <div><b>BOOK COVERAGE</b><small>same exact legs only</small></div>
-        </section>
-
-        <section class="parlays-mode-tabs" data-parlay-mode-tabs>
-          <button class="is-active" data-parlay-mode="pregame"><span>01</span><div><b>PREGAME</b><small>Verified sportsbook props + models</small></div></button>
-          <button data-parlay-mode="quarter"><span>02</span><div><b>QUARTER</b><small>Current-week 50K period simulation</small></div></button>
-          <button data-parlay-mode="halftime"><span>03</span><div><b>HALFTIME</b><small>Activates at a ready halftime checkpoint</small></div></button>
-          <button data-parlay-mode="live" disabled><span>04</span><div><b>LIVE</b><small>General live prop builder not activated yet</small></div></button>
-        </section>
-
-        <section class="parlay-checkpoint-controls" data-parlay-checkpoint-controls hidden>
-          <div class="parlay-checkpoint-state" data-parlay-checkpoint-state>
-            <span class="parlays-preview-dot"></span><div><b>CHECKING CURRENT NFL WEEK</b><small>Stale checkpoint boards are rejected automatically.</small></div>
-          </div>
-          <div class="parlay-period-switch" data-parlay-period-switch hidden>
-            <span>PERIOD</span>
-            <div>
-              <button class="is-active" data-parlay-period="q1">Q1</button>
-              <button data-parlay-period="q2">Q2</button>
-              <button data-parlay-period="q3">Q3</button>
-              <button data-parlay-period="q4">Q4</button>
-              <button data-parlay-period="1h">1H</button>
-              <button data-parlay-period="2h">2H</button>
-            </div>
-          </div>
-          <label class="parlay-checkpoint-strategy">BUILD STYLE
-            <select data-parlay-checkpoint-strategy>
-              <option value="tsoPick">TSO PICK</option>
-              <option value="safest">SAFEST</option>
-              <option value="bestEdge">BEST EDGE</option>
-              <option value="balanced">BALANCED</option>
-              <option value="longshot">LONGSHOT</option>
-              <option value="correlated">CORRELATED</option>
-            </select>
-          </label>
-        </section>
-
-        <section class="parlays-command-grid">
-          <article class="parlay-slip">
-            <div class="parlay-slip-head">
-              <div><span class="gold-kicker">CURRENT BUILD · REAL DATA</span><h2 data-parlay-build-title>Loading exact legs…</h2></div>
-              <div class="parlay-leg-count">
-                <button data-parlay-target="2">2</button><button class="is-active" data-parlay-target="3">3</button><button data-parlay-target="4">4</button><button data-parlay-target="5">5+</button>
-              </div>
-            </div>
-
-            <div data-parlay-legs>
-              <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Loading verified selections…</b><small>Only exact model-to-market matches can auto-fill the model builder.</small></div></div>
-            </div>
-
-            <button class="parlay-add-leg" data-parlay-add><span>＋</span><div><b>ADD ANOTHER LEG</b><small>Choose from live model suggestions below</small></div></button>
-            <div class="parlay-save-tools">
-              <button class="button primary" data-parlay-save-legs type="button">SAVE EXACT LEGS</button>
-              <small data-parlay-save-note>Saves supported Over/Under and YES/NO picks individually to Profile. No sportsbook bet is placed.</small>
-            </div>
-
-            <div class="parlay-line-protection"><span>✓</span><div><b>EXACT-SELECTION PROTECTION</b><small>Every leg keeps its exact player, market, side and threshold. Book comparison only counts a sportsbook when that exact selection is present.</small></div></div>
-          </article>
-
-          <aside class="parlay-health" data-parlay-health>
-            <div class="parlay-health-head"><span class="violet-kicker">OUTPOST CHECK</span><b>REAL BUILD MATH</b></div>
-            <div class="parlay-health-score">
-              <div class="parlay-health-ring parlay-health-ring--live" data-parlay-ring><div><strong data-parlay-leg-total>—</strong><small>LEGS</small></div></div>
-              <div><span>BUILD STATUS</span><h2 data-parlay-health-title>Connecting feed</h2><p data-parlay-health-copy>Calculations appear after exact selections load.</p></div>
-            </div>
-
-            <div class="parlay-summary-grid">
-              <div><span>DERIVED PRICE*</span><b data-parlay-combined-price>—</b></div>
-              <div><span>MODEL PROB*</span><b data-parlay-model-prob>—</b></div>
-              <div><span>MARKET PROB*</span><b data-parlay-market-prob>—</b></div>
-              <div><span>MODEL Δ*</span><b data-parlay-combined-edge>—</b></div>
-            </div>
-
-            <div class="parlay-check-list" data-parlay-checks>
-              <div><span>…</span><div><b>Checking exact lines</b><small>Waiting for real feed.</small></div></div>
-            </div>
-
-            <div class="parlay-health-actions">
-              <button class="button secondary" data-route-jump="props">OPEN PROP BOARD</button>
-              <button class="button primary" data-route-jump="models">OPEN MODELS →</button>
-            </div>
-          </aside>
-        </section>
-
-        <section class="destination-section" data-parlay-weakest-section>
-          <div class="destination-section-head">
-            <div><span class="orange-kicker">WEAKEST REAL EDGE</span><h2 data-parlay-weakest-title>Finding the leg worth reviewing</h2></div>
-            <button data-route-jump="props">OPEN PROP BOARD →</button>
-          </div>
-          <div class="parlay-replacement-grid" data-parlay-replacements>
-            <div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Comparing real alternatives…</b></div></div>
-          </div>
-        </section>
-
-        <section class="destination-section">
-          <div class="destination-section-head">
-            <div><span class="gold-kicker">LIVE MODEL SUGGESTIONS</span><h2 data-parlay-suggestions-title>Compatible exact selections</h2></div>
-            <button data-route-jump="models">OPEN MODELS →</button>
-          </div>
-          <div class="parlay-suggestion-grid" data-parlay-suggestions>
-            <div class="live-board-loading home-model-empty--wide"><span class="live-feed-spinner"></span><div><b>Ranking exact model matches…</b></div></div>
-          </div>
-        </section>
-
-        <section class="destination-section">
-          <div class="destination-section-head">
-            <div><span class="violet-kicker">BOOK COMPARISON</span><h2 data-parlay-book-title>Exact-leg coverage by sportsbook</h2></div>
-            <button data-parlay-refresh>REFRESH PRICES →</button>
-          </div>
-          <div class="parlay-book-board" data-parlay-books>
-            <div class="live-board-loading"><span class="live-feed-spinner"></span><div><b>Checking exact-leg sportsbook coverage…</b></div></div>
-          </div>
-          <div class="parlay-math-note">* Combined model/market probabilities use simple independent-leg products. Combined American prices are derived by multiplying the displayed exact leg prices; they are not sportsbook-quoted parlay payouts. TSO does not label either calculation correlation-adjusted. Same-event or same-player overlap is flagged separately for review.</div>
-        </section>
+        <p class="parlayping-workspace-footnote">Parlay Ping features run against the existing secured Render backend and Parlay Ping account. Your tracked slips, shares, plans and API keys remain in their original service.</p>
       </section>`;
     },
 
