@@ -7991,6 +7991,8 @@
     const navigate=path=>{
       if(!buttons.some(b=>b.dataset.parlaypingPage===path))return;
       parlayPingPath=path;
+      frame.style.height='';
+      frame.parentElement?.classList.remove('is-autosized');
       const url=new URL(path,PARLAYPING_ORIGIN);
       url.searchParams.set('tso_embed','1');
       frame.src=url.toString();
@@ -8023,6 +8025,14 @@
     // accidentally switch the outer TSO route when those links are clicked.
     const updateFromEmbedded=event=>{
       if(event.origin!==PARLAYPING_ORIGIN||event.source!==frame.contentWindow)return;
+      if(event.data?.type==='tso2-parlayping-size'){
+        const height=Number(event.data.height);
+        if(Number.isFinite(height)&&height>=300&&height<=14000){
+          frame.style.height=Math.ceil(height+2)+'px';
+          frame.parentElement?.classList.add('is-autosized');
+        }
+        return;
+      }
       if(event.data?.type==='tso2-parlayping-auth-request'){void sendTsoIdentity();return;}
       if(event.data?.type==='tso2-parlayping-signin-request'){window.TSO_AUTH?.openSignIn?.();return;}
       if(event.data?.type==='tso2-parlayping-open-profile'){setRoute('profile');return;}
