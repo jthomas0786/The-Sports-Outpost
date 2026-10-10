@@ -11816,3 +11816,16 @@ body.live-multi-open{overflow:hidden}
  .parlayping-workspace-nav{margin-bottom:10px}
  .parlayping-workspace-frame-shell iframe{height:620px;min-height:0}
 }
+
+
+/* Only genuine Parlay Ping functions remain inside TSO:
+   Upload / Verify and My Parlays. Global Community, Explore, Account and
+   developer-business settings are owned by TSO or separate developer portal. */
+.parlayping-workspace-nav{justify-content:flex-start}
+.parlayping-workspace-nav button{
+  flex:0 0 auto;min-width:155px;
+  border-right:1px solid rgba(255,255,255,.08);
+}
+@media(max-width:500px){
+ .parlayping-workspace-nav button{flex:1 1 50%;min-width:0}
+}
