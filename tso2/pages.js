@@ -575,7 +575,7 @@
             <div class="parlayping-workspace-heading">
               <small>THE SPORTS OUTPOST <span aria-hidden="true">/</span> PARLAY PING</small>
               <h1>Parlay Ping</h1>
-              <p>Upload, verify, track and share your betslips. Powered by The Sports Outpost.</p>
+              <p>Upload, verify and track your betslips with your TSO account.</p>
             </div>
           </div>
           <span class="parlayping-workspace-connected"><i aria-hidden="true"></i> TOOLS CONNECTED</span>
@@ -583,9 +583,6 @@
         <nav class="parlayping-workspace-nav" aria-label="Parlay Ping tools" data-parlayping-nav>
           <button class="is-active" type="button" data-parlayping-page="/submit" aria-current="page">UPLOAD / VERIFY</button>
           <button type="button" data-parlayping-page="/profile">MY PARLAYS</button>
-          <button type="button" data-parlayping-page="/trending">EXPLORE</button>
-          <button type="button" data-parlayping-page="/profile?tab=community">COMMUNITY</button>
-          <button type="button" data-parlayping-page="/account.html">TSO ACCOUNT</button>
         </nav>
         <div class="parlayping-workspace-frame-shell">
           <div class="parlayping-workspace-loader" data-parlayping-loading role="status">Loading Parlay Ping tools…</div>
@@ -599,7 +596,7 @@
             allow="clipboard-read; clipboard-write"
           ></iframe>
         </div>
-        <p class="parlayping-workspace-footnote">Your betslips are saved to your TSO account. There is no second Parlay Ping sign-in.</p>
+        <p class="parlayping-workspace-footnote">Parlay Ping tools are powered by The Sports Outpost. Your saved betslips remain private to your TSO account.</p>
       </section>`;
     },
 
