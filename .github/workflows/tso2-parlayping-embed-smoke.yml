@@ -100,3 +100,10 @@ jobs:
           grep -Fq '#ff4d1c' /tmp/pp-tso-props-builder.css || { echo 'Parlay Ping TSO draft missing native broadcast theme'; exit 1; }
           grep -Fq '#ffd84d' /tmp/pp-tso-builder.css || { echo 'Parlay Ping TSO Builder missing native broadcast theme'; exit 1; }
           echo 'Live TSO-to-Parlay Ping betslip handoff files: VERIFIED'
+
+      - name: Verify live TSO exact-props JSON feed required for Parlay Ping builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --retry 2 --retry-delay 2 --max-time 60 -fsSL -H 'Accept: application/json' 'https://thesportsoutpost.com/api/props?league=all' -o /tmp/pp-live-tso-props.json
+          node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync("/tmp/pp-live-tso-props.json","utf8"));if(!Array.isArray(data.rows))throw Error("TSO prop feed did not provide a rows array");const keys=data.rows.filter(r=>r&&typeof r.key==="string"&&r.player&&r.market);console.log("TSO exact-prop feed available: "+keys.length+" candidate selections");'
