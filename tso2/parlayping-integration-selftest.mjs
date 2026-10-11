@@ -47,6 +47,12 @@ console.log('TSO 2.0 full Parlay Ping in-tab features, no off-site link hub: PAS
 
 assert(app.includes('TSO_PP_DRAFT_PREFIX'), 'Per-TSO-member betslip draft is retained');
 assert(app.includes('tsoPpSaveKeys'), 'Direct props-to-Parlay Ping transfer exists');
+assert(app.includes('const TSO_PP_MAX_LEGS=25;'), 'Parlay Ping exact-prop draft allows 25 legs');
+const draft=app.slice(app.indexOf("const TSO_PP_DRAFT_PREFIX="),app.indexOf("  function openPropsCompare(row){"));
+assert(draft.includes('slice(0,TSO_PP_MAX_LEGS)'), 'Saved draft must not lose legs 9–25');
+assert(draft.includes('if(keys.length>=TSO_PP_MAX_LEGS)'), '26th leg must be rejected');
+assert(draft.includes("+'/'+TSO_PP_MAX_LEGS+').'"), 'Added-leg confirmation must show 25 maximum');
+assert(!draft.includes("slice(0,8)"), 'Stale 8-leg cap in first-party draft');
 assert(app.includes('tso2-parlayping-draft-request'), 'Iframe can request current draft');
 assert(app.includes('tso2-parlayping-draft-remove'), 'Selections can be removed');
 assert(app.includes('tso2-parlayping-draft-clear'), 'Draft can be cleared');
