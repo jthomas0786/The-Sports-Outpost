@@ -7152,6 +7152,12 @@
     if(!row)return;
     const key=String(row.key||'');
     if(!key)return;
+    // Research model-only rows are not sportsbook selections. Require an
+    // exact prop key in the current TSO quoted feed before adding.
+    if(!(propsFeedCache?.rows||[]).some(item=>String(item.key)===key)){
+      notify('This research row has no verified exact TSO prop quote. Open Props to choose a sportsbook selection.');
+      return;
+    }
     if(!tsoPpMemberId()){
       notify('Sign in to your TSO account to build and save a Parlay Ping betslip.');
       window.TSO_AUTH?.openSignIn?.();
