@@ -7108,19 +7108,72 @@
     document.body.classList.remove('props-compare-open');
   }
 
+  // TSO → Parlay Ping: store only exact prop KEYS, never prices or tokens.
+  // Drafts are scoped to the verified TSO member, not another PP account.
+  const TSO_PP_DRAFT_PREFIX='tso2.pp.props.draft.v1.';
+  function tsoPpMemberId(){return String(window.TSO_AUTH?.user?.id||'');}
+  function tsoPpDraftKeys(){
+    const member=tsoPpMemberId();
+    if(!member)return [];
+    try{
+      const raw=JSON.parse(localStorage.getItem(TSO_PP_DRAFT_PREFIX+member)||'[]');
+      return Array.isArray(raw)?[...new Set(raw.filter(k=>typeof k==='string'&&k.length>0&&k.length<=200))].slice(0,8):[];
+    }catch{return [];}
+  }
+  function tsoPpSaveKeys(keys){
+    const member=tsoPpMemberId();
+    if(!member)return;
+    try{localStorage.setItem(TSO_PP_DRAFT_PREFIX+member,JSON.stringify([...new Set(keys)].slice(0,8)));}catch(error){console.warn('Parlay Ping draft could not persist:',error?.message||error);}
+  }
+  function tsoPpDraftRows(){
+    return tsoPpDraftKeys().map(key=>{
+      const row=(propsFeedCache?.rows||[]).find(r=>String(r.key)===key)||{};
+      const modelPct=Number(row?.model?.probabilityPct);
+      return {
+        key,player:String(row.player||'Refreshing prop…').slice(0,120),
+        sport:String(row.sport||'').toUpperCase().slice(0,15),
+        market:String(row.market||'').slice(0,100),
+        marketLabel:String(row.marketLabel||row.market||'Exact TSO selection').slice(0,120),
+        selection:row.key?String(propSelectionText(row)).slice(0,64):'Refreshing quote',
+        price:row.price===null||row.price===undefined||!Number.isFinite(Number(row.price))?null:Number(row.price),
+        book:String(row.book||'').slice(0,80),
+        modelPct:row.model&&Number.isFinite(modelPct)?modelPct:null
+      };
+    });
+  }
+  function tsoPpPushDraft(frame){
+    if(!frame?.contentWindow||!frame.isConnected)return;
+    frame.contentWindow.postMessage({type:'tso2-parlayping-draft-sync',rows:tsoPpDraftRows()},PARLAYPING_ORIGIN);
+    const root=document.querySelector('[data-parlayping-workspace]');
+    const btn=root?.querySelector('[data-parlayping-page="/submit"]');
+    if(btn)btn.textContent='BETSLIP BUILDER'+(tsoPpDraftKeys().length?' ('+tsoPpDraftKeys().length+')':'');
+  }
   function addPropToParlay(row){
     if(!row)return;
     const key=String(row.key||'');
     if(!key)return;
-    if(!parlayLegKeys.includes(key)){
-      if(parlayLegKeys.length>=8){notify('Parlay Lab supports up to 8 exact selections.');return;}
-      parlayLegKeys.push(key);
+    // Research model-only rows are not sportsbook selections. Require an
+    // exact prop key in the current TSO quoted feed before adding.
+    if(!(propsFeedCache?.rows||[]).some(item=>String(item.key)===key)){
+      notify('This research row has no verified exact TSO prop quote. Open Props to choose a sportsbook selection.');
+      return;
     }
-    parlayTarget=Math.max(2,Math.min(5,parlayLegKeys.length));
+    if(!tsoPpMemberId()){
+      notify('Sign in to your TSO account to build and save a Parlay Ping betslip.');
+      window.TSO_AUTH?.openSignIn?.();
+      return;
+    }
+    const keys=tsoPpDraftKeys();
+    if(!keys.includes(key)){
+      if(keys.length>=8){notify('Parlay Ping allows up to 8 exact selections.');return;}
+      keys.push(key);tsoPpSaveKeys(keys);
+    }
+    parlayPingPath='/submit';
     closePropsCompare();
     setRoute('parlays');
-    notify(row.player+' '+propSelectionText(row)+' added to Parlay Lab.');
+    notify(row.player+' '+propSelectionText(row)+' added to Parlay Ping ('+tsoPpDraftKeys().length+'/8).');
   }
+
 
   function openPropsCompare(row){
     if(!row)return;
@@ -8012,7 +8065,7 @@
       if(frame.contentWindow===recipient)recipient.postMessage({type:'tso2-parlayping-auth',accessToken},PARLAYPING_ORIGIN);
     }
     window.addEventListener('tso2-auth-changed',()=>{void sendTsoIdentity();});
-    frame.addEventListener('load',()=>{void sendTsoIdentity();
+    frame.addEventListener('load',()=>{void sendTsoIdentity();tsoPpPushDraft(frame);
       const loading=root.querySelector('[data-parlayping-loading]');
       if(loading)loading.hidden=true;
     });
@@ -8028,6 +8081,15 @@
         }
         return;
       }
+      if(event.data?.type==='tso2-parlayping-draft-request'){tsoPpPushDraft(frame);return;}
+      if(event.data?.type==='tso2-parlayping-draft-remove'){
+        const key=String(event.data.key||'');
+        tsoPpSaveKeys(tsoPpDraftKeys().filter(k=>k!==key));tsoPpPushDraft(frame);return;
+      }
+      if(event.data?.type==='tso2-parlayping-draft-clear'){
+        tsoPpSaveKeys([]);tsoPpPushDraft(frame);return;
+      }
+      if(event.data?.type==='tso2-parlayping-open-props'){setRoute('props');return;}
       if(event.data?.type==='tso2-parlayping-auth-request'){void sendTsoIdentity();return;}
       if(event.data?.type==='tso2-parlayping-signin-request'){window.TSO_AUTH?.openSignIn?.();return;}
       if(event.data?.type==='tso2-parlayping-open-profile'){setRoute('profile');return;}
@@ -8049,6 +8111,8 @@
     if(!buttons.some(b=>b.dataset.parlaypingPage===parlayPingPath))parlayPingPath='/submit';
     setActive(parlayPingPath);
     if(parlayPingPath!=='/submit')navigate(parlayPingPath);
+    tsoPpPushDraft(frame);
+    if(!propsFeedCache)void refreshPropsData().then(()=>tsoPpPushDraft(frame)).catch(()=>{});
   }
 
   function renderRoute({scrollToTop=false,preserveScroll=false}={}){

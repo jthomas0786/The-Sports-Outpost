@@ -575,13 +575,13 @@
             <div class="parlayping-workspace-heading">
               <small>THE SPORTS OUTPOST <span aria-hidden="true">/</span> PARLAY PING</small>
               <h1>Parlay Ping</h1>
-              <p>Upload, verify and track your betslips with your TSO account.</p>
+              <p>Build from verified TSO player props or upload a screenshot. Compare sportsbooks, then track with your TSO account.</p>
             </div>
           </div>
           <span class="parlayping-workspace-connected"><i aria-hidden="true"></i> TOOLS CONNECTED</span>
         </header>
         <nav class="parlayping-workspace-nav" aria-label="Parlay Ping tools" data-parlayping-nav>
-          <button class="is-active" type="button" data-parlayping-page="/submit" aria-current="page">UPLOAD / VERIFY</button>
+          <button class="is-active" type="button" data-parlayping-page="/submit" aria-current="page">BETSLIP BUILDER</button>
           <button type="button" data-parlayping-page="/profile">MY PARLAYS</button>
         </nav>
         <div class="parlayping-workspace-frame-shell">
