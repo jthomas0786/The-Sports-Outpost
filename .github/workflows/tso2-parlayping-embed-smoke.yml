@@ -80,3 +80,23 @@ jobs:
           grep -Fq -- '#ff4d1c' /tmp/live-pp-profile.css || { echo 'STALE PP: My Parlays still uses old profile theme'; exit 1; }
           grep -Fq 'Only genuine Parlay Ping functions remain inside TSO' /tmp/live-tso-styles.css || { echo 'STALE TSO: simplified tool nav CSS not deployed'; exit 1; }
           echo 'LIVE PARLAY PING TSO 2.0 THEME: VERIFIED on public origin'
+
+      - name: Verify live TSO Props to Parlay Ping betslip Builder deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          tso="https://thesportsoutpost.com"
+          pp="https://parlayping.thesportsoutpost.com"
+          bust="$(date +%s)"
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$tso/app.js?qa=$bust" -o /tmp/tso-betslip-app.js
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$tso/pages.js?qa=$bust" -o /tmp/tso-betslip-pages.js
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-props-builder.js?qa=$bust" -o /tmp/pp-tso-props-builder.js
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-props-builder.css?qa=$bust" -o /tmp/pp-tso-props-builder.css
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-builder-broadcast.css?qa=$bust" -o /tmp/pp-tso-builder.css
+          grep -Fq 'tso2.pp.props.draft.v1.' /tmp/tso-betslip-app.js || { echo 'TSO origin still serving old +PARLAY code'; exit 1; }
+          grep -Fq 'tso2-parlayping-draft-sync' /tmp/tso-betslip-app.js || { echo 'TSO iframe betslip handoff not published'; exit 1; }
+          grep -Fq 'BETSLIP BUILDER' /tmp/tso-betslip-pages.js || { echo 'TSO betslip tab not published'; exit 1; }
+          grep -Fq '/api/tso-build' /tmp/pp-tso-props-builder.js || { echo 'Parlay Ping has no direct prop builder API integration'; exit 1; }
+          grep -Fq '#ff4d1c' /tmp/pp-tso-props-builder.css || { echo 'Parlay Ping TSO draft missing native broadcast theme'; exit 1; }
+          grep -Fq '#ffd84d' /tmp/pp-tso-builder.css || { echo 'Parlay Ping TSO Builder missing native broadcast theme'; exit 1; }
+          echo 'Live TSO-to-Parlay Ping betslip handoff files: VERIFIED'
