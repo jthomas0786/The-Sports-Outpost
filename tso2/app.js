@@ -7111,19 +7111,20 @@
   // TSO → Parlay Ping: store only exact prop KEYS, never prices or tokens.
   // Drafts are scoped to the verified TSO member, not another PP account.
   const TSO_PP_DRAFT_PREFIX='tso2.pp.props.draft.v1.';
+  const TSO_PP_MAX_LEGS=25;
   function tsoPpMemberId(){return String(window.TSO_AUTH?.user?.id||'');}
   function tsoPpDraftKeys(){
     const member=tsoPpMemberId();
     if(!member)return [];
     try{
       const raw=JSON.parse(localStorage.getItem(TSO_PP_DRAFT_PREFIX+member)||'[]');
-      return Array.isArray(raw)?[...new Set(raw.filter(k=>typeof k==='string'&&k.length>0&&k.length<=200))].slice(0,8):[];
+      return Array.isArray(raw)?[...new Set(raw.filter(k=>typeof k==='string'&&k.length>0&&k.length<=200))].slice(0,TSO_PP_MAX_LEGS):[];
     }catch{return [];}
   }
   function tsoPpSaveKeys(keys){
     const member=tsoPpMemberId();
     if(!member)return;
-    try{localStorage.setItem(TSO_PP_DRAFT_PREFIX+member,JSON.stringify([...new Set(keys)].slice(0,8)));}catch(error){console.warn('Parlay Ping draft could not persist:',error?.message||error);}
+    try{localStorage.setItem(TSO_PP_DRAFT_PREFIX+member,JSON.stringify([...new Set(keys)].slice(0,TSO_PP_MAX_LEGS)));}catch(error){console.warn('Parlay Ping draft could not persist:',error?.message||error);}
   }
   function tsoPpDraftRows(){
     return tsoPpDraftKeys().map(key=>{
@@ -7165,13 +7166,13 @@
     }
     const keys=tsoPpDraftKeys();
     if(!keys.includes(key)){
-      if(keys.length>=8){notify('Parlay Ping allows up to 8 exact selections.');return;}
+      if(keys.length>=TSO_PP_MAX_LEGS){notify('Parlay Ping allows up to '+TSO_PP_MAX_LEGS+' exact selections.');return;}
       keys.push(key);tsoPpSaveKeys(keys);
     }
     parlayPingPath='/submit';
     closePropsCompare();
     setRoute('parlays');
-    notify(row.player+' '+propSelectionText(row)+' added to Parlay Ping ('+tsoPpDraftKeys().length+'/8).');
+    notify(row.player+' '+propSelectionText(row)+' added to Parlay Ping ('+tsoPpDraftKeys().length+'/'+TSO_PP_MAX_LEGS+').');
   }
 
 

@@ -99,6 +99,8 @@ jobs:
           grep -Fq '/api/tso-build' /tmp/pp-tso-props-builder.js || { echo 'Parlay Ping has no direct prop builder API integration'; exit 1; }
           grep -Fq '#ff4d1c' /tmp/pp-tso-props-builder.css || { echo 'Parlay Ping TSO draft missing native broadcast theme'; exit 1; }
           grep -Fq '#ffd84d' /tmp/pp-tso-builder.css || { echo 'Parlay Ping TSO Builder missing native broadcast theme'; exit 1; }
+          grep -Fq 'const TSO_PP_MAX_LEGS=25' /tmp/tso-betslip-app.js || { echo 'STALE TSO: 25-leg draft limit not deployed'; exit 1; }
+          grep -Fq 'const TSO_PP_MAX_LEGS=25' /tmp/pp-tso-props-builder.js || { echo 'STALE PP: 25-leg interface limit not deployed'; exit 1; }
           echo 'Live TSO-to-Parlay Ping betslip handoff files: VERIFIED'
 
       - name: Verify live TSO exact-props JSON feed required for Parlay Ping builds
