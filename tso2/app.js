@@ -8151,6 +8151,8 @@
       navigate:route=>setRoute(route),
       selectLeague:league=>setLeague(league),
       addProp:row=>addPropToParlay(row),
+      research:row=>propResearchPayload(row),
+      history:(row,book)=>propHistoryPayload(row,book),
       openGame:game=>{
         selectedLiveGameId=String(game.id);
         if(currentLeague!==game.league){
