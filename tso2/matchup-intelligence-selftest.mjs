@@ -19,10 +19,11 @@ const view=context.window.TSO2Matchup;
 assert.ok(view?.listing && view?.bind && view?.matchedStats);
 const g={id:'g1',league:'nfl',away:{name:'Buffalo',abbr:'BUF'},home:{name:'Los Angeles',abbr:'LA'}};
 const rows=[
- {key:'k1',sport:'nfl',player:'Test Back',team:'BUF',market:'atd',marketLabel:'Anytime TD',side:'over',book:'Verified Book',price:125,model:{probabilityPct:42,edgePct:4.5}},
+ {key:'k1',sport:'nfl',player:'Test Back',team:'BUF',market:'atd',marketLabel:'Anytime TD',side:'over',book:'Verified Book',price:125,model:{probabilityPct:82,edgePct:1.0}},
  {key:'k2',sport:'nfl',player:'Test WR',team:'LA',market:'recYds',marketLabel:'Receiving yards',side:'over',line:54.5,book:'Verified Book',price:-110,model:{probabilityPct:60,edgePct:7}},
  {key:'k3',sport:'nfl',player:'Test TE',team:'LA',market:'recYds',marketLabel:'Receiving yards',side:'under',selection:'Under 21.5',line:21.5,book:'Verified Book',price:-105},
- {key:'k4',sport:'nfl',player:'Test Quarterback',team:'BUF',market:'passYds',marketLabel:'Passing yards',side:'over',selection:'Over 250.5',line:250.5,book:'Verified Book',price:-115}
+ {key:'k4',sport:'nfl',player:'Test Quarterback',team:'BUF',market:'passYds',marketLabel:'Passing yards',side:'over',selection:'Over 250.5',line:250.5,book:'Verified Book',price:-115},
+ {key:'k5',sport:'nfl',player:'Test Receiver Two',team:'BUF',market:'recYds',marketLabel:'Receiving yards',side:'over',selection:'Over 65.5',line:65.5,book:'Verified Book',price:-115,model:{probabilityPct:75,edgePct:0.5}}
 ];
 const html=view.listing(g,rows);
 assert.match(html,/What BUF gives up/);
@@ -31,7 +32,7 @@ assert.match(html,/Test WR/);
 assert.match(html,/Test Back/);
 assert.match(html,/MODEL %/);
 assert.match(html,/60.0%/);
-assert.match(html,/42.0%/);
+assert.match(html,/82.0%/);
 assert.match(html,/MARKET ONLY/);
 assert.ok(!html.includes('Test TE'),'Under selections must not be featured in Game Hub');
 assert.ok(!html.includes('Under 21.5'),'Under thresholds must never leak to featured cards');
@@ -46,7 +47,12 @@ assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'Y
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'No'}),false);
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'recYds',selection:'N/A'}),false);
 
-assert.ok(html.indexOf('Test WR')<html.indexOf('Test Back'),'Rank rows by verified positive edge, not an invented score');
+assert.ok(html.indexOf('Test Back')<html.indexOf('Test Receiver Two'),'82% should rank above 75%');
+assert.ok(html.indexOf('Test Receiver Two')<html.indexOf('Test WR'),'75% must rank above 60% despite lower model edge');
+assert.ok(html.indexOf('Test WR')<html.indexOf('Test Quarterback'),'missing model probabilities should always rank last');
+assert.match(html,/highest model probability first/,'Users should see explicit ordering');
+const sameMarket=view.listing(g,[rows[1],rows[4]]);
+assert.ok(sameMarket.indexOf('Test Receiver Two')<sameMarket.indexOf('Test WR'),'a selected receiving yards category also ranks by probability');
 assert.match(html,/data-mi-expand/);
 assert.match(html,/data-mi-add/);
 assert.match(html,/data-mi-filter/);
