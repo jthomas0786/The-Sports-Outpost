@@ -9,22 +9,24 @@
       "AFL",
       "BOXING"
     ],
-    "fetchedAt": "2026-10-11T17:42:40.563Z",
+    "fetchedAt": "2026-10-12T06:07:11.824Z",
     "market": "matchWinner",
     "settlementConnected": false,
-    "rows": 0,
+    "rows": 4,
     "maxPaidSportKeysPerRun": 5,
-    "reportedCreditsUsed": 0,
+    "reportedCreditsUsed": 1,
     "probabilityPolicy": "Only complete two-sided Pinnacle h2h markets are accepted and de-vigged. Three-way/draw markets, started events and ambiguous outcomes are rejected.",
     "coveragePolicy": "Active league keys are discovered for free. At most five league keys with upcoming events are priced per run, prioritizing family diversity and nearest starts.",
     "discoveredByFamily": {
       "VOLLEYBALL": {
         "catalogKeys": 1,
-        "keysWithFutureEvents": 0,
-        "selectedKeys": []
+        "keysWithFutureEvents": 1,
+        "selectedKeys": [
+          "volleyball"
+        ]
       },
       "CRICKET": {
-        "catalogKeys": 2,
+        "catalogKeys": 3,
         "keysWithFutureEvents": 0,
         "selectedKeys": []
       },
@@ -44,7 +46,88 @@
         "selectedKeys": []
       }
     },
-    "diagnostics": []
+    "diagnostics": [
+      {
+        "sport": "VOLLEYBALL",
+        "sportKey": "volleyball",
+        "futureEvents": 4,
+        "acceptedRows": 4,
+        "reportedCredits": 1
+      }
+    ]
   },
-  "rows": []
+  "rows": [
+    {
+      "eventId": "e29a8655798d7aa0",
+      "sport": "VOLLEYBALL",
+      "sportLabel": "Volleyball",
+      "sportKey": "volleyball",
+      "commenceTime": "2026-10-12T15:30:00.000Z",
+      "homeTeam": "KS Rzeszow",
+      "awayTeam": "MKS Sokol Mogilno",
+      "selection": "KS Rzeszow",
+      "side": "home",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": -1190,
+      "impliedProbability": 0.9224806201550387,
+      "fairProbability": 0.8623280434573803,
+      "snapshotTime": "2026-10-12T03:36:28.000Z"
+    },
+    {
+      "eventId": "e29a8655798d7aa0",
+      "sport": "VOLLEYBALL",
+      "sportLabel": "Volleyball",
+      "sportKey": "volleyball",
+      "commenceTime": "2026-10-12T15:30:00.000Z",
+      "homeTeam": "KS Rzeszow",
+      "awayTeam": "MKS Sokol Mogilno",
+      "selection": "MKS Sokol Mogilno",
+      "side": "away",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": 579,
+      "impliedProbability": 0.14727540500736377,
+      "fairProbability": 0.1376719565426196,
+      "snapshotTime": "2026-10-12T03:36:28.000Z"
+    },
+    {
+      "eventId": "74819222fcd82083",
+      "sport": "VOLLEYBALL",
+      "sportLabel": "Volleyball",
+      "sportKey": "volleyball",
+      "commenceTime": "2026-10-12T18:30:00.000Z",
+      "homeTeam": "Chemik Police",
+      "awayTeam": "MKS Kalisz",
+      "selection": "Chemik Police",
+      "side": "home",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": -499,
+      "impliedProbability": 0.8330550918196995,
+      "fairProbability": 0.7789480287994921,
+      "snapshotTime": "2026-10-12T02:36:38.000Z"
+    },
+    {
+      "eventId": "74819222fcd82083",
+      "sport": "VOLLEYBALL",
+      "sportLabel": "Volleyball",
+      "sportKey": "volleyball",
+      "commenceTime": "2026-10-12T18:30:00.000Z",
+      "homeTeam": "Chemik Police",
+      "awayTeam": "MKS Kalisz",
+      "selection": "MKS Kalisz",
+      "side": "away",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": 323,
+      "impliedProbability": 0.2364066193853428,
+      "fairProbability": 0.22105197120050776,
+      "snapshotTime": "2026-10-12T02:36:38.000Z"
+    }
+  ]
 }
