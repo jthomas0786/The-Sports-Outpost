@@ -97,7 +97,7 @@ fs.mkdirSync(out,{recursive:true});
   await fixture.locator('.mi-form-metrics').first().waitFor({state:'visible',timeout:15000});
   await fixture.locator('[data-mi-history="qa-only-prop"] .mi-form-metrics').waitFor({state:'visible',timeout:15000});
   assert.equal(await fixture.locator('.mi-team').count(),2);
-  assert.ok((await fixture.locator('.mi-analytics').innerText()).includes('1/3'));
+  assert.ok((await fixture.locator('.mi-analytics').innerText()).includes('2/3'));
   await fixture.locator('[data-mi-add="qa-only-prop"]').click();
   assert.equal(await fixture.evaluate(()=>window.__qaAdded.join(',')),'qa-only-prop');
   await fixture.screenshot({path:path.join(out,'player-accordion-qa-fixture.png'),fullPage:true,animations:'disabled'});
