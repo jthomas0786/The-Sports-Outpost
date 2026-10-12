@@ -74,8 +74,18 @@ fs.mkdirSync(out,{recursive:true});
     await page.locator('.mi-player').first().waitFor({state:'visible',timeout:25000});
     const count=await page.locator('.mi-player').count();
     assert.ok(count>0,'Real sportsbook BUF–LAR event has prop rows and cannot show an empty watch list');
+    assert.ok(await page.locator('[data-mi-filter="recYds"]').count()>0,'Receiving Yards should be its own exact market category');
+    assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No under selections may appear in the main Game Hub');
+    assert.ok(!(await page.locator('.mi-filters').innerText()).includes('OTHER PROPS'),'The filter bar should use real markets');
+    await page.locator('[data-mi-filter="recYds"]').click();
+    assert.ok(await page.locator('.mi-player').count()>0,'Receiving Yards tab filters real source rows');
+    assert.equal(await page.locator('.mi-player-label small').filter({hasNotText:'Receiving Yards'}).count(),0,'Market tab only shows its selected market');
+    console.log('PASS live NFL prop categories: Over/Yes only, specific market tabs and exact selection filtering');
     await page.locator('.mi-player-expand').first().click();
     await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});
+    // Inline charts may display a verified empty state if the research source
+    // lacks game-log values for a specific real selection. Never fabricate data.
+    await page.locator('.mi-player.is-open .mi-analytics').first().waitFor({state:'visible',timeout:12000});
     await page.screenshot({path:path.join(out,'verified-nfl-players-desktop.png'),fullPage:true,animations:'disabled'});
     console.log('PASS LIVE BUF @ LAR real game: '+count+' verified player prop cards; click to expand same page');
   }else{
@@ -112,8 +122,12 @@ fs.mkdirSync(out,{recursive:true});
   });
   await fixture.locator('[data-mi-expand="qa-only-prop"]').click();
   await fixture.locator('.mi-player.is-open .mi-player-body').waitFor({state:'visible'});
-  await fixture.locator('.mi-form-metrics').first().waitFor({state:'visible',timeout:15000});
-  await fixture.locator('[data-mi-history="qa-only-prop"] .mi-form-metrics').waitFor({state:'visible',timeout:15000});
+  await fixture.locator('.mi-games-chart').first().waitFor({state:'visible',timeout:15000});
+  await fixture.locator('.mi-hit-track').first().waitFor({state:'visible',timeout:15000});
+  await fixture.locator('[data-mi-history="qa-only-prop"] .mi-movement-chart').waitFor({state:'visible',timeout:15000});
+  assert.equal(await fixture.locator('.mi-games-chart rect').count()>=3,true,'Observed game bars must render');
+  assert.match(await fixture.locator('.mi-chart-panel').innerText(),/LAST 3 OBSERVED GAMES/);
+  assert.match(await fixture.locator('.mi-hit-panel').innerText(),/2\/3/);
   assert.equal(await fixture.locator('.mi-team').count(),2);
   assert.ok((await fixture.locator('.mi-analytics').innerText()).includes('2/3'));
   await fixture.locator('[data-mi-add="qa-only-prop"]').click();
