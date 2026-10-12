@@ -89,11 +89,20 @@ function listing(game,rows){
  // One card per exact side and threshold; the authoritative best quote is
  // carried by the original row, never fabricated or reconstructed.
  const unique=[...new Map(all.map(r=>[key(r),r])).values()];
+ // Display the highest verified MODEL probability first, regardless of
+ // sportsbook edge. Missing model probabilities always appear at the bottom.
+ // Only break equal probabilities with model edge and a stable player name.
  const ranked=unique.sort((a,b)=>{
+   const ap=n(a.model?.probabilityPct),bp=n(b.model?.probabilityPct);
+   if(ap===null&&bp!==null)return 1;
+   if(ap!==null&&bp===null)return -1;
+   if(ap!==null&&bp!==null&&ap!==bp)return bp-ap;
    const ae=n(a.model?.edgePct),be=n(b.model?.edgePct);
-   if(ae!==null&&be!==null)return be-ae;
-   if(ae!==null)return -1;if(be!==null)return 1;
-   return (n(b.model?.probabilityPct)??-1)-(n(a.model?.probabilityPct)??-1);
+   if(ae!==null&&be!==null&&ae!==be)return be-ae;
+   if(ae===null&&be!==null)return 1;
+   if(ae!==null&&be===null)return -1;
+   return String(a.player||'').localeCompare(String(b.player||''))||
+     String(a.key||'').localeCompare(String(b.key||''));
  });
  const filtered=filterRows(ranked),shown=state.showAll?filtered:filtered.slice(0,7);
  const filters=['ALL PROPS',...orderedMarketKeys(ranked,game.league)];
@@ -110,7 +119,7 @@ function listing(game,rows){
        +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Loading source-backed opponent tendencies when available…</div></div>';
    }).join('')
    +'</div>'
-   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · choose the exact market below</p></div></div>'
+   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · highest model probability first · choose an exact market below</p></div></div>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
       :'<div class="mi-empty">No verified Over/Yes selections in this market. Choose a different prop category. Unders remain available in Advanced Props.</div>')+'</div>'
