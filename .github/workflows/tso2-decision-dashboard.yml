@@ -9,6 +9,9 @@ on:
       - 'tso2/styles.css'
       - 'tso2/app.js'
       - 'tso2/decision-dashboard.js'
+      - 'tso2/matchup-intelligence.js'
+      - 'tso2/matchup-intelligence.css'
+      - 'tso2/matchup-intelligence-selftest.mjs'
       - 'tso2/decision-dashboard.css'
       - 'tso2/decision-dashboard-selftest.mjs'
       - '.github/workflows/tso2-decision-dashboard.yml'
@@ -31,6 +34,8 @@ jobs:
       - name: Validate decision dashboard and production app JavaScript
         run: |
           node --check tso2/decision-dashboard.js
+          node --check tso2/matchup-intelligence.js
+          node tso2/matchup-intelligence-selftest.mjs
           node --check tso2/pages.js
           node --check tso2/app.js
           node tso2/decision-dashboard-selftest.mjs
