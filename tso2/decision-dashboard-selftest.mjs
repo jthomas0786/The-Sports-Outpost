@@ -12,8 +12,11 @@ for(const [name,label] of [['home','TODAY'],['games','GAMES'],['parlays','PARLAY
 assert.match(html,/<details class="tso-decision-advanced">/,'Deep features must remain accessible');
 for(const route of ['live','research','models','gameedge','props','community','leaderboard'])
   assert.match(html,new RegExp('data-route="'+route+'"'),'Legacy feature '+route+' is not accessible');
-assert.match(html,/decision-dashboard\.css/);
-assert.match(html,/decision-dashboard\.js[^"]*"\/><\/script>|decision-dashboard\.js[^"]*"><\/script>/);
+const bundledPages=readFileSync('tso2/pages.js','utf8');
+const bundledStyles=readFileSync('tso2/styles.css','utf8');
+assert.ok(bundledPages.includes(decision.trim()),'pages.js must contain approved decision runtime');
+assert.ok(bundledStyles.includes(css.trim()),'styles.css must contain approved decision theme');
+assert.ok(!html.includes('src="./decision-dashboard.js"'),'Do not reference blocked Worker asset path');
 assert.match(app,/home:'Today', games:'Games'/);
 assert.match(app,/window\.TSO2Decision\.todayHTML\(currentLeague\)/);
 assert.match(app,/window\.TSO2Decision\.gamesHTML\(currentLeague\)/);
