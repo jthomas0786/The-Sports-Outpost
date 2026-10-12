@@ -7762,7 +7762,7 @@
       renderGameEdge();return Promise.resolve(cached);
     }
     if(gameEdgeInFlight.has(league))return gameEdgeInFlight.get(league);
-    const badge=root.querySelector('[data-game-edge-feed-badge]');
+    const badge=root?.querySelector('[data-game-edge-feed-badge]');
     if(badge){badge.className='edge2-feed-badge';badge.innerHTML='<i></i> CONNECTING '+leagueLabel(league).toUpperCase()+' MARKET';}
     const task=(league==='nhl'
       ? Promise.all([
