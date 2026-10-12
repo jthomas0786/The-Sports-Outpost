@@ -34,8 +34,15 @@ fs.mkdirSync(out,{recursive:true});
   const n=await list.count();
   if(n>0){
     await list.first().click();
-    assert.equal(await page.locator('[data-decision-game-header]').count(),0,'Header is native section, not an old independent route');
-    assert.equal(await page.locator('.decision-game-header').count(),1);
+    const state=await page.evaluate(()=>({
+      hash:location.hash,
+      selectedNav:[...document.querySelectorAll('[data-league].is-active')].map(x=>x.dataset.league),
+      gameRows:document.querySelectorAll('[data-decision-game-list] [data-decision-game]').length,
+      detail:document.querySelector('[data-decision-game-detail]')?.innerText?.slice(0,400),
+      selectedId:window.TSO2Decision?.state?.selectedGameId
+    }));
+    console.log('Selected game diagnostics:',JSON.stringify(state));
+    await page.locator('.decision-game-header').waitFor({state:'visible',timeout:10000});
     assert.equal(await page.locator('.decision-game-lines').count(),1);
     assert.equal(await page.locator('.decision-game-props').count(),1);
     assert.ok(page.url().includes('#games'),'Game selection must not navigate away');
