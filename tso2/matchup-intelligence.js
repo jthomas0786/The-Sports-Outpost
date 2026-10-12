@@ -393,5 +393,5 @@ function bind(root,ctx){
  for(const k of state.expanded){const row=rows.find(x=>key(x)===k);if(row)updatePlayer(row,root,ctx);}
  updateScouting(root,ctx);
 }
-window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch};
+window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual};
 })();
