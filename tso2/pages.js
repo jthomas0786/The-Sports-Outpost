@@ -901,8 +901,10 @@
       +'<header class="decision-intro"><div><span>THE SPORTS OUTPOST · ONE-SCREEN GAME HUB</span><h1>Games</h1><p>Spread, moneyline, total, player props and explanations — one matchup, one screen.</p></div>'
       +'<div class="decision-intro-actions"><button type="button" class="decision-outline-btn" data-decision-route="home">← TODAY</button></div></header>'
       +filters(league)
-      +'<div class="decision-game-columns"><aside class="decision-panel decision-game-list"><div class="decision-section-title"><div><small>SCHEDULE</small><h2>Select a game</h2></div></div><div class="decision-mini-games" data-decision-game-list><div class="decision-empty">Connecting scoreboard…</div></div></aside>'
-      +'<div class="decision-game-detail" data-decision-game-detail><div class="decision-empty">Choose a game to see your complete decision view.</div></div></div>'
+      +'<section class="decision-panel decision-game-chooser"><div class="decision-chooser-title"><div><small>LIVE & UPCOMING MATCHUPS</small><h2>Pick a game</h2></div><span>Scroll to browse →</span></div>'
+      +'<div class="decision-game-strip" data-decision-game-list><div class="decision-empty">Connecting scoreboard…</div></div>'
+      +'<details class="decision-game-results" data-decision-final-results hidden><summary>FINAL RESULTS <span data-decision-final-count></span> <span aria-hidden="true">⌄</span></summary><div class="decision-game-strip decision-game-strip--results" data-decision-game-results></div></details></section>'
+      +'<div class="decision-game-detail" data-decision-game-detail><div class="decision-empty">Choose a game to see your complete decision view.</div></div>'
       +'<div class="decision-parlay-dock" data-decision-betslip></div></section>';
   }
   function exactReason(row){
@@ -935,14 +937,23 @@
       +'<div><small>EDGE</small><strong class="'+(n!==null&&n>0?'positive':'')+'">'+edge(n)+'</strong></div></div>';
   }
   function matchedRows(rows,g){
+    const gameId=String(g.id||g.gameId||'').trim();
     const away=new Set([team(g.away?.abbr),team(g.away?.name)].filter(Boolean));
     const home=new Set([team(g.home?.abbr),team(g.home?.name)].filter(Boolean));
+    // Sportsbooks and ESPN use different local abbreviations (e.g. LA/LAR).
+    // An exact provider event ID is the strongest link. When it is absent,
+    // match both teams and the game start; do not match by player or league.
+    const equivalents={lar:'la',la:'lar',nyg:'ny',ny:'nyg',gs:'gsw',gsw:'gs',sa:'sas',sas:'sa',no:'nop',nop:'no'};
+    for(const set of [away,home])for(const t of [...set])if(equivalents[t])set.add(equivalents[t]);
     return rows.filter(r=>{
       if(sport(r.sport)!==sport(g.league))return false;
+      const eventId=String(r.eventId||r.gameId||'').trim();
+      // Conflicting verified IDs must not be rescued by a loose team match.
+      if(eventId&&gameId)return eventId===gameId;
       if(!r.awayTeam||!r.homeTeam||!away.has(team(r.awayTeam))||!home.has(team(r.homeTeam)))return false;
-      const a=Date.parse(r.startTimeUTC||r.startTime||'');
-      const b=Date.parse(g.startTimeUTC||g.startTime||'');
-      if(Number.isFinite(a)&&Number.isFinite(b)&&Math.abs(a-b)>12*3600*1000)return false;
+      const a=Date.parse(r.commenceTime||r.startTimeUTC||r.startTime||'');
+      const b=Date.parse(g.startTime||g.startTimeUTC||'');
+      if(!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(a-b)>12*3600*1000)return false;
       return true;
     });
   }
@@ -1005,10 +1016,20 @@
     const selected=games.find(g=>String(g.id)===String(state.selectedGameId||ctx.selectedGameId))
       ||games.find(g=>g.state==='in')||games.find(g=>g.state==='pre')||games[0];
     if(selected)state.selectedGameId=String(selected.id);
+    const upcoming=games.filter(g=>g.state!=='post');
+    const finals=games.filter(g=>g.state==='post');
+    const activeList=upcoming.length?upcoming:(finals.length?finals.slice(0,3):[]);
+    const extraFinals=upcoming.length?finals:finals.slice(3);
     root.querySelector('[data-decision-game-list]').innerHTML=!ctx.liveReady
       ?'<div class="decision-empty">Connecting real scoreboard…</div>'
-      :games.length?games.map(g=>gameRow(g,String(g.id)===String(selected?.id))).join('')
+      :activeList.length?activeList.map(g=>gameRow(g,String(g.id)===String(selected?.id))).join('')
       :'<div class="decision-empty"><b>No games in this sport right now.</b>Change the filter above.</div>';
+    const finalDetails=root.querySelector('[data-decision-final-results]');
+    if(finalDetails){
+      finalDetails.hidden=!extraFinals.length;
+      finalDetails.querySelector('[data-decision-final-count]').textContent='('+extraFinals.length+')';
+      finalDetails.querySelector('[data-decision-game-results]').innerHTML=extraFinals.map(g=>gameRow(g,String(g.id)===String(selected?.id))).join('');
+    }
     const detail=root.querySelector('[data-decision-game-detail]');
     if(!selected){
       detail.innerHTML='<div class="decision-empty"><b>Waiting for an actual game.</b>No invented game data will be displayed.</div>';
