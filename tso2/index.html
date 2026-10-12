@@ -14,6 +14,7 @@
   <link rel="manifest" href="/manifest.webmanifest?v=20261009-transparent-corners-v1" />
   <title>The Sports Outpost 2.0 — Broadcast Preview</title>
   <link rel="stylesheet" href="./styles.css?v=20261010-parlayping-two-tools" />
+  <link rel="stylesheet" href="./decision-dashboard.css?v=20261012-decision-v1" />
 </head>
 <body>
   <div class="app-shell broadcast-shell" data-league="all">
@@ -26,14 +27,22 @@
       </div>
 
       <nav class="tso-side-primary" aria-label="Primary">
-        <button class="tso-side-item nav-item--approved" data-route="live"><img class="nav-approved-icon" src="/brand/production/tso2-product-live-approved.webp" alt=""/><span><b>LIVE</b><small>Games & scores</small></span></button>
-        <button class="tso-side-item nav-item--approved" data-route="research"><img class="nav-approved-icon" src="/brand/production/tso2-product-research-approved.webp" alt=""/><span><b>RESEARCH</b><small>Deep analysis</small></span></button>
-        <button class="tso-side-item nav-item--approved" data-route="models"><img class="nav-approved-icon" src="/brand/production/tso2-product-models-approved.webp" alt=""/><span><b>MODELS</b><small>Model boards</small></span></button>
-        <button class="tso-side-item nav-item--approved tso-side-item--game-edge" data-route="gameedge"><img class="nav-approved-icon" src="/brand/production/tso2-product-game-edge-approved.svg" alt=""/><span><b>GAME EDGE</b><small>Spread · ML · Total</small></span></button>
-        <button class="tso-side-item nav-item--approved" data-route="props"><img class="nav-approved-icon" src="/brand/production/tso2-product-props-approved.webp" alt=""/><span><b>PROPS</b><small>Player prop tool</small></span></button>
-        <button class="tso-side-item nav-item--approved" data-route="parlays"><img class="nav-approved-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt=""/><span><b>PARLAY PING</b><small>Tag · Track · Tail</small></span></button>
-        <button class="tso-side-item nav-item--approved" data-route="community"><img class="nav-approved-icon" src="/brand/production/tso2-product-community-approved.webp" alt=""/><span><b>COMMUNITY</b><small>Outpost activity</small></span></button>
-        <button class="tso-side-item nav-item--approved" data-route="leaderboard"><img class="nav-approved-icon" src="/brand/production/tso2-product-rankings-approved.webp" alt=""/><span><b>RANKINGS</b><small>Leaderboards</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="home"><img class="nav-approved-icon" src="/brand/production/tso2-product-live-approved.webp" alt=""/><span><b>TODAY</b><small>Best opportunities & scores</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="games"><img class="nav-approved-icon" src="/brand/production/tso2-product-game-edge-approved.svg" alt=""/><span><b>GAMES</b><small>Matchup · lines · props</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="parlays"><img class="nav-approved-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt=""/><span><b>PARLAY PING</b><small>Your 25-leg betslip</small></span></button>
+        <button class="tso-side-item nav-item--approved" data-route="profile"><img class="nav-approved-icon" src="/brand/production/tso2-product-rankings-approved.webp" alt=""/><span><b>MY PICKS</b><small>Saved picks & tracking</small></span></button>
+        <details class="tso-decision-advanced">
+          <summary>ADVANCED TOOLS <span aria-hidden="true">⌄</span></summary>
+          <div class="tso-decision-advanced-items">
+            <button class="tso-side-item" data-route="live"><span class="tso-decision-adv-icon">◉</span><span><b>LIVE CENTER</b><small>Play by play & box scores</small></span></button>
+            <button class="tso-side-item" data-route="research"><span class="tso-decision-adv-icon">▤</span><span><b>RESEARCH</b><small>Detailed player context</small></span></button>
+            <button class="tso-side-item" data-route="models"><span class="tso-decision-adv-icon">◈</span><span><b>MODELS</b><small>Full model board</small></span></button>
+            <button class="tso-side-item" data-route="gameedge"><span class="tso-decision-adv-icon">◎</span><span><b>GAME EDGE</b><small>Every market comparison</small></span></button>
+            <button class="tso-side-item" data-route="props"><span class="tso-decision-adv-icon">＋</span><span><b>PLAYER PROPS</b><small>All exact sportsbook lines</small></span></button>
+            <button class="tso-side-item" data-route="community"><span class="tso-decision-adv-icon">♧</span><span><b>COMMUNITY</b><small>Model pulse</small></span></button>
+            <button class="tso-side-item" data-route="leaderboard"><span class="tso-decision-adv-icon">♛</span><span><b>RANKINGS</b><small>Model ranking</small></span></button>
+          </div>
+        </details>
       </nav>
 
       <div class="tso-side-section">
