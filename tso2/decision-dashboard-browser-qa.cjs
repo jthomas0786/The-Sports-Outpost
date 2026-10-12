@@ -86,6 +86,21 @@ fs.mkdirSync(out,{recursive:true});
     // Inline charts may display a verified empty state if the research source
     // lacks game-log values for a specific real selection. Never fabricate data.
     await page.locator('.mi-player.is-open .mi-analytics').first().waitFor({state:'visible',timeout:12000});
+    // Verify real source-backed expansion, not merely the mock chart fixture.
+    await page.waitForFunction(()=>{
+      const el=document.querySelector('.mi-player.is-open .mi-analytics');
+      return el&&!el.textContent.includes('Loading verified player game logs');
+    },null,{timeout:15000}).catch(()=>{});
+    const sourceChart=await page.evaluate(()=>{
+      const active=document.querySelector('.mi-player.is-open');
+      return {
+        player:active?.querySelector('.mi-player-label b')?.textContent||'',
+        chartCount:active?.querySelectorAll('.mi-games-chart').length||0,
+        meterCount:active?.querySelectorAll('.mi-hit-track').length||0,
+        research:active?.querySelector('.mi-analytics')?.textContent?.slice(0,320)||''
+      };
+    });
+    console.log('LIVE player research chart:',JSON.stringify(sourceChart));
     await page.screenshot({path:path.join(out,'verified-nfl-players-desktop.png'),fullPage:true,animations:'disabled'});
     console.log('PASS LIVE BUF @ LAR real game: '+count+' verified player prop cards; click to expand same page');
   }else{
