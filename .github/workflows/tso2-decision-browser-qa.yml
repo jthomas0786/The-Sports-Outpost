@@ -5,6 +5,10 @@ on:
     branches: [tso-2.0-restructure]
     paths:
       - 'tso2/decision-dashboard-browser-qa.cjs'
+      - 'tso2/pages.js'
+      - 'tso2/styles.css'
+      - 'tso2/index.html'
+      - 'tso2/app.js'
       - '.github/workflows/tso2-decision-browser-qa.yml'
   workflow_dispatch:
 
@@ -27,16 +31,16 @@ jobs:
           set -euo pipefail
           base="https://staging.thesportsoutpost.com"
           bust="$(date +%s)"
-          for name in index.html app.js decision-dashboard.js decision-dashboard.css; do
+          for name in index.html app.js pages.js styles.css; do
             file="/tmp/tso2-${name//\//_}"
             status="$(curl --retry 2 --connect-timeout 10 --max-time 35 -sSL -H 'Cache-Control: no-cache' -o "$file" -w '%{http_code}' "$base/$name?qa=$bust")"
             echo "$name returned HTTP $status; $(wc -c <"$file") bytes; content prefix: $(head -c 55 "$file")"
             test "$status" = 200
           done
-          grep -Fq 'decision-dashboard.js' /tmp/tso2-index.html || { echo "::error::Staging index is not the new decision dashboard"; exit 1; }
-          grep -Fq 'window.TSO2Decision' /tmp/tso2-decision-dashboard.js || { echo "::error::Staging does not serve new decision-dashboard.js"; exit 1; }
+          grep -Fq 'data-route="games"' /tmp/tso2-index.html || { echo "::error::Staging index still has old primary navigation"; exit 1; }
+          grep -Fq 'window.TSO2Decision' /tmp/tso2-pages.js || { echo "::error::Staging pages.js lacks bundled decision runtime"; exit 1; }
           grep -Fq 'renderDecisionDashboard' /tmp/tso2-app.js || { echo "::error::Staging still serves old app.js"; exit 1; }
-          grep -Fq '.decision-game-columns' /tmp/tso2-decision-dashboard.css || { echo "::error::Staging serves wrong decision stylesheet"; exit 1; }
+          grep -Fq '.decision-game-columns' /tmp/tso2-styles.css || { echo "::error::Staging styles.css lacks bundled decision theme"; exit 1; }
           echo "Current decision dashboard assets are present on staging."
       - name: Install temporary Chromium automation
         run: npm install --no-save --no-audit --no-fund playwright@1.55.0
