@@ -1,0 +1,40 @@
+name: TSO2 Decision Dashboard Staging Browser QA
+
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/decision-dashboard-browser-qa.cjs'
+      - '.github/workflows/tso2-decision-browser-qa.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install temporary Chromium automation
+        run: npm install --no-save --no-audit --no-fund playwright@1.55.0
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Check real TSO 2.0 staging Today and Game Hub
+        env:
+          TSO2_QA_URL: https://staging.thesportsoutpost.com
+        run: node tso2/decision-dashboard-browser-qa.cjs
+      - name: Upload screenshots and inspect visual proof
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tso2-decision-dashboard-screenshots
+          path: artifacts/decision-dashboard/*.png
+          if-no-files-found: ignore
+          retention-days: 5
