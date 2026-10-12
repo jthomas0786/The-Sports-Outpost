@@ -8134,7 +8134,17 @@
       selectedGameId:selectedLiveGameId,
       liveReady:Boolean(liveFeedCache),
       propsReady:Boolean(propsFeedCache),
-      games:currentFeedGames(),
+      games:(()=>{
+        const filtered=currentFeedGames();
+        // The NFL weekly board may not yet contain a just-selected game from
+        // the live cross-sport ticker. Preserve that *verified feed game* while
+        // the sport filter changes, instead of blanking the Game Hub.
+        const chosen=(liveFeedCache?.games||[]).find(g=>
+          String(g.id)===String(selectedLiveGameId)&&
+          (currentLeague==='all'||g.league===currentLeague));
+        return chosen&&!filtered.some(g=>String(g.id)===String(chosen.id)&&g.league===chosen.league)
+          ?[chosen,...filtered]:filtered;
+      })(),
       rows:propsFeedCache?.rows||[],
       draftKeys:tsoPpDraftKeys(),
       linesBySport:gameEdgeCache,
