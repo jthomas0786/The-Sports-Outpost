@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-12T16:50:18.403Z",
+  "updatedAt": "2026-10-12T23:17:30.718Z",
   "season": "2026-27",
   "summary": {
     "tracked": 89,
-    "completed": 38,
+    "completed": 39,
     "pljLive": 1,
     "pljCashes": 0,
     "lateCashes": 4,
     "backdoors": 0,
-    "covered": 16
+    "covered": 17
   },
   "games": [
     {
@@ -29,9 +29,9 @@
       "line": -1.5,
       "initialPrice": 225,
       "initialBook": "BetRivers",
-      "sportsbookCount": 5,
+      "sportsbookCount": 4,
       "createdAt": "2026-10-12T07:20:23.537Z",
-      "updatedAt": "2026-10-12T16:50:18.403Z",
+      "updatedAt": "2026-10-12T23:17:30.718Z",
       "status": "pre",
       "lastState": "UPCOMING",
       "lastStateAt": "2026-10-12T07:20:23.537Z",
@@ -59,7 +59,7 @@
           "goaliePulled": false
         }
       ],
-      "latestPrice": 225,
+      "latestPrice": 240,
       "latestBook": "BetRivers",
       "lastScore": {
         "away": 0,
@@ -84,12 +84,12 @@
       "line": -1.5,
       "initialPrice": 197,
       "initialBook": "Pinnacle",
-      "sportsbookCount": 6,
+      "sportsbookCount": 7,
       "createdAt": "2026-10-12T07:20:23.537Z",
-      "updatedAt": "2026-10-12T16:50:18.403Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-12T07:20:23.537Z",
+      "updatedAt": "2026-10-12T23:17:30.718Z",
+      "status": "in",
+      "lastState": "NEEDS_RALLY",
+      "lastStateAt": "2026-10-12T23:17:30.718Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -112,10 +112,22 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-12T23:17:30.718Z",
+          "code": "NEEDS_RALLY",
+          "period": 1,
+          "clock": "17:00",
+          "score": {
+            "away": 0,
+            "home": 0
+          },
+          "margin": 0,
+          "goaliePulled": false
         }
       ],
-      "latestPrice": 210,
-      "latestBook": "FanDuel",
+      "latestPrice": 213,
+      "latestBook": "Pinnacle",
       "lastScore": {
         "away": 0,
         "home": 0
@@ -141,19 +153,22 @@
       "initialBook": "DraftKings",
       "sportsbookCount": 6,
       "createdAt": "2026-10-12T07:20:23.537Z",
-      "updatedAt": "2026-10-12T16:50:18.403Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-12T07:20:23.537Z",
+      "updatedAt": "2026-10-12T23:17:30.718Z",
+      "status": "post",
+      "lastState": "COVERED",
+      "lastStateAt": "2026-10-12T23:17:30.718Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "liveOutcome": null,
-      "outcome": null,
-      "finalScore": null,
+      "liveOutcome": "COVERED",
+      "outcome": "COVERED",
+      "finalScore": {
+        "away": 3,
+        "home": 5
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -167,15 +182,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-12T23:17:30.718Z",
+          "code": "COVERED",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 3,
+            "home": 5
+          },
+          "margin": 2,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 225,
       "latestBook": "FanDuel",
       "lastScore": {
-        "away": 0,
-        "home": 0
+        "away": 3,
+        "home": 5
       },
-      "lastMargin": 0
+      "lastMargin": 2
     },
     {
       "gameId": "401892484",
