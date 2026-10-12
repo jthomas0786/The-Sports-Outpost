@@ -11973,6 +11973,40 @@ body.live-multi-open{overflow:hidden}
  .decision-intro h1{font-size:29px}
  .decision-parlay-dock button{width:100%}
 }
+/* Compact matchup ribbon: active contests first, completed games on demand.
+   Replaces the oversized two-column vertical fixture menu. */
+.decision-games{gap:13px}
+.decision-games .decision-game-detail{width:100%;min-width:0}
+.decision-game-chooser{padding:14px 16px;display:grid;gap:10px;background:#0b0e13}
+.decision-chooser-title{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.decision-chooser-title>div{display:grid;gap:4px}
+.decision-chooser-title small{font-size:10px;color:#f89a72;font-weight:900;letter-spacing:.09em}
+.decision-chooser-title h2{margin:0;font-size:17px;font-weight:900;letter-spacing:-.02em}
+.decision-chooser-title>span{font-size:10px;color:#919cab;white-space:nowrap}
+.decision-game-strip{display:flex;gap:8px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;scrollbar-color:#545054 transparent;padding:2px 1px 9px;overscroll-behavior-x:contain;scroll-snap-type:x proximity}
+.decision-game-strip .decision-mini-game{position:relative;flex:0 0 188px;min-width:188px;max-width:188px;min-height:78px;border:1px solid #29303a;border-radius:8px;padding:12px 11px;scroll-snap-align:start;background:#11151d;align-items:flex-start;gap:8px}
+.decision-game-strip .decision-mini-game b{font-size:13px;font-weight:900;color:#edf2f5}
+.decision-game-strip .decision-mini-game small{font-size:10px;color:#a3acb8}
+.decision-game-strip .decision-mini-game strong{font-size:10px;color:#e9a66c;align-self:flex-end}
+.decision-game-strip .decision-mini-game:hover{background:#1b2029;border-color:#e46a40}
+.decision-game-strip .decision-mini-game.is-current{background:linear-gradient(140deg,#302019,#151c23);border:1px solid #ff7243;box-shadow:inset 0 2px 0 #ff7243}
+.decision-game-results{border-top:1px solid rgba(255,255,255,.09);padding-top:8px}
+.decision-game-results[hidden]{display:none}
+.decision-game-results>summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;padding:7px 3px;font-size:10px;color:#a2acb6;font-weight:900;letter-spacing:.09em}
+.decision-game-results>summary::-webkit-details-marker{display:none}
+.decision-game-results>summary:hover{color:#ffd374}
+.decision-game-results>summary span:last-child{margin-left:auto}
+.decision-game-results[open]>summary span:last-child{transform:rotate(180deg)}
+.decision-game-strip--results{padding-top:10px}
+.decision-game-strip--results .decision-mini-game{background:#0d1116;opacity:.84}
+.decision-game-strip--results .decision-mini-game.is-current{opacity:1}
+.decision-games .decision-game-header{padding:18px 20px}
+@media(max-width:790px){
+ .decision-game-chooser{padding:11px}
+ .decision-game-strip .decision-mini-game{flex-basis:172px;min-width:172px;max-width:172px;min-height:74px}
+ .decision-game-strip .decision-mini-game b{font-size:12px}
+ .decision-chooser-title>span{font-size:9px}
+}
 /* TSO2_DECISION_STYLES_END */
 
 
