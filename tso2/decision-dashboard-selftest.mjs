@@ -51,5 +51,18 @@ const rows=[
 const matches=widget.matchedRows(rows,game);
 assert.equal(matches.length,1,'Game Hub must never conflate different matchups');
 assert.equal(matches[0].key,'exact');
+// Actual TSO live data format: team abbr LAR, sportsbook uses LA,
+// and props supply eventId/commenceTime rather than startTime.
+const ramsGame={id:'401872994',league:'nfl',away:{abbr:'BUF'},home:{abbr:'LAR'},startTime:'2026-10-13T00:15:00Z'};
+const ramsRows=[
+ {sport:'nfl',eventId:'401872994',awayTeam:'BUF',homeTeam:'LA',commenceTime:'2026-10-13T00:15:00Z',key:'same-event'},
+ {sport:'nfl',eventId:'401000000',awayTeam:'BUF',homeTeam:'LA',commenceTime:'2026-10-13T00:15:00Z',key:'wrong-event'},
+ {sport:'nfl',awayTeam:'BUF',homeTeam:'LA',commenceTime:'2026-10-13T00:15:00Z',key:'alias-and-time'},
+ {sport:'nfl',awayTeam:'BUF',homeTeam:'LA',commenceTime:'2026-10-15T00:15:00Z',key:'stale-other-day'},
+ {sport:'nhl',eventId:'401872994',key:'wrong-sport'}
+];
+assert.deepEqual(Array.from(widget.matchedRows(ramsRows,ramsGame),r=>r.key),['same-event','alias-and-time'],
+ 'Exact ESPN ID and verified aliases must restore BUF–LAR players without other game leakage');
+
 assert.match(widget.exactReason({model:{}}),/not available/,'Missing model reason must be disclosed, not fabricated');
 console.log('TSO 2.0 decision-first layout, saved deep routes, exact-game filtering and 25-leg handoff: PASS');
