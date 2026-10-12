@@ -1,0 +1,2856 @@
+{
+  "date": "2026-10-11",
+  "model": {
+    "gitSha": "a559f01",
+    "indexHash": "8938fd1df25f",
+    "configHash": "21d3bd77c781",
+    "modelHash": "45ee40b7dab7",
+    "simRuns": 10000,
+    "rngSeed": "2026-10-11:2026-10-11T10:48:19.567Z:45ee40b7dab7"
+  },
+  "summary": {
+    "totalRows": 162,
+    "voids": 41,
+    "perProp": {
+      "hr": {
+        "n": 19,
+        "voids": 8,
+        "hits": 1,
+        "hitRate": 0.05263157894736842,
+        "meanProb": 0.09205263157894736,
+        "brier": 0.05204981789473685,
+        "logLoss": 0.21437454916289642,
+        "byGrade": {
+          "A+": {
+            "n": 1,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.1489
+          },
+          "A": {
+            "n": 3,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.13960000000000003
+          },
+          "B+": {
+            "n": 4,
+            "hits": 1,
+            "hitRate": 0.25,
+            "meanProb": 0.113925
+          },
+          "B": {
+            "n": 4,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.084775
+          },
+          "C+": {
+            "n": 3,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.0652
+          },
+          "C": {
+            "n": 4,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.047725000000000004
+          },
+          "D": {
+            "n": 0,
+            "hits": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        },
+        "byBin": [
+          {
+            "range": "0-10%",
+            "n": 12,
+            "hitRate": 0.08333333333333333,
+            "meanProb": 0.0686
+          },
+          {
+            "range": "10-20%",
+            "n": 7,
+            "hitRate": 0,
+            "meanProb": 0.13225714285714288
+          },
+          {
+            "range": "20-30%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "30-40%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "40-50%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "50-60%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "60-70%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "70-80%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "80-90%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "90-100%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        ]
+      },
+      "hits": {
+        "n": 19,
+        "voids": 8,
+        "hits": 11,
+        "hitRate": 0.5789473684210527,
+        "meanProb": 0.5665894736842105,
+        "brier": 0.2246333305263158,
+        "logLoss": 0.6405709947896061,
+        "byGrade": {
+          "A+": {
+            "n": 1,
+            "hits": 1,
+            "hitRate": 1,
+            "meanProb": 0.72
+          },
+          "A": {
+            "n": 3,
+            "hits": 3,
+            "hitRate": 1,
+            "meanProb": 0.6418666666666667
+          },
+          "B+": {
+            "n": 4,
+            "hits": 1,
+            "hitRate": 0.25,
+            "meanProb": 0.6017250000000001
+          },
+          "B": {
+            "n": 5,
+            "hits": 4,
+            "hitRate": 0.8,
+            "meanProb": 0.5636
+          },
+          "C+": {
+            "n": 3,
+            "hits": 1,
+            "hitRate": 0.3333333333333333,
+            "meanProb": 0.5280999999999999
+          },
+          "C": {
+            "n": 2,
+            "hits": 1,
+            "hitRate": 0.5,
+            "meanProb": 0.44915
+          },
+          "D": {
+            "n": 1,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.4121
+          }
+        },
+        "byBin": [
+          {
+            "range": "0-10%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "10-20%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "20-30%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "30-40%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "40-50%",
+            "n": 3,
+            "hitRate": 0.3333333333333333,
+            "meanProb": 0.4368
+          },
+          {
+            "range": "50-60%",
+            "n": 10,
+            "hitRate": 0.5,
+            "meanProb": 0.55806
+          },
+          {
+            "range": "60-70%",
+            "n": 5,
+            "hitRate": 0.8,
+            "meanProb": 0.63084
+          },
+          {
+            "range": "70-80%",
+            "n": 1,
+            "hitRate": 1,
+            "meanProb": 0.72
+          },
+          {
+            "range": "80-90%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "90-100%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        ]
+      },
+      "tb": {
+        "n": 19,
+        "voids": 8,
+        "hits": 4,
+        "hitRate": 0.21052631578947367,
+        "meanProb": 0.29503684210526315,
+        "brier": 0.1618428784210526,
+        "logLoss": 0.5042282451355111,
+        "byGrade": {
+          "A+": {
+            "n": 1,
+            "hits": 1,
+            "hitRate": 1,
+            "meanProb": 0.4463
+          },
+          "A": {
+            "n": 3,
+            "hits": 1,
+            "hitRate": 0.3333333333333333,
+            "meanProb": 0.36786666666666673
+          },
+          "B+": {
+            "n": 4,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.342075
+          },
+          "B": {
+            "n": 5,
+            "hits": 1,
+            "hitRate": 0.2,
+            "meanProb": 0.28114
+          },
+          "C+": {
+            "n": 2,
+            "hits": 1,
+            "hitRate": 0.5,
+            "meanProb": 0.23925
+          },
+          "C": {
+            "n": 4,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.200825
+          },
+          "D": {
+            "n": 0,
+            "hits": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        },
+        "byBin": [
+          {
+            "range": "0-10%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "10-20%",
+            "n": 2,
+            "hitRate": 0,
+            "meanProb": 0.1809
+          },
+          {
+            "range": "20-30%",
+            "n": 8,
+            "hitRate": 0.25,
+            "meanProb": 0.2529875
+          },
+          {
+            "range": "30-40%",
+            "n": 8,
+            "hitRate": 0.125,
+            "meanProb": 0.34671250000000003
+          },
+          {
+            "range": "40-50%",
+            "n": 1,
+            "hitRate": 1,
+            "meanProb": 0.4463
+          },
+          {
+            "range": "50-60%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "60-70%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "70-80%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "80-90%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "90-100%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        ]
+      },
+      "rbi": {
+        "n": 19,
+        "voids": 8,
+        "hits": 3,
+        "hitRate": 0.15789473684210525,
+        "meanProb": 0.2961736842105263,
+        "brier": 0.1452281605263158,
+        "logLoss": 0.4682353116090841,
+        "byGrade": {
+          "A+": {
+            "n": 1,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.4796
+          },
+          "A": {
+            "n": 3,
+            "hits": 2,
+            "hitRate": 0.6666666666666666,
+            "meanProb": 0.3704
+          },
+          "B+": {
+            "n": 4,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.32109999999999994
+          },
+          "B": {
+            "n": 5,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.27434
+          },
+          "C+": {
+            "n": 3,
+            "hits": 1,
+            "hitRate": 0.3333333333333333,
+            "meanProb": 0.2527333333333333
+          },
+          "C": {
+            "n": 2,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.22560000000000002
+          },
+          "D": {
+            "n": 1,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.171
+          }
+        },
+        "byBin": [
+          {
+            "range": "0-10%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "10-20%",
+            "n": 1,
+            "hitRate": 0,
+            "meanProb": 0.171
+          },
+          {
+            "range": "20-30%",
+            "n": 11,
+            "hitRate": 0.09090909090909091,
+            "meanProb": 0.2611181818181818
+          },
+          {
+            "range": "30-40%",
+            "n": 6,
+            "hitRate": 0.3333333333333333,
+            "meanProb": 0.35073333333333334
+          },
+          {
+            "range": "40-50%",
+            "n": 1,
+            "hitRate": 0,
+            "meanProb": 0.4796
+          },
+          {
+            "range": "50-60%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "60-70%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "70-80%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "80-90%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "90-100%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        ]
+      },
+      "hrr": {
+        "n": 19,
+        "voids": 8,
+        "hits": 6,
+        "hitRate": 0.3157894736842105,
+        "meanProb": 0.40661052631578953,
+        "brier": 0.20885242421052633,
+        "logLoss": 0.6088817953600635,
+        "byGrade": {
+          "A+": {
+            "n": 1,
+            "hits": 1,
+            "hitRate": 1,
+            "meanProb": 0.583
+          },
+          "A": {
+            "n": 3,
+            "hits": 1,
+            "hitRate": 0.3333333333333333,
+            "meanProb": 0.5247666666666666
+          },
+          "B+": {
+            "n": 4,
+            "hits": 2,
+            "hitRate": 0.5,
+            "meanProb": 0.45115000000000005
+          },
+          "B": {
+            "n": 5,
+            "hits": 1,
+            "hitRate": 0.2,
+            "meanProb": 0.3916
+          },
+          "C+": {
+            "n": 3,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.33476666666666666
+          },
+          "C": {
+            "n": 2,
+            "hits": 1,
+            "hitRate": 0.5,
+            "meanProb": 0.28805000000000003
+          },
+          "D": {
+            "n": 1,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.2253
+          }
+        },
+        "byBin": [
+          {
+            "range": "0-10%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "10-20%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "20-30%",
+            "n": 2,
+            "hitRate": 0.5,
+            "meanProb": 0.24545
+          },
+          {
+            "range": "30-40%",
+            "n": 9,
+            "hitRate": 0.1111111111111111,
+            "meanProb": 0.36364444444444444
+          },
+          {
+            "range": "40-50%",
+            "n": 4,
+            "hitRate": 0.5,
+            "meanProb": 0.45115000000000005
+          },
+          {
+            "range": "50-60%",
+            "n": 4,
+            "hitRate": 0.5,
+            "meanProb": 0.5393249999999999
+          },
+          {
+            "range": "60-70%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "70-80%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "80-90%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "90-100%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        ]
+      },
+      "sb": {
+        "n": 26,
+        "voids": 1,
+        "hits": 0,
+        "hitRate": 0,
+        "meanProb": 0.03396538461538461,
+        "brier": 0.0024619057692307693,
+        "logLoss": 0.03555588294317357,
+        "byGrade": {
+          "A+": {
+            "n": 1,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.1443
+          },
+          "A": {
+            "n": 2,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.1054
+          },
+          "B+": {
+            "n": 4,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.048924999999999996
+          },
+          "B": {
+            "n": 5,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.037880000000000004
+          },
+          "C+": {
+            "n": 5,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.0244
+          },
+          "C": {
+            "n": 2,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0.010450000000000001
+          },
+          "D": {
+            "n": 7,
+            "hits": 0,
+            "hitRate": 0,
+            "meanProb": 0
+          }
+        },
+        "byBin": [
+          {
+            "range": "0-10%",
+            "n": 24,
+            "hitRate": 0,
+            "meanProb": 0.0256875
+          },
+          {
+            "range": "10-20%",
+            "n": 2,
+            "hitRate": 0,
+            "meanProb": 0.1333
+          },
+          {
+            "range": "20-30%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "30-40%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "40-50%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "50-60%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "60-70%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "70-80%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "80-90%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          },
+          {
+            "range": "90-100%",
+            "n": 0,
+            "hitRate": null,
+            "meanProb": null
+          }
+        ]
+      }
+    }
+  },
+  "rows": [
+    {
+      "date": "2026-10-11",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.1096,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.6241,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.3646,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.4796,
+      "grade": "A+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.5425,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800543,
+      "name": "Josue De Paula",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0387,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.1489,
+      "grade": "A+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5802,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.3461,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.2835,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.4202,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 660271,
+      "name": "Shohei Ohtani",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.039,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.1334,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5527,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.3184,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.2699,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.393,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571970,
+      "name": "Max Muncy",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0097,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.1185,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.6378,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.3578,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.3482,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.4769,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 681624,
+      "name": "Andy Pages",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0388,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0738,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5637,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.2752,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.227,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.351,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 518692,
+      "name": "Freddie Freeman",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0187,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0926,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5854,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.2882,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.2538,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.3912,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669257,
+      "name": "Will Smith",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.13,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.6481,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.369,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.2912,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.4651,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 605141,
+      "name": "Mookie Betts",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0112,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0868,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5663,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.2712,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.2763,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.3936,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 606192,
+      "name": "Teoscar Hernández",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0212,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0771,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5551,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.2693,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.251,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.3913,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 663656,
+      "name": "Kyle Tucker",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.04,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0656,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.5014,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.2352,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.2664,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.3305,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669242,
+      "name": "Tommy Edman",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0421,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0409,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.3819,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.1643,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.1383,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.1789,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 500743,
+      "name": "Miguel Rojas",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0639,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.4121,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.1834,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.171,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.2253,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 571771,
+      "name": "Enrique Hernández",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0467,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "DNP"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.4113,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "DNP"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.1589,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "DNP"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.176,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "DNP"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.2211,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "DNP"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 808975,
+      "name": "Hyeseong Kim",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0.0699,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "DNP"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "prop": "hr",
+      "p": 0.0356,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "prop": "hits",
+      "p": 0.3363,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "prop": "tb",
+      "p": 0.1221,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "prop": "rbi",
+      "p": 0.123,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "prop": "hrr",
+      "p": 0.1405,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 676439,
+      "name": "Hunter Feduccia",
+      "team": "LAD",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.1416,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.6045,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.346,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.3662,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.5031,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 641343,
+      "name": "Jake Bauers",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0329,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.1438,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.72,
+      "grade": "A+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.4463,
+      "grade": "A+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.3441,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.583,
+      "grade": "A+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 694192,
+      "name": "Jackson Chourio",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0885,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0543,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.5266,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.2488,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.2742,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.3378,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 683734,
+      "name": "Andrew Vaughn",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0976,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.6397,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.37,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.3968,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.5287,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 668930,
+      "name": "Brice Turang",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0621,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0824,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.4705,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.2285,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.2459,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.3119,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 596142,
+      "name": "Gary Sánchez",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0579,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.4699,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.2297,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.2678,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.3155,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 669003,
+      "name": "Garrett Mitchell",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0411,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0826,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.5929,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.3018,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.3374,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.4424,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 661388,
+      "name": "William Contreras",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0508,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.5074,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.2208,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.2242,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.3105,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 687401,
+      "name": "Joey Ortiz",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0318,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.044,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.5503,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.2207,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.3117,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.3889,
+      "grade": "B",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 806198,
+      "name": "Cooper Pratt",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.1443,
+      "grade": "A+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0662,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.4895,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.2395,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.2576,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.3308,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 592885,
+      "name": "Christian Yelich",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0504,
+      "grade": "B+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0373,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.4541,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.1739,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.1509,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.2609,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 666152,
+      "name": "David Hamilton",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.1223,
+      "grade": "A",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0418,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.4284,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.1784,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.2534,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.2656,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": true
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 800325,
+      "name": "Luis Lara",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0208,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "prop": "hr",
+      "p": 0.0415,
+      "grade": "D",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "prop": "hits",
+      "p": 0.4273,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "prop": "tb",
+      "p": 0.1755,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "prop": "rbi",
+      "p": 0.1955,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "prop": "hrr",
+      "p": 0.23,
+      "grade": "C",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": true,
+      "outcome": null,
+      "voidReason": "no-PA"
+    },
+    {
+      "date": "2026-10-11",
+      "playerId": 686217,
+      "name": "Sal Frelick",
+      "team": "MIL",
+      "prop": "sb",
+      "p": 0.0295,
+      "grade": "C+",
+      "modelHash": "45ee40b7dab7",
+      "valid": true,
+      "void": false,
+      "outcome": false
+    }
+  ]
+}
