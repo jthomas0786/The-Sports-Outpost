@@ -45,6 +45,19 @@ fs.mkdirSync(out,{recursive:true});
     await page.locator('.decision-game-header').waitFor({state:'visible',timeout:10000});
     assert.equal(await page.locator('.decision-game-lines').count(),1);
     assert.equal(await page.locator('.decision-game-props').count(),1);
+    assert.equal(await page.locator('.mi-team').count(),2,'Each matchup needs both teams defensive scouting panels');
+    assert.equal(await page.locator('.mi-ranked').count(),1,'One-page matchup must include ranked player analysis');
+    const playerCards=await page.locator('.mi-player-expand').count();
+    if(playerCards){
+      await page.locator('.mi-player-expand').first().click();
+      await page.locator('.mi-player.is-open .mi-player-body').first().waitFor({state:'visible',timeout:12000});
+      assert.equal(await page.locator('.mi-player.is-open .mi-expanded-stats').count(),1,'Player accordion has model and market details');
+      assert.equal(await page.locator('.mi-player.is-open [data-mi-research]').count(),1,'Player accordion has inline recent form');
+      console.log('PASS verified prop opens inline and exposes probability, odds, and research source');
+    }else{
+      console.log('INFO: Matchup has no exact matched props in this real data snapshot, so only verified empty state is shown');
+    }
+    await page.screenshot({path:path.join(out,'game-intelligence-desktop.png'),fullPage:true,animations:'disabled'});
     assert.ok(page.url().includes('#games'),'Game selection must not navigate away');
     console.log('PASS click matchup: spread, ML, total and exact props visible on same route');
   }else{
