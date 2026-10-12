@@ -6,7 +6,7 @@
   const E=value=>String(value??'').replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const sport=value=>String(value||'').toLowerCase();
   const team=value=>String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-  const number=value=>Number.isFinite(Number(value))?Number(value):null;
+  const number=value=>value===null||value===undefined||value===''?null:(Number.isFinite(Number(value))?Number(value):null);
   const pct=value=>{const n=number(value);return n===null?'—':n.toFixed(1)+'%';};
   const odds=value=>{const n=number(value);return n===null?'—':n>0?'+'+Math.round(n):String(Math.round(n));};
   const edge=value=>{const n=number(value);return n===null?'—':(n>0?'+':'')+n.toFixed(1)+' pp';};
