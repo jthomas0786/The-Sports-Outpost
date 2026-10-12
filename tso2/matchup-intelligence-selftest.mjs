@@ -51,7 +51,7 @@ assert.match(html,/data-mi-expand/);
 assert.match(html,/data-mi-add/);
 assert.match(html,/data-mi-filter/);
 assert.ok(!html.includes('Venom'),'TSO branding must remain independent');
-assert.match(view.listing({id:'g2',league:'nba',away:{abbr:'NYK'},home:{abbr:'BOS'}},[]),/No exact verified player selections/);
+assert.match(view.listing({id:'g2',league:'nba',away:{abbr:'NYK'},home:{abbr:'BOS'}},[]),/No verified Over\/Yes selections/);
 function fixture(sport,market,player,expected){
  const result=view.matchedStats({available:true,player}, {sport,market});
  assert.deepEqual([...result.map(g=>g.value)],expected);
