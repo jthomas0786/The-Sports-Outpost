@@ -124,7 +124,7 @@
   function renderToday(root,ctx){
     const games=ctx.games||[];
     const modeled=ranked(ctx.rows.filter(row=>
-      (ctx.league==='all'||sport(row.sport)===ctx.league)&&row.model&&number(row.model.probabilityPct)!==null
+      (ctx.league==='all'||sport(row.sport)===ctx.league)&&window.TSO2Matchup?.eligibleOver(row)&&row.model&&number(row.model.probabilityPct)!==null
       &&number(row.model.edgePct)!==null&&Number(row.model.edgePct)>0
     ));
     root.querySelector('[data-decision-summary]').innerHTML=
