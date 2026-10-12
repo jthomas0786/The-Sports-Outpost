@@ -8,19 +8,46 @@ const n=v=>v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Numbe
 const pct=v=>n(v)===null?'—':n(v).toFixed(1)+'%';
 const amount=(v,suffix='')=>n(v)===null?'—':n(v).toFixed(1).replace(/\.0$/,'')+suffix;
 const odds=v=>n(v)===null?'—':n(v)>0?'+'+Math.round(n(v)):String(Math.round(n(v)));
-const marketGroup=row=>{
- const m=String(row?.market||'').toLowerCase();
- if(['atd','fgs','atg','firsttd','hr','homerun','goals'].includes(m))return 'SCORERS';
- if(/yards|reception|completion|strikeout|sog|save/.test(m))return 'YARDS / VOLUME';
- return 'OTHER PROPS';
+const marketNames={
+ nfl:{atd:'Anytime TD',firstTd:'First TD',passYds:'Passing Yards',passTds:'Passing TDs',recYds:'Receiving Yards',receptions:'Receptions',rushYds:'Rushing Yards',completions:'Completions',longestReception:'Longest Reception',rushAtt:'Rushing Attempts'},
+ nba:{points:'Points',rebounds:'Rebounds',assists:'Assists',threes:'3-Pointers Made',pra:'PRA',pr:'Points + Rebounds',pa:'Points + Assists',ra:'Rebounds + Assists',steals:'Steals',blocks:'Blocks'},
+ mlb:{hr:'Home Runs',hits:'Hits',totalBases:'Total Bases',rbi:'RBI',runs:'Runs',pitcherStrikeouts:'Pitcher Strikeouts',strikeouts:'Strikeouts',stolenBases:'Stolen Bases',walks:'Walks'},
+ nhl:{atg:'Anytime Goal',fgs:'First Goal',sog:'Shots on Goal',points:'Points',assists:'Assists',goals:'Goals',saves:'Goalie Saves',blocks:'Blocked Shots'}
 };
-const eventMarkets=new Set(['atd','fgs','atg','firsttd','hr','homerun']);
-const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL',showAll:false,activeGame:''};
+const orderedMarkets={
+ nfl:['atd','firstTd','passYds','passTds','recYds','receptions','rushYds','rushAtt','completions','longestReception'],
+ nba:['points','rebounds','assists','threes','pra','pr','pa','ra','steals','blocks'],
+ mlb:['hr','hits','totalBases','rbi','runs','pitcherStrikeouts','strikeouts','stolenBases','walks'],
+ nhl:['atg','fgs','sog','points','assists','goals','saves','blocks']
+};
+const eventMarkets=new Set(['atd','fgs','atg','firsttd','firstTd','hr','homerun','homeRun']);
+const marketName=row=>marketNames[String(row?.sport||'').toLowerCase()]?.[String(row?.market||'')]||String(row?.marketLabel||row?.market||'Other Props');
+function eligibleOver(row){
+ if(!row||!row.key||!row.player||row.researchRosterRow)return false;
+ const side=String(row.side||'').trim().toLowerCase();
+ const pick=String(row.selection||'').trim().toLowerCase();
+ if(['under','no','false'].includes(side)||/^(?:under\b|u\s+\d|no\b)/i.test(pick))return false;
+ if(['over','yes','true'].includes(side))return true;
+ // Yes-only binary scorer markets may omit a side; never infer an Over from
+ // missing selection on a normal total / counting market.
+ return eventMarkets.has(String(row.market||''))&&(/^(yes|over)\b/i.test(pick));
+}
+function orderedMarketKeys(rows,sport){
+ const present=[...new Set(rows.map(r=>String(r.market||'')))];
+ const order=orderedMarkets[String(sport||'').toLowerCase()]||[];
+ return present.sort((a,b)=>{
+  const ai=order.indexOf(a),bi=order.indexOf(b);
+  if(ai!==-1&&bi!==-1)return ai-bi;
+  if(ai!==-1)return -1;if(bi!==-1)return 1;
+  return marketName({sport,market:a}).localeCompare(marketName({sport,market:b}));
+ });
+}
+const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:''};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
  if(row?.selection)return String(row.selection);
  if(eventMarkets.has(String(row.market||'').toLowerCase()))return 'Yes';
- const line=n(row.line),side=row.side==='under'?'Under':'Over';
+ const line=n(row.line),side='Over';
  return line===null?side:side+' '+amount(line);
 }
 function signEdge(value){return n(value)===null?'—':(n(value)>0?'+':'')+n(value).toFixed(1)+' pp';}
@@ -47,19 +74,18 @@ function playerMarkup(row,i){
  return '<article class="mi-player '+(open?'is-open':'')+'" data-mi-key="'+esc(id)+'">'
    +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
    +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
-   +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(row.marketLabel||row.market||'Prop')+' · '+esc(exactSelection(row))+' · '+esc(row.team||'')+'</small>'
+   +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(exactSelection(row))+' · '+esc(row.team||'')+'</small>'
    +'<em>'+esc(row.book||'Verified book')+' '+odds(row.price)+(score!==null?' · Rating '+amount(score):'')+'</em></span>'
    +rowBadge(row)+'<span class="mi-chevron">'+(open?'▴':'▾')+'</span>'
    +'</button></div><div class="mi-player-body" '+(open?'':'hidden')+'>'+details+'</div></article>';
 }
 function filterRows(rows){
- const active=state.activeFilter;
- return active==='ALL'?rows:rows.filter(r=>marketGroup(r)===active);
+ return state.activeFilter==='ALL PROPS'?rows:rows.filter(r=>String(r.market||'')===state.activeFilter);
 }
 function listing(game,rows){
  const id=String(game?.league||'')+':'+String(game?.id||'');
- if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL';state.showAll=false;state.expanded.clear();}
- const all=rows.filter(r=>r&&r.key&&r.player);
+ if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();}
+ const all=rows.filter(eligibleOver);
  // One card per exact side and threshold; the authoritative best quote is
  // carried by the original row, never fabricated or reconstructed.
  const unique=[...new Map(all.map(r=>[key(r),r])).values()];
@@ -70,7 +96,7 @@ function listing(game,rows){
    return (n(b.model?.probabilityPct)??-1)-(n(a.model?.probabilityPct)??-1);
  });
  const filtered=filterRows(ranked),shown=state.showAll?filtered:filtered.slice(0,7);
- const filters=['ALL','SCORERS','YARDS / VOLUME','OTHER PROPS'].filter(x=>x==='ALL'||ranked.some(r=>marketGroup(r)===x));
+ const filters=['ALL PROPS',...orderedMarketKeys(ranked,game.league)];
  return '<section class="mi-game-vault" aria-label="Matchup scouting and ranked prop opportunities">'
    +'<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
    +'<div class="mi-teams">'
@@ -84,10 +110,10 @@ function listing(game,rows){
        +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Loading source-backed opponent tendencies when available…</div></div>';
    }).join('')
    +'</div>'
-   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE</small><h2>Players to watch</h2><p>'+unique.length+' exact selection'+(unique.length===1?'':'s')+' · ranked by verified model edge where available</p></div></div>'
-   +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='YARDS / VOLUME'?'YARDS / STATS':f)+'</button>').join('')+'</div>'
+   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · choose the exact market below</p></div></div>'
+   +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
-      :'<div class="mi-empty">No exact verified player selections match this filter. No example players or probabilities are shown.</div>')+'</div>'
+      :'<div class="mi-empty">No verified Over/Yes selections in this market. Choose a different prop category. Unders remain available in Advanced Props.</div>')+'</div>'
    +(filtered.length>7?'<button type="button" class="mi-show-all" data-mi-all>'+(state.showAll?'Show fewer':'Show all '+filtered.length+' selections')+'</button>':'')
    +'</div></section>';
 }
