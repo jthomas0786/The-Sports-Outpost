@@ -1,15 +1,15 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-11T22:01:09.577Z",
+  "updatedAt": "2026-10-12T01:10:45.191Z",
   "season": "2026-27",
   "summary": {
     "tracked": 86,
-    "completed": 36,
+    "completed": 38,
     "pljLive": 1,
     "pljCashes": 0,
-    "lateCashes": 3,
+    "lateCashes": 4,
     "backdoors": 0,
-    "covered": 15
+    "covered": 16
   },
   "games": [
     {
@@ -31,10 +31,10 @@
       "initialBook": "bet365",
       "sportsbookCount": 7,
       "createdAt": "2026-10-11T11:22:28.041Z",
-      "updatedAt": "2026-10-11T22:01:09.577Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-11T11:22:28.041Z",
+      "updatedAt": "2026-10-12T01:10:45.191Z",
+      "status": "in",
+      "lastState": "SAFE_COVER",
+      "lastStateAt": "2026-10-12T01:10:45.191Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -57,15 +57,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-12T01:10:45.191Z",
+          "code": "SAFE_COVER",
+          "period": 3,
+          "clock": "14:43",
+          "score": {
+            "away": 3,
+            "home": 1
+          },
+          "margin": 2,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 134,
       "latestBook": "FanDuel",
       "lastScore": {
-        "away": 0,
-        "home": 0
+        "away": 3,
+        "home": 1
       },
-      "lastMargin": 0
+      "lastMargin": 2
     },
     {
       "gameId": "401892483",
@@ -86,20 +98,33 @@
       "initialBook": "FanDuel",
       "sportsbookCount": 7,
       "createdAt": "2026-10-11T11:22:28.041Z",
-      "updatedAt": "2026-10-11T22:01:09.577Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-11T11:22:28.041Z",
+      "updatedAt": "2026-10-12T01:10:45.191Z",
+      "status": "post",
+      "lastState": "LATE_CASH",
+      "lastStateAt": "2026-10-12T01:10:45.191Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
-      "lateCash": false,
+      "lateCash": true,
       "backdoored": false,
-      "liveOutcome": null,
-      "outcome": null,
-      "finalScore": null,
-      "decisiveGoal": null,
+      "liveOutcome": "LATE_CASH",
+      "outcome": "LATE_CASH",
+      "finalScore": {
+        "away": 2,
+        "home": 6
+      },
+      "decisiveGoal": {
+        "period": 3,
+        "clock": "1:04",
+        "team": "NYR",
+        "scorer": "Alexis Lafreniere",
+        "text": "Alexis Lafrenière Goal (5) Wrist Shot, assists: Gabe Perreault (3), Mika Zibanejad (5)",
+        "strength": "Power Play",
+        "awayScore": 2,
+        "homeScore": 4,
+        "emptyNet": false
+      },
       "transitions": [
         {
           "at": "2026-10-11T11:22:28.041Z",
@@ -112,15 +137,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-12T01:10:45.191Z",
+          "code": "LATE_CASH",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 2,
+            "home": 6
+          },
+          "margin": 4,
+          "goaliePulled": false
         }
       ],
       "latestPrice": -101,
       "latestBook": "Pinnacle",
       "lastScore": {
-        "away": 0,
-        "home": 0
+        "away": 2,
+        "home": 6
       },
-      "lastMargin": 0
+      "lastMargin": 4
     },
     {
       "gameId": "401892482",
@@ -141,19 +178,22 @@
       "initialBook": "bet365",
       "sportsbookCount": 6,
       "createdAt": "2026-10-11T11:22:28.041Z",
-      "updatedAt": "2026-10-11T22:01:09.577Z",
-      "status": "in",
-      "lastState": "NEEDS_RALLY",
-      "lastStateAt": "2026-10-11T22:01:09.577Z",
+      "updatedAt": "2026-10-12T01:10:45.191Z",
+      "status": "post",
+      "lastState": "MISSED",
+      "lastStateAt": "2026-10-12T01:10:45.191Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "liveOutcome": null,
-      "outcome": null,
-      "finalScore": null,
+      "liveOutcome": "MISSED",
+      "outcome": "MISSED",
+      "finalScore": {
+        "away": 5,
+        "home": 3
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -179,15 +219,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-12T01:10:45.191Z",
+          "code": "MISSED",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 5,
+            "home": 3
+          },
+          "margin": -2,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 120,
       "latestBook": "bet365",
       "lastScore": {
-        "away": 2,
-        "home": 2
+        "away": 5,
+        "home": 3
       },
-      "lastMargin": 0
+      "lastMargin": -2
     },
     {
       "gameId": "401892480",
