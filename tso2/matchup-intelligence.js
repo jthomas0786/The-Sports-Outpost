@@ -177,24 +177,132 @@ function researchNotes(data,row){
  }
  return notes;
 }
+
+const clamp=(value,lo,hi)=>Math.max(lo,Math.min(hi,value));
+function marketThreshold(row){
+ return eventMarkets.has(String(row.market||''))?0.5:n(row.line);
+}
+function hitRateVisual(series,row,count){
+ const stat=lastStats(series,row,count);
+ const percentage=stat.rate===null?null:clamp(stat.rate,0,100);
+ return '<div class="mi-hit-visual"><div class="mi-hit-visual-header"><strong>'+stat.label+'</strong><span>'+stat.display+' '+(percentage===null?'':'· '+percentage+'%')+'</span></div>'
+    +'<div class="mi-hit-track" role="progressbar" aria-label="'+stat.label+' exact-line hit rate" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(percentage??0)+'" aria-valuetext="'+esc(percentage===null?'No verified exact-line observations':stat.display+' hits, '+percentage+' percent')+'">'
+    +(percentage===null?'':'<span style="width:'+percentage+'%"></span>')+'</div></div>';
+}
+function recentGamesChart(series,row){
+ const values=series.slice(0,10).reverse();
+ const target=marketThreshold(row);
+ if(!values.length||target===null)return '<p class="mi-muted">A chart needs verified individual game results and an exact sportsbook threshold.</p>';
+ // Chart coordinates use only source game-log values (no interpolation of games).
+ const max=Math.max(1,target,...values.map(g=>g.value));
+ const top=Math.max(1,Math.ceil(max*1.13*10)/10);
+ const left=42,right=658,topY=22,bottom=214,w=right-left,height=bottom-topY;
+ const y=value=>bottom-clamp(value/top,0,1)*height;
+ const slot=w/values.length,barW=clamp(slot*.57,18,47);
+ const targetY=y(target);
+ const ticks=[0,top*.5,top];
+ const grid=ticks.map(v=>'<line x1="'+left+'" x2="'+right+'" y1="'+y(v).toFixed(1)+'" y2="'+y(v).toFixed(1)+'" stroke="#35433f" stroke-dasharray="3 6"/><text x="34" y="'+(y(v)+4).toFixed(1)+'" fill="#8fa6a4" text-anchor="end" font-size="12">'+esc(amount(v))+'</text>').join('');
+ const bars=values.map((g,i)=>{
+   const x=left+slot*i+(slot-barW)/2;
+   const res=hit(g.value,row),barH=Math.max(3,bottom-y(g.value));
+   const fill=res==='hit'?'#58d8a0':res==='push'?'#f0bc6d':'#ff775d';
+   const label=g.date&&Number.isFinite(Date.parse(g.date))?
+     new Date(g.date).toLocaleDateString('en-US',{month:'numeric',day:'numeric',timeZone:'UTC'}):'G'+(i+1);
+   return '<g><title>'+esc((g.date||'Game '+(i+1))+' · '+amount(g.value)+' · '+(res||'unrated'))+'</title>'
+     +'<rect x="'+x.toFixed(1)+'" y="'+(bottom-barH).toFixed(1)+'" width="'+barW.toFixed(1)+'" height="'+barH.toFixed(1)+'" rx="4" fill="'+fill+'" opacity=".96"/>'
+     +'<text x="'+(x+barW/2).toFixed(1)+'" y="'+Math.max(13,bottom-barH-7).toFixed(1)+'" text-anchor="middle" fill="#e2eee8" font-size="12" font-weight="750">'+esc(amount(g.value))+'</text>'
+     +'<text x="'+(x+barW/2).toFixed(1)+'" y="235" text-anchor="middle" fill="#9bada9" font-size="11">'+esc(label)+'</text></g>';
+ }).join('');
+ return '<div class="mi-chart-topline"><span>LAST '+values.length+' OBSERVED GAMES</span><span class="mi-chart-key"><i class="mi-key-hit"></i> HIT <i class="mi-key-miss"></i> MISS</span></div>'
+   +'<div class="mi-chart-container"><svg class="mi-games-chart" viewBox="0 0 680 250" role="img" aria-label="'+esc('Last '+values.length+' verified games for '+row.player+', threshold '+amount(target))+ '" preserveAspectRatio="xMidYMid meet">'
+   +grid+bars
+   +'<line x1="'+left+'" x2="'+right+'" y1="'+targetY.toFixed(1)+'" y2="'+targetY.toFixed(1)+'" stroke="#ffd277" stroke-width="2" stroke-dasharray="7 5"/>'
+   +'<rect x="486" y="'+Math.max(2,targetY-24).toFixed(1)+'" width="165" height="20" rx="3" fill="#362a17" stroke="#70562b"/>'
+   +'<text x="644" y="'+Math.max(16,targetY-10).toFixed(1)+'" text-anchor="end" fill="#ffe3a0" font-size="11" font-weight="800">PROP LINE '+esc(eventMarkets.has(String(row.market||''))?'YES':amount(target))+'</text>'
+   +'</svg></div>';
+}
+function usageMeter(label,value,note){
+ const actual=n(value);
+ if(actual===null||actual<0||actual>100)return '';
+ return '<div class="mi-usage-row"><div><strong>'+esc(label)+'</strong><span>'+pct(actual)+'</span></div>'
+  +'<div class="mi-usage-track"><span style="width:'+clamp(actual,0,100)+'%"></span></div>'
+  +(note?'<small>'+esc(note)+'</small>':'')+'</div>';
+}
+function roleVisual(data,row){
+ if(!data?.available)return '';
+ const p=data.player||{};
+ const sport=String(row.sport||'').toLowerCase();
+ const role=[];
+ if(sport==='nfl'){
+   const snap=p.snapTrend||{};
+   const average=snap.avgOffensePct??snap.last3AvgPct;
+   if(n(average)!==null)role.push(usageMeter('Offensive snap share',average,'Verified observed snap percentage'));
+   const ts=n(p.targetSharePct??p.targetShare?.pct??p.targetShare);
+   if(ts!==null)role.push(usageMeter('Target share',ts,'Observed player share'));
+   const last=p.last5?.avg||{};
+   const targets=n(last.targets),carries=n(last.carries);
+   if(targets!==null&&carries!==null&&targets+carries>0){
+      const share=targets/(targets+carries)*100;
+      role.push('<div class="mi-opportunity-split"><div class="mi-opportunity-legend"><b>Recent touches & targets</b><span>'+amount(targets)+' targets · '+amount(carries)+' carries/game</span></div>'
+        +'<div class="mi-opportunity-track"><span style="width:'+share.toFixed(2)+'%"></span></div><small>Orange: targets · Dark: carries (L5 average)</small></div>');
+   }
+ }
+ if(sport==='nba'){
+   const min=n(p.recentAverages?.minutes??p.last5?.avg?.minutes);
+   if(min!==null)role.push('<div class="mi-role-stat"><b>'+amount(min)+'</b><small>Recent minutes / game</small></div>');
+   const use=n(p.usagePct??p.recentAverages?.usagePct);
+   if(use!==null)role.push(usageMeter('Usage rate',use));
+ }
+ if(sport==='nhl'&&n(p.recentAverages?.shotsOnGoal)!==null)
+   role.push('<div class="mi-role-stat"><b>'+amount(p.recentAverages.shotsOnGoal)+'</b><small>Recent shots on goal / game</small></div>');
+ if(sport==='mlb'&&n(p.battingOrder)!==null)
+   role.push('<div class="mi-role-stat"><b>#'+Math.round(n(p.battingOrder))+'</b><small>Verified batting-order slot</small></div>');
+ return role.filter(Boolean).length?'<div class="mi-usage-visual">'+role.join('')+'</div>':'<p class="mi-muted">No verified usage percentages or role charts for this player yet.</p>';
+}
+function lineMovementChart(doc,row){
+ if(!doc?.available||!doc.open||!doc.current)return '<p class="mi-muted">Verified sportsbook line movement is not available for this exact market and book.</p>';
+ const points=(Array.isArray(doc.points)?doc.points:[]).filter(p=>n(p?.price??p?.odds)!==null).slice(-40);
+ const labels='<div class="mi-move-labels"><span><small>OPEN</small><strong>'+odds(doc.open.price)+'</strong></span>'
+  +'<span><small>CURRENT</small><strong>'+odds(doc.current.price)+'</strong></span>'
+  +'<span><small>SNAPSHOTS</small><strong>'+points.length+'</strong></span></div>';
+ if(points.length<2)return labels+'<p class="mi-muted">A trend chart needs at least two saved price observations. No movement is inferred from one snapshot.</p>';
+ // Convert American odds into implied market probability; raw negative/positive
+ // odds cross zero discontinuously, so plotting their numbers is misleading.
+ const implied=american=>{
+   const x=n(american);if(x===null||x===0)return null;
+   return x<0?100*(-x)/((-x)+100):100*100/(x+100);
+ };
+ const values=points.map(p=>implied(p.price??p.odds));
+ if(values.some(v=>v===null))return labels+'<p class="mi-muted">Price history contains an invalid implied-probability value.</p>';
+ const low=Math.max(0,Math.min(...values)-3),high=Math.min(100,Math.max(...values)+3);
+ const y=v=>20+(100-20)*(1-(v-low)/Math.max(1,high-low));
+ const x=i=>18+i*(604/Math.max(1,values.length-1));
+ const pts=values.map((v,i)=>x(i).toFixed(1)+','+y(v).toFixed(1)).join(' ');
+ const dots=values.map((v,i)=>'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+'" r="'+(i===values.length-1?5:3)+'" fill="#ffd379"><title>'+esc('Snapshot '+(i+1)+': '+odds(points[i].price??points[i].odds)+' ('+pct(v)+' implied)')+'</title></circle>').join('');
+ return labels+'<div class="mi-chart-container"><svg class="mi-movement-chart" viewBox="0 0 640 130" role="img" aria-label="'+esc('Verified sportsbook quote history, '+values.length+' observations')+'">'
+   +'<line x1="18" x2="622" y1="100" y2="100" stroke="#39443d" stroke-dasharray="3 6"/>'
+   +'<polyline points="'+pts+'" fill="none" stroke="#ffd379" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>'+dots
+   +'<text x="18" y="123" font-size="11" fill="#91aaa0">First observed</text><text x="622" y="123" font-size="11" fill="#91aaa0" text-anchor="end">Latest saved</text>'
+   +'</svg></div><small class="mi-muted">Trend shows the implied probability of the saved American prices, not a model projection.</small>';
+}
 function renderResearch(data,row){
  if(!data?.available)return '<div class="mi-research-unavailable">Detailed historical context unavailable: '+esc(data?.reason||'No verified research snapshot.')+'</div>';
  const series=seriesFromResearch(data,row);
+ const stats=[lastStats(series,row,5),lastStats(series,row,10)];
  const form=series.length
-   ?'<div class="mi-form-metrics">'+[lastStats(series,row,5),lastStats(series,row,10)].map(x=>
-      '<div><small>'+x.label+' EXACT LINE</small><b>'+x.display+'</b><span>'+(x.rate!==null?x.rate+'%':'Insufficient data')+'</span></div>').join('')
-      +'<div><small>L5 AVERAGE</small><b>'+amount(series.slice(0,5).reduce((a,b)=>a+b.value,0)/Math.min(5,series.length))+'</b><span>Observed games</span></div></div>'
-     +'<div class="mi-recent-log"><b>RECENT GAMES · EXACT SELECTION</b><div>'+series.slice(0,10).map(g=>
-        '<span class="is-'+esc(hit(g.value,row)||'unknown')+'" title="'+esc((g.date||'')+' '+(g.opponent||''))+'">'+esc(amount(g.value))+'</span>').join('')+'</div>'
-        +'<small>'+esc(series[0].source||data?.sources?.player||data?.source||'Verified game log')+' · '+series.length+' observed games available</small></div>'
-   :'<div class="mi-research-unavailable">Exact-market game-log hit rate unavailable for this player and prop. No proxy metric is substituted.</div>';
+   ?'<div class="mi-visual-grid"><div class="mi-chart-panel"><h5>RECENT GAME RESULTS</h5>'+recentGamesChart(series,row)+'</div>'
+     +'<div class="mi-hit-panel"><h5>EXACT LINE HIT RATE</h5>'+stats.map(x=>hitRateVisual(series,row,Number(x.label.slice(1)))).join('')
+       +'<div class="mi-l5-avg"><small>LAST 5 AVERAGE</small><strong>'+amount(series.slice(0,5).reduce((a,b)=>a+b.value,0)/Math.min(5,series.length))+'</strong></div>'
+       +'<small class="mi-muted">Pushes are excluded from the hit-rate denominator.</small></div></div>'
+     +'<p class="mi-source-note">'+esc(series[0].source||data?.sources?.player||data?.source||'Verified game logs')+' · '+series.length+' observed games available</p>'
+   :'<div class="mi-research-unavailable">Exact-market game-log hit rate unavailable. No substitute chart or percentage is generated.</div>';
  const notes=researchNotes(data,row);
  const source=String(data.sources?.player||data.source||data?.player?.recentSource||'TSO verified research snapshot');
- return '<div class="mi-section"><h4>Recent form</h4>'+form+'</div>'
-   +'<div class="mi-section"><h4>Matchup & role</h4>'
-   +(notes.length?'<div class="mi-research-notes">'+notes.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'<p class="mi-muted">Specific role or opponent-defense statistics are not available in this player snapshot.</p>')
+ return '<div class="mi-section mi-section--visual"><h4>Recent form & performance</h4>'+form+'</div>'
+   +'<div class="mi-section"><h4>Role & matchup</h4>'+roleVisual(data,row)
+   +(notes.length?'<div class="mi-research-notes">'+notes.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'<p class="mi-muted">Detailed opponent-defense statistics are unavailable for this player.</p>')
    +'<small class="mi-muted">Source: '+esc(source)+'</small></div>'
-   +'<div class="mi-section"><h4>Sportsbook line movement</h4><div data-mi-history="'+esc(key(row))+'">Loading committed sportsbook history…</div></div>';
+   +'<div class="mi-section mi-section--movement"><h4>Sportsbook odds movement</h4><div data-mi-history="'+esc(key(row))+'"><p class="mi-muted">Checking verified line history…</p></div></div>';
 }
 function scoutingFromResult(data,against,game){
  if(!data?.available)return null;
@@ -242,13 +350,7 @@ function updateResearchNode(node,row,data,ctx){
  if(hist&&typeof ctx.history==='function'){
    Promise.resolve().then(()=>ctx.history(row,row.book)).then(doc=>{
      if(!hist.isConnected)return;
-     if(!doc?.available||!doc.open||!doc.current){
-       hist.innerHTML='<p class="mi-muted">Exact quote history is not currently available for this book and line.</p>';return;
-     }
-     hist.innerHTML='<div class="mi-form-metrics">'
-       +'<div><small>FIRST OBSERVED</small><b>'+odds(doc.open.price)+'</b><span>Committed snapshot</span></div>'
-       +'<div><small>CURRENT</small><b>'+odds(doc.current.price)+'</b><span>'+esc(row.book||'Exact book')+'</span></div>'
-       +'<div><small>OBSERVATIONS</small><b>'+String(doc.points?.length||0)+'</b><span>Verified snapshots</span></div></div>';
+     hist.innerHTML=lineMovementChart(doc,row);
    }).catch(()=>{if(hist.isConnected)hist.innerHTML='<p class="mi-muted">Sportsbook movement unavailable at this time.</p>';});
  }
 }
