@@ -5,6 +5,8 @@ on:
     branches: [tso-2.0-restructure]
     paths:
       - 'tso2/index.html'
+      - 'tso2/pages.js'
+      - 'tso2/styles.css'
       - 'tso2/app.js'
       - 'tso2/decision-dashboard.js'
       - 'tso2/decision-dashboard.css'
@@ -29,6 +31,7 @@ jobs:
       - name: Validate decision dashboard and production app JavaScript
         run: |
           node --check tso2/decision-dashboard.js
+          node --check tso2/pages.js
           node --check tso2/app.js
           node tso2/decision-dashboard-selftest.mjs
           node tso2/sidebar-polish-selftest.mjs
