@@ -158,8 +158,7 @@
       :(cg?.gameLines||selected.gameLines||null);
     if(!cache)ctx.ensureLines(selected.league);
     const matched=matchedRows(ctx.rows,selected);
-    const ordered=ranked(matched.filter(r=>r.model&&number(r.model.probabilityPct)!==null))
-      .concat(matched.filter(r=>!r.model||number(r.model.probabilityPct)===null)).slice(0,12);
+    const intelligence=window.TSO2Matchup;
     let marketMarkup='';
     if(lines){
       try{marketMarkup=ctx.renderMarkets(cg||selected,lines);}catch(error){
@@ -173,22 +172,21 @@
       +'<div class="decision-game-header-actions"><button type="button" class="decision-outline-btn" data-decision-live="'+E(selected.id)+'">PLAY BY PLAY & BOX SCORE →</button></div></section>'
       +'<section class="decision-panel decision-game-lines"><div class="decision-section-title"><div><small>GAME EDGE · VERIFIED ODDS</small><h2>Spread · Moneyline · Total</h2><p>Three decisions with the market explanation immediately below.</p></div></div>'
       +'<div class="edge2-markets">'+marketMarkup+'</div></section>'
-      +'<section class="decision-panel decision-game-props"><div class="decision-section-title"><div><small>EXACT SPORTSBOOK SELECTIONS</small><h2>Player props</h2><p>Only players and lines matched to this exact matchup.</p></div><span class="decision-status-line"><strong>'+matched.length+'</strong> verified rows</span></div>'
-      +(!ctx.propsReady?'<div class="decision-empty">Connecting verified player props…</div>'
-        :ordered.length?ordered.map(r=>{
-          const e=number(r.model?.edgePct);
-          return '<article class="decision-prop-row"><div class="decision-prop-name"><strong>'+E(r.player)+'</strong><small>'+E(r.marketLabel||r.market)+' · '+E(selection(r))+'</small></div>'
-            +'<div class="decision-prop-numbers"><span><small>BEST ODDS</small><b>'+E(odds(r.price))+'</b></span>'
-            +'<span><small>MODEL</small><b>'+(r.model?pct(r.model.probabilityPct):'—')+'</b></span>'
-            +'<span><small>EDGE</small><b class="'+(e!==null&&e>0?'positive':'')+'">'+edge(e)+'</b></span></div>'
-            +'<button type="button" class="decision-primary-btn" data-decision-add="'+E(r.key)+'">+ PARLAY</button>'
-            +'<details class="decision-prop-why"><summary>WHY? · '+E(r.book||'Verified sportsbook')+'</summary><p>'+E(exactReason(r))+'</p></details></article>';
-        }).join('')
-        :'<div class="decision-empty"><b>No exact player props match this matchup.</b>Both teams and the event time must match before a prop appears here.</div>')
+      +'<section class="decision-panel decision-game-props mi-embedded">'
+      +(intelligence?intelligence.listing(selected,matched):
+        '<div class="decision-empty">Player scouting is connecting. Exact props and probabilities will appear when verified.</div>')
       +'</section><details class="decision-deep-detail"><summary>ADVANCED DETAILS · OPTIONAL</summary>'
       +'<p>The full play-by-play and all prop markets remain available if you want to dig deeper.</p>'
       +'<button type="button" class="decision-outline-btn" data-decision-live="'+E(selected.id)+'">PLAY BY PLAY →</button>'
       +'<button type="button" class="decision-outline-btn" data-decision-props>FULL PROP BOARD →</button></details>';
+    if(intelligence)intelligence.bind(detail,{
+      game:selected,
+      rows:matched,
+      addProp:ctx.addProp,
+      research:ctx.research,
+      history:ctx.history,
+      refresh:()=>renderGames(root,ctx)
+    });
     renderDock(root,ctx);
   }
   function render(ctx){
