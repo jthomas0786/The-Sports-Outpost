@@ -63,6 +63,24 @@ fs.mkdirSync(out,{recursive:true});
   }else{
     console.log('INFO: The real staging scoreboard has no selectable games for current sport; tested empty state.');
   }
+  // Real sportsbook feed integration regression: a game with verified NFL
+  // player props must not render an empty player slate when source feeds do
+  // agree on eventId (even if abbreviations differ: LA vs LAR).
+  await page.locator('[data-decision-league="nfl"]').first().click();
+  await page.locator('[data-decision-game-list]').waitFor({state:'visible'});
+  const billsRams=page.locator('[data-decision-game-list] [data-decision-game]').filter({hasText:'BUF @ LAR'}).first();
+  if(await billsRams.count()){
+    await billsRams.click();
+    await page.locator('.mi-player').first().waitFor({state:'visible',timeout:25000});
+    const count=await page.locator('.mi-player').count();
+    assert.ok(count>0,'Real sportsbook BUF–LAR event has prop rows and cannot show an empty watch list');
+    await page.locator('.mi-player-expand').first().click();
+    await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});
+    await page.screenshot({path:path.join(out,'verified-nfl-players-desktop.png'),fullPage:true,animations:'disabled'});
+    console.log('PASS LIVE BUF @ LAR real game: '+count+' verified player prop cards; click to expand same page');
+  }else{
+    console.log('INFO: BUF–LAR has rotated out of the live schedule; exact-ID regression covered by source test.');
+  }
   await page.setViewportSize({width:390,height:844});
   await page.evaluate(()=>document.querySelector('[data-route="home"]').click());
   await page.locator('[data-decision-today]').waitFor({state:'visible'});
