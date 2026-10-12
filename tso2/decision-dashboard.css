@@ -1,0 +1,141 @@
+/* TSO 2.0 Decision Dashboard — presentation only. All markets and model
+   probabilities are populated by the existing verified TSO data services. */
+:root{--dd-orange:#ff4d1c;--dd-gold:#ffd84d;--dd-muted:#939ca9;--dd-line:rgba(255,255,255,.1)}
+.tso-side-primary>.tso-side-item[data-route="home"],
+.tso-side-primary>.tso-side-item[data-route="games"],
+.tso-side-primary>.tso-side-item[data-route="parlays"],
+.tso-side-primary>.tso-side-item[data-route="profile"]{min-height:63px}
+.tso-decision-advanced{border-top:1px solid var(--dd-line);margin:12px 8px 6px;padding-top:12px;min-width:0}
+.tso-decision-advanced>summary{display:flex;align-items:center;justify-content:space-between;list-style:none;cursor:pointer;padding:12px;color:#9ea7b5;font-size:10px;font-weight:950;letter-spacing:.12em;user-select:none}
+.tso-decision-advanced>summary::-webkit-details-marker{display:none}
+.tso-decision-advanced[open]>summary,.tso-decision-advanced>summary:hover{color:var(--dd-gold)}
+.tso-decision-advanced[open]>summary span{transform:rotate(180deg)}
+.tso-decision-advanced-items{display:grid;gap:2px;padding:5px 0 7px}
+.tso-decision-advanced-items>.tso-side-item{width:100%;min-width:0;min-height:48px;text-align:left;padding:7px 5px 7px 9px}
+.tso-decision-advanced-items>.tso-side-item b{font-size:10px}
+.tso-decision-advanced-items>.tso-side-item small{font-size:10px}
+.tso-decision-adv-icon{flex:0 0 29px;width:29px;height:29px;display:grid;place-items:center;color:#ff976d;background:#16161a;border:1px solid rgba(255,77,28,.16);font-size:16px}
+.decision-page{width:min(1540px,100%);margin:0 auto;color:#edf0f4;display:grid;gap:17px;padding:0 0 72px}
+.decision-page *{min-width:0}
+.decision-page button{cursor:pointer}
+.decision-intro{display:flex;justify-content:space-between;align-items:flex-end;gap:18px;padding:15px 0 15px;border-bottom:1px solid var(--dd-line)}
+.decision-intro span,.decision-section-title small,.decision-panel-label{display:block;font-size:10px;letter-spacing:.14em;font-weight:950;color:#ff956a}
+.decision-intro h1{font-size:clamp(27px,3.2vw,42px);line-height:1.05;margin:8px 0 8px;font-weight:950;letter-spacing:-.05em}
+.decision-intro p{color:#99a2ad;line-height:1.55;font-size:12px;margin:0;max-width:640px}
+.decision-intro-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.decision-outline-btn,.decision-primary-btn{border:1px solid rgba(255,255,255,.15);background:#101319;color:#e8ecf3;font-size:11px;font-weight:850;padding:10px 14px;white-space:nowrap}
+.decision-primary-btn{background:var(--dd-orange);border-color:#fd7651;color:#fff}
+.decision-outline-btn:hover,.decision-primary-btn:hover{filter:brightness(1.13)}
+.decision-panel{background:#090d12;border:1px solid var(--dd-line);min-width:0}
+.decision-section-title{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 12px}
+.decision-section-title h2{font-size:19px;line-height:1.25;font-weight:900;letter-spacing:-.03em;margin:4px 0 0;color:#f0f2f5}
+.decision-section-title p{font-size:11px;color:var(--dd-muted);margin:5px 0 0}
+.decision-filters{display:flex;gap:4px;align-items:center;flex-wrap:wrap;padding:5px;background:#080b0f;border:1px solid var(--dd-line);width:max-content;max-width:100%}
+.decision-filters button{border:0;border-bottom:2px solid transparent;background:transparent;color:#96a0ad;font-size:10px;font-weight:900;padding:10px 12px}
+.decision-filters button.is-active{color:var(--dd-gold);border-bottom-color:var(--dd-orange);background:rgba(255,216,77,.06)}
+.decision-status-line{font-size:11px;color:#97a2af;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.decision-status-line strong{color:#d1dbe7}
+.decision-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.decision-stat{border:1px solid var(--dd-line);background:#0b1016;padding:13px 15px;display:grid;gap:5px}
+.decision-stat small{font-size:10px;text-transform:uppercase;color:#95a2b0;letter-spacing:.08em}
+.decision-stat strong{font-size:22px;font-weight:950;color:#f5f6f8}
+.decision-stat em{font-style:normal;color:#9da6b3;font-size:10px;line-height:1.4}
+.decision-opportunities{display:grid;gap:7px}
+.decision-opportunity{display:grid;grid-template-columns:minmax(175px,1.2fr) minmax(180px,.9fr) auto;align-items:center;gap:12px;border:1px solid rgba(255,255,255,.09);background:#0c1015;padding:14px 15px}
+.decision-opportunity:hover{border-color:rgba(255,77,28,.38)}
+.decision-opportunity-name{display:grid;gap:4px}
+.decision-opportunity-name small{color:#ffad8c;font-size:10px;font-weight:850;letter-spacing:.08em}
+.decision-opportunity-name strong{font-size:15px;color:#f0f2f5}
+.decision-opportunity-name span{font-size:11px;color:#9ca5af;line-height:1.45}
+.decision-opportunity-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.decision-opportunity-metrics div{display:grid;gap:3px}
+.decision-opportunity-metrics small{font-size:9px;color:#919ca9;letter-spacing:.07em}
+.decision-opportunity-metrics strong{font-size:17px;color:#f4f5f7}
+.decision-opportunity-metrics .positive{color:#70d7a3}
+.decision-opportunity-actions{display:flex;gap:6px;align-items:center}
+.decision-opportunity-actions button{min-height:34px;font-size:10px}
+.decision-opportunity-details{grid-column:1/-1;color:#b0bac5;font-size:11px;line-height:1.55}
+.decision-opportunity-details summary{color:#ffd84d;cursor:pointer;font-size:10px;font-weight:850}
+.decision-opportunity-details p{margin:6px 0 0}
+.decision-opportunity-source{color:#8896a5}
+.decision-today-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(260px,.65fr);gap:14px}
+.decision-panel-pad{padding:17px 18px}
+.decision-mini-games{display:grid;gap:0}
+.decision-mini-game{width:100%;display:flex;align-items:center;justify-content:space-between;gap:13px;padding:13px 11px;border:0;border-bottom:1px solid var(--dd-line);background:transparent;color:#e6ebf1;text-align:left}
+.decision-mini-game:hover,.decision-mini-game.is-current{background:rgba(255,77,28,.06)}
+.decision-mini-game b{font-size:12px}
+.decision-mini-game small{font-size:10px;color:#9da5b0}
+.decision-mini-game>span:first-child{display:grid;gap:4px}
+.decision-mini-game>strong{font-size:10px;color:var(--dd-gold);white-space:nowrap}
+.decision-mini-game:last-child{border-bottom:0}
+.decision-empty{padding:19px 15px;background:#0b1016;border:1px solid rgba(255,255,255,.07);color:#9fa8b5;font-size:12px;line-height:1.55}
+.decision-empty b{display:block;color:#d7dde4;font-size:13px;margin-bottom:4px}
+.decision-game-columns{display:grid;grid-template-columns:minmax(230px,.42fr) minmax(0,1fr);gap:12px;align-items:start}
+.decision-game-list{padding:13px;position:sticky;top:110px;max-height:min(75vh,900px);overflow:auto}
+.decision-game-list .decision-section-title{padding:2px 4px 10px;border-bottom:1px solid var(--dd-line)}
+.decision-game-list .decision-mini-game{border-left:3px solid transparent}
+.decision-game-list .decision-mini-game.is-current{border-left-color:var(--dd-orange)}
+.decision-game-detail{display:grid;gap:13px}
+.decision-game-header{padding:19px 20px}
+.decision-game-header small{display:block;color:#f69a76;font-size:10px;letter-spacing:.12em;font-weight:950}
+.decision-game-header h2{font-size:clamp(20px,2.5vw,29px);margin:7px 0;font-weight:950;letter-spacing:-.035em}
+.decision-game-header p{font-size:12px;color:#98a2b0;margin:0}
+.decision-game-header-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.decision-game-lines,.decision-game-props{padding:17px}
+.decision-game-lines .edge2-markets{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.decision-game-lines .edge2-market{min-width:0}
+.decision-game-props{display:grid;gap:9px}
+.decision-prop-row{display:grid;grid-template-columns:minmax(145px,1.2fr) minmax(155px,1fr) auto;align-items:center;gap:10px;border-bottom:1px solid var(--dd-line);padding:12px 0}
+.decision-prop-row:last-child{border-bottom:0}
+.decision-prop-name{display:grid;gap:4px}
+.decision-prop-name strong{font-size:12px}
+.decision-prop-name small{font-size:10px;color:#8e9da9}
+.decision-prop-numbers{display:flex;align-items:center;gap:15px;flex-wrap:wrap}
+.decision-prop-numbers>span{display:grid;gap:3px}
+.decision-prop-numbers small{font-size:9px;color:#96a0aa}
+.decision-prop-numbers b{font-size:12px;color:#e8edf5}
+.decision-prop-numbers b.positive{color:#68dba2}
+.decision-prop-why{grid-column:1/-1;font-size:11px;color:#a4aeba}
+.decision-prop-why summary{color:#ffd84d;font-size:10px;font-weight:800;cursor:pointer}
+.decision-prop-why p{margin:6px 0 0;line-height:1.6}
+.decision-parlay-dock{display:flex;align-items:center;gap:14px;justify-content:space-between;flex-wrap:wrap;padding:14px 16px;background:linear-gradient(100deg,#161311,#0b0f16);border:1px solid rgba(255,77,28,.32);border-left:3px solid var(--dd-orange)}
+.decision-parlay-dock>span{font-size:11px;color:#b8c0ca}
+.decision-parlay-dock strong{font-size:12px;color:#f5f6f8}
+.decision-parlay-dock button{background:#ff4d1c;color:white;padding:10px 14px;border:0;font-weight:900;font-size:11px}
+.decision-parlay-dock .decision-dock-preview{font-size:10px;color:#97a2af;flex:1 1 220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.decision-deep-detail{margin:0}
+.decision-deep-detail summary{cursor:pointer;border:1px solid var(--dd-line);background:#0a1016;color:#ffd84d;padding:13px 15px;font-size:11px;font-weight:900}
+.decision-deep-detail p{padding:12px 15px;color:#a2acb8;font-size:12px}
+.decision-deep-detail .decision-outline-btn{margin:0 5px 12px 15px}
+@media(max-width:1150px){
+ .decision-today-grid{grid-template-columns:1fr}
+ .decision-game-columns{grid-template-columns:minmax(195px,.38fr) minmax(0,1fr)}
+ .decision-game-lines .edge2-markets{grid-template-columns:1fr}
+ .decision-opportunity{grid-template-columns:minmax(160px,1fr) minmax(150px,.8fr)}
+ .decision-opportunity-actions{grid-column:1/-1}
+}
+@media(max-width:790px){
+ .decision-intro{align-items:flex-start;flex-direction:column}
+ .decision-game-columns{grid-template-columns:1fr}
+ .decision-game-list{position:static;max-height:none}
+ .decision-game-list .decision-mini-games{display:flex;overflow-x:auto;gap:6px}
+ .decision-game-list .decision-mini-game{flex:0 0 210px;border:1px solid var(--dd-line)}
+ .decision-opportunity{grid-template-columns:1fr}
+ .decision-opportunity-metrics{max-width:390px}
+ .decision-opportunity-actions{grid-column:1}
+ .decision-prop-row{grid-template-columns:minmax(0,1fr) auto}
+ .decision-prop-numbers{grid-column:1/-1;grid-row:2}
+ .decision-prop-why{grid-column:1/-1}
+ .decision-game-header,.decision-game-lines,.decision-game-props,.decision-panel-pad{padding:14px}
+ .decision-summary{gap:6px}
+ .decision-stat{padding:11px}
+ .decision-stat strong{font-size:18px}
+}
+@media(max-width:460px){
+ .decision-filters{width:100%;justify-content:space-around}
+ .decision-filters button{padding:9px 7px}
+ .decision-opportunity-metrics{gap:4px}
+ .decision-opportunity-metrics strong{font-size:15px}
+ .decision-intro h1{font-size:29px}
+ .decision-parlay-dock button{width:100%}
+}
