@@ -3303,6 +3303,7 @@
     if(!liveFeedCache) return;
     renderGlobalScoreStrip();
     renderHomeLiveData();
+    renderDecisionDashboard();
     renderLiveCenter();
     renderLiveModelPulse();
     renderNotificationCenter();
@@ -7171,7 +7172,8 @@
     }
     parlayPingPath='/submit';
     closePropsCompare();
-    setRoute('parlays');
+    // Keep the current matchup and models visible; the betslip dock updates in place.
+    renderDecisionDashboard();
     notify(row.player+' '+propSelectionText(row)+' added to Parlay Ping ('+tsoPpDraftKeys().length+'/'+TSO_PP_MAX_LEGS+').');
   }
 
@@ -7366,6 +7368,7 @@
       renderNotificationCenter();
       renderModelsFeed();
       renderHomeModels();
+        renderDecisionDashboard();
       renderLiveModelPulse();
       renderParlayLab();
       renderCommunity();
@@ -7393,6 +7396,7 @@
         renderNotificationCenter();
         renderModelsFeed();
         renderHomeModels();
+        renderDecisionDashboard();
         renderLiveModelPulse();
         renderParlayLab();
         renderCommunity();
@@ -7588,7 +7592,7 @@
   }
 
   function gameEdgeSpread(game,lineRow){
-    if(currentLeague==='nhl'){
+    if(game?.league==='nhl'||currentLeague==='nhl'){
       const s=lineRow?.puckLine;
       if(!s)return gameEdgeMarketMarkup({
         title:'Spread',lineText:'Puck Line',leftLabel:game?.away?.abbr||'AWAY',leftSub:'—',
@@ -7747,10 +7751,10 @@
     return payload;
   }
 
-  function refreshGameEdgeData(force=false){
+  function refreshGameEdgeData(force=false,requestedLeague=null){
     const root=document.querySelector('[data-game-edge-route]');
-    if(!root)return Promise.resolve(null);
-    const league=currentLeague==='all'?'nhl':currentLeague;
+    if(!root&&!requestedLeague)return Promise.resolve(null);
+    const league=requestedLeague||(currentLeague==='all'?'nhl':currentLeague);
     if(league!==currentLeague){currentLeague=league;}
     const cached=gameEdgeCache.get(league);
     const fetchedAt=gameEdgeFetchedAt.get(league)||0;
@@ -7797,6 +7801,7 @@
       gameEdgeCache.set(league,cache);
       gameEdgeFetchedAt.set(league,Date.now());
       if(currentRoute==='gameedge'&&currentLeague===league)renderGameEdge();
+      renderDecisionDashboard();
       return cache;
     }).catch(error=>{
       console.error('TSO Game Edge:',error);
@@ -7903,7 +7908,7 @@
   }
 
   const labels = {
-    home:'Home', live:'Live Center', research:'Research', models:'Models',
+    home:'Today', games:'Games', live:'Live Center', research:'Research', models:'Models',
     gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Ping', community:'Community',
     leaderboard:'Leaderboard', profile:'Profile', admin:'Admin Control Room'
   };
@@ -8116,12 +8121,59 @@
     if(!propsFeedCache)void refreshPropsData().then(()=>tsoPpPushDraft(frame)).catch(()=>{});
   }
 
+
+  // Bridge the existing TSO 2.0 data engines into the lightweight decision UI.
+  // Never introduce a second odds source, fabricated picks, or another account.
+  function renderDecisionDashboard(){
+    if(currentRoute!=='home'&&currentRoute!=='games')return;
+    const decision=window.TSO2Decision;
+    if(!decision)return;
+    decision.render({
+      route:currentRoute,
+      league:currentLeague,
+      selectedGameId:selectedLiveGameId,
+      liveReady:Boolean(liveFeedCache),
+      propsReady:Boolean(propsFeedCache),
+      games:currentFeedGames(),
+      rows:propsFeedCache?.rows||[],
+      draftKeys:tsoPpDraftKeys(),
+      linesBySport:gameEdgeCache,
+      navigate:route=>setRoute(route),
+      selectLeague:league=>setLeague(league),
+      addProp:row=>addPropToParlay(row),
+      openGame:game=>{
+        selectedLiveGameId=String(game.id);
+        if(currentLeague!==game.league){
+          currentLeague=game.league;
+          shell.dataset.league=currentLeague;
+          syncNav();
+        }
+        if(currentRoute==='games')renderDecisionDashboard();
+        else setRoute('games');
+      },
+      openLive:game=>{
+        selectedLiveGameId=String(game.id);
+        if(currentLeague!==game.league){
+          currentLeague=game.league;shell.dataset.league=currentLeague;syncNav();
+        }
+        setRoute('live');
+      },
+      ensureLines:league=>{
+        if(!gameEdgeCache.has(league)&&!gameEdgeInFlight.has(league))
+          void refreshGameEdgeData(false,league);
+      },
+      renderMarkets:(game,lines)=>gameEdgeSpread(game,lines)+gameEdgeMoneyline(game,lines)+gameEdgeTotal(game,lines)
+    });
+  }
+
   function renderRoute({scrollToTop=false,preserveScroll=false}={}){
     const previousScroll=window.scrollY||document.documentElement.scrollTop||0;
-    if(currentRoute === 'home') pageContent.innerHTML = homeHTML;
+    if(currentRoute === 'home') pageContent.innerHTML = window.TSO2Decision.todayHTML(currentLeague);
+    else if(currentRoute === 'games') pageContent.innerHTML = window.TSO2Decision.gamesHTML(currentLeague);
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
     bindDynamic();
     if(currentRoute==='parlays')mountParlayPingWorkspace();
+    renderDecisionDashboard();
     syncOwnerTools();
     if(currentRoute==='admin') window.TSO2Admin?.mount?.();
     bindNhlScorerActions(document.querySelector('[data-nhl-scorer-shell]'));
