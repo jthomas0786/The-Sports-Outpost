@@ -1,0 +1,35 @@
+name: TSO2 Decision Dashboard QA
+
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/index.html'
+      - 'tso2/app.js'
+      - 'tso2/decision-dashboard.js'
+      - 'tso2/decision-dashboard.css'
+      - 'tso2/decision-dashboard-selftest.mjs'
+      - '.github/workflows/tso2-decision-dashboard.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  decision-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate decision dashboard and production app JavaScript
+        run: |
+          node --check tso2/decision-dashboard.js
+          node --check tso2/app.js
+          node tso2/decision-dashboard-selftest.mjs
+          node tso2/sidebar-polish-selftest.mjs
+          node tso2/parlayping-integration-selftest.mjs
