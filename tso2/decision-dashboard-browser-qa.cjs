@@ -77,9 +77,23 @@ fs.mkdirSync(out,{recursive:true});
     assert.ok(await page.locator('[data-mi-filter="recYds"]').count()>0,'Receiving Yards should be its own exact market category');
     assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No under selections may appear in the main Game Hub');
     assert.ok(!(await page.locator('.mi-filters').innerText()).includes('OTHER PROPS'),'The filter bar should use real markets');
+    const checkProbabilityOrder=async(label)=>{
+      const observed=await page.locator('.mi-player').evaluateAll(nodes=>nodes.map(node=>{
+        const probability=node.querySelector('.mi-prob:not(.mi-prob--market) b')?.textContent||'';
+        const v=parseFloat(probability);
+        return Number.isFinite(v)?v:null;
+      }));
+      const known=observed.filter(x=>x!==null);
+      assert.deepEqual(known,[...known].sort((a,b)=>b-a),label+': model percentages must be highest to lowest');
+      const firstMissing=observed.indexOf(null);
+      if(firstMissing>=0)assert.ok(observed.slice(firstMissing).every(x=>x===null),label+': missing model percentages go last');
+      console.log('PASS '+label+' verified model probabilities descend: '+JSON.stringify(observed));
+    };
+    await checkProbabilityOrder('All Props');
     await page.locator('[data-mi-filter="recYds"]').click();
     assert.ok(await page.locator('.mi-player').count()>0,'Receiving Yards tab filters real source rows');
     assert.equal(await page.locator('.mi-player-label small').filter({hasNotText:'Receiving Yards'}).count(),0,'Market tab only shows its selected market');
+    await checkProbabilityOrder('Receiving Yards');
     console.log('PASS live NFL prop categories: Over/Yes only, specific market tabs and exact selection filtering');
     await page.locator('.mi-player-expand').first().click();
     await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});
