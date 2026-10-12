@@ -70,6 +70,39 @@ fs.mkdirSync(out,{recursive:true});
   assert.ok(widths.scroll<=widths.client+8,'Today must not overflow horizontally on mobile: '+JSON.stringify(widths));
   await page.screenshot({path:path.join(out,'today-mobile.png'),fullPage:true,animations:'disabled'});
   console.log('PASS staging mobile Today: no horizontal overflow');
+  // The current live slate may have no matched props. Test the accordion
+  // itself in an isolated fixture with clearly synthetic QA records, never
+  // pass mock data to the public dashboard or claim it is a live prediction.
+  const fixture=await ctx.newPage();
+  await fixture.setContent('<!doctype html><html><body style="background:#0b1015"><main id="qaRoot"></main></body></html>');
+  await fixture.addStyleTag({content:fs.readFileSync('tso2/matchup-intelligence.css','utf8')});
+  await fixture.addScriptTag({content:fs.readFileSync('tso2/matchup-intelligence.js','utf8')});
+  await fixture.evaluate(()=>{
+    const game={id:'qa-only-game',league:'nfl',away:{abbr:'BUF',name:'QA Away'},home:{abbr:'LA',name:'QA Home'}};
+    const rows=[{key:'qa-only-prop',sport:'nfl',player:'Test Player',team:'BUF',awayTeam:'BUF',homeTeam:'LA',
+      market:'atd',marketLabel:'Anytime touchdown',side:'over',book:'Mock Sportsbook',
+      price:125,impliedPct:44.4,model:{probabilityPct:52.3,edgePct:7.9,reason:'Mock scenario for browser interaction only'}}];
+    const research=async()=>({available:true,player:{
+      gameLog:[{date:'2026-10-11',tds:1},{date:'2026-10-04',tds:0},{date:'2026-09-27',tds:1}],
+      matchup:{previousSeasonAllowed:{perGame:{tds:1.2}}}
+    },source:'Isolated browser QA data'});
+    const history=async()=>({available:true,open:{price:150},current:{price:125},points:[{price:150},{price:125}]});
+    window.__qaAdded=[];
+    const context={game,rows,research,history,addProp:r=>window.__qaAdded.push(r.key)};
+    context.refresh=()=>{const root=document.querySelector('#qaRoot');root.innerHTML=window.TSO2Matchup.listing(game,rows);window.TSO2Matchup.bind(root,context);};
+    context.refresh();
+  });
+  await fixture.locator('[data-mi-expand="qa-only-prop"]').click();
+  await fixture.locator('.mi-player.is-open .mi-player-body').waitFor({state:'visible'});
+  await fixture.locator('.mi-form-metrics').first().waitFor({state:'visible',timeout:15000});
+  await fixture.locator('[data-mi-history="qa-only-prop"] .mi-form-metrics').waitFor({state:'visible',timeout:15000});
+  assert.equal(await fixture.locator('.mi-team').count(),2);
+  assert.ok((await fixture.locator('.mi-analytics').innerText()).includes('1/3'));
+  await fixture.locator('[data-mi-add="qa-only-prop"]').click();
+  assert.equal(await fixture.evaluate(()=>window.__qaAdded.join(',')),'qa-only-prop');
+  await fixture.screenshot({path:path.join(out,'player-accordion-qa-fixture.png'),fullPage:true,animations:'disabled'});
+  console.log('PASS isolated mock-only browser: expand player, show exact L5 hit history and line movement, add to persistent betslip callback');
+  await fixture.close();
   if(errors.length)console.log('BROWSER JS ERRORS: '+JSON.stringify(errors.slice(0,5)));
   assert.equal(errors.filter(e=>/decision-dashboard|renderDecisionDashboard|renderDecisionGames|TSO2Decision/.test(e)).length,0,'No decision dashboard JS errors');
   console.log('STAGING DECISION EXPERIENCE BROWSER QA: PASS');
