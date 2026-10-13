@@ -1,0 +1,60 @@
+name: TSO 2.0 Transparent App Icon Build
+on:
+  workflow_dispatch:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/tools/regenerate-icon-corners.py'
+      - 'tso2/brand/identity/tso2-app-icon-master-approved.png'
+      - '.github/workflows/tso2-transparent-icon-build.yml'
+permissions:
+  contents: write
+jobs:
+  rebuild-approved-icon:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+          persist-credentials: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare Pillow
+        run: python -m pip install --disable-pip-version-check pillow==11.3.0
+      - name: Produce PNG, WebP and favicon with transparent corners
+        run: python tso2/tools/regenerate-icon-corners.py
+      - name: Verify generated file types and alpha
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          from pathlib import Path
+          out = Path('tso2/brand/production')
+          for file in [
+            'tso2-app-icon-192.png','tso2-app-icon-512.png',
+            'tso2-apple-touch-icon-180.png','tso2-favicon-32.png',
+            'tso2-app-icon-512.webp','tso2-favicon.ico'
+          ]:
+            p = out / file
+            assert p.stat().st_size > 500, file
+            im = Image.open(p).convert('RGBA')
+            assert im.getpixel((0,0))[3] == 0, file
+            assert im.getpixel((im.width-1,im.height-1))[3] == 0, file
+            print(file, im.size, 'transparent corners OK')
+          PY
+      - name: Commit icon asset replacements to TSO2 only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tso2/brand/production/tso2-app-icon-192.png \
+                  tso2/brand/production/tso2-app-icon-512.png \
+                  tso2/brand/production/tso2-app-icon-512.webp \
+                  tso2/brand/production/tso2-apple-touch-icon-180.png \
+                  tso2/brand/production/tso2-favicon-32.png \
+                  tso2/brand/production/tso2-favicon.ico
+          if ! git diff --cached --quiet; then
+            git commit -m 'Rebuild approved TSO2 installed icon with transparent outside corners'
+            git push origin HEAD:refs/heads/tso-2.0-restructure
+          else
+            echo 'Approved icon variants are already current.'
+          fi

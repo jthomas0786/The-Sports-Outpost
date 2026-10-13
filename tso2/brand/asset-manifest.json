@@ -1,0 +1,214 @@
+{
+  "version": "2.3.0",
+  "system": "Outpost Broadcast",
+  "updated": "2026-10-09",
+  "approved_master_reference": "TSO 2.0 concept board approved in chat on 2026-10-03",
+  "quality_gate": {
+    "exact_direction_required": true,
+    "simplified_redraws_allowed": false,
+    "placeholder_assets_allowed_in_product": false,
+    "production_requires_explicit_approval": true
+  },
+  "categories": {
+    "identity": [
+      {
+        "id": "primary",
+        "label": "Primary logo",
+        "dimensions": [
+          417,
+          212
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          8,
+          24,
+          425,
+          236
+        ]
+      },
+      {
+        "id": "compact",
+        "label": "Compact logo",
+        "dimensions": [
+          219,
+          212
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          438,
+          25,
+          657,
+          237
+        ]
+      },
+      {
+        "id": "app_icon",
+        "label": "App icon",
+        "dimensions": [
+          1254,
+          1254
+        ],
+        "status": "approved",
+        "legacy_concept_source_box": [
+          674,
+          42,
+          860,
+          224
+        ],
+        "file": "identity/tso2-app-icon-master-approved.png",
+        "variants": [
+          "production/tso2-app-icon-192.png",
+          "production/tso2-app-icon-512.png",
+          "production/tso2-app-icon-512.webp",
+          "production/tso2-apple-touch-icon-180.png"
+        ],
+        "notes": "Owner-approved TSO icon artwork with orange/blue reticle and sports; app variants regenerated from the preserved approved master with true transparent outside corners on 2026-10-09. RGBA transparency is validated by the TSO2 icon build."
+      },
+      {
+        "id": "favicon",
+        "label": "Favicon mark",
+        "dimensions": [
+          32,
+          32
+        ],
+        "status": "approved",
+        "legacy_concept_source_box": [
+          881,
+          68,
+          1000,
+          220
+        ],
+        "file": "production/tso2-favicon-32.png",
+        "variants": [
+          "production/tso2-favicon.ico"
+        ],
+        "notes": "32px PNG and multiresolution ICO regenerated from the approved TSO app icon, with transparent outside corners, and verified in CI."
+      },
+      {
+        "id": "wordmark_horizontal",
+        "label": "Horizontal wordmark",
+        "dimensions": [
+          513,
+          184
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          1015,
+          37,
+          1528,
+          221
+        ]
+      }
+    ],
+    "sports": [
+      {
+        "league": "MLB",
+        "dimensions": [
+          174,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          12,
+          272,
+          186,
+          419
+        ]
+      },
+      {
+        "league": "NFL",
+        "dimensions": [
+          178,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          200,
+          272,
+          378,
+          419
+        ]
+      },
+      {
+        "league": "NBA",
+        "dimensions": [
+          178,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          392,
+          272,
+          570,
+          419
+        ]
+      },
+      {
+        "league": "NHL",
+        "dimensions": [
+          176,
+          147
+        ],
+        "status": "exact_crop_ready",
+        "source_box": [
+          584,
+          272,
+          760,
+          419
+        ]
+      }
+    ],
+    "products": [
+      {
+        "id": "game_edge",
+        "label": "Game Edge navigation tile",
+        "format": "svg",
+        "dimensions": [
+          64,
+          64
+        ],
+        "file": "production/tso2-product-game-edge-approved.svg",
+        "status": "review",
+        "notes": "Requested sidebar icon replacement; 2.0 staging/release preview only, pending visual acceptance."
+      }
+    ],
+    "badges": [],
+    "backgrounds": [],
+    "players": [],
+    "teams": [],
+    "social": [],
+    "ui": []
+  },
+  "rejected_work": {
+    "note": "The simplified SVG asset batch created after concept approval was removed by resetting the isolated branch to commit 4fadcbbe8d54e3be98cbd361f7167b433461a5ca."
+  },
+  "implementation": {
+    "approved_board_embedded_in_brand_lab": true,
+    "exact_wordmark_installed_in_masthead": true,
+    "source": "Approved concept board from current ChatGPT project",
+    "rule": "Use exact approved artwork source; no simplified redraws",
+    "brand_lab_preview": {
+      "current_preview_delivery": [
+        768,
+        512
+      ],
+      "native_size_only": true,
+      "upscaling_disabled": true,
+      "full_resolution_master": [
+        1536,
+        1024
+      ]
+    },
+    "approved_app_icon_installed_in_tso2": true,
+    "approved_app_icon_transparent_corners": true
+  },
+  "master_source": {
+    "dimensions": {
+      "width": 1536,
+      "height": 1024
+    },
+    "format": "PNG",
+    "status": "locked",
+    "usage": "Source of truth for every TSO 2.0 brand export"
+  }
+}
