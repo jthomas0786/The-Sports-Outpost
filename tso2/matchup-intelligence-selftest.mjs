@@ -125,4 +125,25 @@ assert.ok(quickRead.includes('2/5'),'Quick read must compute observed hits again
 assert.ok(!view.decisionEvidence({available:true,player:{gameLog:[]}},highModel).includes('MODEL AND RECENT RESULTS DIFFER'),
  'Never manufacture model-versus-form disagreements without an observed sample');
 
-console.log('TSO matchup intelligence source, defensively labeled probabilities, independent sports logs, and inline expansion: PASS');
+
+assert.match(html,/data-mi-signal="k1"/,'TSO signal visible in collapsed player row');
+assert.match(html,/TSO PROP SIGNAL/,'TSO score title visible before expansion');
+assert.match(css,/\.mi-signal-mini/,'Compact progress bar styled');
+assert.match(css,/\.mi-signal-detail/,'Expanded factor breakdown styled');
+const mkResearch=nums=>({available:true,player:{gameLog:nums.map((recYds,i)=>({date:'2026-09-'+(10+i),recYds}))}});
+const exact={...rows[1],model:{probabilityPct:76,edgePct:8},impliedPct:50};
+const high=view.signalScore(exact,mkResearch([83,80,75,95,77,82]));
+const low=view.signalScore(exact,mkResearch([20,21,25,18,23,24]));
+assert.ok(high.score>low.score,'Same model and odds must respond to exact-line game performance');
+assert.ok(high.score<=87,'Short observed samples must cap top-tier scores');
+assert.match(view.signalMini(exact,mkResearch([83,80,75,95,77,82])),/role="progressbar"/);
+assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/Price value/);
+assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/NOT a probability of winning/);
+assert.equal(view.signalScore(exact,{available:false}).score,null,'No invented score without history');
+assert.equal(view.signalScore({...exact,model:{}},mkResearch([83,80,75,95,77,82])).score,null,'No score without model');
+const identity={...mkResearch([83,80,75,95,77,82]),player:{...mkResearch([83,80,75,95,77,82]).player,gsisId:'00-0033553',team:'BUF'}};
+const roleRow={...exact,team:'BUF'};
+assert.ok(view.signalScore(roleRow,identity,pbpFixture).factors.some(f=>f.label==='Verified role'),'Correct GSIS ID enables opportunity factor');
+assert.ok(!view.signalScore(roleRow,{available:true,player:{...identity.player,team:'LA'}},pbpFixture).factors.some(f=>f.label==='Verified role'),'Mismatched team must exclude opportunity factor');
+
+console.log('TSO verified player intelligence and Prop Signal: PASS');
