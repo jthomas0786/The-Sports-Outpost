@@ -252,3 +252,6 @@
 .mi-scout-pos>small{font-size:9px;color:#9daf9f;line-height:1.5;display:block;margin-top:7px}
 .mi-scout-pos .mi-scout-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
 .mi-scout-pos .mi-scout-metrics span{padding:8px;min-width:0}
+/* Sorting disclosure: concise, visible while verified signal ranks load. */
+.mi-ranking-status{margin:0;padding:10px 16px;background:linear-gradient(90deg,#102019,#0d1619);border-bottom:1px solid rgba(133,189,154,.18);color:#bad9c5;font-size:11px;font-weight:850;line-height:1.45;letter-spacing:.025em}
+@media(max-width:580px){.mi-ranking-status{padding:9px 11px;font-size:10px}}
