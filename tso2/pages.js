@@ -948,12 +948,16 @@
     return rows.filter(r=>{
       if(sport(r.sport)!==sport(g.league))return false;
       const eventId=String(r.eventId||r.gameId||'').trim();
-      // Conflicting verified IDs must not be rescued by a loose team match.
-      if(eventId&&gameId)return eventId===gameId;
+      // Different providers assign different IDs to the same game.
+      if(eventId&&gameId&&eventId===gameId)return true;
+      // Never conflate two distinct ESPN games.
+      const isEspn=id=>/^40[0-9]{7,}$/.test(id);
+      if(eventId&&gameId&&isEspn(eventId)&&isEspn(gameId))return false;
+      // Cross-provider matches require BOTH teams and a near-identical start.
       if(!r.awayTeam||!r.homeTeam||!away.has(team(r.awayTeam))||!home.has(team(r.homeTeam)))return false;
       const a=Date.parse(r.commenceTime||r.startTimeUTC||r.startTime||'');
       const b=Date.parse(g.startTime||g.startTimeUTC||'');
-      if(!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(a-b)>12*3600*1000)return false;
+      if(!Number.isFinite(a)||!Number.isFinite(b)||Math.abs(a-b)>2*3600*1000)return false;
       return true;
     });
   }
