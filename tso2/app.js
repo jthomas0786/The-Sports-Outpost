@@ -879,7 +879,7 @@
       lastResearchHost=root;
       lastResearchMarkup=nextMarkup;
       lastResearchStage=state.stage;
-      if(oldY!==null&&window.scrollY!==oldY)
+      if(oldY!==null&&window.scrollY!==oldY&&typeof window.scrollTo==='function')
         window.scrollTo({top:oldY,behavior:'instant'});
     }
     root.onclick=e=>{

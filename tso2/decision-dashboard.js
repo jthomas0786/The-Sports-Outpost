@@ -224,7 +224,7 @@
       +'<button type="button" class="decision-outline-btn" data-decision-live="'+E(selected.id)+'">PLAY BY PLAY →</button>'
       +'<button type="button" class="decision-outline-btn" data-decision-props>FULL PROP BOARD →</button></details>';
     detail.dataset.tsoDetailSignature=signature;
-    if(window.scrollY!==oldY)window.scrollTo({top:oldY,behavior:'instant'});
+    if(window.scrollY!==oldY&&typeof window.scrollTo==='function')window.scrollTo({top:oldY,behavior:'instant'});
     if(intelligence)intelligence.bind(detail,{
       game:selected,
       rows:matched,
