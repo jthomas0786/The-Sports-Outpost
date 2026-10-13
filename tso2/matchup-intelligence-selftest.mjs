@@ -26,8 +26,8 @@ const rows=[
  {key:'k5',sport:'nfl',player:'Test Receiver Two',team:'BUF',market:'recYds',marketLabel:'Receiving yards',side:'over',selection:'Over 65.5',line:65.5,book:'Verified Book',price:-115,model:{probabilityPct:75,edgePct:0.5}}
 ];
 const html=view.listing(g,rows);
-assert.match(html,/What BUF gives up/);
-assert.match(html,/What LA gives up/);
+assert.match(html,/BUF defense vs LA offense/);
+assert.match(html,/LA defense vs BUF offense/);
 assert.match(html,/Test WR/);
 assert.match(html,/Test Back/);
 assert.match(html,/MODEL %/);
