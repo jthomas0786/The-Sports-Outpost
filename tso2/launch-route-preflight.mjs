@@ -79,6 +79,19 @@ for(const target of targets){
     const ok=response.ok&&validType&&validate(target,body)
       &&(target.name!=='TSO 2 production homepage'||!(/<meta[^>]+name=["']robots["'][^>]+noindex/i.test(body)));
     if(!ok&&!target.optional)failed++;
+    if(target.url.includes('/api/props')&&response.ok){
+      try{
+        const data=JSON.parse(body);
+        const leagues=['nfl','mlb','nba','nhl'];
+        const coverage=Object.fromEntries(leagues.map(s=>{
+          const selections=(data.rows||[]).filter(row=>String(row.sport||'').toLowerCase()===s);
+          const games=[...new Set(selections.map(x=>x.eventId||x.gameId).filter(Boolean))];
+          const dates=[...new Set(selections.map(x=>String(x.commenceTime||x.startTime||'').slice(0,10)).filter(Boolean))].sort();
+          return [s,{props:selections.length,events:games.length,dates:dates.slice(0,8)}];
+        }));
+        console.log('PROP_FEED_COVERAGE '+JSON.stringify({url:target.url,total:(data.rows||[]).length,coverage,mode:data.sourceMode}));
+      }catch(error){console.log('PROP_FEED_COVERAGE unavailable: '+String(error.message||error))}
+    }
     console.log(JSON.stringify({name:target.name,url:target.url,status:response.status,contentType,ok,optional:!!target.optional,preview:body.slice(0,100),modelSource:target.url.includes('/api/props')&&target.name.startsWith('TSO 2')?(()=>{try{return JSON.parse(body).modelMeta?.nfl||null}catch{return null}})():undefined}));
   }catch(error){
     if(!target.optional)failed++;
