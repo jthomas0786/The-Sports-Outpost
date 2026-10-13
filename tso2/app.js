@@ -108,7 +108,7 @@
       })
       .finally(()=>{pbpState.pending=null;});
   }
-  let activeRequests=0,hostRoot=null,refreshTimer=null;
+  let activeRequests=0,hostRoot=null,refreshTimer=null,lastResearchHost=null,lastResearchMarkup=null,lastResearchStage=null;
   const detailsKey=(g,p)=>[g.league,id(g),String(p?.name||'').toLowerCase(),String(p?.team||'').toLowerCase()].join('|');
   const getDetails=(g,p)=>{
     if(!g||!p)return null;
@@ -870,7 +870,18 @@
       || (Date.parse(a.startTime||'')||0)-(Date.parse(b.startTime||'')||0));
     if(state.stage==='detail'&&!gameList.some(g=>id(g)===state.gameKey)){state.stage='games';state.gameKey=''}
     if(root.dataset)root.dataset.researchMode=state.stage==='detail'?state.view:'games';
-    root.innerHTML=state.stage==='detail'?detail():cards();
+    const nextMarkup=state.stage==='detail'?detail():cards();
+    if(root!==lastResearchHost||nextMarkup!==lastResearchMarkup){
+      // Keep the current viewport stable through real model-data changes.
+      const retainScroll=root===lastResearchHost&&state.stage===lastResearchStage;
+      const oldY=retainScroll?(window.scrollY||0):null;
+      root.innerHTML=nextMarkup;
+      lastResearchHost=root;
+      lastResearchMarkup=nextMarkup;
+      lastResearchStage=state.stage;
+      if(oldY!==null&&window.scrollY!==oldY)
+        window.scrollTo({top:oldY,behavior:'instant'});
+    }
     root.onclick=e=>{
       const t=e.target.closest('button');
       if(!t||!root.contains(t))return;

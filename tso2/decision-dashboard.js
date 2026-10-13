@@ -98,6 +98,18 @@
     });
   }
   function ranked(rows){return [...rows].sort((a,b)=>(number(b.model?.edgePct)??-999)-(number(a.model?.edgePct)??-999));}
+  // Polling must not discard player DOM or the selected matchup.
+  function setMarkup(node,markup){
+    if(!node||node.innerHTML===markup)return;
+    const left=node.scrollLeft,top=node.scrollTop;
+    node.innerHTML=markup;node.scrollLeft=left;node.scrollTop=top;
+  }
+  function detailSignature(game,rows,lines){
+    return JSON.stringify([game.id,game.state,game.detail,game.startTime,
+      game.away?.score,game.home?.score,game.venue,lines||null,
+      rows.map(r=>[r.key,r.market,r.side,r.line,r.price,r.impliedPct,
+        r.book,r.model?.probabilityPct,r.model?.edgePct,r.model?.source])]);
+  }
   function makeActions(root,ctx,games){
     root.querySelectorAll('[data-decision-league]').forEach(b=>b.onclick=()=>ctx.selectLeague(b.dataset.decisionLeague));
     root.querySelectorAll('[data-decision-route]').forEach(b=>b.onclick=()=>ctx.navigate(b.dataset.decisionRoute));
@@ -120,10 +132,11 @@
     const dock=root.querySelector('[data-decision-betslip]');if(!dock)return;
     const keys=ctx.draftKeys||[];
     const rows=keys.slice(-3).map(k=>ctx.rows.find(r=>String(r.key)===k)).filter(Boolean);
-    dock.innerHTML='<div><strong>PARLAY PING · '+keys.length+' / 25 LEGS</strong><br><span>'
+    const markup='<div><strong>PARLAY PING · '+keys.length+' / 25 LEGS</strong><br><span>'
       +(keys.length?'Selections stay saved while you compare games.':'Add verified props without leaving the game.')
       +'</span></div><span class="decision-dock-preview">'+E(rows.map(r=>r.player+' '+selection(r)).join(' · ')||'Your betslip is ready')+'</span>'
       +'<button type="button" data-decision-open-parlay>OPEN BETSLIP →</button>';
+    setMarkup(dock,markup);
   }
   function renderToday(root,ctx){
     const games=ctx.games||[];
@@ -160,15 +173,15 @@
     const finals=games.filter(g=>g.state==='post');
     const activeList=upcoming.length?upcoming:(finals.length?finals.slice(0,3):[]);
     const extraFinals=upcoming.length?finals:finals.slice(3);
-    root.querySelector('[data-decision-game-list]').innerHTML=!ctx.liveReady
+    setMarkup(root.querySelector('[data-decision-game-list]'),!ctx.liveReady
       ?'<div class="decision-empty">Connecting real scoreboard…</div>'
       :activeList.length?activeList.map(g=>gameRow(g,String(g.id)===String(selected?.id))).join('')
-      :'<div class="decision-empty"><b>No games in this sport right now.</b>Change the filter above.</div>';
+      :'<div class="decision-empty"><b>No games in this sport right now.</b>Change the filter above.</div>');
     const finalDetails=root.querySelector('[data-decision-final-results]');
     if(finalDetails){
       finalDetails.hidden=!extraFinals.length;
       finalDetails.querySelector('[data-decision-final-count]').textContent='('+extraFinals.length+')';
-      finalDetails.querySelector('[data-decision-game-results]').innerHTML=extraFinals.map(g=>gameRow(g,String(g.id)===String(selected?.id))).join('');
+      setMarkup(finalDetails.querySelector('[data-decision-game-results]'),extraFinals.map(g=>gameRow(g,String(g.id)===String(selected?.id))).join(''));
     }
     const detail=root.querySelector('[data-decision-game-detail]');
     if(!selected){
@@ -191,6 +204,12 @@
       }
     }
     if(!marketMarkup)marketMarkup='<div class="decision-empty"><b>Verified game lines pending.</b>Spread, moneyline and total need valid current sportsbook data. No simulated percentages.</div>';
+    const signature=detailSignature(selected,matched,lines);
+    if(detail.dataset.tsoDetailSignature===signature){
+      renderDock(root,ctx);
+      return;
+    }
+    const oldY=window.scrollY||0;
     detail.innerHTML='<section class="decision-panel decision-game-header"><small>'+E(String(selected.league||'').toUpperCase())+' · '+E(gameStatus(selected))+'</small>'
       +'<h2>'+E(selected.away?.name||selected.away?.abbr||'Away')+' @ '+E(selected.home?.name||selected.home?.abbr||'Home')+'</h2>'
       +'<p>'+E(selected.venue||'Venue unavailable')+' · '+E(selected.state==='in'?'Live':selected.state==='post'?'Final':'Upcoming')+'</p>'
@@ -204,13 +223,19 @@
       +'<p>The full play-by-play and all prop markets remain available if you want to dig deeper.</p>'
       +'<button type="button" class="decision-outline-btn" data-decision-live="'+E(selected.id)+'">PLAY BY PLAY →</button>'
       +'<button type="button" class="decision-outline-btn" data-decision-props>FULL PROP BOARD →</button></details>';
+    detail.dataset.tsoDetailSignature=signature;
+    if(window.scrollY!==oldY)window.scrollTo({top:oldY,behavior:'instant'});
     if(intelligence)intelligence.bind(detail,{
       game:selected,
       rows:matched,
       addProp:ctx.addProp,
       research:ctx.research,
       history:ctx.history,
-      refresh:()=>renderGames(root,ctx)
+      refresh:()=>{
+        // Filter taps and completed signal rankings intentionally re-render.
+        delete detail.dataset.tsoDetailSignature;
+        renderGames(root,ctx);
+      }
     });
     renderDock(root,ctx);
   }
