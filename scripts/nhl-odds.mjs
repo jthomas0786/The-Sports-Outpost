@@ -92,7 +92,10 @@ if(relevant&&upcoming.length){
  if(!Array.isArray(gameOdds))throw new Error('Unexpected game odds response');
 }
 const gameLines=buildGameLines(gameOdds);
-const output=normalizeOdds(rows,slate,now);output.status=relevant?'waiting-for-markets':'no-listed-events';if(output.quotes.length)output.status='available';
+const quoteAudit={};const output=normalizeOdds(rows,slate,now,quoteAudit);
+if(relevant)console.log('NHL prop normalization audit '+JSON.stringify({received:rows.length,accepted:quoteAudit.accepted||0,
+ reasons:quoteAudit.counts||{},examples:quoteAudit.examples||{}}));
+output.status=relevant?'waiting-for-markets':'no-listed-events';if(output.quotes.length)output.status='available';
 output.gameLines=gameLines;
 output.meta={...(output.meta||{}),refreshThresholdMinutes:Number.isFinite(gate.thresholdMs)?Math.round(gate.thresholdMs/60000):null,hoursToNextStart:gate.hoursToNextStart,nativeMetadataRequested:{includeLinks:true,includeSids:true},puckLineGames:gameLines.filter(g=>g.puckLine).length,firstGoalQuotes:output.quotes.filter(q=>q.market==='fgs').length,anytimeGoalQuotes:output.quotes.filter(q=>q.market==='atg').length,scorerRecoveryUsed,scorerRecoveryRows};
 await fs.writeFile('slates/nhl-odds.json',JSON.stringify(output,null,2)+'\n');
