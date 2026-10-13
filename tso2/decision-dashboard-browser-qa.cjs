@@ -131,6 +131,22 @@ fs.mkdirSync(out,{recursive:true});
   // itself in an isolated fixture with clearly synthetic QA records, never
   // pass mock data to the public dashboard or claim it is a live prediction.
   const fixture=await ctx.newPage();
+  await fixture.route('**/tso2/data/nfl-td-opportunities.json*',route=>route.fulfill({
+    status:200,contentType:'application/json',
+    body:JSON.stringify({
+      schemaVersion:1,source:'nflverse / nflfastR play-by-play (CC BY 4.0)',
+      generatedAt:'2026-10-10T00:00:00Z',
+      seasons:{'2026':{
+        teams:{BUF:{gamesPlayed:5,redZoneOpps:30,goalLineOpps:10,targets:140,carries:160},
+          LA:{gamesPlayed:5,redZoneOpps:40,goalLineOpps:15,targets:200,carries:120}},
+        players:{'00-0033553':{
+          team:'BUF',gamesWithOpportunities:5,targetSharePct:23.4,carrySharePct:27.1,
+          redZoneSharePct:29.5,goalLineSharePct:41.3,targets:34,carries:44,
+          redZoneOpps:13,goalLineOpps:4,redZoneTdYieldPct:21.5
+        }}
+      }}
+    })
+  }));
   await fixture.setContent('<!doctype html><html><body style="background:#0b1015"><main id="qaRoot"></main></body></html>');
   await fixture.addStyleTag({content:fs.readFileSync('tso2/matchup-intelligence.css','utf8')});
   await fixture.addScriptTag({content:fs.readFileSync('tso2/matchup-intelligence.js','utf8')});
@@ -140,6 +156,7 @@ fs.mkdirSync(out,{recursive:true});
       market:'atd',marketLabel:'Anytime touchdown',side:'over',book:'Mock Sportsbook',
       price:125,impliedPct:44.4,model:{probabilityPct:52.3,edgePct:7.9,reason:'Mock scenario for browser interaction only'}}];
     const research=async()=>({available:true,player:{
+      gsisId:'00-0033553',team:'BUF',
       gameLog:[{date:'2026-10-11',tds:1},{date:'2026-10-04',tds:0},{date:'2026-09-27',tds:1}],
       matchup:{previousSeasonAllowed:{perGame:{tds:1.2}}}
     },source:'Isolated browser QA data'});
@@ -159,6 +176,12 @@ fs.mkdirSync(out,{recursive:true});
   assert.match(await fixture.locator('.mi-hit-panel').innerText(),/2\/3/);
   assert.equal(await fixture.locator('.mi-team').count(),2);
   assert.ok((await fixture.locator('.mi-analytics').innerText()).includes('2/3'));
+  await fixture.locator('.mi-verified-usage').first().waitFor({state:'visible',timeout:15000});
+  assert.match(await fixture.locator('.mi-nfl-opportunities').innerText(),/23.4%/);
+  assert.match(await fixture.locator('.mi-nfl-opportunities').innerText(),/RED-ZONE SHARE/);
+  await fixture.locator('[data-mi-attack="LA"] .mi-opp-stat').first().waitFor({state:'visible',timeout:15000});
+  assert.match(await fixture.locator('[data-mi-attack="LA"]').innerText(),/BUF offense/);
+  assert.equal(await fixture.locator('.mi-read-signal').count(),2,'Mock ATD without a numeric line renders real L5/L10 evidence but no invented line margin');
   await fixture.locator('[data-mi-add="qa-only-prop"]').click();
   assert.equal(await fixture.evaluate(()=>window.__qaAdded.join(',')),'qa-only-prop');
   await fixture.screenshot({path:path.join(out,'player-accordion-qa-fixture.png'),fullPage:true,animations:'disabled'});
