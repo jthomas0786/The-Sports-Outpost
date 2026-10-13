@@ -111,13 +111,17 @@ if(productionLive?.games&&productionProps?.rows){
     const vm=await import('node:vm');
     const win={},ctx={window:win,console};
     vm.runInNewContext(readFileSync('tso2/decision-dashboard.js','utf8'),ctx);
+    vm.runInNewContext(readFileSync('tso2/matchup-intelligence.js','utf8'),ctx);
     const sports=['nfl','mlb','nba','nhl'];
     const summary=Object.fromEntries(sports.map(sport=>{
       const games=productionLive.games.filter(g=>g.league===sport);
       const rows=productionProps.rows.filter(r=>r.sport===sport);
-      const matches=games.map(game=>({id:game.id,
-        teams:String(game.away?.abbr||'')+' @ '+String(game.home?.abbr||''),
-        props:win.TSO2Decision.matchedRows(rows,game).length}));
+      const matches=games.map(game=>{
+        const matched=win.TSO2Decision.matchedRows(rows,game);
+        return {id:game.id,teams:String(game.away?.abbr||'')+' @ '+String(game.home?.abbr||''),
+          state:game.state,start:game.startTime,props:matched.length,
+          visibleOver:matched.filter(win.TSO2Matchup.eligibleOver).length};
+      });
       return [sport,{games:games.length,feedRows:rows.length,matches:matches.filter(x=>x.props>0),
         matchableRows:matches.reduce((sum,x)=>sum+x.props,0)}];
     }));
