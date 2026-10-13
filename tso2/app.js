@@ -831,7 +831,7 @@
       return '<span class="rg2-atd-stack" title="'+esc(tooltip)+'"><strong class="rg2-highlight rg2-atd--'+info.kind+'">'+percent(info.value)+'</strong><small>'+esc(badge)+'</small></span>';
     }
     if(key==='firstTd'&&sport==='nfl'&&!validModel(forP(p,'firstTd')))return '<strong class="rg2-highlight" title="Experimental uncalibrated TSO First TD forecast — not sportsbook odds or a validated probability">'+percent(value)+'</strong>';
-    if(key==='edge')return '<strong class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
+    if(key==='edge')return '<strong title="Percentage-point difference: model probability minus sportsbook implied probability. Not a guarantee." class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+edge(value)+'</strong>';
     if(key==='form')return '<b class="'+(value>0?'rg2-pos':value<0?'rg2-neg':'')+'">'+(value>0?'↑ ':value<0?'↓ ':'→ ')+fmt(value)+'</b>';
     if(['model','atd','atg','hr','firstTd','fgs'].includes(key))return '<strong class="rg2-highlight">'+percent(value)+'</strong>';
     return percent(value);
@@ -849,15 +849,15 @@
     return '<span class="rg2-player">'+avatar+'<span><b>'+esc(displayName||'—')+'</b><small>'+esc(role?role+' - '+team:team)+'</small></span></span>';
   }
   function columns(sport,tab){
-    if(tab==='all'||tab==='props')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE'],['price','ODDS'],['book','BOOK']];
+    if(tab==='all'||tab==='props')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['line','LINE'],['projected','PROJECTION'],['edge','EDGE (PP)'],['price','ODDS'],['book','BOOK']];
     if(sport==='nfl'&&tab==='td')return [['atd','ANYTIME TD %'],['firstTd','FIRST %'],['opps','2026 OPPS'],['prevFirst','2025 1ST'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['yield','YIELD'],['gl','GL %'],['carry','CARRY %'],['target','TGT %'],['rz','RZ %'],['purity','TSO PURITY']];
-    if(sport==='nfl'&&tab==='defense')return [['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE']];
-    if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME TD %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE']];
-    if(sport==='nfl')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
-    if(sport==='nhl'&&tab==='goals')return [['atg','ANYTIME %'],['fgs','FIRST %'],['goalsGp','GOALS/GP'],['sogGp','SHOTS/GP'],['toi','TOI MIN'],['l10Goals','L10 GOALS'],['l10First','L10 FIRST'],['l5','L5 %'],['edge','EDGE'],['price','ODDS'],['purity','TSO PURITY']];
-    if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
-    if(sport==='mlb')return [['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
-    return [['points','POINTS %'],['nbaL5Pts','L5 PTS'],['rebounds','REB %'],['nbaL5Reb','L5 REB'],['assists','AST %'],['nbaL5Ast','L5 AST'],['threes','3PT %'],['nbaL5Threes','L5 3PT'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE'],['purity','TSO PURITY']];
+    if(sport==='nfl'&&tab==='defense')return [['opptds','OPP TD / GM'],['opprush','OPP RUSH YD'],['opprec','OPP REC YD'],['oppcarries','OPP CARRIES'],['snap','SNAPS %'],['model','MODEL %'],['edge','EDGE (PP)']];
+    if(sport==='nfl'&&tab==='key')return [['atd','ANYTIME TD %'],['firstTd','FIRST %'],['prevTD','2025 TDs'],['yearTD','2026 TDs'],['form','FORM'],['snap','SNAPS %'],['target','TGT %'],['model','MODEL %'],['edge','EDGE (PP)']];
+    if(sport==='nfl')return [['selection','EXACT PICK'],['model','MODEL %'],['market','MARKET %'],['projected','PROJECTION'],['l5','L5 %'],['l10','L10 %'],['edge','EDGE (PP)'],['snap','SNAPS %'],['target','TGT %'],['rz','RZ %']];
+    if(sport==='nhl'&&tab==='goals')return [['atg','ANYTIME %'],['fgs','FIRST %'],['goalsGp','GOALS/GP'],['sogGp','SHOTS/GP'],['toi','TOI MIN'],['l10Goals','L10 GOALS'],['l10First','L10 FIRST'],['l5','L5 %'],['edge','EDGE (PP)'],['price','ODDS'],['purity','TSO PURITY']];
+    if(sport==='nhl')return [['atg','ANYTIME %'],['fgs','FIRST %'],['sog','SOG %'],['points','POINTS %'],['assists','ASSISTS %'],['model','MODEL %'],['projected','PROJECTION'],['toi','TOI MIN'],['l5','L5 %'],['edge','EDGE (PP)'],['purity','TSO PURITY']];
+    if(sport==='mlb')return [['hr','HR %'],['hits','HITS %'],['rbi','RBI %'],['model','MODEL %'],['projected','PROJECTION'],['barrel','BARREL %'],['hardhit','HARD HIT %'],['l5','L5 %'],['edge','EDGE (PP)'],['purity','TSO PURITY']];
+    return [['points','POINTS %'],['nbaL5Pts','L5 PTS'],['rebounds','REB %'],['nbaL5Reb','L5 REB'],['assists','AST %'],['nbaL5Ast','L5 AST'],['threes','3PT %'],['nbaL5Threes','L5 3PT'],['model','MODEL %'],['projected','PROJECTION'],['minutes','MINUTES'],['usage','USAGE %'],['l5','L5 %'],['edge','EDGE (PP)'],['purity','TSO PURITY']];
   }
   function render(root,props){
     if(!root)return;
