@@ -60,6 +60,7 @@ const validate=(target,body)=>{
   return true;
 };
 let failed=0;
+let productionLive=null,productionProps=null;
 for(const target of targets){
   try{
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
@@ -75,6 +76,12 @@ for(const target of targets){
     }
     const bytes=['webp','png','ico'].includes(target.kind)?new Uint8Array(await response.arrayBuffer()):null;
     const body=bytes ? (bytes.length>=12?String.fromCharCode(...bytes.slice(0,12)):'') : await response.text();
+    if(target.name==='TSO 2 production live API'&&response.ok){
+      try{productionLive=JSON.parse(body)}catch{}
+    }
+    if(target.name==='TSO 2 production props API'&&response.ok){
+      try{productionProps=JSON.parse(body)}catch{}
+    }
     const validType=target.kind==='png'?/image\/png/i.test(contentType):target.kind==='ico'?/image\/(x-icon|vnd\.microsoft\.icon)/i.test(contentType):target.kind==='manifest'?/application\/(manifest\+json|json)/i.test(contentType):target.kind==='webp'?/image\/webp/i.test(contentType):target.kind==='svg'?/image\/svg\+xml/i.test(contentType):target.kind==='json'?/json/i.test(contentType)&&body.trim().startsWith('{'):target.kind==='html'?/html/i.test(contentType)&&/<html/i.test(body):target.kind==='css'?/css/i.test(contentType):/javascript|ecmascript/i.test(contentType);
     const ok=response.ok&&validType&&validate(target,body)
       &&(target.name!=='TSO 2 production homepage'||!(/<meta[^>]+name=["']robots["'][^>]+noindex/i.test(body)));
@@ -97,5 +104,24 @@ for(const target of targets){
     if(!target.optional)failed++;
     console.log(JSON.stringify({name:target.name,url:target.url,ok:false,optional:!!target.optional,error:String(error.message||error)}));
   }
+}
+if(productionLive?.games&&productionProps?.rows){
+  try{
+    const {readFileSync}=await import('node:fs');
+    const vm=await import('node:vm');
+    const win={},ctx={window:win,console};
+    vm.runInNewContext(readFileSync('tso2/decision-dashboard.js','utf8'),ctx);
+    const sports=['nfl','mlb','nba','nhl'];
+    const summary=Object.fromEntries(sports.map(sport=>{
+      const games=productionLive.games.filter(g=>g.league===sport);
+      const rows=productionProps.rows.filter(r=>r.sport===sport);
+      const matches=games.map(game=>({id:game.id,
+        teams:String(game.away?.abbr||'')+' @ '+String(game.home?.abbr||''),
+        props:win.TSO2Decision.matchedRows(rows,game).length}));
+      return [sport,{games:games.length,feedRows:rows.length,matches:matches.filter(x=>x.props>0),
+        matchableRows:matches.reduce((sum,x)=>sum+x.props,0)}];
+    }));
+    console.log('GAME_HUB_PROP_MATCHES '+JSON.stringify(summary));
+  }catch(error){console.log('GAME_HUB_PROP_MATCHES unavailable: '+String(error.message||error))}
 }
 if(failed){console.error('Launch preflight blocked:',failed,'required checks failed');process.exitCode=1}else console.log('Required public route checks passed; this is not a substitute for full launch QA.');
