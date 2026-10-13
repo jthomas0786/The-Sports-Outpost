@@ -358,7 +358,7 @@ function opportunityEvidence(doc,research,row){
 }
 function decisionEvidence(data,row){
  const series=seriesFromResearch(data,row);
- const line=marketThreshold(row),l5=lastStats(series,row,5),l10=lastStats(series,row,10);
+ const line=eventMarkets.has(String(row.market||''))?null:marketThreshold(row),l5=lastStats(series,row,5),l10=lastStats(series,row,10);
  const sample5=series.slice(0,5);
  const average=sample5.length?sample5.reduce((sum,g)=>sum+g.value,0)/sample5.length:null;
  const avgDelta=average!==null&&line!==null?average-line:null;
