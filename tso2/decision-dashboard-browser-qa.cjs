@@ -48,7 +48,12 @@ fs.mkdirSync(out,{recursive:true});
     assert.equal(await page.locator('.mi-team').count(),2,'Each matchup needs both teams defensive scouting panels');
     assert.equal(await page.locator('.mi-ranked').count(),1,'One-page matchup must include ranked player analysis');
     const playerCards=await page.locator('.mi-player-expand').count();
+
     if(playerCards){
+      const collapsedSignal=page.locator('.mi-player [data-mi-signal]').first();
+      assert.equal(await collapsedSignal.count(),1,'Collapsed player must show TSO Prop Signal without opening');
+      assert.equal(await collapsedSignal.locator('.mi-signal-track').count(),1,'TSO Prop Signal requires visible progress track');
+      assert.equal((await collapsedSignal.locator('.mi-signal-kicker').innerText()).trim(),'TSO PROP SIGNAL');
       await page.locator('.mi-player-expand').first().click();
       await page.locator('.mi-player.is-open .mi-player-body').first().waitFor({state:'visible',timeout:12000});
       assert.equal(await page.locator('.mi-player.is-open .mi-expanded-stats').count(),1,'Player accordion has model and market details');
