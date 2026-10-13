@@ -35,6 +35,7 @@ jobs:
           node scripts/parlayapi-pregame-cadence-selftest.mjs
           node --check sports/nhl/odds.js
           node --check scripts/nhl-odds.mjs
+          node scripts/nhl-odds-normalization-selftest.mjs
           node --check sports/nhl/view.js
           node --check sports/nhl/view-v906.js
           node --check sports/shared/game-edge-v100.js
