@@ -64,5 +64,29 @@ const ramsRows=[
 assert.deepEqual(Array.from(widget.matchedRows(ramsRows,ramsGame),r=>r.key),['same-event','alias-and-time'],
  'Exact ESPN ID and verified aliases must restore BUF–LAR players without other game leakage');
 
+// ESPN schedule IDs and sportsbook provider IDs are DIFFERENT namespaces.
+const sampleMLB={id:'401774332',league:'mlb',away:{abbr:'LAD',name:'Los Angeles Dodgers'},home:{abbr:'MIL',name:'Milwaukee Brewers'},startTime:'2026-10-12T21:03:00Z'};
+const mlbProps=[
+ {sport:'mlb',eventId:'849812',awayTeam:'Los Angeles Dodgers',homeTeam:'Milwaukee Brewers',commenceTime:'2026-10-12T21:03:57Z',key:'matched-mlb'},
+ {sport:'mlb',eventId:'849813',awayTeam:'Los Angeles Dodgers',homeTeam:'Milwaukee Brewers',commenceTime:'2026-10-13T21:03:57Z',key:'wrong-day'},
+ {sport:'mlb',eventId:'849814',awayTeam:'Milwaukee Brewers',homeTeam:'Los Angeles Dodgers',commenceTime:'2026-10-12T21:03:57Z',key:'reversed'},
+ {sport:'mlb',eventId:'849812',awayTeam:'Los Angeles Dodgers',homeTeam:'Milwaukee Brewers',key:'unknown-time'}
+];
+assert.deepEqual(Array.from(widget.matchedRows(mlbProps,sampleMLB),x=>x.key),['matched-mlb'],
+ 'MLB joins cross-provider event IDs using both teams and verified start time');
+const sampleNBA={id:'401993456',league:'nba',away:{abbr:'BOS',name:'Boston Celtics'},home:{abbr:'DET',name:'Detroit Pistons'},startTime:'2026-10-20T19:00:00Z'};
+const nbaRows=[
+ {sport:'nba',eventId:'249f6ad5667cc3b1',awayTeam:'Boston Celtics',homeTeam:'Detroit Pistons',commenceTime:'2026-10-20T19:00:00Z',key:'cross-provider'},
+ {sport:'nba',eventId:'401993457',awayTeam:'Boston Celtics',homeTeam:'Detroit Pistons',commenceTime:'2026-10-20T19:00:00Z',key:'wrong-espn-id'}
+];
+assert.deepEqual(Array.from(widget.matchedRows(nbaRows,sampleNBA),x=>x.key),['cross-provider'],
+ 'NBA feed uses provider event IDs; mismatched ESPN IDs must still be rejected');
+const sampleNHL={id:'401993120',league:'nhl',away:{abbr:'TOR',name:'Toronto Maple Leafs'},home:{abbr:'BOS',name:'Boston Bruins'},startTime:'2026-10-13T23:00:00Z'};
+assert.equal(widget.matchedRows([{sport:'nhl',eventId:'854320',awayTeam:'Toronto Maple Leafs',homeTeam:'Boston Bruins',commenceTime:'2026-10-13T23:00:00Z'}],sampleNHL).length,1,
+ 'NHL book IDs join by verified matchup');
+const sampleNFL={id:'401993111',league:'nfl',away:{abbr:'BUF',name:'Buffalo Bills'},home:{abbr:'LAR',name:'Los Angeles Rams'},startTime:'2026-10-12T23:15:00Z'};
+assert.equal(widget.matchedRows([{sport:'nfl',eventId:'9af65dba',awayTeam:'Buffalo Bills',homeTeam:'Los Angeles Rams',commenceTime:'2026-10-12T23:15:00Z'}],sampleNFL).length,1,
+ 'NFL book IDs join by verified matchup');
+
 assert.match(widget.exactReason({model:{}}),/not available/,'Missing model reason must be disclosed, not fabricated');
 console.log('TSO 2.0 decision-first layout, saved deep routes, exact-game filtering and 25-leg handoff: PASS');
