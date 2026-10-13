@@ -1206,7 +1206,8 @@ function listing(game,rows){
      const record=String(t?.record||'');
      return '<div class="mi-team" data-mi-defender="'+esc(abbr)+'"><div class="mi-team-title">'+logo+'<div><small>'+esc(abbr)+' DEFENSE</small><h3>What '+esc(abbr)+' gives up</h3></div></div>'
        +'<p>Against '+esc(String(opp?.abbr||'the opponent'))+(record?' · '+esc(record):'')+'</p>'
-       +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Loading source-backed opponent tendencies when available…</div></div>';
+       +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Checking opponent defensive data…</div>'
+       +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
    +'</div>'
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · highest model probability first · choose an exact market below</p></div></div>'
@@ -1384,6 +1385,98 @@ function lineMovementChart(doc,row){
    +'<text x="18" y="123" font-size="11" fill="#91aaa0">First observed</text><text x="622" y="123" font-size="11" fill="#91aaa0" text-anchor="end">Latest saved</text>'
    +'</svg></div><small class="mi-muted">Trend shows the implied probability of the saved American prices, not a model projection.</small>';
 }
+// The Research page already publishes verified nflverse PBP usage shares. The
+// Game Hub must reuse these exact GSIS-keyed observations, never join by name.
+const NFL_PBP_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-2.0-restructure/tso2/data/nfl-td-opportunities.json';
+let nflPbpPromise=null;
+function loadNflPbp(){
+ if(!nflPbpPromise){
+   nflPbpPromise=fetch(NFL_PBP_SOURCE,{cache:'no-store',headers:{accept:'application/json'}}).then(async response=>{
+     if(!response.ok)throw Error('NFL play-by-play source HTTP '+response.status);
+     const doc=await response.json();
+     if(doc?.schemaVersion!==1||!String(doc.source||'').includes('nflverse')||
+       !doc.seasons?.['2026']?.players||!doc.generatedAt)
+       throw Error('Unverified NFL opportunity dataset');
+     const generated=Date.parse(doc.generatedAt);
+     if(!Number.isFinite(generated)||generated>Date.now()+3600000)
+       throw Error('Invalid NFL source date');
+     return doc;
+   }).catch(error=>{
+     nflPbpPromise=null;
+     throw error;
+   });
+ }
+ return nflPbpPromise;
+}
+const nflTeamCode=value=>({LAR:'LA',JAC:'JAX',WSH:'WAS'}[String(value||'').toUpperCase()]||String(value||'').toUpperCase());
+function opportunityForPlayer(doc,research,row){
+ if(!doc?.seasons?.['2026']||!research?.available||String(row?.sport||'').toLowerCase()!=='nfl')
+   return null;
+ const p=research.player||{},gsis=String(p.gsisId||'').trim(),team=nflTeamCode(row.team);
+ if(!/^00-\d{7}$/.test(gsis)||!team||nflTeamCode(p.team)!==team)return null;
+ const stat=doc.seasons['2026'].players?.[gsis];
+ if(!stat||nflTeamCode(stat.team)!==team||Number(stat.gamesWithOpportunities||0)<1)return null;
+ return stat;
+}
+function opportunityEvidence(doc,research,row){
+ if(!doc)return '<p class="mi-muted">Verified play-by-play opportunity data is unavailable.</p>';
+ const stat=opportunityForPlayer(doc,research,row);
+ if(!stat)return '<p class="mi-muted">No exact GSIS player-and-team match in the NFL opportunity snapshot. Usage is not inferred from another player.</p>';
+ const stamp=String(doc.generatedAt||'').slice(0,10);
+ const age=Date.now()-Date.parse(doc.generatedAt);
+ const outdated=Number.isFinite(age)&&age>10*86400000;
+ const sample=n(stat.gamesWithOpportunities);
+ const metrics=[['TARGET SHARE',stat.targetSharePct,'Share of team targets'],['CARRY SHARE',stat.carrySharePct,'Share of team carries'],
+   ['RED-ZONE SHARE',stat.redZoneSharePct,'Share of team carries + targets inside the 20'],
+   ['GOAL-LINE SHARE',stat.goalLineSharePct,'Share of team carries + targets inside the 5']]
+   .filter(([,value])=>n(value)!==null&&n(value)>=0&&n(value)<=100);
+ const bars=metrics.map(([name,value,note])=>
+   '<div class="mi-verified-usage"><div><b>'+esc(name)+'</b><strong>'+pct(value)+'</strong></div>'
+   +'<div class="mi-verified-usage-track"><span style="width:'+Math.max(0,Math.min(100,n(value)))+'%"></span></div>'
+   +'<small>'+esc(note)+'</small></div>').join('');
+ const counts=[['TARGETS',stat.targets],['CARRIES',stat.carries],['RED-ZONE CHANCES',stat.redZoneOpps],['GOAL-LINE CHANCES',stat.goalLineOpps],['RZ TD YIELD',stat.redZoneTdYieldPct,'percent']]
+   .filter(([,value])=>n(value)!==null).map(([title,value,type])=>
+    '<div class="mi-pbp-count"><span>'+esc(title)+'</span><strong>'+esc(amount(value,type==='percent'?'%':''))+'</strong></div>').join('');
+ return '<div class="mi-nfl-opportunity-head"><div><b>WHERE THE OPPORTUNITIES COME FROM</b>'
+   +'<small>2026 nflverse play-by-play · updated '+esc(stamp)
+   +(outdated?' · AGED SOURCE, REFRESH NEEDED':'')+'</small></div>'
+   +'<strong>'+esc(sample??'—')+' games</strong></div>'
+   +'<div class="mi-opportunity-layout"><div class="mi-opportunity-bars">'+(bars||'<p class="mi-muted">No verified share denominators.</p>')+'</div>'
+   +'<div class="mi-pbp-counts">'+counts+'</div></div>'
+   +'<p class="mi-evidence-note">Percentages are a player’s share of observed team opportunities, not his probability of hitting this prop. '
+   +'Touchdown yield is observed red-zone conversion, not a forecast.</p>';
+}
+function decisionEvidence(data,row){
+ const series=seriesFromResearch(data,row);
+ const line=marketThreshold(row),l5=lastStats(series,row,5),l10=lastStats(series,row,10);
+ const sample5=series.slice(0,5);
+ const average=sample5.length?sample5.reduce((sum,g)=>sum+g.value,0)/sample5.length:null;
+ const avgDelta=average!==null&&line!==null?average-line:null;
+ const model=n(row?.model?.probabilityPct);
+ const gap=l10.rate!==null&&model!==null?model-l10.rate:null;
+ const conflict=gap!==null&&Math.abs(gap)>=15&&l10.games>=5;
+ const display=(name,value,detail,stateLabel)=>'<div class="mi-read-signal '+(stateLabel||'')+'"><small>'+esc(name)+'</small>'
+   +'<strong>'+esc(value)+'</strong><span>'+esc(detail)+'</span></div>';
+ let signals=[
+   display('LAST 5 VS THIS LINE',l5.display,l5.rate===null?'Not enough observed results':l5.rate+'% historical hits'),
+   display('LAST 10 VS THIS LINE',l10.display,l10.rate===null?'Not enough observed results':l10.rate+'% historical hits')
+ ];
+ if(avgDelta!==null){
+   signals.push(display('RECENT AVG MINUS LINE',(avgDelta>0?'+':'')+amount(avgDelta),
+     'L5 avg '+amount(average)+' versus line '+amount(line),avgDelta>=0?'mi-read-positive':'mi-read-negative'));
+ }
+ let reading='';
+ if(conflict){
+   reading='<div class="mi-read-caution"><b>MODEL AND RECENT RESULTS DIFFER</b> The model shows '+pct(model)
+   +' while the last '+Math.min(10,series.length)+' observed games hit '+pct(l10.rate)
+   +'. These measure different things. Check matchup, opportunity and sample size before using this selection.</div>';
+ }else if(model!==null&&l10.rate!==null){
+   reading='<p class="mi-evidence-note">Model probability ('+pct(model)+') and observed hit rate ('+pct(l10.rate)
+   +') are different measures; historical results are not an independent prediction.</p>';
+ }
+ return '<section class="mi-decision-read"><div class="mi-read-title"><b>THE QUICK READ</b><span>Exact selection · real observations</span></div>'
+   +'<div class="mi-read-grid">'+signals.join('')+'</div>'+reading+'</section>';
+}
 function renderResearch(data,row){
  if(!data?.available)return '<div class="mi-research-unavailable">Detailed historical context unavailable: '+esc(data?.reason||'No verified research snapshot.')+'</div>';
  const series=seriesFromResearch(data,row);
@@ -1397,9 +1490,10 @@ function renderResearch(data,row){
    :'<div class="mi-research-unavailable">Exact-market game-log hit rate unavailable. No substitute chart or percentage is generated.</div>';
  const notes=researchNotes(data,row);
  const source=String(data.sources?.player||data.source||data?.player?.recentSource||'TSO verified research snapshot');
- return '<div class="mi-section mi-section--visual"><h4>Recent form & performance</h4>'+form+'</div>'
+ return decisionEvidence(data,row)+'<div class="mi-section mi-section--visual"><h4>Recent form & performance</h4>'+form+'</div>'
    +'<div class="mi-section"><h4>Role & matchup</h4>'+roleVisual(data,row)
    +(notes.length?'<div class="mi-research-notes">'+notes.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'<p class="mi-muted">Detailed opponent-defense statistics are unavailable for this player.</p>')
+   +(String(row.sport).toLowerCase()==='nfl'?'<div class="mi-nfl-opportunities" data-mi-nfl-opportunities="'+esc(key(row))+'"><p class="mi-muted">Loading verified NFL opportunity and red-zone shares…</p></div>':'')
    +'<small class="mi-muted">Source: '+esc(source)+'</small></div>'
    +'<div class="mi-section mi-section--movement"><h4>Sportsbook odds movement</h4><div data-mi-history="'+esc(key(row))+'"><p class="mi-muted">Checking verified line history…</p></div></div>';
 }
@@ -1445,6 +1539,14 @@ function updatePlayer(row,root,ctx){
 }
 function updateResearchNode(node,row,data,ctx){
  node.innerHTML=renderResearch(data,row);
+ const opportunity=node.querySelector('[data-mi-nfl-opportunities]');
+ if(opportunity&&data?.available){
+   loadNflPbp().then(doc=>{
+     if(opportunity.isConnected)opportunity.innerHTML=opportunityEvidence(doc,data,row);
+   }).catch(error=>{
+     if(opportunity.isConnected)opportunity.innerHTML='<p class="mi-muted">Verified opportunity data temporarily unavailable: '+esc(error.message||'Network error')+'</p>';
+   });
+ }
  const hist=node.querySelector('[data-mi-history]');
  if(hist&&typeof ctx.history==='function'){
    Promise.resolve().then(()=>ctx.history(row,row.book)).then(doc=>{
@@ -1453,9 +1555,44 @@ function updateResearchNode(node,row,data,ctx){
    }).catch(()=>{if(hist.isConnected)hist.innerHTML='<p class="mi-muted">Sportsbook movement unavailable at this time.</p>';});
  }
 }
+function opposingOffenseEvidence(doc,defenseSide,game){
+ if(game?.league!=='nfl'||!doc?.seasons?.['2026']?.teams)return '';
+ const opponent=nflTeamCode(String(game.away?.abbr||'').toUpperCase()===String(defenseSide||'').toUpperCase()
+   ?game.home?.abbr:game.away?.abbr);
+ const teamData=doc.seasons['2026'].teams?.[opponent];
+ const count=n(teamData?.gamesPlayed);
+ if(!opponent||!teamData||count===null||count<2)return '';
+ const rz=n(teamData.redZoneOpps),gl=n(teamData.goalLineOpps);
+ const targets=n(teamData.targets),carries=n(teamData.carries);
+ const sourceDate=String(doc.generatedAt||'').slice(0,10);
+ const stat=(label,value,note)=>'<div class="mi-opp-stat"><b>'+esc(value)+'</b><span>'+esc(label)+'</span><small>'+esc(note)+'</small></div>';
+ const values=[];
+ if(rz!==null)values.push(stat('Red-zone opp / game',amount(rz/count),'Opponent offense · 2026'));
+ if(gl!==null)values.push(stat('Goal-line opp / game',amount(gl/count),'Opponent offense · 2026'));
+ const whole=targets!==null&&carries!==null?targets+carries:null;
+ const passShare=whole?Math.round(100*targets/whole):null;
+ const split=passShare===null?'':'<div class="mi-opp-split"><div><b>Offensive target / carry mix</b><span>'+passShare+'% targets · '+(100-passShare)+'% carries</span></div>'
+    +'<div class="mi-opportunity-track"><span style="width:'+passShare+'%"></span></div></div>';
+ return '<div class="mi-opp-offense-title"><b>'+esc(opponent)+' offense · observed opportunities</b><small>2026 nflverse through '+esc(sourceDate)+'</small></div>'
+   +'<div class="mi-opp-stats">'+values.join('')+'</div>'+split
+   +'<small class="mi-evidence-note">These are offensive opportunities *facing* '+esc(defenseSide)+', not defensive yards allowed or a game forecast.</small>';
+}
 function updateScouting(root,ctx){
  const game=ctx.game,rows=ctx.rows;
  if(!game)return;
+ if(game.league==='nfl'){
+   loadNflPbp().then(doc=>{
+     for(const defender of [game.away,game.home]){
+       const target=[...root.querySelectorAll('[data-mi-attack]')].find(el=>el.dataset.miAttack===defender?.abbr);
+       if(target?.isConnected)target.innerHTML=opposingOffenseEvidence(doc,defender?.abbr,game)
+         ||'<span class="mi-muted">Verified current-season opposing offense opportunity history unavailable.</span>';
+     }
+   }).catch(()=>{
+     for(const el of root.querySelectorAll('[data-mi-attack]'))if(el.isConnected)el.textContent='Opponent offensive opportunity feed unavailable.';
+   });
+ }else{
+   for(const el of root.querySelectorAll('[data-mi-attack]'))el.textContent='Opponent offensive opportunity comparison requires a verified sport-specific source.';
+ }
  for(const t of [game.away,game.home]){
    const opp=String(t?.abbr||'');
    const node=[...root.querySelectorAll('[data-mi-scout]')].find(x=>x.dataset.miScout===opp);
@@ -1492,6 +1629,6 @@ function bind(root,ctx){
  for(const k of state.expanded){const row=rows.find(x=>key(x)===k);if(row)updatePlayer(row,root,ctx);}
  updateScouting(root,ctx);
 }
-window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual};
+window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
 })();
 /* TSO2_MATCHUP_INTELLIGENCE_BUNDLE_END */
