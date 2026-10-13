@@ -29,7 +29,7 @@
       +'<aside class="decision-panel decision-panel-pad"><div class="decision-section-title"><div><small>HOW TO READ IT</small><h2>Three numbers, one decision</h2></div></div>'
       +'<div class="decision-empty"><b>MODEL</b>Verified TSO probability for the exact selection.</div>'
       +'<div class="decision-empty"><b>MARKET</b>Implied probability of its sportsbook quote.</div>'
-      +'<div class="decision-empty"><b>EDGE</b>Model minus market. A positive number is not a guarantee.</div></aside></section>'
+      +'<div class="decision-empty"><b>EDGE (PP)</b>Model probability minus market implied probability, in percentage points. A positive number is not a guarantee.</div></aside></section>'
       +'<div class="decision-parlay-dock" data-decision-betslip></div></section>';
   }
   function gamesHTML(league){
@@ -70,7 +70,7 @@
     const m=row.model||{},n=number(m.edgePct);
     return '<div class="decision-opportunity-metrics"><div><small>MODEL</small><strong>'+pct(m.probabilityPct)+'</strong></div>'
       +'<div><small>MARKET</small><strong>'+pct(row.impliedPct)+'</strong></div>'
-      +'<div><small>EDGE</small><strong class="'+(n!==null&&n>0?'positive':'')+'">'+edge(n)+'</strong></div></div>';
+      +'<div><small title="Model probability minus sportsbook implied probability, measured in percentage points. Not a guarantee.">EDGE (PP)</small><strong class="'+(n!==null&&n>0?'positive':'')+'">'+edge(n)+'</strong></div></div>';
   }
   function matchedRows(rows,g){
     const gameId=String(g.id||g.gameId||'').trim();
