@@ -177,12 +177,12 @@ const signalCache=new Map([
  ['other-prop',scoredLog('rushYds',[50,60,55,51,49,61,62,59,70,58])]
 ]);
 const receive=view.rankRowsBySignal(rankCandidates.filter(r=>r.market==='recYds'),signalCache);
-assert.deepEqual(receive.map(r=>r.key),
+assert.deepEqual(Array.from(receive,r=>r.key),
  ['signal-strong','market-only','model-high-form-low','no-data'],
  'Receiving Yards sorts exact calculated TSO Signal high to low; ungraded last');
 const overall=view.rankRowsBySignal(rankCandidates,signalCache);
 const numerical=overall.map(r=>view.signalScore(r,signalCache.get(r.key)).score).filter(x=>x!==null);
-assert.deepEqual(numerical,[...numerical].sort((a,b)=>b-a),'ALL PROPS uses descending TSO Signal');
+assert.deepEqual(Array.from(numerical),Array.from(numerical).sort((a,b)=>b-a),'ALL PROPS uses descending TSO Signal');
 assert.equal(overall.at(-1).key,'no-data','Model probability cannot rescue an ungraded player');
 
 console.log('TSO scored prop ranking and evidence suite: PASS');
