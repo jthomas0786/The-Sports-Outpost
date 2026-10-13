@@ -3,20 +3,20 @@
   "meta": {
     "source": "parlayapi-pinnacle",
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-13T00:57:48.257Z",
+    "fetchedAt": "2026-10-13T14:33:16.941Z",
     "market": "matchWinner",
-    "rows": 12,
-    "estimatedCreditsUsed": 2,
+    "rows": 16,
+    "estimatedCreditsUsed": 3,
     "probabilityPolicy": "Only complete two-sided Pinnacle h2h markets are accepted and de-vigged. Started events are never settled from this snapshot.",
     "settlementConnected": false,
     "diagnostics": [
       {
         "sportKey": "esports_cs2",
         "game": "CS2",
-        "eventCount": 12,
-        "futureEvents": 10,
+        "eventCount": 15,
+        "futureEvents": 11,
         "oddsCalled": true,
-        "oddsRows": 12
+        "oddsRows": 16
       },
       {
         "sportKey": "esports_valorant",
@@ -29,16 +29,16 @@
       {
         "sportKey": "esports_dota2",
         "game": "DOTA2",
-        "eventCount": 0,
-        "futureEvents": 0,
-        "oddsCalled": false,
+        "eventCount": 1,
+        "futureEvents": 1,
+        "oddsCalled": true,
         "oddsRows": 0
       },
       {
         "sportKey": "esports_lol",
         "game": "LOL",
-        "eventCount": 1,
-        "futureEvents": 1,
+        "eventCount": 2,
+        "futureEvents": 2,
         "oddsCalled": true,
         "oddsRows": 0
       }
@@ -46,38 +46,106 @@
   },
   "rows": [
     {
-      "eventId": "0565c59a6baf9ca4",
+      "eventId": "a28e72c7a0f9fb74",
       "sportKey": "esports_cs2",
       "game": "CS2",
-      "commenceTime": "2026-10-13T10:00:00.000Z",
-      "homeTeam": "Liquid",
-      "awayTeam": "BBL",
-      "selection": "BBL",
-      "side": "away",
-      "market": "matchWinner",
-      "book": "Pinnacle",
-      "bookKey": "pinnacle",
-      "price": 198,
-      "impliedProbability": 0.33557046979865773,
-      "fairProbability": 0.31478558943813745,
-      "snapshotTime": "2026-10-13T00:26:40.000Z"
-    },
-    {
-      "eventId": "0565c59a6baf9ca4",
-      "sportKey": "esports_cs2",
-      "game": "CS2",
-      "commenceTime": "2026-10-13T10:00:00.000Z",
-      "homeTeam": "Liquid",
-      "awayTeam": "BBL",
-      "selection": "Liquid",
+      "commenceTime": "2026-10-13T19:00:00.000Z",
+      "homeTeam": "Gremio",
+      "awayTeam": "LOS NINOS",
+      "selection": "Gremio",
       "side": "home",
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -271,
-      "impliedProbability": 0.7304582210242587,
-      "fairProbability": 0.6852144105618626,
-      "snapshotTime": "2026-10-13T00:26:40.000Z"
+      "price": -170,
+      "impliedProbability": 0.6296296296296297,
+      "fairProbability": 0.5872821767043718,
+      "snapshotTime": "2026-10-13T14:14:47.000Z"
+    },
+    {
+      "eventId": "a28e72c7a0f9fb74",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-13T19:00:00.000Z",
+      "homeTeam": "Gremio",
+      "awayTeam": "LOS NINOS",
+      "selection": "LOS NINOS",
+      "side": "away",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": 126,
+      "impliedProbability": 0.4424778761061947,
+      "fairProbability": 0.4127178232956283,
+      "snapshotTime": "2026-10-13T14:14:47.000Z"
+    },
+    {
+      "eventId": "222149529aa8ba8b",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-13T21:00:00.000Z",
+      "homeTeam": "ex-Keyd Stars",
+      "awayTeam": "Galorys",
+      "selection": "ex-Keyd Stars",
+      "side": "home",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": 168,
+      "impliedProbability": 0.373134328358209,
+      "fairProbability": 0.34580960130187144,
+      "snapshotTime": "2026-10-13T14:23:36.000Z"
+    },
+    {
+      "eventId": "222149529aa8ba8b",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-13T21:00:00.000Z",
+      "homeTeam": "ex-Keyd Stars",
+      "awayTeam": "Galorys",
+      "selection": "Galorys",
+      "side": "away",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": -240,
+      "impliedProbability": 0.7058823529411765,
+      "fairProbability": 0.6541903986981286,
+      "snapshotTime": "2026-10-13T14:23:36.000Z"
+    },
+    {
+      "eventId": "28478800706c4889",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-14T01:00:00.000Z",
+      "homeTeam": "Zomblers",
+      "awayTeam": "Overtake Sector",
+      "selection": "Overtake Sector",
+      "side": "away",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": -325,
+      "impliedProbability": 0.7647058823529411,
+      "fairProbability": 0.7053215461951812,
+      "snapshotTime": "2026-10-13T14:25:51.000Z"
+    },
+    {
+      "eventId": "28478800706c4889",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-14T01:00:00.000Z",
+      "homeTeam": "Zomblers",
+      "awayTeam": "Overtake Sector",
+      "selection": "Zomblers",
+      "side": "home",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": 213,
+      "impliedProbability": 0.3194888178913738,
+      "fairProbability": 0.2946784538048189,
+      "snapshotTime": "2026-10-13T14:25:51.000Z"
     },
     {
       "eventId": "e1d79d149194ffb7",
@@ -94,7 +162,7 @@
       "price": 263,
       "impliedProbability": 0.27548209366391185,
       "fairProbability": 0.2629419551141911,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "e1d79d149194ffb7",
@@ -111,7 +179,7 @@
       "price": -339,
       "impliedProbability": 0.7722095671981777,
       "fairProbability": 0.737058044885809,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "e98876e689548dd7",
@@ -125,10 +193,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -121,
-      "impliedProbability": 0.5475113122171946,
-      "fairProbability": 0.5178316690442226,
-      "snapshotTime": "2026-10-13T00:26:40.000Z"
+      "price": -119,
+      "impliedProbability": 0.54337899543379,
+      "fairProbability": 0.5147710487444609,
+      "snapshotTime": "2026-10-13T14:01:53.000Z"
     },
     {
       "eventId": "e98876e689548dd7",
@@ -142,10 +210,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -104,
-      "impliedProbability": 0.5098039215686274,
-      "fairProbability": 0.48216833095577744,
-      "snapshotTime": "2026-10-13T00:26:40.000Z"
+      "price": -105,
+      "impliedProbability": 0.5121951219512195,
+      "fairProbability": 0.4852289512555391,
+      "snapshotTime": "2026-10-13T14:01:53.000Z"
     },
     {
       "eventId": "b2aae19da7d3b37a",
@@ -159,10 +227,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -378,
-      "impliedProbability": 0.7907949790794979,
-      "fairProbability": 0.7556212231208909,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "price": -401,
+      "impliedProbability": 0.8003992015968064,
+      "fairProbability": 0.764684884409082,
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "b2aae19da7d3b37a",
@@ -176,10 +244,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": 291,
-      "impliedProbability": 0.2557544757033248,
-      "fairProbability": 0.24437877687910922,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "price": 306,
+      "impliedProbability": 0.24630541871921183,
+      "fairProbability": 0.23531511559091806,
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "cf0d331bd2e3a81c",
@@ -193,10 +261,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -145,
-      "impliedProbability": 0.5918367346938775,
-      "fairProbability": 0.5644831570527065,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "price": -150,
+      "impliedProbability": 0.6,
+      "fairProbability": 0.5722840034217279,
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "cf0d331bd2e3a81c",
@@ -210,10 +278,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": 119,
-      "impliedProbability": 0.45662100456621,
-      "fairProbability": 0.43551684294729354,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "price": 123,
+      "impliedProbability": 0.4484304932735426,
+      "fairProbability": 0.42771599657827203,
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "97e82e8fb4898361",
@@ -227,10 +295,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": 211,
-      "impliedProbability": 0.3215434083601286,
-      "fairProbability": 0.30694193331371145,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "price": 212,
+      "impliedProbability": 0.32051282051282054,
+      "fairProbability": 0.3058231392286924,
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     },
     {
       "eventId": "97e82e8fb4898361",
@@ -244,10 +312,10 @@
       "market": "matchWinner",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "price": -265,
-      "impliedProbability": 0.726027397260274,
-      "fairProbability": 0.6930580666862884,
-      "snapshotTime": "2026-10-13T00:31:26.000Z"
+      "price": -267,
+      "impliedProbability": 0.7275204359673024,
+      "fairProbability": 0.6941768607713076,
+      "snapshotTime": "2026-10-13T14:08:25.000Z"
     }
   ]
 }
