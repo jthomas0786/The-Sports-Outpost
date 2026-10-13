@@ -591,7 +591,7 @@
             title="Parlay Ping — TSO 2.0 betslip tools"
             src="https://parlayping.thesportsoutpost.com/submit?tso_embed=1"
             loading="eager"
-            scrolling="no"
+            scrolling="auto"
             referrerpolicy="strict-origin-when-cross-origin"
             allow="clipboard-read; clipboard-write"
           ></iframe>

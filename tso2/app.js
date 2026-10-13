@@ -8081,8 +8081,10 @@
       if(event.origin!==PARLAYPING_ORIGIN||event.source!==frame.contentWindow)return;
       if(event.data?.type==='tso2-parlayping-size'){
         const height=Number(event.data.height);
-        if(Number.isFinite(height)&&height>=300&&height<=14000){
-          frame.style.height=Math.ceil(height+2)+'px';
+        if(Number.isFinite(height)&&height>=300&&height<=40000){
+          // Keep the iframe as tall as its real content, without feeding
+          // viewport-height growth back into its own resize observer.
+          frame.style.height=Math.max(580,Math.ceil(height))+'px';
           frame.parentElement?.classList.add('is-autosized');
         }
         return;

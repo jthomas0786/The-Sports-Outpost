@@ -27,9 +27,9 @@ assert(app.includes('PARLAYPING_ORIGIN')&&app.includes('event.source!==frame.con
 assert(app.includes('recipient.postMessage({type:\'tso2-parlayping-auth\',accessToken},PARLAYPING_ORIGIN)'));
 assert(!route.includes('TSO ACCOUNT'),'TSO member profile remains in global navigation');
 assert(route.includes('BETSLIP BUILDER'));
-assert(route.includes('scrolling="no"'));
+assert(route.includes('scrolling="auto"'), 'Dynamic betslips must have a native scroll fallback');
 assert(app.includes("event.data?.type==='tso2-parlayping-size'"));
-assert(app.includes('frame.style.height=Math.ceil(height+2)'));
+assert(app.includes('frame.style.height=Math.max(580,Math.ceil(height))'), 'PostMessage height must grow without feedback loops');
 assert(css.includes('PARLAY PING — TSO 2.0 BROADCAST PARITY'));
 assert(css.includes('--outpost-orange,#ff4d1c'));
 assert(css.includes('--outpost-gold,#ffd84d'));
@@ -42,6 +42,8 @@ assert(app.includes("let parlayPingPath='/submit'"));
 assert(app.includes("pathname.startsWith('/build/')")||app.includes("/^\\/(build|slip|share)\\//"));
 assert(app.includes("if(currentRoute==='parlays')mountParlayPingWorkspace()"));
 assert(css.includes('.parlayping-workspace-frame-shell iframe'));
+assert(css.includes('touch-action:pan-y'), 'Mobile betslip iframe must support vertical swipe scrolling');
+assert(app.includes('height<=40000'), 'Full-height 25-leg slips must be accepted within safe bounds');
 assert(shell.includes('data-route="parlays"')&&shell.includes('PARLAY PING'));
 console.log('TSO 2.0 full Parlay Ping in-tab features, no off-site link hub: PASS');
 
