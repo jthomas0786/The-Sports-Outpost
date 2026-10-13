@@ -140,10 +140,23 @@ assert.match(view.signalMini(exact,mkResearch([83,80,75,95,77,82])),/role="progr
 assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/Price value/);
 assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/NOT a probability of winning/);
 assert.equal(view.signalScore(exact,{available:false}).score,null,'No invented score without history');
-assert.equal(view.signalScore({...exact,model:{}},mkResearch([83,80,75,95,77,82])).score,null,'No score without model');
+assert.equal(view.signalScore({...exact,model:{}},mkResearch([83,80,75,95,77,82])).tier,'FORM ONLY','A market-only prop must have a distinct observed-history label');
 const identity={...mkResearch([83,80,75,95,77,82]),player:{...mkResearch([83,80,75,95,77,82]).player,gsisId:'00-0033553',team:'BUF'}};
 const roleRow={...exact,team:'BUF'};
 assert.ok(view.signalScore(roleRow,identity,pbpFixture).factors.some(f=>f.label==='Verified role'),'Correct GSIS ID enables opportunity factor');
 assert.ok(!view.signalScore(roleRow,{available:true,player:{...identity.player,team:'LA'}},pbpFixture).factors.some(f=>f.label==='Verified role'),'Mismatched team must exclude opportunity factor');
 
-console.log('TSO verified player intelligence and Prop Signal: PASS');
+
+const historical=view.signalScore({...exact,model:null},mkResearch([88,90,92,94,96,98]));
+assert.equal(historical.tier,'FORM ONLY');
+assert.ok(historical.score>0&&historical.score<=74,'Without model, scores are provisional and capped');
+assert.match(view.signalMini({...exact,model:null},mkResearch([88,90,92,94,96,98])),/FORM ONLY/);
+assert.equal(view.signalScore({...exact,model:null},{available:false}).score,null,'Do not invent missing history');
+const defenseFixture=(team,def,pos)=>({available:true,sport:'nfl',player:{team,matchup:{
+ opponent:def,positionGroup:pos,previousSeasonAllowed:{position:pos,games:15,perGame:{recYds:120.5,receptions:9.1,rushYds:99.5,passYds:219.9}}}}});
+assert.match(view.verifiedDefensiveMatchup(defenseFixture('LA','BUF','WR'),'BUF','LA').html,/BUF defense vs WR/);
+assert.match(view.verifiedDefensiveMatchup(defenseFixture('BUF','LA','RB'),'LA','BUF').html,/LA defense vs RB/);
+assert.equal(view.verifiedDefensiveMatchup(defenseFixture('BUF','LA','RB'),'BUF','LA'),null);
+assert.equal(view.verifiedDefensiveMatchup(defenseFixture('LA','BUF','WR'),'LA','BUF'),null);
+
+console.log('TSO defense join and form-only signal: PASS');

@@ -392,7 +392,7 @@ async function main(){
       const currentSeason=histId?summarizeSeason(curRegBy.get(histId)):null;
       const historyRows=histId?[...(curWeeksBy.get(histId)||[]),...(prevWeeksBy.get(histId)||[])]:[];
       const last5=histId?summarizeLast(historyRows,5,scheduleIndex):null;
-      const gameLog=(histId&&model)?gameLogRows(historyRows,scheduleIndex,40):null;
+      const gameLog=histId?gameLogRows(historyRows,scheduleIndex,40):null; // Verified logs must not require a model match.
       const jersey=p.jersey||pick(nv,'jersey_number','jersey')||null;
       const position=p.position||pick(nv,'position','position_group')||pick(x,'position')||'';
       const status=inj?.status||p.status||pick(nv,'status')||'Active';

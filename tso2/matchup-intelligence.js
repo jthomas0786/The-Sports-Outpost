@@ -417,42 +417,43 @@ function propRole(data,doc,row){
  return {value:parts.reduce((s,v)=>s+v.value,0)/parts.length,detail:parts.map(v=>v.detail).join(' · ')+' · '+p.gamesWithOpportunities+' observed games'};
 }
 function signalScore(row,data,doc){
- const model=n(row?.model?.probabilityPct);
- if(model===null||model<0||model>100)return {score:null,reason:'Verified model unavailable'};
- const series=seriesFromResearch(data,row);
- const decisions=series.slice(0,10).map(g=>hit(g.value,row)).filter(x=>x==='hit'||x==='miss');
- if(decisions.length<5)return {score:null,reason:'Exact-line history '+decisions.length+'/5'};
- const a=observedForm(series,row,5),b=observedForm(series,row,10);
- if(!a||!b)return {score:null,reason:'No verified exact-line trend'};
- const factors=[
-  {label:'Model support',value:model,weight:28,note:'Verified exact-line model '+pct(model)},
-  {label:'Recent exact-line form',value:.55*a.value+.45*b.value,weight:32,
-   note:'Last 5 '+a.wins+'/'+a.count+' · last 10 '+b.wins+'/'+b.count+' (small-sample adjusted)'}
- ];
- const threshold=marketThreshold(row);
- if(threshold!==null&&series.length>=5){
-  const v=series.slice(0,5).map(g=>g.value).sort((x,y)=>x-y),median=v.length%2?v[(v.length-1)/2]:(v[v.length/2-1]+v[v.length/2])/2;
-  factors.push({label:'Margin over line',value:clamp(50+40*(median-threshold)/Math.max(1,Math.abs(threshold)*.25),0,100),
-   weight:12,note:'Last 5 median '+amount(median)+' vs exact line '+amount(threshold)});
+ const model=n(row?.model?.probabilityPct),modeled=model!==null&&model>=0&&model<=100;
+ const series=seriesFromResearch(data,row),decisions=series.slice(0,10).map(g=>hit(g.value,row)).filter(v=>v==='hit'||v==='miss');
+ if(decisions.length<5)return {score:null,reason:'Need 5 verified '+marketName(row)+' results ('+decisions.length+'/5)',modeled};
+ const l5=observedForm(series,row,5),l10=observedForm(series,row,10);
+ if(!l5||!l10)return {score:null,reason:'Verified game history unavailable',modeled};
+ const factors=[];
+ if(modeled)factors.push({label:'Model support',value:model,weight:28,note:'Exact-market forecast '+pct(model)});
+ factors.push({label:'Recent exact-line form',value:.55*l5.value+.45*l10.value,weight:modeled?32:55,
+  note:'L5 '+l5.wins+'/'+l5.count+' · L10 '+l10.wins+'/'+l10.count+' · smoothed sample'});
+ const line=marketThreshold(row);
+ if(line!==null){
+  const arr=series.slice(0,5).map(g=>g.value).sort((a,b)=>a-b);
+  const median=arr.length%2?arr[(arr.length-1)/2]:(arr[arr.length/2-1]+arr[arr.length/2])/2;
+  factors.push({label:'Margin over line',value:clamp(50+40*(median-line)/Math.max(1,Math.abs(line)*.25),0,100),
+   weight:modeled?12:25,note:'Recent median '+amount(median)+' versus exact line '+amount(line)});
  }
- const modelEdge=n(row?.model?.edgePct),implied=n(row?.impliedPct);
- const edge=modelEdge!==null?modelEdge:implied!==null&&implied>=0&&implied<=100?model-implied:null;
- if(edge!==null&&Math.abs(edge)<=100)factors.push({label:'Price value',value:clamp(50+4*edge,0,100),weight:13,note:'Model vs sportsbook '+signEdge(edge)});
+ const implied=n(row?.impliedPct),direct=n(row?.model?.edgePct);
+ const edge=modeled?(direct!==null?direct:implied!==null&&implied>=0&&implied<=100?model-implied:null):null;
+ if(edge!==null&&Math.abs(edge)<=100)
+  factors.push({label:'Price value',value:clamp(50+edge*4,0,100),weight:13,note:'Model vs market '+signEdge(edge)});
  const role=propRole(data,doc,row);
- if(role)factors.push({label:'Verified role',value:role.value,weight:15,note:role.detail});
- const coverage=factors.reduce((sum,f)=>sum+f.weight,0);
- let score=Math.round(factors.reduce((sum,f)=>sum+f.value*f.weight,0)/coverage);
- if(decisions.length<10)score=Math.min(score,87);
- if(factors.length<4)score=Math.min(score,82);
- if(String(row.sport||'')==='nfl'&&!role)score=Math.min(score,89);
- return {score,tier:score>=85?'ELITE':score>=75?'STRONG':score>=60?'WATCH':'CAUTION',
-  factors,coverage,games:decisions.length};
+ if(role)factors.push({label:'Verified role',value:role.value,weight:modeled?15:20,note:role.detail});
+ const coverage=factors.reduce((s,f)=>s+f.weight,0);
+ let score=Math.round(factors.reduce((s,f)=>s+f.weight*f.value,0)/coverage);
+ if(decisions.length<10)score=Math.min(score,modeled?87:72);
+ if(modeled){
+  if(factors.length<4)score=Math.min(score,82);
+  if(row.sport==='nfl'&&!role)score=Math.min(score,89);
+ }else score=Math.min(score,74);
+ return {score,tier:modeled?(score>=85?'ELITE':score>=75?'STRONG':score>=60?'WATCH':'CAUTION'):'FORM ONLY',
+  modeled,factors,coverage,games:decisions.length};
 }
 function signalMini(row,data,doc){
  const s=signalScore(row,data,doc);
  if(s.score===null)return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><small class="mi-signal-pending">'+esc(s.reason)+'</small><div class="mi-signal-track"></div>';
- return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase()+'">'+s.tier+'</b></span>'
-  +'<div class="mi-signal-track" role="progressbar" aria-label="TSO Prop Signal strength score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
+ return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b></span>'
+  +'<div class="mi-signal-track'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO Prop Signal evidence score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
 }
 function signalDetail(row,data,doc){
  const s=signalScore(row,data,doc);
@@ -460,9 +461,9 @@ function signalDetail(row,data,doc){
  if(s.score===null)return '<section class="mi-signal-detail">'+header+'<p class="mi-muted">'+esc(s.reason)+'. TSO does not invent missing ratings.</p></section>';
  const factors=s.factors.map(f=>'<div class="mi-signal-factor"><div><b>'+esc(f.label)+'</b><span>'+f.weight+'% · '+Math.round(f.value)+'/100</span></div>'
   +'<div class="mi-signal-track"><span style="width:'+clamp(f.value,0,100)+'%"></span></div><small>'+esc(f.note)+'</small></div>').join('');
- return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase()+'">'+s.tier+'</b><small>'+s.games+' exact-line games · '+s.coverage+'% verified factor coverage</small></div></div>'
-  +'<div class="mi-signal-track mi-signal-large" role="progressbar" aria-label="TSO Prop Signal strength score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
-  +'<div class="mi-signal-factor-grid">'+factors+'</div><p class="mi-evidence-note">TSO Prop Signal is NOT a probability of winning. Position-defense and injuries are excluded until their pipelines are verified.</p></section>';
+ return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' exact-line games · '+s.coverage+'% verified factor coverage</small></div></div>'
+  +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO Prop Signal evidence score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
+  +'<div class="mi-signal-factor-grid">'+factors+'</div><p class="mi-evidence-note">TSO Prop Signal is NOT a win probability. FORM ONLY is historical performance, not a verified forecast. Defense vs position and injuries remain excluded until verified.</p></section>';
 }
 function updateSignalView(root,row,data){
  for(const el of root.querySelectorAll('[data-mi-signal]'))if(el.dataset.miSignal===key(row))el.innerHTML=signalMini(row,data,state.signalDoc);
@@ -500,23 +501,32 @@ function renderResearch(data,row){
    +'<small class="mi-muted">Source: '+esc(source)+'</small></div>'
    +'<div class="mi-section mi-section--movement"><h4>Sportsbook odds movement</h4><div data-mi-history="'+esc(key(row))+'"><p class="mi-muted">Checking verified line history…</p></div></div>';
 }
-function scoutingFromResult(data,against,game){
+function verifiedDefensiveMatchup(data,defense,offense){
+ if(!data?.available||data.sport!=='nfl')return null;
+ const p=data.player||{},m=p.matchup||{},v=m.previousSeasonAllowed||{};
+ const pos=String(m.positionGroup||'').toUpperCase();
+ if(nflTeamCode(p.team)!==nflTeamCode(offense)||nflTeamCode(m.opponent)!==nflTeamCode(defense)||
+  !['QB','RB','WR','TE'].includes(pos)||String(v.position||'').toUpperCase()!==pos||
+  !Number.isInteger(Number(v.games))||Number(v.games)<5)return null;
+ const columns=pos==='QB'?[['passYds','Passing yards'],['passTds','Passing TDs']]:
+  pos==='RB'?[['rushYds','Rushing yards'],['recYds','Receiving yards']]:
+  [['recYds','Receiving yards'],['receptions','Receptions']];
+ const values=columns.filter(([k])=>n(v.perGame?.[k])!==null&&n(v.perGame?.[k])>=0)
+  .map(([k,label])=>'<span><b>'+amount(v.perGame[k])+'</b><small>'+esc(label)+' / game</small></span>');
+ if(!values.length)return null;
+ return {pos,html:'<div class="mi-scout-pos"><b>'+esc(defense)+' defense vs '+pos+' · 2025</b>'
+  +'<div class="mi-scout-metrics">'+values.join('')+'</div><small>Against all '+pos+'s combined · '+v.games+' observed games · prior season</small></div>'};
+}
+function scoutingFromResult(data,defense,game){
  if(!data?.available)return null;
- const sport=String(game.league||'').toLowerCase();
- if(sport==='nfl'){
-   const per=data?.player?.matchup?.previousSeasonAllowed?.perGame||{};
-   const names=[['tds','TDs allowed / game'],['rushYds','Rush yards / game'],['recYds','Receiving yards / game']];
-   const metrics=names.filter(([k])=>n(per[k])!==null).map(([k,label])=>'<span><b>'+amount(per[k])+'</b><small>'+label+'</small></span>');
-   if(metrics.length)return '<b>Previous-season opponent allowance</b><div class="mi-scout-metrics">'+metrics.join('')+'</div><small>Player research context; not a current-week defensive ranking.</small>';
+ if(game.league==='nfl'){
+  const offense=nflTeamCode(nflTeamCode(game.away?.abbr)===nflTeamCode(defense)?game.home?.abbr:game.away?.abbr);
+  return verifiedDefensiveMatchup(data,defense,offense)?.html||null;
  }
- if(sport==='nba'){
-   const pace=n(data?.matchup?.opponentPace);
-   if(pace!==null)return '<b>Verified opponent pace context</b><div class="mi-scout-metrics"><span><b>'+amount(pace)+'</b><small>Possessions estimate / game</small></span></div>';
- }
- if(sport==='mlb'){
-   const era=n(data?.opponent?.pitcher?.era);
-   if(era!==null)return '<b>Projected opponent starter</b><div class="mi-scout-metrics"><span><b>'+amount(era)+'</b><small>ERA</small></span></div>';
- }
+ if(game.league==='nba'&&n(data?.matchup?.opponentPace)!==null)
+  return '<b>Verified opponent pace</b><div class="mi-scout-metrics"><span><b>'+amount(data.matchup.opponentPace)+'</b><small>Possessions estimate / game</small></span></div>';
+ if(game.league==='mlb'&&n(data?.opponent?.pitcher?.era)!==null)
+  return '<b>Projected opposing starter</b><div class="mi-scout-metrics"><span><b>'+amount(data.opponent.pitcher.era)+'</b><small>ERA</small></span></div>';
  return null;
 }
 function getResearch(row,ctx){
@@ -600,18 +610,37 @@ function updateScouting(root,ctx){
    for(const el of root.querySelectorAll('[data-mi-attack]'))el.textContent='Opponent offensive opportunity comparison requires a verified sport-specific source.';
  }
  for(const t of [game.away,game.home]){
-   const opp=String(t?.abbr||'');
-   const node=[...root.querySelectorAll('[data-mi-scout]')].find(x=>x.dataset.miScout===opp);
-   if(!node)continue;
-   const row=rows.find(r=>String(r.team||'').toLowerCase()!==opp.toLowerCase());
-   if(!row){node.textContent='No verified opponent research for this matchup yet.';continue;}
-   const memo=state.cached.get(key(row));
-   if(memo){node.innerHTML=scoutingFromResult(memo,opp,game)||'<span>Opponent positional allowance data is not available from the verified source yet.</span>';continue;}
-   node.textContent='Checking verified opponent-defense data…';
+  const defense=nflTeamCode(t?.abbr||'');
+  const node=[...root.querySelectorAll('[data-mi-scout]')].find(e=>nflTeamCode(e.dataset.miScout)===defense);
+  if(!node)continue;
+  const offense=nflTeamCode(nflTeamCode(game.away?.abbr)===defense?game.home?.abbr:game.away?.abbr);
+  const pool=rows.filter(row=>nflTeamCode(row.team)===offense);
+  if(game.league!=='nfl'){
+   const row=pool[0];if(!row){node.textContent='Verified opponent data unavailable.';continue;}
    getResearch(row,ctx).then(data=>{
-     if(node.isConnected)node.innerHTML=scoutingFromResult(data,opp,game)||'<span>Source-backed opponent allowance data is unavailable for this matchup.</span>';
-   }).catch(()=>{if(node.isConnected)node.textContent='Opponent scouting feed is currently unavailable.';});
+    if(node.isConnected)node.innerHTML=scoutingFromResult(data,defense,game)||'<span>Matchup data unavailable.</span>';
+   }).catch(()=>{if(node.isConnected)node.textContent='Matchup data unavailable.';});
+   continue;
+  }
+  const markets=['passYds','completions','rushYds','rushAtt','recYds','receptions','atd'];
+  const candidates=[...new Map(markets.flatMap(m=>pool.filter(r=>r.market===m).slice(0,4))
+    .map(r=>[String(r.player||'').toLowerCase(),r])).values()].slice(0,12);
+  if(!candidates.length){node.textContent='No verified defense-vs-position observations.';continue;}
+  node.textContent='Verifying positional defensive records…';
+  Promise.allSettled(candidates.map(r=>getResearch(r,ctx))).then(results=>{
+   if(!node.isConnected)return;
+   const profiles=new Map();
+   for(const item of results){
+    const match=item.status==='fulfilled'?verifiedDefensiveMatchup(item.value,defense,offense):null;
+    if(match&&!profiles.has(match.pos))profiles.set(match.pos,match.html);
+   }
+   node.innerHTML=profiles.size?'<b>Verified 2025 defense vs position</b><div class="mi-scout-pos-grid">'
+    +['QB','RB','WR','TE'].filter(p=>profiles.has(p)).map(p=>profiles.get(p)).join('')+'</div>'
+    +'<small>Previous-season positional allowance; not current-week defensive rankings.</small>'
+    :'<span class="mi-muted">Position-specific defensive numbers unavailable for '+esc(defense)+'. No unrelated opponent data substituted.</span>';
+  });
  }
+
 }
 function bind(root,ctx){
  const game=ctx.game,rows=ctx.rows||[];
@@ -636,5 +665,5 @@ function bind(root,ctx){
  updateScouting(root,ctx);
  hydrateSignals(root,ctx);
 }
-window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,signalScore,signalMini,signalDetail,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
+window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,signalScore,signalMini,signalDetail,verifiedDefensiveMatchup,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
 })();
