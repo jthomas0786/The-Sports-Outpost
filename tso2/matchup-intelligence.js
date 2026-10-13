@@ -463,7 +463,7 @@ function signalDetail(row,data,doc){
   +'<div class="mi-signal-track"><span style="width:'+clamp(f.value,0,100)+'%"></span></div><small>'+esc(f.note)+'</small></div>').join('');
  return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' exact-line games · '+s.coverage+'% verified factor coverage</small></div></div>'
   +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO Prop Signal evidence score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
-  +'<div class="mi-signal-factor-grid">'+factors+'</div><p class="mi-evidence-note">TSO Prop Signal is NOT a win probability. FORM ONLY is historical performance, not a verified forecast. Defense vs position and injuries remain excluded until verified.</p></section>';
+  +'<div class="mi-signal-factor-grid">'+factors+'</div><p class="mi-evidence-note">TSO Prop Signal is NOT a probability of winning. FORM ONLY is historical performance, not a verified forecast. Defense vs position and injuries remain excluded until verified.</p></section>';
 }
 function updateSignalView(root,row,data){
  for(const el of root.querySelectorAll('[data-mi-signal]'))if(el.dataset.miSignal===key(row))el.innerHTML=signalMini(row,data,state.signalDoc);
