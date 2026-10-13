@@ -969,8 +969,10 @@
     node.innerHTML=markup;node.scrollLeft=left;node.scrollTop=top;
   }
   function detailSignature(game,rows,lines){
-    return JSON.stringify([game.id,game.state,game.detail,game.startTime,
-      game.away?.score,game.home?.score,game.venue,lines||null,
+    // Scores and live clock are updated separately. They must not destroy
+    // a player's open analysis panel every time the scoreboard ticks.
+    return JSON.stringify([game.id,game.league,game.startTime,game.venue,
+      game.away?.abbr,game.home?.abbr,lines||null,
       rows.map(r=>[r.key,r.market,r.side,r.line,r.price,r.impliedPct,
         r.book,r.model?.probabilityPct,r.model?.edgePct,r.model?.source])]);
   }
@@ -1008,11 +1010,11 @@
       (ctx.league==='all'||sport(row.sport)===ctx.league)&&window.TSO2Matchup?.eligibleOver(row)&&row.model&&number(row.model.probabilityPct)!==null
       &&number(row.model.edgePct)!==null&&Number(row.model.edgePct)>0
     ));
-    root.querySelector('[data-decision-summary]').innerHTML=
+    setMarkup(root.querySelector('[data-decision-summary]'),
       '<div class="decision-stat"><small>LIVE GAMES</small><strong>'+(ctx.liveReady?games.filter(g=>g.state==='in').length:'—')+'</strong><em>'+E(ctx.liveReady?games.length+' games in filter':'Connecting scoreboard')+'</em></div>'
       +'<div class="decision-stat"><small>POSITIVE MODEL EDGES</small><strong>'+(ctx.propsReady?modeled.length:'—')+'</strong><em>Exact matches only</em></div>'
-      +'<div class="decision-stat"><small>MY BETSLIP</small><strong>'+ctx.draftKeys.length+' / 25</strong><em>Saved to your TSO account</em></div>';
-    root.querySelector('[data-decision-opportunities]').innerHTML=!ctx.propsReady
+      +'<div class="decision-stat"><small>MY BETSLIP</small><strong>'+ctx.draftKeys.length+' / 25</strong><em>Saved to your TSO account</em></div>');
+    setMarkup(root.querySelector('[data-decision-opportunities]'),!ctx.propsReady
       ?'<div class="decision-empty"><b>Connecting real model data.</b>No preview predictions will be substituted.</div>'
       :modeled.length?modeled.slice(0,5).map(r=>
         '<article class="decision-opportunity"><div class="decision-opportunity-name"><small>'+E(String(r.sport||'').toUpperCase())+' · '+E(r.book||'Verified book')+' · '+E(odds(r.price))+'</small>'
@@ -1021,11 +1023,11 @@
         +'<details class="decision-opportunity-details"><summary>WHY? · '+E(r.model?.sourceLabel||r.model?.source||'TSO MODEL')+'</summary><p>'+E(exactReason(r))+'</p>'
         +'<p class="decision-opportunity-source">Exact sportsbook: '+E(r.book||'Verified quote')+' '+E(odds(r.price))+'</p></details></article>'
         ).join('')
-      :'<div class="decision-empty"><b>No verified positive model edges right now.</b>Try another sport or browse all games. TSO will not manufacture recommendations.</div>';
-    root.querySelector('[data-decision-home-games]').innerHTML=!ctx.liveReady
+      :'<div class="decision-empty"><b>No verified positive model edges right now.</b>Try another sport or browse all games. TSO will not manufacture recommendations.</div>');
+    setMarkup(root.querySelector('[data-decision-home-games]'),!ctx.liveReady
       ?'<div class="decision-empty">Connecting scoreboard…</div>'
       :games.length?games.slice(0,10).map(g=>gameRow(g)).join('')
-      :'<div class="decision-empty"><b>No scheduled games for this filter.</b>Try another sport.</div>';
+      :'<div class="decision-empty"><b>No scheduled games for this filter.</b>Try another sport.</div>');
     renderDock(root,ctx);
   }
   function renderGames(root,ctx){
@@ -1070,6 +1072,12 @@
     if(!marketMarkup)marketMarkup='<div class="decision-empty"><b>Verified game lines pending.</b>Spread, moneyline and total need valid current sportsbook data. No simulated percentages.</div>';
     const signature=detailSignature(selected,matched,lines);
     if(detail.dataset.tsoDetailSignature===signature){
+      // Keep live header text accurate without replacing the player tree.
+      const status=detail.querySelector('.decision-game-header>small');
+      if(status)status.textContent=String(selected.league||'').toUpperCase()+' · '+gameStatus(selected);
+      const caption=detail.querySelector('.decision-game-header>p');
+      if(caption)caption.textContent=String(selected.venue||'Venue unavailable')+' · '+
+        (selected.state==='in'?'Live':selected.state==='post'?'Final':'Upcoming');
       renderDock(root,ctx);
       return;
     }

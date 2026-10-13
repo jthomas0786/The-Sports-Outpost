@@ -89,4 +89,45 @@ assert.equal(widget.matchedRows([{sport:'nfl',eventId:'9af65dba',awayTeam:'Buffa
  'NFL book IDs join by verified matchup');
 
 assert.match(widget.exactReason({model:{}}),/not available/,'Missing model reason must be disclosed, not fabricated');
-console.log('TSO 2.0 decision-first layout, saved deep routes, exact-game filtering and 25-leg handoff: PASS');
+
+// Background updates must preserve the exact player/detail DOM instance
+// even when the live scoreboard value changes.
+const fakeDetail={innerHTML:'',dataset:{},scrollLeft:0,scrollTop:0,
+ querySelector:()=>null};
+const fakeGameList={innerHTML:'',scrollLeft:173,scrollTop:0};
+const fakeFinalResult={innerHTML:'',scrollLeft:0,scrollTop:0};
+const fakeFinals={hidden:false,querySelector:sel=>sel==='[data-decision-final-count]'?{textContent:''}:fakeFinalResult};
+const fakeDock={innerHTML:'',scrollLeft:0,scrollTop:0};
+const nodes={
+ '[data-decision-game-list]':fakeGameList,
+ '[data-decision-final-results]':fakeFinals,
+ '[data-decision-game-detail]':fakeDetail,
+ '[data-decision-betslip]':fakeDock
+};
+const fakeRoot={querySelector:sel=>nodes[sel]||null,querySelectorAll:()=>[]};
+const isolated={window:{scrollY:450,scrollTo:()=>{throw Error('No scroll-to-top on automatic refresh')},
+ TSO2Matchup:{listing:()=>'<span>Verified player panel</span>',bind:()=>{}}},
+ document:{querySelector:sel=>sel==='[data-decision-games]'?fakeRoot:null},
+ console};
+vm.runInNewContext(decision,isolated);
+const safe=isolated.window.TSO2Decision;
+const baseGame={id:'scroll-game',league:'nba',state:'pre',startTime:'2026-10-13T23:00:00Z',
+ away:{abbr:'NYK',name:'New York Knicks',score:0},
+ home:{abbr:'BOS',name:'Boston Celtics',score:0}};
+const ctx={route:'games',league:'nba',games:[baseGame],rows:[],draftKeys:[],
+ liveReady:true,propsReady:true,linesBySport:new Map(),ensureLines:()=>{},
+ renderMarkets:()=>'<i>Odds</i>',addProp:()=>{},research:()=>{},history:()=>{}};
+safe.render(ctx);
+fakeDetail.innerHTML+='<span id="keep-open-details">Expanded analysis stays mounted</span>';
+safe.render(ctx);
+assert.match(fakeDetail.innerHTML,/keep-open-details/,'Ordinary polling cannot discard open player details');
+safe.render({...ctx,games:[{...baseGame,state:'in',detail:'Q1 11:42',
+ away:{...baseGame.away,score:14},home:{...baseGame.home,score:15}}]});
+assert.match(fakeDetail.innerHTML,/keep-open-details/,'Score ticks cannot rebuild open player details');
+assert.equal(fakeGameList.scrollLeft,173,'Scoreboard horizontal scroll must stay in place');
+safe.render({...ctx,rows:[{key:'new-prop',sport:'nba',market:'points',
+ awayTeam:'New York Knicks',homeTeam:'Boston Celtics',
+ commenceTime:baseGame.startTime,price:-110,line:17.5,side:'over'}]});
+assert.ok(!fakeDetail.innerHTML.includes('keep-open-details'),'New verified prop may intentionally update the detail');
+
+console.log('TSO decision dashboard, scroll-stable background updates and live score preservation: PASS');
