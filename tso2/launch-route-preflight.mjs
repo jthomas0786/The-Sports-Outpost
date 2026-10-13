@@ -5,6 +5,7 @@ const targets=[
   {name:'TSO 2 www canonical redirect',url:'https://www.thesportsoutpost.com/',kind:'redirect'},
   {name:'TSO 2 production live API',url:'https://thesportsoutpost.com/api/live?league=all',kind:'json'},
   {name:'TSO 2 production props API',url:'https://thesportsoutpost.com/api/props?league=all',kind:'json'},
+  {name:'TSO 2 actual NFL weekly scoreboard',url:'https://tso2-game-edge.jthomas0786-tso.workers.dev/?league=nfl',kind:'json'},
   {name:'TSO 2 preview homepage',url:process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com/',kind:'html',optional:!process.env.TSO2_PREVIEW_URL},
   {name:'TSO 2 preview live API',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/api/live?league=all',kind:'json',optional:!process.env.TSO2_PREVIEW_URL},
   {name:'TSO 2 preview stylesheet',url:(process.env.TSO2_PREVIEW_URL||'https://staging.thesportsoutpost.com').replace(/\/$/,'')+'/styles.css',kind:'css'},
@@ -60,7 +61,7 @@ const validate=(target,body)=>{
   return true;
 };
 let failed=0;
-let productionLive=null,productionProps=null;
+let productionLive=null,productionProps=null,productionNflWeekly=null;
 for(const target of targets){
   try{
     const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
@@ -81,6 +82,9 @@ for(const target of targets){
     }
     if(target.name==='TSO 2 production props API'&&response.ok){
       try{productionProps=JSON.parse(body)}catch{}
+    }
+    if(target.name==='TSO 2 actual NFL weekly scoreboard'&&response.ok){
+      try{productionNflWeekly=JSON.parse(body)}catch{}
     }
     const validType=target.kind==='png'?/image\/png/i.test(contentType):target.kind==='ico'?/image\/(x-icon|vnd\.microsoft\.icon)/i.test(contentType):target.kind==='manifest'?/application\/(manifest\+json|json)/i.test(contentType):target.kind==='webp'?/image\/webp/i.test(contentType):target.kind==='svg'?/image\/svg\+xml/i.test(contentType):target.kind==='json'?/json/i.test(contentType)&&body.trim().startsWith('{'):target.kind==='html'?/html/i.test(contentType)&&/<html/i.test(body):target.kind==='css'?/css/i.test(contentType):/javascript|ecmascript/i.test(contentType);
     const ok=response.ok&&validType&&validate(target,body)
@@ -104,6 +108,24 @@ for(const target of targets){
     if(!target.optional)failed++;
     console.log(JSON.stringify({name:target.name,url:target.url,ok:false,optional:!!target.optional,error:String(error.message||error)}));
   }
+}
+if(productionNflWeekly?.games&&productionProps?.rows){
+  try{
+    const {readFileSync}=await import('node:fs');
+    const vm=await import('node:vm');
+    const win={},ctx={window:win,console};
+    vm.runInNewContext(readFileSync('tso2/decision-dashboard.js','utf8'),ctx);
+    vm.runInNewContext(readFileSync('tso2/matchup-intelligence.js','utf8'),ctx);
+    const odds=productionProps.rows.filter(row=>row.sport==='nfl');
+    const games=productionNflWeekly.games.map(game=>{
+      const matched=win.TSO2Decision.matchedRows(odds,game);
+      return {id:game.id,teams:String(game.away?.abbr||'')+' @ '+String(game.home?.abbr||''),
+       state:game.state,start:game.startTime,props:matched.length,
+       visibleOver:matched.filter(win.TSO2Matchup.eligibleOver).length};
+    });
+    console.log('ACTUAL_NFL_WEEK_MATCHES '+JSON.stringify({weekRange:productionNflWeekly.weekRange,
+      games:games.length,withProps:games.filter(x=>x.props>0),totalMatchable:games.reduce((n,g)=>n+g.props,0)}));
+  }catch(error){console.log('ACTUAL_NFL_WEEK_MATCHES unavailable: '+String(error.message||error))}
 }
 if(productionLive?.games&&productionProps?.rows){
   try{
