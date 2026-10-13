@@ -147,3 +147,61 @@
  .mi-move-labels>span{padding:8px}
  .mi-section--visual{padding:10px}
 }
+/* Evidence-first matchup and player insights — emphasize facts, not decoration. */
+.mi-decision-read{padding:16px;background:linear-gradient(110deg,#211910 0%,#101c1c 52%,#111a20 100%);border:1px solid rgba(255,175,88,.34);border-radius:11px;margin:13px 0;box-shadow:0 5px 25px rgba(0,0,0,.13)}
+.mi-read-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:13px}
+.mi-read-title>b{font-size:12px;color:#ffc77f;letter-spacing:.1em}
+.mi-read-title span{font-size:10px;color:#aab9b1}
+.mi-read-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.mi-read-signal{display:grid;gap:6px;background:rgba(6,12,13,.66);border:1px solid #344139;padding:14px 12px;border-radius:9px}
+.mi-read-signal>small{font-size:9px;letter-spacing:.085em;font-weight:950;color:#a7b8b0}
+.mi-read-signal>strong{font-size:clamp(19px,2.2vw,31px);font-weight:950;color:#f1f6e9;letter-spacing:-.035em}
+.mi-read-signal>span{font-size:10px;color:#b1c0b9;line-height:1.5}
+.mi-read-signal.mi-read-positive{border-color:#327357}
+.mi-read-signal.mi-read-positive>strong{color:#74e3a8}
+.mi-read-signal.mi-read-negative{border-color:#805044}
+.mi-read-signal.mi-read-negative>strong{color:#ff967c}
+.mi-read-caution{margin-top:12px;border:1px solid rgba(255,202,110,.3);padding:12px 14px;border-radius:7px;color:#d9c4a6;font-size:11px;line-height:1.6;background:rgba(88,59,26,.16)}
+.mi-read-caution>b{color:#ffc370;letter-spacing:.035em}
+.mi-evidence-note{margin:10px 0 0;font-size:10px;color:#9baea4;line-height:1.65;display:block}
+.mi-nfl-opportunities{padding:15px 12px;margin:13px 0;background:linear-gradient(128deg,#131d18,#0c1418);border:1px solid rgba(105,187,134,.35);border-radius:10px}
+.mi-nfl-opportunity-head{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:14px}
+.mi-nfl-opportunity-head>div{display:grid;gap:5px}
+.mi-nfl-opportunity-head b{font-size:11px;color:#a0f0be;letter-spacing:.06em}
+.mi-nfl-opportunity-head small{font-size:10px;color:#9aada2}
+.mi-nfl-opportunity-head>strong{white-space:nowrap;font-size:13px;padding:6px 9px;background:#1c362a;color:#a8eac7;border:1px solid #315b46}
+.mi-opportunity-layout{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:14px}
+.mi-opportunity-bars{display:grid;gap:11px}
+.mi-verified-usage>div:first-child{display:flex;gap:10px;justify-content:space-between;align-items:center;margin:0 0 6px}
+.mi-verified-usage b{font-size:10px;color:#c5d9ca;letter-spacing:.035em}
+.mi-verified-usage strong{font-size:13px;color:#f0d0a6;font-weight:950}
+.mi-verified-usage small{font-size:9px;color:#859c91;display:block;margin-top:5px;line-height:1.45}
+.mi-verified-usage-track{height:10px;background:#22312b;border-radius:99px;overflow:hidden;border:1px solid #3d5446}
+.mi-verified-usage-track>span{display:block;height:100%;background:linear-gradient(90deg,#41ac78,#80e3a7);border-radius:99px}
+.mi-pbp-counts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-self:start}
+.mi-pbp-count{display:grid;gap:4px;padding:10px;background:#0a1715;border:1px solid #274036}
+.mi-pbp-count>span{color:#95b2a1;font-size:9px;font-weight:850;line-height:1.35}
+.mi-pbp-count>strong{font-size:20px;font-weight:950;color:#ffe1aa}
+.mi-opposing-attack{border-top:1px solid #30413a;margin-top:12px;padding-top:12px}
+.mi-opp-offense-title{display:flex;flex-wrap:wrap;gap:5px 12px;align-items:center;justify-content:space-between;margin-bottom:10px}
+.mi-opp-offense-title b{font-size:11px;color:#ffc389;letter-spacing:.035em}
+.mi-opp-offense-title small{font-size:9px;color:#859e93}
+.mi-opp-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mi-opp-stat{display:grid;gap:4px;background:linear-gradient(110deg,#111d1d,#171e1b);border:1px solid #32413d;padding:10px}
+.mi-opp-stat>b{font-size:23px;font-weight:950;color:#fff0cc}
+.mi-opp-stat>span{font-size:10px;font-weight:900;color:#d0d9ce}
+.mi-opp-stat>small{font-size:9px;color:#8fac9d}
+.mi-opp-split{margin-top:11px}
+.mi-opp-split>div:first-child{display:flex;justify-content:space-between;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.mi-opp-split b{font-size:10px;color:#cde3d0}
+.mi-opp-split span{font-size:10px;color:#daa879}
+@media(max-width:1180px){.mi-opportunity-layout{grid-template-columns:1fr}.mi-pbp-counts{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:730px){.mi-read-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.mi-opportunity-layout{grid-template-columns:1fr}.mi-opp-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){
+ .mi-decision-read{padding:11px}
+ .mi-read-grid{grid-template-columns:1fr}
+ .mi-read-signal{padding:10px}
+ .mi-read-signal>strong{font-size:24px}
+ .mi-pbp-counts{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .mi-opposing-attack{font-size:10px}
+}
