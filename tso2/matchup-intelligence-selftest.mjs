@@ -78,4 +78,51 @@ assert.match(view.lineMovementChart({available:true,open:{price:-110},current:{p
 assert.ok(!view.lineMovementChart({available:true,open:{price:-110},current:{price:-110},points:[{price:-110}]},rows[1]).includes('mi-movement-chart'),'Do not fake a movement chart from one recorded snapshot');
 assert.ok(!view.recentGamesChart([],rows[1]).includes('mi-games-chart'),'No manufactured bars for missing research data');
 
+
+// New evidence-first analytics: connect the existing 2026 nflverse opportunity
+// snapshot only when GSIS player identity AND team are independently verified.
+const pbpFixture={
+ schemaVersion:1,source:'nflverse / nflfastR play-by-play (CC BY 4.0)',
+ generatedAt:'2026-10-10T08:00:00Z',
+ seasons:{'2026':{
+  teams:{BUF:{gamesPlayed:5,redZoneOpps:45,goalLineOpps:10,carries:160,targets:180},
+         LA:{gamesPlayed:5,redZoneOpps:39,goalLineOpps:14,carries:125,targets:220}},
+  players:{'00-0033553':{
+   name:'Test Back',team:'BUF',gamesWithOpportunities:5,
+   targetSharePct:23.4,carrySharePct:39,redZoneSharePct:36,
+   goalLineSharePct:44,targets:42,carries:62,redZoneOpps:16,
+   goalLineOpps:5,redZoneTdYieldPct:22.2
+  }}
+ }}
+};
+const idResearch={available:true,player:{gsisId:'00-0033553',team:'BUF'}};
+assert.equal(view.opportunityForPlayer(pbpFixture,idResearch,rows[0]).targetSharePct,23.4);
+assert.equal(view.opportunityForPlayer(pbpFixture,{available:true,player:{gsisId:'00-0033553',team:'LA'}},rows[0]),null,
+ 'Wrong team must never borrow another player’s opportunities');
+assert.equal(view.opportunityForPlayer(pbpFixture,{available:true,player:{gsisId:'00-0099999',team:'BUF'}},rows[0]),null,
+ 'No exact GSIS identity must show unavailable, never guessed usage');
+const opportunityCard=view.opportunityEvidence(pbpFixture,idResearch,rows[0]);
+for(const text of ['TARGET SHARE','23.4%','RED-ZONE SHARE','36.0%','GOAL-LINE SHARE','44.0%','RED-ZONE CHANCES','2026 nflverse'])
+ assert.ok(opportunityCard.includes(text),'Missing verified opportunity signal: '+text);
+const wrongTeamOpportunityCard=view.opportunityEvidence(pbpFixture,{available:true,player:{gsisId:'00-0033553',team:'LA'}},rows[0]);
+assert.ok(!wrongTeamOpportunityCard.includes('23.4%'),'Identity mismatch should never display data');
+const matchupEvidence=view.opposingOffenseEvidence(pbpFixture,'BUF',g);
+assert.ok(matchupEvidence.includes('LA offense'),'Buffalo defense must be paired with opposing LA offense');
+assert.ok(matchupEvidence.includes('7.8'),'39 red-zone opportunities across 5 LA games is 7.8 per game');
+assert.ok(matchupEvidence.includes('2.8'),'14 goal-line opportunities across 5 LA games is 2.8 per game');
+assert.ok(matchupEvidence.includes('not defensive yards allowed'),'Clearly separate offensive opportunity from defensive allowance');
+const highModel={sport:'nfl',player:'Test WR',market:'recYds',side:'over',line:94.5,model:{probabilityPct:80}};
+const observedResearch={available:true,player:{gameLog:[
+ {date:'2026-10-10',recYds:125},{date:'2026-10-03',recYds:74},
+ {date:'2026-09-26',recYds:76},{date:'2026-09-19',recYds:147},
+ {date:'2026-09-12',recYds:91},{date:'2026-09-05',recYds:99}
+]}};
+const quickRead=view.decisionEvidence(observedResearch,highModel);
+assert.ok(quickRead.includes('THE QUICK READ'));
+assert.ok(quickRead.includes('MODEL AND RECENT RESULTS DIFFER'),
+ 'A large divergence between 80% model and actual observed hits should not be hidden');
+assert.ok(quickRead.includes('2/5'),'Quick read must compute observed hits against the exact 94.5 line');
+assert.ok(!view.decisionEvidence({available:true,player:{gameLog:[]}},highModel).includes('MODEL AND RECENT RESULTS DIFFER'),
+ 'Never manufacture model-versus-form disagreements without an observed sample');
+
 console.log('TSO matchup intelligence source, defensively labeled probabilities, independent sports logs, and inline expansion: PASS');
