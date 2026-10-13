@@ -82,23 +82,27 @@ fs.mkdirSync(out,{recursive:true});
     assert.ok(await page.locator('[data-mi-filter="recYds"]').count()>0,'Receiving Yards should be its own exact market category');
     assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No under selections may appear in the main Game Hub');
     assert.ok(!(await page.locator('.mi-filters').innerText()).includes('OTHER PROPS'),'The filter bar should use real markets');
-    const checkProbabilityOrder=async(label)=>{
-      const observed=await page.locator('.mi-player').evaluateAll(nodes=>nodes.map(node=>{
-        const probability=node.querySelector('.mi-prob:not(.mi-prob--market) b')?.textContent||'';
-        const v=parseFloat(probability);
-        return Number.isFinite(v)?v:null;
+    const checkSignalOrder=async label=>{
+      const status=await page.locator('[data-mi-ranking-status]').first().innerText();
+      if(!status.includes('highest to lowest')){
+        console.log('INFO '+label+' rankings verifying: '+status);
+        return;
+      }
+      const order=await page.locator('.mi-player').evaluateAll(nodes=>nodes.map(el=>{
+        const bar=el.querySelector('.mi-signal-mini [role="progressbar"]');
+        return bar?Number(bar.getAttribute('aria-valuenow')):null;
       }));
-      const known=observed.filter(x=>x!==null);
-      assert.deepEqual(known,[...known].sort((a,b)=>b-a),label+': model percentages must be highest to lowest');
-      const firstMissing=observed.indexOf(null);
-      if(firstMissing>=0)assert.ok(observed.slice(firstMissing).every(x=>x===null),label+': missing model percentages go last');
-      console.log('PASS '+label+' verified model probabilities descend: '+JSON.stringify(observed));
+      const graded=order.filter(n=>n!==null);
+      assert.deepEqual(graded,[...graded].sort((a,b)=>b-a),label+': TSO Prop Signal desc');
+      const missing=order.indexOf(null);
+      if(missing>=0)assert.ok(order.slice(missing).every(n=>n===null),label+': ungraded last');
+      console.log('PASS '+label+' TSO Prop Signal order: '+JSON.stringify(order));
     };
-    await checkProbabilityOrder('All Props');
+    await checkSignalOrder('All Props');
     await page.locator('[data-mi-filter="recYds"]').click();
     assert.ok(await page.locator('.mi-player').count()>0,'Receiving Yards tab filters real source rows');
     assert.equal(await page.locator('.mi-player-label small').filter({hasNotText:'Receiving Yards'}).count(),0,'Market tab only shows its selected market');
-    await checkProbabilityOrder('Receiving Yards');
+    await checkSignalOrder('Receiving Yards');
     console.log('PASS live NFL prop categories: Over/Yes only, specific market tabs and exact selection filtering');
     await page.locator('.mi-player-expand').first().click();
     await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});

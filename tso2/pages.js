@@ -1132,7 +1132,7 @@ function orderedMarketKeys(rows,sport){
   return marketName({sport,market:a}).localeCompare(marketName({sport,market:b}));
  });
 }
-const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null};
+const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,ranking:null};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
  if(row?.selection)return String(row.selection);
@@ -1172,28 +1172,42 @@ function playerMarkup(row,i){
 function filterRows(rows){
  return state.activeFilter==='ALL PROPS'?rows:rows.filter(r=>String(r.market||'')===state.activeFilter);
 }
+// Rank using the TSO-exclusive score (never raw model %, price, or edge).
+// Missing scores have NO rank, and are always placed last.
+function rankRowsBySignal(rows,cache=state.cached,doc=state.signalDoc){
+ const result=new Map(rows.map(r=>[key(r),signalScore(r,cache.get(key(r)),doc)]));
+ return [...rows].sort((a,b)=>{
+  const sa=result.get(key(a)),sb=result.get(key(b)),an=n(sa?.score),bn=n(sb?.score);
+  if(an===null&&bn!==null)return 1;
+  if(an!==null&&bn===null)return -1;
+  if(an!==null&&bn!==null&&an!==bn)return bn-an;
+  if(an!==null&&bn!==null&&sa.modeled!==sb.modeled)return sa.modeled?-1:1;
+  return String(a.player||'').localeCompare(String(b.player||''))||
+   String(a.market||'').localeCompare(String(b.market||''))||
+   String(a.line??'').localeCompare(String(b.line??''))||
+   key(a).localeCompare(key(b));
+ });
+}
+function rankingSignature(game,rows){
+ return [String(game?.league||''),String(game?.id||''),...rows.filter(eligibleOver).map(r=>
+  [key(r),r.market,r.line,r.side,r.model?.probabilityPct,r.model?.edgePct].join(':')).sort()].join('|');
+}
+function rankingStatus(game,rows){
+ const job=state.ranking;
+ if(!job||job.signature!==rankingSignature(game,rows))
+  return 'Verifying TSO Prop Signals · temporary order while checking all players';
+ if(job.done)return 'TSO Prop Signal · highest to lowest · ungraded last';
+ return 'Verifying TSO Prop Signals · '+job.completed+'/'+job.total+' player profiles · order provisional';
+}
 function listing(game,rows){
  const id=String(game?.league||'')+':'+String(game?.id||'');
- if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();}
+ if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();state.ranking=null;}
  const all=rows.filter(eligibleOver);
  // One card per exact side and threshold; the authoritative best quote is
  // carried by the original row, never fabricated or reconstructed.
  const unique=[...new Map(all.map(r=>[key(r),r])).values()];
- // Display the highest verified MODEL probability first, regardless of
- // sportsbook edge. Missing model probabilities always appear at the bottom.
- // Only break equal probabilities with model edge and a stable player name.
- const ranked=unique.sort((a,b)=>{
-   const ap=n(a.model?.probabilityPct),bp=n(b.model?.probabilityPct);
-   if(ap===null&&bp!==null)return 1;
-   if(ap!==null&&bp===null)return -1;
-   if(ap!==null&&bp!==null&&ap!==bp)return bp-ap;
-   const ae=n(a.model?.edgePct),be=n(b.model?.edgePct);
-   if(ae!==null&&be!==null&&ae!==be)return be-ae;
-   if(ae===null&&be!==null)return 1;
-   if(ae!==null&&be===null)return -1;
-   return String(a.player||'').localeCompare(String(b.player||''))||
-     String(a.key||'').localeCompare(String(b.key||''));
- });
+ // Ranked by the TSO Prop Signal for every market category and All Props.
+ const ranked=rankRowsBySignal(unique);
  const filtered=filterRows(ranked),shown=state.showAll?filtered:filtered.slice(0,7);
  const filters=['ALL PROPS',...orderedMarketKeys(ranked,game.league)];
  return '<section class="mi-game-vault" aria-label="Matchup scouting and ranked prop opportunities">'
@@ -1210,7 +1224,8 @@ function listing(game,rows){
        +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
    +'</div>'
-   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · highest model probability first · choose an exact market below</p></div></div>'
+   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · ranked by TSO Prop Signal · choose an exact market below</p></div></div>'
+   +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
       :'<div class="mi-empty">No verified Over/Yes selections in this market. Choose a different prop category. Unders remain available in Advanced Props.</div>')+'</div>'
@@ -1559,15 +1574,59 @@ function updateSignalView(root,row,data){
  for(const el of root.querySelectorAll('[data-mi-signal]'))if(el.dataset.miSignal===key(row))el.innerHTML=signalMini(row,data,state.signalDoc);
  for(const el of root.querySelectorAll('[data-mi-signal-detail]'))if(el.dataset.miSignalDetail===key(row))el.innerHTML=signalDetail(row,data,state.signalDoc);
 }
+// Fetch enough verified information to rank ALL players, not merely seven
+// visible cards. Share requests per athlete/game and limit concurrent work.
 function hydrateSignals(root,ctx){
- const visible=new Set([...root.querySelectorAll('[data-mi-signal]')].map(el=>el.dataset.miSignal));
- const rows=(ctx.rows||[]).filter(row=>visible.has(key(row)));
- for(const row of rows)getResearch(row,ctx).then(data=>{if(root.isConnected)updateSignalView(root,row,data);}).catch(()=>{});
- if(String(ctx.game?.league||'')==='nfl')
-  loadNflPbp().then(doc=>{
-   state.signalDoc=doc;
-   for(const row of rows)if(root.isConnected&&state.cached.has(key(row)))updateSignalView(root,row,state.cached.get(key(row)));
-  }).catch(()=>{state.signalDoc=null;});
+ const candidates=[...new Map((ctx.rows||[]).filter(eligibleOver).map(row=>[key(row),row])).values()];
+ const signature=rankingSignature(ctx.game,ctx.rows||[]);
+ let job=state.ranking;
+ if(job&&job.signature===signature){
+  // Filtering a prop category replaces the DOM; retain the active root.
+  job.root=root;job.refresh=ctx.refresh;
+  for(const row of candidates)if(state.cached.has(key(row)))
+   updateSignalView(root,row,state.cached.get(key(row)));
+  return;
+ }
+ const grouped=new Map();
+ for(const row of candidates){
+  const identity=[row.sport,row.eventId||ctx.game?.id||'',
+   row.playerId||'',String(row.player||'').toLowerCase(),nflTeamCode(row.team)].join('|');
+  if(!grouped.has(identity))grouped.set(identity,[]);
+  grouped.get(identity).push(row);
+ }
+ const queue=[...grouped.values()];
+ job={signature,completed:0,total:queue.length,done:!queue.length,root,refresh:ctx.refresh};
+ state.ranking=job;
+ const progress=()=>{
+  const status=job.root?.querySelector?.('[data-mi-ranking-status]');
+  if(status)status.textContent=rankingStatus(ctx.game,ctx.rows||[]);
+ };
+ if(!queue.length){progress();return;}
+ const pbp=String(ctx.game?.league||'')==='nfl'
+  ?loadNflPbp().then(doc=>{if(state.ranking===job)state.signalDoc=doc;}).catch(()=>{})
+  :Promise.resolve();
+ async function work(){
+  while(queue.length&&state.ranking===job){
+   const group=queue.shift();
+   try{
+    const data=await getResearch(group[0],ctx);
+    if(state.ranking!==job)return;
+    for(const row of group){
+     state.cached.set(key(row),data);
+     if(job.root?.isConnected)updateSignalView(job.root,row,data);
+    }
+   }catch{
+    // Missing source evidence remains ungraded, never a fabricated 0.
+   }
+   job.completed++;
+   progress();
+  }
+ }
+ Promise.allSettled([...Array(Math.min(6,queue.length))].map(()=>work()).concat([pbp])).then(()=>{
+  if(state.ranking!==job)return;
+  job.done=true;progress();
+  if(job.root?.isConnected&&typeof job.refresh==='function')job.refresh();
+ });
 }
 
 function renderResearch(data,row){
@@ -1755,6 +1814,6 @@ function bind(root,ctx){
  updateScouting(root,ctx);
  hydrateSignals(root,ctx);
 }
-window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,signalScore,signalMini,signalDetail,verifiedDefensiveMatchup,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
+window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,signalScore,signalMini,signalDetail,rankRowsBySignal,verifiedDefensiveMatchup,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
 })();
 /* TSO2_MATCHUP_INTELLIGENCE_BUNDLE_END */

@@ -47,12 +47,10 @@ assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'Y
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'No'}),false);
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'recYds',selection:'N/A'}),false);
 
-assert.ok(html.indexOf('Test Back')<html.indexOf('Test Receiver Two'),'82% should rank above 75%');
-assert.ok(html.indexOf('Test Receiver Two')<html.indexOf('Test WR'),'75% must rank above 60% despite lower model edge');
-assert.ok(html.indexOf('Test WR')<html.indexOf('Test Quarterback'),'missing model probabilities should always rank last');
-assert.match(html,/highest model probability first/,'Users should see explicit ordering');
-const sameMarket=view.listing(g,[rows[1],rows[4]]);
-assert.ok(sameMarket.indexOf('Test Receiver Two')<sameMarket.indexOf('Test WR'),'a selected receiving yards category also ranks by probability');
+assert.match(html,/ranked by TSO Prop Signal/);
+assert.match(html,/data-mi-ranking-status/);
+assert.ok(!html.includes('highest model probability first'));
+assert.match(view.listing(g,[rows[1],rows[4]]),/Receiving Yards/);
 assert.match(html,/data-mi-expand/);
 assert.match(html,/data-mi-add/);
 assert.match(html,/data-mi-filter/);
@@ -159,4 +157,32 @@ assert.match(view.verifiedDefensiveMatchup(defenseFixture('BUF','LA','RB'),'LA',
 assert.equal(view.verifiedDefensiveMatchup(defenseFixture('BUF','LA','RB'),'BUF','LA'),null);
 assert.equal(view.verifiedDefensiveMatchup(defenseFixture('LA','BUF','WR'),'LA','BUF'),null);
 
-console.log('TSO defense join and form-only signal: PASS');
+
+// Both ALL PROPS and each prop market must sort by TSO Signal instead of model %.
+const rankRow=(key,player,market,prob,line=50)=>({key,sport:'nfl',player,team:'BUF',market,side:'over',line,
+ model:prob===null?null:{probabilityPct:prob,edgePct:5}});
+const scoredLog=(market,nums)=>({available:true,player:{gameLog:nums.map((value,i)=>
+ ({date:'2026-09-'+String(10+i),[market]:value}))}});
+const rankCandidates=[
+ rankRow('model-high-form-low','High Prob, Poor Form','recYds',88),
+ rankRow('signal-strong','Lower Prob, Great Form','recYds',75),
+ rankRow('market-only','No Model, Great Form','recYds',null),
+ rankRow('no-data','No Verified Games','recYds',95),
+ rankRow('other-prop','Rushing Candidate','rushYds',69,40)
+];
+const signalCache=new Map([
+ ['model-high-form-low',scoredLog('recYds',[12,20,18,22,25,15,16,19,23,14])],
+ ['signal-strong',scoredLog('recYds',[75,80,77,83,71,82,76,79,87,81])],
+ ['market-only',scoredLog('recYds',[79,81,84,83,77,88,85,82,90,91])],
+ ['other-prop',scoredLog('rushYds',[50,60,55,51,49,61,62,59,70,58])]
+]);
+const receive=view.rankRowsBySignal(rankCandidates.filter(r=>r.market==='recYds'),signalCache);
+assert.deepEqual(receive.map(r=>r.key),
+ ['signal-strong','market-only','model-high-form-low','no-data'],
+ 'Receiving Yards sorts exact calculated TSO Signal high to low; ungraded last');
+const overall=view.rankRowsBySignal(rankCandidates,signalCache);
+const numerical=overall.map(r=>view.signalScore(r,signalCache.get(r.key)).score).filter(x=>x!==null);
+assert.deepEqual(numerical,[...numerical].sort((a,b)=>b-a),'ALL PROPS uses descending TSO Signal');
+assert.equal(overall.at(-1).key,'no-data','Model probability cannot rescue an ungraded player');
+
+console.log('TSO scored prop ranking and evidence suite: PASS');
