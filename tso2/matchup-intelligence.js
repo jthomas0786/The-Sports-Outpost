@@ -116,7 +116,8 @@ function listing(game,rows){
      const record=String(t?.record||'');
      return '<div class="mi-team" data-mi-defender="'+esc(abbr)+'"><div class="mi-team-title">'+logo+'<div><small>'+esc(abbr)+' DEFENSE</small><h3>What '+esc(abbr)+' gives up</h3></div></div>'
        +'<p>Against '+esc(String(opp?.abbr||'the opponent'))+(record?' · '+esc(record):'')+'</p>'
-       +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Loading source-backed opponent tendencies when available…</div></div>';
+       +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Checking opponent defensive data…</div>'
+       +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
    +'</div>'
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · highest model probability first · choose an exact market below</p></div></div>'
@@ -464,9 +465,44 @@ function updateResearchNode(node,row,data,ctx){
    }).catch(()=>{if(hist.isConnected)hist.innerHTML='<p class="mi-muted">Sportsbook movement unavailable at this time.</p>';});
  }
 }
+function opposingOffenseEvidence(doc,defenseSide,game){
+ if(game?.league!=='nfl'||!doc?.seasons?.['2026']?.teams)return '';
+ const opponent=nflTeamCode(String(game.away?.abbr||'').toUpperCase()===String(defenseSide||'').toUpperCase()
+   ?game.home?.abbr:game.away?.abbr);
+ const teamData=doc.seasons['2026'].teams?.[opponent];
+ const count=n(teamData?.gamesPlayed);
+ if(!opponent||!teamData||count===null||count<2)return '';
+ const rz=n(teamData.redZoneOpps),gl=n(teamData.goalLineOpps);
+ const targets=n(teamData.targets),carries=n(teamData.carries);
+ const sourceDate=String(doc.generatedAt||'').slice(0,10);
+ const stat=(label,value,note)=>'<div class="mi-opp-stat"><b>'+esc(value)+'</b><span>'+esc(label)+'</span><small>'+esc(note)+'</small></div>';
+ const values=[];
+ if(rz!==null)values.push(stat('Red-zone opp / game',amount(rz/count),'Opponent offense · 2026'));
+ if(gl!==null)values.push(stat('Goal-line opp / game',amount(gl/count),'Opponent offense · 2026'));
+ const whole=targets!==null&&carries!==null?targets+carries:null;
+ const passShare=whole?Math.round(100*targets/whole):null;
+ const split=passShare===null?'':'<div class="mi-opp-split"><div><b>Offensive target / carry mix</b><span>'+passShare+'% targets · '+(100-passShare)+'% carries</span></div>'
+    +'<div class="mi-opportunity-track"><span style="width:'+passShare+'%"></span></div></div>';
+ return '<div class="mi-opp-offense-title"><b>'+esc(opponent)+' offense · observed opportunities</b><small>2026 nflverse through '+esc(sourceDate)+'</small></div>'
+   +'<div class="mi-opp-stats">'+values.join('')+'</div>'+split
+   +'<small class="mi-evidence-note">These are offensive opportunities *facing* '+esc(defenseSide)+', not defensive yards allowed or a game forecast.</small>';
+}
 function updateScouting(root,ctx){
  const game=ctx.game,rows=ctx.rows;
  if(!game)return;
+ if(game.league==='nfl'){
+   loadNflPbp().then(doc=>{
+     for(const defender of [game.away,game.home]){
+       const target=[...root.querySelectorAll('[data-mi-attack]')].find(el=>el.dataset.miAttack===defender?.abbr);
+       if(target?.isConnected)target.innerHTML=opposingOffenseEvidence(doc,defender?.abbr,game)
+         ||'<span class="mi-muted">Verified current-season opposing offense opportunity history unavailable.</span>';
+     }
+   }).catch(()=>{
+     for(const el of root.querySelectorAll('[data-mi-attack]'))if(el.isConnected)el.textContent='Opponent offensive opportunity feed unavailable.';
+   });
+ }else{
+   for(const el of root.querySelectorAll('[data-mi-attack]'))el.textContent='Opponent offensive opportunity comparison requires a verified sport-specific source.';
+ }
  for(const t of [game.away,game.home]){
    const opp=String(t?.abbr||'');
    const node=[...root.querySelectorAll('[data-mi-scout]')].find(x=>x.dataset.miScout===opp);
@@ -503,5 +539,5 @@ function bind(root,ctx){
  for(const k of state.expanded){const row=rows.find(x=>key(x)===k);if(row)updatePlayer(row,root,ctx);}
  updateScouting(root,ctx);
 }
-window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,opportunityForPlayer,opportunityEvidence};
+window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
 })();
