@@ -72,13 +72,46 @@ jobs:
             echo 'No basketball snapshot changes.'
             exit 0
           fi
-          printf '%s\n' "$changes"
+          tmpdir="$(mktemp -d)"
+          trap 'rm -rf "$tmpdir"' EXIT
+          for sport in nba ncaab wnba; do
+            cp "slates/$sport-odds.json" "$tmpdir/$sport-odds.json"
+          done
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json
-          git commit -m 'Refresh basketball odds snapshots'
+          # Concurrent NHL/MLB/NFL publishers regularly advance main. Rebase
+          # conflicts on generated JSON must not block an otherwise good feed.
+          # Rebuild a fresh commit against each latest remote tip instead.
           for attempt in 1 2 3 4 5; do
-            git pull --rebase --autostash origin main
+            git fetch origin main
+            git reset --hard origin/main
+            node - "$tmpdir" <<'NODE'
+          const fs=require('node:fs');
+          const path=require('node:path');
+          const temp=process.argv[2];
+          function timestamp(file) {
+            try {
+              const doc=JSON.parse(fs.readFileSync(file,'utf8'));
+              const at=Date.parse(doc?.meta?.fetchedAt||doc?.generatedAt||'');
+              return Number.isFinite(at)?at:0;
+            }catch{return 0;}
+          }
+          for(const sport of ['nba','ncaab','wnba']){
+            const source=path.join(temp,sport+'-odds.json');
+            const target='slates/'+sport+'-odds.json';
+            if(timestamp(source)<timestamp(target)){
+              console.log(sport.toUpperCase()+' remote odds snapshot is newer; not overwriting.');
+              continue;
+            }
+            fs.copyFileSync(source,target);
+          }
+          NODE
+            git add slates/nba-odds.json slates/ncaab-odds.json slates/wnba-odds.json
+            if git diff --staged --quiet; then
+              echo 'Already up to date with the newest verified basketball snapshots.'
+              exit 0
+            fi
+            git commit -m 'Refresh basketball odds snapshots'
             if git push origin HEAD:main; then exit 0; fi
             sleep $((attempt*2))
           done
