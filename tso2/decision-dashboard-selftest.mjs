@@ -130,4 +130,22 @@ safe.render({...ctx,rows:[{key:'new-prop',sport:'nba',market:'points',
  commenceTime:baseGame.startTime,price:-110,line:17.5,side:'over'}]});
 assert.ok(!fakeDetail.innerHTML.includes('keep-open-details'),'New verified prop may intentionally update the detail');
 
+
+// Verify NHL switches remain reliable after the button list's HTML is
+// recreated and the game data reference is refreshed.
+const hockeyRoot={listeners:{},contains(){return true},addEventListener(type,fn){(this.listeners[type]??=[]).push(fn)}};
+const calls=[];
+const ctxOld={games:[{id:'a',league:'nhl'},{id:'b',league:'nhl'}],openGame:g=>calls.push('old:'+g.id)};
+const ctxNew={games:[{id:'b',league:'nhl'},{id:'c',league:'nhl'}],openGame:g=>calls.push('new:'+g.id)};
+const clickGame=id=>{const button={dataset:{decisionGame:id},closest(){return this}};hockeyRoot.listeners.click[0]({target:button})};
+widget.bindGameSelection(hockeyRoot,ctxOld);
+assert.equal(hockeyRoot.listeners.click.length,1);
+clickGame('a');clickGame('b');
+widget.bindGameSelection(hockeyRoot,ctxNew);
+assert.equal(hockeyRoot.listeners.click.length,1,'No stacked listeners on refreshed root');
+clickGame('c');clickGame('b');
+assert.deepEqual(calls,['old:a','old:b','new:c','new:b'],'NHL selection must survive HTML replacement');
+assert.equal(widget.state.selectedGameId,'b');
+clickGame('a');assert.equal(calls.length,4,'Stale game must not be reopened');
+
 console.log('TSO decision dashboard, scroll-stable background updates and live score preservation: PASS');

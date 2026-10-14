@@ -11,6 +11,7 @@
   const odds=value=>{const n=number(value);return n===null?'—':n>0?'+'+Math.round(n):String(Math.round(n));};
   const edge=value=>{const n=number(value);return n===null?'—':(n>0?'+':'')+n.toFixed(1)+' pp';};
   const state={selectedGameId:null};
+  const gameClickContexts=new WeakMap();
   function filters(league){
     return '<div class="decision-filters" role="group" aria-label="Sport">'
       +['all','nfl','nba','nhl','mlb'].map(s=>'<button type="button" class="'+(league===s?'is-active':'')+'" data-decision-league="'+s+'">'+s.toUpperCase()+'</button>').join('')
@@ -112,13 +113,30 @@
       rows.map(r=>[r.key,r.market,r.side,r.line,r.price,r.impliedPct,
         r.book,r.model?.probabilityPct,r.model?.edgePct,r.model?.source])]);
   }
+  // A stable parent must handle game clicks because live score updates can
+  // replace NHL matchup buttons without recreating their click listeners.
+  function bindGameSelection(root,ctx){
+    let slot=gameClickContexts.get(root);
+    if(!slot){
+      slot={ctx};
+      gameClickContexts.set(root,slot);
+      if(typeof root.addEventListener==='function')root.addEventListener('click',event=>{
+        const button=event.target?.closest?.('[data-decision-game]');
+        if(!button||(typeof root.contains==='function'&&!root.contains(button)))return;
+        const active=gameClickContexts.get(root)?.ctx;
+        const id=String(button.dataset?.decisionGame||'');
+        const game=(active?.games||[]).find(g=>String(g.id)===id);
+        if(!game)return;
+        state.selectedGameId=id;
+        active.openGame(game);
+      });
+    }
+    slot.ctx=ctx;
+  }
   function makeActions(root,ctx,games){
+    bindGameSelection(root,ctx);
     root.querySelectorAll('[data-decision-league]').forEach(b=>b.onclick=()=>ctx.selectLeague(b.dataset.decisionLeague));
     root.querySelectorAll('[data-decision-route]').forEach(b=>b.onclick=()=>ctx.navigate(b.dataset.decisionRoute));
-    root.querySelectorAll('[data-decision-game]').forEach(b=>b.onclick=()=>{
-      const game=games.find(g=>String(g.id)===b.dataset.decisionGame);
-      if(game){state.selectedGameId=String(game.id);ctx.openGame(game);}
-    });
     root.querySelectorAll('[data-decision-add]').forEach(b=>b.onclick=()=>{
       const row=ctx.rows.find(r=>String(r.key)===b.dataset.decisionAdd);
       if(row)ctx.addProp(row);
@@ -167,6 +185,7 @@
     renderDock(root,ctx);
   }
   function renderGames(root,ctx){
+    bindGameSelection(root,ctx);
     const games=ctx.games||[];
     const selected=games.find(g=>String(g.id)===String(state.selectedGameId||ctx.selectedGameId))
       ||games.find(g=>g.state==='in')||games.find(g=>g.state==='pre')||games[0];
@@ -254,5 +273,5 @@
     else if(ctx.route==='games')renderGames(root,ctx);
     makeActions(root,ctx,ctx.games||[]);
   }
-  window.TSO2Decision={todayHTML,gamesHTML,render,state,matchedRows,exactReason};
+  window.TSO2Decision={todayHTML,gamesHTML,render,state,matchedRows,exactReason,bindGameSelection};
 })();

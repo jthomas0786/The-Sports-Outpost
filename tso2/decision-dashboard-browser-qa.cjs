@@ -68,6 +68,24 @@ fs.mkdirSync(out,{recursive:true});
   }else{
     console.log('INFO: The real staging scoreboard has no selectable games for current sport; tested empty state.');
   }
+  // Regression: rapid NHL game switching still works after live DOM repaint.
+  await page.locator('[data-decision-league="nhl"]').first().click();
+  await page.locator('[data-decision-game-list]').waitFor({state:'visible'});
+  const nhlIds=await page.locator('[data-decision-game-list] [data-decision-game]')
+    .evaluateAll(items=>items.slice(0,3).map(item=>item.dataset.decisionGame));
+  if(nhlIds.length>=2){
+    for(let i=0;i<6;i++){
+      if(i===2)await page.evaluate(()=>{
+        const strip=document.querySelector('[data-decision-game-list]');
+        if(strip)strip.innerHTML=strip.innerHTML;
+      });
+      const id=nhlIds[i%nhlIds.length];
+      await page.locator('[data-decision-game-list] [data-decision-game="'+id+'"]').click();
+      await page.waitForFunction(expected=>window.TSO2Decision?.state?.selectedGameId===expected,id,{timeout:10000});
+      assert.equal(await page.locator('.decision-game-header h2').count(),1,'NHL selection must show game detail');
+    }
+    console.log('PASS repeated NHL switches across live game-strip DOM replacement');
+  }else console.log('INFO NHL <2 games; isolated selector regression covers refreshes');
   // Real sportsbook feed integration regression: a game with verified NFL
   // player props must not render an empty player slate when source feeds do
   // agree on eventId (even if abbreviations differ: LA vs LAR).
