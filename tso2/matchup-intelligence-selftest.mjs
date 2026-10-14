@@ -55,7 +55,13 @@ assert.match(html,/data-mi-expand/);
 assert.match(html,/data-mi-add/);
 assert.match(html,/data-mi-filter/);
 assert.ok(!html.includes('Venom'),'TSO branding must remain independent');
-assert.match(view.listing({id:'g2',league:'nba',away:{abbr:'NYK'},home:{abbr:'BOS'}},[]),/No verified Over\/Yes selections/);
+assert.match(view.listing({id:'g2',league:'nba',away:{abbr:'NYK'},home:{abbr:'BOS'}},[]),/No verified sportsbook Over\\/Yes selection/);
+const nhlModelOnly={key:'scorer|VGK|candidate|atg',sport:'nhl',player:'Test Model Candidate',team:'VGK',market:'atg',side:'yes',selection:'Yes',researchScorerModel:true,model:{probabilityPct:35.2}};
+const nhlModelPage=view.listing({id:'nhl-fallback',league:'nhl',away:{abbr:'VGK'},home:{abbr:'NSH'}},[nhlModelOnly]);
+assert.match(nhlModelPage,/Test Model Candidate/,'Verified NHL scorer-model candidates must appear when sportsbook odds are missing');
+assert.match(nhlModelPage,/PREGAME MODEL · NOT LIVE ODDS/,'Fallback must not imply a live sportsbook quote');
+assert.match(nhlModelPage,/MODEL ONLY · No current exact sportsbook line/,'Fallback must identify unavailable exact odds');
+assert.ok(!nhlModelPage.includes('data-mi-add='),'A model-only pick must not be addable to Parlay Ping');
 function fixture(sport,market,player,expected){
  const result=view.matchedStats({available:true,player}, {sport,market});
  assert.deepEqual([...result.map(g=>g.value)],expected);
