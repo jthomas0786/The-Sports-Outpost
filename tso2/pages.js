@@ -1204,23 +1204,24 @@ function rowBadge(row){
 }
 function playerMarkup(row,i){
  const id=key(row),open=state.expanded.has(id);
+ const modelOnly=Boolean(row?.researchScorerModel);
  const model=row?.model||{};
  const src=String(row.headshotUrl||'');
  const photo=src&&/^https:\/\//i.test(src)?'<img src="'+esc(src)+'" alt="" loading="lazy">':'<span aria-hidden="true">'+esc(String(row.player||'P').split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase())+'</span>';
  const details='<div class="mi-expanded-stats">'
    +'<div><small>MODEL PROBABILITY</small><strong>'+pct(model.probabilityPct)+'</strong></div>'
-   +'<div><small>MARKET IMPLIED</small><strong>'+pct(row.impliedPct)+'</strong></div>'
+   +'<div><small>MARKET IMPLIED</small><strong>'+(modelOnly?'—':pct(row.impliedPct))+'</strong></div>'
    +'<div><small>MODEL EDGE</small><strong>'+signEdge(model.edgePct)+'</strong></div>'
-   +'<div><small>SPORTSBOOK PRICE</small><strong>'+odds(row.price)+'</strong></div>'
+   +'<div><small>SPORTSBOOK PRICE</small><strong>'+(modelOnly?'—':odds(row.price))+'</strong></div>'
    +'</div>'
-   +'<div class="mi-reason"><b>WHY THIS PROP?</b><p>'+esc(model.reason||model.explanation||row.reason||'The exact market quote is verified; a matchup-specific explanation is not available in this source.')+'</p></div>'
+   +'<div class="mi-reason"><b>WHY THIS PROP?</b><p>'+esc(modelOnly?'This is a TSO NHL pregame scorer-model candidate, not a live sportsbook selection. The model probability does not represent in-game odds.':(model.reason||model.explanation||row.reason||'The exact market quote is verified; a matchup-specific explanation is not available in this source.'))+'</p></div>'
    +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Open to load verified recent form, matchup and line history.</div>')+'</div>'
-   +'<div class="mi-actions"><button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ PARLAY PING</button><small>Exact player · market · side · line · book</small></div>';
+   +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No current exact sportsbook line or betslip action available.</small></div>':'<div class="mi-actions"><button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ PARLAY PING</button><small>Exact player · market · side · line · book</small></div>');
  return '<article class="mi-player '+(open?'is-open':'')+'" data-mi-key="'+esc(id)+'">'
    +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
    +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
    +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(exactSelection(row))+' · '+esc(row.team||'')+'</small>'
-   +'<em>'+esc(row.book||'Verified book')+' '+odds(row.price)+'</em></span>'
+   +'<em>'+(modelOnly?'PREGAME MODEL · NOT LIVE ODDS':esc(row.book||'Verified book')+' '+odds(row.price))+'</em></span>'
    +'<span class="mi-signal-mini" data-mi-signal="'+esc(id)+'">'+signalMini(row,state.cached.get(id),state.signalDoc)+'</span>'
    +rowBadge(row)+'<span class="mi-chevron">'+(open?'▴':'▾')+'</span>'
    +'</button></div><div class="mi-player-body" '+(open?'':'hidden')+'>'+details+'</div></article>';
@@ -1262,6 +1263,7 @@ function listing(game,rows){
  // One card per exact side and threshold; the authoritative best quote is
  // carried by the original row, never fabricated or reconstructed.
  const unique=[...new Map(all.map(r=>[key(r),r])).values()];
+ const modelOnlyCount=unique.filter(r=>r.researchScorerModel).length;
  // Ranked by the TSO Prop Signal for every market category and All Props.
  const ranked=rankRowsBySignal(unique);
  const filtered=filterRows(ranked),shown=state.showAll?filtered:filtered.slice(0,7);
@@ -1280,11 +1282,11 @@ function listing(game,rows){
        +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
    +'</div>'
-   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+unique.length+' Over/Yes selection'+(unique.length===1?'':'s')+' · ranked by TSO Prop Signal · choose an exact market below</p></div></div>'
+   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' verified Over/Yes sportsbook selections'+(modelOnlyCount?' · '+modelOnlyCount+' TSO pregame scorer-model candidates (research only)':'')+' · ranked by TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
-      :'<div class="mi-empty">No verified Over/Yes selections in this market. Choose a different prop category. Unders remain available in Advanced Props.</div>')+'</div>'
+      :'<div class="mi-empty">No verified sportsbook Over/Yes selection'+(modelOnlyCount?' or TSO scorer-model candidate':'')+' for this game and market. Live games may no longer have pregame quotes. Check another game, or use Advanced Props to inspect the full verified feed.</div>')+'</div>'
    +(filtered.length>7?'<button type="button" class="mi-show-all" data-mi-all>'+(state.showAll?'Show fewer':'Show all '+filtered.length+' selections')+'</button>':'')
    +'</div></section>';
 }
