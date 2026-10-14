@@ -8155,7 +8155,8 @@
     // Reuse our independently sourced NHL pregame scorer candidates for
     // on-screen research only, never as live sportsbook selections.
     if(currentRoute==='games'&&games.some(g=>g.league==='nhl')&&
-       !nhlScorerCache&&!nhlScorerInFlight&&Date.now()-nhlScorerAttemptedAt>90000){
+       (!nhlScorerCache||Date.now()-nhlScorerFetchedAt>60000)&&
+       !nhlScorerInFlight&&Date.now()-nhlScorerAttemptedAt>90000){
       nhlScorerAttemptedAt=Date.now();
       void refreshNhlScorerData();
     }
