@@ -911,7 +911,7 @@
       try{fresh?.setSelectionRange(from,from)}catch{}
     };
   }
-  window.TSO2ResearchGameFlow={render,reset:()=>{state.stage='games';state.gameKey=''}};
+  window.TSO2ResearchGameFlow={render,scorerRows:nhlScorerResearchRows,reset:()=>{state.stage='games';state.gameKey=''}};
 })();
 
 (() => {
@@ -997,6 +997,7 @@
   let nhlScorerCache = null;
   let nhlScorerFetchedAt = 0;
   let nhlScorerInFlight = null;
+  let nhlScorerAttemptedAt = 0;
   let nhlScorerMarket = 'fgs';
   const gameEdgeCache = new Map();
   const gameEdgeFetchedAt = new Map();
@@ -4151,7 +4152,7 @@
 
   function refreshNhlScorerData(force=false){
     const root=document.querySelector('[data-nhl-scorer-shell]');
-    if(!root&&!(currentRoute==='research'&&(currentLeague==='nhl'||currentLeague==='all')))return Promise.resolve(null);
+    if(!root&&!(currentRoute==='research'&&(currentLeague==='nhl'||currentLeague==='all'))&&!(currentRoute==='games'&&(currentLeague==='nhl'||currentLeague==='all')))return Promise.resolve(null);
     const now=Date.now();
     if(!force&&nhlScorerCache&&now-nhlScorerFetchedAt<60000){
       renderNhlScorerModel();
@@ -4166,6 +4167,7 @@
         nhlScorerFetchedAt=Date.now();
         renderNhlScorerModel();
         if(currentRoute==='research')renderResearch();
+        if(currentRoute==='games')renderDecisionDashboard();
         return payload;
       })
       .catch(error=>{
@@ -8141,24 +8143,37 @@
     if(currentRoute!=='home'&&currentRoute!=='games')return;
     const decision=window.TSO2Decision;
     if(!decision)return;
+    const games=(()=>{
+      const filtered=currentFeedGames();
+      const chosen=(liveFeedCache?.games||[]).find(g=>
+        String(g.id)===String(selectedLiveGameId)&&
+        (currentLeague==='all'||g.league===currentLeague));
+      return chosen&&!filtered.some(g=>String(g.id)===String(chosen.id)&&g.league===chosen.league)
+        ?[chosen,...filtered]:filtered;
+    })();
+    // The exact sportsbook feed may have no markets once a game goes live.
+    // Reuse our independently sourced NHL pregame scorer candidates for
+    // on-screen research only, never as live sportsbook selections.
+    if(currentRoute==='games'&&games.some(g=>g.league==='nhl')&&
+       !nhlScorerCache&&!nhlScorerInFlight&&Date.now()-nhlScorerAttemptedAt>90000){
+      nhlScorerAttemptedAt=Date.now();
+      void refreshNhlScorerData();
+    }
+    const exactRows=propsFeedCache?.rows||[];
+    const scorerRows=Array.isArray(nhlScorerCache?.games)&&
+      typeof window.TSO2ResearchGameFlow?.scorerRows==='function'
+      ?games.filter(g=>g.league==='nhl'&&
+        !decision.matchedRows(exactRows,g).some(r=>window.TSO2Matchup?.eligibleOver(r)))
+        .flatMap(g=>window.TSO2ResearchGameFlow.scorerRows(g,nhlScorerCache.games))
+      :[];
     decision.render({
       route:currentRoute,
       league:currentLeague,
       selectedGameId:selectedLiveGameId,
       liveReady:Boolean(liveFeedCache),
       propsReady:Boolean(propsFeedCache),
-      games:(()=>{
-        const filtered=currentFeedGames();
-        // The NFL weekly board may not yet contain a just-selected game from
-        // the live cross-sport ticker. Preserve that *verified feed game* while
-        // the sport filter changes, instead of blanking the Game Hub.
-        const chosen=(liveFeedCache?.games||[]).find(g=>
-          String(g.id)===String(selectedLiveGameId)&&
-          (currentLeague==='all'||g.league===currentLeague));
-        return chosen&&!filtered.some(g=>String(g.id)===String(chosen.id)&&g.league===chosen.league)
-          ?[chosen,...filtered]:filtered;
-      })(),
-      rows:propsFeedCache?.rows||[],
+      games,
+      rows:[...exactRows,...scorerRows],
       draftKeys:tsoPpDraftKeys(),
       linesBySport:gameEdgeCache,
       navigate:route=>setRoute(route),
