@@ -568,7 +568,7 @@ function signalScore(row,data,doc){
 function signalMini(row,data,doc){
  const s=signalScore(row,data,doc);
  if(s.score===null)return '<span class="mi-signal-kicker">TSO PLAYER/MARKET SIGNAL</span><small class="mi-signal-pending">'+esc(s.reason)+'</small><div class="mi-signal-track"></div>';
- return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+esc(s.evidence)+'</small></span>'
+ return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b></span><small class="mi-signal-evidence">'+esc(s.evidence)+'</small>'
   +'<div class="mi-signal-track'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
 }
 function signalDetail(row,data,doc){
@@ -577,7 +577,7 @@ function signalDetail(row,data,doc){
  if(s.score===null)return '<section class="mi-signal-detail">'+header+'<p class="mi-muted">'+esc(s.reason)+'. TSO does not invent missing ratings.</p></section>';
  const factors=s.factors.map(f=>'<div class="mi-signal-factor"><div><b>'+esc(f.label)+'</b><span>'+f.weight+'% · '+Math.round(f.value)+'/100</span></div>'
   +'<div class="mi-signal-track"><span style="width:'+clamp(f.value,0,100)+'%"></span></div><small>'+esc(f.note)+'</small></div>').join('');
- return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' exact-line games · '+s.coverage+'% verified factor coverage</small></div></div>'
+ return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' observed games · '+s.factors.length+' verified scoring factors · '+esc(s.evidence)+'</small></div></div>'
   +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
   +'<div class="mi-signal-factor-grid">'+factors+'</div>'+(s.matchupContext?'<p class="mi-evidence-note">Opponent context (not numerically graded): '+esc(s.matchupContext)+'</p>':'')+'<p class="mi-evidence-note">A player/market production grade, NOT a bet probability. TSO benchmarks are internal scoring references, not reported league averages. Sportsbook lines, prices, implied odds and exact-line model edges are excluded. Missing matchup factors are not guessed.</p></section>';
 }
