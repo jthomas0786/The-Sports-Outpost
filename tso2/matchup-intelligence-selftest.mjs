@@ -47,7 +47,7 @@ assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'Y
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'No'}),false);
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'recYds',selection:'N/A'}),false);
 
-assert.match(html,/ranked by TSO Prop Signal/);
+assert.match(html,/one grade per player and market · line-independent TSO Prop Signal/);
 assert.match(html,/data-mi-ranking-status/);
 assert.ok(!html.includes('highest model probability first'));
 assert.match(view.listing(g,[rows[1],rows[4]]),/Receiving Yards/);
