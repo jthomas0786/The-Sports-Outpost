@@ -4,43 +4,31 @@
     "sample": false,
     "sport": "NBA",
     "sportKey": "basketball_nba",
-    "fetchedAt": "2026-10-13T22:58:59.593Z",
+    "fetchedAt": "2026-10-14T01:42:29.110Z",
     "queryWindow": {
-      "from": "2026-10-12T22:58:54.131Z",
-      "to": "2026-10-20T22:58:54.131Z"
+      "from": "2026-10-13T01:42:22.497Z",
+      "to": "2026-10-21T01:42:22.497Z"
     },
-    "eventsFound": 23,
-    "relevantEvents": 23,
+    "eventsFound": 34,
+    "relevantEvents": 34,
     "eventPreview": [
       {
-        "eventId": "4988d4c9685ee41a",
-        "commenceTime": "2026-10-13T20:03:00.000Z",
-        "awayTeam": "Oklahoma City Thunder",
-        "homeTeam": "New York Knicks"
-      },
-      {
-        "eventId": "15237db95fdd6fbf",
-        "commenceTime": "2026-10-13T20:43:00.000Z",
-        "awayTeam": "Miami Heat",
-        "homeTeam": "Chicago Bulls"
-      },
-      {
-        "eventId": "5d8cdf93d6b601c3",
-        "commenceTime": "2026-10-13T21:15:00.000Z",
-        "awayTeam": "Chicago Bulls",
-        "homeTeam": "Toronto Raptors"
-      },
-      {
         "eventId": "3f00431f29b7b551",
-        "commenceTime": "2026-10-13T21:55:00.000Z",
-        "awayTeam": "New York Knicks",
-        "homeTeam": "Boston Celtics"
+        "commenceTime": "2026-10-13T21:59:00.000Z",
+        "awayTeam": "Boston Celtics",
+        "homeTeam": "New York Knicks"
       },
       {
         "eventId": "6221b214cf97ce3a",
         "commenceTime": "2026-10-13T22:27:00.000Z",
         "awayTeam": "Oklahoma City Thunder",
         "homeTeam": "Los Angeles Lakers"
+      },
+      {
+        "eventId": "27653b6d423fcc97",
+        "commenceTime": "2026-10-13T22:31:00.000Z",
+        "awayTeam": "Los Angeles Lakers",
+        "homeTeam": "New York Knicks"
       },
       {
         "eventId": "644ff5df74b52cda",
@@ -61,18 +49,6 @@
         "homeTeam": "Memphis Grizzlies"
       },
       {
-        "eventId": "bab5ff2706e4aedf",
-        "commenceTime": "2026-10-13T23:00:00.000Z",
-        "awayTeam": "Cleveland Cavaliers",
-        "homeTeam": "Orlando Magic"
-      },
-      {
-        "eventId": "1af92c989cf26375",
-        "commenceTime": "2026-10-13T23:00:00.000Z",
-        "awayTeam": "New York Knicks",
-        "homeTeam": "Toronto Raptors"
-      },
-      {
         "eventId": "ae35e933415cd7fb",
         "commenceTime": "2026-10-13T23:15:00.000Z",
         "awayTeam": "Los Angeles Lakers",
@@ -83,13 +59,37 @@
         "commenceTime": "2026-10-13T23:19:00.000Z",
         "awayTeam": "Chicago Bulls",
         "homeTeam": "Brooklyn Nets"
+      },
+      {
+        "eventId": "15237db95fdd6fbf",
+        "commenceTime": "2026-10-13T23:23:00.000Z",
+        "awayTeam": "Chicago Bulls",
+        "homeTeam": "Miami Heat"
+      },
+      {
+        "eventId": "0e635c38583a0951",
+        "commenceTime": "2026-10-13T23:27:00.000Z",
+        "awayTeam": "Phoenix Suns",
+        "homeTeam": "Milwaukee Bucks"
+      },
+      {
+        "eventId": "99ccb201e29f8984",
+        "commenceTime": "2026-10-13T23:31:00.000Z",
+        "awayTeam": "Oklahoma City Thunder",
+        "homeTeam": "Boston Celtics"
+      },
+      {
+        "eventId": "2aff5a841bf97b0d",
+        "commenceTime": "2026-10-13T23:55:00.000Z",
+        "awayTeam": "Miami Heat",
+        "homeTeam": "Brooklyn Nets"
       }
     ],
-    "rawRows": 150,
-    "sportsbookRows": 84,
-    "currentRows": 84,
-    "preservedRows": 0,
-    "rejectedNonPlayers": 64,
+    "rawRows": 82,
+    "sportsbookRows": 88,
+    "currentRows": 34,
+    "preservedRows": 54,
+    "rejectedNonPlayers": 48,
     "rejectedUnmatchedEvents": 0,
     "normalizedTeamSuffixes": 0,
     "nativeLinkRows": 0,
@@ -122,12 +122,8 @@
     "rawMarketKeys": [
       "player_assists",
       "player_points",
-      "player_pts_asts",
-      "player_pts_rebs",
       "player_pts_rebs_asts",
       "player_rebounds",
-      "player_rebs_asts",
-      "player_threes",
       "player_threes_made"
     ],
     "noCurrentProps": false,
@@ -135,7 +131,7 @@
     "preservationPolicy": "If an exact sportsbook player-prop quote disappears before game time, retain its last verified pregame price for up to 36 hours and no later than 30 minutes after scheduled start.",
     "identityPolicy": "Provider player identity is preserved without guessing event context.",
     "note": "Current NBA player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Missing exact pregame rows may retain their last verified price; prices are never invented.",
-    "sanitizedMatchupLabels": 44
+    "sanitizedMatchupLabels": 28
   },
   "rows": [
     {
@@ -163,8 +159,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -191,8 +188,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:52:02.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -219,8 +217,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:52:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -246,7 +245,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -274,7 +273,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -302,7 +301,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -331,8 +330,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -359,8 +359,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:52:02.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -386,7 +387,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:39:13.000Z",
+      "snapshotTime": "2026-10-14T01:10:07.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -415,8 +416,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:53:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -443,8 +445,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:52:42.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -470,7 +473,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -499,8 +502,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:53:32.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -527,8 +531,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:52:02.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -555,8 +560,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:53:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -582,7 +588,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -610,7 +616,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -639,8 +645,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -666,7 +673,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -694,7 +701,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -722,7 +729,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -750,7 +757,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -778,7 +785,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -806,7 +813,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -835,8 +842,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -863,8 +871,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -891,8 +900,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -918,7 +928,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -947,8 +957,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -975,8 +986,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1002,7 +1014,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1031,8 +1043,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1059,8 +1072,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1087,8 +1101,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1115,8 +1130,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1143,8 +1159,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1171,8 +1188,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1199,8 +1217,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1227,8 +1246,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1255,8 +1275,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1283,8 +1304,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1310,7 +1332,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:39:13.000Z",
+      "snapshotTime": "2026-10-14T01:10:07.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1338,7 +1360,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1366,7 +1388,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1394,7 +1416,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1423,8 +1445,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1450,7 +1473,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1479,8 +1502,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1507,8 +1531,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1535,8 +1560,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1563,8 +1589,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1591,8 +1618,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1619,8 +1647,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1647,8 +1676,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1675,8 +1705,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1703,8 +1734,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1731,8 +1763,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1759,6 +1792,35 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
+    },
+    {
+      "eventId": "3a5c10c1a3bfc612",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T01:30:00.000Z",
+      "homeTeam": "San Antonio Spurs",
+      "awayTeam": "Oklahoma City Thunder",
+      "player": "Chet Holmgren",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 165,
+      "underPrice": -221,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-14T00:55:16.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1787,8 +1849,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -1815,8 +1878,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -1843,8 +1907,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -1871,6 +1936,35 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
+    },
+    {
+      "eventId": "3a5c10c1a3bfc612",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T01:30:00.000Z",
+      "homeTeam": "San Antonio Spurs",
+      "awayTeam": "Oklahoma City Thunder",
+      "player": "De'Aaron Fox",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 5.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 100,
+      "underPrice": -132,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-14T00:55:16.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1899,8 +1993,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -1927,8 +2022,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -1955,8 +2051,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -1983,8 +2080,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2011,8 +2109,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2039,8 +2138,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:06:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2066,7 +2166,35 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:39:13.000Z",
+      "snapshotTime": "2026-10-14T01:10:07.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3a5c10c1a3bfc612",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T01:30:00.000Z",
+      "homeTeam": "San Antonio Spurs",
+      "awayTeam": "Oklahoma City Thunder",
+      "player": "Shai Gilgeous-Alexander",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 6.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 101,
+      "underPrice": -133,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-14T00:55:16.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2094,7 +2222,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2122,7 +2250,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2151,8 +2279,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:24.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2179,8 +2308,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2207,8 +2337,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:46.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2234,7 +2365,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2263,8 +2394,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2290,7 +2422,35 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3a5c10c1a3bfc612",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T01:30:00.000Z",
+      "homeTeam": "San Antonio Spurs",
+      "awayTeam": "Oklahoma City Thunder",
+      "player": "Victor Wembanyama",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -172,
+      "underPrice": 130,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-14T00:55:16.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2318,7 +2478,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2346,7 +2506,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2374,7 +2534,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2403,8 +2563,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2430,7 +2591,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2459,8 +2620,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-13T22:07:34.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-14T01:42:22.497Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -2486,7 +2648,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-13T22:09:18.000Z",
+      "snapshotTime": "2026-10-14T01:25:19.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     }
