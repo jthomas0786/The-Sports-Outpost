@@ -42,6 +42,25 @@ function orderedMarketKeys(rows,sport){
   return marketName({sport,market:a}).localeCompare(marketName({sport,market:b}));
  });
 }
+/* One athlete receives one grade for each sport + market; odds and alt lines
+ * remain exact offerings, never inputs to the TSO athlete/market grade. */
+function playerMarketKey(row){
+ const player=String(row?.player||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+ return [String(row?.sport||'').toLowerCase(),String(row?.team||'').toUpperCase(),player,String(row?.market||'')].join('|');
+}
+function playerMarketRows(rows){
+ const selected=new Map();
+ for(const row of (rows||[]).filter(eligibleOver)){
+  const id=playerMarketKey(row),prev=selected.get(id);
+  // Prefer an actual available sportsbook quote over a research-only row.
+  if(!prev||Boolean(prev.researchScorerModel)&&!row.researchScorerModel||
+   Boolean(prev.researchScorerModel)===Boolean(row.researchScorerModel)&&
+   ((Date.parse(row.snapshotTime||'')||0)>(Date.parse(prev.snapshotTime||'')||0)||
+    (Date.parse(row.snapshotTime||'')||0)===(Date.parse(prev.snapshotTime||'')||0)&&
+    String(row.key).localeCompare(String(prev.key))<0))selected.set(id,row);
+ }
+ return [...selected.values()];
+}
 const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,ranking:null};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
@@ -53,8 +72,8 @@ function exactSelection(row){
 function signEdge(value){return n(value)===null?'—':(n(value)>0?'+':'')+n(value).toFixed(1)+' pp';}
 function rowBadge(row){
  const m=row?.model||{};
- if(n(m.probabilityPct)!==null)return '<span class="mi-prob"><b>'+pct(m.probabilityPct)+'</b><small>MODEL %</small></span>';
- return '<span class="mi-prob mi-prob--market"><b>'+odds(row.price)+'</b><small>MARKET ONLY</small></span>';
+ if(n(m.probabilityPct)!==null)return '<span class="mi-prob"><b>'+pct(m.probabilityPct)+'</b><small>'+(row.researchScorerModel?'GOAL MODEL %':'EXACT LINE MODEL %')+'</small></span>';
+ return '<span class="mi-prob mi-prob--market"><b>'+odds(row.price)+'</b><small>EXACT LINE ODDS</small></span>';
 }
 function playerMarkup(row,i){
  const id=key(row),open=state.expanded.has(id);
@@ -74,7 +93,7 @@ function playerMarkup(row,i){
  return '<article class="mi-player '+(open?'is-open':'')+'" data-mi-key="'+esc(id)+'">'
    +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
    +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
-   +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(exactSelection(row))+' · '+esc(row.team||'')+'</small>'
+   +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(row.team||'')+'</small><em>'+(modelOnly?'No sportsbook line':('Available line: '+esc(exactSelection(row))+' · does not affect grade'))+'</em>'
    +'<em>'+(modelOnly?'PREGAME MODEL · NOT LIVE ODDS':esc(row.book||'Verified book')+' '+odds(row.price))+'</em></span>'
    +'<span class="mi-signal-mini" data-mi-signal="'+esc(id)+'">'+signalMini(row,state.cached.get(id),state.signalDoc)+'</span>'
    +rowBadge(row)+'<span class="mi-chevron">'+(open?'▴':'▾')+'</span>'
@@ -100,8 +119,8 @@ function rankRowsBySignal(rows,cache=state.cached,doc=state.signalDoc){
  });
 }
 function rankingSignature(game,rows){
- return [String(game?.league||''),String(game?.id||''),...rows.filter(eligibleOver).map(r=>
-  [key(r),r.market,r.line,r.side,r.model?.probabilityPct,r.model?.edgePct].join(':')).sort()].join('|');
+ return [String(game?.league||''),String(game?.id||''),...playerMarketRows(rows).map(r=>
+  [playerMarketKey(r),key(r)].join(':')).sort()].join('|');
 }
 function rankingStatus(game,rows){
  const job=state.ranking;
@@ -113,10 +132,9 @@ function rankingStatus(game,rows){
 function listing(game,rows){
  const id=String(game?.league||'')+':'+String(game?.id||'');
  if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();state.ranking=null;}
- const all=rows.filter(eligibleOver);
- // One card per exact side and threshold; the authoritative best quote is
- // carried by the original row, never fabricated or reconstructed.
- const unique=[...new Map(all.map(r=>[key(r),r])).values()];
+ // One card per athlete and market, regardless of alternative sportsbook thresholds.
+ // The chosen displayed quote is real but does not alter the grade.
+ const unique=playerMarketRows(rows);
  const modelOnlyCount=unique.filter(r=>r.researchScorerModel).length;
  // Ranked by the TSO Prop Signal for every market category and All Props.
  const ranked=rankRowsBySignal(unique);
@@ -136,7 +154,7 @@ function listing(game,rows){
        +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
    +'</div>'
-   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' verified Over/Yes sportsbook selections'+(modelOnlyCount?' · '+modelOnlyCount+' TSO pregame scorer-model candidates (research only)':'')+' · ranked by TSO Prop Signal</p></div></div>'
+   +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' sportsbook-backed player/market candidates'+(modelOnlyCount?' · '+modelOnlyCount+' scorer-model candidates (research only)':'')+' · one grade per player and market · line-independent TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
@@ -404,83 +422,164 @@ function decisionEvidence(data,row){
  return '<section class="mi-decision-read"><div class="mi-read-title"><b>THE QUICK READ</b><span>Exact selection · real observations</span></div>'
    +'<div class="mi-read-grid">'+signals.join('')+'</div>'+reading+'</section>';
 }
-/* TSO Prop Signal v1: original line-specific strength index, NOT a betting probability.
- * Uses only authenticated research, exact market history and verified PBP.
- * No invented defense-versus-position or injury numbers. */
-function observedForm(series,row,count){
- const results=series.slice(0,count).map(g=>hit(g.value,row)).filter(x=>x==='hit'||x==='miss');
- if(!results.length)return null;
- const wins=results.filter(x=>x==='hit').length;
- return {value:100*(wins+2)/(results.length+4),wins,count:results.length};
+/* TSO Prop Signal v2 — athlete + prop-category production grade.
+ * Not a probability, not an exact-line edge and not derived from sportsbook
+ * thresholds, payout, model probability at an alternate line, or vig.
+ * Fixed reference values are transparent SCORING RUBRIC anchors, not
+ * assertions of league averages or predictions. Scores compare within each
+ * sport/market only, never the raw yards of one sport to another.
+ */
+const productionRubric={
+ nfl:{atd:.75,firstTd:.14,passYds:275,passTds:2.5,recYds:85,receptions:7,rushYds:85,rushAtt:18,completions:25,longestReception:35},
+ nba:{points:30,rebounds:12,assists:10,threes:4,pra:48,pr:40,pa:37,ra:19,steals:2,blocks:2},
+ mlb:{hr:.52,homeRun:.52,hits:2,totalBases:3.5,rbi:1.5,runs:1.5,pitcherStrikeouts:8,strikeouts:8,stolenBases:.55,walks:1.3,singles:1.7,doubles:.5,hrr:3.6},
+ nhl:{atg:.67,fgs:.14,goals:.67,sog:4.2,points:1.6,assists:1,saves:34,blocks:3.5}
+};
+function scaleProduction(v,target){
+ return n(v)===null||!Number.isFinite(target)||target<=0?null:clamp(100*v/target,0,100);
 }
-function propRole(data,doc,row){
- if(String(row.sport||'')!=='nfl'||!doc)return null;
- const date=Date.parse(doc.generatedAt||'');
- if(!Number.isFinite(date)||Date.now()-date>10*86400000||date>Date.now()+3600000)return null;
- const p=opportunityForPlayer(doc,data,row);
- if(!p||n(p.gamesWithOpportunities)<3)return null;
- const m=String(row.market||''),parts=[];
- function use(field,label,scale){
-  const v=n(p[field]);
-  if(v!==null&&v>=0&&v<=100)parts.push({value:clamp(25+v*scale,0,100),detail:label+' '+pct(v)});
+function meanValues(values){
+ const real=values.map(n).filter(x=>x!==null&&x>=0);
+ return real.length?real.reduce((sum,v)=>sum+v,0)/real.length:null;
+}
+function verifiedVolume(data,doc,row){
+ const sport=String(row.sport||'').toLowerCase(),market=String(row.market||'');
+ const p=data?.player||{};
+ const factors=[];
+ if(sport==='nfl'){
+  const role=propRole(data,doc,row);
+  if(role)factors.push({value:role.value,note:'NFL 2026 verified opportunity shares · '+role.detail});
+  const avg=p.last5?.avg||{};
+  const carries=n(avg.carries),targets=n(avg.targets);
+  if(['rushYds','rushAtt','atd'].includes(market)&&carries!==null)
+   factors.push({value:scaleProduction(carries,18),note:'Recent carries '+amount(carries)+'/game'});
+  if(['recYds','receptions','longestReception','atd'].includes(market)&&targets!==null)
+   factors.push({value:scaleProduction(targets,9),note:'Recent targets '+amount(targets)+'/game'});
+  const snap=n(p.snapTrend?.last3AvgPct??p.snapTrend?.avgOffensePct);
+  if(snap!==null&&snap>=0&&snap<=100)
+   factors.push({value:snap,note:'Observed offensive snaps '+pct(snap)});
  }
- if(['recYds','receptions','longestReception'].includes(m)&&n(p.targets)>=3)use('targetSharePct','Target share',2.1);
- if(['rushYds','rushAtt'].includes(m)&&n(p.carries)>=3)use('carrySharePct','Carry share',1.15);
- if(m==='atd'&&n(p.redZoneOpps)>=3){
-  use('redZoneSharePct','Red-zone share',1.5);
-  use('goalLineSharePct','Goal-line share',1.6);
+ if(sport==='nba'){
+  const min=n(p.recentAverages?.minutes??p.last5?.avg?.minutes);
+  if(min!==null)factors.push({value:scaleProduction(min,36),note:'Recent minutes '+amount(min)+'/game'});
+  const usage=n(p.usagePct??p.recentAverages?.usagePct);
+  if(usage!==null&&usage>=0&&usage<=100)
+   factors.push({value:scaleProduction(usage,30),note:'Observed usage rate '+pct(usage)});
  }
- if(!parts.length)return null;
- return {value:parts.reduce((s,v)=>s+v.value,0)/parts.length,detail:parts.map(v=>v.detail).join(' · ')+' · '+p.gamesWithOpportunities+' observed games'};
+ if(sport==='nhl'&&['atg','fgs','goals','points','assists'].includes(market)){
+  const shots=n(p.recentAverages?.shotsOnGoal);
+  if(shots!==null)factors.push({value:scaleProduction(shots,4.2),note:'Recent shots on goal '+amount(shots)+'/game'});
+ }
+ if(sport==='mlb'){
+  const order=n(p.battingOrder);
+  if(order!==null&&order>=1&&order<=9)
+   factors.push({value:clamp(110-order*9,0,100),note:'Verified batting-order position #'+order});
+ }
+ const usable=factors.filter(f=>f.value!==null);
+ if(!usable.length)return null;
+ return {value:meanValues(usable.map(f=>f.value)),detail:usable.map(f=>f.note).join(' · ')};
+}
+// Only join matchup factors to a valid identified opponent/season and market.
+// If a defensible sport-specific observation is missing, OMIT the factor.
+function verifiedMarketMatchup(data,row){
+ if(!data?.available)return null;
+ const sport=String(row.sport||'').toLowerCase(),market=String(row.market||''),p=data.player||{};
+ if(sport==='nba'){
+  const opp=n(data.matchup?.opponentPace),league=n(data.matchup?.leaguePace);
+  if(opp!==null&&league!==null&&league>70&&opp>70){
+   return {value:clamp(50+200*(opp/league-1),20,80),
+    detail:'Verified opponent pace '+amount(opp)+' vs reported league pace '+amount(league)};
+  }
+ }
+ if(sport==='mlb'){
+  const era=n(data.opponent?.pitcher?.era);
+  if(era!==null&&era>=0&&era<=15&&['hr','homeRun','hits','totalBases','rbi','runs','walks','hrr'].includes(market)){
+   return {value:clamp(50+(era-4)*12,20,80),
+    detail:'Verified opposing starter ERA '+amount(era)+' · 4.0 is a TSO rubric reference, not league average'};
+  }
+ }
+ if(sport==='nfl'){
+  const m=p.matchup||{},allow=m.previousSeasonAllowed||{};
+  const pos=String(m.positionGroup||'').toUpperCase();
+  const validPos=['QB','RB','WR','TE'].includes(pos)&&String(allow.position||'').toUpperCase()===pos&&
+    Number.isInteger(Number(allow.games))&&Number(allow.games)>=5&&
+    String(p.team||'').toUpperCase()===String(row.team||'').toUpperCase()&&
+    String(m.opponent||'').length>=2;
+  const field={passYds:'passYds',passTds:'passTds',rushYds:'rushYds',recYds:'recYds',receptions:'receptions'}[market];
+  // Prior-season defense-vs-position totals cover ALL players of that position.
+  // A position group's allowed yards is not an individual player forecast, so
+  // use it for context in the dropdown, not numeric grading without a baseline.
+  if(validPos&&field&&n(allow.perGame?.[field])!==null)
+   return {value:null,detail:'Prior-season '+String(m.opponent).toUpperCase()+' defense vs '+pos+
+     ': '+amount(allow.perGame[field])+' '+field+'/game across the position group (context only)'};
+ }
+ return null;
+}
+function independentProjection(row){
+ const model=row?.model||{},sport=String(row.sport||'').toLowerCase(),market=String(row.market||'');
+ const reference=productionRubric[sport]?.[market];
+ const estimated=n(model.projection?.mean??model.projection?.median??model.projectedValue??model.projection?.projectedValue);
+ if(estimated!==null&&estimated>=0&&reference){
+  return {value:scaleProduction(estimated,reference),detail:'Verified model projection '+amount(estimated)+' '+market+' (not line-hit probability)'};
+ }
+ // Yes/no markets have no interchangeable yard/point threshold. A verified
+ // player-level goal/TD/HR forecast may inform this market category.
+ if(eventMarkets.has(market)){
+  const p=n(model.probabilityPct);
+  if(p!==null&&p>=0&&p<=100&&reference)
+   return {value:scaleProduction(p/100,reference),detail:'Binary player-event model '+pct(p)+' · no alternate numeric line'};
+ }
+ return null;
 }
 function signalScore(row,data,doc){
- const model=n(row?.model?.probabilityPct),modeled=model!==null&&model>=0&&model<=100;
- const series=seriesFromResearch(data,row),decisions=series.slice(0,10).map(g=>hit(g.value,row)).filter(v=>v==='hit'||v==='miss');
- if(decisions.length<5)return {score:null,reason:'Need 5 verified '+marketName(row)+' results ('+decisions.length+'/5)',modeled};
- const l5=observedForm(series,row,5),l10=observedForm(series,row,10);
- if(!l5||!l10)return {score:null,reason:'Verified game history unavailable',modeled};
- const factors=[];
- if(modeled)factors.push({label:'Model support',value:model,weight:28,note:'Exact-market forecast '+pct(model)});
- factors.push({label:'Recent exact-line form',value:.55*l5.value+.45*l10.value,weight:modeled?32:55,
-  note:'L5 '+l5.wins+'/'+l5.count+' · L10 '+l10.wins+'/'+l10.count+' · smoothed sample'});
- const line=marketThreshold(row);
- if(line!==null){
-  const arr=series.slice(0,5).map(g=>g.value).sort((a,b)=>a-b);
-  const median=arr.length%2?arr[(arr.length-1)/2]:(arr[arr.length/2-1]+arr[arr.length/2])/2;
-  factors.push({label:'Margin over line',value:clamp(50+40*(median-line)/Math.max(1,Math.abs(line)*.25),0,100),
-   weight:modeled?12:25,note:'Recent median '+amount(median)+' versus exact line '+amount(line)});
- }
- const implied=n(row?.impliedPct),direct=n(row?.model?.edgePct);
- const edge=modeled?(direct!==null?direct:implied!==null&&implied>=0&&implied<=100?model-implied:null):null;
- if(edge!==null&&Math.abs(edge)<=100)
-  factors.push({label:'Price value',value:clamp(50+edge*4,0,100),weight:13,note:'Model vs market '+signEdge(edge)});
- const role=propRole(data,doc,row);
- if(role)factors.push({label:'Verified role',value:role.value,weight:modeled?15:20,note:role.detail});
- const coverage=factors.reduce((s,f)=>s+f.weight,0);
- let score=Math.round(factors.reduce((s,f)=>s+f.weight*f.value,0)/coverage);
- if(decisions.length<10)score=Math.min(score,modeled?87:72);
- if(modeled){
-  if(factors.length<4)score=Math.min(score,82);
-  if(row.sport==='nfl'&&!role)score=Math.min(score,89);
- }else score=Math.min(score,74);
- return {score,tier:modeled?(score>=85?'ELITE':score>=75?'STRONG':score>=60?'WATCH':'CAUTION'):'FORM ONLY',
-  modeled,factors,coverage,games:decisions.length};
+ const series=seriesFromResearch(data,row);
+ const target=productionRubric[String(row?.sport||'').toLowerCase()]?.[String(row?.market||'')];
+ if(!target)return {score:null,reason:'No calibrated player-market scoring rubric yet',modeled:false};
+ if(series.length<5)return {score:null,reason:'Need 5 verified '+marketName(row)+' game logs ('+series.length+'/5)',modeled:false};
+ const values=series.slice(0,10).map(g=>g.value).filter(v=>n(v)!==null&&v>=0);
+ if(values.length<5)return {score:null,reason:'Insufficient verified market production',modeled:false};
+ const recent=values.slice(0,5),mean5=meanValues(recent),mean10=meanValues(values);
+ const consistency=100*values.filter(v=>v>=target*.5).length/values.length;
+ const factors=[
+  {label:'Recent player production',value:scaleProduction(mean5,target),weight:48,
+   note:'Last 5: '+amount(mean5)+' '+marketName(row)+'/game · TSO benchmark '+amount(target)},
+  {label:'Extended historical form',value:scaleProduction(mean10,target),weight:26,
+   note:'Last '+values.length+': '+amount(mean10)+' per game · independent of sportsbook line'},
+  {label:'Meaningful output frequency',value:consistency,weight:12,
+   note:values.filter(v=>v>=target*.5).length+'/'+values.length+' games reached half the TSO production benchmark (not a bet line)'}
+ ];
+ const role=verifiedVolume(data,doc,row);
+ if(role)factors.push({label:'Verified role and opportunity',value:role.value,weight:12,note:role.detail});
+ const matchup=verifiedMarketMatchup(data,row);
+ if(matchup?.value!==null&&matchup?.value!==undefined)
+  factors.push({label:'Opponent matchup',value:matchup.value,weight:8,note:matchup.detail});
+ const proj=independentProjection(row);
+ if(proj)factors.push({label:'Independent model forecast',value:proj.value,weight:20,note:proj.detail});
+ const coverage=factors.reduce((sum,f)=>sum+f.weight,0);
+ let score=Math.round(factors.reduce((sum,f)=>sum+f.value*f.weight,0)/coverage);
+ if(series.length<10)score=Math.min(score,82);
+ if(!proj)score=Math.min(score,88);
+ return {score,tier:score>=85?'ELITE':score>=70?'STRONG':score>=50?'WATCH':'CAUTION',
+  modeled:Boolean(proj),factors,coverage,games:values.length,
+  benchmark:target,matchupContext:matchup?.value===null?matchup.detail:null,
+  evidence:proj?'PROJECTION + HISTORY':'HISTORY / USAGE',
+  l5:mean5,l10:mean10};
 }
 function signalMini(row,data,doc){
  const s=signalScore(row,data,doc);
- if(s.score===null)return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><small class="mi-signal-pending">'+esc(s.reason)+'</small><div class="mi-signal-track"></div>';
- return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b></span>'
-  +'<div class="mi-signal-track'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO Prop Signal evidence score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
+ if(s.score===null)return '<span class="mi-signal-kicker">TSO PLAYER/MARKET SIGNAL</span><small class="mi-signal-pending">'+esc(s.reason)+'</small><div class="mi-signal-track"></div>';
+ return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+esc(s.evidence)+'</small></span>'
+  +'<div class="mi-signal-track'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
 }
 function signalDetail(row,data,doc){
  const s=signalScore(row,data,doc);
- const header='<div class="mi-signal-detail-head"><div><small>THE SPORTS OUTPOST EXCLUSIVE</small><h4>TSO Prop Signal</h4><p>Verified factors behind this exact player prop.</p></div><small>v1</small></div>';
+ const header='<div class="mi-signal-detail-head"><div><small>THE SPORTS OUTPOST EXCLUSIVE</small><h4>TSO Player / Market Signal</h4><p>Player production and usage for this prop category, independent of exact sportsbook thresholds or odds.</p></div><small>v2</small></div>';
  if(s.score===null)return '<section class="mi-signal-detail">'+header+'<p class="mi-muted">'+esc(s.reason)+'. TSO does not invent missing ratings.</p></section>';
  const factors=s.factors.map(f=>'<div class="mi-signal-factor"><div><b>'+esc(f.label)+'</b><span>'+f.weight+'% · '+Math.round(f.value)+'/100</span></div>'
   +'<div class="mi-signal-track"><span style="width:'+clamp(f.value,0,100)+'%"></span></div><small>'+esc(f.note)+'</small></div>').join('');
  return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' exact-line games · '+s.coverage+'% verified factor coverage</small></div></div>'
-  +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO Prop Signal evidence score" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
-  +'<div class="mi-signal-factor-grid">'+factors+'</div><p class="mi-evidence-note">TSO Prop Signal is NOT a probability of winning. FORM ONLY is historical performance, not a verified forecast. Defense vs position and injuries remain excluded until verified.</p></section>';
+  +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
+  +'<div class="mi-signal-factor-grid">'+factors+'</div>'+(s.matchupContext?'<p class="mi-evidence-note">Opponent context (not numerically graded): '+esc(s.matchupContext)+'</p>':'')+'<p class="mi-evidence-note">A player/market production grade, NOT a bet probability. TSO benchmarks are internal scoring references, not reported league averages. Sportsbook lines, prices, implied odds and exact-line model edges are excluded. Missing matchup factors are not guessed.</p></section>';
 }
 function updateSignalView(root,row,data){
  for(const el of root.querySelectorAll('[data-mi-signal]'))if(el.dataset.miSignal===key(row))el.innerHTML=signalMini(row,data,state.signalDoc);
@@ -489,7 +588,7 @@ function updateSignalView(root,row,data){
 // Fetch enough verified information to rank ALL players, not merely seven
 // visible cards. Share requests per athlete/game and limit concurrent work.
 function hydrateSignals(root,ctx){
- const candidates=[...new Map((ctx.rows||[]).filter(eligibleOver).map(row=>[key(row),row])).values()];
+ const candidates=playerMarketRows(ctx.rows||[]);
  const signature=rankingSignature(ctx.game,ctx.rows||[]);
  let job=state.ranking;
  if(job&&job.signature===signature){
