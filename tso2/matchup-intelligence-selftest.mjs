@@ -33,7 +33,7 @@ assert.match(html,/Test Back/);
 assert.match(html,/MODEL %/);
 assert.match(html,/60.0%/);
 assert.match(html,/82.0%/);
-assert.match(html,/MARKET ONLY/);
+assert.match(html,/EXACT LINE ODDS/);
 assert.ok(!html.includes('Test TE'),'Under selections must not be featured in Game Hub');
 assert.ok(!html.includes('Under 21.5'),'Under thresholds must never leak to featured cards');
 assert.match(html,/ALL PROPS/);
@@ -131,7 +131,7 @@ assert.ok(!view.decisionEvidence({available:true,player:{gameLog:[]}},highModel)
 
 
 assert.match(html,/data-mi-signal="k1"/,'TSO signal visible in collapsed player row');
-assert.match(html,/TSO PROP SIGNAL/,'TSO score title visible before expansion');
+assert.match(html,/TSO PLAYER\/MARKET SIGNAL/,'TSO market-based grade placeholder visible before expansion');
 assert.match(css,/\.mi-signal-mini/,'Compact progress bar styled');
 assert.match(css,/\.mi-signal-detail/,'Expanded factor breakdown styled');
 const mkResearch=nums=>({available:true,player:{gameLog:nums.map((recYds,i)=>({date:'2026-09-'+(10+i),recYds}))}});
@@ -141,20 +141,20 @@ const low=view.signalScore(exact,mkResearch([20,21,25,18,23,24]));
 assert.ok(high.score>low.score,'Same model and odds must respond to exact-line game performance');
 assert.ok(high.score<=87,'Short observed samples must cap top-tier scores');
 assert.match(view.signalMini(exact,mkResearch([83,80,75,95,77,82])),/role="progressbar"/);
-assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/Price value/);
-assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/NOT a probability of winning/);
+assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/Recent player production/);
+assert.match(view.signalDetail(exact,mkResearch([83,80,75,95,77,82])),/NOT a bet probability/);
 assert.equal(view.signalScore(exact,{available:false}).score,null,'No invented score without history');
-assert.equal(view.signalScore({...exact,model:{}},mkResearch([83,80,75,95,77,82])).tier,'FORM ONLY','A market-only prop must have a distinct observed-history label');
+assert.equal(view.signalScore({...exact,model:{}},mkResearch([83,80,75,95,77,82])).evidence,'HISTORY / USAGE','An unmodeled market must not be misrepresented as a forecast');
 const identity={...mkResearch([83,80,75,95,77,82]),player:{...mkResearch([83,80,75,95,77,82]).player,gsisId:'00-0033553',team:'BUF'}};
 const roleRow={...exact,team:'BUF'};
-assert.ok(view.signalScore(roleRow,identity,pbpFixture).factors.some(f=>f.label==='Verified role'),'Correct GSIS ID enables opportunity factor');
-assert.ok(!view.signalScore(roleRow,{available:true,player:{...identity.player,team:'LA'}},pbpFixture).factors.some(f=>f.label==='Verified role'),'Mismatched team must exclude opportunity factor');
+assert.ok(view.signalScore(roleRow,identity,pbpFixture).factors.some(f=>f.label==='Verified role and opportunity'),'Correct GSIS ID enables opportunity factor');
+assert.ok(!view.signalScore(roleRow,{available:true,player:{...identity.player,team:'LA'}},pbpFixture).factors.some(f=>f.label==='Verified role and opportunity'),'Mismatched team must exclude opportunity factor');
 
 
 const historical=view.signalScore({...exact,model:null},mkResearch([88,90,92,94,96,98]));
-assert.equal(historical.tier,'FORM ONLY');
-assert.ok(historical.score>0&&historical.score<=74,'Without model, scores are provisional and capped');
-assert.match(view.signalMini({...exact,model:null},mkResearch([88,90,92,94,96,98])),/FORM ONLY/);
+assert.equal(historical.evidence,'HISTORY / USAGE');
+assert.ok(historical.score>0&&historical.score<=88,'Production history can grade a market without sportsbook odds');
+assert.match(view.signalMini({...exact,model:null},mkResearch([88,90,92,94,96,98])),/HISTORY \/ USAGE/);
 assert.equal(view.signalScore({...exact,model:null},{available:false}).score,null,'Do not invent missing history');
 const defenseFixture=(team,def,pos)=>({available:true,sport:'nfl',player:{team,matchup:{
  opponent:def,positionGroup:pos,previousSeasonAllowed:{position:pos,games:15,perGame:{recYds:120.5,receptions:9.1,rushYds:99.5,passYds:219.9}}}}});
@@ -185,10 +185,48 @@ const signalCache=new Map([
 const receive=view.rankRowsBySignal(rankCandidates.filter(r=>r.market==='recYds'),signalCache);
 assert.deepEqual(Array.from(receive,r=>r.key),
  ['signal-strong','market-only','model-high-form-low','no-data'],
- 'Receiving Yards sorts exact calculated TSO Signal high to low; ungraded last');
+ 'Receiving Yards sorts player-market production grade high to low; ungraded last');
 const overall=view.rankRowsBySignal(rankCandidates,signalCache);
 const numerical=overall.map(r=>view.signalScore(r,signalCache.get(r.key)).score).filter(x=>x!==null);
 assert.deepEqual(Array.from(numerical),Array.from(numerical).sort((a,b)=>b-a),'ALL PROPS uses descending TSO Signal');
 assert.equal(overall.at(-1).key,'no-data','Model probability cannot rescue an ungraded player');
+
+// A low sportsbook line must NEVER turn a low-volume player into #1.
+// Same player and market with different lines, prices or exact-line model
+// probabilities must produce the exact same athlete/market grade.
+const rushResearch=values=>({available:true,player:{gameLog:values.map((rushYds,i)=>
+  ({date:'2026-10-'+String(1+i).padStart(2,'0'),rushYds}))}});
+const darnoldRush={key:'sam-rush-0.5',sport:'nfl',player:'Sam Darnold',team:'SEA',market:'rushYds',
+ side:'over',line:0.5,price:-113,impliedPct:53,model:{probabilityPct:89,edgePct:36}};
+const harveyRush={key:'harvey-rush-14.5',sport:'nfl',player:'RJ Harvey',team:'DEN',market:'rushYds',
+ side:'over',line:14.5,price:-107,model:null};
+const samLogs=rushResearch([1,0,2,3,1,0,4,2,1,0]),harveyLogs=rushResearch([45,50,62,38,40,55,37,48,43,52]);
+const samGrade=view.signalScore(darnoldRush,samLogs),harveyGrade=view.signalScore(harveyRush,harveyLogs);
+assert.ok(harveyGrade.score>samGrade.score+25,'Actual rushing production must outrank a misleading 0.5-yard line');
+const samAlt={...darnoldRush,key:'sam-rush-99.5',line:99.5,price:500,impliedPct:16.67,
+ model:{probabilityPct:1,edgePct:-15}};
+assert.equal(view.signalScore(samAlt,samLogs).score,samGrade.score,
+ 'Numeric line, price, implied probability and exact-line probability must NOT affect player-market grade');
+const twoLines=view.listing({id:'test-nfl-lines',league:'nfl',away:{abbr:'SEA'},home:{abbr:'DEN'}},
+ [darnoldRush,samAlt,harveyRush]);
+assert.equal((twoLines.match(/Sam Darnold<\/b>/g)||[]).length,1,'One player/market card despite multiple sportsbook lines');
+assert.ok(twoLines.includes('does not affect grade'),'Exact sportsbook quote must be labeled separately');
+// Same independent-of-threshold rule for NBA, MLB and NHL.
+for(const [sport,market,stats,target] of [
+ ['nba','points',[22,26,18,32,30,27,20,25,29,21],'points'],
+ ['mlb','hits',[1,3,2,0,2,4,1,2,1,3],'h'],
+ ['nhl','sog',[2,5,4,6,1,4,3,2,5,4],'sog']
+]){
+ const r={key:sport+'-low',sport,market,player:'Cross-sport Test',team:'TST',line:0.5,side:'over',
+  price:-120,impliedPct:54.55,model:{probabilityPct:91,edgePct:36}};
+ const obj=sport==='mlb'?{gameLog:stats.map((v,i)=>({date:'2026-10-'+String(i+1).padStart(2,'0'),[target]:v}))}:
+  {recentGames:stats.map((v,i)=>({date:'2026-10-'+String(i+1).padStart(2,'0'),stats:{[target]:v}}))};
+ const research={available:true,player:obj};
+ assert.equal(view.signalScore(r,research).score,view.signalScore({...r,line:100.5,price:800,impliedPct:8,
+  model:{probabilityPct:2,edgePct:-6}},research).score,sport+' grade must ignore the exact quote and line probability');
+}
+// Independent, explicitly provided model projection CAN contribute to a category.
+const projectionVariant={...darnoldRush,model:{probabilityPct:90,projection:{mean:65}}};
+assert.ok(view.signalScore(projectionVariant,samLogs).factors.some(f=>f.label==='Independent model forecast'));
 
 console.log('TSO scored prop ranking and evidence suite: PASS');
