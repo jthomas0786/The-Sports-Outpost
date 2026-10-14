@@ -442,6 +442,29 @@ function meanValues(values){
  const real=values.map(n).filter(x=>x!==null&&x>=0);
  return real.length?real.reduce((sum,v)=>sum+v,0)/real.length:null;
 }
+// Current-season play-by-play usage only when exact GSIS identity, team,
+// sample size, and source freshness all match.
+function propRole(data,doc,row){
+ if(String(row.sport||'')!=='nfl'||!doc)return null;
+ const date=Date.parse(doc.generatedAt||'');
+ if(!Number.isFinite(date)||Date.now()-date>10*86400000||date>Date.now()+3600000)return null;
+ const p=opportunityForPlayer(doc,data,row);
+ if(!p||n(p.gamesWithOpportunities)<3)return null;
+ const m=String(row.market||''),parts=[];
+ function use(field,label,scale){
+  const v=n(p[field]);
+  if(v!==null&&v>=0&&v<=100)parts.push({value:clamp(25+v*scale,0,100),detail:label+' '+pct(v)});
+ }
+ if(['recYds','receptions','longestReception'].includes(m)&&n(p.targets)>=3)use('targetSharePct','Target share',2.1);
+ if(['rushYds','rushAtt'].includes(m)&&n(p.carries)>=3)use('carrySharePct','Carry share',1.15);
+ if(m==='atd'&&n(p.redZoneOpps)>=3){
+  use('redZoneSharePct','Red-zone share',1.5);
+  use('goalLineSharePct','Goal-line share',1.6);
+ }
+ if(!parts.length)return null;
+ return {value:parts.reduce((sum,item)=>sum+item.value,0)/parts.length,
+  detail:parts.map(item=>item.detail).join(' · ')+' · '+p.gamesWithOpportunities+' observed games'};
+}
 function verifiedVolume(data,doc,row){
  const sport=String(row.sport||'').toLowerCase(),market=String(row.market||'');
  const p=data?.player||{};
