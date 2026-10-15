@@ -61,7 +61,7 @@ function playerMarketRows(rows){
  }
  return [...selected.values()];
 }
-const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,ranking:null};
+const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,defense2026:null,ranking:null};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
  if(row?.selection)return String(row.selection);
@@ -201,10 +201,11 @@ function researchNotes(data,row){
  const p=data?.player||{},sport=String(row.sport||'').toLowerCase();
  if(sport==='nfl'){
    if(p.position)notes.push('Position: '+p.position);
-   const perf=p.matchup?.previousSeasonAllowed?.perGame||{};
-   for(const [name,key,suffix] of [['Opponent TDs allowed','tds',' per game'],['Opponent rush yards allowed','rushYds',' / game'],['Opponent receiving yards allowed','recYds',' / game']]){
-     if(n(perf[key])!==null)notes.push('Previous-season '+name.toLowerCase()+': '+amount(perf[key])+suffix);
-   }
+   const matchup=p.matchup||{},opp=nflTeamCode(matchup.opponent),pos=nflDefensePosition(p.position||matchup.positionGroup);
+   const record=state.defense2026?.season===2026?state.defense2026.teams?.[opp]?.byPosition?.[pos]:null;
+   const statName={QB:['passYds','passing yards'],RB:['rushYds','rushing yards'],WR:['recYds','receiving yards'],TE:['recYds','receiving yards']}[pos];
+   if(record?.games>=3&&statName&&n(record.perGame?.[statName[0]])!==null)
+     notes.push('2026 '+opp+' defense vs '+pos+': '+amount(record.perGame[statName[0]])+' '+statName[1]+'/game across all '+pos+'s ('+record.games+' games)');
    if(n(p?.snapTrend?.last3AvgPct)!==null)notes.push('Snap share (last 3): '+pct(p.snapTrend.last3AvgPct));
  }
  if(sport==='nba'){
@@ -522,19 +523,23 @@ function verifiedMarketMatchup(data,row){
   }
  }
  if(sport==='nfl'){
-  const m=p.matchup||{},allow=m.previousSeasonAllowed||{};
-  const pos=String(m.positionGroup||'').toUpperCase();
-  const validPos=['QB','RB','WR','TE'].includes(pos)&&String(allow.position||'').toUpperCase()===pos&&
-    Number.isInteger(Number(allow.games))&&Number(allow.games)>=5&&
-    String(p.team||'').toUpperCase()===String(row.team||'').toUpperCase()&&
-    String(m.opponent||'').length>=2;
-  const field={passYds:'passYds',passTds:'passTds',rushYds:'rushYds',recYds:'recYds',receptions:'receptions'}[market];
-  // Prior-season defense-vs-position totals cover ALL players of that position.
-  // A position group's allowed yards is not an individual player forecast, so
-  // use it for context in the dropdown, not numeric grading without a baseline.
-  if(validPos&&field&&n(allow.perGame?.[field])!==null)
-   return {value:null,detail:'Prior-season '+String(m.opponent).toUpperCase()+' defense vs '+pos+
-     ': '+amount(allow.perGame[field])+' '+field+'/game across the position group (context only)'};
+  // Match player and opponent identity, then compare CURRENT-SEASON 2026
+  // allowances with the same-position 2026 league baseline.
+  const m=p.matchup||{},pos=nflDefensePosition(p.position||m.positionGroup);
+  const opponent=nflTeamCode(m.opponent),source=state.defense2026;
+  const teamMatch=nflTeamCode(p.team)===nflTeamCode(row.team);
+  const gameMatch=!row.homeTeam||!row.awayTeam||
+    [row.homeTeam,row.awayTeam].some(t=>nflTeamCode(t)===opponent);
+  const record=source?.season===2026?source.teams?.[opponent]?.byPosition?.[pos]:null;
+  const league=source?.season===2026?source.league?.byPosition?.[pos]:null;
+  const field={passYds:'passYds',passTds:'passTds',rushYds:'rushYds',recYds:'recYds',
+    receptions:'receptions',atd:'tds',rushAtt:'carries'}[market];
+  if(teamMatch&&gameMatch&&field&&record?.games>=3&&league?.games>=10){
+   const allowed=n(record.perGame?.[field]),base=n(league.perGame?.[field]);
+   if(allowed!==null&&base!==null&&base>0)
+    return {value:clamp(50+75*(allowed/base-1),20,80),
+      detail:'2026 '+opponent+' defense vs '+pos+': '+amount(allowed)+' '+field+'/game allowed to all '+pos+'s · 2026 position baseline '+amount(base)+' · '+record.games+' games'};
+  }
  }
  return null;
 }
