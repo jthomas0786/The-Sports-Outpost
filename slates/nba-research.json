@@ -1,7 +1,7 @@
 {
   "version": 1,
   "modelDataVersion": "nba-history-v1",
-  "generatedAt": "2026-10-15T17:20:00.637Z",
+  "generatedAt": "2026-10-15T21:41:45.920Z",
   "currentSeason": 2027,
   "priorSeason": 2026,
   "source": "ESPN teams, rosters, injuries, player event logs and game-summary box scores",
@@ -20,7 +20,23 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
+    "roster:BKN": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:CLE": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "roster:ATL": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:CHA": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -32,19 +48,7 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:CHA": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:CLE": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:DEN": {
+    "roster:IND": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -52,11 +56,11 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:BKN": {
+    "roster:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:IND": {
+    "roster:MEM": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -64,19 +68,7 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:LAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
     "roster:MIA": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:MEM": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -92,6 +84,14 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
+    "roster:LAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "roster:NY": {
       "ok": true,
       "host": "site.web.api.espn.com"
@@ -100,19 +100,11 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
-    "roster:PHX": {
-      "ok": true,
-      "host": "site.web.api.espn.com"
-    },
     "roster:ORL": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
-    "roster:POR": {
+    "roster:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -120,7 +112,15 @@
       "ok": true,
       "host": "site.web.api.espn.com"
     },
+    "roster:PHX": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
     "roster:SAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com"
+    },
+    "roster:POR": {
       "ok": true,
       "host": "site.web.api.espn.com"
     },
@@ -173,19 +173,19 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:4433621:2026": {
-      "ok": true,
-      "host": "sports.core.api.espn.com"
-    },
     "eventlog:3078576:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:4251:2026": {
+    "eventlog:4065648:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:4065648:2026": {
+    "eventlog:4433621:2026": {
+      "ok": true,
+      "host": "sports.core.api.espn.com"
+    },
+    "eventlog:4251:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
@@ -205,11 +205,11 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:3136195:2027": {
+    "eventlog:1966:2027": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:1966:2027": {
+    "eventlog:3136195:2027": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
@@ -229,11 +229,11 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:1966:2026": {
+    "eventlog:3136195:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:3136195:2026": {
+    "eventlog:1966:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
@@ -289,11 +289,15 @@
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
+    "eventlog:5104157:2027": {
+      "ok": true,
+      "host": "sports.core.api.espn.com"
+    },
     "eventlog:4845367:2027": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
-    "eventlog:5104157:2027": {
+    "eventlog:5104157:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
@@ -302,10 +306,6 @@
       "host": "sports.core.api.espn.com"
     },
     "eventlog:4845367:2026": {
-      "ok": true,
-      "host": "sports.core.api.espn.com"
-    },
-    "eventlog:5104157:2026": {
       "ok": true,
       "host": "sports.core.api.espn.com"
     },
@@ -1237,7 +1237,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.880Z"
     },
     "4251": {
       "id": "4251",
@@ -1851,7 +1851,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.600Z"
+      "fetchedAt": "2026-10-15T21:41:45.878Z"
     },
     "3059318": {
       "id": "3059318",
@@ -2470,7 +2470,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.600Z"
+      "fetchedAt": "2026-10-15T21:41:45.879Z"
     },
     "3062679": {
       "id": "3062679",
@@ -3089,7 +3089,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.600Z"
+      "fetchedAt": "2026-10-15T21:41:45.879Z"
     },
     "3078576": {
       "id": "3078576",
@@ -3703,7 +3703,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.599Z"
+      "fetchedAt": "2026-10-15T21:41:45.877Z"
     },
     "3136195": {
       "id": "3136195",
@@ -4322,7 +4322,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.880Z"
     },
     "3147657": {
       "id": "3147657",
@@ -4941,7 +4941,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.880Z"
     },
     "3917376": {
       "id": "3917376",
@@ -5560,7 +5560,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.600Z"
+      "fetchedAt": "2026-10-15T21:41:45.879Z"
     },
     "3934672": {
       "id": "3934672",
@@ -6179,7 +6179,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.600Z"
+      "fetchedAt": "2026-10-15T21:41:45.879Z"
     },
     "3934719": {
       "id": "3934719",
@@ -6798,7 +6798,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.880Z"
     },
     "4065648": {
       "id": "4065648",
@@ -7292,7 +7292,7 @@
         }
       ],
       "gameCount": 24,
-      "fetchedAt": "2026-10-15T17:20:00.600Z"
+      "fetchedAt": "2026-10-15T21:41:45.878Z"
     },
     "4066259": {
       "id": "4066259",
@@ -7906,7 +7906,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.881Z"
     },
     "4278073": {
       "id": "4278073",
@@ -8520,7 +8520,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.602Z"
+      "fetchedAt": "2026-10-15T21:41:45.881Z"
     },
     "4431678": {
       "id": "4431678",
@@ -9134,7 +9134,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.880Z"
     },
     "4432166": {
       "id": "4432166",
@@ -9748,7 +9748,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.599Z"
+      "fetchedAt": "2026-10-15T21:41:45.877Z"
     },
     "4433255": {
       "id": "4433255",
@@ -10367,7 +10367,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.601Z"
+      "fetchedAt": "2026-10-15T21:41:45.881Z"
     },
     "4433621": {
       "id": "4433621",
@@ -10981,7 +10981,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.599Z"
+      "fetchedAt": "2026-10-15T21:41:45.878Z"
     },
     "4593803": {
       "id": "4593803",
@@ -11595,7 +11595,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.602Z"
+      "fetchedAt": "2026-10-15T21:41:45.881Z"
     },
     "4684742": {
       "id": "4684742",
@@ -12209,7 +12209,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.599Z"
+      "fetchedAt": "2026-10-15T21:41:45.877Z"
     },
     "4845367": {
       "id": "4845367",
@@ -12823,7 +12823,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.602Z"
+      "fetchedAt": "2026-10-15T21:41:45.881Z"
     },
     "5104157": {
       "id": "5104157",
@@ -13437,7 +13437,7 @@
         }
       ],
       "gameCount": 30,
-      "fetchedAt": "2026-10-15T17:20:00.602Z"
+      "fetchedAt": "2026-10-15T21:41:45.881Z"
     }
   },
   "nameIndex": {
