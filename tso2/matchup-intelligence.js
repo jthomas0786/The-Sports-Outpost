@@ -689,28 +689,43 @@ function renderResearch(data,row){
    +'<small class="mi-muted">Source: '+esc(source)+'</small></div>'
    +'<div class="mi-section mi-section--movement"><h4>Sportsbook odds movement</h4><div data-mi-history="'+esc(key(row))+'"><p class="mi-muted">Checking verified line history…</p></div></div>';
 }
-function verifiedDefensiveMatchup(data,defense,offense){
- if(!data?.available||data.sport!=='nfl')return null;
- const p=data.player||{},m=p.matchup||{},v=m.previousSeasonAllowed||{};
- const pos=String(m.positionGroup||'').toUpperCase();
- if(nflTeamCode(p.team)!==nflTeamCode(offense)||nflTeamCode(m.opponent)!==nflTeamCode(defense)||
-  !['QB','RB','WR','TE'].includes(pos)||String(v.position||'').toUpperCase()!==pos||
-  !Number.isInteger(Number(v.games))||Number(v.games)<5)return null;
+// Verified CURRENT 2026 defense vs position, not preseason/2025 records.
+function nflDefensePosition(value){
+ const v=String(value||'').toUpperCase();
+ return v==='FB'||v==='HB'?'RB':['QB','RB','WR','TE'].includes(v)?v:null;
+}
+let nflDefensePromise=null;
+function loadNflDefense2026(){
+ if(!nflDefensePromise){
+  nflDefensePromise=fetch('/api/nfl-defense-2026',{cache:'no-store',headers:{accept:'application/json'}})
+   .then(async response=>{
+    const doc=await response.json();
+    if(!response.ok||doc?.available!==true||doc?.season!==2026||
+     !doc.teams||!doc.league?.byPosition||!Number.isFinite(Date.parse(doc.generatedAt)))
+      throw Error(doc?.error||'Verified 2026 defensive data unavailable');
+    return doc;
+   }).catch(error=>{nflDefensePromise=null;throw error;});
+ }
+ return nflDefensePromise;
+}
+function verifiedDefensiveMatchup(doc,defense,position){
+ if(doc?.season!==2026||doc?.available!==true)return null;
+ const team=nflTeamCode(defense),pos=nflDefensePosition(position);
+ const record=doc.teams?.[team]?.byPosition?.[pos];
+ if(!pos||!record||n(record.games)===null||record.games<3)return null;
  const columns=pos==='QB'?[['passYds','Passing yards'],['passTds','Passing TDs']]:
   pos==='RB'?[['rushYds','Rushing yards'],['recYds','Receiving yards']]:
   [['recYds','Receiving yards'],['receptions','Receptions']];
- const values=columns.filter(([k])=>n(v.perGame?.[k])!==null&&n(v.perGame?.[k])>=0)
-  .map(([k,label])=>'<span><b>'+amount(v.perGame[k])+'</b><small>'+esc(label)+' / game</small></span>');
- if(!values.length)return null;
- return {pos,html:'<div class="mi-scout-pos"><b>'+esc(defense)+' defense vs '+pos+' · 2025</b>'
-  +'<div class="mi-scout-metrics">'+values.join('')+'</div><small>Against all '+pos+'s combined · '+v.games+' observed games · prior season</small></div>'};
+ const metrics=columns.filter(([k])=>n(record.perGame?.[k])!==null&&n(record.perGame?.[k])>=0)
+   .map(([k,label])=>'<span><b>'+amount(record.perGame[k])+'</b><small>'+esc(label)+' / game</small></span>');
+ if(!metrics.length)return null;
+ return {pos,html:'<div class="mi-scout-pos"><b>'+esc(team)+' defense vs '+pos+' · 2026</b>'
+  +'<div class="mi-scout-metrics">'+metrics.join('')+'</div>'
+  +'<small>All opposing '+pos+'s combined · '+record.games+' observed games · 2026 regular season</small></div>'};
 }
 function scoutingFromResult(data,defense,game){
  if(!data?.available)return null;
- if(game.league==='nfl'){
-  const offense=nflTeamCode(nflTeamCode(game.away?.abbr)===nflTeamCode(defense)?game.home?.abbr:game.away?.abbr);
-  return verifiedDefensiveMatchup(data,defense,offense)?.html||null;
- }
+ if(game.league==='nfl')return null; // Never promote 2025 defensive data.
  if(game.league==='nba'&&n(data?.matchup?.opponentPace)!==null)
   return '<b>Verified opponent pace</b><div class="mi-scout-metrics"><span><b>'+amount(data.matchup.opponentPace)+'</b><small>Possessions estimate / game</small></span></div>';
  if(game.league==='mlb'&&n(data?.opponent?.pitcher?.era)!==null)
@@ -810,22 +825,22 @@ function updateScouting(root,ctx){
    }).catch(()=>{if(node.isConnected)node.textContent='Matchup data unavailable.';});
    continue;
   }
-  const markets=['passYds','completions','rushYds','rushAtt','recYds','receptions','atd'];
-  const candidates=[...new Map(markets.flatMap(m=>pool.filter(r=>r.market===m).slice(0,4))
-    .map(r=>[String(r.player||'').toLowerCase(),r])).values()].slice(0,12);
-  if(!candidates.length){node.textContent='No verified defense-vs-position observations.';continue;}
-  node.textContent='Verifying positional defensive records…';
-  Promise.allSettled(candidates.map(r=>getResearch(r,ctx))).then(results=>{
+  node.textContent='Loading verified 2026 defense-vs-position stats…';
+  // All four positions are available independently of sportsbook props.
+  loadNflDefense2026().then(doc=>{
    if(!node.isConnected)return;
-   const profiles=new Map();
-   for(const item of results){
-    const match=item.status==='fulfilled'?verifiedDefensiveMatchup(item.value,defense,offense):null;
-    if(match&&!profiles.has(match.pos))profiles.set(match.pos,match.html);
-   }
-   node.innerHTML=profiles.size?'<b>Verified 2025 defense vs position</b><div class="mi-scout-pos-grid">'
-    +['QB','RB','WR','TE'].filter(p=>profiles.has(p)).map(p=>profiles.get(p)).join('')+'</div>'
-    +'<small>Previous-season positional allowance; not current-week defensive rankings.</small>'
-    :'<span class="mi-muted">Position-specific defensive numbers unavailable for '+esc(defense)+'. No unrelated opponent data substituted.</span>';
+   const fresh=state.defense2026!==doc;
+   state.defense2026=doc;
+   const cards=['QB','RB','WR','TE'].map(pos=>verifiedDefensiveMatchup(doc,defense,pos)).filter(Boolean);
+   node.innerHTML=cards.length
+     ?'<b>Verified 2026 defense vs position</b><div class="mi-scout-pos-grid">'+cards.map(c=>c.html).join('')+'</div>'
+      +'<small>2026 nflverse · updated '+esc(String(doc.generatedAt||'').slice(0,10))
+      +' · defensive allowances, not a future-game forecast.</small>'
+     :'<span class="mi-muted">Insufficient verified 2026 defensive observations for '+esc(defense)+'. No 2025 fallback.</span>';
+   // Re-grade player/market matches once the verified 2026 defense is present.
+   if(fresh&&node.isConnected&&typeof ctx.refresh==='function')ctx.refresh();
+  }).catch(()=>{
+   if(node.isConnected)node.innerHTML='<span class="mi-muted">Verified 2026 defense-vs-position data is unavailable. 2025 stats are disabled.</span>';
   });
  }
 
