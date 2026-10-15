@@ -170,6 +170,10 @@ function seriesFromResearch(data,row){
  const nflField={rushYds:'rushYds',recYds:'recYds',receptions:'receptions',passYds:'passYds',passTds:'passTds',completions:'completions',atd:'tds'}[m];
  const nbaField=m;
  for(const g of s==='nfl'?(m==='firstTd'?p.periodGameLog||[]:p.gameLog||[]):s==='mlb'?p.gameLog||[]:p.recentGames||[]){
+   // The NFL Game Hub grades and charts current 2026 performance only.
+   // Discard explicit 2025/older observations; never mix seasons silently.
+   const gameYear=Number(g?.season)||Number(String(g?.date||'').slice(0,4))||null;
+   if(s==='nfl'&&gameYear!==null&&gameYear!==2026)continue;
    let v=null;
    if(s==='nfl')v=n(m==='firstTd'?g.firstTd:g[nflField]);
    if(s==='nba')v=n(g.stats?.[nbaField]);
