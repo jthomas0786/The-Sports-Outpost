@@ -41,6 +41,86 @@ async function mlbVerifiedGameLog(playerId,season){
     }).filter(x=>x.date).sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
   }catch{return [];}
 }
+/* Current-year NFL defense vs position, computed from the current TSO NFL
+ * research snapshot. The snapshot contains licensed nflverse player-week game
+ * logs; it already updates independently of this TSO 2.0 release.
+ * No previous-season defensive data may enter this endpoint. */
+const NFL_DVP_SEASON=2026;
+const nflDvpTeam=value=>({LAR:'LA',JAC:'JAX',WAS:'WSH',OAK:'LV',SD:'LAC',STL:'LA'}[String(value||'').toUpperCase()]||String(value||'').toUpperCase());
+const nflDvpNumber=value=>value===null||value===undefined||value===''?0:Number.isFinite(Number(value))?Number(value):0;
+const nflDvpRound=(v,places=1)=>+Number(v).toFixed(places);
+const nflDvpPosition=value=>{
+ const v=String(value||'').toUpperCase().trim();
+ if(v==='FB'||v==='HB')return'RB';
+ return ['QB','RB','WR','TE'].includes(v)?v:null;
+};
+function nflDvpFromResearch(doc){
+ const generated=Date.parse(doc?.generatedAt||'');
+ if(Number(doc?.season)!==NFL_DVP_SEASON||
+  !Array.isArray(doc?.players)||!Number.isFinite(generated)||
+  generated>Date.now()+3600000||Date.now()-generated>30*86400000)
+  throw new Error('Verified 2026 NFL research snapshot unavailable or outdated');
+ const defenseGames=new Map(),defensePositions=new Map(),seen=new Set();
+ const keys=['passYds','passTds','rushYds','rushTds','recYds','recTds','receptions','targets','carries','completions'];
+ for(const player of doc.players){
+  const position=nflDvpPosition(player?.position);
+  if(!position)continue;
+  const identity=String(player.gsisId||player.espnId||nflDvpTeam(player.team)+'|'+player.name||'').trim();
+  if(!identity)continue;
+  for(const game of Array.isArray(player.gameLog)?player.gameLog:[]){
+   if(Number(game?.season)!==NFL_DVP_SEASON)continue;
+   const week=Number(game?.week),offense=nflDvpTeam(game?.team||player.team),defense=nflDvpTeam(game?.opponent);
+   if(!Number.isInteger(week)||week<1||week>22||!offense||!defense||offense===defense)continue;
+   if(game?.date&&Number.isFinite(Date.parse(game.date))&&Date.parse(game.date)>Date.now()+86400000)continue;
+   const id=[identity,week,offense,defense].join('|');
+   if(seen.has(id))continue;seen.add(id);
+   if(!defenseGames.has(defense))defenseGames.set(defense,new Set());
+   defenseGames.get(defense).add(String(week)+'|'+offense);
+   const groupKey=defense+'|'+position;
+   if(!defensePositions.has(groupKey))
+    defensePositions.set(groupKey,Object.fromEntries(keys.map(k=>[k,0])));
+   const group=defensePositions.get(groupKey);
+   for(const key of keys)group[key]+=nflDvpNumber(game?.[key]);
+  }
+ }
+ if(defenseGames.size<20||seen.size<600)
+  throw new Error('Not enough verified 2026 defensive-position player observations');
+ const teams={},leagueTotals={};
+ for(const [defense,gamesSet] of defenseGames){
+  const games=gamesSet.size;
+  if(games<1)continue;
+  const byPosition={};
+  for(const pos of ['QB','RB','WR','TE']){
+   const g=defensePositions.get(defense+'|'+pos);
+   if(!g)continue;
+   // Divide by all observed defense games, not just weeks a position
+   // accumulated a stat, so teams are compared on a consistent basis.
+   const perGame=Object.fromEntries(keys.map(k=>[k,nflDvpRound(g[k]/games,k.endsWith('Tds')?2:1)]));
+   perGame.tds=nflDvpRound((g.passTds+g.rushTds+g.recTds)/games,2);
+   byPosition[pos]={position:pos,games,perGame};
+   if(!leagueTotals[pos])leagueTotals[pos]={games:0,raw:Object.fromEntries(keys.map(k=>[k,0]))};
+   const sum=leagueTotals[pos];sum.games+=games;
+   for(const key of keys)sum.raw[key]+=g[key];
+  }
+  teams[defense]={games,byPosition};
+ }
+ const league={byPosition:{}};
+ for(const [pos,data] of Object.entries(leagueTotals)){
+  if(data.games<10)continue;
+  const perGame=Object.fromEntries(keys.map(k=>[k,nflDvpRound(data.raw[k]/data.games,k.endsWith('Tds')?2:1)]));
+  perGame.tds=nflDvpRound((data.raw.passTds+data.raw.rushTds+data.raw.recTds)/data.games,2);
+  league.byPosition[pos]={games:data.games,perGame};
+ }
+ return {available:true,season:NFL_DVP_SEASON,
+   source:'2026 nflverse player-week observations in TSO NFL research',
+   generatedAt:doc.generatedAt,teamCount:Object.keys(teams).length,observationCount:seen.size,
+   samplePolicy:'Games from observed 2026 regular-season weeks; all players at each position combined; no 2025 fallback.',
+   teams,league};
+}
+async function buildNflDefense2026(){
+ const doc=await deepResearchFetch('slates/nfl-research.json',180);
+ return nflDvpFromResearch(doc);
+}
 async function buildDeepResearch(u){
   const sport=String(u.searchParams.get("sport")||"").toLowerCase();
   const playerId=String(u.searchParams.get("playerId")||"").trim();
