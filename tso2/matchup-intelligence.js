@@ -528,8 +528,8 @@ function verifiedMarketMatchup(data,row){
   const m=p.matchup||{},pos=nflDefensePosition(p.position||m.positionGroup);
   const opponent=nflTeamCode(m.opponent),source=state.defense2026;
   const teamMatch=nflTeamCode(p.team)===nflTeamCode(row.team);
-  const gameMatch=!row.homeTeam||!row.awayTeam||
-    [row.homeTeam,row.awayTeam].some(t=>nflTeamCode(t)===opponent);
+  const knownTeams=[row.homeTeam,row.awayTeam].map(nflTeamCode).filter(team=>team.length>=2&&team.length<=4);
+  const gameMatch=!knownTeams.length||knownTeams.includes(opponent);
   const record=source?.season===2026?source.teams?.[opponent]?.byPosition?.[pos]:null;
   const league=source?.season===2026?source.league?.byPosition?.[pos]:null;
   const field={passYds:'passYds',passTds:'passTds',rushYds:'rushYds',recYds:'recYds',
