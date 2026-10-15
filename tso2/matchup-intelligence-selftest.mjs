@@ -156,13 +156,26 @@ assert.equal(historical.evidence,'HISTORY / USAGE');
 assert.ok(historical.score>0&&historical.score<=88,'Production history can grade a market without sportsbook odds');
 assert.match(view.signalMini({...exact,model:null},mkResearch([88,90,92,94,96,98])),/HISTORY \/ USAGE/);
 assert.equal(view.signalScore({...exact,model:null},{available:false}).score,null,'Do not invent missing history');
-const defenseFixture=(team,def,pos)=>({available:true,sport:'nfl',player:{team,matchup:{
- opponent:def,positionGroup:pos,previousSeasonAllowed:{position:pos,games:15,perGame:{recYds:120.5,receptions:9.1,rushYds:99.5,passYds:219.9}}}}});
-assert.match(view.verifiedDefensiveMatchup(defenseFixture('LA','BUF','WR'),'BUF','LA').html,/BUF defense vs WR/);
-assert.match(view.verifiedDefensiveMatchup(defenseFixture('BUF','LA','RB'),'LA','BUF').html,/LA defense vs RB/);
-assert.equal(view.verifiedDefensiveMatchup(defenseFixture('BUF','LA','RB'),'BUF','LA'),null);
-assert.equal(view.verifiedDefensiveMatchup(defenseFixture('LA','BUF','WR'),'LA','BUF'),null);
-
+// Current-season team totals, not an individual player's prior-season stats.
+const defense2026={
+ available:true,season:2026,generatedAt:'2026-10-14T21:42:23Z',
+ teams:{
+  BUF:{games:5,byPosition:{WR:{position:'WR',games:5,perGame:{recYds:100.5,receptions:9.1}}}},
+  LA:{games:5,byPosition:{RB:{position:'RB',games:5,perGame:{rushYds:99.5,recYds:44.2}}}}
+ },league:{byPosition:{WR:{games:160,perGame:{recYds:115}},RB:{games:160,perGame:{rushYds:105}}}}
+};
+assert.match(view.verifiedDefensiveMatchup(defense2026,'BUF','WR').html,/BUF defense vs WR · 2026/);
+assert.match(view.verifiedDefensiveMatchup(defense2026,'LA','RB').html,/LA defense vs RB · 2026/);
+assert.equal(view.verifiedDefensiveMatchup(defense2026,'BUF','QB'),null,'Unavailable 2026 position stats must not borrow data');
+assert.equal(view.verifiedDefensiveMatchup({...defense2026,season:2025},'BUF','WR'),null,'Reject 2025 defensive source');
+assert.equal(view.verifiedDefensiveMatchup(defense2026,'DEN','WR'),null,'Other teams must not borrow Buffalo defensive data');
+assert.ok(!view.verifiedDefensiveMatchup(defense2026,'BUF','WR').html.includes('2025'));
+assert.deepEqual(Array.from(view.matchedStats({available:true,player:{gameLog:[
+ {season:2025,date:'2025-11-01',recYds:180},
+ {season:2026,date:'2026-10-01',recYds:54},
+ {season:2026,date:'2026-10-08',recYds:61}
+]}},{sport:'nfl',market:'recYds'}),g=>g.value),[61,54],
+ '2025 game logs must not enter the current-season prop signal or chart');
 
 // Both ALL PROPS and each prop market must sort by TSO Signal instead of model %.
 const rankRow=(key,player,market,prob,line=50)=>({key,sport:'nfl',player,team:'BUF',market,side:'over',line,
