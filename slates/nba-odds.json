@@ -4,49 +4,19 @@
     "sample": false,
     "sport": "NBA",
     "sportKey": "basketball_nba",
-    "fetchedAt": "2026-10-16T21:32:36.753Z",
+    "fetchedAt": "2026-10-16T23:50:28.374Z",
     "queryWindow": {
-      "from": "2026-10-15T21:32:31.201Z",
-      "to": "2026-10-23T21:32:31.201Z"
+      "from": "2026-10-15T23:50:18.515Z",
+      "to": "2026-10-23T23:50:18.515Z"
     },
-    "eventsFound": 48,
-    "relevantEvents": 48,
+    "eventsFound": 52,
+    "relevantEvents": 52,
     "eventPreview": [
-      {
-        "eventId": "698f9c954e3fb7b1",
-        "commenceTime": "2026-10-16T17:19:00.000Z",
-        "awayTeam": "Charlotte Hornets",
-        "homeTeam": "Denver Nuggets"
-      },
-      {
-        "eventId": "5ad0fc27ceccfe49",
-        "commenceTime": "2026-10-16T17:27:00.000Z",
-        "awayTeam": "Charlotte Hornets",
-        "homeTeam": "Dallas Mavericks"
-      },
-      {
-        "eventId": "14bf29b5679371aa",
-        "commenceTime": "2026-10-16T18:39:00.000Z",
-        "awayTeam": "Memphis Grizzlies",
-        "homeTeam": "Milwaukee Bucks"
-      },
-      {
-        "eventId": "1efa24cd1fec7469",
-        "commenceTime": "2026-10-16T18:47:00.000Z",
-        "awayTeam": "Oklahoma City Thunder",
-        "homeTeam": "Los Angeles Lakers"
-      },
       {
         "eventId": "c1a9487574518aec",
         "commenceTime": "2026-10-16T19:43:00.000Z",
         "awayTeam": "Memphis Grizzlies",
         "homeTeam": "Cleveland Cavaliers"
-      },
-      {
-        "eventId": "3604f093b62ae010",
-        "commenceTime": "2026-10-16T20:15:00.000Z",
-        "awayTeam": "Memphis Grizzlies",
-        "homeTeam": "Phoenix Suns"
       },
       {
         "eventId": "1492686ccceede89",
@@ -79,17 +49,47 @@
         "homeTeam": "Cleveland Cavaliers"
       },
       {
-        "eventId": "85b74e4bab074f6f",
-        "commenceTime": "2026-10-16T21:27:00.000Z",
+        "eventId": "80f7b51d66efcf54",
+        "commenceTime": "2026-10-16T21:51:00.000Z",
+        "awayTeam": "Phoenix Suns",
+        "homeTeam": "Milwaukee Bucks"
+      },
+      {
+        "eventId": "7f0ec921e65e2d31",
+        "commenceTime": "2026-10-16T21:59:00.000Z",
         "awayTeam": "New York Knicks",
-        "homeTeam": "Boston Celtics"
+        "homeTeam": "Los Angeles Lakers"
+      },
+      {
+        "eventId": "d9937d16b34d327d",
+        "commenceTime": "2026-10-16T22:11:00.000Z",
+        "awayTeam": "Oklahoma City Thunder",
+        "homeTeam": "New York Knicks"
+      },
+      {
+        "eventId": "adc00df205821220",
+        "commenceTime": "2026-10-16T22:19:00.000Z",
+        "awayTeam": "Chicago Bulls",
+        "homeTeam": "Brooklyn Nets"
+      },
+      {
+        "eventId": "5bd799a64fda33d2",
+        "commenceTime": "2026-10-16T22:51:00.000Z",
+        "awayTeam": "Miami Heat",
+        "homeTeam": "Brooklyn Nets"
+      },
+      {
+        "eventId": "3604f093b62ae010",
+        "commenceTime": "2026-10-16T22:55:00.000Z",
+        "awayTeam": "Phoenix Suns",
+        "homeTeam": "Memphis Grizzlies"
       }
     ],
-    "rawRows": 299,
+    "rawRows": 229,
     "sportsbookRows": 190,
-    "currentRows": 98,
-    "preservedRows": 92,
-    "rejectedNonPlayers": 84,
+    "currentRows": 33,
+    "preservedRows": 157,
+    "rejectedNonPlayers": 93,
     "rejectedUnmatchedEvents": 0,
     "normalizedTeamSuffixes": 0,
     "nativeLinkRows": 0,
@@ -128,9 +128,6 @@
       "player_pts_rebs",
       "player_pts_rebs_asts",
       "player_rebounds",
-      "player_rebs_asts",
-      "player_steals",
-      "player_threes",
       "player_threes_made"
     ],
     "noCurrentProps": false,
@@ -138,7 +135,7 @@
     "preservationPolicy": "If an exact sportsbook player-prop quote disappears before game time, retain its last verified pregame price for up to 36 hours and no later than 30 minutes after scheduled start.",
     "identityPolicy": "Provider player identity is preserved without guessing event context.",
     "note": "Current NBA player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Missing exact pregame rows may retain their last verified price; prices are never invented.",
-    "sanitizedMatchupLabels": 59
+    "sanitizedMatchupLabels": 62
   },
   "rows": [
     {
@@ -168,7 +165,7 @@
       "snapshotTime": "2026-10-16T00:57:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -195,8 +192,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:50.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -213,8 +211,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -125,
-      "underPrice": -105,
+      "overPrice": -121,
+      "underPrice": -109,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -222,7 +220,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:54.000Z",
+      "snapshotTime": "2026-10-16T23:31:38.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -251,8 +249,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -279,8 +278,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:13.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -307,8 +307,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -335,8 +336,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -362,7 +364,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:08:58.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -393,7 +395,7 @@
       "snapshotTime": "2026-10-16T00:57:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -422,7 +424,7 @@
       "snapshotTime": "2026-10-16T09:39:42.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -449,8 +451,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:50.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -476,7 +479,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:00.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -505,8 +508,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -533,8 +537,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:13.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -561,8 +566,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:21:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -589,8 +595,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -617,8 +624,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -644,7 +652,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:07.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -673,8 +681,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -703,7 +712,7 @@
       "snapshotTime": "2026-10-16T00:57:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -732,7 +741,7 @@
       "snapshotTime": "2026-10-16T09:54:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -761,7 +770,7 @@
       "snapshotTime": "2026-10-16T09:55:00.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -788,8 +797,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -818,7 +828,7 @@
       "snapshotTime": "2026-10-15T22:21:11.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -845,8 +855,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -873,8 +884,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -903,7 +915,7 @@
       "snapshotTime": "2026-10-15T11:52:16.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -930,8 +942,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:49:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -960,7 +973,7 @@
       "snapshotTime": "2026-10-16T00:57:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -977,8 +990,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -107,
-      "underPrice": -122,
+      "overPrice": -118,
+      "underPrice": -111,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -986,7 +999,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:50.000Z",
+      "snapshotTime": "2026-10-16T23:31:38.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1015,8 +1028,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:54.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1033,8 +1047,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -103,
-      "underPrice": -128,
+      "overPrice": -114,
+      "underPrice": -115,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -1042,10 +1056,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T17:43:47.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "snapshotTime": "2026-10-16T23:31:38.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1072,8 +1085,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1090,8 +1104,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -107,
-      "underPrice": -124,
+      "overPrice": -115,
+      "underPrice": -115,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -1099,10 +1113,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T17:43:54.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "snapshotTime": "2026-10-16T23:31:38.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1129,8 +1142,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:13.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1157,8 +1171,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1184,7 +1199,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:34.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1215,7 +1230,7 @@
       "snapshotTime": "2026-10-16T17:43:07.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1244,7 +1259,7 @@
       "snapshotTime": "2026-10-16T00:37:37.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1270,7 +1285,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:34.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1299,8 +1314,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1326,7 +1342,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:17:16.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1357,7 +1373,7 @@
       "snapshotTime": "2026-10-16T09:55:00.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1386,7 +1402,7 @@
       "snapshotTime": "2026-10-16T00:35:54.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1413,8 +1429,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1443,7 +1460,7 @@
       "snapshotTime": "2026-10-15T22:21:11.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1470,8 +1487,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:13.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1498,8 +1516,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1525,7 +1544,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:01.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1554,8 +1573,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1582,8 +1602,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1610,8 +1631,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:38:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1638,8 +1660,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1666,8 +1689,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1696,7 +1720,7 @@
       "snapshotTime": "2026-10-16T00:57:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1723,8 +1747,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1750,7 +1775,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:08.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1778,7 +1803,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:33.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1809,7 +1834,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1835,7 +1860,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:28.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1864,8 +1889,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:50.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1894,7 +1920,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1923,7 +1949,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1952,7 +1978,7 @@
       "snapshotTime": "2026-10-16T00:57:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -1978,7 +2004,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:08:58.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2009,7 +2035,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2036,8 +2062,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:18:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2063,7 +2090,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:08:59.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2094,7 +2121,7 @@
       "snapshotTime": "2026-10-16T05:41:49.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2121,8 +2148,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:21:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2149,8 +2177,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2177,8 +2206,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:07.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2205,8 +2235,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2233,8 +2264,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:13.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2261,8 +2293,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:09.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2289,8 +2322,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2317,8 +2351,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:21:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2347,7 +2382,7 @@
       "snapshotTime": "2026-10-16T17:43:43.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2374,8 +2409,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2402,8 +2438,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:54.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2432,7 +2469,7 @@
       "snapshotTime": "2026-10-15T22:37:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2459,8 +2496,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2487,8 +2525,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:27.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2515,8 +2554,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2543,8 +2583,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:21:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2573,7 +2614,7 @@
       "snapshotTime": "2026-10-16T05:41:49.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2600,8 +2641,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:50.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2628,8 +2670,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:54.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2658,7 +2701,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2687,7 +2730,7 @@
       "snapshotTime": "2026-10-16T00:57:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2716,7 +2759,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2743,8 +2786,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:47.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2771,8 +2815,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:18:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2799,8 +2844,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:49:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2829,7 +2875,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2856,8 +2902,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:54.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2886,7 +2933,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2915,7 +2962,7 @@
       "snapshotTime": "2026-10-15T22:00:31.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2942,8 +2989,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2970,8 +3018,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:18:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2997,7 +3046,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:20:13.000Z",
+      "snapshotTime": "2026-10-16T23:05:44.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3028,7 +3077,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3054,7 +3103,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:20:13.000Z",
+      "snapshotTime": "2026-10-16T23:05:44.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3085,7 +3134,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3111,7 +3160,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:12:59.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3140,8 +3189,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3168,8 +3218,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:07.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3198,7 +3249,7 @@
       "snapshotTime": "2026-10-15T22:37:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3227,7 +3278,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3256,7 +3307,7 @@
       "snapshotTime": "2026-10-16T00:57:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3282,7 +3333,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:27.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3311,8 +3362,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:09.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3338,7 +3390,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:20:13.000Z",
+      "snapshotTime": "2026-10-16T23:05:44.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3367,8 +3419,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3397,7 +3450,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3424,8 +3477,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:07.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3454,7 +3508,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3483,7 +3537,7 @@
       "snapshotTime": "2026-10-16T00:57:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3510,8 +3564,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3538,8 +3593,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3568,7 +3624,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3597,7 +3653,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3626,7 +3682,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3655,7 +3711,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3684,7 +3740,7 @@
       "snapshotTime": "2026-10-15T22:00:31.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3713,7 +3769,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3742,7 +3798,7 @@
       "snapshotTime": "2026-10-15T22:37:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3769,8 +3825,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T21:19:47.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3799,7 +3856,7 @@
       "snapshotTime": "2026-10-16T17:43:07.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3826,8 +3883,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:49:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3854,8 +3912,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:50.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3882,8 +3941,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:54.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3912,7 +3972,7 @@
       "snapshotTime": "2026-10-16T00:57:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3939,8 +3999,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -3969,7 +4030,7 @@
       "snapshotTime": "2026-10-16T05:15:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -3998,7 +4059,7 @@
       "snapshotTime": "2026-10-16T09:57:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4027,7 +4088,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4056,7 +4117,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4085,7 +4146,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4114,7 +4175,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4143,7 +4204,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4172,7 +4233,7 @@
       "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4201,7 +4262,7 @@
       "snapshotTime": "2026-10-15T16:17:34.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4230,7 +4291,7 @@
       "snapshotTime": "2026-10-16T05:15:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4259,7 +4320,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4288,7 +4349,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4317,7 +4378,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4346,7 +4407,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4375,7 +4436,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4404,7 +4465,7 @@
       "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4433,7 +4494,7 @@
       "snapshotTime": "2026-10-16T05:15:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4462,7 +4523,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4491,7 +4552,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4520,7 +4581,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4549,7 +4610,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4578,7 +4639,7 @@
       "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4604,7 +4665,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:20:13.000Z",
+      "snapshotTime": "2026-10-16T23:05:44.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -4635,7 +4696,7 @@
       "snapshotTime": "2026-10-15T16:17:34.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4661,7 +4722,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:04:23.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -4690,8 +4751,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:40:20.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4717,7 +4779,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:05.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -4736,8 +4798,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -108,
-      "underPrice": -122,
+      "overPrice": -111,
+      "underPrice": -118,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4745,10 +4807,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-15T15:41:41.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "snapshotTime": "2026-10-16T23:18:50.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4777,7 +4838,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4794,8 +4855,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -111,
-      "underPrice": -119,
+      "overPrice": -117,
+      "underPrice": -113,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4803,10 +4864,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-15T15:41:41.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "snapshotTime": "2026-10-16T22:56:49.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4835,7 +4895,7 @@
       "snapshotTime": "2026-10-15T22:54:42.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4861,7 +4921,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:08.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -4892,7 +4952,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4921,7 +4981,7 @@
       "snapshotTime": "2026-10-15T22:22:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4950,7 +5010,7 @@
       "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4976,7 +5036,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:27.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5005,8 +5065,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:40:20.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5035,7 +5096,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5064,7 +5125,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5093,7 +5154,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5122,7 +5183,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5151,7 +5212,7 @@
       "snapshotTime": "2026-10-15T15:41:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5180,7 +5241,7 @@
       "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5206,7 +5267,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:04:26.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5237,7 +5298,7 @@
       "snapshotTime": "2026-10-15T22:35:37.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5264,8 +5325,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-16T20:40:20.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5291,7 +5353,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:28.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5319,7 +5381,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:13:06.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5350,7 +5412,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5379,7 +5441,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5408,7 +5470,7 @@
       "snapshotTime": "2026-10-16T09:57:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5437,7 +5499,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5463,7 +5525,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:04:29.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5494,7 +5556,7 @@
       "snapshotTime": "2026-10-15T16:28:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5523,7 +5585,7 @@
       "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-16T21:32:31.201Z"
+      "preservedAt": "2026-10-16T23:50:18.515Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5549,7 +5611,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:21:33.000Z",
+      "snapshotTime": "2026-10-16T23:36:03.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     }
