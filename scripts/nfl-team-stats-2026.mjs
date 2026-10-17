@@ -39,6 +39,14 @@ async function readTeam([team,id]){
  // Defensive POINTS allowed require each completed ESPN game to agree with
  // the current 2026 season count; never use ESPN's 0 'pointsAllowed' placeholder.
  const schedule=await fetchJson('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/'+id+'/schedule?season=2026&seasontype=2',true);
+ if(team==='BUF')console.log('SCHED_QA',JSON.stringify({
+  top:Object.keys(schedule||{}),count:schedule?.events?.length,
+  first:(schedule?.events||[]).slice(0,2).map(e=>({
+   id:e.id,keys:Object.keys(e),status:e.status,
+   competition:(e.competitions||[])[0]&&{keys:Object.keys(e.competitions[0]),
+    competitors:e.competitions[0].competitors?.map(c=>({id:c.id,team:c.team?.id,score:c.score}))}
+  }))
+ }));
  if(Array.isArray(schedule?.events)){
   const allowed=[];
   for(const e of schedule.events){
