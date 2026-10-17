@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v8918.js';
-import { availabilityFilteredInputs, verifiedRosterFilteredInputs } from '../sports/nfl/sim/availability.js';
+import { availabilityFilteredInputs, verifiedRosterFilteredInputs, assertSimulatedRoster } from '../sports/nfl/sim/availability.js';
 import { decideAutomaticRun, nextAutomationState, preservePregamePropCache } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
@@ -124,6 +124,7 @@ for(const game of games){
   const needFullPropSamples=decision.phase==='pregame';
   const needQuarterSamples=decision.phase==='pregame'&&config.quarters?.enabled!==false;
   const raw=simulateGame({game:eligibleGame,research:eligibleResearch,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples||needFullPropSamples||needQuarterSamples});
+  assertSimulatedRoster(eligibleGame,raw);
   let halftimeBoard=null,quarterBoard=null,fullPropBoard=null;
   if(needHalftimeSamples){
     halftimeBoard=buildHalftimeBoard({result:raw,game,liveGame,liveOdds,config,generatedAt:NOW.toISOString()});
