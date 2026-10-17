@@ -13,6 +13,9 @@ console.log('ESPN_INJURY_SHAPE',JSON.stringify({
  firstGroupTeam:sample?.team||null,
  firstGroupRows:Array.isArray(sample?.injuries)?sample.injuries.length:null,
  firstRowKeys:sample?.injuries?.[0]?Object.keys(sample.injuries[0]):[],
+ sampleIds:doc.injuries.slice(0,5).map(g=>({id:g.id,count:g.injuries?.length})),
+ statuses:Object.entries((doc.injuries||[]).flatMap(g=>g.injuries||[]).reduce((m,x)=>{const k=typeof x.status==='string'?x.status:JSON.stringify(x.status);m[k]=(m[k]||0)+1;return m},{})).sort((a,b)=>b[1]-a[1]).slice(0,12),
+
  topLevelType:typeof doc.injuries
 }));
 const report=await verifiedLeagueInjuryReport({cache:false});
