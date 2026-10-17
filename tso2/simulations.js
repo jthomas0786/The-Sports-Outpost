@@ -139,10 +139,23 @@ function matchupHTML(game){
   return '<article><h3>'+esc(team.abbr)+' DEFENSE <span>2026</span></h3><p>Yards allowed per game across all opposing players at each position · '+esc(record?.games||'—')+' observed games</p>'
    +'<div class="tso-sim-dvp-positions">'+group+'</div></article>';
  });
- const officialReport=String(game.gameId)==='401873007'
-  ?'<div class="tso-sim-defensive-injuries"><b>GREEN BAY SECONDARY · OFFICIAL OCT 16 INJURY REPORT</b><span>Benjamin St-Juste (CB) <strong>OUT</strong> · Brandon Cisse (CB) <strong>QUESTIONABLE</strong> · Keisean Nixon (CB) expected to play.</span><small>These statuses are verified context, not a separately calibrated numeric coverage adjustment. <a href="https://www.packers.com/news/packers-list-five-questionable-rule-out-four-vs-cowboys-week-6-injury-report-2026" target="_blank" rel="noopener noreferrer">Official Packers report</a></small></div>'
-  :'';
+ const officialReport='';
  return '<section class="tso-sim-dvp"><div class="tso-sim-dvp-kicker">2026 DEFENSE VS POSITION · OBSERVED ALLOWANCES</div><div class="tso-sim-dvp-grid">'+info.join('')+'</div>'+officialReport+'</section>';
+}
+function injuryHTML(game){
+ const a=game?.availability||{},teams=a.injuryStatus||[];
+ if(!a.injuryReportVerified||teams.length!==2)return '';
+ const updated=a.injuryReportCheckedAt&&Number.isFinite(Date.parse(a.injuryReportCheckedAt))?
+  new Intl.DateTimeFormat(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(new Date(a.injuryReportCheckedAt)):'unknown';
+ const sections=teams.map(team=>{
+  const out=team.excluded||[],uncertain=team.uncertain||[];
+  const item=(p,severity)=>'<div class="tso-sim-injury-row"><span>'+esc(p.name)+' <small>'+esc(p.position||'')+'</small></span><b class="'+severity+'">'+esc(p.status)+'</b></div>';
+  return '<article><h4>'+esc(team.team)+' · '+out.length+' OUT / IR · '+uncertain.length+' QUESTIONABLE / UNCERTAIN</h4>'+
+   '<div class="tso-sim-injury-list">'+out.map(p=>item(p,'is-out')).join('')+uncertain.map(p=>item(p,'is-questionable')).join('')+
+   (!out.length&&!uncertain.length?'<small>No exclusions or uncertainty flags in the latest team feed.</small>':'')+'</div></article>';
+ }).join('');
+ return '<section class="tso-sim-injury-audit"><div class="tso-sim-injury-head"><strong>2026 NFL ROSTER & INJURY AUDIT</strong><span>Checked '+esc(updated)+'</span></div>'+
+  '<div class="tso-sim-injury-grid">'+sections+'</div><p>IR, Out, suspended and doubtful players are excluded from simulations. Questionable players remain uncertain. Final game-day inactives are still pending independent verification.</p></section>';
 }
 function replayHTML(game){
  return '<div class="tso-sim-representative-banner"><strong>REPRESENTATIVE 50K WORLD</strong><span>'+esc(game.away.abbr)+' '+number(game.representativeWorld?.awayScore,0)+' – '+number(game.representativeWorld?.homeScore,0)+' '+esc(game.home.abbr)+' · Sample '+(Number(game.representativeWorld?.sampledIndex)+1).toLocaleString()+' of '+(Number(game.representativeWorld?.iterations)||50000).toLocaleString()+'</span></div>'
@@ -201,7 +214,7 @@ function paintPage(){
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
   +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
   +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':'ROSTER CHECK PENDING')+'</b></header>'
-  +(ready?strip(state.game)+matchupHTML(state.game)+(playbackReady?replayHTML(state.game):'<div class="tso-sim-roster-pending" role="status"><strong>REPRESENTATIVE REPLAY NOT AVAILABLE</strong> The sampled 50K score could not be reconstructed within verified player-usage limits. Showing projections only instead of inventing play statistics.</div>'):
+  +(ready?strip(state.game)+matchupHTML(state.game) +injuryHTML(state.game)+(playbackReady?replayHTML(state.game):'<div class="tso-sim-roster-pending" role="status"><strong>REPRESENTATIVE REPLAY NOT AVAILABLE</strong> The sampled 50K score could not be reconstructed within verified player-usage limits. Showing projections only instead of inventing play statistics.</div>'):
     '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.rosterVerified===true?'Awaiting the representative 50,000-run world. Independent random-score replays have been disabled.':'Checking the current 2026 active rosters. Replay is unavailable until eligibility is verified.')+'</div>')
   +'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
