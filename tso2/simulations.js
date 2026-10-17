@@ -139,7 +139,10 @@ function matchupHTML(game){
   return '<article><h3>'+esc(team.abbr)+' DEFENSE <span>2026</span></h3><p>Yards allowed per game across all opposing players at each position · '+esc(record?.games||'—')+' observed games</p>'
    +'<div class="tso-sim-dvp-positions">'+group+'</div></article>';
  });
- return '<section class="tso-sim-dvp"><div class="tso-sim-dvp-kicker">2026 DEFENSE VS POSITION · OBSERVED ALLOWANCES</div><div class="tso-sim-dvp-grid">'+info.join('')+'</div></section>';
+ const officialReport=String(game.gameId)==='401873007'
+  ?'<div class="tso-sim-defensive-injuries"><b>GREEN BAY SECONDARY · OFFICIAL OCT 16 INJURY REPORT</b><span>Benjamin St-Juste (CB) <strong>OUT</strong> · Brandon Cisse (CB) <strong>QUESTIONABLE</strong> · Keisean Nixon (CB) expected to play.</span><small>These statuses are verified context, not a separately calibrated numeric coverage adjustment. <a href="https://www.packers.com/news/packers-list-five-questionable-rule-out-four-vs-cowboys-week-6-injury-report-2026" target="_blank" rel="noopener noreferrer">Official Packers report</a></small></div>'
+  :'';
+ return '<section class="tso-sim-dvp"><div class="tso-sim-dvp-kicker">2026 DEFENSE VS POSITION · OBSERVED ALLOWANCES</div><div class="tso-sim-dvp-grid">'+info.join('')+'</div>'+officialReport+'</section>';
 }
 function replayHTML(game){
  return '<div class="tso-sim-representative-banner"><strong>REPRESENTATIVE 50K WORLD</strong><span>'+esc(game.away.abbr)+' '+number(game.representativeWorld?.awayScore,0)+' – '+number(game.representativeWorld?.homeScore,0)+' '+esc(game.home.abbr)+' · Sample '+(Number(game.representativeWorld?.sampledIndex)+1).toLocaleString()+' of '+(Number(game.representativeWorld?.iterations)||50000).toLocaleString()+'</span></div>'
