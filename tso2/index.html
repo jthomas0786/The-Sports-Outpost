@@ -14,6 +14,7 @@
   <link rel="manifest" href="/manifest.webmanifest?v=20261009-transparent-corners-v1" />
   <title>The Sports Outpost 2.0 — Broadcast Preview</title>
   <link rel="stylesheet" href="./styles.css?v=20261015-nfl-2026-defense-vs-position" />
+  <link rel="stylesheet" href="./simulations.css?v=20261017-nfl-replay-v1" />
 </head>
 <body>
   <div class="app-shell broadcast-shell" data-league="all">
@@ -28,6 +29,7 @@
       <nav class="tso-side-primary" aria-label="Primary">
         <button class="tso-side-item nav-item--approved" data-route="home"><img class="nav-approved-icon" src="/brand/production/tso2-product-live-approved.webp" alt=""/><span><b>TODAY</b><small>Best opportunities & scores</small></span></button>
         <button class="tso-side-item nav-item--approved" data-route="games"><img class="nav-approved-icon" src="/brand/production/tso2-product-game-edge-approved.svg" alt=""/><span><b>GAMES</b><small>Matchup · lines · props</small></span></button>
+        <button class="tso-side-item tso-side-item--simulations" data-route="simulations"><span class="tso-sim-nav-icon" aria-hidden="true">▤</span><span><b>TSO SIMULATIONS</b><small>Animated NFL game replays</small></span></button>
         <button class="tso-side-item nav-item--approved" data-route="parlays"><img class="nav-approved-icon" src="https://parlayping.thesportsoutpost.com/parlayping-approved-hero.webp" alt=""/><span><b>PARLAY PING</b><small>Your 25-leg betslip</small></span></button>
         <button class="tso-side-item nav-item--approved" data-route="profile"><img class="nav-approved-icon" src="/brand/production/tso2-product-rankings-approved.webp" alt=""/><span><b>MY PICKS</b><small>Saved picks & tracking</small></span></button>
         <details class="tso-decision-advanced">
@@ -242,6 +244,7 @@
     <div class="route-toast" aria-live="polite"></div>
   </div>
   <script src="./pages.js?v=20261015-nfl-2026-defense-vs-position"></script>
+  <script src="./simulations.js?v=20261017-nfl-replay-v1"></script>
   <script src="./app.js?v=20261015-nfl-2026-defense-vs-position"></script>
   <script type="module" src="./auth.js?v=20261010-parlayping-broadcast-sso"></script>
   <script type="module" src="./push-client.js?v=20261009-sports-preferences-v2"></script>
