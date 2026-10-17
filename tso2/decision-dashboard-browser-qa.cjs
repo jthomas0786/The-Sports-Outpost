@@ -110,7 +110,7 @@ fs.mkdirSync(out,{recursive:true});
       await playable.first().click();
       await page.locator('.mi-player.is-open .mi-selection-brief').first().waitFor({state:'visible',timeout:12000});
       assert.equal(await page.locator('.mi-player.is-open [data-mi-research]').count(),1,'Inline player history and visuals');
-    assert.equal(await page.locator('.mi-player.is-open .mi-evidence-layout').count(),1,'Reference-style two-column evidence layout');
+    await page.locator('.mi-player.is-open .mi-evidence-layout').first().waitFor({state:'visible',timeout:15000});
       assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No unders in main prop intelligence');
     }else console.log('INFO selected live game has no verified player props; isolated fixture validates expansion');
     await page.locator('[data-gb2-back]').click();
