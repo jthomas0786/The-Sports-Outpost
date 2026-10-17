@@ -15,6 +15,15 @@
 html,body{background-color:var(--bg);color:var(--text);font-family:var(--tso-font-family)}
 body{font-size:var(--tso-body-size)}
 :where(.app-shell.broadcast-shell,.broadcast-shell){color:var(--text);font-family:var(--tso-font-family)}
+/* The page background is a real editable token, not the historical
+   hardcoded multicolor gradient from legacy page modules. */
+.app-shell.broadcast-shell{background:var(--bg)}
+/* Games shares the site's global content width and gutter controls.
+   Responsive padding caps keep mobile player rows readable. */
+.app-shell.broadcast-shell .broadcast-main:has(.gb2-root){
+ max-width:var(--tso-page-max);
+ padding-inline:min(var(--tso-page-gutter),4vw);
+}
 /* 2.0 shell chrome shares EXACT tokens regardless of active page. */
 .app-shell.broadcast-shell .tso-side-nav{
  width:var(--tso-side-nav-width);
