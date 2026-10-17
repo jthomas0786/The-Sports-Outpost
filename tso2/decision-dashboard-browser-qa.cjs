@@ -57,9 +57,9 @@ fs.mkdirSync(out,{recursive:true});
       probe.remove();return color;
     };
     const color=(sel,pseudo)=>getComputedStyle(root.querySelector(sel),pseudo).backgroundColor;
-    const card=expected('--card'),surface=expected('--surface'),blue=expected('--blue');
+    const card=expected('--card'),surface=expected('--surface'),blue=expected('--blue'),primary=expected('--tso-primary-btn');
     const result={
-      card,surface,blue,
+      card,surface,blue,primary,
       actualCard:color('.gb2-card'),
       actualPanel:color('[data-theme-probe] .gb2-panel'),
       actualTeam:color('[data-theme-probe] .mi-team'),
@@ -78,9 +78,60 @@ fs.mkdirSync(out,{recursive:true});
   for(const k of ['actualCard','actualPanel','actualRanked'])assert.equal(themeReport[k],themeReport.card,k+' must inherit TSO 2.0 card navy');
   for(const k of ['actualTeam','actualPlayer','actualMarket'])assert.equal(themeReport[k],themeReport.surface,k+' must inherit TSO 2.0 surface navy');
   for(const k of ['totalStripe','moneylineStripe','propProbability'])assert.equal(themeReport[k],themeReport.blue,k+' must inherit TSO blue, not purple/orange');
-  assert.match(themeReport.signalTrack,/rgb\(45, 127, 255\)/,'TSO Prop Signal uses original blue ramp');
-  assert.equal(themeReport.addButtonColor,'rgb(45, 127, 255)','Prop action uses canonical TSO primary button token');
+  assert.ok(themeReport.signalTrack.includes(themeReport.blue),'TSO Prop Signal uses current dashboard accent, not hardcoded blue');
+  assert.equal(themeReport.addButtonColor,themeReport.primary,'Prop action uses current dashboard primary button token');
   console.log('PASS unified original TSO 2.0 palette on cards, matchup, market, player props and Prop Signal:',JSON.stringify(themeReport));
+
+  // Regression: owner changes to Theme Studio variables MUST alter every
+  // Games component on the actual staging page, not just the editor preview.
+  // All changes here are an isolated page-only <style>; NOTHING is published.
+  const dynamicTheme=await page.evaluate(()=>{
+    const root=document.querySelector('[data-gb2-root]');
+    if(!root)throw Error('Games board root unavailable for theme integration check');
+    const override=document.createElement('style');
+    override.id='tso-games-theme-qa-only';
+    override.textContent=':root{--card:#192a3e;--surface:#233c54;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
+    document.head.appendChild(override);
+    const probe=document.createElement('div');probe.setAttribute('data-theme-mutation-test','');
+    probe.style.cssText='position:absolute;left:-20000px;top:0;width:600px';
+    probe.innerHTML='<section class="gb2-panel"></section><article class="mi-player"></article><article class="edge2-market edge2-market--moneyline"></article><button class="mi-add">ADD</button><button class="gb2-back">BACK</button><div class="mi-line-model"></div><div class="mi-signal-track"><span style="width:60%"></span></div><div class="gb2-prob-track"><i style="width:60%"></i></div>';
+    root.appendChild(probe);
+    const css=q=>getComputedStyle(root.querySelector(q));
+    const get={
+     card:css('.gb2-card').backgroundColor,
+     panel:css('[data-theme-mutation-test] .gb2-panel').backgroundColor,
+     player:css('[data-theme-mutation-test] .mi-player').backgroundColor,
+     market:css('[data-theme-mutation-test] .edge2-market').backgroundColor,
+     button:css('[data-theme-mutation-test] .mi-add').backgroundColor,
+     buttonText:css('[data-theme-mutation-test] .mi-add').color,
+     back:css('[data-theme-mutation-test] .gb2-back').backgroundColor,
+     innerLine:css('[data-theme-mutation-test] .mi-line-model').borderTopColor,
+     stripe:getComputedStyle(root.querySelector('[data-theme-mutation-test] .edge2-market--moneyline'),'::before').backgroundColor,
+     signal:css('[data-theme-mutation-test] .mi-signal-track>span').backgroundImage,
+     probability:css('[data-theme-mutation-test] .gb2-prob-track i').backgroundImage,
+     radius:css('.gb2-card').borderTopLeftRadius,
+     padding:css('.gb2-card').paddingTop,
+     gridGap:css('.gb2-grid').columnGap,
+     maxWidth:css('.gb2-root').maxWidth
+    };
+    probe.remove();override.remove();
+    return get;
+  });
+  assert.equal(dynamicTheme.card,'rgb(25, 42, 62)','Dashboard card color must alter Games cards');
+  assert.equal(dynamicTheme.panel,'rgb(25, 42, 62)','Dashboard card color must alter matchup panels');
+  for(const name of ['player','market'])assert.equal(dynamicTheme[name],'rgb(35, 60, 84)',name+' uses dashboard inset surface');
+  assert.equal(dynamicTheme.button,'rgb(240, 107, 33)','Parlay Ping CTA uses dashboard button color');
+  assert.equal(dynamicTheme.buttonText,'rgb(21, 21, 21)','CTA text uses dashboard button text token');
+  assert.equal(dynamicTheme.back,'rgb(37, 78, 117)','Secondary navigation uses dashboard secondary button color');
+  assert.equal(dynamicTheme.innerLine,'rgb(143, 113, 154)','Model details use dashboard border');
+  assert.equal(dynamicTheme.stripe,'rgb(194, 89, 235)','Game Edge markers use dashboard accent');
+  assert.match(dynamicTheme.signal,/rgb\(194, 89, 235\)/,'Player Signal chart uses dashboard accent');
+  assert.match(dynamicTheme.probability,/rgb\(194, 89, 235\)/,'Game win-probability bars use dashboard accent');
+  assert.equal(dynamicTheme.radius,'29px','Game cards use dashboard corner radius');
+  assert.equal(dynamicTheme.padding,'27px','Game cards use dashboard panel padding');
+  assert.equal(dynamicTheme.gridGap,'29px','Game grid uses dashboard spacing');
+  assert.equal(dynamicTheme.maxWidth,'1690px','Games content uses dashboard maximum width');
+  console.log('PASS temporary Theme Studio edits propagate to Games board, matchup/market, scouting, progress bars, buttons, borders and layout:',JSON.stringify(dynamicTheme));
   const list=page.locator('[data-gb2-grid] [data-gb2-game]');
   if(await list.count()){
     const firstGameId=await list.first().getAttribute('data-gb2-game');
