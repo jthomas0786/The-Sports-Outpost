@@ -59,8 +59,8 @@ body{font-size:var(--tso-body-size)}
  .model-engine-card,.props-board-card,.props-stats-panel,
  .tso-admin-panel,.tso-admin-stats article,.tso-admin-hero,
  .profile-card,.profile-hero,.room-card,.post-card,.live-game,
- .mi-ranked,.mi-game-vault-header,.mi-team,.mi-player,
- .gb2-card,.gb2-hero,.gb2-panel,.gb2-dock,.edge2-market,
+ .mi-ranked,.mi-game-vault-header,
+ .gb2-card,.gb2-hero,.gb2-panel,.gb2-dock,
  .props-market-card,.props-filter-panel,.feature-game
  ){
  background:var(--card);
@@ -86,6 +86,13 @@ body{font-size:var(--tso-body-size)}
 }
 .app-shell.broadcast-shell :is(.mi-game-vault-header small,.mi-ranked-head small,.gb2-hero>small,.gb2-panel>header small,.decision-section-title small,.research-detail-block-head span){
  color:var(--blue-2);
+}
+/* Inset scouting/market surfaces are nested inside card chrome. */
+.app-shell.broadcast-shell :is(.mi-team,.mi-player,.edge2-market){
+ background:var(--surface);
+ border:1px solid var(--line-strong);
+ border-radius:var(--r-sm);
+ color:var(--text);
 }
 /* Controlled actions and navigation */
 .app-shell.broadcast-shell :is(.button.primary,.tso-admin-form-bottom button,.mi-add,.gb2-dock button){
