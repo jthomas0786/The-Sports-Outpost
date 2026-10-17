@@ -2168,23 +2168,18 @@ function sportSignalPanel(row,data,doc,s){
  const coverage=n(s.coverage),total=n(s.totalWeight)||126;
  const title='<div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS · '+esc(sport)+'</h4></div>';
  const summary=s.score===null?'UNRATED':s.score+'<small>/100</small>';
+ const pending=s.score===null?'<p class="mi-evidence-note">'+esc(s.reason||'Source-backed player research is unavailable')+'. Contributing values cannot be graded without verified evidence.</p>':'';
  return '<section class="mi-signal-detail mi-nhl-signal-detail">'+title
   +'<div class="mi-nhl-factor-table">'+heading+table(rows,true)+'</div>'
   +'<div class="mi-nhl-signal-final"><span>Combined Signal</span><strong>'+summary+'</strong></div>'
-  +'<p class="mi-evidence-note">'+esc(s.tier||'UNRATED')+' · '+s.games+' verified games · '+Math.round(100*(coverage||0)/total)+'% scored evidence coverage ('+(coverage||0)+'/'+total+' weight). Impact bars show factor scores, not game-winning probabilities. Missing evidence stays ungraded.</p>'
-  +stats
+  +'<p class="mi-evidence-note">'+esc(s.tier||'UNRATED')+' · '+(n(s.games)||0)+' verified games · '+Math.round(100*(coverage||0)/total)+'% scored evidence coverage ('+(coverage||0)+'/'+total+' weight). Impact bars show factor scores, not game-winning probabilities. Missing evidence stays ungraded.</p>'
+  +pending+stats
   +'<p class="mi-evidence-note">All reference values are TSO scoring benchmarks, not published league averages. Sportsbook odds and exact-line hit probabilities are excluded from the player / market grade.</p></section>';
 }
 function signalDetail(row,data,doc){
  const sport=String(row?.sport||'').toLowerCase();
  if(sport==='nhl')return nhlSignalPanel(signalScore(row,data,doc));
  const s=signalScore(row,data,doc);
- if(s.score===null){
-  const detail='<section class="mi-signal-detail mi-nhl-signal-detail">'
-   +'<div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS · '+esc(sport.toUpperCase())+'</h4></div>'
-   +'<p class="mi-muted">'+esc(s.reason||'Verified player and matchup inputs unavailable')+'. TSO does not invent missing ratings.</p></section>';
-  return detail;
- }
  return sportSignalPanel(row,data,doc,s);
 }
 function updateSignalView(root,row,data){
@@ -2255,10 +2250,8 @@ function goalMarketFor(row){return String(row?.sport||'').toLowerCase()==='nhl'&
 function renderResearch(data,row){
  if(!data?.available){
   const message='Detailed historical context unavailable: '+esc(data?.reason||'No verified research snapshot.');
-  if(String(row?.sport||'').toLowerCase()==='nhl')
-   return '<div class="mi-evidence-layout"><div class="mi-evidence-left"><div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div></div>'
-     +'<div class="mi-evidence-right"><div class="mi-section"><h4>Recent observed games</h4><p class="mi-muted">'+message+'</p></div></div></div>';
-  return '<div class="mi-research-unavailable">'+message+'</div>';
+  return '<div class="mi-evidence-layout"><div class="mi-evidence-left"><div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div></div>'
+   +'<div class="mi-evidence-right"><div class="mi-section"><h4>Recent observed games</h4><p class="mi-muted">'+message+'</p></div></div></div>';
  }
  const series=seriesFromResearch(data,row);
  const stats=[lastStats(series,row,5),lastStats(series,row,10)];
