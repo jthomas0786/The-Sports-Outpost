@@ -105,7 +105,6 @@ function row(label,away,home,prefer='high'){
  const a=n(away),b=n(home);
  const fa=a===null?esc(String(away??'—')):esc(round(a,1));
  const fb=b===null?esc(String(home??'—')):esc(round(b,1));
- const highlighted=a!==null&&b!==null?(prefer==='low'?a<b:a>b?true:a>b):null;
  const winner=a===null||b===null?'':a===b?'':prefer==='low'?(a<b?'away':'home'):(a>b?'away':'home');
  return '<div class="gb2-compare-row"><span>'+esc(label)+'</span><b class="'+(winner==='away'?'is-best':'')+'">'+fa+'</b><i class="'+(winner==='away'?'is-away':winner==='home'?'is-home':'')+'"></i><b class="'+(winner==='home'?'is-best':'')+'">'+fb+'</b></div>';
 }
@@ -212,7 +211,7 @@ function render(ctx){
    }
   }
  }
- if(ctx.league==='all'&&games.some(g=>g.league==='nfl')&&!state.modelInFlight&&Date.now()-state.modelLoadedAt>180000){
+ if(games.some(g=>g.league==='nfl')&&!state.modelInFlight&&Date.now()-state.modelLoadedAt>180000){
   state.modelInFlight=true;state.modelLoadedAt=Date.now();
   fetch('/api/tso-simulations-nfl',{cache:'no-store',headers:{accept:'application/json'}})
    .then(r=>r.ok?r.json():null).then(doc=>{
