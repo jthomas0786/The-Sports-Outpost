@@ -1196,9 +1196,8 @@ function playerMarketKey(row){
 }
 function playerMarketRows(rows){
  const selected=new Map();
- for(const row of (rows||[]).filter(eligibleOver)){
-  const id=playerMarketKey(row),prev=selected.get(id);
-  // Prefer an actual available sportsbook quote over a research-only row.
+ for(const original of (rows||[]).filter(eligibleOver)){
+  const row=bestExactQuote(original),id=playerMarketKey(row),prev=selected.get(id);
   if(!prev||Boolean(prev.researchScorerModel)&&!row.researchScorerModel||
    Boolean(prev.researchScorerModel)===Boolean(row.researchScorerModel)&&
    ((Date.parse(row.snapshotTime||'')||0)>(Date.parse(prev.snapshotTime||'')||0)||
@@ -1216,34 +1215,93 @@ function exactSelection(row){
  return line===null?side:side+' '+amount(line);
 }
 function signEdge(value){return n(value)===null?'—':(n(value)>0?'+':'')+n(value).toFixed(1)+' pp';}
-function rowBadge(row){
- const m=row?.model||{};
- if(n(m.probabilityPct)!==null)return '<span class="mi-prob"><b>'+pct(m.probabilityPct)+'</b><small>'+(row.researchScorerModel?'GOAL MODEL %':'EXACT LINE MODEL %')+'</small></span>';
- return '<span class="mi-prob mi-prob--market"><b>'+odds(row.price)+'</b><small>EXACT LINE ODDS</small></span>';
+
+/* Exact quote selection. Books are only compared for the SAME player, side
+ * and line; changing a line cannot manufacture a 'best' price. */
+const bookDomains={
+ fanduel:'fanduel.com',draftkings:'draftkings.com',betmgm:'betmgm.com',
+ caesars:'caesars.com',betrivers:'betrivers.com',fanatics:'fanatics.com',
+ 'fanatics sportsbook':'fanatics.com',bet365:'bet365.com',
+ 'hard rock bet':'hardrock.bet',hardrock:'hardrock.bet',
+ espnbet:'espnbet.com','espn bet':'espnbet.com',
+ 'the score bet':'thescore.bet',thescore:'thescore.bet',
+ pointsbet:'pointsbet.com',betparx:'betparx.com'
+};
+const normalizedBook=b=>String(b||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+function bookIcon(book){
+ const label=String(book||'Sportsbook');
+ const domain=bookDomains[normalizedBook(label)];
+ if(!domain)return '<span class="mi-book-monogram" aria-hidden="true">'+esc(label.slice(0,2).toUpperCase())+'</span>';
+ const favicon='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=64';
+ return '<img class="mi-book-icon" src="'+esc(favicon)+'" loading="lazy" alt="'+esc(label)+' logo" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-grid\'">'
+   +'<span class="mi-book-monogram" style="display:none" aria-hidden="true">'+esc(label.slice(0,2).toUpperCase())+'</span>';
+}
+function quoteAtExactLine(row,quote){
+ if(!quote||typeof quote!=='object'||n(quote.price)===null||n(quote.price)===0)return false;
+ if(quote.available===false||quote.active===false||quote.suspended===true||quote.preserved===true)return false;
+ if(n(quote.line)!==null&&n(row.line)!==null&&n(quote.line)!==n(row.line))return false;
+ if(quote.side&&row.side&&String(quote.side).toLowerCase()!==String(row.side).toLowerCase())return false;
+ return Boolean(quote.book||quote.bookName||quote.sportsbook);
+}
+function bestExactQuote(row){
+ if(row.researchScorerModel)return row;
+ const options=(Array.isArray(row.books)?row.books:[]).filter(q=>quoteAtExactLine(row,q));
+ const own=n(row.price)!==null&&n(row.price)!==0?{book:row.book,price:row.price,link:row.link,snapshotTime:row.snapshotTime}:null;
+ if(own)options.push(own);
+ if(!options.length)return row;
+ options.sort((a,b)=>Number(b.price)-Number(a.price)||
+  (Date.parse(b.snapshotTime||'')||0)-(Date.parse(a.snapshotTime||'')||0));
+ const winner=options[0],book=winner.book||winner.bookName||winner.sportsbook;
+ const price=n(winner.price);
+ const implied=price<0?100*(-price)/(-price+100):100*100/(price+100);
+ const model=n(row.model?.probabilityPct);
+ return {...row,book,price:price,link:winner.link||row.link||null,
+  snapshotTime:winner.snapshotTime||row.snapshotTime,
+  impliedPct:implied,
+  model:row.model&&model!==null?{...row.model,edgePct:model-implied,marketProbabilityPct:implied}:row.model};
+}
+function exactLineModelPct(row){
+ if(row.researchScorerModel||row.model?.exactMatch===false||row.model?.lineMatch===false)return null;
+ if(row.model?.matchType&&/market.only|category.only|line.mismatch/i.test(String(row.model.matchType)))return null;
+ // Binary YES outcomes have an exact event rather than a numeric threshold.
+ const side=String(row.side||'').toLowerCase();
+ if(n(row.line)===null&&!eventMarkets.has(String(row.market||'').toLowerCase()))return null;
+ if(!['over','yes','true'].includes(side))return null;
+ return n(row.model?.probabilityPct);
+}
+function rowMetrics(row){
+ const modelPct=exactLineModelPct(row),marketOnly=modelPct===null,price=!row.researchScorerModel?n(row.price):null;
+ const book=price!==null?String(row.book||'Verified book'):'';
+ return '<span class="mi-row-metrics" aria-label="TSO Prop Signal, Line Model percentage, and sportsbook odds">'
+  +'<span class="mi-signal-mini" data-mi-signal="'+esc(key(row))+'">'+signalMini(row,state.cached.get(key(row)),state.signalDoc)+'</span>'
+  +'<span class="mi-line-model '+(marketOnly?'is-unavailable':'')+'"><b>'+pct(modelPct)+'</b><small>'+(marketOnly?'NO EXACT MATCH':'EXACT LINE')+'</small></span>'
+  +'<span class="mi-line-odds"><b>'+(!row.researchScorerModel?odds(price):'—')+'</b><small class="mi-book-under">'+(price!==null?bookIcon(book)+'<span>'+esc(book)+'</span>':'<span>NO LIVE BOOK</span>')+'</small></span>'
+  +'</span>';
 }
 function playerMarkup(row,i){
- const id=key(row),open=state.expanded.has(id);
- const modelOnly=Boolean(row?.researchScorerModel);
- const model=row?.model||{};
- const src=String(row.headshotUrl||'');
- const photo=src&&/^https:\/\//i.test(src)?'<img src="'+esc(src)+'" alt="" loading="lazy">':'<span aria-hidden="true">'+esc(String(row.player||'P').split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase())+'</span>';
- const details='<div class="mi-expanded-stats">'
-   +'<div><small>MODEL PROBABILITY</small><strong>'+pct(model.probabilityPct)+'</strong></div>'
-   +'<div><small>MARKET IMPLIED</small><strong>'+(modelOnly?'—':pct(row.impliedPct))+'</strong></div>'
-   +'<div><small>MODEL EDGE</small><strong>'+signEdge(model.edgePct)+'</strong></div>'
-   +'<div><small>SPORTSBOOK PRICE</small><strong>'+(modelOnly?'—':odds(row.price))+'</strong></div>'
-   +'</div>'
-   +'<div class="mi-reason"><b>WHY THIS PROP?</b><p>'+esc(modelOnly?'This is a TSO NHL pregame scorer-model candidate, not a live sportsbook selection. The model probability does not represent in-game odds.':(model.reason||model.explanation||row.reason||'The exact market quote is verified; a matchup-specific explanation is not available in this source.'))+'</p></div>'
-   +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Open to load verified recent form, matchup and line history.</div>')+'</div>'
-   +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No current exact sportsbook line or betslip action available.</small></div>':'<div class="mi-actions"><button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ PARLAY PING</button><small>Exact player · market · side · line · book</small></div>');
+ const id=key(row),open=state.expanded.has(id),modelOnly=Boolean(row.researchScorerModel);
+ const modelPct=exactLineModelPct(row),src=String(row.headshotUrl||'');
+ const photo=src&&/^https:\/\//i.test(src)?'<img src="'+esc(src)+'" alt="" loading="lazy">':
+ '<span aria-hidden="true">'+esc(String(row.player||'P').split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase())+'</span>';
+ const quick='<div class="mi-selection-brief"><span><small>PROP / SIDE</small><b>'+esc(marketName(row))+' · '+esc(exactSelection(row))+'</b></span>'
+  +'<span><small>EXACT LINE MODEL</small><b>'+pct(modelPct)+'</b></span>'
+  +'<span><small>BEST SPORTSBOOK</small><b>'+(modelOnly?'—':esc(row.book||'Unavailable')+' · '+odds(row.price))+'</b></span></div>';
+ const explain=modelOnly?'Pregame scorer forecast, not a verified exact sportsbook selection.':
+   (row.model?.reason||row.model?.explanation||row.reason||
+    'No source-backed matchup-specific model explanation is available for this exact selection.');
+ const details=quick
+   +'<div class="mi-player-overview"><h4>PLAYER FORM & MATCHUP</h4><p>Verified L5/L10 results, hit-rate charts, opportunity and opponent data appear below. Unavailable values stay blank, not estimated.</p></div>'
+   +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Loading verified recent form and matchup trends…</div>')+'</div>'
+   +'<div class="mi-reason"><b>TSO ANALYSIS</b><p>'+esc(explain)+'</p></div>'
+   +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No exact live sportsbook line.</small></div>':
+    '<div class="mi-actions"><button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ PARLAY PING</button><small>Exact player · market · side · line · sportsbook</small></div>');
  return '<article class="mi-player '+(open?'is-open':'')+'" data-mi-key="'+esc(id)+'">'
-   +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
-   +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
-   +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(row.team||'')+'</small><em>'+(modelOnly?'No sportsbook line':('Available line: '+esc(exactSelection(row))+' · does not affect grade'))+'</em>'
-   +'<em>'+(modelOnly?'PREGAME MODEL · NOT LIVE ODDS':esc(row.book||'Verified book')+' '+odds(row.price))+'</em></span>'
-   +'<span class="mi-signal-mini" data-mi-signal="'+esc(id)+'">'+signalMini(row,state.cached.get(id),state.signalDoc)+'</span>'
-   +rowBadge(row)+'<span class="mi-chevron">'+(open?'▴':'▾')+'</span>'
-   +'</button></div><div class="mi-player-body" '+(open?'':'hidden')+'>'+details+'</div></article>';
+  +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
+  +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
+  +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(row.team||'')+'</small>'
+  +'<em>'+esc(exactSelection(row))+(modelOnly?' · NO LIVE QUOTE':' · BEST AVAILABLE VERIFIED QUOTE')+'</em></span>'
+  +rowMetrics(row)+'<span class="mi-chevron" aria-hidden="true">'+(open?'▴':'▾')+'</span>'
+  +'</button></div><div class="mi-player-body" '+(open?'':'hidden')+'>'+details+'</div></article>';
 }
 function filterRows(rows){
  return state.activeFilter==='ALL PROPS'?rows:rows.filter(r=>String(r.market||'')===state.activeFilter);
@@ -1302,6 +1360,7 @@ function listing(game,rows){
    +'</div>'
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' sportsbook-backed player/market candidates'+(modelOnlyCount?' · '+modelOnlyCount+' scorer-model candidates (research only)':'')+' · one grade per player and market · line-independent TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
+   +'<div class="mi-row-column-head" aria-hidden="true"><span>PLAYER · PROP</span><span>TSO PROP SIGNAL</span><span>LINE MODEL %</span><span>LINE ODDS / BEST BOOK</span></div>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
       :'<div class="mi-empty">No verified sportsbook Over/Yes selection'+(modelOnlyCount?' or TSO scorer-model candidate':'')+' for this game and market. Live games may no longer have pregame quotes. Check another game, or use Advanced Props to inspect the full verified feed.</div>')+'</div>'
@@ -2018,6 +2077,6 @@ function bind(root,ctx){
  updateScouting(root,ctx);
  hydrateSignals(root,ctx);
 }
-window.TSO2Matchup={listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,signalScore,signalMini,signalDetail,rankRowsBySignal,verifiedDefensiveMatchup,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
+window.TSO2Matchup={bestExactQuote,exactLineModelPct,loadNflPbp,loadNflDefense2026,listing,bind,matchedStats:seriesFromResearch,eligibleOver,marketName,recentGamesChart,lineMovementChart,hitRateVisual,decisionEvidence,signalScore,signalMini,signalDetail,rankRowsBySignal,verifiedDefensiveMatchup,opportunityForPlayer,opportunityEvidence,opposingOffenseEvidence};
 })();
 /* TSO2_MATCHUP_INTELLIGENCE_BUNDLE_END */
