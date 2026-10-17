@@ -315,6 +315,53 @@ body{font-size:var(--tso-body-size)}
   padding-inline:min(var(--tso-page-gutter),4vw);
  }
 }
+/* Simulation is a sport-specific visualization, not a separate green UI skin.
+ * Keep field graphics, positive/negative signals and team identifiers meaningful.
+ * Only shell/card/control surfaces are brought into the Outpost palette. */
+.app-shell.broadcast-shell .tso-sim-page{
+ --sim-bg:var(--bg);--sim-line:var(--line-strong);--sim-ink:var(--text);
+ --sim-cool:var(--muted);--sim-amber:var(--outpost-orange);
+ --sim-green:var(--green);
+ background:transparent;color:var(--text);
+ padding-inline:min(var(--tso-page-gutter),4vw);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-hero-pill,.tso-sim-disclosure,
+ .tso-sim-matchups-head,.tso-sim-prob-row,.tso-sim-scoreboard,
+ .tso-sim-scoreclock,.tso-sim-commentary,.tso-sim-final,
+ .tso-sim-players,.tso-sim-game-choice,.tso-sim-dvp){
+ background:var(--card);border-color:var(--line-strong);
+ color:var(--text);border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-outlook,.tso-sim-replay,.tso-sim-injury-audit){
+ background:var(--card);border-color:var(--line-strong);color:var(--text);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-game-choice.is-active,.tso-sim-hero-pill){
+ border-color:var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-kicker,.tso-sim-game-title small,.tso-sim-matchups-head b,
+ .tso-sim-outlook-bridge b,.tso-sim-side-name){
+ color:var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-hero h1,.tso-sim-game-title h2,.tso-sim-outlook-team strong){
+ color:var(--text);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-matchups-head,
+ .tso-sim-outlook-team small,.tso-sim-outlook-team span,
+ .tso-sim-game-title p,.tso-sim-disclosure){
+ color:var(--muted);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-controls button,.tso-sim-speed select){
+ color:var(--text);background:var(--tso-secondary-btn);
+ border:1px solid var(--line-strong);border-radius:var(--r-sm);
+ min-height:var(--tso-button-height);
+}
+.app-shell.broadcast-shell .tso-sim-page .tso-sim-controls .tso-sim-control-primary{
+ color:var(--tso-btn-text);background:var(--tso-primary-btn);
+ border-color:var(--tso-primary-btn);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-seeker input,.tso-sim-controls input){
+ accent-color:var(--outpost-orange);
+}
 /* Theme Studio is part of the SAME design system */
 .tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
 .tso-theme-header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
