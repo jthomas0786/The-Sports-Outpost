@@ -248,6 +248,23 @@ export function buildGameProfile({game, research, odds, liveGame = null, config}
   }
   // Fall back to slate players if the research builder has not run yet.
   if (!rawPlayers.length) rawPlayers = game.players || [];
+  // Hard gate immediately before Monte Carlo world creation. Even if an
+  // alternate source or stale game roster slipped through earlier research
+  // filtering, it must not receive attempts, targets, or simulated touches.
+  const rosterWhitelist=game.modelEligibleRosters;
+  if(rosterWhitelist){
+    const canonicalName=x=>String(x||'').toLowerCase().normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+    const approved=new Map(Object.entries(rosterWhitelist).map(([team,names])=>
+      [normTeam(team),new Set((names||[]).map(canonicalName))]));
+    const sides=[normTeam(game.away?.abbr),normTeam(game.home?.abbr)];
+    if(sides.some(team=>!approved.has(team)))throw Error('Missing verified 2026 roster whitelist for an NFL team');
+    rawPlayers=rawPlayers.filter(p=>approved.get(normTeam(p.team))?.has(canonicalName(p.name)));
+    for(const team of sides){
+      if(!rawPlayers.some(p=>normTeam(p.team)===team&&String(p.position||'').toUpperCase()==='QB'))
+        throw Error('No eligible verified quarterback for '+team+'; simulation blocked');
+    }
+  }
   const players = rawPlayers.filter(p=>SKILL.has(String(p.position||'').toUpperCase())).map(p=>buildPlayer(p, config));
   const oddsIdx = buildOddsIndex(odds);
   const oddsGame = findOddsGame(game, oddsIdx);
