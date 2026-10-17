@@ -1214,7 +1214,7 @@ function playerMarketRows(rows){
  }
  return [...selected.values()];
 }
-const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,defense2026:null,ranking:null};
+const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,defense2026:null,ranking:null,nhlRates:new Map(),nhlPending:new Map(),nhlTeamDoc:null,nhlTeamGame:''};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
  if(row?.selection)return String(row.selection);
@@ -1344,7 +1344,7 @@ function rankingStatus(game,rows){
  if(job.done)return 'TSO Prop Signal · highest to lowest · ungraded last';
  return 'Verifying TSO Prop Signals · '+job.completed+'/'+job.total+' player profiles · order provisional';
 }
-function listing(game,rows){
+function listing(game,rows,{showScouting=true}={}){
  const id=String(game?.league||'')+':'+String(game?.id||'');
  if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();state.ranking=null;}
  // One card per athlete and market, regardless of alternative sportsbook thresholds.
@@ -1356,9 +1356,10 @@ function listing(game,rows){
  const filtered=filterRows(ranked),shown=state.showAll?filtered:filtered.slice(0,7);
  const filters=['ALL PROPS',...orderedMarketKeys(ranked,game.league)];
  return '<section class="mi-game-vault" aria-label="Matchup scouting and ranked prop opportunities">'
-   +'<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
-   +'<div class="mi-teams">'
-   +[game.away,game.home].map((t,i)=>{
+   +(showScouting?(
+    '<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
+    +'<div class="mi-teams">'
+    +[game.away,game.home].map((t,i)=>{
      const opp=i===0?game.home:game.away;
      const abbr=String(t?.abbr||'TEAM');
      const logo=t?.logo&&/^https:\/\//i.test(t.logo)?'<img src="'+esc(t.logo)+'" alt="" loading="lazy">':'';
@@ -1368,7 +1369,9 @@ function listing(game,rows){
        +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Checking opponent defensive data…</div>'
        +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
-   +'</div>'
+    +'</div>'
+
+   ):'')
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' sportsbook-backed player/market candidates'+(modelOnlyCount?' · '+modelOnlyCount+' scorer-model candidates (research only)':'')+' · one grade per player and market · line-independent TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
@@ -1779,7 +1782,99 @@ function independentProjection(row){
  }
  return null;
 }
+
+/* 2026–27 NHL contributing stats. Weight allocations and BENCH anchors follow
+ * the user-provided reference layout; these are explicit TSO comparison
+ * references, NOT claimed league averages. Missing xG/60 or line GF% is NOT
+ * replaced by last-five goals or sportsbook model odds.
+ */
+const nhlBench=[
+ {label:'Goals/60',key:'goalsPer60',benchmark:.85,weight:18},
+ {label:'Shots/60',key:'shotsPer60',benchmark:2.8,weight:14},
+ {label:'Shooting %',key:'shootingPct',benchmark:10,weight:10},
+ {label:'xG/60',key:'xGoalsPer60',benchmark:.8,weight:16},
+ {label:'PP TOI/gm',key:'ppToiMinutesPerGame',benchmark:2.5,weight:12},
+ {label:'Line GF%',key:'lineGoalsForPct',benchmark:50,weight:10},
+ // NHL official summary reports PER GAME, not per 60; do not relabel it.
+ {label:'Opp GA/G',key:'opponentGoalsAgainstPerGame',benchmark:2.8,weight:12},
+ {label:'Opp SA/G',key:'opponentShotsAgainstPerGame',benchmark:30,weight:8}
+];
+const nhlNorm=value=>({NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL'}[String(value||'').toUpperCase()]||String(value||'').toUpperCase());
+function nhlPlayerId(row,data){
+ const values=[row?.playerId,row?.nhlPlayerId,data?.player?.nhlId,data?.player?.playerId,data?.player?.id];
+ return values.map(v=>String(v||'')).find(v=>/^\d{7}$/.test(v))||null;
+}
+function nhlOpponent(row){
+ const team=nhlNorm(row?.team),away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
+ if(team===away&&home)return home;
+ if(team===home&&away)return away;
+ return null;
+}
+async function verifiedNhlRates(row,data){
+ const team=nhlNorm(row?.team),id=nhlPlayerId(row,data);
+ if(!id||!/^[A-Z]{2,3}$/.test(team))return null;
+ const k=id+'|'+team;
+ if(state.nhlRates.has(k))return state.nhlRates.get(k);
+ if(state.nhlPending.has(k))return state.nhlPending.get(k);
+ const task=fetch('/api/tso2-nhl-player-rates?playerId='+encodeURIComponent(id)+'&team='+encodeURIComponent(team),{cache:'no-store',headers:{accept:'application/json'}})
+  .then(async response=>{
+   const doc=await response.json();
+   if(!response.ok||doc?.available!==true||doc.season!==20262027||doc.playerId!==id||doc.team!==team||n(doc.games)<1)return null;
+   return doc;
+  }).catch(()=>null).then(doc=>{state.nhlRates.set(k,doc);return doc;}).finally(()=>state.nhlPending.delete(k));
+ state.nhlPending.set(k,task);
+ return task;
+}
+async function verifiedNhlTeams(game){
+ if(game?.league!=='nhl')return;
+ state.nhlCurrentGame=game;
+ const away=nhlNorm(game.away?.abbr),home=nhlNorm(game.home?.abbr),k=away+'|'+home;
+ if(state.nhlTeamGame===k&&state.nhlTeamDoc)return;
+ state.nhlTeamGame=k;state.nhlTeamDoc=null;
+ try{
+  const r=await fetch('/api/tso2-nhl-team-stats?away='+encodeURIComponent(away)+'&home='+encodeURIComponent(home),{cache:'no-store'});
+  const doc=await r.json();
+  if(r.ok&&doc?.available===true&&doc.season===20262027&&doc.teams?.[away]?.team===away&&doc.teams?.[home]?.team===home&&state.nhlTeamGame===k)
+   state.nhlTeamDoc=doc;
+ }catch(_){/* No verified opponent stats available. */}
+}
+function nhlFactorScore(value,benchmark){
+ if(n(value)===null||value<0||!Number.isFinite(benchmark)||benchmark<=0)return null;
+ return clamp(50+60*(value/benchmark-1),0,100);
+}
+function nhlSignalScore(row,data){
+ const id=nhlPlayerId(row,data),team=nhlNorm(row?.team);
+ const rate=id?state.nhlRates.get(id+'|'+team):null;
+ const sameTeam=rate?.team===team&&rate?.playerId===id&&rate?.season===20262027&&n(rate?.games)>=1;
+ const opponent=nhlOpponent(row),record=state.nhlTeamDoc?.teams?.[opponent];
+ const away=state.nhlTeamDoc?.teams?.[nhlNorm(state.nhlCurrentGame?.away?.abbr)];
+ const home=state.nhlTeamDoc?.teams?.[nhlNorm(state.nhlCurrentGame?.home?.abbr)];
+ const validOpponent=record?.team===opponent&&record.season===20262027&&n(record.games)>=1&&away&&home;
+ const stats=sameTeam?rate.metrics||{}:{};
+ const metrics={...stats,
+   opponentGoalsAgainstPerGame:validOpponent?record.stats?.goalsAgainstPerGame:null,
+   opponentShotsAgainstPerGame:validOpponent?record.stats?.shotsAllowedPerGame:null};
+ const factors=nhlBench.map(f=>{
+  const value=n(metrics[f.key]),valid=value!==null&&value>=0&&value<1000;
+  const factorScore=valid?nhlFactorScore(value,f.benchmark):null;
+  return {...f,value:valid?value:null,factorScore,
+   note:valid?(f.key.startsWith('opponent')?opponent+' · 2026–27 official team stats':'NHL 2026–27 official skater report'):'NO VERIFIED SOURCE'};
+ });
+ const available=factors.filter(f=>f.factorScore!==null),coverage=available.reduce((sum,f)=>sum+f.weight,0);
+ if(coverage<60||!sameTeam)return {
+   score:null,modeled:false,reason:!id?'Verified NHL player ID is unavailable':!sameTeam?'2026–27 NHL skater statistics unavailable':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
+   factors,coverage,games:rate?.games||0,evidence:'INCOMPLETE · NHL 2026–27'
+ };
+ const raw=available.reduce((sum,f)=>sum+f.factorScore*f.weight,0)/coverage;
+ // Do not allow an incomplete advanced-stats panel to be described as ELITE.
+ const score=Math.min(Math.round(raw),coverage<100?84:100);
+ const tier=coverage<100?'PARTIAL':score>=85?'ELITE':score>=70?'STRONG':score>=50?'WATCH':'CAUTION';
+ return {score,tier,modeled:false,factors,coverage,games:rate.games,
+  evidence:coverage===100?'OFFICIAL / ADVANCED':'OFFICIAL NHL · '+coverage+'% VERIFIED WEIGHT',
+  reason:null,nhl:true};
+}
 function signalScore(row,data,doc){
+ if(String(row?.sport||'').toLowerCase()==='nhl')return nhlSignalScore(row,data);
  const series=seriesFromResearch(data,row);
  const target=productionRubric[String(row?.sport||'').toLowerCase()]?.[String(row?.market||'')];
  if(!target)return {score:null,reason:'No calibrated player-market scoring rubric yet',modeled:false};
@@ -1819,7 +1914,25 @@ function signalMini(row,data,doc){
  return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b></span><small class="mi-signal-evidence">'+esc(s.evidence)+'</small>'
   +'<div class="mi-signal-track'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
 }
+function nhlSignalPanel(s){
+ const rows=(s.factors||nhlBench).map(f=>{
+  const ready=f.value!==null&&f.value!==undefined;
+  const score=n(f.factorScore),value=ready?amount(f.value):'—';
+  const size=score===null?0:Math.max(0,Math.min(100,Math.round(score)));
+  const direction=!ready?'—':Number(f.value)>=f.benchmark?'↑':'↓';
+  return '<div class="mi-nhl-factor-row'+(ready?'':' is-unavailable')+'">'
+   +'<span>'+esc(f.label)+'</span><strong>'+esc(value)+'</strong>'
+   +'<span>vs '+esc(amount(f.benchmark))+'</span>'
+   +'<div class="mi-nhl-impact-track" title="'+esc(f.note||'')+'"><span style="width:'+size+'%"></span></div>'
+   +'<span class="mi-nhl-direction">'+direction+'</span><small>'+f.weight+'%</small></div>';
+ }).join('');
+ return '<section class="mi-signal-detail mi-nhl-signal-detail"><div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS</h4></div>'
+ +'<div class="mi-nhl-factor-table"><div class="mi-nhl-factor-labels"><span>STAT</span><span>VALUE</span><span>BENCH</span><span>IMPACT</span><span>DIR</span><span>WT</span></div>'
+ +rows+'</div><div class="mi-nhl-signal-final"><span>Combined Signal</span><strong>'+(s.score===null?'UNRATED':s.score+'<small>/100</small>')+'</strong></div>'
+ +'<p class="mi-evidence-note">'+esc(s.evidence||s.reason||'')+' · '+s.coverage+'% verified metric weight. Reference benchmarks come from the supplied framework, NOT asserted league averages. Missing xG/60 and Line GF% remain unavailable until a verified advanced source is connected. Opponent defensive allowances are per game (not /60). No sportsbook odds or exact-line probability is used.</p></section>';
+}
 function signalDetail(row,data,doc){
+ if(String(row?.sport||'').toLowerCase()==='nhl')return nhlSignalPanel(signalScore(row,data,doc));
  const s=signalScore(row,data,doc);
  const header='<div class="mi-signal-detail-head"><div><small>THE SPORTS OUTPOST EXCLUSIVE</small><h4>TSO Player / Market Signal</h4><p>Player production and usage for this prop category, independent of exact sportsbook thresholds or odds.</p></div><small>v2</small></div>';
  if(s.score===null)return '<section class="mi-signal-detail">'+header+'<p class="mi-muted">'+esc(s.reason)+'. TSO does not invent missing ratings.</p></section>';
@@ -1837,6 +1950,7 @@ function updateSignalView(root,row,data){
 // visible cards. Share requests per athlete/game and limit concurrent work.
 function hydrateSignals(root,ctx){
  const candidates=playerMarketRows(ctx.rows||[]);
+ if(ctx.game?.league==='nhl')state.nhlCurrentGame=ctx.game;
  const signature=rankingSignature(ctx.game,ctx.rows||[]);
  let job=state.ranking;
  if(job&&job.signature===signature){
@@ -1869,6 +1983,7 @@ function hydrateSignals(root,ctx){
    const group=queue.shift();
    try{
     const data=await getResearch(group[0],ctx);
+    if(ctx.game?.league==='nhl')await Promise.all([verifiedNhlRates(group[0],data),verifiedNhlTeams(ctx.game)]);
     if(state.ranking!==job)return;
     for(const row of group){
      state.cached.set(key(row),data);
