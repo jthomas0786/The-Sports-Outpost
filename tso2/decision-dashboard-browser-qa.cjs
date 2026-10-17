@@ -90,7 +90,7 @@ fs.mkdirSync(out,{recursive:true});
     if(!root)throw Error('Games board root unavailable for theme integration check');
     const override=document.createElement('style');
     override.id='tso-games-theme-qa-only';
-    override.textContent=':root{--card:#192a3e;--surface:#233c54;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
+    override.textContent=':root{--bg:#0a0e25;--tso-page-gutter:39px;--card:#192a3e;--surface:#233c54;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
     document.head.appendChild(override);
     const probe=document.createElement('div');probe.setAttribute('data-theme-mutation-test','');
     probe.style.cssText='position:absolute;left:-20000px;top:0;width:600px';
@@ -112,7 +112,9 @@ fs.mkdirSync(out,{recursive:true});
      radius:css('.gb2-card').borderTopLeftRadius,
      padding:css('.gb2-card').paddingTop,
      gridGap:css('.gb2-grid').columnGap,
-     maxWidth:getComputedStyle(root).maxWidth
+     maxWidth:getComputedStyle(root).maxWidth,
+     pageBackground:getComputedStyle(document.querySelector('.app-shell.broadcast-shell')).backgroundColor,
+     pageGutter:getComputedStyle(document.querySelector('.broadcast-main')).paddingLeft
     };
     probe.remove();override.remove();
     return get;
@@ -131,6 +133,8 @@ fs.mkdirSync(out,{recursive:true});
   assert.equal(dynamicTheme.padding,'27px','Game cards use dashboard panel padding');
   assert.equal(dynamicTheme.gridGap,'29px','Game grid uses dashboard spacing');
   assert.equal(dynamicTheme.maxWidth,'1690px','Games content uses dashboard maximum width');
+  assert.equal(dynamicTheme.pageBackground,'rgb(10, 14, 37)','Games shell uses dashboard page background');
+  assert.equal(dynamicTheme.pageGutter,'39px','Games page uses dashboard responsive page gutters');
   console.log('PASS temporary Theme Studio edits propagate to Games board, matchup/market, scouting, progress bars, buttons, borders and layout:',JSON.stringify(dynamicTheme));
   const list=page.locator('[data-gb2-grid] [data-gb2-game]');
   if(await list.count()){
