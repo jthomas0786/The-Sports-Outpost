@@ -140,7 +140,7 @@ body{font-size:var(--tso-body-size)}
  --gb2-panel:var(--card);--gb2-subpanel:var(--surface);--gb2-raised:var(--elev);
  --gb2-border:var(--line-strong);--gb2-rule:var(--line);
  --gb2-text:var(--text);--gb2-muted:var(--muted);
- --gb2-accent:var(--blue);--gb2-accent-light:var(--blue-2);
+ --gb2-accent:var(--outpost-orange);--gb2-accent-light:var(--outpost-gold);
 }
 /* Sidebar/mobile geometry depends on existing TSO 2.0 breakpoint behavior. */
 @media(max-width:900px){
@@ -191,6 +191,129 @@ body{font-size:var(--tso-body-size)}
 }
 .app-shell.broadcast-shell .tso-admin-shortcuts>.tso-theme-shortcut small{
  font-weight:500;color:var(--muted);font-size:11px;
+}
+/* TSO2_APPROVED_OUTPOST_SHARED_CHROME_V1
+ * The APPROVED broadcast shell and Home page (black/orange/gold) is the
+ * canonical skin. Blue remains available only for informative model/data
+ * encodings, not unrelated Games or Research user-interface chrome.
+ * These are semantic shared components, not one-off page theme inventions.
+ */
+.app-shell.broadcast-shell .broadcast-main{
+ width:100%;
+ max-width:var(--tso-page-max);
+ padding-inline:min(var(--tso-page-gutter),4vw);
+}
+.app-shell.broadcast-shell :is(.broadcast-title,.decision-intro,.gb2-page-head,.tso-sim-hero){
+ border-color:var(--line);
+ color:var(--text);
+}
+.app-shell.broadcast-shell :is(.orange-kicker,.broadcast-kicker,.research-kicker,
+ .edge2-kicker,.gb2-page-head>div>small,.tso-sim-kicker){
+ color:var(--outpost-orange);
+}
+.app-shell.broadcast-shell :is(.gold-kicker,.feature-label,.research-detail-hero small,
+ .gb2-hero>small,.gb2-panel>header small,.mi-game-vault-header small,
+ .mi-ranked-head small,.mi-read-title>b,.mi-signal-detail-head small){
+ color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell :is(.broadcast-cta,.tso-sim-control-primary,.gb2-dock button,
+ .mi-add,.button.primary,.tso-admin-form-bottom button){
+ background:var(--tso-primary-btn);
+ border-color:var(--tso-primary-btn);
+ color:var(--tso-btn-text);
+ box-shadow:none;
+ border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell :is(.gb2-live,.gb2-back,.mi-filters button,
+ .button.secondary,.filter-button,.edge2-league-tab){
+ background:var(--tso-secondary-btn);
+ border:1px solid var(--line-strong);
+ color:var(--text);
+ border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell :is(.tso-side-item.is-active,.tso-side-sports button.is-active){
+ border-color:var(--line-strong);
+ background:var(--tso-nav-active);
+ color:var(--text);
+}
+.app-shell.broadcast-shell .tso-side-item.is-active::before{
+ background:var(--outpost-orange);
+}
+.app-shell.broadcast-shell :is(.feature-game,.heat-panel,.broadcast-model-card,
+ .slate-card,.concept-model-card,.concept-pick-row,
+ .research-radar-card,.research-trending-card,.research-signal-card,
+ .research-recent-card,.research-detail-panel,.research-detail-hero,
+ .model-spotlight-card,.edge2-market,.edge2-hero,.tso-sim-main,
+ .tso-sim-matchups,.tso-sim-outlook,.tso-sim-replay,.tso-sim-final,
+ .tso-sim-players,.tso-sim-dvp,.tso-sim-injury-audit){
+ background:var(--card);
+ border-color:var(--line-strong);
+ border-radius:var(--r);
+ color:var(--text);
+}
+.app-shell.broadcast-shell :is(.tso-sim-player,.tso-sim-game-choice,
+ .edge2-league-tab,.mi-team,.mi-player,.mi-chart-panel,
+ .mi-signal-factor,.gb2-root .edge2-market){
+ background:var(--surface);
+ border-color:var(--line-strong);
+ color:var(--text);
+ border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell :is(.tso-sim-outlook .tso-sim-prob-row,
+ .tso-sim-stat-heading,.mi-form-metrics,.mi-player-body,.mi-evidence-layout){
+ border-color:var(--line);
+}
+.app-shell.broadcast-shell :is(.gb2-root,.edge2-page,.tso-sim-page,
+ .research-page,.models-page,.decision-page,.tso-admin-page){
+ max-width:var(--tso-page-max);
+ color:var(--text);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-tabs button.is-active,
+ .mi-filters button.is-active,.gb2-team-spread,.gb2-card-arrow,
+ .mi-ranking-status,.gb2-card-bottom>div:first-child>b){
+ color:var(--outpost-gold);
+ border-color:var(--outpost-orange);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-league,.gb2-hero-center strong,
+ .gb2-hero-team em,.gb2-compare-row .is-best,.mi-line-model>b,
+ .mi-line-odds>b,.mi-signal-kicker){
+ color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-tabs button:hover,.mi-filters button.is-active,
+ .mi-signal-mini,.gb2-logo){
+ background:color-mix(in srgb,var(--outpost-orange) 9%,var(--surface));
+ border-color:color-mix(in srgb,var(--outpost-orange) 25%,var(--line));
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-card,.gb2-hero,.gb2-panel,.gb2-dock,
+ .mi-game-vault-header,.mi-ranked){
+ background:var(--card);
+ border-color:var(--line-strong);
+ color:var(--text);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-logo,.mi-team,.mi-player,
+ .mi-chart-panel,.mi-read-signal,.mi-player-defender,.edge2-market){
+ background:var(--surface);
+ border-color:var(--line-strong);
+}
+.app-shell.broadcast-shell .gb2-root .edge2-market::before,
+.app-shell.broadcast-shell .gb2-root .edge2-market--moneyline::before,
+.app-shell.broadcast-shell .gb2-root .edge2-market--total::before{
+ background:var(--outpost-orange);
+}
+.app-shell.broadcast-shell .gb2-root :is(.mi-prob>b,.mi-add,.gb2-dock button){
+ background:var(--tso-primary-btn);
+ color:var(--tso-btn-text);
+ border-color:var(--tso-primary-btn);
+}
+.app-shell.broadcast-shell .gb2-root :is(.mi-line-model,.mi-line-odds,
+ .mi-signal-factor,.mi-selection-brief>span){
+ background:var(--surface);border-color:var(--line-strong);
+ border-radius:var(--r-sm);
+}
+@media(max-width:900px){
+ .app-shell.broadcast-shell .broadcast-main{
+  padding-inline:min(var(--tso-page-gutter),4vw);
+ }
 }
 /* Theme Studio is part of the SAME design system */
 .tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
