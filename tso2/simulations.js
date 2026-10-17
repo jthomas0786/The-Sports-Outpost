@@ -4,13 +4,19 @@
  * and on-field paths are reconstructed, not recorded or tracked. */
 (() => {
 'use strict';
-const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0,finished:false};
+const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0,finished:false,videoUrl:null,videoFile:null};
 const $=(root,selector)=>root?.querySelector(selector);
 const $$=(root,selector)=>[...(root?.querySelectorAll(selector)||[])];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const number=(v,d=1)=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?Number(v).toFixed(d):'—';
 const pct=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?number(Number(v)*100,1)+'%':'—';
 const teamCode=v=>String(v||'').toUpperCase().replace('LAR','LA').replace('JAC','JAX');
+ const nflLogoUrl=team=>{
+  const abbr=teamCode(team?.abbr),code=abbr==='LA'?'lar':abbr==='WSH'?'wsh':abbr.toLowerCase();
+  return team?.logo&&/^https:\/\//i.test(String(team.logo))?String(team.logo):
+   'https://a.espncdn.com/i/teamlogos/nfl/500/'+encodeURIComponent(code)+'.png';
+ };
+ const logoMarkup=team=>'<span class="tso-sim-score-logo-wrap"><img class="tso-sim-score-logo" src="'+esc(nflLogoUrl(team))+'" alt="'+esc(team.abbr)+' team logo" loading="eager" onerror="this.hidden=true;this.parentElement.classList.add(\'is-missing\')"><span class="tso-sim-score-logo-fallback">'+esc(team.abbr)+'</span></span>';
 const teamLabel=t=>esc(t?.name||t?.abbr||'TEAM');
 const dateText=v=>{if(!v)return 'Kickoff time unavailable';const d=new Date(v);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(d):'Schedule pending'};
 const seeded=value=>{let h=2166136261;for(const c of String(value||'')){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
@@ -159,19 +165,22 @@ function injuryHTML(game){
 }
 function replayHTML(game){
  return '<div class="tso-sim-representative-banner"><strong>REPRESENTATIVE 50K WORLD</strong><span>'+esc(game.away.abbr)+' '+number(game.representativeWorld?.awayScore,0)+' – '+number(game.representativeWorld?.homeScore,0)+' '+esc(game.home.abbr)+' · Sample '+(Number(game.representativeWorld?.sampledIndex)+1).toLocaleString()+' of '+(Number(game.representativeWorld?.iterations)||50000).toLocaleString()+'</span></div>'
-  +'<div class="tso-sim-replay"><div class="tso-sim-scoreboard">'
-  +'<span class="tso-sim-scoreteam"><b>'+esc(game.away.abbr)+'</b><strong data-tsos-away>0</strong></span>'
+  +'<div class="tso-sim-replay"><div class="tso-sim-scoreboard tso-sim-scoreboard--broadcast">'
+  +'<div class="tso-sim-scoreboard-brand"><b>THE SPORTS OUTPOST</b><span>50,000-RUN · ILLUSTRATIVE SIMULATION</span></div>'
+  +'<div class="tso-sim-scoreboard-main">'
+  +'<div class="tso-sim-scoreteam is-away">'+logoMarkup(game.away)+'<span class="tso-sim-scoreteam-info"><small>AWAY</small><b>'+esc(game.away.abbr)+'</b><em>'+esc(game.away.name||'')+'</em></span><strong data-tsos-away>0</strong></div>'
   +'<div class="tso-sim-scoreclock"><b data-tsos-quarter>Q1</b><strong data-tsos-clock>15:00</strong><small data-tsos-possession>ILLUSTRATIVE REPLAY</small></div>'
-  +'<span class="tso-sim-scoreteam is-home"><strong data-tsos-home>0</strong><b>'+esc(game.home.abbr)+'</b></span></div>'
+  +'<div class="tso-sim-scoreteam is-home"><strong data-tsos-home>0</strong><span class="tso-sim-scoreteam-info"><small>HOME</small><b>'+esc(game.home.abbr)+'</b><em>'+esc(game.home.name||'')+'</em></span>'+logoMarkup(game.home)+'</div>'
+  +'</div></div>'
   +'<div class="tso-sim-stadium"><aside class="tso-sim-players" data-tsos-panel="'+esc(game.away.abbr)+'"></aside>'
   +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div></div>'
   +'<aside class="tso-sim-players" data-tsos-panel="'+esc(game.home.abbr)+'"></aside></div>'
   +'<div class="tso-sim-tendency" data-tsos-defense-style>Defensive coverage scheme unverified · 2026 position allowances used when available</div>'
   +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
-  +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button><button type="button" data-tsos-finish>VIEW FINAL BOX SCORE</button>'
+  +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button><button type="button" data-tsos-finish>VIEW FINAL BOX SCORE</button><button type="button" data-tsos-export class="tso-sim-control-primary">▣ CREATE SHARE VIDEO</button><button type="button" data-tsos-share hidden disabled>SHARE VIDEO</button><a class="tso-sim-download-link" data-tsos-download hidden download>DOWNLOAD MP4</a>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
-  +'<div class="tso-sim-final" data-tsos-final hidden></div>'
+  +'<div class="tso-sim-export-status" data-tsos-export-status role="status" aria-live="polite" hidden></div><div class="tso-sim-final" data-tsos-final hidden></div>'
   +'<div class="tso-sim-disclaimer">The final score is taken from <b>one actual 50K Monte Carlo sampled world</b>. Play paths, gain details and box-score progression are <b>score-conditioned reconstructions</b>, not tracked or sampled snaps. '+(game.availability?.injuryReportVerified===false?'<strong>Injury report may have changed since the model audit ('+esc(game.availability.injuryReportCheckedAt||'date unknown')+'). This playback is an as-of simulation, not a fresh injury-adjusted model.</strong>':'Final inactives can change.')+'</div></div>';
 }
 async function verifySelectedRoster(gameId){
@@ -236,7 +245,42 @@ function paintPage(){
   });
   return;
  }
- $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
+ const exporter=window.TSO2SimulationVideo;
+  const exportBtn=$(main,'[data-tsos-export]'),shareBtn=$(main,'[data-tsos-share]'),download=$(main,'[data-tsos-download]'),status=$(main,'[data-tsos-export-status]');
+  if(exporter&&exportBtn){
+   exportBtn.addEventListener('click',async()=>{
+    stop();exportBtn.disabled=true;
+    if(status){status.hidden=false;status.textContent='Preparing shareable MP4 video…'}
+    if(download){download.hidden=true;download.removeAttribute('href')}
+    if(shareBtn){shareBtn.hidden=true;shareBtn.disabled=true}
+    try{
+     const activeGame=state.game;
+     const snapshot=window.TSO2SimEngine?.snapshot(activeGame,state.plays,state.plays.length);
+     if(!snapshot)throw Error('Verified final box-score ledger unavailable.');
+     const frameCanvas=document.createElement('canvas');frameCanvas.width=960;frameCanvas.height=480;
+     const result=await exporter.export({
+      game:activeGame,plays:state.plays,snapshot,
+      renderField:(i,p)=>{if(state.game!==activeGame)throw Error('Game changed during export. Please retry.');const was=state.index;state.index=i;try{draw(p,frameCanvas,true)}finally{state.index=was}return frameCanvas},
+      onProgress:(percent,label)=>{if(status)status.textContent=label+' · '+Math.round(percent)+'%'}
+     });
+     if(state.game!==activeGame)throw Error('Game changed during video export.');
+     if(state.videoUrl)URL.revokeObjectURL(state.videoUrl);
+     state.videoUrl=URL.createObjectURL(result.blob);
+     state.videoFile=new File([result.blob],'TSO-'+activeGame.away.abbr+'-at-'+activeGame.home.abbr+'-simulation.mp4',{type:'video/mp4'});
+     download.href=state.videoUrl;download.hidden=false;
+     if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[state.videoFile]}))){shareBtn.hidden=false;shareBtn.disabled=false}
+     if(status)status.textContent='MP4 ready with final box score. Choose DOWNLOAD MP4 or SHARE VIDEO.';
+    }catch(error){
+     if(status)status.textContent='MP4 export unavailable: '+String(error?.message||error)+'. No incomplete video was downloaded.';
+    }finally{exportBtn.disabled=false;exportBtn.textContent='↻ RECREATE SHARE VIDEO'}
+   });
+   shareBtn?.addEventListener('click',async()=>{
+    if(!state.videoFile||!navigator.share)return;
+    try{await navigator.share({files:[state.videoFile],title:'TSO NFL Simulation',text:'Illustrative replay from The Sports Outpost 50K model · not actual game footage.'})}
+    catch(error){if(error?.name!=='AbortError'&&status)status.textContent='Sharing unavailable: '+String(error?.message||error)+'. Use DOWNLOAD MP4 instead.'}
+   });
+  }
+  $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.finished=false;state.frame=0;updatePlay();draw(0)});
  $(main,'[data-tsos-finish]')?.addEventListener('click',()=>{stop();state.index=state.plays.length-1;state.finished=true;updatePlay();draw(1);$(main,'[data-tsos-final]')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});});
  $(main,'[data-tsos-speed]')?.addEventListener('change',e=>{state.speed=Number(e.target.value)||1});
@@ -409,8 +453,8 @@ function sceneFrame(event,progress,game){
  return {direction,scrimmage,p,offense:off,defense:def,ball,ballOwner,flight,routePaths,
   attacking:event.side,defending:event.opponent,pass,run:!pass&&!kick,targetSlot};
 }
-function draw(progress=0){
- const canvas=$(state.root,'[data-tsos-canvas]'),event=state.plays[state.index];
+function draw(progress=0,targetCanvas=null,skipUi=false){
+ const canvas=targetCanvas||$(state.root,'[data-tsos-canvas]'),event=state.plays[state.index];
  if(!canvas||!event||!state.game)return;
  const ctx=canvas.getContext('2d');if(!ctx)return;
  const frame=sceneFrame(event,progress,state.game),p=frame.p;
@@ -482,6 +526,7 @@ function draw(progress=0){
  ctx.fillText('PLAY '+String(event.index+1).padStart(3,'0')+'  |  '+event.kind+'  |  '+event.down+' & '+event.first,fx+12,h-16);
  ctx.textAlign='right';ctx.fillStyle='#ffbb76';
  ctx.fillText((frame.direction===1?'→ ':'← ')+event.side+' OFFENSE',w-fx,h-16);
+ if(skipUi)return;
  const holder=$(state.root,'[data-tsos-ball-holder]'),stateLabel='🏈 '+frame.ballOwner+' · '+event.side+' ATTACKING '+(frame.direction===1?'RIGHT →':'← LEFT');
  if(holder&&holder.textContent!==stateLabel)holder.textContent=stateLabel;
  // Score updates at the end of a successful play, not before the ball is snapped.
@@ -532,6 +577,6 @@ async function mount(root){
   $(area,'[data-tsos-retry]')?.addEventListener('click',()=>mount(state.root));
  }finally{if(token===state.token&&loading)loading.hidden=true}
 }
-function dispose(){stop();state.token++;state.root=null}
+function dispose(){stop();if(state.videoUrl){URL.revokeObjectURL(state.videoUrl);state.videoUrl=null;state.videoFile=null}state.token++;state.root=null}
 window.TSO2Simulations={pageHTML,mount,dispose,buildPlays:(game,defense)=>window.TSO2RepresentativeReplay?.build(game,defense)||[],scenarioSnapshot:(game,plays,n)=>window.TSO2SimEngine?.snapshot(game,plays,n),sceneFrame,routePoint};
 })();
