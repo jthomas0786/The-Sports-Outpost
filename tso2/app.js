@@ -7556,7 +7556,7 @@
     const oppName=gameEdgeTeamLabel(opp);
     const signed=gameEdgeLineNumber(lineValue,true);
     const n=Number(lineValue);
-    const unit=currentLeague==='mlb'?'runs':currentLeague==='nhl'?'goals':'points';
+    const unit=game?.league==='mlb'?'runs':game?.league==='nhl'?'goals':'points';
     const location=side==='home'?'has home-field advantage':'is being trusted on the road';
     const lineRead=Number.isFinite(n)
       ? (n<0
@@ -7588,17 +7588,17 @@
     const away=gameEdgeTeamLabel(game?.away);
     const home=gameEdgeTeamLabel(game?.home);
     const n=Number(line);
-    const unit=currentLeague==='mlb'?'runs':currentLeague==='nhl'?'goals':'points';
+    const unit=game?.league==='mlb'?'runs':game?.league==='nhl'?'goals':'points';
     const lineLabel=gameEdgeLineNumber(line);
     if(!Number.isFinite(n))return 'The total is not fully posted yet, so there is not enough verified information to explain a scoring lean.';
     const perTeam=(n/2).toFixed(1).replace(/\.0$/,'');
     if(lean==='Under'){
-      const extra=(currentLeague==='nfl'||currentLeague==='nba')
+      const extra=(game?.league==='nfl'||game?.league==='nba')
         ? ' — roughly '+perTeam+' '+unit+' per team if scoring is split evenly'
         : '';
       return '<strong>Under '+esc(lineLabel)+'</strong> is the scoring lean because the current total price is shaded toward '+esc(away)+' and '+esc(home)+' staying below '+esc(lineLabel)+' combined '+unit+extra+'.';
     }
-    const extra=(currentLeague==='nfl'||currentLeague==='nba')
+    const extra=(game?.league==='nfl'||game?.league==='nba')
       ? ' — roughly '+perTeam+' '+unit+' per team if scoring is split evenly'
       : '';
     return '<strong>Over '+esc(lineLabel)+'</strong> is the scoring lean because the current total price is shaded toward '+esc(away)+' and '+esc(home)+' clearing '+esc(lineLabel)+' combined '+unit+extra+'.';
@@ -7642,7 +7642,7 @@
     const homePrice=s?.home?.price;
     const pair=s?gameEdgeFairPair({leftPrice:awayPrice,rightPrice:homePrice}):null;
     const p=gameEdgePercentages(pair);
-    const lineName=currentLeague==='mlb'?'Run Line':'Point Spread';
+    const lineName=game?.league==='mlb'?'Run Line':'Point Spread';
     const lean=p.left>p.right
       ? String(game?.away?.abbr||'AWAY')+' '+gameEdgeLineNumber(awayLine,true)
       : String(game?.home?.abbr||'HOME')+' '+gameEdgeLineNumber(homeLine,true);
