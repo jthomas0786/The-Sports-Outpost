@@ -1,6 +1,8 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import {availabilityFilteredInputs,gameExclusions,verifiedRosterFilteredInputs,verifiedTeamActiveRoster} from './availability.js';
+import {availabilityFilteredInputs,gameExclusions,verifiedRosterFilteredInputs,verifiedTeamActiveRoster,assertSimulatedRoster} from './availability.js';
+import {buildGameProfile} from './profile.js';
+import fs from 'node:fs';
 const game={gameId:'401873007',away:{abbr:'DAL'},home:{abbr:'GB'},players:[
  {name:'Mitch Van Vooren',team:'DAL',position:'TE'},
  {name:'Jake Ferguson',team:'DAL',position:'TE'},
@@ -27,6 +29,21 @@ assert.deepEqual(observed.game.players.map(p=>p.name),['Jake Ferguson','Jordan L
 assert.ok(observed.exclusions.some(p=>p.name==='Mitch Van Vooren'));
 assert.ok(observed.exclusions.some(p=>p.name==='Josh Jacobs'));
 assert.equal(observed.rosterAudit.finalInactivesVerified,false);
+assert.ok(observed.game.modelEligibleRosters.DAL.includes('jakeferguson'));
+assert.equal(assertSimulatedRoster(observed.game,{players:[{team:'DAL',name:'Jake Ferguson'},{team:'GB',name:'Jordan Love'}]}).eligiblePlayers,2);
+assert.throws(()=>assertSimulatedRoster(observed.game,{players:[{team:'DAL',name:'Mitch Van Vooren'}]}),/off-roster players/);
+const config=JSON.parse(fs.readFileSync(new URL('./config.json',import.meta.url),'utf8'));
+const adversarialResearch={players:[
+ {team:'DAL',name:'Dak Prescott',position:'QB',gameId:'401873007'},
+ {team:'DAL',name:'Jake Ferguson',position:'TE',gameId:'401873007'},
+ {team:'DAL',name:'Mitch Van Vooren',position:'TE',gameId:'401873007'},
+ {team:'GB',name:'Jordan Love',position:'QB',gameId:'401873007'},
+ {team:'GB',name:'Christian Watson',position:'WR',gameId:'401873007'}
+]};
+const guardedProfile=buildGameProfile({game:observed.game,research:adversarialResearch,odds:{games:[]},config});
+assert.ok(!guardedProfile.players.some(p=>p.name==='Mitch Van Vooren'),'Profile rejects waived player');
+assert.ok(guardedProfile.players.some(p=>p.name==='Jake Ferguson'));
+assert.ok(guardedProfile.players.some(p=>p.name==='Jordan Love'));
 const nextGame={...game,gameId:'week7-other',home:{abbr:'GB'}};
 assert.equal(gameExclusions(nextGame,override).length,0,'Week 6 exception must not ban a player forever');
 await assert.rejects(()=>verifiedRosterFilteredInputs(game,research,{cache:false,fetchImpl:async()=>({ok:false,status:503})}),/roster source/i);
