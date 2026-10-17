@@ -2072,7 +2072,7 @@ function hydrateSignals(root,ctx){
  if(ctx.game?.league==='nhl')state.nhlCurrentGame=ctx.game;
  const signature=rankingSignature(ctx.game,ctx.rows||[]);
  let job=state.ranking;
- if(job&&job.signature===signature){
+ if(job&&job.signature===signature&&candidates.every(row=>researchTTL(key(row))>0)){
   // Filtering a prop category replaces the DOM; retain the active root.
   job.root=root;job.refresh=ctx.refresh;
   for(const row of candidates)if(state.cached.has(key(row)))
@@ -2102,7 +2102,7 @@ function hydrateSignals(root,ctx){
    const group=queue.shift();
    try{
     let data;
-    try{data=await getResearch(group[0],ctx);}
+    try{data=await getResearch(group.find(row=>row.playerId&&row.team)||group.find(row=>row.playerId)||group[0],ctx);}
     catch(error){if(ctx.game?.league!=='nhl')throw error;data={available:false,reason:'Detailed NHL game logs temporarily unavailable'};}
     if(ctx.game?.league==='nhl')await Promise.all([verifiedNhlRates(group[0],data),verifiedNhlTeams(ctx.game)]);
     if(state.ranking!==job)return;
@@ -2198,18 +2198,34 @@ function scoutingFromResult(data,defense,game){
   return '<b>Projected opposing starter</b><div class="mi-scout-metrics"><span><b>'+amount(data.opponent.pitcher.era)+'</b><small>ERA</small></span></div>';
  return null;
 }
+// All sports: failures retry after 15s; success expires after three minutes.
+// Preserve a single in-flight request per exact sportsbook candidate.
+const researchChecked=new Map();
+function researchTTL(id){
+ const checked=researchChecked.get(id),data=state.cached.get(id);
+ return checked==null||!data?0:Math.max(0,(data.available===true?180000:15000)-(Date.now()-checked));
+}
 function getResearch(row,ctx){
- const id=key(row);if(state.cached.has(id))return Promise.resolve(state.cached.get(id));
+ const id=key(row);
+ if(researchTTL(id)>0)return Promise.resolve(state.cached.get(id));
  if(state.pending.has(id))return state.pending.get(id);
  const task=Promise.resolve().then(()=>ctx.research(row)).then(data=>{
-   state.cached.set(id,data);return data;
+  if(data?.sport&&String(data.sport).toLowerCase()!==String(row.sport).toLowerCase())
+   throw Error('Research sport mismatch');
+  const result=data||{available:false,reason:'Verified research payload empty'};
+  state.cached.set(id,result);researchChecked.set(id,Date.now());
+  return result;
+ }).catch(error=>{
+  const result={available:false,sport:row.sport,reason:'Verified player research temporarily unavailable ('+String(error?.message||error).slice(0,90)+')'};
+  state.cached.set(id,result);researchChecked.set(id,Date.now());
+  return result;
  }).finally(()=>state.pending.delete(id));
  state.pending.set(id,task);return task;
 }
 function updatePlayer(row,root,ctx){
  const node=root.querySelector('[data-mi-research="'+CSS.escape(key(row))+'"]');
  if(!node)return;
- if(state.cached.has(key(row)))return updateResearchNode(node,row,state.cached.get(key(row)),ctx);
+ if(researchTTL(key(row))>0)return updateResearchNode(node,row,state.cached.get(key(row)),ctx);
  node.innerHTML='<div class="mi-loading">Loading verified player game logs and opponent context…</div>';
  getResearch(row,ctx).then(data=>{
    if(!node.isConnected||node.closest('[data-mi-key]')?.dataset.miKey!==key(row))return;
