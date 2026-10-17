@@ -1221,15 +1221,17 @@ function signEdge(value){return n(value)===null?'—':(n(value)>0?'+':'')+n(valu
 const bookDomains={
  fanduel:'fanduel.com',draftkings:'draftkings.com',betmgm:'betmgm.com',
  caesars:'caesars.com',betrivers:'betrivers.com',fanatics:'fanatics.com',
- 'fanatics sportsbook':'fanatics.com',bet365:'bet365.com',
- 'hard rock bet':'hardrock.bet',hardrock:'hardrock.bet',
+ fanaticssportsbook:'fanatics.com',bet365:'bet365.com',
+ hardrockbet:'hardrock.bet',hardrock:'hardrock.bet',
  espnbet:'espnbet.com','espn bet':'espnbet.com',
- 'the score bet':'thescore.bet',thescore:'thescore.bet',
+ thescorebet:'thescore.bet',thescore:'thescore.bet',
  pointsbet:'pointsbet.com',betparx:'betparx.com'
 };
 const normalizedBook=b=>String(b||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-function bookIcon(book){
+function bookIcon(book,logoUrl){
  const label=String(book||'Sportsbook');
+ const source=String(logoUrl||'');
+ if(source.startsWith('https://')&&!/[\s<>]/.test(source))return '<img class="mi-book-icon" src="'+esc(source)+'" alt="'+esc(label)+' logo" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'inline-grid\'"><span class="mi-book-monogram" style="display:none" aria-hidden="true">'+esc(label.slice(0,2).toUpperCase())+'</span>';
  const domain=bookDomains[normalizedBook(label)];
  if(!domain)return '<span class="mi-book-monogram" aria-hidden="true">'+esc(label.slice(0,2).toUpperCase())+'</span>';
  const favicon='https://www.google.com/s2/favicons?domain='+encodeURIComponent(domain)+'&sz=64';
@@ -1257,6 +1259,7 @@ function bestExactQuote(row){
  const model=n(row.model?.probabilityPct);
  return {...row,book,price:price,link:winner.link||row.link||null,
   snapshotTime:winner.snapshotTime||row.snapshotTime,
+  bookLogoUrl:winner.logoUrl||winner.logo||row.bookLogoUrl||null,
   impliedPct:implied,
   model:row.model&&model!==null?{...row.model,edgePct:model-implied,marketProbabilityPct:implied}:row.model};
 }
@@ -1275,7 +1278,7 @@ function rowMetrics(row){
  return '<span class="mi-row-metrics" aria-label="TSO Prop Signal, Line Model percentage, and sportsbook odds">'
   +'<span class="mi-signal-mini" data-mi-signal="'+esc(key(row))+'">'+signalMini(row,state.cached.get(key(row)),state.signalDoc)+'</span>'
   +'<span class="mi-line-model '+(marketOnly?'is-unavailable':'')+'"><b>'+pct(modelPct)+'</b><small>'+(marketOnly?'NO EXACT MATCH':'EXACT LINE')+'</small></span>'
-  +'<span class="mi-line-odds"><b>'+(!row.researchScorerModel?odds(price):'—')+'</b><small class="mi-book-under">'+(price!==null?bookIcon(book)+'<span>'+esc(book)+'</span>':'<span>NO LIVE BOOK</span>')+'</small></span>'
+  +'<span class="mi-line-odds"><b>'+(!row.researchScorerModel?odds(price):'—')+'</b><small class="mi-book-under">'+(price!==null?bookIcon(book,row.bookLogoUrl)+'<span>'+esc(book)+'</span>':'<span>NO LIVE BOOK</span>')+'</small></span>'
   +'</span>';
 }
 function playerMarkup(row,i){
@@ -1360,8 +1363,8 @@ function listing(game,rows){
    +'</div>'
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' sportsbook-backed player/market candidates'+(modelOnlyCount?' · '+modelOnlyCount+' scorer-model candidates (research only)':'')+' · one grade per player and market · line-independent TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
-   +'<div class="mi-row-column-head" aria-hidden="true"><span>PLAYER · PROP</span><span>TSO PROP SIGNAL</span><span>LINE MODEL %</span><span>LINE ODDS</span></div>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
+   +'<div class="mi-row-column-head" aria-hidden="true"><span>PLAYER · PROP</span><span>TSO PROP SIGNAL</span><span>LINE MODEL %</span><span>LINE ODDS</span></div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
       :'<div class="mi-empty">No verified sportsbook Over/Yes selection'+(modelOnlyCount?' or TSO scorer-model candidate':'')+' for this game and market. Live games may no longer have pregame quotes. Check another game, or use Advanced Props to inspect the full verified feed.</div>')+'</div>'
    +(filtered.length>7?'<button type="button" class="mi-show-all" data-mi-all>'+(state.showAll?'Show fewer':'Show all '+filtered.length+' selections')+'</button>':'')
