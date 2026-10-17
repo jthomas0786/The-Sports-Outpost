@@ -2011,14 +2011,20 @@ function signalScore(row,data,doc){
  const proj=independentProjection(row);
  if(proj)factors.push({label:'Independent model forecast',value:proj.value,weight:20,note:proj.detail});
  const coverage=factors.reduce((sum,f)=>sum+f.weight,0);
+ const totalWeight=126; // production 48, L10 26, consistency 12, role 12, matchup 8, model 20
+ const latest=Date.parse(series[0]?.date||'');
+ const oldNba=String(row?.sport||'').toLowerCase()==='nba'&&Number.isFinite(latest)&&Date.now()-latest>90*86400000;
  let score=Math.round(factors.reduce((sum,f)=>sum+f.value*f.weight,0)/coverage);
  if(series.length<10)score=Math.min(score,82);
- if(!proj)score=Math.min(score,88);
- return {score,tier:score>=85?'ELITE':score>=70?'STRONG':score>=50?'WATCH':'CAUTION',
-  modeled:Boolean(proj),factors,coverage,games:values.length,
+ if(!proj||!role||!matchup)score=Math.min(score,84);
+ if(oldNba)score=Math.min(score,74);
+ const tier=oldNba?'HISTORICAL':coverage<totalWeight?'PARTIAL':
+   score>=85?'ELITE':score>=70?'STRONG':score>=50?'WATCH':'CAUTION';
+ return {score,tier,modeled:Boolean(proj),factors,coverage,totalWeight,games:values.length,
   benchmark:target,matchupContext:matchup?.value===null?matchup.detail:null,
-  evidence:proj?'PROJECTION + HISTORY':'HISTORY / USAGE',
-  l5:mean5,l10:mean10};
+  evidence:oldNba?'PRIOR-SEASON HISTORY':proj?'MODEL + VERIFIED HISTORY':
+    role?'HISTORY + OBSERVED USAGE':'VERIFIED HISTORY ONLY',
+  l5:mean5,l10:mean10,historical:oldNba};
 }
 function signalMini(row,data,doc){
  const s=signalScore(row,data,doc);
@@ -2052,6 +2058,7 @@ function signalDetail(row,data,doc){
   +'<div class="mi-signal-track"><span style="width:'+clamp(f.value,0,100)+'%"></span></div><small>'+esc(f.note)+'</small></div>').join('');
  return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' observed games · '+s.factors.length+' verified scoring factors · '+esc(s.evidence)+'</small></div></div>'
   +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
+  +'<p class="mi-evidence-note">Verified signal input coverage: '+s.coverage+'/'+s.totalWeight+' weighted points ('+Math.round(100*s.coverage/s.totalWeight)+'%). '+(s.historical?'Older NBA game history is contextual and not a current-season projection. ':'')+'No sportsbook odds or unverified matchup statistics are substituted for missing evidence.</p>'
   +'<div class="mi-signal-factor-grid">'+factors+'</div>'+(s.matchupContext?'<p class="mi-evidence-note">Opponent context (not numerically graded): '+esc(s.matchupContext)+'</p>':'')+'<p class="mi-evidence-note">A player/market production grade, NOT a bet probability. TSO benchmarks are internal scoring references, not reported league averages. Sportsbook lines, prices, implied odds and exact-line model edges are excluded. Missing matchup factors are not guessed.</p></section>';
 }
 function updateSignalView(root,row,data){
