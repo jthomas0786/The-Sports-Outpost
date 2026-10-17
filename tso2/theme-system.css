@@ -5,12 +5,25 @@
  * Semantic chart / win-loss colors remain distinct from chrome colors.
  */
 :root{
- --tso-sidebar-bg:#070a0f; --tso-header-bg:#070b12;
- --tso-primary-btn:#2d7fff; --tso-secondary-btn:#18263a;
- --tso-btn-text:#ffffff; --tso-nav-active:#152338; --tso-focus:#5aa0ff;
+ --tso-sidebar-bg:#070a0f; --tso-header-bg:#070a0f;
+ --tso-primary-btn:#ff4d1c; --tso-secondary-btn:#151b23;
+ --tso-btn-text:#ffffff; --tso-nav-active:#24150f; --tso-focus:#ffd84d;
  --tso-page-max:1540px;--tso-page-gutter:24px;--tso-card-padding:18px;--tso-grid-gap:14px;
  --tso-body-size:13px;--tso-heading-size:30px;--tso-button-height:38px;--tso-header-height:68px;--tso-nav-item-height:52px;
  --tso-font-family:Inter,ui-sans-serif,system-ui,sans-serif;
+}
+
+/* Approved TSO 2.0 Outpost broadcast baseline (one shared preset). */
+:root{
+ --bg:#05070a;
+ --surface:#0c1016;
+ --card:#0a0d12;
+ --elev:#151b23;
+ --text:#f7f7f2;
+ --muted:#8e9bad;
+ --muted-2:#627087;
+ --line:#242c37;
+ --line-strong:#313b49;
 }
 html,body{background-color:var(--bg);color:var(--text);font-family:var(--tso-font-family)}
 body{font-size:var(--tso-body-size)}
