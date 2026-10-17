@@ -40,6 +40,7 @@ jobs:
           node --check tso2/theme-studio.js
           node tso2/theme-studio-selftest.mjs
           node tso2/theme-public-api-selftest.mjs
+          node tso2/nhl-reference-live-selftest.mjs
           node --check tso2/decision-dashboard-browser-qa.cjs
       - name: Diagnose staged decision assets before browser setup
         run: |
