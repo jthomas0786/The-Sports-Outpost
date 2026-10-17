@@ -11,7 +11,7 @@ const uncertainStatus=/^(?:questionable|probable|day[ -]?to[ -]?day|limited|game
 const text=v=>typeof v==='string'?v:typeof v==='object'&&v?String(v.description||v.displayName||v.name||v.abbreviation||v.type||''):'';
 const normStatus=v=>text(v).trim().replace(/_/g,' ').replace(/\s+/g,' ');
 const statusKind=s=>outStatus.test(s)?'OUT':uncertainStatus.test(s)?'UNCERTAIN':'UNKNOWN';
-const normTeam=x=>canon(x?.team?.abbreviation||x?.team?.abbr||x?.teamAbbreviation||x?.team?.team?.abbreviation||idToTeam[String(x?.team?.id||x?.teamId||'')]||'');
+const normTeam=x=>canon(x?.team?.abbreviation||x?.team?.abbr||x?.teamAbbreviation||x?.team?.team?.abbreviation||idToTeam[String(x?.team?.id||x?.teamId||x?.id||'')]||'');
 const reportTimestamp=x=>x?.reportedAt||x?.reportDate||x?.updatedAt||x?.date||x?.lastUpdated||null;
 const currentForGame=(r,gameDate)=>{
  if(!r.timestamp)return true; // roster audits and the season gate still apply
