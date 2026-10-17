@@ -1,4 +1,4 @@
-/* TSO 2.0 Games Board: reference layout, TSO 2.0 surfaces and accent palette. */
+/* TSO 2.0 Games: shared Outpost broadcast chrome; unique styles here are layout only. */
  .gb2-root{max-width:var(--tso-page-max);margin:0 auto;color:var(--text);padding-bottom:35px}
 .gb2-page-head{display:flex;justify-content:space-between;align-items:center;margin:10px 0 18px}
 .gb2-page-head small{display:block;color:var(--blue-2);font-size:10px;font-weight:850;letter-spacing:.16em}
@@ -107,8 +107,8 @@
   --gb2-rule:var(--line);
   --gb2-text:var(--text);
   --gb2-muted:var(--muted);
-  --gb2-accent:var(--blue);
-  --gb2-accent-light:var(--blue-2);
+  --gb2-accent:var(--outpost-orange);
+  --gb2-accent-light:var(--outpost-gold);
   --gb2-on-accent:var(--tso-btn-text);
   color:var(--gb2-text);
   font-family:inherit;
@@ -219,9 +219,7 @@
 .gb2-root .edge2-reason{color:var(--gb2-muted)}
 .gb2-root .edge2-reason strong{color:var(--gb2-text)}
 
-/* The previous prop/scouting CSS used a separate orange/green skin.
- * All NON-SEMANTIC panels now inherit the same navy + blue system as cards.
- */
+/* Shared non-semantic surfaces inherit global Outpost design tokens. */
 .gb2-root :where(.mi-game-vault-header,.mi-ranked,.mi-team,.mi-player,
 .mi-player.is-open,.mi-expanded-stats>div,.mi-form-metrics>div,
 .mi-reason,.mi-section,.mi-chart-panel,.mi-hit-panel,
