@@ -53,7 +53,7 @@ jobs:
             throw Error('NFL sportsbook odds missing; abort');
           console.log('Validated current NFL input:',slate.games.length,'games,',research.players.length,'research players,',odds.games.length,'odds games.');
           NODE
-      - name: Run 50,000 pregame iterations per NFL matchup with corrected WAS roster ID
+      - name: Run 50,000 with engine-level verified-player whitelist for all NFL games
         env:
           NODE_OPTIONS: --max-old-space-size=6144
         shell: bash
@@ -103,6 +103,7 @@ jobs:
           }
           if(errors.length)throw Error(errors.slice(0,30).join('\n'));
           const report={status:'verified',generatedAt:doc.generatedAt,season:2026,
+            eligibilityGate:'engine-profile-whitelist-v2',
             verifiedRosters:true,finalGamedayInactivesVerified:false,
             gameCount:doc.games.length,totalIterations:doc.games.reduce((a,g)=>a+g.iterations,0),
             summaries};
