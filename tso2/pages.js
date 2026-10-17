@@ -1282,26 +1282,28 @@ function exactLineModelPct(row){
 }
 function rowMetrics(row){
  const modelPct=exactLineModelPct(row),marketOnly=modelPct===null,price=!row.researchScorerModel?n(row.price):null;
+ const goalMarket=String(row?.sport||'').toLowerCase()==='nhl'&&['atg','fgs'].includes(String(row.market||''));
  const book=price!==null?String(row.book||'Verified book'):'';
  return '<span class="mi-row-metrics" aria-label="TSO Prop Signal, Line Model percentage, and sportsbook odds">'
   +'<span class="mi-signal-mini" data-mi-signal="'+esc(key(row))+'">'+signalMini(row,state.cached.get(key(row)),state.signalDoc)+'</span>'
-  +'<span class="mi-line-model '+(marketOnly?'is-unavailable':'')+'"><b>'+pct(modelPct)+'</b><small>'+(marketOnly?'NO EXACT MATCH':'EXACT LINE')+'</small></span>'
+  +'<span class="mi-line-model '+(marketOnly?'is-unavailable':'')+'"><b>'+pct(modelPct)+'</b><small>'+(marketOnly?(goalMarket?'NO GOAL MATCH':'NO EXACT MATCH'):(goalMarket?'GOAL MODEL':'EXACT LINE'))+'</small></span>'
   +'<span class="mi-line-odds"><b>'+(!row.researchScorerModel?odds(price):'—')+'</b><small class="mi-book-under">'+(price!==null?bookIcon(book,row.bookLogoUrl)+'<span>'+esc(book)+'</span>':'<span>NO LIVE BOOK</span>')+'</small></span>'
   +'</span>';
 }
 function playerMarkup(row,i){
  const id=key(row),open=state.expanded.has(id),modelOnly=Boolean(row.researchScorerModel);
  const modelPct=exactLineModelPct(row),src=String(row.headshotUrl||'');
+ const goalMarket=String(row?.sport||'').toLowerCase()==='nhl'&&['atg','fgs'].includes(String(row.market||''));
  const photo=src&&/^https:\/\//i.test(src)?'<img src="'+esc(src)+'" alt="" loading="lazy">':
  '<span aria-hidden="true">'+esc(String(row.player||'P').split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase())+'</span>';
  const quick='<div class="mi-selection-brief"><span><small>PROP / SIDE</small><b>'+esc(marketName(row))+' · '+esc(exactSelection(row))+'</b></span>'
-  +'<span><small>EXACT LINE MODEL</small><b>'+pct(modelPct)+'</b></span>'
+  +'<span><small>'+(goalMarket?'TSO GOAL MODEL':'EXACT LINE MODEL')+'</small><b>'+pct(modelPct)+'</b></span>'
   +'<span><small>BEST SPORTSBOOK</small><b>'+(modelOnly?'—':esc(row.book||'Unavailable')+' · '+odds(row.price))+'</b></span></div>';
  const explain=modelOnly?'Pregame scorer forecast, not a verified exact sportsbook selection.':
    (row.model?.reason||row.model?.explanation||row.reason||
     'No source-backed matchup-specific model explanation is available for this exact selection.');
  const details=quick
-   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · CONTRIBUTING EVIDENCE</h4><p>Verified production, usage, matchup factors and exact-line game results.</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
+   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · CONTRIBUTING EVIDENCE</h4><p>Verified production, usage, matchup factors and '+(goalMarket?'observed goal results.':'exact-line game results.')+'</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
    +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Loading verified recent form and matchup trends…</div>')+'</div>'
    +'<div class="mi-reason"><b>TSO ANALYSIS</b><p>'+esc(explain)+'</p></div>'
    +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No exact live sportsbook line.</small></div>':
@@ -1487,7 +1489,7 @@ function recentGamesChart(series,row){
    +grid+bars
    +'<line x1="'+left+'" x2="'+right+'" y1="'+targetY.toFixed(1)+'" y2="'+targetY.toFixed(1)+'" stroke="#ffd277" stroke-width="2" stroke-dasharray="7 5"/>'
    +'<rect x="486" y="'+Math.max(2,targetY-24).toFixed(1)+'" width="165" height="20" rx="3" fill="#362a17" stroke="#70562b"/>'
-   +'<text x="644" y="'+Math.max(16,targetY-10).toFixed(1)+'" text-anchor="end" fill="#ffe3a0" font-size="11" font-weight="800">PROP LINE '+esc(eventMarkets.has(String(row.market||''))?'YES':amount(target))+'</text>'
+   +'<text x="644" y="'+Math.max(16,targetY-10).toFixed(1)+'" text-anchor="end" fill="#ffe3a0" font-size="11" font-weight="800">'+esc(goalMarketFor(row)?'GOAL · YES':eventMarkets.has(String(row.market||''))?'YES':amount(target))+'</text>'
    +'</svg></div>';
 }
 function usageMeter(label,value,note){
@@ -1801,7 +1803,8 @@ const nhlBench=[
 ];
 const nhlNorm=value=>({NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL'}[String(value||'').toUpperCase()]||String(value||'').toUpperCase());
 function nhlPlayerId(row,data){
- const values=[row?.playerId,row?.nhlPlayerId,data?.player?.nhlId,data?.player?.playerId,data?.player?.id];
+ // ESPN player IDs may also have seven digits. Only use explicitly sourced NHL IDs.
+ const values=[row?.nhlPlayerId,data?.player?.nhlId,data?.player?.nhlPlayerId];
  return values.map(v=>String(v||'')).find(v=>/^\d{7}$/.test(v))||null;
 }
 function nhlOpponent(row){
@@ -1814,19 +1817,31 @@ function nhlIdentityKey(row){
  const clean=String(row?.player||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
  return nhlNorm(row?.team)+'|'+clean;
 }
+const nhlRateChecked=new Map(),nhlTeamChecked=new Map();
+const nhlCleanName=value=>String(value||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
 async function verifiedNhlRates(row,data){
  const team=nhlNorm(row?.team),id=nhlPlayerId(row,data);
  const name=String(row?.player||data?.player?.name||'').trim();
  if(!name||!/^[A-Z]{2,3}$/.test(team))return null;
- const k=nhlIdentityKey({...row,player:name});
- if(state.nhlRates.has(k))return state.nhlRates.get(k);
+ const k=nhlIdentityKey({...row,player:name}),now=Date.now();
+ const checked=nhlRateChecked.get(k);
+ if(checked&&now-checked<(state.nhlRates.get(k)?600000:15000))return state.nhlRates.get(k)||null;
  if(state.nhlPending.has(k))return state.nhlPending.get(k);
- const task=fetch('/api/tso2-nhl-player-rates?playerId='+encodeURIComponent(id||'')+'&team='+encodeURIComponent(team)+'&name='+encodeURIComponent(name),{cache:'no-store',headers:{accept:'application/json'}})
-  .then(async response=>{
-   const doc=await response.json();
-   if(!response.ok||doc?.available!==true||doc.season!==20262027||!/^\d{7}$/.test(String(doc.playerId||''))||doc.team!==team||n(doc.games)<1)return null;
-   return doc;
-  }).catch(()=>null).then(doc=>{state.nhlRates.set(k,doc);return doc;}).finally(()=>state.nhlPending.delete(k));
+ const task=(async()=>{
+  // Resolve an athlete by team and full name. The raw game-feed ID is from ESPN.
+  const params=new URLSearchParams({team,name});
+  if(id)params.set('playerId',id);
+  const response=await fetch('/api/tso2-nhl-player-rates?'+params.toString(),{cache:'no-store',headers:{accept:'application/json'}});
+  if(!response.ok)return null;
+  const doc=await response.json();
+  if(doc?.available!==true||Number(doc.season)!==20262027||!/^\d{7}$/.test(String(doc.playerId||''))||
+   nhlNorm(doc.team)!==team||n(doc.games)===null||n(doc.games)<1)return null;
+  const returned=doc.playerName||doc.name||doc.displayName;
+  if(returned&&nhlCleanName(returned)!==nhlCleanName(name))return null;
+  if(id&&String(doc.playerId)!==id)return null;
+  return doc;
+ })().catch(()=>null).then(doc=>{nhlRateChecked.set(k,Date.now());state.nhlRates.set(k,doc);return doc;})
+ .finally(()=>state.nhlPending.delete(k));
  state.nhlPending.set(k,task);
  return task;
 }
@@ -1834,14 +1849,18 @@ async function verifiedNhlTeams(game){
  if(game?.league!=='nhl')return;
  state.nhlCurrentGame=game;
  const away=nhlNorm(game.away?.abbr),home=nhlNorm(game.home?.abbr),k=away+'|'+home;
- if(state.nhlTeamGame===k&&state.nhlTeamDoc)return;
+ const checked=nhlTeamChecked.get(k);
+ if(state.nhlTeamGame===k&&checked&&Date.now()-checked<(state.nhlTeamDoc?300000:15000))return;
  state.nhlTeamGame=k;state.nhlTeamDoc=null;
+ nhlTeamChecked.set(k,Date.now());
  try{
   const r=await fetch('/api/tso2-nhl-team-stats?away='+encodeURIComponent(away)+'&home='+encodeURIComponent(home),{cache:'no-store'});
+  if(!r.ok)return;
   const doc=await r.json();
-  if(r.ok&&doc?.available===true&&doc.season===20262027&&doc.teams?.[away]?.team===away&&doc.teams?.[home]?.team===home&&state.nhlTeamGame===k)
+  if(doc?.available===true&&Number(doc.season)===20262027&&
+   nhlNorm(doc.teams?.[away]?.team)===away&&nhlNorm(doc.teams?.[home]?.team)===home&&state.nhlTeamGame===k)
    state.nhlTeamDoc=doc;
- }catch(_){/* No verified opponent stats available. */}
+ }catch(_){/* No verified opponent numbers; keep metrics ungraded. */}
 }
 function nhlFactorScore(value,benchmark){
  if(n(value)===null||value<0||!Number.isFinite(benchmark)||benchmark<=0)return null;
@@ -1867,7 +1886,7 @@ function nhlSignalScore(row,data){
  });
  const available=factors.filter(f=>f.factorScore!==null),coverage=available.reduce((sum,f)=>sum+f.weight,0);
  if(coverage<60||!sameTeam)return {
-   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!sameTeam?'2026–27 NHL skater statistics/roster unavailable':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
+   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!sameTeam?'CURRENT-SEASON NHL PLAYER DATA PENDING':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
    factors,coverage,games:rate?.games||0,evidence:'INCOMPLETE · NHL 2026–27'
  };
  const raw=available.reduce((sum,f)=>sum+f.factorScore*f.weight,0)/coverage;
@@ -2010,6 +2029,7 @@ function hydrateSignals(root,ctx){
  });
 }
 
+function goalMarketFor(row){return String(row?.sport||'').toLowerCase()==='nhl'&&['atg','fgs'].includes(String(row.market||''));}
 function renderResearch(data,row){
  if(!data?.available){
   const message='Detailed historical context unavailable: '+esc(data?.reason||'No verified research snapshot.');
@@ -2022,7 +2042,7 @@ function renderResearch(data,row){
  const stats=[lastStats(series,row,5),lastStats(series,row,10)];
  const form=series.length
    ?'<div class="mi-visual-grid"><div class="mi-chart-panel"><h5>RECENT GAME RESULTS</h5>'+recentGamesChart(series,row)+'</div>'
-     +'<div class="mi-hit-panel"><h5>EXACT LINE HIT RATE</h5>'+stats.map(x=>hitRateVisual(series,row,Number(x.label.slice(1)))).join('')
+     +'<div class="mi-hit-panel"><h5>'+(goalMarketFor(row)?'RECENT GOAL HIT RATE':'EXACT LINE HIT RATE')+'</h5>'+stats.map(x=>hitRateVisual(series,row,Number(x.label.slice(1)))).join('')
        +'<div class="mi-l5-avg"><small>LAST 5 AVERAGE</small><strong>'+amount(series.slice(0,5).reduce((a,b)=>a+b.value,0)/Math.min(5,series.length))+'</strong></div>'
        +'<small class="mi-muted">Pushes are excluded from the hit-rate denominator.</small></div></div>'
      +'<p class="mi-source-note">'+esc(series[0].source||data?.sources?.player||data?.source||'Verified game logs')+' · '+series.length+' observed games available</p>'
@@ -2031,7 +2051,7 @@ function renderResearch(data,row){
  const source=String(data.sources?.player||data.source||data?.player?.recentSource||'TSO verified research snapshot');
  return '<div class="mi-evidence-layout"><div class="mi-evidence-left">'
   +'<div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div></div>'
-  +'<div class="mi-evidence-right"><div class="mi-section mi-section--visual"><h4>LAST 10 · EXACT-LINE RESULTS</h4>'+form+'</div>'
+  +'<div class="mi-evidence-right"><div class="mi-section mi-section--visual"><h4>'+(goalMarketFor(row)?'LAST 10 · GOAL RESULTS':'LAST 10 · EXACT-LINE RESULTS')+'</h4>'+form+'</div>'
   +'<section class="mi-player-defender"><h4>OPPONENT DEFENSE · VERIFIED ALLOWANCES</h4><div data-mi-player-defense="'+esc(key(row))+'">Looking up current-season defense vs position…</div></section></div></div>'
   +decisionEvidence(data,row)
    +'<div class="mi-section"><h4>Role & matchup</h4>'+roleVisual(data,row)
