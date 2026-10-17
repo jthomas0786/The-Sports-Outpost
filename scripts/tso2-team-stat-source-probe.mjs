@@ -19,3 +19,5 @@ for(const url of urls){
    firstSection:JSON.stringify(data).slice(0,1700)}));
  }catch(e){console.log('TEAM_STATS_SOURCE_ERROR',JSON.stringify({url,error:e.message}))}
 }
+
+// Run diagnostic against live current-season team statistics.
