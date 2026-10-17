@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v861.js';
-import { availabilityFilteredInputs } from '../sports/nfl/sim/availability.js';
+import { availabilityFilteredInputs, verifiedRosterFilteredInputs } from '../sports/nfl/sim/availability.js';
 import { isHalftimeState } from '../sports/nfl/sim/auto.js';
 
 const ROOT = process.cwd();
@@ -57,9 +57,12 @@ const results=[];
 for(const game of games){
   const liveGame=matchLive(game,liveBoard);
   const iterations=ITER||(isHalftimeState(liveGame)?(config.halftimeIterations||config.automatic?.halftimeIterations||50000):liveGame?.status==='in'?(config.liveIterations||config.automatic?.liveIterations||15000):(config.defaultIterations||config.automatic?.pregameIterations||50000));
-  const {game:eligibleGame,research:eligibleResearch,exclusions}=availabilityFilteredInputs(game,research,availability);
+  const rosterChecked=await verifiedRosterFilteredInputs(game,research);
+  const eligible=availabilityFilteredInputs(rosterChecked.game,rosterChecked.research,availability);
+  const {game:eligibleGame,research:eligibleResearch}=eligible;
+  const exclusions=[...rosterChecked.exclusions,...eligible.exclusions];
   const result=simulateGame({game:eligibleGame,research:eligibleResearch,odds,liveGame,config,iterations,seed:SEED,includeSamples:false});
-  result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
+  result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,rosterVerified:true,rosterAudit:rosterChecked.rosterAudit,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
   results.push(stripPrivateSamples(result));
   const o=result.outcomes;
   const phase=isHalftimeState(liveGame)?'HALFTIME':liveGame?.status==='in'?'LIVE':'PREGAME';
