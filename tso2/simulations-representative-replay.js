@@ -118,7 +118,17 @@ function buildOne(game,defense,variant=0){
       const rushWorld=team.reduce((acc,p)=>acc+n(world.get(side+'|'+p.name.toLowerCase())?.stats?.carries),0);
       const passWorld=team.reduce((acc,p)=>acc+n(world.get(side+'|'+p.name.toLowerCase())?.stats?.targets),0);
       const passRate=clamp((passWorld/(passWorld+rushWorld||1))+(tendency.passShift||0)+(oldDown===3?.05:0),.39,.75);
-      const finalPreference=isFinalTd?touchdownPlayer(team,'PASS')?'PASS':touchdownPlayer(team,'RUSH')?'RUSH':null:null;
+      const finalPreference=(()=>{
+       if(!isFinalTd)return null;
+       const unclaimed=kind=>team.reduce((total,p)=>{
+        if(kind==='PASS'&&!['WR','TE','RB','FB'].includes(p.position))return total;
+        if(kind==='RUSH'&&!['QB','RB','WR','TE','FB'].includes(p.position))return total;
+        const key=norm(p.team)+'|'+p.name.toLowerCase(),stats=world.get(key)?.stats||{};
+        return total+Math.max(0,n(kind==='PASS'?stats.recTds:stats.rushTds)-(usedTds.get(key+'|'+kind)||0));
+       },0);
+       const rush=unclaimed('RUSH'),pass=unclaimed('PASS'),total=rush+pass;
+       return total?rng()*total<rush?'RUSH':'PASS':null;
+      })();
       kind=isFinalTd&&finalPreference?finalPreference:rng()<passRate?'PASS':'RUSH';
       let actor=selectedPlayer(team,kind==='PASS'?'pass':'rush',world,rng,counts);
       if(!actor){kind=kind==='PASS'?'RUSH':'PASS';actor=selectedPlayer(team,kind==='PASS'?'pass':'rush',world,rng,counts)}
