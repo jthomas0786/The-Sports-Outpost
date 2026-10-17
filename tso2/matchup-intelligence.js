@@ -203,7 +203,7 @@ function listing(game,rows,{showScouting=true}={}){
  const filters=['ALL PROPS',...orderedMarketKeys(ranked,game.league)];
  return '<section class="mi-game-vault" aria-label="Matchup scouting and ranked prop opportunities">'
    +(showScouting?(
-    +'<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
+    '<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
     +'<div class="mi-teams">'
     +[game.away,game.home].map((t,i)=>{
      const opp=i===0?game.home:game.away;
