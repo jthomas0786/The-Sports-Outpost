@@ -5,7 +5,7 @@
 'use strict';
 const old=window.TSO2Decision;
 if(!old)return;
-const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;':'&quot;',"'":'&#39;'}[c]));
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const n=v=>v===null||v===undefined||v===''?null:(Number.isFinite(Number(v))?Number(v):null);
 const round=(v,d=1)=>n(v)===null?'—':Number(v).toFixed(d).replace(/\.0$/,'');
 const canonical=v=>String(v||'').trim().toUpperCase().replace(/^LAR$/,'LA').replace(/^GNB$/,'GB').replace(/^JAC$/,'JAX');
