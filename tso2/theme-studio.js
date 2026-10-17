@@ -186,7 +186,7 @@
   const output=[],site=location.origin;
   function collect(list,file,context=''){
    for(const rule of [...list||[]]){
-    if(rule.cssRules){collect(rule.cssRules,file,context+' '+(rule.conditionText||''));continue;}
+    if(rule.cssRules?.length)collect(rule.cssRules,file,context+' '+(rule.conditionText||''));
     if(!rule.selectorText)continue;
     output.push({selector:rule.selectorText,properties:rule.style?.cssText||'',file,context});
    }
