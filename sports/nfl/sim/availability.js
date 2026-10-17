@@ -1,3 +1,5 @@
+import {verifiedLeagueInjuryReport,injuryStatusForTeam,assertInjuryClear} from './injury-audit.js';
+
 // Confirmed game-specific NFL availability exclusions. Never apply a Week 6
 // exclusion blindly to Week 7; an eligible return is not a confirmed active.
 export const normalizedName=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
@@ -19,7 +21,10 @@ export function availabilityFilteredInputs(game,research,availability){
  const byKey=new Set(exclusions.map(p=>p.team+'|'+normalizedName(p.name)));
  const excluded=p=>byKey.has(normalizedTeam(p?.team)+'|'+normalizedName(p?.name));
  const unavailable=p=>({...p,active:false,availability:'OUT',injury:{...(p.injury||{}),status:'OUT'},rosterStatus:'OUT'});
- const gameWithStatus={...game,players:(game.players||[]).filter(p=>!excluded(p))};
+ const modelEligibleRosters=game?.modelEligibleRosters?Object.fromEntries(
+  Object.entries(game.modelEligibleRosters).map(([team,names])=>[team,(names||[]).filter(name=>!byKey.has(normalizedTeam(team)+'|'+normalizedName(name)))])):undefined;
+ const gameWithStatus={...game,players:(game.players||[]).filter(p=>!excluded(p)),
+  ...(modelEligibleRosters?{modelEligibleRosters}:{})};
  // The auto pipeline calls this per game; do not mutate the shared weekly
  // research or erase a player from a future matchup.
  const researchWithStatus={...research,players:(research?.players||[]).filter(p=>!excluded(p))};
@@ -70,21 +75,45 @@ export async function verifiedTeamActiveRoster(team,{fetchImpl=fetch,cache=true}
 export async function verifiedRosterFilteredInputs(game,research,{fetchImpl=fetch,cache=true}={}){
  const teams=[normalizedTeam(game?.away?.abbr),normalizedTeam(game?.home?.abbr)];
  if(teams.some(x=>!x))throw Error('Missing matchup teams; cannot verify NFL player eligibility');
- const [away,home]=await Promise.all(teams.map(team=>verifiedTeamActiveRoster(team,{fetchImpl,cache})));
+ const [away,home,report]=await Promise.all([
+  ...teams.map(team=>verifiedTeamActiveRoster(team,{fetchImpl,cache})),
+  verifiedLeagueInjuryReport({fetchImpl,cache})
+ ]);
+ const gameDate=game?.startTimeUTC||game?.kickoff||game?.date||null;
+ const injuries=teams.map(team=>injuryStatusForTeam(report,team,{gameDate}));
+ // An absent team report is UNKNOWN, not proof that its entire roster is healthy.
+ for(const team of injuries)if(!team.feedContainsTeam)
+  throw Error('2026 NFL injury report missing team '+team.team+'; refusing to simulate unverified roster');
+ const injuryOut=new Map(injuries.flatMap(t=>t.excluded.map(row=>[
+  normalizedTeam(t.team)+'|'+normalizedName(row.name),{team:normalizedTeam(t.team),name:row.name,
+   status:row.status,source:row.source,reportedAt:row.timestamp}
+ ])));
+ const injuryBlocked=p=>injuryOut.has(normalizedTeam(p?.team)+'|'+normalizedName(p?.name));
  const allowed=new Map([[away.team,away.active],[home.team,home.active]]);
  const isApplicable=p=>allowed.has(normalizedTeam(p?.team));
- const notActive=p=>isApplicable(p)&&!allowed.get(normalizedTeam(p.team)).has(normalizedName(p.name));
+ const notActive=p=>isApplicable(p)&&(!allowed.get(normalizedTeam(p.team)).has(normalizedName(p.name))||injuryBlocked(p));
  const removed=new Map();
  for(const p of [...(game?.players||[]),...(research?.players||[])].filter(notActive)){
-  removed.set(normalizedTeam(p.team)+'|'+normalizedName(p.name),{team:normalizedTeam(p.team),name:p.name,status:'NOT_ACTIVE_2026_ROSTER'});
+  const id=normalizedTeam(p.team)+'|'+normalizedName(p.name);
+  removed.set(id,injuryOut.get(id)||{team:normalizedTeam(p.team),name:p.name,status:'NOT_ACTIVE_2026_ROSTER'});
  }
+ for(const [id,p] of injuryOut)if(!removed.has(id))removed.set(id,p);
+ // Exclude other players in a model source even when research lacks a status field.
+ for(const [team,names] of allowed)for(const name of [...names]){
+  if(injuryOut.has(team+'|'+name))names.delete(name);
+ }
+
  const verifiedPosition=p=>{const team=normalizedTeam(p.team);const official=team===away.team?away.positions.get(normalizedName(p.name)):team===home.team?home.positions.get(normalizedName(p.name)):null;return official?{...p,position:official,rosterPositionVerified:true}:p};
  const safeGame={...game,players:(game?.players||[]).filter(p=>!notActive(p)).map(verifiedPosition),
   modelEligibleRosters:Object.fromEntries([...allowed.entries()].map(([code,active])=>[code,[...active]]))};
  const safeResearch={...research,players:(research?.players||[]).filter(p=>!notActive(p)).map(verifiedPosition)};
+ assertInjuryClear(safeGame.players,injuries,'2026 NFL game roster');
+ assertInjuryClear(safeResearch.players,injuries,'2026 NFL player research');
  return {game:safeGame,research:safeResearch,exclusions:[...removed.values()],
-  rosterAudit:{season:2026,checkedAt:new Date().toISOString(),source:'2026 ESPN active offense roster',
+  rosterAudit:{season:2026,checkedAt:new Date().toISOString(),source:'ESPN 2026 active roster + league injury report',
    teams:teams.slice(),counts:[away.active.size,home.active.size],
+   injuryReportVerified:true,injuryReportCheckedAt:report.checkedAt,injuryReportSource:report.source,
+   injuryTeams:injuries.map(t=>({team:t.team,rows:t.entries,reported:t.feedContainsTeam,excluded:t.excluded.map(p=>({name:p.name,status:p.status,position:p.position})),uncertain:t.uncertain.map(p=>({name:p.name,status:p.status,position:p.position}))})),
    finalInactivesVerified:false}};
 }
 
@@ -92,7 +121,8 @@ export function assertSimulatedRoster(game,result){
  const audit=game?.modelEligibleRosters;
  if(!audit)throw Error('NFL simulation missing the verified player whitelist');
  const approved=new Map(Object.entries(audit).map(([team,names])=>[normalizedTeam(team),new Set(names||[])]));
- const invalid=(result?.players||[]).filter(p=>!approved.get(normalizedTeam(p?.team))?.has(normalizedName(p?.name)));
+ const represented=[...(result?.players||[]),...(result?.representativeWorld?.players||[])];
+ const invalid=represented.filter(p=>!approved.get(normalizedTeam(p?.team))?.has(normalizedName(p?.name)));
  if(invalid.length)throw Error('NFL simulation still contains off-roster players: '+
    invalid.slice(0,6).map(p=>String(p.team)+' '+String(p.name)).join(', '));
  return {eligiblePlayers:(result?.players||[]).length,rosterTeams:[...approved.keys()]};
