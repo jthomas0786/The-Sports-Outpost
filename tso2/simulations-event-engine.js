@@ -16,7 +16,7 @@
  const roleIndex=(p,team,position)=>team.filter(x=>pos(x.position)===position).sort((a,b)=>(finite(a.depthRank)??99)-(finite(b.depthRank)??99)).findIndex(x=>x===p);
  const roleWeight=(p,team,type)=>{
   const role=pos(p.position),idx=Math.max(0,roleIndex(p,team,role));
-  const observed=finite(type==='rush'?p.carries:p.targets);
+  const observed=finite(type==='rush'?(p.usage?.carriesPerGame??p.carries):(p.usage?.targetsPerGame??p.targets));
   const list=(type==='rush'?roles:targets)[role]||[.02];
   const prior=list[Math.min(idx,list.length-1)]*(idx>=list.length?Math.pow(.25,idx-list.length+1):1);
   if(role==='FB')return clamp(observed===null?prior:observed*.4+prior*.6,0,type==='rush'?.2:.35);
@@ -24,10 +24,11 @@
   if(type==='rush'&&role==='WR')return clamp(observed??prior,0,2);
   if(type==='rush'&&role==='QB')return clamp(observed===null?prior:observed*.5+prior*.5,0,5);
   if(observed===null)return prior;
-  return clamp(prior*.35+observed*.65,0,role==='RB'?27:role==='WR'?13:10);
+  const trust=Number(p.usage?.games)>=3?.82:.65;
+  return clamp(prior*(1-trust)+observed*trust,0,role==='RB'?27:role==='WR'?13:10);
  };
  const maxUses=(p,team,type)=>{
-  const role=pos(p.position),idx=Math.max(0,roleIndex(p,team,role)),proj=finite(type==='rush'?p.carries:p.targets);
+  const role=pos(p.position),idx=Math.max(0,roleIndex(p,team,role)),proj=finite(type==='rush'?(p.usage?.carriesPerGame??p.carries):(p.usage?.targetsPerGame??p.targets));
   if(type==='rush'){
    if(role==='FB')return proj!==null&&proj>=2?2:1;
    if(role==='QB')return Math.max(2,Math.ceil((proj??2)*1.7));
