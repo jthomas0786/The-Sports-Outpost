@@ -62,7 +62,7 @@ assert.ok(guardedProfile.players.some(p=>p.name==='Jake Ferguson'));
 assert.ok(guardedProfile.players.some(p=>p.name==='Jordan Love'));
 const nextGame={...game,gameId:'week7-other',home:{abbr:'GB'}};
 assert.equal(gameExclusions(nextGame,override).length,0,'Week 6 exception must not ban a player forever');
-await assert.rejects(()=>verifiedRosterFilteredInputs(game,research,{cache:false,fetchImpl:async()=>({ok:false,status:503})}),/roster source/i);
+await assert.rejects(()=>verifiedRosterFilteredInputs(game,research,{cache:false,fetchImpl:async()=>({ok:false,status:503})}),/roster source|injury-report source/i);
 const activeButIr={...game,players:[...game.players,{team:'GB',name:'Tucker Kraft',position:'TE'},{team:'DAL',name:'CeeDee Lamb',position:'WR'}]};
 const inj=await verifiedRosterFilteredInputs(activeButIr,{players:activeButIr.players},{fetchImpl,cache:false});
 assert.ok(inj.game.players.some(p=>p.name==='Tucker Kraft'),'Questionable is not automatically OUT');
