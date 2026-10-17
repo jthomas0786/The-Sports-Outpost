@@ -1,6 +1,7 @@
 /* TSO 2.0 — NFL Visual Simulation Replay. Model numbers are verified TSO
  * Monte Carlo outputs; field positions and play outcomes are illustrative
- * scenario choreography, NOT optical tracking or replay of a sampled world. */
+ * score sampled from a correlated 50K model world; all illustrated snaps
+ * and on-field paths are reconstructed, not recorded or tracked. */
 (() => {
 'use strict';
 const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0,finished:false};
@@ -17,7 +18,7 @@ function randomGenerator(seed){let x=seed||1;return ()=>{x=(x+0x6D2B79F5)|0;let 
 function pageHTML(){
  return '<section class="tso-sim-page" data-tso-simulations>'
   +'<div class="tso-sim-hero"><div><div class="tso-sim-kicker">THE SPORTS OUTPOST / VISUAL SIMULATION LAB</div><h1>TSO Simulations <span>· NFL</span></h1><p>Watch an illustrated four-quarter football scenario alongside actual TSO Monte Carlo projections. Choose any game on the slate.</p></div><div class="tso-sim-hero-pill"><b>2026 NFL</b><small>Other sports coming later</small></div></div>'
-  +'<div class="tso-sim-disclosure"><strong>HOW TO READ THIS</strong> Model win chances, mean scores and player projections are sourced from TSO simulations. The animated routes, play calls, individual gains and scenario score are generated for visualization—not real tracking, a recorded simulation world, or a betting recommendation.</div>'
+  +'<div class="tso-sim-disclosure"><strong>HOW TO READ THIS</strong> Model outcomes come from the TSO 50K simulation. The replay selects an actual representative joint score; the play calls, gains and on-field paths are reconstructed illustrations, not sampled play tracking.</div>'
   +'<div class="tso-sim-loading" data-tsos-loading><span class="live-feed-spinner"></span> Loading the NFL simulation slate…</div>'
   +'<div data-tsos-content></div></section>';
 }
@@ -141,7 +142,8 @@ function matchupHTML(game){
  return '<section class="tso-sim-dvp"><div class="tso-sim-dvp-kicker">2026 DEFENSE VS POSITION · OBSERVED ALLOWANCES</div><div class="tso-sim-dvp-grid">'+info.join('')+'</div></section>';
 }
 function replayHTML(game){
- return '<div class="tso-sim-replay"><div class="tso-sim-scoreboard">'
+ return '<div class="tso-sim-representative-banner"><strong>REPRESENTATIVE 50K WORLD</strong><span>'+esc(game.away.abbr)+' '+number(game.representativeWorld?.awayScore,0)+' – '+number(game.representativeWorld?.homeScore,0)+' '+esc(game.home.abbr)+' · Sample '+(Number(game.representativeWorld?.sampledIndex)+1).toLocaleString()+' of '+(Number(game.representativeWorld?.iterations)||50000).toLocaleString()+'</span></div>'
+  +'<div class="tso-sim-replay"><div class="tso-sim-scoreboard">'
   +'<span class="tso-sim-scoreteam"><b>'+esc(game.away.abbr)+'</b><strong data-tsos-away>0</strong></span>'
   +'<div class="tso-sim-scoreclock"><b data-tsos-quarter>Q1</b><strong data-tsos-clock>15:00</strong><small data-tsos-possession>ILLUSTRATIVE REPLAY</small></div>'
   +'<span class="tso-sim-scoreteam is-home"><strong data-tsos-home>0</strong><b>'+esc(game.home.abbr)+'</b></span></div>'
@@ -154,7 +156,7 @@ function replayHTML(game){
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
   +'<div class="tso-sim-final" data-tsos-final hidden></div>'
-  +'<div class="tso-sim-disclaimer">The moving markers, play gains, score, clock, and final result are one generated <b>illustrative scenario</b>, not a sampled TSO Monte Carlo world. Only the projections above and listed player averages are outputs of the actual TSO model.</div></div>';
+  +'<div class="tso-sim-disclaimer">The final score is taken from <b>one actual 50K Monte Carlo sampled world</b>. Play paths, gain details and box-score progression are <b>score-conditioned reconstructions</b>, not tracked or sampled snaps.</div></div>';
 }
 async function verifySelectedRoster(gameId){
  if(!gameId||!state.doc)return;
@@ -185,8 +187,10 @@ function paintPage(){
  if(!games.length){main.innerHTML='<div class="tso-sim-empty">No NFL simulations available in the current feed. No games were fabricated.</div>';return}
  if(!state.game||!games.some(g=>g.gameId===state.game.gameId))
   state.game=games.find(g=>g.kickoff&&Date.parse(g.kickoff)>Date.now()-12*3600000)||games[0];
- const ready=state.game.availability?.rosterVerified===true&&Array.isArray(state.game.players)&&state.game.players.some(p=>p.position==='QB');
- state.plays=ready?(window.TSO2SimEngine?.build?.(state.game,state.defense)||[]):[];
+ const ready=state.game.availability?.rosterVerified===true&&!state.game.availability?.requiresRerun&&
+  state.game.representativeWorld?.selection==='central-correlated-sampled-world'&&
+  Array.isArray(state.game.players)&&state.game.players.some(p=>p.position==='QB');
+ state.plays=ready?(window.TSO2RepresentativeReplay?.build?.(state.game,state.defense)||[]):[];
  state.index=0;state.playing=false;state.startedAt=0;state.finished=false;
  main.innerHTML='<div class="tso-sim-layout"><aside class="tso-sim-matchups"><div class="tso-sim-matchups-head"><span>2026 NFL SLATE</span><b>'+games.length+' GAMES</b></div>'
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
@@ -194,7 +198,7 @@ function paintPage(){
   +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
   +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':'ROSTER CHECK PENDING')+'</b></header>'
   +(ready?strip(state.game)+matchupHTML(state.game)+replayHTML(state.game):
-    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">Checking the current 2026 active rosters. Replay is unavailable until eligibility is verified.</div>')
+    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.rosterVerified===true?'Awaiting the representative 50,000-run world. Independent random-score replays have been disabled.':'Checking the current 2026 active rosters. Replay is unavailable until eligibility is verified.')+'</div>')
   +'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
   const game=games.find(g=>g.gameId===btn.dataset.tsosGame);
@@ -503,5 +507,5 @@ async function mount(root){
  }finally{if(token===state.token&&loading)loading.hidden=true}
 }
 function dispose(){stop();state.token++;state.root=null}
-window.TSO2Simulations={pageHTML,mount,dispose,buildPlays:(game,defense)=>window.TSO2SimEngine?.build(game,defense)||[],scenarioSnapshot:(game,plays,n)=>window.TSO2SimEngine?.snapshot(game,plays,n),sceneFrame,routePoint};
+window.TSO2Simulations={pageHTML,mount,dispose,buildPlays:(game,defense)=>window.TSO2RepresentativeReplay?.build(game,defense)||[],scenarioSnapshot:(game,plays,n)=>window.TSO2SimEngine?.snapshot(game,plays,n),sceneFrame,routePoint};
 })();
