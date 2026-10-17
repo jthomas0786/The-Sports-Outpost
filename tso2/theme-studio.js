@@ -15,30 +15,30 @@
  ];
  const categories=[
   {id:'palette',name:'Main colors',help:'The shared backgrounds, text and borders used on every page.',items:[
-   ['--bg','Page background','color','#070b12'],['--surface','Inset surfaces','color','#0c121d'],
-   ['--card','Cards & panels','color','#101824'],['--elev','Raised inputs','color','#151f2e'],
-   ['--text','Main text','color','#f5f8fc'],['--muted','Secondary text','color','#8e9bad'],
+   ['--bg','Page background','color','#05070a'],['--surface','Inset surfaces','color','#0c1016'],
+   ['--card','Cards & panels','color','#0a0d12'],['--elev','Raised inputs','color','#151b23'],
+   ['--text','Main text','color','#f7f7f2'],['--muted','Secondary text','color','#8e9bad'],
    ['--muted-2','Subtle text','color','#627087'],['--line','Dividers','color','#242c37'],
    ['--line-strong','Borders','color','#313b49']
   ]},
-  {id:'brand',name:'Brand & highlights',help:'One source of truth for blue analysis, orange Outpost and gold highlights.',items:[
-   ['--blue','Primary blue','color','#2d7fff'],['--blue-2','Blue highlights','color','#5aa0ff'],
+  {id:'brand',name:'Brand & highlights',help:'The approved orange/gold Outpost identity, plus separate model/data colors.',items:[
+   ['--blue','Model/data blue','color','#2d7fff'],['--blue-2','Blue highlights','color','#5aa0ff'],
    ['--outpost-orange','Outpost orange','color','#ff4d1c'],['--outpost-gold','Outpost gold','color','#ffd84d'],
    ['--outpost-violet','Violet accent','color','#7b5cff'],
    ['--green','Positive / available','color','#3fda9a'],['--yellow','Caution','color','#f1c85b'],
-   ['--red','Negative / warning','color','#ff657a'],['--tso-focus','Focus outline','color','#5aa0ff']
+   ['--red','Negative / warning','color','#ff657a'],['--tso-focus','Focus outline','color','#ffd84d']
   ]},
   {id:'navigation',name:'Sidebar & top navigation',help:'Applies to the TSO shell regardless of the selected sport or page.',items:[
    ['--tso-sidebar-bg','Sidebar background','color','#070a0f'],
-   ['--tso-header-bg','Top bar background','color','#070b12'],
-   ['--tso-nav-active','Selected menu item','color','#152338'],
+   ['--tso-header-bg','Top bar background','color','#070a0f'],
+   ['--tso-nav-active','Selected menu item','color','#24150f'],
    ['--tso-side-nav-width','Sidebar width','size','236px',170,360],
    ['--tso-header-height','Topbar height','size','68px',50,104],
    ['--tso-nav-item-height','Nav item height','size','52px',38,86]
   ]},
   {id:'buttons',name:'Buttons & actions',help:'The shared interactive controls across Games, Research, models and admin.',items:[
-   ['--tso-primary-btn','Primary button','color','#2d7fff'],
-   ['--tso-secondary-btn','Secondary button','color','#18263a'],
+   ['--tso-primary-btn','Primary button','color','#ff4d1c'],
+   ['--tso-secondary-btn','Secondary button','color','#151b23'],
    ['--tso-btn-text','Button text','color','#ffffff'],
    ['--tso-button-height','Button height','size','38px',28,70]
   ]},
