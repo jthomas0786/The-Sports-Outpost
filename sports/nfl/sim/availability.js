@@ -9,8 +9,9 @@ export function gameExclusions(game,availability){
  if(!list||list.season!==2026)return [];
  const code=normalizedTeam(list.team);
  if(code!==normalizedTeam(game?.home?.abbr)&&code!==normalizedTeam(game?.away?.abbr))return [];
- return (list.excluded||[]).filter(item=>item&&item.name&&['OUT','INJURED_RESERVE','COMMISSIONER_EXEMPT','INACTIVE','PUP','SUSPENDED'].includes(item.status))
-  .map(item=>({...item,team:code}));
+ return (list.excluded||[]).filter(item=>item&&item.name&&['OUT','INJURED_RESERVE','COMMISSIONER_EXEMPT','INACTIVE','PUP','SUSPENDED','WAIVED','FREE_AGENT','PRACTICE_SQUAD'].includes(item.status))
+  .map(item=>({...item,team:normalizedTeam(item.team||code)}))
+  .filter(item=>[game?.home?.abbr,game?.away?.abbr].some(t=>normalizedTeam(t)===item.team));
 }
 export function availabilityFilteredInputs(game,research,availability){
  const exclusions=gameExclusions(game,availability);
@@ -18,10 +19,10 @@ export function availabilityFilteredInputs(game,research,availability){
  const byKey=new Set(exclusions.map(p=>p.team+'|'+normalizedName(p.name)));
  const excluded=p=>byKey.has(normalizedTeam(p?.team)+'|'+normalizedName(p?.name));
  const unavailable=p=>({...p,active:false,availability:'OUT',injury:{...(p.injury||{}),status:'OUT'},rosterStatus:'OUT'});
- const gameWithStatus={...game,players:(game.players||[]).map(p=>excluded(p)?unavailable(p):p)};
+ const gameWithStatus={...game,players:(game.players||[]).filter(p=>!excluded(p))};
  // The auto pipeline calls this per game; do not mutate the shared weekly
  // research or erase a player from a future matchup.
- const researchWithStatus={...research,players:(research?.players||[]).map(p=>excluded(p)?unavailable(p):p)};
+ const researchWithStatus={...research,players:(research?.players||[]).filter(p=>!excluded(p))};
  return {game:gameWithStatus,research:researchWithStatus,exclusions};
 }
 export function excludeUnavailableResultPlayers(players=[],exclusions=[]){
