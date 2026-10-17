@@ -12,7 +12,16 @@ async function get(url){
  assert.equal(response.status,200,'Staging simulation endpoint HTTP '+response.status+' '+(doc.error||''));
  return doc;
 }
-const data=await get(base+'/api/tso-simulations-nfl');
+let data,lastError;
+for(let attempt=0;attempt<7;attempt++){
+ try{
+  data=await get(base+'/api/tso-simulations-nfl?auditQa='+attempt+'-'+Date.now());
+  if(String(data.modelValidation||'').startsWith('Verified'))break;
+  lastError=new Error('2026 injury-audited model pending: '+data.modelValidation);
+ }catch(error){lastError=error}
+ if(attempt<6)await new Promise(resolve=>setTimeout(resolve,20000));
+}
+if(!data||!String(data.modelValidation||'').startsWith('Verified'))throw lastError||new Error('Model not verified after retries');
 assert.equal(data.schemaVersion,2);
 assert.ok(Array.isArray(data.games)&&data.games.length>0,'NFL simulation games missing');
 assert.ok(String(data.modelValidation||'').startsWith('Verified'),'Selected game must come from validated 50K model: '+data.modelValidation);
