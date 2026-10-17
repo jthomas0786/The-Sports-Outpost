@@ -182,3 +182,19 @@
 .tso-sim-defensive-injuries span strong{color:#ffd09b}
 .tso-sim-defensive-injuries small{font-size:10px;color:#adc4b4}
 .tso-sim-defensive-injuries a{color:#8adbc0;text-decoration:underline}
+
+/* Audited pregame player availability, shown for both sides. */
+.tso-sim-injury-audit{margin:16px 0;padding:16px;background:#101b1a;border:1px solid rgba(98,221,173,.25);border-radius:12px}
+.tso-sim-injury-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.tso-sim-injury-head strong{font-size:12px;letter-spacing:.09em;color:#74e4bf}
+.tso-sim-injury-head span{font-size:11px;color:#a6bfba}
+.tso-sim-injury-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tso-sim-injury-grid article{background:rgba(0,0,0,.15);border:1px solid rgba(255,255,255,.08);padding:12px;border-radius:9px;min-width:0}
+.tso-sim-injury-grid h4{margin:0 0 9px;font-size:12px;letter-spacing:.025em;color:#e7f6f2}
+.tso-sim-injury-list{max-height:230px;overflow:auto;display:flex;flex-direction:column;gap:5px}
+.tso-sim-injury-row{display:flex;justify-content:space-between;align-items:center;gap:9px;padding:5px 0;border-top:1px solid rgba(255,255,255,.04);font-size:12px}
+.tso-sim-injury-row span{min-width:0;overflow-wrap:anywhere}.tso-sim-injury-row small{color:#93aea8}
+.tso-sim-injury-row b{font-size:10px;flex-shrink:0;white-space:nowrap}
+.tso-sim-injury-row .is-out{color:#ff9c86}.tso-sim-injury-row .is-questionable{color:#f1d283}
+.tso-sim-injury-audit>p{font-size:11px;color:#a2bcb5;line-height:1.55;margin:11px 0 0}
+@media(max-width:750px){.tso-sim-injury-grid{grid-template-columns:1fr}}
