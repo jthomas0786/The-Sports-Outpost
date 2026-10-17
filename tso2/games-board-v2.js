@@ -112,17 +112,18 @@ function row(label,away,home,prefer='high'){
 function formatPct01(v){return n(v)===null?'—':prob(v)}
 function teamStatsKey(g){return String(g.league||'')+'|'+canonical(g.away?.abbr)+'|'+canonical(g.home?.abbr);}
 function loadMatchupStats(game){
- if(game?.league!=='nfl')return;
+ if(!['nfl','nhl'].includes(game?.league))return;
  const key=teamStatsKey(game),old=state.teamStats.get(key);
  if(state.teamStatsPending.has(key)||old&&Date.now()-old.fetchedAt<15*60000)return;
  state.teamStatsPending.add(key);
  const away=encodeURIComponent(canonical(game.away?.abbr)),home=encodeURIComponent(canonical(game.home?.abbr));
- fetch('/api/tso2-matchup-team-stats?away='+away+'&home='+home,{headers:{accept:'application/json'},cache:'no-store'})
+ const season=game.league==='nhl'?20262027:2026;
+ const endpoint=game.league==='nhl'?'/api/tso2-nhl-team-stats':'/api/tso2-matchup-team-stats';
+ fetch(endpoint+'?away='+away+'&home='+home,{headers:{accept:'application/json'},cache:'no-store'})
   .then(async response=>{
    const doc=await response.json();
-   if(!response.ok||doc?.available!==true||doc.season!==2026)throw Error(doc?.error||'2026 team stats unavailable');
-   if(doc.teams?.[canonical(game.away?.abbr)]?.season!==2026||doc.teams?.[canonical(game.home?.abbr)]?.season!==2026)
-    throw Error('Team/season mismatch');
+   if(!response.ok||doc?.available!==true||doc.season!==season)throw Error(doc?.error||'Current-season team stats unavailable');
+   if(doc.teams?.[canonical(game.away?.abbr)]?.season!==season||doc.teams?.[canonical(game.home?.abbr)]?.season!==season)throw Error('Team/season mismatch');
    state.teamStats.set(key,{...doc,fetchedAt:Date.now()});
   }).catch(err=>state.teamStats.set(key,{available:false,error:String(err?.message||err),fetchedAt:Date.now()}))
   .finally(()=>{
@@ -153,17 +154,37 @@ function referenceComparisonRows(game){
   row(label,value(a,key,suffix),value(b,key,suffix),prefer)).join('')+'</div>'
   +'<p class="gb2-source-note">ESPN 2026 regular season · '+esc(String(doc.teams?.[aa]?.games||'—'))+' / '+esc(String(doc.teams?.[bb]?.games||'—'))+' completed team games. Blank fields are unavailable, not zero. Lower defensive allowances are better. Values are historic averages, not future-game projections.</p>';
 }
+
+/* NHL reference layout — only real 2026–27 official data, never illustrative
+ * attached-image values substituted across matchups. */
+function nhlComparisonRows(game){
+ const doc=state.teamStats.get(teamStatsKey(game));
+ if(!doc)return '<div class="gb2-source-note">Retrieving official NHL 2026–27 statistics…</div>';
+ if(!doc.available)return '<div class="gb2-source-note">NHL team stats unavailable: '+esc(doc.error||'data source offline')+'</div>';
+ const away=canonical(game.away?.abbr),home=canonical(game.home?.abbr);
+ const left=doc.teams?.[away]?.stats||{},right=doc.teams?.[home]?.stats||{};
+ const fields=[
+  ['Goals Per Game','goalsPerGame','high'],
+  ['Shots Per Game','shotsPerGame','high'],
+  ['Power Play %','powerPlayPct','high'],
+  ['Penalty Kill %','penaltyKillPct','high'],
+  ['Goals Against/G','goalsAgainstPerGame','low'],
+  ['Shots Allowed/G','shotsAllowedPerGame','low'],
+  ['Faceoff %','faceoffPct','high'],
+  ['Corsi %','corsiPct','high']
+ ];
+ const display=(data,key)=>n(data[key])===null?'—':round(data[key],2);
+ return '<div class="gb2-comparison-stats gb2-nhl-stats">'+fields.map(([label,key,better])=>row(label,display(left,key),display(right,key),better)).join('')+'</div>'
+  +'<p class="gb2-source-note">'+esc(doc.source||'NHL Stats REST')+' · '+esc(doc.teams?.[away]?.games||'—')+' / '+esc(doc.teams?.[home]?.games||'—')+' observed team games. Corsi % is unavailable without a verified shot-attempt source. Lower opponent goals/shots allowed is better.</p>';
+}
 function comparison(g,d){
- const record=x=>x?.record||'—';
- const unit=n(d.total);
- const m=d.model?.projected||{};
- return '<section class="gb2-panel gb2-matchup"><header><div><small>TEAM-BY-TEAM</small><h3>Matchup Breakdown</h3></div><span>'+esc(g.away?.abbr||'')+' <em>vs</em> '+esc(g.home?.abbr||'')+'</span></header>'
- +'<div class="gb2-compare-heading"><span>METRIC</span><b>'+esc(g.away?.abbr||'AWAY')+'</b><b>EDGE</b><b>'+esc(g.home?.abbr||'HOME')+'</b></div>'
- +(g.league==='nfl'?referenceComparisonRows(g):row('Season record',record(g.away),record(g.home)))
- +row(d.probSource==='TSO 50K MODEL'?'Model win probability':'Market-implied win chance',formatPct01(d.chances?.[0]),formatPct01(d.chances?.[1]))
- +row('Game spread',d.spreadAway===null?'—':prettyLine(d.spreadAway),d.spreadHome===null?'—':prettyLine(d.spreadHome),'low')
- +(n(m.awayScore)!==null&&n(m.homeScore)!==null?row('TSO model projected points',m.awayScore,m.homeScore):'')
- +'<p class="gb2-compare-foot">Win chances: '+esc(d.probSource)+'. Spread: '+esc(d.spreadSource)+'. Total: '+esc(d.totalSource)+'. Blank fields are not estimated.</p></section>';
+ const team=t=>logo(t)+'<b>'+esc(t?.abbr||'—')+'</b>';
+ return '<section class="gb2-panel gb2-matchup"><header><h3>Matchup Breakdown</h3><div class="gb2-matchup-identities">'+team(g.away)+'<em>@</em>'+team(g.home)+'</div></header>'
+ +'<div class="gb2-compare-heading"><span>STAT</span><b>'+esc(g.away?.abbr||'AWAY')+'</b><b>EDGE</b><b>'+esc(g.home?.abbr||'HOME')+'</b></div>'
+ +(g.league==='nfl'?referenceComparisonRows(g):g.league==='nhl'?nhlComparisonRows(g):
+ row('Season record',g.away?.record||'—',g.home?.record||'—')+
+ '<p class="gb2-source-note">Sport-specific official team comparison not yet verified; no sample figures are shown.</p>')
+ +'</section>';
 }
 function hero(g,d){
  const side=(t,ch,away)=>'<div class="gb2-hero-team">'+logo(t)+'<div><small>'+(away?'AWAY':'HOME')+'</small><h2>'+esc(t?.abbr||'—')+'</h2><span>'+esc(t?.name||'')+'</span><em>'+prob(ch)+' win chance</em></div></div>';
@@ -179,15 +200,12 @@ function dock(ctx){
 function detail(g,ctx){
  const d=info(g,ctx);
  const rows=old.matchedRows(ctx.rows||[],g);
- const markets=d.lines?(()=>{try{return ctx.renderMarkets(g,d.lines)}catch(e){return ''}})():'';
  const intel=window.TSO2Matchup;
  return '<div class="gb2-detail-top"><button type="button" class="gb2-back" data-gb2-back>← ALL GAMES</button>'
   +'<span>'+esc(g.league?.toUpperCase())+' · VERIFIED DATA · '+esc(status(g))+'</span>'
   +'<button type="button" class="gb2-live" data-gb2-live>PLAY BY PLAY & BOX SCORE ↗</button></div>'
   +hero(g,d)+comparison(g,d)
-  +'<section class="gb2-panel gb2-market-panel"><header><div><small>CURRENT VERIFIED BOOK PRICES</small><h3>Spread · Moneyline · Total</h3></div></header>'
-  +'<div class="edge2-markets">'+(markets||'<div class="gb2-empty">Current sportsbook prices are not available for this matchup. TSO will not invent lines or odds.</div>')+'</div></section>'
-  +'<section class="gb2-panel gb2-props"><div class="gb2-mi-host mi-embedded">'+(intel?intel.listing(g,rows):'<div class="gb2-empty">Verified player props are connecting…</div>')+'</div></section>'
+  +'<section class="gb2-panel gb2-props"><div class="gb2-mi-host mi-embedded">'+(intel?intel.listing(g,rows,{showScouting:false}):'<div class="gb2-empty">Verified player props are connecting…</div>')+'</div></section>'
   +'<div class="gb2-footnote">Prop candidates use existing TSO player-market grades and verified over/yes selections; no unders or fabricated recommendations. Open a player for recent form, matchup and opponent context.</div>';
 }
 function render(ctx){
