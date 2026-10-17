@@ -1313,7 +1313,7 @@ function playerMarkup(row,i){
    (row.model?.reason||row.model?.explanation||row.reason||
     'No source-backed matchup-specific model explanation is available for this exact selection.');
  const details=quick
-   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · CONTRIBUTING EVIDENCE</h4><p>Verified production, usage, matchup factors and '+(binary?'observed event results.':'exact-line game results.')+'</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
+   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · VERIFIED PLAYER & MATCHUP STATS</h4><p>The score comes only from verified player statistics, usage and opponent data. '+(binary?'Recent event results are shown separately.':'Exact-line outcomes are shown separately.')+'</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
    +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Loading verified recent form and matchup trends…</div>')+'</div>'
    +'<div class="mi-reason"><b>TSO ANALYSIS</b><p>'+esc(explain)+'</p></div>'
    +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No exact live sportsbook line.</small></div>':
@@ -2097,26 +2097,7 @@ function signalMini(row,data,doc){
  return '<span class="mi-signal-kicker">TSO PROP SIGNAL</span><span class="mi-signal-reading"><strong>'+s.score+'<small>/100</small></strong><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b></span><small class="mi-signal-evidence">'+esc(s.evidence)+'</small>'
   +'<div class="mi-signal-track'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>';
 }
-function nhlSignalPanel(s){
- const rows=(s.factors||nhlBench).map(f=>{
-  const ready=f.value!==null&&f.value!==undefined;
-  const score=n(f.factorScore),value=ready?amount(f.value):'—';
-  const size=score===null?0:Math.max(0,Math.min(100,Math.round(score)));
-  const direction=!ready?'—':Number(f.value)>=f.benchmark?'↑':'↓';
-  return '<div class="mi-nhl-factor-row'+(ready?'':' is-unavailable')+'">'
-   +'<span>'+esc(f.label)+'</span><strong>'+esc(value)+'</strong>'
-   +'<span>vs '+esc(amount(f.benchmark))+'</span>'
-   +'<div class="mi-nhl-impact-track" title="'+esc(f.note||'')+'"><span style="width:'+size+'%"></span></div>'
-   +'<span class="mi-nhl-direction">'+direction+'</span><small>'+f.weight+'%</small></div>';
- }).join('');
- return '<section class="mi-signal-detail mi-nhl-signal-detail"><div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS</h4></div>'
- +'<div class="mi-nhl-factor-table"><div class="mi-nhl-factor-labels"><span>STAT</span><span>VALUE</span><span>BENCH</span><span>IMPACT</span><span>DIR</span><span>WT</span></div>'
- +rows+'</div><div class="mi-nhl-signal-final"><span>Combined Signal</span><strong>'+(s.score===null?'UNRATED':s.score+'<small>/100</small>')+'</strong></div>'
- +'<p class="mi-evidence-note">'+esc(s.evidence||s.reason||'')+' · '+s.coverage+'% verified metric weight. Reference benchmarks come from the supplied framework, NOT asserted league averages. Missing xG/60 and Line GF% remain unavailable until a verified advanced source is connected. Opponent defensive allowances are per game (not /60). No sportsbook odds or exact-line probability is used.</p></section>';
-}
-// Shared NHL-style evidence layout for NFL, NBA and MLB. The six scored
-// contributors must agree exactly with signalScore()'s weighted factors.
-// Supporting observations are displayed separately and never counted twice.
+// A single data-first presentation replaces NHL and cross-sport generic factor panels.
 function sportSignalSupportingStats(row,data,doc){
  const sport=String(row.sport||'').toLowerCase(),market=String(row.market||''),p=data?.player||{};
  const entries=[];
@@ -2181,71 +2162,62 @@ function sportSignalSupportingStats(row,data,doc){
  }
  return entries.slice(0,10);
 }
-function sportSignalPanel(row,data,doc,s){
- const sport=String(row.sport||'').toUpperCase(),market=marketName(row);
- const factorDefs=[
-  ['Recent player production','L5 '+market+'/g','perGame'],
-  ['Extended historical form','L10 '+market+'/g','perGame'],
-  ['Meaningful output frequency','Output frequency','frequency'],
-  ['Verified role and opportunity','Role / usage','factor'],
-  ['Opponent matchup','Opponent matchup','factor'],
-  ['Independent model forecast','Verified forecast','factor']
- ];
- const weights={ 'Recent player production':48,'Extended historical form':26,
-  'Meaningful output frequency':12,'Verified role and opportunity':12,
-  'Opponent matchup':8,'Independent model forecast':20 };
- const observed=seriesFromResearch(data,row).slice(0,10),frequency=observed.filter(g=>g.value>=s.benchmark*.5).length;
- const rows=factorDefs.map(([name,label,mode])=>{
-  const factor=s.factors?.find(f=>f.label===name),impact=n(factor?.value);
-  let value='—',bench='—',direction='—';
-  if(factor){
-   if(mode==='perGame'){
-    const v=name==='Recent player production'?s.l5:s.l10;
-    value=amount(v);bench=amount(s.benchmark);
-    direction=n(v)!==null&&v>=s.benchmark?'↑':'↓';
-   }else if(mode==='frequency'){
-    value=frequency+'/'+observed.length;bench='≥ '+amount(s.benchmark*.5)+'/g';
-    direction=impact>=50?'↑':'↓';
-   }else value=Math.round(impact)+'/100';
-  }
-  return {label,weight:weights[name],value,bench,impact,
-   direction,note:factor?.note||'This source-backed scoring input is not available.'};
- });
- const extra=sportSignalSupportingStats(row,data,doc);
- const table=(items,scored)=>items.map(f=>{
-  const impact=n(f.impact);
-  return '<div class="mi-nhl-factor-row'+(impact===null&&scored?' is-unavailable':'')+'">'
-   +'<span title="'+esc(f.note||f.source||'')+'">'+esc(f.label)+'</span>'
-   +'<strong>'+esc(f.value??'—')+'</strong>'
-   +'<span>'+esc(f.bench??'—')+'</span>'
-   +'<div class="mi-nhl-impact-track" title="'+esc(f.note||f.source||'')+'">'+(impact===null?'':'<span style="width:'+clamp(impact,0,100).toFixed(1)+'%"></span>')+'</div>'
-   +'<span class="mi-nhl-direction">'+esc(f.direction||'—')+'</span><small>'+(scored?(100*f.weight/126).toFixed(1)+'%':'—')+'</small></div>';
- }).join('');
+// The TSO Signal and this single table share EXACTLY the same measured inputs.
+// A row marked CONTEXT is verified but adds no further weight (avoid double counting).
+function signalStatsPanel(row,data,doc,s){
+ const sport=String(row?.sport||'').toLowerCase(),nhl=sport==='nhl';
+ const fromNhl=(s.factors||[]).filter(f=>n(f.value)!==null&&n(f.factorScore)!==null).map(f=>({
+  label:f.label,value:f.value,benchmark:f.benchmark,impact:f.factorScore,
+  weight:f.weight,source:f.note||'NHL official 2026–27 stats',
+  directionMark:n(f.value)>=n(f.benchmark)?'↑':'↓',unit:''
+ }));
+ const metrics=nhl?fromNhl:s.metrics||[];
+ const extra=nhl?[]:sportSignalSupportingStats(row,data,doc).filter(x=>
+  !metrics.some(m=>m.label===x.label));
+ const format=(v,unit)=>n(v)===null?'—':
+   (unit==='slot'?'#':'')+amount(v)+(unit==='%'?'%':'');
+ const line=m=>{
+  const isScored=n(m.impact)!==null&&n(m.weight)!==null;
+  const scale=isScored?clamp(m.impact,0,100):null;
+  const title=m.source||'Verified player / matchup source';
+  return '<div class="mi-nhl-factor-row'+(isScored?'':' is-unavailable')+'">'
+   +'<span title="'+esc(title)+'">'+esc(m.label)+'</span>'
+   +'<strong>'+esc(format(m.value,m.unit))+'</strong>'
+   +'<span>'+esc(format(m.benchmark,m.unit))+'</span>'
+   +'<div class="mi-nhl-impact-track" title="'+esc(title)+'">'+(scale===null?'':'<span style="width:'+scale.toFixed(1)+'%"></span>')+'</div>'
+   +'<span class="mi-nhl-direction">'+(isScored?esc(m.directionMark||'—'):'—')+'</span>'
+   +'<small>'+(!isScored?'CONTEXT':(100*m.weight/(s.totalWeight||100)).toFixed(1)+'%')+'</small></div>';
+ };
+ const scoredLabels=new Set(metrics.map(x=>x.label));
+ const rest=extra.filter(x=>!scoredLabels.has(x.label)).map(x=>({
+  label:x.label,value:x.value,benchmark:x.bench,impact:null,weight:null,source:x.source,unit:x.unit,
+  directionMark:'—'
+ }));
  const heading='<div class="mi-nhl-factor-labels"><span>STAT</span><span>VALUE</span><span>BENCH</span><span>IMPACT</span><span>DIR</span><span>WT</span></div>';
- const stats=extra.length
-   ?'<div class="mi-nhl-signal-heading" style="margin-top:20px"><h4>'+esc(sport)+' · VERIFIED PLAYER & MATCHUP STATS</h4></div>'
-     +'<div class="mi-nhl-factor-table">'+heading+table(extra.map(x=>({
-       label:x.label,value:amount(x.value)+(x.unit==='%'?'%':x.unit==='/g'?'':''),
-       bench:x.bench===null?'—':amount(x.bench)+(x.unit==='%'?'%':''),
-       impact:null,direction:'—',note:x.source})),false)+'</div>'
-     +'<p class="mi-evidence-note">Supporting values are verified observations, not additional weighted scores. Hover a stat to see its source. Benchmarks appear only when a matching verified comparison exists.</p>'
-   :'<p class="mi-evidence-note">Additional player / matchup metrics are not available from the currently verified feeds.</p>';
- const coverage=n(s.coverage),total=n(s.totalWeight)||126;
- const title='<div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS · '+esc(sport)+'</h4></div>';
+ const scored=metrics.length?metrics.map(line).join(''):
+  '<p class="mi-muted">No verified player / opponent statistics are ready. TSO will not invent a score.</p>';
+ const context=rest.map(line).join('');
+ const weight=n(s.coverage)||0,total=n(s.totalWeight)||(nhl?100:0),percent=total?Math.round(100*weight/total):0;
+ const missing=nhl?(s.factors||[]).filter(x=>n(x.value)===null).map(x=>x.label):[];
+ const short=String(row?.market||'').toLowerCase();
+ const marketLabel=marketName(row);
  const summary=s.score===null?'UNRATED':s.score+'<small>/100</small>';
- const pending=s.score===null?'<p class="mi-evidence-note">'+esc(s.reason||'Source-backed player research is unavailable')+'. Contributing values cannot be graded without verified evidence.</p>':'';
- return '<section class="mi-signal-detail mi-nhl-signal-detail">'+title
-  +'<div class="mi-nhl-factor-table">'+heading+table(rows,true)+'</div>'
-  +'<div class="mi-nhl-signal-final"><span>Combined Signal</span><strong>'+summary+'</strong></div>'
-  +'<p class="mi-evidence-note">'+esc(s.tier||'UNRATED')+' · '+(n(s.games)||0)+' verified games · '+Math.round(100*(coverage||0)/total)+'% scored evidence coverage ('+(coverage||0)+'/'+total+' weight). Impact bars show factor scores, not game-winning probabilities. Missing evidence stays ungraded.</p>'
-  +pending+stats
-  +'<p class="mi-evidence-note">All reference values are TSO scoring benchmarks, not published league averages. Sportsbook odds and exact-line hit probabilities are excluded from the player / market grade.</p></section>';
+ const sourceNote=nhl?'2026–27 NHL official skater/team statistics':
+  'Exact player game logs, verified usage and opponent context where available';
+ const meta=(n(s.games)||0)+' observed games · '+percent+'% verified stat weight';
+ return '<section class="mi-signal-detail mi-nhl-signal-detail">'
+  +'<div class="mi-nhl-signal-heading"><h4>VERIFIED PLAYER &amp; MATCHUP STATS · '+esc(sport.toUpperCase())+'</h4></div>'
+  +'<div class="mi-nhl-signal-final"><span>TSO PROP SIGNAL · '+esc(marketLabel)+'</span><strong>'+summary+'</strong></div>'
+  +'<p class="mi-evidence-note">'+esc(s.tier||'UNRATED')+' · '+esc(meta)+' · '+esc(sourceNote)+'. The signal is calculated solely from scored, verified statistics in this table—not generic categories, odds or model probabilities.</p>'
+  +'<div class="mi-nhl-factor-table">'+heading+scored+context+'</div>'
+  +(s.reason?'<p class="mi-evidence-note">'+esc(s.reason)+'</p>':'')
+  +(missing.length?'<p class="mi-evidence-note">Not included (source unavailable): '+esc(missing.join(', '))+'.</p>':'')
+  +(rest.length?'<p class="mi-evidence-note">CONTEXT rows are verified supporting details, but are not independently weighted where they would double-count a scored statistic.</p>':'')
+  +'<p class="mi-evidence-note">BENCH values are declared TSO comparison references, not claimed league averages. IMPACT reflects each statistic relative to its reference, never the probability of a bet winning. Missing stats do not receive a score.</p>'
+  +'</section>';
 }
 function signalDetail(row,data,doc){
- const sport=String(row?.sport||'').toLowerCase();
- if(sport==='nhl')return nhlSignalPanel(signalScore(row,data,doc));
- const s=signalScore(row,data,doc);
- return sportSignalPanel(row,data,doc,s);
+ return signalStatsPanel(row,data,doc,signalScore(row,data,doc));
 }
 function updateSignalView(root,row,data){
  for(const el of root.querySelectorAll('[data-mi-signal]'))if(el.dataset.miSignal===key(row))el.innerHTML=signalMini(row,data,state.signalDoc);
