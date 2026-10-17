@@ -11,7 +11,7 @@ const number=(v,d=1)=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v)
 const pct=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?number(Number(v)*100,1)+'%':'—';
 const teamCode=v=>String(v||'').toUpperCase().replace('LAR','LA').replace('JAC','JAX');
 const teamLabel=t=>esc(t?.name||t?.abbr||'TEAM');
-const dateText=v=>{const d=new Date(v);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(d):'Schedule pending'};
+const dateText=v=>{if(!v)return 'Kickoff time unavailable';const d=new Date(v);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(d):'Schedule pending'};
 const seeded=value=>{let h=2166136261;for(const c of String(value||'')){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
 function randomGenerator(seed){let x=seed||1;return ()=>{x=(x+0x6D2B79F5)|0;let n=Math.imul(x^(x>>>15),1|x);n^=n+Math.imul(n^(n>>>7),61|n);return ((n^(n>>>14))>>>0)/4294967296};}
 function pageHTML(){
@@ -140,7 +140,7 @@ function replayHTML(game){
   +'<div class="tso-sim-stadium"><aside class="tso-sim-players">'+featured(game,game.away.abbr).map(playerPill).join('')+'<div class="tso-sim-side-name">'+esc(game.away.abbr)+' PLAYER PROJECTIONS</div></aside>'
   +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div></div>'
   +'<aside class="tso-sim-players">'+featured(game,game.home.abbr).map(playerPill).join('')+'<div class="tso-sim-side-name">'+esc(game.home.abbr)+' PLAYER PROJECTIONS</div></aside></div>'
-  +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-play>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
+  +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
   +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
@@ -209,7 +209,7 @@ function updatePlay(){
  write('[data-tsos-away]',event.beforeAway??event.scoreAway);write('[data-tsos-home]',event.beforeHome??event.scoreHome);
  write('[data-tsos-possession]',event.side+' POSSESSION · '+event.kind);
  write('[data-tsos-ball-holder]',event.kind==='PASS'?'BALL: '+event.passer+' → '+event.receiver:event.kind==='RUSH'?'BALL: '+event.passer+' → '+event.carrier:'BALL: '+event.side+' KICKING UNIT');
- write('[data-tsos-play]',event.commentary);
+ write('[data-tsos-commentary]',event.commentary);
  write('[data-tsos-seek-label]',(state.index+1)+' / '+state.plays.length);
  const seek=$(el,'[data-tsos-seek]');if(seek)seek.value=String(state.index);
  const control=$(el,'[data-tsos-play]');if(control)control.textContent=state.playing?'Ⅱ PAUSE':'▶ PLAY';
