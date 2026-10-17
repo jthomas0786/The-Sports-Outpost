@@ -3,7 +3,7 @@
   "source": "espn-public",
   "sport": "MMA",
   "league": "UFC",
-  "generatedAt": "2026-10-17T19:28:19.228Z",
+  "generatedAt": "2026-10-17T21:35:01.954Z",
   "dates": [
     "20261016",
     "20261017",
@@ -178,9 +178,9 @@
       "event": "UFC Fight Night: Buckley vs. Malott",
       "weightClass": "W Bantamweight",
       "startTime": "2026-10-17T21:00Z",
-      "state": "pre",
+      "state": "in",
       "final": false,
-      "statusDetail": "10/17 - 5:00 PM EDT",
+      "statusDetail": "Walkouts",
       "round": 0,
       "clock": "-",
       "regulationRounds": 3,
@@ -340,17 +340,17 @@
       "event": "UFC Fight Night: Buckley vs. Malott",
       "weightClass": "Bantamweight",
       "startTime": "2026-10-17T21:00Z",
-      "state": "pre",
-      "final": false,
-      "statusDetail": "10/17 - 5:00 PM EDT",
-      "round": 0,
-      "clock": "-",
+      "state": "post",
+      "final": true,
+      "statusDetail": "Final",
+      "round": 3,
+      "clock": "4:19",
       "regulationRounds": 3,
       "fighters": [
         {
           "id": "5044361",
           "name": "SuYoung You",
-          "winner": false,
+          "winner": true,
           "record": "16-4-0"
         },
         {
@@ -824,8 +824,8 @@
   "meta": {
     "eventCount": 1,
     "fightCount": 30,
-    "liveCount": 0,
-    "finalCount": 0,
-    "preCount": 13
+    "liveCount": 1,
+    "finalCount": 1,
+    "preCount": 11
   }
 }
