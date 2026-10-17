@@ -10,6 +10,8 @@ on:
       - 'tso2/index.html'
       - 'tso2/app.js'
       - 'tso2/games-board-v2.js'
+      - 'tso2/theme-system.css'
+      - 'tso2/theme-studio.js'
       - 'scripts/tso2-games-team-stats-api-selftest.mjs'
       - 'tso2/games-board-v2.css'
       - '.github/workflows/tso2-decision-browser-qa.yml'
@@ -34,13 +36,15 @@ jobs:
       - name: Verify Games Board script parses
         run: |
           node --check tso2/games-board-v2.js
+          node --check tso2/theme-studio.js
+          node tso2/theme-studio-selftest.mjs
           node --check tso2/decision-dashboard-browser-qa.cjs
       - name: Diagnose staged decision assets before browser setup
         run: |
           set -euo pipefail
           base="https://staging.thesportsoutpost.com"
           bust="$(date +%s)"
-          for name in index.html app.js pages.js styles.css games-board-v2.js games-board-v2.css; do
+          for name in index.html app.js pages.js styles.css games-board-v2.js games-board-v2.css theme-system.css theme-studio.js; do
             file="/tmp/tso2-${name//\//_}"
             status="$(curl --retry 2 --connect-timeout 10 --max-time 35 -sSL -H 'Cache-Control: no-cache' -o "$file" -w '%{http_code}' "$base/$name?qa=$bust")"
             echo "$name returned HTTP $status; $(wc -c <"$file") bytes; content prefix: $(head -c 55 "$file")"
@@ -52,6 +56,8 @@ jobs:
           grep -Fq '.decision-game-columns' /tmp/tso2-styles.css || { echo "::error::Staging styles.css lacks bundled decision theme"; exit 1; }
           grep -Fq 'TSO2GamesBoardV2' /tmp/tso2-games-board-v2.js || { echo "::error::Games Board JS asset unavailable"; exit 1; }
           grep -Fq '.gb2-card' /tmp/tso2-games-board-v2.css || { echo "::error::Games Board CSS asset unavailable"; exit 1; }
+          grep -Fq '.tso-theme-studio' /tmp/tso2-theme-system.css || { echo "::error::Canonical theme CSS unavailable"; exit 1; }
+          grep -Fq 'TSO2ThemeStudio' /tmp/tso2-theme-studio.js || { echo "::error::Owner theme dashboard JS unavailable"; exit 1; }
           echo "Current decision dashboard assets are present on staging."
       - name: Install temporary Chromium automation
         run: npm install --no-save --no-audit --no-fund playwright@1.55.0
