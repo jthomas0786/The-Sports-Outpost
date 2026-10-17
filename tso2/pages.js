@@ -1214,7 +1214,7 @@ function playerMarketRows(rows){
  }
  return [...selected.values()];
 }
-const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalGame:null,signalDoc:null,defense2026:null,ranking:null,nhlRates:new Map(),nhlPending:new Map(),nhlTeamDoc:null,nhlTeamGame:''};
+const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalGame:null,signalDoc:null,defense2026:null,ranking:null,nhlRates:new Map(),nhlPending:new Map(),nhlResolvedTeams:new Map(),nhlTeamDoc:null,nhlTeamGame:''};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
  if(row?.selection)return String(row.selection);
@@ -1874,7 +1874,7 @@ const nhlBench=[
  {label:'Opp GA/G',key:'opponentGoalsAgainstPerGame',benchmark:2.8,weight:12},
  {label:'Opp SA/G',key:'opponentShotsAgainstPerGame',benchmark:30,weight:8}
 ];
-const nhlNorm=value=>({NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL'}[String(value||'').toUpperCase()]||String(value||'').toUpperCase());
+const nhlNorm=value=>({NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL',UTAH:'UTA',UTM:'UTA',UTH:'UTA'}[String(value||'').toUpperCase()]||String(value||'').toUpperCase());
 function nhlPlayerId(row,data){
  // ESPN player IDs may also have seven digits. Only use explicitly sourced NHL IDs.
  const values=[row?.nhlPlayerId,data?.player?.nhlId,data?.player?.nhlPlayerId];
@@ -1882,6 +1882,11 @@ function nhlPlayerId(row,data){
 }
 // Sportsbook player rows frequently omit the team. The ESPN player research
 // payload has a roster-verified team for that exact player ID; use it instead.
+function nhlGamePlayerKey(row){
+ const away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
+ const clean=String(row?.player||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+ return away+'|'+home+'|'+clean;
+}
 function verifiedNhlTeam(row,data){
  const away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
  const teams=[away,home].filter(Boolean);
@@ -1894,7 +1899,9 @@ function verifiedNhlTeam(row,data){
   const samePlayer=nhlCleanName(data.player?.name)===nhlCleanName(row?.player);
   if(sameId||samePlayer)return research;
  }
- return listed&&teams.includes(listed)?listed:'';
+ if(listed&&teams.includes(listed))return listed;
+ const inferred=nhlNorm(state.nhlResolvedTeams.get(nhlGamePlayerKey(row)));
+ return teams.includes(inferred)?inferred:'';
 }
 function nhlOpponent(row,data){
  const team=verifiedNhlTeam(row,data),away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
@@ -1911,25 +1918,34 @@ const nhlCleanName=value=>String(value||'').toLowerCase().normalize('NFKD').repl
 async function verifiedNhlRates(row,data){
  const team=verifiedNhlTeam(row,data),id=nhlPlayerId(row,data);
  const name=String(row?.player||data?.player?.name||'').trim();
- if(!name||!/^[A-Z]{2,3}$/.test(team))return null;
+ const away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
+ if(!name||!away||!home||(team&&![away,home].includes(team)))return null;
  const k=nhlIdentityKey({...row,player:name},data),now=Date.now();
  const checked=nhlRateChecked.get(k);
  if(checked&&now-checked<(state.nhlRates.get(k)?600000:15000))return state.nhlRates.get(k)||null;
  if(state.nhlPending.has(k))return state.nhlPending.get(k);
  const task=(async()=>{
   // Resolve an athlete by team and full name. The raw game-feed ID is from ESPN.
-  const params=new URLSearchParams({team,name});
+  const params=new URLSearchParams({name,away,home});
+  if(team)params.set('team',team);
   if(id)params.set('playerId',id);
   const response=await fetch('/api/tso2-nhl-player-rates?'+params.toString(),{cache:'no-store',headers:{accept:'application/json'}});
   if(!response.ok)return null;
   const doc=await response.json();
   if(doc?.available!==true||Number(doc.season)!==20262027||!/^\d{7}$/.test(String(doc.playerId||''))||
-   nhlNorm(doc.team)!==team||n(doc.games)===null||n(doc.games)<1)return null;
+   ![away,home].includes(nhlNorm(doc.team))||(team&&nhlNorm(doc.team)!==team)||n(doc.games)===null||n(doc.games)<1)return null;
   const returned=doc.playerName||doc.name||doc.displayName;
   if(returned&&nhlCleanName(returned)!==nhlCleanName(name))return null;
   if(id&&String(doc.playerId)!==id)return null;
   return doc;
- })().catch(()=>null).then(doc=>{nhlRateChecked.set(k,Date.now());state.nhlRates.set(k,doc);return doc;})
+ })().catch(()=>null).then(doc=>{
+   nhlRateChecked.set(k,Date.now());state.nhlRates.set(k,doc);
+   if(doc){
+    state.nhlResolvedTeams.set(nhlGamePlayerKey({...row,player:name}),nhlNorm(doc.team));
+    state.nhlRates.set(nhlIdentityKey({...row,player:name},data),doc);
+   }
+   return doc;
+  })
  .finally(()=>state.nhlPending.delete(k));
  state.nhlPending.set(k,task);
  return task;
@@ -1981,8 +1997,9 @@ function nhlSignalScore(row,data){
    note:valid?(f.key.startsWith('opponent')?opponent+' · 2026–27 official team stats':'NHL 2026–27 official skater report'):'NO VERIFIED SOURCE'};
  });
  const available=factors.filter(f=>f.factorScore!==null),coverage=available.reduce((sum,f)=>sum+f.weight,0);
- if(coverage<60||!sameTeam)return {
-   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!team?'NHL TEAM IDENTITY PENDING':!sameTeam?'CURRENT-SEASON NHL PLAYER DATA PENDING':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
+ const playerCore=sameTeam&&n(stats.goalsPer60)!==null&&n(stats.shotsPer60)!==null;
+ if(coverage<35||!playerCore)return {
+   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!team?'NHL TEAM IDENTITY PENDING':!sameTeam?'CURRENT-SEASON NHL PLAYER DATA PENDING':!playerCore?'Verified goal and shot rates unavailable':'Only '+coverage+'% of NHL stat weight verified (need 35% with player goal and shot rates)',
    factors,coverage,games:rate?.games||0,evidence:'INCOMPLETE · NHL 2026–27'
  };
  const raw=available.reduce((sum,f)=>sum+f.factorScore*f.weight,0)/coverage;
@@ -2274,7 +2291,7 @@ function hydrateSignals(root,ctx){
     let data;
     try{data=await getResearch(group.find(row=>row.playerId&&row.team)||group.find(row=>row.playerId)||group[0],ctx);}
     catch(error){if(ctx.game?.league!=='nhl')throw error;data={available:false,reason:'Detailed NHL game logs temporarily unavailable'};}
-    if(ctx.game?.league==='nhl')await Promise.all([verifiedNhlRates(group[0],data),verifiedNhlTeams(ctx.game)]);
+    if(ctx.game?.league==='nhl')await Promise.all([verifiedNhlRates(group.find(row=>row.team)||group[0],data),verifiedNhlTeams(ctx.game)]);
     if(state.ranking!==job)return;
     for(const row of group){
      state.cached.set(key(row),data);

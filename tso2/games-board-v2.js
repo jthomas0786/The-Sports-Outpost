@@ -112,13 +112,15 @@ function row(label,away,home,prefer='high'){
 function formatPct01(v){return n(v)===null?'—':prob(v)}
 function teamCode(league,abbr){
  const code=canonical(abbr);
- return league==='nhl'?({NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL'}[code]||code):code;
+ return league==='nhl'?({NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL',UTAH:'UTA',UTM:'UTA',UTH:'UTA'}[code]||code):code;
 }
 function teamStatsKey(g){return String(g.league||'')+'|'+teamCode(g.league,g.away?.abbr)+'|'+teamCode(g.league,g.home?.abbr);}
 function loadMatchupStats(game){
  if(!['nfl','nhl'].includes(game?.league))return;
  const key=teamStatsKey(game),old=state.teamStats.get(key);
- if(state.teamStatsPending.has(key)||old&&Date.now()-old.fetchedAt<15*60000)return;
+ // Transient failures retry quickly; verified current-season data has a longer TTL.
+ const ttl=old?.available?5*60000:20000;
+ if(state.teamStatsPending.has(key)||old&&Date.now()-(old.fetchedAt||0)<ttl)return;
  state.teamStatsPending.add(key);
  const away=encodeURIComponent(teamCode(game.league,game.away?.abbr)),home=encodeURIComponent(teamCode(game.league,game.home?.abbr));
  const season=game.league==='nhl'?20262027:2026;
@@ -126,8 +128,8 @@ function loadMatchupStats(game){
  fetch(endpoint+'?away='+away+'&home='+home,{headers:{accept:'application/json'},cache:'no-store'})
   .then(async response=>{
    const doc=await response.json();
-   if(!response.ok||doc?.available!==true||doc.season!==season)throw Error(doc?.error||'Current-season team stats unavailable');
-   if(doc.teams?.[teamCode(game.league,game.away?.abbr)]?.season!==season||doc.teams?.[teamCode(game.league,game.home?.abbr)]?.season!==season)throw Error('Team/season mismatch');
+   if(!response.ok||doc?.available!==true||Number(doc.season)!==season)throw Error(doc?.error||'Current-season team stats unavailable');
+   if(Number(doc.teams?.[teamCode(game.league,game.away?.abbr)]?.season)!==season||Number(doc.teams?.[teamCode(game.league,game.home?.abbr)]?.season)!==season)throw Error('Team/season mismatch');
    state.teamStats.set(key,{...doc,fetchedAt:Date.now()});
   }).catch(err=>state.teamStats.set(key,{available:false,error:String(err?.message||err),fetchedAt:Date.now()}))
   .finally(()=>{
@@ -164,7 +166,7 @@ function referenceComparisonRows(game){
 function nhlComparisonRows(game){
  const doc=state.teamStats.get(teamStatsKey(game));
  if(!doc)return '<div class="gb2-source-note">Retrieving official NHL 2026–27 statistics…</div>';
- if(!doc.available)return '<div class="gb2-source-note">NHL team stats unavailable: '+esc(doc.error||'data source offline')+'</div>';
+ if(!doc.available)return '<div class="gb2-source-note">NHL current-season matchup data temporarily unavailable: '+esc(doc.error||'data source offline')+'. Retrying automatically.</div>';
  const away=teamCode(game.league,game.away?.abbr),home=teamCode(game.league,game.home?.abbr);
  const left=doc.teams?.[away]?.stats||{},right=doc.teams?.[home]?.stats||{};
  const fields=[
@@ -234,7 +236,7 @@ function render(ctx){
   loadMatchupStats(g);
   const sig=JSON.stringify([g.id,g.league,g.startTime,g.away?.abbr,g.home?.abbr,
    g.away?.record,g.home?.record,marketFor(g,ctx),d.model?.generatedAt,
-   state.teamStats.get(teamStatsKey(g))?.checkedAt||state.teamStats.get(teamStatsKey(g))?.error||'',
+   state.teamStats.get(teamStatsKey(g))?.checkedAt||state.teamStats.get(teamStatsKey(g))?.fetchedAt||state.teamStats.get(teamStatsKey(g))?.error||'',
    rows.map(x=>[x.key,x.price,x.line,x.model?.probabilityPct,x.model?.edgePct])]);
   if(sig!==state.detailSignature){
    view.innerHTML=detail(g,ctx);
