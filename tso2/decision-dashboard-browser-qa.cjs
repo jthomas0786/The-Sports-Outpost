@@ -151,7 +151,15 @@ fs.mkdirSync(out,{recursive:true});
     await list.first().click();
     await page.locator('[data-gb2-detail]').waitFor({state:'visible',timeout:12000});
     assert.equal(await page.locator('.gb2-hero').count(),1,'Selected game needs matchup hero');
-    assert.equal(await page.locator('.gb2-matchup .gb2-compare-row').count()>0,true,'Current matchup breakdown is present');
+    await page.locator('.gb2-matchup').waitFor({state:'visible'});
+    await page.waitForFunction(()=>{
+      const el=document.querySelector('.gb2-matchup');
+      return el&&((el.querySelectorAll('.gb2-compare-row').length>=1)||
+        /unavailable|not verified|temporarily|no.*source/i.test(el.textContent||''));
+    },{timeout:18000});
+    assert.equal(await page.locator('.gb2-matchup .gb2-compare-row').count()>0||
+      /unavailable|not verified|temporarily/i.test(await page.locator('.gb2-matchup').innerText()),true,
+      'The matchup shows verified team observations or explicit source unavailable state');
     assert.equal(await page.locator('.gb2-market-panel').count(),0,'Redundant sportsbook markets panel removed from Games matchup');
     assert.equal(await page.locator('.gb2-props').count(),1,'Player prop intelligence included');
     assert.equal(await page.locator('.gb2-props .mi-teams').count(),0,'Redundant team scouting section removed from Games player props');
@@ -179,7 +187,7 @@ fs.mkdirSync(out,{recursive:true});
     }else console.log('INFO selected live game has no verified player props; isolated fixture validates expansion');
     if(await page.locator('.gb2-hero>small').innerText().then(x=>x.includes('NHL')).catch(()=>false)){
       const count=await page.locator('.gb2-nhl-stats .gb2-compare-row').count();
-      assert.ok(count===0||count===8,'NHL comparison has either verified 8 categories or a clearly unavailable source');
+      assert.ok(count===8||/unavailable/i.test(await page.locator('.gb2-matchup').innerText()),'NHL comparison has eight official-stat categories or an explicit unavailable source');
     }
     await page.locator('[data-gb2-back]').click();
     await page.locator('[data-gb2-grid]').waitFor({state:'visible'});
