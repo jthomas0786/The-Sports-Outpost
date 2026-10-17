@@ -211,6 +211,48 @@ fs.mkdirSync(out,{recursive:true});
   await fixture.screenshot({path:path.join(out,'player-accordion-qa-fixture.png'),fullPage:true,animations:'disabled'});
   console.log('PASS isolated mock-only browser: expand player, show exact L5 hit history and line movement, add to persistent betslip callback');
   await fixture.close();
+  // Isolated owner UI fixture. NO real owner JWT and NO database writes;
+  // verify that preview, CSS inspector and publish event work together.
+  const themeQA=await ctx.newPage();
+  themeQA.on('dialog',dialog=>dialog.accept());
+  await themeQA.setContent('<!doctype html><html><head></head><body style="margin:0"><section data-theme-studio class="tso-theme-studio"></section></body></html>');
+  await themeQA.addStyleTag({content:fs.readFileSync('tso2/theme-system.css','utf8')});
+  await themeQA.evaluate(()=>{
+    window.__themeSaved=null;
+    window.TSO_AUTH={
+      status:'authenticated',
+      user:{isOwner:true,id:'theme-qa-only'},
+      async rpc(name,args){
+        if(name==='tso2_get_published_theme')return {tokens:{},customCss:'',revision:0};
+        if(name==='tso2_theme_owner_history')return [];
+        if(name==='tso2_save_published_theme'){
+          window.__themeSaved=args;
+          return {tokens:args.p_tokens,customCss:args.p_custom_css,revision:1};
+        }
+        throw Error('Unexpected mocked owner RPC: '+name);
+      }
+    };
+  });
+  await themeQA.addScriptTag({content:fs.readFileSync('tso2/theme-studio.js','utf8')});
+  await themeQA.evaluate(()=>window.TSO2ThemeStudio.mount());
+  await themeQA.locator('[data-theme-controls] input[data-theme-token="--blue"]').waitFor();
+  await themeQA.screenshot({path:path.join(out,'owner-theme-editor-desktop.png'),fullPage:true,animations:'disabled'});
+  assert.ok(await themeQA.locator('.tso-theme-category').count()>=6,'Visual editor contains six design categories');
+  await themeQA.locator('[data-theme-swatch-input="--blue"]').fill('#9a51ff');
+  assert.equal(await themeQA.evaluate(()=>getComputedStyle(document.documentElement).getPropertyValue('--blue').trim()),'#9a51ff','Live CSS preview changes the actual document design token');
+  await themeQA.locator('[data-theme-tab="advanced"]').click();
+  await themeQA.locator('[data-theme-css]').fill('.test-theme-preview{border-color:var(--blue)}');
+  await themeQA.locator('[data-theme-rule-search]').fill('.tso-theme-preview');
+  assert.ok(await themeQA.locator('[data-theme-rule-results] article').count()>0,'Advanced CSS inspector exposes actual stylesheet selectors');
+  await themeQA.locator('[data-theme-publish]').click();
+  await themeQA.waitForFunction(()=>Boolean(window.__themeSaved));
+  const saved=await themeQA.evaluate(()=>window.__themeSaved);
+  assert.equal(saved.p_tokens['--blue'],'#9a51ff','Publish sends previewed design tokens');
+  assert.match(saved.p_custom_css,/test-theme-preview/,'Publish includes validated CSS overrides');
+  assert.equal(saved.p_expected_revision,0,'Publish includes optimistic revision locking');
+  await themeQA.screenshot({path:path.join(out,'owner-theme-css-inspector.png'),fullPage:true,animations:'disabled'});
+  console.log('PASS mocked owner Theme/CSS Dashboard: live preview, six panels, real rule search and versioned publish');
+  await themeQA.close();
   if(errors.length)console.log('BROWSER JS ERRORS: '+JSON.stringify(errors.slice(0,5)));
   assert.equal(errors.filter(e=>/decision-dashboard|renderDecisionDashboard|renderDecisionGames|TSO2Decision/.test(e)).length,0,'No decision dashboard JS errors');
   console.log('STAGING DECISION EXPERIENCE BROWSER QA: PASS');
