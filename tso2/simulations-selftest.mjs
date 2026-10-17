@@ -16,10 +16,16 @@ const players=[
  {name:'CeeDee Lamb',team:'DAL',position:'WR',depthRank:1,usage:{games:4,targetsPerGame:11.75}},
  {name:'George Pickens',team:'DAL',position:'WR',depthRank:2,usage:{games:4,targetsPerGame:7}},
  {name:'Jake Ferguson',team:'DAL',position:'TE',depthRank:1,usage:{games:4,targetsPerGame:5}},
+ {name:'Fixture Dallas WR3',team:'DAL',position:'WR',depthRank:3,usage:{games:4,targetsPerGame:5}},
+ {name:'Fixture Dallas TE2',team:'DAL',position:'TE',depthRank:2,usage:{games:4,targetsPerGame:3}},
  {name:'Jordan Love',team:'GB',position:'QB',depthRank:1,passYds:250},
  {name:'Christian Watson',team:'GB',position:'WR',depthRank:1,usage:{games:4,targetsPerGame:9}},
  {name:'MarShawn Lloyd',team:'GB',position:'RB',depthRank:1,usage:{games:4,carriesPerGame:16}},
- {name:'Tucker Kraft',team:'GB',position:'TE',depthRank:1,usage:{games:4,targetsPerGame:5}}
+ {name:'Tucker Kraft',team:'GB',position:'TE',depthRank:1,usage:{games:4,targetsPerGame:5}},
+ {name:'Fixture Green Bay RB2',team:'GB',position:'RB',depthRank:2,usage:{games:4,carriesPerGame:7}},
+ {name:'Fixture Green Bay WR2',team:'GB',position:'WR',depthRank:2,usage:{games:4,targetsPerGame:7}},
+ {name:'Fixture Green Bay WR3',team:'GB',position:'WR',depthRank:3,usage:{games:4,targetsPerGame:5}},
+ {name:'Fixture Green Bay TE2',team:'GB',position:'TE',depthRank:2,usage:{games:4,targetsPerGame:3}}
 ];
 const iterations=50000,away=new Float32Array(iterations),home=new Float32Array(iterations),carries=new Float32Array(iterations),targets=new Float32Array(iterations);
 for(let i=0;i<iterations;i++){away[i]=i%29===0?6:17+i%16;home[i]=18+i%16;carries[i]=12+i%10;targets[i]=4+i%10}
@@ -34,8 +40,21 @@ assert.equal(pick.awayScore,away[pick.sampledIndex]);
 assert.equal(pick.homeScore,home[pick.sampledIndex]);
 assert.ok(pick.awayScore>12,'Do not select 6-point outlier to represent a 24-point offense');
 assert.ok(Math.abs(pick.awayScore-pick.meanAway)<7,'Sampled score must be reasonably central');
+// The selection-index test above uses tiny sample arrays. The replay fixture
+// needs full realistic snap quotas because the animation now enforces them.
+const replayPlayers=players.filter(p=>p.depthRank!==2||p.position!=='QB').map(p=>{
+ const pos=p.position,rank=p.depthRank;
+ const carries=pos==='RB'?(rank===1?19:7):pos==='QB'?3:pos==='FB'?0:0;
+ const targets=pos==='WR'?(rank===1?10:rank===2?7:5):pos==='TE'?(rank===1?6:3):pos==='RB'?3:0;
+ return {team:p.team,name:p.name,position:pos,stats:{
+  attempts:pos==='QB'?33:0,completions:pos==='QB'?24:0,passYds:pos==='QB'?245:0,
+  carries,targets,rushYds:carries*4.4,recYds:targets*7,
+  rushTds:pos==='RB'&&rank===1?1:0,
+  recTds:(pos==='WR'&&rank<=2||pos==='TE'&&rank===1)?1:0
+ }};
+});
 const game={gameId:'401873007',away:{abbr:'DAL'},home:{abbr:'GB'},players,
- representativeWorld:{...pick,awayScore:24,homeScore:25,sampledIndex:pick.sampledIndex}};
+ representativeWorld:{...pick,players:replayPlayers,awayScore:24,homeScore:25,sampledIndex:pick.sampledIndex}};
 const events=model.build(game,null);
 assert.ok(events.length>=75,'Reconstructed drives require plausible play count');
 const box=stats.snapshot(game,events,events.length);
