@@ -3,7 +3,7 @@
  * scenario choreography, NOT optical tracking or replay of a sampled world. */
 (() => {
 'use strict';
-const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0};
+const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0,finished:false};
 const $=(root,selector)=>root?.querySelector(selector);
 const $$=(root,selector)=>[...(root?.querySelectorAll(selector)||[])];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -43,7 +43,7 @@ function selectedPlayer(game,team,type,rng){
  for(const item of weighted){r-=item.w;if(r<=0)return item.p}
  return playerOf(game,team,type==='rush'?'rb':'rec')||null;
 }
-function buildPlays(game){
+function oldIllustrativeBuildPlays(game){
  const rng=randomGenerator(seeded(game.gameId+'|tso-sim-football-routes-v2'));
  const plays=[];let away=0,home=0,sequence=0;
  const teams=[game.away.abbr,game.home.abbr];
@@ -145,9 +145,10 @@ function replayHTML(game){
   +'<span class="tso-sim-scoreteam"><b>'+esc(game.away.abbr)+'</b><strong data-tsos-away>0</strong></span>'
   +'<div class="tso-sim-scoreclock"><b data-tsos-quarter>Q1</b><strong data-tsos-clock>15:00</strong><small data-tsos-possession>ILLUSTRATIVE REPLAY</small></div>'
   +'<span class="tso-sim-scoreteam is-home"><strong data-tsos-home>0</strong><b>'+esc(game.home.abbr)+'</b></span></div>'
-  +'<div class="tso-sim-stadium"><aside class="tso-sim-players">'+featured(game,game.away.abbr).map(p=>playerPill(p,game)).join('')+'<div class="tso-sim-side-name">'+esc(game.away.abbr)+' PLAYER PROJECTIONS</div></aside>'
+  +'<div class="tso-sim-stadium"><aside class="tso-sim-players" data-tsos-panel="'+esc(game.away.abbr)+'"></aside>'
   +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div></div>'
-  +'<aside class="tso-sim-players">'+featured(game,game.home.abbr).map(p=>playerPill(p,game)).join('')+'<div class="tso-sim-side-name">'+esc(game.home.abbr)+' PLAYER PROJECTIONS</div></aside></div>'
+  +'<aside class="tso-sim-players" data-tsos-panel="'+esc(game.home.abbr)+'"></aside></div>'
+  +'<div class="tso-sim-tendency" data-tsos-defense-style>Defensive coverage scheme unverified · 2026 position allowances used when available</div>'
   +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
   +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
@@ -185,8 +186,8 @@ function paintPage(){
  if(!state.game||!games.some(g=>g.gameId===state.game.gameId))
   state.game=games.find(g=>g.kickoff&&Date.parse(g.kickoff)>Date.now()-12*3600000)||games[0];
  const ready=state.game.availability?.rosterVerified===true&&Array.isArray(state.game.players)&&state.game.players.some(p=>p.position==='QB');
- state.plays=ready?buildPlays(state.game):[];
- state.index=0;state.playing=false;state.startedAt=0;
+ state.plays=ready?(window.TSO2SimEngine?.build?.(state.game,state.defense)||[]):[];
+ state.index=0;state.playing=false;state.startedAt=0;state.finished=false;
  main.innerHTML='<div class="tso-sim-layout"><aside class="tso-sim-matchups"><div class="tso-sim-matchups-head"><span>2026 NFL SLATE</span><b>'+games.length+' GAMES</b></div>'
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
@@ -206,9 +207,9 @@ function paintPage(){
  }));
  if(!ready)return;
  $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
- $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.frame=0;updatePlay();draw(0)});
+ $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.finished=false;state.frame=0;updatePlay();draw(0)});
  $(main,'[data-tsos-speed]')?.addEventListener('change',e=>{state.speed=Number(e.target.value)||1});
- $(main,'[data-tsos-seek]')?.addEventListener('input',e=>{stop();state.index=Math.max(0,Math.min(state.plays.length-1,Number(e.target.value)||0));state.frame=0;updatePlay();draw(1)});
+ $(main,'[data-tsos-seek]')?.addEventListener('input',e=>{stop();state.finished=false;state.index=Math.max(0,Math.min(state.plays.length-1,Number(e.target.value)||0));state.frame=0;updatePlay();draw(0)});
  updatePlay();draw(0);
 }
 
@@ -224,41 +225,36 @@ function showQuarterCard(event){
  },1200/Math.max(1,state.speed));
 }
 function scenarioFinal(){
- const game=state.game,plays=state.plays,end=plays[plays.length-1];
- if(!game||!end)return '';
- const sides=[game.away.abbr,game.home.abbr];
- const figures=sides.map(team=>{
-  const events=plays.filter(p=>p.side===team);
-  const passes=events.filter(p=>p.kind==='PASS');
-  const rushes=events.filter(p=>p.kind==='RUSH');
-  const totals={passes:passes.length,completed:passes.filter(p=>p.gain>0).length,
-    passing:passes.reduce((sum,p)=>sum+Math.max(0,p.gain),0),
-    rushing:rushes.reduce((sum,p)=>sum+p.gain,0),
-    rushingAttempts:rushes.length};
-  const receivers=new Map(),runners=new Map();
-  for(const p of passes){if(p.gain<=0)continue;const val=receivers.get(p.player)||{yards:0,catches:0};val.yards+=p.gain;val.catches++;receivers.set(p.player,val)}
-  for(const p of rushes){const val=runners.get(p.player)||{yards:0,carries:0};val.yards+=p.gain;val.carries++;runners.set(p.player,val)}
-  const leaders=map=>[...map.entries()].sort((a,b)=>b[1].yards-a[1].yards).slice(0,3);
-  const players=(rows,label)=>rows.map(([name,stats])=>'<div><b>'+esc(name)+'</b><span>'+stats.yards+' yds / '+(stats.catches??stats.carries)+' '+label+'</span></div>').join('');
-  return '<article><h4>'+esc(team)+' · ILLUSTRATIVE SCENARIO</h4><p><strong>'+totals.completed+' / '+totals.passes+'</strong> PASS · <strong>'+totals.passing+'</strong> PASS YDS · <strong>'+totals.rushing+'</strong> RUSH YDS</p>'
-    +'<h5>RECEIVING</h5>'+players(leaders(receivers),'REC')
-    +'<h5>RUSHING</h5>'+players(leaders(runners),'CAR')+'</article>';
- });
- return '<div class="tso-sim-final-heading"><span>SCENARIO COMPLETE / NOT OFFICIAL OR MODEL-SAMPLED</span><h3>'+esc(game.away.abbr)+' '+end.scoreAway+' — '+end.scoreHome+' '+esc(game.home.abbr)+'</h3><small>TSO model mean scores: '+number(game.projected.awayScore,1)+' — '+number(game.projected.homeScore,1)+'</small></div>'
-   +'<div class="tso-sim-final-grid">'+figures.join('')+'</div>';
+ const engine=window.TSO2SimEngine,ui=window.TSO2StatsUI;
+ if(!engine||!ui||!state.game||!state.plays.length)return '';
+ const snapshot=engine.snapshot(state.game,state.plays,state.plays.length);
+ return ui.full(state.game,snapshot,state.plays);
+}
+function updateStats(){
+ const engine=window.TSO2SimEngine,ui=window.TSO2StatsUI;
+ if(!engine||!ui||!state.game||!state.plays.length)return;
+ const game=state.game,n=state.finished?state.plays.length:state.index,stats=engine.snapshot(game,state.plays,n);
+ for(const team of [game.away.abbr,game.home.abbr]){
+  const el=$(state.root,'[data-tsos-panel="'+team+'"]');
+  if(el)el.innerHTML=ui.live(game,stats,team);
+ }
+ const tendency=state.plays[Math.min(state.index,state.plays.length-1)]?.defenseTendency;
+ const el=$(state.root,'[data-tsos-defense-style]');
+ if(el)el.textContent=tendency&&tendency!=='Coverage scheme not verified'?tendency+' · Actual coverage scheme not verified':'Defensive coverage scheme unverified · 2026 position allowances used when available';
 }
 function updatePlay(){
  const el=state.root,event=state.plays[state.index];if(!el||!event)return;
  const write=(selector,value)=>{const x=$(el,selector);if(x)x.textContent=String(value)};
  write('[data-tsos-quarter]','Q'+event.quarter);write('[data-tsos-clock]',event.clock);
- write('[data-tsos-away]',event.beforeAway??event.scoreAway);write('[data-tsos-home]',event.beforeHome??event.scoreHome);
+ write('[data-tsos-away]',state.finished?event.scoreAway:(event.beforeAway??event.scoreAway));write('[data-tsos-home]',state.finished?event.scoreHome:(event.beforeHome??event.scoreHome));
  write('[data-tsos-possession]',event.side+' POSSESSION · '+event.kind);
  write('[data-tsos-ball-holder]',event.kind==='PASS'?'BALL: '+event.passer+' → '+event.receiver:event.kind==='RUSH'?'BALL: '+event.passer+' → '+event.carrier:'BALL: '+event.side+' KICKING UNIT');
  write('[data-tsos-commentary]',event.commentary);
  write('[data-tsos-seek-label]',(state.index+1)+' / '+state.plays.length);
  const seek=$(el,'[data-tsos-seek]');if(seek)seek.value=String(state.index);
  const control=$(el,'[data-tsos-play]');if(control)control.textContent=state.playing?'Ⅱ PAUSE':'▶ PLAY';
- const last=state.index===state.plays.length-1&&!state.playing;
+ updateStats();
+ const last=state.finished;
  const final=$(el,'[data-tsos-final]');if(final){final.hidden=!last;if(last)final.innerHTML=scenarioFinal();}
 }
 const simClamp=(value,min,max)=>Math.max(min,Math.min(max,value));
@@ -467,7 +463,7 @@ function loop(time){
  const progress=Math.min(1,(time-state.startedAt)/timePerPlay);
  draw(progress);
  if(progress>=1){
-  if(state.index>=state.plays.length-1){stop();draw(1);return}
+  if(state.index>=state.plays.length-1){state.finished=true;stop();draw(1);updatePlay();return}
   const previousQuarter=state.plays[state.index]?.quarter;
   state.index++;state.startedAt=time;updatePlay();
   if(state.plays[state.index]?.quarter!==previousQuarter)showQuarterCard(state.plays[state.index]);
@@ -475,7 +471,7 @@ function loop(time){
  state.raf=requestAnimationFrame(loop);
 }
 function stop(){state.playing=false;cancelAnimationFrame(state.raf);state.raf=0;state.startedAt=0;updatePlay()}
-function start(){if(state.playing)return;if(state.index>=state.plays.length-1){state.index=0}state.playing=true;state.startedAt=0;updatePlay();state.raf=requestAnimationFrame(loop)}
+function start(){if(state.playing)return;if(state.finished){state.index=0;state.finished=false}state.playing=true;state.startedAt=0;updatePlay();state.raf=requestAnimationFrame(loop)}
 async function mount(root){
  stop();state.root=root||document.querySelector('[data-tso-simulations]');
  const token=++state.token;const loading=$(state.root,'[data-tsos-loading]');
@@ -504,5 +500,5 @@ async function mount(root){
  }finally{if(token===state.token&&loading)loading.hidden=true}
 }
 function dispose(){stop();state.token++;state.root=null}
-window.TSO2Simulations={pageHTML,mount,dispose,buildPlays,sceneFrame,routePoint};
+window.TSO2Simulations={pageHTML,mount,dispose,buildPlays:(game,defense)=>window.TSO2SimEngine?.build(game,defense)||[],scenarioSnapshot:(game,plays,n)=>window.TSO2SimEngine?.snapshot(game,plays,n),sceneFrame,routePoint};
 })();
