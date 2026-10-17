@@ -1,0 +1,187 @@
+/*
+ * The Sports Outpost 2.0 — single shared design system.
+ * Owner overrides are validated variables in #tso-theme-published, loaded from
+ * Supabase RPC. This stylesheet intentionally loads AFTER all app CSS.
+ * Semantic chart / win-loss colors remain distinct from chrome colors.
+ */
+:root{
+ --tso-sidebar-bg:#070a0f; --tso-header-bg:#070b12;
+ --tso-primary-btn:#2d7fff; --tso-secondary-btn:#18263a;
+ --tso-btn-text:#ffffff; --tso-nav-active:#152338; --tso-focus:#5aa0ff;
+ --tso-page-max:1540px;--tso-page-gutter:24px;--tso-card-padding:18px;--tso-grid-gap:14px;
+ --tso-body-size:13px;--tso-heading-size:30px;--tso-button-height:38px;--tso-header-height:68px;--tso-nav-item-height:52px;
+ --tso-font-family:Inter,ui-sans-serif,system-ui,sans-serif;
+}
+html,body{background-color:var(--bg);color:var(--text);font-family:var(--tso-font-family)}
+body{font-size:var(--tso-body-size)}
+:where(.app-shell.broadcast-shell,.broadcast-shell){color:var(--text);font-family:var(--tso-font-family)}
+/* 2.0 shell chrome shares EXACT tokens regardless of active page. */
+.app-shell.broadcast-shell .tso-side-nav{
+ width:var(--tso-side-nav-width);
+ background:var(--tso-sidebar-bg);
+ border-right:1px solid var(--line-strong);
+}
+.app-shell.broadcast-shell{padding-left:var(--tso-side-nav-width)}
+.app-shell.broadcast-shell .broadcast-header{
+ background:var(--tso-header-bg);
+ border-color:var(--line);
+}
+.app-shell.broadcast-shell .tso-side-masthead{
+ height:var(--tso-header-height)!important;
+}
+.app-shell.broadcast-shell :is(.tso-side-item,.tso-decision-advanced-items>.tso-side-item){
+ min-height:var(--tso-nav-item-height);
+}
+.app-shell.broadcast-shell .tso-side-item:hover,
+.app-shell.broadcast-shell .tso-side-item.is-active{
+ background:var(--tso-nav-active);
+ border-color:var(--line-strong);
+ color:var(--text);
+}
+.app-shell.broadcast-shell :is(.tso-side-footer,.tso-side-primary,.score-strip){
+ border-color:var(--line);
+}
+.app-shell.broadcast-shell :is(.broadcast-content,.tso-page-body,.page-content,.decision-page){
+ max-width:var(--tso-page-max);
+}
+.app-shell.broadcast-shell :is(.page-content,.broadcast-content,.decision-page){
+ --tso-inner-gutter:var(--tso-page-gutter);
+}
+.app-shell.broadcast-shell :is(.page-header,.decision-intro,.gb2-page-head) h1{
+ color:var(--text);font-size:clamp(24px,2.2vw,var(--tso-heading-size));
+}
+.app-shell.broadcast-shell :is(.page-header,.decision-intro,.gb2-page-head) p{color:var(--muted)}
+/* Shared surfaces. These selectors describe STRUCTURAL chrome only; keep
+   status bars, team colors, analytic heatmaps and per-sport plots intact. */
+.app-shell.broadcast-shell :is(
+ .decision-panel,.decision-game-card,.decision-opportunity-card,
+ .research-detail-block,.research-detail-panel,.models-run-card,
+ .model-engine-card,.props-board-card,.props-stats-panel,
+ .tso-admin-panel,.tso-admin-stats article,.tso-admin-hero,
+ .profile-card,.profile-hero,.room-card,.post-card,.live-game,
+ .mi-ranked,.mi-game-vault-header,.mi-team,.mi-player,
+ .gb2-card,.gb2-hero,.gb2-panel,.gb2-dock,.edge2-market,
+ .props-market-card,.props-filter-panel,.feature-game
+ ){
+ background:var(--card);
+ border-color:var(--line-strong);
+ color:var(--text);
+ border-radius:var(--r);
+}
+.app-shell.broadcast-shell :is(
+ .mi-section,.mi-reason,.mi-chart-panel,.mi-hit-panel,.mi-signal-detail,
+ .mi-player.is-open,.mi-player-body,.mi-player-defender,.mi-nfl-opportunities,
+ .research-detail-metrics,.mi-read-signal,
+ .mi-usage-row,.gb2-empty,.edge2-call,.decision-filters,
+ .tso-admin-feed-summary
+ ){
+ border-color:var(--line);background:var(--surface);color:var(--text);
+ border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell :is(.decision-game-card,.model-engine-card,.gb2-card,.mi-player,.tso-admin-panel,.research-detail-block){
+ box-shadow:var(--shadow);
+}
+.app-shell.broadcast-shell :is(.decision-panel,.tso-admin-panel,.models-run-card,.gb2-panel) :is(h2,h3,h4){
+ color:var(--text);
+}
+.app-shell.broadcast-shell :is(.mi-game-vault-header small,.mi-ranked-head small,.gb2-hero>small,.gb2-panel>header small,.decision-section-title small,.research-detail-block-head span){
+ color:var(--blue-2);
+}
+/* Controlled actions and navigation */
+.app-shell.broadcast-shell :is(.button.primary,.tso-admin-form-bottom button,.mi-add,.gb2-dock button){
+ background:var(--tso-primary-btn);color:var(--tso-btn-text);
+ border-color:var(--tso-primary-btn);border-radius:var(--r-sm);
+ min-height:var(--tso-button-height);
+ box-shadow:none;
+}
+.app-shell.broadcast-shell :is(.button.secondary,.gb2-back,.gb2-live,.mi-filters button,.filter-button){
+ background:var(--tso-secondary-btn);border-color:var(--line-strong);
+ color:var(--text);border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell :is(button,input,select,textarea,a):focus-visible{
+ outline:2px solid var(--tso-focus);outline-offset:2px;
+}
+.app-shell.broadcast-shell :is(.tso-admin-page,.decision-page,.gb2-root,.research-page,.models-page,.props-page,.live-page){
+ --page-gap:var(--tso-grid-gap);color:var(--text);
+}
+.app-shell.broadcast-shell :is(.gb2-grid,.model-engine-grid,.tso-admin-grid){gap:var(--tso-grid-gap)}
+.app-shell.broadcast-shell :is(.gb2-card,.tso-admin-panel,.decision-panel){padding:var(--tso-card-padding)}
+/* Games has its own deep components; keep all shared tokens synchronized. */
+.gb2-root{
+ --gb2-panel:var(--card);--gb2-subpanel:var(--surface);--gb2-raised:var(--elev);
+ --gb2-border:var(--line-strong);--gb2-rule:var(--line);
+ --gb2-text:var(--text);--gb2-muted:var(--muted);
+ --gb2-accent:var(--blue);--gb2-accent-light:var(--blue-2);
+}
+/* Sidebar/mobile geometry depends on existing TSO 2.0 breakpoint behavior. */
+@media(max-width:900px){
+ .app-shell.broadcast-shell{padding-left:0}
+ .app-shell.broadcast-shell .tso-side-nav{width:min(90vw,var(--tso-side-nav-width))}
+}
+/* Theme Studio is part of the SAME design system */
+.tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
+.tso-theme-header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
+.tso-theme-kicker{font-weight:900;letter-spacing:.13em;font-size:10px;color:var(--blue-2)}
+.tso-theme-header h1{font-size:clamp(25px,2.6vw,38px);margin:7px 0;letter-spacing:-.03em;color:var(--text)}
+.tso-theme-header p{color:var(--muted);margin:5px 0 14px;max-width:740px;font-size:13px}
+.tso-theme-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.tso-theme-studio button{cursor:pointer}
+.tso-theme-studio button:disabled{opacity:.5;cursor:wait}
+.tso-theme-btn{border:1px solid var(--line-strong);background:var(--elev);color:var(--text);border-radius:var(--r-sm);min-height:37px;padding:8px 13px;font-weight:800;font-size:11px}
+.tso-theme-btn.primary{background:var(--tso-primary-btn);border-color:var(--tso-primary-btn);color:var(--tso-btn-text)}
+.tso-theme-btn.danger{color:var(--red)}
+.tso-theme-tabs{display:flex;gap:4px;padding:5px;border:1px solid var(--line);background:var(--card);border-radius:var(--r-sm);width:max-content;max-width:100%;overflow:auto;margin:13px 0}
+.tso-theme-tabs button{border:0;border-radius:8px;background:transparent;color:var(--muted);padding:10px 15px;font-size:12px;font-weight:800;white-space:nowrap}
+.tso-theme-tabs button[aria-selected="true"]{background:var(--elev);color:var(--text);box-shadow:inset 0 -2px var(--blue)}
+.tso-theme-status{color:var(--muted);font-size:12px;min-height:26px;margin:8px 0}
+.tso-theme-status.is-good{color:var(--green)}.tso-theme-status.is-error{color:var(--red)}
+.tso-theme-main{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(290px,.8fr);gap:var(--tso-grid-gap);align-items:start}
+.tso-theme-pane,.tso-theme-preview,.tso-theme-advanced{border:1px solid var(--line-strong);background:var(--card);border-radius:var(--r);min-width:0}
+.tso-theme-pane-head{padding:17px 18px;border-bottom:1px solid var(--line)}
+.tso-theme-pane-head h2{font-size:17px;margin:0 0 5px;color:var(--text)}
+.tso-theme-pane-head p{font-size:11px;line-height:1.5;color:var(--muted);margin:0}
+.tso-theme-controls{padding:15px 18px;display:grid;gap:16px;max-height:calc(100vh - 270px);overflow:auto}
+.tso-theme-category h3{font-size:12px;letter-spacing:.08em;color:var(--blue-2);margin:7px 0 12px;border-bottom:1px solid var(--line);padding-bottom:9px}
+.tso-theme-category-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.tso-theme-field{display:flex;flex-direction:column;gap:6px;min-width:0;padding:10px;border:1px solid var(--line);border-radius:var(--r-sm);background:var(--surface)}
+.tso-theme-field>label{font-size:11px;color:var(--text);font-weight:800}
+.tso-theme-field>small{font-size:9px;color:var(--muted);word-break:break-word}
+.tso-theme-field-row{display:flex;align-items:center;gap:7px}
+.tso-theme-field :is(input[type="text"],input[type="number"],select){width:100%;min-width:0;min-height:35px;color:var(--text);background:var(--elev);border:1px solid var(--line-strong);border-radius:8px;padding:7px 9px;font:12px/1.2 inherit}
+.tso-theme-field input[type="color"]{width:38px;height:35px;flex:none;padding:2px;cursor:pointer;border:1px solid var(--line-strong);border-radius:8px;background:var(--elev)}
+.tso-theme-field button{border:0;background:transparent;color:var(--muted);padding:5px;font-size:13px}
+.tso-theme-field.is-edited{border-color:var(--blue)}
+.tso-theme-search{width:100%;border:1px solid var(--line-strong);border-radius:9px;background:var(--elev);padding:10px 12px;color:var(--text);font-size:12px;margin-top:11px}
+.tso-theme-preview{position:sticky;top:83px;overflow:hidden}
+.tso-theme-preview-inner{padding:16px;background:var(--bg)}
+.tso-theme-mini-nav{display:grid;grid-template-columns:95px 1fr;min-height:205px;border:1px solid var(--line-strong);border-radius:12px;overflow:hidden}
+.tso-theme-mini-sidebar{background:var(--tso-sidebar-bg);padding:13px 9px;border-right:1px solid var(--line)}
+.tso-theme-mini-sidebar b{color:var(--outpost-gold);font-size:11px}
+.tso-theme-mini-sidebar span{display:block;margin-top:13px;color:var(--muted);font-size:10px;padding:6px}
+.tso-theme-mini-sidebar span.is-on{background:var(--tso-nav-active);color:var(--text);border-left:2px solid var(--outpost-orange)}
+.tso-theme-mini-content{background:var(--bg);min-width:0}
+.tso-theme-mini-content>header{background:var(--tso-header-bg);padding:10px;color:var(--muted);font-size:10px;border-bottom:1px solid var(--line)}
+.tso-theme-mini-card{margin:12px;padding:12px;border:1px solid var(--line-strong);border-radius:var(--r);background:var(--card)}
+.tso-theme-mini-card>small{font-size:10px;color:var(--blue-2)}
+.tso-theme-mini-card h4{margin:7px 0 8px;color:var(--text);font-size:14px}
+.tso-theme-mini-card p{margin:0 0 10px;color:var(--muted);font-size:10px}
+.tso-theme-mini-card button{background:var(--tso-primary-btn);color:var(--tso-btn-text);border:0;border-radius:var(--r-sm);padding:8px;font-size:10px}
+.tso-theme-swatch-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin-top:12px}
+.tso-theme-swatch-grid>div{height:37px;border:1px solid var(--line-strong);border-radius:7px}
+.tso-theme-preview-help{color:var(--muted);font-size:11px;line-height:1.5;margin:13px 0 0}
+.tso-theme-advanced{padding:0 0 18px}
+.tso-theme-advanced-body{padding:16px;display:grid;gap:10px}
+.tso-theme-advanced textarea{background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:12px;color:var(--text);font:12px/1.55 ui-monospace,monospace;min-height:180px;width:100%;resize:vertical}
+.tso-theme-advanced textarea[data-theme-css]{min-height:240px}
+.tso-theme-advanced label{font-size:11px;color:var(--text);font-weight:850}
+.tso-theme-rule-search{display:flex;gap:9px}.tso-theme-rule-search input{min-width:0;flex:1;background:var(--elev);border:1px solid var(--line-strong);color:var(--text);padding:10px;border-radius:8px}
+.tso-theme-rule-result{display:grid;gap:5px}
+.tso-theme-rule-result article{border:1px solid var(--line);border-radius:8px;padding:10px;background:var(--surface);font-size:11px}
+.tso-theme-rule-result code{color:var(--blue-2);white-space:normal;word-break:break-word}
+.tso-theme-rule-result pre{color:var(--muted);white-space:pre-wrap;word-break:break-word;max-height:120px;overflow:auto;font-size:10px}
+.tso-theme-history{display:grid;gap:8px;padding:15px}
+.tso-theme-history article{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px;border:1px solid var(--line);border-radius:9px}
+.tso-theme-history article span{font-size:11px;color:var(--muted)}
+.tso-theme-hidden{display:none!important}
+@media(max-width:980px){.tso-theme-main{grid-template-columns:1fr}.tso-theme-preview{position:static}.tso-theme-controls{max-height:none}}
+@media(max-width:610px){.tso-theme-studio{padding:14px 10px 45px}.tso-theme-category-fields{grid-template-columns:1fr}.tso-theme-preview{max-width:100%}.tso-theme-tabs{width:100%}.tso-theme-tabs button{flex:1;padding:10px 7px}.tso-theme-header{display:block}}
