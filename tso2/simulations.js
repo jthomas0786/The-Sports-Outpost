@@ -206,7 +206,7 @@ function updatePlay(){
  const el=state.root,event=state.plays[state.index];if(!el||!event)return;
  const write=(selector,value)=>{const x=$(el,selector);if(x)x.textContent=String(value)};
  write('[data-tsos-quarter]','Q'+event.quarter);write('[data-tsos-clock]',event.clock);
- write('[data-tsos-away]',event.scoreAway);write('[data-tsos-home]',event.scoreHome);
+ write('[data-tsos-away]',event.beforeAway??event.scoreAway);write('[data-tsos-home]',event.beforeHome??event.scoreHome);
  write('[data-tsos-possession]',event.side+' POSSESSION · '+event.kind);
  write('[data-tsos-ball-holder]',event.kind==='PASS'?'BALL: '+event.passer+' → '+event.receiver:event.kind==='RUSH'?'BALL: '+event.passer+' → '+event.carrier:'BALL: '+event.side+' KICKING UNIT');
  write('[data-tsos-play]',event.commentary);
@@ -216,40 +216,204 @@ function updatePlay(){
  const last=state.index===state.plays.length-1&&!state.playing;
  const final=$(el,'[data-tsos-final]');if(final){final.hidden=!last;if(last)final.innerHTML=scenarioFinal();}
 }
-function draw(progress=0){
- const canvas=$(state.root,'[data-tsos-canvas]'),event=state.plays[state.index];if(!canvas||!event)return;
- const ctx=canvas.getContext('2d');if(!ctx)return;
- const w=canvas.width,h=canvas.height,fx=40,fy=32,fw=w-80,fh=h-82;
- ctx.clearRect(0,0,w,h);ctx.fillStyle='#08131b';ctx.fillRect(0,0,w,h);
- ctx.fillStyle='#053827';ctx.fillRect(fx,fy,fw,fh);
- for(let n=0;n<10;n++){ctx.fillStyle=n%2===0?'#104737':'#0e3d30';ctx.fillRect(fx+n*fw/10,fy,fw/10,fh)}
- ctx.fillStyle='#113b71';ctx.fillRect(fx,fy,fw*.07,fh);ctx.fillStyle='#342f38';ctx.fillRect(fx+fw*.93,fy,fw*.07,fh);
- ctx.strokeStyle='rgba(215,247,225,.36)';ctx.lineWidth=1.5;
- for(let n=0;n<=20;n++){const x=fx+fw*.07+n*(fw*.86/20);ctx.beginPath();ctx.moveTo(x,fy);ctx.lineTo(x,fy+fh);ctx.stroke()}
- ctx.strokeStyle='#bce6cf';ctx.lineWidth=3;ctx.strokeRect(fx,fy,fw,fh);
- ctx.font='bold 21px system-ui';ctx.textAlign='center';ctx.fillStyle='rgba(237,246,240,.60)';
- for(let i=1;i<=9;i++){const yds=i<=5?i*10:(10-i)*10;const x=fx+fw*.07+fw*.86*i/10;ctx.fillText(String(yds),x,fy+35);ctx.fillText(String(yds),x,fy+fh-15)}
- ctx.font='bold 42px system-ui';ctx.fillStyle='rgba(241,247,239,.11)';ctx.fillText('TSO',w/2,fy+fh/2+17);
- ctx.font='bold 25px system-ui';ctx.fillStyle='rgba(236,246,255,.80)';ctx.save();ctx.translate(fx+fw*.035,fy+fh/2);ctx.rotate(-Math.PI/2);ctx.fillText(state.game.away.abbr,0,0);ctx.restore();
- ctx.save();ctx.translate(fx+fw*.965,fy+fh/2);ctx.rotate(Math.PI/2);ctx.fillText(state.game.home.abbr,0,0);ctx.restore();
- const xOf=yard=>fx+fw*.07+fw*.86*Math.max(0,Math.min(100,yard))/100;
- const start=xOf(event.yard),end=xOf(event.yard+event.gain);
- ctx.strokeStyle='#ffd54c';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(xOf(Math.min(100,event.yard+10)),fy);ctx.lineTo(xOf(Math.min(100,event.yard+10)),fy+fh);ctx.stroke();
- ctx.strokeStyle='#42c4ff';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(start,fy);ctx.lineTo(start,fy+fh);ctx.stroke();
- const dotsY=[.18,.26,.34,.42,.50,.58,.66,.74,.82,.39,.61];
- const p=Math.max(0,Math.min(1,progress));const direction=event.gain<0?-1:1;
- for(let i=0;i<22;i++){
-  const offense=i<11,j=i%11;const spread=(j-5)*7.7;const target=offense?start-15: start+10;
-  const travel=offense?(i===0?event.gain:Math.min(20,Math.max(-3,event.gain)))*(p*p*(3-2*p)):(event.gain>0?Math.min(12,event.gain)*p:4*p);
-  const x=Math.max(fx+10,Math.min(fx+fw-10,target+spread+travel*fw*.86/100*direction));
-  const y=fy+fh*dotsY[j]+(offense?Math.sin(i*17+p*7)*p*4:Math.cos(i*6+p*5)*p*5);
-  ctx.beginPath();ctx.arc(x,y,i===0?10:6.2,0,Math.PI*2);ctx.fillStyle=offense?(i===0?'#ffc25d':'#ff8949'):'#8cc6ff';ctx.fill();
-  ctx.lineWidth=1.4;ctx.strokeStyle=offense?'#3b1a04':'#0d2542';ctx.stroke();
-  if(i===0){ctx.fillStyle='#fff';ctx.font='bold 13px system-ui';ctx.textAlign='left';ctx.fillText(event.player.split(' ').slice(-1)[0]||'BALL',x+13,y-11)}
+const simClamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const simEase=t=>{const x=simClamp(t,0,1);return x*x*(3-2*x)};
+const simMix=(a,b,t)=>a+(b-a)*simClamp(t,0,1);
+function routePoint(style,slot,r,depth){
+ // Real route names and plausible illustrated geometry. They are intentionally
+ // not claimed to be NFL tracking or a fitted defensive-coverage forecast.
+ const origin=[.13,.31,.69,.87][slot]??.5;
+ const inward=origin<.5?1:-1,near=origin<.5?.07:.93;
+ const t=simClamp(r,0,1);
+ let x=depth*t,y=origin;
+ switch(style){
+  case 'SLANT': y=origin+inward*.22*simEase((t-.21)/.79);break;
+  case 'OUT':y=simMix(origin,near,simEase((t-.37)/.63));break;
+  case 'POST':y=origin+inward*.26*simEase((t-.44)/.56);break;
+  case 'CROSS':y=simMix(origin,origin<.5?.78:.22,simEase((t-.25)/.75));x=depth*(.5*t+.5*simEase(t));break;
+  case 'CURL':x=depth*(t<.76?t/.76:1-.26*(t-.76)/.24);break;
+  case 'CORNER':y=simMix(origin,near,simEase((t-.5)/.5));break;
+  case 'FLAT':x=Math.min(depth,7)*t;y=simMix(origin,near,simEase(t));break;
+  default:break; // GO / vertical release
  }
- ctx.fillStyle='#dae9e3';ctx.font='bold 14px system-ui';ctx.textAlign='left';
- ctx.fillText('PLAY '+String(event.index+1).padStart(3,'0')+'  |  '+event.kind+'  |  '+event.down+' & '+Math.max(1,100-event.yard),fx+12,h-16);
- ctx.textAlign='right';ctx.fillStyle='#ffbb76';ctx.fillText(event.side+' →',w-fx,h-16);
+ return {u:x,y:simClamp(y,.065,.935)};
+}
+function sceneFrame(event,progress,game){
+ const p=simClamp(progress,0,1),direction=event.side===game.away.abbr?1:-1;
+ const scrimmage=direction===1?event.yard:100-event.yard;
+ const world=u=>simClamp(scrimmage+direction*u,0,100);
+ const off=[],def=[];
+ const pass=event.kind==='PASS',kick=event.kind==='FIELD GOAL';
+ const targetSlot=Number.isInteger(event.targetSlot)?event.targetSlot:1;
+ const qbDrop=pass?simEase(p/.30)*3:simEase(p/.24)*.6;
+ const qb={id:'qb',role:'QB',team:event.side,u:kick?-6:-4.5-qbDrop,y:.5,name:event.passer||'Quarterback'};
+ const carrierLane=event.index%2===0?.435:.565;
+ let rbU=-9,rbY=.61;
+ if(!pass&&!kick){
+  rbU=p<.30?simMix(-9,-2,simEase(p/.30)):simMix(-2,event.gain,simEase((p-.30)/.65));
+  rbY=p<.38?simMix(.61,carrierLane,simEase(p/.38)):carrierLane;
+ }else{
+  rbU=simMix(-9,-5,simEase(p/.55));
+  rbY=.61;
+ }
+ const rb={id:'rb',role:'RB',team:event.side,u:rbU,y:rbY,name:!pass&&!kick?event.carrier:'Running back'};
+ off.push(qb,rb);
+ const olLanes=[.36,.43,.50,.57,.64];
+ for(let i=0;i<5;i++){
+  const advance=pass?simMix(0,-1.4,simEase((p-.15)/.45)):simMix(0,2,simEase((p-.15)/.45));
+  off.push({id:'ol'+i,role:'OL',team:event.side,u:-.9+advance+Math.sin(i*2+event.index)*.5*p,y:olLanes[i],name:null});
+ }
+ const defaultRoutes=['GO','CROSS','OUT','CURL'],routePaths=[];
+ const routeProgress=simClamp((p-.09)/.62,0,1);
+ const catchProgress=.71;
+ for(let i=0;i<4;i++){
+  const target=i===targetSlot,style=target?event.route||'SLANT':defaultRoutes[(i+event.index)%4];
+  const depth=target&&event.complete?Math.max(2,Math.min(30,event.gain*.75)):12+i*3.2;
+  let pos;
+  if(pass){
+   const r=simClamp(routeProgress/(catchProgress-.09)*.62,0,1); // route run phase
+   pos=routePoint(style,i,r,depth);
+   if(target&&event.complete&&p>=catchProgress){
+    const after=simEase((p-catchProgress)/.25);
+    pos.u=simMix(depth,event.gain,after);
+   }
+  }else{
+   pos={u:simMix(-.5,3+(i%2)*2,simEase((p-.12)/.7)),y:[.13,.31,.69,.87][i]};
+  }
+  off.push({id:'wr'+i,role:target?'TARGET':'RECEIVER',team:event.side,u:pos.u,y:pos.y,
+   name:target?event.receiver:null,route:style});
+  routePaths.push({slot:i,target,style,depth,y0:[.13,.31,.69,.87][i]});
+ }
+ // Four rushers, three linebackers and four defensive backs.
+ for(let i=0;i<4;i++){
+  const nudge=pass?simMix(1.6,-3.0,simEase((p-.12)/.65)):simMix(1.4,-1.8,simEase((p-.14)/.5));
+  def.push({id:'dl'+i,role:'DL',team:event.opponent,u:nudge,y:[.38,.46,.54,.62][i],name:null});
+ }
+ for(let i=0;i<3;i++){
+  let u=pass?simMix(5.3,8.6,simEase((p-.16)/.58)):simMix(5,rbU+1.7,simEase((p-.25)/.65));
+  let y=pass?[.31,.5,.69][i]:simMix([.32,.5,.68][i],rbY+(i-1)*.075,simEase((p-.30)/.62));
+  if(pass&&p>.57&&i===1){u=simMix(u,off[7+targetSlot].u+1,simEase((p-.57)/.33));y=simMix(y,off[7+targetSlot].y,simEase((p-.57)/.33))}
+  def.push({id:'lb'+i,role:'LB',team:event.opponent,u,y,name:null});
+ }
+ for(let i=0;i<4;i++){
+  const wr=off[7+i];
+  let u=pass?Math.max(4,wr.u+2.1):simMix(7,rbU+2,simEase((p-.47)/.49));
+  let y=pass?simMix([.13,.31,.69,.87][i],wr.y+(i%2?.05:-.05),simEase((p-.1)/.75)):
+   simMix([.13,.31,.69,.87][i],rbY+(i-1.5)*.06,simEase((p-.5)/.45));
+  def.push({id:'db'+i,role:'DB',team:event.opponent,u,y,name:null});
+ }
+ for(const p of [...off,...def])p.x=world(p.u);
+ let ballOwner='QB',ball={u:qb.u,y:qb.y},flight=false;
+ if(kick){
+  ballOwner=p>.33?'KICK IN FLIGHT':'KICKING UNIT';
+  ball=p>.33?{u:simMix(-5,Math.max(65,100-event.yard),simEase((p-.33)/.6)),y:.5-Math.sin(Math.PI*simClamp((p-.33)/.6,0,1))*.20}:{u:-5,y:.5};
+  flight=p>.33;
+ }else if(pass){
+  const receiver=off[7+targetSlot];
+  if(p<.41){ballOwner=event.passer||'QUARTERBACK';ball={u:qb.u,y:qb.y}}
+  else if(p<catchProgress){
+   const t=simEase((p-.41)/(catchProgress-.41));
+   const aimU=event.complete?receiver.u+2:(receiver.u+5);
+   const aimY=event.complete?receiver.y:simClamp(receiver.y+.09,.07,.93);
+   ball={u:simMix(qb.u,aimU,t),y:simMix(qb.y,aimY,t)-Math.sin(Math.PI*t)*.08};
+   ballOwner='PASS IN FLIGHT';flight=true;
+  }else{
+   ball=event.complete?{u:receiver.u,y:receiver.y}:{u:receiver.u+5,y:simClamp(receiver.y+.10,.07,.93)};
+   ballOwner=event.complete?event.receiver:'INCOMPLETE PASS';
+   flight=!event.complete;
+  }
+ }else if(p<.28){
+  ballOwner=event.passer||'QB';ball={u:qb.u,y:qb.y};
+ }else if(p<.36){
+  const t=simEase((p-.28)/.08);
+  ball={u:simMix(qb.u,rb.u,t),y:simMix(qb.y,rb.y,t)};
+  ballOwner='HANDOFF TO '+event.carrier;
+ }else{
+  ballOwner=event.carrier||'RUNNER';ball={u:rb.u,y:rb.y};
+ }
+ ball.x=world(ball.u);
+ return {direction,scrimmage,p,offense:off,defense:def,ball,ballOwner,flight,routePaths,
+  attacking:event.side,defending:event.opponent,pass,run:!pass&&!kick,targetSlot};
+}
+function draw(progress=0){
+ const canvas=$(state.root,'[data-tsos-canvas]'),event=state.plays[state.index];
+ if(!canvas||!event||!state.game)return;
+ const ctx=canvas.getContext('2d');if(!ctx)return;
+ const frame=sceneFrame(event,progress,state.game),p=frame.p;
+ const w=canvas.width,h=canvas.height,fx=40,fy=32,fw=w-80,fh=h-82;
+ const xOf=yard=>fx+fw*.07+fw*.86*simClamp(yard,0,100)/100;
+ const yOf=y=>fy+fh*simClamp(y,0,1);
+ ctx.clearRect(0,0,w,h);ctx.fillStyle='#08131b';ctx.fillRect(0,0,w,h);
+ ctx.fillStyle='#063928';ctx.fillRect(fx,fy,fw,fh);
+ for(let n=0;n<10;n++){ctx.fillStyle=n%2===0?'#104737':'#0e3d30';ctx.fillRect(fx+n*fw/10,fy,fw/10,fh)}
+ ctx.fillStyle='#113b71';ctx.fillRect(fx,fy,fw*.07,fh);
+ ctx.fillStyle='#342f38';ctx.fillRect(fx+fw*.93,fy,fw*.07,fh);
+ ctx.strokeStyle='rgba(215,247,225,.33)';ctx.lineWidth=1.5;
+ for(let n=0;n<=20;n++){const x=xOf(n*5);ctx.beginPath();ctx.moveTo(x,fy);ctx.lineTo(x,fy+fh);ctx.stroke()}
+ ctx.strokeStyle='#bce6cf';ctx.lineWidth=3;ctx.strokeRect(fx,fy,fw,fh);
+ ctx.font='bold 21px system-ui';ctx.textAlign='center';ctx.fillStyle='rgba(237,246,240,.6)';
+ for(let i=1;i<=9;i++){const yds=i<=5?i*10:(10-i)*10,x=xOf(i*10);ctx.fillText(String(yds),x,fy+35);ctx.fillText(String(yds),x,fy+fh-15)}
+ ctx.font='bold 42px system-ui';ctx.fillStyle='rgba(241,247,239,.11)';ctx.fillText('TSO',w/2,fy+fh/2+17);
+ ctx.font='bold 25px system-ui';ctx.fillStyle='rgba(236,246,255,.80)';
+ ctx.save();ctx.translate(fx+fw*.035,fy+fh/2);ctx.rotate(-Math.PI/2);ctx.fillText(state.game.away.abbr,0,0);ctx.restore();
+ ctx.save();ctx.translate(fx+fw*.965,fy+fh/2);ctx.rotate(Math.PI/2);ctx.fillText(state.game.home.abbr,0,0);ctx.restore();
+ // First-down marker and scrimmage switch sides with the possession.
+ const markerY=frame.scrimmage+frame.direction*Math.min(10,100-event.yard);
+ ctx.strokeStyle='#ffdc51';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(xOf(markerY),fy);ctx.lineTo(xOf(markerY),fy+fh);ctx.stroke();
+ ctx.strokeStyle='#35d7e7';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(xOf(frame.scrimmage),fy);ctx.lineTo(xOf(frame.scrimmage),fy+fh);ctx.stroke();
+ // Display distinct passing routes, highlighted for the named intended target.
+ if(frame.pass){
+  for(const route of frame.routePaths){
+   ctx.beginPath();ctx.setLineDash(route.target?[]:[4,7]);ctx.lineWidth=route.target?3:1.8;
+   ctx.strokeStyle=route.target?'rgba(252,203,82,.85)':'rgba(175,246,232,.38)';
+   for(let step=0;step<=24;step++){
+    const at=routePoint(route.style,route.slot,step/24,route.depth),x=xOf(frame.scrimmage+frame.direction*at.u),y=yOf(at.y);
+    if(step===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+   }ctx.stroke();
+  }ctx.setLineDash([]);
+ }
+ // Home and away always keep the same team colors: they do not both
+ // advance in the same direction, and defense reacts to receiver routes.
+ const teamColor=code=>code===state.game.away.abbr?'#ff8f51':'#72c6ff';
+ const all=[...frame.defense,...frame.offense];
+ for(const actor of all){
+  const x=xOf(actor.x),y=yOf(actor.y),highlight=actor.role==='QB'||actor.role==='TARGET'||(frame.run&&actor.role==='RB');
+  ctx.beginPath();ctx.arc(x,y,highlight?9:6.2,0,Math.PI*2);
+  ctx.fillStyle=teamColor(actor.team);ctx.fill();
+  ctx.lineWidth=highlight?2.6:1.3;
+  ctx.strokeStyle=highlight?'#ffe29d':'#052129';ctx.stroke();
+  if(actor.role==='TARGET'){
+   ctx.beginPath();ctx.arc(x,y,13,0,Math.PI*2);ctx.strokeStyle='rgba(255,227,123,.9)';ctx.lineWidth=1.4;ctx.stroke();
+  }
+  if(highlight&&actor.name){
+   const display=String(actor.name).split(' ').slice(-1)[0];
+   ctx.font='bold 14px system-ui';ctx.textAlign='left';ctx.lineWidth=3.7;ctx.strokeStyle='#09201d';
+   ctx.strokeText(display,x+14,y-9);ctx.fillStyle='#fff8e3';ctx.fillText(display,x+14,y-9);
+  }
+ }
+ // THE FOOTBALL — visible oval, moving from passer to receiver or from QB
+ // to runner during handoff. Gold ring marks the current point of possession.
+ const ballX=xOf(frame.ball.x),ballY=yOf(frame.ball.y);
+ ctx.beginPath();ctx.arc(ballX,ballY,16,0,Math.PI*2);
+ ctx.strokeStyle=frame.flight?'#fff3b7':'#ffee68';ctx.lineWidth=2.5;ctx.stroke();
+ ctx.save();ctx.translate(ballX,ballY);
+ ctx.rotate(frame.flight?-.35:frame.direction===1?-.6:.6);
+ ctx.fillStyle='#a65d22';ctx.strokeStyle='#fff2a4';ctx.lineWidth=2;
+ ctx.beginPath();ctx.ellipse(0,0,12,6.5,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+ ctx.strokeStyle='#fff4ca';ctx.lineWidth=1.7;
+ ctx.beginPath();ctx.moveTo(-5,0);ctx.lineTo(5,0);ctx.stroke();
+ for(let i=-2;i<=2;i+=2){ctx.beginPath();ctx.moveTo(i,-2.5);ctx.lineTo(i,2.5);ctx.stroke()}
+ ctx.restore();
+ ctx.fillStyle='#d7efe6';ctx.font='bold 14px system-ui';ctx.textAlign='left';
+ ctx.fillText('PLAY '+String(event.index+1).padStart(3,'0')+'  |  '+event.kind+'  |  '+event.down+' & '+event.first,fx+12,h-16);
+ ctx.textAlign='right';ctx.fillStyle='#ffbb76';
+ ctx.fillText((frame.direction===1?'→ ':'← ')+event.side+' OFFENSE',w-fx,h-16);
+ const holder=$(state.root,'[data-tsos-ball-holder]'),stateLabel='🏈 '+frame.ballOwner+' · '+event.side+' ATTACKING '+(frame.direction===1?'RIGHT →':'← LEFT');
+ if(holder&&holder.textContent!==stateLabel)holder.textContent=stateLabel;
+ // Score updates at the end of a successful play, not before the ball is snapped.
+ const a=$(state.root,'[data-tsos-away]'),b=$(state.root,'[data-tsos-home]');
+ if(a)a.textContent=String(p>=.94?event.scoreAway:event.beforeAway??event.scoreAway);
+ if(b)b.textContent=String(p>=.94?event.scoreHome:event.beforeHome??event.scoreHome);
 }
 function loop(time){
  if(!state.playing||!state.root?.isConnected)return;
@@ -294,5 +458,5 @@ async function mount(root){
  }finally{if(token===state.token&&loading)loading.hidden=true}
 }
 function dispose(){stop();state.token++;state.root=null}
-window.TSO2Simulations={pageHTML,mount,dispose,buildPlays};
+window.TSO2Simulations={pageHTML,mount,dispose,buildPlays,sceneFrame,routePoint};
 })();
