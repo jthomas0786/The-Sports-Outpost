@@ -1993,48 +1993,103 @@ function nhlSignalScore(row,data){
   evidence:coverage===100?'OFFICIAL / ADVANCED':'OFFICIAL NHL · '+coverage+'% VERIFIED WEIGHT',
   reason:null,nhl:true};
 }
+// TSO Signal v3: only the exact source-backed numbers displayed in the
+// Verified Player & Matchup Stats table can influence the player/market score.
+// NO model probability, sportsbook price, inferred defensive matchup or hidden
+// "generic contributor" receives weight. Missing metrics reduce coverage.
+function verifiedSignalEvaluation(row,data,doc){
+ const identity=signalIdentity(row,data),sport=String(row?.sport||'').toLowerCase(),market=String(row?.market||'');
+ const target=productionRubric[sport]?.[market];
+ const empty=(reason,metrics=[],coverage=0,possible=0,games=0)=>({
+  score:null,tier:'UNRATED',modeled:false,reason,metrics,coverage,totalWeight:possible,
+  games,evidence:'VERIFIED PLAYER & MATCHUP STATS ONLY'
+ });
+ if(!identity.ok)return empty(identity.reason);
+ if(!target)return empty('No TSO stat benchmark for this player / market');
+ const games=seriesFromResearch(data,row).slice(0,10);
+ const rawStats=sportSignalSupportingStats(row,data,doc);
+ const extra=new Map(rawStats.map(x=>[x.label,x]));
+ const metrics=[];
+ let possible=0;
+ function add(label,value,benchmark,weight,{unit='',direction='high',method='ratio',source='Verified player game logs'}={}){
+  possible+=weight;
+  const actual=n(value),base=n(benchmark);
+  if(actual===null||actual<0||base===null||base<=0||!Number.isFinite(actual))return;
+  let impact;
+  if(method==='pace')impact=clamp(50+200*(actual/base-1),0,100);
+  else if(method==='era')impact=clamp(50+12*(actual-base),0,100);
+  else if(method==='slot')impact=clamp(100-11*(actual-1),0,100);
+  else if(method==='frequency')impact=clamp(actual,0,100);
+  else impact=scaleProduction(actual,base);
+  if(impact===null)return;
+  metrics.push({label,value:actual,benchmark:base,weight,impact,unit,direction,source,
+   directionMark:direction==='low'?(actual<=base?'↑':'↓'):(actual>=base?'↑':'↓')});
+ }
+ function fromStat(label,weight,benchmark,opts){
+  const stat=extra.get(label);
+  add(label,stat?.value,stat?.bench??benchmark,weight,{unit:stat?.unit||opts?.unit||'',source:stat?.source||'Verified player and matchup data',...opts});
+ }
+ const eligible=games.length>=5;
+ const l5=eligible?meanValues(games.slice(0,5).map(x=>x.value)):null;
+ const l10=eligible?meanValues(games.map(x=>x.value)):null;
+ const marketLabel=marketName(row);
+ add('L5 '+marketLabel+' / game',l5,target,35,{source:'Exact player · current verified game log · 5 games'});
+ add('L'+games.length+' '+marketLabel+' / game',l10,target,22,{source:'Exact player · current verified game log · '+games.length+' games'});
+ const threshold=target*.5;
+ const count=eligible?games.filter(g=>g.value>=threshold).length:0;
+ add('Meaningful-output games',eligible?100*count/games.length:null,60,9,
+  {unit:'%',method:'frequency',source:count+'/'+games.length+' verified games with '+marketLabel+' ≥ '+amount(threshold)+' (TSO reference)'});
+ if(sport==='nfl'){
+  if(['atd','firstTd'].includes(market)){
+   fromStat('Red-zone share',12,20,{unit:'%'});
+   fromStat('Goal-line share',12,16,{unit:'%'});
+   fromStat('Snap share',7,75,{unit:'%'});
+   fromStat('Carries / game',5,16);
+   fromStat('Targets / game',5,8);
+  }else if(['recYds','receptions','longestReception'].includes(market)){
+   fromStat('Target share',14,23,{unit:'%'});
+   fromStat('Targets / game',12,8);
+   fromStat('Snap share',9,75,{unit:'%'});
+  }else if(['rushYds','rushAtt'].includes(market)){
+   fromStat('Carry share',14,50,{unit:'%'});
+   fromStat('Carries / game',12,18);
+   fromStat('Snap share',9,75,{unit:'%'});
+  }else{
+   fromStat('Snap share',10,80,{unit:'%'});
+  }
+  const opp=rawStats.find(x=>x.label.startsWith('Opp ')&&n(x.bench)!==null&&n(x.bench)>0);
+  add(opp?.label||'Opponent positional allowances',opp?.value,opp?.bench,16,
+   {source:opp?.source||'2026 verified defense vs position, game + position matched',unit:opp?.unit||'/g',method:'pace'});
+ }else if(sport==='nba'){
+  fromStat('Minutes / game',12,34);
+  fromStat('Usage rate',10,30,{unit:'%'});
+  const pace=extra.get('Opp pace');
+  add('Opp pace',pace?.value,pace?.bench,14,
+   {source:pace?.source||'Verified opponent matchup and league pace',unit:'/g',method:'pace'});
+ }else if(sport==='mlb'){
+  fromStat('Batting order',12,3,{method:'slot',direction:'low'});
+  if(['hr','homeRun','hits','totalBases','rbi','runs','singles','doubles','walks','hrr'].includes(market))
+   fromStat('Opp starter ERA',18,4,{method:'era'});
+ }
+ const coverage=metrics.reduce((sum,m)=>sum+m.weight,0);
+ if(!eligible)return empty('Need at least 5 exact player / market game logs ('+games.length+'/5)',metrics,coverage,possible,games.length);
+ if(coverage<possible*.55)return empty('Not enough verified player and matchup statistics ('+Math.round(100*coverage/possible)+'% verified)',metrics,coverage,possible,games.length);
+ const raw=metrics.reduce((sum,m)=>sum+m.impact*m.weight,0)/coverage;
+ const latest=Date.parse(games[0]?.date||''),historical=sport==='nba'&&Number.isFinite(latest)&&Date.now()-latest>90*86400000;
+ let score=Math.round(raw);
+ if(games.length<10)score=Math.min(score,82);
+ if(coverage<possible)score=Math.min(score,84);
+ if(historical)score=Math.min(score,74);
+ const tier=historical?'HISTORICAL':coverage<possible?'PARTIAL':
+  score>=85?'ELITE':score>=70?'STRONG':score>=50?'WATCH':'CAUTION';
+ return {score,tier,modeled:false,metrics,coverage,totalWeight:possible,games:games.length,
+  historical,evidence:historical?'HISTORICAL · VERIFIED STATS':coverage<possible?
+   'VERIFIED STATS · PARTIAL COVERAGE':'VERIFIED PLAYER + MATCHUP STATS',
+  reason:null};
+}
 function signalScore(row,data,doc){
  if(String(row?.sport||'').toLowerCase()==='nhl')return nhlSignalScore(row,data);
- const identity=signalIdentity(row,data);
- if(!identity.ok)return {score:null,reason:identity.reason,modeled:false};
- const series=seriesFromResearch(data,row);
- const target=productionRubric[String(row?.sport||'').toLowerCase()]?.[String(row?.market||'')];
- if(!target)return {score:null,reason:'No calibrated player-market scoring rubric yet',modeled:false};
- if(series.length<5)return {score:null,reason:'Need 5 verified '+marketName(row)+' game logs ('+series.length+'/5)',modeled:false};
- const values=series.slice(0,10).map(g=>g.value).filter(v=>n(v)!==null&&v>=0);
- if(values.length<5)return {score:null,reason:'Insufficient verified market production',modeled:false};
- const recent=values.slice(0,5),mean5=meanValues(recent),mean10=meanValues(values);
- const consistency=100*values.filter(v=>v>=target*.5).length/values.length;
- const factors=[
-  {label:'Recent player production',value:scaleProduction(mean5,target),weight:48,
-   note:'Last 5: '+amount(mean5)+' '+marketName(row)+'/game · TSO benchmark '+amount(target)},
-  {label:'Extended historical form',value:scaleProduction(mean10,target),weight:26,
-   note:'Last '+values.length+': '+amount(mean10)+' per game · independent of sportsbook line'},
-  {label:'Meaningful output frequency',value:consistency,weight:12,
-   note:values.filter(v=>v>=target*.5).length+'/'+values.length+' games reached half the TSO production benchmark (not a bet line)'}
- ];
- const role=verifiedVolume(data,doc,row);
- if(role)factors.push({label:'Verified role and opportunity',value:role.value,weight:12,note:role.detail});
- const matchup=verifiedMarketMatchup(data,row);
- if(matchup?.value!==null&&matchup?.value!==undefined)
-  factors.push({label:'Opponent matchup',value:matchup.value,weight:8,note:matchup.detail});
- const proj=independentProjection(row);
- if(proj)factors.push({label:'Independent model forecast',value:proj.value,weight:20,note:proj.detail});
- const coverage=factors.reduce((sum,f)=>sum+f.weight,0);
- const totalWeight=126; // production 48, L10 26, consistency 12, role 12, matchup 8, model 20
- const latest=Date.parse(series[0]?.date||'');
- const oldNba=String(row?.sport||'').toLowerCase()==='nba'&&Number.isFinite(latest)&&Date.now()-latest>90*86400000;
- let score=Math.round(factors.reduce((sum,f)=>sum+f.value*f.weight,0)/coverage);
- if(series.length<10)score=Math.min(score,82);
- if(!proj||!role||!matchup)score=Math.min(score,84);
- if(oldNba)score=Math.min(score,74);
- const tier=oldNba?'HISTORICAL':coverage<totalWeight?'PARTIAL':
-   score>=85?'ELITE':score>=70?'STRONG':score>=50?'WATCH':'CAUTION';
- return {score,tier,modeled:Boolean(proj),factors,coverage,totalWeight,games:values.length,
-  benchmark:target,matchupContext:matchup?.value===null?matchup.detail:null,
-  evidence:oldNba?'PRIOR-SEASON HISTORY':proj?'MODEL + VERIFIED HISTORY':
-    role?'HISTORY + OBSERVED USAGE':'VERIFIED HISTORY ONLY',
-  l5:mean5,l10:mean10,historical:oldNba};
+ return verifiedSignalEvaluation(row,data,doc);
 }
 function signalMini(row,data,doc){
  const s=signalScore(row,data,doc);
