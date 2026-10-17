@@ -28,7 +28,7 @@ function gameItem(game){
  return '<button class="tso-sim-game-choice'+(active?' is-active':'')+'" data-tsos-game="'+esc(game.gameId)+'" aria-pressed="'+active+'">'
   +'<span class="tso-sim-game-short"><b>'+esc(game.away.abbr)+'</b><em>at</em><b>'+esc(game.home.abbr)+'</b></span>'
   +'<span class="tso-sim-game-date">'+esc(dateText(game.kickoff))+'</span>'
-  +'<span class="tso-sim-game-result">'+(game.availability?.requiresRerun?'MODEL RECALCULATION REQUIRED':game.availability?.rosterVerified!==true?'VERIFY ROSTER TO VIEW':'TSO MODEL · '+number(game.projected.awayScore,1)+' – '+number(game.projected.homeScore,1))+'</span></button>';
+  +'<span class="tso-sim-game-result">'+(game.availability?.error?'ROSTER SOURCE UNAVAILABLE':game.availability?.requiresRerun?'MODEL RECALCULATION REQUIRED':game.availability?.rosterVerified!==true?'VERIFY ROSTER TO VIEW':'TSO MODEL · '+number(game.projected.awayScore,1)+' – '+number(game.projected.homeScore,1))+'</span></button>';
 }
 function playerOf(game,team,role){
  const rows=(game.players||[]).filter(p=>teamCode(p.team)===teamCode(team));
@@ -177,7 +177,7 @@ function replayHTML(game){
 async function verifySelectedRoster(gameId){
  if(!gameId||!state.doc)return;
  const id=String(gameId),token=++state.selectionToken;
- if(state.game?.availability?.rosterVerified===true||state.game?.availability?.requiresRerun===true)return;
+ if(state.game?.availability?.rosterVerified===true)return;
  const loading=$(state.root,'[data-tsos-roster-status]');
  if(loading)loading.textContent='Verifying active 2026 rosters for '+(state.game?.away?.abbr||'')+' @ '+(state.game?.home?.abbr||'')+'…';
  try{
@@ -213,13 +213,13 @@ function paintPage(){
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
   +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
-  +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':state.game.availability?.requiresRerun?'MODEL RERUN REQUIRED':state.game.availability?.error?'ROSTER CHECK FAILED':'ROSTER CHECK PENDING')+'</b></header>'
+  +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':state.game.availability?.error?'ROSTER SOURCE UNAVAILABLE':state.game.availability?.requiresRerun?'MODEL RERUN REQUIRED':'ROSTER CHECK PENDING')+'</b></header>'
   +(ready?strip(state.game)+matchupHTML(state.game) +injuryHTML(state.game)+(playbackReady?replayHTML(state.game):'<div class="tso-sim-roster-pending" role="status"><strong>REPRESENTATIVE REPLAY NOT AVAILABLE</strong> The sampled 50K score could not be reconstructed within verified player-usage limits. Showing projections only instead of inventing play statistics.</div>'):
-    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.requiresRerun===true?
-      'A new verified 50,000-run model is needed because this run has expired or contains mismatched players. Projections and replay are withheld.':
-      state.game.availability?.error?
-      '<strong>ROSTER VALIDATION UNAVAILABLE</strong> '+esc(state.game.availability.error)+'. <button type="button" data-tsos-retry-roster>TRY AGAIN</button>':
-      'The sampled 50,000-run world exists. Checking current active rosters against the run before enabling it; injury reports remain verified only as of the original audit.')+'</div>')
+    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.error?
+      '<strong>ROSTER SOURCE UNAVAILABLE</strong> '+esc(state.game.availability.error)+'. <button type="button" data-tsos-retry-roster>RECHECK ROSTER</button>':
+      state.game.availability?.requiresRerun===true?
+      '<strong>MODEL RECALCULATION REQUIRED</strong> '+esc(state.game.availability?.note||'The model roster differs from the current active roster.')+' Projections and replay remain withheld until a verified rerun.':
+      'A representative 50,000-run world exists. Verifying active rosters against its player list before enabling playback.')+'</div>')
   +'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
   const game=games.find(g=>g.gameId===btn.dataset.tsosGame);
@@ -227,12 +227,12 @@ function paintPage(){
    stop();state.selectionToken++;state.game=game;
    try{sessionStorage.setItem('tso-sim-last-game',game.gameId)}catch(e){}
    paintPage();
-   if(game.availability?.rosterVerified!==true&&!game.availability?.requiresRerun)void verifySelectedRoster(game.gameId);
+   if(game.availability?.rosterVerified!==true)void verifySelectedRoster(game.gameId);
   }
  }));
  if(!playbackReady){
   $(main,'[data-tsos-retry-roster]')?.addEventListener('click',()=>{
-   if(!state.game?.availability?.requiresRerun)void verifySelectedRoster(state.game.gameId);
+   if(state.game?.availability?.rosterVerified!==true)void verifySelectedRoster(state.game.gameId);
   });
   return;
  }
@@ -525,7 +525,7 @@ async function mount(root){
   const remembered=requested||sessionStorage.getItem('tso-sim-last-game');
   state.game=doc.games.find(g=>g.gameId===remembered)||null;
   paintPage();
-  if(!state.game?.availability?.requiresRerun)void verifySelectedRoster(state.game.gameId);
+  if(state.game?.availability?.rosterVerified!==true)void verifySelectedRoster(state.game.gameId);
  }catch(e){
   if(token!==state.token||!state.root?.isConnected)return;
   const area=$(state.root,'[data-tsos-content]');if(area)area.innerHTML='<div class="tso-sim-error"><b>Simulation feed unavailable</b><p>'+esc(e?.message||e)+'</p><button type="button" data-tsos-retry>RETRY</button></div>';
