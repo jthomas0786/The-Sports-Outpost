@@ -7921,7 +7921,7 @@
   }
 
   const labels = {
-    home:'Today', games:'Games', live:'Live Center', research:'Research', models:'Models',
+    home:'Today', games:'Games', simulations:'TSO Simulations', live:'Live Center', research:'Research', models:'Models',
     gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Ping', community:'Community',
     leaderboard:'Leaderboard', profile:'Profile', admin:'Admin Control Room'
   };
@@ -8211,7 +8211,10 @@
     const previousScroll=window.scrollY||document.documentElement.scrollTop||0;
     if(currentRoute === 'home') pageContent.innerHTML = window.TSO2Decision.todayHTML(currentLeague);
     else if(currentRoute === 'games') pageContent.innerHTML = window.TSO2Decision.gamesHTML(currentLeague);
+    else if(currentRoute === 'simulations') pageContent.innerHTML = window.TSO2Simulations?.pageHTML?.()||'<section>Simulations unavailable</section>';
     else if(window.TSO2Pages?.[currentRoute]) pageContent.innerHTML = window.TSO2Pages[currentRoute](currentLeague);
+    if(currentRoute==='simulations') window.TSO2Simulations?.mount?.(document.querySelector('[data-tso-simulations]'));
+    else window.TSO2Simulations?.dispose?.();
     bindDynamic();
     if(currentRoute==='parlays')mountParlayPingWorkspace();
     renderDecisionDashboard();
@@ -8241,6 +8244,10 @@
     if(!labels[route]) return;
     if(route==='admin'&&!isOwner()){ notify('Owner access required.'); return; }
     closeProfileMenu();
+    if(route==='simulations'){
+      currentLeague='nfl';
+      shell.dataset.league='nfl';
+    }
     if(route==='gameedge'&&currentLeague==='all'){
       currentLeague='nhl';
       shell.dataset.league='nhl';
