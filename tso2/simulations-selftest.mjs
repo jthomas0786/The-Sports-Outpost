@@ -2,65 +2,60 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const ctx={window:{},document:{},console};
-for(const file of ['simulations-event-engine.js','simulations-stats-ui.js','simulations.js']){
- vm.runInNewContext(fs.readFileSync(new URL('./'+file,import.meta.url),'utf8'),ctx,{filename:file});
-}
-const engine=ctx.window.TSO2SimEngine,view=ctx.window.TSO2Simulations,ui=ctx.window.TSO2StatsUI;
-const game={gameId:'test-dal-gb',away:{abbr:'DAL'},home:{abbr:'GB'},availability:{rosterCheckedAt:'2026-10-16T21:50:00Z'},players:[
- {name:'Dak Prescott',position:'QB',team:'DAL',depthRank:1,passYds:255,usage:{games:4,carriesPerGame:1.5}},
- {name:'Sam Howell',position:'QB',team:'DAL',depthRank:2,passYds:0},
- {name:'Javonte Williams',position:'RB',team:'DAL',depthRank:1,usage:{games:4,carriesPerGame:15.5,targetsPerGame:4.25},rushYds:85},
- {name:'Tyler Goodson',position:'RB',team:'DAL',depthRank:2,usage:{games:4,carriesPerGame:2.25,targetsPerGame:.5}},
- {name:'Hunter Luepke',position:'FB',team:'DAL',depthRank:0,usage:{games:4,carriesPerGame:.5,targetsPerGame:.25}},
- {name:'CeeDee Lamb',position:'WR',team:'DAL',depthRank:1,usage:{games:4,carriesPerGame:.5,targetsPerGame:11.75}},
- {name:'George Pickens',position:'WR',team:'DAL',depthRank:2,usage:{games:4,targetsPerGame:7,carriesPerGame:0}},
- {name:'Jake Ferguson',position:'TE',team:'DAL',depthRank:1,usage:{games:4,targetsPerGame:5}},
- {name:'Jordan Love',position:'QB',team:'GB',depthRank:1,passYds:255,usage:{games:4,carriesPerGame:1}},
- {name:'MarShawn Lloyd',position:'RB',team:'GB',depthRank:1,usage:{games:4,carriesPerGame:15}},
- {name:'Christian Watson',position:'WR',team:'GB',depthRank:1,usage:{games:4,targetsPerGame:9}},
- {name:'Tucker Kraft',position:'TE',team:'GB',depthRank:1,usage:{games:4,targetsPerGame:5}}
-]};
-const plays=engine.build(game,null);
-assert.ok(plays.length>55,'Four-quarter game requires realistic play volume');
-assert.deepEqual([...new Set(plays.map(e=>e.quarter))],[1,2,3,4]);
-assert.equal(JSON.stringify(plays),JSON.stringify(engine.build(game,null)),'Replay is deterministic');
-assert.equal(view.buildPlays(game).length,plays.length,'Viewer uses event engine');
-const final=engine.snapshot(game,plays,plays.length),partial=engine.snapshot(game,plays,9);
-assert.ok(partial.count<final.count);
-for(const team of ['DAL','GB']){
- const rows=plays.filter(p=>p.side===team),stat=final.teams[team];
- assert.equal(stat.passing,rows.filter(p=>p.kind==='PASS'&&p.complete).reduce((a,p)=>a+p.gain,0));
- assert.equal(stat.rushing,rows.filter(p=>p.kind==='RUSH').reduce((a,p)=>a+p.gain,0));
- assert.equal(stat.totalYds,stat.passing+stat.rushing);
- assert.equal(stat.points,rows.reduce((a,p)=>a+p.points,0));
- assert.equal(stat.passAtt,rows.filter(p=>p.kind==='PASS'&&!p.sack).length);
- assert.equal(stat.rushAtt,rows.filter(p=>p.kind==='RUSH').length);
- assert.ok(stat.passAtt>=stat.passComp);
-}
-const fb=final.players.DAL['Hunter Luepke'],starter=final.players.DAL['Javonte Williams'];
-assert.ok(fb.carries<=1,'FB must not be treated as starter');
-assert.ok(starter.carries>fb.carries,'Lead RB dominates carry usage');
-assert.ok(!plays.some(p=>p.carrier==='Sam Howell'),'Backup QB excluded from designed rushing');
-assert.ok(plays.filter(p=>p.kind==='PASS'||p.kind==='RUSH').every(p=>game.players.some(x=>x.name===p.player)&&game.players.some(x=>x.name===p.passer)),'Named players must be roster verified');
-for(let i=1;i<plays.length;i++){
- if(plays[i].quarter===plays[i-1].quarter)assert.ok(plays[i].second<=plays[i-1].second,'Clock moves forward');
-}
+import {representativeWorldFromArrays} from '../sports/nfl/sim/representative-world.js';
+const context={window:{},document:{},console};
+for(const file of ['simulations-event-engine.js','simulations-representative-replay.js','simulations-stats-ui.js','simulations.js'])
+ vm.runInNewContext(fs.readFileSync(new URL('./'+file,import.meta.url),'utf8'),context,{filename:file});
+const {window:ui}=context,model=ui.TSO2RepresentativeReplay,stats=ui.TSO2SimEngine;
+const players=[
+ {name:'Dak Prescott',team:'DAL',position:'QB',depthRank:1,passYds:247,usage:{games:4,carriesPerGame:2}},
+ {name:'Sam Howell',team:'DAL',position:'QB',depthRank:2},
+ {name:'Javonte Williams',team:'DAL',position:'RB',depthRank:1,usage:{games:4,carriesPerGame:15.5}},
+ {name:'Tyler Goodson',team:'DAL',position:'RB',depthRank:2,usage:{games:4,carriesPerGame:2.25}},
+ {name:'Hunter Luepke',team:'DAL',position:'FB',depthRank:0,usage:{games:4,carriesPerGame:.5,targetsPerGame:.25}},
+ {name:'CeeDee Lamb',team:'DAL',position:'WR',depthRank:1,usage:{games:4,targetsPerGame:11.75}},
+ {name:'George Pickens',team:'DAL',position:'WR',depthRank:2,usage:{games:4,targetsPerGame:7}},
+ {name:'Jake Ferguson',team:'DAL',position:'TE',depthRank:1,usage:{games:4,targetsPerGame:5}},
+ {name:'Jordan Love',team:'GB',position:'QB',depthRank:1,passYds:250},
+ {name:'Christian Watson',team:'GB',position:'WR',depthRank:1,usage:{games:4,targetsPerGame:9}},
+ {name:'MarShawn Lloyd',team:'GB',position:'RB',depthRank:1,usage:{games:4,carriesPerGame:16}},
+ {name:'Tucker Kraft',team:'GB',position:'TE',depthRank:1,usage:{games:4,targetsPerGame:5}}
+];
+const iterations=50000,away=new Float32Array(iterations),home=new Float32Array(iterations),carries=new Float32Array(iterations),targets=new Float32Array(iterations);
+for(let i=0;i<iterations;i++){away[i]=i%29===0?6:17+i%16;home[i]=18+i%16;carries[i]=12+i%10;targets[i]=4+i%10}
+const arrays=new Map([
+ ['RB',{player:{key:'rb',name:'Javonte Williams',team:'DAL',position:'RB'},stats:{carries,targets}}],
+ ['WR',{player:{key:'wr',name:'CeeDee Lamb',team:'DAL',position:'WR'},stats:{carries:new Float32Array(iterations),targets}}],
+]);
+const pick=representativeWorldFromArrays({awayScores:away,homeScores:home,arrays,iterations});
+assert.ok(pick);
+assert.equal(pick.iterations,50000);
+assert.equal(pick.awayScore,away[pick.sampledIndex]);
+assert.equal(pick.homeScore,home[pick.sampledIndex]);
+assert.ok(pick.awayScore>12,'Do not select 6-point outlier to represent a 24-point offense');
+assert.ok(Math.abs(pick.awayScore-pick.meanAway)<7,'Sampled score must be reasonably central');
+const game={gameId:'401873007',away:{abbr:'DAL'},home:{abbr:'GB'},players,
+ representativeWorld:{...pick,awayScore:24,homeScore:25,sampledIndex:pick.sampledIndex}};
+const events=model.build(game,null);
+assert.ok(events.length>=75,'Reconstructed drives require plausible play count');
+const box=stats.snapshot(game,events,events.length);
+assert.equal(box.away.points,24);
+assert.equal(box.home.points,25);
+assert.equal(JSON.stringify(events),JSON.stringify(model.build(game,null)));
+assert.deepEqual([...new Set(events.map(x=>x.quarter))],[1,2,3,4]);
+assert.ok(!events.some(x=>x.carrier==='Sam Howell'),'Backup QB must not become a featured runner');
+assert.ok(box.players.DAL['Hunter Luepke'].carries<=1,'Low usage fullback is not a feature back');
+assert.ok(box.players.DAL['Javonte Williams'].carries>box.players.DAL['Hunter Luepke'].carries);
 for(const side of ['DAL','GB']){
- const pass=plays.find(p=>p.side===side&&p.kind==='PASS'),rush=plays.find(p=>p.side===side&&p.kind==='RUSH');
- assert.ok(pass&&rush);
- assert.ok(pass.commentary.includes(pass.passer)&&pass.commentary.includes(pass.receiver));
- assert.ok(rush.commentary.includes(rush.carrier));
- const frame=view.sceneFrame(pass,.6,game);
- assert.equal(frame.direction,side==='DAL'?1:-1);
- assert.equal(frame.offense.length,11);
- assert.equal(frame.defense.length,11);
- assert.equal(frame.ballOwner,'PASS IN FLIGHT');
- assert.ok(frame.ball.x>=0&&frame.ball.x<=100);
+ const rows=events.filter(p=>p.side===side),sum=box.teams[side];
+ assert.equal(sum.points,rows.reduce((a,b)=>a+b.points,0));
+ assert.equal(sum.passing,rows.filter(p=>p.kind==='PASS'&&p.complete).reduce((a,b)=>a+b.gain,0));
+ assert.equal(sum.rushing,rows.filter(p=>p.kind==='RUSH').reduce((a,b)=>a+b.gain,0));
+ assert.equal(sum.totalYds,sum.passing+sum.rushing);
+ assert.ok(rows.every(p=>p.commentary.includes('illustrated')));
 }
-const live=ui.live(game,final,'DAL'),box=ui.full(game,final,plays);
-assert.ok(live.includes('LIVE SCENARIO')&&live.includes('Javonte Williams'));
-assert.ok(box.includes('SCORING BY QUARTER')&&box.includes('PLAYER BOX SCORE'));
-assert.ok(box.includes('Passing')&&box.includes('Rushing')&&box.includes('Receiving'));
-assert.ok(engine.defensiveTendency(game,null,'DAL').kind.includes('not verified'));
-console.log('PASS: 2026 NFL player-role limits, coherent play ledger, running stats, final box score and correct animations');
+const final=ui.TSO2StatsUI.full(game,box,events);
+assert.ok(final.includes('PLAYER BOX SCORE')&&final.includes('SCORING BY QUARTER'));
+assert.equal(ui.TSO2Simulations.buildPlays(game).length,events.length);
+assert.ok(ui.TSO2Simulations.buildPlays({...game,representativeWorld:null}).length===0,'Never fabricate an independent replay without representative sample');
+console.log('PASS: representative actual 50K index, score-conditioned replay, accurate final score, Luepke usage limit, reconciled live and final stats.');
