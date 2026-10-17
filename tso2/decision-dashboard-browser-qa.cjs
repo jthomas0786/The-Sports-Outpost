@@ -90,11 +90,11 @@ fs.mkdirSync(out,{recursive:true});
     if(!root)throw Error('Games board root unavailable for theme integration check');
     const override=document.createElement('style');
     override.id='tso-games-theme-qa-only';
-    override.textContent=':root{--bg:#0a0e25;--tso-page-gutter:39px;--card:#192a3e;--surface:#233c54;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
+    override.textContent=':root{--bg:#0a0e25;--tso-page-gutter:39px;--tso-body-size:16px;--tso-heading-size:41px;--tso-button-height:52px;--card:#192a3e;--surface:#233c54;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
     document.head.appendChild(override);
     const probe=document.createElement('div');probe.setAttribute('data-theme-mutation-test','');
     probe.style.cssText='position:absolute;left:-20000px;top:0;width:600px';
-    probe.innerHTML='<section class="gb2-panel"></section><article class="mi-player"></article><article class="edge2-market edge2-market--moneyline"></article><button class="mi-add">ADD</button><button class="gb2-back">BACK</button><div class="mi-line-model"></div><div class="mi-signal-track"><span style="width:60%"></span></div><div class="gb2-prob-track"><i style="width:60%"></i></div>';
+    probe.innerHTML='<section class="gb2-panel"></section><section class="gb2-hero"></section><div class="mi-player-body"></div><article class="mi-player"></article><article class="edge2-market edge2-market--moneyline"></article><button class="mi-add">ADD</button><button class="gb2-back">BACK</button><div class="mi-line-model"></div><div class="mi-signal-track"><span style="width:60%"></span></div><div class="gb2-prob-track"><i style="width:60%"></i></div>';
     root.appendChild(probe);
     const css=q=>getComputedStyle(root.querySelector(q));
     const get={
@@ -114,7 +114,11 @@ fs.mkdirSync(out,{recursive:true});
      gridGap:css('.gb2-grid').columnGap,
      maxWidth:getComputedStyle(root).maxWidth,
      pageBackground:getComputedStyle(document.querySelector('.app-shell.broadcast-shell')).backgroundColor,
-     pageGutter:getComputedStyle(document.querySelector('.broadcast-main')).paddingLeft
+     pageGutter:getComputedStyle(document.querySelector('.broadcast-main')).paddingLeft,
+     heading:css('.gb2-page-head h1').fontSize,
+     bodyText:css('.gb2-page-head p').fontSize,
+     heroPadding:css('[data-theme-mutation-test] .gb2-hero').paddingTop,
+     controlHeight:css('[data-theme-mutation-test] .gb2-back').minHeight
     };
     probe.remove();override.remove();
     return get;
@@ -135,6 +139,10 @@ fs.mkdirSync(out,{recursive:true});
   assert.equal(dynamicTheme.maxWidth,'1690px','Games content uses dashboard maximum width');
   assert.equal(dynamicTheme.pageBackground,'rgb(10, 14, 37)','Games shell uses dashboard page background');
   assert.equal(dynamicTheme.pageGutter,'39px','Games page uses dashboard responsive page gutters');
+  assert.equal(dynamicTheme.heading,'41px','Games heading uses dashboard heading size');
+  assert.equal(dynamicTheme.bodyText,'16px','Games body text uses dashboard body font size');
+  assert.equal(dynamicTheme.heroPadding,'27px','Matchup hero uses dashboard panel padding');
+  assert.equal(dynamicTheme.controlHeight,'52px','Games action controls use dashboard button height');
   console.log('PASS temporary Theme Studio edits propagate to Games board, matchup/market, scouting, progress bars, buttons, borders and layout:',JSON.stringify(dynamicTheme));
   const list=page.locator('[data-gb2-grid] [data-gb2-game]');
   if(await list.count()){
