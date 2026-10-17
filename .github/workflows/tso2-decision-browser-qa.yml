@@ -6,6 +6,8 @@ on:
     paths:
       - 'tso2/decision-dashboard-browser-qa.cjs'
       - 'tso2/pages.js'
+      - 'tso2/matchup-intelligence.js'
+      - 'tso2/nhl-reference-live-selftest.mjs'
       - 'tso2/styles.css'
       - 'tso2/index.html'
       - 'tso2/app.js'
@@ -37,6 +39,8 @@ jobs:
       - name: Verify Games Board script parses
         run: |
           node --check tso2/games-board-v2.js
+          node --check tso2/pages.js
+          node --check tso2/matchup-intelligence.js
           node --check tso2/theme-studio.js
           node tso2/theme-studio-selftest.mjs
           node tso2/theme-public-api-selftest.mjs
