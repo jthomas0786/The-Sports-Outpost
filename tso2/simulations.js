@@ -44,42 +44,52 @@ function selectedPlayer(game,team,type,rng){
  return playerOf(game,team,type==='rush'?'rb':'rec')||null;
 }
 function buildPlays(game){
- const rng=randomGenerator(seeded(game.gameId+'|tso-sim-replay-v1'));
+ const rng=randomGenerator(seeded(game.gameId+'|tso-sim-football-routes-v2'));
  const plays=[];let away=0,home=0,sequence=0;
  const teams=[game.away.abbr,game.home.abbr];
- const mean=(side)=>Number(side===game.away.abbr?game.projected.awayScore:game.projected.homeScore)||21;
+ const mean=side=>Number(side===game.away.abbr?game.projected.awayScore:game.projected.homeScore)||21;
+ const routeNames=['SLANT','OUT','POST','GO','CROSS','CURL','CORNER','FLAT'];
  for(let q=1;q<=4;q++){
   for(let drive=0;drive<4;drive++){
    const side=teams[(q+drive)%2],opp=teams[(q+drive+1)%2];
-   let y=20+Math.floor(rng()*13),first=10;
+   let yard=20+Math.floor(rng()*13);
    const numPlays=4+Math.floor(rng()*3);
    for(let n=0;n<numPlays;n++){
-    const pass=rng()<(mean(side)<16?.53:.61),qb=playerOf(game,side,'qb');
-    const carrier=selectedPlayer(game,side,pass?'pass':'rush',rng);
+    const qb=playerOf(game,side,'qb');
+    const pass=Boolean(qb)&&rng()<(mean(side)<16?.53:.61);
+    const player=selectedPlayer(game,side,pass?'pass':'rush',rng);
+    const playerName=player?.name||'Unlisted '+(pass?'receiver':'runner');
+    const passer=qb?.name||'Unlisted quarterback';
+    const beforeAway=away,beforeHome=home,route=routeNames[Math.floor(rng()*routeNames.length)];
     const clock=Math.max(1,15-Math.round((drive*3.65+n*3.65/numPlays)*10)/10);
-    const down=Math.min(4,1+n%4),gain=pass?(rng()<.28?0:2+Math.floor(rng()*24)):(rng()<.12?-2:1+Math.floor(rng()*12));
-    const corrected=Math.min(gain,100-y),incomplete=pass&&gain===0;
-    const touchdown=corrected>0&&y+corrected>=100;
-    const scoreType=touchdown?'TD':null;
-    const before=y;y=Math.min(100,y+corrected);
-    if(scoreType){if(side===game.away.abbr)away+=7;else home+=7}
-    const receiver=carrier?.name||('No verified '+(pass?'receiver':'rusher')+' in current model');
-    let commentary=incomplete?(qb?.name||'Quarterback')+' pass falls incomplete.':
-      pass?(qb?.name||'Quarterback')+' completes to '+receiver+' for '+corrected+' yards.':
-           receiver+' rushes for '+corrected+' yards.';
-    if(corrected<0)commentary=receiver+' is stopped for a loss of '+Math.abs(corrected)+' yards.';
-    if(touchdown)commentary='TOUCHDOWN! '+receiver+' scores for '+side+'. (Illustrative play)';
+    const down=Math.min(4,1+n%4);
+    const rawGain=pass?(rng()<.28?0:2+Math.floor(rng()*24)):(rng()<.12?-2:1+Math.floor(rng()*12));
+    const gain=Math.min(rawGain,100-yard),incomplete=pass&&gain===0,touchdown=gain>0&&yard+gain>=100;
+    const startYard=yard;
+    yard=Math.max(1,Math.min(100,yard+gain));
+    if(touchdown){if(side===game.away.abbr)away+=7;else home+=7}
+    const action=pass
+     ?(incomplete?passer+' drops back and targets '+playerName+' on a '+route.toLowerCase()+' — incomplete.'
+       :passer+' drops back, throws to '+playerName+' on a '+route.toLowerCase()+' — '+gain+' yards'+(touchdown?' and a touchdown!':'.'))
+     :(passer+' hands off to '+playerName+', who '+(gain<0?'loses '+Math.abs(gain):'gains '+gain)+' yards'+(touchdown?' for a touchdown!':'.'));
     const clockSec=Math.max(0,Math.round(clock*60));
+    const slot=pass?(player?.position==='RB'?2:Math.floor(rng()*4)):2;
     plays.push({index:sequence++,quarter:q,clock:Math.floor(clockSec/60)+':'+String(clockSec%60).padStart(2,'0'),
-      side,opponent:opp,down,first,yard:before,gain:corrected,kind:pass?'PASS':'RUSH',
-      player:receiver,qb:qb?.name||'QB',scoreAway:away,scoreHome:home,commentary,td:touchdown});
+      side,opponent:opp,down,first:10,yard:startYard,gain,kind:pass?'PASS':'RUSH',
+      player:playerName,receiver:pass?playerName:null,carrier:pass?null:playerName,
+      passer,qb:passer,route,targetSlot:slot,complete:pass&&!incomplete,
+      beforeAway,beforeHome,scoreAway:away,scoreHome:home,
+      commentary:action+' (Illustrative play)',td:touchdown});
     if(touchdown)break;
    }
-   if(y<100 && rng()<Math.max(.10,Math.min(.40,mean(side)/65))){
-    const before=y;if(side===game.away.abbr)away+=3;else home+=3;
-    plays.push({index:sequence++,quarter:q,clock:(Math.max(0,11-drive*3))+':09',side,opponent:opp,down:4,first:10,yard:before,gain:0,
-      kind:'FIELD GOAL',player:'Kicking unit',qb:'',scoreAway:away,scoreHome:home,
-      commentary:'Field goal good for '+side+'. (Illustrative sequence)',td:false});
+   if(yard<100&&rng()<Math.max(.10,Math.min(.40,mean(side)/65))){
+    const beforeAway=away,beforeHome=home;
+    if(side===game.away.abbr)away+=3;else home+=3;
+    plays.push({index:sequence++,quarter:q,clock:(Math.max(0,11-drive*3))+':09',
+      side,opponent:opp,down:4,first:10,yard,gain:0,kind:'FIELD GOAL',
+      player:'Kicking unit',passer:'',receiver:null,carrier:null,route:null,targetSlot:null,complete:false,
+      beforeAway,beforeHome,scoreAway:away,scoreHome:home,
+      commentary:side+' kicking unit converts a field goal. Individual kicker not available in model. (Illustrative play)',td:false});
    }
   }
  }
@@ -130,7 +140,7 @@ function replayHTML(game){
   +'<div class="tso-sim-stadium"><aside class="tso-sim-players">'+featured(game,game.away.abbr).map(playerPill).join('')+'<div class="tso-sim-side-name">'+esc(game.away.abbr)+' PLAYER PROJECTIONS</div></aside>'
   +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div></div>'
   +'<aside class="tso-sim-players">'+featured(game,game.home.abbr).map(playerPill).join('')+'<div class="tso-sim-side-name">'+esc(game.home.abbr)+' PLAYER PROJECTIONS</div></aside></div>'
-  +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><b data-tsos-play>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
+  +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-play>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
   +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
@@ -198,6 +208,7 @@ function updatePlay(){
  write('[data-tsos-quarter]','Q'+event.quarter);write('[data-tsos-clock]',event.clock);
  write('[data-tsos-away]',event.scoreAway);write('[data-tsos-home]',event.scoreHome);
  write('[data-tsos-possession]',event.side+' POSSESSION · '+event.kind);
+ write('[data-tsos-ball-holder]',event.kind==='PASS'?'BALL: '+event.passer+' → '+event.receiver:event.kind==='RUSH'?'BALL: '+event.passer+' → '+event.carrier:'BALL: '+event.side+' KICKING UNIT');
  write('[data-tsos-play]',event.commentary);
  write('[data-tsos-seek-label]',(state.index+1)+' / '+state.plays.length);
  const seek=$(el,'[data-tsos-seek]');if(seek)seek.value=String(state.index);
