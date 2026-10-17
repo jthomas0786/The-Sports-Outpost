@@ -6,6 +6,7 @@ on:
       - tso-2.0-restructure
     paths:
       - .github/workflows/tso2-nfl-50k-recalculate.yml
+      - scripts/nfl-simulate.mjs
   workflow_dispatch:
 
 permissions:
@@ -75,6 +76,9 @@ jobs:
           const doc=JSON.parse(raw);
           const slate=JSON.parse(fs.readFileSync('/tmp/tso2-nfl-current/nfl.json','utf8'));
           const ids=new Set(slate.games.map(g=>String(g.gameId||g.id)));
+          const config=JSON.parse(fs.readFileSync('sports/nfl/sim/config.json','utf8'));
+          if(doc.engineVersion!==config.engineVersion)
+            throw Error('Batch did not use current engine '+config.engineVersion+'; got '+doc.engineVersion);
           if(doc.gameCount!==ids.size||doc.games?.length!==ids.size)
             throw Error('Game count mismatch: '+doc.games?.length+'/'+ids.size);
           const errors=[],summaries=[];
