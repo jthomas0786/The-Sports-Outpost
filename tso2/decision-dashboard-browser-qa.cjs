@@ -26,129 +26,54 @@ fs.mkdirSync(out,{recursive:true});
   await page.screenshot({path:path.join(out,'today-desktop.png'),fullPage:true,animations:'disabled'});
   console.log('PASS staging desktop Today: 4 routes, verified opportunity surface and saved 25-leg dock');
   await page.locator('[data-route="games"]').click();
-  await page.locator('[data-decision-games]').waitFor({state:'visible'});
-  await page.locator('[data-decision-game-list]').waitFor({state:'visible'});
+  await page.locator('[data-gb2-root]').waitFor({state:'visible',timeout:35000});
+  assert.equal((await page.locator('.gb2-page-head h1').innerText()).trim(),'Games Board');
+  assert.equal(await page.locator('[data-gb2-league]').count(),5,'ALL/NFL/NBA/NHL/MLB sport filters');
+  await page.locator('[data-gb2-grid]').waitFor({state:'visible'});
   await page.screenshot({path:path.join(out,'games-desktop.png'),fullPage:true,animations:'disabled'});
-  console.log('PASS staging desktop Games: compact game list and same-screen detail');
-  const list=page.locator('[data-decision-game-list] [data-decision-game]');
-  const n=await list.count();
-  if(n>0){
+  console.log('PASS staging Games Board: source-labelled model/market win chances and three-column cards');
+  const list=page.locator('[data-gb2-grid] [data-gb2-game]');
+  if(await list.count()){
+    const firstGameId=await list.first().getAttribute('data-gb2-game');
     await list.first().click();
-    const state=await page.evaluate(()=>({
-      hash:location.hash,
-      selectedNav:[...document.querySelectorAll('[data-league].is-active')].map(x=>x.dataset.league),
-      gameRows:document.querySelectorAll('[data-decision-game-list] [data-decision-game]').length,
-      detail:document.querySelector('[data-decision-game-detail]')?.innerText?.slice(0,400),
-      selectedId:window.TSO2Decision?.state?.selectedGameId
-    }));
-    console.log('Selected game diagnostics:',JSON.stringify(state));
-    await page.locator('.decision-game-header').waitFor({state:'visible',timeout:10000});
-    assert.equal(await page.locator('.decision-game-lines').count(),1);
-    assert.equal(await page.locator('.decision-game-props').count(),1);
-    assert.equal(await page.locator('.mi-team').count(),2,'Each matchup needs both teams defensive scouting panels');
-    assert.equal(await page.locator('.mi-ranked').count(),1,'One-page matchup must include ranked player analysis');
-    const playerCards=await page.locator('.mi-player-expand').count();
-
-    if(playerCards){
-      const collapsedSignal=page.locator('.mi-player [data-mi-signal]').first();
-      assert.equal(await collapsedSignal.count(),1,'Collapsed player must show TSO Prop Signal without opening');
-      assert.equal(await collapsedSignal.locator('.mi-signal-track').count(),1,'TSO Prop Signal requires visible progress track');
-      assert.equal((await collapsedSignal.locator('.mi-signal-kicker').innerText()).trim(),'TSO PROP SIGNAL');
-      await page.locator('.mi-player-expand').first().click();
-      await page.locator('.mi-player.is-open .mi-player-body').first().waitFor({state:'visible',timeout:12000});
-      assert.equal(await page.locator('.mi-player.is-open .mi-expanded-stats').count(),1,'Player accordion has model and market details');
-      assert.equal(await page.locator('.mi-player.is-open [data-mi-research]').count(),1,'Player accordion has inline recent form');
-      console.log('PASS verified prop opens inline and exposes probability, odds, and research source');
-    }else{
-      console.log('INFO: Matchup has no exact matched props in this real data snapshot, so only verified empty state is shown');
-    }
+    await page.locator('[data-gb2-detail]').waitFor({state:'visible',timeout:12000});
+    assert.equal(await page.locator('.gb2-hero').count(),1,'Selected game needs matchup hero');
+    assert.equal(await page.locator('.gb2-matchup .gb2-compare-row').count()>=3,true,'Actual matchup comparison');
+    assert.equal(await page.locator('.gb2-market-panel').count(),1,'Game markets included');
+    assert.equal(await page.locator('.gb2-props').count(),1,'Player prop intelligence included');
+    assert.equal(await page.locator('.mi-team').count(),2,'Defensive scouting must include both teams');
+    assert.equal(await page.locator('.mi-ranked').count(),1,'TSO player signal rankings included');
+    assert.ok(page.url().includes('#games'),'A selected matchup stays on the Games route');
     await page.screenshot({path:path.join(out,'game-intelligence-desktop.png'),fullPage:true,animations:'disabled'});
-    assert.ok(page.url().includes('#games'),'Game selection must not navigate away');
-    console.log('PASS click matchup: spread, ML, total and exact props visible on same route');
-  }else{
-    console.log('INFO: The real staging scoreboard has no selectable games for current sport; tested empty state.');
-  }
-  // Regression: rapid NHL game switching still works after live DOM repaint.
-  await page.locator('[data-decision-league="nhl"]').first().click();
-  await page.locator('[data-decision-game-list]').waitFor({state:'visible'});
-  const nhlIds=await page.locator('[data-decision-game-list] [data-decision-game]')
-    .evaluateAll(items=>items.slice(0,3).map(item=>item.dataset.decisionGame));
-  if(nhlIds.length>=2){
-    for(let i=0;i<6;i++){
-      if(i===2)await page.evaluate(()=>{
-        const strip=document.querySelector('[data-decision-game-list]');
-        if(strip)strip.innerHTML=strip.innerHTML;
-      });
-      const id=nhlIds[i%nhlIds.length];
-      await page.locator('[data-decision-game-list] [data-decision-game="'+id+'"]').click();
-      await page.waitForFunction(expected=>window.TSO2Decision?.state?.selectedGameId===expected,id,{timeout:10000});
-      assert.equal(await page.locator('.decision-game-header h2').count(),1,'NHL selection must show game detail');
-    }
-    console.log('PASS repeated NHL switches across live game-strip DOM replacement');
-  }else console.log('INFO NHL <2 games; isolated selector regression covers refreshes');
-  // Real sportsbook feed integration regression: a game with verified NFL
-  // player props must not render an empty player slate when source feeds do
-  // agree on eventId (even if abbreviations differ: LA vs LAR).
-  await page.locator('[data-decision-league="nfl"]').first().click();
-  await page.locator('[data-decision-game-list]').waitFor({state:'visible'});
-  const billsRams=page.locator('[data-decision-game-list] [data-decision-game]').filter({hasText:'BUF @ LAR'}).first();
-  if(await billsRams.count()){
-    await billsRams.click();
-    await page.locator('.mi-player').first().waitFor({state:'visible',timeout:25000});
-    const count=await page.locator('.mi-player').count();
-    assert.ok(count>0,'Real sportsbook BUF–LAR event has prop rows and cannot show an empty watch list');
-    assert.ok(await page.locator('[data-mi-filter="recYds"]').count()>0,'Receiving Yards should be its own exact market category');
-    assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No under selections may appear in the main Game Hub');
-    assert.ok(!(await page.locator('.mi-filters').innerText()).includes('OTHER PROPS'),'The filter bar should use real markets');
-    const checkSignalOrder=async label=>{
-      const status=await page.locator('[data-mi-ranking-status]').first().innerText();
-      if(!status.includes('highest to lowest')){
-        console.log('INFO '+label+' rankings verifying: '+status);
-        return;
-      }
-      const order=await page.locator('.mi-player').evaluateAll(nodes=>nodes.map(el=>{
-        const bar=el.querySelector('.mi-signal-mini [role="progressbar"]');
-        return bar?Number(bar.getAttribute('aria-valuenow')):null;
-      }));
-      const graded=order.filter(n=>n!==null);
-      assert.deepEqual(graded,[...graded].sort((a,b)=>b-a),label+': TSO Prop Signal desc');
-      const missing=order.indexOf(null);
-      if(missing>=0)assert.ok(order.slice(missing).every(n=>n===null),label+': ungraded last');
-      console.log('PASS '+label+' TSO Prop Signal order: '+JSON.stringify(order));
-    };
-    await checkSignalOrder('All Props');
-    await page.locator('[data-mi-filter="recYds"]').click();
-    assert.ok(await page.locator('.mi-player').count()>0,'Receiving Yards tab filters real source rows');
-    assert.equal(await page.locator('.mi-player-label small').filter({hasNotText:'Receiving Yards'}).count(),0,'Market tab only shows its selected market');
-    await checkSignalOrder('Receiving Yards');
-    console.log('PASS live NFL prop categories: Over/Yes only, specific market tabs and exact selection filtering');
-    await page.locator('.mi-player-expand').first().click();
-    await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});
-    // Inline charts may display a verified empty state if the research source
-    // lacks game-log values for a specific real selection. Never fabricate data.
-    await page.locator('.mi-player.is-open .mi-analytics').first().waitFor({state:'visible',timeout:12000});
-    // Verify real source-backed expansion, not merely the mock chart fixture.
-    await page.waitForFunction(()=>{
-      const el=document.querySelector('.mi-player.is-open .mi-analytics');
-      return el&&!el.textContent.includes('Loading verified player game logs');
-    },null,{timeout:15000}).catch(()=>{});
-    const sourceChart=await page.evaluate(()=>{
-      const active=document.querySelector('.mi-player.is-open');
-      return {
-        player:active?.querySelector('.mi-player-label b')?.textContent||'',
-        chartCount:active?.querySelectorAll('.mi-games-chart').length||0,
-        meterCount:active?.querySelectorAll('.mi-hit-track').length||0,
-        research:active?.querySelector('.mi-analytics')?.textContent?.slice(0,320)||''
-      };
-    });
-    console.log('LIVE player research chart:',JSON.stringify(sourceChart));
-    await page.screenshot({path:path.join(out,'verified-nfl-players-desktop.png'),fullPage:true,animations:'disabled'});
-    console.log('PASS LIVE BUF @ LAR real game: '+count+' verified player prop cards; click to expand same page');
-  }else{
-    console.log('INFO: BUF–LAR has rotated out of the live schedule; exact-ID regression covered by source test.');
+    const playable=page.locator('.mi-player-expand');
+    if(await playable.count()){
+      const signal=page.locator('.mi-player [data-mi-signal]').first();
+      assert.equal(await signal.count(),1,'TSO Signal visible before opening the player');
+      await playable.first().click();
+      await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});
+      assert.equal(await page.locator('.mi-player.is-open [data-mi-research]').count(),1,'Inline player history and visuals');
+      assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No unders in main prop intelligence');
+    }else console.log('INFO selected live game has no verified player props; isolated fixture validates expansion');
+    await page.locator('[data-gb2-back]').click();
+    await page.locator('[data-gb2-grid]').waitFor({state:'visible'});
+    assert.ok(await page.locator('[data-gb2-game="'+firstGameId+'"]').count()>0,'Back returns to exact slate');
+    console.log('PASS click game → matchup details & player props → back to all games');
+  }else console.log('INFO live scoreboard has no upcoming games for All; source-backed empty state shown');
+
+  // Regression: rapidly moving between sports must never switch sport as
+  // a side-effect of asynchronous game-line loading.
+  for(const league of ['nhl','nba','nfl','all']){
+    await page.locator('[data-gb2-league="'+league+'"]').click();
+    await page.locator('[data-gb2-root]').waitFor({state:'visible',timeout:15000});
+    assert.equal(await page.locator('[data-gb2-league="'+league+'"].is-active').count(),1,'Sport remains '+league);
   }
   await page.setViewportSize({width:390,height:844});
-  await page.evaluate(()=>document.querySelector('[data-route="home"]').click());
+  await page.locator('[data-gb2-root]').waitFor({state:'visible'});
+  const mobile=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
+  assert.ok(mobile.scroll<=mobile.client+8,'Games Board must not overflow on mobile: '+JSON.stringify(mobile));
+  await page.screenshot({path:path.join(out,'games-mobile.png'),fullPage:true,animations:'disabled'});
+  console.log('PASS mobile Games Board layout with no horizontal overflow');
+  await page.locator('[data-route="home"]').click();
   await page.locator('[data-decision-today]').waitFor({state:'visible'});
   const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
   assert.ok(widths.scroll<=widths.client+8,'Today must not overflow horizontally on mobile: '+JSON.stringify(widths));
