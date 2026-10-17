@@ -143,7 +143,7 @@ function detail(g,ctx){
   +hero(g,d)+comparison(g,d)
   +'<section class="gb2-panel gb2-market-panel"><header><div><small>CURRENT VERIFIED BOOK PRICES</small><h3>Spread · Moneyline · Total</h3></div></header>'
   +'<div class="edge2-markets">'+(markets||'<div class="gb2-empty">Current sportsbook prices are not available for this matchup. TSO will not invent lines or odds.</div>')+'</div></section>'
-  +'<section class="gb2-panel gb2-props mi-embedded">'+(intel?intel.listing(g,rows):'<div class="gb2-empty">Verified player props are connecting…</div>')+'</section>'
+  +'<section class="gb2-panel gb2-props"><div class="gb2-mi-host mi-embedded">'+(intel?intel.listing(g,rows):'<div class="gb2-empty">Verified player props are connecting…</div>')+'</div></section>'
   +'<div class="gb2-footnote">Prop candidates use existing TSO player-market grades and verified over/yes selections; no unders or fabricated recommendations. Open a player for recent form, matchup and opponent context.</div>';
 }
 function render(ctx){
