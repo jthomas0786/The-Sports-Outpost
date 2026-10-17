@@ -12,6 +12,7 @@ on:
       - 'tso2/games-board-v2.js'
       - 'tso2/theme-system.css'
       - 'tso2/theme-studio.js'
+      - 'tso2/theme-public-api-selftest.mjs'
       - 'scripts/tso2-games-team-stats-api-selftest.mjs'
       - 'tso2/games-board-v2.css'
       - '.github/workflows/tso2-decision-browser-qa.yml'
@@ -38,6 +39,7 @@ jobs:
           node --check tso2/games-board-v2.js
           node --check tso2/theme-studio.js
           node tso2/theme-studio-selftest.mjs
+          node tso2/theme-public-api-selftest.mjs
           node --check tso2/decision-dashboard-browser-qa.cjs
       - name: Diagnose staged decision assets before browser setup
         run: |
