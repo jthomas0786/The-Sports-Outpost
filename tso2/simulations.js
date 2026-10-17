@@ -28,7 +28,7 @@ function gameItem(game){
  return '<button class="tso-sim-game-choice'+(active?' is-active':'')+'" data-tsos-game="'+esc(game.gameId)+'" aria-pressed="'+active+'">'
   +'<span class="tso-sim-game-short"><b>'+esc(game.away.abbr)+'</b><em>at</em><b>'+esc(game.home.abbr)+'</b></span>'
   +'<span class="tso-sim-game-date">'+esc(dateText(game.kickoff))+'</span>'
-  +'<span class="tso-sim-game-result">'+(game.availability?.rosterVerified!==true?'ROSTER CHECK REQUIRED':game.availability?.requiresRerun?'MODEL RECALCULATION REQUIRED':'TSO MODEL · '+number(game.projected.awayScore,1)+' – '+number(game.projected.homeScore,1))+'</span></button>';
+  +'<span class="tso-sim-game-result">'+(game.availability?.requiresRerun?'MODEL RECALCULATION REQUIRED':game.availability?.rosterVerified!==true?'VERIFY ROSTER TO VIEW':'TSO MODEL · '+number(game.projected.awayScore,1)+' – '+number(game.projected.homeScore,1))+'</span></button>';
 }
 function playerOf(game,team,role){
  const rows=(game.players||[]).filter(p=>teamCode(p.team)===teamCode(team));
@@ -172,7 +172,7 @@ function replayHTML(game){
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
   +'<div class="tso-sim-final" data-tsos-final hidden></div>'
-  +'<div class="tso-sim-disclaimer">The final score is taken from <b>one actual 50K Monte Carlo sampled world</b>. Play paths, gain details and box-score progression are <b>score-conditioned reconstructions</b>, not tracked or sampled snaps.</div></div>';
+  +'<div class="tso-sim-disclaimer">The final score is taken from <b>one actual 50K Monte Carlo sampled world</b>. Play paths, gain details and box-score progression are <b>score-conditioned reconstructions</b>, not tracked or sampled snaps. '+(game.availability?.injuryReportVerified===false?'<strong>Injury report may have changed since the model audit ('+esc(game.availability.injuryReportCheckedAt||'date unknown')+'). This playback is an as-of simulation, not a fresh injury-adjusted model.</strong>':'Final inactives can change.')+'</div></div>';
 }
 async function verifySelectedRoster(gameId){
  if(!gameId||!state.doc)return;
@@ -213,9 +213,13 @@ function paintPage(){
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
   +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
-  +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':'ROSTER CHECK PENDING')+'</b></header>'
+  +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':state.game.availability?.requiresRerun?'MODEL RERUN REQUIRED':state.game.availability?.error?'ROSTER CHECK FAILED':'ROSTER CHECK PENDING')+'</b></header>'
   +(ready?strip(state.game)+matchupHTML(state.game) +injuryHTML(state.game)+(playbackReady?replayHTML(state.game):'<div class="tso-sim-roster-pending" role="status"><strong>REPRESENTATIVE REPLAY NOT AVAILABLE</strong> The sampled 50K score could not be reconstructed within verified player-usage limits. Showing projections only instead of inventing play statistics.</div>'):
-    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.requiresRerun===true?'Awaiting a fresh 50,000-run model with complete verified 2026 roster and injury reports. Prior player statistics and replays are withheld.':'Checking current 2026 roster and injury-report eligibility.')+'</div>')
+    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.requiresRerun===true?
+      'A new verified 50,000-run model is needed because this run has expired or contains mismatched players. Projections and replay are withheld.':
+      state.game.availability?.error?
+      '<strong>ROSTER VALIDATION UNAVAILABLE</strong> '+esc(state.game.availability.error)+'. <button type="button" data-tsos-retry-roster>TRY AGAIN</button>':
+      'The sampled 50,000-run world exists. Checking current active rosters against the run before enabling it; injury reports remain verified only as of the original audit.')+'</div>')
   +'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
   const game=games.find(g=>g.gameId===btn.dataset.tsosGame);
@@ -226,7 +230,12 @@ function paintPage(){
    if(game.availability?.rosterVerified!==true&&!game.availability?.requiresRerun)void verifySelectedRoster(game.gameId);
   }
  }));
- if(!playbackReady)return;
+ if(!playbackReady){
+  $(main,'[data-tsos-retry-roster]')?.addEventListener('click',()=>{
+   if(!state.game?.availability?.requiresRerun)void verifySelectedRoster(state.game.gameId);
+  });
+  return;
+ }
  $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.finished=false;state.frame=0;updatePlay();draw(0)});
  $(main,'[data-tsos-finish]')?.addEventListener('click',()=>{stop();state.index=state.plays.length-1;state.finished=true;updatePlay();draw(1);$(main,'[data-tsos-final]')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});});
