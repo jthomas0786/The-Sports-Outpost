@@ -15,7 +15,7 @@ const prob=v=>n(v)===null?'—':(n(v)*100).toFixed(0)+'%';
 const pct=v=>n(v)===null?'—':n(v).toFixed(0)+'%';
 const normOdds=value=>{const v=n(value);return v===null?null:v<0?(-v)/((-v)+100):100/(v+100)};
 const fair=(a,b)=>{const p=normOdds(a),q=normOdds(b);return p===null||q===null||p+q<=0?null:[p/(p+q),q/(p+q)]};
-const state={openId:null,lastFilter:'all',model:null,modelLoadedAt:0,modelInFlight:false,requested:new Set(),detailSignature:'',boundRoot:null,ctx:null};
+const state={openId:null,lastFilter:'all',model:null,modelLoadedAt:0,modelInFlight:false,requested:new Set(),teamStats:new Map(),teamStatsPending:new Set(),detailSignature:'',boundRoot:null,ctx:null};
 const originalRender=old.render.bind(old);
 const labels={all:'ALL',nfl:'NFL',nba:'NBA',nhl:'NHL',mlb:'MLB'};
 function status(g){
@@ -109,13 +109,56 @@ function row(label,away,home,prefer='high'){
  return '<div class="gb2-compare-row"><span>'+esc(label)+'</span><b class="'+(winner==='away'?'is-best':'')+'">'+fa+'</b><i class="'+(winner==='away'?'is-away':winner==='home'?'is-home':'')+'"></i><b class="'+(winner==='home'?'is-best':'')+'">'+fb+'</b></div>';
 }
 function formatPct01(v){return n(v)===null?'—':prob(v)}
+function teamStatsKey(g){return String(g.league||'')+'|'+canonical(g.away?.abbr)+'|'+canonical(g.home?.abbr);}
+function loadMatchupStats(game){
+ if(game?.league!=='nfl')return;
+ const key=teamStatsKey(game),old=state.teamStats.get(key);
+ if(state.teamStatsPending.has(key)||old&&Date.now()-old.fetchedAt<15*60000)return;
+ state.teamStatsPending.add(key);
+ const away=encodeURIComponent(canonical(game.away?.abbr)),home=encodeURIComponent(canonical(game.home?.abbr));
+ fetch('/api/tso2-matchup-team-stats?away='+away+'&home='+home,{headers:{accept:'application/json'},cache:'no-store'})
+  .then(async response=>{
+   const doc=await response.json();
+   if(!response.ok||doc?.available!==true||doc.season!==2026)throw Error(doc?.error||'2026 team stats unavailable');
+   if(doc.teams?.[canonical(game.away?.abbr)]?.season!==2026||doc.teams?.[canonical(game.home?.abbr)]?.season!==2026)
+    throw Error('Team/season mismatch');
+   state.teamStats.set(key,{...doc,fetchedAt:Date.now()});
+  }).catch(err=>state.teamStats.set(key,{available:false,error:String(err?.message||err),fetchedAt:Date.now()}))
+  .finally(()=>{
+   state.teamStatsPending.delete(key);
+   if(state.openId===String(game.id)&&state.ctx){
+    state.detailSignature='';render(state.ctx);
+   }
+  });
+}
+function referenceComparisonRows(game){
+ if(game.league!=='nfl')return '';
+ const doc=state.teamStats.get(teamStatsKey(game)),aa=canonical(game.away?.abbr),bb=canonical(game.home?.abbr);
+ if(!doc)return '<div class="gb2-source-note">Retrieving verified 2026 NFL team statistics…</div>';
+ if(!doc.available)return '<div class="gb2-source-note">2026 team statistics currently unavailable: '+esc(doc.error||'data source offline')+'</div>';
+ const a=doc.teams?.[aa]?.stats||{},b=doc.teams?.[bb]?.stats||{};
+ const pairs=[
+  ['Points per game','pointsPerGame','high'],
+  ['Total yards per game','yardsPerGame','high'],
+  ['Passing yards per game','passYardsPerGame','high'],
+  ['Rushing yards per game','rushYardsPerGame','high'],
+  ['Third-down conversion','thirdDownPct','high','%'],
+  ['Defensive points allowed / game','defPointsAllowed','low'],
+  ['Defensive yards allowed / game','defYardsAllowed','low'],
+  ['Turnover differential','turnoverDifferential','high']
+ ];
+ const value=(x,k,suffix='')=>n(x[k])===null?'—':round(x[k],1)+suffix;
+ return '<div class="gb2-comparison-stats">'+pairs.map(([label,key,prefer,suffix])=>
+  row(label,value(a,key,suffix),value(b,key,suffix),prefer)).join('')+'</div>'
+  +'<p class="gb2-source-note">ESPN 2026 regular season · '+esc(String(doc.teams?.[aa]?.games||'—'))+' / '+esc(String(doc.teams?.[bb]?.games||'—'))+' completed team games. Blank fields are unavailable, not zero. Lower defensive allowances are better. Values are historic averages, not future-game projections.</p>';
+}
 function comparison(g,d){
  const record=x=>x?.record||'—';
  const unit=n(d.total);
  const m=d.model?.projected||{};
  return '<section class="gb2-panel gb2-matchup"><header><div><small>TEAM-BY-TEAM</small><h3>Matchup Breakdown</h3></div><span>'+esc(g.away?.abbr||'')+' <em>vs</em> '+esc(g.home?.abbr||'')+'</span></header>'
  +'<div class="gb2-compare-heading"><span>METRIC</span><b>'+esc(g.away?.abbr||'AWAY')+'</b><b>EDGE</b><b>'+esc(g.home?.abbr||'HOME')+'</b></div>'
- +row('Season record',record(g.away),record(g.home))
+ +(g.league==='nfl'?referenceComparisonRows(g):row('Season record',record(g.away),record(g.home)))
  +row(d.probSource==='TSO 50K MODEL'?'Model win probability':'Market-implied win chance',formatPct01(d.chances?.[0]),formatPct01(d.chances?.[1]))
  +row('Game spread',d.spreadAway===null?'—':prettyLine(d.spreadAway),d.spreadHome===null?'—':prettyLine(d.spreadHome),'low')
  +(n(m.awayScore)!==null&&n(m.homeScore)!==null?row('TSO model projected points',m.awayScore,m.homeScore):'')
@@ -165,8 +208,10 @@ function render(ctx){
   grid.hidden=true;view.hidden=false;
   // Preserve open player analysis across periodic scoreboard and prop refreshes.
   const g=current,d=info(g,ctx),rows=old.matchedRows(ctx.rows||[],g);
+  loadMatchupStats(g);
   const sig=JSON.stringify([g.id,g.league,g.startTime,g.away?.abbr,g.home?.abbr,
    g.away?.record,g.home?.record,marketFor(g,ctx),d.model?.generatedAt,
+   state.teamStats.get(teamStatsKey(g))?.checkedAt||state.teamStats.get(teamStatsKey(g))?.error||'',
    rows.map(x=>[x.key,x.price,x.line,x.model?.probabilityPct,x.model?.edgePct])]);
   if(sig!==state.detailSignature){
    view.innerHTML=detail(g,ctx);
