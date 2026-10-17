@@ -1280,30 +1280,40 @@ function exactLineModelPct(row){
  if(!['over','yes','true'].includes(side))return null;
  return n(row.model?.probabilityPct);
 }
+function eventMarketDisplay(row){
+ const market=String(row?.market||'').toLowerCase(),sport=String(row?.sport||'').toLowerCase();
+ if(sport==='nhl'&&['atg','fgs'].includes(market))
+  return {model:'TSO GOAL MODEL',short:'GOAL MODEL',missing:'NO GOAL MATCH',heading:'LAST 10 · GOAL RESULTS',rate:'RECENT GOAL HIT RATE',chart:'GOAL · YES'};
+ if(sport==='nfl'&&['atd','firsttd'].includes(market))
+  return {model:'TSO TD MODEL',short:'TD MODEL',missing:'NO TD MATCH',heading:'LAST 10 · TD RESULTS',rate:'RECENT TD HIT RATE',chart:'TD · YES'};
+ if(sport==='mlb'&&['hr','homerun'].includes(market))
+  return {model:'TSO HR MODEL',short:'HR MODEL',missing:'NO HR MATCH',heading:'LAST 10 · HR RESULTS',rate:'RECENT HR HIT RATE',chart:'HR · YES'};
+ return null;
+}
 function rowMetrics(row){
  const modelPct=exactLineModelPct(row),marketOnly=modelPct===null,price=!row.researchScorerModel?n(row.price):null;
- const goalMarket=String(row?.sport||'').toLowerCase()==='nhl'&&['atg','fgs'].includes(String(row.market||''));
+ const binary=eventMarketDisplay(row);
  const book=price!==null?String(row.book||'Verified book'):'';
  return '<span class="mi-row-metrics" aria-label="TSO Prop Signal, Line Model percentage, and sportsbook odds">'
   +'<span class="mi-signal-mini" data-mi-signal="'+esc(key(row))+'">'+signalMini(row,state.cached.get(key(row)),state.signalDoc)+'</span>'
-  +'<span class="mi-line-model '+(marketOnly?'is-unavailable':'')+'"><b>'+pct(modelPct)+'</b><small>'+(marketOnly?(goalMarket?'NO GOAL MATCH':'NO EXACT MATCH'):(goalMarket?'GOAL MODEL':'EXACT LINE'))+'</small></span>'
+  +'<span class="mi-line-model '+(marketOnly?'is-unavailable':'')+'"><b>'+pct(modelPct)+'</b><small>'+(marketOnly?(binary?.missing||'NO EXACT MATCH'):(binary?.short||'EXACT LINE'))+'</small></span>'
   +'<span class="mi-line-odds"><b>'+(!row.researchScorerModel?odds(price):'—')+'</b><small class="mi-book-under">'+(price!==null?bookIcon(book,row.bookLogoUrl)+'<span>'+esc(book)+'</span>':'<span>NO LIVE BOOK</span>')+'</small></span>'
   +'</span>';
 }
 function playerMarkup(row,i){
  const id=key(row),open=state.expanded.has(id),modelOnly=Boolean(row.researchScorerModel);
  const modelPct=exactLineModelPct(row),src=String(row.headshotUrl||'');
- const goalMarket=String(row?.sport||'').toLowerCase()==='nhl'&&['atg','fgs'].includes(String(row.market||''));
+ const binary=eventMarketDisplay(row);
  const photo=src&&/^https:\/\//i.test(src)?'<img src="'+esc(src)+'" alt="" loading="lazy">':
  '<span aria-hidden="true">'+esc(String(row.player||'P').split(' ').slice(0,2).map(s=>s[0]||'').join('').toUpperCase())+'</span>';
  const quick='<div class="mi-selection-brief"><span><small>PROP / SIDE</small><b>'+esc(marketName(row))+' · '+esc(exactSelection(row))+'</b></span>'
-  +'<span><small>'+(goalMarket?'TSO GOAL MODEL':'EXACT LINE MODEL')+'</small><b>'+pct(modelPct)+'</b></span>'
+  +'<span><small>'+(binary?.model||'EXACT LINE MODEL')+'</small><b>'+pct(modelPct)+'</b></span>'
   +'<span><small>BEST SPORTSBOOK</small><b>'+(modelOnly?'—':esc(row.book||'Unavailable')+' · '+odds(row.price))+'</b></span></div>';
  const explain=modelOnly?'Pregame scorer forecast, not a verified exact sportsbook selection.':
    (row.model?.reason||row.model?.explanation||row.reason||
     'No source-backed matchup-specific model explanation is available for this exact selection.');
  const details=quick
-   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · CONTRIBUTING EVIDENCE</h4><p>Verified production, usage, matchup factors and '+(goalMarket?'observed goal results.':'exact-line game results.')+'</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
+   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · CONTRIBUTING EVIDENCE</h4><p>Verified production, usage, matchup factors and '+(binary?'observed event results.':'exact-line game results.')+'</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
    +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Loading verified recent form and matchup trends…</div>')+'</div>'
    +'<div class="mi-reason"><b>TSO ANALYSIS</b><p>'+esc(explain)+'</p></div>'
    +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No exact live sportsbook line.</small></div>':
@@ -1507,7 +1517,7 @@ function hitRateVisual(series,row,count){
  const stat=lastStats(series,row,count);
  const percentage=stat.rate===null?null:clamp(stat.rate,0,100);
  return '<div class="mi-hit-visual"><div class="mi-hit-visual-header"><strong>'+stat.label+'</strong><span>'+stat.display+' '+(percentage===null?'':'· '+percentage+'%')+'</span></div>'
-    +'<div class="mi-hit-track" role="progressbar" aria-label="'+stat.label+' exact-line hit rate" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(percentage??0)+'" aria-valuetext="'+esc(percentage===null?'No verified exact-line observations':stat.display+' hits, '+percentage+' percent')+'">'
+    +'<div class="mi-hit-track" role="progressbar" aria-label="'+stat.label+' '+(eventMarketDisplay(row)?'event':'exact-line')+' hit rate" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+(percentage??0)+'" aria-valuetext="'+esc(percentage===null?'No verified exact-line observations':stat.display+' hits, '+percentage+' percent')+'">'
     +(percentage===null?'':'<span style="width:'+percentage+'%"></span>')+'</div></div>';
 }
 function recentGamesChart(series,row){
@@ -1539,7 +1549,7 @@ function recentGamesChart(series,row){
    +grid+bars
    +'<line x1="'+left+'" x2="'+right+'" y1="'+targetY.toFixed(1)+'" y2="'+targetY.toFixed(1)+'" stroke="#ffd277" stroke-width="2" stroke-dasharray="7 5"/>'
    +'<rect x="486" y="'+Math.max(2,targetY-24).toFixed(1)+'" width="165" height="20" rx="3" fill="#362a17" stroke="#70562b"/>'
-   +'<text x="644" y="'+Math.max(16,targetY-10).toFixed(1)+'" text-anchor="end" fill="#ffe3a0" font-size="11" font-weight="800">'+esc(goalMarketFor(row)?'GOAL · YES':eventMarkets.has(String(row.market||''))?'YES':amount(target))+'</text>'
+   +'<text x="644" y="'+Math.max(16,targetY-10).toFixed(1)+'" text-anchor="end" fill="#ffe3a0" font-size="11" font-weight="800">'+esc(eventMarketDisplay(row)?.chart|| (eventMarkets.has(String(row.market||''))?'YES':amount(target)))+'</text>'
    +'</svg></div>';
 }
 function usageMeter(label,value,note){
@@ -2257,7 +2267,7 @@ function renderResearch(data,row){
  const stats=[lastStats(series,row,5),lastStats(series,row,10)];
  const form=series.length
    ?'<div class="mi-visual-grid"><div class="mi-chart-panel"><h5>RECENT GAME RESULTS</h5>'+recentGamesChart(series,row)+'</div>'
-     +'<div class="mi-hit-panel"><h5>'+(goalMarketFor(row)?'RECENT GOAL HIT RATE':'EXACT LINE HIT RATE')+'</h5>'+stats.map(x=>hitRateVisual(series,row,Number(x.label.slice(1)))).join('')
+     +'<div class="mi-hit-panel"><h5>'+(eventMarketDisplay(row)?.rate||'EXACT LINE HIT RATE')+'</h5>'+stats.map(x=>hitRateVisual(series,row,Number(x.label.slice(1)))).join('')
        +'<div class="mi-l5-avg"><small>LAST 5 AVERAGE</small><strong>'+amount(series.slice(0,5).reduce((a,b)=>a+b.value,0)/Math.min(5,series.length))+'</strong></div>'
        +'<small class="mi-muted">Pushes are excluded from the hit-rate denominator.</small></div></div>'
      +'<p class="mi-source-note">'+esc(series[0].source||data?.sources?.player||data?.source||'Verified game logs')+' · '+series.length+' observed games available</p>'
@@ -2266,7 +2276,7 @@ function renderResearch(data,row){
  const source=String(data.sources?.player||data.source||data?.player?.recentSource||'TSO verified research snapshot');
  return '<div class="mi-evidence-layout"><div class="mi-evidence-left">'
   +'<div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div></div>'
-  +'<div class="mi-evidence-right"><div class="mi-section mi-section--visual"><h4>'+(goalMarketFor(row)?'LAST 10 · GOAL RESULTS':'LAST 10 · EXACT-LINE RESULTS')+'</h4>'+form+'</div>'
+  +'<div class="mi-evidence-right"><div class="mi-section mi-section--visual"><h4>'+(eventMarketDisplay(row)?.heading||'LAST 10 · EXACT-LINE RESULTS')+'</h4>'+form+'</div>'
   +'<section class="mi-player-defender"><h4>OPPONENT DEFENSE · VERIFIED ALLOWANCES</h4><div data-mi-player-defense="'+esc(key(row))+'">Looking up current-season defense vs position…</div></section></div></div>'
   +decisionEvidence(data,row)
    +'<div class="mi-section"><h4>Role & matchup</h4>'+roleVisual(data,row)
