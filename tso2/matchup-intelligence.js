@@ -144,11 +144,11 @@ function playerMarkup(row,i){
    (row.model?.reason||row.model?.explanation||row.reason||
     'No source-backed matchup-specific model explanation is available for this exact selection.');
  const details=quick
-   +'<div class="mi-player-overview"><h4>PLAYER FORM & MATCHUP</h4><p>Verified L5/L10 results, hit-rate charts, opportunity and opponent data appear below. Unavailable values stay blank, not estimated.</p></div>'
+   +'<div class="mi-player-overview"><div><h4>TSO PROP SIGNAL · CONTRIBUTING EVIDENCE</h4><p>Verified production, usage, matchup factors and exact-line game results.</p></div>'+(modelOnly?'':'<button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ ADD TO PARLAY PING</button>')+'</div>'
    +'<div data-mi-research="'+esc(id)+'" class="mi-analytics">'+(state.cached.has(id)?renderResearch(state.cached.get(id),row):'<div class="mi-loading">Loading verified recent form and matchup trends…</div>')+'</div>'
    +'<div class="mi-reason"><b>TSO ANALYSIS</b><p>'+esc(explain)+'</p></div>'
    +(modelOnly?'<div class="mi-actions"><small>MODEL ONLY · No exact live sportsbook line.</small></div>':
-    '<div class="mi-actions"><button type="button" class="mi-add" data-mi-add="'+esc(id)+'">+ PARLAY PING</button><small>Exact player · market · side · line · sportsbook</small></div>');
+    '<div class="mi-actions"><small>Verified exact player · market · side · line · best available sportsbook.</small></div>');
  return '<article class="mi-player '+(open?'is-open':'')+'" data-mi-key="'+esc(id)+'">'
   +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
   +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
@@ -214,7 +214,7 @@ function listing(game,rows){
    +'</div>'
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' sportsbook-backed player/market candidates'+(modelOnlyCount?' · '+modelOnlyCount+' scorer-model candidates (research only)':'')+' · one grade per player and market · line-independent TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
-   +'<div class="mi-row-column-head" aria-hidden="true"><span>PLAYER · PROP</span><span>TSO PROP SIGNAL</span><span>LINE MODEL %</span><span>LINE ODDS / BEST BOOK</span></div>'
+   +'<div class="mi-row-column-head" aria-hidden="true"><span>PLAYER · PROP</span><span>TSO PROP SIGNAL</span><span>LINE MODEL %</span><span>LINE ODDS</span></div>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
    +'<div class="mi-player-list">'+(shown.length?shown.map(playerMarkup).join('')
       :'<div class="mi-empty">No verified sportsbook Over/Yes selection'+(modelOnlyCount?' or TSO scorer-model candidate':'')+' for this game and market. Live games may no longer have pregame quotes. Check another game, or use Advanced Props to inspect the full verified feed.</div>')+'</div>'
