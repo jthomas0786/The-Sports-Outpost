@@ -2011,7 +2011,13 @@ function hydrateSignals(root,ctx){
 }
 
 function renderResearch(data,row){
- if(!data?.available)return '<div class="mi-research-unavailable">Detailed historical context unavailable: '+esc(data?.reason||'No verified research snapshot.')+'</div>';
+ if(!data?.available){
+  const message='Detailed historical context unavailable: '+esc(data?.reason||'No verified research snapshot.');
+  if(String(row?.sport||'').toLowerCase()==='nhl')
+   return '<div class="mi-evidence-layout"><div class="mi-evidence-left"><div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div></div>'
+     +'<div class="mi-evidence-right"><div class="mi-section"><h4>Recent observed games</h4><p class="mi-muted">'+message+'</p></div></div></div>';
+  return '<div class="mi-research-unavailable">'+message+'</div>';
+ }
  const series=seriesFromResearch(data,row);
  const stats=[lastStats(series,row,5),lastStats(series,row,10)];
  const form=series.length
