@@ -11,6 +11,7 @@ on:
       - 'tso2/simulations-stats-ui.js'
       - 'tso2/index.html'
       - 'scripts/tso2-nfl-representative-replay-selftest.cjs'
+      - 'scripts/tso2-nfl-simulation-api-smoke.mjs'
       - '.github/workflows/tso2-nfl-replay-checks.yml'
 permissions:
   contents: read
@@ -32,3 +33,5 @@ jobs:
           node --check scripts/tso2-nfl-representative-replay-selftest.cjs
       - name: Correlated sampled-world replay contract
         run: node scripts/tso2-nfl-representative-replay-selftest.cjs
+      - name: Staging NFL API feed, kickoff, roster & model validation
+        run: node scripts/tso2-nfl-simulation-api-smoke.mjs
