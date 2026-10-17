@@ -194,13 +194,14 @@ function paintPage(){
   state.game.representativeWorld?.selection==='central-correlated-sampled-world'&&
   Array.isArray(state.game.players)&&state.game.players.some(p=>p.position==='QB');
  state.plays=ready?(window.TSO2RepresentativeReplay?.build?.(state.game,state.defense)||[]):[];
+ const playbackReady=ready&&state.plays.length>0;
  state.index=0;state.playing=false;state.startedAt=0;state.finished=false;
  main.innerHTML='<div class="tso-sim-layout"><aside class="tso-sim-matchups"><div class="tso-sim-matchups-head"><span>2026 NFL SLATE</span><b>'+games.length+' GAMES</b></div>'
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
   +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
   +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':'ROSTER CHECK PENDING')+'</b></header>'
-  +(ready?strip(state.game)+matchupHTML(state.game)+replayHTML(state.game):
+  +(ready?strip(state.game)+matchupHTML(state.game)+(playbackReady?replayHTML(state.game):'<div class="tso-sim-roster-pending" role="status"><strong>REPRESENTATIVE REPLAY NOT AVAILABLE</strong> The sampled 50K score could not be reconstructed within verified player-usage limits. Showing projections only instead of inventing play statistics.</div>'):
     '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.rosterVerified===true?'Awaiting the representative 50,000-run world. Independent random-score replays have been disabled.':'Checking the current 2026 active rosters. Replay is unavailable until eligibility is verified.')+'</div>')
   +'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
@@ -212,7 +213,7 @@ function paintPage(){
    if(game.availability?.rosterVerified!==true)void verifySelectedRoster(game.gameId);
   }
  }));
- if(!ready)return;
+ if(!playbackReady)return;
  $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.finished=false;state.frame=0;updatePlay();draw(0)});
  $(main,'[data-tsos-finish]')?.addEventListener('click',()=>{stop();state.index=state.plays.length-1;state.finished=true;updatePlay();draw(1);$(main,'[data-tsos-final]')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});});
