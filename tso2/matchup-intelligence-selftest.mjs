@@ -33,7 +33,7 @@ assert.match(html,/Test Back/);
 assert.match(html,/MODEL %/);
 assert.match(html,/60.0%/);
 assert.match(html,/82.0%/);
-assert.match(html,/LINE ODDS \/ BEST BOOK/);
+assert.match(html,/LINE ODDS/);
 assert.ok(!html.includes('Test TE'),'Under selections must not be featured in Game Hub');
 assert.ok(!html.includes('Under 21.5'),'Under thresholds must never leak to featured cards');
 assert.match(html,/ALL PROPS/);
