@@ -492,7 +492,8 @@ async function mount(root){
   if(!Array.isArray(doc.games)||!doc.games.length)throw Error('No verified NFL simulations available');
   if(token!==state.token||!state.root?.isConnected)return;
   state.doc=doc;
-  const remembered=sessionStorage.getItem('tso-sim-last-game');
+  const requested=new URLSearchParams(window.location.search).get('simGame');
+  const remembered=requested||sessionStorage.getItem('tso-sim-last-game');
   state.game=doc.games.find(g=>g.gameId===remembered)||null;
   paintPage();
   void verifySelectedRoster(state.game.gameId);
