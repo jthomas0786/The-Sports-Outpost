@@ -284,20 +284,20 @@ function sceneFrame(event,progress,game){
  const scrimmage=direction===1?event.yard:100-event.yard;
  const world=u=>simClamp(scrimmage+direction*u,0,100);
  const off=[],def=[];
- const pass=event.kind==='PASS',kick=event.kind==='FIELD GOAL';
+ const pass=event.kind==='PASS',kick=event.kind==='FIELD GOAL'||event.kind==='PUNT',qbCarry=event.kind==='RUSH'&&event.carrier===event.passer;
  const targetSlot=Number.isInteger(event.targetSlot)?event.targetSlot:1;
  const qbDrop=pass?simEase(p/.30)*3:simEase(p/.24)*.6;
- const qb={id:'qb',role:'QB',team:event.side,u:kick?-6:-4.5-qbDrop,y:.5,name:event.passer||'Quarterback'};
+ const qb={id:'qb',role:'QB',team:event.side,u:kick?-6:qbCarry?simMix(-4.5,event.gain,simEase((p-.3)/.65)):-4.5-qbDrop,y:.5,name:event.passer||'Quarterback'};
  const carrierLane=event.index%2===0?.435:.565;
  let rbU=-9,rbY=.61;
- if(!pass&&!kick){
+ if(!pass&&!kick&&!qbCarry){
   rbU=p<.30?simMix(-9,-2,simEase(p/.30)):simMix(-2,event.gain,simEase((p-.30)/.65));
   rbY=p<.38?simMix(.61,carrierLane,simEase(p/.38)):carrierLane;
  }else{
   rbU=simMix(-9,-5,simEase(p/.55));
   rbY=.61;
  }
- const rb={id:'rb',role:'RB',team:event.side,u:rbU,y:rbY,name:!pass&&!kick?event.carrier:'Running back'};
+ const rb={id:'rb',role:'RB',team:event.side,u:rbU,y:rbY,name:!pass&&!kick&&!qbCarry?event.carrier:'Running back'};
  off.push(qb,rb);
  const olLanes=[.36,.43,.50,.57,.64];
  for(let i=0;i<5;i++){
@@ -363,6 +363,8 @@ function sceneFrame(event,progress,game){
    ballOwner=event.complete?event.receiver:'INCOMPLETE PASS';
    flight=!event.complete;
   }
+ }else if(qbCarry){
+  ballOwner=event.passer||'QB';ball={u:qb.u,y:qb.y};
  }else if(p<.28){
   ballOwner=event.passer||'QB';ball={u:qb.u,y:qb.y};
  }else if(p<.36){
