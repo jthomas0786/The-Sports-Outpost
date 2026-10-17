@@ -87,7 +87,7 @@ function quarterbackShares(rng, team, finalDiff, config) {
 
 function receiverWeights(team, targetMode = false) {
   return team.receivers.map(p => {
-    const usage = Math.max(.15, p.base.targets);
+    const usage = p.position==='FB'?Math.min(.22,Math.max(.015,p.base.targets*.35)):Math.max(.15, p.base.targets);
     const role = p.availabilityFactor;
     const rz = 1 + Math.min(.5, (p.rzTargets || 0) * .025);
     return usage * role * (targetMode ? 1 : rz);
@@ -96,7 +96,7 @@ function receiverWeights(team, targetMode = false) {
 
 function rusherWeights(team, leading = false) {
   return team.rushers.map(p => {
-    let w = Math.max(.05, p.base.carries) * p.availabilityFactor;
+    let w = (p.position==='FB'?Math.min(.13,Math.max(.025,p.base.carries*.20)):Math.max(.05, p.base.carries)) * p.availabilityFactor;
     if (p.position === 'RB' && (p.depthRank ?? 9) === 1) w *= leading ? 1.18 : 1.05;
     if (p.position === 'QB') w *= leading ? .82 : 1.03;
     return w;
@@ -107,14 +107,14 @@ function tdReceiverWeights(team, targetCounts = null) {
   return team.receivers.map((p,i)=>{
     const base = .15 + p.base.recTds * 2.2 + (p.rzTargets||0)*.08 + (p.atdProbability||0)*1.2;
     const liveUsage = targetCounts ? (targetCounts[i] || 0) * .12 : 0;
-    return Math.max(.02, base + liveUsage) * p.availabilityFactor;
+    return (p.position==='FB'?Math.min(.06,Math.max(.005,(base+liveUsage)*.1)):Math.max(.02,base+liveUsage)) * p.availabilityFactor;
   });
 }
 function tdRusherWeights(team, carryCounts = null) {
   return team.rushers.map((p,i)=>{
     const base = .12 + p.base.rushTds * 2.4 + (p.rzCarries||0)*.09 + (p.atdProbability||0)*1.0;
     const liveUsage = carryCounts ? (carryCounts[i] || 0) * .07 : 0;
-    return Math.max(.02, base + liveUsage) * p.availabilityFactor;
+    return (p.position==='FB'?Math.min(.06,Math.max(.005,(base+liveUsage)*.1)):Math.max(.02,base+liveUsage)) * p.availabilityFactor;
   });
 }
 
