@@ -20,7 +20,7 @@ function scorePlan(points){
   if(count!==score||td+fg>10)continue;
   const expectedTd=score*.70/7,expectedFg=score*.26/3;
   const cost=Math.abs(td-expectedTd)*.5+Math.abs(fg-expectedFg)*.4+
-   plus*2.1+missed*2.7+(td+fg>7?8:0);
+   plus*.75+missed*1.2+(td+fg>6?8:0);
   if(!best||cost<best.cost)best={cost,td,fg,plus,missed};
  }
  if(!best)return null;
