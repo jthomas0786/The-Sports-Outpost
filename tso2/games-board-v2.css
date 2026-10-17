@@ -543,3 +543,52 @@
  .gb2-root .mi-row-metrics{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr)}
  .gb2-root .mi-signal-factor-grid{grid-template-columns:1fr}
 }
+
+
+/* NHL eight-metric reference comparison; colors inherit shared TSO 2.0 tokens. */
+.gb2-root .gb2-matchup-identities{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}
+.gb2-root .gb2-matchup-identities .gb2-logo{width:30px;height:30px;border-radius:50%;background:var(--surface)}
+.gb2-root .gb2-matchup-identities b{font-size:13px;color:var(--text)}
+.gb2-root .gb2-matchup-identities em{font-size:11px;color:var(--muted);font-style:normal}
+.gb2-root .gb2-matchup>header{min-height:72px}
+.gb2-root .gb2-nhl-stats .gb2-compare-row{min-height:54px;font-size:var(--tso-body-size)}
+.gb2-root .gb2-nhl-stats .gb2-compare-row>span{font-size:var(--tso-body-size)}
+.gb2-root .gb2-nhl-stats .gb2-compare-row>b{font-size:calc(var(--tso-body-size) + 3px);font-variant-numeric:tabular-nums}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i{width:68px;height:9px}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i:before{width:48%;left:26%;background:var(--outpost-orange)}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i.is-away:before{left:0}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i.is-home:before{left:52%}
+.gb2-root .gb2-nhl-stats .gb2-compare-row b.is-best{color:var(--outpost-gold)}
+/* Screenshot-based scoring table, source-backed: STAT / VALUE / BENCH /
+   IMPACT / DIRECTION / WEIGHT. Missing advanced factors stay ungraded. */
+.gb2-root .mi-nhl-signal-detail{background:var(--card);border:1px solid var(--line-strong);
+ border-radius:var(--r);padding:var(--tso-card-padding);color:var(--text)}
+.gb2-root .mi-nhl-signal-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.gb2-root .mi-nhl-signal-heading h4{font-size:12px;letter-spacing:.07em;color:var(--outpost-gold);margin:0}
+.gb2-root .mi-nhl-factor-table{overflow-x:auto;min-width:0}
+.gb2-root .mi-nhl-factor-labels,.gb2-root .mi-nhl-factor-row{
+ display:grid;grid-template-columns:minmax(115px,1.5fr) minmax(65px,.7fr) minmax(75px,.75fr) minmax(76px,.9fr) 27px 31px;
+ column-gap:12px;align-items:center;min-width:440px}
+.gb2-root .mi-nhl-factor-labels{padding-bottom:12px;border-bottom:1px solid var(--line-strong);color:var(--muted);font-size:10px;letter-spacing:.05em}
+.gb2-root .mi-nhl-factor-labels span:last-child,.gb2-root .mi-nhl-factor-row small{text-align:right}
+.gb2-root .mi-nhl-factor-row{min-height:48px;padding:7px 0;font-size:12px;color:var(--muted)}
+.gb2-root .mi-nhl-factor-row>span:first-child{color:var(--text)}
+.gb2-root .mi-nhl-factor-row strong{color:var(--text);font-size:15px;font-variant-numeric:tabular-nums}
+.gb2-root .mi-nhl-factor-row.is-unavailable{opacity:.68}
+.gb2-root .mi-nhl-factor-row.is-unavailable strong{color:var(--muted)}
+.gb2-root .mi-nhl-factor-row .mi-nhl-direction{font-size:17px;font-weight:800;color:var(--green);text-align:center}
+.gb2-root .mi-nhl-factor-row .mi-nhl-direction:has(+small){white-space:nowrap}
+.gb2-root .mi-nhl-factor-row.is-unavailable .mi-nhl-direction{color:var(--muted)}
+.gb2-root .mi-nhl-factor-row small{color:var(--muted);font-size:11px}
+.gb2-root .mi-nhl-impact-track{height:9px;background:var(--elev);border-radius:var(--r-sm);overflow:hidden}
+.gb2-root .mi-nhl-impact-track span{display:block;height:100%;background:var(--green);border-radius:inherit}
+.gb2-root .mi-nhl-signal-final{display:flex;align-items:center;justify-content:space-between;gap:10px;
+ border-top:1px solid var(--line-strong);margin-top:12px;padding-top:17px;color:var(--muted)}
+.gb2-root .mi-nhl-signal-final strong{font-size:23px;color:var(--text);font-variant-numeric:tabular-nums}
+.gb2-root .mi-nhl-signal-final strong small{font-size:12px;color:var(--muted)}
+.gb2-root .mi-nhl-signal-detail>.mi-evidence-note{font-size:10px;line-height:1.55;color:var(--muted);margin:15px 0 0}
+@media(max-width:670px){
+ .gb2-root .gb2-matchup-identities{gap:5px}
+ .gb2-root .gb2-matchup-identities .gb2-logo{width:24px;height:24px}
+ .gb2-root .gb2-nhl-stats .gb2-compare-row>b{font-size:12px}
+}
