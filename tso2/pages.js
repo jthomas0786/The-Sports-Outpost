@@ -1214,7 +1214,7 @@ function playerMarketRows(rows){
  }
  return [...selected.values()];
 }
-const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalDoc:null,defense2026:null,ranking:null,nhlRates:new Map(),nhlPending:new Map(),nhlTeamDoc:null,nhlTeamGame:''};
+const state={expanded:new Set(),cached:new Map(),pending:new Map(),scouting:new Map(),activeFilter:'ALL PROPS',showAll:false,activeGame:'',signalGame:null,signalDoc:null,defense2026:null,ranking:null,nhlRates:new Map(),nhlPending:new Map(),nhlTeamDoc:null,nhlTeamGame:''};
 function key(row){return String(row?.key||'');}
 function exactSelection(row){
  if(row?.selection)return String(row.selection);
@@ -1347,6 +1347,7 @@ function rankingStatus(game,rows){
  return 'Verifying TSO Prop Signals · '+job.completed+'/'+job.total+' player profiles · order provisional';
 }
 function listing(game,rows,{showScouting=true}={}){
+ state.signalGame=game;
  const id=String(game?.league||'')+':'+String(game?.id||'');
  if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();state.ranking=null;}
  // One card per athlete and market, regardless of alternative sportsbook thresholds.
@@ -1383,24 +1384,73 @@ function listing(game,rows,{showScouting=true}={}){
    +(filtered.length>7?'<button type="button" class="mi-show-all" data-mi-all>'+(state.showAll?'Show fewer':'Show all '+filtered.length+' selections')+'</button>':'')
    +'</div></section>';
 }
+// TSO 2.0 — source-backed identity and team join for every sport.
+const signalName=value=>String(value||'').toLowerCase().normalize('NFKD')
+ .replace(/[\u0300-\u036f]/g,'').replace(/\b(?:jr|sr|ii|iii|iv)\b\.?$/,'').replace(/[^a-z0-9]/g,'');
+function signalTeam(sport,value){
+ const raw=String(value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,'');
+ const alias={
+  nfl:{LAR:'LA',STL:'LA',JAC:'JAX',WSH:'WAS',WFT:'WAS',OAK:'LV'},
+  nhl:{NJ:'NJD',TB:'TBL',LA:'LAK',SJ:'SJS',MON:'MTL'},
+  nba:{GSW:'GS',NYK:'NY',NOP:'NO',SAS:'SA',UTA:'UTAH',PHX:'PHO'},
+  mlb:{AZ:'ARI',CWS:'CHW',SF:'SFG',SD:'SDP',TB:'TBR',KC:'KCR'}
+ };
+ return alias[sport]?.[raw]||raw;
+}
+function signalTeamInGame(sport,value){
+ const candidate=signalTeam(sport,value),game=state.signalGame;
+ if(!candidate||game?.league!==sport)return candidate;
+ for(const side of [game.away,game.home])
+  if([side?.abbr,side?.name,side?.displayName,side?.shortDisplayName]
+   .some(v=>v&&signalTeam(sport,v)===candidate))return signalTeam(sport,side.abbr);
+ return candidate;
+}
+function signalIdentity(row,data){
+ if(!data?.available||!data?.player)return {ok:false,reason:data?.reason||'VERIFIED PLAYER RESEARCH PENDING'};
+ const sport=String(row?.sport||'').toLowerCase(),p=data.player;
+ if(data.sport&&String(data.sport).toLowerCase()!==sport)return {ok:false,reason:'SOURCE SPORT DOES NOT MATCH PROP'};
+ if(!signalName(row.player)||signalName(row.player)!==signalName(p.name))
+  return {ok:false,reason:'PLAYER IDENTITY DOES NOT MATCH RESEARCH'};
+ const selected=signalTeamInGame(sport,row.team),verified=signalTeamInGame(sport,p.team||p.abbr);
+ if(selected&&verified&&selected!==verified)
+  return {ok:false,reason:'PLAYER TEAM DOES NOT MATCH VERIFIED ROSTER'};
+ if(!verified)return {ok:false,reason:'VERIFIED PLAYER TEAM PENDING'};
+ const game=state.signalGame;
+ if(game?.league===sport){
+  const sides=[game.away?.abbr,game.home?.abbr].map(v=>signalTeam(sport,v)).filter(Boolean);
+  if(sides.length===2&&!sides.includes(verified))
+   return {ok:false,reason:'PLAYER IS NOT ON THIS MATCHUP'};
+ }
+ const explicit=row.espnPlayerId||row.espnId||null;
+ if(explicit&&p.espnId&&String(explicit)!==String(p.espnId))
+  return {ok:false,reason:'PLAYER SOURCE ID MISMATCH'};
+ return {ok:true,team:verified,reason:null};
+}
 function seriesFromResearch(data,row){
- if(!data?.available)return[];
+ if(!data?.available||!signalIdentity(row,data).ok)return[];
  const m=String(row.market||'');
  const p=data.player||{},s=String(row.sport||'').toLowerCase();
  const out=[];
- const nflField={rushYds:'rushYds',recYds:'recYds',receptions:'receptions',passYds:'passYds',passTds:'passTds',completions:'completions',atd:'tds'}[m];
+ const nflField={rushYds:'rushYds',rushAtt:'carries',recYds:'recYds',longestReception:'longestReception',receptions:'receptions',passYds:'passYds',passTds:'passTds',completions:'completions',atd:'tds'}[m];
  const nbaField=m;
  for(const g of s==='nfl'?(m==='firstTd'?p.periodGameLog||[]:p.gameLog||[]):s==='mlb'?p.gameLog||[]:p.recentGames||[]){
    // The NFL Game Hub grades and charts current 2026 performance only.
    // Discard explicit 2025/older observations; never mix seasons silently.
    const gameYear=Number(g?.season)||Number(String(g?.date||'').slice(0,4))||null;
    if(s==='nfl'&&gameYear!==null&&gameYear!==2026)continue;
+    if(s==='mlb'&&gameYear!==null&&gameYear!==2026)continue;
+    if(s==='nba'&&/^(?:1|3|preseason|postseason|playoff)$/i.test(String(g?.seasonType??g?.type??'')))continue;
    let v=null;
    if(s==='nfl')v=n(m==='firstTd'?g.firstTd:g[nflField]);
-   if(s==='nba')v=n(g.stats?.[nbaField]);
+   if(s==='nba'){
+     const stats=g.stats||{},aliases={threes:['threes','threePointersMade','threePointFieldGoalsMade']};
+     v=(aliases[m]||[nbaField]).map(k=>n(stats[k])).find(x=>x!==null)??null;
+     const combos={pra:['points','rebounds','assists'],pr:['points','rebounds'],pa:['points','assists'],ra:['rebounds','assists']};
+     if(combos[m]){const values=combos[m].map(k=>n(stats[k]));v=values.every(x=>x!==null)?values.reduce((a,b)=>a+b,0):null;}
+    }
    if(s==='nhl')v=n(m==='fgs'?g.firstGoal?1:0:m==='atg'?g.stats?.goals:g.stats?.[m]);
    if(s==='mlb'){
-     const f={hr:'hr',homeRun:'hr',hits:'h',totalBases:'totalBases',rbi:'rbi',runs:'r',singles:'singles',doubles:'doubles',triples:'triples',walks:'walks',batterStrikeouts:'strikeouts',stolenBases:'stolenBases'}[m];
+     const f={hr:'hr',homeRun:'hr',hits:'h',totalBases:'totalBases',rbi:'rbi',runs:'r',singles:'singles',doubles:'doubles',triples:'triples',walks:'walks',batterStrikeouts:'strikeouts',pitcherStrikeouts:'pitcherStrikeouts',stolenBases:'stolenBases'}[m];
      v=n(g[f]);
      if(m==='hrr')v=[g.h,g.r,g.rbi].map(n).every(x=>x!==null)?Number(g.h)+Number(g.r)+Number(g.rbi):null;
    }
@@ -1583,7 +1633,7 @@ const nflTeamCode=value=>({LAR:'LA',JAC:'JAX',WSH:'WAS'}[String(value||'').toUpp
 function opportunityForPlayer(doc,research,row){
  if(!doc?.seasons?.['2026']||!research?.available||String(row?.sport||'').toLowerCase()!=='nfl')
    return null;
- const p=research.player||{},gsis=String(p.gsisId||'').trim(),team=nflTeamCode(row.team);
+ const p=research.player||{},gsis=String(p.gsisId||'').trim(),team=nflTeamCode(signalIdentity(row,research).team);
  if(!/^00-\d{7}$/.test(gsis)||!team||nflTeamCode(p.team)!==team)return null;
  const stat=doc.seasons['2026'].players?.[gsis];
  if(!stat||nflTeamCode(stat.team)!==team||Number(stat.gamesWithOpportunities||0)<1)return null;
@@ -1692,6 +1742,7 @@ function propRole(data,doc,row){
   detail:parts.map(item=>item.detail).join(' · ')+' · '+p.gamesWithOpportunities+' observed games'};
 }
 function verifiedVolume(data,doc,row){
+ if(!signalIdentity(row,data).ok)return null;
  const sport=String(row.sport||'').toLowerCase(),market=String(row.market||'');
  const p=data?.player||{};
  const factors=[];
@@ -1731,7 +1782,7 @@ function verifiedVolume(data,doc,row){
 // Only join matchup factors to a valid identified opponent/season and market.
 // If a defensible sport-specific observation is missing, OMIT the factor.
 function verifiedMarketMatchup(data,row){
- if(!data?.available)return null;
+ if(!signalIdentity(row,data).ok)return null;
  const sport=String(row.sport||'').toLowerCase(),market=String(row.market||''),p=data.player||{};
  if(sport==='nba'){
   const opp=n(data.matchup?.opponentPace),league=n(data.matchup?.leaguePace);
@@ -1752,7 +1803,7 @@ function verifiedMarketMatchup(data,row){
   // allowances with the same-position 2026 league baseline.
   const m=p.matchup||{},pos=nflDefensePosition(p.position||m.positionGroup);
   const opponent=nflTeamCode(m.opponent),source=state.defense2026;
-  const teamMatch=nflTeamCode(p.team)===nflTeamCode(row.team);
+  const teamMatch=nflTeamCode(p.team)===nflTeamCode(signalIdentity(row,data).team);
   const knownTeams=[row.homeTeam,row.awayTeam].map(nflTeamCode).filter(team=>team.length>=2&&team.length<=4);
   const gameMatch=!knownTeams.length||knownTeams.includes(opponent);
   const record=source?.season===2026?source.teams?.[opponent]?.byPosition?.[pos]:null;
