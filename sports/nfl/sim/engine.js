@@ -3,6 +3,7 @@ import {
   normal, normName, poisson, probability, round, summarizeTyped, weightedIndex
 } from './utils.js';
 import { buildGameProfile, playerMarketLines, profileSummary } from './profile.js';
+import { representativeWorldFromArrays } from './representative-world.js';
 
 const TRACKED = ['passYds','completions','attempts','passTds','interceptions','rushYds','carries','rushTds','recYds','receptions','targets','recTds','tds'];
 
@@ -343,7 +344,7 @@ export function jointProbabilityFromResult(result, legs) {
   return hits/samples.iterations;
 }
 
-export function simulateGame({game,research,odds,liveGame=null,config,iterations,seed,includeSamples=false}) {
+export function simulateGame({game,research,odds,liveGame=null,config,iterations,seed,includeSamples=false,includeRepresentative=false}) {
   const profile = buildGameProfile({game,research,odds,liveGame,config});
   const liveDetail=`${liveGame?.statusDetail||''} ${liveGame?.detail||''}`.toLowerCase();
   const liveClock=Number(liveGame?.clockMin), livePeriod=Number(liveGame?.period);
@@ -389,6 +390,7 @@ export function simulateGame({game,research,odds,liveGame=null,config,iterations
       'v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.'
     ]
   };
+  if(includeRepresentative)result.representativeWorld=representativeWorldFromArrays({awayScores,homeScores,arrays,game:profile,iterations});
   if(includeSamples) result._samples={iterations,players:arrays,awayScores,homeScores};
   return result;
 }
