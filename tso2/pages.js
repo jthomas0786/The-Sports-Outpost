@@ -2049,17 +2049,143 @@ function nhlSignalPanel(s){
  +rows+'</div><div class="mi-nhl-signal-final"><span>Combined Signal</span><strong>'+(s.score===null?'UNRATED':s.score+'<small>/100</small>')+'</strong></div>'
  +'<p class="mi-evidence-note">'+esc(s.evidence||s.reason||'')+' · '+s.coverage+'% verified metric weight. Reference benchmarks come from the supplied framework, NOT asserted league averages. Missing xG/60 and Line GF% remain unavailable until a verified advanced source is connected. Opponent defensive allowances are per game (not /60). No sportsbook odds or exact-line probability is used.</p></section>';
 }
+// Shared NHL-style evidence layout for NFL, NBA and MLB. The six scored
+// contributors must agree exactly with signalScore()'s weighted factors.
+// Supporting observations are displayed separately and never counted twice.
+function sportSignalSupportingStats(row,data,doc){
+ const sport=String(row.sport||'').toLowerCase(),market=String(row.market||''),p=data?.player||{};
+ const entries=[];
+ const add=(label,value,unit='',source='Verified player research',bench=null)=>{
+  const real=n(value);
+  if(real!==null&&real>=0&&real<100000)
+   entries.push({label,value:real,unit,source,bench:n(bench)});
+ };
+ if(!signalIdentity(row,data).ok)return entries;
+ const recent=(Array.isArray(p.gameLog)?p.gameLog:Array.isArray(p.recentGames)?p.recentGames:[])
+  .filter(g=>{const year=Number(g?.season)||Number(String(g?.date||'').slice(0,4));return !year||year===2026;})
+  .sort((a,b)=>(Date.parse(b.date||'')||0)-(Date.parse(a.date||'')||0));
+ const avg=(fn,count=5)=>{
+  const values=recent.slice(0,count).map(fn).map(n).filter(v=>v!==null&&v>=0);
+  return values.length>=Math.min(3,count)?meanValues(values):null;
+ };
+ if(sport==='nfl'){
+  const own=p.last5?.avg||{},stamp=Date.parse(doc?.generatedAt||'');
+  const fresh=Number.isFinite(stamp)&&Date.now()-stamp<10*86400000&&stamp<Date.now()+3600000;
+  const opp=fresh?opportunityForPlayer(doc,data,row):null;
+  const pbp=opp&&n(opp.gamesWithOpportunities)>=3?opp:null;
+  add('Carries / game',own.carries,'/g','ESPN 2026 L5');
+  add('Targets / game',own.targets,'/g','ESPN 2026 L5');
+  add('Snap share',p.snapTrend?.last3AvgPct??p.snapTrend?.avgOffensePct,'%','ESPN 2026 recent snaps');
+  add('Target share',pbp?.targetSharePct,'%','GSIS-matched nflverse 2026 opportunities');
+  add('Carry share',pbp?.carrySharePct,'%','GSIS-matched nflverse 2026 opportunities');
+  add('Red-zone share',pbp?.redZoneSharePct,'%','GSIS-matched nflverse 2026 opportunities');
+  add('Goal-line share',pbp?.goalLineSharePct,'%','GSIS-matched nflverse 2026 opportunities');
+  const game=state.signalGame,team=signalIdentity(row,data).team;
+  const opponent=game?.league==='nfl'?nflTeamCode(nflTeamCode(game.away?.abbr)===nflTeamCode(team)?game.home?.abbr:game.away?.abbr):'';
+  const position=nflDefensePosition(p.position||p.matchup?.positionGroup);
+  const validOpponent=opponent&&nflTeamCode(p.matchup?.opponent)===opponent;
+  const field={passYds:'passYds',passTds:'passTds',rushYds:'rushYds',rushAtt:'carries',
+    recYds:'recYds',receptions:'receptions',atd:'tds'}[market];
+  const defense=validOpponent&&state.defense2026?.season===2026?state.defense2026.teams?.[opponent]?.byPosition?.[position]:null;
+  const league=state.defense2026?.season===2026?state.defense2026.league?.byPosition?.[position]:null;
+  if(defense?.games>=3&&league?.games>=10&&field)
+   add('Opp '+position+' '+field+'/g',defense.perGame?.[field],'/g','2026 defensive allowances; '+opponent+' · '+defense.games+' games',league.perGame?.[field]);
+ }else if(sport==='nba'){
+  const stats=k=>avg(g=>g.stats?.[k],5);
+  add('Points / game',stats('points'),'/g','2026 game-log L5');
+  add('Rebounds / game',stats('rebounds'),'/g','2026 game-log L5');
+  add('Assists / game',stats('assists'),'/g','2026 game-log L5');
+  add('Threes / game',stats('threes')??stats('threePointersMade'),'/g','2026 game-log L5');
+  add('Minutes / game',p.recentAverages?.minutes??p.last5?.avg?.minutes??avg(g=>g.stats?.minutes,5),'/g','Verified recent minutes');
+  add('Usage rate',p.usagePct??p.recentAverages?.usagePct,'%','Verified player usage');
+  const matchup=verifiedMarketMatchup(data,row);
+  if(matchup){
+   add('Opp pace',data.matchup?.opponentPace,'/g','Verified opponent pace',data.matchup?.leaguePace);
+   add('Team pace',data.matchup?.teamPace,'/g','Verified team pace',data.matchup?.leaguePace);
+  }
+ }else if(sport==='mlb'){
+  add('Batting order',p.battingOrder,'slot','Verified current lineup');
+  add('Hits / game',avg(g=>g.h,5),'/g','2026 game-log L5');
+  add('Total bases / game',avg(g=>g.totalBases,5),'/g','2026 game-log L5');
+  add('HR / game',avg(g=>g.hr,5),'/g','2026 game-log L5');
+  add('RBI / game',avg(g=>g.rbi,5),'/g','2026 game-log L5');
+  add('Runs / game',avg(g=>g.r,5),'/g','2026 game-log L5');
+  add('SB / game',avg(g=>g.stolenBases,5),'/g','2026 game-log L5');
+  if(verifiedMarketMatchup(data,row))
+   add('Opp starter ERA',data.opponent?.pitcher?.era,'','Verified opponent starter · current slate',4);
+ }
+ return entries.slice(0,10);
+}
+function sportSignalPanel(row,data,doc,s){
+ const sport=String(row.sport||'').toUpperCase(),market=marketName(row);
+ const factorDefs=[
+  ['Recent player production','L5 '+market+'/g','perGame'],
+  ['Extended historical form','L10 '+market+'/g','perGame'],
+  ['Meaningful output frequency','Output frequency','frequency'],
+  ['Verified role and opportunity','Role / usage','factor'],
+  ['Opponent matchup','Opponent matchup','factor'],
+  ['Independent model forecast','Verified forecast','factor']
+ ];
+ const weights={ 'Recent player production':48,'Extended historical form':26,
+  'Meaningful output frequency':12,'Verified role and opportunity':12,
+  'Opponent matchup':8,'Independent model forecast':20 };
+ const observed=seriesFromResearch(data,row).slice(0,10),frequency=observed.filter(g=>g.value>=s.benchmark*.5).length;
+ const rows=factorDefs.map(([name,label,mode])=>{
+  const factor=s.factors?.find(f=>f.label===name),impact=n(factor?.value);
+  let value='—',bench='—',direction='—';
+  if(factor){
+   if(mode==='perGame'){
+    const v=name==='Recent player production'?s.l5:s.l10;
+    value=amount(v);bench=amount(s.benchmark);
+    direction=n(v)!==null&&v>=s.benchmark?'↑':'↓';
+   }else if(mode==='frequency'){
+    value=frequency+'/'+observed.length;bench='≥ '+amount(s.benchmark*.5)+'/g';
+    direction=impact>=50?'↑':'↓';
+   }else value=Math.round(impact)+'/100';
+  }
+  return {label,weight:weights[name],value,bench,impact,
+   direction,note:factor?.note||'This source-backed scoring input is not available.'};
+ });
+ const extra=sportSignalSupportingStats(row,data,doc);
+ const table=(items,scored)=>items.map(f=>{
+  const impact=n(f.impact);
+  return '<div class="mi-nhl-factor-row'+(impact===null&&scored?' is-unavailable':'')+'">'
+   +'<span title="'+esc(f.note||f.source||'')+'">'+esc(f.label)+'</span>'
+   +'<strong>'+esc(f.value??'—')+'</strong>'
+   +'<span>'+esc(f.bench??'—')+'</span>'
+   +'<div class="mi-nhl-impact-track" title="'+esc(f.note||f.source||'')+'">'+(impact===null?'':'<span style="width:'+clamp(impact,0,100).toFixed(1)+'%"></span>')+'</div>'
+   +'<span class="mi-nhl-direction">'+esc(f.direction||'—')+'</span><small>'+(scored?f.weight+'%':'—')+'</small></div>';
+ }).join('');
+ const heading='<div class="mi-nhl-factor-labels"><span>STAT</span><span>VALUE</span><span>BENCH</span><span>IMPACT</span><span>DIR</span><span>WT</span></div>';
+ const stats=extra.length
+   ?'<div class="mi-nhl-signal-heading" style="margin-top:20px"><h4>'+esc(sport)+' · VERIFIED PLAYER & MATCHUP STATS</h4></div>'
+     +'<div class="mi-nhl-factor-table">'+heading+table(extra.map(x=>({
+       label:x.label,value:amount(x.value)+(x.unit==='%'?'%':x.unit==='/g'?'':''),
+       bench:x.bench===null?'—':amount(x.bench)+(x.unit==='%'?'%':''),
+       impact:null,direction:'—',note:x.source})),false)+'</div>'
+     +'<p class="mi-evidence-note">Supporting values are verified observations, not additional weighted scores. Hover a stat to see its source. Benchmarks appear only when a matching verified comparison exists.</p>'
+   :'<p class="mi-evidence-note">Additional player / matchup metrics are not available from the currently verified feeds.</p>';
+ const coverage=n(s.coverage),total=n(s.totalWeight)||126;
+ const title='<div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS · '+esc(sport)+'</h4></div>';
+ const summary=s.score===null?'UNRATED':s.score+'<small>/100</small>';
+ return '<section class="mi-signal-detail mi-nhl-signal-detail">'+title
+  +'<div class="mi-nhl-factor-table">'+heading+table(rows,true)+'</div>'
+  +'<div class="mi-nhl-signal-final"><span>Combined Signal</span><strong>'+summary+'</strong></div>'
+  +'<p class="mi-evidence-note">'+esc(s.tier||'UNRATED')+' · '+s.games+' verified games · '+Math.round(100*(coverage||0)/total)+'% scored evidence coverage ('+(coverage||0)+'/'+total+' weight). Impact bars show factor scores, not game-winning probabilities. Missing evidence stays ungraded.</p>'
+  +stats
+  +'<p class="mi-evidence-note">All reference values are TSO scoring benchmarks, not published league averages. Sportsbook odds and exact-line hit probabilities are excluded from the player / market grade.</p></section>';
+}
 function signalDetail(row,data,doc){
- if(String(row?.sport||'').toLowerCase()==='nhl')return nhlSignalPanel(signalScore(row,data,doc));
+ const sport=String(row?.sport||'').toLowerCase();
+ if(sport==='nhl')return nhlSignalPanel(signalScore(row,data,doc));
  const s=signalScore(row,data,doc);
- const header='<div class="mi-signal-detail-head"><div><small>THE SPORTS OUTPOST EXCLUSIVE</small><h4>TSO Player / Market Signal</h4><p>Player production and usage for this prop category, independent of exact sportsbook thresholds or odds.</p></div><small>v2</small></div>';
- if(s.score===null)return '<section class="mi-signal-detail">'+header+'<p class="mi-muted">'+esc(s.reason)+'. TSO does not invent missing ratings.</p></section>';
- const factors=s.factors.map(f=>'<div class="mi-signal-factor"><div><b>'+esc(f.label)+'</b><span>'+f.weight+'% · '+Math.round(f.value)+'/100</span></div>'
-  +'<div class="mi-signal-track"><span style="width:'+clamp(f.value,0,100)+'%"></span></div><small>'+esc(f.note)+'</small></div>').join('');
- return '<section class="mi-signal-detail">'+header+'<div class="mi-signal-big"><strong>'+s.score+'<small>/100</small></strong><div><b class="mi-signal-'+s.tier.toLowerCase().replace(/\s+/g,'-')+'">'+s.tier+'</b><small>'+s.games+' observed games · '+s.factors.length+' verified scoring factors · '+esc(s.evidence)+'</small></div></div>'
-  +'<div class="mi-signal-track mi-signal-large'+(s.modeled?'':' is-form-only')+'" role="progressbar" aria-label="TSO player market production grade" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+s.score+'"><span style="width:'+s.score+'%"></span></div>'
-  +'<p class="mi-evidence-note">Verified signal input coverage: '+s.coverage+'/'+s.totalWeight+' weighted points ('+Math.round(100*s.coverage/s.totalWeight)+'%). '+(s.historical?'Older NBA game history is contextual and not a current-season projection. ':'')+'No sportsbook odds or unverified matchup statistics are substituted for missing evidence.</p>'
-  +'<div class="mi-signal-factor-grid">'+factors+'</div>'+(s.matchupContext?'<p class="mi-evidence-note">Opponent context (not numerically graded): '+esc(s.matchupContext)+'</p>':'')+'<p class="mi-evidence-note">A player/market production grade, NOT a bet probability. TSO benchmarks are internal scoring references, not reported league averages. Sportsbook lines, prices, implied odds and exact-line model edges are excluded. Missing matchup factors are not guessed.</p></section>';
+ if(s.score===null){
+  const detail='<section class="mi-signal-detail mi-nhl-signal-detail">'
+   +'<div class="mi-nhl-signal-heading"><h4>TSO PROP SIGNAL — CONTRIBUTING STATS · '+esc(sport.toUpperCase())+'</h4></div>'
+   +'<p class="mi-muted">'+esc(s.reason||'Verified player and matchup inputs unavailable')+'. TSO does not invent missing ratings.</p></section>';
+  return detail;
+ }
+ return sportSignalPanel(row,data,doc,s);
 }
 function updateSignalView(root,row,data){
  for(const el of root.querySelectorAll('[data-mi-signal]'))if(el.dataset.miSignal===key(row))el.innerHTML=signalMini(row,data,state.signalDoc);
