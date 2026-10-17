@@ -1311,7 +1311,7 @@ function playerMarkup(row,i){
  return '<article class="mi-player '+(open?'is-open':'')+'" data-mi-key="'+esc(id)+'">'
   +'<div class="mi-player-head"><button type="button" class="mi-player-expand" data-mi-expand="'+esc(id)+'" aria-expanded="'+open+'">'
   +'<span class="mi-rank">'+(i+1)+'</span><span class="mi-photo">'+photo+'</span>'
-  +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(row.team||'')+'</small>'
+  +'<span class="mi-player-label"><b>'+esc(row.player||'Player')+'</b><small>'+esc(marketName(row))+' · '+esc(row.team||(String(row.sport||'').toLowerCase()==='nhl'?verifiedNhlTeam(row,state.cached.get(id)):'')||'')+'</small>'
   +'<em>'+esc(exactSelection(row))+(modelOnly?' · NO LIVE QUOTE':' · BEST AVAILABLE VERIFIED QUOTE')+'</em></span>'
   +rowMetrics(row)+'<span class="mi-chevron" aria-hidden="true">'+(open?'▴':'▾')+'</span>'
   +'</button></div><div class="mi-player-body" '+(open?'':'hidden')+'>'+details+'</div></article>';
@@ -1807,23 +1807,39 @@ function nhlPlayerId(row,data){
  const values=[row?.nhlPlayerId,data?.player?.nhlId,data?.player?.nhlPlayerId];
  return values.map(v=>String(v||'')).find(v=>/^\d{7}$/.test(v))||null;
 }
-function nhlOpponent(row){
- const team=nhlNorm(row?.team),away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
- if(team===away&&home)return home;
- if(team===home&&away)return away;
+// Sportsbook player rows frequently omit the team. The ESPN player research
+// payload has a roster-verified team for that exact player ID; use it instead.
+function verifiedNhlTeam(row,data){
+ const away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
+ const teams=[away,home].filter(Boolean);
+ const listed=nhlNorm(row?.team),research=nhlNorm(data?.player?.team);
+ if(listed&&research&&listed!==research)return '';
+ if(research&&teams.includes(research)){
+  if(data?.available!==true)return '';
+  const rowId=String(row?.playerId||''),playerId=String(data.player?.id||'');
+  const sameId=rowId&&playerId&&rowId===playerId;
+  const samePlayer=nhlCleanName(data.player?.name)===nhlCleanName(row?.player);
+  if(sameId||samePlayer)return research;
+ }
+ return listed&&teams.includes(listed)?listed:'';
+}
+function nhlOpponent(row,data){
+ const team=verifiedNhlTeam(row,data),away=nhlNorm(state.nhlCurrentGame?.away?.abbr),home=nhlNorm(state.nhlCurrentGame?.home?.abbr);
+ if(team&&team===away&&home)return home;
+ if(team&&team===home&&away)return away;
  return null;
 }
-function nhlIdentityKey(row){
+function nhlIdentityKey(row,data){
  const clean=String(row?.player||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
- return nhlNorm(row?.team)+'|'+clean;
+ return verifiedNhlTeam(row,data)+'|'+clean;
 }
 const nhlRateChecked=new Map(),nhlTeamChecked=new Map();
 const nhlCleanName=value=>String(value||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
 async function verifiedNhlRates(row,data){
- const team=nhlNorm(row?.team),id=nhlPlayerId(row,data);
+ const team=verifiedNhlTeam(row,data),id=nhlPlayerId(row,data);
  const name=String(row?.player||data?.player?.name||'').trim();
  if(!name||!/^[A-Z]{2,3}$/.test(team))return null;
- const k=nhlIdentityKey({...row,player:name}),now=Date.now();
+ const k=nhlIdentityKey({...row,player:name},data),now=Date.now();
  const checked=nhlRateChecked.get(k);
  if(checked&&now-checked<(state.nhlRates.get(k)?600000:15000))return state.nhlRates.get(k)||null;
  if(state.nhlPending.has(k))return state.nhlPending.get(k);
@@ -1867,12 +1883,19 @@ function nhlFactorScore(value,benchmark){
  return clamp(50+60*(value/benchmark-1),0,100);
 }
 function nhlSignalScore(row,data){
- const id=nhlPlayerId(row,data),team=nhlNorm(row?.team);
- const rate=state.nhlRates.get(nhlIdentityKey(row));
+ const id=nhlPlayerId(row,data),team=verifiedNhlTeam(row,data);
+ const rate=state.nhlRates.get(nhlIdentityKey(row,data));
  const sameTeam=rate?.team===team&&/^\d{7}$/.test(String(rate?.playerId||''))&&rate?.season===20262027&&n(rate?.games)>=1;
- const opponent=nhlOpponent(row),record=state.nhlTeamDoc?.teams?.[opponent];
- const away=state.nhlTeamDoc?.teams?.[nhlNorm(state.nhlCurrentGame?.away?.abbr)];
- const home=state.nhlTeamDoc?.teams?.[nhlNorm(state.nhlCurrentGame?.home?.abbr)];
+ const opponent=nhlOpponent(row,data);
+ const awayCode=nhlNorm(state.nhlCurrentGame?.away?.abbr),homeCode=nhlNorm(state.nhlCurrentGame?.home?.abbr);
+ // Use the same verified NHL team response already driving Matchup Breakdown.
+ // The dedicated signal fetch remains a fallback for other page contexts.
+ const boardDoc=window.TSO2GamesBoardV2?.state?.teamStats?.get('nhl|'+awayCode+'|'+homeCode);
+ const validDoc=doc=>doc?.available===true&&Number(doc.season)===20262027&&
+  nhlNorm(doc.teams?.[awayCode]?.team)===awayCode&&nhlNorm(doc.teams?.[homeCode]?.team)===homeCode;
+ const teamDoc=validDoc(boardDoc)?boardDoc:validDoc(state.nhlTeamDoc)?state.nhlTeamDoc:null;
+ const record=teamDoc?.teams?.[opponent];
+ const away=teamDoc?.teams?.[awayCode],home=teamDoc?.teams?.[homeCode];
  const validOpponent=record?.team===opponent&&record.season===20262027&&n(record.games)>=1&&away&&home;
  const stats=sameTeam?rate.metrics||{}:{};
  const metrics={...stats,
@@ -1886,7 +1909,7 @@ function nhlSignalScore(row,data){
  });
  const available=factors.filter(f=>f.factorScore!==null),coverage=available.reduce((sum,f)=>sum+f.weight,0);
  if(coverage<60||!sameTeam)return {
-   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!sameTeam?'CURRENT-SEASON NHL PLAYER DATA PENDING':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
+   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!team?'NHL TEAM IDENTITY PENDING':!sameTeam?'CURRENT-SEASON NHL PLAYER DATA PENDING':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
    factors,coverage,games:rate?.games||0,evidence:'INCOMPLETE · NHL 2026–27'
  };
  const raw=available.reduce((sum,f)=>sum+f.factorScore*f.weight,0)/coverage;
