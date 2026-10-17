@@ -56,7 +56,7 @@ function selectedPlayer(team,type,world,rng,counts){
  }
  const p=players[players.length-1],key=norm(p.team)+'|'+p.name.toLowerCase();counts.set(key,(counts.get(key)||0)+1);return p;
 }
-function build(game,defense){
+function buildOne(game,defense,variant=0){
  const selected=game?.representativeWorld;
  if(!selected||selected.selection!=='central-correlated-sampled-world'||!Number.isInteger(selected.sampledIndex)||selected.iterations<100)return [];
  const away=norm(game.away.abbr),home=norm(game.home.abbr),sides=[away,home];
@@ -65,7 +65,7 @@ function build(game,defense){
  const roster={};for(const side of sides)roster[side]=(game.players||[]).filter(p=>norm(p.team)===side);
  if(sides.some(t=>!roster[t].some(p=>p.position==='QB')))return [];
  const raw=(selected.players||[]).map(p=>[norm(p.team)+'|'+String(p.name||'').toLowerCase(),p]);
- const world=new Map(raw),rng=makeRng(h32(game.gameId+'|sample-world-'+selected.sampledIndex)),counts=new Map(),scores={[away]:0,[home]:0},events=[];
+ const world=new Map(raw),rng=makeRng(h32(game.gameId+'|sample-world-'+selected.sampledIndex+'|candidate-'+variant)),counts=new Map(),scores={[away]:0,[home]:0},events=[];
  const driveSlots=10;const scoring={};
  for(const side of sides){
   const drives=Array.from({length:driveSlots},()=>({kind:'PUNT',points:0}));
@@ -167,6 +167,50 @@ function build(game,defense){
  }
  if(scores[away]!==desired[away]||scores[home]!==desired[home])return [];
  return events;
+}
+function replayFit(game,events){
+ const snapshot=global.TSO2SimEngine?.snapshot(game,events,events.length);
+ if(!snapshot)return Infinity;
+ const world=game.representativeWorld;
+ const teams=[norm(game.away.abbr),norm(game.home.abbr)];
+ let loss=0;
+ for(const side of teams){
+  const stats=snapshot.teams[side];
+  const worlds=(world.players||[]).filter(p=>norm(p.team)===side);
+  // Major volume stats are the highest-weight criteria. A box score is
+  // reconstructed, but should follow a genuine sampled world's game script.
+  let worldPass=0,worldRush=0;
+  for(const p of worlds){
+   if(p.position==='QB')worldPass+=n(p.stats?.attempts);
+   worldRush+=n(p.stats?.carries);
+   const own=snapshot.players[side]?.[p.name];
+   if(!own)continue;
+   const factor=p.position==='QB'?.28:p.position==='FB'?.17:p.position==='RB'?.16:.14;
+   const actual=p.position==='QB'?own.passAtt:p.position==='RB'||p.position==='FB'?own.carries:own.targets;
+   const expected=p.position==='QB'?n(p.stats?.attempts):p.position==='RB'||p.position==='FB'?n(p.stats?.carries):n(p.stats?.targets);
+   loss+=factor*Math.pow((actual-expected)/Math.max(3,Math.sqrt(expected+1)*1.7),2);
+  }
+  loss+=.22*Math.pow((stats.passAtt-worldPass)/Math.max(9,worldPass*.35),2);
+  loss+=.22*Math.pow((stats.rushAtt-worldRush)/Math.max(9,worldRush*.35),2);
+  const pQBs=worlds.filter(p=>p.position==='QB');
+  const expectedPassing=pQBs.reduce((v,p)=>v+n(p.stats?.passYds),0);
+  const expectedRushing=worlds.reduce((v,p)=>v+n(p.stats?.rushYds),0);
+  loss+=.28*Math.pow((stats.passing-expectedPassing)/Math.max(55,expectedPassing*.26),2);
+  loss+=.18*Math.pow((stats.rushing-expectedRushing)/Math.max(35,expectedRushing*.3),2);
+  if(stats.plays<40||stats.plays>82)loss+=8;
+ }
+ return loss;
+}
+function build(game,defense){
+ if(!game?.representativeWorld)return [];
+ let best=null;
+ for(let i=0;i<48;i++){
+  const candidate=buildOne(game,defense,i);
+  if(!candidate.length)continue;
+  const grade=replayFit(game,candidate);
+  if(!best||grade<best.grade)best={events:candidate,grade};
+ }
+ return best?.events||[];
 }
 global.TSO2RepresentativeReplay={build,scorePlan};
 })(typeof window!=='undefined'?window:globalThis);
