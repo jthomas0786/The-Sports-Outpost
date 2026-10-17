@@ -2164,7 +2164,7 @@ function sportSignalPanel(row,data,doc,s){
    +'<strong>'+esc(f.value??'—')+'</strong>'
    +'<span>'+esc(f.bench??'—')+'</span>'
    +'<div class="mi-nhl-impact-track" title="'+esc(f.note||f.source||'')+'">'+(impact===null?'':'<span style="width:'+clamp(impact,0,100).toFixed(1)+'%"></span>')+'</div>'
-   +'<span class="mi-nhl-direction">'+esc(f.direction||'—')+'</span><small>'+(scored?f.weight+'%':'—')+'</small></div>';
+   +'<span class="mi-nhl-direction">'+esc(f.direction||'—')+'</span><small>'+(scored?(100*f.weight/126).toFixed(1)+'%':'—')+'</small></div>';
  }).join('');
  const heading='<div class="mi-nhl-factor-labels"><span>STAT</span><span>VALUE</span><span>BENCH</span><span>IMPACT</span><span>DIR</span><span>WT</span></div>';
  const stats=extra.length
