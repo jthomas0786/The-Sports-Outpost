@@ -223,7 +223,7 @@ fs.mkdirSync(out,{recursive:true});
   const routeTheme=[];
   for(const route of canonicalRoutes){
     await page.evaluate(next=>document.querySelector('[data-route="'+next+'"]')?.click(),route);
-    await page.waitForFunction(next=>location.hash.replace(/^#/,'').split('?')[0]===next,{timeout:12000},route);
+    await page.waitForFunction(next=>location.hash.replace(/^#/,'').split('?')[0]===next,route,{timeout:12000});
     const found=await page.evaluate(next=>{
       const root=document.documentElement,vars=getComputedStyle(root);
       const css=q=>getComputedStyle(document.querySelector(q));
