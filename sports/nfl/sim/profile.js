@@ -27,7 +27,9 @@ function depthFactor(player, config) {
 function injuryFactor(player) {
   if (player.active === false) return 0;
   const s = String(player.injury?.status || player.rosterStatus || player.availability || player.model?.availability?.status || '').toLowerCase();
-  if (/out|injured reserve|\bir\b|suspend|inactive/.test(s)) return 0;
+  // An NFL player pool includes waived, practice-squad and exempt players.
+  // Only game-day confirmed/elevated players may be assigned simulated snaps.
+  if (/out|injured reserve|\bir\b|suspend|inactive|waiv|release|free agent|practice.squad|exempt|pup|physically unable/.test(s)) return 0;
   if (/doubtful/.test(s)) return 0.25;
   if (/questionable/.test(s)) return 0.85;
   return 1;
