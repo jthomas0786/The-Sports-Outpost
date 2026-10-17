@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v8918.js';
-import { availabilityFilteredInputs } from '../sports/nfl/sim/availability.js';
+import { availabilityFilteredInputs, verifiedRosterFilteredInputs } from '../sports/nfl/sim/availability.js';
 import { decideAutomaticRun, nextAutomationState, preservePregamePropCache } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
@@ -98,7 +98,14 @@ for(const game of games){
   const liveGame=matchLive(game,liveBoard);
   const prev=stateGames[gameId]||null;
   const old=existingById.get(gameId)||null;
-  const {game:eligibleGame,research:eligibleResearch,exclusions}=availabilityFilteredInputs(game,research,availability);
+  // Fail closed when current active rosters cannot be verified. A previous
+  // Monte Carlo result must not be overwritten with a guessed player pool.
+  let rosterChecked;
+  try{rosterChecked=await verifiedRosterFilteredInputs(game,research)}
+  catch(error){console.warn('⚠ '+pair+' roster check failed: '+error.message+'; skipping model update');continue}
+  const eligible=availabilityFilteredInputs(rosterChecked.game,rosterChecked.research,availability);
+  const {game:eligibleGame,research:eligibleResearch}=eligible;
+  const exclusions=[...rosterChecked.exclusions,...eligible.exclusions];
   let decision=decideAutomaticRun({game:eligibleGame,research:eligibleResearch,odds,liveGame,liveOdds,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});
   if(!FORCE&&decision.phase==='pregame'&&old&&String(old.engineVersion||'')!==String(config.engineVersion||'')){
     decision={...decision,run:true,reason:'simulation engine upgrade',iterations:Number(config.automatic?.pregameIterations||config.defaultIterations||50000),checkpointMinutes:null};
@@ -142,7 +149,7 @@ for(const game of games){
     console.log(`  ↳ prop periods: ${readyHalves}/2 half(s), ${readyQuarters}/4 quarter(s) ready from the same ${Number(raw.iterations||0).toLocaleString()} worlds`);
   }
   const result=preservePregamePropCache({previousResult:old,nextResult:stripPrivateSamples(raw),phase:decision.phase});
-  result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
+  result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,rosterVerified:true,rosterAudit:rosterChecked.rosterAudit,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
   result.automation={
     automatic:true,phase:decision.phase,reason:decision.reason,checkpointMinutes:decision.checkpointMinutes??null,
     inputFingerprint:decision.fingerprint,runAt:NOW.toISOString(),probabilityBlend:config.probabilityBlend||null,
