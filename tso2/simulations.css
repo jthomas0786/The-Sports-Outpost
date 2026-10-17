@@ -127,3 +127,9 @@
 .tso-sim-dvp-positions small{font-size:10px;color:#afc9c5}
 .tso-sim-dvp-positions strong{font-size:23px;color:#ffb77e;font-weight:900;font-variant-numeric:tabular-nums}
 @media(max-width:640px){.tso-sim-dvp-grid{grid-template-columns:1fr}}
+
+/* Dynamic ball-owner ticker and named, two-line football commentary. */
+.tso-sim-play-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
+.tso-sim-play-copy>small{font-size:10px;line-height:1.4;letter-spacing:.05em;text-transform:uppercase;font-weight:950;color:#fbc68a}
+.tso-sim-play-copy>b{font-size:13px;line-height:1.5;color:#e8f5ef;font-weight:750;word-break:normal}
+@media(max-width:700px){.tso-sim-play-copy>small{font-size:9px}.tso-sim-play-copy>b{font-size:12px}}
