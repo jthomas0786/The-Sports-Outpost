@@ -112,7 +112,7 @@ fs.mkdirSync(out,{recursive:true});
      radius:css('.gb2-card').borderTopLeftRadius,
      padding:css('.gb2-card').paddingTop,
      gridGap:css('.gb2-grid').columnGap,
-     maxWidth:css('.gb2-root').maxWidth
+     maxWidth:getComputedStyle(root).maxWidth
     };
     probe.remove();override.remove();
     return get;
