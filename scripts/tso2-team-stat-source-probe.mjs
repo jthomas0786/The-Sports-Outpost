@@ -21,3 +21,11 @@ for(const url of urls){
 }
 
 // Run diagnostic against live current-season team statistics.
+
+{
+const u='https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2026/types/2/teams/2/statistics';
+const res=await fetch(u,{signal:AbortSignal.timeout(12000)});
+const obj=await res.json();
+const cats=obj?.splits?.categories||[];
+console.log('TEAM_STATS_RELEVANT',JSON.stringify(cats.map(c=>({category:c.name,stats:(c.stats||[]).filter(s=>/third|turn|allow|oppon|netYards|rushingYardsPerGame|passingYardsPerGame|points|interception|fumble|game|scoring/i.test(s.name)).map(s=>({name:s.name,value:s.value,display:s.displayValue}))})).filter(c=>c.stats.length)));
+}
