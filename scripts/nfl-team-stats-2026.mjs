@@ -65,3 +65,5 @@ const data={schemaVersion:1,season:2026,source:'ESPN 2026 NFL regular-season tea
 await mkdir('tso2/data',{recursive:true});
 await writeFile('tso2/data/nfl-team-stats-2026.json',JSON.stringify(data,null,2)+'\n','utf8');
 console.log('NFL_TEAM_STATS_2026_PASS',JSON.stringify({teams:results.length,games:results.map(([,r])=>r.games),defPointsAvailable:results.filter(([,r])=>r.stats.defPointsAllowed!==null).length}));
+
+// Do not publish partial or cross-season snapshots.
