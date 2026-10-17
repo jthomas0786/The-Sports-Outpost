@@ -4,32 +4,14 @@
     "sample": false,
     "sport": "NBA",
     "sportKey": "basketball_nba",
-    "fetchedAt": "2026-10-17T16:49:31.936Z",
+    "fetchedAt": "2026-10-17T18:53:46.371Z",
     "queryWindow": {
-      "from": "2026-10-16T16:49:24.168Z",
-      "to": "2026-10-24T16:49:24.168Z"
+      "from": "2026-10-16T18:53:38.711Z",
+      "to": "2026-10-24T18:53:38.711Z"
     },
-    "eventsFound": 31,
-    "relevantEvents": 31,
+    "eventsFound": 38,
+    "relevantEvents": 38,
     "eventPreview": [
-      {
-        "eventId": "12b6665719e7b806",
-        "commenceTime": "2026-10-17T13:27:00.000Z",
-        "awayTeam": "Toronto Raptors",
-        "homeTeam": "Miami Heat"
-      },
-      {
-        "eventId": "548216662363d53d",
-        "commenceTime": "2026-10-17T13:55:00.000Z",
-        "awayTeam": "Dallas Mavericks",
-        "homeTeam": "Charlotte Hornets"
-      },
-      {
-        "eventId": "db7096a481e0c572",
-        "commenceTime": "2026-10-17T14:31:00.000Z",
-        "awayTeam": "Brooklyn Nets",
-        "homeTeam": "Miami Heat"
-      },
       {
         "eventId": "1c035d6907488c24",
         "commenceTime": "2026-10-17T15:03:00.000Z",
@@ -49,22 +31,28 @@
         "homeTeam": "Charlotte Hornets"
       },
       {
-        "eventId": "957cc1f03e9c7261",
-        "commenceTime": "2026-10-17T15:35:00.000Z",
-        "awayTeam": "Miami Heat",
-        "homeTeam": "Chicago Bulls"
-      },
-      {
         "eventId": "c0549b4caa080f65",
         "commenceTime": "2026-10-17T15:43:00.000Z",
         "awayTeam": "Denver Nuggets",
         "homeTeam": "Charlotte Hornets"
       },
       {
+        "eventId": "12b6665719e7b806",
+        "commenceTime": "2026-10-17T16:07:00.000Z",
+        "awayTeam": "Miami Heat",
+        "homeTeam": "Toronto Raptors"
+      },
+      {
         "eventId": "31e35065205b402f",
         "commenceTime": "2026-10-17T16:11:00.000Z",
         "awayTeam": "Los Angeles Lakers",
         "homeTeam": "Boston Celtics"
+      },
+      {
+        "eventId": "548216662363d53d",
+        "commenceTime": "2026-10-17T16:35:00.000Z",
+        "awayTeam": "Charlotte Hornets",
+        "homeTeam": "Dallas Mavericks"
       },
       {
         "eventId": "89a54f0e4ce582f1",
@@ -79,17 +67,29 @@
         "homeTeam": "Boston Celtics"
       },
       {
+        "eventId": "4907c526bf9054c3",
+        "commenceTime": "2026-10-17T17:07:00.000Z",
+        "awayTeam": "Denver Nuggets",
+        "homeTeam": "Dallas Mavericks"
+      },
+      {
+        "eventId": "a51de65f2e20ef7a",
+        "commenceTime": "2026-10-17T17:11:00.000Z",
+        "awayTeam": "Toronto Raptors",
+        "homeTeam": "Brooklyn Nets"
+      },
+      {
         "eventId": "d664d223a6af8f5d",
-        "commenceTime": "2026-10-17T16:55:00.000Z",
+        "commenceTime": "2026-10-17T17:19:00.000Z",
         "awayTeam": "Orlando Magic",
         "homeTeam": "Denver Nuggets"
       }
     ],
-    "rawRows": 336,
-    "sportsbookRows": 269,
-    "currentRows": 105,
-    "preservedRows": 164,
-    "rejectedNonPlayers": 130,
+    "rawRows": 293,
+    "sportsbookRows": 358,
+    "currentRows": 148,
+    "preservedRows": 210,
+    "rejectedNonPlayers": 125,
     "rejectedUnmatchedEvents": 0,
     "normalizedTeamSuffixes": 0,
     "nativeLinkRows": 0,
@@ -123,12 +123,14 @@
     ],
     "rawMarketKeys": [
       "player_assists",
+      "player_blocks",
       "player_points",
       "player_pts_asts",
       "player_pts_rebs",
       "player_pts_rebs_asts",
       "player_rebounds",
       "player_rebs_asts",
+      "player_steals",
       "player_threes",
       "player_threes_made"
     ],
@@ -137,9 +139,65 @@
     "preservationPolicy": "If an exact sportsbook player-prop quote disappears before game time, retain its last verified pregame price for up to 36 hours and no later than 30 minutes after scheduled start.",
     "identityPolicy": "Provider player identity is preserved without guessing event context.",
     "note": "Current NBA player props from ParlayAPI. Non-player selections are filtered. Native sportsbook selection metadata is preserved when the provider supplies it. Missing exact pregame rows may retain their last verified price; prices are never invented.",
-    "sanitizedMatchupLabels": 70
+    "sanitizedMatchupLabels": 53
   },
   "rows": [
+    {
+      "eventId": "249f6ad5667cc3b1",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T19:00:00.000Z",
+      "homeTeam": "Detroit Pistons",
+      "awayTeam": "Boston Celtics",
+      "player": "Ausar Thompson",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 107,
+      "underPrice": -141,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "249f6ad5667cc3b1",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T19:00:00.000Z",
+      "homeTeam": "Detroit Pistons",
+      "awayTeam": "Boston Celtics",
+      "player": "Ausar Thompson",
+      "team": null,
+      "market": "blocks",
+      "marketKey": "player_blocks",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 144,
+      "underPrice": -193,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:56:39.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
     {
       "eventId": "249f6ad5667cc3b1",
       "sport": "NBA",
@@ -167,7 +225,7 @@
       "snapshotTime": "2026-10-17T13:55:55.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -196,7 +254,35 @@
       "snapshotTime": "2026-10-16T20:46:50.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "249f6ad5667cc3b1",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T19:00:00.000Z",
+      "homeTeam": "Detroit Pistons",
+      "awayTeam": "Boston Celtics",
+      "player": "Ausar Thompson",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 20.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -110,
+      "underPrice": -120,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -223,6 +309,35 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "249f6ad5667cc3b1",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T19:00:00.000Z",
+      "homeTeam": "Detroit Pistons",
+      "awayTeam": "Boston Celtics",
+      "player": "Ausar Thompson",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 13.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -107,
+      "underPrice": -123,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -253,7 +368,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -280,8 +395,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -310,7 +426,35 @@
       "snapshotTime": "2026-10-16T20:46:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "249f6ad5667cc3b1",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T19:00:00.000Z",
+      "homeTeam": "Detroit Pistons",
+      "awayTeam": "Boston Celtics",
+      "player": "Ausar Thompson",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 10.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 101,
+      "underPrice": -133,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -339,7 +483,7 @@
       "snapshotTime": "2026-10-17T01:01:53.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -356,8 +500,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 105,
-      "underPrice": -138,
+      "overPrice": 110,
+      "underPrice": -145,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -365,10 +509,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -394,7 +537,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:42.000Z",
+      "snapshotTime": "2026-10-17T18:24:07.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -425,7 +568,7 @@
       "snapshotTime": "2026-10-16T09:39:42.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -454,7 +597,7 @@
       "snapshotTime": "2026-10-16T20:46:50.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -480,10 +623,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:40:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -512,7 +654,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -541,7 +683,7 @@
       "snapshotTime": "2026-10-16T20:46:13.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -570,7 +712,7 @@
       "snapshotTime": "2026-10-16T21:21:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -599,7 +741,7 @@
       "snapshotTime": "2026-10-16T20:46:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -626,8 +768,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -653,10 +796,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:29:18.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:05.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -683,8 +825,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -713,7 +856,7 @@
       "snapshotTime": "2026-10-16T20:46:21.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -742,7 +885,7 @@
       "snapshotTime": "2026-10-17T13:55:55.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -771,7 +914,7 @@
       "snapshotTime": "2026-10-16T09:54:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -800,7 +943,7 @@
       "snapshotTime": "2026-10-16T09:55:00.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -829,7 +972,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -858,7 +1001,7 @@
       "snapshotTime": "2026-10-17T01:00:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -887,7 +1030,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -916,7 +1059,7 @@
       "snapshotTime": "2026-10-17T13:55:23.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -945,7 +1088,7 @@
       "snapshotTime": "2026-10-17T13:55:55.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -974,7 +1117,7 @@
       "snapshotTime": "2026-10-17T13:55:23.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -991,8 +1134,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -189,
-      "underPrice": 142,
+      "overPrice": -180,
+      "underPrice": 136,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -1000,7 +1143,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:26:38.000Z",
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1031,7 +1174,7 @@
       "snapshotTime": "2026-10-16T20:49:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1058,8 +1201,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1088,7 +1232,7 @@
       "snapshotTime": "2026-10-16T23:31:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1115,8 +1259,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1145,7 +1290,7 @@
       "snapshotTime": "2026-10-16T20:46:54.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1174,7 +1319,7 @@
       "snapshotTime": "2026-10-16T23:31:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1203,7 +1348,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1232,7 +1377,7 @@
       "snapshotTime": "2026-10-16T23:31:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1259,8 +1404,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:50.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1287,8 +1433,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1317,7 +1464,7 @@
       "snapshotTime": "2026-10-16T20:46:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1344,8 +1491,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:42.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1371,7 +1519,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:39.000Z",
+      "snapshotTime": "2026-10-17T18:37:08.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1402,7 +1550,7 @@
       "snapshotTime": "2026-10-16T17:43:07.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1429,8 +1577,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:58:40.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1456,7 +1605,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:38.000Z",
+      "snapshotTime": "2026-10-17T18:37:08.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -1485,8 +1634,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1515,7 +1665,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1541,10 +1691,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:33:25.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:24:08.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1571,8 +1720,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1601,7 +1751,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1630,7 +1780,7 @@
       "snapshotTime": "2026-10-17T01:00:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1659,7 +1809,7 @@
       "snapshotTime": "2026-10-16T20:46:13.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1686,8 +1836,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:43.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1716,7 +1867,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1745,7 +1896,7 @@
       "snapshotTime": "2026-10-17T13:55:23.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1771,10 +1922,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:00.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1801,8 +1951,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1831,7 +1982,7 @@
       "snapshotTime": "2026-10-17T13:55:55.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1858,8 +2009,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:39.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1886,8 +2038,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1916,7 +2069,7 @@
       "snapshotTime": "2026-10-16T20:38:38.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1945,7 +2098,7 @@
       "snapshotTime": "2026-10-17T01:00:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -1974,7 +2127,7 @@
       "snapshotTime": "2026-10-16T20:46:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2001,8 +2154,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2029,8 +2183,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2057,8 +2212,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:58:40.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2085,8 +2241,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2113,8 +2270,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2141,8 +2299,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:45.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2169,6 +2328,35 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:55:58.000Z",
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "249f6ad5667cc3b1",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T19:00:00.000Z",
+      "homeTeam": "Detroit Pistons",
+      "awayTeam": "Boston Celtics",
+      "player": "Payton Pritchard",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 6.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -150,
+      "underPrice": 113,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2197,8 +2385,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:43.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "249f6ad5667cc3b1",
@@ -2225,8 +2414,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2243,8 +2433,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -119,
-      "underPrice": -110,
+      "overPrice": 100,
+      "underPrice": -132,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -2252,10 +2442,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2281,7 +2470,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:35.000Z",
+      "snapshotTime": "2026-10-17T18:41:05.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2309,7 +2498,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:36.000Z",
+      "snapshotTime": "2026-10-17T18:37:06.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2340,7 +2529,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2366,10 +2555,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:03.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2386,8 +2574,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -124,
-      "underPrice": -106,
+      "overPrice": -114,
+      "underPrice": -115,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -2395,10 +2583,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T01:01:08.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2427,7 +2614,7 @@
       "snapshotTime": "2026-10-16T20:46:50.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2444,8 +2631,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -121,
-      "underPrice": -109,
+      "overPrice": -111,
+      "underPrice": -119,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -2453,10 +2640,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T01:01:10.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2485,7 +2671,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2514,7 +2700,35 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Jalen Brunson",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -174,
+      "underPrice": 131,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:58:47.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2540,7 +2754,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:42.000Z",
+      "snapshotTime": "2026-10-17T18:24:07.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2559,8 +2773,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -128,
-      "underPrice": -103,
+      "overPrice": -111,
+      "underPrice": -118,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -2568,10 +2782,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T17:36:18.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2600,7 +2813,7 @@
       "snapshotTime": "2026-10-16T21:18:37.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2626,7 +2839,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:43.000Z",
+      "snapshotTime": "2026-10-17T18:32:43.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -2638,15 +2851,15 @@
       "awayTeam": "Philadelphia 76ers",
       "player": "Jaylen Brown",
       "team": null,
-      "market": "points",
-      "marketKey": "player_points",
-      "line": 19.5,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 3.5,
       "binary": false,
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -119,
-      "underPrice": -107,
+      "overPrice": 113,
+      "underPrice": -149,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -2654,10 +2867,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T05:41:49.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:30:36.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2686,7 +2898,7 @@
       "snapshotTime": "2026-10-16T21:21:12.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2715,7 +2927,7 @@
       "snapshotTime": "2026-10-16T21:19:05.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2744,7 +2956,7 @@
       "snapshotTime": "2026-10-16T21:19:07.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2773,7 +2985,7 @@
       "snapshotTime": "2026-10-16T21:19:12.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2802,7 +3014,35 @@
       "snapshotTime": "2026-10-16T20:46:13.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Jaylen Brown",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 6.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 107,
+      "underPrice": -141,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:34.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2831,7 +3071,91 @@
       "snapshotTime": "2026-10-16T21:19:09.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Jaylen Brown",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -113,
+      "underPrice": -116,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Jaylen Brown",
+      "team": null,
+      "market": "steals",
+      "marketKey": "player_steals",
+      "line": 0.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -240,
+      "underPrice": 178,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:28:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Jaylen Brown",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -122,
+      "underPrice": -108,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:40.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2860,7 +3184,7 @@
       "snapshotTime": "2026-10-16T20:46:21.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2877,8 +3201,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 153,
-      "underPrice": -206,
+      "overPrice": 152,
+      "underPrice": -204,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -2886,10 +3210,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T01:01:55.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:56:39.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2918,7 +3241,35 @@
       "snapshotTime": "2026-10-16T21:21:12.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Joel Embiid",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 33.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -122,
+      "underPrice": -108,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2947,7 +3298,7 @@
       "snapshotTime": "2026-10-16T17:43:43.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -2976,7 +3327,7 @@
       "snapshotTime": "2026-10-16T21:19:05.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3005,7 +3356,7 @@
       "snapshotTime": "2026-10-16T20:46:54.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3034,7 +3385,7 @@
       "snapshotTime": "2026-10-17T05:15:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3051,8 +3402,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -116,
-      "underPrice": -113,
+      "overPrice": -109,
+      "underPrice": -121,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3060,10 +3411,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3092,7 +3442,7 @@
       "snapshotTime": "2026-10-16T20:46:27.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3109,8 +3459,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -151,
-      "underPrice": 115,
+      "overPrice": -108,
+      "underPrice": -122,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3118,10 +3468,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T09:44:24.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3150,7 +3499,7 @@
       "snapshotTime": "2026-10-16T20:46:21.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3179,7 +3528,7 @@
       "snapshotTime": "2026-10-16T21:21:12.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3189,15 +3538,15 @@
       "awayTeam": "Philadelphia 76ers",
       "player": "Josh Hart",
       "team": null,
-      "market": "points",
-      "marketKey": "player_points",
-      "line": 12.5,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 24.5,
       "binary": false,
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 100,
-      "underPrice": -128,
+      "overPrice": -105,
+      "underPrice": -125,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3205,10 +3554,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T05:41:49.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3237,7 +3585,35 @@
       "snapshotTime": "2026-10-17T01:01:08.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Josh Hart",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 16.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -103,
+      "underPrice": -127,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3266,7 +3642,7 @@
       "snapshotTime": "2026-10-17T01:01:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3295,7 +3671,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3312,8 +3688,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -135,
-      "underPrice": 103,
+      "overPrice": -124,
+      "underPrice": -106,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3321,10 +3697,37 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T05:15:29.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:30:34.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Josh Hart",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 12.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -112,
+      "underPrice": -118,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3353,7 +3756,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3370,8 +3773,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 146,
-      "underPrice": -196,
+      "overPrice": 160,
+      "underPrice": -215,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3379,10 +3782,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T21:19:47.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:56:37.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3399,8 +3801,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 119,
-      "underPrice": -157,
+      "overPrice": -105,
+      "underPrice": -126,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3408,10 +3810,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T09:44:24.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3440,7 +3841,7 @@
       "snapshotTime": "2026-10-16T20:49:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3469,7 +3870,35 @@
       "snapshotTime": "2026-10-17T01:01:08.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Karl-Anthony Towns",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 34.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -108,
+      "underPrice": -122,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3498,7 +3927,35 @@
       "snapshotTime": "2026-10-17T01:01:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Karl-Anthony Towns",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 22.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -108,
+      "underPrice": -122,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3527,7 +3984,63 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Karl-Anthony Towns",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 29.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -112,
+      "underPrice": -117,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Karl-Anthony Towns",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 11.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -113,
+      "underPrice": -117,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:58:47.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3556,7 +4069,63 @@
       "snapshotTime": "2026-10-16T20:46:56.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Karl-Anthony Towns",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 16.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -105,
+      "underPrice": -126,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Karl-Anthony Towns",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 134,
+      "underPrice": -177,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3585,7 +4154,7 @@
       "snapshotTime": "2026-10-17T09:44:24.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3611,10 +4180,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:10:54.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:28:18.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3643,7 +4211,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3669,7 +4237,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:27:18.000Z",
+      "snapshotTime": "2026-10-17T18:28:18.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3700,7 +4268,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3726,7 +4294,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:45.000Z",
+      "snapshotTime": "2026-10-17T18:40:58.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -3757,7 +4325,7 @@
       "snapshotTime": "2026-10-16T21:19:05.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3786,7 +4354,7 @@
       "snapshotTime": "2026-10-16T21:19:07.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3815,7 +4383,35 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "LeBron James",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 6.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 106,
+      "underPrice": -140,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:34.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3841,10 +4437,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:02.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3873,7 +4468,7 @@
       "snapshotTime": "2026-10-16T21:19:09.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3902,7 +4497,7 @@
       "snapshotTime": "2026-10-17T01:00:42.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3919,7 +4514,7 @@
       "period": "FULL",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "overPrice": 110,
+      "overPrice": 109,
       "underPrice": -145,
       "overImplied": null,
       "underImplied": null,
@@ -3928,10 +4523,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:10:54.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:28:18.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3948,8 +4542,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 132,
-      "underPrice": -174,
+      "overPrice": 127,
+      "underPrice": -168,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -3957,10 +4551,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T09:44:24.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -3989,7 +4582,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4006,8 +4599,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -127,
-      "underPrice": -103,
+      "overPrice": -106,
+      "underPrice": -124,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4015,10 +4608,37 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T01:01:08.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Mikal Bridges",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 16.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -119,
+      "underPrice": -111,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4047,7 +4667,35 @@
       "snapshotTime": "2026-10-17T01:01:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Mikal Bridges",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 16.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -121,
+      "underPrice": -108,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4076,7 +4724,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4093,8 +4741,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 103,
-      "underPrice": -135,
+      "overPrice": 107,
+      "underPrice": -140,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4102,10 +4750,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T01:00:29.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:58:47.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4122,8 +4769,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -123,
-      "underPrice": -107,
+      "overPrice": -110,
+      "underPrice": -120,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4131,10 +4778,37 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Mikal Bridges",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -111,
+      "underPrice": -119,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:40.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4151,8 +4825,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -145,
-      "underPrice": 110,
+      "overPrice": -148,
+      "underPrice": 112,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4160,10 +4834,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:21.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4192,7 +4865,7 @@
       "snapshotTime": "2026-10-16T17:36:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4221,7 +4894,7 @@
       "snapshotTime": "2026-10-17T01:01:08.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4250,7 +4923,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4267,8 +4940,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -116,
-      "underPrice": -113,
+      "overPrice": -104,
+      "underPrice": -126,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4276,10 +4949,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T01:01:10.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4308,7 +4980,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4337,7 +5009,7 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4354,8 +5026,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": 114,
-      "underPrice": -150,
+      "overPrice": 116,
+      "underPrice": -153,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4363,10 +5035,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T05:15:29.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:58:47.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4395,7 +5066,35 @@
       "snapshotTime": "2026-10-16T17:36:18.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "OG Anunoby",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 7.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 112,
+      "underPrice": -147,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4424,7 +5123,35 @@
       "snapshotTime": "2026-10-16T21:19:47.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "OG Anunoby",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 130,
+      "underPrice": -172,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:40.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4453,7 +5180,7 @@
       "snapshotTime": "2026-10-16T17:43:07.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4482,7 +5209,7 @@
       "snapshotTime": "2026-10-16T20:49:41.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4511,7 +5238,7 @@
       "snapshotTime": "2026-10-16T20:46:50.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4540,7 +5267,35 @@
       "snapshotTime": "2026-10-17T01:01:10.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Tyrese Maxey",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -119,
+      "underPrice": -111,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:34.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4557,8 +5312,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -127,
-      "underPrice": -104,
+      "overPrice": -140,
+      "underPrice": 106,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -4566,10 +5321,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-16T20:46:56.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "bf32df940516e8a3",
@@ -4598,7 +5352,119 @@
       "snapshotTime": "2026-10-17T01:01:53.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "Tyrese Maxey",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -106,
+      "underPrice": -124,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "VJ Edgecombe",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -110,
+      "underPrice": -120,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:36.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "VJ Edgecombe",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 4.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -153,
+      "underPrice": 116,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:34.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "bf32df940516e8a3",
+      "sport": "NBA",
+      "commenceTime": "2026-10-20T23:00:00.000Z",
+      "homeTeam": "New York Knicks",
+      "awayTeam": "Philadelphia 76ers",
+      "player": "VJ Edgecombe",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -105,
+      "underPrice": -125,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:30:40.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4627,36 +5493,7 @@
       "snapshotTime": "2026-10-17T13:25:32.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
-    },
-    {
-      "eventId": "3a5c10c1a3bfc612",
-      "sport": "NBA",
-      "commenceTime": "2026-10-21T01:30:00.000Z",
-      "homeTeam": "San Antonio Spurs",
-      "awayTeam": "Oklahoma City Thunder",
-      "player": "Chet Holmgren",
-      "team": null,
-      "market": "points",
-      "marketKey": "player_points",
-      "line": 13.5,
-      "binary": false,
-      "period": "FULL",
-      "book": "DraftKings",
-      "bookKey": "draftkings",
-      "overPrice": -106,
-      "underPrice": -120,
-      "overImplied": null,
-      "underImplied": null,
-      "overLink": null,
-      "underLink": null,
-      "overSid": null,
-      "underSid": null,
-      "deepLink": null,
-      "snapshotTime": "2026-10-16T05:15:47.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4685,7 +5522,7 @@
       "snapshotTime": "2026-10-16T09:57:29.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4714,7 +5551,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4743,7 +5580,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4772,7 +5609,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4801,7 +5638,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4830,7 +5667,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4859,7 +5696,7 @@
       "snapshotTime": "2026-10-17T05:46:25.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4886,8 +5723,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:58:40.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4914,8 +5752,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:39.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4942,8 +5781,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4972,7 +5812,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -4999,8 +5839,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:45.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5029,7 +5870,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5058,7 +5899,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5087,36 +5928,7 @@
       "snapshotTime": "2026-10-17T05:46:25.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
-    },
-    {
-      "eventId": "3a5c10c1a3bfc612",
-      "sport": "NBA",
-      "commenceTime": "2026-10-21T01:30:00.000Z",
-      "homeTeam": "San Antonio Spurs",
-      "awayTeam": "Oklahoma City Thunder",
-      "player": "Jalen Williams",
-      "team": null,
-      "market": "points",
-      "marketKey": "player_points",
-      "line": 16.5,
-      "binary": false,
-      "period": "FULL",
-      "book": "DraftKings",
-      "bookKey": "draftkings",
-      "overPrice": -103,
-      "underPrice": -123,
-      "overImplied": null,
-      "underImplied": null,
-      "overLink": null,
-      "underLink": null,
-      "overSid": null,
-      "underSid": null,
-      "deepLink": null,
-      "snapshotTime": "2026-10-16T05:15:47.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5145,7 +5957,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5174,7 +5986,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5203,7 +6015,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5232,7 +6044,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5261,7 +6073,7 @@
       "snapshotTime": "2026-10-17T05:46:25.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5278,8 +6090,8 @@
       "period": "FULL",
       "book": "Pinnacle",
       "bookKey": "pinnacle",
-      "overPrice": -146,
-      "underPrice": 110,
+      "overPrice": -149,
+      "underPrice": 112,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -5287,10 +6099,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:10:54.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:28:18.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5319,7 +6130,7 @@
       "snapshotTime": "2026-10-17T13:25:32.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5345,7 +6156,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:45.000Z",
+      "snapshotTime": "2026-10-17T18:32:47.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5376,7 +6187,7 @@
       "snapshotTime": "2026-10-16T20:40:20.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5402,10 +6213,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:03.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5434,7 +6244,7 @@
       "snapshotTime": "2026-10-17T13:25:40.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5463,7 +6273,7 @@
       "snapshotTime": "2026-10-17T13:25:40.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5492,7 +6302,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5518,10 +6328,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:05.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5550,7 +6359,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5579,36 +6388,7 @@
       "snapshotTime": "2026-10-17T13:25:40.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
-    },
-    {
-      "eventId": "3a5c10c1a3bfc612",
-      "sport": "NBA",
-      "commenceTime": "2026-10-21T01:30:00.000Z",
-      "homeTeam": "San Antonio Spurs",
-      "awayTeam": "Oklahoma City Thunder",
-      "player": "Shai Gilgeous-Alexander",
-      "team": null,
-      "market": "threes",
-      "marketKey": "player_threes",
-      "line": 1.5,
-      "binary": false,
-      "period": "FULL",
-      "book": "DraftKings",
-      "bookKey": "draftkings",
-      "overPrice": -108,
-      "underPrice": -122,
-      "overImplied": null,
-      "underImplied": null,
-      "overLink": null,
-      "underLink": null,
-      "overSid": null,
-      "underSid": null,
-      "deepLink": null,
-      "snapshotTime": "2026-10-16T05:15:22.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5634,7 +6414,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:27:18.000Z",
+      "snapshotTime": "2026-10-17T18:28:18.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -5663,8 +6443,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:58:40.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5691,8 +6472,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:39.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5719,8 +6501,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5747,8 +6530,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:45.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5777,7 +6561,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5804,37 +6588,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:00:08.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
-    },
-    {
-      "eventId": "3a5c10c1a3bfc612",
-      "sport": "NBA",
-      "commenceTime": "2026-10-21T01:30:00.000Z",
-      "homeTeam": "San Antonio Spurs",
-      "awayTeam": "Oklahoma City Thunder",
-      "player": "Stephon Castle",
-      "team": null,
-      "market": "threes",
-      "marketKey": "player_threes",
-      "line": 0.5,
-      "binary": false,
-      "period": "FULL",
-      "book": "DraftKings",
-      "bookKey": "draftkings",
-      "overPrice": -225,
-      "underPrice": 168,
-      "overImplied": null,
-      "underImplied": null,
-      "overLink": null,
-      "underLink": null,
-      "overSid": null,
-      "underSid": null,
-      "deepLink": null,
-      "snapshotTime": "2026-10-16T05:15:22.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5863,7 +6619,7 @@
       "snapshotTime": "2026-10-17T01:00:42.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5889,10 +6645,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:40:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5921,7 +6676,7 @@
       "snapshotTime": "2026-10-16T20:40:20.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5947,10 +6702,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:02.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -5976,10 +6730,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:04.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6008,7 +6761,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6037,7 +6790,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6066,7 +6819,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6095,7 +6848,7 @@
       "snapshotTime": "2026-10-16T17:36:48.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6121,10 +6874,9 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T13:26:11.000Z",
-      "preserved": true,
-      "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "snapshotTime": "2026-10-17T18:41:01.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6153,7 +6905,7 @@
       "snapshotTime": "2026-10-17T05:46:30.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6182,7 +6934,7 @@
       "snapshotTime": "2026-10-17T13:25:35.000Z",
       "preserved": true,
       "priceKind": "last-verified-pregame",
-      "preservedAt": "2026-10-17T16:49:24.168Z"
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "3a5c10c1a3bfc612",
@@ -6208,7 +6960,63 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T15:53:36.000Z",
+      "snapshotTime": "2026-10-17T18:37:06.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Anthony Davis",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -109,
+      "underPrice": -120,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Anthony Davis",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 13.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 103,
+      "underPrice": -135,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -6237,8 +7045,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6265,8 +7074,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6293,8 +7103,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6321,8 +7132,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6349,8 +7161,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6377,8 +7190,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6405,8 +7219,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6433,8 +7248,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6461,8 +7277,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6489,8 +7306,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6517,8 +7335,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "07bf528b67a70a96",
@@ -6545,6 +7364,343 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Ryan Rollins",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 27.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -110,
+      "underPrice": -120,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Ryan Rollins",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 22.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -116,
+      "underPrice": -114,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Ryan Rollins",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 21.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -117,
+      "underPrice": -112,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Ryan Rollins",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 4.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -106,
+      "underPrice": -125,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Ryan Rollins",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -128,
+      "underPrice": -103,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Trae Young",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -101,
+      "underPrice": -130,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Trae Young",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 11.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -134,
+      "underPrice": 102,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Tyler Herro",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 29.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -114,
+      "underPrice": -115,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Tyler Herro",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 24.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -111,
+      "underPrice": -119,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Tyler Herro",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 24.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -117,
+      "underPrice": -112,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Tyler Herro",
+      "team": null,
+      "market": "rebounds",
+      "marketKey": "player_rebounds",
+      "line": 4.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -132,
+      "underPrice": 100,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "b7d7b4d9550bf5dc",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:10:00.000Z",
+      "homeTeam": "Washington Wizards",
+      "awayTeam": "Milwaukee Bucks",
+      "player": "Tyler Herro",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -113,
+      "underPrice": -116,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:32:33.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -6573,8 +7729,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6601,8 +7758,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6629,8 +7787,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6657,8 +7816,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:02:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6685,8 +7845,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:02:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6713,8 +7874,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6741,8 +7903,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:43.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6769,8 +7932,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:45.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6797,8 +7961,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6825,8 +7990,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6853,8 +8019,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -6881,8 +8048,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -6909,8 +8077,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -6937,8 +8106,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -6965,8 +8135,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -6993,8 +8164,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:01:25.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7021,8 +8193,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:01:25.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7049,8 +8222,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7077,8 +8251,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:01:25.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7095,8 +8270,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -126,
-      "underPrice": -104,
+      "overPrice": -122,
+      "underPrice": -108,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -7104,7 +8279,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:26:45.000Z",
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -7133,8 +8308,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7161,8 +8337,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7189,8 +8366,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7217,8 +8395,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7245,8 +8424,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:05.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7273,8 +8453,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:58:40.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7291,8 +8472,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -120,
-      "underPrice": -109,
+      "overPrice": -125,
+      "underPrice": -106,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -7300,7 +8481,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:27:14.000Z",
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -7328,7 +8509,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:01:25.000Z",
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -7357,8 +8538,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:01:25.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7385,8 +8567,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7413,8 +8596,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:01:25.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7441,8 +8625,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:12.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7469,8 +8654,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7497,8 +8683,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:29:35.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7525,8 +8712,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:27:14.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7553,8 +8741,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:41.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7581,8 +8770,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:02:37.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7609,8 +8799,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7637,8 +8828,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T15:56:43.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "aa5a82f089e00ee1",
@@ -7665,8 +8857,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:45.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7693,8 +8886,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:38.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7711,8 +8905,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -118,
-      "underPrice": -112,
+      "overPrice": -113,
+      "underPrice": -116,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -7720,7 +8914,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:27:14.000Z",
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -7739,8 +8933,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -122,
-      "underPrice": -108,
+      "overPrice": -117,
+      "underPrice": -112,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -7748,7 +8942,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:01:25.000Z",
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -7767,8 +8961,8 @@
       "period": "FULL",
       "book": "DraftKings",
       "bookKey": "draftkings",
-      "overPrice": -122,
-      "underPrice": -108,
+      "overPrice": -123,
+      "underPrice": -107,
       "overImplied": null,
       "underImplied": null,
       "overLink": null,
@@ -7776,7 +8970,7 @@
       "overSid": null,
       "underSid": null,
       "deepLink": null,
-      "snapshotTime": "2026-10-17T16:01:25.000Z",
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     },
@@ -7805,8 +8999,9 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:26:29.000Z",
-      "preserved": false,
-      "priceKind": "verified-snapshot"
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
     },
     {
       "eventId": "dca1d1ddaffcbc2b",
@@ -7833,6 +9028,1351 @@
       "underSid": null,
       "deepLink": null,
       "snapshotTime": "2026-10-17T16:01:25.000Z",
+      "preserved": true,
+      "priceKind": "last-verified-pregame",
+      "preservedAt": "2026-10-17T18:53:38.711Z"
+    },
+    {
+      "eventId": "dca1d1ddaffcbc2b",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:40:00.000Z",
+      "homeTeam": "Brooklyn Nets",
+      "awayTeam": "Charlotte Hornets",
+      "player": "Michael Porter Jr.",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 8.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 111,
+      "underPrice": -146,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "dca1d1ddaffcbc2b",
+      "sport": "NBA",
+      "commenceTime": "2026-10-21T23:40:00.000Z",
+      "homeTeam": "Brooklyn Nets",
+      "awayTeam": "Charlotte Hornets",
+      "player": "Michael Porter Jr.",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 110,
+      "underPrice": -146,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Pascal Siakam",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 130,
+      "underPrice": -172,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Pascal Siakam",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 30.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -115,
+      "underPrice": -114,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Pascal Siakam",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 23.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -120,
+      "underPrice": -110,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Pascal Siakam",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 27.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -109,
+      "underPrice": -121,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Pascal Siakam",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -123,
+      "underPrice": -107,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Pascal Siakam",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 1.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 115,
+      "underPrice": -152,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Trey Murphy III",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 115,
+      "underPrice": -152,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Trey Murphy III",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 29.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -109,
+      "underPrice": -121,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Trey Murphy III",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 23.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -116,
+      "underPrice": -113,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Trey Murphy III",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 25.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -119,
+      "underPrice": -110,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Trey Murphy III",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 8.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -124,
+      "underPrice": -106,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Trey Murphy III",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 131,
+      "underPrice": -174,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Tyrese Haliburton",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 8.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -105,
+      "underPrice": -125,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Tyrese Haliburton",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 30.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -123,
+      "underPrice": -107,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Tyrese Haliburton",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 27.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -111,
+      "underPrice": -119,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Tyrese Haliburton",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 22.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -110,
+      "underPrice": -120,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Tyrese Haliburton",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 12.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 106,
+      "underPrice": -139,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Tyrese Haliburton",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -144,
+      "underPrice": 110,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:22.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Zion Williamson",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 104,
+      "underPrice": -137,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Zion Williamson",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 30.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -115,
+      "underPrice": -115,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Zion Williamson",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 24.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -105,
+      "underPrice": -125,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Zion Williamson",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 27.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -106,
+      "underPrice": -124,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "3d99b706703816c9",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:10:00.000Z",
+      "homeTeam": "New Orleans Pelicans",
+      "awayTeam": "Indiana Pacers",
+      "player": "Zion Williamson",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -117,
+      "underPrice": -113,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Alperen Sengun",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 5.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -145,
+      "underPrice": 110,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Alperen Sengun",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 35.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -107,
+      "underPrice": -122,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:04:46.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Alperen Sengun",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 24.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -125,
+      "underPrice": -105,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:04:46.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Alperen Sengun",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 28.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -122,
+      "underPrice": -108,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:04:46.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Alperen Sengun",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 15.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -131,
+      "underPrice": -101,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Amen Thompson",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 4.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -123,
+      "underPrice": -107,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Amen Thompson",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 30.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -113,
+      "underPrice": -117,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Amen Thompson",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 21.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -114,
+      "underPrice": -116,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Amen Thompson",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 25.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -112,
+      "underPrice": -118,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Amen Thompson",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 13.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -110,
+      "underPrice": -119,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:57.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Cooper Flagg",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 5.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 112,
+      "underPrice": -147,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Cooper Flagg",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 11.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -137,
+      "underPrice": 104,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kevin Durant",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 3.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -133,
+      "underPrice": 101,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:14.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kevin Durant",
+      "team": null,
+      "market": "pra",
+      "marketKey": "player_pts_rebs_asts",
+      "line": 33.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -112,
+      "underPrice": -117,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:51.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kevin Durant",
+      "team": null,
+      "market": "ptsAsts",
+      "marketKey": "player_pts_asts",
+      "line": 27.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -125,
+      "underPrice": -106,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:55.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kevin Durant",
+      "team": null,
+      "market": "ptsRebs",
+      "marketKey": "player_pts_rebs",
+      "line": 29.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -110,
+      "underPrice": -119,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T17:55:59.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kevin Durant",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 102,
+      "underPrice": -134,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kyrie Irving",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 4.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -120,
+      "underPrice": -109,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kyrie Irving",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 8.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 111,
+      "underPrice": -147,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "4301979c03812404",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T00:40:00.000Z",
+      "homeTeam": "Houston Rockets",
+      "awayTeam": "Dallas Mavericks",
+      "player": "Kyrie Irving",
+      "team": null,
+      "market": "threes",
+      "marketKey": "player_threes",
+      "line": 2.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -108,
+      "underPrice": -121,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:36:09.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "04c2195f50bb3560",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T02:10:00.000Z",
+      "homeTeam": "Portland Trail Blazers",
+      "awayTeam": "Phoenix Suns",
+      "player": "Deni Avdija",
+      "team": null,
+      "market": "assists",
+      "marketKey": "player_assists",
+      "line": 4.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 125,
+      "underPrice": -165,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:26:45.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "04c2195f50bb3560",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T02:10:00.000Z",
+      "homeTeam": "Portland Trail Blazers",
+      "awayTeam": "Phoenix Suns",
+      "player": "Deni Avdija",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 11.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": 105,
+      "underPrice": -139,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
+      "preserved": false,
+      "priceKind": "verified-snapshot"
+    },
+    {
+      "eventId": "04c2195f50bb3560",
+      "sport": "NBA",
+      "commenceTime": "2026-10-22T02:10:00.000Z",
+      "homeTeam": "Portland Trail Blazers",
+      "awayTeam": "Phoenix Suns",
+      "player": "Devin Booker",
+      "team": null,
+      "market": "rebsAsts",
+      "marketKey": "player_rebs_asts",
+      "line": 9.5,
+      "binary": false,
+      "period": "FULL",
+      "book": "DraftKings",
+      "bookKey": "draftkings",
+      "overPrice": -141,
+      "underPrice": 107,
+      "overImplied": null,
+      "underImplied": null,
+      "overLink": null,
+      "underLink": null,
+      "overSid": null,
+      "underSid": null,
+      "deepLink": null,
+      "snapshotTime": "2026-10-17T18:27:33.000Z",
       "preserved": false,
       "priceKind": "verified-snapshot"
     }
