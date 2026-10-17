@@ -2,7 +2,8 @@
 const root='https://staging.thesportsoutpost.com';
 for(const [label,path] of [
  ['NHL_TEAM','/api/tso2-nhl-team-stats?away=NJD&home=CBJ'],
- ['NHL_PLAYER','/api/tso2-nhl-player-rates?playerId=8478402&team=EDM']
+ ['NHL_PLAYER','/api/tso2-nhl-player-rates?playerId=8478402&team=EDM'],
+ ['NHL_NAMED_PLAYER','/api/tso2-nhl-player-rates?team=NJD&name=Nico%20Hischier']
 ]){
  try{
   const response=await fetch(root+path,{signal:AbortSignal.timeout(24000)});
