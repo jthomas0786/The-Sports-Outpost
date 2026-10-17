@@ -102,9 +102,10 @@ function gameCard(g,ctx){
   +'</button>';
 }
 function row(label,away,home,prefer='high'){
- const a=n(away),b=n(home);
- const fa=a===null?esc(String(away??'—')):esc(round(a,1));
- const fb=b===null?esc(String(home??'—')):esc(round(b,1));
+ const numeric=v=>n(v)!==null?n(v):/^[-+]?\d+(?:\.\d+)?%$/.test(String(v||'').trim())?Number(String(v).trim().slice(0,-1)):null;
+ const a=numeric(away),b=numeric(home);
+ const fa=String(away??'').trim().endsWith('%')?esc(String(away)):a===null?esc(String(away??'—')):esc(round(a,1));
+ const fb=String(home??'').trim().endsWith('%')?esc(String(home)):b===null?esc(String(home??'—')):esc(round(b,1));
  const winner=a===null||b===null?'':a===b?'':prefer==='low'?(a<b?'away':'home'):(a>b?'away':'home');
  return '<div class="gb2-compare-row"><span>'+esc(label)+'</span><b class="'+(winner==='away'?'is-best':'')+'">'+fa+'</b><i class="'+(winner==='away'?'is-away':winner==='home'?'is-home':'')+'"></i><b class="'+(winner==='home'?'is-best':'')+'">'+fb+'</b></div>';
 }
