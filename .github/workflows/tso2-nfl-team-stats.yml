@@ -1,0 +1,35 @@
+name: TSO 2.0 NFL Team Stats Snapshot
+on:
+  workflow_dispatch:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'scripts/nfl-team-stats-2026.mjs'
+      - '.github/workflows/tso2-nfl-team-stats.yml'
+permissions:
+  contents: write
+concurrency:
+  group: tso2-nfl-team-stats
+  cancel-in-progress: false
+jobs:
+  validate-and-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node scripts/nfl-team-stats-2026.mjs
+      - name: Commit verified 2026 team snapshot only to TSO2 branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tso2/data/nfl-team-stats-2026.json
+          if git diff --cached --quiet; then echo "No changes"; else
+            git commit -m "data: refresh verified 2026 NFL team matchup statistics"
+            git push origin HEAD:tso-2.0-restructure
+          fi
