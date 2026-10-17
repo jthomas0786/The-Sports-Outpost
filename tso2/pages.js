@@ -2072,7 +2072,7 @@ function hydrateSignals(root,ctx){
  if(ctx.game?.league==='nhl')state.nhlCurrentGame=ctx.game;
  const signature=rankingSignature(ctx.game,ctx.rows||[]);
  let job=state.ranking;
- if(job&&job.signature===signature&&candidates.every(row=>researchTTL(key(row))>0)){
+ if(job&&job.signature===signature&&(!job.done||candidates.every(row=>researchTTL(key(row))>0))){
   // Filtering a prop category replaces the DOM; retain the active root.
   job.root=root;job.refresh=ctx.refresh;
   for(const row of candidates)if(state.cached.has(key(row)))
@@ -2108,6 +2108,7 @@ function hydrateSignals(root,ctx){
     if(state.ranking!==job)return;
     for(const row of group){
      state.cached.set(key(row),data);
+     researchChecked.set(key(row),Date.now());
      if(job.root?.isConnected)updateSignalView(job.root,row,data);
     }
    }catch{
