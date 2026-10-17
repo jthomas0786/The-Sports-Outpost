@@ -363,6 +363,287 @@ body{font-size:var(--tso-body-size)}
 .app-shell.broadcast-shell .tso-sim-page :is(.tso-sim-seeker input,.tso-sim-controls input){
  accent-color:var(--outpost-orange);
 }
+
+/* TSO2_SIMULATIONS_APPROVED_BROADCAST_V2
+ * Simulations uses the same charcoal / orange / gold design and page geometry
+ * as Games and Research. The rendered football turf and outcome semantics remain
+ * sport-specific. Do not create a separate teal/green page-level skin.
+ */
+.app-shell.broadcast-shell .broadcast-main:has(.tso-sim-page){
+ max-width:var(--tso-page-max);
+ padding:24px min(var(--tso-page-gutter),4vw) 80px;
+}
+.app-shell.broadcast-shell .tso-sim-page{
+ width:100%;max-width:none;min-width:0;margin:0;
+ padding:0;color:var(--text);background:transparent;
+ --sim-bg:var(--bg);--sim-line:var(--line-strong);
+ --sim-ink:var(--text);--sim-cool:var(--muted);
+ --sim-amber:var(--outpost-orange);--sim-green:var(--green);
+ font-family:var(--tso-font-family);
+}
+.app-shell.broadcast-shell .tso-sim-hero{
+ margin:0 0 18px;padding:8px 0 22px;
+ border-bottom:1px solid var(--line);
+ align-items:flex-end;gap:16px;
+}
+.app-shell.broadcast-shell .tso-sim-hero h1{
+ font-size:clamp(27px,2.2vw,var(--tso-heading-size));
+ font-weight:950;letter-spacing:-.035em;line-height:1.05;
+ margin:7px 0 10px;color:var(--text);
+}
+.app-shell.broadcast-shell .tso-sim-hero h1 span{color:var(--outpost-gold);font-weight:900}
+.app-shell.broadcast-shell .tso-sim-hero p{
+ max-width:760px;color:var(--muted);
+ font-size:var(--tso-body-size);line-height:1.55;
+}
+.app-shell.broadcast-shell .tso-sim-kicker{
+ color:var(--outpost-orange);font-size:11px;letter-spacing:.13em;
+}
+.app-shell.broadcast-shell .tso-sim-hero-pill{
+ padding:11px 15px;background:var(--surface);
+ border:1px solid var(--line-strong);border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell .tso-sim-hero-pill b{color:var(--outpost-gold)}
+.app-shell.broadcast-shell .tso-sim-hero-pill small{color:var(--muted)}
+.app-shell.broadcast-shell .tso-sim-disclosure{
+ background:var(--surface);border:1px solid var(--line);
+ border-left:3px solid var(--outpost-orange);
+ border-radius:var(--r-sm);padding:13px 16px;margin-bottom:20px;
+ color:var(--muted);
+}
+.app-shell.broadcast-shell .tso-sim-disclosure strong{color:var(--outpost-gold)}
+.app-shell.broadcast-shell .tso-sim-loading,
+.app-shell.broadcast-shell .tso-sim-empty{
+ border:1px solid var(--line-strong);background:var(--card);
+ border-radius:var(--r);color:var(--muted);
+}
+/* Game selections are full-width slate cards, not a second left sidebar. */
+.app-shell.broadcast-shell .tso-sim-layout{
+ display:grid;grid-template-columns:minmax(0,1fr);
+ gap:var(--tso-grid-gap);align-items:start;
+}
+.app-shell.broadcast-shell .tso-sim-matchups{
+ width:100%;margin:0 0 6px;overflow:visible;
+ background:transparent;border:0;border-radius:0;
+}
+.app-shell.broadcast-shell .tso-sim-matchups-head{
+ padding:0 0 11px;margin:0 0 11px;
+ border:0;border-bottom:1px solid var(--line);
+ border-radius:0;background:transparent;
+ color:var(--muted);font-size:11px;letter-spacing:.10em;
+}
+.app-shell.broadcast-shell .tso-sim-matchups-head b{color:var(--outpost-gold)}
+.app-shell.broadcast-shell .tso-sim-game-list{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));
+ gap:var(--tso-grid-gap);padding:0;max-height:none;overflow:visible;
+}
+.app-shell.broadcast-shell .tso-sim-game-choice{
+ width:100%;min-width:0;max-width:none;min-height:99px;
+ padding:13px 15px;border:1px solid var(--line-strong);
+ background:var(--card);border-radius:var(--r-sm);
+ color:var(--text);box-shadow:none;gap:8px;
+ transition:border-color .16s,background .16s,transform .16s;
+}
+.app-shell.broadcast-shell .tso-sim-game-choice:hover{
+ background:var(--elev);border-color:var(--outpost-orange);
+ transform:translateY(-1px);
+}
+.app-shell.broadcast-shell .tso-sim-game-choice.is-active{
+ background:color-mix(in srgb,var(--outpost-orange) 9%,var(--card));
+ border-color:var(--outpost-orange);
+ box-shadow:inset 3px 0 var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-game-short b{color:var(--text);font-size:16px}
+.app-shell.broadcast-shell .tso-sim-game-short em,
+.app-shell.broadcast-shell .tso-sim-game-date{color:var(--muted)}
+.app-shell.broadcast-shell .tso-sim-game-result{color:var(--outpost-gold)}
+.app-shell.broadcast-shell .tso-sim-main{width:100%;min-width:0}
+.app-shell.broadcast-shell .tso-sim-game-title{
+ margin:0;padding:15px 0 18px;align-items:center;
+ border-bottom:1px solid var(--line);margin-bottom:17px;
+}
+.app-shell.broadcast-shell .tso-sim-game-title small{
+ color:var(--outpost-orange);font-size:11px;
+}
+.app-shell.broadcast-shell .tso-sim-game-title h2{
+ font-size:clamp(25px,2.4vw,34px);
+ letter-spacing:-.03em;margin:7px 0;color:var(--text);
+}
+.app-shell.broadcast-shell .tso-sim-game-title h2 span{color:var(--muted)}
+.app-shell.broadcast-shell .tso-sim-game-title p{color:var(--muted)}
+.app-shell.broadcast-shell .tso-sim-live-badge{
+ border:1px solid var(--line-strong);border-radius:var(--r-sm);
+ background:var(--surface);color:var(--outpost-gold);
+ font-weight:900;padding:9px 12px;max-width:100%;white-space:normal;
+}
+/* Consistent cards, surfaces, neutral score chrome. */
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-outlook,.tso-sim-prob-row,.tso-sim-replay,.tso-sim-scoreboard,
+ .tso-sim-scoreclock,.tso-sim-players,.tso-sim-dvp,.tso-sim-dvp-grid article,
+ .tso-sim-dvp-positions>div,.tso-sim-commentary,.tso-sim-quarter-overlay,
+ .tso-sim-final,.tso-sim-live-totals span,.tso-sim-tendency,
+ .tso-sim-injury-audit,.tso-sim-injury-grid article,
+ .tso-sim-roster-warning,.tso-sim-roster-pending,
+ .tso-sim-defensive-injuries,.tso-sim-representative-banner){
+ background:var(--card);border-color:var(--line-strong);
+ color:var(--text);box-shadow:none;
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-replay,.tso-sim-players,.tso-sim-dvp,.tso-sim-final,
+ .tso-sim-injury-audit,.tso-sim-outlook,.tso-sim-roster-warning,
+ .tso-sim-defensive-injuries,.tso-sim-representative-banner){
+ border-radius:var(--r);
+}
+.app-shell.broadcast-shell .tso-sim-outlook{background:var(--card);padding:var(--tso-card-padding)}
+.app-shell.broadcast-shell .tso-sim-prob-row{
+ border-top:0;margin-bottom:var(--tso-grid-gap);
+}
+.app-shell.broadcast-shell .tso-sim-prob-row>div{border-color:var(--line)}
+.app-shell.broadcast-shell .tso-sim-outlook-team strong,
+.app-shell.broadcast-shell .tso-sim-prob-row b,
+.app-shell.broadcast-shell .tso-sim-scoreteam strong{color:var(--text)}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-outlook-team small,.tso-sim-outlook-team span,
+ .tso-sim-prob-row span,.tso-sim-outlook-bridge small,
+ .tso-sim-scoreclock small,.tso-sim-player small,
+ .tso-sim-disclaimer,.tso-sim-final-grid p,
+ .tso-sim-dvp-grid p,.tso-sim-injury-head span,
+ .tso-sim-injury-audit>p,.tso-sim-boxfootnote){
+ color:var(--muted);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-bridge-label,.tso-sim-outlook-bridge b,
+ .tso-sim-side-name,.tso-sim-matchups-head b,
+ .tso-sim-scoreclock>b,.tso-sim-final-heading span,
+ .tso-sim-final-heading small,.tso-sim-final-grid h4,
+ .tso-sim-stat-heading,.tso-sim-full-team h4,
+ .tso-sim-full-team h5,.tso-sim-dvp-kicker,
+ .tso-sim-dvp-positions strong,.tso-sim-play-copy>small,
+ .tso-sim-representative-banner strong,
+ .tso-sim-representative-banner span,
+ .tso-sim-injury-head strong){
+ color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-dvp-grid h3,.tso-sim-player b,.tso-sim-final-grid h5,
+ .tso-sim-live-line b,.tso-sim-play-copy>b){color:var(--text)}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-players,.tso-sim-dvp-grid article,.tso-sim-injury-grid article,
+ .tso-sim-live-totals span,.tso-sim-dvp-positions>div,
+ .tso-sim-final-grid article>div,.tso-sim-live-line,
+ .tso-sim-full-team h4,.tso-sim-final-heading,.tso-sim-controls,
+ .tso-sim-box-table td){border-color:var(--line)}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-player-dot,.tso-sim-field-badge){
+ background:var(--elev);border-color:var(--line-strong);
+ color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell .tso-sim-play-light{
+ background:var(--outpost-orange);
+ box-shadow:0 0 0 4px color-mix(in srgb,var(--outpost-orange) 15%,transparent);
+}
+.app-shell.broadcast-shell .tso-sim-prob-row i{background:var(--elev)}
+.app-shell.broadcast-shell .tso-sim-prob-row i:before{
+ background:linear-gradient(90deg,var(--outpost-orange),var(--outpost-gold));
+}
+.app-shell.broadcast-shell .tso-sim-replay{padding:var(--tso-card-padding)}
+.app-shell.broadcast-shell .tso-sim-scoreboard{
+ max-width:750px;margin-bottom:var(--tso-grid-gap);
+ border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell .tso-sim-scoreclock{
+ border-left-color:var(--line);border-right-color:var(--line);
+}
+.app-shell.broadcast-shell .tso-sim-scoreteam b{color:var(--muted)}
+.app-shell.broadcast-shell .tso-sim-field{
+ /* Preserve actual football field art as a semantic visualization. */
+ border-color:var(--line-strong);border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell .tso-sim-commentary{
+ margin:var(--tso-grid-gap) 0;
+}
+.app-shell.broadcast-shell .tso-sim-controls button{
+ background:var(--tso-secondary-btn);
+ border:1px solid var(--line-strong);border-radius:var(--r-sm);
+ color:var(--text);min-height:var(--tso-button-height);
+ padding:9px 14px;box-shadow:none;
+}
+.app-shell.broadcast-shell .tso-sim-controls button:hover{
+ border-color:var(--outpost-orange);filter:none;background:var(--elev);
+}
+.app-shell.broadcast-shell .tso-sim-controls .tso-sim-control-primary{
+ background:var(--tso-primary-btn);border-color:var(--tso-primary-btn);
+ color:var(--tso-btn-text);
+}
+.app-shell.broadcast-shell .tso-sim-controls .tso-sim-control-primary:hover{
+ background:var(--outpost-orange);border-color:var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-controls :is(input,select){
+ accent-color:var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-speed select{
+ background:var(--tso-secondary-btn);border:1px solid var(--line-strong);
+ color:var(--text);border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell .tso-sim-stat-scroll{border-color:var(--line-strong)}
+.app-shell.broadcast-shell .tso-sim-box-table{
+ color:var(--text);font-variant-numeric:tabular-nums;
+}
+.app-shell.broadcast-shell .tso-sim-box-table th{
+ background:var(--elev);border-color:var(--line-strong);color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell .tso-sim-box-table td{border-color:var(--line)}
+.app-shell.broadcast-shell .tso-sim-box-table tbody tr:nth-child(even){background:var(--surface)}
+.app-shell.broadcast-shell .tso-sim-quarter-overlay{
+ background:color-mix(in srgb,var(--card) 94%,black);box-shadow:0 14px 48px #000a;
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-roster-warning,.tso-sim-roster-pending,
+ .tso-sim-defensive-injuries){border-left:3px solid var(--outpost-orange)}
+.app-shell.broadcast-shell .tso-sim-injury-row small,
+.app-shell.broadcast-shell .tso-sim-injury-list{color:var(--muted)}
+.app-shell.broadcast-shell .tso-sim-nav-icon{
+ background:var(--surface);border:1px solid var(--line-strong);
+ color:var(--outpost-gold);box-shadow:none;
+}
+.app-shell.broadcast-shell .tso-side-item--simulations.is-active .tso-sim-nav-icon{
+ background:var(--tso-nav-active);border-color:var(--outpost-orange);
+ color:var(--outpost-gold);
+}
+@media(max-width:1100px){
+ .app-shell.broadcast-shell .tso-sim-game-list{
+  grid-template-columns:repeat(auto-fit,minmax(155px,1fr));
+ }
+ .app-shell.broadcast-shell .tso-sim-matchups{margin-bottom:8px}
+}
+@media(max-width:700px){
+ .app-shell.broadcast-shell .broadcast-main:has(.tso-sim-page){
+  padding:16px min(var(--tso-page-gutter),4vw) 90px;
+ }
+ .app-shell.broadcast-shell .tso-sim-page{padding:0}
+ .app-shell.broadcast-shell .tso-sim-hero{padding:5px 0 17px}
+ .app-shell.broadcast-shell .tso-sim-hero h1{font-size:27px}
+ .app-shell.broadcast-shell .tso-sim-game-list{
+  display:flex;flex-direction:row;gap:10px;overflow-x:auto;
+  max-height:none;padding:2px 2px 12px;
+  scroll-snap-type:x mandatory;
+ }
+ .app-shell.broadcast-shell .tso-sim-game-choice{
+  flex:0 0 195px;width:195px;max-width:195px;
+  min-height:102px;scroll-snap-align:start;
+ }
+ .app-shell.broadcast-shell .tso-sim-game-title{
+  display:flex;flex-wrap:wrap;align-items:flex-start;padding-top:8px;
+ }
+ .app-shell.broadcast-shell .tso-sim-replay{padding:10px}
+ .app-shell.broadcast-shell .tso-sim-stadium{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+ }
+ .app-shell.broadcast-shell .tso-sim-field{grid-column:span 2;grid-row:1}
+ .app-shell.broadcast-shell .tso-sim-outlook{padding:14px 12px}
+ .app-shell.broadcast-shell .tso-sim-controls button{padding:9px 11px}
+}
+
 /* Theme Studio is part of the SAME design system */
 .tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
 .tso-theme-header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
