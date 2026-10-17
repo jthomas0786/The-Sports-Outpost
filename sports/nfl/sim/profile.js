@@ -3,7 +3,8 @@ import { clamp, finite, normName, normTeam, round } from './utils.js';
 const SKILL = new Set(['QB','RB','HB','FB','WR','TE']);
 const posGroup = p => {
   p = String(p || '').toUpperCase();
-  if (p === 'HB' || p === 'FB') return 'RB';
+  if (p === 'HB') return 'RB';
+  // Preserve fullbacks as FB: depthRank 0 is not a starting running back.
   return p;
 };
 const stat = (obj, key) => finite(obj?.[key], null);
@@ -221,8 +222,8 @@ function teamProfile(abbr, players, anchorPoints, config) {
   const teamPlayers = players.filter(p => p.team === abbr && p.availabilityFactor > 0);
   const qbs = teamPlayers.filter(p => p.position === 'QB').sort((a,b)=>(a.depthRank??99)-(b.depthRank??99) || b.base.attempts-a.base.attempts);
   const qb = qbs[0] || null;
-  const rushers = teamPlayers.filter(p => ['RB','QB','WR','TE'].includes(p.position));
-  const receivers = teamPlayers.filter(p => ['WR','TE','RB'].includes(p.position));
+  const rushers = teamPlayers.filter(p => ['RB','FB','QB','WR','TE'].includes(p.position));
+  const receivers = teamPlayers.filter(p => ['WR','TE','RB','FB'].includes(p.position));
   const passAttempts = qb?.base.attempts || 33;
   const rushAttempts = rushers.reduce((s,p)=>s+p.base.carries*p.availabilityFactor,0) || 27;
   const passRate = clamp(passAttempts / Math.max(1, passAttempts + rushAttempts), config.clamps.passRateMin, config.clamps.passRateMax);
