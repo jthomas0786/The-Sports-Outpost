@@ -91,3 +91,304 @@
  .gb2-compare-row i{width:30px}.gb2-compare-row b{font-size:11px}
  .gb2-detail-top>span{order:3;width:100%;text-align:center}
 }
+
+/* TSO2_GAMES_UNIFIED_THEME_V1
+ * One palette and component language for the entire Games page.
+ * Values resolve from the ORIGINAL TSO2 /styles.css :root tokens.
+ * Scoped deliberately: Research, LIVE, Game Edge standalone, and other
+ * TSO pages are unchanged. Green/red reserved for semantic hit/status states.
+ */
+.gb2-root{
+  --gb2-bg:var(--bg);
+  --gb2-panel:var(--card);
+  --gb2-subpanel:var(--surface);
+  --gb2-raised:var(--elev);
+  --gb2-border:var(--line-strong);
+  --gb2-rule:var(--line);
+  --gb2-text:var(--text);
+  --gb2-muted:var(--muted);
+  --gb2-accent:var(--blue);
+  --gb2-accent-light:var(--blue-2);
+  --gb2-on-accent:#fff;
+  color:var(--gb2-text);
+  font-family:inherit;
+}
+/* Board, hero, comparison, market and prop root share one TSO surface. */
+.gb2-root :is(.gb2-card,.gb2-hero,.gb2-panel,.gb2-dock){
+  background:var(--gb2-panel);
+  border:1px solid var(--gb2-border);
+  border-radius:var(--r);
+  box-shadow:inset 0 1px rgba(255,255,255,.025);
+  color:var(--gb2-text);
+}
+.gb2-root .gb2-card:hover,
+.gb2-root .gb2-card:focus-visible{
+  border-color:var(--gb2-accent);
+  box-shadow:0 11px 26px rgba(45,127,255,.11);
+}
+.gb2-root .gb2-page-head small,
+.gb2-root .gb2-panel>header small,
+.gb2-root .gb2-hero>small,
+.gb2-root .gb2-card-bottom>div:first-child b,
+.gb2-root .gb2-hero-center strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root :is(.gb2-card-time,.gb2-card-source,.gb2-card-bottom small,
+.gb2-page-head p,.gb2-hero-team>div span,.gb2-hero-team>div small,
+.gb2-compare-row>span,.gb2-compare-foot,.gb2-footnote){
+  color:var(--gb2-muted);
+}
+.gb2-root .gb2-league,
+.gb2-root .gb2-logo{
+  background:rgba(45,127,255,.09);
+  color:var(--gb2-accent-light);
+  border-color:rgba(45,127,255,.21);
+  border-radius:var(--r-sm);
+}
+.gb2-root .gb2-logo img{object-fit:contain}
+.gb2-root .gb2-tabs{border-color:var(--gb2-rule)}
+.gb2-root .gb2-tabs button{color:var(--gb2-muted);border-radius:8px 8px 0 0}
+.gb2-root .gb2-tabs button.is-active{color:var(--gb2-text);border-color:var(--gb2-accent);background:rgba(45,127,255,.08)}
+.gb2-root .gb2-team-spread,
+.gb2-root .gb2-prob-label,.gb2-root .gb2-card-arrow{color:var(--gb2-accent-light)}
+.gb2-root .gb2-prob-track{background:var(--gb2-raised)}
+.gb2-root .gb2-prob-track>i{background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light))}
+.gb2-root :is(.gb2-card-bottom,.gb2-hero-foot,.gb2-compare-row,.gb2-panel>header){border-color:var(--gb2-rule)}
+.gb2-root :is(.gb2-back,.gb2-live,.gb2-dock button){
+  appearance:none;
+  border:1px solid var(--gb2-border);
+  border-radius:11px;
+  background:var(--gb2-raised);
+  color:var(--gb2-text);
+  box-shadow:none;
+}
+.gb2-root .gb2-live{border-color:rgba(45,127,255,.32);background:rgba(45,127,255,.11);color:var(--gb2-accent-light)}
+.gb2-root .gb2-dock button{
+  background:linear-gradient(180deg,#3d8cff,#246fdc);
+  border-color:#4d95ff;color:var(--gb2-on-accent);
+}
+.gb2-root :is(.gb2-back,.gb2-live,.gb2-dock button):hover{filter:brightness(1.13);border-color:var(--gb2-accent)}
+.gb2-root .gb2-market-panel>.edge2-markets{background:transparent;gap:12px;padding:16px}
+.gb2-root .gb2-props{padding:0;overflow:hidden}
+.gb2-root .gb2-mi-host{display:block;min-width:0;padding:0;background:transparent}
+.gb2-root :is(.gb2-matchup,.gb2-market-panel,.gb2-props){overflow:hidden}
+.gb2-root .gb2-empty{background:var(--gb2-subpanel);border-color:var(--gb2-border);color:var(--gb2-muted)}
+
+/* Reuse the exact TSO 2.0 market-card styling for spread / ML / total.
+ * Only sports/data differ; purple and orange are not separate UI themes. */
+.gb2-root .edge2-markets{background:transparent}
+.gb2-root .edge2-market{
+  background:var(--gb2-subpanel);
+  border:1px solid var(--gb2-border);
+  border-radius:var(--r-sm);
+  overflow:hidden;
+  color:var(--gb2-text);
+  min-width:0;
+}
+.gb2-root .edge2-market::before,
+.gb2-root .edge2-market--moneyline::before,
+.gb2-root .edge2-market--total::before{background:var(--gb2-accent)}
+.gb2-root .edge2-market-head,
+.gb2-root .edge2-market-sides{border-color:var(--gb2-rule)}
+.gb2-root .edge2-market-head span,
+.gb2-root .edge2-market-sides small,
+.gb2-root .edge2-call span{color:var(--gb2-muted)}
+.gb2-root .edge2-market :is(.edge2-market-head>b,.edge2-market-head strong,
+.edge2-market-sides b,.edge2-call b,.edge2-reason strong){color:var(--gb2-text)}
+.gb2-root .edge2-market--spread .is-leader strong,
+.gb2-root .edge2-market--moneyline .is-leader strong,
+.gb2-root .edge2-market--total .is-leader strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root .edge2-bar{
+  background:var(--gb2-raised);border-color:var(--gb2-rule);
+  border-radius:99px;
+}
+.gb2-root .edge2-bar>i:first-child,
+.gb2-root .edge2-bar.is-total>i:first-child{
+  background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
+}
+.gb2-root .edge2-bar>i:last-child,
+.gb2-root .edge2-bar.is-total>i:last-child{
+  background:linear-gradient(90deg,#344760,#6883a3);
+}
+.gb2-root .edge2-call{
+  background:var(--gb2-panel);border-color:var(--gb2-border);
+  border-radius:9px;
+}
+.gb2-root .edge2-reason{color:var(--gb2-muted)}
+.gb2-root .edge2-reason strong{color:var(--gb2-text)}
+
+/* The previous prop/scouting CSS used a separate orange/green skin.
+ * All NON-SEMANTIC panels now inherit the same navy + blue system as cards.
+ */
+.gb2-root :is(.mi-game-vault-header,.mi-ranked,.mi-team,.mi-player,
+.mi-player.is-open,.mi-expanded-stats>div,.mi-form-metrics>div,
+.mi-reason,.mi-section,.mi-chart-panel,.mi-hit-panel,
+.mi-decision-read,.mi-read-signal,.mi-nfl-opportunities,
+.mi-usage-row,.mi-opportunity-split,.mi-role-stat,.mi-move-labels>span,
+.mi-opp-stat,.mi-pbp-count,.mi-signal-detail,.mi-signal-factor,
+.mi-scout-pos,.mi-scout-metrics>span,.mi-usage-visual,
+.mi-research-notes>span,.mi-read-caution,.mi-loading,
+.mi-research-unavailable,.mi-empty){
+  background:var(--gb2-subpanel);
+  border-color:var(--gb2-border);
+  color:var(--gb2-text);
+  box-shadow:none;
+}
+.gb2-root :is(.mi-team,.mi-player,.mi-ranked,.mi-game-vault-header,
+.mi-section,.mi-read-signal,.mi-reason,.mi-chart-panel,.mi-hit-panel,
+.mi-signal-detail,.mi-nfl-opportunities,.mi-decision-read){
+  border-radius:var(--r-sm);
+}
+.gb2-root .mi-game-vault{gap:13px}
+.gb2-root .mi-game-vault-header{
+  border:0;border-bottom:1px solid var(--gb2-rule);
+  background:var(--gb2-panel);border-radius:0;
+  padding:18px 20px;
+}
+.gb2-root .mi-ranked{
+  border:0;border-top:1px solid var(--gb2-rule);
+  border-radius:0;background:var(--gb2-panel);
+}
+.gb2-root .mi-ranked-head{border-color:var(--gb2-rule)}
+.gb2-root .mi-teams{padding:0 16px 15px}
+.gb2-root .mi-team{
+  min-height:0;
+  border-color:var(--gb2-border);
+  background:var(--gb2-subpanel);
+}
+.gb2-root .mi-player-list{padding:12px 16px 17px}
+.gb2-root .mi-player{background:var(--gb2-subpanel)}
+.gb2-root .mi-player.is-open{
+  background:var(--gb2-raised);border-color:rgba(45,127,255,.43);
+}
+.gb2-root .mi-player-expand{color:var(--gb2-text)}
+.gb2-root .mi-player-expand:hover{background:rgba(45,127,255,.08)}
+.gb2-root .mi-photo{
+  background:var(--gb2-raised);
+  border-color:var(--gb2-border);
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-player-body,
+.gb2-root .mi-filters,
+.gb2-root .mi-expanded-stats>div{border-color:var(--gb2-rule)}
+.gb2-root .mi-filters{background:var(--gb2-panel);gap:7px}
+.gb2-root .mi-filters button{
+  border-radius:9px;
+  background:var(--gb2-subpanel);
+  border:1px solid var(--gb2-border);
+  color:var(--gb2-muted);
+}
+.gb2-root .mi-filters button.is-active{
+  background:rgba(45,127,255,.17);
+  border-color:var(--gb2-accent);
+  color:var(--gb2-text);
+}
+.gb2-root .mi-filter-count,
+.gb2-root .mi-filters button.is-active .mi-filter-count{
+  background:var(--gb2-raised);
+  color:var(--gb2-accent-light);
+}
+.gb2-root :is(.mi-game-vault-header small,.mi-ranked-head small,
+.mi-team-title small,.mi-reason>b,.mi-read-title>b,.mi-opp-offense-title b,
+.mi-nfl-opportunity-head b,.mi-section h4,.mi-signal-detail-head small,
+.mi-chart-panel h5,.mi-hit-panel h5,.mi-ranking-status){
+  color:var(--gb2-accent-light);
+}
+.gb2-root :is(.mi-game-vault-header h2,.mi-ranked-head h2,.mi-team-title h3,
+.mi-reason p,.mi-player-label>small,.mi-player-label>em,
+.mi-section p,.mi-team>p,.mi-scout-metrics small,.mi-usage-row small,
+.mi-opportunity-split small,.mi-opp-offense-title small,
+.mi-nfl-opportunity-head small,.mi-nfl-opportunity-head>strong,
+.mi-pbp-count>span,.mi-evidence-note,.mi-source-note,
+.mi-chart-topline,.mi-chart-key,.mi-read-signal>span){
+  color:var(--gb2-muted);
+}
+.gb2-root :is(.mi-game-vault-header h2,.mi-ranked-head h2,
+.mi-team-title h3,.mi-player-label>b,.mi-expanded-stats strong){
+  color:var(--gb2-text);
+}
+.gb2-root :is(.mi-scout-metrics b,.mi-role-stat>b,.mi-move-labels strong,
+.mi-l5-avg strong,.mi-verified-usage strong,.mi-opp-stat>b,
+.mi-pbp-count>strong,.mi-read-signal>strong,.mi-read-signal.mi-read-positive>strong,
+.mi-read-signal.mi-read-negative>strong,.mi-signal-big>strong,
+.mi-signal-factor b,.mi-signal-reading strong,.mi-signal-kicker,
+.mi-nfl-opportunity-head>strong){
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-prob>b{
+  background:var(--gb2-accent);
+  border:1px solid #4d95ff;
+  color:var(--gb2-on-accent);
+  box-shadow:none;
+  border-radius:9px;
+}
+.gb2-root .mi-prob--market>b{
+  background:var(--gb2-raised);color:var(--gb2-text);
+  border-color:var(--gb2-border);
+}
+.gb2-root .mi-add{
+  background:linear-gradient(180deg,#3d8cff,#246fdc);
+  color:var(--gb2-on-accent);
+  border:1px solid #4d95ff;
+  border-radius:10px;
+  box-shadow:none;
+}
+.gb2-root .mi-show-all{
+  background:var(--gb2-subpanel);
+  color:var(--gb2-accent-light);
+  border-color:var(--gb2-border);
+  border-radius:0;
+}
+.gb2-root .mi-show-all:hover{background:var(--gb2-raised)}
+.gb2-root .mi-signal-mini{
+  background:rgba(45,127,255,.075);
+  border-color:rgba(45,127,255,.3);
+  border-radius:9px;
+}
+.gb2-root :is(.mi-signal-detail,.mi-signal-factor,.mi-signal-mini,
+.mi-scout-pos,.mi-signal-track,.mi-read-signal){border-color:var(--gb2-border)}
+.gb2-root :is(.mi-signal-track,.mi-hit-track,.mi-usage-track,
+.mi-opportunity-track,.mi-verified-usage-track){
+  background:var(--gb2-raised);
+  border-color:var(--gb2-border);
+}
+.gb2-root :is(.mi-signal-track>span,.mi-signal-track.is-form-only>span,
+.mi-verified-usage-track>span,.mi-usage-track>span,
+.mi-opportunity-track>span,.mi-hit-track>span){
+  background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
+}
+.gb2-root .mi-ranking-status{
+  border-color:var(--gb2-rule);
+  background:var(--gb2-panel);
+}
+.gb2-root .mi-nfl-opportunity-head>strong{
+  padding:5px 9px;background:rgba(45,127,255,.1);
+  border:1px solid var(--gb2-border);
+}
+.gb2-root :is(.mi-read-signal.mi-read-positive,.mi-read-signal.mi-read-negative){
+  border-color:var(--gb2-border);
+}
+.gb2-root .mi-read-caution>b{color:var(--yellow)}
+.gb2-root .mi-recent-log>div span{
+  background:var(--gb2-raised);border-color:var(--gb2-border);color:var(--gb2-text)
+}
+.gb2-root .mi-recent-log>div span.is-hit{
+  background:rgba(63,218,154,.13);border-color:rgba(63,218,154,.33);color:var(--green)
+}
+.gb2-root .mi-recent-log>div span.is-miss{
+  background:rgba(255,101,122,.12);border-color:rgba(255,101,122,.31);color:var(--red)
+}
+.gb2-root .mi-recent-log>div span.is-push{
+  background:rgba(241,200,91,.12);border-color:rgba(241,200,91,.3);color:var(--yellow)
+}
+.gb2-root :is(.mi-chart-key .mi-key-hit){background:var(--green)}
+.gb2-root :is(.mi-chart-key .mi-key-miss){background:var(--red)}
+/* Mobile still follows the existing TSO breakpoints, not separate modal skins. */
+@media(max-width:720px){
+  .gb2-root .mi-teams{padding:0 12px 12px}
+  .gb2-root .mi-player-list{padding:9px}
+  .gb2-root .mi-game-vault-header{padding:15px}
+  .gb2-root .gb2-market-panel>.edge2-markets{padding:12px}
+}
