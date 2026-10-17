@@ -18,6 +18,12 @@ console.log('ESPN_INJURY_SHAPE',JSON.stringify({
 
  topLevelType:typeof doc.injuries
 }));
+const rosterResponse=await fetch('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/dal/roster',{signal:AbortSignal.timeout(12000)});
+if(!rosterResponse.ok)throw Error('Team roster unavailable '+rosterResponse.status);
+const roster=await rosterResponse.json();
+console.log('ESPN_ROSTER_GROUP_SHAPE',JSON.stringify({year:roster.season?.year,
+ groups:(roster.athletes||[]).map(g=>({position:g.position,count:g.items?.length,
+ active:g.items?.filter(p=>p.status?.type==='active').length})).slice(0,10)}));
 const report=await verifiedLeagueInjuryReport({cache:false});
 const codes=new Set(report.coveredTeams);
 if(codes.size<14)throw Error('NFL injury feed covers only '+codes.size+' teams; refusing to call this a complete audit');
