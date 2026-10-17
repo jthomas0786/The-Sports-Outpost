@@ -457,7 +457,7 @@ body{font-size:var(--tso-body-size)}
 .app-shell.broadcast-shell .tso-sim-game-short em,
 .app-shell.broadcast-shell .tso-sim-game-date{color:var(--muted)}
 .app-shell.broadcast-shell .tso-sim-game-result{color:var(--outpost-gold)}
-.app-shell.broadcast-shell .tso-sim-main{width:100%;min-width:0}
+.app-shell.broadcast-shell .tso-sim-main{width:100%;min-width:0;background:transparent;border:0;border-radius:0;box-shadow:none;padding:0}
 .app-shell.broadcast-shell .tso-sim-game-title{
  margin:0;padding:15px 0 18px;align-items:center;
  border-bottom:1px solid var(--line);margin-bottom:17px;
@@ -642,6 +642,51 @@ body{font-size:var(--tso-body-size)}
  .app-shell.broadcast-shell .tso-sim-field{grid-column:span 2;grid-row:1}
  .app-shell.broadcast-shell .tso-sim-outlook{padding:14px 12px}
  .app-shell.broadcast-shell .tso-sim-controls button{padding:9px 11px}
+}
+
+
+/* Simulator-specific inner chrome: no leftover legacy teal UI. */
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-player>span:last-child,.tso-sim-scoreteam b,
+ .tso-sim-live-line span,.tso-sim-final-grid article>div>span,
+ .tso-sim-injury-row small,.tso-sim-injury-audit>p,
+ .tso-sim-injury-list,.tso-sim-dvp-positions small,
+ .tso-sim-live-totals span small,.tso-sim-no-stats,
+ .tso-sim-plays-left,.tso-sim-seeker,.tso-sim-speed,
+ .tso-sim-outlook-bridge small,.tso-sim-disclaimer){
+ color:var(--muted);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-live-line span,.tso-sim-injury-audit h4,
+ .tso-sim-live-totals span b,.tso-sim-final-grid h4,
+ .tso-sim-final-heading h3,.tso-sim-player b,
+ .tso-sim-injury-grid h4,.tso-sim-box-table td){
+ color:var(--text);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-player-dot,.tso-sim-tendency,.tso-sim-dvp-positions>div,
+ .tso-sim-live-totals span,.tso-sim-full-team,
+ .tso-sim-injury-grid article,.tso-sim-quarter-overlay){
+ border-color:var(--line-strong);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-dvp-positions strong,.tso-sim-stat-heading,
+ .tso-sim-side-name,.tso-sim-representative-banner span){
+ color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell .tso-sim-field-badge{
+ background:color-mix(in srgb,var(--card) 86%,transparent);
+ border:1px solid var(--line-strong);color:var(--outpost-gold);
+}
+.app-shell.broadcast-shell .tso-sim-representative-banner{
+ border-left:3px solid var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-injury-audit{
+ border-left:3px solid var(--outpost-orange);
+}
+.app-shell.broadcast-shell .tso-sim-page :is(
+ .tso-sim-game-choice,.tso-sim-controls button,.tso-sim-speed select){
+ font-family:var(--tso-font-family);
 }
 
 /* Theme Studio is part of the SAME design system */
