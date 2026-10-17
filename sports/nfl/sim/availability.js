@@ -84,3 +84,13 @@ export async function verifiedRosterFilteredInputs(game,research,{fetchImpl=fetc
    teams:teams.slice(),counts:[away.active.size,home.active.size],
    finalInactivesVerified:false}};
 }
+
+export function assertSimulatedRoster(game,result){
+ const audit=game?.modelEligibleRosters;
+ if(!audit)throw Error('NFL simulation missing the verified player whitelist');
+ const approved=new Map(Object.entries(audit).map(([team,names])=>[normalizedTeam(team),new Set(names||[])]));
+ const invalid=(result?.players||[]).filter(p=>!approved.get(normalizedTeam(p?.team))?.has(normalizedName(p?.name)));
+ if(invalid.length)throw Error('NFL simulation still contains off-roster players: '+
+   invalid.slice(0,6).map(p=>String(p.team)+' '+String(p.name)).join(', '));
+ return {eligiblePlayers:(result?.players||[]).length,rosterTeams:[...approved.keys()]};
+}
