@@ -29,3 +29,48 @@ export function excludeUnavailableResultPlayers(players=[],exclusions=[]){
  const ids=new Set(exclusions.map(p=>p.team+'|'+normalizedName(p.name)));
  return (players||[]).filter(p=>!ids.has(normalizedTeam(p.team)+'|'+normalizedName(p.name)));
 }
+
+/* Active NFL rosters verified before Monte Carlo input construction.
+ * This is a current roster check, not a historical eligibility snapshot.
+ * Practice squad, injured reserve, and waived players are not accepted
+ * unless reactivated in the current active-roster source.
+ */
+const currentRosters=new Map();
+const rosterAbbr=team=>({LA:'lar',JAX:'jax',WSH:'wsh',GB:'gb'}[normalizedTeam(team)]||normalizedTeam(team).toLowerCase());
+export async function verifiedTeamActiveRoster(team,{fetchImpl=fetch,cache=true}={}){
+ const canonical=normalizedTeam(team),abbr=rosterAbbr(canonical);
+ if(cache&&currentRosters.has(canonical))return currentRosters.get(canonical);
+ const action=(async()=>{
+  if(!/^[a-z]{2,3}$/.test(abbr))throw Error('Invalid NFL team code: '+team);
+  const url='https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/'+abbr+'/roster';
+  const response=await fetchImpl(url,{headers:{accept:'application/json'},signal:typeof AbortSignal!=='undefined'&&AbortSignal.timeout?AbortSignal.timeout(12000):undefined});
+  if(!response.ok)throw Error('Active NFL roster source '+canonical+' HTTP '+response.status);
+  const doc=await response.json(),offense=doc.athletes?.find(group=>group.position==='offense');
+  if(doc.season?.year!==2026||!Array.isArray(offense?.items)||offense.items.length<9)
+   throw Error('Verified 2026 active offensive roster unavailable for '+canonical);
+  const active=new Set(offense.items.filter(a=>a.status?.type==='active').map(a=>normalizedName(a.displayName||a.fullName)));
+  if(active.size<9)throw Error('Incomplete 2026 active roster for '+canonical);
+  return {team:canonical,active,checkedAt:new Date().toISOString(),
+   source:'ESPN team roster; final 90-minute game-day inactive report not yet checked'};
+ })();
+ if(cache)currentRosters.set(canonical,action);
+ try{return await action}catch(e){if(cache)currentRosters.delete(canonical);throw e}
+}
+export async function verifiedRosterFilteredInputs(game,research,{fetchImpl=fetch,cache=true}={}){
+ const teams=[normalizedTeam(game?.away?.abbr),normalizedTeam(game?.home?.abbr)];
+ if(teams.some(x=>!x))throw Error('Missing matchup teams; cannot verify NFL player eligibility');
+ const [away,home]=await Promise.all(teams.map(team=>verifiedTeamActiveRoster(team,{fetchImpl,cache})));
+ const allowed=new Map([[away.team,away.active],[home.team,home.active]]);
+ const isApplicable=p=>allowed.has(normalizedTeam(p?.team));
+ const notActive=p=>isApplicable(p)&&!allowed.get(normalizedTeam(p.team)).has(normalizedName(p.name));
+ const removed=new Map();
+ for(const p of [...(game?.players||[]),...(research?.players||[])].filter(notActive)){
+  removed.set(normalizedTeam(p.team)+'|'+normalizedName(p.name),{team:normalizedTeam(p.team),name:p.name,status:'NOT_ACTIVE_2026_ROSTER'});
+ }
+ const safeGame={...game,players:(game?.players||[]).filter(p=>!notActive(p))};
+ const safeResearch={...research,players:(research?.players||[]).filter(p=>!notActive(p))};
+ return {game:safeGame,research:safeResearch,exclusions:[...removed.values()],
+  rosterAudit:{season:2026,checkedAt:new Date().toISOString(),source:'2026 ESPN active offense roster',
+   teams:teams.slice(),counts:[away.active.size,home.active.size],
+   finalInactivesVerified:false}};
+}
