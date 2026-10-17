@@ -41,8 +41,10 @@ function selectedPlayer(team,type,world,rng,counts){
   const base=engine?.roleWeight?.(p,team,type)||.01;
   const lowRole=p.position==='FB'? .03:1;
   const cap=engine?.maxUses?.(p,team,type)??30;
-  if(used>=cap||p.position==='FB'&&used>=1)return 0;
-  // If a full sampled-world opportunity allocation exists, use it first.
+  if(p.position==='FB'&&used>=1)return 0;
+  // Once a smaller-than-expected candidate roster exhausts its target quotas,
+  // prefer regular receivers rather than inventing an unavailable player.
+  if(used>=cap)return base*.04*lowRole;
   return (quota>used?2.0+Math.min(25,quota-used)*base:.04*base)*lowRole;
  });
  const sum=weights.reduce((a,b)=>a+b,0);
