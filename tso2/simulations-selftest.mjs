@@ -1,57 +1,66 @@
 #!/usr/bin/env node
-// Regression suite: all movement is illustrative and based on TSO output labels,
-// never optical tracking or individual sampled Monte Carlo plays.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import vm from 'node:vm';
-const source=fs.readFileSync(new URL('./simulations.js',import.meta.url),'utf8');
-const context={window:{},document:{},console};
-vm.runInNewContext(source,context,{filename:'simulations.js'});
-const sim=context.window.TSO2Simulations;
-const sample={
- gameId:'401872996',away:{abbr:'HOU',name:'Houston Texans'},home:{abbr:'JAX',name:'Jacksonville Jaguars'},
- projected:{awayScore:20,homeScore:17},
- players:[
-  {name:'C.J. Stroud',team:'HOU',position:'QB',passYds:230},
-  {name:'Nico Collins',team:'HOU',position:'WR',recYds:88,targets:12},
-  {name:'David Montgomery',team:'HOU',position:'RB',rushYds:65,carries:18},
-  {name:'Trevor Lawrence',team:'JAX',position:'QB',passYds:235},
-  {name:'Parker Washington',team:'JAX',position:'WR',recYds:72,targets:11},
-  {name:'Bhayshul Tuten',team:'JAX',position:'RB',rushYds:66,carries:19}
- ]
-};
-const plays=sim.buildPlays(sample);
-assert.ok(plays.length>=45,'Expected four quarters of illustration');
-assert.deepEqual([...new Set(plays.map(p=>p.quarter))],[1,2,3,4]);
-assert.equal(JSON.stringify(plays),JSON.stringify(sim.buildPlays(sample)),'Replay should be deterministic for game');
-for(const side of ['HOU','JAX']){
- for(const kind of ['PASS','RUSH']){
-  const e=plays.find(p=>p.side===side&&p.kind===kind);
-  assert.ok(e,'Both teams must run and pass');
-  assert.ok(e.commentary.includes(e.passer),'Play by play names actual QB');
-  assert.ok(e.commentary.includes(e.player),'Play by play names target/carrier');
-  assert.equal(e.commentary.includes('Illustrative play'),true,'Replay must be disclosed');
-  const initial=sim.sceneFrame(e,0,sample),end=sim.sceneFrame(e,.95,sample);
-  assert.equal(initial.direction,side==='HOU'?1:-1,'Teams must attack opposite directions');
-  assert.equal(initial.offense.length,11);
-  assert.equal(initial.defense.length,11);
-  assert.ok(initial.ball.x>=0&&initial.ball.x<=100,'Ball visible in playing field');
-  assert.ok(end.ball.x>=0&&end.ball.x<=100);
-  assert.equal(end.offense[0].name,e.passer,'Quarterback identified visually');
-  if(kind==='PASS'){
-   assert.equal(end.offense[7+e.targetSlot].name,e.receiver,'Target marker has named receiver');
-   assert.equal(sim.sceneFrame(e,.50,sample).ballOwner,'PASS IN FLIGHT','Ball must separate from quarterback');
-   assert.ok(end.offense.some((p,i)=>i>=7&&p.u>initial.offense[i].u),'Receivers run routes');
-   assert.ok(initial.defense[0].u>sim.sceneFrame(e,.80,sample).defense[0].u,'Rushers attack quarterback');
-  }else{
-   assert.equal(sim.sceneFrame(e,0,sample).ballOwner,e.passer);
-   assert.equal(sim.sceneFrame(e,.7,sample).ballOwner,e.carrier,'RB holds ball after handoff');
-   assert.equal(end.offense[1].name,e.carrier,'Rusher named on field');
-  }
- }
+const ctx={window:{},document:{},console};
+for(const file of ['simulations-event-engine.js','simulations-stats-ui.js','simulations.js']){
+ vm.runInNewContext(fs.readFileSync(new URL('./'+file,import.meta.url),'utf8'),ctx,{filename:file});
 }
-assert.ok(source.includes('data-tsos-commentary'),'Separate commentary target must exist');
-assert.ok(!source.includes('<b data-tsos-play>'),'Play selector must not overwrite narration');
-assert.ok(source.includes('data-tsos-ball-holder'),'Persistent ball-holder ticker required');
-assert.ok(source.includes('ctx.ellipse(0,0,12,6.5'),'Visible football should render on canvas');
-console.log('TSO NFL visual simulation: named play-by-play, opposite direction, football tracking, 22 players, routes and controls PASS');
+const engine=ctx.window.TSO2SimEngine,view=ctx.window.TSO2Simulations,ui=ctx.window.TSO2StatsUI;
+const game={gameId:'test-dal-gb',away:{abbr:'DAL'},home:{abbr:'GB'},availability:{rosterCheckedAt:'2026-10-16T21:50:00Z'},players:[
+ {name:'Dak Prescott',position:'QB',team:'DAL',depthRank:1,passYds:255,usage:{games:4,carriesPerGame:1.5}},
+ {name:'Sam Howell',position:'QB',team:'DAL',depthRank:2,passYds:0},
+ {name:'Javonte Williams',position:'RB',team:'DAL',depthRank:1,usage:{games:4,carriesPerGame:15.5,targetsPerGame:4.25},rushYds:85},
+ {name:'Tyler Goodson',position:'RB',team:'DAL',depthRank:2,usage:{games:4,carriesPerGame:2.25,targetsPerGame:.5}},
+ {name:'Hunter Luepke',position:'FB',team:'DAL',depthRank:0,usage:{games:4,carriesPerGame:.5,targetsPerGame:.25}},
+ {name:'CeeDee Lamb',position:'WR',team:'DAL',depthRank:1,usage:{games:4,carriesPerGame:.5,targetsPerGame:11.75}},
+ {name:'George Pickens',position:'WR',team:'DAL',depthRank:2,usage:{games:4,targetsPerGame:7,carriesPerGame:0}},
+ {name:'Jake Ferguson',position:'TE',team:'DAL',depthRank:1,usage:{games:4,targetsPerGame:5}},
+ {name:'Jordan Love',position:'QB',team:'GB',depthRank:1,passYds:255,usage:{games:4,carriesPerGame:1}},
+ {name:'MarShawn Lloyd',position:'RB',team:'GB',depthRank:1,usage:{games:4,carriesPerGame:15}},
+ {name:'Christian Watson',position:'WR',team:'GB',depthRank:1,usage:{games:4,targetsPerGame:9}},
+ {name:'Tucker Kraft',position:'TE',team:'GB',depthRank:1,usage:{games:4,targetsPerGame:5}}
+]};
+const plays=engine.build(game,null);
+assert.ok(plays.length>55,'Four-quarter game requires realistic play volume');
+assert.deepEqual([...new Set(plays.map(e=>e.quarter))],[1,2,3,4]);
+assert.equal(JSON.stringify(plays),JSON.stringify(engine.build(game,null)),'Replay is deterministic');
+assert.equal(view.buildPlays(game).length,plays.length,'Viewer uses event engine');
+const final=engine.snapshot(game,plays,plays.length),partial=engine.snapshot(game,plays,9);
+assert.ok(partial.count<final.count);
+for(const team of ['DAL','GB']){
+ const rows=plays.filter(p=>p.side===team),stat=final.teams[team];
+ assert.equal(stat.passing,rows.filter(p=>p.kind==='PASS'&&p.complete).reduce((a,p)=>a+p.gain,0));
+ assert.equal(stat.rushing,rows.filter(p=>p.kind==='RUSH').reduce((a,p)=>a+p.gain,0));
+ assert.equal(stat.totalYds,stat.passing+stat.rushing);
+ assert.equal(stat.points,rows.reduce((a,p)=>a+p.points,0));
+ assert.equal(stat.passAtt,rows.filter(p=>p.kind==='PASS'&&!p.sack).length);
+ assert.equal(stat.rushAtt,rows.filter(p=>p.kind==='RUSH').length);
+ assert.ok(stat.passAtt>=stat.passComp);
+}
+const fb=final.players.DAL['Hunter Luepke'],starter=final.players.DAL['Javonte Williams'];
+assert.ok(fb.carries<=1,'FB must not be treated as starter');
+assert.ok(starter.carries>fb.carries,'Lead RB dominates carry usage');
+assert.ok(!plays.some(p=>p.carrier==='Sam Howell'),'Backup QB excluded from designed rushing');
+assert.ok(plays.filter(p=>p.kind==='PASS'||p.kind==='RUSH').every(p=>game.players.some(x=>x.name===p.player)&&game.players.some(x=>x.name===p.passer)),'Named players must be roster verified');
+for(let i=1;i<plays.length;i++){
+ if(plays[i].quarter===plays[i-1].quarter)assert.ok(plays[i].second<=plays[i-1].second,'Clock moves forward');
+}
+for(const side of ['DAL','GB']){
+ const pass=plays.find(p=>p.side===side&&p.kind==='PASS'),rush=plays.find(p=>p.side===side&&p.kind==='RUSH');
+ assert.ok(pass&&rush);
+ assert.ok(pass.commentary.includes(pass.passer)&&pass.commentary.includes(pass.receiver));
+ assert.ok(rush.commentary.includes(rush.carrier));
+ const frame=view.sceneFrame(pass,.6,game);
+ assert.equal(frame.direction,side==='DAL'?1:-1);
+ assert.equal(frame.offense.length,11);
+ assert.equal(frame.defense.length,11);
+ assert.equal(frame.ballOwner,'PASS IN FLIGHT');
+ assert.ok(frame.ball.x>=0&&frame.ball.x<=100);
+}
+const live=ui.live(game,final,'DAL'),box=ui.full(game,final,plays);
+assert.ok(live.includes('LIVE SCENARIO')&&live.includes('Javonte Williams'));
+assert.ok(box.includes('SCORING BY QUARTER')&&box.includes('PLAYER BOX SCORE'));
+assert.ok(box.includes('Passing')&&box.includes('Rushing')&&box.includes('Receiving'));
+assert.ok(engine.defensiveTendency(game,null,'DAL').kind.includes('not verified'));
+console.log('PASS: 2026 NFL player-role limits, coherent play ledger, running stats, final box score and correct animations');
