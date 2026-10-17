@@ -34,4 +34,20 @@ assert.equal(studio.validate({'--bg':'#112233','--card':'url(https://x)','--r':'
 assert.equal(studio.validate({'--bg':'url(https://example.com)'})['--bg'],undefined,'No remote CSS URLs');
 assert.equal(studio.validate({'--r':'-9px'})['--r'],undefined,'Reject negative radius');
 assert.equal(studio.validate({'--whatever':'red'})['--whatever'],undefined,'No invented custom CSS variable names');
+// The approved TSO2 broadcast aesthetic is black/orange/gold, NOT the older
+// generic navy/blue starter dashboard. Prevent future regression at source.
+const approved={
+ '--bg':'#05070a','--surface':'#0c1016','--card':'#0a0d12',
+ '--outpost-orange':'#ff4d1c','--outpost-gold':'#ffd84d',
+ '--tso-primary-btn':'#ff4d1c','--tso-sidebar-bg':'#070a0f'
+};
+for(const [name,value] of Object.entries(approved)){
+ assert.equal(studio.defaults[name],value,name+' Theme Studio default is not the approved 2.0 broadcast palette');
+ assert.ok(css.includes(name+':'+value+';'),name+' global CSS should initialize same source-of-truth value');
+}
+const games=fs.readFileSync('tso2/games-board-v2.css','utf8');
+assert.match(games,/--gb2-accent:var\(--outpost-orange\)/,'Games Chrome must use approved orange branding');
+assert.match(games,/--gb2-accent-light:var\(--outpost-gold\)/,'Games highlights must use approved gold branding');
+assert.doesNotMatch(games,/--gb2-accent:var\(--blue\)/,'Games may not use model blue as global brand accent');
+assert.match(css,/TSO2_APPROVED_OUTPOST_SHARED_CHROME_V1/,'Global Outpost shared component system required');
 console.log('TSO2 THEME STUDIO UNIT PASS',studio.definitions.length,'shared design settings; owner route, sanitization and native tokens verified');
