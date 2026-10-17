@@ -215,6 +215,48 @@ fs.mkdirSync(out,{recursive:true});
   assert.ok(widths.scroll<=widths.client+8,'Today must not overflow horizontally on mobile: '+JSON.stringify(widths));
   await page.screenshot({path:path.join(out,'today-mobile.png'),fullPage:true,animations:'disabled'});
   console.log('PASS staging mobile Today: no horizontal overflow');
+
+  // Site-wide consistency: one shell, one palette, regardless of route.
+  // The visible UI may contain additional data/status colors by design.
+  await page.setViewportSize({width:1440,height:900});
+  const canonicalRoutes=['home','games','research','models','live','gameedge','props','simulations'];
+  const routeTheme=[];
+  for(const route of canonicalRoutes){
+    await page.evaluate(next=>document.querySelector('[data-route="'+next+'"]')?.click(),route);
+    await page.waitForFunction(next=>location.hash.replace(/^#/,'').split('?')[0]===next,{timeout:12000},route);
+    const found=await page.evaluate(next=>{
+      const root=document.documentElement,vars=getComputedStyle(root);
+      const css=q=>getComputedStyle(document.querySelector(q));
+      const main=document.querySelector('.broadcast-main');
+      const shell=document.querySelector('.app-shell.broadcast-shell');
+      const card=document.querySelector('.gb2-card,.feature-game,.research-radar-card,.model-engine-card,.edge2-market,.tso-sim-matchups');
+      const cardCSS=card?getComputedStyle(card):null;
+      return {route:next,htmlWidth:document.documentElement.scrollWidth,viewWidth:document.documentElement.clientWidth,
+        background:css('.app-shell.broadcast-shell').backgroundColor,
+        sidebar:css('.tso-side-nav').backgroundColor,
+        header:css('.broadcast-header').backgroundColor,
+        contentWidth:css('.broadcast-main').maxWidth,
+        accent:vars.getPropertyValue('--outpost-orange').trim(),
+        gold:vars.getPropertyValue('--outpost-gold').trim(),
+        card:vars.getPropertyValue('--card').trim(),
+        actualCard:cardCSS?.backgroundColor||null,
+        cardClass:card?.className||null,
+        pageState:main?.querySelector('#pageContent')?.textContent?.slice(0,40)||null,
+        shellExists:Boolean(shell)};
+    },route);
+    routeTheme.push(found);
+    assert.ok(found.shellExists,route+' TSO 2.0 application shell must persist');
+    assert.equal(found.background,'rgb(5, 7, 10)',route+' follows approved Outpost page background');
+    assert.equal(found.sidebar,'rgb(7, 10, 15)',route+' uses shared original sidebar background');
+    assert.equal(found.header,'rgb(7, 10, 15)',route+' uses original TSO top bar background');
+    assert.equal(found.accent,'#ff4d1c',route+' uses approved Outpost orange token');
+    assert.equal(found.gold,'#ffd84d',route+' uses approved Outpost gold token');
+    assert.ok(found.htmlWidth<=found.viewWidth+8,route+' introduces unexpected desktop overflow '+JSON.stringify(found));
+  }
+  console.log('PASS all original TSO2 routes share one approved Outpost shell and palette:',JSON.stringify(routeTheme));
+  await page.screenshot({path:path.join(out,'approved-outpost-all-route-desktop.png'),fullPage:true,animations:'disabled'});
+  await page.evaluate(()=>document.querySelector('[data-route="home"]')?.click());
+
   // The current live slate may have no matched props. Test the accordion
   // itself in an isolated fixture with clearly synthetic QA records, never
   // pass mock data to the public dashboard or claim it is a live prediction.
