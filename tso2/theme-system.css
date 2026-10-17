@@ -125,6 +125,18 @@ body{font-size:var(--tso-body-size)}
  .app-shell.broadcast-shell{padding-left:0}
  .app-shell.broadcast-shell .tso-side-nav{width:min(90vw,var(--tso-side-nav-width))}
 }
+/* Owner Admin shortcut keeps the original TSO action-card language. */
+.app-shell.broadcast-shell .tso-admin-shortcuts>.tso-theme-shortcut{
+ padding:15px;border:1px solid var(--line-strong);background:var(--card);
+ color:var(--text);text-align:left;font-size:13px;font-weight:800;
+ display:flex;flex-direction:column;gap:6px;cursor:pointer;border-radius:var(--r-sm);
+}
+.app-shell.broadcast-shell .tso-admin-shortcuts>.tso-theme-shortcut:hover{
+ border-color:var(--blue);
+}
+.app-shell.broadcast-shell .tso-admin-shortcuts>.tso-theme-shortcut small{
+ font-weight:500;color:var(--muted);font-size:11px;
+}
 /* Theme Studio is part of the SAME design system */
 .tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
 .tso-theme-header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
