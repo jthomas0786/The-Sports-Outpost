@@ -114,3 +114,16 @@
 .tso-sim-final-grid article>div>b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tso-sim-final-grid article>div>span{color:#8cc3b7;white-space:nowrap}
 @media(max-width:600px){.tso-sim-final-grid{grid-template-columns:1fr}}
+
+.tso-sim-dvp{margin:0 0 18px;background:#0e1a1b;border:1px solid #2c4742;padding:13px;border-radius:12px}
+.tso-sim-dvp-kicker{color:#ffb27b;font-size:10px;font-weight:900;letter-spacing:.09em;margin-bottom:11px}
+.tso-sim-dvp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.tso-sim-dvp-grid article{min-width:0;background:#14221f;border:1px solid #365a46;border-radius:9px;padding:13px}
+.tso-sim-dvp-grid h3{font-size:13px;color:#f3e3c5;margin:0 0 4px;font-weight:900}
+.tso-sim-dvp-grid h3 span{color:#76dcae;font-size:10px}
+.tso-sim-dvp-grid p{font-size:10px;color:#91bcb0;margin:0 0 11px;line-height:1.5}
+.tso-sim-dvp-positions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.tso-sim-dvp-positions>div{display:flex;flex-direction:column;gap:4px;border:1px solid #2d493f;background:#0d191a;border-radius:6px;padding:10px;min-width:0}
+.tso-sim-dvp-positions small{font-size:10px;color:#afc9c5}
+.tso-sim-dvp-positions strong{font-size:23px;color:#ffb77e;font-weight:900;font-variant-numeric:tabular-nums}
+@media(max-width:640px){.tso-sim-dvp-grid{grid-template-columns:1fr}}
