@@ -61,8 +61,11 @@ for(const game of games){
   const eligible=availabilityFilteredInputs(rosterChecked.game,rosterChecked.research,availability);
   const {game:eligibleGame,research:eligibleResearch}=eligible;
   const exclusions=[...rosterChecked.exclusions,...eligible.exclusions];
-  const result=simulateGame({game:eligibleGame,research:eligibleResearch,odds,liveGame,config,iterations,seed:SEED,includeSamples:false});
+  const result=simulateGame({game:eligibleGame,research:eligibleResearch,odds,liveGame,config,iterations,seed:SEED,includeSamples:false,includeRepresentative:true});
   assertSimulatedRoster(eligibleGame,result);
+  if(!result.representativeWorld||result.representativeWorld.iterations!==iterations||
+    !Number.isInteger(result.representativeWorld.sampledIndex)||
+    result.representativeWorld.players?.length<10)throw Error('Missing representative correlated world for '+String(eligibleGame.gameId));
   result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,rosterVerified:true,rosterAudit:rosterChecked.rosterAudit,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
   results.push(stripPrivateSamples(result));
   const o=result.outcomes;
