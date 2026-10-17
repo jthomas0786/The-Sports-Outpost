@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "espn-public",
   "sport": "TENNIS",
-  "generatedAt": "2026-10-17T18:46:13.034Z",
+  "generatedAt": "2026-10-17T21:02:38.742Z",
   "tours": [
     {
       "key": "atp",
@@ -9983,9 +9983,9 @@
       "tourName": "WTA",
       "group": "womens-singles",
       "round": "Final",
-      "startTime": "2026-10-18T04:00Z",
+      "startTime": "2026-10-18T12:00Z",
       "state": "pre",
-      "statusDetail": "TBD",
+      "statusDetail": "10/18 - 8:00 AM EDT",
       "final": false,
       "period": 1,
       "bestOf": 3,
@@ -18179,22 +18179,26 @@
       "group": "mens-singles",
       "round": "Qualifying 1st Round",
       "startTime": "2026-10-17T15:00Z",
-      "state": "pre",
-      "statusDetail": "10/17 - 11:00 AM EDT",
-      "final": false,
-      "period": 1,
+      "state": "post",
+      "statusDetail": "Final",
+      "final": true,
+      "period": 3,
       "bestOf": 5,
-      "gamesPlayed": null,
-      "setsPlayed": null,
+      "gamesPlayed": 31,
+      "setsPlayed": 3,
       "players": [
         {
           "id": "11223",
           "name": "Tom Gentzsch",
-          "winner": null,
-          "linescores": [],
-          "gamesWon": null,
-          "setsWon": null,
-          "setsPlayed": null,
+          "winner": false,
+          "linescores": [
+            4,
+            6,
+            6
+          ],
+          "gamesWon": 16,
+          "setsWon": 1,
+          "setsPlayed": 3,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
@@ -18203,18 +18207,22 @@
         {
           "id": "2879",
           "name": "Aziz Dougaz",
-          "winner": null,
-          "linescores": [],
-          "gamesWon": null,
-          "setsWon": null,
-          "setsPlayed": null,
+          "winner": true,
+          "linescores": [
+            6,
+            2,
+            7
+          ],
+          "gamesWon": 15,
+          "setsWon": 2,
+          "setsPlayed": 3,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
           "firstSetAces": null
         }
       ],
-      "note": null
+      "note": "Aziz Dougaz (TUN) bt Tom Gentzsch (GER) 6-4 2-6 7-6 (7-0)"
     },
     "186981": {
       "id": "186981",
@@ -18530,6 +18538,53 @@
       ],
       "note": null
     },
+    "186987": {
+      "id": "186987",
+      "uid": "s:850~l:851~e:440-2026~c:186987",
+      "tournamentId": "440-2026",
+      "tournament": "BNP Paribas Fortis European Open",
+      "tour": "atp",
+      "tourName": "ATP",
+      "group": "mens-singles",
+      "round": "Qualifying Final",
+      "startTime": "2026-10-18T13:00Z",
+      "state": "pre",
+      "statusDetail": "10/18 - 9:00 AM EDT",
+      "final": false,
+      "period": 1,
+      "bestOf": 5,
+      "gamesPlayed": null,
+      "setsPlayed": null,
+      "players": [
+        {
+          "id": "2879",
+          "name": "Aziz Dougaz",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        },
+        {
+          "id": "11083",
+          "name": "Nishesh Basavareddy",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        }
+      ],
+      "note": null
+    },
     "186988": {
       "id": "186988",
       "uid": "s:850~l:851~e:440-2026~c:186988",
@@ -18627,6 +18682,6 @@
   },
   "meta": {
     "liveCount": 0,
-    "finalCount": 289
+    "finalCount": 290
   }
 }
