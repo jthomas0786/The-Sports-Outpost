@@ -392,3 +392,35 @@
   .gb2-root .mi-game-vault-header{padding:15px}
   .gb2-root .gb2-market-panel>.edge2-markets{padding:12px}
 }
+
+/* High-specificity nested accents: older source modules styled child nodes
+ * orange/green with selectors more specific than generic surface tokens.
+ * Keep TSO blue for action/measurement UI, reserve red/green for results. */
+.gb2-root .mi-signal-track > span,
+.gb2-root .mi-signal-track.is-form-only > span,
+.gb2-root .mi-verified-usage-track > span,
+.gb2-root .mi-usage-track > span,
+.gb2-root .mi-opportunity-track > span,
+.gb2-root .mi-hit-track > span{
+  background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
+}
+.gb2-root .mi-scout-metrics b,
+.gb2-root .mi-role-stat>b,
+.gb2-root .mi-move-labels strong,
+.gb2-root .mi-l5-avg strong,
+.gb2-root .mi-verified-usage strong,
+.gb2-root .mi-opp-stat>b,
+.gb2-root .mi-pbp-count>strong,
+.gb2-root .mi-read-signal>strong,
+.gb2-root .mi-signal-big>strong,
+.gb2-root .mi-signal-factor b,
+.gb2-root .mi-signal-reading strong,
+.gb2-root .mi-nfl-opportunity-head>strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-read-signal.mi-read-positive>strong,
+.gb2-root .mi-read-signal.mi-read-negative>strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-chart-key .mi-key-hit{background:var(--green)}
+.gb2-root .mi-chart-key .mi-key-miss{background:var(--red)}
