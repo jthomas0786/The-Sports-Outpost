@@ -27,7 +27,7 @@ const fetchImpl=async url=>{
     {athlete:{fullName:'Test Defensive Corner',position:{abbreviation:'CB'}},status:'Out',date:'2026-10-16'}
    ]},
    {team:{abbreviation:'GB'},injuries:[
-    {athlete:{fullName:'Josh Jacobs',position:{abbreviation:'RB'}},status:'Injured Reserve',date:'2026-10-16'},
+    {athlete:{fullName:'Josh Jacobs',position:{abbreviation:'RB'}},status:'Injured Reserve',date:'2026-08-20'},
     {athlete:{fullName:'Tucker Kraft',position:{abbreviation:'TE'}},status:'Questionable',date:'2026-10-16'}
    ]}
   ]})};
