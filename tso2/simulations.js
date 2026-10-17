@@ -3,7 +3,7 @@
  * scenario choreography, NOT optical tracking or replay of a sampled world. */
 (() => {
 'use strict';
-const state={root:null,doc:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0};
+const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0};
 const $=(root,selector)=>root?.querySelector(selector);
 const $$=(root,selector)=>[...(root?.querySelectorAll(selector)||[])];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -101,6 +101,27 @@ function strip(game){
   +'<div><span>'+esc(game.home.abbr)+' WIN</span><b>'+pct(game.projected.homeWin)+'</b><i style="--width:'+Math.max(0,Math.min(100,Number(game.projected.homeWin||0)*100))+'%"></i></div>'
   +'<div><span>MODEL TOTAL</span><b>'+number(game.projected.awayScore+game.projected.homeScore,1)+'</b><i style="--width:65%"></i></div></div>';
 }
+
+function matchupHTML(game){
+ const doc=state.defense;
+ if(!doc||doc.season!==2026||!doc.teams)return '';
+ const teams=[game.away,game.home];
+ const info=teams.map(team=>{
+  const record=doc.teams?.[teamCode(team.abbr)];
+  const group=[
+   ['QB','passYds','QB passing yards'],
+   ['RB','rushYds','RB rushing yards'],
+   ['WR','recYds','WR receiving yards'],
+   ['TE','recYds','TE receiving yards']
+  ].map(([pos,field,label])=>{
+   const stat=record?.byPosition?.[pos];
+   return '<div><small>'+esc(label)+'</small><strong>'+number(stat?.perGame?.[field],1)+'</strong></div>';
+  }).join('');
+  return '<article><h3>'+esc(team.abbr)+' DEFENSE <span>2026</span></h3><p>Yards allowed per game across all opposing players at each position · '+esc(record?.games||'—')+' observed games</p>'
+   +'<div class="tso-sim-dvp-positions">'+group+'</div></article>';
+ });
+ return '<section class="tso-sim-dvp"><div class="tso-sim-dvp-kicker">2026 DEFENSE VS POSITION · OBSERVED ALLOWANCES</div><div class="tso-sim-dvp-grid">'+info.join('')+'</div></section>';
+}
 function replayHTML(game){
  return '<div class="tso-sim-replay"><div class="tso-sim-scoreboard">'
   +'<span class="tso-sim-scoreteam"><b>'+esc(game.away.abbr)+'</b><strong data-tsos-away>0</strong></span>'
@@ -127,7 +148,7 @@ function paintPage(){
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
   +'<p>'+esc(dateText(state.game.kickoff))+' · Model output '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div><b class="tso-sim-live-badge">MODEL-BASED VISUALIZATION</b></header>'
-  +strip(state.game)+replayHTML(state.game)+'</div></div>';
+  +strip(state.game)+matchupHTML(state.game)+replayHTML(state.game)+'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{const game=games.find(g=>g.gameId===btn.dataset.tsosGame);if(game){stop();state.game=game;paintPage()}}));
  $(main,'[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.frame=0;updatePlay();draw(0)});
@@ -241,9 +262,13 @@ async function mount(root){
  if(!state.root)return;
  if(loading)loading.hidden=false;
  try{
-  const response=await fetch('/api/tso-simulations-nfl',{cache:'no-store',headers:{accept:'application/json'}});
+  const [response,defense]=await Promise.all([
+    fetch('/api/tso-simulations-nfl',{cache:'no-store',headers:{accept:'application/json'}}),
+    fetch('/api/nfl-defense-2026',{cache:'no-store'}).then(r=>r.ok?r.json():null).catch(()=>null)
+  ]);
   if(!response.ok)throw Error('TSO NFL simulation feed HTTP '+response.status);
   const doc=await response.json();
+  state.defense=defense?.season===2026&&defense?.available?defense:null;
   if(!Array.isArray(doc.games)||!doc.games.length)throw Error('No verified NFL simulations available');
   if(token!==state.token||!state.root?.isConnected)return;
   state.doc=doc;
