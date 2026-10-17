@@ -17,6 +17,14 @@ async function fetchJson(url,optional=false){
  throw last;
 }
 const number=v=>v===undefined||v===null||v===''?null:Number.isFinite(Number(v))?Number(v):null;
+const gameSummaries=new Map();
+function verifiedGameSummary(eventId){
+ const id=String(eventId||'');
+ if(!/^\d{9,}$/.test(id))return Promise.resolve(null);
+ if(!gameSummaries.has(id))gameSummaries.set(id,fetchJson('https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event='+id,true));
+ return gameSummaries.get(id);
+}
+
 async function readTeam([team,id]){
  const base='https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/seasons/2026/types/2/teams/'+id+'/statistics';
  const doc=await fetchJson(base);
@@ -39,15 +47,8 @@ async function readTeam([team,id]){
  // Defensive POINTS allowed require each completed ESPN game to agree with
  // the current 2026 season count; never use ESPN's 0 'pointsAllowed' placeholder.
  const schedule=await fetchJson('https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/'+id+'/schedule?season=2026&seasontype=2',true);
- if(team==='BUF'&&schedule?.events?.[0]?.id){
-  const sample=await fetchJson('https://site.api.espn.com/apis/site/v2/sports/football/nfl/summary?event='+encodeURIComponent(schedule.events[0].id),true);
-  console.log('BOX_YARDS_QA',JSON.stringify({keys:Object.keys(sample||{}),teams:(sample?.boxscore?.teams||[]).map(t=>({
-   id:t?.team?.id,keys:Object.keys(t),stats:(t.statistics||[]).filter(s=>/yards|rushing|passing/i.test(s.label||s.name||'')).slice(0,9)
-  }))}));
- }
-
  if(Array.isArray(schedule?.events)){
-  const allowed=[];
+  const allowed=[],opponentYards=[];
   for(const e of schedule.events){
    if(e?.status?.type?.completed!==true&&e?.competitions?.[0]?.status?.type?.completed!==true)continue;
    const competitors=e?.competitions?.[0]?.competitors;
@@ -55,8 +56,16 @@ async function readTeam([team,id]){
    const opponent=competitors.find(c=>Number(c.id||c.team?.id)!==id);
    const score=number(opponent?.score?.value??opponent?.score?.displayValue??opponent?.score);
    if(score!==null)allowed.push(score);
+   const summary=await verifiedGameSummary(e.id);
+   const opponentBox=summary?.boxscore?.teams?.find(t=>Number(t.team?.id)===Number(opponent?.id||opponent?.team?.id));
+   const yardsRaw=opponentBox?.statistics?.find(stat=>stat.name==='totalYards');
+   // This particular ESPN field has value='-' but displayValue='381'.
+   const yards=number(String(yardsRaw?.displayValue||'').replace(/,/g,''));
+   if(yards!==null&&yards>=0&&yards<1100)opponentYards.push(yards);
+
   }
   if(allowed.length===games)stats.defPointsAllowed=Number((allowed.reduce((sum,x)=>sum+x,0)/games).toFixed(1));
+  if(opponentYards.length===games)stats.defYardsAllowed=Number((opponentYards.reduce((sum,x)=>sum+x,0)/games).toFixed(1));
  }
  return [team,{team,season:2026,games,stats}];
 }
@@ -71,6 +80,6 @@ if(results.length!==32)throw Error('Incomplete 32-team current-season audit');
 const data={schemaVersion:1,season:2026,source:'ESPN 2026 NFL regular-season team statistics, verified team ID and 2026 season; optional complete game schedule for defensive points allowed',generatedAt:new Date().toISOString(),teams:Object.fromEntries(results)};
 await mkdir('tso2/data',{recursive:true});
 await writeFile('tso2/data/nfl-team-stats-2026.json',JSON.stringify(data,null,2)+'\n','utf8');
-console.log('NFL_TEAM_STATS_2026_PASS',JSON.stringify({teams:results.length,games:results.map(([,r])=>r.games),defPointsAvailable:results.filter(([,r])=>r.stats.defPointsAllowed!==null).length}));
+console.log('NFL_TEAM_STATS_2026_PASS',JSON.stringify({teams:results.length,games:results.map(([,r])=>r.games),defPointsAvailable:results.filter(([,r])=>r.stats.defPointsAllowed!==null).length,defYardsAvailable:results.filter(([,r])=>r.stats.defYardsAllowed!==null).length}));
 
 // Do not publish partial or cross-season snapshots.
