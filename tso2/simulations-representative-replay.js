@@ -44,7 +44,7 @@ function selectedPlayer(team,type,world,rng,counts){
   if(p.position==='FB'&&used>=1)return 0;
   // Once a smaller-than-expected candidate roster exhausts its target quotas,
   // prefer regular receivers rather than inventing an unavailable player.
-  if(used>=cap)return base*.04*lowRole;
+  if(used>=cap)return type==='pass'&&['WR','TE','RB'].includes(p.position)?base*.025*lowRole:0;
   return (quota>used?2.0+Math.min(25,quota-used)*base:.04*base)*lowRole;
  });
  const sum=weights.reduce((a,b)=>a+b,0);
@@ -129,11 +129,14 @@ function buildOne(game,defense,variant=0){
        receiver=player;
        const needed=maxNeed;
        complete=isFinalTd||progress>12||rng()<.72;
-       gain=complete?Math.round(clamp(progress*(.75+rng()*.55),1,25)):0;
+       const qbSample=world.get(side+'|'+qb.name.toLowerCase())?.stats||{};
+       const yardsPerCompletion=clamp(n(qbSample.passYds)/Math.max(1,n(qbSample.completions)),8,17);
+       gain=complete?Math.round(clamp(Math.max(progress*(.78+rng()*.58),yardsPerCompletion*(.72+rng()*.55)),1,30)):0;
       }else{
        carrier=player;
        gain=Math.round(clamp(progress*(.65+rng()*.70),1,17));
       }
+      if(!isFinalTd)gain=Math.min(gain,Math.max(0,goal-yard-1));
       if(isFinalTd){gain=100-yard;complete=kind==='PASS'||complete;points=planned.points}
       if(!isFinalTd&&planned.kind==='PUNT'){gain=Math.min(gain,Math.max(0,goal-yard))}
       if(!isFinalTd&&remaining<=2&&planned.kind!=='PUNT'){
