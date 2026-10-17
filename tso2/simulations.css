@@ -170,3 +170,8 @@
 .tso-sim-statnum{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
 .tso-sim-boxfootnote{color:#98c0b4;font-size:11px;line-height:1.6;margin:16px 0 0}
 @media(max-width:900px){.tso-sim-complete-box-grid{grid-template-columns:1fr}.tso-sim-players[data-tsos-panel]{max-height:300px}}
+
+.tso-sim-representative-banner{margin:0 0 13px;display:flex;justify-content:space-between;gap:13px;align-items:center;border:1px solid #588e6b;background:#123424;padding:13px 17px;border-radius:10px}
+.tso-sim-representative-banner strong{font-size:10px;letter-spacing:.08em;color:#8affae}
+.tso-sim-representative-banner span{font-size:14px;font-weight:900;color:#ffdaab;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.tso-sim-representative-banner{flex-direction:column;align-items:start}}
