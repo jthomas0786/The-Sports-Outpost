@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "season": 2026,
+  "updatedAt": "2026-10-16",
+  "description": "Game-scoped confirmed unavailability. Used only on these identified games. Players can return in later weeks.",
+  "sources": [
+    {
+      "id": "gb2026week6",
+      "url": "https://www.packers.com/news/packers-list-five-questionable-rule-out-four-vs-cowboys-week-6-injury-report-2026"
+    },
+    {
+      "id": "league2026exempt",
+      "url": "https://www.nfl.com/news/nfl-removing-josh-jacobs-jonathon-cooper-commissioner-exempt-list"
+    },
+    {
+      "id": "gb2026ir",
+      "url": "https://www.pro-football-reference.com/teams/gnb/2026_injuries.htm"
+    }
+  ],
+  "games": {
+    "401873007": {
+      "season": 2026,
+      "date": "2026-10-18",
+      "matchup": "DAL @ GB",
+      "team": "GB",
+      "excluded": [
+        {
+          "name": "Jayden Reed",
+          "status": "INJURED_RESERVE",
+          "verifiedAsOf": "2026-10-16",
+          "source": "gb2026ir"
+        },
+        {
+          "name": "Josh Jacobs",
+          "status": "COMMISSIONER_EXEMPT",
+          "verifiedAsOf": "2026-10-16",
+          "source": "league2026exempt",
+          "eligibleNoEarlierThan": "2026-10-19"
+        },
+        {
+          "name": "Skyy Moore",
+          "status": "OUT",
+          "verifiedAsOf": "2026-10-16",
+          "source": "gb2026week6"
+        }
+      ]
+    }
+  }
+}
