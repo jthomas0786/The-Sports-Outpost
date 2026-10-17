@@ -125,6 +125,19 @@ fs.mkdirSync(out,{recursive:true});
     await page.locator('[data-gb2-league="'+league+'"]').click();
     await page.locator('[data-gb2-root]').waitFor({state:'visible',timeout:15000});
     assert.equal(await page.locator('[data-gb2-league="'+league+'"].is-active').count(),1,'Sport remains '+league);
+    if(league==='nfl'&&await page.locator('[data-gb2-grid] [data-gb2-game]').count()){
+      await page.locator('[data-gb2-grid] [data-gb2-game]').first().click();
+      await page.locator('.gb2-comparison-stats>.gb2-compare-row').first().waitFor({state:'visible',timeout:20000});
+      assert.equal(await page.locator('.gb2-comparison-stats>.gb2-compare-row').count(),8,'Reference video: eight verified current-season NFL matchup statistics');
+      await page.locator('.gb2-source-note').filter({hasText:/ESPN 2026 regular season/}).waitFor({state:'visible',timeout:20000});
+      const rows=await page.locator('.gb2-comparison-stats').innerText();
+      for(const label of ['Points per game','Total yards per game','Passing yards per game','Rushing yards per game','Third-down conversion','Defensive points allowed','Defensive yards allowed','Turnover differential']){
+        assert.ok(rows.includes(label),'Matchup missing '+label);
+      }
+      await page.screenshot({path:path.join(out,'nfl-reference-matchup-desktop.png'),fullPage:true,animations:'disabled'});
+      await page.locator('[data-gb2-back]').click();
+      console.log('PASS reference video matchup: all eight 2026 team-stat comparison rows');
+    }
   }
   await page.setViewportSize({width:390,height:844});
   await page.locator('[data-gb2-root]').waitFor({state:'visible'});
