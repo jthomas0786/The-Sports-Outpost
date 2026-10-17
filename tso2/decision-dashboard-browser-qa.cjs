@@ -57,9 +57,9 @@ fs.mkdirSync(out,{recursive:true});
       probe.remove();return color;
     };
     const color=(sel,pseudo)=>getComputedStyle(root.querySelector(sel),pseudo).backgroundColor;
-    const card=expected('--card'),surface=expected('--surface'),blue=expected('--blue'),primary=expected('--tso-primary-btn');
+    const card=expected('--card'),surface=expected('--surface'),outpost=expected('--outpost-orange'),primary=expected('--tso-primary-btn');
     const result={
-      card,surface,blue,primary,
+      card,surface,outpost,primary,
       actualCard:color('.gb2-card'),
       actualPanel:color('[data-theme-probe] .gb2-panel'),
       actualTeam:color('[data-theme-probe] .mi-team'),
@@ -77,10 +77,11 @@ fs.mkdirSync(out,{recursive:true});
   });
   for(const k of ['actualCard','actualPanel','actualRanked'])assert.equal(themeReport[k],themeReport.card,k+' must inherit TSO 2.0 card navy');
   for(const k of ['actualTeam','actualPlayer','actualMarket'])assert.equal(themeReport[k],themeReport.surface,k+' must inherit TSO 2.0 surface navy');
-  for(const k of ['totalStripe','moneylineStripe','propProbability'])assert.equal(themeReport[k],themeReport.blue,k+' must inherit TSO blue, not purple/orange');
-  assert.ok(themeReport.signalTrack.includes(themeReport.blue),'TSO Prop Signal uses current dashboard accent, not hardcoded blue');
+  for(const k of ['totalStripe','moneylineStripe'])assert.equal(themeReport[k],themeReport.outpost,k+' must inherit approved Outpost brand accent');
+  assert.equal(themeReport.propProbability,themeReport.primary,'Prop probability badge uses shared primary action accent');
+  assert.ok(themeReport.signalTrack.includes(themeReport.outpost),'TSO Prop Signal uses shared current Outpost branding');
   assert.equal(themeReport.addButtonColor,themeReport.primary,'Prop action uses current dashboard primary button token');
-  console.log('PASS unified original TSO 2.0 palette on cards, matchup, market, player props and Prop Signal:',JSON.stringify(themeReport));
+  console.log('PASS approved Outpost orange/gold theme on cards, matchup, markets, player props and Prop Signal:',JSON.stringify(themeReport));
 
   // Regression: owner changes to Theme Studio variables MUST alter every
   // Games component on the actual staging page, not just the editor preview.
@@ -90,7 +91,7 @@ fs.mkdirSync(out,{recursive:true});
     if(!root)throw Error('Games board root unavailable for theme integration check');
     const override=document.createElement('style');
     override.id='tso-games-theme-qa-only';
-    override.textContent=':root{--bg:#0a0e25;--tso-page-gutter:39px;--tso-body-size:16px;--tso-heading-size:41px;--tso-button-height:52px;--card:#192a3e;--surface:#233c54;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
+    override.textContent=':root{--bg:#0a0e25;--tso-page-gutter:39px;--tso-body-size:16px;--tso-heading-size:41px;--tso-button-height:52px;--card:#192a3e;--surface:#233c54;--outpost-orange:#8bcd2e;--outpost-gold:#d8abff;--blue:#c259eb;--blue-2:#d385f8;--text:#d9e8f3;--muted:#b3a3bf;--line-strong:#8f719a;--tso-primary-btn:#f06b21;--tso-btn-text:#151515;--tso-secondary-btn:#254e75;--r:29px;--r-sm:21px;--tso-card-padding:27px;--tso-grid-gap:29px;--tso-page-max:1690px;}';
     document.head.appendChild(override);
     const probe=document.createElement('div');probe.setAttribute('data-theme-mutation-test','');
     probe.style.cssText='position:absolute;left:-20000px;top:0;width:600px';
@@ -130,9 +131,9 @@ fs.mkdirSync(out,{recursive:true});
   assert.equal(dynamicTheme.buttonText,'rgb(21, 21, 21)','CTA text uses dashboard button text token');
   assert.equal(dynamicTheme.back,'rgb(37, 78, 117)','Secondary navigation uses dashboard secondary button color');
   assert.equal(dynamicTheme.innerLine,'rgb(143, 113, 154)','Model details use dashboard border');
-  assert.equal(dynamicTheme.stripe,'rgb(194, 89, 235)','Game Edge markers use dashboard accent');
-  assert.match(dynamicTheme.signal,/rgb\(194, 89, 235\)/,'Player Signal chart uses dashboard accent');
-  assert.match(dynamicTheme.probability,/rgb\(194, 89, 235\)/,'Game win-probability bars use dashboard accent');
+  assert.equal(dynamicTheme.stripe,'rgb(139, 205, 46)','Game Edge markers use dashboard Outpost accent');
+  assert.match(dynamicTheme.signal,/rgb\(139, 205, 46\)/,'Player Signal chart uses dashboard Outpost accent');
+  assert.match(dynamicTheme.probability,/rgb\(139, 205, 46\)/,'Game win-probability bars use dashboard Outpost accent');
   assert.equal(dynamicTheme.radius,'29px','Game cards use dashboard corner radius');
   assert.equal(dynamicTheme.padding,'27px','Game cards use dashboard panel padding');
   assert.equal(dynamicTheme.gridGap,'29px','Game grid uses dashboard spacing');
