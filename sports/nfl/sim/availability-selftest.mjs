@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from 'node:assert/strict';
-import {availabilityFilteredInputs,gameExclusions,verifiedRosterFilteredInputs} from './availability.js';
+import {availabilityFilteredInputs,gameExclusions,verifiedRosterFilteredInputs,verifiedTeamActiveRoster} from './availability.js';
 const game={gameId:'401873007',away:{abbr:'DAL'},home:{abbr:'GB'},players:[
  {name:'Mitch Van Vooren',team:'DAL',position:'TE'},
  {name:'Jake Ferguson',team:'DAL',position:'TE'},
@@ -30,4 +30,10 @@ assert.equal(observed.rosterAudit.finalInactivesVerified,false);
 const nextGame={...game,gameId:'week7-other',home:{abbr:'GB'}};
 assert.equal(gameExclusions(nextGame,override).length,0,'Week 6 exception must not ban a player forever');
 await assert.rejects(()=>verifiedRosterFilteredInputs(game,research,{cache:false,fetchImpl:async()=>({ok:false,status:503})}),/roster source/i);
-console.log('Verified 2026 roster eligibility: correct team, practice squad, waived players, future games and fail-closed behavior PASS');
+const washington=await verifiedTeamActiveRoster('WAS',{cache:false,fetchImpl:async url=>{
+ assert.ok(String(url).endsWith('/teams/28/roster'),'ESPN Washington must use team ID 28, not WAS');
+ return {ok:true,json:async()=>({season:{year:2026},athletes:[{position:'offense',items:Array.from({length:11},(_,i)=>({displayName:'Washington Player '+i,status:{type:'active'}}))}]})};
+}});
+assert.equal(washington.team,'WAS');
+assert.equal(washington.active.size,11);
+console.log('Verified 2026 roster eligibility: correct team, practice squad, waived players, WAS ESPN alias, future games and fail-closed behavior PASS');
