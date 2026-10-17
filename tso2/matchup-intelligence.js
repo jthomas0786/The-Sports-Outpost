@@ -190,7 +190,7 @@ function rankingStatus(game,rows){
  if(job.done)return 'TSO Prop Signal · highest to lowest · ungraded last';
  return 'Verifying TSO Prop Signals · '+job.completed+'/'+job.total+' player profiles · order provisional';
 }
-function listing(game,rows){
+function listing(game,rows,{showScouting=true}={}){
  const id=String(game?.league||'')+':'+String(game?.id||'');
  if(state.activeGame!==id){state.activeGame=id;state.activeFilter='ALL PROPS';state.showAll=false;state.expanded.clear();state.ranking=null;}
  // One card per athlete and market, regardless of alternative sportsbook thresholds.
@@ -202,9 +202,10 @@ function listing(game,rows){
  const filtered=filterRows(ranked),shown=state.showAll?filtered:filtered.slice(0,7);
  const filters=['ALL PROPS',...orderedMarketKeys(ranked,game.league)];
  return '<section class="mi-game-vault" aria-label="Matchup scouting and ranked prop opportunities">'
-   +'<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
-   +'<div class="mi-teams">'
-   +[game.away,game.home].map((t,i)=>{
+   +(showScouting?(
+    +'<header class="mi-game-vault-header"><div><small>MATCHUP INTELLIGENCE · VERIFIED TSO DATA</small><h2>Game scouting</h2><p>Compare the matchup first, then open a player for the numbers behind the selection.</p></div></header>'
+    +'<div class="mi-teams">'
+    +[game.away,game.home].map((t,i)=>{
      const opp=i===0?game.home:game.away;
      const abbr=String(t?.abbr||'TEAM');
      const logo=t?.logo&&/^https:\/\//i.test(t.logo)?'<img src="'+esc(t.logo)+'" alt="" loading="lazy">':'';
@@ -214,7 +215,9 @@ function listing(game,rows){
        +'<div class="mi-team-scout" data-mi-scout="'+esc(abbr)+'">Checking opponent defensive data…</div>'
        +'<div class="mi-opposing-attack" data-mi-attack="'+esc(abbr)+'">Checking verified opponent offensive opportunity data…</div></div>';
    }).join('')
-   +'</div>'
+    +'</div>'
+
+   ):'')
    +'<div class="mi-ranked"><div class="mi-ranked-head"><div><small>PLAYER PROP INTELLIGENCE · OVERS & YES ONLY</small><h2>Players to watch</h2><p>'+(unique.length-modelOnlyCount)+' sportsbook-backed player/market candidates'+(modelOnlyCount?' · '+modelOnlyCount+' scorer-model candidates (research only)':'')+' · one grade per player and market · line-independent TSO Prop Signal</p></div></div>'
    +'<p class="mi-ranking-status" data-mi-ranking-status aria-live="polite">'+esc(rankingStatus(game,rows))+'</p>'
    +'<div class="mi-filters" role="group" aria-label="Prop markets">'+filters.map(f=>'<button type="button" class="'+(state.activeFilter===f?'is-active':'')+'" data-mi-filter="'+esc(f)+'">'+esc(f==='ALL PROPS'?f:marketName({sport:game.league,market:f}))+' <span class="mi-filter-count">'+(f==='ALL PROPS'?ranked.length:ranked.filter(r=>String(r.market||'')===f).length)+'</span></button>').join('')+'</div>'
