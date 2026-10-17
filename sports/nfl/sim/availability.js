@@ -76,7 +76,8 @@ export async function verifiedRosterFilteredInputs(game,research,{fetchImpl=fetc
  for(const p of [...(game?.players||[]),...(research?.players||[])].filter(notActive)){
   removed.set(normalizedTeam(p.team)+'|'+normalizedName(p.name),{team:normalizedTeam(p.team),name:p.name,status:'NOT_ACTIVE_2026_ROSTER'});
  }
- const safeGame={...game,players:(game?.players||[]).filter(p=>!notActive(p))};
+ const safeGame={...game,players:(game?.players||[]).filter(p=>!notActive(p)),
+  modelEligibleRosters:Object.fromEntries([...allowed.entries()].map(([code,active])=>[code,[...active]]))};
  const safeResearch={...research,players:(research?.players||[]).filter(p=>!notActive(p))};
  return {game:safeGame,research:safeResearch,exclusions:[...removed.values()],
   rosterAudit:{season:2026,checkedAt:new Date().toISOString(),source:'2026 ESPN active offense roster',
