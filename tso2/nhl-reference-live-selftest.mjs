@@ -14,3 +14,13 @@ for(const [label,path] of [
   }));
  }catch(err){console.log('TSO2_NHL_SOURCE_DIAGNOSTIC',label,String(err.message||err));}
 }
+
+for(const report of ['summary','scoringRates','timeonice','powerplay']){
+ try{
+  const q='seasonId=20262027 and gameTypeId=2 and playerId=8478402';
+  const u='https://api.nhle.com/stats/rest/en/skater/'+report+'?limit=3&cayenneExp='+encodeURIComponent(q);
+  const r=await fetch(u,{signal:AbortSignal.timeout(18000)});
+  const d=await r.json();
+  console.log('NHL_SKATER_SCHEMA',report,JSON.stringify({http:r.status,total:d.total,keys:Object.keys(d.data?.[0]||{}),sample:(d.data||[]).slice(0,1)}).slice(0,2200));
+ }catch(e){console.log('NHL_SKATER_SCHEMA',report,'ERR '+String(e.message||e));}
+}
