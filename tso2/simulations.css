@@ -91,3 +91,26 @@
 @media(max-width:1280px){.tso-sim-layout{grid-template-columns:195px minmax(0,1fr)}.tso-sim-stadium{grid-template-columns:minmax(90px,17%) minmax(0,1fr) minmax(90px,17%)}.tso-sim-players{padding:9px 6px}.tso-sim-player{gap:4px}.tso-sim-player-dot{min-width:24px;font-size:8px}.tso-sim-player b{font-size:10px}.tso-sim-player small{font-size:8px}}
 @media(max-width:1100px){.tso-sim-layout{display:block}.tso-sim-matchups{margin-bottom:17px}.tso-sim-game-list{display:flex;flex-direction:row;overflow-x:auto;max-height:none;padding-bottom:13px}.tso-sim-game-choice{min-width:168px;max-width:180px}.tso-sim-matchups-head{padding:9px 15px}}
 @media(max-width:700px){.tso-sim-page{padding:14px 10px 35px}.tso-sim-hero{align-items:start}.tso-sim-hero-pill{display:none}.tso-sim-game-title{display:block}.tso-sim-live-badge{display:inline-flex;margin-top:10px}.tso-sim-outlook{grid-template-columns:1fr 1fr}.tso-sim-outlook-bridge{grid-column:span 2;grid-row:2;border-top:1px solid #2e4442;padding:11px 0 0}.tso-sim-prob-row{display:block}.tso-sim-prob-row>div{padding:8px 13px;border-right:0;border-bottom:1px solid #2e4442}.tso-sim-stadium{grid-template-columns:1fr 1fr}.tso-sim-field{grid-column:span 2;grid-row:1}.tso-sim-players{min-height:118px}.tso-sim-scoreteam{padding:5px 7px;gap:6px}.tso-sim-scoreteam b{font-size:11px}.tso-sim-scoreteam strong{font-size:24px}.tso-sim-scoreclock{padding:6px 7px}.tso-sim-scoreclock small{font-size:7px}.tso-sim-scoreclock strong{font-size:17px}.tso-sim-players{gap:5px}.tso-sim-side-name{padding-top:4px}.tso-sim-hero h1{font-size:27px}.tso-sim-disclosure{font-size:11px}}
+
+.tso-sim-nav-icon{flex-shrink:0;display:grid;place-items:center;width:38px;height:38px;border-radius:9px;border:1px solid #3b6858;background:linear-gradient(145deg,#153c31,#112128);box-shadow:inset 0 1px 10px #68e5ac24;color:#90efc2;font-size:25px;font-weight:700}
+.tso-side-item--simulations.is-active .tso-sim-nav-icon{background:#31482a;color:#ffc090;border-color:#ff9961}
+.tso-sim-quarter-overlay[hidden],.tso-sim-final[hidden]{display:none!important}
+.tso-sim-quarter-overlay{position:absolute;inset:12% 15%;background:#0c1a20ed;display:flex;align-items:center;justify-content:center;flex-direction:column;border:1px solid #446b5e;border-radius:13px;box-shadow:0 12px 48px #0009;z-index:2;animation:tso-sim-slide .3s ease-out}
+.tso-sim-quarter-overlay span{font-size:11px;color:#7ce0b2;font-weight:900;letter-spacing:.15em}
+.tso-sim-quarter-overlay strong{font-size:clamp(22px,3vw,45px);font-weight:950;color:#fff;margin:12px 0}
+.tso-sim-quarter-overlay small{font-size:12px;color:#ffb687;font-weight:850;letter-spacing:.1em}
+@keyframes tso-sim-slide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.tso-sim-final{margin:13px 0;border:1px solid #40745d;border-radius:12px;background:#11251f;padding:16px}
+.tso-sim-final-heading{border-bottom:1px solid #416450;padding-bottom:12px}
+.tso-sim-final-heading span{font-size:9px;color:#9ee1bc;letter-spacing:.09em;font-weight:900}
+.tso-sim-final-heading h3{font-size:clamp(19px,2vw,28px);margin:6px 0 2px;color:#fff}
+.tso-sim-final-heading small{color:#ffc19b;font-size:11px}
+.tso-sim-final-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin-top:15px}
+.tso-sim-final-grid article{min-width:0}
+.tso-sim-final-grid h4{font-size:12px;color:#f6d8a7;margin:0 0 7px}
+.tso-sim-final-grid p{font-size:11px;color:#b7d7d1;line-height:1.6;margin:0 0 9px}
+.tso-sim-final-grid h5{font-size:9px;letter-spacing:.08em;color:#91e3bd;margin:8px 0}
+.tso-sim-final-grid article>div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #2f4940;padding:6px 0;font-size:11px;color:#d1deda}
+.tso-sim-final-grid article>div>b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tso-sim-final-grid article>div>span{color:#8cc3b7;white-space:nowrap}
+@media(max-width:600px){.tso-sim-final-grid{grid-template-columns:1fr}}
