@@ -4,6 +4,17 @@
 
 **Owner entry:** Profile menu > Theme / CSS Dashboard, or Owner Control Room > Theme / CSS Dashboard.
 
+## Approved TSO 2.0 appearance
+
+**The approved Outpost broadcast theme is not the older navy-and-blue generic dashboard.**
+
+- Page background: near-black \`#05070A\`; cards \`#0A0D12\`; inset surfaces \`#0C1016\`.
+- Primary UI actions and selection indicators: Outpost orange \`#FF4D1C\`.
+- Editorial headers, highlights and secondary brand accents: Outpost gold \`#FFD84D\`.
+- Model/data charts may use blue; positive/negative/push statuses may use meaningful green/red/yellow colors without changing the general UI branding.
+- All TSO 2.0 routes inherit these tokens through \`theme-system.css\`. In particular \`games-board-v2.css\` maps its UI accents to \`--outpost-orange\` and \`--outpost-gold\`, not \`--blue\`.
+- A regression test compares published-root values and the default editor controls against this approved baseline and tests the shared shell on Home, Games, Research, Models, Live, Game Edge, Props and Simulations.
+
 ## One source of truth
 
 - \`theme-system.css\` is the final stylesheet loaded after \`styles.css\`, Simulations and Games styling. It owns the **structural appearance** of the shell, page cards, model/prop panels and controls.
