@@ -8262,6 +8262,13 @@
 
   function setLeague(league){
     closeProfileMenu();
+    // The first TSO Simulations release is NFL-only; switching sport opens Games.
+    if(currentRoute==='simulations'&&league!=='nfl'){
+      currentLeague=league;
+      shell.dataset.league=league;
+      setRoute('games');
+      return;
+    }
     if(currentRoute==='gameedge'&&league==='all') league='nhl';
     if(league===currentLeague)return;
     currentLeague = league;
