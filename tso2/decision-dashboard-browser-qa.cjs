@@ -182,6 +182,18 @@ fs.mkdirSync(out,{recursive:true});
       await playable.first().click();
       await page.locator('.mi-player.is-open .mi-selection-brief').first().waitFor({state:'visible',timeout:12000});
       assert.equal(await page.locator('.mi-player.is-open [data-mi-research]').count(),1,'Inline player history and visuals');
+      if(/NHL/i.test(await page.locator('.gb2-hero>small').first().innerText())){
+        await page.locator('.mi-player.is-open .mi-nhl-signal-detail').first().waitFor({state:'visible',timeout:25000});
+        const rows=page.locator('.mi-player.is-open .mi-nhl-factor-row');
+        assert.equal(await rows.count(),8,'NHL Prop Signal must show all eight referenced contributing statistics');
+        const expected=['Goals/60','Shots/60','Shooting %','xG/60','PP TOI/gm','Line GF%','Opp GA/G','Opp SA/G'];
+        const labels=await rows.locator('>span:first-child').allTextContents();
+        assert.deepEqual(labels.map(x=>x.trim()),expected,'NHL reference contributing-stat order and labels');
+        const note=await page.locator('.mi-player.is-open .mi-nhl-signal-detail .mi-evidence-note').innerText();
+        assert.match(note,/verified metric weight/i,'Never treat missing advanced data as complete');
+        await page.screenshot({path:path.join(out,'nhl-eight-factor-prop-signal.png'),fullPage:true,animations:'disabled'});
+        console.log('PASS NHL Prop Signal eight weighted contributing metrics, current-source coverage disclosure and matching UI');
+      }
     await page.locator('.mi-player.is-open .mi-evidence-layout').first().waitFor({state:'visible',timeout:15000});
       assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No unders in main prop intelligence');
     }else console.log('INFO selected live game has no verified player props; isolated fixture validates expansion');
