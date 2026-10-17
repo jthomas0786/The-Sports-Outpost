@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="./styles.css?v=20261015-nfl-2026-defense-vs-position" />
   <link rel="stylesheet" href="./simulations.css?v=20261017-injury-audit-v3" />
    <link rel="stylesheet" href="./games-board-v2.css?v=20261017-video-reference-v3" />
+  <link rel="stylesheet" href="./theme-system.css?v=20261017-canonical-theme-v1" />
 </head>
 <body>
   <div class="app-shell broadcast-shell" data-league="all">
@@ -124,6 +125,11 @@
               <button class="profile-dropdown-item profile-dropdown-owner" type="button" role="menuitem" data-owner-only data-admin-open hidden>
                 <span class="profile-dropdown-icon">⚙</span>
                 <span><b>Admin Dashboard</b><small>Site controls, data reports &amp; users</small></span>
+                <em>OWNER</em>
+              </button>
+              <button class="profile-dropdown-item profile-dropdown-owner" type="button" role="menuitem" data-owner-only data-theme-open hidden>
+                <span class="profile-dropdown-icon">◧</span>
+                <span><b>Theme / CSS Dashboard</b><small>Global colors, layout &amp; stylesheet editor</small></span>
                 <em>OWNER</em>
               </button>
               <a class="profile-dropdown-item profile-dropdown-owner" role="menuitem" data-owner-only hidden href="/brand-lab">
@@ -254,5 +260,6 @@
   <script type="module" src="./auth.js?v=20261010-parlayping-broadcast-sso"></script>
   <script type="module" src="./push-client.js?v=20261009-sports-preferences-v2"></script>
   <script type="module" src="./admin.js?v=20261008-owner-admin"></script>
+  <script type="module" src="./theme-studio.js?v=20261017-canonical-theme-v1"></script>
 </body>
 </html>
