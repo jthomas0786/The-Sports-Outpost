@@ -1810,16 +1810,21 @@ function nhlOpponent(row){
  if(team===home&&away)return away;
  return null;
 }
+function nhlIdentityKey(row){
+ const clean=String(row?.player||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+ return nhlNorm(row?.team)+'|'+clean;
+}
 async function verifiedNhlRates(row,data){
  const team=nhlNorm(row?.team),id=nhlPlayerId(row,data);
- if(!id||!/^[A-Z]{2,3}$/.test(team))return null;
- const k=id+'|'+team;
+ const name=String(row?.player||data?.player?.name||'').trim();
+ if(!name||!/^[A-Z]{2,3}$/.test(team))return null;
+ const k=nhlIdentityKey({...row,player:name});
  if(state.nhlRates.has(k))return state.nhlRates.get(k);
  if(state.nhlPending.has(k))return state.nhlPending.get(k);
- const task=fetch('/api/tso2-nhl-player-rates?playerId='+encodeURIComponent(id)+'&team='+encodeURIComponent(team),{cache:'no-store',headers:{accept:'application/json'}})
+ const task=fetch('/api/tso2-nhl-player-rates?playerId='+encodeURIComponent(id||'')+'&team='+encodeURIComponent(team)+'&name='+encodeURIComponent(name),{cache:'no-store',headers:{accept:'application/json'}})
   .then(async response=>{
    const doc=await response.json();
-   if(!response.ok||doc?.available!==true||doc.season!==20262027||doc.playerId!==id||doc.team!==team||n(doc.games)<1)return null;
+   if(!response.ok||doc?.available!==true||doc.season!==20262027||!/^\d{7}$/.test(String(doc.playerId||''))||doc.team!==team||n(doc.games)<1)return null;
    return doc;
   }).catch(()=>null).then(doc=>{state.nhlRates.set(k,doc);return doc;}).finally(()=>state.nhlPending.delete(k));
  state.nhlPending.set(k,task);
@@ -1844,8 +1849,8 @@ function nhlFactorScore(value,benchmark){
 }
 function nhlSignalScore(row,data){
  const id=nhlPlayerId(row,data),team=nhlNorm(row?.team);
- const rate=id?state.nhlRates.get(id+'|'+team):null;
- const sameTeam=rate?.team===team&&rate?.playerId===id&&rate?.season===20262027&&n(rate?.games)>=1;
+ const rate=state.nhlRates.get(nhlIdentityKey(row));
+ const sameTeam=rate?.team===team&&/^\d{7}$/.test(String(rate?.playerId||''))&&rate?.season===20262027&&n(rate?.games)>=1;
  const opponent=nhlOpponent(row),record=state.nhlTeamDoc?.teams?.[opponent];
  const away=state.nhlTeamDoc?.teams?.[nhlNorm(state.nhlCurrentGame?.away?.abbr)];
  const home=state.nhlTeamDoc?.teams?.[nhlNorm(state.nhlCurrentGame?.home?.abbr)];
@@ -1862,7 +1867,7 @@ function nhlSignalScore(row,data){
  });
  const available=factors.filter(f=>f.factorScore!==null),coverage=available.reduce((sum,f)=>sum+f.weight,0);
  if(coverage<60||!sameTeam)return {
-   score:null,modeled:false,reason:!id?'Verified NHL player ID is unavailable':!sameTeam?'2026–27 NHL skater statistics unavailable':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
+   score:null,modeled:false,reason:!row?.player?'Verified NHL player identity is unavailable':!sameTeam?'2026–27 NHL skater statistics/roster unavailable':'Only '+coverage+'% of weighted contributing metrics verified (minimum 60%)',
    factors,coverage,games:rate?.games||0,evidence:'INCOMPLETE · NHL 2026–27'
  };
  const raw=available.reduce((sum,f)=>sum+f.factorScore*f.weight,0)/coverage;
