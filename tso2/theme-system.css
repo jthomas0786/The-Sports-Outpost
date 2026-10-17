@@ -134,6 +134,39 @@ body{font-size:var(--tso-body-size)}
  .app-shell.broadcast-shell{padding-left:0}
  .app-shell.broadcast-shell .tso-side-nav{width:min(90vw,var(--tso-side-nav-width))}
 }
+/* Games uses the SAME editable typography, dimensions and action sizes
+   rather than separate pixel constants buried in the historical Game UI.
+   The existing responsive player-prop column structure is preserved. */
+.app-shell.broadcast-shell .gb2-root .gb2-page-head h1{
+ font-size:var(--tso-heading-size);
+}
+.app-shell.broadcast-shell .gb2-root .gb2-hero-team h2{
+ font-size:clamp(20px,calc(var(--tso-heading-size) * .9),48px);
+}
+.app-shell.broadcast-shell .gb2-root .gb2-panel>header h3{
+ font-size:clamp(14px,calc(var(--tso-heading-size) * .57),34px);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-page-head p,.gb2-team-row>strong,.gb2-compare-row,.mi-player-body){
+ font-size:var(--tso-body-size);
+}
+.app-shell.broadcast-shell .gb2-root :is(.mi-player-label>b,.mi-selection-brief b){
+ font-size:calc(var(--tso-body-size) + 1px);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-hero,.mi-player-body){
+ padding:var(--tso-card-padding);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-detail,.mi-evidence-layout){
+ gap:var(--tso-grid-gap);
+}
+.app-shell.broadcast-shell .gb2-root :is(.gb2-back,.gb2-live,.gb2-dock button,.mi-add,.mi-filters button){
+ min-height:var(--tso-button-height);
+ border-radius:var(--r-sm);
+}
+@media(max-width:720px){
+ .app-shell.broadcast-shell .gb2-root :is(.gb2-hero,.mi-player-body){
+  padding:min(var(--tso-card-padding),20px);
+ }
+}
 /* Owner Admin shortcut keeps the original TSO action-card language. */
 .app-shell.broadcast-shell .tso-admin-shortcuts>.tso-theme-shortcut{
  padding:15px;border:1px solid var(--line-strong);background:var(--card);
