@@ -7923,7 +7923,7 @@
   const labels = {
     home:'Today', games:'Games', simulations:'TSO Simulations', live:'Live Center', research:'Research', models:'Models',
     gameedge:'Game Edge', props:'Player Props', parlays:'Parlay Ping', community:'Community',
-    leaderboard:'Leaderboard', profile:'Profile', admin:'Admin Control Room'
+    leaderboard:'Leaderboard', profile:'Profile', admin:'Admin Control Room', theme:'Theme / CSS Dashboard'
   };
 
   function notify(message){
@@ -8220,6 +8220,7 @@
     renderDecisionDashboard();
     syncOwnerTools();
     if(currentRoute==='admin') window.TSO2Admin?.mount?.();
+    if(currentRoute==='theme') window.TSO2ThemeStudio?.mount?.();
     bindNhlScorerActions(document.querySelector('[data-nhl-scorer-shell]'));
     refreshNhlScorerData(false);
     refreshLiveData(false);
@@ -8242,7 +8243,7 @@
 
   function setRoute(route){
     if(!labels[route]) return;
-    if(route==='admin'&&!isOwner()){ notify('Owner access required.'); return; }
+    if((route==='admin'||route==='theme')&&!isOwner()){ notify('Owner access required.'); return; }
     closeProfileMenu();
     if(route==='simulations'){
       currentLeague='nfl';
@@ -8365,6 +8366,10 @@
     closeProfileMenu();
     if(isOwner()) setRoute('admin');
   });
+  document.querySelector('[data-theme-open]')?.addEventListener('click', () => {
+    closeProfileMenu();
+    if(isOwner()) setRoute('theme');
+  });
 
   document.querySelectorAll('[data-owner-only]').forEach(item => {
     item.addEventListener('click', event => {
@@ -8394,7 +8399,7 @@
     profileActivityFetchedAt=0;
     if(currentRoute==='profile') renderProfile();
     void refreshSavedAccountNotifications(true);
-    if(currentRoute==='admin'){
+    if(currentRoute==='admin'||currentRoute==='theme'){
       if(!isOwner()) setRoute('home');
       else renderRoute();
     }
