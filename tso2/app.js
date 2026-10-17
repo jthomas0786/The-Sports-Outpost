@@ -6877,17 +6877,39 @@
     if(searchInput && searchInput.value!==propsFilterState.search) searchInput.value=propsFilterState.search;
   }
 
+  // Failed snapshots are not permanent: recover from transient player/roster
+  // feed errors without needing a new browser session or guessing data.
+  const propResearchFetchedAt=new Map(),propResearchInFlight=new Map();
   async function propResearchPayload(row){
-    if(!row||!['nfl','nhl','mlb','nba'].includes(String(row.sport)))return {available:false,sport:row?.sport||'',reason:'Verified game-log research is not connected for this sport yet'};
+    if(!row||!['nfl','nhl','mlb','nba'].includes(String(row.sport)))
+      return {available:false,sport:row?.sport||'',reason:'Verified game-log research is not connected for this sport yet'};
     const opponent=researchOpponentForRow(row);
-    const key=['prop-rate',row.sport,row.playerId||'',row.player,row.team||'',opponent].join('|');
-    if(deepResearchCache.has(key))return deepResearchCache.get(key);
-    const qs=new URLSearchParams({sport:String(row.sport||''),playerId:String(row.playerId||''),name:String(row.player||''),team:String(row.team||''),opponent:String(opponent||''),eventId:String(row.eventId||'')});
-    const response=await fetch('/api/research-detail?'+qs.toString(),{cache:'no-store'});
-    const payload=await response.json();
-    if(!response.ok&&!payload?.reason)throw new Error(payload?.error||('Research HTTP '+response.status));
-    deepResearchCache.set(key,payload);
-    return payload;
+    const key=['prop-rate',row.sport,row.eventId||'',row.playerId||'',row.player,row.team||'',opponent].join('|');
+    const stored=deepResearchCache.get(key),checked=propResearchFetchedAt.get(key);
+    const age=checked==null?Infinity:Date.now()-checked;
+    if(stored&&age<(stored.available===true?180000:15000))return stored;
+    if(propResearchInFlight.has(key))return propResearchInFlight.get(key);
+    const task=(async()=>{
+      const qs=new URLSearchParams({
+        sport:String(row.sport||''),playerId:String(row.playerId||''),name:String(row.player||''),
+        team:String(row.team||''),opponent:String(opponent||''),eventId:String(row.eventId||'')
+      });
+      const response=await fetch('/api/research-detail?'+qs.toString(),{cache:'no-store'});
+      const payload=await response.json();
+      if(!response.ok&&!payload?.reason)throw new Error(payload?.error||('Research HTTP '+response.status));
+      if(String(payload?.sport||'').toLowerCase()!==String(row.sport||'').toLowerCase())
+        throw new Error('Research sport identity mismatch');
+      deepResearchCache.set(key,payload);
+      propResearchFetchedAt.set(key,Date.now());
+      return payload;
+    })().catch(error=>{
+      const pending={available:false,sport:row.sport,reason:'Verified player research temporarily unavailable: '+String(error?.message||error).slice(0,100)};
+      deepResearchCache.set(key,pending);
+      propResearchFetchedAt.set(key,Date.now());
+      return pending;
+    }).finally(()=>propResearchInFlight.delete(key));
+    propResearchInFlight.set(key,task);
+    return task;
   }
 
   async function propHistoryPayload(row,book){
