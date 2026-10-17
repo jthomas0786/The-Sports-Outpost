@@ -53,7 +53,7 @@ jobs:
             throw Error('NFL sportsbook odds missing; abort');
           console.log('Validated current NFL input:',slate.games.length,'games,',research.players.length,'research players,',odds.games.length,'odds games.');
           NODE
-      - name: Run 50,000 pregame iterations per NFL matchup with verified rosters
+      - name: Run 50,000 pregame iterations per NFL matchup with corrected WAS roster ID
         env:
           NODE_OPTIONS: --max-old-space-size=6144
         shell: bash
