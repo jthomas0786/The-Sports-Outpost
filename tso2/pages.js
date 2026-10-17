@@ -704,6 +704,13 @@
       </section>`;
     },
 
+    theme(){
+      if(window.TSO_AUTH?.user?.isOwner!==true){
+        return '<section class="tso-admin-locked"><span>OWNER ACCESS</span><h1>Theme Studio</h1><p>Sign in as the verified TSO owner to edit site CSS.</p><button class="button secondary" data-route-jump="home">RETURN HOME</button></section>';
+      }
+      return '<section class="tso-theme-studio" data-theme-studio><p>Opening the owner Theme / CSS Dashboard…</p></section>';
+    },
+
     admin(){
       if(window.TSO_AUTH?.user?.isOwner!==true){
         return '<section class="tso-admin-locked"><span>OWNER ACCESS</span><h1>Private administration</h1><p>This area is reserved for the verified Sports Outpost owner.</p><button class="button secondary" data-route-jump="home">RETURN HOME</button></section>';
@@ -739,6 +746,7 @@
               <a href="https://github.com/jthomas0786/The-Sports-Outpost/actions" target="_blank" rel="noopener noreferrer">GitHub Actions <small>Model builds & validation runs ↗</small></a>
               <a href="https://dash.cloudflare.com" target="_blank" rel="noopener noreferrer">Cloudflare Dashboard <small>Worker status, DNS & usage ↗</small></a>
               <a href="https://supabase.com/dashboard/project/hjhfbhpuuxnrexddplxd" target="_blank" rel="noopener noreferrer">Supabase <small>Users & database ↗</small></a>
+              <button type="button" class="tso-theme-shortcut" data-route-jump="theme">Theme / CSS Dashboard <small>Control global styling →</small></button>
               <a href="/brand-lab" data-owner-only target="_blank" rel="noopener noreferrer">Brand Lab <small>Approved assets & share design ↗</small></a>
             </div>
             <p class="tso-admin-subline">Changes to production hosting, user roles, odds calculations and model releases are deliberately not available as one-click actions here.</p>
