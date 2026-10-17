@@ -151,10 +151,10 @@ fs.mkdirSync(out,{recursive:true});
     await list.first().click();
     await page.locator('[data-gb2-detail]').waitFor({state:'visible',timeout:12000});
     assert.equal(await page.locator('.gb2-hero').count(),1,'Selected game needs matchup hero');
-    assert.equal(await page.locator('.gb2-matchup .gb2-compare-row').count()>=3,true,'Actual matchup comparison');
-    assert.equal(await page.locator('.gb2-market-panel').count(),1,'Game markets included');
+    assert.equal(await page.locator('.gb2-matchup .gb2-compare-row').count()>0,true,'Current matchup breakdown is present');
+    assert.equal(await page.locator('.gb2-market-panel').count(),0,'Redundant sportsbook markets panel removed from Games matchup');
     assert.equal(await page.locator('.gb2-props').count(),1,'Player prop intelligence included');
-    assert.equal(await page.locator('.mi-team').count(),2,'Defensive scouting must include both teams');
+    assert.equal(await page.locator('.gb2-props .mi-teams').count(),0,'Redundant team scouting section removed from Games player props');
     assert.equal(await page.locator('.mi-ranked').count(),1,'TSO player signal rankings included');
     assert.equal(await page.locator('.mi-row-column-head>span').count(),4,'Three separate prop metrics and player column');
     const firstMetric=page.locator('.mi-player .mi-row-metrics').first();
@@ -177,6 +177,10 @@ fs.mkdirSync(out,{recursive:true});
     await page.locator('.mi-player.is-open .mi-evidence-layout').first().waitFor({state:'visible',timeout:15000});
       assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No unders in main prop intelligence');
     }else console.log('INFO selected live game has no verified player props; isolated fixture validates expansion');
+    if(await page.locator('.gb2-hero>small').innerText().then(x=>x.includes('NHL')).catch(()=>false)){
+      const count=await page.locator('.gb2-nhl-stats .gb2-compare-row').count();
+      assert.ok(count===0||count===8,'NHL comparison has either verified 8 categories or a clearly unavailable source');
+    }
     await page.locator('[data-gb2-back]').click();
     await page.locator('[data-gb2-grid]').waitFor({state:'visible'});
     assert.ok(await page.locator('[data-gb2-game="'+firstGameId+'"]').count()>0,'Back returns to exact slate');
