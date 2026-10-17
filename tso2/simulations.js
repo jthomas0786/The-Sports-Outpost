@@ -3,7 +3,7 @@
  * scenario choreography, NOT optical tracking or replay of a sampled world. */
 (() => {
 'use strict';
-const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0};
+const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0};
 const $=(root,selector)=>root?.querySelector(selector);
 const $$=(root,selector)=>[...(root?.querySelectorAll(selector)||[])];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -27,7 +27,7 @@ function gameItem(game){
  return '<button class="tso-sim-game-choice'+(active?' is-active':'')+'" data-tsos-game="'+esc(game.gameId)+'" aria-pressed="'+active+'">'
   +'<span class="tso-sim-game-short"><b>'+esc(game.away.abbr)+'</b><em>at</em><b>'+esc(game.home.abbr)+'</b></span>'
   +'<span class="tso-sim-game-date">'+esc(dateText(game.kickoff))+'</span>'
-  +'<span class="tso-sim-game-result">TSO MODEL · '+number(game.projected.awayScore,1)+' – '+number(game.projected.homeScore,1)+'</span></button>';
+  +'<span class="tso-sim-game-result">'+(game.availability?.rosterVerified!==true?'ROSTER CHECK REQUIRED':game.availability?.requiresRerun?'MODEL RECALCULATION REQUIRED':'TSO MODEL · '+number(game.projected.awayScore,1)+' – '+number(game.projected.homeScore,1))+'</span></button>';
 }
 function playerOf(game,team,role){
  const rows=(game.players||[]).filter(p=>teamCode(p.team)===teamCode(team));
@@ -38,7 +38,7 @@ function playerOf(game,team,role){
 function selectedPlayer(game,team,type,rng){
  const pool=(game.players||[]).filter(p=>teamCode(p.team)===teamCode(team)&&
   (type==='rush'?['RB','QB','WR'].includes(p.position):['WR','TE','RB'].includes(p.position)));
- const weighted=pool.map(p=>({p,w:Math.max(.1,type==='rush'?Number(p.carries||0):Number(p.targets||0))})); 
+ const weighted=pool.map(p=>({p,w:game.availability?.requiresRerun?Math.max(.1,5-Math.min(5,Number(p.depthRank??5))):Math.max(.1,type==='rush'?Number(p.carries||0):Number(p.targets||0))})); 
  const total=weighted.reduce((s,e)=>s+e.w,0);let r=rng()*total;
  for(const item of weighted){r-=item.w;if(r<=0)return item.p}
  return playerOf(game,team,type==='rush'?'rb':'rec')||null;
@@ -99,17 +99,25 @@ function featured(game,team){
  const qb=playerOf(game,team,'qb'),rb=playerOf(game,team,'rb'),wr=playerOf(game,team,'rec');
  return [qb,rb,wr].filter((p,i,a)=>p&&a.findIndex(t=>t?.name===p.name)===i).slice(0,3);
 }
-function playerPill(row){
- const stat=row.position==='QB'?'PASS '+number(row.passYds,0)+' YDS':row.position==='RB'?'RUSH '+number(row.rushYds,0)+' YDS':'REC '+number(row.recYds,0)+' YDS';
- return '<div class="tso-sim-player"><span class="tso-sim-player-dot">'+esc(row.position)+'</span><span><b>'+esc(row.name)+'</b><small>'+stat+' · MODEL MEAN</small></span></div>';
+function playerPill(row,game){
+ const pending=game?.availability?.requiresRerun;
+ const stat=pending?'ACTIVE ROSTER · MODEL RERUN PENDING':row.position==='QB'?'PASS '+number(row.passYds,0)+' YDS · MODEL MEAN':
+  row.position==='RB'?'RUSH '+number(row.rushYds,0)+' YDS · MODEL MEAN':'REC '+number(row.recYds,0)+' YDS · MODEL MEAN';
+ return '<div class="tso-sim-player"><span class="tso-sim-player-dot">'+esc(row.position)+'</span><span><b>'+esc(row.name)+'</b><small>'+stat+'</small></span></div>';
 }
 function strip(game){
- return '<section class="tso-sim-outlook"><div class="tso-sim-outlook-team"><small>'+teamLabel(game.away)+'</small><strong>'+number(game.projected.awayScore,1)+'</strong><span>PROJECTED MEAN SCORE</span></div>'
+ const pending=game?.availability?.requiresRerun,projection=game?.projected||{};
+ if(pending){
+  return '<section class="tso-sim-roster-warning"><strong>2026 ROSTER VALIDATED · MODEL RECALCULATION REQUIRED</strong>'
+   +'<p>The published Monte Carlo results included at least one player not eligible for this matchup. TSO is withholding the old projected score, win chances, and player averages until a corrected model run is available. Animated plays below are illustrative only.</p>'
+   +'<small>Active offensive rosters: '+esc(game.availability.rosterSource||'2026 ESPN')+'. Final game-day inactives can still change.</small></section>';
+ }
+ return '<section class="tso-sim-outlook"><div class="tso-sim-outlook-team"><small>'+teamLabel(game.away)+'</small><strong>'+number(projection.awayScore,1)+'</strong><span>PROJECTED MEAN SCORE</span></div>'
   +'<div class="tso-sim-outlook-bridge"><div class="tso-sim-bridge-label">TSO MONTE CARLO</div><b>'+Number(game.iterations||0).toLocaleString()+' RUNS</b><small>'+esc(String(game.generatedAt||'').slice(0,16).replace('T',' '))+' UTC</small></div>'
-  +'<div class="tso-sim-outlook-team"><small>'+teamLabel(game.home)+'</small><strong>'+number(game.projected.homeScore,1)+'</strong><span>PROJECTED MEAN SCORE</span></div></section>'
-  +'<div class="tso-sim-prob-row"><div><span>'+esc(game.away.abbr)+' WIN</span><b>'+pct(game.projected.awayWin)+'</b><i style="--width:'+Math.max(0,Math.min(100,Number(game.projected.awayWin||0)*100))+'%"></i></div>'
-  +'<div><span>'+esc(game.home.abbr)+' WIN</span><b>'+pct(game.projected.homeWin)+'</b><i style="--width:'+Math.max(0,Math.min(100,Number(game.projected.homeWin||0)*100))+'%"></i></div>'
-  +'<div><span>MODEL TOTAL</span><b>'+number(game.projected.awayScore+game.projected.homeScore,1)+'</b><i style="--width:65%"></i></div></div>';
+  +'<div class="tso-sim-outlook-team"><small>'+teamLabel(game.home)+'</small><strong>'+number(projection.homeScore,1)+'</strong><span>PROJECTED MEAN SCORE</span></div></section>'
+  +'<div class="tso-sim-prob-row"><div><span>'+esc(game.away.abbr)+' WIN</span><b>'+pct(projection.awayWin)+'</b><i style="--width:'+Math.max(0,Math.min(100,Number(projection.awayWin||0)*100))+'%"></i></div>'
+  +'<div><span>'+esc(game.home.abbr)+' WIN</span><b>'+pct(projection.homeWin)+'</b><i style="--width:'+Math.max(0,Math.min(100,Number(projection.homeWin||0)*100))+'%"></i></div>'
+  +'<div><span>MODEL TOTAL</span><b>'+number(projection.awayScore!=null&&projection.homeScore!=null?projection.awayScore+projection.homeScore:null,1)+'</b><i style="--width:65%"></i></div></div>';
 }
 
 function matchupHTML(game){
@@ -137,9 +145,9 @@ function replayHTML(game){
   +'<span class="tso-sim-scoreteam"><b>'+esc(game.away.abbr)+'</b><strong data-tsos-away>0</strong></span>'
   +'<div class="tso-sim-scoreclock"><b data-tsos-quarter>Q1</b><strong data-tsos-clock>15:00</strong><small data-tsos-possession>ILLUSTRATIVE REPLAY</small></div>'
   +'<span class="tso-sim-scoreteam is-home"><strong data-tsos-home>0</strong><b>'+esc(game.home.abbr)+'</b></span></div>'
-  +'<div class="tso-sim-stadium"><aside class="tso-sim-players">'+featured(game,game.away.abbr).map(playerPill).join('')+'<div class="tso-sim-side-name">'+esc(game.away.abbr)+' PLAYER PROJECTIONS</div></aside>'
+  +'<div class="tso-sim-stadium"><aside class="tso-sim-players">'+featured(game,game.away.abbr).map(p=>playerPill(p,game)).join('')+'<div class="tso-sim-side-name">'+esc(game.away.abbr)+' PLAYER PROJECTIONS</div></aside>'
   +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div></div>'
-  +'<aside class="tso-sim-players">'+featured(game,game.home.abbr).map(playerPill).join('')+'<div class="tso-sim-side-name">'+esc(game.home.abbr)+' PLAYER PROJECTIONS</div></aside></div>'
+  +'<aside class="tso-sim-players">'+featured(game,game.home.abbr).map(p=>playerPill(p,game)).join('')+'<div class="tso-sim-side-name">'+esc(game.home.abbr)+' PLAYER PROJECTIONS</div></aside></div>'
   +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
   +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
@@ -147,20 +155,57 @@ function replayHTML(game){
   +'<div class="tso-sim-final" data-tsos-final hidden></div>'
   +'<div class="tso-sim-disclaimer">The moving markers, play gains, score, clock, and final result are one generated <b>illustrative scenario</b>, not a sampled TSO Monte Carlo world. Only the projections above and listed player averages are outputs of the actual TSO model.</div></div>';
 }
+async function verifySelectedRoster(gameId){
+ if(!gameId||!state.doc)return;
+ const id=String(gameId),token=++state.selectionToken;
+ if(state.game?.availability?.rosterVerified===true)return;
+ const loading=$(state.root,'[data-tsos-roster-status]');
+ if(loading)loading.textContent='Verifying active 2026 rosters for '+(state.game?.away?.abbr||'')+' @ '+(state.game?.home?.abbr||'')+'…';
+ try{
+  const response=await fetch('/api/tso-simulations-nfl?gameId='+encodeURIComponent(id),{cache:'no-store',headers:{accept:'application/json'}});
+  if(!response.ok)throw Error('Roster source unavailable (HTTP '+response.status+')');
+  const doc=await response.json(),game=doc.games?.[0];
+  if(!game||String(game.gameId)!==id)throw Error('Roster lookup returned the wrong game');
+  if(token!==state.selectionToken||!state.root?.isConnected||String(state.game?.gameId)!==id)return;
+  state.doc.games=state.doc.games.map(g=>g.gameId===id?game:g);
+  state.game=game;
+  paintPage();
+ }catch(e){
+  if(token!==state.selectionToken||String(state.game?.gameId)!==id)return;
+  const el=$(state.root,'[data-tsos-roster-status]');
+  if(el)el.innerHTML='<strong>ROSTER VALIDATION FAILED</strong> '+esc(e.message||e)+'. Replay disabled. <button type="button" data-tsos-retry-roster>TRY AGAIN</button>';
+  $(el,'[data-tsos-retry-roster]')?.addEventListener('click',()=>void verifySelectedRoster(id));
+ }
+}
 function paintPage(){
  if(!state.root||!state.doc)return;
  const games=sortGames(state.doc.games||[]),main=$(state.root,'[data-tsos-content]');
  if(!main)return;
  if(!games.length){main.innerHTML='<div class="tso-sim-empty">No NFL simulations available in the current feed. No games were fabricated.</div>';return}
- if(!state.game||!games.some(g=>g.gameId===state.game.gameId))state.game=games.find(g=>Date.parse(g.kickoff)>Date.now()-12*3600000)||games[0];
- state.plays=buildPlays(state.game);state.index=0;state.playing=false;state.startedAt=0;
+ if(!state.game||!games.some(g=>g.gameId===state.game.gameId))
+  state.game=games.find(g=>g.kickoff&&Date.parse(g.kickoff)>Date.now()-12*3600000)||games[0];
+ const ready=state.game.availability?.rosterVerified===true&&Array.isArray(state.game.players)&&state.game.players.some(p=>p.position==='QB');
+ state.plays=ready?buildPlays(state.game):[];
+ state.index=0;state.playing=false;state.startedAt=0;
  main.innerHTML='<div class="tso-sim-layout"><aside class="tso-sim-matchups"><div class="tso-sim-matchups-head"><span>2026 NFL SLATE</span><b>'+games.length+' GAMES</b></div>'
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
-  +'<p>'+esc(dateText(state.game.kickoff))+' · Model output '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div><b class="tso-sim-live-badge">MODEL-BASED VISUALIZATION</b></header>'
-  +strip(state.game)+matchupHTML(state.game)+replayHTML(state.game)+'</div></div>';
- $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{const game=games.find(g=>g.gameId===btn.dataset.tsosGame);if(game){stop();state.game=game;paintPage()}}));
- $(main,'[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
+  +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
+  +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':'ROSTER CHECK PENDING')+'</b></header>'
+  +(ready?strip(state.game)+matchupHTML(state.game)+replayHTML(state.game):
+    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">Checking the current 2026 active rosters. Replay is unavailable until eligibility is verified.</div>')
+  +'</div></div>';
+ $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
+  const game=games.find(g=>g.gameId===btn.dataset.tsosGame);
+  if(game){
+   stop();state.selectionToken++;state.game=game;
+   try{sessionStorage.setItem('tso-sim-last-game',game.gameId)}catch(e){}
+   paintPage();
+   if(game.availability?.rosterVerified!==true)void verifySelectedRoster(game.gameId);
+  }
+ }));
+ if(!ready)return;
+ $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.frame=0;updatePlay();draw(0)});
  $(main,'[data-tsos-speed]')?.addEventListener('change',e=>{state.speed=Number(e.target.value)||1});
  $(main,'[data-tsos-seek]')?.addEventListener('input',e=>{stop();state.index=Math.max(0,Math.min(state.plays.length-1,Number(e.target.value)||0));state.frame=0;updatePlay();draw(1)});
@@ -450,7 +495,7 @@ async function mount(root){
   const remembered=sessionStorage.getItem('tso-sim-last-game');
   state.game=doc.games.find(g=>g.gameId===remembered)||null;
   paintPage();
-  $$(state.root,'[data-tsos-game]').forEach(b=>b.addEventListener('click',()=>sessionStorage.setItem('tso-sim-last-game',b.dataset.tsosGame)));
+  void verifySelectedRoster(state.game.gameId);
  }catch(e){
   if(token!==state.token||!state.root?.isConnected)return;
   const area=$(state.root,'[data-tsos-content]');if(area)area.innerHTML='<div class="tso-sim-error"><b>Simulation feed unavailable</b><p>'+esc(e?.message||e)+'</p><button type="button" data-tsos-retry>RETRY</button></div>';
