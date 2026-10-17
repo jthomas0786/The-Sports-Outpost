@@ -14,6 +14,9 @@ const statusKind=s=>outStatus.test(s)?'OUT':uncertainStatus.test(s)?'UNCERTAIN':
 const normTeam=x=>canon(x?.team?.abbreviation||x?.team?.abbr||x?.teamAbbreviation||x?.team?.team?.abbreviation||idToTeam[String(x?.team?.id||x?.teamId||x?.id||'')]||'');
 const reportTimestamp=x=>x?.reportedAt||x?.reportDate||x?.updatedAt||x?.date||x?.lastUpdated||null;
 const currentForGame=(r,gameDate)=>{
+ // A player's IR/PUP/suspension can predate the current week's practice report.
+ // Use the CURRENT-SEASON league status even when the original placement date is older.
+ if(/injured[ -]?reserve|^ir$|reserve[ /-]?injured|pup|physically unable|non[ -]?football|^nfi$|suspension|suspended|exempt/i.test(r.status))return true;
  if(!r.timestamp)return true; // roster audits and the season gate still apply
  const when=Date.parse(r.timestamp),match=Date.parse(gameDate||'');
  if(!Number.isFinite(when))return false;
