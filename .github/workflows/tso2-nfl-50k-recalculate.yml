@@ -87,6 +87,24 @@ jobs:
             const id=String(g.game?.gameId||'');
             if(!ids.has(id))errors.push('Unexpected game '+id);
             if(g.iterations!==50000)errors.push('Not 50000 iterations: '+id+' '+g.iterations);
+            const world=g.representativeWorld;
+            if(!world||world.selection!=='central-correlated-sampled-world'||world.iterations!==50000||
+              !Number.isInteger(world.sampledIndex)||world.sampledIndex<0||world.sampledIndex>=50000)
+              errors.push('Missing actual representative 50K sampled world for '+id);
+            if(world){
+              const scoreAway=Number(world.awayScore),scoreHome=Number(world.homeScore);
+              const meanAway=Number(g.outcomes?.away?.score?.mean),meanHome=Number(g.outcomes?.home?.score?.mean);
+              if(!Number.isFinite(scoreAway)||!Number.isFinite(scoreHome)||
+                Math.abs(scoreAway-meanAway)>12||Math.abs(scoreHome-meanHome)>12)
+                errors.push('Representative world not close to scoring center for '+id);
+              const unavailableKeys=new Set((g.availabilityAudit?.exclusions||[]).map(p=>
+                String(p.team).toUpperCase()+'|'+normalize(p.name)));
+              for(const player of world.players||[]){
+                if(unavailableKeys.has(String(player.team).toUpperCase()+'|'+normalize(player.name)))
+                  errors.push('Representative world includes excluded player '+id+' '+player.name);
+              }
+            }
+
             if(g.availabilityAudit?.rosterVerified!==true)errors.push('Roster not checked for '+id);
             if(g.availabilityAudit?.rosterAudit?.finalInactivesVerified===true)errors.push('Incorrect final inactives claim '+id);
             const unavailable=new Set((g.availabilityAudit?.exclusions||[]).map(p=>String(p.team).toUpperCase()+'|'+normalize(p.name)));
@@ -98,6 +116,9 @@ jobs:
             if(!Number.isFinite(home)||!Number.isFinite(away))errors.push('Invalid scoring projections '+id);
             summaries.push({gameId:id,matchup:(g.game?.away?.abbr||'?')+' @ '+(g.game?.home?.abbr||'?'),
               iterations:g.iterations,homeMean:home,awayMean:away,
+              representativeSampleIndex:g.representativeWorld?.sampledIndex??null,
+              representativeAwayScore:g.representativeWorld?.awayScore??null,
+              representativeHomeScore:g.representativeWorld?.homeScore??null,
               rosterCheckedAt:g.availabilityAudit?.rosterAudit?.checkedAt,
               excluded:(g.availabilityAudit?.exclusions||[]).length});
           }
