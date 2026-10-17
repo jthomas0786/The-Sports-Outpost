@@ -187,7 +187,7 @@ fs.mkdirSync(out,{recursive:true});
         const rows=page.locator('.mi-player.is-open .mi-nhl-factor-row');
         assert.equal(await rows.count(),8,'NHL Prop Signal must show all eight referenced contributing statistics');
         const expected=['Goals/60','Shots/60','Shooting %','xG/60','PP TOI/gm','Line GF%','Opp GA/G','Opp SA/G'];
-        const labels=await rows.locator('>span:first-child').allTextContents();
+        const labels=await rows.evaluateAll(els=>els.map(el=>el.firstElementChild?.textContent||''));
         assert.deepEqual(labels.map(x=>x.trim()),expected,'NHL reference contributing-stat order and labels');
         const note=await page.locator('.mi-player.is-open .mi-nhl-signal-detail .mi-evidence-note').innerText();
         assert.match(note,/verified metric weight/i,'Never treat missing advanced data as complete');
