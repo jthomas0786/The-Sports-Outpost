@@ -43,8 +43,17 @@ export async function verifiedTeamActiveRoster(team,{fetchImpl=fetch,cache=true}
  const action=(async()=>{
   if(!/^[a-z]{2,3}$/.test(abbr))throw Error('Invalid NFL team code: '+team);
   const url='https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/'+abbr+'/roster';
-  const response=await fetchImpl(url,{headers:{accept:'application/json'},signal:typeof AbortSignal!=='undefined'&&AbortSignal.timeout?AbortSignal.timeout(12000):undefined});
-  if(!response.ok)throw Error('Active NFL roster source '+canonical+' HTTP '+response.status);
+  let response=null;
+  for(let attempt=0;attempt<4;attempt++){
+   try{
+    response=await fetchImpl(url,{headers:{accept:'application/json'},
+     signal:typeof AbortSignal!=='undefined'&&AbortSignal.timeout?AbortSignal.timeout(12000):undefined});
+    if(response.ok)break;
+    if(![429,500,502,503,504].includes(response.status))break;
+   }catch(error){if(attempt===3)throw error}
+   await new Promise(resolve=>setTimeout(resolve,1200*(attempt+1)));
+  }
+  if(!response?.ok)throw Error('Active NFL roster source '+canonical+' HTTP '+(response?.status||'unavailable'));
   const doc=await response.json(),offense=doc.athletes?.find(group=>group.position==='offense');
   if(doc.season?.year!==2026||!Array.isArray(offense?.items)||offense.items.length<9)
    throw Error('Verified 2026 active offensive roster unavailable for '+canonical);
