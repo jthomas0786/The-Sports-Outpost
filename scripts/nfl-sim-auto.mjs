@@ -98,6 +98,7 @@ for(const game of games){
   const liveGame=matchLive(game,liveBoard);
   const prev=stateGames[gameId]||null;
   const old=existingById.get(gameId)||null;
+  const pair=`${game.away?.abbr||'AWY'} @ ${game.home?.abbr||'HME'}`;
   // Fail closed when current active rosters cannot be verified. A previous
   // Monte Carlo result must not be overwritten with a guessed player pool.
   let rosterChecked;
@@ -110,7 +111,6 @@ for(const game of games){
   if(!FORCE&&decision.phase==='pregame'&&old&&String(old.engineVersion||'')!==String(config.engineVersion||'')){
     decision={...decision,run:true,reason:'simulation engine upgrade',iterations:Number(config.automatic?.pregameIterations||config.defaultIterations||50000),checkpointMinutes:null};
   }
-  const pair=`${game.away?.abbr||'AWY'} @ ${game.home?.abbr||'HME'}`;
   if(!decision.run){
     console.log(`· ${pair}: skip — ${decision.reason}`);
     continue;
