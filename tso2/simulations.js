@@ -177,7 +177,7 @@ function replayHTML(game){
 async function verifySelectedRoster(gameId){
  if(!gameId||!state.doc)return;
  const id=String(gameId),token=++state.selectionToken;
- if(state.game?.availability?.rosterVerified===true)return;
+ if(state.game?.availability?.rosterVerified===true||state.game?.availability?.requiresRerun===true)return;
  const loading=$(state.root,'[data-tsos-roster-status]');
  if(loading)loading.textContent='Verifying active 2026 rosters for '+(state.game?.away?.abbr||'')+' @ '+(state.game?.home?.abbr||'')+'…';
  try{
@@ -215,7 +215,7 @@ function paintPage(){
   +'<p>'+esc(dateText(state.game.kickoff))+' · Published model '+esc(String(state.game.generatedAt||'').slice(0,10))+'</p></div>'
   +'<b class="tso-sim-live-badge">'+(ready?'2026 ACTIVE ROSTER CHECKED':'ROSTER CHECK PENDING')+'</b></header>'
   +(ready?strip(state.game)+matchupHTML(state.game) +injuryHTML(state.game)+(playbackReady?replayHTML(state.game):'<div class="tso-sim-roster-pending" role="status"><strong>REPRESENTATIVE REPLAY NOT AVAILABLE</strong> The sampled 50K score could not be reconstructed within verified player-usage limits. Showing projections only instead of inventing play statistics.</div>'):
-    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.rosterVerified===true?'Awaiting the representative 50,000-run world. Independent random-score replays have been disabled.':'Checking the current 2026 active rosters. Replay is unavailable until eligibility is verified.')+'</div>')
+    '<div class="tso-sim-roster-pending" data-tsos-roster-status role="status">'+(state.game.availability?.requiresRerun===true?'Awaiting a fresh 50,000-run model with complete verified 2026 roster and injury reports. Prior player statistics and replays are withheld.':'Checking current 2026 roster and injury-report eligibility.')+'</div>')
   +'</div></div>';
  $$(main,'[data-tsos-game]').forEach(btn=>btn.addEventListener('click',()=>{
   const game=games.find(g=>g.gameId===btn.dataset.tsosGame);
@@ -223,7 +223,7 @@ function paintPage(){
    stop();state.selectionToken++;state.game=game;
    try{sessionStorage.setItem('tso-sim-last-game',game.gameId)}catch(e){}
    paintPage();
-   if(game.availability?.rosterVerified!==true)void verifySelectedRoster(game.gameId);
+   if(game.availability?.rosterVerified!==true&&!game.availability?.requiresRerun)void verifySelectedRoster(game.gameId);
   }
  }));
  if(!playbackReady)return;
@@ -516,7 +516,7 @@ async function mount(root){
   const remembered=requested||sessionStorage.getItem('tso-sim-last-game');
   state.game=doc.games.find(g=>g.gameId===remembered)||null;
   paintPage();
-  void verifySelectedRoster(state.game.gameId);
+  if(!state.game?.availability?.requiresRerun)void verifySelectedRoster(state.game.gameId);
  }catch(e){
   if(token!==state.token||!state.root?.isConnected)return;
   const area=$(state.root,'[data-tsos-content]');if(area)area.innerHTML='<div class="tso-sim-error"><b>Simulation feed unavailable</b><p>'+esc(e?.message||e)+'</p><button type="button" data-tsos-retry>RETRY</button></div>';
