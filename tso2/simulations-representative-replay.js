@@ -5,7 +5,7 @@
  */
 (function(global){
 'use strict';
-const norm=s=>String(s||'').toUpperCase().replace(/^JAC$/,'JAX').replace(/^GNB$/,'GB');
+const norm=s=>String(s||'').toUpperCase().replace(/^JAC$/,'JAX').replace(/^GNB$/,'GB').replace(/^LAR$/,'LA');
 const h32=s=>{let v=2166136261;for(const c of String(s)){v=Math.imul(v^c.charCodeAt(0),16777619)}return v>>>0};
 const makeRng=seed=>{let x=seed||1;return()=>{x=(x+0x6d2b79f5)|0;let k=Math.imul(x^(x>>>15),1|x);k^=k+Math.imul(k^(k>>>7),61|k);return((k^(k>>>14))>>>0)/4294967296}};
 const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
@@ -44,7 +44,7 @@ function selectedPlayer(team,type,world,rng,counts){
   if(p.position==='FB'&&used>=1)return 0;
   // Once a smaller-than-expected candidate roster exhausts its target quotas,
   // prefer regular receivers rather than inventing an unavailable player.
-  if(used>=cap)return type==='pass'&&['WR','TE','RB'].includes(p.position)?base*.025*lowRole:0;
+  if(used>=cap)return 0;
   return (quota>used?2.0+Math.min(25,quota-used)*base:.04*base)*lowRole;
  });
  const sum=weights.reduce((a,b)=>a+b,0);
@@ -78,12 +78,15 @@ function buildOne(game,defense,variant=0){
  }
  const usedTds=new Map();let seq=0,driveId=0;
  function touchdownPlayer(team,preferred){
-  const candidates=team.filter(p=>p.position==='RB'||p.position==='WR'||p.position==='TE'||p.position==='FB');
+  const candidates=team.filter(p=>['RB','WR','TE','FB'].includes(p.position)||(preferred==='RUSH'&&p.position==='QB'));
   const stats=p=>world.get(norm(p.team)+'|'+p.name.toLowerCase())?.stats||{};
-  const key=p=>norm(p.team)+'|'+p.name.toLowerCase()+'|TD';
-  const capable=candidates.filter(p=>n(preferred==='RUSH'?stats(p).rushTds:stats(p).recTds)>(usedTds.get(key(p))||0));
+  const key=p=>norm(p.team)+'|'+p.name.toLowerCase()+'|'+preferred;
+  const remaining=p=>Math.max(0,n(preferred==='RUSH'?stats(p).rushTds:stats(p).recTds)-(usedTds.get(key(p))||0));
+  const capable=candidates.filter(p=>remaining(p)>0);
   if(!capable.length)return null;
-  return capable[Math.floor(rng()*capable.length)];
+  let draw=rng()*capable.reduce((sum,p)=>sum+remaining(p),0);
+  for(const p of capable){draw-=remaining(p);if(draw<=0)return p}
+  return capable[capable.length-1];
  }
  for(let quarter=1;quarter<=4;quarter++){
   for(let d=0;d<5;d++){
@@ -122,7 +125,12 @@ function buildOne(game,defense,variant=0){
       if(!actor) return [];
       // For forced scoring play, prefer the sampled world's actual TD scorer.
       const tdActor=isFinalTd?touchdownPlayer(team,kind):null;
-      if(tdActor)actor=tdActor;
+      if(tdActor&&actor.name!==tdActor.name){
+       const oldKey=side+'|'+actor.name.toLowerCase(),newKey=side+'|'+tdActor.name.toLowerCase();
+       counts.set(oldKey,Math.max(0,(counts.get(oldKey)||0)-1));
+       counts.set(newKey,(counts.get(newKey)||0)+1);
+       actor=tdActor;
+      }
       player=actor.name;passer=qb.name;
       route=kind==='PASS'?routes[Math.floor(rng()*routes.length)]:null;
       if(kind==='PASS'){
@@ -148,7 +156,7 @@ function buildOne(game,defense,variant=0){
       if(isFinalTd)yard=100;
       if(gain>=distance){down=1;distance=Math.min(10,100-yard)}
       else{down=Math.min(3,down+1);distance=Math.max(1,distance-gain)}
-      if(points){const key=side+'|'+player.toLowerCase()+'|TD';usedTds.set(key,(usedTds.get(key)||0)+1)}
+      if(points){const key=side+'|'+player.toLowerCase()+'|'+kind;usedTds.set(key,(usedTds.get(key)||0)+1)}
     }
     if(points)scores[side]+=points;
     let commentary='';
@@ -188,6 +196,8 @@ function replayFit(game,events){
    worldRush+=n(p.stats?.carries);
    const own=snapshot.players[side]?.[p.name];
    if(!own)continue;
+   loss+=1.2*Math.pow(own.rushTd-n(p.stats?.rushTds),2);
+   loss+=1.2*Math.pow(own.recTd-n(p.stats?.recTds),2);
    const factor=p.position==='QB'?.28:p.position==='FB'?.17:p.position==='RB'?.16:.14;
    const actual=p.position==='QB'?own.passAtt:p.position==='RB'||p.position==='FB'?own.carries:own.targets;
    const expected=p.position==='QB'?n(p.stats?.attempts):p.position==='RB'||p.position==='FB'?n(p.stats?.carries):n(p.stats?.targets);
