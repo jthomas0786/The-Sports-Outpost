@@ -7,6 +7,13 @@ on:
     paths:
       - .github/workflows/tso2-nfl-50k-recalculate.yml
       - scripts/nfl-simulate.mjs
+      - sports/nfl/sim/availability.js
+      - sports/nfl/sim/injury-audit.js
+      - tso2/data/nfl-availability-2026.json
+  schedule:
+    # 2026 roster/injury refreshes; Sunday is checked every two hours.
+    - cron: '17 1,7,13,19 * * 1-6'
+    - cron: '17 */2 * * 0'
   workflow_dispatch:
 
 permissions:
@@ -106,6 +113,11 @@ jobs:
             }
 
             if(g.availabilityAudit?.rosterVerified!==true)errors.push('Roster not checked for '+id);
+            const audit=g.availabilityAudit?.rosterAudit;
+            if(audit?.injuryReportVerified!==true||!audit.injuryReportCheckedAt)
+              errors.push('Full 2026 injury report not verified for '+id);
+            if(audit?.injuryTeams?.length!==2||audit.injuryTeams.some(t=>!t.reported))
+              errors.push('Missing injury report for one or both teams: '+id);
             if(g.availabilityAudit?.rosterAudit?.finalInactivesVerified===true)errors.push('Incorrect final inactives claim '+id);
             const unavailable=new Set((g.availabilityAudit?.exclusions||[]).map(p=>String(p.team).toUpperCase()+'|'+normalize(p.name)));
             for(const p of g.players||[]){
@@ -120,17 +132,20 @@ jobs:
               representativeAwayScore:g.representativeWorld?.awayScore??null,
               representativeHomeScore:g.representativeWorld?.homeScore??null,
               rosterCheckedAt:g.availabilityAudit?.rosterAudit?.checkedAt,
+              injuryCheckedAt:g.availabilityAudit?.rosterAudit?.injuryReportCheckedAt,
+              injuryReportVerified:g.availabilityAudit?.rosterAudit?.injuryReportVerified===true,
+              questionables:g.availabilityAudit?.rosterAudit?.injuryTeams?.reduce((n,t)=>n+(t.uncertain||[]).length,0)||0,
               excluded:(g.availabilityAudit?.exclusions||[]).length});
           }
           if(errors.length)throw Error(errors.slice(0,30).join('\n'));
           const report={status:'verified',generatedAt:doc.generatedAt,season:2026,
-            eligibilityGate:'engine-profile-whitelist-v2',
+            eligibilityGate:'engine-profile-injury-whitelist-v3',
             verifiedRosters:true,finalGamedayInactivesVerified:false,
             gameCount:doc.games.length,totalIterations:doc.games.reduce((a,g)=>a+g.iterations,0),
             summaries};
           fs.writeFileSync('tso2/data/nfl-sim-run-report.json',JSON.stringify(report,null,2)+'\n');
-          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## TSO 2.0: 50K NFL simulations\n\nGames: '+report.gameCount+' | Iterations: '+report.totalIterations.toLocaleString()+'\nAll model player pools verified against 2026 active rosters (not final game-day inactives).\n');
-          console.log('PASS: '+report.gameCount+' games, '+report.totalIterations+' iterations, 2026 active roster audit');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## TSO 2.0: 50K NFL simulations\n\nGames: '+report.gameCount+' | Iterations: '+report.totalIterations.toLocaleString()+'\nAll model player pools checked against both 2026 active rosters and current injury designations (not final game-day inactives).\n');
+          console.log('PASS: '+report.gameCount+' games, '+report.totalIterations+' iterations, roster + injury audits for all matchups');
           NODE
       - name: Commit staging-only results, never main or production
         shell: bash
