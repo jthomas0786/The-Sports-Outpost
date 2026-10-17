@@ -150,7 +150,7 @@ function replayHTML(game){
   +'<aside class="tso-sim-players" data-tsos-panel="'+esc(game.home.abbr)+'"></aside></div>'
   +'<div class="tso-sim-tendency" data-tsos-defense-style>Defensive coverage scheme unverified · 2026 position allowances used when available</div>'
   +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
-  +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button>'
+  +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button><button type="button" data-tsos-finish>VIEW FINAL BOX SCORE</button>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
   +'<div class="tso-sim-final" data-tsos-final hidden></div>'
@@ -208,6 +208,7 @@ function paintPage(){
  if(!ready)return;
  $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.finished=false;state.frame=0;updatePlay();draw(0)});
+ $(main,'[data-tsos-finish]')?.addEventListener('click',()=>{stop();state.index=state.plays.length-1;state.finished=true;updatePlay();draw(1);$(main,'[data-tsos-final]')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});});
  $(main,'[data-tsos-speed]')?.addEventListener('change',e=>{state.speed=Number(e.target.value)||1});
  $(main,'[data-tsos-seek]')?.addEventListener('input',e=>{stop();state.finished=false;state.index=Math.max(0,Math.min(state.plays.length-1,Number(e.target.value)||0));state.frame=0;updatePlay();draw(0)});
  updatePlay();draw(0);
