@@ -114,7 +114,7 @@
   font-family:inherit;
 }
 /* Board, hero, comparison, market and prop root share one TSO surface. */
-.gb2-root :is(.gb2-card,.gb2-hero,.gb2-panel,.gb2-dock){
+.gb2-root :where(.gb2-card,.gb2-hero,.gb2-panel,.gb2-dock){
   background:var(--gb2-panel);
   border:1px solid var(--gb2-border);
   border-radius:var(--r);
@@ -133,7 +133,7 @@
 .gb2-root .gb2-hero-center strong{
   color:var(--gb2-accent-light);
 }
-.gb2-root :is(.gb2-card-time,.gb2-card-source,.gb2-card-bottom small,
+.gb2-root :where(.gb2-card-time,.gb2-card-source,.gb2-card-bottom small,
 .gb2-page-head p,.gb2-hero-team>div span,.gb2-hero-team>div small,
 .gb2-compare-row>span,.gb2-compare-foot,.gb2-footnote){
   color:var(--gb2-muted);
@@ -153,8 +153,8 @@
 .gb2-root .gb2-prob-label,.gb2-root .gb2-card-arrow{color:var(--gb2-accent-light)}
 .gb2-root .gb2-prob-track{background:var(--gb2-raised)}
 .gb2-root .gb2-prob-track>i{background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light))}
-.gb2-root :is(.gb2-card-bottom,.gb2-hero-foot,.gb2-compare-row,.gb2-panel>header){border-color:var(--gb2-rule)}
-.gb2-root :is(.gb2-back,.gb2-live,.gb2-dock button){
+.gb2-root :where(.gb2-card-bottom,.gb2-hero-foot,.gb2-compare-row,.gb2-panel>header){border-color:var(--gb2-rule)}
+.gb2-root :where(.gb2-back,.gb2-live,.gb2-dock button){
   appearance:none;
   border:1px solid var(--gb2-border);
   border-radius:11px;
@@ -167,11 +167,11 @@
   background:linear-gradient(180deg,#3d8cff,#246fdc);
   border-color:#4d95ff;color:var(--gb2-on-accent);
 }
-.gb2-root :is(.gb2-back,.gb2-live,.gb2-dock button):hover{filter:brightness(1.13);border-color:var(--gb2-accent)}
+.gb2-root :where(.gb2-back,.gb2-live,.gb2-dock button):hover{filter:brightness(1.13);border-color:var(--gb2-accent)}
 .gb2-root .gb2-market-panel>.edge2-markets{background:transparent;gap:12px;padding:16px}
 .gb2-root .gb2-props{padding:0;overflow:hidden}
 .gb2-root .gb2-mi-host{display:block;min-width:0;padding:0;background:transparent}
-.gb2-root :is(.gb2-matchup,.gb2-market-panel,.gb2-props){overflow:hidden}
+.gb2-root :where(.gb2-matchup,.gb2-market-panel,.gb2-props){overflow:hidden}
 .gb2-root .gb2-empty{background:var(--gb2-subpanel);border-color:var(--gb2-border);color:var(--gb2-muted)}
 
 /* Reuse the exact TSO 2.0 market-card styling for spread / ML / total.
@@ -222,7 +222,7 @@
 /* The previous prop/scouting CSS used a separate orange/green skin.
  * All NON-SEMANTIC panels now inherit the same navy + blue system as cards.
  */
-.gb2-root :is(.mi-game-vault-header,.mi-ranked,.mi-team,.mi-player,
+.gb2-root :where(.mi-game-vault-header,.mi-ranked,.mi-team,.mi-player,
 .mi-player.is-open,.mi-expanded-stats>div,.mi-form-metrics>div,
 .mi-reason,.mi-section,.mi-chart-panel,.mi-hit-panel,
 .mi-decision-read,.mi-read-signal,.mi-nfl-opportunities,
@@ -236,7 +236,7 @@
   color:var(--gb2-text);
   box-shadow:none;
 }
-.gb2-root :is(.mi-team,.mi-player,.mi-ranked,.mi-game-vault-header,
+.gb2-root :where(.mi-team,.mi-player,.mi-ranked,.mi-game-vault-header,
 .mi-section,.mi-read-signal,.mi-reason,.mi-chart-panel,.mi-hit-panel,
 .mi-signal-detail,.mi-nfl-opportunities,.mi-decision-read){
   border-radius:var(--r-sm);
@@ -290,13 +290,13 @@
   background:var(--gb2-raised);
   color:var(--gb2-accent-light);
 }
-.gb2-root :is(.mi-game-vault-header small,.mi-ranked-head small,
+.gb2-root :where(.mi-game-vault-header small,.mi-ranked-head small,
 .mi-team-title small,.mi-reason>b,.mi-read-title>b,.mi-opp-offense-title b,
 .mi-nfl-opportunity-head b,.mi-section h4,.mi-signal-detail-head small,
 .mi-chart-panel h5,.mi-hit-panel h5,.mi-ranking-status){
   color:var(--gb2-accent-light);
 }
-.gb2-root :is(.mi-game-vault-header h2,.mi-ranked-head h2,.mi-team-title h3,
+.gb2-root :where(.mi-game-vault-header h2,.mi-ranked-head h2,.mi-team-title h3,
 .mi-reason p,.mi-player-label>small,.mi-player-label>em,
 .mi-section p,.mi-team>p,.mi-scout-metrics small,.mi-usage-row small,
 .mi-opportunity-split small,.mi-opp-offense-title small,
@@ -305,11 +305,11 @@
 .mi-chart-topline,.mi-chart-key,.mi-read-signal>span){
   color:var(--gb2-muted);
 }
-.gb2-root :is(.mi-game-vault-header h2,.mi-ranked-head h2,
+.gb2-root :where(.mi-game-vault-header h2,.mi-ranked-head h2,
 .mi-team-title h3,.mi-player-label>b,.mi-expanded-stats strong){
   color:var(--gb2-text);
 }
-.gb2-root :is(.mi-scout-metrics b,.mi-role-stat>b,.mi-move-labels strong,
+.gb2-root :where(.mi-scout-metrics b,.mi-role-stat>b,.mi-move-labels strong,
 .mi-l5-avg strong,.mi-verified-usage strong,.mi-opp-stat>b,
 .mi-pbp-count>strong,.mi-read-signal>strong,.mi-read-signal.mi-read-positive>strong,
 .mi-read-signal.mi-read-negative>strong,.mi-signal-big>strong,
@@ -347,14 +347,14 @@
   border-color:rgba(45,127,255,.3);
   border-radius:9px;
 }
-.gb2-root :is(.mi-signal-detail,.mi-signal-factor,.mi-signal-mini,
+.gb2-root :where(.mi-signal-detail,.mi-signal-factor,.mi-signal-mini,
 .mi-scout-pos,.mi-signal-track,.mi-read-signal){border-color:var(--gb2-border)}
-.gb2-root :is(.mi-signal-track,.mi-hit-track,.mi-usage-track,
+.gb2-root :where(.mi-signal-track,.mi-hit-track,.mi-usage-track,
 .mi-opportunity-track,.mi-verified-usage-track){
   background:var(--gb2-raised);
   border-color:var(--gb2-border);
 }
-.gb2-root :is(.mi-signal-track>span,.mi-signal-track.is-form-only>span,
+.gb2-root :where(.mi-signal-track>span,.mi-signal-track.is-form-only>span,
 .mi-verified-usage-track>span,.mi-usage-track>span,
 .mi-opportunity-track>span,.mi-hit-track>span){
   background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
@@ -367,7 +367,7 @@
   padding:5px 9px;background:rgba(45,127,255,.1);
   border:1px solid var(--gb2-border);
 }
-.gb2-root :is(.mi-read-signal.mi-read-positive,.mi-read-signal.mi-read-negative){
+.gb2-root :where(.mi-read-signal.mi-read-positive,.mi-read-signal.mi-read-negative){
   border-color:var(--gb2-border);
 }
 .gb2-root .mi-read-caution>b{color:var(--yellow)}
@@ -383,8 +383,8 @@
 .gb2-root .mi-recent-log>div span.is-push{
   background:rgba(241,200,91,.12);border-color:rgba(241,200,91,.3);color:var(--yellow)
 }
-.gb2-root :is(.mi-chart-key .mi-key-hit){background:var(--green)}
-.gb2-root :is(.mi-chart-key .mi-key-miss){background:var(--red)}
+.gb2-root :where(.mi-chart-key .mi-key-hit){background:var(--green)}
+.gb2-root :where(.mi-chart-key .mi-key-miss){background:var(--red)}
 /* Mobile still follows the existing TSO breakpoints, not separate modal skins. */
 @media(max-width:720px){
   .gb2-root .mi-teams{padding:0 12px 12px}
