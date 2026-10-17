@@ -222,8 +222,13 @@ fs.mkdirSync(out,{recursive:true});
   const canonicalRoutes=['home','games','research','models','live','gameedge','props','simulations'];
   const routeTheme=[];
   for(const route of canonicalRoutes){
-    await page.evaluate(next=>document.querySelector('[data-route="'+next+'"]')?.click(),route);
-    await page.waitForFunction(next=>location.hash.replace(/^#/,'').split('?')[0]===next,route,{timeout:12000});
+    const actualRoute=await page.evaluate(next=>{
+      const button=document.querySelector('[data-route="'+next+'"]');
+      if(!button)return 'NO_NAV_BUTTON';
+      button.click();
+      return location.hash.replace(/^#/,'').split('?')[0];
+    },route);
+    assert.equal(actualRoute,route,'SPA route '+route+' did not activate correctly');
     const found=await page.evaluate(next=>{
       const root=document.documentElement,vars=getComputedStyle(root);
       const css=q=>getComputedStyle(document.querySelector(q));
