@@ -1785,6 +1785,11 @@ function verifiedMarketMatchup(data,row){
  if(!signalIdentity(row,data).ok)return null;
  const sport=String(row.sport||'').toLowerCase(),market=String(row.market||''),p=data.player||{};
  if(sport==='nba'){
+  const game=state.signalGame,own=signalIdentity(row,data).team;
+  const expected=game?.league===sport?
+   signalTeam(sport,signalTeam(sport,game.away?.abbr)===own?game.home?.abbr:game.away?.abbr):null;
+  const opponent=signalTeamInGame(sport,data.matchup?.opponent?.abbr||data.matchup?.opponent?.name);
+  if(!expected||!opponent||expected!==opponent)return null;
   const opp=n(data.matchup?.opponentPace),league=n(data.matchup?.leaguePace);
   if(opp!==null&&league!==null&&league>70&&opp>70){
    return {value:clamp(50+200*(opp/league-1),20,80),
@@ -1792,6 +1797,11 @@ function verifiedMarketMatchup(data,row){
   }
  }
  if(sport==='mlb'){
+  const game=state.signalGame,own=signalIdentity(row,data).team;
+  const expected=game?.league===sport?
+   signalTeam(sport,signalTeam(sport,game.away?.abbr)===own?game.home?.abbr:game.away?.abbr):null;
+  const opponent=signalTeamInGame(sport,data.opponent?.abbr||data.opponent?.name);
+  if(!expected||!opponent||expected!==opponent)return null;
   const era=n(data.opponent?.pitcher?.era);
   if(era!==null&&era>=0&&era<=15&&['hr','homeRun','hits','totalBases','rbi','runs','walks','hrr'].includes(market)){
    return {value:clamp(50+(era-4)*12,20,80),
@@ -1821,6 +1831,8 @@ function verifiedMarketMatchup(data,row){
 }
 function independentProjection(row){
  const model=row?.model||{},sport=String(row.sport||'').toLowerCase(),market=String(row.market||'');
+ if(model.exactMatch===false||model.lineMatch===false||
+   /line.mismatch/i.test(String(model.matchType||'')))return null;
  const reference=productionRubric[sport]?.[market];
  const estimated=n(model.projection?.mean??model.projection?.median??model.projectedValue??model.projection?.projectedValue);
  if(estimated!==null&&estimated>=0&&reference){
@@ -1973,6 +1985,8 @@ function nhlSignalScore(row,data){
 }
 function signalScore(row,data,doc){
  if(String(row?.sport||'').toLowerCase()==='nhl')return nhlSignalScore(row,data);
+ const identity=signalIdentity(row,data);
+ if(!identity.ok)return {score:null,reason:identity.reason,modeled:false};
  const series=seriesFromResearch(data,row);
  const target=productionRubric[String(row?.sport||'').toLowerCase()]?.[String(row?.market||'')];
  if(!target)return {score:null,reason:'No calibrated player-market scoring rubric yet',modeled:false};
