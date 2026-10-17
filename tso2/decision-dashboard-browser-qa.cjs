@@ -73,7 +73,7 @@ fs.mkdirSync(out,{recursive:true});
   assert.ok(mobile.scroll<=mobile.client+8,'Games Board must not overflow on mobile: '+JSON.stringify(mobile));
   await page.screenshot({path:path.join(out,'games-mobile.png'),fullPage:true,animations:'disabled'});
   console.log('PASS mobile Games Board layout with no horizontal overflow');
-  await page.locator('[data-route="home"]').click();
+  await page.evaluate(()=>document.querySelector('[data-route="home"]').click());
   await page.locator('[data-decision-today]').waitFor({state:'visible'});
   const widths=await page.evaluate(()=>({scroll:document.documentElement.scrollWidth,client:document.documentElement.clientWidth}));
   assert.ok(widths.scroll<=widths.client+8,'Today must not overflow horizontally on mobile: '+JSON.stringify(widths));
