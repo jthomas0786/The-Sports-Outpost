@@ -92,6 +92,15 @@ fs.mkdirSync(out,{recursive:true});
     assert.equal(await page.locator('.gb2-props').count(),1,'Player prop intelligence included');
     assert.equal(await page.locator('.mi-team').count(),2,'Defensive scouting must include both teams');
     assert.equal(await page.locator('.mi-ranked').count(),1,'TSO player signal rankings included');
+    assert.equal(await page.locator('.mi-row-column-head>span').count(),4,'Three separate prop metrics and player column');
+    const firstMetric=page.locator('.mi-player .mi-row-metrics').first();
+    if(await firstMetric.count()){
+      assert.equal(await firstMetric.locator('[data-mi-signal]').count(),1,'Prop Signal column');
+      assert.equal(await firstMetric.locator('.mi-line-model').count(),1,'Exact Line Model percent column');
+      assert.equal(await firstMetric.locator('.mi-line-odds').count(),1,'Line odds with best book column');
+      assert.equal(await firstMetric.locator('.mi-book-under').count(),1,'Book branding below line odds');
+    }
+
     assert.ok(page.url().includes('#games'),'A selected matchup stays on the Games route');
     await page.screenshot({path:path.join(out,'game-intelligence-desktop.png'),fullPage:true,animations:'disabled'});
     const playable=page.locator('.mi-player-expand');
@@ -99,8 +108,9 @@ fs.mkdirSync(out,{recursive:true});
       const signal=page.locator('.mi-player [data-mi-signal]').first();
       assert.equal(await signal.count(),1,'TSO Signal visible before opening the player');
       await playable.first().click();
-      await page.locator('.mi-player.is-open .mi-expanded-stats').first().waitFor({state:'visible',timeout:12000});
+      await page.locator('.mi-player.is-open .mi-selection-brief').first().waitFor({state:'visible',timeout:12000});
       assert.equal(await page.locator('.mi-player.is-open [data-mi-research]').count(),1,'Inline player history and visuals');
+    assert.equal(await page.locator('.mi-player.is-open .mi-evidence-layout').count(),1,'Reference-style two-column evidence layout');
       assert.equal(await page.locator('.mi-player-label small').filter({hasText:/Under\b|\bU\s+[\d.]+/i}).count(),0,'No unders in main prop intelligence');
     }else console.log('INFO selected live game has no verified player props; isolated fixture validates expansion');
     await page.locator('[data-gb2-back]').click();
