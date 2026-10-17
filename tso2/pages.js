@@ -1890,8 +1890,11 @@ function renderResearch(data,row){
    :'<div class="mi-research-unavailable">Exact-market game-log hit rate unavailable. No substitute chart or percentage is generated.</div>';
  const notes=researchNotes(data,row);
  const source=String(data.sources?.player||data.source||data?.player?.recentSource||'TSO verified research snapshot');
- return '<div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div>'
-  +decisionEvidence(data,row)+'<div class="mi-section mi-section--visual"><h4>Recent form & performance</h4>'+form+'</div>'
+ return '<div class="mi-evidence-layout"><div class="mi-evidence-left">'
+  +'<div data-mi-signal-detail="'+esc(key(row))+'">'+signalDetail(row,data,state.signalDoc)+'</div></div>'
+  +'<div class="mi-evidence-right"><div class="mi-section mi-section--visual"><h4>LAST 10 · EXACT-LINE RESULTS</h4>'+form+'</div>'
+  +'<section class="mi-player-defender"><h4>OPPONENT DEFENSE · VERIFIED ALLOWANCES</h4><div data-mi-player-defense="'+esc(key(row))+'">Looking up current-season defense vs position…</div></section></div></div>'
+  +decisionEvidence(data,row)
    +'<div class="mi-section"><h4>Role & matchup</h4>'+roleVisual(data,row)
    +(notes.length?'<div class="mi-research-notes">'+notes.map(v=>'<span>'+esc(v)+'</span>').join('')+'</div>':'<p class="mi-muted">Detailed opponent-defense statistics are unavailable for this player.</p>')
    +(String(row.sport).toLowerCase()==='nfl'?'<div class="mi-nfl-opportunities" data-mi-nfl-opportunities="'+esc(key(row))+'"><p class="mi-muted">Loading verified NFL opportunity and red-zone shares…</p></div>':'')
@@ -1974,6 +1977,19 @@ function updateResearchNode(node,row,data,ctx){
    }).catch(error=>{
      if(opportunity.isConnected)opportunity.innerHTML='<p class="mi-muted">Verified opportunity data temporarily unavailable: '+esc(error.message||'Network error')+'</p>';
    });
+ }
+ const defenderNode=node.querySelector('[data-mi-player-defense]');
+ if(defenderNode&&String(row.sport||'').toLowerCase()==='nfl'){
+  loadNflDefense2026().then(doc=>{
+   if(!defenderNode.isConnected)return;
+   const offense=nflTeamCode(row.team),opponent=nflTeamCode(ctx.game?.away?.abbr)===offense?
+    nflTeamCode(ctx.game?.home?.abbr):nflTeamCode(ctx.game?.away?.abbr);
+   const entry=verifiedDefensiveMatchup(doc,opponent,row.position||'');
+   defenderNode.innerHTML=entry?entry.html:
+    '<p class="mi-muted">Current-season defense-vs-position statistics are unavailable for this matchup. TSO does not infer a defensive ranking.</p>';
+  }).catch(()=>{if(defenderNode.isConnected)defenderNode.innerHTML='<p class="mi-muted">Verified opponent defense data unavailable.</p>';});
+ }else if(defenderNode){
+  defenderNode.innerHTML='<p class="mi-muted">Opponent positional allowances for this sport are not verified in the current feed.</p>';
  }
  const hist=node.querySelector('[data-mi-history]');
  if(hist&&typeof ctx.history==='function'){
