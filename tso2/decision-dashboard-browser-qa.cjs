@@ -71,7 +71,7 @@ fs.mkdirSync(out,{recursive:true});
       propProbability:color('[data-theme-probe] .mi-prob>b'),
       activePropFilter:color('[data-theme-probe] .mi-filters button.is-active'),
       signalTrack:getComputedStyle(root.querySelector('[data-theme-probe] .mi-signal-track>span')).backgroundImage,
-      addButton:getComputedStyle(root.querySelector('[data-theme-probe] .mi-add')).backgroundImage
+      addButtonColor:getComputedStyle(root.querySelector('[data-theme-probe] .mi-add')).backgroundColor
     };
     host.remove();return result;
   });
@@ -79,7 +79,7 @@ fs.mkdirSync(out,{recursive:true});
   for(const k of ['actualTeam','actualPlayer','actualMarket'])assert.equal(themeReport[k],themeReport.surface,k+' must inherit TSO 2.0 surface navy');
   for(const k of ['totalStripe','moneylineStripe','propProbability'])assert.equal(themeReport[k],themeReport.blue,k+' must inherit TSO blue, not purple/orange');
   assert.match(themeReport.signalTrack,/rgb\(45, 127, 255\)/,'TSO Prop Signal uses original blue ramp');
-  assert.match(themeReport.addButton,/rgb\(61, 140, 255\)/,'Prop action uses existing TSO primary button gradient');
+  assert.equal(themeReport.addButtonColor,'rgb(45, 127, 255)','Prop action uses canonical TSO primary button token');
   console.log('PASS unified original TSO 2.0 palette on cards, matchup, market, player props and Prop Signal:',JSON.stringify(themeReport));
   const list=page.locator('[data-gb2-grid] [data-gb2-game]');
   if(await list.count()){
