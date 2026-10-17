@@ -1987,7 +1987,9 @@ function hydrateSignals(root,ctx){
   while(queue.length&&state.ranking===job){
    const group=queue.shift();
    try{
-    const data=await getResearch(group[0],ctx);
+    let data;
+    try{data=await getResearch(group[0],ctx);}
+    catch(error){if(ctx.game?.league!=='nhl')throw error;data={available:false,reason:'Detailed NHL game logs temporarily unavailable'};}
     if(ctx.game?.league==='nhl')await Promise.all([verifiedNhlRates(group[0],data),verifiedNhlTeams(ctx.game)]);
     if(state.ranking!==job)return;
     for(const row of group){
