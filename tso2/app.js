@@ -7768,7 +7768,7 @@
     const root=document.querySelector('[data-game-edge-route]');
     if(!root&&!requestedLeague)return Promise.resolve(null);
     const league=requestedLeague||(currentLeague==='all'?'nhl':currentLeague);
-    if(league!==currentLeague){currentLeague=league;}
+    if(!requestedLeague&&league!==currentLeague){currentLeague=league;}
     const cached=gameEdgeCache.get(league);
     const fetchedAt=gameEdgeFetchedAt.get(league)||0;
     if(!force&&cached&&Date.now()-fetchedAt<GAME_EDGE_TTL){
