@@ -1,0 +1,594 @@
+/* TSO 2.0 Games: shared Outpost broadcast chrome; unique styles here are layout only. */
+ .gb2-root{max-width:var(--tso-page-max);margin:0 auto;color:var(--text);padding-bottom:35px}
+.gb2-page-head{display:flex;justify-content:space-between;align-items:center;margin:10px 0 18px}
+.gb2-page-head small{display:block;color:var(--blue-2);font-size:10px;font-weight:850;letter-spacing:.16em}
+.gb2-page-head h1{font-size:clamp(27px,3vw,36px);letter-spacing:-.04em;margin:9px 0 6px;font-weight:900}
+.gb2-page-head p{font-size:13px;color:var(--muted);margin:0;max-width:750px}
+.gb2-tabs{border-bottom:1px solid var(--line);display:flex;align-items:center;gap:3px;flex-wrap:wrap;margin-bottom:23px}
+.gb2-tabs button{cursor:pointer;border:0;border-bottom:2px solid transparent;background:transparent;padding:16px 21px 15px;color:var(--muted);font-size:13px;font-weight:750;transition:color .16s,border-color .16s}
+.gb2-tabs button:hover{color:var(--tso-btn-text);background:color-mix(in srgb,var(--blue) 7%,transparent)}
+.gb2-tabs button.is-active{color:var(--text);border-color:var(--blue)}
+.gb2-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--tso-grid-gap)}
+.gb2-card{appearance:none;color:inherit;text-align:left;display:flex;flex-direction:column;position:relative;min-width:0;min-height:253px;padding:var(--tso-card-padding);border:1px solid var(--line-strong);border-radius:var(--r);background:var(--card);cursor:pointer;box-shadow:var(--shadow);transition:transform .16s,border-color .16s,box-shadow .16s}
+.gb2-card:hover,.gb2-card:focus-visible{transform:translateY(-2px);border-color:var(--blue);box-shadow:var(--shadow);outline:none}
+.gb2-card-top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.gb2-league{background:color-mix(in srgb,var(--muted) 9%,transparent);border:1px solid color-mix(in srgb,var(--muted) 9%,transparent);border-radius:30px;color:var(--muted);padding:5px 10px;font-size:10px;font-weight:850;letter-spacing:.08em}
+.gb2-card-time{color:var(--muted);font-size:12px;font-weight:650;text-align:right}
+.gb2-card-time.is-live{color:var(--green)}
+.gb2-teams{display:flex;flex-direction:column;gap:12px;margin:20px 0 8px}
+.gb2-team-row{display:flex;align-items:center;gap:10px;min-width:0;min-height:37px}
+.gb2-logo{width:36px;height:36px;border-radius:50%;flex:none;display:grid;place-items:center;overflow:hidden;background:color-mix(in srgb,var(--blue) 16%,transparent);border:1px solid var(--line-strong)}
+.gb2-logo img{width:90%;height:90%;object-fit:contain}
+.gb2-logo b{font-size:9px;color:var(--blue-2)}
+.gb2-team-row>strong{font-size:14px;font-weight:850;letter-spacing:.015em;color:var(--text);white-space:nowrap}
+.gb2-team-spread{color:var(--blue-2);font-weight:800;font-size:11px;white-space:nowrap;margin-left:2px}
+.gb2-prob-cell{display:flex;align-items:center;gap:10px;min-width:90px;margin-left:auto;justify-content:flex-end}
+.gb2-prob-track{display:block;width:72px;height:7px;background:var(--line);border-radius:20px;overflow:hidden;flex:none}
+.gb2-prob-track i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-2));border-radius:20px}
+.gb2-prob-label{width:40px;text-align:right;font-size:12px;color:var(--text);font-variant-numeric:tabular-nums}
+.gb2-card-source{margin-top:auto;padding:4px 0 12px;letter-spacing:.08em;font-size:9px;color:var(--muted)}
+.gb2-card-bottom{border-top:1px solid var(--line-strong);padding-top:14px;display:flex;align-items:end;gap:15px}
+.gb2-card-bottom>div{min-width:0;flex:1}
+.gb2-card-bottom small{display:block;color:var(--muted);font-weight:700;font-size:10px;letter-spacing:.05em}
+.gb2-card-bottom b{display:block;color:var(--blue-2);font-size:16px;font-weight:850;margin-top:4px;white-space:nowrap}
+.gb2-card-bottom>div:nth-child(2) b{color:var(--text)}
+.gb2-card-arrow{color:var(--blue-2);font-size:23px;font-weight:700;align-self:center}
+.gb2-empty{grid-column:1/-1;border:1px dashed var(--line-strong);padding:35px;border-radius:var(--r-sm);font-size:var(--tso-body-size);color:var(--muted);background:color-mix(in srgb,var(--surface) 50%,transparent)}
+.gb2-detail{display:flex;flex-direction:column;gap:17px;scroll-margin-top:20px}
+.gb2-detail[hidden],.gb2-grid[hidden]{display:none!important}
+.gb2-detail-top{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap;margin-bottom:1px}
+.gb2-back,.gb2-live{appearance:none;border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:10px 13px;background:var(--card);color:var(--text);font-weight:800;font-size:11px;letter-spacing:.025em;cursor:pointer}
+.gb2-back:hover,.gb2-live:hover{border-color:var(--blue)}
+.gb2-live{background:color-mix(in srgb,var(--blue) 12%,transparent);color:var(--blue-2)}
+.gb2-detail-top>span{color:var(--muted);font-size:11px;letter-spacing:.07em}
+.gb2-hero,.gb2-panel{background:linear-gradient(135deg,var(--card),var(--surface));border:1px solid var(--line-strong);border-radius:var(--r);overflow:hidden}
+.gb2-hero{padding:24px}
+.gb2-hero>small{color:var(--blue-2);font-size:10px;letter-spacing:.13em;font-weight:800}
+.gb2-hero-teams{display:grid;grid-template-columns:minmax(0,1fr) 170px minmax(0,1fr);align-items:center;gap:16px;margin:25px 0}
+.gb2-hero-team{display:flex;align-items:center;gap:15px;min-width:0}
+.gb2-hero-team .gb2-logo{width:70px;height:70px;border-radius:18px}
+.gb2-hero-team>div{min-width:0}
+.gb2-hero-team small{font-size:10px;color:var(--muted)}
+.gb2-hero-team h2{font-size:27px;font-weight:900;margin:3px 0}
+.gb2-hero-team span,.gb2-hero-team em{font-size:12px;display:block;color:var(--muted);font-style:normal}
+.gb2-hero-team em{color:var(--blue-2);margin-top:6px;font-weight:750}
+.gb2-hero-team:last-child{flex-direction:row-reverse;text-align:right}
+.gb2-hero-center{text-align:center;border-inline:1px solid var(--line-strong);padding:0 15px}
+.gb2-hero-center span{display:block;color:var(--muted);font-size:10px;letter-spacing:.08em;margin:6px 0 4px}
+.gb2-hero-center strong{display:block;font-size:20px;color:var(--blue-2);font-weight:850;white-space:nowrap}
+.gb2-hero-foot{border-top:1px solid var(--line);padding-top:13px;color:var(--muted);font-size:11px}
+.gb2-panel>header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line)}
+.gb2-panel>header small{color:var(--blue-2);font-size:10px;font-weight:750;letter-spacing:.1em}
+.gb2-panel>header h3{font-size:17px;margin:5px 0 0;font-weight:850}
+.gb2-panel>header>span{font-size:12px;font-weight:750}
+.gb2-panel>header>span em{font-size:10px;color:var(--muted);font-style:normal;margin:0 10px}
+.gb2-compare-heading,.gb2-compare-row{display:grid;grid-template-columns:minmax(135px,2.7fr) 1fr 80px 1fr;gap:10px;align-items:center;padding:10px 20px;min-height:45px}
+.gb2-compare-heading{color:var(--muted);font-size:10px;letter-spacing:.08em}
+.gb2-compare-heading b{text-align:right}.gb2-compare-heading b:nth-child(3){text-align:center}
+.gb2-compare-row{border-top:1px solid var(--line);font-size:12px}
+.gb2-compare-row span{color:var(--muted)}
+.gb2-compare-row b{color:var(--text);font-size:12px;text-align:right;font-variant-numeric:tabular-nums}
+.gb2-compare-row b.is-best{color:var(--blue-2)}
+.gb2-compare-row i{display:block;width:65px;height:7px;border-radius:15px;background:var(--line);margin:auto;position:relative}
+.gb2-compare-row i:before{content:"";display:block;width:35%;height:100%;background:var(--blue-2);border-radius:15px;position:absolute;left:32%}
+.gb2-compare-row i.is-away:before{left:0}.gb2-compare-row i.is-home:before{left:65%}
+.gb2-compare-foot,.gb2-footnote{font-size:11px;line-height:1.6;color:var(--muted);margin:0;padding:13px 20px;border-top:1px solid var(--line)}
+.gb2-market-panel .edge2-markets{padding:14px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.gb2-props{padding:0 0 6px}.gb2-props .mi-game-vault{border:0;border-radius:0}
+.gb2-footnote{border:0;padding-inline:4px}
+.gb2-dock{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--card);border:1px solid var(--line-strong);border-radius:var(--r-sm);padding:var(--tso-card-padding);margin-top:18px}
+.gb2-dock strong{font-size:12px;color:var(--text);margin-right:14px}.gb2-dock span{font-size:11px;color:var(--muted)}
+.gb2-dock button{background:var(--tso-primary-btn);border:0;border-radius:var(--r-sm);padding:11px 15px;color:white;font-size:11px;font-weight:800;cursor:pointer}
+@media(max-width:1200px){.gb2-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gb2-market-panel .edge2-markets{grid-template-columns:1fr}}
+@media(max-width:720px){
+ .gb2-grid{grid-template-columns:1fr;gap:12px}.gb2-card{min-height:224px;padding:16px}
+ .gb2-tabs button{padding:13px 12px}.gb2-hero{padding:17px}
+ .gb2-hero-teams{grid-template-columns:1fr;gap:20px;margin:18px 0}
+ .gb2-hero-center{order:2;border-inline:0;border-block:1px solid var(--line-strong);padding:12px 0;display:flex;justify-content:space-around;align-items:center;gap:10px}
+ .gb2-hero-team:last-child{order:3}.gb2-hero-team .gb2-logo{width:55px;height:55px}
+ .gb2-hero-center strong{font-size:17px}
+ .gb2-compare-heading,.gb2-compare-row{grid-template-columns:minmax(105px,2fr) 1fr 35px 1fr;gap:6px;padding-inline:10px;font-size:10px}
+ .gb2-compare-row i{width:30px}.gb2-compare-row b{font-size:11px}
+ .gb2-detail-top>span{order:3;width:100%;text-align:center}
+}
+
+/* TSO2_GAMES_UNIFIED_THEME_V1
+ * One palette and component language for the entire Games page.
+ * Values resolve from the ORIGINAL TSO2 /styles.css :root tokens.
+ * Scoped deliberately: Research, LIVE, Game Edge standalone, and other
+ * TSO pages are unchanged. Green/red reserved for semantic hit/status states.
+ */
+.gb2-root{
+  --gb2-bg:var(--bg);
+  --gb2-panel:var(--card);
+  --gb2-subpanel:var(--surface);
+  --gb2-raised:var(--elev);
+  --gb2-border:var(--line-strong);
+  --gb2-rule:var(--line);
+  --gb2-text:var(--text);
+  --gb2-muted:var(--muted);
+  --gb2-accent:var(--outpost-orange);
+  --gb2-accent-light:var(--outpost-gold);
+  --gb2-on-accent:var(--tso-btn-text);
+  color:var(--gb2-text);
+  font-family:inherit;
+}
+/* Board, hero, comparison, market and prop root share one TSO surface. */
+.gb2-root :where(.gb2-card,.gb2-hero,.gb2-panel,.gb2-dock){
+  background:var(--gb2-panel);
+  border:1px solid var(--gb2-border);
+  border-radius:var(--r);
+  box-shadow:inset 0 1px color-mix(in srgb,var(--text) 2.5%,transparent);
+  color:var(--gb2-text);
+}
+.gb2-root .gb2-card:hover,
+.gb2-root .gb2-card:focus-visible{
+  border-color:var(--gb2-accent);
+  box-shadow:var(--shadow);
+}
+.gb2-root .gb2-page-head small,
+.gb2-root .gb2-panel>header small,
+.gb2-root .gb2-hero>small,
+.gb2-root .gb2-card-bottom>div:first-child b,
+.gb2-root .gb2-hero-center strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root :where(.gb2-card-time,.gb2-card-source,.gb2-card-bottom small,
+.gb2-page-head p,.gb2-hero-team>div span,.gb2-hero-team>div small,
+.gb2-compare-row>span,.gb2-compare-foot,.gb2-footnote){
+  color:var(--gb2-muted);
+}
+.gb2-root .gb2-league,
+.gb2-root .gb2-logo{
+  background:color-mix(in srgb,var(--blue) 9%,transparent);
+  color:var(--gb2-accent-light);
+  border-color:color-mix(in srgb,var(--blue) 21%,transparent);
+  border-radius:var(--r-sm);
+}
+.gb2-root .gb2-logo img{object-fit:contain}
+.gb2-root .gb2-tabs{border-color:var(--gb2-rule)}
+.gb2-root .gb2-tabs button{color:var(--gb2-muted);border-radius:8px 8px 0 0}
+.gb2-root .gb2-tabs button.is-active{color:var(--gb2-text);border-color:var(--gb2-accent);background:color-mix(in srgb,var(--blue) 8%,transparent)}
+.gb2-root .gb2-team-spread,
+.gb2-root .gb2-prob-label,.gb2-root .gb2-card-arrow{color:var(--gb2-accent-light)}
+.gb2-root .gb2-prob-track{background:var(--gb2-raised)}
+.gb2-root .gb2-prob-track>i{background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light))}
+.gb2-root :where(.gb2-card-bottom,.gb2-hero-foot,.gb2-compare-row,.gb2-panel>header){border-color:var(--gb2-rule)}
+.gb2-root :where(.gb2-back,.gb2-live,.gb2-dock button){
+  appearance:none;
+  border:1px solid var(--gb2-border);
+  border-radius:var(--r-sm);
+  background:var(--gb2-raised);
+  color:var(--gb2-text);
+  box-shadow:none;
+}
+.gb2-root .gb2-live{border-color:color-mix(in srgb,var(--blue) 32%,transparent);background:color-mix(in srgb,var(--blue) 11%,transparent);color:var(--gb2-accent-light)}
+.gb2-root .gb2-dock button{
+  background:var(--tso-primary-btn);
+  border-color:var(--tso-primary-btn);color:var(--gb2-on-accent);
+}
+.gb2-root :where(.gb2-back,.gb2-live,.gb2-dock button):hover{filter:brightness(1.13);border-color:var(--gb2-accent)}
+.gb2-root .gb2-market-panel>.edge2-markets{background:transparent;gap:12px;padding:16px}
+.gb2-root .gb2-props{padding:0;overflow:hidden}
+.gb2-root .gb2-mi-host{display:block;min-width:0;padding:0;background:transparent}
+.gb2-root :where(.gb2-matchup,.gb2-market-panel,.gb2-props){overflow:hidden}
+.gb2-root .gb2-empty{background:var(--gb2-subpanel);border-color:var(--gb2-border);color:var(--gb2-muted)}
+
+/* Reuse the exact TSO 2.0 market-card styling for spread / ML / total.
+ * Only sports/data differ; purple and orange are not separate UI themes. */
+.gb2-root .edge2-markets{background:transparent}
+.gb2-root .edge2-market{
+  background:var(--gb2-subpanel);
+  border:1px solid var(--gb2-border);
+  border-radius:var(--r-sm);
+  overflow:hidden;
+  color:var(--gb2-text);
+  min-width:0;
+}
+.gb2-root .edge2-market::before,
+.gb2-root .edge2-market--moneyline::before,
+.gb2-root .edge2-market--total::before{background:var(--gb2-accent)}
+.gb2-root .edge2-market-head,
+.gb2-root .edge2-market-sides{border-color:var(--gb2-rule)}
+.gb2-root .edge2-market-head span,
+.gb2-root .edge2-market-sides small,
+.gb2-root .edge2-call span{color:var(--gb2-muted)}
+.gb2-root .edge2-market :is(.edge2-market-head>b,.edge2-market-head strong,
+.edge2-market-sides b,.edge2-call b,.edge2-reason strong){color:var(--gb2-text)}
+.gb2-root .edge2-market--spread .is-leader strong,
+.gb2-root .edge2-market--moneyline .is-leader strong,
+.gb2-root .edge2-market--total .is-leader strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root .edge2-bar{
+  background:var(--gb2-raised);border-color:var(--gb2-rule);
+  border-radius:99px;
+}
+.gb2-root .edge2-bar>i:first-child,
+.gb2-root .edge2-bar.is-total>i:first-child{
+  background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
+}
+.gb2-root .edge2-bar>i:last-child,
+.gb2-root .edge2-bar.is-total>i:last-child{
+  background:linear-gradient(90deg,var(--elev),var(--muted));
+}
+.gb2-root .edge2-call{
+  background:var(--gb2-panel);border-color:var(--gb2-border);
+  border-radius:var(--r-sm);
+}
+.gb2-root .edge2-reason{color:var(--gb2-muted)}
+.gb2-root .edge2-reason strong{color:var(--gb2-text)}
+
+/* Shared non-semantic surfaces inherit global Outpost design tokens. */
+.gb2-root :where(.mi-game-vault-header,.mi-ranked,.mi-team,.mi-player,
+.mi-player.is-open,.mi-expanded-stats>div,.mi-form-metrics>div,
+.mi-reason,.mi-section,.mi-chart-panel,.mi-hit-panel,
+.mi-decision-read,.mi-read-signal,.mi-nfl-opportunities,
+.mi-usage-row,.mi-opportunity-split,.mi-role-stat,.mi-move-labels>span,
+.mi-opp-stat,.mi-pbp-count,.mi-signal-detail,.mi-signal-factor,
+.mi-scout-pos,.mi-scout-metrics>span,.mi-usage-visual,
+.mi-research-notes>span,.mi-read-caution,.mi-loading,
+.mi-research-unavailable,.mi-empty){
+  background:var(--gb2-subpanel);
+  border-color:var(--gb2-border);
+  color:var(--gb2-text);
+  box-shadow:none;
+}
+.gb2-root :where(.mi-team,.mi-player,.mi-ranked,.mi-game-vault-header,
+.mi-section,.mi-read-signal,.mi-reason,.mi-chart-panel,.mi-hit-panel,
+.mi-signal-detail,.mi-nfl-opportunities,.mi-decision-read){
+  border-radius:var(--r-sm);
+}
+.gb2-root .mi-game-vault{gap:13px}
+.gb2-root .mi-game-vault-header{
+  border:0;border-bottom:1px solid var(--gb2-rule);
+  background:var(--gb2-panel);border-radius:0;
+  padding:18px 20px;
+}
+.gb2-root .mi-ranked{
+  border:0;border-top:1px solid var(--gb2-rule);
+  border-radius:0;background:var(--gb2-panel);
+}
+.gb2-root .mi-ranked-head{border-color:var(--gb2-rule)}
+.gb2-root .mi-teams{padding:0 16px 15px}
+.gb2-root .mi-team{
+  min-height:0;
+  border-color:var(--gb2-border);
+  background:var(--gb2-subpanel);
+}
+.gb2-root .mi-player-list{padding:12px 16px 17px}
+.gb2-root .mi-player{background:var(--gb2-subpanel)}
+.gb2-root .mi-player.is-open{
+  background:var(--gb2-raised);border-color:color-mix(in srgb,var(--blue) 43%,transparent);
+}
+.gb2-root .mi-player-expand{color:var(--gb2-text)}
+.gb2-root .mi-player-expand:hover{background:color-mix(in srgb,var(--blue) 8%,transparent)}
+.gb2-root .mi-photo{
+  background:var(--gb2-raised);
+  border-color:var(--gb2-border);
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-player-body,
+.gb2-root .mi-filters,
+.gb2-root .mi-expanded-stats>div{border-color:var(--gb2-rule)}
+.gb2-root .mi-filters{background:var(--gb2-panel);gap:7px}
+.gb2-root .mi-filters button{
+  border-radius:var(--r-sm);
+  background:var(--gb2-subpanel);
+  border:1px solid var(--gb2-border);
+  color:var(--gb2-muted);
+}
+.gb2-root .mi-filters button.is-active{
+  background:color-mix(in srgb,var(--blue) 17%,transparent);
+  border-color:var(--gb2-accent);
+  color:var(--gb2-text);
+}
+.gb2-root .mi-filter-count,
+.gb2-root .mi-filters button.is-active .mi-filter-count{
+  background:var(--gb2-raised);
+  color:var(--gb2-accent-light);
+}
+.gb2-root :where(.mi-game-vault-header small,.mi-ranked-head small,
+.mi-team-title small,.mi-reason>b,.mi-read-title>b,.mi-opp-offense-title b,
+.mi-nfl-opportunity-head b,.mi-section h4,.mi-signal-detail-head small,
+.mi-chart-panel h5,.mi-hit-panel h5,.mi-ranking-status){
+  color:var(--gb2-accent-light);
+}
+.gb2-root :where(.mi-game-vault-header h2,.mi-ranked-head h2,.mi-team-title h3,
+.mi-reason p,.mi-player-label>small,.mi-player-label>em,
+.mi-section p,.mi-team>p,.mi-scout-metrics small,.mi-usage-row small,
+.mi-opportunity-split small,.mi-opp-offense-title small,
+.mi-nfl-opportunity-head small,.mi-nfl-opportunity-head>strong,
+.mi-pbp-count>span,.mi-evidence-note,.mi-source-note,
+.mi-chart-topline,.mi-chart-key,.mi-read-signal>span){
+  color:var(--gb2-muted);
+}
+.gb2-root :where(.mi-game-vault-header h2,.mi-ranked-head h2,
+.mi-team-title h3,.mi-player-label>b,.mi-expanded-stats strong){
+  color:var(--gb2-text);
+}
+.gb2-root :where(.mi-scout-metrics b,.mi-role-stat>b,.mi-move-labels strong,
+.mi-l5-avg strong,.mi-verified-usage strong,.mi-opp-stat>b,
+.mi-pbp-count>strong,.mi-read-signal>strong,.mi-read-signal.mi-read-positive>strong,
+.mi-read-signal.mi-read-negative>strong,.mi-signal-big>strong,
+.mi-signal-factor b,.mi-signal-reading strong,.mi-signal-kicker,
+.mi-nfl-opportunity-head>strong){
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-prob>b{
+  background:var(--gb2-accent);
+  border:1px solid var(--tso-primary-btn);
+  color:var(--gb2-on-accent);
+  box-shadow:none;
+  border-radius:var(--r-sm);
+}
+.gb2-root .mi-prob--market>b{
+  background:var(--gb2-raised);color:var(--gb2-text);
+  border-color:var(--gb2-border);
+}
+.gb2-root .mi-add{
+  background:var(--tso-primary-btn);
+  color:var(--gb2-on-accent);
+  border:1px solid var(--tso-primary-btn);
+  border-radius:var(--r-sm);
+  box-shadow:none;
+}
+.gb2-root .mi-show-all{
+  background:var(--gb2-subpanel);
+  color:var(--gb2-accent-light);
+  border-color:var(--gb2-border);
+  border-radius:0;
+}
+.gb2-root .mi-show-all:hover{background:var(--gb2-raised)}
+.gb2-root .mi-signal-mini{
+  background:color-mix(in srgb,var(--blue) 7.5%,transparent);
+  border-color:color-mix(in srgb,var(--blue) 30%,transparent);
+  border-radius:var(--r-sm);
+}
+.gb2-root :where(.mi-signal-detail,.mi-signal-factor,.mi-signal-mini,
+.mi-scout-pos,.mi-signal-track,.mi-read-signal){border-color:var(--gb2-border)}
+.gb2-root :where(.mi-signal-track,.mi-hit-track,.mi-usage-track,
+.mi-opportunity-track,.mi-verified-usage-track){
+  background:var(--gb2-raised);
+  border-color:var(--gb2-border);
+}
+.gb2-root :where(.mi-signal-track>span,.mi-signal-track.is-form-only>span,
+.mi-verified-usage-track>span,.mi-usage-track>span,
+.mi-opportunity-track>span,.mi-hit-track>span){
+  background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
+}
+.gb2-root .mi-ranking-status{
+  border-color:var(--gb2-rule);
+  background:var(--gb2-panel);
+}
+.gb2-root .mi-nfl-opportunity-head>strong{
+  padding:5px 9px;background:color-mix(in srgb,var(--blue) 10%,transparent);
+  border:1px solid var(--gb2-border);
+}
+.gb2-root :where(.mi-read-signal.mi-read-positive,.mi-read-signal.mi-read-negative){
+  border-color:var(--gb2-border);
+}
+.gb2-root .mi-read-caution>b{color:var(--yellow)}
+.gb2-root .mi-recent-log>div span{
+  background:var(--gb2-raised);border-color:var(--gb2-border);color:var(--gb2-text)
+}
+.gb2-root .mi-recent-log>div span.is-hit{
+  background:color-mix(in srgb,var(--green) 13%,transparent);border-color:color-mix(in srgb,var(--green) 33%,transparent);color:var(--green)
+}
+.gb2-root .mi-recent-log>div span.is-miss{
+  background:color-mix(in srgb,var(--red) 12%,transparent);border-color:color-mix(in srgb,var(--red) 31%,transparent);color:var(--red)
+}
+.gb2-root .mi-recent-log>div span.is-push{
+  background:color-mix(in srgb,var(--yellow) 12%,transparent);border-color:color-mix(in srgb,var(--yellow) 30%,transparent);color:var(--yellow)
+}
+.gb2-root :where(.mi-chart-key .mi-key-hit){background:var(--green)}
+.gb2-root :where(.mi-chart-key .mi-key-miss){background:var(--red)}
+/* Mobile still follows the existing TSO breakpoints, not separate modal skins. */
+@media(max-width:720px){
+  .gb2-root .mi-teams{padding:0 12px 12px}
+  .gb2-root .mi-player-list{padding:9px}
+  .gb2-root .mi-game-vault-header{padding:15px}
+  .gb2-root .gb2-market-panel>.edge2-markets{padding:12px}
+}
+
+/* High-specificity nested accents: older source modules styled child nodes
+ * orange/green with selectors more specific than generic surface tokens.
+ * Keep TSO blue for action/measurement UI, reserve red/green for results. */
+.gb2-root .mi-signal-track > span,
+.gb2-root .mi-signal-track.is-form-only > span,
+.gb2-root .mi-verified-usage-track > span,
+.gb2-root .mi-usage-track > span,
+.gb2-root .mi-opportunity-track > span,
+.gb2-root .mi-hit-track > span{
+  background:linear-gradient(90deg,var(--gb2-accent),var(--gb2-accent-light));
+}
+.gb2-root .mi-scout-metrics b,
+.gb2-root .mi-role-stat>b,
+.gb2-root .mi-move-labels strong,
+.gb2-root .mi-l5-avg strong,
+.gb2-root .mi-verified-usage strong,
+.gb2-root .mi-opp-stat>b,
+.gb2-root .mi-pbp-count>strong,
+.gb2-root .mi-read-signal>strong,
+.gb2-root .mi-signal-big>strong,
+.gb2-root .mi-signal-factor b,
+.gb2-root .mi-signal-reading strong,
+.gb2-root .mi-nfl-opportunity-head>strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-read-signal.mi-read-positive>strong,
+.gb2-root .mi-read-signal.mi-read-negative>strong{
+  color:var(--gb2-accent-light);
+}
+.gb2-root .mi-chart-key .mi-key-hit{background:var(--green)}
+.gb2-root .mi-chart-key .mi-key-miss{background:var(--red)}
+
+/* TSO2_GAMES_REFERENCE_PROPS_V2 — native TSO 2.0 layout.
+   One consistent three-column metric rail, aligned on every player.
+   Value/price columns are independent; no marketing % in model fields. */
+.gb2-root .mi-row-column-head{
+ display:grid;grid-template-columns:minmax(0,1fr) 132px 118px 132px 18px;gap:10px;
+ padding:13px 15px 8px;align-items:end;background:var(--gb2-panel);
+ border-bottom:1px solid var(--gb2-rule);
+ color:var(--gb2-muted);font-size:10px;font-weight:850;letter-spacing:.04em;
+}
+.gb2-root .mi-row-column-head>span:nth-child(2),
+.gb2-root .mi-row-column-head>span:nth-child(3),
+.gb2-root .mi-row-column-head>span:nth-child(4){text-align:center}
+.gb2-root .mi-row-column-head>span:nth-child(4){grid-column:4}
+.gb2-root .mi-player-expand{
+ display:grid;grid-template-columns:23px 44px minmax(0,1fr) 402px 18px;gap:10px;
+ align-items:center;min-height:92px;padding:10px 15px;
+}
+.gb2-root .mi-player-label{margin:0;min-width:0;align-self:center}
+.gb2-root .mi-player-label>b{font-size:14px}
+.gb2-root .mi-player-label>small{font-size:11px;color:var(--gb2-muted)}
+.gb2-root .mi-player-label>em{font-size:10px;letter-spacing:.01em}
+.gb2-root .mi-row-metrics{
+ display:grid;grid-template-columns:132px 118px 132px;align-items:stretch;gap:10px;
+ margin:0;width:402px;min-width:0;
+}
+.gb2-root .mi-row-metrics>.mi-signal-mini{
+ margin:0;min-width:0;max-width:none;padding:9px;display:grid;align-content:center;gap:5px;
+ border:1px solid color-mix(in srgb,var(--blue) 30%,transparent);background:color-mix(in srgb,var(--blue) 7%,transparent);border-radius:var(--r-sm);
+}
+.gb2-root .mi-line-model,.gb2-root .mi-line-odds{
+ display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
+ padding:9px 5px;border:1px solid var(--gb2-border);border-radius:var(--r-sm);
+ background:var(--gb2-subpanel);color:var(--gb2-text);min-width:0;
+}
+.gb2-root .mi-line-model>b,.gb2-root .mi-line-odds>b{
+ font-size:21px;font-weight:900;white-space:nowrap;line-height:1.1;
+ font-variant-numeric:tabular-nums;color:var(--gb2-accent-light);
+}
+.gb2-root .mi-line-model.is-unavailable>b{color:var(--gb2-muted)}
+.gb2-root .mi-line-model>small{color:var(--gb2-muted);font-size:9px;font-weight:800;letter-spacing:.025em}
+.gb2-root .mi-book-under{
+ display:flex;align-items:center;justify-content:center;gap:4px;
+ font-size:10px;line-height:1.15;color:var(--gb2-muted);width:100%;min-width:0;
+}
+.gb2-root .mi-book-under>span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:85px}
+.gb2-root .mi-book-icon,.gb2-root .mi-book-monogram{
+ flex:0 0 20px;width:20px;height:20px;object-fit:contain;border-radius:var(--r-sm);
+ background:var(--gb2-raised);border:1px solid var(--gb2-border);
+}
+.gb2-root .mi-book-monogram{font-size:7px;color:var(--gb2-text);display:inline-grid;place-items:center}
+.gb2-root .mi-chevron{grid-column:5;grid-row:1;text-align:center;color:var(--gb2-muted)}
+.gb2-root .mi-selection-brief{
+ display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,.8fr) minmax(0,1fr);
+ gap:10px;margin:12px 0 16px;
+}
+.gb2-root .mi-selection-brief>span{
+ display:flex;flex-direction:column;gap:5px;min-width:0;padding:11px 13px;
+ border:1px solid var(--gb2-border);border-radius:var(--r-sm);background:var(--gb2-subpanel);
+}
+.gb2-root .mi-selection-brief small{font-size:10px;color:var(--gb2-muted);font-weight:850;letter-spacing:.03em}
+.gb2-root .mi-selection-brief b{font-size:15px;line-height:1.3;word-break:break-word;color:var(--gb2-text)}
+.gb2-root .mi-player-overview{margin:14px 0 10px}
+.gb2-root .mi-player-overview h4{font-size:13px;letter-spacing:.08em;color:var(--gb2-accent-light);margin:0}
+.gb2-root .mi-player-overview p{font-size:11px;color:var(--gb2-muted);margin:6px 0 12px;line-height:1.45}
+.gb2-root .mi-evidence-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start;gap:15px}
+.gb2-root .mi-evidence-layout>.mi-evidence-left,
+.gb2-root .mi-evidence-layout>.mi-evidence-right{min-width:0;display:grid;gap:12px}
+.gb2-root .mi-evidence-layout .mi-section--visual{margin:0}
+.gb2-root .mi-evidence-layout .mi-visual-grid{grid-template-columns:minmax(0,1fr);gap:9px}
+.gb2-root .mi-evidence-layout .mi-chart-panel,
+.gb2-root .mi-evidence-layout .mi-hit-panel{background:var(--gb2-subpanel)}
+.gb2-root .mi-player-defender{
+ border:1px solid var(--gb2-border);background:var(--gb2-subpanel);padding:14px;border-radius:var(--r-sm)
+}
+.gb2-root .mi-player-defender h4{font-size:11px;font-weight:850;color:var(--gb2-accent-light);margin:0 0 9px;letter-spacing:.04em}
+.gb2-root .mi-evidence-layout .mi-signal-detail{margin:0}
+.gb2-root .mi-signal-factor-grid{grid-template-columns:1fr;gap:4px}
+.gb2-root .mi-signal-factor{
+ display:grid;grid-template-columns:minmax(0,1.5fr) minmax(80px,.65fr);
+ gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--gb2-border);border-radius:5px
+}
+.gb2-root .mi-signal-factor>div:first-child{margin:0}
+.gb2-root .mi-signal-factor .mi-signal-track{min-width:80px}
+.gb2-root .mi-signal-factor small{grid-column:1/-1;display:block;margin:0;color:var(--gb2-muted)}
+.gb2-root .mi-signal-big{margin:12px 0;gap:14px}
+.gb2-root .mi-signal-big>strong{font-size:35px}
+.gb2-root .mi-signal-detail-head h4{font-size:16px!important}
+.gb2-root .mi-analytics{gap:13px}
+.gb2-root .mi-player-body{padding:13px 15px 17px}
+.gb2-root .mi-scout-pos-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.gb2-root .mi-game-vault-header{padding:14px 16px}
+.gb2-root .mi-team{padding:13px}
+.gb2-root .mi-ranked-head{padding:14px 16px}
+@media(max-width:1180px){
+ .gb2-root .mi-row-column-head{grid-template-columns:minmax(0,1fr) 120px 108px 120px 18px;gap:6px}
+ .gb2-root .mi-player-expand{grid-template-columns:20px 38px minmax(0,1fr) 366px 15px;gap:6px;padding:9px}
+ .gb2-root .mi-row-metrics{width:366px;grid-template-columns:120px 108px 120px;gap:9px}
+ .gb2-root .mi-signal-mini{padding:6px}
+}
+@media(max-width:920px){
+ .gb2-root .mi-row-column-head{display:none}
+ .gb2-root .mi-player-expand{grid-template-columns:22px 40px minmax(0,1fr) 18px;gap:9px;padding:11px;min-height:0}
+ .gb2-root .mi-row-metrics{
+  grid-column:1/-1;grid-row:2;display:grid;width:100%;max-width:none;
+  grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) minmax(0,1.1fr);gap:7px;
+ }
+ .gb2-root .mi-chevron{grid-column:4;grid-row:1}
+ .gb2-root .mi-evidence-layout{grid-template-columns:1fr}
+ .gb2-root .mi-evidence-layout .mi-visual-grid{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+}
+@media(max-width:600px){
+ .gb2-root .mi-evidence-layout .mi-visual-grid{grid-template-columns:1fr}
+ .gb2-root .mi-line-model>b,.gb2-root .mi-line-odds>b{font-size:16px}
+ .gb2-root .mi-row-metrics .mi-signal-reading strong{font-size:20px}
+ .gb2-root .mi-row-metrics .mi-signal-kicker{font-size:8px;letter-spacing:0}
+ .gb2-root .mi-selection-brief{grid-template-columns:1fr}
+ .gb2-root .mi-book-under>span:last-child{max-width:58px;font-size:9px}
+ .gb2-root .mi-row-metrics{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr)}
+ .gb2-root .mi-signal-factor-grid{grid-template-columns:1fr}
+}
+
+
+/* NHL eight-metric reference comparison; colors inherit shared TSO 2.0 tokens. */
+.gb2-root .gb2-matchup-identities{display:flex;align-items:center;justify-content:flex-end;gap:10px;min-width:0}
+.gb2-root .gb2-matchup-identities .gb2-logo{width:30px;height:30px;border-radius:50%;background:var(--surface)}
+.gb2-root .gb2-matchup-identities b{font-size:13px;color:var(--text)}
+.gb2-root .gb2-matchup-identities em{font-size:11px;color:var(--muted);font-style:normal}
+.gb2-root .gb2-matchup>header{min-height:72px}
+.gb2-root .gb2-nhl-stats .gb2-compare-row{min-height:54px;font-size:var(--tso-body-size)}
+.gb2-root .gb2-nhl-stats .gb2-compare-row>span{font-size:var(--tso-body-size)}
+.gb2-root .gb2-nhl-stats .gb2-compare-row>b{font-size:calc(var(--tso-body-size) + 3px);font-variant-numeric:tabular-nums}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i{width:68px;height:9px}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i:before{width:48%;left:26%;background:var(--outpost-orange)}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i.is-away:before{left:0}
+.gb2-root .gb2-nhl-stats .gb2-compare-row i.is-home:before{left:52%}
+.gb2-root .gb2-nhl-stats .gb2-compare-row b.is-best{color:var(--outpost-gold)}
+/* Screenshot-based scoring table, source-backed: STAT / VALUE / BENCH /
+   IMPACT / DIRECTION / WEIGHT. Missing advanced factors stay ungraded. */
+.gb2-root .mi-nhl-signal-detail{background:var(--card);border:1px solid var(--line-strong);
+ border-radius:var(--r);padding:var(--tso-card-padding);color:var(--text)}
+.gb2-root .mi-nhl-signal-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+.gb2-root .mi-nhl-signal-heading h4{font-size:12px;letter-spacing:.07em;color:var(--outpost-gold);margin:0}
+.gb2-root .mi-nhl-factor-table{overflow-x:auto;min-width:0}
+.gb2-root .mi-nhl-factor-labels,.gb2-root .mi-nhl-factor-row{
+ display:grid;grid-template-columns:minmax(115px,1.5fr) minmax(65px,.7fr) minmax(75px,.75fr) minmax(76px,.9fr) 27px 31px;
+ column-gap:12px;align-items:center;min-width:440px}
+.gb2-root .mi-nhl-factor-labels{padding-bottom:12px;border-bottom:1px solid var(--line-strong);color:var(--muted);font-size:10px;letter-spacing:.05em}
+.gb2-root .mi-nhl-factor-labels span:last-child,.gb2-root .mi-nhl-factor-row small{text-align:right}
+.gb2-root .mi-nhl-factor-row{min-height:48px;padding:7px 0;font-size:12px;color:var(--muted)}
+.gb2-root .mi-nhl-factor-row>span:first-child{color:var(--text)}
+.gb2-root .mi-nhl-factor-row strong{color:var(--text);font-size:15px;font-variant-numeric:tabular-nums}
+.gb2-root .mi-nhl-factor-row.is-unavailable{opacity:.68}
+.gb2-root .mi-nhl-factor-row.is-unavailable strong{color:var(--muted)}
+.gb2-root .mi-nhl-factor-row .mi-nhl-direction{font-size:17px;font-weight:800;color:var(--green);text-align:center}
+.gb2-root .mi-nhl-factor-row .mi-nhl-direction:has(+small){white-space:nowrap}
+.gb2-root .mi-nhl-factor-row.is-unavailable .mi-nhl-direction{color:var(--muted)}
+.gb2-root .mi-nhl-factor-row small{color:var(--muted);font-size:11px}
+.gb2-root .mi-nhl-impact-track{height:9px;background:var(--elev);border-radius:var(--r-sm);overflow:hidden}
+.gb2-root .mi-nhl-impact-track span{display:block;height:100%;background:var(--green);border-radius:inherit}
+.gb2-root .mi-nhl-signal-final{display:flex;align-items:center;justify-content:space-between;gap:10px;
+ border-top:1px solid var(--line-strong);margin-top:12px;padding-top:17px;color:var(--muted)}
+.gb2-root .mi-nhl-signal-final strong{font-size:23px;color:var(--text);font-variant-numeric:tabular-nums}
+.gb2-root .mi-nhl-signal-final strong small{font-size:12px;color:var(--muted)}
+.gb2-root .mi-nhl-signal-detail>.mi-evidence-note{font-size:10px;line-height:1.55;color:var(--muted);margin:15px 0 0}
+@media(max-width:670px){
+ .gb2-root .gb2-matchup-identities{gap:5px}
+ .gb2-root .gb2-matchup-identities .gb2-logo{width:24px;height:24px}
+ .gb2-root .gb2-nhl-stats .gb2-compare-row>b{font-size:12px}
+}
