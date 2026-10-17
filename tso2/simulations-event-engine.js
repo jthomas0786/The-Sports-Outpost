@@ -22,7 +22,7 @@
   if(role==='FB')return clamp(observed===null?prior:observed*.4+prior*.6,0,type==='rush'?.2:.35);
   if(type==='rush'&&role==='TE')return .015;
   if(type==='rush'&&role==='WR')return clamp(observed??prior,0,2);
-  if(type==='rush'&&role==='QB')return clamp(observed===null?prior:observed*.5+prior*.5,0,5);
+  if(type==='rush'&&role==='QB')return observed===null?0:clamp(observed*.80,0,5);
   if(observed===null)return prior;
   const trust=Number(p.usage?.games)>=3?.82:.65;
   return clamp(prior*(1-trust)+observed*trust,0,role==='RB'?27:role==='WR'?13:10);
@@ -40,7 +40,7 @@
   return clamp(Math.ceil((proj??roleWeight(p,team,'pass'))*1.5)+1,1,18);
  };
  function sampleTeam(players,rng,type,counts){
-  const pool=players.filter(p=>type==='rush'?['RB','FB','HB','QB','WR','TE'].includes(pos(p.position)):
+  const pool=players.filter(p=>type==='rush'?(['RB','FB','HB','QB','WR','TE'].includes(pos(p.position))&&!(pos(p.position)==='QB'&&roleIndex(p,players,'QB')>0)): 
     ['WR','TE','RB','FB'].includes(pos(p.position)));
   const weights=pool.map(p=>{
    const used=counts.get(p.name)||0,limit=maxUses(p,players,type);
@@ -159,7 +159,7 @@
     else if(sack)commentary=passer+' sacked by '+other+' for '+Math.abs(gain)+' yards.';
     else if(pass)commentary=complete?passer+' to '+player+' for '+gain+' yards'+(touchdown?' — TOUCHDOWN!':'.'):
      passer+' pass intended for '+player+' incomplete.';
-    else commentary=passer+' hands off to '+player+' for '+gain+' yards'+(touchdown?' — TOUCHDOWN!':'.');
+    else commentary=player===passer?passer+' scrambles for '+gain+' yards'+(touchdown?' — TOUCHDOWN!':'.'):passer+' hands off to '+player+' for '+gain+' yards'+(touchdown?' — TOUCHDOWN!':'.');
     record({quarter:q,second:secBefore,side,yard,kind,down,first:distance,gain,player,passer,
      receiver:pass?player:null,carrier:pass?null:player,complete,route,targetSlot,interception,sack,
      points:touchdown?7:0,defenseTendency:tendency.kind,commentary:commentary+' (illustrative)'});
