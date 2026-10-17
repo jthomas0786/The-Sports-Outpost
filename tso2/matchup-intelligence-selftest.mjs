@@ -33,7 +33,7 @@ assert.match(html,/Test Back/);
 assert.match(html,/MODEL %/);
 assert.match(html,/60.0%/);
 assert.match(html,/82.0%/);
-assert.match(html,/EXACT LINE ODDS/);
+assert.match(html,/LINE ODDS \/ BEST BOOK/);
 assert.ok(!html.includes('Test TE'),'Under selections must not be featured in Game Hub');
 assert.ok(!html.includes('Under 21.5'),'Under thresholds must never leak to featured cards');
 assert.match(html,/ALL PROPS/);
@@ -41,6 +41,21 @@ assert.match(html,/Passing Yards/);
 assert.match(html,/Receiving Yards/);
 assert.match(html,/Anytime TD/);
 assert.ok(!html.includes('OTHER PROPS'),'Market categories must be specific to actual player props');
+assert.equal(view.exactLineModelPct(rows[1]),60,'Only an exact source-backed numerical-line model appears');
+assert.equal(view.exactLineModelPct(rows[3]),null,'No model output must render as unavailable');
+assert.equal(view.exactLineModelPct(nhlModelOnlyPlaceholder()),null,'A research-only scorer forecast is NOT the exact sportsbook line model');
+function nhlModelOnlyPlaceholder(){return {market:'atg',side:'yes',researchScorerModel:true,model:{probabilityPct:35.2}}}
+const selectionWithBooks={...rows[1],books:[
+ {book:'FanDuel',price:-108,line:54.5,side:'over'},
+ {book:'DraftKings',price:-105,line:54.5,side:'over'},
+ {book:'BetMGM',price:225,line:74.5,side:'over'},
+ {book:'Suspended Book',price:300,line:54.5,side:'over',suspended:true}
+]};
+const chosen=view.bestExactQuote(selectionWithBooks);
+assert.equal(chosen.book,'DraftKings','Best quote is the highest payout at SAME line and side');
+assert.equal(chosen.price,-105);
+assert.equal(view.exactLineModelPct(chosen),60,'Repricing does not corrupt exact selection model %');
+assert.match(view.listing({...g,id:'best-book-fixture'},[selectionWithBooks]),/DraftKings/,'Best sportsbook displayed beneath Line Odds');
 assert.equal(view.eligibleOver(rows[2]),false);
 assert.equal(view.eligibleOver(rows[1]),true);
 assert.equal(view.eligibleOver({key:'xx',player:'Test',market:'atd',selection:'Yes'}),true);
@@ -59,8 +74,8 @@ assert.match(view.listing({id:'g2',league:'nba',away:{abbr:'NYK'},home:{abbr:'BO
 const nhlModelOnly={key:'scorer|VGK|candidate|atg',sport:'nhl',player:'Test Model Candidate',team:'VGK',market:'atg',side:'yes',selection:'Yes',researchScorerModel:true,model:{probabilityPct:35.2}};
 const nhlModelPage=view.listing({id:'nhl-fallback',league:'nhl',away:{abbr:'VGK'},home:{abbr:'NSH'}},[nhlModelOnly]);
 assert.match(nhlModelPage,/Test Model Candidate/,'Verified NHL scorer-model candidates must appear when sportsbook odds are missing');
-assert.match(nhlModelPage,/PREGAME MODEL · NOT LIVE ODDS/,'Fallback must not imply a live sportsbook quote');
-assert.match(nhlModelPage,/MODEL ONLY · No current exact sportsbook line/,'Fallback must identify unavailable exact odds');
+assert.match(nhlModelPage,/NO LIVE QUOTE/,'Fallback must not imply a live sportsbook quote');
+assert.match(nhlModelPage,/MODEL ONLY · No exact live sportsbook line/,'Fallback must identify unavailable exact odds');
 assert.ok(!nhlModelPage.includes('data-mi-add='),'A model-only pick must not be addable to Parlay Ping');
 function fixture(sport,market,player,expected){
  const result=view.matchedStats({available:true,player}, {sport,market});
@@ -223,7 +238,7 @@ assert.equal(view.signalScore(samAlt,samLogs).score,samGrade.score,
 const twoLines=view.listing({id:'test-nfl-lines',league:'nfl',away:{abbr:'SEA'},home:{abbr:'DEN'}},
  [darnoldRush,samAlt,harveyRush]);
 assert.equal((twoLines.match(/Sam Darnold<\/b>/g)||[]).length,1,'One player/market card despite multiple sportsbook lines');
-assert.ok(twoLines.includes('does not affect grade'),'Exact sportsbook quote must be labeled separately');
+assert.ok(twoLines.includes('BEST AVAILABLE VERIFIED QUOTE'),'Exact sportsbook quote must be labeled separately');
 // Same independent-of-threshold rule for NBA, MLB and NHL.
 for(const [sport,market,stats,target] of [
  ['nba','points',[22,26,18,32,30,27,20,25,29,21],'points'],
