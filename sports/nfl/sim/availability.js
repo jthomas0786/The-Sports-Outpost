@@ -1,7 +1,7 @@
 // Confirmed game-specific NFL availability exclusions. Never apply a Week 6
 // exclusion blindly to Week 7; an eligible return is not a confirmed active.
 export const normalizedName=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
-export const normalizedTeam=v=>String(v||'').toUpperCase().replace(/^GNB$/,'GB').replace(/^JAC$/,'JAX').replace(/^LAR$/,'LA');
+export const normalizedTeam=v=>String(v||'').toUpperCase().replace(/^GNB$/,'GB').replace(/^JAC$/,'JAX').replace(/^LAR$/,'LA').replace(/^WSH$/,'WAS');
 export function gameExclusions(game,availability){
  const id=String(game?.gameId||game?.id||'');
  if(availability?.season!==2026||!id)return [];
@@ -36,12 +36,12 @@ export function excludeUnavailableResultPlayers(players=[],exclusions=[]){
  * unless reactivated in the current active-roster source.
  */
 const currentRosters=new Map();
-const rosterAbbr=team=>({LA:'lar',JAX:'jax',WSH:'wsh',GB:'gb'}[normalizedTeam(team)]||normalizedTeam(team).toLowerCase());
+const rosterAbbr=team=>({LA:'lar',JAX:'jax',WAS:'28',GB:'gb'}[normalizedTeam(team)]||normalizedTeam(team).toLowerCase());
 export async function verifiedTeamActiveRoster(team,{fetchImpl=fetch,cache=true}={}){
  const canonical=normalizedTeam(team),abbr=rosterAbbr(canonical);
  if(cache&&currentRosters.has(canonical))return currentRosters.get(canonical);
  const action=(async()=>{
-  if(!/^[a-z]{2,3}$/.test(abbr))throw Error('Invalid NFL team code: '+team);
+  if(!/^(?:[a-z]{2,3}|28)$/.test(abbr))throw Error('Invalid NFL team code: '+team);
   const url='https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/'+abbr+'/roster';
   let response=null;
   for(let attempt=0;attempt<4;attempt++){
