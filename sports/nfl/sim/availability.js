@@ -57,9 +57,11 @@ export async function verifiedTeamActiveRoster(team,{fetchImpl=fetch,cache=true}
   const doc=await response.json(),offense=doc.athletes?.find(group=>group.position==='offense');
   if(doc.season?.year!==2026||!Array.isArray(offense?.items)||offense.items.length<9)
    throw Error('Verified 2026 active offensive roster unavailable for '+canonical);
-  const active=new Set(offense.items.filter(a=>a.status?.type==='active').map(a=>normalizedName(a.displayName||a.fullName)));
+  const officialPlayers=offense.items.filter(a=>a.status?.type==='active');
+  const active=new Set(officialPlayers.map(a=>normalizedName(a.displayName||a.fullName)));
+  const positions=new Map(officialPlayers.map(a=>[normalizedName(a.displayName||a.fullName),String(a.position?.abbreviation||'').toUpperCase()]));
   if(active.size<9)throw Error('Incomplete 2026 active roster for '+canonical);
-  return {team:canonical,active,checkedAt:new Date().toISOString(),
+  return {team:canonical,active,positions,checkedAt:new Date().toISOString(),
    source:'ESPN team roster; final 90-minute game-day inactive report not yet checked'};
  })();
  if(cache)currentRosters.set(canonical,action);
@@ -76,9 +78,10 @@ export async function verifiedRosterFilteredInputs(game,research,{fetchImpl=fetc
  for(const p of [...(game?.players||[]),...(research?.players||[])].filter(notActive)){
   removed.set(normalizedTeam(p.team)+'|'+normalizedName(p.name),{team:normalizedTeam(p.team),name:p.name,status:'NOT_ACTIVE_2026_ROSTER'});
  }
- const safeGame={...game,players:(game?.players||[]).filter(p=>!notActive(p)),
+ const verifiedPosition=p=>{const team=normalizedTeam(p.team);const official=team===away.team?away.positions.get(normalizedName(p.name)):team===home.team?home.positions.get(normalizedName(p.name)):null;return official?{...p,position:official,rosterPositionVerified:true}:p};
+ const safeGame={...game,players:(game?.players||[]).filter(p=>!notActive(p)).map(verifiedPosition),
   modelEligibleRosters:Object.fromEntries([...allowed.entries()].map(([code,active])=>[code,[...active]]))};
- const safeResearch={...research,players:(research?.players||[]).filter(p=>!notActive(p))};
+ const safeResearch={...research,players:(research?.players||[]).filter(p=>!notActive(p)).map(verifiedPosition)};
  return {game:safeGame,research:safeResearch,exclusions:[...removed.values()],
   rosterAudit:{season:2026,checkedAt:new Date().toISOString(),source:'2026 ESPN active offense roster',
    teams:teams.slice(),counts:[away.active.size,home.active.size],
