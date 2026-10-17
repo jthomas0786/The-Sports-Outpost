@@ -133,3 +133,12 @@
 .tso-sim-play-copy>small{font-size:10px;line-height:1.4;letter-spacing:.05em;text-transform:uppercase;font-weight:950;color:#fbc68a}
 .tso-sim-play-copy>b{font-size:13px;line-height:1.5;color:#e8f5ef;font-weight:750;word-break:normal}
 @media(max-width:700px){.tso-sim-play-copy>small{font-size:9px}.tso-sim-play-copy>b{font-size:12px}}
+
+/* 2026 roster validation state — never imply old model lines are current. */
+.tso-sim-roster-pending,.tso-sim-roster-warning{background:#16221e;border:1px solid #836040;border-radius:12px;padding:17px 18px;color:#e2e9e4;font-size:13px;line-height:1.6}
+.tso-sim-roster-pending{min-height:96px;display:flex;align-items:center;gap:10px}
+.tso-sim-roster-warning{margin:0 0 17px;border-left:3px solid #ffa86e}
+.tso-sim-roster-warning strong{display:block;color:#ffbb87;font-size:12px;letter-spacing:.045em;margin-bottom:8px}
+.tso-sim-roster-warning p{margin:0 0 8px;color:#e2eee7}
+.tso-sim-roster-warning small{color:#a3c4b9;font-size:11px}
+.tso-sim-roster-pending button{cursor:pointer;background:#f9a96b;color:#13231d;font-weight:900;border:0;border-radius:7px;padding:9px 12px}
