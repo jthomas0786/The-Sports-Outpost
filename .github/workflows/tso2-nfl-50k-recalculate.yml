@@ -1,0 +1,124 @@
+name: TSO 2.0 NFL 50K Roster-Verified Recalculation
+
+on:
+  push:
+    branches:
+      - tso-2.0-restructure
+    paths:
+      - .github/workflows/tso2-nfl-50k-recalculate.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tso2-nfl-50k-verified-one-time
+  cancel-in-progress: false
+
+jobs:
+  recalculate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout TSO 2.0 only
+        uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Stage current NFL source files without modifying main
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          mkdir -p /tmp/tso2-nfl-current
+          for f in nfl.json nfl-research.json nfl-odds.json; do
+            git show "origin/main:slates/${f}" > "/tmp/tso2-nfl-current/${f}"
+            test -s "/tmp/tso2-nfl-current/${f}"
+          done
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const root='/tmp/tso2-nfl-current';
+          const slate=JSON.parse(fs.readFileSync(root+'/nfl.json'));
+          const research=JSON.parse(fs.readFileSync(root+'/nfl-research.json'));
+          const odds=JSON.parse(fs.readFileSync(root+'/nfl-odds.json'));
+          if(Number(slate.season)!==2026||!Array.isArray(slate.games)||slate.games.length<10)
+            throw Error('Current 2026 slate not valid; will not simulate stale or partial schedule');
+          if(Number(research.season)!==2026||!Array.isArray(research.players)||research.players.length<150)
+            throw Error('2026 player research unavailable/partial; abort');
+          if(!Array.isArray(odds.games)||!odds.games.length)
+            throw Error('NFL sportsbook odds missing; abort');
+          console.log('Validated current NFL input:',slate.games.length,'games,',research.players.length,'research players,',odds.games.length,'odds games.');
+          NODE
+      - name: Run 50,000 pregame iterations per NFL matchup with verified rosters
+        env:
+          NODE_OPTIONS: --max-old-space-size=6144
+        shell: bash
+        run: |
+          set -euo pipefail
+          node sports/nfl/sim/availability-selftest.mjs
+          node tso2/simulations-selftest.mjs
+          node scripts/nfl-simulate.mjs \
+            --slate /tmp/tso2-nfl-current/nfl.json \
+            --research /tmp/tso2-nfl-current/nfl-research.json \
+            --odds /tmp/tso2-nfl-current/nfl-odds.json \
+            --iterations 50000 --no-live \
+            --out tso2/data/nfl-sim.json
+      - name: Validate every game, identity, roster, and run count
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from 'node:fs';
+          const raw=fs.readFileSync('tso2/data/nfl-sim.json','utf8');
+          const doc=JSON.parse(raw);
+          const slate=JSON.parse(fs.readFileSync('/tmp/tso2-nfl-current/nfl.json','utf8'));
+          const ids=new Set(slate.games.map(g=>String(g.gameId||g.id)));
+          if(doc.gameCount!==ids.size||doc.games?.length!==ids.size)
+            throw Error('Game count mismatch: '+doc.games?.length+'/'+ids.size);
+          const errors=[],summaries=[];
+          const normalize=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+          for(const g of doc.games){
+            const id=String(g.game?.gameId||'');
+            if(!ids.has(id))errors.push('Unexpected game '+id);
+            if(g.iterations!==50000)errors.push('Not 50000 iterations: '+id+' '+g.iterations);
+            if(g.availabilityAudit?.rosterVerified!==true)errors.push('Roster not checked for '+id);
+            if(g.availabilityAudit?.rosterAudit?.finalInactivesVerified===true)errors.push('Incorrect final inactives claim '+id);
+            const unavailable=new Set((g.availabilityAudit?.exclusions||[]).map(p=>String(p.team).toUpperCase()+'|'+normalize(p.name)));
+            for(const p of g.players||[]){
+              if(unavailable.has(String(p.team).toUpperCase()+'|'+normalize(p.name)))
+                errors.push('Ineligible result player '+p.name+' for '+id);
+            }
+            const home=Number(g.outcomes?.home?.score?.mean),away=Number(g.outcomes?.away?.score?.mean);
+            if(!Number.isFinite(home)||!Number.isFinite(away))errors.push('Invalid scoring projections '+id);
+            summaries.push({gameId:id,matchup:(g.game?.away?.abbr||'?')+' @ '+(g.game?.home?.abbr||'?'),
+              iterations:g.iterations,homeMean:home,awayMean:away,
+              rosterCheckedAt:g.availabilityAudit?.rosterAudit?.checkedAt,
+              excluded:(g.availabilityAudit?.exclusions||[]).length});
+          }
+          if(errors.length)throw Error(errors.slice(0,30).join('\n'));
+          const report={status:'verified',generatedAt:doc.generatedAt,season:2026,
+            verifiedRosters:true,finalGamedayInactivesVerified:false,
+            gameCount:doc.games.length,totalIterations:doc.games.reduce((a,g)=>a+g.iterations,0),
+            summaries};
+          fs.writeFileSync('tso2/data/nfl-sim-run-report.json',JSON.stringify(report,null,2)+'\n');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,'## TSO 2.0: 50K NFL simulations\n\nGames: '+report.gameCount+' | Iterations: '+report.totalIterations.toLocaleString()+'\nAll model player pools verified against 2026 active rosters (not final game-day inactives).\n');
+          console.log('PASS: '+report.gameCount+' games, '+report.totalIterations+' iterations, 2026 active roster audit');
+          NODE
+      - name: Commit staging-only results, never main or production
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$GITHUB_REF_NAME" = "tso-2.0-restructure"
+          git config user.name "TSO 2.0 Simulation Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tso2/data/nfl-sim.json tso2/data/nfl-sim-run-report.json
+          git diff --staged --quiet && { echo "No new simulation data."; exit 1; }
+          git commit -m "Recalculate 2026 NFL simulations with 50K verified-roster iterations per game"
+          for retry in 1 2 3 4 5; do
+            if git push origin HEAD:tso-2.0-restructure; then exit 0; fi
+            git pull --rebase --autostash origin tso-2.0-restructure
+            sleep $((retry*3))
+          done
+          exit 1
