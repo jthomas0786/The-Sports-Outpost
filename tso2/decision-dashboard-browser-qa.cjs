@@ -32,6 +32,55 @@ fs.mkdirSync(out,{recursive:true});
   await page.locator('[data-gb2-grid]').waitFor({state:'visible'});
   await page.screenshot({path:path.join(out,'games-desktop.png'),fullPage:true,animations:'disabled'});
   console.log('PASS staging Games Board: source-labelled model/market win chances and three-column cards');
+  // Enforce actual CSS palette consistency. The real TSO 2.0 global tokens
+  // are blue/navy; the former props and market modules had their own skins.
+  // Synthetic probes are inserted ONLY into this test browser DOM.
+  const themeReport=await page.evaluate(()=>{
+    const root=document.querySelector('.gb2-root');
+    if(!root)throw Error('Games Board root missing');
+    const host=document.createElement('div');
+    host.setAttribute('data-theme-probe','');
+    host.style.cssText='position:absolute;left:-10000px;top:0;width:300px;';
+    host.innerHTML='<section class="gb2-panel"></section><section class="mi-team"></section>'+
+      '<section class="mi-ranked"></section><div class="mi-player"></div>'+
+      '<div class="edge2-market edge2-market--total"></div>'+
+      '<div class="edge2-market edge2-market--moneyline"></div>'+
+      '<div class="mi-filters"><button class="is-active">NHL</button></div>'+
+      '<span class="mi-prob"><b>57%</b></span><button class="mi-add">+ PARLAY</button>'+
+      '<div class="mi-signal-mini"><span class="mi-signal-track"><span style="width:55%"></span></span></div>';
+    root.appendChild(host);
+    const expected=(name)=>{
+      const probe=document.createElement('div');
+      probe.style.backgroundColor='var('+name+')';
+      host.appendChild(probe);
+      const color=getComputedStyle(probe).backgroundColor;
+      probe.remove();return color;
+    };
+    const color=(sel,pseudo)=>getComputedStyle(root.querySelector(sel),pseudo).backgroundColor;
+    const card=expected('--card'),surface=expected('--surface'),blue=expected('--blue');
+    const result={
+      card,surface,blue,
+      actualCard:color('.gb2-card'),
+      actualPanel:color('[data-theme-probe] .gb2-panel'),
+      actualTeam:color('[data-theme-probe] .mi-team'),
+      actualRanked:color('[data-theme-probe] .mi-ranked'),
+      actualPlayer:color('[data-theme-probe] .mi-player'),
+      actualMarket:color('[data-theme-probe] .edge2-market'),
+      totalStripe:color('[data-theme-probe] .edge2-market--total','::before'),
+      moneylineStripe:color('[data-theme-probe] .edge2-market--moneyline','::before'),
+      propProbability:color('[data-theme-probe] .mi-prob>b'),
+      activePropFilter:color('[data-theme-probe] .mi-filters button.is-active'),
+      signalTrack:getComputedStyle(root.querySelector('[data-theme-probe] .mi-signal-track>span')).backgroundImage,
+      addButton:getComputedStyle(root.querySelector('[data-theme-probe] .mi-add')).backgroundImage
+    };
+    host.remove();return result;
+  });
+  for(const k of ['actualCard','actualPanel','actualRanked'])assert.equal(themeReport[k],themeReport.card,k+' must inherit TSO 2.0 card navy');
+  for(const k of ['actualTeam','actualPlayer','actualMarket'])assert.equal(themeReport[k],themeReport.surface,k+' must inherit TSO 2.0 surface navy');
+  for(const k of ['totalStripe','moneylineStripe','propProbability'])assert.equal(themeReport[k],themeReport.blue,k+' must inherit TSO blue, not purple/orange');
+  assert.match(themeReport.signalTrack,/rgb\(45, 127, 255\)/,'TSO Prop Signal uses original blue ramp');
+  assert.match(themeReport.addButton,/rgb\(61, 140, 255\)/,'Prop action uses existing TSO primary button gradient');
+  console.log('PASS unified original TSO 2.0 palette on cards, matchup, market, player props and Prop Signal:',JSON.stringify(themeReport));
   const list=page.locator('[data-gb2-grid] [data-gb2-game]');
   if(await list.count()){
     const firstGameId=await list.first().getAttribute('data-gb2-game');
