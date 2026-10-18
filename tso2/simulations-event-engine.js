@@ -212,5 +212,60 @@
   }
   return{teams:agg,players,away:agg[teams[0]],home:agg[teams[1]],count:limit};
  }
+ // Every graphic is driven by a real event in the selected illustrative
+ // replay ledger. We never generate a touchdown, sack, flag or return just
+ // to trigger an animation. The same classifier is shared by DOM and MP4.
+ function broadcastEvent(event,game){
+  if(!event||!game)return null;
+  const code=String(event.kind||'').toUpperCase().replace(/[_-]/g,' ').trim();
+  const rawTeam=String(event.side||'').toUpperCase();
+  const away=String(game.away?.abbr||'').toUpperCase(),home=String(game.home?.abbr||'').toUpperCase();
+  const defense=String(event.opponent|| (rawTeam===away?home:away)).toUpperCase();
+  const against=String(event.penaltyAgainst||event.penalty?.against||'').toUpperCase();
+  const safeTeam=v=>(v===away||v===home)?v:null;
+  const teamName=v=>v===away?game.away?.name:v===home?game.home?.name:null;
+  const make=(type,title,team,actor,subline,tone)=>{
+   const t=safeTeam(team);return {type,title,team:t,teamName:String(teamName(t)||t||'NFL'),actor:String(actor||'').trim(),
+    subline:String(subline||'').trim(),tone};
+  };
+  const points=Number(event.points||0),actor=String(event.player||event.carrier||event.receiver||'').trim();
+  const generic=/^(?:kicking unit|punting unit|special teams|team|player|unknown)$/i;
+  // A score change alone must not be confused with a touchdown.
+  if(event.td===true||(['PASS','RUSH'].includes(code)&&points>=6)){
+   const scorer=String((code==='PASS'?event.receiver:event.carrier)||actor).trim();
+   return make('touchdown','TOUCHDOWN!',rawTeam,generic.test(scorer)?'':scorer,
+    points===8?'TWO-POINT CONVERSION GOOD':points===7?'EXTRA POINT GOOD':points===6?'EXTRA POINT NO GOOD':'SIMULATED SCORING PLAY','score');
+  }
+  if(code==='FIELD GOAL'||code==='FG'||code==='FIELDGOAL'){
+   const successful=points>=3;
+   return make('field-goal',successful?'FIELD GOAL GOOD!':'FIELD GOAL ATTEMPT',rawTeam,
+    generic.test(actor)?'':actor,successful?'THREE POINTS':'NO VERIFIED MADE KICK','score');
+  }
+  if(event.interception===true||code==='INTERCEPTION')
+   return make('interception','INTERCEPTION!',defense,
+    String(event.defender||event.interceptor||'').trim(),'TURNOVER · DEFENSE TAKES OVER','turnover');
+  if(event.sack===true||code==='SACK')
+   return make('sack','QUARTERBACK SACK!',defense,
+    String(event.sacker||event.defender||'').trim(),
+    (event.passer?'QB '+event.passer+' BROUGHT DOWN':'DEFENSE GETS HOME'),'defense');
+  if(code==='PENALTY'||event.penalty||event.penaltyYards!=null)
+   return make('penalty','FLAG ON THE PLAY',against||rawTeam,
+    String(event.penalty?.player||'').trim(),
+    String(event.penalty?.description||event.penaltyDescription||'PENALTY · ILLUSTRATIVE PLAY'),'warning');
+  if(code==='PUNT')
+   return make('punt','PUNT',rawTeam,generic.test(actor)?'':actor,'SPECIAL TEAMS · CHANGE OF POSSESSION','special');
+  if(code==='KICKOFF'||code==='KICK OFF'||code==='FREE KICK')
+   return make('kickoff','KICKOFF',rawTeam,generic.test(actor)?'':actor,
+    'SPECIAL TEAMS · PLAY RESUMES','special');
+  if(code==='SAFETY')
+   return make('safety','SAFETY!',defense,'','TWO POINTS FOR THE DEFENSE','score');
+  if(code==='FUMBLE'&&event.fumbleLost===true)
+   return make('fumble','FUMBLE RECOVERED',defense,
+    String(event.recoveredBy||'').trim(),'TURNOVER','turnover');
+  if(code==='TURNOVER ON DOWNS')
+   return make('downs','TURNOVER ON DOWNS',defense,'','POSSESSION CHANGES','turnover');
+  return null;
+ }
+ global.TSO2SimBroadcastEvent={fromPlay:broadcastEvent};
  global.TSO2SimEngine={build,snapshot,roleWeight,maxUses,defensiveTendency};
 })(typeof window!=='undefined'?window:globalThis);
