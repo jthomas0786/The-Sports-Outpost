@@ -4,8 +4,8 @@
   "season": 2026,
   "seasonType": "reg",
   "week": 6,
-  "lastFetchedAt": 1792342130296,
-  "generatedAt": "2026-10-18T16:48:50.296Z",
+  "lastFetchedAt": 1792342243588,
+  "generatedAt": "2026-10-18T16:50:43.588Z",
   "games": {
     "401872995": {
       "status": "post",
@@ -5283,14 +5283,14 @@
           "type": "Field Goal Good"
         }
       ],
-      "lastFetchedAt": 1792342130294
+      "lastFetchedAt": 1792342243586
     },
     "401872996": {
-      "status": "in",
-      "statusDetail": "0:03 - 4th",
-      "period": 4,
-      "clockMin": 0.05,
-      "awayScore": 31,
+      "status": "post",
+      "statusDetail": "Final",
+      "period": 0,
+      "clockMin": null,
+      "awayScore": 34,
       "homeScore": 31,
       "awayAbbr": "HOU",
       "homeAbbr": "JAX",
@@ -5300,13 +5300,13 @@
       "down": null,
       "distance": null,
       "downDistanceText": null,
-      "lastPlayText": "Timeout #1 by HST at 00:03.",
+      "lastPlayText": "END GAME",
       "linescores": {
         "away": [
           7,
           10,
           14,
-          0
+          3
         ],
         "home": [
           0,
@@ -5318,13 +5318,13 @@
       "currentDrive": {
         "id": "40187299620",
         "team": "HOU",
-        "description": "6 plays, 36 yards, 1:52",
-        "result": null,
-        "playCount": 6,
+        "description": "7 plays, 36 yards, 1:55",
+        "result": "Field Goal",
+        "playCount": 7,
         "yards": 36,
-        "elapsedDisplay": "1:52",
+        "elapsedDisplay": "1:55",
         "startText": "HOU 32",
-        "endText": null,
+        "endText": "JAX 32",
         "plays": [
           {
             "id": "4018729964271",
@@ -5501,15 +5501,191 @@
             "type": "Timeout",
             "homeScore": 31,
             "awayScore": 31
+          },
+          {
+            "id": "4018729964465",
+            "text": " K.Fairbairn 49 yard field goal is GOOD, Center-A.Brinkman, Holder-K.Kroeger.",
+            "shortText": null,
+            "period": 4,
+            "clock": "0:00",
+            "down": 4,
+            "distance": 1,
+            "downDistanceText": "4th & 1",
+            "yardLine": 32,
+            "team": "",
+            "scoring": true,
+            "type": "Field Goal Good",
+            "homeScore": 31,
+            "awayScore": 34
+          },
+          {
+            "id": "4018729964524",
+            "text": "END GAME",
+            "shortText": null,
+            "period": 4,
+            "clock": "0:00",
+            "down": 0,
+            "distance": 0,
+            "downDistanceText": null,
+            "yardLine": 65,
+            "team": "",
+            "scoring": false,
+            "type": "End of Game",
+            "homeScore": 31,
+            "awayScore": 34
           }
         ]
       },
       "winProbability": {
-        "home": 0.1744,
-        "away": 0.8256,
+        "home": 0,
+        "away": 1,
         "tie": 0
       },
       "plays": [
+        {
+          "id": "4018729963838",
+          "text": "(Shotgun) C.Stroud pass short right to J.Jordan to HST 46 for 7 yards (Jar.Jones).",
+          "shortText": null,
+          "period": 4,
+          "clock": "8:22",
+          "down": 2,
+          "distance": 18,
+          "downDistanceText": "2nd & 18",
+          "yardLine": 61,
+          "team": "",
+          "scoring": false,
+          "type": "Pass Reception",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729963863",
+          "text": "(Shotgun) C.Stroud pass short right to N.Collins to JAX 33 for 21 yards (T.Hunter; K.Merriweather).",
+          "shortText": null,
+          "period": 4,
+          "clock": "7:46",
+          "down": 3,
+          "distance": 11,
+          "downDistanceText": "3rd & 11",
+          "yardLine": 54,
+          "team": "",
+          "scoring": false,
+          "type": "Pass Reception",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729963888",
+          "text": "C.Stroud pass incomplete short right.",
+          "shortText": null,
+          "period": 4,
+          "clock": "7:00",
+          "down": 1,
+          "distance": 10,
+          "downDistanceText": "1st & 10",
+          "yardLine": 33,
+          "team": "",
+          "scoring": false,
+          "type": "Pass Incompletion",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729963916",
+          "text": "(Shotgun) W.Marks right tackle to JAX 22 for 11 yards (F.Oluokun).",
+          "shortText": null,
+          "period": 4,
+          "clock": "6:55",
+          "down": 2,
+          "distance": 10,
+          "downDistanceText": "2nd & 10",
+          "yardLine": 33,
+          "team": "",
+          "scoring": false,
+          "type": "Rush",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729963938",
+          "text": "B.Fisher reported in as eligible.  W.Marks left guard to JAX 20 for 2 yards (F.Oluokun).",
+          "shortText": null,
+          "period": 4,
+          "clock": "6:12",
+          "down": 1,
+          "distance": 10,
+          "downDistanceText": "1st & 10",
+          "yardLine": 22,
+          "team": "",
+          "scoring": false,
+          "type": "Rush",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729963962",
+          "text": "(Shotgun) C.Stroud pass short right to N.Collins pushed ob at JAX 9 for 11 yards (J.Lewis).",
+          "shortText": null,
+          "period": 4,
+          "clock": "5:27",
+          "down": 2,
+          "distance": 8,
+          "downDistanceText": "2nd & 8",
+          "yardLine": 20,
+          "team": "",
+          "scoring": false,
+          "type": "Pass Reception",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729963997",
+          "text": "(Shotgun) N.Collins left end to JAX 4 for 5 yards (J.Hines-Allen).",
+          "shortText": null,
+          "period": 4,
+          "clock": "4:47",
+          "down": 1,
+          "distance": 9,
+          "downDistanceText": "1st & Goal",
+          "yardLine": 9,
+          "team": "",
+          "scoring": false,
+          "type": "Rush",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729964024",
+          "text": "(3:59) (Shotgun) B.Fisher reported in as eligible.  C.Stroud pass short right intended for X.Hutchinson INTERCEPTED by T.Hunter at JAX -5. Touchback.\nPenalty on HST-A.Ersery, Ineligible Downfield Pass, declined.",
+          "shortText": null,
+          "period": 4,
+          "clock": "3:59",
+          "down": 2,
+          "distance": 4,
+          "downDistanceText": "2nd & Goal",
+          "yardLine": 4,
+          "team": "",
+          "scoring": false,
+          "type": "Pass Interception Return",
+          "homeScore": 28,
+          "awayScore": 31
+        },
+        {
+          "id": "4018729964048",
+          "text": "Official Timeout at 03:53.",
+          "shortText": null,
+          "period": 4,
+          "clock": "3:53",
+          "down": 1,
+          "distance": 10,
+          "downDistanceText": "1st & 10",
+          "yardLine": 20,
+          "team": "",
+          "scoring": false,
+          "type": "Official Timeout",
+          "homeScore": 28,
+          "awayScore": 31
+        },
         {
           "id": "4018729964071",
           "text": "T.Lawrence pass short middle to J.Meyers to JAX 35 for 15 yards (D.Stingley) [A.Al-Shaair].",
@@ -5815,180 +5991,36 @@
           "awayScore": 31
         },
         {
-          "id": "4018729964271",
-          "text": "C.Little kicks 62 yards from JAX 35 to HST 3. X.Hutchinson to HST 32 for 29 yards (B.Combs; R.Lane).",
+          "id": "4018729964465",
+          "text": " K.Fairbairn 49 yard field goal is GOOD, Center-A.Brinkman, Holder-K.Kroeger.",
           "shortText": null,
           "period": 4,
-          "clock": "1:55",
-          "down": 0,
-          "distance": 0,
-          "downDistanceText": null,
-          "yardLine": 35,
-          "team": "",
-          "scoring": false,
-          "type": "Kickoff",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964294",
-          "text": "(Shotgun) W.Marks right guard to HST 34 for 2 yards (T.Walker).",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:49",
-          "down": 1,
-          "distance": 10,
-          "downDistanceText": "1st & 10",
-          "yardLine": 68,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964316",
-          "text": "(Shotgun) C.Stroud pass short left to W.Marks to HST 40 for 6 yards (B.Combs) [J.Hines-Allen].",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:14",
-          "down": 2,
-          "distance": 8,
-          "downDistanceText": "2nd & 8",
-          "yardLine": 66,
-          "team": "",
-          "scoring": false,
-          "type": "Pass Reception",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964329",
-          "text": "Timeout #1 by JAX at 01:04.",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:04",
-          "down": 3,
-          "distance": 2,
-          "downDistanceText": "3rd & 2",
-          "yardLine": 60,
-          "team": "",
-          "scoring": false,
-          "type": "Timeout",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964341",
-          "text": "(Shotgun) C.Stroud pass short right to W.Marks pushed ob at JAX 41 for 19 yards (B.Combs).",
-          "shortText": null,
-          "period": 4,
-          "clock": "1:04",
-          "down": 3,
-          "distance": 2,
-          "downDistanceText": "3rd & 2",
-          "yardLine": 60,
-          "team": "",
-          "scoring": false,
-          "type": "Pass Reception",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964378",
-          "text": "(Shotgun) W.Marks right tackle to JAX 39 for 2 yards (A.Armstead; B.Combs).",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:58",
-          "down": 1,
-          "distance": 10,
-          "downDistanceText": "1st & 10",
-          "yardLine": 41,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964389",
-          "text": "Timeout #2 by JAX at 00:53.",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:53",
-          "down": 2,
-          "distance": 8,
-          "downDistanceText": "2nd & 8",
-          "yardLine": 39,
-          "team": "",
-          "scoring": false,
-          "type": "Timeout",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964400",
-          "text": "B.Fisher reported in as eligible.  J.Jordan left tackle to JAX 32 for 7 yards (K.Merriweather).",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:53",
-          "down": 2,
-          "distance": 8,
-          "downDistanceText": "2nd & 8",
-          "yardLine": 39,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964416",
-          "text": "Timeout #3 by JAX at 00:47.",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:47",
-          "down": 3,
-          "distance": 1,
-          "downDistanceText": "3rd & 1",
-          "yardLine": 32,
-          "team": "",
-          "scoring": false,
-          "type": "Timeout",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964431",
-          "text": "B.Fisher reported in as eligible. Direct snap to C.Stover.  C.Stover right guard to JAX 32 for no gain (F.Oluokun; T.Walker).  (Virtual Measurement).The Replay Official reviewed the short of the line to gain ruling, and the play was Upheld. The ruling on the field stands.",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:47",
-          "down": 3,
-          "distance": 1,
-          "downDistanceText": "3rd & 1",
-          "yardLine": 32,
-          "team": "",
-          "scoring": false,
-          "type": "Rush",
-          "homeScore": 31,
-          "awayScore": 31
-        },
-        {
-          "id": "4018729964448",
-          "text": "Timeout #1 by HST at 00:03.",
-          "shortText": null,
-          "period": 4,
-          "clock": "0:03",
+          "clock": "0:00",
           "down": 4,
           "distance": 1,
           "downDistanceText": "4th & 1",
           "yardLine": 32,
           "team": "",
-          "scoring": false,
-          "type": "Timeout",
+          "scoring": true,
+          "type": "Field Goal Good",
           "homeScore": 31,
-          "awayScore": 31
+          "awayScore": 34
+        },
+        {
+          "id": "4018729964524",
+          "text": "END GAME",
+          "shortText": null,
+          "period": 4,
+          "clock": "0:00",
+          "down": 0,
+          "distance": 0,
+          "downDistanceText": null,
+          "yardLine": 65,
+          "team": "",
+          "scoring": false,
+          "type": "End of Game",
+          "homeScore": 31,
+          "awayScore": 34
         }
       ],
       "playerStats": {
@@ -10799,7 +10831,7 @@
           "type": "Field Goal Good"
         }
       ],
-      "lastFetchedAt": 1792342130245
+      "lastFetchedAt": 1792342243543
     },
     "401872997": {
       "status": "pre",
@@ -10821,7 +10853,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401872998": {
       "status": "pre",
@@ -10843,7 +10875,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401872999": {
       "status": "pre",
@@ -10865,7 +10897,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873000": {
       "status": "pre",
@@ -10887,7 +10919,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873001": {
       "status": "pre",
@@ -10909,7 +10941,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873002": {
       "status": "pre",
@@ -10931,7 +10963,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873003": {
       "status": "pre",
@@ -10953,7 +10985,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873004": {
       "status": "pre",
@@ -10975,7 +11007,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873005": {
       "status": "pre",
@@ -10997,7 +11029,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873006": {
       "status": "pre",
@@ -11019,7 +11051,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873007": {
       "status": "pre",
@@ -11041,7 +11073,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130246
+      "lastFetchedAt": 1792342243543
     },
     "401873008": {
       "status": "pre",
@@ -11063,7 +11095,7 @@
         "away": [],
         "home": []
       },
-      "lastFetchedAt": 1792342130294
+      "lastFetchedAt": 1792342243586
     }
   }
 }
