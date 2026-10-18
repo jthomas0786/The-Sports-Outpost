@@ -189,7 +189,7 @@ async function loadMuxer(){
  if(!global.document)throw Error('Video export requires a browser.');
  if(!loadMuxer.pending)loadMuxer.pending=new Promise((resolve,reject)=>{
   const node=document.createElement('script');
-  node.src='https://cdn.jsdelivr.net/npm/mp4-muxer@5.2.2/build/mp4-muxer.min.js';
+  node.src='./vendor/mp4-muxer.min.js?v=20261017-mp4-v522';
   node.crossOrigin='anonymous';
   node.onload=()=>global.Mp4Muxer?resolve(global.Mp4Muxer):reject(Error('MP4 encoder module unavailable.'));
   node.onerror=()=>reject(Error('MP4 encoder could not be loaded. Check your connection.'));
