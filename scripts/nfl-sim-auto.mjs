@@ -90,7 +90,7 @@ const stateGames=weekChanged?{}:{...(stateDoc?.games||{})};
 const halftimeById=new Map((weekChanged?[]:(halftimeExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
 const quarterById=new Map((weekChanged?[]:(quarterExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
 let halftimeTouched=false,quarterTouched=false;
-let runs=0,totalIterations=0;
+let runs=0,totalIterations=0,specialistUpdates=0;
 const touched=[];
 
 for(const game of games){
@@ -112,6 +112,15 @@ for(const game of games){
     decision={...decision,run:true,reason:'simulation engine upgrade',iterations:Number(config.automatic?.pregameIterations||config.defaultIterations||50000),checkpointMinutes:null};
   }
   if(!decision.run){
+    // Refresh names for an existing verified sampled world without modifying
+    // its simulation statistics, score or representative play selection.
+    if(!DRY&&old?.game&&old?.availabilityAudit?.rosterVerified===true){
+      const verified=rosterChecked.rosterAudit.specialists;
+      if(JSON.stringify(old.game.specialists||null)!==JSON.stringify(verified)){
+        old.game.specialists=verified;
+        specialistUpdates++;
+      }
+    }
     console.log(`· ${pair}: skip — ${decision.reason}`);
     continue;
   }
@@ -175,7 +184,7 @@ if(DRY){
   console.log(`Dry run: ${touched.length} game(s) would run.`);
   process.exit(0);
 }
-if(!runs && !weekChanged){
+if(!runs && !weekChanged && !specialistUpdates){
   console.log('✓ NFL simulation cache is current — no automatic run required.');
   process.exit(0);
 }
