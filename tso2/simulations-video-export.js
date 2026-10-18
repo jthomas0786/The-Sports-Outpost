@@ -105,6 +105,31 @@ function play(c,game,logos,event,field){
  text(c,'SCORING WORLD · '+String(game.representativeWorld?.sampledIndex??0),W/2,955,17,'#d4dbe6',750,'center');
  wrapped(c,'Score-conditioned replay · movement, gains and play selection are illustrative, not tracked NFL snaps.',58,1000,W-116,{size:17,lineHeight:24,lines:2});
  footer(c,'TSO 50K CORRELATED MONTE CARLO');
+ drawBroadcastEvent(c,game,logos,event,progress);
+}
+function drawBroadcastEvent(c,game,logos,event,progress){
+ const detail=global.TSO2SimBroadcastEvent?.fromPlay(event,game);
+ if(!detail||progress<.42)return;
+ const accent=detail.tone==='score'?'#ffd35b':
+  detail.tone==='defense'||detail.tone==='turnover'?'#7ad1ff':
+  detail.tone==='warning'?'#ffb56c':'#ff8452';
+ const team=detail.team===abbr(game.away)?0:detail.team===abbr(game.home)?1:-1;
+ const x=50,y=503,w=W-100,h=169;
+ c.save();
+ c.shadowColor='#000c';c.shadowBlur=28;c.shadowOffsetY=10;
+ roundRect(c,x,y,w,h,17,'#141a25f5',accent);
+ c.restore();
+ c.fillStyle=accent;c.fillRect(x+2,y+18,6,h-36);
+ if(team>=0)drawLogo(c,logos[team],x+66,y+64,abbr(team===0?game.away:game.home),69);
+ const copyX=team>=0?x+121:x+32;
+ text(c,(detail.teamName||detail.team||'TSO REPLAY').toUpperCase(),copyX,y+31,14,accent,900);
+ const title=detail.title||'GAME EVENT';
+ c.font='950 37px system-ui, sans-serif';
+ const max=w-(team>=0?154:66);
+ const titleSize=c.measureText(title).width>max?27:37;
+ text(c,title,copyX,y+78,titleSize,'#fff',950);
+ if(detail.actor)wrapped(c,detail.actor,copyX,y+111,max,{size:20,lineHeight:22,lines:1,color:'#ffde86',weight:900});
+ wrapped(c,detail.subline||'ILLUSTRATIVE REPLAY',copyX,y+141,max,{size:13,lineHeight:16,lines:1,color:'#cbd5e3',weight:750});
 }
 const val=v=>Number.isFinite(Number(v))?String(Math.round(Number(v))):'—';
 function boxPages(game,snapshot){
@@ -269,23 +294,31 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
  if(!c)throw Error('Canvas drawing is unavailable.');
  const logos=await Promise.all([logoImage(logoUrl(game.away)),logoImage(logoUrl(game.home))]);
  const pages=boxPages(game,snapshot);
- const introFrames=FPS*2,playFrames=Math.max(8,Math.round(FPS*.42)),outroFrames=FPS*4;
- const frames=introFrames+plays.length*playFrames+pages.length*outroFrames;
+ const introFrames=FPS*2,outroFrames=FPS*4;
+ // Highlight plays receive a readable 1.25 second pause in the MP4; all
+ // ordinary illustrative snaps remain short. No extra events are generated.
+ const playDurations=plays.map(event=>global.TSO2SimBroadcastEvent?.fromPlay(event,game)?
+  Math.round(FPS*1.25):Math.max(8,Math.round(FPS*.42)));
+ const offsets=[0];
+ for(const duration of playDurations)offsets.push(offsets[offsets.length-1]+duration);
+ const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+pages.length*outroFrames;
  const render=frame=>{
   if(frame<introFrames)return intro(c,game,logos);
   let pos=frame-introFrames;
-  if(pos<plays.length*playFrames){
-   const index=Math.floor(pos/playFrames),fraction=(pos%playFrames)/playFrames;
+  if(pos<replayFrames){
+   let lo=0,hi=plays.length;
+   while(lo+1<hi){const mid=(lo+hi)>>1;if(offsets[mid]<=pos)lo=mid;else hi=mid;}
+   const index=lo,fraction=(pos-offsets[index])/playDurations[index];
    const field=renderField(index,fraction);
    return play(c,game,logos,plays[index],{canvas:field,progress:fraction,index});
   }
-  pos-=plays.length*playFrames;
+  pos-=replayFrames;
   const pageIndex=Math.min(pages.length-1,Math.floor(pos/outroFrames));
   return finalSlide(c,game,logos,snapshot,pages[pageIndex],pageIndex+1,pages.length);
  };
  const progress={
   render,
-  report:(current,total)=>onProgress(100*current/total,current<introFrames?'Encoding intro':current<introFrames+plays.length*playFrames?'Encoding replay':'Appending complete final box score')
+  report:(current,total)=>onProgress(100*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score')
  };
  onProgress(0,'Preparing '+plays.length+' illustrated plays and '+pages.length+' final box-score pages');
  let blob;
