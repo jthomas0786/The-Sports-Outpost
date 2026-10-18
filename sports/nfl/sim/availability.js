@@ -66,7 +66,15 @@ export async function verifiedTeamActiveRoster(team,{fetchImpl=fetch,cache=true}
   const active=new Set(officialPlayers.map(a=>normalizedName(a.displayName||a.fullName)));
   const positions=new Map(officialPlayers.map(a=>[normalizedName(a.displayName||a.fullName),String(a.position?.abbreviation||'').toUpperCase()]));
   if(active.size<9)throw Error('Incomplete 2026 active roster for '+canonical);
-  return {team:canonical,active,positions,checkedAt:new Date().toISOString(),
+  // The model intentionally tracks offensive skill positions only. Preserve
+  // verified active specialists separately for broadcast attribution.
+  const specialistPool=(doc.athletes||[]).flatMap(group=>Array.isArray(group.items)?group.items:[])
+   .filter(a=>a.status?.type==='active'&&a.displayName&&['K','PK','P'].includes(String(a.position?.abbreviation||'').toUpperCase()));
+  const byRole=role=>specialistPool.find(a=>role==='kicker'?
+   ['K','PK'].includes(String(a.position?.abbreviation||'').toUpperCase()):
+   String(a.position?.abbreviation||'').toUpperCase()==='P');
+  const specialists={kicker:byRole('kicker')?.displayName||null,punter:byRole('punter')?.displayName||null};
+  return {team:canonical,active,positions,specialists,checkedAt:new Date().toISOString(),
    source:'ESPN team roster; final 90-minute game-day inactive report not yet checked'};
  })();
  if(cache)currentRosters.set(canonical,action);
@@ -112,6 +120,10 @@ export async function verifiedRosterFilteredInputs(game,research,{fetchImpl=fetc
  return {game:safeGame,research:safeResearch,exclusions:[...removed.values()],
   rosterAudit:{season:2026,checkedAt:new Date().toISOString(),source:'ESPN 2026 active roster + league injury report',
    teams:teams.slice(),counts:[away.active.size,home.active.size],
+   specialists:Object.fromEntries([away,home].map(entry=>[entry.team,{
+    kicker:entry.specialists.kicker&&!injuryBlocked({team:entry.team,name:entry.specialists.kicker})?entry.specialists.kicker:null,
+    punter:entry.specialists.punter&&!injuryBlocked({team:entry.team,name:entry.specialists.punter})?entry.specialists.punter:null
+   }])),
    injuryReportVerified:true,injuryReportCheckedAt:report.checkedAt,injuryReportSource:report.source,
    injuryTeams:injuries.map(t=>({team:t.team,rows:t.entries,reported:t.feedContainsTeam,excluded:t.excluded.map(p=>({name:p.name,status:p.status,position:p.position})),uncertain:t.uncertain.map(p=>({name:p.name,status:p.status,position:p.position}))})),
    finalInactivesVerified:false}};

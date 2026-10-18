@@ -359,7 +359,7 @@ function updatePlay(){
  write('[data-tsos-quarter]','Q'+event.quarter);write('[data-tsos-clock]',event.clock);
  write('[data-tsos-away]',state.finished?event.scoreAway:(event.beforeAway??event.scoreAway));write('[data-tsos-home]',state.finished?event.scoreHome:(event.beforeHome??event.scoreHome));
  write('[data-tsos-possession]',event.side+' POSSESSION · '+event.kind);
- write('[data-tsos-ball-holder]',event.kind==='PASS'?'BALL: '+event.passer+' → '+event.receiver:event.kind==='RUSH'?'BALL: '+event.passer+' → '+event.carrier:'BALL: '+event.side+' KICKING UNIT');
+ write('[data-tsos-ball-holder]',event.kind==='PASS'?'BALL: '+event.passer+' → '+event.receiver:event.kind==='RUSH'?'BALL: '+event.passer+' → '+event.carrier:'BALL: '+(event.player||'SPECIAL TEAMS')+' · '+event.kind);
  write('[data-tsos-commentary]',event.commentary);
  write('[data-tsos-seek-label]',(state.index+1)+' / '+state.plays.length);
  const seek=$(el,'[data-tsos-seek]');if(seek)seek.value=String(state.index);
@@ -399,7 +399,8 @@ function sceneFrame(event,progress,game){
  const pass=event.kind==='PASS',kick=['FIELD GOAL','PUNT','KICKOFF','KICK OFF','FREE KICK'].includes(event.kind),qbCarry=event.kind==='RUSH'&&event.carrier===event.passer;
  const targetSlot=Number.isInteger(event.targetSlot)?event.targetSlot:1;
  const qbDrop=pass?simEase(p/.30)*3:simEase(p/.24)*.6;
- const qb={id:'qb',role:'QB',team:event.side,u:kick?-6:qbCarry?simMix(-4.5,event.gain,simEase((p-.3)/.65)):-4.5-qbDrop,y:.5,name:event.passer||'Quarterback'};
+ // During kicks, render the verified special-teams actor, not a phantom QB.
+ const qb={id:'qb',role:kick?'SPECIALIST':'QB',team:event.side,u:kick?-6:qbCarry?simMix(-4.5,event.gain,simEase((p-.3)/.65)):-4.5-qbDrop,y:.5,name:kick?(event.player||'Specialist'):(event.passer||'Quarterback')};
  const carrierLane=event.index%2===0?.435:.565;
  let rbU=-9,rbY=.61;
  if(!pass&&!kick&&!qbCarry){
@@ -458,7 +459,7 @@ function sceneFrame(event,progress,game){
  for(const p of [...off,...def])p.x=world(p.u);
  let ballOwner='QB',ball={u:qb.u,y:qb.y},flight=false;
  if(kick){
-  ballOwner=p>.33?'KICK IN FLIGHT':'KICKING UNIT';
+  ballOwner=p>.33?'KICK IN FLIGHT':(event.player||'SPECIALIST');
   ball=p>.33?{u:simMix(-5,Math.max(65,100-event.yard),simEase((p-.33)/.6)),y:.5-Math.sin(Math.PI*simClamp((p-.33)/.6,0,1))*.20}:{u:-5,y:.5};
   flight=p>.33;
  }else if(pass){
@@ -532,7 +533,7 @@ function draw(progress=0,targetCanvas=null,skipUi=false){
  const teamColor=code=>code===state.game.away.abbr?'#ff8f51':'#72c6ff';
  const all=[...frame.defense,...frame.offense];
  for(const actor of all){
-  const x=xOf(actor.x),y=yOf(actor.y),highlight=actor.role==='QB'||actor.role==='TARGET'||(frame.run&&actor.role==='RB');
+  const x=xOf(actor.x),y=yOf(actor.y),highlight=actor.role==='QB'||actor.role==='SPECIALIST'||actor.role==='TARGET'||(frame.run&&actor.role==='RB');
   ctx.beginPath();ctx.arc(x,y,highlight?9:6.2,0,Math.PI*2);
   ctx.fillStyle=teamColor(actor.team);ctx.fill();
   ctx.lineWidth=highlight?2.6:1.3;
