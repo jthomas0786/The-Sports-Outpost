@@ -1,0 +1,45 @@
+# One-time ingestion of the user-approved FSCM Productions Epic Battle soundtrack.
+# Only installs the MP3 if its SHA-256 equals the uploaded reference exactly.
+# Never touches main or production. CC BY 4.0 attribution is required.
+name: TSO 2.0 - Install approved simulation music
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - .github/workflows/tso2-epic-battle-audio.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  ingest-asset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Fetch and verify the exact approved original MP3
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p tso2/assets/music
+          output="tso2/assets/music/fscm-productions-epic-battle.mp3"
+          curl --fail --location --retry 3 --connect-timeout 15 --max-time 120 \
+            --user-agent 'Mozilla/5.0 (compatible; TheSportsOutpost/2.0)' \
+            --referer 'https://www.free-stock-music.com/fscm-productions-epic-battle.html' \
+            --output "$output" \
+            'https://www.free-stock-music.com/music/fscm-productions/mp3/fscm-productions-epic-battle.mp3'
+          echo '1af8ff7092888753ecf00bc592542906b422e1c876af45adc83a469cbdfcd64a  '"$output" | sha256sum --check --status
+          ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 "$output"
+          test "$(stat -c%s "$output")" -gt 8000000
+      - name: Commit verified audio to TSO 2.0 only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'tso2-asset-bot'
+          git config user.email 'tso2-asset-bot@users.noreply.github.com'
+          git add tso2/assets/music/fscm-productions-epic-battle.mp3
+          if ! git diff --cached --quiet; then
+            git commit -m 'assets(tso2): add verified Epic Battle MP3 for simulation exports'
+            git push origin HEAD:tso-2.0-restructure
+          fi
