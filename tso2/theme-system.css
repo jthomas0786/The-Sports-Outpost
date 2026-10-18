@@ -821,6 +821,41 @@ body{font-size:var(--tso-body-size)}
  .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock small{font-size:8px}
 }
 
+
+/* Landscape broadcast release: final team stats and full box score are
+   separate screens, not a single scroll of mixed results. */
+.app-shell.broadcast-shell .tso-sim-final-screen[hidden]{display:none!important}
+.app-shell.broadcast-shell .tso-sim-final-screen{
+ padding:10px 0 6px;
+}
+.app-shell.broadcast-shell .tso-sim-final-screen-head{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:14px;flex-wrap:wrap;margin-bottom:12px;
+}
+.app-shell.broadcast-shell .tso-sim-final-screen-head .tso-sim-stat-heading{
+ margin:0;
+}
+.app-shell.broadcast-shell .tso-sim-final-next{
+ margin:15px 0 12px;
+ padding:11px 18px;
+ border:1px solid var(--outpost-orange);border-radius:var(--r-sm);
+ color:var(--tso-btn-text);background:var(--outpost-orange);
+ font-family:var(--tso-font-family);font-weight:900;
+ font-size:12px;letter-spacing:.035em;cursor:pointer;
+}
+.app-shell.broadcast-shell .tso-sim-final-next:hover,
+.app-shell.broadcast-shell .tso-sim-final-next:focus-visible{
+ background:var(--outpost-gold);border-color:var(--outpost-gold);
+ color:var(--bg);outline-offset:3px;
+}
+.app-shell.broadcast-shell .tso-sim-final-screen .tso-sim-complete-box-grid{
+ margin-top:14px;
+}
+@media(max-width:700px){
+ .app-shell.broadcast-shell .tso-sim-final-next{width:100%;text-align:center}
+ .app-shell.broadcast-shell .tso-sim-final-screen-head{align-items:stretch}
+}
+
 /* Theme Studio is part of the SAME design system */
 .tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
 .tso-theme-header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
