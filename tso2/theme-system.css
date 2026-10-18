@@ -876,36 +876,38 @@ body{font-size:var(--tso-body-size)}
 .app-shell.broadcast-shell .tso-sim-players[data-tsos-panel] .tso-sim-live-line span{
  color:var(--outpost-gold);font-size:10px;font-variant-numeric:tabular-nums;
 }
-/* One final player view with PASSING | RUSHING | RECEIVING simultaneously. */
-.app-shell.broadcast-shell .tso-sim-final-market-grid{
- display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;
+/* Final box: Away on the left, Home on the right. Keep markets together per team. */
+.app-shell.broadcast-shell .tso-sim-final-team-grid{
+ display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;
  min-width:0;align-items:start;
 }
-.app-shell.broadcast-shell .tso-sim-final-market{
+.app-shell.broadcast-shell .tso-sim-final-team-box{
  background:var(--card);border:1px solid var(--line-strong);
- border-radius:var(--r-sm);min-width:0;padding:10px;
- max-height:min(62vh,660px);overflow-y:auto;scrollbar-width:thin;
+ border-radius:var(--r-sm);min-width:0;padding:13px;
+ max-height:min(70vh,760px);overflow-y:auto;scrollbar-width:thin;
 }
-.app-shell.broadcast-shell .tso-sim-final-market>h4{
- margin:0 0 10px;color:var(--outpost-gold);font-size:13px;letter-spacing:.08em;
+.app-shell.broadcast-shell .tso-sim-final-team-box>h4{
+ color:var(--outpost-gold);font-size:17px;margin:0 0 10px;
+ letter-spacing:.05em;padding-bottom:9px;border-bottom:1px solid var(--line-strong);
 }
-.app-shell.broadcast-shell .tso-sim-final-market-team h5{
- margin:11px 0 6px;color:var(--outpost-orange);font-size:12px;
+.app-shell.broadcast-shell .tso-sim-final-team-market{margin-top:11px}
+.app-shell.broadcast-shell .tso-sim-final-team-market h5{
+ color:var(--outpost-orange);font-size:12px;letter-spacing:.06em;margin:0 0 6px;
 }
-.app-shell.broadcast-shell .tso-sim-final-market .tso-sim-box-table{font-size:10px}
-.app-shell.broadcast-shell .tso-sim-final-market .tso-sim-box-table th{
- font-size:9px;padding:7px 5px;background:var(--elev);color:var(--outpost-gold);
- border-color:var(--line-strong);
+.app-shell.broadcast-shell .tso-sim-final-team-box .tso-sim-box-table{font-size:11px}
+.app-shell.broadcast-shell .tso-sim-final-team-box .tso-sim-box-table th{
+ font-size:9px;padding:7px 5px;background:var(--elev);
+ color:var(--outpost-gold);border-color:var(--line-strong);
 }
-.app-shell.broadcast-shell .tso-sim-final-market .tso-sim-box-table td{
+.app-shell.broadcast-shell .tso-sim-final-team-box .tso-sim-box-table td{
  padding:7px 5px;border-color:var(--line);
 }
-@media(max-width:1090px){
- .app-shell.broadcast-shell .tso-sim-final-market-grid{
-  grid-template-columns:repeat(3,minmax(285px,1fr));overflow-x:auto;
-  padding-bottom:10px;scroll-snap-type:x proximity;
+@media(max-width:730px){
+ .app-shell.broadcast-shell .tso-sim-final-team-grid{
+  grid-template-columns:repeat(2,minmax(290px,1fr));overflow-x:auto;
+  padding-bottom:8px;scroll-snap-type:x mandatory;
  }
- .app-shell.broadcast-shell .tso-sim-final-market{scroll-snap-align:start}
+ .app-shell.broadcast-shell .tso-sim-final-team-box{scroll-snap-align:start}
 }
 
 /* Theme Studio is part of the SAME design system */

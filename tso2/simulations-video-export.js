@@ -215,8 +215,8 @@ function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
    y+=23;
   }
  }else{
-  // Single 16:9 player screen: three markets side by side and BOTH teams in each.
-  // All tracked participants remain here; density scales with the play ledger.
+  // Away team (left), home team (right); each has Passing / Rushing /
+  // Receiving on ONE concluding landscape screen, never intermixed.
   const specs=[
    {category:'passing',name:'PASSING',heads:['PLAYER','CMP/ATT','YDS','TD','INT'],
     format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
@@ -225,33 +225,38 @@ function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
    {category:'receiving',name:'RECEIVING',heads:['PLAYER','REC/TGT','YDS','TD'],
     format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
   ];
-  for(const [index,spec] of specs.entries()){
-   const x=25+index*419,w=393,y=239,h=414;
-   roundRect(c,x,y,w,h,10,'#131c28','#354355');
-   text(c,spec.name,x+12,y+27,19,'#ffd055',950);
-   const coords=spec.heads.length===5?[x+12,x+263,x+310,x+350,x+381]:
-    [x+12,x+276,x+333,x+381];
-   for(let j=1;j<spec.heads.length;j++)
-    text(c,spec.heads[j],coords[j],y+48,9,'#a6b6ce',850,'right');
-   const combined=[...(page.teams[away]?.[spec.category]||[]),...(page.teams[home]?.[spec.category]||[])];
-   const rowH=Math.min(22,Math.max(7,(h-64-2*20)/Math.max(combined.length,1)));
-   let yy=y+53;
-   for(const code of [away,home]){
-    const players=page.teams[code]?.[spec.category]||[];
-    c.fillStyle='#293546';c.fillRect(x+8,yy,w-16,18);
-    text(c,code+' · '+spec.name,x+13,yy+13,11,'#ffd15a',900);
-    yy+=20;
+  for(const [teamIndex,code] of [away,home].entries()){
+   const x=25+teamIndex*628,w=602,y=239,h=419,teamStats=page.teams[code]||{};
+   roundRect(c,x,y,w,h,12,'#131c28','#354355');
+   drawLogo(c,logos[teamIndex],x+37,y+36,code,52);
+   text(c,code+'  ·  '+(teamIndex?'HOME':'AWAY'),x+73,y+34,22,'#ffd055',950);
+   text(c,'FINAL PLAYER STATS',x+w-15,y+34,12,'#b5c3d4',840,'right');
+   c.fillStyle='#334153';c.fillRect(x+12,y+68,w-24,1);
+   const rowCount=specs.reduce((sum,spec)=>sum+Math.max(1,(teamStats[spec.category]||[]).length),0);
+   const rowHeight=Math.min(21,Math.max(5,Math.floor((h-84-3*24)/Math.max(1,rowCount))));
+   let yy=y+74;
+   for(const spec of specs){
+    const coords=spec.heads.length===5?
+     [x+15,x+w-215,x+w-137,x+w-83,x+w-17]:
+     [x+15,x+w-182,x+w-99,x+w-18];
+    c.fillStyle='#29394c';c.fillRect(x+11,yy,w-22,20);
+    text(c,spec.name,x+16,yy+14,12,'#ffd15a',950);
+    for(let j=1;j<spec.heads.length;j++)
+     text(c,spec.heads[j],coords[j],yy+14,9,'#b9c8d8',850,'right');
+    yy+=24;
+    const players=teamStats[spec.category]||[];
     if(!players.length){
-     text(c,'No recorded attempts',x+12,yy+rowH*.72,9,'#a1acba',720);
-     yy+=rowH;
+     text(c,'No recorded attempts',x+16,yy+rowHeight*.75,9,'#94a2b3',700);
+     yy+=rowHeight;
     }
     for(const [k,p] of players.entries()){
-     if(k%2===0){c.fillStyle='#1b2736';c.fillRect(x+8,yy,w-16,rowH);}
-     const row=spec.format(p),font=Math.min(12,Math.max(7,Math.floor(rowH*.7)));
-     const baseline=yy+rowH*.74;
+     if(k%2===0){c.fillStyle='#1b2939';c.fillRect(x+11,yy,w-22,rowHeight);}
+     const row=spec.format(p);
+     const font=Math.min(12,Math.max(7,Math.floor(rowHeight*.77))),baseline=yy+rowHeight*.75;
      for(let j=0;j<row.length;j++)
-      text(c,row[j],coords[j],baseline,font,j===0?'#fff':'#dce7f2',j===0?760:850,j===0?'left':'right',j===0?231:53);
-     yy+=rowH;
+      text(c,row[j],coords[j],baseline,font,j===0?'#fff':'#dce7f2',j===0?760:840,
+       j===0?'left':'right',j===0?w-240:70);
+     yy+=rowHeight;
     }
    }
   }
@@ -293,11 +298,59 @@ async function setupEncoder(c,muxer,fps){
  }
  throw Error('H.264 MP4 encoding is unsupported in this browser.');
 }
+async function encodeSoundtrack(muxer,frames,onProgress=()=>{}){
+ const sound=global.TSO2SimSoundtrack;
+ if(!sound||typeof sound.render!=='function')throw Error('Original TSO background music is not loaded.');
+ if(typeof AudioEncoder!=='function'||typeof AudioData!=='function')
+  throw Error('AAC music encoding is unavailable in this browser.');
+ const config={codec:'mp4a.40.2',sampleRate:sound.sampleRate,numberOfChannels:sound.numberOfChannels,bitrate:128000};
+ const support=await AudioEncoder.isConfigSupported(config);
+ if(!support.supported)throw Error('AAC music encoding is unsupported by this browser.');
+ let encodeError=null;
+ const encoder=new AudioEncoder({
+  output:(chunk,meta)=>muxer.addAudioChunk(chunk,meta),
+  error:error=>{encodeError=error}
+ });
+ encoder.configure(support.config);
+ const rate=sound.sampleRate,needed=Math.round(frames*rate/FPS);
+ const packet=1024;
+ try{
+  for(let index=0;index<needed;index+=packet){
+   const count=Math.min(packet,needed-index);
+   const data=new AudioData({
+    format:'f32-planar',sampleRate:rate,numberOfFrames:count,
+    numberOfChannels:sound.numberOfChannels,
+    timestamp:Math.round(index*1000000/rate),data:sound.render(index,count,needed)
+   });
+   try{encoder.encode(data)}finally{data.close()}
+   if(encoder.encodeQueueSize>15)await encoder.flush();
+   if(encodeError)throw encodeError;
+   if(index%(packet*64)===0)onProgress(index,needed);
+  }
+  await encoder.flush();
+  if(encodeError)throw encodeError;
+  onProgress(needed,needed);
+ }finally{encoder.close()}
+}
+function nativeMusicBuffer(audioContext,frames){
+ const sound=global.TSO2SimSoundtrack;
+ if(!sound||typeof sound.render!=='function')throw Error('Original TSO background music is not loaded.');
+ const rate=audioContext.sampleRate,total=Math.round(frames*rate/FPS),buffer=audioContext.createBuffer(2,total,rate);
+ const left=buffer.getChannelData(0),right=buffer.getChannelData(1);
+ const packet=4096;
+ for(let i=0;i<total;i+=packet){
+  const size=Math.min(packet,total-i),stereo=sound.render(i,size,total,rate);
+  left.set(stereo.subarray(0,size),i);
+  right.set(stereo.subarray(size,size*2),i);
+ }
+ return buffer;
+}
 async function encodeWebCodecs(canvas,frames,progress){
  const lib=await loadMuxer();
  const muxer=new lib.Muxer({
   target:new lib.ArrayBufferTarget(),
   video:{codec:'avc',width:W,height:H,frameRate:FPS},
+  audio:{codec:'aac',sampleRate:global.TSO2SimSoundtrack?.sampleRate||48000,numberOfChannels:2},
   fastStart:'in-memory',firstTimestampBehavior:'offset'
  });
  const {encoder,check}=await setupEncoder(canvas,muxer,FPS);
@@ -309,18 +362,33 @@ async function encodeWebCodecs(canvas,frames,progress){
    if(i%12===0){check();progress.report(i,frames)}
    if(encoder.encodeQueueSize>7)await encoder.flush();
   }
-  await encoder.flush();check();muxer.finalize();
+  await encoder.flush();check();
+  progress.musicStart?.();
+  await encodeSoundtrack(muxer,frames,(current,total)=>progress.musicProgress?.(current,total));
+  muxer.finalize();
   return new Blob([muxer.target.buffer],{type:'video/mp4'});
  }finally{encoder.close()}
 }
-async function encodeNative(canvas,frames,progress){
- if(!canvas.captureStream||typeof MediaRecorder==='undefined')
-  throw Error('MP4 video export is unsupported by this browser.');
- const mime=['video/mp4;codecs=avc1.42E01F','video/mp4;codecs=avc1.42001f','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
- if(!mime)throw Error('Native MP4 recording is unavailable. Try Safari or Chrome with H.264 WebCodecs.');
- const stream=canvas.captureStream(FPS),chunks=[];
- const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000});
- let failed=null;
+async function encodeNative(canvas,frames,progress,audioContext){
+ if(!canvas.captureStream||typeof MediaRecorder==='undefined'||!audioContext)
+  throw Error('MP4 export with background music requires H.264/AAC support in this browser.');
+ const mime=[
+  'video/mp4;codecs="avc1.42E01F,mp4a.40.2"',
+  'video/mp4;codecs="avc1.42001f,mp4a.40.2"',
+  'video/mp4'
+ ].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!mime)throw Error('Native video+music MP4 recording is unavailable. Try an updated Chrome or Safari.');
+ await audioContext.resume();
+ if(audioContext.state!=='running')throw Error('Audio playback permission is required to include the soundtrack.');
+ const source=audioContext.createBufferSource();
+ source.buffer=nativeMusicBuffer(audioContext,frames);
+ const destination=audioContext.createMediaStreamDestination();
+ source.connect(destination);
+ const fieldStream=canvas.captureStream(FPS);
+ const stream=new MediaStream([...fieldStream.getVideoTracks(),...destination.stream.getAudioTracks()]);
+ const chunks=[];
+ const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000,audioBitsPerSecond:128000});
+ let failed=null,started=false;
  const stopped=new Promise((resolve,reject)=>{
   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
   recorder.onerror=e=>{failed=e.error||Error('MP4 recorder failed');reject(failed)};
@@ -328,20 +396,30 @@ async function encodeNative(canvas,frames,progress){
  });
  try{
   recorder.start(1000);
+  source.start();started=true;
   for(let i=0;i<frames;i++){
    progress.render(i);if(i%12===0)progress.report(i,frames);
    await wait(1000/FPS);
   }
   recorder.stop();await stopped;
   return new Blob(chunks,{type:'video/mp4'});
- }finally{stream.getTracks().forEach(t=>t.stop())}
+ }finally{
+  if(started){try{source.stop()}catch(_){}}
+  fieldStream.getTracks().forEach(t=>t.stop());
+  destination.stream.getTracks().forEach(t=>t.stop());
+  if(recorder.state!=='inactive'){try{recorder.stop()}catch(_){}}
+ }
 }
 async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={}){
+ // Unlock audio in the initial button click before asynchronous logo/encoder work.
  if(!game?.representativeWorld||!Array.isArray(plays)||!plays.length||!snapshot?.teams)
   throw Error('An eligible representative simulation and complete box score are required.');
  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
  const c=canvas.getContext('2d',{alpha:false});
  if(!c)throw Error('Canvas drawing is unavailable.');
+ const AudioCtor=global.AudioContext||global.webkitAudioContext;
+ const audioContext=AudioCtor?new AudioCtor():null;
+ const unlockAudio=audioContext?audioContext.resume().catch(()=>{}):Promise.resolve();
  const logos=await Promise.all([logoImage(logoUrl(game.away)),logoImage(logoUrl(game.home))]);
  const pages=boxPages(game,snapshot);
  const engine=global.TSO2SimEngine;
@@ -354,14 +432,15 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
   if(!snapshots.has(done))snapshots.set(done,engine.snapshot(game,plays,done));
   return snapshots.get(done);
  };
- const introFrames=FPS*2,outroFrames=FPS*4;
+ // Keep the final player box visible long enough for social viewers to read.
+ const introFrames=FPS*2,teamStatFrames=FPS*4,playerBoxFrames=FPS*8;
  // Highlight plays receive a readable 1.25 second pause in the MP4; all
  // ordinary illustrative snaps remain short. No extra events are generated.
  const playDurations=plays.map(event=>global.TSO2SimBroadcastEvent?.fromPlay(event,game)?
   Math.round(FPS*1.25):Math.max(8,Math.round(FPS*.42)));
  const offsets=[0];
  for(const duration of playDurations)offsets.push(offsets[offsets.length-1]+duration);
- const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+pages.length*outroFrames;
+ const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+teamStatFrames+playerBoxFrames;
  const render=frame=>{
   if(frame<introFrames)return intro(c,game,logos);
   let pos=frame-introFrames;
@@ -373,26 +452,34 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
    return play(c,game,logos,plays[index],{canvas:field,progress:fraction,index},at(index+(fraction>=.94?1:0)));
   }
   pos-=replayFrames;
-  const pageIndex=Math.min(pages.length-1,Math.floor(pos/outroFrames));
+  const pageIndex=pos<teamStatFrames?0:1;
   return finalSlide(c,game,logos,snapshot,pages[pageIndex],pageIndex+1,pages.length);
  };
  const progress={
   render,
-  report:(current,total)=>onProgress(100*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score')
+  report:(current,total)=>onProgress(95*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score'),
+  musicStart:()=>onProgress(95,'Encoding original upbeat instrumental soundtrack'),
+  musicProgress:(current,total)=>onProgress(95+4*current/Math.max(1,total),'Encoding AAC stereo background music')
  };
- onProgress(0,'Preparing '+plays.length+' illustrated plays and '+pages.length+' final box-score pages');
+ onProgress(0,'Preparing '+plays.length+' illustrated plays, two final slides and original soundtrack');
  let blob;
- if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
-  try{blob=await encodeWebCodecs(canvas,frames,progress)}
-  catch(err){
-   if(err?.message?.includes('Game changed'))throw err;
-   if(typeof MediaRecorder!=='undefined')blob=await encodeNative(canvas,frames,progress);
-   else throw err;
+ try{
+  if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
+   try{blob=await encodeWebCodecs(canvas,frames,progress)}
+   catch(err){
+    if(err?.message?.includes('Game changed'))throw err;
+    if(typeof MediaRecorder!=='undefined'&&audioContext){
+     await unlockAudio;blob=await encodeNative(canvas,frames,progress,audioContext);
+    }else throw err;
+   }
+  }else{
+   await unlockAudio;
+   blob=await encodeNative(canvas,frames,progress,audioContext);
   }
- }else blob=await encodeNative(canvas,frames,progress);
+ }finally{if(audioContext)await audioContext.close().catch(()=>{})}
  if(!blob||blob.size<1024||!blob.type.includes('mp4'))throw Error('The MP4 encoder did not return a valid video.');
- onProgress(100,'MP4 ready');
- return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length};
+ onProgress(100,'MP4 with original upbeat music ready');
+ return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length,backgroundMusic:true};
 }
 global.TSO2SimulationVideo={export:exportVideo,boxPages};
 })(typeof window!=='undefined'?window:globalThis);
