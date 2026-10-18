@@ -180,6 +180,7 @@ function replayHTML(game){
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
   +'<div class="tso-sim-export-status" data-tsos-export-status role="status" aria-live="polite" hidden></div><div class="tso-sim-final" data-tsos-final hidden></div>'
+  +'<div class="tso-sim-music-credit"><b>MUSIC · EPIC BATTLE</b> by FSCM Productions · CC BY 4.0 · <a href="https://fscmproductions.bandcamp.com" target="_blank" rel="noopener noreferrer">Artist / Attribution</a> · <button type="button" data-tsos-copy-music-credit>COPY MUSIC CREDIT</button></div>'
   +'<div class="tso-sim-disclaimer">The final score is taken from <b>one actual 50K Monte Carlo sampled world</b>. Play paths, gain details and box-score progression are <b>score-conditioned reconstructions</b>, not tracked or sampled snaps. '+(game.availability?.injuryReportVerified===false?'<strong>Injury report may have changed since the model audit ('+esc(game.availability.injuryReportCheckedAt||'date unknown')+'). This playback is an as-of simulation, not a fresh injury-adjusted model.</strong>':'Final inactives can change.')+'</div></div>';
 }
 async function verifySelectedRoster(gameId){
@@ -249,7 +250,7 @@ function paintPage(){
   if(exporter&&exportBtn){
    exportBtn.addEventListener('click',async()=>{
     stop();exportBtn.disabled=true;
-    if(status){status.hidden=false;status.textContent='Preparing 16:9 MP4 with cinematic suspense background music…'}
+    if(status){status.hidden=false;status.textContent='Preparing 16:9 MP4 with Epic Battle by FSCM Productions…'}
     if(download){download.hidden=true;download.removeAttribute('href')}
     if(shareBtn){shareBtn.hidden=true;shareBtn.disabled=true}
     try{
@@ -268,17 +269,28 @@ function paintPage(){
      state.videoFile=new File([result.blob],'TSO-'+activeGame.away.abbr+'-at-'+activeGame.home.abbr+'-simulation.mp4',{type:'video/mp4'});
      download.href=state.videoUrl;download.hidden=false;
      if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[state.videoFile]}))){shareBtn.hidden=false;shareBtn.disabled=false}
-     if(status)status.textContent='1280×720 MP4 with original cinematic suspense music ready · final team stats, then away-left / home-right passing, rushing and receiving on one player screen. Download or share.';
+     if(status)status.textContent='1280×720 MP4 with Epic Battle music ready · final team stats, then away-left / home-right passing, rushing and receiving on one player screen. Download or share.';
     }catch(error){
      if(status)status.textContent='MP4 export unavailable: '+String(error?.message||error)+'. No incomplete video was downloaded.';
     }finally{exportBtn.disabled=false;exportBtn.textContent='↻ RECREATE LANDSCAPE MP4'}
    });
    shareBtn?.addEventListener('click',async()=>{
     if(!state.videoFile||!navigator.share)return;
-    try{await navigator.share({files:[state.videoFile],title:'TSO NFL Simulation',text:'Illustrative replay from The Sports Outpost 50K model · not actual game footage.'})}
+    try{await navigator.share({files:[state.videoFile],title:'TSO NFL Simulation',text:'Illustrative replay from The Sports Outpost 50K model · not actual game footage. Music: Epic Battle by FSCM Productions | https://fscmproductions.bandcamp.com. Royalty Free Music by https://www.free-stock-music.com'})}
     catch(error){if(error?.name!=='AbortError'&&status)status.textContent='Sharing unavailable: '+String(error?.message||error)+'. Use DOWNLOAD MP4 instead.'}
    });
   }
+  $(main,'[data-tsos-copy-music-credit]')?.addEventListener('click',async()=>{
+   const credit=window.TSO2SimSoundtrack?.attribution||
+    'Epic Battle by FSCM Productions | https://fscmproductions.bandcamp.com';
+   try{
+    if(!navigator.clipboard?.writeText)throw Error('Clipboard unavailable');
+    await navigator.clipboard.writeText(credit);
+    if(status){status.hidden=false;status.textContent='Music attribution copied. Paste it in your social video description.'}
+   }catch(_){
+    if(status){status.hidden=false;status.textContent='Music: Epic Battle by FSCM Productions | https://fscmproductions.bandcamp.com'}
+   }
+  });
   const endCard=$(main,'[data-tsos-final]');
   endCard?.addEventListener('click',e=>{
    const btn=e.target?.closest?.('[data-tsos-final-screen]');
