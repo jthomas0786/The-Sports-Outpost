@@ -298,11 +298,59 @@ async function setupEncoder(c,muxer,fps){
  }
  throw Error('H.264 MP4 encoding is unsupported in this browser.');
 }
+async function encodeSoundtrack(muxer,frames,onProgress=()=>{}){
+ const sound=global.TSO2SimSoundtrack;
+ if(!sound||typeof sound.render!=='function')throw Error('Original TSO background music is not loaded.');
+ if(typeof AudioEncoder!=='function'||typeof AudioData!=='function')
+  throw Error('AAC music encoding is unavailable in this browser.');
+ const config={codec:'mp4a.40.2',sampleRate:sound.sampleRate,numberOfChannels:sound.numberOfChannels,bitrate:128000};
+ const support=await AudioEncoder.isConfigSupported(config);
+ if(!support.supported)throw Error('AAC music encoding is unsupported by this browser.');
+ let encodeError=null;
+ const encoder=new AudioEncoder({
+  output:(chunk,meta)=>muxer.addAudioChunk(chunk,meta),
+  error:error=>{encodeError=error}
+ });
+ encoder.configure(support.config);
+ const rate=sound.sampleRate,needed=Math.round(frames*rate/FPS);
+ const packet=1024;
+ try{
+  for(let index=0;index<needed;index+=packet){
+   const count=Math.min(packet,needed-index);
+   const data=new AudioData({
+    format:'f32-planar',sampleRate:rate,numberOfFrames:count,
+    numberOfChannels:sound.numberOfChannels,
+    timestamp:Math.round(index*1000000/rate),data:sound.render(index,count,needed)
+   });
+   try{encoder.encode(data)}finally{data.close()}
+   if(encoder.encodeQueueSize>15)await encoder.flush();
+   if(encodeError)throw encodeError;
+   if(index%(packet*64)===0)onProgress(index,needed);
+  }
+  await encoder.flush();
+  if(encodeError)throw encodeError;
+  onProgress(needed,needed);
+ }finally{encoder.close()}
+}
+function nativeMusicBuffer(audioContext,frames){
+ const sound=global.TSO2SimSoundtrack;
+ if(!sound||typeof sound.render!=='function')throw Error('Original TSO background music is not loaded.');
+ const rate=audioContext.sampleRate,total=Math.round(frames*rate/FPS),buffer=audioContext.createBuffer(2,total,rate);
+ const left=buffer.getChannelData(0),right=buffer.getChannelData(1);
+ const packet=4096;
+ for(let i=0;i<total;i+=packet){
+  const size=Math.min(packet,total-i),stereo=sound.render(i,size,total,rate);
+  left.set(stereo.subarray(0,size),i);
+  right.set(stereo.subarray(size,size*2),i);
+ }
+ return buffer;
+}
 async function encodeWebCodecs(canvas,frames,progress){
  const lib=await loadMuxer();
  const muxer=new lib.Muxer({
   target:new lib.ArrayBufferTarget(),
   video:{codec:'avc',width:W,height:H,frameRate:FPS},
+  audio:{codec:'aac',sampleRate:global.TSO2SimSoundtrack?.sampleRate||48000,numberOfChannels:2},
   fastStart:'in-memory',firstTimestampBehavior:'offset'
  });
  const {encoder,check}=await setupEncoder(canvas,muxer,FPS);
@@ -314,7 +362,10 @@ async function encodeWebCodecs(canvas,frames,progress){
    if(i%12===0){check();progress.report(i,frames)}
    if(encoder.encodeQueueSize>7)await encoder.flush();
   }
-  await encoder.flush();check();muxer.finalize();
+  await encoder.flush();check();
+  progress.musicStart?.();
+  await encodeSoundtrack(muxer,frames,(current,total)=>progress.musicProgress?.(current,total));
+  muxer.finalize();
   return new Blob([muxer.target.buffer],{type:'video/mp4'});
  }finally{encoder.close()}
 }
