@@ -412,15 +412,14 @@ async function encodeNative(canvas,frames,progress,audioContext){
 }
 async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={}){
  // Unlock audio in the initial button click before asynchronous logo/encoder work.
- const AudioCtor=global.AudioContext||global.webkitAudioContext;
- const audioContext=AudioCtor?new AudioCtor():null;
- const unlockAudio=audioContext?audioContext.resume().catch(()=>{}):Promise.resolve();
-
  if(!game?.representativeWorld||!Array.isArray(plays)||!plays.length||!snapshot?.teams)
   throw Error('An eligible representative simulation and complete box score are required.');
  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
  const c=canvas.getContext('2d',{alpha:false});
  if(!c)throw Error('Canvas drawing is unavailable.');
+ const AudioCtor=global.AudioContext||global.webkitAudioContext;
+ const audioContext=AudioCtor?new AudioCtor():null;
+ const unlockAudio=audioContext?audioContext.resume().catch(()=>{}):Promise.resolve();
  const logos=await Promise.all([logoImage(logoUrl(game.away)),logoImage(logoUrl(game.home))]);
  const pages=boxPages(game,snapshot);
  const engine=global.TSO2SimEngine;
@@ -433,14 +432,15 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
   if(!snapshots.has(done))snapshots.set(done,engine.snapshot(game,plays,done));
   return snapshots.get(done);
  };
- const introFrames=FPS*2,outroFrames=FPS*4;
+ // Keep the final player box visible long enough for social viewers to read.
+ const introFrames=FPS*2,teamStatFrames=FPS*4,playerBoxFrames=FPS*8;
  // Highlight plays receive a readable 1.25 second pause in the MP4; all
  // ordinary illustrative snaps remain short. No extra events are generated.
  const playDurations=plays.map(event=>global.TSO2SimBroadcastEvent?.fromPlay(event,game)?
   Math.round(FPS*1.25):Math.max(8,Math.round(FPS*.42)));
  const offsets=[0];
  for(const duration of playDurations)offsets.push(offsets[offsets.length-1]+duration);
- const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+pages.length*outroFrames;
+ const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+teamStatFrames+playerBoxFrames;
  const render=frame=>{
   if(frame<introFrames)return intro(c,game,logos);
   let pos=frame-introFrames;
@@ -452,7 +452,7 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
    return play(c,game,logos,plays[index],{canvas:field,progress:fraction,index},at(index+(fraction>=.94?1:0)));
   }
   pos-=replayFrames;
-  const pageIndex=Math.min(pages.length-1,Math.floor(pos/outroFrames));
+  const pageIndex=pos<teamStatFrames?0:1;
   return finalSlide(c,game,logos,snapshot,pages[pageIndex],pageIndex+1,pages.length);
  };
  const progress={
