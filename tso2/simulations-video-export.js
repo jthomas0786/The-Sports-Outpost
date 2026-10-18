@@ -1,143 +1,166 @@
-/* TSO 2.0 simulated NFL broadcast exporter.
- * Encodes an MP4 of the same verified representative sampled world, with a
- * complete play-ledger-derived box score appended. NOT actual game footage.
- * Browser-only, no upload, no credentials and no assumed video capability.
+/* TSO 2.0 16:9 landscape NFL simulated broadcast.
+ * Stat sidebars, overlays and final slides use the SAME illustrative play
+ * ledger and verified 50K sampled world. Not real play tracking or footage.
  */
 (function(global){
 'use strict';
-const FPS=24,W=720,H=1280;
+const FPS=24,W=1280,H=720;
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const clean=v=>String(v??'');
 const abbr=team=>String(team?.abbr||'NFL').toUpperCase();
-const logoUrl=team=>{
- const code=abbr(team)==='LA'?'lar':abbr(team)==='WSH'?'wsh':abbr(team).toLowerCase();
- return '/api/tso2-nfl-logo?team='+encodeURIComponent(abbr(team));
-};
+const logoUrl=team=>'/api/tso2-nfl-logo?team='+encodeURIComponent(abbr(team));
 function logoImage(url){
  return new Promise(resolve=>{
   const img=new Image();let done=false;
-  const end=valid=>{if(done)return;done=true;clearTimeout(timer);resolve(valid?img:null)};
-  const timer=setTimeout(()=>end(false),5500);
-  img.crossOrigin='anonymous';
-  img.onload=()=>end(img.naturalWidth>0);
-  img.onerror=()=>end(false);
-  img.src=url;
+  const finish=ok=>{if(done)return;done=true;clearTimeout(timer);resolve(ok?img:null)};
+  const timer=setTimeout(()=>finish(false),5000);
+  img.crossOrigin='anonymous';img.onload=()=>finish(img.naturalWidth>0);
+  img.onerror=()=>finish(false);img.src=url;
  });
 }
 function roundRect(c,x,y,w,h,r,color,border){
- c.beginPath();c.roundRect(x,y,w,h,r);if(color){c.fillStyle=color;c.fill()}
- if(border){c.strokeStyle=border;c.lineWidth=1.7;c.stroke()}
+ c.beginPath();c.roundRect(x,y,w,h,r);
+ if(color){c.fillStyle=color;c.fill()}
+ if(border){c.strokeStyle=border;c.lineWidth=1.3;c.stroke()}
 }
-function text(c,value,x,y,size=22,color='#fafafa',weight=700,align='left'){
- c.font=weight+' '+size+'px system-ui, -apple-system, sans-serif';c.fillStyle=color;
- c.textAlign=align;c.textBaseline='alphabetic';c.fillText(clean(value),x,y);
+function text(c,value,x,y,size=22,color='#f9fbff',weight=700,align='left',maxWidth){
+ c.font=weight+' '+size+'px system-ui, -apple-system, sans-serif';
+ c.fillStyle=color;c.textAlign=align;c.textBaseline='alphabetic';
+ if(maxWidth)c.fillText(clean(value),x,y,maxWidth);
+ else c.fillText(clean(value),x,y);
 }
-function wrapped(c,value,x,y,maxWidth,{size=22,lineHeight=30,lines=3,color='#d1d5de',weight=600}={}){
- c.font=weight+' '+size+'px system-ui, sans-serif';
+function wrapped(c,value,x,y,maxWidth,{size=17,lineHeight=23,lines=2,color='#d1d5de',weight=600}={}){
+ c.font=weight+' '+size+'px system-ui,sans-serif';
  let line='',count=0;
  for(const word of clean(value).split(/\s+/)){
   const next=line?line+' '+word:word;
   if(c.measureText(next).width<=maxWidth){line=next;continue}
-  if(line){text(c,line,x,y+count*lineHeight,size,color,weight);count++;if(count>=lines)return;}
+  if(line){text(c,line,x,y+count*lineHeight,size,color,weight);if(++count>=lines)return}
   line=word;
  }
- if(line)text(c,line,x,y+count*lineHeight,size,color,weight);
+ if(line)text(c,line,x,y+count*lineHeight,size,color,weight,maxWidth);
 }
-function base(c){
- c.fillStyle='#090d14';c.fillRect(0,0,W,H);
- const g=c.createLinearGradient(0,0,0,420);
- g.addColorStop(0,'#1b1e2a');g.addColorStop(1,'#0a0e15');
- c.fillStyle=g;c.fillRect(0,0,W,440);
- c.fillStyle='#ff541d';c.fillRect(0,0,9,H);
- text(c,'THE SPORTS OUTPOST',W/2,53,24,'#ffce50',950,'center');
- text(c,'50,000-RUN NFL SIMULATION  •  ILLUSTRATIVE REPLAY',W/2,83,13,'#aeb7c6',800,'center');
- c.fillStyle='#ff541d';c.fillRect(38,108,W-76,3);
+function base(c,subtitle='50,000-RUN · ILLUSTRATIVE NFL SIMULATION'){
+ c.fillStyle='#080b11';c.fillRect(0,0,W,H);
+ const glow=c.createLinearGradient(0,0,W,H);
+ glow.addColorStop(0,'#19202b');glow.addColorStop(.5,'#0d131c');glow.addColorStop(1,'#090d15');
+ c.fillStyle=glow;c.fillRect(0,0,W,188);
+ c.fillStyle='#ff541d';c.fillRect(0,0,W,5);
+ text(c,'THE SPORTS OUTPOST',35,35,22,'#fff',950);
+ text(c,subtitle,35,57,12,'#ffce52',820);
+ text(c,'TSO SIMULATIONS  ·  2026 NFL',W-35,35,15,'#f5cc55',900,'right');
+ c.fillStyle='#364050';c.fillRect(26,72,W-52,1);
 }
-function drawLogo(c,img,cx,cy,name,size=86){
- roundRect(c,cx-size/2,cy-size/2,size,size,17,'#171f2b','#374657');
- if(img){try{c.drawImage(img,cx-size*.43,cy-size*.43,size*.86,size*.86)}catch(_){text(c,name,cx,cy+9,25,'#fff',900,'center')}}
- else text(c,name,cx,cy+9,25,'#fff',900,'center');
+function footer(c,note='NOT ACTUAL NFL FOOTAGE OR OFFICIAL STATS'){
+ c.fillStyle='#131923';c.fillRect(0,H-44,W,44);
+ c.fillStyle='#ff541d';c.fillRect(0,H-44,W,2);
+ text(c,note,26,H-18,13,'#ffd056',820);
+ text(c,'thesportsoutpost.com  •  illustrated sampled-world replay',W-26,H-18,12,'#bdc6d5',650,'right');
 }
-function header(c,game,logos,score,period='SIMULATED',clock=''){
- const y=157;drawLogo(c,logos[0],83,y,abbr(game.away),78);
- drawLogo(c,logos[1],W-83,y,abbr(game.home),78);
- text(c,abbr(game.away),149,y-14,25,'#fff',900);
- text(c,abbr(game.home),W-149,y-14,25,'#fff',900,'right');
- text(c,score[0],262,y+17,60,'#fff',950,'center');
- text(c,score[1],W-262,y+17,60,'#fff',950,'center');
- text(c,'–',W/2,y+11,43,'#ffcb44',800,'center');
- text(c,period+' '+clock,W/2,y+50,17,'#ffce50',850,'center');
- roundRect(c,34,244,W-68,38,7,'#18202c','#303848');
- text(c,'TSO MODEL • NOT AN ACTUAL GAME RECORDING',W/2,270,14,'#d1d8e2',750,'center');
+function drawLogo(c,img,cx,cy,label,size=62){
+ roundRect(c,cx-size/2,cy-size/2,size,size,13,'#202733','#404958');
+ if(img){try{c.drawImage(img,cx-size*.43,cy-size*.43,size*.86,size*.86)}catch(_){text(c,label,cx,cy+8,22,'#fff',950,'center')}}
+ else text(c,label,cx,cy+8,22,'#fff',950,'center');
 }
-function footer(c,page='SIMULATED SCENARIO'){
- c.fillStyle='#151d29';c.fillRect(0,H-85,W,85);
- c.fillStyle='#ff541d';c.fillRect(0,H-85,W,3);
- text(c,page,W/2,H-46,16,'#ffce50',850,'center');
- text(c,'thesportsoutpost.com  •  simulated, not official game statistics',W/2,H-18,12,'#aab7c4',600,'center');
+function scoreboard(c,game,logos,score,quarter='Q1',clock='15:00'){
+ roundRect(c,266,82,748,106,15,'#151b26','#4b5362');
+ drawLogo(c,logos[0],317,133,abbr(game.away),72);
+ drawLogo(c,logos[1],963,133,abbr(game.home),72);
+ text(c,abbr(game.away),368,121,25,'#fff',950);
+ text(c,abbr(game.home),912,121,25,'#fff',950,'right');
+ text(c,score[0],495,156,56,'#fff',950,'center');
+ text(c,'—',640,149,43,'#ffce52',900,'center');
+ text(c,score[1],785,156,56,'#fff',950,'center');
+ text(c,quarter+'   '+clock,640,178,16,'#ffce52',880,'center');
+}
+const num=v=>Number.isFinite(Number(v))?Math.round(Number(v)):0;
+const val=v=>Number.isFinite(Number(v))?String(Math.round(Number(v))):'—';
+function sideStats(c,game,snap,team,x){
+ const code=abbr(team),stats=snap?.teams?.[code]||{};
+ const all=Object.values(snap?.players?.[code]||{});
+ const active=all.filter(p=>p.passAtt||p.carries||p.targets||p.sacks||p.int);
+ const best=(filter,metric)=>active.filter(filter).sort((a,b)=>metric(b)-metric(a))[0];
+ const qb=best(p=>p.passAtt||p.sacks,p=>p.passAtt||0);
+ const rb=best(p=>p.carries,p=>p.rushYds||0);
+ const rec=best(p=>p.targets,p=>p.recYds||0);
+ const w=232,y=203;
+ roundRect(c,x,y,w,387,13,'#151c27','#354052');
+ text(c,code+' · LIVE STATS',x+14,y+27,17,'#ffd15a',950);
+ c.fillStyle='#303b4b';c.fillRect(x+12,y+38,w-24,1);
+ const pairs=[['TOTAL YDS',val(stats.totalYds)],['PASS YDS',val(stats.passing)],
+  ['RUSH YDS',val(stats.rushing)],['FIRST DOWNS',val(stats.firstDowns)]];
+ let yy=y+68;
+ for(const [label,value] of pairs){
+  text(c,label,x+13,yy,13,'#aebbd0',850);
+  text(c,value,x+w-13,yy+1,21,'#fff',950,'right');yy+=40;
+ }
+ c.fillStyle='#303b4b';c.fillRect(x+12,y+226,w-24,1);
+ const lead=(title,person,detail,top)=>{
+  text(c,title,x+13,top,12,'#ffb761',920);
+  if(person){
+   text(c,person.name||'PLAYER',x+13,top+21,14,'#fff',850,'left',w-26);
+   text(c,detail(person),x+13,top+39,12,'#c7d2e1',720,'left',w-26);
+  }else text(c,'No plays yet',x+13,top+23,12,'#8d9cae',680);
+ };
+ lead('PASSING',qb,p=>p.passYds+' YDS · '+p.passTd+' TD',y+250);
+ lead('RUSHING',rb,p=>p.rushYds+' YDS · '+p.carries+' ATT',y+298);
+ lead('RECEIVING',rec,p=>p.recYds+' YDS · '+p.receptions+' REC',y+346);
 }
 function intro(c,game,logos){
- base(c);header(c,game,logos,['0','0'],'PREVIEW');
- roundRect(c,32,324,W-64,515,22,'#131c27','#374356');
- text(c,'ILLUSTRATIVE',W/2,418,23,'#ffce50',900,'center');
- text(c,'SIMULATED GAME REPLAY',W/2,462,30,'#fff',950,'center');
- text(c,abbr(game.away)+'   @   '+abbr(game.home),W/2,561,44,'#fff',950,'center');
- wrapped(c,'The final score comes from one sampled world in the 50,000-run TSO model. Play paths are reconstructed illustrations.',74,651,W-148,{size:20,lineHeight:35,lines:5,color:'#d3d9e3'});
- roundRect(c,83,882,W-166,84,15,'#53291c','#fd632d');
- text(c,'SIMULATION HIGHLIGHTS + FULL BOX SCORE',W/2,932,20,'#ffe8c8',900,'center');
- footer(c,'TSO SIMULATIONS  •  2026 NFL');
-}
-function play(c,game,logos,event,field){
- base(c);
- const progress=field.progress??0;
- const away=progress>.92?event.scoreAway:event.beforeAway??event.scoreAway;
- const home=progress>.92?event.scoreHome:event.beforeHome??event.scoreHome;
- header(c,game,logos,[away,home],'Q'+event.quarter,event.clock||'');
- roundRect(c,27,318,W-54,365,14,'#102921','#324b45');
- if(field.canvas){c.drawImage(field.canvas,39,332,W-78,326)}
- roundRect(c,29,713,W-58,112,13,'#181f2b','#39495b');
- text(c,'PLAY '+String((event.index??field.index)+1).padStart(3,'0')+'  ·  '+event.kind,47,751,18,'#ffca49',900);
- wrapped(c,event.commentary||'',47,790,W-98,{size:17,lineHeight:23,lines:2,color:'#f4f5f8',weight:750});
- roundRect(c,29,858,W-58,196,13,'#111b28','#364252');
- text(c,abbr(game.away)+' OFFENSE',57,898,18,'#ffce50',900);
- text(c,abbr(game.home)+' OFFENSE',W-57,898,18,'#ffce50',900,'right');
- text(c,'SCORING WORLD · '+String(game.representativeWorld?.sampledIndex??0),W/2,955,17,'#d4dbe6',750,'center');
- wrapped(c,'Score-conditioned replay · movement, gains and play selection are illustrative, not tracked NFL snaps.',58,1000,W-116,{size:17,lineHeight:24,lines:2});
- footer(c,'TSO 50K CORRELATED MONTE CARLO');
- drawBroadcastEvent(c,game,logos,event,progress);
+ base(c,'ILLUSTRATIVE 50,000-RUN NFL GAME REPLAY');
+ scoreboard(c,game,logos,[0,0],'PREVIEW','');
+ roundRect(c,155,242,W-310,324,18,'#151c27','#465064');
+ text(c,'TSO BROADCAST',W/2,310,23,'#ffca54',940,'center');
+ text(c,abbr(game.away)+'  AT  '+abbr(game.home),W/2,377,67,'#fff',1000,'center');
+ text(c,'LANDSCAPE SIMULATED REPLAY',W/2,422,24,'#ffce55',900,'center');
+ wrapped(c,'The final score comes from a verified sampled world. Play paths and play-by-play are score-conditioned illustrations, not official game tracking.',W/2-450,474,900,{size:19,lineHeight:30,lines:3,weight:650,color:'#d7e0eb'});
+ footer(c);
 }
 function drawBroadcastEvent(c,game,logos,event,progress){
  const detail=global.TSO2SimBroadcastEvent?.fromPlay(event,game);
- if(!detail||progress<.42)return;
- const accent=detail.tone==='score'?'#ffd35b':
-  detail.tone==='defense'||detail.tone==='turnover'?'#7ad1ff':
-  detail.tone==='warning'?'#ffb56c':'#ff8452';
+ if(!detail||progress<.43)return;
+ const accent=detail.tone==='score'?'#ffd45f':
+  detail.tone==='defense'||detail.tone==='turnover'?'#86c7ff':
+  detail.tone==='warning'?'#ffc178':'#ff8650';
  const team=detail.team===abbr(game.away)?0:detail.team===abbr(game.home)?1:-1;
- const x=50,y=503,w=W-100,h=169;
- c.save();
- c.shadowColor='#000c';c.shadowBlur=28;c.shadowOffsetY=10;
- roundRect(c,x,y,w,h,17,'#141a25f5',accent);
- c.restore();
- c.fillStyle=accent;c.fillRect(x+2,y+18,6,h-36);
- if(team>=0)drawLogo(c,logos[team],x+66,y+64,abbr(team===0?game.away:game.home),69);
- const copyX=team>=0?x+121:x+32;
- text(c,(detail.teamName||detail.team||'TSO REPLAY').toUpperCase(),copyX,y+31,14,accent,900);
+ const x=347,y=333,w=586,h=160;
+ c.save();c.shadowColor='#000c';c.shadowBlur=27;c.shadowOffsetY=9;
+ roundRect(c,x,y,w,h,15,'#141a24',accent);c.restore();
+ c.fillStyle=accent;c.fillRect(x+3,y+16,5,h-32);
+ if(team>=0)drawLogo(c,logos[team],x+56,y+66,abbr(team===0?game.away:game.home),64);
+ const left=x+(team>=0?105:25),max=w-(team>=0?125:50);
+ text(c,(detail.teamName||detail.team||'TSO REPLAY').toUpperCase(),left,y+26,13,accent,950,'left',max);
  const title=detail.title||'GAME EVENT';
- c.font='950 37px system-ui, sans-serif';
- const max=w-(team>=0?154:66);
- const titleSize=c.measureText(title).width>max?27:37;
- text(c,title,copyX,y+78,titleSize,'#fff',950);
- if(detail.actor)wrapped(c,detail.actor,copyX,y+111,max,{size:20,lineHeight:22,lines:1,color:'#ffde86',weight:900});
- wrapped(c,detail.subline||'ILLUSTRATIVE REPLAY',copyX,y+141,max,{size:13,lineHeight:16,lines:1,color:'#cbd5e3',weight:750});
+ c.font='950 38px system-ui,sans-serif';
+ const size=c.measureText(title).width>max?29:38;
+ text(c,title,left,y+76,size,'#fff',950,'left',max);
+ if(detail.actor)text(c,detail.actor,left,y+108,20,'#ffd982',920,'left',max);
+ text(c,detail.subline||'ILLUSTRATIVE REPLAY',left,y+141,12,'#cbd5e2',780,'left',max);
 }
-const val=v=>Number.isFinite(Number(v))?String(Math.round(Number(v))):'—';
+function play(c,game,logos,event,field,snap){
+ base(c);
+ const progress=field.progress??0;
+ const complete=progress>=.94;
+ const away=complete?event.scoreAway:event.beforeAway??event.scoreAway;
+ const home=complete?event.scoreHome:event.beforeHome??event.scoreHome;
+ scoreboard(c,game,logos,[away,home],'Q'+event.quarter,event.clock||'');
+ sideStats(c,game,snap,game.away,25);
+ sideStats(c,game,snap,game.home,W-257);
+ roundRect(c,270,199,740,394,14,'#0d201a','#3f4e49');
+ if(field.canvas){
+  try{c.drawImage(field.canvas,278,211,724,363)}catch(_){}
+ }
+ roundRect(c,270,601,740,63,10,'#18202b','#374657');
+ text(c,'PLAY '+String((event.index??field.index)+1).padStart(3,'0')+'  ·  '+event.kind,287,622,14,'#ffca4e',940);
+ wrapped(c,event.commentary||'',287,645,705,{size:14,lineHeight:16,lines:2,color:'#f0f5fa',weight:720});
+ drawBroadcastEvent(c,game,logos,event,progress);
+ footer(c,'TSO 50K SIMULATION · RUNNING PLAYER STATS');
+}
 function boxPages(game,snapshot){
- const away=abbr(game.away),home=abbr(game.home);
- const a=snapshot.teams[away],b=snapshot.teams[home];
- if(!a||!b)throw Error('Final scenario team totals unavailable.');
- const pages=[{type:'overview',title:'FINAL BOX SCORE',rows:[
-  ['STATISTIC',away,home],
+ const away=abbr(game.away),home=abbr(game.home),a=snapshot.teams?.[away],b=snapshot.teams?.[home];
+ if(!a||!b)throw Error('The illustrative play ledger has no complete team totals.');
+ const pages=[{type:'teams',title:'FINAL TEAM STATS',rows:[
   ['FINAL SCORE',val(a.points),val(b.points)],
   ['Q1',val(a.quarter?.[0]),val(b.quarter?.[0])],
   ['Q2',val(a.quarter?.[1]),val(b.quarter?.[1])],
@@ -147,68 +170,82 @@ function boxPages(game,snapshot){
   ['PASSING YARDS',val(a.passing),val(b.passing)],
   ['RUSHING YARDS',val(a.rushing),val(b.rushing)],
   ['FIRST DOWNS',val(a.firstDowns),val(b.firstDowns)],
-  ['COMP / ATT',a.passComp+'/'+a.passAtt,b.passComp+'/'+b.passAtt],
-  ['RUSH ATT',val(a.rushAtt),val(b.rushAtt)],
+  ['PASS COMP/ATT',a.passComp+'/'+a.passAtt,b.passComp+'/'+b.passAtt],
+  ['RUSH ATTEMPTS',val(a.rushAtt),val(b.rushAtt)],
   ['TURNOVERS',val(a.interceptions),val(b.interceptions)],
   ['SACKS ALLOWED',val(a.sacksAllowed),val(b.sacksAllowed)],
   ['PUNTS',val(a.punts),val(b.punts)],
-  ['MADE FIELD GOALS',val(a.fieldGoals),val(b.fieldGoals)]
+  ['FIELD GOALS MADE',val(a.fieldGoals),val(b.fieldGoals)]
  ]}];
- for(const team of [away,home]){
+ const teams=[away,home];
+ const entries=team=>{
   const all=Object.values(snapshot.players?.[team]||{});
-  const groups=[
-   {name:'PASSING',items:all.filter(x=>x.passAtt||x.sacks).sort((x,y)=>y.passAtt-x.passAtt),format:x=>x.passComp+'/'+x.passAtt+' · '+x.passYds+' YDS · '+x.passTd+' TD · '+x.int+' INT'},
-   {name:'RUSHING',items:all.filter(x=>x.carries).sort((x,y)=>y.carries-x.carries),format:x=>x.carries+' ATT · '+x.rushYds+' YDS · '+x.rushTd+' TD'},
-   {name:'RECEIVING',items:all.filter(x=>x.targets).sort((x,y)=>y.targets-x.targets),format:x=>x.receptions+'/'+x.targets+' REC/TGT · '+x.recYds+' YDS · '+x.recTd+' TD'}
-  ];
-  const rows=[];
-  for(const group of groups){
-   rows.push({section:group.name});
-   for(const person of group.items)rows.push({name:person.name||'Unknown',detail:group.format(person)});
+  return {
+   passing:all.filter(p=>p.passAtt||p.sacks).sort((x,y)=>y.passAtt-x.passAtt),
+   rushing:all.filter(p=>p.carries).sort((x,y)=>y.carries-x.carries),
+   receiving:all.filter(p=>p.targets).sort((x,y)=>y.targets-x.targets)
+  };
+ };
+ const data=Object.fromEntries(teams.map(t=>[t,entries(t)]));
+ for(const category of ['passing','rushing','receiving']){
+  const longest=Math.max(...teams.map(t=>data[t][category].length));
+  const chunk=13;
+  for(let offset=0;offset<Math.max(1,longest);offset+=chunk){
+   pages.push({type:'players',title:'FULL PLAYER BOX SCORE · '+category.toUpperCase(),
+    category,teams:Object.fromEntries(teams.map(t=>[t,data[t][category].slice(offset,offset+chunk)])),
+    offset,more:offset+chunk<longest});
   }
-  if(!rows.length)rows.push({section:'NO VERIFIED PLAY LEDGER ENTRIES'});
-  let batch=[],height=0;
-  for(const row of rows){
-   const rowHeight=row.section?39:64;
-   // Keep the entire player box-score page within the visible video canvas.
-   if(batch.length&&height+rowHeight>590){pages.push({type:'players',title:team+' PLAYER BOX SCORE',rows:batch});batch=[];height=0}
-   batch.push(row);height+=rowHeight;
-  }
-  if(batch.length)pages.push({type:'players',title:team+' PLAYER BOX SCORE',rows:batch});
  }
  return pages;
 }
-function finalSlide(c,game,logos,snapshot,page,pagenum,total){
- base(c);
+function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
+ base(c,page.type==='teams'?'FINAL STATISTICS · ILLUSTRATIVE GAME':'FULL PLAYER BOX SCORE · ILLUSTRATIVE GAME');
  const away=abbr(game.away),home=abbr(game.home),a=snapshot.teams[away],b=snapshot.teams[home];
- header(c,game,logos,[a.points,b.points],'FINAL','');
- roundRect(c,27,315,W-54,783,16,'#121b27','#445262');
- text(c,page.title,W/2,372,28,'#ffce50',950,'center');
- text(c,'DERIVED FROM ILLUSTRATIVE PLAY LEDGER',W/2,406,15,'#bdc9d7',750,'center');
- if(page.type==='overview'){
-  let y=459;
-  for(const [idx,row] of page.rows.entries()){
-   roundRect(c,45,y-24,W-90,38,6,idx%2?'#172333':'#1c2838');
-   text(c,row[0],59,y,16,idx===0?'#ffca4d':'#f0f2f6',idx===0?900:700);
-   text(c,row[1],W-192,y,17,idx===0?'#ffca4d':'#fff',850,'center');
-   text(c,row[2],W-95,y,17,idx===0?'#ffca4d':'#fff',850,'center');
-   y+=39;
+ scoreboard(c,game,logos,[a.points,b.points],'FINAL','');
+ text(c,page.title,W/2,223,27,'#ffd05a',950,'center');
+ if(page.type==='teams'){
+  roundRect(c,200,243,880,410,13,'#141c27','#3d495c');
+  text(c,'STATISTIC',235,272,15,'#ffce55',930);
+  text(c,away,833,272,18,'#ffce55',930,'center');
+  text(c,home,1002,272,18,'#ffce55',930,'center');
+  let y=293;
+  for(const [i,row] of page.rows.entries()){
+   if(i%2===0)roundRect(c,216,y-17,844,22,3,'#202a36');
+   text(c,row[0],238,y,14,'#e7edf6',760);
+   text(c,row[1],833,y,16,'#fff',900,'center');
+   text(c,row[2],1002,y,16,'#fff',900,'center');
+   y+=23;
   }
  }else{
-  let y=460;
-  for(const row of page.rows){
-   if(row.section){
-    text(c,row.section,52,y,20,'#ffce50',900);y+=39;
-   }else{
-    wrapped(c,row.name,51,y,W-105,{size:17,lineHeight:20,lines:1,color:'#fff',weight:850});
-    y+=27;
-    wrapped(c,row.detail,64,y,W-125,{size:16,lineHeight:20,lines:1,color:'#b4c6db',weight:600});
-    y+=37;
+  const specs={
+   passing:{heads:['PLAYER','CMP/ATT','YDS','TD','INT'],format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
+   rushing:{heads:['PLAYER','ATT','YDS','TD'],format:p=>[p.name,val(p.carries),val(p.rushYds),val(p.rushTd)]},
+   receiving:{heads:['PLAYER','REC/TGT','YDS','TD'],format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
+  };
+  const spec=specs[page.category];
+  for(const [idx,code] of [away,home].entries()){
+   const x=26+idx*630,w=598;
+   roundRect(c,x,243,w,416,12,'#131c28','#354355');
+   text(c,code+' · '+page.category.toUpperCase(),x+19,277,20,'#ffd055',950);
+   const ys=306;
+   const colX=spec.heads.length===5?[x+18,x+370,x+455,x+512,x+569]:[x+18,x+410,x+488,x+565];
+   for(let j=0;j<spec.heads.length;j++){
+    text(c,spec.heads[j],colX[j],ys,11,'#a6b6ce',850,j===0?'left':'right');
+   }
+   let y=328;
+   const players=page.teams[code]||[];
+   if(!players.length)text(c,'No tracked '+page.category+' attempts',x+18,y+16,15,'#a1acba',720);
+   for(const [k,p] of players.entries()){
+    if(k%2===0)roundRect(c,x+10,y-14,w-20,23,3,'#1b2736');
+    const row=spec.format(p);
+    for(let j=0;j<row.length;j++)
+     text(c,row[j],colX[j],y,12,j===0?'#fff':'#dce7f2',j===0?760:850,j===0?'left':'right',j===0?336:65);
+    y+=24;
    }
   }
  }
- text(c,'BOX SCORE PAGE '+pagenum+' / '+total, W/2,1139,17,'#e0e8f1',800,'center');
- footer(c,'SCENARIO STATISTICS · NOT OFFICIAL NFL RESULTS');
+ text(c,'SCREEN '+(pageIndex+1)+' OF '+total+(page.type==='players'&&page.more?' · MORE PLAYER ROWS NEXT':''),W/2,672,13,'#bfcad9',800,'center');
+ footer(c,'FULL BOX SCORE FROM ILLUSTRATIVE PLAY LEDGER · NOT OFFICIAL');
 }
 async function loadMuxer(){
  if(global.Mp4Muxer)return global.Mp4Muxer;
