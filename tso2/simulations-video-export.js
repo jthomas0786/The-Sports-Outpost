@@ -92,7 +92,7 @@ function sideStats(c,game,snap,team,x){
  text(c,code+' · PLAYER BOX',x+12,y+27,16,'#ffd15a',950);
  c.fillStyle='#303b4b';c.fillRect(x+12,y+39,w-24,1);
  const count=sections.reduce((sum,section)=>sum+Math.max(section.rows.length,1),0);
- const rowH=Math.max(8,Math.min(22,Math.floor((h-56-3*23)/Math.max(1,count))));
+ const rowH=Math.max(8,Math.min(22,Math.floor((h-49-3*30)/Math.max(1,count))));
  let yy=y+44;
  for(const section of sections){
   yy+=21;
