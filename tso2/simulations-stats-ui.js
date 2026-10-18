@@ -47,10 +47,16 @@
   return '<div class="tso-sim-final-heading"><span>ILLUSTRATIVE SCENARIO COMPLETE · NOT OFFICIAL STATS</span>'
    +'<h3>'+esc(game.away.abbr)+' '+left.points+' — '+right.points+' '+esc(game.home.abbr)+'</h3>'
    +'<small>Final box score derived solely from the animated play ledger. It is not the mean result from the 50,000-run model.</small></div>'
+   +'<div class="tso-sim-final-screen" data-tsos-final-team>'
+   +'<h4 class="tso-sim-stat-heading">FINAL TEAM STATS · SCREEN 1</h4>'
    +'<h4 class="tso-sim-stat-heading">SCORING BY QUARTER</h4>'+quarters
    +'<h4 class="tso-sim-stat-heading">TEAM COMPARISON</h4>'+statComparison
+   +'<button type="button" class="tso-sim-final-next" data-tsos-final-screen="players">NEXT: FULL PLAYER BOX SCORE →</button></div>'
+   +'<div class="tso-sim-final-screen" data-tsos-final-players hidden>'
+   +'<div class="tso-sim-final-screen-head"><h4 class="tso-sim-stat-heading">FULL PLAYER BOX SCORE · SCREEN 2</h4>'
+   +'<button type="button" class="tso-sim-final-next" data-tsos-final-screen="team">← TEAM STATS</button></div>'
    +'<div class="tso-sim-complete-box-grid">'+sides.map(boxTeam).join('')+'</div>'
-   +'<p class="tso-sim-boxfootnote">Play calls use 2026 active-roster candidates, role-weighted opportunity and bounded defensive-position allowances where verified. Actual coverage schemes, play tracking and final inactives are not claimed to be verified.</p>';
+   +'<p class="tso-sim-boxfootnote">All passing, rushing and receiving participants recorded in the illustrative play ledger are listed. Play calls use 2026 active-roster candidates, role-weighted opportunity and bounded defensive-position allowances where verified. This is not official NFL game data.</p></div>';
  }
  global.TSO2StatsUI={live,full};
 })(typeof window!=='undefined'?window:globalThis);
