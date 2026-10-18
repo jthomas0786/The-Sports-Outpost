@@ -369,14 +369,26 @@ async function encodeWebCodecs(canvas,frames,progress){
   return new Blob([muxer.target.buffer],{type:'video/mp4'});
  }finally{encoder.close()}
 }
-async function encodeNative(canvas,frames,progress){
- if(!canvas.captureStream||typeof MediaRecorder==='undefined')
-  throw Error('MP4 video export is unsupported by this browser.');
- const mime=['video/mp4;codecs=avc1.42E01F','video/mp4;codecs=avc1.42001f','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
- if(!mime)throw Error('Native MP4 recording is unavailable. Try Safari or Chrome with H.264 WebCodecs.');
- const stream=canvas.captureStream(FPS),chunks=[];
- const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000});
- let failed=null;
+async function encodeNative(canvas,frames,progress,audioContext){
+ if(!canvas.captureStream||typeof MediaRecorder==='undefined'||!audioContext)
+  throw Error('MP4 export with background music requires H.264/AAC support in this browser.');
+ const mime=[
+  'video/mp4;codecs="avc1.42E01F,mp4a.40.2"',
+  'video/mp4;codecs="avc1.42001f,mp4a.40.2"',
+  'video/mp4'
+ ].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!mime)throw Error('Native video+music MP4 recording is unavailable. Try an updated Chrome or Safari.');
+ await audioContext.resume();
+ if(audioContext.state!=='running')throw Error('Audio playback permission is required to include the soundtrack.');
+ const source=audioContext.createBufferSource();
+ source.buffer=nativeMusicBuffer(audioContext,frames);
+ const destination=audioContext.createMediaStreamDestination();
+ source.connect(destination);
+ const fieldStream=canvas.captureStream(FPS);
+ const stream=new MediaStream([...fieldStream.getVideoTracks(),...destination.stream.getAudioTracks()]);
+ const chunks=[];
+ const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000,audioBitsPerSecond:128000});
+ let failed=null,started=false;
  const stopped=new Promise((resolve,reject)=>{
   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
   recorder.onerror=e=>{failed=e.error||Error('MP4 recorder failed');reject(failed)};
@@ -384,15 +396,26 @@ async function encodeNative(canvas,frames,progress){
  });
  try{
   recorder.start(1000);
+  source.start();started=true;
   for(let i=0;i<frames;i++){
    progress.render(i);if(i%12===0)progress.report(i,frames);
    await wait(1000/FPS);
   }
   recorder.stop();await stopped;
   return new Blob(chunks,{type:'video/mp4'});
- }finally{stream.getTracks().forEach(t=>t.stop())}
+ }finally{
+  if(started){try{source.stop()}catch(_){}}
+  fieldStream.getTracks().forEach(t=>t.stop());
+  destination.stream.getTracks().forEach(t=>t.stop());
+  if(recorder.state!=='inactive'){try{recorder.stop()}catch(_){}}
+ }
 }
 async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={}){
+ // Unlock audio in the initial button click before asynchronous logo/encoder work.
+ const AudioCtor=global.AudioContext||global.webkitAudioContext;
+ const audioContext=AudioCtor?new AudioCtor():null;
+ const unlockAudio=audioContext?audioContext.resume().catch(()=>{}):Promise.resolve();
+
  if(!game?.representativeWorld||!Array.isArray(plays)||!plays.length||!snapshot?.teams)
   throw Error('An eligible representative simulation and complete box score are required.');
  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
@@ -434,21 +457,29 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
  };
  const progress={
   render,
-  report:(current,total)=>onProgress(100*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score')
+  report:(current,total)=>onProgress(95*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score'),
+  musicStart:()=>onProgress(95,'Encoding original upbeat instrumental soundtrack'),
+  musicProgress:(current,total)=>onProgress(95+4*current/Math.max(1,total),'Encoding AAC stereo background music')
  };
- onProgress(0,'Preparing '+plays.length+' illustrated plays and '+pages.length+' final box-score pages');
+ onProgress(0,'Preparing '+plays.length+' illustrated plays, two final slides and original soundtrack');
  let blob;
- if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
-  try{blob=await encodeWebCodecs(canvas,frames,progress)}
-  catch(err){
-   if(err?.message?.includes('Game changed'))throw err;
-   if(typeof MediaRecorder!=='undefined')blob=await encodeNative(canvas,frames,progress);
-   else throw err;
+ try{
+  if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
+   try{blob=await encodeWebCodecs(canvas,frames,progress)}
+   catch(err){
+    if(err?.message?.includes('Game changed'))throw err;
+    if(typeof MediaRecorder!=='undefined'&&audioContext){
+     await unlockAudio;blob=await encodeNative(canvas,frames,progress,audioContext);
+    }else throw err;
+   }
+  }else{
+   await unlockAudio;
+   blob=await encodeNative(canvas,frames,progress,audioContext);
   }
- }else blob=await encodeNative(canvas,frames,progress);
+ }finally{if(audioContext)await audioContext.close().catch(()=>{})}
  if(!blob||blob.size<1024||!blob.type.includes('mp4'))throw Error('The MP4 encoder did not return a valid video.');
- onProgress(100,'MP4 ready');
- return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length};
+ onProgress(100,'MP4 with original upbeat music ready');
+ return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length,backgroundMusic:true};
 }
 global.TSO2SimulationVideo={export:exportVideo,boxPages};
 })(typeof window!=='undefined'?window:globalThis);
