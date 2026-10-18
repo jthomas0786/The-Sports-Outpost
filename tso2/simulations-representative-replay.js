@@ -88,6 +88,18 @@ function buildOne(game,defense,variant=0){
   for(const p of capable){draw-=remaining(p);if(draw<=0)return p}
   return capable[capable.length-1];
  }
+ // Kickoffs are score-neutral illustrated transitions. They are never
+ // treated as sampled real NFL plays or added to player/team box stats.
+ function kickoff(kicker,receiver,quarter,second,driveId){
+  const time=Math.max(1,second);
+  events.push({index:seq++,quarter,clock:roundClock(time),second:time,
+   side:kicker,opponent:receiver,driveId,down:1,first:10,yard:35,
+   gain:0,kind:'KICKOFF',player:'Kicking unit',passer:'',carrier:null,
+   receiver:null,complete:false,route:null,targetSlot:1,
+   beforeAway:scores[away],beforeHome:scores[home],scoreAway:scores[away],scoreHome:scores[home],
+   td:false,points:0,interception:false,sack:false,
+   commentary:kicker+' kicks off to '+receiver+'. (Illustrative special teams transition)'});
+ }
  for(let quarter=1;quarter<=4;quarter++){
   for(let d=0;d<5;d++){
    const globalDrive=(quarter-1)*5+d,side=sides[globalDrive%2],opp=sides[(globalDrive+1)%2],
@@ -100,6 +112,7 @@ function buildOne(game,defense,variant=0){
    let yard=yStart,down=1,distance=10;
    const goal=planned.kind==='TD'?100:planned.kind==='FG'?71:yStart+10+Math.floor(rng()*21);
    driveId++;
+   if(quarter===1&&d===0)kickoff(opp,side,quarter,899,driveId);
    for(let playIndex=0;playIndex<totalPlays;playIndex++){
     const remaining=offensivePlays-playIndex;
     const clock=Math.max(2,Math.round(900-d*180-(playIndex/totalPlays)*175));
@@ -183,6 +196,7 @@ function buildOne(game,defense,variant=0){
      beforeAway,beforeHome,scoreAway:scores[away],scoreHome:scores[home],td:points>=6,points,interception,sack,
      defenseTendency:tendency.kind,commentary:commentary+' (illustrated interpretation of a sampled model world)'};
     events.push(event);
+    if(points>0)kickoff(side,opp,quarter,Math.max(1,clock-2),driveId);
    }
   }
  }
