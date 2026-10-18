@@ -263,7 +263,7 @@ async function loadMuxer(){
 async function setupEncoder(c,muxer,fps){
  const options=['avc1.42001f','avc1.42E01F','avc1.4d401f'];
  for(const codec of options){
-  const config={codec,width:W,height:H,bitrate:2500000,framerate:fps,
+  const config={codec,width:W,height:H,bitrate:3500000,framerate:fps,
    hardwareAcceleration:'prefer-hardware',avc:{format:'avc'}};
   try{
    const result=await VideoEncoder.isConfigSupported(config);
@@ -306,7 +306,7 @@ async function encodeNative(canvas,frames,progress){
  const mime=['video/mp4;codecs=avc1.42E01F','video/mp4;codecs=avc1.42001f','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
  if(!mime)throw Error('Native MP4 recording is unavailable. Try Safari or Chrome with H.264 WebCodecs.');
  const stream=canvas.captureStream(FPS),chunks=[];
- const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:2500000});
+ const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000});
  let failed=null;
  const stopped=new Promise((resolve,reject)=>{
   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
@@ -331,6 +331,16 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
  if(!c)throw Error('Canvas drawing is unavailable.');
  const logos=await Promise.all([logoImage(logoUrl(game.away)),logoImage(logoUrl(game.home))]);
  const pages=boxPages(game,snapshot);
+ const engine=global.TSO2SimEngine;
+ if(typeof engine?.snapshot!=='function')throw Error('Simulation stat ledger is unavailable for video export.');
+ // Cache cumulative completed-play snapshots; sidebars must agree exactly with
+ // the same event ledger used by the final box score and on-page replay.
+ const snapshots=new Map([[plays.length,snapshot]]);
+ const at=index=>{
+  const done=clamp(index,0,plays.length);
+  if(!snapshots.has(done))snapshots.set(done,engine.snapshot(game,plays,done));
+  return snapshots.get(done);
+ };
  const introFrames=FPS*2,outroFrames=FPS*4;
  // Highlight plays receive a readable 1.25 second pause in the MP4; all
  // ordinary illustrative snaps remain short. No extra events are generated.
@@ -347,7 +357,7 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
    while(lo+1<hi){const mid=(lo+hi)>>1;if(offsets[mid]<=pos)lo=mid;else hi=mid;}
    const index=lo,fraction=(pos-offsets[index])/playDurations[index];
    const field=renderField(index,fraction);
-   return play(c,game,logos,plays[index],{canvas:field,progress:fraction,index});
+   return play(c,game,logos,plays[index],{canvas:field,progress:fraction,index},at(index+(fraction>=.94?1:0)));
   }
   pos-=replayFrames;
   const pageIndex=Math.min(pages.length-1,Math.floor(pos/outroFrames));
