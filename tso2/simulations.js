@@ -15,7 +15,7 @@ const teamCode=v=>String(v||'').toUpperCase().replace('LAR','LA').replace('JAC',
   const abbr=teamCode(team?.abbr),code=abbr==='LA'?'lar':abbr==='WSH'?'wsh':abbr.toLowerCase();
   return '/api/tso2-nfl-logo?team='+encodeURIComponent(abbr);
  };
- const logoMarkup=team=>'<span class="tso-sim-score-logo-wrap"><img class="tso-sim-score-logo" src="'+esc(nflLogoUrl(team))+'" alt="'+esc(team.abbr)+' team logo" loading="eager" onerror="this.hidden=true;this.parentElement.classList.add(\'is-missing\')"><span class="tso-sim-score-logo-fallback">'+esc(team.abbr)+'</span></span>';
+ const logoMarkup=team=>'<span class="tso-sim-score-logo-wrap"><img class="tso-sim-score-logo" src="'+esc(nflLogoUrl(team))+'" alt="'+esc(team.abbr)+' team logo" loading="eager" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'is-missing\')"><span class="tso-sim-score-logo-fallback">'+esc(team.abbr)+'</span></span>';
 const teamLabel=t=>esc(t?.name||t?.abbr||'TEAM');
 const dateText=v=>{if(!v)return 'Kickoff time unavailable';const d=new Date(v);return Number.isFinite(d.getTime())?new Intl.DateTimeFormat(undefined,{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}).format(d):'Schedule pending'};
 const seeded=value=>{let h=2166136261;for(const c of String(value||'')){h^=c.charCodeAt(0);h=Math.imul(h,16777619)}return h>>>0};
