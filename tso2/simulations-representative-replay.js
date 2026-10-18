@@ -64,6 +64,15 @@ function buildOne(game,defense,variant=0){
  const plans={};for(const side of sides){plans[side]=scorePlan(desired[side]);if(!plans[side])return []}
  const roster={};for(const side of sides)roster[side]=(game.players||[]).filter(p=>norm(p.team)===side);
  if(sides.some(t=>!roster[t].some(p=>p.position==='QB')))return [];
+ // The modelled skill-player pool excludes kickers and punters. These names
+ // arrive only from the independently verified 2026 active roster audit.
+ const specialistRoster=game.specialists||game.availability?.rosterAudit?.specialists||
+  game.availabilityAudit?.rosterAudit?.specialists||{};
+ function specialist(side,kind){
+  const names=specialistRoster[side]||{};
+  const name=String((kind==='PUNT'?names.punter:names.kicker)||'').trim();
+  return name|| (kind==='PUNT'?'Punter':'Kicker');
+ }
  const raw=(selected.players||[]).map(p=>[norm(p.team)+'|'+String(p.name||'').toLowerCase(),p]);
  const world=new Map(raw),rng=makeRng(h32(game.gameId+'|sample-world-'+selected.sampledIndex+'|candidate-'+variant)),counts=new Map(),scores={[away]:0,[home]:0},events=[];
  const driveSlots=10;const scoring={};
@@ -94,11 +103,11 @@ function buildOne(game,defense,variant=0){
   const time=Math.max(1,second);
   events.push({index:seq++,quarter,clock:roundClock(time),second:time,
    side:kicker,opponent:receiver,driveId,down:1,first:10,yard:35,
-   gain:0,kind:'KICKOFF',player:'Kicking unit',passer:'',carrier:null,
+   gain:0,kind:'KICKOFF',player:specialist(kicker,'KICKOFF'),passer:'',carrier:null,
    receiver:null,complete:false,route:null,targetSlot:1,
    beforeAway:scores[away],beforeHome:scores[home],scoreAway:scores[away],scoreHome:scores[home],
    td:false,points:0,interception:false,sack:false,
-   commentary:kicker+' kicks off to '+receiver+'. (Illustrative special teams transition)'});
+   commentary:specialist(kicker,'KICKOFF')+' kicks off for '+kicker+' to '+receiver+'. (Illustrative special teams transition)'});
  }
  for(let quarter=1;quarter<=4;quarter++){
   for(let d=0;d<5;d++){
@@ -124,7 +133,7 @@ function buildOne(game,defense,variant=0){
      complete=false,gain=0,points=0,route=null,interception=false,sack=false;
     const oldYard=yard,oldDown=down,oldDistance=distance;
     if(special){
-      player=planned.kind==='FG'?'Kicking unit':'Punting unit';
+      player=specialist(side,special);
       points=planned.kind==='FG'?planned.points:0;
     }else{
       const maxNeed=goal-yard,progress=Math.max(0,maxNeed/Math.max(1,remaining));
@@ -183,8 +192,8 @@ function buildOne(game,defense,variant=0){
     }
     if(points)scores[side]+=points;
     let commentary='';
-    if(kind==='PUNT')commentary=side+' punts after the drive stalls.';
-    else if(kind==='FIELD GOAL')commentary=side+' converts a '+(100-yard+17)+'-yard field goal.';
+    if(kind==='PUNT')commentary=player+' punts for '+side+' after the drive stalls.';
+    else if(kind==='FIELD GOAL')commentary=player+' converts a '+(100-yard+17)+'-yard field goal for '+side+'.';
     else if(kind==='PASS')commentary=complete?passer+' completes to '+receiver+' for '+gain+' yards'+(points?' — TOUCHDOWN!':''):
       passer+' pass intended for '+receiver+' is incomplete.';
     else if(kind==='RUSH')commentary=player===passer?passer+' scrambles for '+gain+' yards':passer+' hands off to '+carrier+' for '+gain+' yards'+(points?' — TOUCHDOWN!':'');
