@@ -54,9 +54,28 @@ const replayPlayers=players.filter(p=>p.depthRank!==2||p.position!=='QB').map(p=
  }};
 });
 const game={gameId:'401873007',away:{abbr:'DAL'},home:{abbr:'GB'},players,
+ specialists:{DAL:{kicker:'Fixture DAL Kicker',punter:'Fixture DAL Punter'},GB:{kicker:'Fixture GB Kicker',punter:'Fixture GB Punter'}},
  representativeWorld:{...pick,players:replayPlayers,awayScore:24,homeScore:25,sampledIndex:pick.sampledIndex}};
 const events=model.build(game,null);
 assert.ok(events.length>=75,'Reconstructed drives require plausible play count');
+// Kickoff/field goal/punt actors must be verified specialists, never a QB.
+const specialEvents=events.filter(p=>['KICKOFF','PUNT','FIELD GOAL'].includes(p.kind));
+assert.ok(specialEvents.some(p=>p.kind==='KICKOFF'));
+assert.ok(specialEvents.some(p=>p.kind==='PUNT'));
+assert.ok(specialEvents.some(p=>p.kind==='FIELD GOAL'));
+for(const e of specialEvents){
+ const expected=game.specialists[e.side][e.kind==='PUNT'?'punter':'kicker'];
+ assert.equal(e.player,expected,'Special team role should name the roster specialist');
+ assert.ok(e.commentary.includes(expected),'Special team play-by-play should name the actual actor');
+ const field=ui.TSO2Simulations.sceneFrame(e,.15,game);
+ assert.equal(field.offense[0].role,'SPECIALIST');
+ assert.equal(field.offense[0].name,expected);
+ assert.equal(field.ballOwner,expected);
+}
+// If the verified active roster is missing a specialist, do NOT invent a name.
+const unknownGame={...game,specialists:{DAL:{},GB:{}}};
+const unknownEvents=model.build(unknownGame,null).filter(p=>['KICKOFF','PUNT','FIELD GOAL'].includes(p.kind));
+assert.ok(unknownEvents.every(e=>e.player===(e.kind==='PUNT'?'Punter':'Kicker')));
 const box=stats.snapshot(game,events,events.length);
 assert.equal(box.away.points,24);
 assert.equal(box.home.points,25);
@@ -77,4 +96,4 @@ const final=ui.TSO2StatsUI.full(game,box,events);
 assert.ok(final.includes('PLAYER BOX SCORE')&&final.includes('SCORING BY QUARTER'));
 assert.equal(ui.TSO2Simulations.buildPlays(game).length,events.length);
 assert.ok(ui.TSO2Simulations.buildPlays({...game,representativeWorld:null}).length===0,'Never fabricate an independent replay without representative sample');
-console.log('PASS: representative actual 50K index, score-conditioned replay, accurate final score, Luepke usage limit, reconciled live and final stats.');
+console.log('PASS: representative sampled-world replay, reconciled stats, verified kicker/punter actors for kickoff/punt/field-goal, generic fallback without inventing names.');
