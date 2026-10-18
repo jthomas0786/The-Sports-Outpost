@@ -689,6 +689,138 @@ body{font-size:var(--tso-body-size)}
  font-family:var(--tso-font-family);
 }
 
+
+/* TSO NFL BROADCAST SCOREBOARD + SOCIAL MP4 CONTROLS — one shared theme */
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast{
+ max-width:1040px;width:100%;margin:0 auto 16px;padding:0;
+ display:flex;flex-direction:column;overflow:hidden;
+ background:linear-gradient(115deg,#111722 0%,#171d2a 50%,#111722 100%);
+ border:1px solid var(--line-strong);
+ border-radius:var(--r);box-shadow:0 12px 38px #0006;
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard-brand{
+ display:flex;align-items:center;justify-content:space-between;gap:12px;
+ padding:10px 18px;
+ border-bottom:1px solid var(--line);
+ background:color-mix(in srgb,var(--outpost-orange) 7%,var(--card));
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard-brand b{
+ color:var(--outpost-gold);font-size:11px;font-weight:950;letter-spacing:.1em
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard-brand span{
+ color:var(--muted);font-size:9px;letter-spacing:.05em
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard-main{
+ display:grid;grid-template-columns:minmax(0,1fr) minmax(112px,160px) minmax(0,1fr);
+ align-items:stretch;width:100%;min-height:116px;
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam{
+ min-width:0;display:flex;align-items:center;gap:12px;padding:15px 20px;
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam.is-home{
+ justify-content:flex-end
+}
+.app-shell.broadcast-shell .tso-sim-score-logo-wrap{
+ width:72px;height:72px;flex:0 0 72px;display:flex;align-items:center;
+ justify-content:center;position:relative;background:var(--elev);
+ border-radius:16px;border:1px solid var(--line-strong);overflow:hidden;
+}
+.app-shell.broadcast-shell .tso-sim-score-logo{
+ width:62px;height:62px;object-fit:contain;display:block;
+ filter:drop-shadow(0 1px 1px #0009);z-index:1
+}
+.app-shell.broadcast-shell .tso-sim-score-logo-fallback{
+ position:absolute;inset:0;display:none;align-items:center;
+ justify-content:center;font-size:17px;font-weight:950;
+ color:var(--outpost-gold)
+}
+.app-shell.broadcast-shell .tso-sim-score-logo-wrap.is-missing .tso-sim-score-logo-fallback{
+ display:flex
+}
+.app-shell.broadcast-shell .tso-sim-scoreteam-info{
+ display:flex;flex-direction:column;gap:3px;min-width:0
+}
+.app-shell.broadcast-shell .tso-sim-scoreteam-info small{
+ color:var(--outpost-orange);font-size:9px;letter-spacing:.12em;font-weight:900
+}
+.app-shell.broadcast-shell .tso-sim-scoreteam-info b{
+ color:var(--text);font-size:22px;font-weight:950
+}
+.app-shell.broadcast-shell .tso-sim-scoreteam-info em{
+ color:var(--muted);font-size:9px;font-style:normal;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam strong{
+ color:var(--text);font-size:47px;line-height:1;letter-spacing:-.045em;
+ font-weight:950;margin-left:auto
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam.is-home strong{
+ margin:0 auto 0 0
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock{
+ min-width:0;display:flex;justify-content:center;align-items:center;
+ border-left:1px solid var(--line-strong);border-right:1px solid var(--line-strong);
+ background:#0c121a;text-align:center;padding:10px
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock b{
+ font-size:13px;color:var(--outpost-orange);font-weight:950
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock strong{
+ color:var(--text);font-size:28px;font-variant-numeric:tabular-nums;
+ line-height:1.2
+}
+.app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock small{
+ color:var(--muted);font-size:9px;white-space:normal;overflow-wrap:anywhere;line-height:1.45
+}
+.app-shell.broadcast-shell .tso-sim-controls .tso-sim-download-link{
+ display:inline-flex;align-items:center;justify-content:center;
+ min-height:var(--tso-button-height);padding:9px 16px;
+ color:var(--tso-btn-text);background:var(--outpost-gold);
+ border:1px solid var(--outpost-gold);border-radius:var(--r-sm);
+ text-decoration:none;font-size:11px;font-weight:950;letter-spacing:.04em
+}
+.app-shell.broadcast-shell .tso-sim-controls [hidden]{display:none!important}
+.app-shell.broadcast-shell .tso-sim-controls [disabled]{opacity:.55;cursor:progress}
+.app-shell.broadcast-shell .tso-sim-controls [data-tsos-share]{
+ border-color:var(--outpost-gold);color:var(--outpost-gold)
+}
+.app-shell.broadcast-shell .tso-sim-export-status{
+ margin:12px 0 0;padding:14px 16px;
+ border:1px solid var(--line-strong);border-left:3px solid var(--outpost-orange);
+ border-radius:var(--r-sm);background:var(--surface);
+ color:var(--text);font-size:12px;line-height:1.5
+}
+.app-shell.broadcast-shell .tso-sim-export-status[hidden]{display:none!important}
+@media(max-width:860px){
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam{gap:8px;padding:12px 9px}
+ .app-shell.broadcast-shell .tso-sim-score-logo-wrap{width:54px;height:54px;flex-basis:54px;border-radius:12px}
+ .app-shell.broadcast-shell .tso-sim-score-logo{width:48px;height:48px}
+ .app-shell.broadcast-shell .tso-sim-scoreteam-info b{font-size:18px}
+ .app-shell.broadcast-shell .tso-sim-scoreteam-info em{display:none}
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam strong{font-size:38px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard-main{grid-template-columns:minmax(0,1fr) minmax(104px,132px) minmax(0,1fr)}
+}
+@media(max-width:520px){
+ .app-shell.broadcast-shell .tso-sim-scoreboard-brand{padding:8px 10px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard-brand span{font-size:8px;text-align:right;max-width:138px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard-main{grid-template-columns:minmax(0,1fr) 93px minmax(0,1fr);min-height:90px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam{
+  gap:5px;padding:10px 6px;flex-wrap:wrap;justify-content:center
+ }
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam.is-home{justify-content:center}
+ .app-shell.broadcast-shell .tso-sim-score-logo-wrap{width:41px;height:41px;flex-basis:41px;border-radius:8px}
+ .app-shell.broadcast-shell .tso-sim-score-logo{width:37px;height:37px}
+ .app-shell.broadcast-shell .tso-sim-scoreteam-info small,.app-shell.broadcast-shell .tso-sim-scoreteam-info em{display:none}
+ .app-shell.broadcast-shell .tso-sim-scoreteam-info b{font-size:17px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam strong{
+  width:100%;text-align:center;font-size:34px;order:2;margin:0
+ }
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreteam.is-home strong{order:2;margin:0}
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock{padding:8px 4px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock strong{font-size:22px}
+ .app-shell.broadcast-shell .tso-sim-scoreboard--broadcast .tso-sim-scoreclock small{font-size:8px}
+}
+
 /* Theme Studio is part of the SAME design system */
 .tso-theme-studio{max-width:var(--tso-page-max);margin:auto;padding:20px var(--tso-page-gutter) 75px;color:var(--text)}
 .tso-theme-header{display:flex;justify-content:space-between;gap:16px;align-items:center;flex-wrap:wrap}
