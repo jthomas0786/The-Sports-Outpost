@@ -1,0 +1,60 @@
+# Re-pair 50K model with its verification report whenever an independent
+# staging publisher writes only nfl-sim.json. Never accept unverified model data.
+name: TSO 2.0 NFL Simulation Report Sync
+
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - tso2/data/nfl-sim.json
+      - scripts/tso2-nfl-sim-report-sync.mjs
+      - .github/workflows/tso2-nfl-sim-report-sync.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tso2-nfl-published-model-audit
+  cancel-in-progress: true
+
+jobs:
+  verify-published-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout staging only
+        uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verify the entire published model and regenerate its matching report
+        run: |
+          set -euo pipefail
+          test "$(git symbolic-ref --short HEAD)" = "tso-2.0-restructure"
+          node scripts/tso2-nfl-sim-report-sync.mjs
+      - name: Publish matching audit report only to staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "TSO 2.0 Simulation Audit"
+          git config user.email "actions@users.noreply.github.com"
+          git add tso2/data/nfl-sim-run-report.json
+          if git diff --staged --quiet; then
+            echo "PASS: verified model and report already match."
+            exit 0
+          fi
+          # Never attach a report for an older model to a newer model commit.
+          git fetch origin tso-2.0-restructure
+          source_blob="$(git rev-parse HEAD:tso2/data/nfl-sim.json)"
+          remote_blob="$(git rev-parse origin/tso-2.0-restructure:tso2/data/nfl-sim.json)"
+          test "$source_blob" = "$remote_blob" || {
+            echo "::error::Model changed while auditing; refusing to publish stale report."
+            exit 1
+          }
+          git commit -m "Sync audited 50K simulation report with validated staging model"
+          git push origin HEAD:tso-2.0-restructure
