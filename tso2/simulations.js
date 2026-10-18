@@ -249,7 +249,7 @@ function paintPage(){
   if(exporter&&exportBtn){
    exportBtn.addEventListener('click',async()=>{
     stop();exportBtn.disabled=true;
-    if(status){status.hidden=false;status.textContent='Preparing horizontal 16:9 (1280×720) MP4 video…'}
+    if(status){status.hidden=false;status.textContent='Preparing 16:9 MP4 with original upbeat background music…'}
     if(download){download.hidden=true;download.removeAttribute('href')}
     if(shareBtn){shareBtn.hidden=true;shareBtn.disabled=true}
     try{
@@ -268,7 +268,7 @@ function paintPage(){
      state.videoFile=new File([result.blob],'TSO-'+activeGame.away.abbr+'-at-'+activeGame.home.abbr+'-simulation.mp4',{type:'video/mp4'});
      download.href=state.videoUrl;download.hidden=false;
      if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[state.videoFile]}))){shareBtn.hidden=false;shareBtn.disabled=false}
-     if(status)status.textContent='1280×720 MP4 ready · final team stats, then passing, rushing and receiving together on one player screen. Download or share using your device.';
+     if(status)status.textContent='1280×720 MP4 with upbeat original music ready · final team stats, then away-left / home-right passing, rushing and receiving on one player screen. Download or share.';
     }catch(error){
      if(status)status.textContent='MP4 export unavailable: '+String(error?.message||error)+'. No incomplete video was downloaded.';
     }finally{exportBtn.disabled=false;exportBtn.textContent='↻ RECREATE LANDSCAPE MP4'}
