@@ -10,13 +10,9 @@ on:
       - sports/nfl/sim/availability.js
       - sports/nfl/sim/injury-audit.js
       - tso2/data/nfl-availability-2026.json
-  schedule:
-    # GitHub only runs cron from the DEFAULT branch. This TSO2 workflow currently
-    # lives only on tso-2.0-restructure: scheduled runs require a minimal,
-    # explicitly approved default-branch dispatcher. Push/dispatch runs still work.
-    # Once a dispatcher exists, Sunday should refresh every two hours.
-    - cron: '17 1,7,13,19 * * 1-6'
-    - cron: '17 */2 * * 0'
+  # GitHub schedules only default-branch workflows. The minimal main
+  # scheduler calls this staging-only job using workflow_call.
+  workflow_call:
   workflow_dispatch:
 
 permissions:
