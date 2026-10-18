@@ -1,0 +1,20 @@
+# Default-branch schedule entrypoint for The Sports Outpost 2.0 NFL simulations.
+# This file ONLY calls the verified 50K recalculation in tso-2.0-restructure.
+# No checkout/build/deployment of the production application occurs here.
+name: TSO 2.0 NFL 50K Staging Scheduler
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Every six hours Monday-Saturday and every two hours Sunday (UTC).
+    - cron: '17 1,7,13,19 * * 1-6'
+    - cron: '17 */2 * * 0'
+
+permissions:
+  contents: write
+
+jobs:
+  staging-only-recalculation:
+    uses: jthomas0786/The-Sports-Outpost/.github/workflows/tso2-nfl-50k-recalculate.yml@tso-2.0-restructure
+    permissions:
+      contents: write
