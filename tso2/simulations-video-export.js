@@ -5,93 +5,8 @@
 (function(global){
 'use strict';
 const FPS=24,W=1280,H=720;
-// Bundle the identical cinematic spy-thriller synth as a fallback. Some edge/CDN
-// deployments omit the separate simulations-soundtrack.js asset; export must
-// never fail solely because its script was not delivered.
-function ensureSoundtrack(){
- if(global.TSO2SimSoundtrack&&typeof global.TSO2SimSoundtrack.render==='function')
-  return global.TSO2SimSoundtrack;
- const sampleRate=48000,numberOfChannels=2,bpm=136;
- const tau=Math.PI*2,beatSeconds=60/bpm;
- // Original 4/4 thriller pulse: D minor > Bb > G minor > A.
- // This intentionally does NOT recreate any existing film's melody or meter.
- const progression=[
-  {root:38,third:41,fifth:45}, // D minor
-  {root:34,third:38,fifth:41}, // Bb
-  {root:31,third:34,fifth:38}, // G minor
-  {root:33,third:37,fifth:40}  // A, for suspenseful resolution
- ];
- const hz=Array.from({length:96},(_,midi)=>440*Math.pow(2,(midi-69)/12));
- const ostinato=[24,31,27,31,24,29,31,27];
- const brassAccents=[1,0,0,0,0,1,0,1];
- function noise(seed){
-  let h=Math.imul(seed^0x9e3779b9,2246822519);
-  h=Math.imul(h^(h>>>13),3266489917);
-  return ((h^(h>>>16))>>>0)/2147483648-1;
- }
- // Deterministic stereo f32-planar PCM for WebCodecs AAC and native MP4.
- // Samples are independent of chunk boundaries and need no external assets.
- function render(start,count,total,rate=sampleRate){
-  const out=new Float32Array(count*numberOfChannels);
-  const duration=total/rate;
-  for(let i=0;i<count;i++){
-   const index=start+i,t=index/rate,beat=t/beatSeconds;
-   const beatIndex=Math.floor(beat),beatPhase=t-beatIndex*beatSeconds;
-   const eighthIndex=Math.floor(beat*2),eighthPhase=t-eighthIndex*beatSeconds/2;
-   const barIndex=Math.floor(beatIndex/4),barPhase=t-barIndex*beatSeconds*4;
-   const beatInBar=beatIndex%4,eighthInBar=eighthIndex%8;
-   const harmony=progression[Math.floor(beat/8)%progression.length];
-   const root=hz[harmony.root],lowRoot=hz[harmony.root-12];
-   const noteHz=hz[harmony.root+ostinato[eighthInBar]];
-   const bassEnv=Math.exp(-5.6*beatPhase);
-   // Driving low, dry drums, double-time metallic ticks and a tom pickup.
-   const kickStrength=beatInBar===0?1:beatInBar===2?.86:beatInBar===3?.32:0;
-   const kick=kickStrength*Math.sin(tau*(91*beatPhase-80*beatPhase*beatPhase))*
-    Math.exp(-19*beatPhase);
-   const snare=(beatInBar===1||beatInBar===3)?
-    noise(index*3+197)*Math.exp(-31*beatPhase):0;
-   const tick=noise(index*11+59)*Math.exp(-90*eighthPhase)*
-    (eighthInBar%2?.85:1);
-   const tomPickup=(barIndex%4===3&&beatInBar===3)?
-    Math.sin(tau*(165*eighthPhase-55*eighthPhase*eighthPhase))*
-    Math.exp(-12*eighthPhase):0;
-   // Short stabbing low strings, with a relentless eighth-note ostinato.
-   const stringEnv=Math.exp(-9.2*eighthPhase);
-   const string=(Math.sin(tau*noteHz*eighthPhase)+
-    .29*Math.sin(tau*noteHz*2*eighthPhase)+
-    .11*Math.sin(tau*noteHz*3*eighthPhase))*stringEnv;
-   // Dark pulsed bass, plus sustained orchestral-style tension underneath.
-   const bass=(Math.sin(tau*lowRoot*beatPhase)+
-    .35*Math.sin(tau*root*beatPhase))*bassEnv;
-   const tension=(Math.sin(tau*hz[harmony.root+12]*t)+
-    .65*Math.sin(tau*hz[harmony.third+12]*t)+
-    .45*Math.sin(tau*hz[harmony.fifth+12]*t))/2.1;
-   // Punchy brass-like stabs on an ORIGINAL syncopated phrase.
-   const accent=brassAccents[eighthInBar];
-   const stab=(Math.sin(tau*hz[harmony.fifth+12]*eighthPhase)+
-    .32*Math.sin(tau*hz[harmony.fifth+12]*2*eighthPhase))*
-    Math.exp(-7.5*eighthPhase)*accent;
-   // Rising static and a brief impact before each new eight-bar sequence.
-   const beatInPhrase=beat%32;
-   const rise=beatInPhrase>28?(beatInPhrase-28)/4:0;
-   const riser=noise(index*13+131)*rise*rise;
-   const impact=(barIndex%8===0)?
-    noise(index*17+11)*Math.exp(-5.5*barPhase):0;
-   const fade=Math.min(1,t/.85,Math.max(0,(duration-t)/1.35));
-   const mix=(.245*kick+.09*snare+.041*tick+.048*tomPickup+
-    .16*string+.205*bass+.060*tension+.125*stab+.038*riser+
-    .050*impact)*fade;
-   // Widen strings/brass subtly without separate oscillator state.
-   const width=.017*string+.011*stab+.006*Math.sin(tau*root*t)*fade;
-   out[i]=Math.max(-.96,Math.min(.96,mix-width));
-   out[count+i]=Math.max(-.96,Math.min(.96,mix+width));
-  }
-  return out;
- }
- global.TSO2SimSoundtrack={sampleRate,numberOfChannels,bpm,style:'original-cinematic-spy-thriller',render};
- return global.TSO2SimSoundtrack;
-}
-
+// The verified, locally hosted MP3 is required for exports.
+// Missing audio is a visible failure, not a reason to synthesize a substitute.
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const clean=v=>String(v??'');
@@ -143,7 +58,7 @@ function footer(c,note='NOT ACTUAL NFL FOOTAGE OR OFFICIAL STATS'){
  c.fillStyle='#131923';c.fillRect(0,H-44,W,44);
  c.fillStyle='#ff541d';c.fillRect(0,H-44,W,2);
  text(c,note,26,H-18,13,'#ffd056',820);
- text(c,'thesportsoutpost.com  •  illustrated sampled-world replay',W-26,H-18,12,'#bdc6d5',650,'right');
+ text(c,'MUSIC: EPIC BATTLE · FSCM PRODUCTIONS (CC BY 4.0)',W-26,H-18,12,'#bdc6d5',650,'right');
 }
 function drawLogo(c,img,cx,cy,label,size=62){
  roundRect(c,cx-size/2,cy-size/2,size,size,13,'#202733','#404958');
@@ -387,7 +302,7 @@ async function setupEncoder(c,muxer,fps){
 }
 async function encodeSoundtrack(muxer,frames,onProgress=()=>{}){
  const sound=global.TSO2SimSoundtrack;
- if(!sound||typeof sound.render!=='function')throw Error('Original TSO background music is not loaded.');
+ if(!sound||typeof sound.render!=='function')throw Error('Epic Battle background music is not loaded.');
  if(typeof AudioEncoder!=='function'||typeof AudioData!=='function')
   throw Error('AAC music encoding is unavailable in this browser.');
  const config={codec:'mp4a.40.2',sampleRate:sound.sampleRate,numberOfChannels:sound.numberOfChannels,bitrate:128000};
@@ -421,7 +336,7 @@ async function encodeSoundtrack(muxer,frames,onProgress=()=>{}){
 }
 function nativeMusicBuffer(audioContext,frames){
  const sound=global.TSO2SimSoundtrack;
- if(!sound||typeof sound.render!=='function')throw Error('Original TSO background music is not loaded.');
+ if(!sound||typeof sound.render!=='function')throw Error('Epic Battle background music is not loaded.');
  const rate=audioContext.sampleRate,total=Math.round(frames*rate/FPS),buffer=audioContext.createBuffer(2,total,rate);
  const left=buffer.getChannelData(0),right=buffer.getChannelData(1);
  const packet=4096;
@@ -501,13 +416,18 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
  // Unlock audio in the initial button click before asynchronous logo/encoder work.
  if(!game?.representativeWorld||!Array.isArray(plays)||!plays.length||!snapshot?.teams)
   throw Error('An eligible representative simulation and complete box score are required.');
- ensureSoundtrack();
  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
  const c=canvas.getContext('2d',{alpha:false});
  if(!c)throw Error('Canvas drawing is unavailable.');
  const AudioCtor=global.AudioContext||global.webkitAudioContext;
  const audioContext=AudioCtor?new AudioCtor():null;
  const unlockAudio=audioContext?audioContext.resume().catch(()=>{}):Promise.resolve();
+ const sound=global.TSO2SimSoundtrack;
+ if(!audioContext||typeof sound?.load!=='function')
+  throw Error('Epic Battle soundtrack audio decoding is unavailable.');
+ onProgress(0,'Loading Epic Battle soundtrack by FSCM Productions');
+ try{await sound.load(audioContext)}
+ catch(error){await audioContext.close().catch(()=>{});throw error}
  const logos=await Promise.all([logoImage(logoUrl(game.away)),logoImage(logoUrl(game.home))]);
  const pages=boxPages(game,snapshot);
  const engine=global.TSO2SimEngine;
@@ -546,7 +466,7 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
  const progress={
   render,
   report:(current,total)=>onProgress(95*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score'),
-  musicStart:()=>onProgress(95,'Encoding original cinematic suspense soundtrack'),
+  musicStart:()=>onProgress(95,'Encoding Epic Battle soundtrack'),
   musicProgress:(current,total)=>onProgress(95+4*current/Math.max(1,total),'Encoding AAC stereo background music')
  };
  onProgress(0,'Preparing '+plays.length+' illustrated plays, two final slides and original soundtrack');
@@ -566,8 +486,8 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
   }
  }finally{if(audioContext)await audioContext.close().catch(()=>{})}
  if(!blob||blob.size<1024||!blob.type.includes('mp4'))throw Error('The MP4 encoder did not return a valid video.');
- onProgress(100,'MP4 with original cinematic suspense music ready');
- return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length,backgroundMusic:true};
+ onProgress(100,'MP4 with Epic Battle soundtrack ready');
+ return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length,backgroundMusic:true,musicCredit:global.TSO2SimSoundtrack.attribution};
 }
 global.TSO2SimulationVideo={export:exportVideo,boxPages};
 })(typeof window!=='undefined'?window:globalThis);
