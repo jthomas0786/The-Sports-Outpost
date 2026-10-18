@@ -172,7 +172,7 @@ function replayHTML(game){
   +'<div class="tso-sim-scoreteam is-home"><strong data-tsos-home>0</strong><span class="tso-sim-scoreteam-info"><small>HOME</small><b>'+esc(game.home.abbr)+'</b><em>'+esc(game.home.name||'')+'</em></span>'+logoMarkup(game.home)+'</div>'
   +'</div></div>'
   +'<div class="tso-sim-stadium"><aside class="tso-sim-players" data-tsos-panel="'+esc(game.away.abbr)+'"></aside>'
-  +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div></div>'
+  +'<div class="tso-sim-field"><canvas data-tsos-canvas width="960" height="480" aria-label="Animated, illustrative top-down football field"></canvas><div class="tso-sim-field-badge">ANIMATED PROJECTION REPLAY · NOT TRACKED MOVEMENT</div><div class="tso-sim-quarter-overlay" data-tsos-quarter-overlay hidden><span>ILLUSTRATIVE REPLAY</span><strong data-tsos-overlay-quarter>QUARTER 1</strong><small>'+esc(game.away.abbr)+' AT '+esc(game.home.abbr)+'</small></div><div class="tso-sim-event-overlay" data-tsos-event-overlay hidden aria-live="off"></div></div>'
   +'<aside class="tso-sim-players" data-tsos-panel="'+esc(game.home.abbr)+'"></aside></div>'
   +'<div class="tso-sim-tendency" data-tsos-defense-style>Defensive coverage scheme unverified · 2026 position allowances used when available</div>'
   +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
@@ -316,8 +316,35 @@ function updateStats(){
  const el=$(state.root,'[data-tsos-defense-style]');
  if(el)el.textContent=tendency&&tendency!=='Coverage scheme not verified'?tendency+' · Actual coverage scheme not verified':'Defensive coverage scheme unverified · 2026 position allowances used when available';
 }
+function updateBroadcastOverlay(event,progress){
+ const root=$(state.root,'[data-tsos-event-overlay]');
+ if(!root)return;
+ const details=window.TSO2SimBroadcastEvent?.fromPlay(event,state.game);
+ if(!details||progress<.49||progress>=1){
+  root.hidden=true;root.dataset.eventKey='';return;
+ }
+ const id=String(event.index??state.index)+'|'+details.type;
+ if(root.dataset.eventKey!==id){
+  root.dataset.eventKey=id;
+  const team=details.team===state.game?.away?.abbr?state.game.away:
+   details.team===state.game?.home?.abbr?state.game.home:null;
+  root.className='tso-sim-event-overlay is-'+details.tone;
+  root.innerHTML='<div class="tso-sim-event-top">'+(team?logoMarkup(team):'')
+   +'<span class="tso-sim-event-team">'+esc(details.teamName||details.team||'NFL')+'</span>'
+   +'<span class="tso-sim-event-label">TSO REPLAY</span></div>'
+   +'<strong>'+esc(details.title)+'</strong>'
+   +(details.actor?'<b class="tso-sim-event-actor">'+esc(details.actor)+'</b>':'')
+   +'<small>'+esc(details.subline||'ILLUSTRATIVE PLAY')+'</small>';
+  root.setAttribute('aria-label',[details.title,details.teamName,details.actor,details.subline].filter(Boolean).join(' · '));
+ }
+ root.hidden=false;
+}
 function updatePlay(){
  const el=state.root,event=state.plays[state.index];if(!el||!event)return;
+ const eventOverlay=$(el,'[data-tsos-event-overlay]');
+ if(eventOverlay&&eventOverlay.dataset.play!==String(event.index)){
+  eventOverlay.hidden=true;eventOverlay.dataset.eventKey='';eventOverlay.dataset.play=String(event.index);
+ }
  const write=(selector,value)=>{const x=$(el,selector);if(x)x.textContent=String(value)};
  write('[data-tsos-quarter]','Q'+event.quarter);write('[data-tsos-clock]',event.clock);
  write('[data-tsos-away]',state.finished?event.scoreAway:(event.beforeAway??event.scoreAway));write('[data-tsos-home]',state.finished?event.scoreHome:(event.beforeHome??event.scoreHome));
@@ -526,6 +553,7 @@ function draw(progress=0,targetCanvas=null,skipUi=false){
  ctx.textAlign='right';ctx.fillStyle='#ffbb76';
  ctx.fillText((frame.direction===1?'→ ':'← ')+event.side+' OFFENSE',w-fx,h-16);
  if(skipUi)return;
+ updateBroadcastOverlay(event,p);
  const holder=$(state.root,'[data-tsos-ball-holder]'),stateLabel='🏈 '+frame.ballOwner+' · '+event.side+' ATTACKING '+(frame.direction===1?'RIGHT →':'← LEFT');
  if(holder&&holder.textContent!==stateLabel)holder.textContent=stateLabel;
  // Score updates at the end of a successful play, not before the ball is snapped.
