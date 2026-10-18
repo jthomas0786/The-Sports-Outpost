@@ -107,7 +107,7 @@ function buildOne(game,defense,variant=0){
    receiver:null,complete:false,route:null,targetSlot:1,
    beforeAway:scores[away],beforeHome:scores[home],scoreAway:scores[away],scoreHome:scores[home],
    td:false,points:0,interception:false,sack:false,
-   commentary:specialist(kicker,'KICKOFF')+' kicks off for '+kicker+' to '+receiver+'. (Illustrative special teams transition)'});
+   commentary:specialist(kicker,'KICKOFF')+' kicks off for '+kicker+' to '+receiver+'. (illustrated special teams transition)'});
  }
  for(let quarter=1;quarter<=4;quarter++){
   for(let d=0;d<5;d++){
