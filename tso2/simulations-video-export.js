@@ -77,35 +77,41 @@ function scoreboard(c,game,logos,score,quarter='Q1',clock='15:00'){
 const num=v=>Number.isFinite(Number(v))?Math.round(Number(v)):0;
 const val=v=>Number.isFinite(Number(v))?String(Math.round(Number(v))):'—';
 function sideStats(c,game,snap,team,x){
- const code=abbr(team),stats=snap?.teams?.[code]||{};
- const all=Object.values(snap?.players?.[code]||{});
- const active=all.filter(p=>p.passAtt||p.carries||p.targets||p.sacks||p.int);
- const best=(filter,metric)=>active.filter(filter).sort((a,b)=>metric(b)-metric(a))[0];
- const qb=best(p=>p.passAtt||p.sacks,p=>p.passAtt||0);
- const rb=best(p=>p.carries,p=>p.rushYds||0);
- const rec=best(p=>p.targets,p=>p.recYds||0);
- const w=232,y=203;
- roundRect(c,x,y,w,387,13,'#151c27','#354052');
- text(c,code+' · LIVE STATS',x+14,y+27,17,'#ffd15a',950);
- c.fillStyle='#303b4b';c.fillRect(x+12,y+38,w-24,1);
- const pairs=[['TOTAL YDS',val(stats.totalYds)],['PASS YDS',val(stats.passing)],
-  ['RUSH YDS',val(stats.rushing)],['FIRST DOWNS',val(stats.firstDowns)]];
- let yy=y+68;
- for(const [label,value] of pairs){
-  text(c,label,x+13,yy,13,'#aebbd0',850);
-  text(c,value,x+w-13,yy+1,21,'#fff',950,'right');yy+=40;
+ // Show only player box-score rows from completed plays. No aggregate team counters.
+ const code=abbr(team),all=Object.values(snap?.players?.[code]||{});
+ const sections=[
+  {title:'PASSING',rows:all.filter(p=>p.passAtt||p.sacks).sort((a,b)=>b.passAtt-a.passAtt),
+   format:p=>p.passComp+'/'+p.passAtt+'  '+val(p.passYds)+'Y  '+val(p.passTd)+'TD'+(p.int?' '+p.int+'INT':'')},
+  {title:'RUSHING',rows:all.filter(p=>p.carries).sort((a,b)=>b.carries-a.carries),
+   format:p=>p.carries+'A  '+val(p.rushYds)+'Y'+(p.rushTd?' '+p.rushTd+'TD':'')},
+  {title:'RECEIVING',rows:all.filter(p=>p.targets).sort((a,b)=>b.targets-a.targets),
+   format:p=>p.receptions+'/'+p.targets+'  '+val(p.recYds)+'Y'+(p.recTd?' '+p.recTd+'TD':'')}
+ ];
+ const w=232,y=203,h=459;
+ roundRect(c,x,y,w,h,13,'#151c27','#354052');
+ text(c,code+' · PLAYER BOX',x+12,y+27,16,'#ffd15a',950);
+ c.fillStyle='#303b4b';c.fillRect(x+12,y+39,w-24,1);
+ const count=sections.reduce((sum,section)=>sum+Math.max(section.rows.length,1),0);
+ const rowH=Math.max(8,Math.min(22,Math.floor((h-49-3*30)/Math.max(1,count))));
+ let yy=y+44;
+ for(const section of sections){
+  yy+=21;
+  text(c,section.title,x+12,yy,12,'#ffb761',920);
+  c.fillStyle='#303b4b';c.fillRect(x+12,yy+4,w-24,1);
+  yy+=9;
+  if(!section.rows.length){
+   text(c,'No attempts yet',x+12,yy+rowH*.68,10,'#8d9cae',680);
+   yy+=rowH;continue;
+  }
+  for(const [i,p] of section.rows.entries()){
+   if(i%2===0){c.fillStyle='#1d2734';c.fillRect(x+9,yy-2,w-18,rowH);}
+   const baseline=yy+rowH*.73;
+   const font=rowH>=15?11:Math.max(8,Math.floor(rowH*.67));
+   text(c,p.name||'PLAYER',x+12,baseline,font,'#fff',800,'left',113);
+   text(c,section.format(p),x+w-11,baseline,Math.max(8,font-1),'#cddbe9',780,'right',105);
+   yy+=rowH;
+  }
  }
- c.fillStyle='#303b4b';c.fillRect(x+12,y+226,w-24,1);
- const lead=(title,person,detail,top)=>{
-  text(c,title,x+13,top,12,'#ffb761',920);
-  if(person){
-   text(c,person.name||'PLAYER',x+13,top+21,14,'#fff',850,'left',w-26);
-   text(c,detail(person),x+13,top+39,12,'#c7d2e1',720,'left',w-26);
-  }else text(c,'No plays yet',x+13,top+23,12,'#8d9cae',680);
- };
- lead('PASSING',qb,p=>p.passYds+' YDS · '+p.passTd+' TD',y+250);
- lead('RUSHING',rb,p=>p.rushYds+' YDS · '+p.carries+' ATT',y+298);
- lead('RECEIVING',rec,p=>p.recYds+' YDS · '+p.receptions+' REC',y+346);
 }
 function intro(c,game,logos){
  base(c,'ILLUSTRATIVE 50,000-RUN NFL GAME REPLAY');
@@ -160,23 +166,6 @@ function play(c,game,logos,event,field,snap){
 function boxPages(game,snapshot){
  const away=abbr(game.away),home=abbr(game.home),a=snapshot.teams?.[away],b=snapshot.teams?.[home];
  if(!a||!b)throw Error('The illustrative play ledger has no complete team totals.');
- const pages=[{type:'teams',title:'FINAL TEAM STATS',rows:[
-  ['FINAL SCORE',val(a.points),val(b.points)],
-  ['Q1',val(a.quarter?.[0]),val(b.quarter?.[0])],
-  ['Q2',val(a.quarter?.[1]),val(b.quarter?.[1])],
-  ['Q3',val(a.quarter?.[2]),val(b.quarter?.[2])],
-  ['Q4',val(a.quarter?.[3]),val(b.quarter?.[3])],
-  ['TOTAL YARDS',val(a.totalYds),val(b.totalYds)],
-  ['PASSING YARDS',val(a.passing),val(b.passing)],
-  ['RUSHING YARDS',val(a.rushing),val(b.rushing)],
-  ['FIRST DOWNS',val(a.firstDowns),val(b.firstDowns)],
-  ['PASS COMP/ATT',a.passComp+'/'+a.passAtt,b.passComp+'/'+b.passAtt],
-  ['RUSH ATTEMPTS',val(a.rushAtt),val(b.rushAtt)],
-  ['TURNOVERS',val(a.interceptions),val(b.interceptions)],
-  ['SACKS ALLOWED',val(a.sacksAllowed),val(b.sacksAllowed)],
-  ['PUNTS',val(a.punts),val(b.punts)],
-  ['FIELD GOALS MADE',val(a.fieldGoals),val(b.fieldGoals)]
- ]}];
  const teams=[away,home];
  const entries=team=>{
   const all=Object.values(snapshot.players?.[team]||{});
@@ -186,17 +175,26 @@ function boxPages(game,snapshot){
    receiving:all.filter(p=>p.targets).sort((x,y)=>y.targets-x.targets)
   };
  };
- const data=Object.fromEntries(teams.map(t=>[t,entries(t)]));
- for(const category of ['passing','rushing','receiving']){
-  const longest=Math.max(...teams.map(t=>data[t][category].length));
-  const chunk=13;
-  for(let offset=0;offset<Math.max(1,longest);offset+=chunk){
-   pages.push({type:'players',title:'FULL PLAYER BOX SCORE · '+category.toUpperCase(),
-    category,teams:Object.fromEntries(teams.map(t=>[t,data[t][category].slice(offset,offset+chunk)])),
-    offset,more:offset+chunk<longest});
-  }
- }
- return pages;
+ return [
+  {type:'teams',title:'FINAL TEAM STATS',rows:[
+   ['FINAL SCORE',val(a.points),val(b.points)],
+   ['Q1',val(a.quarter?.[0]),val(b.quarter?.[0])],
+   ['Q2',val(a.quarter?.[1]),val(b.quarter?.[1])],
+   ['Q3',val(a.quarter?.[2]),val(b.quarter?.[2])],
+   ['Q4',val(a.quarter?.[3]),val(b.quarter?.[3])],
+   ['TOTAL YARDS',val(a.totalYds),val(b.totalYds)],
+   ['PASSING YARDS',val(a.passing),val(b.passing)],
+   ['RUSHING YARDS',val(a.rushing),val(b.rushing)],
+   ['FIRST DOWNS',val(a.firstDowns),val(b.firstDowns)],
+   ['PASS COMP/ATT',a.passComp+'/'+a.passAtt,b.passComp+'/'+b.passAtt],
+   ['RUSH ATTEMPTS',val(a.rushAtt),val(b.rushAtt)],
+   ['TURNOVERS',val(a.interceptions),val(b.interceptions)],
+   ['SACKS ALLOWED',val(a.sacksAllowed),val(b.sacksAllowed)],
+   ['PUNTS',val(a.punts),val(b.punts)],
+   ['FIELD GOALS MADE',val(a.fieldGoals),val(b.fieldGoals)]
+  ]},
+  {type:'players',title:'FULL PLAYER BOX SCORE',teams:Object.fromEntries(teams.map(t=>[t,entries(t)]))}
+ ];
 }
 function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
  base(c,page.type==='teams'?'FINAL STATISTICS · ILLUSTRATIVE GAME':'FULL PLAYER BOX SCORE · ILLUSTRATIVE GAME');
@@ -217,36 +215,51 @@ function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
    y+=23;
   }
  }else{
-  const specs={
-   passing:{heads:['PLAYER','CMP/ATT','YDS','TD','INT'],format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
-   rushing:{heads:['PLAYER','ATT','YDS','TD'],format:p=>[p.name,val(p.carries),val(p.rushYds),val(p.rushTd)]},
-   receiving:{heads:['PLAYER','REC/TGT','YDS','TD'],format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
-  };
-  const spec=specs[page.category];
-  for(const [idx,code] of [away,home].entries()){
-   const x=26+idx*630,w=598;
-   roundRect(c,x,243,w,416,12,'#131c28','#354355');
-   text(c,code+' · '+page.category.toUpperCase(),x+19,277,20,'#ffd055',950);
-   const ys=306;
-   const colX=spec.heads.length===5?[x+18,x+370,x+455,x+512,x+569]:[x+18,x+410,x+488,x+565];
-   for(let j=0;j<spec.heads.length;j++){
-    text(c,spec.heads[j],colX[j],ys,11,'#a6b6ce',850,j===0?'left':'right');
-   }
-   let y=328;
-   const players=page.teams[code]||[];
-   if(!players.length)text(c,'No tracked '+page.category+' attempts',x+18,y+16,15,'#a1acba',720);
-   for(const [k,p] of players.entries()){
-    if(k%2===0)roundRect(c,x+10,y-14,w-20,23,3,'#1b2736');
-    const row=spec.format(p);
-    for(let j=0;j<row.length;j++)
-     text(c,row[j],colX[j],y,12,j===0?'#fff':'#dce7f2',j===0?760:850,j===0?'left':'right',j===0?336:65);
-    y+=24;
+  // Single 16:9 player screen: three markets side by side and BOTH teams in each.
+  // All tracked participants remain here; density scales with the play ledger.
+  const specs=[
+   {category:'passing',name:'PASSING',heads:['PLAYER','CMP/ATT','YDS','TD','INT'],
+    format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
+   {category:'rushing',name:'RUSHING',heads:['PLAYER','ATT','YDS','TD'],
+    format:p=>[p.name,val(p.carries),val(p.rushYds),val(p.rushTd)]},
+   {category:'receiving',name:'RECEIVING',heads:['PLAYER','REC/TGT','YDS','TD'],
+    format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
+  ];
+  for(const [index,spec] of specs.entries()){
+   const x=25+index*419,w=393,y=239,h=414;
+   roundRect(c,x,y,w,h,10,'#131c28','#354355');
+   text(c,spec.name,x+12,y+27,19,'#ffd055',950);
+   const coords=spec.heads.length===5?[x+12,x+263,x+310,x+350,x+381]:
+    [x+12,x+276,x+333,x+381];
+   for(let j=1;j<spec.heads.length;j++)
+    text(c,spec.heads[j],coords[j],y+48,9,'#a6b6ce',850,'right');
+   const combined=[...(page.teams[away]?.[spec.category]||[]),...(page.teams[home]?.[spec.category]||[])];
+   const rowH=Math.min(22,Math.max(7,(h-64-2*20)/Math.max(combined.length,1)));
+   let yy=y+53;
+   for(const code of [away,home]){
+    const players=page.teams[code]?.[spec.category]||[];
+    c.fillStyle='#293546';c.fillRect(x+8,yy,w-16,18);
+    text(c,code+' · '+spec.name,x+13,yy+13,11,'#ffd15a',900);
+    yy+=20;
+    if(!players.length){
+     text(c,'No recorded attempts',x+12,yy+rowH*.72,9,'#a1acba',720);
+     yy+=rowH;
+    }
+    for(const [k,p] of players.entries()){
+     if(k%2===0){c.fillStyle='#1b2736';c.fillRect(x+8,yy,w-16,rowH);}
+     const row=spec.format(p),font=Math.min(12,Math.max(7,Math.floor(rowH*.7)));
+     const baseline=yy+rowH*.74;
+     for(let j=0;j<row.length;j++)
+      text(c,row[j],coords[j],baseline,font,j===0?'#fff':'#dce7f2',j===0?760:850,j===0?'left':'right',j===0?231:53);
+     yy+=rowH;
+    }
    }
   }
  }
- text(c,'SCREEN '+(pageIndex+1)+' OF '+total+(page.type==='players'&&page.more?' · MORE PLAYER ROWS NEXT':''),W/2,672,13,'#bfcad9',800,'center');
+ text(c,'SCREEN '+(pageIndex+1)+' OF '+total,W/2,671,13,'#bfcad9',800,'center');
  footer(c,'FULL BOX SCORE FROM ILLUSTRATIVE PLAY LEDGER · NOT OFFICIAL');
 }
+
 async function loadMuxer(){
  if(global.Mp4Muxer)return global.Mp4Muxer;
  if(!global.document)throw Error('Video export requires a browser.');
