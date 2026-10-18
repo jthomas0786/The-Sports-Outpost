@@ -215,8 +215,8 @@ function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
    y+=23;
   }
  }else{
-  // Single 16:9 player screen: three markets side by side and BOTH teams in each.
-  // All tracked participants remain here; density scales with the play ledger.
+  // Away team (left), home team (right); each has Passing / Rushing /
+  // Receiving on ONE concluding landscape screen, never intermixed.
   const specs=[
    {category:'passing',name:'PASSING',heads:['PLAYER','CMP/ATT','YDS','TD','INT'],
     format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
@@ -225,33 +225,38 @@ function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
    {category:'receiving',name:'RECEIVING',heads:['PLAYER','REC/TGT','YDS','TD'],
     format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
   ];
-  for(const [index,spec] of specs.entries()){
-   const x=25+index*419,w=393,y=239,h=414;
-   roundRect(c,x,y,w,h,10,'#131c28','#354355');
-   text(c,spec.name,x+12,y+27,19,'#ffd055',950);
-   const coords=spec.heads.length===5?[x+12,x+263,x+310,x+350,x+381]:
-    [x+12,x+276,x+333,x+381];
-   for(let j=1;j<spec.heads.length;j++)
-    text(c,spec.heads[j],coords[j],y+48,9,'#a6b6ce',850,'right');
-   const combined=[...(page.teams[away]?.[spec.category]||[]),...(page.teams[home]?.[spec.category]||[])];
-   const rowH=Math.min(22,Math.max(7,(h-64-2*20)/Math.max(combined.length,1)));
-   let yy=y+53;
-   for(const code of [away,home]){
-    const players=page.teams[code]?.[spec.category]||[];
-    c.fillStyle='#293546';c.fillRect(x+8,yy,w-16,18);
-    text(c,code+' · '+spec.name,x+13,yy+13,11,'#ffd15a',900);
-    yy+=20;
+  for(const [teamIndex,code] of [away,home].entries()){
+   const x=25+teamIndex*628,w=602,y=239,h=419,teamStats=page.teams[code]||{};
+   roundRect(c,x,y,w,h,12,'#131c28','#354355');
+   drawLogo(c,logos[teamIndex],x+37,y+36,code,52);
+   text(c,code+'  ·  '+(teamIndex?'HOME':'AWAY'),x+73,y+34,22,'#ffd055',950);
+   text(c,'FINAL PLAYER STATS',x+w-15,y+34,12,'#b5c3d4',840,'right');
+   c.fillStyle='#334153';c.fillRect(x+12,y+68,w-24,1);
+   const rowCount=specs.reduce((sum,spec)=>sum+Math.max(1,(teamStats[spec.category]||[]).length),0);
+   const rowHeight=Math.min(21,Math.max(5,Math.floor((h-84-3*24)/Math.max(1,rowCount))));
+   let yy=y+74;
+   for(const spec of specs){
+    const coords=spec.heads.length===5?
+     [x+15,x+w-215,x+w-137,x+w-83,x+w-17]:
+     [x+15,x+w-182,x+w-99,x+w-18];
+    c.fillStyle='#29394c';c.fillRect(x+11,yy,w-22,20);
+    text(c,spec.name,x+16,yy+14,12,'#ffd15a',950);
+    for(let j=1;j<spec.heads.length;j++)
+     text(c,spec.heads[j],coords[j],yy+14,9,'#b9c8d8',850,'right');
+    yy+=24;
+    const players=teamStats[spec.category]||[];
     if(!players.length){
-     text(c,'No recorded attempts',x+12,yy+rowH*.72,9,'#a1acba',720);
-     yy+=rowH;
+     text(c,'No recorded attempts',x+16,yy+rowHeight*.75,9,'#94a2b3',700);
+     yy+=rowHeight;
     }
     for(const [k,p] of players.entries()){
-     if(k%2===0){c.fillStyle='#1b2736';c.fillRect(x+8,yy,w-16,rowH);}
-     const row=spec.format(p),font=Math.min(12,Math.max(7,Math.floor(rowH*.7)));
-     const baseline=yy+rowH*.74;
+     if(k%2===0){c.fillStyle='#1b2939';c.fillRect(x+11,yy,w-22,rowHeight);}
+     const row=spec.format(p);
+     const font=Math.min(12,Math.max(7,Math.floor(rowHeight*.77))),baseline=yy+rowHeight*.75;
      for(let j=0;j<row.length;j++)
-      text(c,row[j],coords[j],baseline,font,j===0?'#fff':'#dce7f2',j===0?760:850,j===0?'left':'right',j===0?231:53);
-     yy+=rowH;
+      text(c,row[j],coords[j],baseline,font,j===0?'#fff':'#dce7f2',j===0?760:840,
+       j===0?'left':'right',j===0?w-240:70);
+     yy+=rowHeight;
     }
    }
   }
