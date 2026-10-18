@@ -150,6 +150,8 @@ for(const game of games){
     console.log(`  ↳ prop periods: ${readyHalves}/2 half(s), ${readyQuarters}/4 quarter(s) ready from the same ${Number(raw.iterations||0).toLocaleString()} worlds`);
   }
   const result=preservePregamePropCache({previousResult:old,nextResult:stripPrivateSamples(raw),phase:decision.phase});
+  // Metadata only: specialist identity is verified, not a simulated stat/projection.
+  result.game.specialists=rosterChecked.rosterAudit.specialists;
   result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,rosterVerified:true,rosterAudit:rosterChecked.rosterAudit,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
   result.automation={
     automatic:true,phase:decision.phase,reason:decision.reason,checkpointMinutes:decision.checkpointMinutes??null,
