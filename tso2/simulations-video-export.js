@@ -12,8 +12,7 @@ const clean=v=>String(v??'');
 const abbr=team=>String(team?.abbr||'NFL').toUpperCase();
 const logoUrl=team=>{
  const code=abbr(team)==='LA'?'lar':abbr(team)==='WSH'?'wsh':abbr(team).toLowerCase();
- return team?.logo&&/^https:\/\//i.test(clean(team.logo))?String(team.logo):
-  'https://a.espncdn.com/i/teamlogos/nfl/500/'+encodeURIComponent(code)+'.png';
+ return '/api/tso2-nfl-logo?team='+encodeURIComponent(abbr(team));
 };
 function logoImage(url){
  return new Promise(resolve=>{
@@ -143,10 +142,12 @@ function boxPages(game,snapshot){
    for(const person of group.items)rows.push({name:person.name||'Unknown',detail:group.format(person)});
   }
   if(!rows.length)rows.push({section:'NO VERIFIED PLAY LEDGER ENTRIES'});
-  let batch=[];
+  let batch=[],height=0;
   for(const row of rows){
-   if(batch.length>=13){pages.push({type:'players',title:team+' PLAYER BOX SCORE',rows:batch});batch=[]}
-   batch.push(row);
+   const rowHeight=row.section?39:64;
+   // Keep the entire player box-score page within the visible video canvas.
+   if(batch.length&&height+rowHeight>590){pages.push({type:'players',title:team+' PLAYER BOX SCORE',rows:batch});batch=[];height=0}
+   batch.push(row);height+=rowHeight;
   }
   if(batch.length)pages.push({type:'players',title:team+' PLAYER BOX SCORE',rows:batch});
  }
