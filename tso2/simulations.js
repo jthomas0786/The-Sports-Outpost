@@ -4,7 +4,7 @@
  * and on-field paths are reconstructed, not recorded or tracked. */
 (() => {
 'use strict';
-const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0,finished:false,videoUrl:null,videoFile:null};
+const state={root:null,doc:null,defense:null,game:null,plays:[],index:0,playing:false,speed:1,raf:0,startedAt:0,frame:0,error:'',token:0,selectionToken:0,finished:false,videoUrl:null,videoFile:null,statsCommittedIndex:-1};
 const $=(root,selector)=>root?.querySelector(selector);
 const $$=(root,selector)=>[...(root?.querySelectorAll(selector)||[])];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -176,7 +176,7 @@ function replayHTML(game){
   +'<aside class="tso-sim-players" data-tsos-panel="'+esc(game.home.abbr)+'"></aside></div>'
   +'<div class="tso-sim-tendency" data-tsos-defense-style>Defensive coverage scheme unverified · 2026 position allowances used when available</div>'
   +'<div class="tso-sim-commentary"><span class="tso-sim-play-light"></span><span class="tso-sim-play-copy"><small data-tsos-ball-holder>BALL: SET FOR SNAP</small><b data-tsos-commentary>Start the illustrated replay for '+esc(game.away.abbr)+' at '+esc(game.home.abbr)+'.</b></div>'
-  +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button><button type="button" data-tsos-finish>VIEW FINAL BOX SCORE</button><button type="button" data-tsos-export class="tso-sim-control-primary">▣ CREATE SHARE VIDEO</button><button type="button" data-tsos-share hidden disabled>SHARE VIDEO</button><a class="tso-sim-download-link" data-tsos-download hidden download>DOWNLOAD MP4</a>'
+  +'<div class="tso-sim-controls"><button type="button" data-tsos-play class="tso-sim-control-primary">▶ PLAY</button><button type="button" data-tsos-reset>↺ RESTART</button><button type="button" data-tsos-finish>VIEW FINAL BOX SCORE</button><button type="button" data-tsos-export class="tso-sim-control-primary">▣ EXPORT LANDSCAPE MP4</button><button type="button" data-tsos-share hidden disabled>SHARE VIDEO</button><a class="tso-sim-download-link" data-tsos-download hidden download>DOWNLOAD MP4</a>'
   +'<label class="tso-sim-seeker"><span>REPLAY</span><input type="range" data-tsos-seek min="0" max="'+(state.plays.length-1)+'" value="0" step="1" aria-label="Seek through illustrative plays"><small data-tsos-seek-label>1 / '+state.plays.length+'</small></label>'
   +'<label class="tso-sim-speed">SPEED <select data-tsos-speed><option value="1">1×</option><option value="2">2×</option><option value="4">4×</option></select></label></div>'
   +'<div class="tso-sim-export-status" data-tsos-export-status role="status" aria-live="polite" hidden></div><div class="tso-sim-final" data-tsos-final hidden></div>'
@@ -216,7 +216,7 @@ function paintPage(){
   Array.isArray(state.game.players)&&state.game.players.some(p=>p.position==='QB');
  state.plays=ready?(window.TSO2RepresentativeReplay?.build?.(state.game,state.defense)||[]):[];
  const playbackReady=ready&&state.plays.length>0;
- state.index=0;state.playing=false;state.startedAt=0;state.finished=false;
+ state.index=0;state.playing=false;state.startedAt=0;state.finished=false;state.statsCommittedIndex=-1;
  main.innerHTML='<div class="tso-sim-layout"><aside class="tso-sim-matchups"><div class="tso-sim-matchups-head"><span>2026 NFL SLATE</span><b>'+games.length+' GAMES</b></div>'
   +'<div class="tso-sim-game-list">'+games.map(gameItem).join('')+'</div></aside><div class="tso-sim-main">'
   +'<header class="tso-sim-game-title"><div><small>NFL / SIMULATION OUTLOOK</small><h2>'+esc(state.game.away.abbr)+' <span>at</span> '+esc(state.game.home.abbr)+'</h2>'
@@ -249,7 +249,7 @@ function paintPage(){
   if(exporter&&exportBtn){
    exportBtn.addEventListener('click',async()=>{
     stop();exportBtn.disabled=true;
-    if(status){status.hidden=false;status.textContent='Preparing shareable MP4 video…'}
+    if(status){status.hidden=false;status.textContent='Preparing horizontal 16:9 (1280×720) MP4 video…'}
     if(download){download.hidden=true;download.removeAttribute('href')}
     if(shareBtn){shareBtn.hidden=true;shareBtn.disabled=true}
     try{
@@ -268,10 +268,10 @@ function paintPage(){
      state.videoFile=new File([result.blob],'TSO-'+activeGame.away.abbr+'-at-'+activeGame.home.abbr+'-simulation.mp4',{type:'video/mp4'});
      download.href=state.videoUrl;download.hidden=false;
      if(navigator.share&&(!navigator.canShare||navigator.canShare({files:[state.videoFile]}))){shareBtn.hidden=false;shareBtn.disabled=false}
-     if(status)status.textContent='MP4 ready with final box score. Choose DOWNLOAD MP4 or SHARE VIDEO.';
+     if(status)status.textContent='1280×720 MP4 ready · team stats followed by full box score. Download or share using your device.';
     }catch(error){
      if(status)status.textContent='MP4 export unavailable: '+String(error?.message||error)+'. No incomplete video was downloaded.';
-    }finally{exportBtn.disabled=false;exportBtn.textContent='↻ RECREATE SHARE VIDEO'}
+    }finally{exportBtn.disabled=false;exportBtn.textContent='↻ RECREATE LANDSCAPE MP4'}
    });
    shareBtn?.addEventListener('click',async()=>{
     if(!state.videoFile||!navigator.share)return;
@@ -279,6 +279,16 @@ function paintPage(){
     catch(error){if(error?.name!=='AbortError'&&status)status.textContent='Sharing unavailable: '+String(error?.message||error)+'. Use DOWNLOAD MP4 instead.'}
    });
   }
+  const endCard=$(main,'[data-tsos-final]');
+  endCard?.addEventListener('click',e=>{
+   const btn=e.target?.closest?.('[data-tsos-final-screen]');
+   if(!btn||!endCard.contains(btn))return;
+   const players=btn.dataset.tsosFinalScreen==='players';
+   const teamScreen=$(endCard,'[data-tsos-final-team]'),playerScreen=$(endCard,'[data-tsos-final-players]');
+   if(teamScreen)teamScreen.hidden=players;
+   if(playerScreen)playerScreen.hidden=!players;
+   endCard.scrollIntoView?.({behavior:'smooth',block:'nearest'});
+  });
   $(main,'button[data-tsos-play]')?.addEventListener('click',()=>{state.playing?stop():start()});
  $(main,'[data-tsos-reset]')?.addEventListener('click',()=>{stop();state.index=0;state.finished=false;state.frame=0;updatePlay();draw(0)});
  $(main,'[data-tsos-finish]')?.addEventListener('click',()=>{stop();state.index=state.plays.length-1;state.finished=true;updatePlay();draw(1);$(main,'[data-tsos-final]')?.scrollIntoView?.({behavior:'smooth',block:'nearest'});});
@@ -304,10 +314,10 @@ function scenarioFinal(){
  const snapshot=engine.snapshot(state.game,state.plays,state.plays.length);
  return ui.full(state.game,snapshot,state.plays);
 }
-function updateStats(){
+function updateStats(completedCount=null){
  const engine=window.TSO2SimEngine,ui=window.TSO2StatsUI;
  if(!engine||!ui||!state.game||!state.plays.length)return;
- const game=state.game,n=state.finished?state.plays.length:state.index,stats=engine.snapshot(game,state.plays,n);
+ const game=state.game,n=completedCount===null?(state.finished?state.plays.length:state.index):Math.max(0,Math.min(state.plays.length,completedCount)),stats=engine.snapshot(game,state.plays,n);
  for(const team of [game.away.abbr,game.home.abbr]){
   const el=$(state.root,'[data-tsos-panel="'+team+'"]');
   if(el)el.innerHTML=ui.live(game,stats,team);
@@ -356,6 +366,7 @@ function updatePlay(){
  const control=$(el,'[data-tsos-play]');if(control)control.textContent=state.playing?'Ⅱ PAUSE':'▶ PLAY';
  updateStats();
  const last=state.finished;
+ state.statsCommittedIndex=-1;
  const final=$(el,'[data-tsos-final]');if(final){final.hidden=!last;if(last)final.innerHTML=scenarioFinal();}
 }
 const simClamp=(value,min,max)=>Math.max(min,Math.min(max,value));
@@ -567,6 +578,10 @@ function loop(time){
  const timePerPlay=2200/state.speed;
  const progress=Math.min(1,(time-state.startedAt)/timePerPlay);
  draw(progress);
+ if(progress>=.94&&state.statsCommittedIndex!==state.index){
+  updateStats(state.index+1);
+  state.statsCommittedIndex=state.index;
+ }
  if(progress>=1){
   if(state.index>=state.plays.length-1){state.finished=true;stop();draw(1);updatePlay();return}
   const previousQuarter=state.plays[state.index]?.quarter;
