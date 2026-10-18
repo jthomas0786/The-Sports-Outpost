@@ -1,0 +1,108 @@
+name: TSO 2.0 Launch Route Preflight
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/launch-route-preflight.mjs'
+      - 'tso2/index.html'
+      - 'tso2/app.js'
+      - 'tso2/pages.js'
+      - 'tso2/styles.css'
+      - 'tso2/auth.js'
+      - 'tso2/auth-ui-selftest.mjs'
+      - 'tso2/auth-signin-selftest.mjs'
+      - 'tso2/profile-activity-selftest.mjs'
+      - 'tso2/saved-activity-selftest.mjs'
+      - 'tso2/admin.js'
+      - 'tso2/admin-ui-selftest.mjs'
+      - 'tso2/sidebar-polish-selftest.mjs'
+      - 'tso2/mobile-side-swipe-selftest.mjs'
+      - 'tso2/launch-owner-auth-preflight.mjs'
+      - 'tso2/notifications-selftest.mjs'
+      - 'tso2/sw.js'
+      - 'tso2/push-client.js'
+      - 'tso2/verified-hit-selftest.mjs'
+      - 'tso2/functions/verify-mlb-hr/index.ts'
+      - 'tso2/migrations/20261009_verified_hit_alerts.sql'
+      - 'tso2/research-lab-selftest.mjs'
+      - 'tso2/app-icon-selftest.mjs'
+      - 'tso2/manifest.webmanifest'
+      - 'tso2/brand/asset-manifest.json'
+      - 'tso2/brand/identity/tso2-app-icon-master-approved.png'
+      - 'tso2/brand/production/tso2-app-icon-*.png'
+      - 'tso2/brand/production/tso2-app-icon-*.webp'
+      - 'tso2/brand/production/tso2-apple-touch-icon-180.png'
+      - 'tso2/brand/production/tso2-favicon*'
+      - 'tso2/brand/production/tso2-product-game-edge-approved.svg'
+      - '.github/workflows/tso2-launch-route-preflight.yml'
+  workflow_dispatch:
+    inputs:
+      preview_url:
+        description: 'Full public URL for TSO 2.0 preview (required for launch verification)'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  route-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Validate account UI and auth module syntax
+        run: |
+          node --check tso2/auth.js
+          node --check tso2/admin.js
+          node --check tso2/app.js
+          node --check tso2/auth-ui-selftest.mjs
+          node tso2/auth-ui-selftest.mjs
+          node --check tso2/auth-signin-selftest.mjs
+          node tso2/auth-signin-selftest.mjs
+          node --check tso2/profile-activity-selftest.mjs
+          node tso2/profile-activity-selftest.mjs
+          node --check tso2/saved-activity-selftest.mjs
+          node tso2/saved-activity-selftest.mjs
+          node --check tso2/admin-ui-selftest.mjs
+          node tso2/admin-ui-selftest.mjs
+          node --check tso2/sidebar-polish-selftest.mjs
+          node tso2/sidebar-polish-selftest.mjs
+          node --check tso2/mobile-side-swipe-selftest.mjs
+          node tso2/mobile-side-swipe-selftest.mjs
+          node --check tso2/sw.js
+          node --check tso2/push-client.js
+          node --check tso2/notifications-selftest.mjs
+          node tso2/notifications-selftest.mjs
+          node --check tso2/verified-hit-selftest.mjs
+          node tso2/verified-hit-selftest.mjs
+          node --check tso2/research-lab-selftest.mjs
+          node tso2/research-lab-selftest.mjs
+          node --check tso2/app-icon-selftest.mjs
+          node tso2/app-icon-selftest.mjs
+      - name: Verify owner-only API access is denied to anonymous visitors
+        run: |
+          node --check tso2/launch-owner-auth-preflight.mjs
+          node tso2/launch-owner-auth-preflight.mjs
+      - name: Confirm TSO 2.0 preview serves real service-worker JavaScript
+        run: |
+          node --input-type=module <<'NODE'
+          const sites=['https://staging.thesportsoutpost.com','https://release.thesportsoutpost.com','https://thesportsoutpost.com'];
+          for(const root of sites)for(const [path,marker] of [['/sw.js','showNotification('],['/push-client.js','pushManager.subscribe']]){
+            const r=await fetch(root+path,{headers:{'cache-control':'no-cache'},signal:AbortSignal.timeout(20000)});
+            const src=await r.text();
+            if(!r.ok||!r.headers.get('content-type')?.includes('javascript')||!src.includes(marker)){
+              throw Error('TSO2 background push route '+root+path+' failed HTTP '+r.status+' content-type='+r.headers.get('content-type'));
+            }
+            console.log('✓ '+path+' serves application/javascript with expected source');
+          }
+          NODE
+      - name: Probe current production and staging frontend/API routes
+        env:
+          TSO2_PREVIEW_URL: https://staging.thesportsoutpost.com
+        run: node tso2/launch-route-preflight.mjs
+      - name: Probe pinned TSO 2.0 release candidate frontend/API routes
+        env:
+          TSO2_PREVIEW_URL: https://release.thesportsoutpost.com
+        run: node tso2/launch-route-preflight.mjs

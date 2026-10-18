@@ -1,0 +1,38 @@
+name: TSO 2.0 NFL Replay Checks
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - tso-2.0-restructure
+    paths:
+      - 'tso2/simulations.js'
+      - 'tso2/simulations-event-engine.js'
+      - 'tso2/simulations-representative-replay.js'
+      - 'tso2/simulations-stats-ui.js'
+      - 'tso2/index.html'
+      - 'tso2/data/nfl-sim-run-report.json'
+      - 'scripts/tso2-nfl-representative-replay-selftest.cjs'
+      - 'scripts/tso2-nfl-simulation-api-smoke.mjs'
+      - '.github/workflows/tso2-nfl-replay-checks.yml'
+permissions:
+  contents: read
+jobs:
+  representative-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax
+        run: |
+          node --check tso2/simulations.js
+          node --check tso2/simulations-event-engine.js
+          node --check tso2/simulations-representative-replay.js
+          node --check tso2/simulations-stats-ui.js
+          node --check scripts/tso2-nfl-representative-replay-selftest.cjs
+      - name: Correlated sampled-world replay contract
+        run: node scripts/tso2-nfl-representative-replay-selftest.cjs
+      - name: Staging NFL API feed, kickoff, roster & model validation
+        run: node scripts/tso2-nfl-simulation-api-smoke.mjs

@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "source": "nflverse play-by-play CC BY 4.0",
+  "generatedAt": "2026-10-08T11:43:29.816304+00:00",
+  "method": "Complete-week chronological leakage-free player-outcome multiclass evaluation",
+  "historicalSeasonGames": {
+    "2024": 272,
+    "2025": 272,
+    "2026": 64
+  },
+  "training": {
+    "partition": "2025 regular weeks 7\u201312, 2024 prior + completed 2025 weeks",
+    "games": 85,
+    "raw": {
+      "games": 85,
+      "scoringPlayerInModel": 76,
+      "logLoss": 2.918,
+      "multiclassBrier": 0.93102,
+      "otherOutcomes": 9
+    },
+    "selectedScale": 1.0,
+    "scaled": {
+      "games": 85,
+      "scoringPlayerInModel": 76,
+      "logLoss": 2.918,
+      "multiclassBrier": 0.93102,
+      "otherOutcomes": 9
+    }
+  },
+  "heldOut": {
+    "partitions": [
+      "2025 regular weeks 13+ (2024 prior)",
+      "2026 regular weeks 3+ (2025 prior)"
+    ],
+    "year2025": 94,
+    "year2026": 32,
+    "baselineHistoricalScoring": {
+      "games": 126,
+      "scoringPlayerInModel": 111,
+      "logLoss": 3.65012,
+      "multiclassBrier": 0.9577,
+      "otherOutcomes": 15
+    },
+    "rawHeuristic": {
+      "games": 126,
+      "scoringPlayerInModel": 111,
+      "logLoss": 3.03294,
+      "multiclassBrier": 0.93111,
+      "otherOutcomes": 15
+    },
+    "scaleAdjusted": {
+      "games": 126,
+      "scoringPlayerInModel": 111,
+      "logLoss": 3.03294,
+      "multiclassBrier": 0.93111,
+      "otherOutcomes": 15
+    }
+  },
+  "calibration": {
+    "kind": "one-dimensional player-mass multiplier",
+    "selectedScale": 1.0,
+    "eligibleForLive": false,
+    "candidateScales": [
+      0.5,
+      0.65,
+      0.8,
+      0.9,
+      1.0,
+      1.1,
+      1.2,
+      1.35,
+      1.5
+    ],
+    "caveats": [
+      "No historical ATD model caps; unavailable for unbiased historical scoring",
+      "Missing/unknown offensive players included in OTHER",
+      "Partial 2026 season does not establish stability",
+      "No odds, injuries, lineup or betting value assessment"
+    ]
+  },
+  "publishCalibratedFirstTd": false,
+  "interpretation": "Diagnostic backtest only. Live FIRST % remains experimental and uncalibrated."
+}

@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { simulateGame, stripPrivateSamples } from '../sports/nfl/sim/engine-v8918.js';
+import { availabilityFilteredInputs, verifiedRosterFilteredInputs, assertSimulatedRoster } from '../sports/nfl/sim/availability.js';
 import { decideAutomaticRun, nextAutomationState, preservePregamePropCache } from '../sports/nfl/sim/auto.js';
 import { buildHalftimeBoard } from '../sports/nfl/sim/halftime.js';
 import { buildPregameQuarterBoard } from '../sports/nfl/sim/quarter-board.js';
@@ -70,10 +71,10 @@ function publicPropPeriods(board){
   return out;
 }
 
-const [slate,research,odds,config,existing,stateDoc,liveBoard,liveOdds,halftimeExisting,quarterExisting]=await Promise.all([
+const [slate,research,odds,config,existing,stateDoc,liveBoard,liveOdds,halftimeExisting,quarterExisting,availability]=await Promise.all([
   read(SLATE,{games:[]}),read(RESEARCH,{players:[]}),read(ODDS,{games:[]}),read(CONFIG,null),
   read(OUT,{schemaVersion:2,games:[]}),read(STATE,{schemaVersion:1,games:{}}),fetchLive(),
-  read(LIVE_ODDS,{meta:null,games:[]}),read(HALFTIME_OUT,{schemaVersion:1,games:[]}),read(QUARTER_OUT,{schemaVersion:1,games:[]}),
+  read(LIVE_ODDS,{meta:null,games:[]}),read(HALFTIME_OUT,{schemaVersion:1,games:[]}),read(QUARTER_OUT,{schemaVersion:1,games:[]}),read(path.resolve(ROOT,'tso2/data/nfl-availability-2026.json'),{season:2026,games:{}}),
 ]);
 if(!config) throw new Error(`NFL sim config missing: ${CONFIG}`);
 if(config.automatic?.enabled===false && !FORCE){console.log('NFL automatic simulation is disabled in config.');process.exit(0);}
@@ -89,7 +90,7 @@ const stateGames=weekChanged?{}:{...(stateDoc?.games||{})};
 const halftimeById=new Map((weekChanged?[]:(halftimeExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
 const quarterById=new Map((weekChanged?[]:(quarterExisting?.games||[])).map(r=>[String(r?.gameId||''),r]));
 let halftimeTouched=false,quarterTouched=false;
-let runs=0,totalIterations=0;
+let runs=0,totalIterations=0,specialistUpdates=0;
 const touched=[];
 
 for(const game of games){
@@ -97,12 +98,29 @@ for(const game of games){
   const liveGame=matchLive(game,liveBoard);
   const prev=stateGames[gameId]||null;
   const old=existingById.get(gameId)||null;
-  let decision=decideAutomaticRun({game,research,odds,liveGame,liveOdds,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});
+  const pair=`${game.away?.abbr||'AWY'} @ ${game.home?.abbr||'HME'}`;
+  // Fail closed when current active rosters cannot be verified. A previous
+  // Monte Carlo result must not be overwritten with a guessed player pool.
+  let rosterChecked;
+  try{rosterChecked=await verifiedRosterFilteredInputs(game,research)}
+  catch(error){console.warn('⚠ '+pair+' roster check failed: '+error.message+'; skipping model update');continue}
+  const eligible=availabilityFilteredInputs(rosterChecked.game,rosterChecked.research,availability);
+  const {game:eligibleGame,research:eligibleResearch}=eligible;
+  const exclusions=[...rosterChecked.exclusions,...eligible.exclusions];
+  let decision=decideAutomaticRun({game:eligibleGame,research:eligibleResearch,odds,liveGame,liveOdds,previousState:prev,existingResult:old,config,now:NOW,force:FORCE});
   if(!FORCE&&decision.phase==='pregame'&&old&&String(old.engineVersion||'')!==String(config.engineVersion||'')){
     decision={...decision,run:true,reason:'simulation engine upgrade',iterations:Number(config.automatic?.pregameIterations||config.defaultIterations||50000),checkpointMinutes:null};
   }
-  const pair=`${game.away?.abbr||'AWY'} @ ${game.home?.abbr||'HME'}`;
   if(!decision.run){
+    // Refresh names for an existing verified sampled world without modifying
+    // its simulation statistics, score or representative play selection.
+    if(!DRY&&old?.game&&old?.availabilityAudit?.rosterVerified===true){
+      const verified=rosterChecked.rosterAudit.specialists;
+      if(JSON.stringify(old.game.specialists||null)!==JSON.stringify(verified)){
+        old.game.specialists=verified;
+        specialistUpdates++;
+      }
+    }
     console.log(`· ${pair}: skip — ${decision.reason}`);
     continue;
   }
@@ -114,7 +132,8 @@ for(const game of games){
   const needHalftimeSamples=decision.phase==='halftime';
   const needFullPropSamples=decision.phase==='pregame';
   const needQuarterSamples=decision.phase==='pregame'&&config.quarters?.enabled!==false;
-  const raw=simulateGame({game,research,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples||needFullPropSamples||needQuarterSamples});
+  const raw=simulateGame({game:eligibleGame,research:eligibleResearch,odds,liveGame,config,iterations:decision.iterations,includeSamples:needHalftimeSamples||needFullPropSamples||needQuarterSamples});
+  assertSimulatedRoster(eligibleGame,raw);
   let halftimeBoard=null,quarterBoard=null,fullPropBoard=null;
   if(needHalftimeSamples){
     halftimeBoard=buildHalftimeBoard({result:raw,game,liveGame,liveOdds,config,generatedAt:NOW.toISOString()});
@@ -140,6 +159,9 @@ for(const game of games){
     console.log(`  ↳ prop periods: ${readyHalves}/2 half(s), ${readyQuarters}/4 quarter(s) ready from the same ${Number(raw.iterations||0).toLocaleString()} worlds`);
   }
   const result=preservePregamePropCache({previousResult:old,nextResult:stripPrivateSamples(raw),phase:decision.phase});
+  // Metadata only: specialist identity is verified, not a simulated stat/projection.
+  result.game.specialists=rosterChecked.rosterAudit.specialists;
+  result.availabilityAudit={season:2026,updatedAt:availability?.updatedAt||null,rosterVerified:true,rosterAudit:rosterChecked.rosterAudit,exclusions:exclusions.map(x=>({name:x.name,team:x.team,status:x.status}))};
   result.automation={
     automatic:true,phase:decision.phase,reason:decision.reason,checkpointMinutes:decision.checkpointMinutes??null,
     inputFingerprint:decision.fingerprint,runAt:NOW.toISOString(),probabilityBlend:config.probabilityBlend||null,
@@ -153,7 +175,7 @@ for(const game of games){
     liveModelVersion:result?.liveModel?.version||null,
   };
   existingById.set(gameId,result);
-  stateGames[gameId]=nextAutomationState({previousState:prev,decision,result,game,now:NOW});
+  stateGames[gameId]=nextAutomationState({previousState:prev,decision,result,game:eligibleGame,now:NOW});
   runs++;totalIterations+=result.iterations;touched.push({gameId,pair,decision,result});
   console.log(`  ✓ ${pair}: ${result.iterations.toLocaleString()} complete | ${result.game.away.abbr} ${(result.outcomes.away.winProbability*100).toFixed(1)}% / ${result.game.home.abbr} ${(result.outcomes.home.winProbability*100).toFixed(1)}%`);
 }
@@ -162,7 +184,7 @@ if(DRY){
   console.log(`Dry run: ${touched.length} game(s) would run.`);
   process.exit(0);
 }
-if(!runs && !weekChanged){
+if(!runs && !weekChanged && !specialistUpdates){
   console.log('✓ NFL simulation cache is current — no automatic run required.');
   process.exit(0);
 }

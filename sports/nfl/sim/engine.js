@@ -3,6 +3,7 @@ import {
   normal, normName, poisson, probability, round, summarizeTyped, weightedIndex
 } from './utils.js';
 import { buildGameProfile, playerMarketLines, profileSummary } from './profile.js';
+import { representativeWorldFromArrays } from './representative-world.js';
 
 const TRACKED = ['passYds','completions','attempts','passTds','interceptions','rushYds','carries','rushTds','recYds','receptions','targets','recTds','tds'];
 
@@ -65,9 +66,28 @@ function chooseStartingQb(team) {
   return team.qb || team.qbs?.[0] || null;
 }
 
+// TSO 2.0 branch: model QB rotation at the *world* level instead of forcing
+// every backup QB's passing distribution to a structural zero. These are
+// explicitly configurable uncertainty assumptions, not injury forecasts.
+function quarterbackShares(rng, team, finalDiff, config) {
+  const qbs=(team.qbs||[]).filter(p=>p.availabilityFactor>0);
+  if(!qbs.length)return [];
+  if(qbs.length===1)return [{qb:qbs[0],share:1}];
+  const opts=config.qbPlayingTime||{};
+  const reliefChance=clamp(Number(opts.reliefGameProbability??0.08),0,0.30);
+  const blowoutThreshold=Number(opts.blowoutMargin??24);
+  const blowoutChance=clamp(Number(opts.blowoutReliefProbability??0.18),0,0.5);
+  const relief= rng()<reliefChance || (Math.abs(finalDiff)>=blowoutThreshold && rng()<blowoutChance);
+  if(!relief)return [{qb:qbs[0],share:1}];
+  const baseShare=clamp(Number(opts.backupAttemptShare??0.18),0.02,0.90);
+  const maxShare=clamp(Number(opts.maxBackupAttemptShare??0.55),baseShare,0.95);
+  const backupShare=clamp(baseShare+(rng()-.5)*Number(opts.backupShareVolatility??0.20),0.02,maxShare);
+  return [{qb:qbs[0],share:1-backupShare},{qb:qbs[1],share:backupShare}];
+}
+
 function receiverWeights(team, targetMode = false) {
   return team.receivers.map(p => {
-    const usage = Math.max(.15, p.base.targets);
+    const usage = p.position==='FB'?Math.min(.22,Math.max(.015,p.base.targets*.35)):Math.max(.15, p.base.targets);
     const role = p.availabilityFactor;
     const rz = 1 + Math.min(.5, (p.rzTargets || 0) * .025);
     return usage * role * (targetMode ? 1 : rz);
@@ -76,7 +96,7 @@ function receiverWeights(team, targetMode = false) {
 
 function rusherWeights(team, leading = false) {
   return team.rushers.map(p => {
-    let w = Math.max(.05, p.base.carries) * p.availabilityFactor;
+    let w = (p.position==='FB'?Math.min(.13,Math.max(.025,p.base.carries*.20)):Math.max(.05, p.base.carries)) * p.availabilityFactor;
     if (p.position === 'RB' && (p.depthRank ?? 9) === 1) w *= leading ? 1.18 : 1.05;
     if (p.position === 'QB') w *= leading ? .82 : 1.03;
     return w;
@@ -87,14 +107,14 @@ function tdReceiverWeights(team, targetCounts = null) {
   return team.receivers.map((p,i)=>{
     const base = .15 + p.base.recTds * 2.2 + (p.rzTargets||0)*.08 + (p.atdProbability||0)*1.2;
     const liveUsage = targetCounts ? (targetCounts[i] || 0) * .12 : 0;
-    return Math.max(.02, base + liveUsage) * p.availabilityFactor;
+    return (p.position==='FB'?Math.min(.06,Math.max(.005,(base+liveUsage)*.1)):Math.max(.02,base+liveUsage)) * p.availabilityFactor;
   });
 }
 function tdRusherWeights(team, carryCounts = null) {
   return team.rushers.map((p,i)=>{
     const base = .12 + p.base.rushTds * 2.4 + (p.rzCarries||0)*.09 + (p.atdProbability||0)*1.0;
     const liveUsage = carryCounts ? (carryCounts[i] || 0) * .07 : 0;
-    return Math.max(.02, base + liveUsage) * p.availabilityFactor;
+    return (p.position==='FB'?Math.min(.06,Math.max(.005,(base+liveUsage)*.1)):Math.max(.02,base+liveUsage)) * p.availabilityFactor;
   });
 }
 
@@ -116,17 +136,25 @@ function simulateTeamOffense({rng, team, profile, side, futureScore, opponentFut
   const rushAttempts = Math.max(0, plays - passAttempts);
 
   const qb = chooseStartingQb(team);
+  const qbShares=quarterbackShares(rng,team,finalDiff,config);
+  const qbAttempts=multinomial(rng,passAttempts,qbShares.map(x=>x.share));
   let completions = 0, passYds = 0, passTds = 0, interceptions = 0;
   let targetCounts = new Array(team.receivers.length).fill(0);
   let receptionCounts = new Array(team.receivers.length).fill(0);
 
   if (qb && passAttempts > 0) {
-    const compRate = clamp(qb.base.completionRate * logNormalFactor(rng,.035), config.clamps.completionRateMin, config.clamps.completionRateMax);
-    completions = binomial(rng, passAttempts, compRate);
-    const ypa = clamp(qb.base.yardsPerAttempt * logNormalFactor(rng, config.league.yardageVolatility*.45), config.clamps.yardsPerAttemptMin, config.clamps.yardsPerAttemptMax);
-    const meanPass = passAttempts * ypa;
-    passYds = Math.max(0, Math.round(normal(rng, meanPass, Math.max(18, Math.sqrt(passAttempts)*5.0 + meanPass*.10))));
-    interceptions = binomial(rng, passAttempts, config.league.interceptionRatePerAttempt ?? .025);
+    for(let i=0;i<qbShares.length;i++){
+      const chosen=qbShares[i].qb,attempts=qbAttempts[i]||0;
+      if(!attempts)continue;
+      const rate=clamp(chosen.base.completionRate*logNormalFactor(rng,.035),config.clamps.completionRateMin,config.clamps.completionRateMax);
+      const completed=binomial(rng,attempts,rate);
+      const ypa=clamp(chosen.base.yardsPerAttempt*logNormalFactor(rng,config.league.yardageVolatility*.45),config.clamps.yardsPerAttemptMin,config.clamps.yardsPerAttemptMax);
+      const yards=Math.max(0,Math.round(normal(rng,attempts*ypa,Math.max(7,Math.sqrt(attempts)*5+attempts*ypa*.10))));
+      const picks=binomial(rng,attempts,config.league.interceptionRatePerAttempt??.025);
+      const stat=playerStats.get(chosen.key);
+      stat.attempts+=attempts;stat.completions+=completed;stat.passYds+=yards;stat.interceptions+=picks;
+      completions+=completed;passYds+=yards;interceptions+=picks;
+    }
 
     targetCounts = multinomial(rng, passAttempts, receiverWeights(team, true));
     const catchWeights = team.receivers.map((p,i)=>Math.max(.01, targetCounts[i]*p.base.catchRate));
@@ -165,13 +193,12 @@ function simulateTeamOffense({rng, team, profile, side, futureScore, opponentFut
   const offensiveTds = binomial(rng, futureScore.tds, 1-(config.league.defensiveSpecialTeamsTdShare ?? .08));
   passTds = binomial(rng, offensiveTds, team.passTdShare);
   const rushTds = offensiveTds - passTds;
-  if (qb) {
-    const s = playerStats.get(qb.key);
-    s.attempts += passAttempts;
-    s.completions += completions;
-    s.passYds += passYds;
-    s.passTds += passTds;
-    s.interceptions += interceptions;
+  if (qb && passTds>0) {
+    const allocation=multinomial(rng,passTds,qbAttempts);
+    for(let i=0;i<qbShares.length;i++){
+      const s=playerStats.get(qbShares[i].qb.key);
+      if(s)s.passTds+=(allocation[i]||0);
+    }
   }
 
   const recvTdWeights = tdReceiverWeights(team, targetCounts);
@@ -317,7 +344,7 @@ export function jointProbabilityFromResult(result, legs) {
   return hits/samples.iterations;
 }
 
-export function simulateGame({game,research,odds,liveGame=null,config,iterations,seed,includeSamples=false}) {
+export function simulateGame({game,research,odds,liveGame=null,config,iterations,seed,includeSamples=false,includeRepresentative=false}) {
   const profile = buildGameProfile({game,research,odds,liveGame,config});
   const liveDetail=`${liveGame?.statusDetail||''} ${liveGame?.detail||''}`.toLowerCase();
   const liveClock=Number(liveGame?.clockMin), livePeriod=Number(liveGame?.period);
@@ -363,6 +390,7 @@ export function simulateGame({game,research,odds,liveGame=null,config,iterations
       'v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.'
     ]
   };
+  if(includeRepresentative)result.representativeWorld=representativeWorldFromArrays({awayScores,homeScores,arrays,game:profile,iterations});
   if(includeSamples) result._samples={iterations,players:arrays,awayScores,homeScores};
   return result;
 }
@@ -372,3 +400,5 @@ export function stripPrivateSamples(result) {
   const {_samples,...publicResult}=result;
   return publicResult;
 }
+
+export const __TSO2_QB_ROTATION_TEST__={quarterbackShares};

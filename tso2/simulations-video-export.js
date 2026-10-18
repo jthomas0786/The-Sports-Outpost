@@ -5,6 +5,8 @@
 (function(global){
 'use strict';
 const FPS=24,W=1280,H=720;
+// The verified, locally hosted MP3 is required for exports.
+// Missing audio is a visible failure, not a reason to synthesize a substitute.
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const clean=v=>String(v??'');
@@ -56,7 +58,7 @@ function footer(c,note='NOT ACTUAL NFL FOOTAGE OR OFFICIAL STATS'){
  c.fillStyle='#131923';c.fillRect(0,H-44,W,44);
  c.fillStyle='#ff541d';c.fillRect(0,H-44,W,2);
  text(c,note,26,H-18,13,'#ffd056',820);
- text(c,'thesportsoutpost.com  •  illustrated sampled-world replay',W-26,H-18,12,'#bdc6d5',650,'right');
+ text(c,'MUSIC: EPIC BATTLE · FSCM PRODUCTIONS (CC BY 4.0)',W-26,H-18,12,'#bdc6d5',650,'right');
 }
 function drawLogo(c,img,cx,cy,label,size=62){
  roundRect(c,cx-size/2,cy-size/2,size,size,13,'#202733','#404958');
@@ -77,35 +79,41 @@ function scoreboard(c,game,logos,score,quarter='Q1',clock='15:00'){
 const num=v=>Number.isFinite(Number(v))?Math.round(Number(v)):0;
 const val=v=>Number.isFinite(Number(v))?String(Math.round(Number(v))):'—';
 function sideStats(c,game,snap,team,x){
- const code=abbr(team),stats=snap?.teams?.[code]||{};
- const all=Object.values(snap?.players?.[code]||{});
- const active=all.filter(p=>p.passAtt||p.carries||p.targets||p.sacks||p.int);
- const best=(filter,metric)=>active.filter(filter).sort((a,b)=>metric(b)-metric(a))[0];
- const qb=best(p=>p.passAtt||p.sacks,p=>p.passAtt||0);
- const rb=best(p=>p.carries,p=>p.rushYds||0);
- const rec=best(p=>p.targets,p=>p.recYds||0);
- const w=232,y=203;
- roundRect(c,x,y,w,387,13,'#151c27','#354052');
- text(c,code+' · LIVE STATS',x+14,y+27,17,'#ffd15a',950);
- c.fillStyle='#303b4b';c.fillRect(x+12,y+38,w-24,1);
- const pairs=[['TOTAL YDS',val(stats.totalYds)],['PASS YDS',val(stats.passing)],
-  ['RUSH YDS',val(stats.rushing)],['FIRST DOWNS',val(stats.firstDowns)]];
- let yy=y+68;
- for(const [label,value] of pairs){
-  text(c,label,x+13,yy,13,'#aebbd0',850);
-  text(c,value,x+w-13,yy+1,21,'#fff',950,'right');yy+=40;
+ // Show only player box-score rows from completed plays. No aggregate team counters.
+ const code=abbr(team),all=Object.values(snap?.players?.[code]||{});
+ const sections=[
+  {title:'PASSING',rows:all.filter(p=>p.passAtt||p.sacks).sort((a,b)=>b.passAtt-a.passAtt),
+   format:p=>p.passComp+'/'+p.passAtt+'  '+val(p.passYds)+'Y  '+val(p.passTd)+'TD'+(p.int?' '+p.int+'INT':'')},
+  {title:'RUSHING',rows:all.filter(p=>p.carries).sort((a,b)=>b.carries-a.carries),
+   format:p=>p.carries+'A  '+val(p.rushYds)+'Y'+(p.rushTd?' '+p.rushTd+'TD':'')},
+  {title:'RECEIVING',rows:all.filter(p=>p.targets).sort((a,b)=>b.targets-a.targets),
+   format:p=>p.receptions+'/'+p.targets+'  '+val(p.recYds)+'Y'+(p.recTd?' '+p.recTd+'TD':'')}
+ ];
+ const w=232,y=203,h=459;
+ roundRect(c,x,y,w,h,13,'#151c27','#354052');
+ text(c,code+' · PLAYER BOX',x+12,y+27,16,'#ffd15a',950);
+ c.fillStyle='#303b4b';c.fillRect(x+12,y+39,w-24,1);
+ const count=sections.reduce((sum,section)=>sum+Math.max(section.rows.length,1),0);
+ const rowH=Math.max(8,Math.min(22,Math.floor((h-49-3*30)/Math.max(1,count))));
+ let yy=y+44;
+ for(const section of sections){
+  yy+=21;
+  text(c,section.title,x+12,yy,12,'#ffb761',920);
+  c.fillStyle='#303b4b';c.fillRect(x+12,yy+4,w-24,1);
+  yy+=9;
+  if(!section.rows.length){
+   text(c,'No attempts yet',x+12,yy+rowH*.68,10,'#8d9cae',680);
+   yy+=rowH;continue;
+  }
+  for(const [i,p] of section.rows.entries()){
+   if(i%2===0){c.fillStyle='#1d2734';c.fillRect(x+9,yy-2,w-18,rowH);}
+   const baseline=yy+rowH*.73;
+   const font=rowH>=15?11:Math.max(8,Math.floor(rowH*.67));
+   text(c,p.name||'PLAYER',x+12,baseline,font,'#fff',800,'left',113);
+   text(c,section.format(p),x+w-11,baseline,Math.max(8,font-1),'#cddbe9',780,'right',105);
+   yy+=rowH;
+  }
  }
- c.fillStyle='#303b4b';c.fillRect(x+12,y+226,w-24,1);
- const lead=(title,person,detail,top)=>{
-  text(c,title,x+13,top,12,'#ffb761',920);
-  if(person){
-   text(c,person.name||'PLAYER',x+13,top+21,14,'#fff',850,'left',w-26);
-   text(c,detail(person),x+13,top+39,12,'#c7d2e1',720,'left',w-26);
-  }else text(c,'No plays yet',x+13,top+23,12,'#8d9cae',680);
- };
- lead('PASSING',qb,p=>p.passYds+' YDS · '+p.passTd+' TD',y+250);
- lead('RUSHING',rb,p=>p.rushYds+' YDS · '+p.carries+' ATT',y+298);
- lead('RECEIVING',rec,p=>p.recYds+' YDS · '+p.receptions+' REC',y+346);
 }
 function intro(c,game,logos){
  base(c,'ILLUSTRATIVE 50,000-RUN NFL GAME REPLAY');
@@ -160,23 +168,6 @@ function play(c,game,logos,event,field,snap){
 function boxPages(game,snapshot){
  const away=abbr(game.away),home=abbr(game.home),a=snapshot.teams?.[away],b=snapshot.teams?.[home];
  if(!a||!b)throw Error('The illustrative play ledger has no complete team totals.');
- const pages=[{type:'teams',title:'FINAL TEAM STATS',rows:[
-  ['FINAL SCORE',val(a.points),val(b.points)],
-  ['Q1',val(a.quarter?.[0]),val(b.quarter?.[0])],
-  ['Q2',val(a.quarter?.[1]),val(b.quarter?.[1])],
-  ['Q3',val(a.quarter?.[2]),val(b.quarter?.[2])],
-  ['Q4',val(a.quarter?.[3]),val(b.quarter?.[3])],
-  ['TOTAL YARDS',val(a.totalYds),val(b.totalYds)],
-  ['PASSING YARDS',val(a.passing),val(b.passing)],
-  ['RUSHING YARDS',val(a.rushing),val(b.rushing)],
-  ['FIRST DOWNS',val(a.firstDowns),val(b.firstDowns)],
-  ['PASS COMP/ATT',a.passComp+'/'+a.passAtt,b.passComp+'/'+b.passAtt],
-  ['RUSH ATTEMPTS',val(a.rushAtt),val(b.rushAtt)],
-  ['TURNOVERS',val(a.interceptions),val(b.interceptions)],
-  ['SACKS ALLOWED',val(a.sacksAllowed),val(b.sacksAllowed)],
-  ['PUNTS',val(a.punts),val(b.punts)],
-  ['FIELD GOALS MADE',val(a.fieldGoals),val(b.fieldGoals)]
- ]}];
  const teams=[away,home];
  const entries=team=>{
   const all=Object.values(snapshot.players?.[team]||{});
@@ -186,17 +177,26 @@ function boxPages(game,snapshot){
    receiving:all.filter(p=>p.targets).sort((x,y)=>y.targets-x.targets)
   };
  };
- const data=Object.fromEntries(teams.map(t=>[t,entries(t)]));
- for(const category of ['passing','rushing','receiving']){
-  const longest=Math.max(...teams.map(t=>data[t][category].length));
-  const chunk=13;
-  for(let offset=0;offset<Math.max(1,longest);offset+=chunk){
-   pages.push({type:'players',title:'FULL PLAYER BOX SCORE · '+category.toUpperCase(),
-    category,teams:Object.fromEntries(teams.map(t=>[t,data[t][category].slice(offset,offset+chunk)])),
-    offset,more:offset+chunk<longest});
-  }
- }
- return pages;
+ return [
+  {type:'teams',title:'FINAL TEAM STATS',rows:[
+   ['FINAL SCORE',val(a.points),val(b.points)],
+   ['Q1',val(a.quarter?.[0]),val(b.quarter?.[0])],
+   ['Q2',val(a.quarter?.[1]),val(b.quarter?.[1])],
+   ['Q3',val(a.quarter?.[2]),val(b.quarter?.[2])],
+   ['Q4',val(a.quarter?.[3]),val(b.quarter?.[3])],
+   ['TOTAL YARDS',val(a.totalYds),val(b.totalYds)],
+   ['PASSING YARDS',val(a.passing),val(b.passing)],
+   ['RUSHING YARDS',val(a.rushing),val(b.rushing)],
+   ['FIRST DOWNS',val(a.firstDowns),val(b.firstDowns)],
+   ['PASS COMP/ATT',a.passComp+'/'+a.passAtt,b.passComp+'/'+b.passAtt],
+   ['RUSH ATTEMPTS',val(a.rushAtt),val(b.rushAtt)],
+   ['TURNOVERS',val(a.interceptions),val(b.interceptions)],
+   ['SACKS ALLOWED',val(a.sacksAllowed),val(b.sacksAllowed)],
+   ['PUNTS',val(a.punts),val(b.punts)],
+   ['FIELD GOALS MADE',val(a.fieldGoals),val(b.fieldGoals)]
+  ]},
+  {type:'players',title:'FULL PLAYER BOX SCORE',teams:Object.fromEntries(teams.map(t=>[t,entries(t)]))}
+ ];
 }
 function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
  base(c,page.type==='teams'?'FINAL STATISTICS · ILLUSTRATIVE GAME':'FULL PLAYER BOX SCORE · ILLUSTRATIVE GAME');
@@ -217,36 +217,56 @@ function finalSlide(c,game,logos,snapshot,page,pageIndex,total){
    y+=23;
   }
  }else{
-  const specs={
-   passing:{heads:['PLAYER','CMP/ATT','YDS','TD','INT'],format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
-   rushing:{heads:['PLAYER','ATT','YDS','TD'],format:p=>[p.name,val(p.carries),val(p.rushYds),val(p.rushTd)]},
-   receiving:{heads:['PLAYER','REC/TGT','YDS','TD'],format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
-  };
-  const spec=specs[page.category];
-  for(const [idx,code] of [away,home].entries()){
-   const x=26+idx*630,w=598;
-   roundRect(c,x,243,w,416,12,'#131c28','#354355');
-   text(c,code+' · '+page.category.toUpperCase(),x+19,277,20,'#ffd055',950);
-   const ys=306;
-   const colX=spec.heads.length===5?[x+18,x+370,x+455,x+512,x+569]:[x+18,x+410,x+488,x+565];
-   for(let j=0;j<spec.heads.length;j++){
-    text(c,spec.heads[j],colX[j],ys,11,'#a6b6ce',850,j===0?'left':'right');
-   }
-   let y=328;
-   const players=page.teams[code]||[];
-   if(!players.length)text(c,'No tracked '+page.category+' attempts',x+18,y+16,15,'#a1acba',720);
-   for(const [k,p] of players.entries()){
-    if(k%2===0)roundRect(c,x+10,y-14,w-20,23,3,'#1b2736');
-    const row=spec.format(p);
-    for(let j=0;j<row.length;j++)
-     text(c,row[j],colX[j],y,12,j===0?'#fff':'#dce7f2',j===0?760:850,j===0?'left':'right',j===0?336:65);
-    y+=24;
+  // Away team (left), home team (right); each has Passing / Rushing /
+  // Receiving on ONE concluding landscape screen, never intermixed.
+  const specs=[
+   {category:'passing',name:'PASSING',heads:['PLAYER','CMP/ATT','YDS','TD','INT'],
+    format:p=>[p.name,p.passComp+'/'+p.passAtt,val(p.passYds),val(p.passTd),val(p.int)]},
+   {category:'rushing',name:'RUSHING',heads:['PLAYER','ATT','YDS','TD'],
+    format:p=>[p.name,val(p.carries),val(p.rushYds),val(p.rushTd)]},
+   {category:'receiving',name:'RECEIVING',heads:['PLAYER','REC/TGT','YDS','TD'],
+    format:p=>[p.name,p.receptions+'/'+p.targets,val(p.recYds),val(p.recTd)]}
+  ];
+  for(const [teamIndex,code] of [away,home].entries()){
+   const x=25+teamIndex*628,w=602,y=239,h=419,teamStats=page.teams[code]||{};
+   roundRect(c,x,y,w,h,12,'#131c28','#354355');
+   drawLogo(c,logos[teamIndex],x+37,y+36,code,52);
+   text(c,code+'  ·  '+(teamIndex?'HOME':'AWAY'),x+73,y+34,22,'#ffd055',950);
+   text(c,'FINAL PLAYER STATS',x+w-15,y+34,12,'#b5c3d4',840,'right');
+   c.fillStyle='#334153';c.fillRect(x+12,y+68,w-24,1);
+   const rowCount=specs.reduce((sum,spec)=>sum+Math.max(1,(teamStats[spec.category]||[]).length),0);
+   const rowHeight=Math.min(21,Math.max(5,Math.floor((h-84-3*24)/Math.max(1,rowCount))));
+   let yy=y+74;
+   for(const spec of specs){
+    const coords=spec.heads.length===5?
+     [x+15,x+w-215,x+w-137,x+w-83,x+w-17]:
+     [x+15,x+w-182,x+w-99,x+w-18];
+    c.fillStyle='#29394c';c.fillRect(x+11,yy,w-22,20);
+    text(c,spec.name,x+16,yy+14,12,'#ffd15a',950);
+    for(let j=1;j<spec.heads.length;j++)
+     text(c,spec.heads[j],coords[j],yy+14,9,'#b9c8d8',850,'right');
+    yy+=24;
+    const players=teamStats[spec.category]||[];
+    if(!players.length){
+     text(c,'No recorded attempts',x+16,yy+rowHeight*.75,9,'#94a2b3',700);
+     yy+=rowHeight;
+    }
+    for(const [k,p] of players.entries()){
+     if(k%2===0){c.fillStyle='#1b2939';c.fillRect(x+11,yy,w-22,rowHeight);}
+     const row=spec.format(p);
+     const font=Math.min(12,Math.max(7,Math.floor(rowHeight*.77))),baseline=yy+rowHeight*.75;
+     for(let j=0;j<row.length;j++)
+      text(c,row[j],coords[j],baseline,font,j===0?'#fff':'#dce7f2',j===0?760:840,
+       j===0?'left':'right',j===0?w-240:70);
+     yy+=rowHeight;
+    }
    }
   }
  }
- text(c,'SCREEN '+(pageIndex+1)+' OF '+total+(page.type==='players'&&page.more?' · MORE PLAYER ROWS NEXT':''),W/2,672,13,'#bfcad9',800,'center');
+ text(c,'SCREEN '+(pageIndex+1)+' OF '+total,W/2,671,13,'#bfcad9',800,'center');
  footer(c,'FULL BOX SCORE FROM ILLUSTRATIVE PLAY LEDGER · NOT OFFICIAL');
 }
+
 async function loadMuxer(){
  if(global.Mp4Muxer)return global.Mp4Muxer;
  if(!global.document)throw Error('Video export requires a browser.');
@@ -280,11 +300,59 @@ async function setupEncoder(c,muxer,fps){
  }
  throw Error('H.264 MP4 encoding is unsupported in this browser.');
 }
+async function encodeSoundtrack(muxer,frames,onProgress=()=>{}){
+ const sound=global.TSO2SimSoundtrack;
+ if(!sound||typeof sound.render!=='function')throw Error('Epic Battle background music is not loaded.');
+ if(typeof AudioEncoder!=='function'||typeof AudioData!=='function')
+  throw Error('AAC music encoding is unavailable in this browser.');
+ const config={codec:'mp4a.40.2',sampleRate:sound.sampleRate,numberOfChannels:sound.numberOfChannels,bitrate:128000};
+ const support=await AudioEncoder.isConfigSupported(config);
+ if(!support.supported)throw Error('AAC music encoding is unsupported by this browser.');
+ let encodeError=null;
+ const encoder=new AudioEncoder({
+  output:(chunk,meta)=>muxer.addAudioChunk(chunk,meta),
+  error:error=>{encodeError=error}
+ });
+ encoder.configure(support.config);
+ const rate=sound.sampleRate,needed=Math.round(frames*rate/FPS);
+ const packet=1024;
+ try{
+  for(let index=0;index<needed;index+=packet){
+   const count=Math.min(packet,needed-index);
+   const data=new AudioData({
+    format:'f32-planar',sampleRate:rate,numberOfFrames:count,
+    numberOfChannels:sound.numberOfChannels,
+    timestamp:Math.round(index*1000000/rate),data:sound.render(index,count,needed)
+   });
+   try{encoder.encode(data)}finally{data.close()}
+   if(encoder.encodeQueueSize>15)await encoder.flush();
+   if(encodeError)throw encodeError;
+   if(index%(packet*64)===0)onProgress(index,needed);
+  }
+  await encoder.flush();
+  if(encodeError)throw encodeError;
+  onProgress(needed,needed);
+ }finally{encoder.close()}
+}
+function nativeMusicBuffer(audioContext,frames){
+ const sound=global.TSO2SimSoundtrack;
+ if(!sound||typeof sound.render!=='function')throw Error('Epic Battle background music is not loaded.');
+ const rate=audioContext.sampleRate,total=Math.round(frames*rate/FPS),buffer=audioContext.createBuffer(2,total,rate);
+ const left=buffer.getChannelData(0),right=buffer.getChannelData(1);
+ const packet=4096;
+ for(let i=0;i<total;i+=packet){
+  const size=Math.min(packet,total-i),stereo=sound.render(i,size,total,rate);
+  left.set(stereo.subarray(0,size),i);
+  right.set(stereo.subarray(size,size*2),i);
+ }
+ return buffer;
+}
 async function encodeWebCodecs(canvas,frames,progress){
  const lib=await loadMuxer();
  const muxer=new lib.Muxer({
   target:new lib.ArrayBufferTarget(),
   video:{codec:'avc',width:W,height:H,frameRate:FPS},
+  audio:{codec:'aac',sampleRate:global.TSO2SimSoundtrack?.sampleRate||48000,numberOfChannels:2},
   fastStart:'in-memory',firstTimestampBehavior:'offset'
  });
  const {encoder,check}=await setupEncoder(canvas,muxer,FPS);
@@ -296,18 +364,33 @@ async function encodeWebCodecs(canvas,frames,progress){
    if(i%12===0){check();progress.report(i,frames)}
    if(encoder.encodeQueueSize>7)await encoder.flush();
   }
-  await encoder.flush();check();muxer.finalize();
+  await encoder.flush();check();
+  progress.musicStart?.();
+  await encodeSoundtrack(muxer,frames,(current,total)=>progress.musicProgress?.(current,total));
+  muxer.finalize();
   return new Blob([muxer.target.buffer],{type:'video/mp4'});
  }finally{encoder.close()}
 }
-async function encodeNative(canvas,frames,progress){
- if(!canvas.captureStream||typeof MediaRecorder==='undefined')
-  throw Error('MP4 video export is unsupported by this browser.');
- const mime=['video/mp4;codecs=avc1.42E01F','video/mp4;codecs=avc1.42001f','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
- if(!mime)throw Error('Native MP4 recording is unavailable. Try Safari or Chrome with H.264 WebCodecs.');
- const stream=canvas.captureStream(FPS),chunks=[];
- const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000});
- let failed=null;
+async function encodeNative(canvas,frames,progress,audioContext){
+ if(!canvas.captureStream||typeof MediaRecorder==='undefined'||!audioContext)
+  throw Error('MP4 export with background music requires H.264/AAC support in this browser.');
+ const mime=[
+  'video/mp4;codecs="avc1.42E01F,mp4a.40.2"',
+  'video/mp4;codecs="avc1.42001f,mp4a.40.2"',
+  'video/mp4'
+ ].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!mime)throw Error('Native video+music MP4 recording is unavailable. Try an updated Chrome or Safari.');
+ await audioContext.resume();
+ if(audioContext.state!=='running')throw Error('Audio playback permission is required to include the soundtrack.');
+ const source=audioContext.createBufferSource();
+ source.buffer=nativeMusicBuffer(audioContext,frames);
+ const destination=audioContext.createMediaStreamDestination();
+ source.connect(destination);
+ const fieldStream=canvas.captureStream(FPS);
+ const stream=new MediaStream([...fieldStream.getVideoTracks(),...destination.stream.getAudioTracks()]);
+ const chunks=[];
+ const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:3500000,audioBitsPerSecond:128000});
+ let failed=null,started=false;
  const stopped=new Promise((resolve,reject)=>{
   recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
   recorder.onerror=e=>{failed=e.error||Error('MP4 recorder failed');reject(failed)};
@@ -315,20 +398,36 @@ async function encodeNative(canvas,frames,progress){
  });
  try{
   recorder.start(1000);
+  source.start();started=true;
   for(let i=0;i<frames;i++){
    progress.render(i);if(i%12===0)progress.report(i,frames);
    await wait(1000/FPS);
   }
   recorder.stop();await stopped;
   return new Blob(chunks,{type:'video/mp4'});
- }finally{stream.getTracks().forEach(t=>t.stop())}
+ }finally{
+  if(started){try{source.stop()}catch(_){}}
+  fieldStream.getTracks().forEach(t=>t.stop());
+  destination.stream.getTracks().forEach(t=>t.stop());
+  if(recorder.state!=='inactive'){try{recorder.stop()}catch(_){}}
+ }
 }
 async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={}){
+ // Unlock audio in the initial button click before asynchronous logo/encoder work.
  if(!game?.representativeWorld||!Array.isArray(plays)||!plays.length||!snapshot?.teams)
   throw Error('An eligible representative simulation and complete box score are required.');
  const canvas=document.createElement('canvas');canvas.width=W;canvas.height=H;
  const c=canvas.getContext('2d',{alpha:false});
  if(!c)throw Error('Canvas drawing is unavailable.');
+ const AudioCtor=global.AudioContext||global.webkitAudioContext;
+ const audioContext=AudioCtor?new AudioCtor():null;
+ const unlockAudio=audioContext?audioContext.resume().catch(()=>{}):Promise.resolve();
+ const sound=global.TSO2SimSoundtrack;
+ if(!audioContext||typeof sound?.load!=='function')
+  throw Error('Epic Battle soundtrack audio decoding is unavailable.');
+ onProgress(0,'Loading Epic Battle soundtrack by FSCM Productions');
+ try{await sound.load(audioContext)}
+ catch(error){await audioContext.close().catch(()=>{});throw error}
  const logos=await Promise.all([logoImage(logoUrl(game.away)),logoImage(logoUrl(game.home))]);
  const pages=boxPages(game,snapshot);
  const engine=global.TSO2SimEngine;
@@ -341,14 +440,15 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
   if(!snapshots.has(done))snapshots.set(done,engine.snapshot(game,plays,done));
   return snapshots.get(done);
  };
- const introFrames=FPS*2,outroFrames=FPS*4;
+ // Keep the final player box visible long enough for social viewers to read.
+ const introFrames=FPS*2,teamStatFrames=FPS*4,playerBoxFrames=FPS*8;
  // Highlight plays receive a readable 1.25 second pause in the MP4; all
  // ordinary illustrative snaps remain short. No extra events are generated.
  const playDurations=plays.map(event=>global.TSO2SimBroadcastEvent?.fromPlay(event,game)?
   Math.round(FPS*1.25):Math.max(8,Math.round(FPS*.42)));
  const offsets=[0];
  for(const duration of playDurations)offsets.push(offsets[offsets.length-1]+duration);
- const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+pages.length*outroFrames;
+ const replayFrames=offsets[offsets.length-1],frames=introFrames+replayFrames+teamStatFrames+playerBoxFrames;
  const render=frame=>{
   if(frame<introFrames)return intro(c,game,logos);
   let pos=frame-introFrames;
@@ -360,26 +460,34 @@ async function exportVideo({game,plays,snapshot,renderField,onProgress=()=>{}}={
    return play(c,game,logos,plays[index],{canvas:field,progress:fraction,index},at(index+(fraction>=.94?1:0)));
   }
   pos-=replayFrames;
-  const pageIndex=Math.min(pages.length-1,Math.floor(pos/outroFrames));
+  const pageIndex=pos<teamStatFrames?0:1;
   return finalSlide(c,game,logos,snapshot,pages[pageIndex],pageIndex+1,pages.length);
  };
  const progress={
   render,
-  report:(current,total)=>onProgress(100*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score')
+  report:(current,total)=>onProgress(95*current/total,current<introFrames?'Encoding intro':current<introFrames+replayFrames?'Encoding replay highlights':'Appending complete final box score'),
+  musicStart:()=>onProgress(95,'Encoding Epic Battle soundtrack'),
+  musicProgress:(current,total)=>onProgress(95+4*current/Math.max(1,total),'Encoding AAC stereo background music')
  };
- onProgress(0,'Preparing '+plays.length+' illustrated plays and '+pages.length+' final box-score pages');
+ onProgress(0,'Preparing '+plays.length+' illustrated plays, two final slides and original soundtrack');
  let blob;
- if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
-  try{blob=await encodeWebCodecs(canvas,frames,progress)}
-  catch(err){
-   if(err?.message?.includes('Game changed'))throw err;
-   if(typeof MediaRecorder!=='undefined')blob=await encodeNative(canvas,frames,progress);
-   else throw err;
+ try{
+  if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
+   try{blob=await encodeWebCodecs(canvas,frames,progress)}
+   catch(err){
+    if(err?.message?.includes('Game changed'))throw err;
+    if(typeof MediaRecorder!=='undefined'&&audioContext){
+     await unlockAudio;blob=await encodeNative(canvas,frames,progress,audioContext);
+    }else throw err;
+   }
+  }else{
+   await unlockAudio;
+   blob=await encodeNative(canvas,frames,progress,audioContext);
   }
- }else blob=await encodeNative(canvas,frames,progress);
+ }finally{if(audioContext)await audioContext.close().catch(()=>{})}
  if(!blob||blob.size<1024||!blob.type.includes('mp4'))throw Error('The MP4 encoder did not return a valid video.');
- onProgress(100,'MP4 ready');
- return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length};
+ onProgress(100,'MP4 with Epic Battle soundtrack ready');
+ return {blob,durationSeconds:frames/FPS,boxScorePages:pages.length,plays:plays.length,backgroundMusic:true,musicCredit:global.TSO2SimSoundtrack.attribution};
 }
 global.TSO2SimulationVideo={export:exportVideo,boxPages};
 })(typeof window!=='undefined'?window:globalThis);

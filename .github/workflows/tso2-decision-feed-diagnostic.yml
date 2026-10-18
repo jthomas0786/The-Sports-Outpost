@@ -1,0 +1,21 @@
+name: TSO2 Verified Player Feed Diagnostics
+on:
+  workflow_dispatch:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/decision-feed-diagnostic.cjs'
+      - '.github/workflows/tso2-decision-feed-diagnostic.yml'
+permissions:
+  contents: read
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Inspect public-source game-to-prop joins without modifying data
+        run: node tso2/decision-feed-diagnostic.cjs

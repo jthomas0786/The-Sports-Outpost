@@ -3,7 +3,8 @@ import { clamp, finite, normName, normTeam, round } from './utils.js';
 const SKILL = new Set(['QB','RB','HB','FB','WR','TE']);
 const posGroup = p => {
   p = String(p || '').toUpperCase();
-  if (p === 'HB' || p === 'FB') return 'RB';
+  if (p === 'HB') return 'RB';
+  // Preserve fullbacks as FB: depthRank 0 is not a starting running back.
   return p;
 };
 const stat = (obj, key) => finite(obj?.[key], null);
@@ -27,7 +28,9 @@ function depthFactor(player, config) {
 function injuryFactor(player) {
   if (player.active === false) return 0;
   const s = String(player.injury?.status || player.rosterStatus || player.availability || player.model?.availability?.status || '').toLowerCase();
-  if (/out|injured reserve|\bir\b|suspend|inactive/.test(s)) return 0;
+  // An NFL player pool includes waived, practice-squad and exempt players.
+  // Only game-day confirmed/elevated players may be assigned simulated snaps.
+  if (/out|injured reserve|\bir\b|suspend|inactive|waiv|release|free agent|practice.squad|exempt|pup|physically unable/.test(s)) return 0;
   if (/doubtful/.test(s)) return 0.25;
   if (/questionable/.test(s)) return 0.85;
   return 1;
@@ -219,8 +222,8 @@ function teamProfile(abbr, players, anchorPoints, config) {
   const teamPlayers = players.filter(p => p.team === abbr && p.availabilityFactor > 0);
   const qbs = teamPlayers.filter(p => p.position === 'QB').sort((a,b)=>(a.depthRank??99)-(b.depthRank??99) || b.base.attempts-a.base.attempts);
   const qb = qbs[0] || null;
-  const rushers = teamPlayers.filter(p => ['RB','QB','WR','TE'].includes(p.position));
-  const receivers = teamPlayers.filter(p => ['WR','TE','RB'].includes(p.position));
+  const rushers = teamPlayers.filter(p => ['RB','FB','QB','WR','TE'].includes(p.position));
+  const receivers = teamPlayers.filter(p => ['WR','TE','RB','FB'].includes(p.position));
   const passAttempts = qb?.base.attempts || 33;
   const rushAttempts = rushers.reduce((s,p)=>s+p.base.carries*p.availabilityFactor,0) || 27;
   const passRate = clamp(passAttempts / Math.max(1, passAttempts + rushAttempts), config.clamps.passRateMin, config.clamps.passRateMax);
@@ -246,6 +249,23 @@ export function buildGameProfile({game, research, odds, liveGame = null, config}
   }
   // Fall back to slate players if the research builder has not run yet.
   if (!rawPlayers.length) rawPlayers = game.players || [];
+  // Hard gate immediately before Monte Carlo world creation. Even if an
+  // alternate source or stale game roster slipped through earlier research
+  // filtering, it must not receive attempts, targets, or simulated touches.
+  const rosterWhitelist=game.modelEligibleRosters;
+  if(rosterWhitelist){
+    const canonicalName=x=>String(x||'').toLowerCase().normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+    const approved=new Map(Object.entries(rosterWhitelist).map(([team,names])=>
+      [normTeam(team),new Set((names||[]).map(canonicalName))]));
+    const sides=[normTeam(game.away?.abbr),normTeam(game.home?.abbr)];
+    if(sides.some(team=>!approved.has(team)))throw Error('Missing verified 2026 roster whitelist for an NFL team');
+    rawPlayers=rawPlayers.filter(p=>approved.get(normTeam(p.team))?.has(canonicalName(p.name)));
+    for(const team of sides){
+      if(!rawPlayers.some(p=>normTeam(p.team)===team&&String(p.position||'').toUpperCase()==='QB'))
+        throw Error('No eligible verified quarterback for '+team+'; simulation blocked');
+    }
+  }
   const players = rawPlayers.filter(p=>SKILL.has(String(p.position||'').toUpperCase())).map(p=>buildPlayer(p, config));
   const oddsIdx = buildOddsIndex(odds);
   const oddsGame = findOddsGame(game, oddsIdx);

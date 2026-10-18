@@ -22,6 +22,7 @@ Usage:
 
 import argparse
 import json
+import math
 import os
 import sys
 from datetime import datetime, timedelta
@@ -618,10 +619,23 @@ def fetch_batter_detail(player_ids, season, days=45):
             la = _clean(r.get("launch_angle"))
             dist = _clean(r.get("hit_distance_sc"))
             date = _clean(r.get("game_date"))
+            hc_x = _clean(r.get("hc_x"))
+            hc_y = _clean(r.get("hc_y"))
+            spray = None
+            if hc_x is not None and hc_y is not None:
+                dx = float(hc_x) - 125.0
+                forward = 199.0 - float(hc_y)
+                if abs(dx) > 1 or abs(forward) > 1:
+                    spray = math.atan2(dx, max(1.0, forward))
+                    spray = max(-math.pi / 4.05, min(math.pi / 4.05, spray))
+
             points.append({
                 "ev": round(float(r["launch_speed"]), 1),
                 "la": round(float(la), 1) if la is not None else None,
                 "dist": int(dist) if dist is not None else None,
+                "coordX": round(float(hc_x), 1) if hc_x is not None else None,
+                "coordY": round(float(hc_y), 1) if hc_y is not None else None,
+                "sprayAngle": round(float(spray), 5) if spray is not None else None,
                 "hand": _clean(r.get("p_throws")),
                 "result": _clean(r.get("events")),
                 "date": str(date)[:10] if date is not None else None,

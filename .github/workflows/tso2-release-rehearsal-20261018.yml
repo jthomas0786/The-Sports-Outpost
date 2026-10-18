@@ -1,0 +1,45 @@
+# Safe release rehearsal: never writes to main.
+# Merge staging into a candidate based on current production, preserving
+# nonconflicting main-only edits and favoring TSO 2.0 on conflict hunks.
+name: TSO 2.0 Epic Battle release rehearsal
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - .github/workflows/tso2-release-rehearsal-20261018.yml
+permissions:
+  contents: write
+jobs:
+  prepare-production-candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Merge staging changes into the isolated release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main tso-2.0-restructure release/tso2-epic-battle-prod-candidate-20261018
+          git checkout -B release/tso2-epic-battle-prod-candidate-20261018 origin/release/tso2-epic-battle-prod-candidate-20261018
+          git config user.name 'tso2-release-bot'
+          git config user.email 'tso2-release-bot@users.noreply.github.com'
+          if ! git merge --no-commit --no-ff -X theirs origin/tso-2.0-restructure; then
+            git status --short
+            echo 'Staging and main have merge conflicts requiring review; main was NOT touched.'
+            exit 1
+          fi
+          if git ls-files -u | grep -q .; then
+            git ls-files -u
+            echo 'Unresolved conflict entries. No release candidate was pushed.'
+            exit 1
+          fi
+          test -s tso2/assets/music/fscm-productions-epic-battle.mp3
+          echo '1af8ff7092888753ecf00bc592542906b422e1c876af45adc83a469cbdfcd64a  tso2/assets/music/fscm-productions-epic-battle.mp3' | sha256sum --check
+          node --check tso2/simulations.js
+          node --check tso2/simulations-soundtrack.js
+          node --check tso2/simulations-video-export.js
+          git commit -m 'release(tso2): reconcile approved staging with current main'
+          git push origin HEAD:release/tso2-epic-battle-prod-candidate-20261018
+          echo 'Only the isolated production candidate was updated.'

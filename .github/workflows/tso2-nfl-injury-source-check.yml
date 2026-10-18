@@ -1,0 +1,28 @@
+name: TSO 2.0 NFL Injury Gate Checks
+on:
+  workflow_dispatch:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'sports/nfl/sim/availability.js'
+      - 'sports/nfl/sim/injury-audit.js'
+      - 'sports/nfl/sim/availability-selftest.mjs'
+      - 'scripts/tso2-nfl-injury-source-health.mjs'
+      - '.github/workflows/tso2-nfl-injury-source-check.yml'
+permissions:
+  contents: read
+jobs:
+  availability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: |
+          node --check sports/nfl/sim/availability.js
+          node --check sports/nfl/sim/injury-audit.js
+          node sports/nfl/sim/availability-selftest.mjs
+      - name: Real 2026 injury source validation
+        run: node scripts/tso2-nfl-injury-source-health.mjs

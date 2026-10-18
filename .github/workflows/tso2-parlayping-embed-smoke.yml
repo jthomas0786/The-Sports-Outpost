@@ -1,0 +1,111 @@
+name: TSO2 Parlay Ping In-Tab Smoke
+on:
+  push:
+    branches: [tso-2.0-restructure]
+    paths:
+      - 'tso2/pages.js'
+      - 'tso2/app.js'
+      - 'tso2/styles.css'
+      - 'tso2/index.html'
+      - 'tso2/parlayping-integration-selftest.mjs'
+      - '.github/workflows/tso2-parlayping-embed-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  integrated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-2.0-restructure
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check browser JS and in-tab feature coverage
+        run: |
+          node --check tso2/pages.js
+          node --check tso2/app.js
+          node tso2/parlayping-integration-selftest.mjs
+      - name: Check production TSO and real Render-backed routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          tso="https://thesportsoutpost.com"
+          pp="https://parlayping.thesportsoutpost.com"
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$tso/" -o /tmp/tso-home.html
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$tso/pages.js" -o /tmp/tso-pages.js
+          echo "TSO / bytes $(wc -c </tmp/tso-home.html), pages.js bytes $(wc -c </tmp/tso-pages.js)"
+          grep -Fq 'data-route="parlays"' /tmp/tso-home.html || { echo 'TSO home missing Parlay Ping nav'; exit 1; }
+          grep -Fq 'data-parlayping-frame' /tmp/tso-pages.js || { echo 'TSO pages.js missing live Parlay Ping workspace'; head -c 300 /tmp/tso-pages.js; exit 1; }
+          grep -Fq 'tso_embed=1' /tmp/tso-pages.js || { echo 'TSO pages.js missing embed-mode parameter'; exit 1; }
+          # Framing must not be blocked by the independent Render domain.
+          headers="$(curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSI "$pp/")"
+          if echo "$headers" | grep -Ei '^x-frame-options: *(DENY|SAMEORIGIN)' ; then
+            echo 'Parlay Ping disallows the TSO inline application iframe'; exit 1
+          fi
+          if echo "$headers" | grep -Ei "content-security-policy:.*frame-ancestors.*'none'" ; then
+            echo 'Parlay Ping CSP disallows the TSO embedded application'; exit 1
+          fi
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$pp/tso2-shell.js" -o /tmp/parlay-pp-shell.js
+          grep -Fq 'inTsoWorkspace' /tmp/parlay-pp-shell.js
+          curl --retry 3 --retry-delay 2 --connect-timeout 10 --max-time 40 -fsSL "$pp/healthz" -o /tmp/parlay-health.json
+          node -e 'const x=require("/tmp/parlay-health.json");if(x.runtime!=="render-node")process.exit(1)'
+          echo 'TSO2 real Parlay Ping in-tab feature wiring and backend: PASS'
+
+      - name: Verify latest broadcast theme is served by both public domains
+        shell: bash
+        run: |
+          set -euo pipefail
+          tso="https://thesportsoutpost.com"
+          pp="https://parlayping.thesportsoutpost.com"
+          nocache="$(date +%s)"
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$tso/pages.js?qa=$nocache" -o /tmp/live-tso-pages.js
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$tso/styles.css?qa=$nocache" -o /tmp/live-tso-styles.css
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$tso/app.js?qa=$nocache" -o /tmp/live-tso-app.js
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-submit-broadcast.css?qa=$nocache" -o /tmp/live-pp-broadcast.css
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-shell.js?qa=$nocache" -o /tmp/live-pp-shell.js
+          curl --retry 2 --connect-timeout 10 --max-time 35 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-profile-broadcast.css?qa=$nocache" -o /tmp/live-pp-profile.css
+          echo "Live asset sizes:"
+          wc -c /tmp/live-tso-pages.js /tmp/live-tso-styles.css /tmp/live-tso-app.js /tmp/live-pp-broadcast.css /tmp/live-pp-shell.js
+          grep -Fq 'data-parlayping-page="/profile">MY PARLAYS' /tmp/live-tso-pages.js || { echo 'STALE TSO: production pages.js lacks new My Parlays tab'; exit 1; }
+          if grep -Fq 'data-parlayping-page="/trending"' /tmp/live-tso-pages.js || grep -Fq 'data-parlayping-page="/profile?tab=community"' /tmp/live-tso-pages.js || grep -Fq 'data-parlayping-page="/account.html"' /tmp/live-tso-pages.js; then
+            echo 'STALE TSO: duplicate Explore, Community or Account tabs remain in production'; exit 1
+          fi
+          grep -Fq 'PARLAY PING — TSO 2.0 BROADCAST PARITY' /tmp/live-tso-styles.css || { echo 'STALE TSO: production styles.css lacks orange/gold broadcast parity'; exit 1; }
+          grep -Fq 'tso2-parlayping-size' /tmp/live-tso-app.js || { echo 'STALE TSO: production app.js lacks auto-height iframe'; exit 1; }
+          grep -Fq -- '--pp-broadcast-orange:#ff4d1c' /tmp/live-pp-broadcast.css || { echo 'STALE PP: Render missing orange broadcast theme'; exit 1; }
+          grep -Fq 'tso2-parlayping-size' /tmp/live-pp-shell.js || { echo 'STALE PP: Render missing iframe auto-height message'; exit 1; }
+          grep -Fq -- '#ff4d1c' /tmp/live-pp-profile.css || { echo 'STALE PP: My Parlays still uses old profile theme'; exit 1; }
+          grep -Fq 'Only genuine Parlay Ping functions remain inside TSO' /tmp/live-tso-styles.css || { echo 'STALE TSO: simplified tool nav CSS not deployed'; exit 1; }
+          echo 'LIVE PARLAY PING TSO 2.0 THEME: VERIFIED on public origin'
+
+      - name: Verify live TSO Props to Parlay Ping betslip Builder deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          tso="https://thesportsoutpost.com"
+          pp="https://parlayping.thesportsoutpost.com"
+          bust="$(date +%s)"
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$tso/app.js?qa=$bust" -o /tmp/tso-betslip-app.js
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$tso/pages.js?qa=$bust" -o /tmp/tso-betslip-pages.js
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-props-builder.js?qa=$bust" -o /tmp/pp-tso-props-builder.js
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-props-builder.css?qa=$bust" -o /tmp/pp-tso-props-builder.css
+          curl --retry 2 --max-time 40 -fsSL -H 'Cache-Control: no-cache' "$pp/tso2-builder-broadcast.css?qa=$bust" -o /tmp/pp-tso-builder.css
+          grep -Fq 'tso2.pp.props.draft.v1.' /tmp/tso-betslip-app.js || { echo 'TSO origin still serving old +PARLAY code'; exit 1; }
+          grep -Fq 'tso2-parlayping-draft-sync' /tmp/tso-betslip-app.js || { echo 'TSO iframe betslip handoff not published'; exit 1; }
+          grep -Fq 'BETSLIP BUILDER' /tmp/tso-betslip-pages.js || { echo 'TSO betslip tab not published'; exit 1; }
+          grep -Fq '/api/tso-build' /tmp/pp-tso-props-builder.js || { echo 'Parlay Ping has no direct prop builder API integration'; exit 1; }
+          grep -Fq '#ff4d1c' /tmp/pp-tso-props-builder.css || { echo 'Parlay Ping TSO draft missing native broadcast theme'; exit 1; }
+          grep -Fq '#ffd84d' /tmp/pp-tso-builder.css || { echo 'Parlay Ping TSO Builder missing native broadcast theme'; exit 1; }
+          grep -Fq 'const TSO_PP_MAX_LEGS=25' /tmp/tso-betslip-app.js || { echo 'STALE TSO: 25-leg draft limit not deployed'; exit 1; }
+          grep -Fq 'const TSO_PP_MAX_LEGS=25' /tmp/pp-tso-props-builder.js || { echo 'STALE PP: 25-leg interface limit not deployed'; exit 1; }
+          echo 'Live TSO-to-Parlay Ping betslip handoff files: VERIFIED'
+
+      - name: Verify live TSO exact-props JSON feed required for Parlay Ping builds
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --retry 2 --retry-delay 2 --max-time 60 -fsSL -H 'Accept: application/json' 'https://thesportsoutpost.com/api/props?league=all' -o /tmp/pp-live-tso-props.json
+          node -e 'const fs=require("fs");const data=JSON.parse(fs.readFileSync("/tmp/pp-live-tso-props.json","utf8"));if(!Array.isArray(data.rows))throw Error("TSO prop feed did not provide a rows array");const keys=data.rows.filter(r=>r&&typeof r.key==="string"&&r.player&&r.market);console.log("TSO exact-prop feed available: "+keys.length+" candidate selections");'
