@@ -26,3 +26,18 @@ jobs:
           curl --fail --location --retry 2 --max-time 70 --silent --show-error "$host/assets/music/fscm-productions-epic-battle.mp3?probe=$(date +%s)" -o "$tmp/music.mp3"
           printf '1af8ff7092888753ecf00bc592542906b422e1c876af45adc83a469cbdfcd64a  %s\n' "$tmp/music.mp3" | sha256sum -c -
           echo 'PASS: staging HTML, exporter, soundtrack, and exact approved MP3.'
+      - name: Verify live production routes and original soundtrack
+        run: |
+          set -euo pipefail
+          host=https://thesportsoutpost.com
+          tmp=$(mktemp -d)
+          curl --fail --location --retry 2 --max-time 45 --silent --show-error "$host/?probe=$(date +%s)" -o "$tmp/index"
+          grep -q 'simulations-soundtrack.js?v=20261018-fscm-epic-battle-v3' "$tmp/index"
+          grep -q 'simulations-video-export.js?v=20261018-fscm-epic-battle-v9' "$tmp/index"
+          curl --fail --location --retry 2 --max-time 45 --silent --show-error "$host/simulations-soundtrack.js?probe=$(date +%s)" -o "$tmp/sound.js"
+          grep -q 'fscm-productions-epic-battle.mp3' "$tmp/sound.js"
+          curl --fail --location --retry 2 --max-time 45 --silent --show-error "$host/simulations-video-export.js?probe=$(date +%s)" -o "$tmp/export.js"
+          grep -q 'await sound.load(audioContext)' "$tmp/export.js"
+          curl --fail --location --retry 2 --max-time 70 --silent --show-error "$host/assets/music/fscm-productions-epic-battle.mp3?probe=$(date +%s)" -o "$tmp/music.mp3"
+          printf '1af8ff7092888753ecf00bc592542906b422e1c876af45adc83a469cbdfcd64a  %s\n' "$tmp/music.mp3" | sha256sum -c -
+          echo 'PASS: production HTML, exporter, soundtrack, exact approved MP3.'
