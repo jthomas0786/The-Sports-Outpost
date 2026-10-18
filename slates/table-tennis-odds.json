@@ -3,26 +3,25 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "TABLE_TENNIS",
-    "fetchedAt": "2026-10-18T11:03:22.437Z",
+    "fetchedAt": "2026-10-18T15:52:39.880Z",
     "sportKeys": [
       "table_tennis"
     ],
     "bySportKey": [
       {
         "sportKey": "table_tennis",
-        "rawRows": 170,
+        "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": true,
         "discoveredMarkets": null,
-        "coverage": null
+        "coverage": null,
+        "error": "530 <none>: {\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-1xxx-errors/error-1033/\",\"title\":\"Error 1033: Cloudflare Tunnel error\",\"status\":530,\"detail\":\"The host is configured as a Cloudflare Tunnel, but Cloudflare is currently unable to reach it.\",\"instance\":\"a4c8b6210fb681b5\",\"error_code\":1033,\"error_name\":\"tunnel_error\",\"error_category\":\"config\",\"ray_id\":\"a4c8b6210fb681b5\",\"timestamp\":\"2026-10-18T15:52:39Z\",\"zone\":\"parlay-api.com\",\"cloudflare_error\":true,\"retryable\":true,\"retry_after\":120,\"owner_action_required\":true,\"what_you_should_do\":\"**Wait and retry.** The tunnel may be temporarily disconnected. Try again in a few minutes.\",\"footer\":\"This error w"
       }
     ],
     "sportsbookRows": 0,
     "books": [],
     "markets": [],
-    "rawMarketKeys": [
-      "player_moneyline"
-    ],
+    "rawMarketKeys": [],
     "probabilityPolicy": "Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied. No proprietary model is claimed for this snapshot.",
     "liveGrading": "not-connected",
     "note": "Current TABLE_TENNIS player markets for ParlayPing. Started events must not be graded from this pregame snapshot."
