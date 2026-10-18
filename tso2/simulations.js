@@ -385,7 +385,7 @@ function sceneFrame(event,progress,game){
  const scrimmage=direction===1?event.yard:100-event.yard;
  const world=u=>simClamp(scrimmage+direction*u,0,100);
  const off=[],def=[];
- const pass=event.kind==='PASS',kick=event.kind==='FIELD GOAL'||event.kind==='PUNT',qbCarry=event.kind==='RUSH'&&event.carrier===event.passer;
+ const pass=event.kind==='PASS',kick=['FIELD GOAL','PUNT','KICKOFF','KICK OFF','FREE KICK'].includes(event.kind),qbCarry=event.kind==='RUSH'&&event.carrier===event.passer;
  const targetSlot=Number.isInteger(event.targetSlot)?event.targetSlot:1;
  const qbDrop=pass?simEase(p/.30)*3:simEase(p/.24)*.6;
  const qb={id:'qb',role:'QB',team:event.side,u:kick?-6:qbCarry?simMix(-4.5,event.gain,simEase((p-.3)/.65)):-4.5-qbDrop,y:.5,name:event.passer||'Quarterback'};

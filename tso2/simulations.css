@@ -198,3 +198,54 @@
 .tso-sim-injury-row .is-out{color:#ff9c86}.tso-sim-injury-row .is-questionable{color:#f1d283}
 .tso-sim-injury-audit>p{font-size:11px;color:#a2bcb5;line-height:1.55;margin:11px 0 0}
 @media(max-width:750px){.tso-sim-injury-grid{grid-template-columns:1fr}}
+
+
+/* TSO replay event broadcast overlays: same charcoal / orange / gold as TSO 2.0. */
+.tso-sim-event-overlay[hidden]{display:none!important}
+.tso-sim-event-overlay{
+ position:absolute;z-index:6;pointer-events:none;
+ top:49%;left:50%;transform:translate(-50%,-50%);
+ width:min(88%,530px);min-height:125px;
+ padding:15px 22px 17px;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ text-align:center;gap:5px;
+ color:#fff9ea;background:linear-gradient(118deg,#12151feF,#2a1e1dea 60%,#12141eee);
+ border:2px solid #ff672e;border-radius:14px;
+ box-shadow:0 19px 55px #000b,0 0 37px #ff531e3b;
+ animation:tso-sim-event-pop .28s cubic-bezier(.16,1,.3,1) both;
+}
+.tso-sim-event-overlay.is-score{border-color:#ffd14d;box-shadow:0 22px 70px #000c,0 0 48px #ffbd3570}
+.tso-sim-event-overlay.is-defense,.tso-sim-event-overlay.is-turnover{border-color:#77caff}
+.tso-sim-event-overlay.is-warning{border-color:#ffbd58}
+.tso-sim-event-overlay.is-special{border-color:#ff8144}
+.tso-sim-event-top{display:flex;gap:9px;justify-content:center;align-items:center;max-width:100%}
+.tso-sim-event-top .tso-sim-score-logo-wrap{
+ width:38px;height:38px;min-width:38px;
+ border:none;background:transparent;box-shadow:none;padding:0;
+}
+.tso-sim-event-top .tso-sim-score-logo{width:100%;height:100%;object-fit:contain}
+.tso-sim-event-team{font-size:12px;letter-spacing:.11em;color:#ffdb84;font-weight:900;text-transform:uppercase;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:210px}
+.tso-sim-event-label{font-size:9px;letter-spacing:.1em;font-weight:850;color:#aeb6c3;
+ border-left:1px solid #7778;padding-left:10px}
+.tso-sim-event-overlay>strong{font-size:clamp(25px,3.4vw,44px);line-height:1;font-weight:1000;
+ color:#fff;letter-spacing:-.02em;text-shadow:0 2px 12px #0009}
+.tso-sim-event-overlay.is-score>strong{color:#ffda5b}
+.tso-sim-event-overlay.is-warning>strong{color:#ffba67}
+.tso-sim-event-overlay>small{font-size:10px;letter-spacing:.06em;font-weight:850;color:#cdd3de}
+.tso-sim-event-actor{font-size:clamp(12px,1.6vw,19px);color:#fff;font-weight:950}
+@keyframes tso-sim-event-pop{
+ from{opacity:0;transform:translate(-50%,-42%) scale(.88)}
+ to{opacity:1;transform:translate(-50%,-50%) scale(1)}
+}
+@media(max-width:700px){
+ .tso-sim-event-overlay{width:91%;padding:9px 8px;min-height:90px;gap:3px;border-radius:9px}
+ .tso-sim-event-overlay>strong{font-size:clamp(19px,4vw,26px)}
+ .tso-sim-event-overlay>small{font-size:8px}
+ .tso-sim-event-actor{font-size:12px}
+ .tso-sim-event-top .tso-sim-score-logo-wrap{width:27px;height:27px;min-width:27px}
+ .tso-sim-event-team{max-width:115px;font-size:9px}
+ .tso-sim-event-label{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+ .tso-sim-event-overlay{animation:none}
+}
