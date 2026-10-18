@@ -13,8 +13,7 @@ const pct=v=>v!==null&&v!==undefined&&v!==''&&Number.isFinite(Number(v))?number(
 const teamCode=v=>String(v||'').toUpperCase().replace('LAR','LA').replace('JAC','JAX');
  const nflLogoUrl=team=>{
   const abbr=teamCode(team?.abbr),code=abbr==='LA'?'lar':abbr==='WSH'?'wsh':abbr.toLowerCase();
-  return team?.logo&&/^https:\/\//i.test(String(team.logo))?String(team.logo):
-   'https://a.espncdn.com/i/teamlogos/nfl/500/'+encodeURIComponent(code)+'.png';
+  return '/api/tso2-nfl-logo?team='+encodeURIComponent(abbr);
  };
  const logoMarkup=team=>'<span class="tso-sim-score-logo-wrap"><img class="tso-sim-score-logo" src="'+esc(nflLogoUrl(team))+'" alt="'+esc(team.abbr)+' team logo" loading="eager" onerror="this.hidden=true;this.parentElement.classList.add(\'is-missing\')"><span class="tso-sim-score-logo-fallback">'+esc(team.abbr)+'</span></span>';
 const teamLabel=t=>esc(t?.name||t?.abbr||'TEAM');
