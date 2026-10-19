@@ -3,7 +3,7 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-19T04:42:55.806Z",
+    "fetchedAt": "2026-10-19T13:13:25.625Z",
     "sportKeys": [
       "esports_cs2",
       "esports_valorant",
@@ -17,7 +17,18 @@
         "paidPropsCall": false,
         "skipReason": "discovery-error",
         "error": "This operation was aborted",
-        "discoveredMarkets": null,
+        "discoveredMarkets": [
+          "player_kills_on_maps_1_2",
+          "player_headshots_on_maps_1_2",
+          "player_shots_on_goal",
+          "player_maps_1_2_kills",
+          "player_maps_1_2_headshots",
+          "player_map_3_kills",
+          "player_map_3_headshots",
+          "spreads",
+          "moneyline",
+          "totals"
+        ],
         "coverage": null
       },
       {
@@ -33,10 +44,8 @@
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "discovery-error",
-        "error": "This operation was aborted",
-        "discoveredMarkets": null,
-        "coverage": null
+        "skipReason": "no-relevant-markets",
+        "discoveredMarkets": []
       }
     ],
     "sportsbookRows": 0,
