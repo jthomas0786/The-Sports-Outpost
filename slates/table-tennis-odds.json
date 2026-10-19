@@ -3,25 +3,26 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "TABLE_TENNIS",
-    "fetchedAt": "2026-10-18T20:42:48.018Z",
+    "fetchedAt": "2026-10-19T04:42:57.186Z",
     "sportKeys": [
       "table_tennis"
     ],
     "bySportKey": [
       {
         "sportKey": "table_tennis",
-        "rawRows": 0,
+        "rawRows": 39,
         "acceptedRows": 0,
         "paidPropsCall": true,
         "discoveredMarkets": null,
-        "coverage": null,
-        "error": "502 Bad Gateway: {\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502/\",\"title\":\"Error 502: Bad gateway\",\"status\":502,\"detail\":\"The origin web server returned an invalid or incomplete response to Cloudflare. This typically indicates the origin is overloaded or misconfigured.\",\"instance\":\"a4ca5f210919cb46\",\"error_code\":502,\"error_name\":\"origin_bad_gateway\",\"error_category\":\"origin\",\"ray_id\":\"a4ca5f210919cb46\",\"timestamp\":\"2026-10-18T20:42:48Z\",\"zone\":\"parlay-api.com\",\"cloudflare_error\":true,\"retryable\":true,\"retry_after\":60,\"owner_action_required\":true,\"what_you_should_do\":\"**Wait and retry.** Back off for at least 60 seconds. If the error persis"
+        "coverage": null
       }
     ],
     "sportsbookRows": 0,
     "books": [],
     "markets": [],
-    "rawMarketKeys": [],
+    "rawMarketKeys": [
+      "player_moneyline"
+    ],
     "probabilityPolicy": "Two-sided sportsbook prices may be de-vigged by ParlayPing. Single-sided prices remain market-implied. No proprietary model is claimed for this snapshot.",
     "liveGrading": "not-connected",
     "note": "Current TABLE_TENNIS player markets for ParlayPing. Started events must not be graded from this pregame snapshot."
