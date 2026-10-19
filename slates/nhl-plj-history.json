@@ -1,10 +1,10 @@
 {
   "version": 1,
-  "updatedAt": "2026-10-18T13:28:33.083Z",
+  "updatedAt": "2026-10-19T01:23:43.508Z",
   "season": "2026-27",
   "summary": {
     "tracked": 136,
-    "completed": 68,
+    "completed": 69,
     "pljLive": 1,
     "pljCashes": 0,
     "lateCashes": 4,
@@ -31,10 +31,10 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 7,
       "createdAt": "2026-10-18T09:30:40.552Z",
-      "updatedAt": "2026-10-18T13:28:33.083Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-18T09:30:40.552Z",
+      "updatedAt": "2026-10-19T01:23:43.508Z",
+      "status": "in",
+      "lastState": "NEEDS_RALLY",
+      "lastStateAt": "2026-10-19T01:23:43.508Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
@@ -57,15 +57,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-19T01:23:43.508Z",
+          "code": "NEEDS_RALLY",
+          "period": 2,
+          "clock": "9:02",
+          "score": {
+            "away": 1,
+            "home": 0
+          },
+          "margin": 1,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 118,
       "latestBook": "bet365",
       "lastScore": {
-        "away": 0,
+        "away": 1,
         "home": 0
       },
-      "lastMargin": 0
+      "lastMargin": 1
     },
     {
       "gameId": "401892533",
@@ -86,19 +98,22 @@
       "initialBook": "Pinnacle",
       "sportsbookCount": 7,
       "createdAt": "2026-10-18T09:30:40.552Z",
-      "updatedAt": "2026-10-18T13:28:33.083Z",
-      "status": "pre",
-      "lastState": "UPCOMING",
-      "lastStateAt": "2026-10-18T09:30:40.552Z",
+      "updatedAt": "2026-10-19T01:23:43.508Z",
+      "status": "post",
+      "lastState": "MISSED_ONE",
+      "lastStateAt": "2026-10-19T01:23:43.508Z",
       "sawPljWatch": false,
       "sawPljLive": false,
       "sawBackdoorDanger": false,
       "pljCash": false,
       "lateCash": false,
       "backdoored": false,
-      "liveOutcome": null,
-      "outcome": null,
-      "finalScore": null,
+      "liveOutcome": "MISSED_ONE",
+      "outcome": "MISSED_ONE",
+      "finalScore": {
+        "away": 1,
+        "home": 2
+      },
       "decisiveGoal": null,
       "transitions": [
         {
@@ -112,15 +127,27 @@
           },
           "margin": 0,
           "goaliePulled": false
+        },
+        {
+          "at": "2026-10-19T01:23:43.508Z",
+          "code": "MISSED_ONE",
+          "period": 3,
+          "clock": "0:00",
+          "score": {
+            "away": 1,
+            "home": 2
+          },
+          "margin": 1,
+          "goaliePulled": false
         }
       ],
       "latestPrice": 138,
       "latestBook": "Pinnacle",
       "lastScore": {
-        "away": 0,
-        "home": 0
+        "away": 1,
+        "home": 2
       },
-      "lastMargin": 0
+      "lastMargin": 1
     },
     {
       "gameId": "401892531",
