@@ -3,7 +3,7 @@
     "source": "parlayapi",
     "sample": false,
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-19T13:13:25.625Z",
+    "fetchedAt": "2026-10-19T22:22:16.103Z",
     "sportKeys": [
       "esports_cs2",
       "esports_valorant",
@@ -16,18 +16,13 @@
         "acceptedRows": 0,
         "paidPropsCall": false,
         "skipReason": "discovery-error",
-        "error": "This operation was aborted",
+        "error": "502 Bad Gateway: {\"type\":\"https://developers.cloudflare.com/support/troubleshooting/http-status-codes/cloudflare-5xx-errors/error-502/\",\"title\":\"Error 502: Bad gateway\",\"status\":502,\"detail\":\"The origin web server returned an invalid or incomplete response to Cloudflare. This typically indicates the origin is overloaded or misconfigured.\",\"instance\":\"a4d32df4fbf64de6\",\"error_code\":502,\"error_name\":\"origin_bad_gateway\",\"error_category\":\"origin\",\"ray_id\":\"a4d32df4fbf64de6\",\"timestamp\":\"2026-10-19T22:22:07Z\",\"zone\":\"parlay-api.com\",\"cloudflare_error\":true,\"retryable\":true,\"retry_after\":60,\"owner_action_required\":true,\"what_you_should_do\":\"**Wait and retry.** Back off for at least 60 seconds. If the error persis",
         "discoveredMarkets": [
           "player_kills_on_maps_1_2",
           "player_headshots_on_maps_1_2",
-          "player_shots_on_goal",
           "player_maps_1_2_kills",
           "player_maps_1_2_headshots",
-          "player_map_3_kills",
-          "player_map_3_headshots",
-          "spreads",
-          "moneyline",
-          "totals"
+          "player_shots_on_goal"
         ],
         "coverage": null
       },
@@ -44,8 +39,35 @@
         "rawRows": 0,
         "acceptedRows": 0,
         "paidPropsCall": false,
-        "skipReason": "no-relevant-markets",
-        "discoveredMarkets": []
+        "skipReason": "no-sportsbook-coverage",
+        "discoveredMarkets": [
+          "player_map_1_kills",
+          "player_kills_on_map_1",
+          "player_assists",
+          "player_points",
+          "player_map_1_kills_combo",
+          "player_maps_1_3_kills"
+        ],
+        "coverage": [
+          {
+            "bookmaker": "prizepicks",
+            "title": "PrizePicks",
+            "freshRows": 2354,
+            "apiVisibleRows": 177,
+            "marketCount": 3,
+            "latestUpdate": "2026-10-19T22:21:22.000Z",
+            "status": "api_visible"
+          },
+          {
+            "bookmaker": "underdog",
+            "title": "Underdog Fantasy",
+            "freshRows": 3559,
+            "apiVisibleRows": 237,
+            "marketCount": 3,
+            "latestUpdate": "2026-10-19T22:21:51.000Z",
+            "status": "api_visible"
+          }
+        ]
       }
     ],
     "sportsbookRows": 0,
