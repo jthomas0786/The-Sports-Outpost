@@ -3,20 +3,20 @@
   "meta": {
     "source": "parlayapi-pinnacle",
     "sport": "ESPORTS",
-    "fetchedAt": "2026-10-19T22:37:40.290Z",
+    "fetchedAt": "2026-10-20T05:14:20.433Z",
     "market": "matchWinner",
-    "rows": 0,
-    "estimatedCreditsUsed": 1,
+    "rows": 2,
+    "estimatedCreditsUsed": 2,
     "probabilityPolicy": "Only complete two-sided Pinnacle h2h markets are accepted and de-vigged. Started events are never settled from this snapshot.",
     "settlementConnected": false,
     "diagnostics": [
       {
         "sportKey": "esports_cs2",
         "game": "CS2",
-        "eventCount": 5,
-        "futureEvents": 5,
+        "eventCount": 16,
+        "futureEvents": 16,
         "oddsCalled": true,
-        "oddsRows": 0
+        "oddsRows": 2
       },
       {
         "sportKey": "esports_valorant",
@@ -29,9 +29,9 @@
       {
         "sportKey": "esports_dota2",
         "game": "DOTA2",
-        "eventCount": 0,
-        "futureEvents": 0,
-        "oddsCalled": false,
+        "eventCount": 2,
+        "futureEvents": 2,
+        "oddsCalled": true,
         "oddsRows": 0
       },
       {
@@ -44,5 +44,40 @@
       }
     ]
   },
-  "rows": []
+  "rows": [
+    {
+      "eventId": "066381161f83f174",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-21T18:00:00.000Z",
+      "homeTeam": "BIG Academy",
+      "awayTeam": "Playing Ducks",
+      "selection": "BIG Academy",
+      "side": "home",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": -881,
+      "impliedProbability": 0.8980632008154944,
+      "fairProbability": 0.8184550356982911,
+      "snapshotTime": "2026-10-20T01:22:19.000Z"
+    },
+    {
+      "eventId": "066381161f83f174",
+      "sportKey": "esports_cs2",
+      "game": "CS2",
+      "commenceTime": "2026-10-21T18:00:00.000Z",
+      "homeTeam": "BIG Academy",
+      "awayTeam": "Playing Ducks",
+      "selection": "Playing Ducks",
+      "side": "away",
+      "market": "matchWinner",
+      "book": "Pinnacle",
+      "bookKey": "pinnacle",
+      "price": 402,
+      "impliedProbability": 0.199203187250996,
+      "fairProbability": 0.18154496430170886,
+      "snapshotTime": "2026-10-20T01:22:19.000Z"
+    }
+  ]
 }
