@@ -98,7 +98,8 @@ async function verifiedNflSlate(){
     };
    });
   return [{id:String(match.id),away:match.away,home:match.home,startTime:match.startTime,
-   sourceGameId:String(g.gameId||''),players}];
+   sourceGameId:String(g.gameId||''),venue:g.venue?.name||match.venue||null,
+   indoor:typeof g.venue?.indoor==='boolean'?g.venue.indoor:null,players}];
  });
  return {source:'TSO existing NFL anytime-TD model; 2025 production baseline, 2026 rosters/injury context',
   generatedAt:slate.generatedAt,ageHours:Math.round(ageHours*10)/10,modelFresh,modelAvailable:modelFresh,
