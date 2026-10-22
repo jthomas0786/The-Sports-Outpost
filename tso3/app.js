@@ -27,7 +27,7 @@ const bookOf=r=>String(r.book||r.sportsbook||r.bookName||'');
 const gameKey=g=>String(g.id||g.gameId||'');
 const rowKey=r=>[leagueOf(r),r.playerId||nameOf(r),r.team,marketOf(r),String(r.side||''),r.line,r.price,r.book].join('|');
 const escapeSelector=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'');
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map()};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map()};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
@@ -138,7 +138,7 @@ function gamesMarkup(limit){
 function rowMarkup(r,i){
  const sr=signalOf(r),wr=windowRate(r),m=exactModel(r);
  const saved=state.saved.has(rowKey(r));
- return '<tr data-row="'+i+'"><td><strong>'+text(nameOf(r))+'</strong><small>'+text(r.team||'—')+' · '+text(r.position||state.sport.toUpperCase())+'</small></td>'
+ return '<tr data-row-key="'+text(rowKey(r))+'"><td><strong>'+text(nameOf(r))+'</strong><small>'+text(r.team||'—')+' · '+text(r.position||state.sport.toUpperCase())+'</small></td>'
   +'<td><strong>'+text(marketOf(r)||'—')+'</strong><small>'+text((r.side||'Over').toUpperCase())+' '+text(lineOf(r)===null?'':lineOf(r))+'</small></td>'
   +'<td><span class="signal"><span class="signal-track"><i style="width:'+(sr===null?0:sr)+'%"></i></span><span>'+(sr===null?'—':Math.round(sr))+'</span></span></td>'
   +'<td><span class="rate-chip '+(wr?'':'pending')+'">'+(wr?Math.round(wr.rate)+'%':'—')+'</span><small>'+(wr?wr.hits+'/'+wr.n+' OBSERVED':'NO VERIFIED LOG')+'</small></td>'
@@ -148,6 +148,7 @@ function rowMarkup(r,i){
 }
 function tableMarkup(list,limit=state.maxRows){
  const visible=list.slice(0,limit);
+ visible.forEach(r=>state.displayedRows.set(rowKey(r),r));
  if(!state.props)return empty('Props feed not connected',state.propsError||'No accessible verified prop source yet.');
  if(!list.length)return empty('No matching verified props','Change the sport, market or player filter. We do not manufacture missing selections.');
  return '<div class="table-shell"><div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER / TEAM</th><th>MARKET & EXACT LINE</th><th>TSO SIGNAL</th><th>'+text(state.window.toUpperCase())+' HIT RATE</th><th>MODEL %</th><th>BEST OBSERVED QUOTE</th><th>SAVE</th></tr></thead>'
@@ -228,6 +229,7 @@ function pageSaved(){
  return section('Saved research','Stored locally in this browser · not a sportsbook betslip')+'<div class="table-shell"><div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>PROP</th><th>LINE</th><th>BOOK</th><th>QUOTE AT SAVE</th><th>REMOVE</th></tr></thead><tbody>'+rows.map((r,i)=>'<tr><td><strong>'+text(r.name)+'</strong></td><td>'+text(r.market)+'</td><td>'+text(r.side||'Over')+' '+text(r.line??'—')+'</td><td>'+text(r.book||'—')+'</td><td>'+text(signed(r.price))+'</td><td><button class="save-row active" data-unsave="'+text(r.key)+'">★</button></td></tr>').join('')+'</tbody></table></div></div>';
 }
 function render(){
+ state.displayedRows.clear();
  renderNav();renderMetrics();renderFilters();
  let body='';
  if(state.page==='overview')body=overview();
@@ -300,8 +302,8 @@ document.addEventListener('click',e=>{
  const tool=e.target.closest('[data-tool]');if(tool){state.page='cheatsheets';state.tool=tool.dataset.tool;history.replaceState(null,'','#/'+state.sport+'/cheatsheets');render();return}
  const back=e.target.closest('[data-back]');if(back){if(back.dataset.back==='game')state.game=null;else state.tool=null;render();return}
  const more=e.target.closest('[data-more]');if(more){state.maxRows+=60;render();return}
- const targetRow=e.target.closest('[data-row]');
- if(targetRow){const r=filteredRows()[Number(targetRow.dataset.row)];if(e.target.closest('[data-save]'))save(r);else openDrawer(r);return}
+ const targetRow=e.target.closest('[data-row-key]');
+ if(targetRow){const r=state.displayedRows.get(targetRow.dataset.rowKey);if(e.target.closest('[data-save]'))save(r);else openDrawer(r);return}
  const remove=e.target.closest('[data-unsave]');if(remove){state.saved.delete(remove.dataset.unsave);remember();render();return}
  if(e.target.closest('#drawerSave'))save(state.selected);
  if(e.target.closest('#drawerClose2'))closeDrawer();
