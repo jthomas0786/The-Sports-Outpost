@@ -45,7 +45,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaOddsSnapshot:null,nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
@@ -224,7 +224,7 @@ function toolCard(pair,i){
  return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+['◈','⌁','▤','◇','▦','◉'][i%6]+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
- if(state.sport==='nba'&&/^(Player Form|Matchup vs Position)$/.test(name))return Boolean(state.nbaResearch?.players);
+ if(state.sport==='nba'&&/^(Player Form|Matchup vs Position|Pace & Possessions|Minutes & Rotation|Usage & Touches|Team Stats|Injury Impact|Game Projections)$/.test(name))return name==='Injury Impact'?Boolean(state.nbaInjuries?.entries):Boolean(state.nbaResearch?.players);
  if(/First Basket/i.test(name))return state.sport==='nba'&&Boolean(state.live);
  if(/Player Form|Player Trends|Skater Statistics|Player Trends|Home Run Matchups|Shots on Goal|Receiving Matchups|Touchdown Opportunities/i.test(name))return Boolean(state.props);
  if(/Team Statistics|Team Stats|Game Projections|Team Matchups|Game Projections/i.test(name))return Boolean(state.live);
@@ -262,6 +262,11 @@ function toolDetail(){
   const lab=window.TSO3NbaLab;
   const ctx={sport:state.sport,tool:state.tool,games:state.live?.games||[],props:state.props,models:state.nbaModels,research:state.nbaResearch,oddsSnapshot:state.nbaOddsSnapshot,error:state.nbaPending?'Retrieving verified player data…':state.nbaError};
   return lab?'<div id="nbaLabSlot">'+lab.render(ctx,state.tool)+'</div>':empty('NBA research module unavailable','The NBA analytics script did not load. Refresh the preview.');
+ }
+ if(state.sport==='nba'&&window.TSO3NbaDepth?.tools?.includes(state.tool)){
+  const depth=window.TSO3NbaDepth;
+  const ctx={sport:'nba',games:state.live?.games||[],research:state.nbaResearch,injuries:state.nbaInjuries,models:state.nbaModels,props:state.props};
+  return '<div id="nbaDepthSlot">'+depth.render(ctx,state.tool)+'</div>';
  }
  if(state.sport==='nba'&&found[0]==='First Basket')return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section('First Basket / Opening Tip','Select an NBA matchup for official play-by-play research')+gamesMarkup();
  return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'
@@ -337,7 +342,7 @@ function pageSaved(){
 function render(){
  state.displayedRows.clear();
  renderNav();renderMetrics();renderFilters();
- const focusLab=state.sport==='nba'&&state.page==='cheatsheets'&&['player-form','matchup-vs-position'].includes(state.tool);
+ const focusLab=state.sport==='nba'&&state.page==='cheatsheets'&&(['player-form','matchup-vs-position'].includes(state.tool)||window.TSO3NbaDepth?.tools?.includes(state.tool));
  el('hero').hidden=focusLab;
  el('quickStatus').hidden=focusLab;
  el('toolbar').hidden=focusLab||el('toolbar').hidden;
@@ -443,7 +448,8 @@ async function load(force=false){
   fetch('/api/nba-research',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA history HTTP '+r.status);return r.json()}),
   fetch('/api/nba-models',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA model HTTP '+r.status);return r.json()}),
   officialNbaSlate(),
-  fetch('/api/nba-odds',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA odds HTTP '+r.status);return r.json()})
+  fetch('/api/nba-odds',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA odds HTTP '+r.status);return r.json()}),
+  fetch('/api/nba-injuries',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA injuries HTTP '+r.status);return r.json()})
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
  else state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');
@@ -468,10 +474,12 @@ async function load(force=false){
   state.props={...(state.props||{}),rows:[...merged.values()],nbaOdds:{source:pairs[5].value.source,fetchedAt:pairs[5].value.fetchedAt}};
   state.nbaOddsSnapshot=pairs[5].value.fetchedAt;
  }
+ if(pairs[6].status==='fulfilled'&&Array.isArray(pairs[6].value?.entries))state.nbaInjuries=pairs[6].value;
  state.nbaPending=false;
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
 }
 document.addEventListener('click',e=>{
+ if(window.TSO3NbaDepth?.click?.(e))return;
  if(window.TSO3NbaLab?.click?.(e))return;
  const toggle=e.target.closest('[data-sport-toggle]');
  if(toggle){const sport=toggle.dataset.sportToggle;state.openSport=state.openSport===sport?null:sport;renderSportNav();renderSportMenu();return}
@@ -510,9 +518,10 @@ document.addEventListener('change',e=>{
   el('globalMatchups').querySelector('[data-global-matchup-check="'+val+'"]')?.focus?.({preventScroll:true});
   return;
  }
+ if(window.TSO3NbaDepth?.choose?.(e))return;
  window.TSO3NbaLab?.change?.(e);
 });
-document.addEventListener('input',e=>{window.TSO3NbaLab?.input?.(e)});
+document.addEventListener('input',e=>{if(window.TSO3NbaDepth?.input?.(e))return;window.TSO3NbaLab?.input?.(e)});
 el('closeDrawer').addEventListener('click',closeDrawer);
 el('scrim').addEventListener('click',closeDrawer);
 el('savedBtn').addEventListener('click',()=>{location.hash='#/'+state.sport+'/saved'});
