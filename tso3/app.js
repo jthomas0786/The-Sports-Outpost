@@ -27,7 +27,25 @@ const bookOf=r=>String(r.book||r.sportsbook||r.bookName||'');
 const gameKey=g=>String(g.id||g.gameId||'');
 const rowKey=r=>[leagueOf(r),r.playerId||nameOf(r),r.team,marketOf(r),String(r.side||''),r.line,r.price,r.book].join('|');
 const escapeSelector=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'');
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaOddsSnapshot:null,nbaError:'',nbaPending:true};
+
+function matchupTime(raw){
+ const d=new Date(raw||'');
+ if(!Number.isFinite(d.getTime()))return 'Time TBA';
+ const weekday=new Intl.DateTimeFormat('en-US',{weekday:'short',timeZone:'America/Chicago'}).format(d);
+ const day={Mon:'Mon',Tue:'Tues',Wed:'Wed',Thu:'Thurs',Fri:'Fri',Sat:'Sat',Sun:'Sun'}[weekday]||weekday;
+ const when=new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Chicago'}).format(d).replace(/\s/g,'').toLowerCase();
+ return day+' '+when;
+}
+function matchRowGame(row,g){
+ if(!row||!g)return false;
+ if(String(row.gameId||row.eventId||'')===gameKey(g))return true;
+ const ab=(v,t)=>canon(v)===canon(t.abbr)||canon(v)===canon(t.name)||canon(v)===canon((t.name||'').replace(/^.*\s/,'')) ;
+ const teams=ab(row.homeTeam,g.home||{})&&ab(row.awayTeam,g.away||{});
+ const start=Date.parse(row.commenceTime||''),gameTime=Date.parse(g.startTime||'');
+ return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
+}
+
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaOddsSnapshot:null,nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
@@ -76,6 +94,10 @@ function filteredRows(){
  let list=all.filter(r=>(state.market==='all'||canon(marketOf(r))===state.market)
   &&(state.book==='all'||canon(bookOf(r))===state.book)
   &&(!q||[nameOf(r),r.team,marketOf(r),r.homeTeam,r.awayTeam].join(' ').toLowerCase().includes(q)));
+ if(state.matchupIds.length){
+  const selected=new Set(state.matchupIds),games=getGames().filter(g=>selected.has(gameKey(g)));
+  list=list.filter(r=>games.some(g=>matchRowGame(r,g)));
+ }
  if(state.game){const g=getGames().find(x=>gameKey(x)===state.game);if(g)list=list.filter(r=>String(r.gameId||r.eventId||'')===gameKey(g)
   ||(canon(r.homeTeam)===canon(g.home?.abbr)&&canon(r.awayTeam)===canon(g.away?.abbr))
   ||([g.home?.abbr,g.away?.abbr].map(canon).includes(canon(r.team))&&(!r.commenceTime||Math.abs(Date.parse(r.commenceTime)-Date.parse(g.startTime))<6*3600000))); }
@@ -138,6 +160,18 @@ function renderMetrics(){
  const stats=[['Games on feed',state.live?games.length:'—',state.live?'Observed scoreboard':'Scoreboard not connected'],['Over / Yes selections',state.props?rows.length:'—',state.props?'Current TSO lines':'Props feed unavailable'],['Exact model matches',state.props?exact:'—','Strict player / market / line'],['Book quotes',state.props?priced:'—','Available selected quotes']];
  el('quickStatus').innerHTML=stats.map(x=>'<div class="metric-card"><span>'+text(x[0])+'</span><strong>'+text(x[1])+'</strong><em>'+text(x[2])+'</em></div>').join('');
 }
+function globalMatchupMarkup(){
+ const games=getGames().filter(g=>g?.id&&g?.home&&g?.away).sort((a,b)=>Date.parse(a.startTime||0)-Date.parse(b.startTime||0));
+ const ids=new Set(games.map(g=>gameKey(g)));
+ state.matchupIds=state.matchupIds.filter(id=>ids.has(id));
+ return '<div class="matchup-filter global-picker"><span class="matchup-label">MATCHUPS</span>'
+  +'<details class="matchup-picker" data-global-matchup-picker '+(state.matchupOpen?'open':'')+'>'
+  +'<summary class="matchup-trigger"><span class="matchup-trigger-text">'+(state.matchupIds.length?'Selected games ('+state.matchupIds.length+')':'All Matchups')+'</span><span class="matchup-chevron">⌄</span></summary>'
+  +'<div class="matchup-options" role="group" aria-label="Filter by one or more games">'
+  +'<label class="matchup-option all"><input type="checkbox" data-global-matchup-check="all" '+(!state.matchupIds.length?'checked':'')+'><span>All Matchups</span></label>'
+  +(games.length?games.map(g=>'<label class="matchup-option"><input type="checkbox" data-global-matchup-check="'+text(gameKey(g))+'" '+(state.matchupIds.includes(gameKey(g))?'checked':'')+'><span class="matchup-name">'+text(g.away?.abbr||'AWAY')+' @ '+text(g.home?.abbr||'HOME')+'</span><span class="matchup-time">'+text(matchupTime(g.startTime))+'</span></label>').join(''):'<p class="matchup-empty">No games in current slate</p>')
+  +'</div></details></div>';
+}
 function renderFilters(){
  const rows=getRows().filter(eligible);
  const unique=(vals)=>[...new Set(vals.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
@@ -148,6 +182,7 @@ function renderFilters(){
  el('market').innerHTML='<option value="all">All markets</option>'+mk.map(x=>'<option value="'+text(canon(x))+'" '+(canon(x)===currentMarket?'selected':'')+'>'+text(x)+'</option>').join('');
  el('book').innerHTML='<option value="all">All sportsbooks</option>'+books.map(x=>'<option value="'+text(canon(x))+'" '+(canon(x)===currentBook?'selected':'')+'>'+text(x)+'</option>').join('');
  el('window').value=state.window;el('sort').value=state.sort;el('search').value=state.search;
+ el('globalMatchups').innerHTML=globalMatchupMarkup();
  el('toolbar').hidden=['games','cheatsheets','ratings','projections','injuries'].includes(state.page)&&!state.tool&&!state.game;
 }
 function section(title,subtitle){return '<div class="section-heading"><h2>'+text(title)+'</h2><small>'+text(subtitle||'')+'</small></div>'}
@@ -355,6 +390,8 @@ function route(sport,page,tool=null){
  if(!SPORTS[sport])sport='nfl';
  if(!PAGES.some(x=>x[0]===page))page='overview';
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
+ if(state.sport!==sport)state.matchupIds=[];
+ state.matchupOpen=false;
  state.sport=sport;state.page=page;state.tool=matched;state.openSport=null;state.game=null;state.market='all';state.book='all';state.search='';state.maxRows=40;
  closeDrawer();render();el('main').scrollIntoView({block:'start'});
 }
@@ -472,5 +509,5 @@ const hash=location.hash.replace(/^#\/?/,'').split('/');
 if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1];state.tool=hash[1]==='cheatsheets'&&SPORTS[hash[0]].tools.some(t=>menuToolSlug(t[0])===hash[2])?hash[2]:null}else location.hash='#/nfl/overview';
 render();load(true);
 setInterval(()=>{if(!document.hidden)load(false)},60000);
-window.TSO3={state,SPORTS,PAGES,render,load,exactModel,recent};
+window.TSO3={state,SPORTS,PAGES,render,load,exactModel,recent,matchupTime,matchRowGame};
 })();
