@@ -48,8 +48,25 @@ function matchRowGame(row,g){
 const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
-function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
-function getRows(){return (Array.isArray(state.props?.rows)?state.props.rows:[]).filter(r=>leagueOf(r)===state.sport)}
+function getGames(){
+ const now=Date.now(),maxFuture=now+9*86400000,minRecent=now-18*3600000;
+ return (Array.isArray(state.live?.games)?state.live.games:[])
+  .filter(g=>g.league===state.sport&&Number.isFinite(Date.parse(g.startTime||''))
+   &&Date.parse(g.startTime)>=minRecent&&Date.parse(g.startTime)<=maxFuture)
+  .sort((a,b)=>Date.parse(a.startTime)-Date.parse(b.startTime));
+}
+function getRows(){
+ const now=Date.now(),startMin=now-15*60000,max=now+9*86400000;
+ return (Array.isArray(state.props?.rows)?state.props.rows:[])
+  .filter(r=>{
+   if(leagueOf(r)!==state.sport||r.available===false||r.active===false||r.suspended===true)return false;
+   const start=Date.parse(r.commenceTime||r.startTime||r.eventStartTime||'');
+   if(!Number.isFinite(start)||start<startMin||start>max)return false;
+   const at=Date.parse(r.snapshotTime||r.fetchedAt||r.updatedAt||'');
+   if(Number.isFinite(at)&&now-at>4*3600000)return false;
+   return true;
+  });
+}
 function exactModel(r){
  const m=r.model||{};
  if(m.exactMatch===false||m.lineMatch===false||/market.only|category.only|line.mismatch/i.test(String(m.matchType||'')))return null;
@@ -188,14 +205,14 @@ function renderFilters(){
 function section(title,subtitle){return '<div class="section-heading"><h2>'+text(title)+'</h2><small>'+text(subtitle||'')+'</small></div>'}
 function empty(title,body){return '<div class="empty"><span class="empty-symbol">◇</span><h3>'+text(title)+'</h3><p>'+text(body)+'</p></div>'}
 function gamesMarkup(limit){
- const games=getGames().filter(g=>g.state!=='post');
+ const games=getGames();
  if(!state.live)return empty('Games feed not connected',state.liveError||'TSO scoreboard is not accessible from this preview.');
- if(!games.length)return empty('No upcoming games in this feed','The current scoreboard contains no scheduled '+state.sport.toUpperCase()+' games. Historical games are not invented.');
+ if(!games.length)return empty('No current games in this feed','No verified games for the current '+state.sport.toUpperCase()+' slate were returned. Historical fixtures are excluded.');
  return '<div class="card-grid">'+games.slice(0,limit||99).map(g=>{
   const away=g.away||{},home=g.home||{},logo=t=>/^https:\/\//i.test(t.logo||'')?'<img src="'+text(t.logo)+'" alt="" loading="lazy">':'<b>'+text(t.abbr||'—')+'</b>';
-  return '<button class="game-card" type="button" data-game="'+text(gameKey(g))+'"><div class="game-meta"><span>'+text(state.sport.toUpperCase())+' · '+text(g.state==='in'?'LIVE':'UPCOMING')+'</span><span>'+text(clock(g.startTime))+'</span></div>'
+  return '<button class="game-card" type="button" data-game="'+text(gameKey(g))+'"><div class="game-meta"><span>'+text(state.sport.toUpperCase())+' · '+text(g.state==='post'?'FINAL':g.state==='in'?'LIVE':'UPCOMING')+'</span><span>'+text(clock(g.startTime))+'</span></div>'
    +'<div class="game-matchup"><div class="game-side">'+logo(away)+'<b>'+text(away.abbr||'—')+'</b><small>AWAY</small></div><span>AT</span><div class="game-side">'+logo(home)+'<b>'+text(home.abbr||'—')+'</b><small>HOME</small></div></div>'
-   +'<div class="game-bottom"><span>'+text(g.venue||'MATCHUP DETAILS')+'</span><span>EXPLORE ↗</span></div></button>'
+   +'<div class="game-bottom"><span>'+text(g.state==='post'||g.state==='in'?[g.away?.score,g.home?.score].filter(x=>x!==null&&x!==undefined).join(' – ')||g.venue||'MATCHUP DETAILS':g.venue||'MATCHUP DETAILS')+'</span><span>EXPLORE ↗</span></div></button>'
  }).join('')+'</div>';
 }
 function rowMarkup(r,i){
@@ -472,18 +489,19 @@ async function load(force=false){
   fetch('/api/nba-injuries',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA injuries HTTP '+r.status);return r.json()})
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
- else state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');
+ else{state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');state.live={games:[],tso3:{sources:{}}}}
  if(pairs[1].status==='fulfilled'&&Array.isArray(pairs[1].value.rows)){state.props=pairs[1].value;state.propsError=''}
- else state.propsError=String(pairs[1].reason?.message||'Props feed missing');
+ else{state.propsError=String(pairs[1].reason?.message||'Props feed missing');state.props={rows:[]}}
  if(pairs[2].status==='fulfilled'&&pairs[2].value?.players){state.nbaResearch=pairs[2].value;state.nbaError=''}
- else {state.nbaError=String(pairs[2].reason?.message||'NBA history source missing')}
+ else {state.nbaError=String(pairs[2].reason?.message||'NBA history source missing');state.nbaResearch=null}
  if(pairs[3].status==='fulfilled'&&Array.isArray(pairs[3].value?.models))state.nbaModels=pairs[3].value;
- if(pairs[4].status==='fulfilled'&&pairs[4].value.length){
+ if(pairs[4].status==='fulfilled'&&pairs[4].value.length&&state.live?.tso3?.sources?.nba!=='ESPN verified scoreboard'){
   const oldGames=Array.isArray(state.live?.games)?state.live.games:[];
   const combined=new Map(oldGames.filter(g=>g.league!=='nba').map(g=>[g.league+':'+g.id,g]));
   for(const g of pairs[4].value)combined.set('nba:'+g.id,g);
   state.live={...(state.live||{}),games:[...combined.values()],nbaScoreboard:{source:'ESPN NBA scoreboard',status:'verified',fetchedAt:new Date().toISOString()}};
  }
+ state.nbaOddsSnapshot=null;
  if(pairs[5].status==='fulfilled'&&pairs[5].value?.available===true&&Array.isArray(pairs[5].value.rows)){
   const current=Array.isArray(state.props?.rows)?state.props.rows:[];
   const merged=new Map();
