@@ -42,6 +42,130 @@ function sanitizeNbaResearch(doc){
   currentSeason:doc.currentSeason||null,
   players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},teamDefense:doc.teamDefense||{},league:doc.league||{},teamProfiles:doc.teamProfiles||{}};
 }
+
+/* NFL data sourced from TSO's published 2026 slate, nflverse/ESPN-derived
+   research and ParlayAPI sportsbook snapshots. Dates, event identity and
+   freshness are verified before a market or projection is shown. */
+const NFL_SLATE_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nfl.json';
+const NFL_RESEARCH_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nfl-research.json';
+const NFL_ODDS_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nfl-odds.json';
+function nflTeamKey(v){
+ const x=String(v||'').toUpperCase().replace(/[^A-Z]/g,'');
+ return ({LAR:'LA',RAMS:'LA',JAX:'JAC',JAGUARS:'JAC',WSH:'WAS',WASHINGTON:'WAS',AZ:'ARI',GB:'GB',
+  GNB:'GB',NO:'NO',NOR:'NO',SF:'SF',SFO:'SF',TB:'TB',TAM:'TB',LV:'LV',LVR:'LV',KC:'KC'}[x]||x);
+}
+function nflEventMatch(a,b,startTime,official){
+ const delta=Math.abs(Date.parse(startTime||'')-Date.parse(official.startTime||''));
+ return official.league==='nfl'&&nflTeamKey(a)===nflTeamKey(official.away?.abbr)
+  &&nflTeamKey(b)===nflTeamKey(official.home?.abbr)
+  &&Number.isFinite(delta)&&delta<=90*60000;
+}
+async function nflRaw(url,ttl=120){
+ const r=await fetch(url,{headers:{accept:'application/json'},
+  cf:{cacheEverything:true,cacheTtl:ttl},signal:AbortSignal.timeout(18000)});
+ if(!r.ok)throw Error('Published NFL feed HTTP '+r.status);
+ return r.json();
+}
+async function verifiedNflSlate(){
+ const [slate,official]=await Promise.all([nflRaw(NFL_SLATE_URL,120),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
+ if(!Array.isArray(slate?.games)||!Number.isFinite(Date.parse(slate?.generatedAt||'')))throw Error('Invalid NFL model data');
+ const ageHours=(Date.now()-Date.parse(slate.generatedAt))/3600000;
+ const modelFresh=ageHours>=-1&&ageHours<=72;
+ const games=slate.games.flatMap(g=>{
+  const away=nflTeamKey(g.away?.abbr),home=nflTeamKey(g.home?.abbr);
+  const match=official.find(x=>nflEventMatch(away,home,g.startTimeUTC,x));
+  if(!match||match.state==='post'||Date.parse(match.startTime)<Date.now()-15*60000)return [];
+  const players=(g.players||[]).filter(p=>p?.name&&p?.team&&['RB','WR','TE','QB'].includes(String(p.position||'').toUpperCase())
+   &&[away,home].includes(nflTeamKey(p.team))).map(p=>{
+    const prob=Number(p.props?.atd?.probability),availability=p.props?.atd?.availability||{},inputs=p.props?.atd?.inputs||{};
+    const allowed=modelFresh&&Number.isFinite(prob)&&prob>=0&&prob<=1
+      &&!['out','ir','suspended','inactive'].includes(String(availability.status||'').toLowerCase());
+    return {
+     id:String(p.espnId||p.gsisId||''),gsisId:p.gsisId||null,name:String(p.name),team:nflTeamKey(p.team),
+     position:String(p.position||''),headshot:p.headshot||null,depthRank:p.depthRank??null,
+     opponent:nflTeamKey(p.opponent||''),historicalSeason:p.stats?.statsSeason||2025,
+     snapShare:Number.isFinite(Number(p.stats?.snapShare))?Number(p.stats.snapShare):null,
+     gamesPlayed:Number.isFinite(Number(p.stats?.gamesPlayed))?Number(p.stats.gamesPlayed):null,
+     rzTargets:Number.isFinite(Number(p.stats?.rzTargets))?Number(p.stats.rzTargets):null,
+     rzCarries:Number.isFinite(Number(p.stats?.rzCarries))?Number(p.stats.rzCarries):null,
+     tds:Number.isFinite(Number(p.stats?.tds))?Number(p.stats.tds):null,
+     modelProbability:allowed?prob:null,
+     modelGrade:allowed?String(p.props.atd.grade||''):null,confidence:String(p.props?.atd?.dataConfidence||'unavailable'),
+     injuryStatus:String(availability.status||'unconfirmed'),injuryNote:availability.note||null,
+     opponentRzTdRate:Number.isFinite(Number(inputs.oppRzTdRateAllowed))?Number(inputs.oppRzTdRateAllowed):null,
+     opportunityRate:Number.isFinite(Number(inputs.rzPerGame))?Number(inputs.rzPerGame):null,
+     modelSampleYear:Number(inputs.sampleYear)||2025,modelRosterYear:Number(inputs.rosterYear)||2026
+    };
+   });
+  return [{id:String(match.id),away:match.away,home:match.home,startTime:match.startTime,
+   sourceGameId:String(g.gameId||''),players}];
+ });
+ return {source:'TSO existing NFL anytime-TD model; 2025 production baseline, 2026 rosters/injury context',
+  generatedAt:slate.generatedAt,ageHours:Math.round(ageHours*10)/10,modelFresh,modelAvailable:modelFresh,
+  games,playerCount:games.reduce((n,g)=>n+g.players.length,0),
+  modelNotice:'This is TSO estimated anytime rushing/receiving TD probability, not a guaranteed outcome or 2026-only model. QB passing TDs are excluded.'};
+}
+async function verifiedNflResearch(){
+ const [doc,official]=await Promise.all([nflRaw(NFL_RESEARCH_URL,300),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
+ if(!Array.isArray(doc?.players)||!Number.isFinite(Date.parse(doc?.generatedAt||'')))throw Error('Invalid NFL research source');
+ const activeTeams=new Set(official.filter(g=>g.state!=='post').flatMap(g=>[nflTeamKey(g.home.abbr),nflTeamKey(g.away.abbr)]));
+ const list=doc.players.filter(p=>p?.name&&activeTeams.has(nflTeamKey(p.team))).map(p=>({
+  id:String(p.espnId||p.gsisId||''),gsisId:p.gsisId||null,name:String(p.name),team:nflTeamKey(p.team),
+  position:p.position||null,headshot:p.headshot||null,depthRank:p.depth?.rank??null,
+  status:p.injury?.status||p.rosterStatus||'Unconfirmed',injury:p.injury||null,
+  currentSeason:p.currentSeason||null,previousSeason:p.previousSeason||null,last5:p.last5||null,
+  model:p.model||null,matchup:p.matchup||null,snapTrend:p.snapTrend||null,
+  logs:(Array.isArray(p.gameLog)?p.gameLog:[]).filter(g=>g.season===doc.season||g.season===doc.previousSeason)
+    .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.week)-Number(a.week)).slice(0,22)
+    .map(g=>({date:g.date||null,season:g.season,week:g.week,opponent:nflTeamKey(g.opponent),
+      homeAway:g.homeAway||null,carries:g.carries,targets:g.targets,receptions:g.receptions,
+      completions:g.completions,attempts:g.attempts,rushYds:g.rushYds,recYds:g.recYds,
+      passYds:g.passYds,passTds:g.passTds,rushTds:g.rushTds,recTds:g.recTds,tds:g.tds}))
+ }));
+ return {source:'ESPN 2026 NFL rosters, depth/injuries + nflverse CC BY 4.0 player history',
+  generatedAt:doc.generatedAt,season:doc.season,previousSeason:doc.previousSeason,
+  ageHours:Math.round((Date.now()-Date.parse(doc.generatedAt))/360000)/10,
+  playerCount:list.length,players:list,
+  note:'Current-season production and previous-season history are separate. No simulated games are counted as observed.'};
+}
+async function verifiedNflOdds(){
+ const [doc,official]=await Promise.all([nflRaw(NFL_ODDS_URL,65),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
+ const date=Date.parse(doc?.meta?.fetchedAt||'');
+ if(!Array.isArray(doc?.games)||!Number.isFinite(date)||doc.meta?.source!=='parlayapi'||doc.meta?.sample!==false)
+  throw Error('Invalid NFL sportsbook snapshot');
+ const age=(Date.now()-date)/60000;
+ if(age< -5||age>240)return {available:false,fetchedAt:doc.meta.fetchedAt,stale:true,games:[],rows:[],reason:'Odds snapshot refresh overdue'};
+ const marketSet=new Set(['atd','firstTd','passYds','rushYds','recYds','receptions','targets','carries','passTds','passAttempts','completions']);
+ const rows=[];
+ let unmatched=0;
+ for(const g of doc.games){
+  const officialGame=official.find(x=>nflEventMatch(g.away,g.home,g.startDateUTC,x));
+  if(!officialGame||officialGame.state!=='pre'||Date.parse(officialGame.startTime)<Date.now()-15*60000){unmatched++;continue}
+  const hours=(Date.parse(officialGame.startTime)-Date.now())/3600000;
+  const cap=hours<=1.5?12:hours<=3?25:hours<=12?45:hours<=48?75:150;
+  if(age>cap)continue;
+  for(const p of g.players||[]){
+   if(!p?.name||!p.odds||typeof p.odds!=='object')continue;
+   for(const [key,odds] of Object.entries(p.odds)){
+    if(!marketSet.has(key))continue;
+    const best=key==='atd'||key==='firstTd'?odds.best:odds.over?.best;
+    if(!best)continue;
+    const price=Number(best.price??best.odds??best.american??best.value);
+    const line=key==='atd'||key==='firstTd'?0.5:Number(odds.line);
+    const book=best.book||best.bookmaker||best.sportsbook;
+    if(!Number.isFinite(price)||price===0||!Number.isFinite(line)||!book)continue;
+    rows.push({sport:'nfl',eventId:String(g.fixtureId||''),verifiedGameId:String(officialGame.id),
+     player:String(p.name),playerId:p.playerId||null,team:nflTeamKey(p.team),market:key,
+     line,side:key==='atd'||key==='firstTd'?'yes':'over',price,book:String(book),snapshotTime:doc.meta.fetchedAt,
+     homeTeam:officialGame.home.name,awayTeam:officialGame.away.name,commenceTime:officialGame.startTime});
+   }
+  }
+ }
+ return {source:'ParlayAPI NFL sportsbook snapshot, official ESPN game identity',fetchedAt:doc.meta.fetchedAt,
+  ageMinutes:Math.round(age),available:rows.length>0,stale:rows.length===0,rows,unmatchedGames:unmatched,
+  note:'Snapshot prices are not continuously streaming. Only valid pregame books matched to official kickoff are shown.'};
+}
+
 async function safeNbaInjuries(){
  const r=await fetch(NBA_INJURIES_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(14000)});
  if(!r.ok)throw Error('ESPN injury feed '+r.status);
@@ -253,6 +377,16 @@ export default {async fetch(req,env){
   try{
    return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
   }catch(_){return Response.json({available:false,entries:[],error:'Official NBA injury feed unavailable'},{status:503,headers})}
+ }
+ if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds'].includes(u.pathname)){
+  try{
+   const doc=u.pathname==='/api/nfl-touchdowns'?await verifiedNflSlate()
+    :u.pathname==='/api/nfl-research'?await verifiedNflResearch():await verifiedNflOdds();
+   return Response.json(doc,{headers:{...headers,'cache-control':'no-store','x-tso-source':'verified TSO NFL model/nflverse/ParlayAPI'}});
+  }catch(error){
+   return Response.json({available:false,error:'Verified NFL data unavailable',detail:String(error?.message||'').slice(0,160)},
+    {status:503,headers:{...headers,'cache-control':'no-store'}});
+  }
  }
  if(u.pathname==='/api/nba-odds'){
   try{
