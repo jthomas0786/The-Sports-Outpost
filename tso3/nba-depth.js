@@ -96,7 +96,11 @@ function render(ctx,tool){
  const fields="<div class='nba-depth-filters'><label>TEAM<select data-depth-team><option value='all'>All Teams</option>"+teamOptions+"</select></label>"
   +(windows?"<label>HISTORY WINDOW<select data-depth-window>"+[["l5","Last 5"],["l10","Last 10"],["l20","Last 20"],["season","Current Season"]].map(([id,x])=>"<option value='"+id+"' "+(state.window===id?"selected":"")+">"+x+"</option>").join("")+"</select></label>":"")
   +"<label>FIND<input type='search' data-depth-search value='"+esc(state.search)+"' placeholder='Search players and teams'></label></div>";
- const source="<div class='nba-depth-source'>RESEARCH SOURCE "+esc(date(ctx.research?.generatedAt))+" · LAST OBSERVED GAME "+esc(latestGame(ctx))+" · "+(ctx.injuries?.fetchedAt?"INJURIES UPDATED "+esc(date(ctx.injuries.fetchedAt)):"INJURY FEED UNAVAILABLE")+"</div>";
+ const updated=Date.parse(ctx.research?.generatedAt||'');
+ const hours=Number.isFinite(updated)?Math.max(0,Math.round((Date.now()-updated)/3600000)):null;
+ const source="<div class='nba-depth-source'>"+(hours===null?"RESEARCH TIMESTAMP UNAVAILABLE":hours>10?"HISTORICAL NBA STATS — REFRESH OVERDUE ("+hours+"h)":"NBA HISTORICAL STATS — UPDATED "+hours+"h AGO")
+  +" · LAST COMPLETED GAME "+esc(latestGame(ctx))
+  +" · "+(ctx.injuries?.providerTimestamp?"ESPN INJURY REPORT "+esc(date(ctx.injuries.providerTimestamp)):ctx.injuries?.fetchedAt?"ESPN INJURIES FETCHED "+esc(date(ctx.injuries.fetchedAt)):"INJURY FEED UNAVAILABLE")+"</div>";
  const warning=tool==="usage-touches"?"True touches and true usage percentage are unavailable. Per-36 production is a verified descriptive rate, not a usage statistic."
   :tool==="game-projections"?"Predicted score, spread, totals and win probability require a validated TSO model. Historical pace is not a game prediction."
   :tool==="injury-impact"?"Reports reflect ESPN status at the stated time. Historical minutes do not prove a player will participate or identify a replacement."
