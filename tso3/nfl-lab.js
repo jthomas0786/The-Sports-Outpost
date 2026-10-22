@@ -33,10 +33,10 @@ const notes={
 const columns={
  'touchdown-opportunities':['PLAYER','MATCHUP','ATD PROBABILITY','TSO GRADE','OPPORTUNITY / GM','SNAP %','OPP RZ TD RATE','BEST ATD ODDS'],
  'red-zone-usage':['PLAYER','MATCHUP','RZ CARRIES','RZ TARGETS','RZ / GM','OPP RZ TD %','DEPTH','TSO ATD'],
- 'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','L5 RUSH TD','BEST BOOK'],
- 'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','TARGET SHARE','BEST BOOK'],
- 'coverage-matchups':['PLAYER','MATCHUP','L5 TARGETS','L5 RECEPTIONS','L5 REC YDS','TARGET SHARE','POSITION','COVERAGE GRADE'],
- 'quarterback-research':['PLAYER','MATCHUP','L5 PASS YDS','L5 ATTEMPTS','L5 COMPLETIONS','L5 PASS TD','2026 PASS YDS / GM','BEST BOOK'],
+ 'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','OPP RUSH YDS/GM','BEST BOOK'],
+ 'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
+ 'coverage-matchups':['PLAYER','MATCHUP','L5 TARGETS','L5 RECEPTIONS','L5 REC YDS','TARGET SHARE','OPP REC YDS/GM','COVERAGE GRADE'],
+ 'quarterback-research':['PLAYER','MATCHUP','L5 PASS YDS','L5 ATTEMPTS','L5 COMPLETIONS','L5 PASS TD','OPP PASS YDS/GM','BEST BOOK'],
  'offensive-line-matchups':['MATCHUP','KICKOFF','AWAY TEAM','HOME TEAM','PASS BLOCK GRADE','RUN BLOCK GRADE','PRESSURE RATE','SOURCE STATUS'],
  'power-ratings':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','POWER RATING','INJURY CONTEXT','GAME STATUS','SOURCE STATUS'],
  'weather-impact':['MATCHUP','KICKOFF','VENUE','INDOOR','FORECAST WIND','PRECIPITATION','TEMP','SOURCE STATUS'],
@@ -193,16 +193,16 @@ function row(r){
   {text:r.p?.depthRank||r.m?.depthRank||'—'},{html:'<b class="'+tdClass(atd)+'">'+projected+'</b>'}];
  else if(state.tool==='rushing-matchups')cells=[{text:f(avg(logs,'rushYds',5))},{text:f(avg(logs,'rushYds',10))},
   {text:f(avg(logs,'carries',5))},{text:f(season?.perGame?.rushYds)},
-  {text:f(avg(logs,'rushTds',5))},{text:fmtPrice(quote?.price)}];
+  {text:f(r.p?.matchup?.currentSeasonAllowed?.perGame?.rushYds)},{text:fmtPrice(quote?.price)}];
  else if(state.tool==='quarterback-research')cells=[{text:f(avg(logs,'passYds',5))},{text:f(avg(logs,'attempts',5))},
   {text:f(avg(logs,'completions',5))},{text:f(avg(logs,'passTds',5))},
-  {text:f(season?.perGame?.passYds)},{text:fmtPrice(quote?.price)}];
+  {text:f(r.p?.matchup?.currentSeasonAllowed?.perGame?.passYds)},{text:fmtPrice(quote?.price)}];
  else if(state.tool==='coverage-matchups')cells=[{text:f(avg(logs,'targets',5))},
   {text:f(avg(logs,'receptions',5))},{text:f(avg(logs,'recYds',5))},
-  {text:season?.targetShare==null?'—':f(season.targetShare)+'%'},{text:r.position},{text:'—'}];
+  {text:season?.targetShare==null?'—':f(season.targetShare)+'%'},{text:f(r.p?.matchup?.currentSeasonAllowed?.perGame?.recYds)},{text:'—'}];
  else cells=[{text:f(avg(logs,'recYds',5))},{text:f(avg(logs,'recYds',10))},
   {text:f(avg(logs,'targets',5))},{text:f(avg(logs,'receptions',5))},
-  {text:season?.targetShare==null?'—':f(season.targetShare)+'%'},{text:fmtPrice(quote?.price)}];
+  {text:f(r.p?.matchup?.currentSeasonAllowed?.perGame?.recYds)},{text:fmtPrice(quote?.price)}];
  return '<tr data-nfl-row="'+esc(r.id)+'">'+nameCell(r)+matchCell(r)+cells.map(c=>'<td>'+(c.html||'<b>'+esc(c.text)+'</b>')+'</td>').join('')+'</tr>';
 }
 function render(ctx,tool){
