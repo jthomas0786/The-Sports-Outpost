@@ -332,7 +332,22 @@ function click(event){
  return false;
 }
 function change(event){
- const node=event.target,filter=node.closest('[data-nba-filter]');
+ const node=event.target,matchup=node.closest('[data-nba-matchup-check]');
+ if(matchup){
+  const value=matchup.dataset.nbaMatchupCheck;
+  if(value==='all')view.games=[];
+  else{
+   const next=new Set(view.games);
+   if(matchup.checked)next.add(value);else next.delete(value);
+   view.games=[...next];
+  }
+  view.matchupOpen=true;
+  view.limit=90;
+  repaint();
+  document.querySelector('[data-nba-matchup-check="'+value+'"]')?.focus?.({preventScroll:true});
+  return true;
+ }
+ const filter=node.closest('[data-nba-filter]');
  if(filter){view[filter.dataset.nbaFilter]=filter.value;view.limit=90;repaint();return true}
  return false;
 }
@@ -345,5 +360,14 @@ function input(event){
   const next=root.querySelector('[data-nba-search]');if(next){next.focus();try{next.setSelectionRange(caret,caret)}catch(_){}}}
  return true;
 }
+document.addEventListener('toggle',event=>{
+ if(event.target.matches?.('[data-nba-matchup-picker]'))view.matchupOpen=Boolean(event.target.open);
+},true);
+document.addEventListener('click',event=>{
+ if(view.matchupOpen&&!event.target.closest?.('[data-nba-matchup-picker]')){
+  const picker=document.querySelector('[data-nba-matchup-picker]');
+  if(picker){picker.open=false;view.matchupOpen=false}
+ }
+});
 window.TSO3NbaLab={render,click,change,input,summary,history,defensiveAllowance,rankedRows,view};
 })();
