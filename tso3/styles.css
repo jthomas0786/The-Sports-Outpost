@@ -276,3 +276,46 @@ html,body,button,input,select,textarea{
  .matchup-options{width:max(265px,100%);max-height:min(45vh,330px)}
 }
 @media(max-width:410px){.matchup-options{width:min(320px,calc(100vw - 35px))}.matchup-time{font-size:9px}.matchup-option{gap:8px}}
+
+
+/* NBA research filters: checkbox multi-selects use identical dropdown geometry and chevrons. */
+.nba-controls .nba-matchup-filter,
+.nba-controls .nba-multi-filter{flex:1 1 180px;min-width:170px}
+.nba-controls .nba-matchup-filter{flex:1.25 1 220px}
+.nba-controls .nba-multi-filter .matchup-picker,
+.nba-controls .nba-matchup-filter .matchup-picker{width:100%;min-width:0}
+.nba-controls .nba-multi-filter .matchup-trigger,
+.nba-controls .nba-matchup-filter .matchup-trigger{
+ min-height:36px;
+ padding:9px 12px;
+ border-color:#3b4e60;
+ border-radius:7px;
+}
+.nba-controls .matchup-trigger-text{font-size:11px;line-height:1.35;color:#ecf3f7;font-weight:720}
+.nba-controls .nba-multi-filter .matchup-options{width:max(225px,100%)}
+.nba-controls .nba-multi-filter .matchup-option{display:flex;align-items:center;flex-direction:row;min-height:40px}
+.nba-controls .nba-multi-filter .matchup-option input{flex:0 0 16px;width:16px;height:16px;accent-color:var(--orange)}
+/* Native-select-like white chevron for Matchups, Market, and Position alike. */
+.matchup-picker .matchup-chevron{
+ display:block;
+ width:8px;
+ height:8px;
+ min-width:8px;
+ flex:0 0 8px;
+ margin-right:3px;
+ border:0;
+ border-right:2px solid #e3edf3;
+ border-bottom:2px solid #e3edf3;
+ border-radius:1px;
+ color:transparent;
+ font-size:0;
+ transform:translateY(-2px) rotate(45deg);
+ transition:transform .15s ease;
+}
+.matchup-picker[open] .matchup-chevron{
+ transform:translateY(2px) rotate(225deg);
+}
+@media(max-width:700px){
+ .nba-controls .nba-matchup-filter,.nba-controls .nba-multi-filter{flex:1 1 160px;min-width:155px}
+ .nba-controls .nba-matchup-filter{flex:1 1 180px}
+}
