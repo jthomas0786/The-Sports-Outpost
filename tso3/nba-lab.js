@@ -56,7 +56,7 @@ function lookupPerson(research,m){
 function byName(research,name,id){
  if(!research?.players||!name)return null;
  if(id&&research.players[String(id)])return research.players[String(id)];
- return Object.values(research.players).find(p=>norm(p.name)===norm(name))||null;
+ return Object.values(research.players).find(p=>norm(p.name)===norm(String(name).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim()))||null;
 }
 function teamName(team,research){
  const t=research?.teams?.[String(team)]||{};
