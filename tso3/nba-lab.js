@@ -179,15 +179,18 @@ function rankedRows(ctx){
  return rows.map(r=>({...r,injury:currentInjury(ctx,r.player)}));
 }
 function visibleRows(ctx){
- const all=view.rows,query=(view.search||'').toLowerCase(),hasLines=all.some(r=>r.line!==null);
- let list=all.filter(r=>(view.lineFilter==='all'||(view.lineFilter==='auto'?(!hasLines||r.line!==null):(view.lineFilter==='lines'?r.line!==null:r.line===null)))
- &&(!view.markets.length||view.markets.includes(r.market))
- &&(!view.positions.length||view.positions.includes(posGroup(r.player.position)))
- &&(view.injuryFilter==='all'||(view.injuryFilter==='reported'&&r.injury)||(view.injuryFilter==='out'&&injuryState(r.injury)==='out')||(view.injuryFilter==='not-reported'&&!r.injury))
- &&(!view.games.length||view.games.includes(String(r.game?.id||'')))
- &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
- &&(view.maxJuice==='any'||number(r.quote?.price)===null||Number(r.quote.price)>=Number(view.maxJuice))
- &&(!query||[r.player.name,r.player.team,r.player.position,r.model?.opponent,r.game?.home?.abbr,r.game?.away?.abbr].join(' ').toLowerCase().includes(query)));
+ const all=view.rows,query=(view.search||'').toLowerCase();
+ // Apply the user's market/matchup/position selections BEFORE deciding whether book lines exist.
+ // A line in a different market must not hide otherwise valid historical player research.
+ const scoped=all.filter(r=>(!view.markets.length||view.markets.includes(r.market))
+  &&(!view.positions.length||view.positions.includes(posGroup(r.player.position)))
+  &&(view.injuryFilter==='all'||(view.injuryFilter==='reported'&&r.injury)||(view.injuryFilter==='out'&&injuryState(r.injury)==='out')||(view.injuryFilter==='not-reported'&&!r.injury))
+  &&(!view.games.length||view.games.includes(String(r.game?.id||'')))
+  &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
+  &&(view.maxJuice==='any'||number(r.quote?.price)===null||Number(r.quote.price)>=Number(view.maxJuice))
+  &&(!query||[r.player.name,r.player.team,r.player.position,r.model?.opponent,r.game?.home?.abbr,r.game?.away?.abbr].join(' ').toLowerCase().includes(query)));
+ const hasLines=scoped.some(r=>r.line!==null);
+ let list=scoped.filter(r=>view.lineFilter==='all'||(view.lineFilter==='auto'?(!hasLines||r.line!==null):(view.lineFilter==='lines'?r.line!==null:r.line===null)));
  const sort=view.sort,descending=view.direction==='desc'?1:-1;
  const value=r=>{
   const recent=summary(r.log,r.line,ctx.research?.currentSeason,sort==='l5'?5:sort==='l10'?10:sort==='l20'?20:'season');
