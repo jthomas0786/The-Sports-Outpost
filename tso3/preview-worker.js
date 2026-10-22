@@ -139,31 +139,44 @@ async function safeNbaDocument(url,kind,env){
 
 const isoDay=date=>date.toISOString().slice(0,10).replace(/-/g,'');
 async function officialGames(url,league){
- const from=new Date(Date.now()-86400000),until=new Date(Date.now()+8*86400000);
- const endpoint=url+'?dates='+isoDay(from)+'-'+isoDay(until)+'&limit=350';
- const res=await fetch(endpoint,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:65},signal:AbortSignal.timeout(11000)});
- if(!res.ok)throw Error('Verified ESPN scoreboard unavailable: '+league);
- const json=await res.json();
- if(!Array.isArray(json?.events))throw Error('Invalid '+league+' scoreboard schema');
+ // ESPN site v2 date RANGES have returned HTTP 400 since Sep 2026.
+ // Request individual calendar dates and merge by stable event ID.
+ const now=Date.now(),days=[-1,0,1,2,3,4];
+ const responses=await Promise.allSettled(days.map(async offset=>{
+  const endpoint=url+'?dates='+isoDay(new Date(now+offset*86400000))+'&limit=400';
+  const res=await fetch(endpoint,{headers:{accept:'application/json'},
+   cf:{cacheEverything:true,cacheTtl:65},signal:AbortSignal.timeout(11000)});
+  if(!res.ok)throw Error('ESPN '+league+' scoreboard HTTP '+res.status);
+  const data=await res.json();
+  if(!Array.isArray(data?.events))throw Error('Invalid '+league+' scoreboard response');
+  return data.events;
+ }));
+ const good=responses.filter(x=>x.status==='fulfilled');
+ if(!good.length)throw Error('All dated '+league+' schedule requests failed: '+
+  String(responses.find(x=>x.status==='rejected')?.reason?.message||'upstream'));
+ const eventMap=new Map();
+ for(const event of good.flatMap(x=>x.value||[]))if(event?.id)eventMap.set(String(event.id),event);
  const games=[];
- for(const e of json.events){
+ for(const e of eventMap.values()){
   const comp=e.competitions?.[0];if(!comp)continue;
   const home=comp.competitors?.find(x=>x.homeAway==='home'),away=comp.competitors?.find(x=>x.homeAway==='away');
   if(!home?.team?.id||!away?.team?.id||!e.id)continue;
-  const team=c=>({id:String(c.team.id),name:String(c.team.displayName||c.team.name||''),abbr:String(c.team.abbreviation||''),
-   logo:String(c.team.logo||c.team.logos?.[0]?.href||''),score:c.score??null,
-   record:String(c.records?.find(r=>r.type==='total')?.summary||c.records?.[0]?.summary||'')});
+  const team=c=>({id:String(c.team.id),name:String(c.team.displayName||c.team.name||''),
+   abbr:String(c.team.abbreviation||''),logo:String(c.team.logo||c.team.logos?.[0]?.href||''),
+   score:c.score??null,record:String(c.records?.find(r=>r.type==='total')?.summary||c.records?.[0]?.summary||'')});
   const status=comp.status?.type||e.status?.type||{};
   const state=status.completed===true?'post':status.state==='in'?'in':'pre';
-  const startTime=e.date||comp.date;
-  const stamp=Date.parse(startTime||'');
-  if(!Number.isFinite(stamp)||stamp<Date.now()-18*3600000||stamp>Date.now()+9*86400000)continue;
+  const startTime=e.date||comp.date,t=Date.parse(startTime||'');
+  if(!Number.isFinite(t)||t<Date.now()-18*3600000||t>Date.now()+5*86400000)continue;
   games.push({id:String(e.id),league,state,startTime,away:team(away),home:team(home),
-    venue:String(comp.venue?.fullName||''),period:comp.status?.period||null,clock:comp.status?.displayClock||null,
-    source:'ESPN official scoreboard'});
+   venue:String(comp.venue?.fullName||''),period:comp.status?.period||null,clock:comp.status?.displayClock||null,
+   source:'ESPN official scoreboard'});
  }
+ games.coverageDays=good.length;
+ games.requestedDays=days.length;
  return games;
 }
+
 async function sixLeagueLive(){
  const sports=Object.entries(ESPN_SCOREBOARDS);
  const responses=await Promise.allSettled(sports.map(([sport,url])=>officialGames(url,sport)));
@@ -171,13 +184,13 @@ async function sixLeagueLive(){
  for(let i=0;i<sports.length;i++){
   const league=sports[i][0],response=responses[i];
   if(response.status==='fulfilled'){
-   sources[league]='ESPN verified scoreboard';
+   sources[league]=response.value.coverageDays===response.value.requestedDays?'ESPN verified scoreboard':'ESPN partial scoreboard ('+response.value.coverageDays+'/'+response.value.requestedDays+' days)';
    games.push(...response.value);
   }else{
    sources[league]='unavailable';
   }
  }
- if(responses.every(r=>r.status==='rejected'))throw Error('All six official schedule sources unavailable');
+ if(responses.every(r=>r.status==='rejected'))throw Error('All six official schedule sources unavailable: '+responses.map((r,i)=>sports[i][0]+'='+String(r.reason?.message||'failed')).join('; ').slice(0,500));
  const unique=[...new Map(games.map(g=>[g.league+':'+g.id,g])).values()]
   .sort((a,b)=>Date.parse(a.startTime)-Date.parse(b.startTime));
  return {games:unique,tso3:{sources,scoreboardFetchedAt:new Date().toISOString(),
@@ -232,7 +245,7 @@ export default {async fetch(req,env){
     if(only!=='all'&&['nfl','nba','mlb','nhl','wnba','cfb'].includes(only))
      combined.games=combined.games.filter(g=>g.league===only);
     return Response.json(combined,{headers:{...headers,'cache-control':'no-store','x-tso-source':'tso2-and-espn'}});
-   }catch(error){return Response.json({available:false,error:'Verified scoreboard unavailable',games:[]},{status:503,headers});}
+   }catch(error){return Response.json({available:false,error:'Verified scoreboard unavailable',detail:String(error?.message||'').slice(0,520),games:[]},{status:503,headers});}
   }
   const params=new URLSearchParams(u.search);
   // Restrict the proxy's query surface to declared source-feed parameters.
