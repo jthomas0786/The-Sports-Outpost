@@ -240,3 +240,39 @@ html,body,button,input,select,textarea{
 .nba-log td{color:#e4ecf2}
 @media(max-width:950px){.nba-intro{flex-wrap:wrap}.nba-controls label{flex:1 1 115px}.nba-controls .nba-search-label{flex:1 1 200px}}
 @media(max-width:600px){.nba-intro{flex-direction:column;align-items:stretch!important}.nba-intro .nba-view-switch{align-self:stretch}.nba-view-switch a{flex:1;text-align:center}.nba-snapshots{grid-template-columns:repeat(2,minmax(0,1fr))}.nba-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.nba-table-foot{flex-direction:column;align-items:flex-start}.nba-controls .nba-search-label{flex-basis:100%}.nba-lab{margin-top:8px}}
+
+
+/* TSO 3.0: shared multi-game matchup dropdown for every sport and NBA labs. */
+.global-matchup-filter{flex:0 0 auto;min-width:196px;position:relative}
+.matchup-filter{position:relative;min-width:195px;z-index:25}
+.matchup-label{display:block;font-size:9px;line-height:1.2;font-weight:850;letter-spacing:.09em;color:#9cb1c0;margin-bottom:5px}
+.matchup-picker{position:relative;z-index:25;min-width:195px}
+.matchup-picker[open]{z-index:75}
+.matchup-trigger{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#0a1420;border:1px solid #3b4e60;border-radius:7px;color:#eaf1f5;min-height:38px;padding:8px 12px;cursor:pointer;list-style:none;font-weight:750;font-size:11px;white-space:nowrap}
+.matchup-trigger::-webkit-details-marker{display:none}
+.matchup-trigger::marker{content:''}
+.matchup-trigger:hover,.matchup-picker[open]>.matchup-trigger{border-color:#d97e49;background:#172635}
+.matchup-trigger:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+.matchup-trigger-text{overflow:hidden;text-overflow:ellipsis}
+.matchup-chevron{color:var(--orange);font-size:17px;line-height:1;transition:transform .12s}
+.matchup-picker[open] .matchup-chevron{transform:rotate(180deg)}
+.matchup-options{position:absolute;z-index:95;top:calc(100% + 5px);left:0;width:max(280px,100%);max-height:330px;overflow:auto;background:#142333;border:1px solid #53697a;box-shadow:0 16px 42px #000b;border-radius:8px;padding:5px;scrollbar-width:thin}
+.matchup-option,.nba-controls .matchup-option{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:11px;padding:11px 10px;border-radius:6px;min-height:40px;width:100%;margin:0;color:#dce7ef;font-size:12px;font-weight:700;line-height:1.3;letter-spacing:0;cursor:pointer;white-space:normal}
+.matchup-option:hover,.nba-controls .matchup-option:hover{background:#273d4e;color:#fff}
+.matchup-option:has(input:checked){background:#ff833513}
+.matchup-option.all{border-bottom:1px solid #3c4e5e;border-radius:4px 4px 0 0;margin-bottom:4px;color:#f8c28d}
+.matchup-option input,.nba-controls .matchup-option input{appearance:auto;accent-color:var(--orange);width:16px;height:16px;min-width:16px;flex:0 0 16px;padding:0;margin:0;cursor:pointer}
+.matchup-name{font-weight:800;min-width:0}
+.matchup-time{margin-left:auto;flex:0 0 auto;font-size:10px;font-weight:750;color:#a9c5d6;white-space:nowrap}
+.matchup-empty{padding:10px;margin:0;font-size:11px;color:#8fa7b8}
+.nba-controls .nba-matchup-filter{min-width:200px;flex:0 0 200px}
+.nba-controls .nba-matchup-filter .matchup-label{color:#9cb1c0}
+.nba-controls .matchup-options{background:#132435}
+.nba-controls .matchup-trigger{min-height:36px;padding:9px 10px}
+@media(max-width:750px){
+ .global-matchup-filter{min-width:160px;flex:1 1 160px}
+ .global-matchup-filter .matchup-filter{min-width:160px}
+ .nba-controls .nba-matchup-filter{flex:1 1 170px;min-width:165px}
+ .matchup-options{width:max(265px,100%);max-height:min(45vh,330px)}
+}
+@media(max-width:410px){.matchup-options{width:min(320px,calc(100vw - 35px))}.matchup-time{font-size:9px}.matchup-option{gap:8px}}
