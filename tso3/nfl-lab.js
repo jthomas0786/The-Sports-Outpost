@@ -28,7 +28,7 @@ const notes={
  'offensive-line-matchups':'Official opponent and available team context. Independent pass-block and run-block win rates are not connected; no fabricated grades.',
  'power-ratings':'Current official team records and game slate. TSO has not verified a calibrated team power-rating input for this page.',
  'weather-impact':'Official schedule, venue and indoor/outdoor status when the original TSO NFL slate reports it. Weather forecasts are not inferred from stadium location.',
- 'game-projections':'Current official matchups and TSO model-derived scoring context where verified. No invented game winner, spread or total.'
+ 'game-projections':'Current official NFL matchups matched to TSO Monte Carlo simulations. Estimated team scores, win probabilities, spread and total shown only for current verified model runs.'
 };
 const columns={
  'touchdown-opportunities':['PLAYER','MATCHUP','ATD PROBABILITY','TSO GRADE','OPPORTUNITY / GM','SNAP %','OPP RZ TD RATE','BEST ATD ODDS'],
@@ -40,7 +40,7 @@ const columns={
  'offensive-line-matchups':['MATCHUP','KICKOFF','AWAY TEAM','HOME TEAM','PASS BLOCK GRADE','RUN BLOCK GRADE','PRESSURE RATE','SOURCE STATUS'],
  'power-ratings':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','POWER RATING','INJURY CONTEXT','GAME STATUS','SOURCE STATUS'],
  'weather-impact':['MATCHUP','KICKOFF','VENUE','INDOOR','FORECAST WIND','PRECIPITATION','TEMP','SOURCE STATUS'],
- 'game-projections':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','TSO WIN %','SIM TOTAL','GAME STATE','SOURCE STATUS']
+ 'game-projections':['MATCHUP','KICKOFF','AWAY WIN %','HOME WIN %','AWAY SCORE','HOME SCORE','SPREAD / TOTAL','SIM WORLDS']
 };
 const historyTool={
  'rushing-matchups':'rushYds','receiving-matchups':'recYds','coverage-matchups':'targets','quarterback-research':'passYds',
@@ -93,7 +93,7 @@ function build(ctx,tool){
  const games=upcoming(ctx),slate=ctx.td?.games||[];
  if(gameTools.has(tool))return games.map(g=>{
   const original=slate.find(x=>String(x.id)===String(g.id));
-  return {id:g.id,game:g,original,kind:'game',name:(g.away?.abbr||'AWAY')+' @ '+(g.home?.abbr||'HOME')};
+  return {id:g.id,game:g,original,sim:ctx.sim?.games?.find(x=>String(x.id)===String(g.id))||null,kind:'game',name:(g.away?.abbr||'AWAY')+' @ '+(g.home?.abbr||'HOME')};
  });
  const all=slate.flatMap(g=>(g.players||[]).map(p=>({p,g})));
  const modeled=new Map();
@@ -171,7 +171,11 @@ function row(r){
    'offensive-line-matchups':[r.name,when(g.startTime),g.away?.name||'—',g.home?.name||'—','—','—','—','Not sourced'],
    'power-ratings':[r.name,when(g.startTime),g.away?.record||'—',g.home?.record||'—','—','—',g.state,'Not rated'],
    'weather-impact':[r.name,when(g.startTime),venue||g.venue||'—',r.original?.indoor===true?'Indoor':r.original?.indoor===false?'Outdoor':'—','—','—','—','Forecast unavailable'],
-   'game-projections':[r.name,when(g.startTime),g.away?.record||'—',g.home?.record||'—','—','—',g.state,'No verified score model']
+   'game-projections':[r.name,when(g.startTime),
+    r.sim?.awayWin==null?'—':percent(r.sim.awayWin),r.sim?.homeWin==null?'—':percent(r.sim.homeWin),
+    r.sim?.awayPoints==null?'—':f(r.sim.awayPoints),r.sim?.homePoints==null?'—':f(r.sim.homePoints),
+    r.sim?.total?.line!=null?('TOTAL '+r.sim.total.line+' · HOME '+(r.sim.spread?.homeLine??'—')):'—',
+    r.sim?Number(r.sim.iterations).toLocaleString():'No verified model']
   }[state.tool]||[];
   return '<tr data-nfl-row="'+esc(r.id)+'">'+values.map(v=>'<td>'+esc(v)+'</td>').join('')+'</tr>';
  }
@@ -204,7 +208,7 @@ function row(r){
 function render(ctx,tool){
  if(!tools.includes(tool))return '';
  state.tool=tool;state.context=ctx;
- const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
+ const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
  if(state.version!==signature){state.version=signature;state.all=build(ctx,tool);state.max=90;
   state.games=[];state.positions=[];state.minGames=0}
  const games=upcoming(ctx),gameOptions=games.map(g=>[String(g.id),
@@ -212,7 +216,8 @@ function render(ctx,tool){
  const source='<div class="nba-depth-source">NFL OFFICIAL SLATE · '+games.length+' UPCOMING GAMES'
   +' · PLAYER RESEARCH '+esc(asof(ctx.research?.generatedAt))
   +' · TSO TD MODEL '+esc(asof(ctx.td?.generatedAt))
-  +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))+'</div>';
+  +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))
+  +(tool==='game-projections'?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')+'</div>';
  const modelAlert=ctx.td?.modelFresh===false?'TD MODEL SNAPSHOT EXPIRED — probabilities hidden until refreshed.':
   ctx.td?.modelFresh===true?'TSO ATD estimates use 2025 NFL scoring and red-zone history adjusted for 2026 roster and matchup context.':
   'Verified current NFL touchdown model unavailable.';
@@ -232,7 +237,11 @@ function render(ctx,tool){
  +'<p class="nba-footnote">Data sources: current ESPN NFL scoreboards and 2026 rosters; nflverse verified player game logs (CC BY 4.0); the existing TSO regressed 2025-baseline anytime-touchdown model; ParlayAPI time-limited sportsbook snapshots where available. No sportsbook odds, model percentages, opponent coverage ratings, or forecast measurements are fabricated.</p></section>';
 }
 function detail(r,ctx){
- if(r.kind==='game')return '<div class="drawer-contents"><h2>'+esc(r.name)+'</h2><p>'+esc(when(r.game.startTime))+'</p><h3>Official matchup information</h3><p>Game context is verified from ESPN. A specialized TSO model or licensed source must be connected before player tracking, weather, or power ratings can be given.</p></div>';
+ if(r.kind==='game')return '<div class="drawer-contents"><h2>'+esc(r.name)+'</h2><p>'+esc(when(r.game.startTime))+'</p><h3>Verified TSO Monte Carlo</h3>'
+  +'<div class="nfl-detail-grid"><div><small>AWAY WIN</small><b>'+percent(r.sim?.awayWin)+'</b></div><div><small>HOME WIN</small><b>'+percent(r.sim?.homeWin)+'</b></div>'
+  +'<div><small>AWAY AVG PTS</small><b>'+f(r.sim?.awayPoints)+'</b></div><div><small>HOME AVG PTS</small><b>'+f(r.sim?.homePoints)+'</b></div></div>'
+  +'<p>Simulation run: '+esc(asof(r.sim?.runAt))+' · '+esc(r.sim?.iterations||'—')+' worlds. If missing, the saved TSO model is not verified for this event.</p>'
+  +'<p>Weather, tracking grades and specialist ratings are not fabricated.</p></div>';
  const stats=[['L5 rushing yards',avg(r.logs,'rushYds',5)],['L5 receiving yards',avg(r.logs,'recYds',5)],
   ['L5 targets',avg(r.logs,'targets',5)],['L5 carries',avg(r.logs,'carries',5)],['L5 pass yards',avg(r.logs,'passYds',5)]];
  const td=tdHit(r.logs,5),td10=tdHit(r.logs,10);
