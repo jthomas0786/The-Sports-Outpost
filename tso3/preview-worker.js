@@ -172,14 +172,16 @@ async function verifiedNflInjuries(){
  const entries=[],seen=new Set();
  for(const group of doc.injuries){
   for(const report of Array.isArray(group.injuries)?group.injuries:[]){
-   const athlete=report.athlete||{},id=String(athlete.id||''),
+   const athlete=report.athlete||{},
+    card=(athlete.links||[]).find(x=>typeof x.href==='string'&&/\/player\/_\/id\/\d+/.test(x.href))?.href||'',
+    id=String(athlete.id||card.match(/\/player\/_\/id\/(\d+)/)?.[1]||''),
     teamId=String(athlete.team?.id||group.id||'');
    if(!id||!teamId||!athlete.displayName)continue;
    const key=teamId+'|'+id;if(seen.has(key))continue;seen.add(key);
    entries.push({athleteId:id,name:String(athlete.displayName),teamId,
     team:athlete.team?.abbreviation||group.abbreviation||group.displayName||null,
-    status:String(report.status||report.details?.fantasyStatus?.description||'Unknown'),
-    practiceStatus:report.details?.status||null,
+    status:String(report.status||report.type?.description||report.details?.fantasyStatus?.description||'Unknown'),
+    practiceStatus:report.details?.status||null,position:athlete.position?.abbreviation||null,
     issue:report.details?.type||null,
     updatedAt:report.date||null,
     shortReport:String(report.shortComment||'').slice(0,380),
