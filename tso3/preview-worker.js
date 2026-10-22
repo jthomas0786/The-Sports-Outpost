@@ -9,6 +9,43 @@ const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','
 const COLLEGE_FEED='https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard';
 const WOMEN_FEED='https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard';
 const FIRST_BASKET_SOURCE='https://tso2-nba-first-basket.jthomas0786-tso.workers.dev/';
+
+const NBA_MODEL_SOURCE='https://tso2-nba-model.jthomas0786-tso.workers.dev/';
+const NBA_RESEARCH_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-research.json';
+function sanitizeNbaResearch(doc){
+ if(!doc||typeof doc!=='object'||!doc.players||!doc.teams)throw Error('Invalid verified research schema');
+ const stats=['points','rebounds','assists','threes','pra','minutes','steals','blocks'];
+ const outPlayers={};
+ for(const [id,p] of Object.entries(doc.players)){
+  if(!p?.name||!p?.teamId)continue;
+  const played=Array.isArray(p.recentGames)?p.recentGames:[];
+  const games=played.filter(g=>g?.date&&g?.stats&&Number.isFinite(Date.parse(g.date))&&Number(g.seasonType)!==1)
+   .sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,45)
+   .map(g=>({date:g.date,opponent:g.opponent||null,homeAway:g.homeAway||null,season:g.season||null,seasonType:g.seasonType||null,
+     minutes:Number.isFinite(Number(g.minutes))?Number(g.minutes):null,stats:Object.fromEntries(stats.filter(k=>g.stats?.[k]!==null&&g.stats?.[k]!==undefined&&Number.isFinite(Number(g.stats[k]))).map(k=>[k,Number(g.stats[k])]))}));
+  outPlayers[id]={id:String(p.id||id),name:String(p.name),position:p.position||null,team:p.team||null,teamId:String(p.teamId),
+    headshot:p.headshot||null,injury:p.injury||null,recentGames:games};
+ }
+ return {source:'TSO public NBA research / ESPN-derived history',generatedAt:doc.generatedAt||null,currentSeason:doc.currentSeason||null,
+  players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},teamDefense:doc.teamDefense||{},league:doc.league||{},teamProfiles:doc.teamProfiles||{}};
+}
+async function safeNbaDocument(url,kind){
+ const r=await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:kind==='research'?300:90},signal:AbortSignal.timeout(16000)});
+ if(!r.ok)throw Error('NBA source '+r.status);
+ const data=await r.json();
+ if(kind==='research')return sanitizeNbaResearch(data);
+ if(!Array.isArray(data?.models))throw Error('Invalid NBA model schema');
+ return {source:data.source||'TSO NBA regression',generatedAt:data.generatedAt||null,researchGeneratedAt:data.researchGeneratedAt||null,
+  models:data.models.filter(x=>x?.available!==false).map(m=>({key:m.key,eventId:m.eventId,player:m.player,playerId:m.playerId,
+    team:m.team,teamId:m.teamId,position:m.position,headshot:m.headshot,market:m.market,line:m.line,
+    opponent:m.opponent,opponentId:m.opponentId,venue:m.venue,projection:m.projection,overProbability:m.overProbability,
+    sampleGames:m.sampleGames,last5:m.last5,last10:m.last10,seasonBaseline:m.seasonBaseline,
+    averageMinutes:m.averageMinutes,recentMinutes:m.recentMinutes,usageProxy:m.usageProxy,recentUsageProxy:m.recentUsageProxy,
+    opponentAllowance:m.opponentAllowance,leaguePositionAllowance:m.leaguePositionAllowance,expectedPace:m.expectedPace,
+    leaguePace:m.leaguePace,grade:m.grade,injury:m.injury,recentGames:Array.isArray(m.recentGames)?m.recentGames.slice(0,10):[],
+    researchGeneratedAt:m.researchGeneratedAt,oddsGeneratedAt:m.oddsGeneratedAt}))};
+}
+
 const isoDay=date=>date.toISOString().slice(0,10).replace(/-/g,'');
 async function officialGames(url,league){
  const from=new Date(),until=new Date(Date.now()+8*86400000);
@@ -62,6 +99,15 @@ export default {async fetch(req){
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
  if(u.pathname==='/health')return Response.json({ok:true,service:'tso3-preview',version:'3.0',source:'tso-3.0/tso3',environment:'development'},{headers});
+ if(u.pathname==='/api/nba-models'||u.pathname==='/api/nba-research'){
+  const kind=u.pathname.endsWith('research')?'research':'models';
+  try{
+   const data=await safeNbaDocument(kind==='research'?NBA_RESEARCH_SOURCE:NBA_MODEL_SOURCE,kind);
+   return Response.json(data,{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO-owned NBA research/model'}});
+  }catch(_){
+   return Response.json({available:false,error:'Verified NBA '+kind+' source is not accessible'},{status:503,headers:{...headers,'cache-control':'no-store'}});
+  }
+ }
  if(u.pathname==='/api/first-basket'){
   const home=String(u.searchParams.get('home')||'').toUpperCase();
   const away=String(u.searchParams.get('away')||'').toUpperCase();
