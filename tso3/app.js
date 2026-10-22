@@ -27,7 +27,7 @@ const bookOf=r=>String(r.book||r.sportsbook||r.bookName||'');
 const gameKey=g=>String(g.id||g.gameId||'');
 const rowKey=r=>[leagueOf(r),r.playerId||nameOf(r),r.team,marketOf(r),String(r.side||''),r.line,r.price,r.book].join('|');
 const escapeSelector=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'');
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map()};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map()};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
@@ -161,7 +161,7 @@ function toolCard(pair,i){
  return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+['◈','⌁','▤','◇','▦','◉'][i%6]+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
- if(/First Basket/i.test(name))return false;
+ if(/First Basket/i.test(name))return state.sport==='nba'&&Boolean(state.live);
  if(/Player Form|Player Trends|Skater Statistics|Player Trends|Home Run Matchups|Shots on Goal|Receiving Matchups|Touchdown Opportunities/i.test(name))return Boolean(state.props);
  if(/Team Statistics|Team Stats|Game Projections|Team Matchups|Game Projections/i.test(name))return Boolean(state.live);
  return false;
@@ -185,6 +185,7 @@ function pageGames(){
    +'<div class="tool-panel"><h3>Matchup Intelligence</h3><p>Verified TSO game context, available sportsbook selections and player research for this exact matchup.</p>'
    +'<div class="data-preview"><div><span>GAME STATE</span><b>'+text(g.state||'—')+'</b></div><div><span>AWAY</span><b>'+text(g.away?.record||'—')+'</b></div><div><span>HOME</span><b>'+text(g.home?.record||'—')+'</b></div><div><span>MATCHED PROPS</span><b>'+rows.length+'</b></div></div>'
    +'<p class="explain">Game projections, defense-vs-position and verified advanced matchup grades will appear when the corresponding TSO source is connected. No opposing team stats are mirrored or inferred.</p></div>'
+   +(state.sport==='nba'?'<section class="tool-panel fb-inline"><h3>First Basket / Opening Tip</h3><p>Verified recent tip wins, first made field goals and current-roster player participation. Observed history, not a calibrated betting probability.</p><div id="fbDetail">Retrieving verified NBA opening-event history…</div></section>':'')
    +section('Player selections for this game','Exact matches only')+tableMarkup(rows);
  }
  return section('Game slate','Select any matchup; all sports share one interaction pattern')+gamesMarkup();
@@ -193,6 +194,7 @@ function toolDetail(){
  const found=SPORTS[state.sport].tools.find(x=>String(x[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-')===state.tool);
  if(!found){state.tool=null;return pageTools()}
  const ready=toolReady(found[0]);
+ if(state.sport==='nba'&&found[0]==='First Basket')return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section('First Basket / Opening Tip','Select an NBA matchup for official play-by-play research')+gamesMarkup();
  return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'
   +section(found[0],found[1])
   +'<section class="tool-panel"><h3>Research Source Status</h3>'
@@ -223,6 +225,41 @@ function pageInjuries(){
  return section('Injuries & lineup status','Do not assume the historical starter is playing tonight')
  +empty('Verified injury feed not connected','No active roster availability provider is attached to TSO 3.0 yet. Check official injury reports before making a decision.');
 }
+function firstBasketView(g,doc){
+ if(!doc?.available)return empty('Opening-event history unavailable','The NBA play-by-play feed has not returned verified data for this matchup.');
+ const home=doc.home,away=doc.away;
+ if(canon(home?.abbr)!==canon(g.home?.abbr)||canon(away?.abbr)!==canon(g.away?.abbr))
+  return empty('Team identity mismatch','The opening-tip data does not match this selected game.');
+ const record=value=>num(value?.n)>0?'<b>'+text(value.pct)+'%</b><small>'+text(value.won)+'/'+text(value.n)+' games</small>':'<b>—</b><small>NO SAMPLE</small>';
+ const lines=[['LAST 5','last5'],['LAST 10','last10'],['SEASON','season']];
+ const stats=(field,label)=>'<div class="fb-section"><h4>'+text(label)+'</h4><div class="fb-three">'+lines.map(([title,k])=>'<div class="fb-three-cell"><strong>'+title+'</strong><div>'+record(home?.[field]?.[k])+record(away?.[field]?.[k])+'</div></div>').join('')+'</div></div>';
+ const candidates=(info,side)=>'<div class="fb-candidates"><h4>'+text((side==='home'?g.home:g.away)?.abbr)+' · '+side.toUpperCase()+'</h4>'
+  +(info?.players?.length?info.players.slice(0,5).map((p,i)=>'<div class="fb-candidate"><span>'+text((i+1)+'. '+p.name)+'</span><b>'+text(p.firstBaskets)+'/'+text(p.games)+' FIRST FGS</b></div>').join(''):
+   '<p>Verified current-roster candidate sample unavailable.</p>')+'</div>';
+ return '<div class="fb-identities"><b>'+text(g.home?.abbr)+' · HOME</b><b>'+text(g.away?.abbr)+' · AWAY</b></div>'
+  +stats('tip','OPENING TIP WINS')+stats('basket','TEAM SCORED FIRST FIELD GOAL')
+  +'<div class="fb-candidate-grid">'+candidates(home,'home')+candidates(away,'away')+'</div>'
+  +'<p class="explain">ESPN completed regular-season play-by-play · '+text(doc.seasonLabel||'season pending')+'. L5/L10 may span seasons; season history is capped by the provider. Current-roster verification is required for ranked players. This is historical frequency, not a model probability or betting recommendation.</p>';
+}
+async function hydrateFirstBasket(g){
+ const holder=el('fbDetail');if(!holder)return;
+ const key=[gameKey(g),g.home?.abbr,g.away?.abbr,g.startTime].join('|');
+ const old=state.firstBasketCache.get(key);
+ if(old&&Date.now()-old.time<900000){holder.innerHTML=firstBasketView(g,old.doc);return}
+ const q=new URLSearchParams({home:canon(g.home?.abbr),away:canon(g.away?.abbr)});
+ if(g.startTime&&Number.isFinite(Date.parse(g.startTime)))q.set('before',g.startTime);
+ try{
+  const response=await fetch('/api/first-basket?'+q.toString(),{cache:'no-store'});
+  const doc=await response.json();
+  if(!response.ok||doc?.available!==true)throw Error('Opening-event history unavailable');
+  state.firstBasketCache.set(key,{doc,time:Date.now()});
+  if(state.page==='games'&&state.game===gameKey(g)&&el('fbDetail'))el('fbDetail').innerHTML=firstBasketView(g,doc);
+ }catch(_){
+  if(state.page==='games'&&state.game===gameKey(g)&&el('fbDetail'))
+    el('fbDetail').innerHTML=empty('First-basket data unavailable','An authoritative opening-event record was not returned. No substitute estimates are displayed.');
+ }
+}
+
 function pageSaved(){
  const rows=[...state.saved.values()].filter(x=>x.sport===state.sport);
  if(!rows.length)return section('Saved research','Personal research shortlist')+empty('Your shortlist is empty','Use the star beside a verified selection to save it locally in this browser.');
@@ -242,6 +279,10 @@ function render(){
  else if(state.page==='injuries')body=pageInjuries();
  else if(state.page==='saved')body=pageSaved();
  el('content').innerHTML=body;
+ if(state.page==='games'&&state.game&&state.sport==='nba'){
+  const game=getGames().find(g=>gameKey(g)===state.game);
+  if(game)void hydrateFirstBasket(game);
+ }
 }
 function openDrawer(r){
  if(!r)return;
