@@ -355,7 +355,7 @@ function column(g,side,info,other){
   +'<span>OPP CONCEDED FIRST FG <b>'+conceded+'</b> <small>L10</small></span></div>'
   +'<div class="fb-list-title"><b>FIRST-BASKET CANDIDATES</b><span>HISTORICAL RANKING</span></div>'
   +(players.length?players.slice(0,6).map(score).join(''):
-  '<div class="fb-empty"><b>Insufficient verified player data</b><p>Player rankings require first-quarter play-by-play with an identifiable shooter.</p></div>')
+  '<div class="fb-empty"><b>'+(info?.rosterVerified===false?'Current roster verification unavailable':'Insufficient verified player data')+'</b><p>'+(info?.rosterVerified===false?'Candidates are withheld until ESPN confirms the current roster.':'Player rankings require first-quarter play-by-play with an identifiable shooter.')+'</p></div>')
   +'</div>';
 }
 function present(g,doc){
