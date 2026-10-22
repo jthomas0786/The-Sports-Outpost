@@ -162,6 +162,35 @@ async function verifiedNflResearch(){
   playerCount:list.length,players:list,
   note:'Current-season production and previous-season history are separate. No simulated games are counted as observed.'};
 }
+async function verifiedNflInjuries(){
+ const url='https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries';
+ const response=await fetch(url,{headers:{accept:'application/json'},
+  cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(14000)});
+ if(!response.ok)throw Error('NFL injury provider HTTP '+response.status);
+ const doc=await response.json();
+ if(!Array.isArray(doc?.injuries))throw Error('Invalid NFL injury provider response');
+ const entries=[],seen=new Set();
+ for(const group of doc.injuries){
+  for(const report of Array.isArray(group.injuries)?group.injuries:[]){
+   const athlete=report.athlete||{},id=String(athlete.id||''),
+    teamId=String(athlete.team?.id||group.id||'');
+   if(!id||!teamId||!athlete.displayName)continue;
+   const key=teamId+'|'+id;if(seen.has(key))continue;seen.add(key);
+   entries.push({athleteId:id,name:String(athlete.displayName),teamId,
+    team:athlete.team?.abbreviation||group.abbreviation||group.displayName||null,
+    status:String(report.status||report.details?.fantasyStatus?.description||'Unknown'),
+    practiceStatus:report.details?.status||null,
+    issue:report.details?.type||null,
+    updatedAt:report.date||null,
+    shortReport:String(report.shortComment||'').slice(0,380),
+    provider:'ESPN NFL injuries'});
+  }
+ }
+ return {source:'ESPN current NFL injuries',fetchedAt:new Date().toISOString(),
+  providerTimestamp:doc.timestamp||null,entries,
+  notice:'Practice participation and generic ESPN injury status are not verified final game-day inactive lists.'};
+}
+
 async function verifiedNflOdds(){
  const [doc,official]=await Promise.all([nflRaw(NFL_ODDS_URL,65),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
  const date=Date.parse(doc?.meta?.fetchedAt||'');
@@ -412,11 +441,12 @@ export default {async fetch(req,env){
    return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
   }catch(_){return Response.json({available:false,entries:[],error:'Official NBA injury feed unavailable'},{status:503,headers})}
  }
- if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections'].includes(u.pathname)){
+ if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections','/api/nfl-injuries'].includes(u.pathname)){
   try{
    const doc=u.pathname==='/api/nfl-touchdowns'?await verifiedNflSlate()
     :u.pathname==='/api/nfl-research'?await verifiedNflResearch()
-    :u.pathname==='/api/nfl-projections'?await verifiedNflSimulations():await verifiedNflOdds();
+    :u.pathname==='/api/nfl-projections'?await verifiedNflSimulations()
+    :u.pathname==='/api/nfl-injuries'?await verifiedNflInjuries():await verifiedNflOdds();
    return Response.json(doc,{headers:{...headers,'cache-control':'no-store','x-tso-source':'verified TSO NFL model/nflverse/ParlayAPI'}});
   }catch(error){
    return Response.json({available:false,error:'Verified NFL data unavailable',detail:String(error?.message||'').slice(0,160)},
