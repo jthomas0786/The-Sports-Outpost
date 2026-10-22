@@ -330,3 +330,24 @@ html,body,button,input,select,textarea{
 .nba-depth-table{min-width:1040px}.nba-depth-table tbody tr{cursor:pointer}.nba-depth-table tbody tr:hover{background:#20384a}
 .nba-depth-table td b{font-size:12px;font-weight:800;color:#e3f2f5}.nba-depth-table td small{display:block;color:#9cacba;font-size:10px;margin-top:4px}
 @media(max-width:700px){.nba-depth-filters label{flex:1 1 130px}.nba-depth-source{font-size:9px}.nba-depth-filters label:last-child{flex-basis:100%}}
+
+
+/* Live ESPN game box scores: away left, home right. */
+.live-box-updated{font-size:10px;font-weight:800;letter-spacing:.06em;color:#93bad1;margin:15px 0}
+.live-box-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.live-box-team{min-width:0;background:#101e2c;border:1px solid #35495a;border-radius:8px;padding:13px}
+.live-box-teamhead{display:flex;align-items:center;gap:10px;border-bottom:1px solid #344454;padding-bottom:9px;margin-bottom:10px}
+.live-box-teamhead strong{font-size:17px;font-weight:850}
+.live-box-teamhead>span{font-size:10px;color:#91a7b8}
+.live-box-teamhead>b{font-size:21px;color:var(--gold);margin-left:auto}
+.live-box-statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+.live-box-stat{display:flex;justify-content:space-between;gap:8px;padding:8px;background:#1c2b39;border-radius:5px;font-size:10px;color:#a6b9c7}
+.live-box-stat b{font-weight:850;color:#f0f5f9}
+.live-box-group{margin-top:15px}.live-box-group h4{font-size:11px;font-weight:800;color:#f5b87e;margin-bottom:8px}
+.live-box-scroll{max-width:100%;overflow:auto}
+.live-box-scroll table{width:100%;border-collapse:collapse;white-space:nowrap;text-align:left}
+.live-box-scroll th{background:#263847;font-size:9px;color:#a7b9c5;padding:8px}
+.live-box-scroll td{border-bottom:1px solid #2f4150;font-size:10px;padding:7px 8px;color:#e1ebf2}
+.live-box-scroll td:first-child{font-weight:700}
+.live-no-stats{font-size:11px;color:#a0b4c1;padding:12px 0;line-height:1.6}
+@media(max-width:780px){.live-box-grid{grid-template-columns:1fr}}
