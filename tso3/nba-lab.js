@@ -15,7 +15,7 @@ const posGroup=pos=>['PG','SG','G'].includes(String(pos||'').toUpperCase())?'G':
 const fmtDate=t=>{const dt=new Date(t||'');return Number.isFinite(dt.getTime())?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—'};
 const fmtOdds=n=>number(n)===null?'—':(Number(n)>0?'+':'')+Number(n);
 const slugParts=m=>market(m)||null;
-const view={metric:'points',position:'all',game:'all',minSample:'0',sort:'l10',direction:'desc',search:'',limit:90,rows:[],lastResults:[],dataError:'',date:null};
+const view={metric:'points',position:'all',game:'all',minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',limit:90,rows:[],lastResults:[],dataError:'',date:null};
 const stateCtx={};
 function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx.research.players).length)}
 function statGame(g,m){
@@ -103,7 +103,7 @@ function quoteKey(row){return [String(row.eventId||row.gameId||''),norm(row.play
 function prices(rows){
  const m=new Map();
  for(const r of rows||[]){
-  if(String(r.sport||r.league||'').toLowerCase()!=='nba'||!market(r.marketLabel||r.market)||number(r.line)===null||!['over','yes','true'].includes(String(r.side||'over').toLowerCase()))continue;
+  if(String(r.sport||r.league||'').toLowerCase()!=='nba'||!market(r.marketLabel||r.market)||number(r.line)===null||!['over','yes','true'].includes(String(r.side||'over').toLowerCase())||r.available===false||r.active===false||r.suspended===true||r.preserved===true||!number(r.price)||!(r.book||r.bookName||r.sportsbook))continue;
   const k=quoteKey(r),old=m.get(k);
   if(!old||number(r.price)!==null&&(number(old.price)===null||Number(r.price)>Number(old.price)))m.set(k,r);
  }
@@ -141,7 +141,7 @@ function rankedRows(ctx){
   byPerson.set(String(person.id)+'|'+metric,true);
  }
  // With no active book line, still show verifiable player averages. Never create synthetic odds or lines.
- if(!rows.length&&research?.players){
+ if(research?.players){
   const gameTeams=new Set(games.flatMap(g=>[String(g.home?.id||''),String(g.away?.id||'')]));
   const candidates=Object.values(research.players).filter(p=>p?.name&&Array.isArray(p.recentGames)&&p.recentGames.length>0
     &&(!gameTeams.size||gameTeams.has(String(p.teamId))));
@@ -150,7 +150,7 @@ function rankedRows(ctx){
    const game=resolveGame(person,[],games,research),opp=opponentId(person,game);
    for(const metric of Object.keys(MARKETS)){
     const log=history(person,metric);
-    if(!log.length)continue;
+    if(!log.length||byPerson.has(String(person.id)+'|'+metric))continue;
     rows.push({id:'history|'+person.id+'|'+metric,player:person,game,market:metric,line:null,quote:null,model:null,defense:defensiveAllowance(research,opp,posGroup(person.position),metric),opponent:opp,log,from:'history only'});
    }
   }
@@ -158,8 +158,9 @@ function rankedRows(ctx){
  return rows;
 }
 function visibleRows(ctx){
- const all=view.rows,query=(view.search||'').toLowerCase();
- let list=all.filter(r=>(view.metric==='all'||r.market===view.metric)
+ const all=view.rows,query=(view.search||'').toLowerCase(),hasLines=all.some(r=>r.line!==null);
+ let list=all.filter(r=>(view.lineFilter==='all'||(view.lineFilter==='auto'?(!hasLines||r.line!==null):(view.lineFilter==='lines'?r.line!==null:r.line===null)))
+ &&(view.metric==='all'||r.market===view.metric)
  &&(view.position==='all'||posGroup(r.player.position)===view.position)
  &&(view.game==='all'||String(r.game?.id||'')===view.game)
  &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
@@ -232,11 +233,14 @@ function tpl(ctx,tool){
   +'<label>GAME<select data-nba-filter="game">'+options([['all','All matchups'],...matchupOptions],view.game)+'</select></label>'
   +'<label>MARKET<select data-nba-filter="metric">'+options([['all','All markets'],...Object.entries(MARKETS)],view.metric)+'</select></label>'
   +'<label>POSITION<select data-nba-filter="position">'+options([['all','All positions'],['G','Guards'],['F','Forwards'],['C','Centers']],view.position)+'</select></label>'
+  +'<label>DATA<select data-nba-filter="lineFilter">'+options([['auto','Current lines / fallback'],['all','All verified players'],['lines','Only players with lines'],['history','No current lines']],view.lineFilter)+'</select></label>'
   +'<label>MIN. GAMES<select data-nba-filter="minSample">'+options([['0','Any sample'],['5','5+ games'],['10','10+ games'],['15','15+ games'],['20','20+ games']],view.minSample)+'</select></label>'
   +'<label>SORT<select data-nba-filter="sort">'+options([['l5','Last 5'],['l10','Last 10'],['l20','Last 20'],['season','Season'],['dvp','Opp. allowance'],['minutes','Minutes'],['model','Model over'],['price','Best price'],['name','Player name']],view.sort)+'</select></label>'
   +'<label class="nba-search-label">FIND PLAYER<input data-nba-search type="search" value="'+e(view.search)+'" placeholder="Player or team…"></label>'
   +'<button class="nba-sort-direction" type="button" data-nba-reverse title="Reverse sorting">'+(view.direction==='desc'?'↓':'↑')+'</button></div>';
- const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>TSO VERIFIED NBA HISTORY</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span></div>';
+ const age=date&&Number.isFinite(date.getTime())?Date.now()-date.getTime():null;
+ const sourceLabel=age!==null&&age>3*86400000?'HISTORICAL NBA SOURCE — CHECK FRESHNESS':'TSO VERIFIED NBA HISTORY';
+ const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span></div>';
  const cols=tool==='player-form'?10:10;
  const table='<div class="nba-table-scroll"><table class="nba-table"><thead><tr>'+header+'</tr></thead><tbody>'
   +(body||'<tr class="nba-no-rows"><td colspan="'+cols+'">No verified players match these filters. Try another market or position.</td></tr>')
