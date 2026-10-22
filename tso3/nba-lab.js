@@ -296,13 +296,15 @@ function tpl(ctx,tool){
  const oddsLabel=oddsDate&&Number.isFinite(oddsDate.getTime())?'BOOK SNAPSHOT (NOT LIVE STREAM) '+oddsDate.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'NO CURRENT VERIFIED BOOK QUOTES';
  const injuryLabel=ctx.injuries?.fetchedAt?'ESPN INJURY SNAPSHOT '+new Date(ctx.injuries.fetchedAt).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'INJURY FEED UNAVAILABLE';
  const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span><span>'+e(oddsLabel)+'</span><span>'+e(injuryLabel)+'</span></div>';
+ const missingMarkets=Object.entries(MARKETS).filter(([key])=>!view.rows.some(r=>r.market===key)).map(([,label])=>label);
+ const coverage=missingMarkets.length?'<div class="nba-depth-note">SOURCE COVERAGE GAP: No verified game logs for '+e(missingMarkets.join(', '))+'. These markets have no reported hit rates or invented prices.</div>':'';
  const cols=tool==='player-form'?10:10;
  const table='<div class="nba-table-scroll"><table class="nba-table"><thead><tr>'+header+'</tr></thead><tbody>'
   +(body||'<tr class="nba-no-rows"><td colspan="'+cols+'">No verified players match these filters. Try another market or position.</td></tr>')
   +'</tbody></table></div><div class="nba-table-foot"><span>Showing '+first.length+' / '+rows.length+' · Select any row for game logs, trends and matchup context</span>'
   +(first.length<rows.length?'<button type="button" data-nba-more>SHOW MORE →</button>':'')+'</div>';
  return '<section class="nba-lab"><div class="nba-intro"><div><span class="nba-eyebrow">THE SPORTS OUTPOST / NBA INTELLIGENCE</span><h2>'+e(title)+'</h2><p>'+e(desc)+'</p></div><div class="nba-view-switch"><a class="'+(tool==='player-form'?'active':'')+'" href="#/nba/cheatsheets/player-form">PLAYER FORM</a><a class="'+(tool==='matchup-vs-position'?'active':'')+'" href="#/nba/cheatsheets/matchup-vs-position">VS POSITION</a></div></div>'
-  +status+controls
+  +status+coverage+controls
   +'<div class="nba-legend"><span><i class="nba-legend-high"></i>Strong historical rate / more allowed</span><span><i class="nba-legend-low"></i>Lower historical rate / less allowed</span><span>— means not verified · Rates only against an observed exact line</span></div>'
   +table
   +'<p class="nba-footnote">Source: TSO ESPN-derived game history, official ESPN reported injury entries and NBA regression feed. L5/L10/L20 may bridge seasons; “Season” uses the source’s current season only. Defense vs position aggregates guards (G), forwards (F) and centers (C); a 1.10× rate means 10% more points or other selected stat allowed than its league positional benchmark, <strong>not a 10% betting edge</strong>. Older feeds are marked by their source timestamp. Sportsbook lines and odds appear only when verified.</p></section>';
