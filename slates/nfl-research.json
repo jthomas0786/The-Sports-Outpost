@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-10-22T11:54:22.465Z",
+  "generatedAt": "2026-10-22T17:11:39.630Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -21,29 +21,9 @@
       ],
       "rows": 32
     },
-    "nflversePrevRegular": {
-      "ok": true,
-      "rows": 2020
-    },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 3054
-    },
-    "nflversePlayers": {
-      "ok": true,
-      "rows": 24859
-    },
     "nflverseCurrentSnaps": {
       "ok": true,
       "rows": 8671
-    },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26613
-    },
-    "nflversePrevWeekly": {
-      "ok": true,
-      "rows": 19422
     },
     "nflverseCurrentWeekly": {
       "ok": true,
@@ -53,6 +33,26 @@
       "ok": true,
       "rows": 1651
     },
+    "nflverseRosterCurrent": {
+      "ok": true,
+      "rows": 3054
+    },
+    "nflversePrevSnaps": {
+      "ok": true,
+      "rows": 26613
+    },
+    "nflversePrevRegular": {
+      "ok": true,
+      "rows": 2020
+    },
+    "nflversePrevWeekly": {
+      "ok": true,
+      "rows": 19422
+    },
+    "nflversePlayers": {
+      "ok": true,
+      "rows": 24861
+    },
     "espnInjuries": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -60,7 +60,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:BAL": {
+    "espnRoster:ARI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -74,21 +74,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CIN": {
+    "espnDepth:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CIN": {
+    "espnDepth:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -109,35 +102,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CAR": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CHI": {
+    "espnDepth:BAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -151,7 +116,42 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:ATL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -179,42 +179,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:DEN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DEN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:DET": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:HOU": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -228,7 +193,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:HOU": {
+    "espnDepth:DET": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -242,7 +228,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:IND": {
+    "espnDepth:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -250,6 +236,27 @@
       ]
     },
     "espnRoster:IND": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:IND": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:HOU": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -264,13 +271,6 @@
       ]
     },
     "espnRoster:JAX": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -305,13 +305,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:LAC": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -319,7 +312,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:LA": {
+    "espnDepth:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -333,14 +326,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:MIA": {
+    "espnRoster:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
+    "espnRoster:MIA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -354,14 +347,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NE": {
+    "espnRoster:NE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NE": {
+    "espnDepth:MIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -389,28 +389,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:PIT": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:PHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:NYG": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -431,7 +417,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PIT": {
+    "espnDepth:PHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -445,6 +438,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:PIT": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -452,7 +452,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SEA": {
+    "espnDepth:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -473,7 +473,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TEN": {
+    "espnRoster:SEA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -487,14 +487,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:WSH": {
+    "espnDepth:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -502,6 +495,13 @@
       ]
     },
     "espnDepth:WSH": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -59157,7 +59157,7 @@
     {
       "espnId": "4684030",
       "gsisId": "00-0040947",
-      "pfrId": null,
+      "pfrId": "QuinTJ00",
       "team": "ATL",
       "name": "TJ Quinn",
       "position": "LB",
@@ -216880,7 +216880,7 @@
     {
       "espnId": "4819215",
       "gsisId": "00-0041246",
-      "pfrId": null,
+      "pfrId": "KattJo00",
       "team": "CIN",
       "name": "Josh Kattus",
       "position": "TE",
@@ -327232,7 +327232,7 @@
     {
       "espnId": "4430121",
       "gsisId": "00-0041456",
-      "pfrId": null,
+      "pfrId": "KeanAi00",
       "team": "DET",
       "name": "Aidan Keanaaina",
       "position": "DT",
@@ -507980,7 +507980,7 @@
     },
     {
       "espnId": "4577189",
-      "gsisId": null,
+      "gsisId": "00-0041211",
       "pfrId": null,
       "team": "LA",
       "name": "Jalen Hunt",
@@ -508003,7 +508003,7 @@
       "previousSeason": null,
       "currentSeason": null,
       "last5": null,
-      "gameLog": null,
+      "gameLog": [],
       "snapTrend": null,
       "matchup": null
     },
@@ -583017,22 +583017,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "TE",
-          "totalYards": 242,
+          "totalYards": 250,
           "passYds": 0,
           "rushYds": 0,
-          "recYds": 242,
+          "recYds": 250,
           "totalTds": 1,
           "perGame": {
-            "yards": 40.3,
+            "yards": 41.7,
             "passYds": 0,
             "rushYds": 0,
-            "recYds": 40.3,
+            "recYds": 41.7,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 0.17,
             "tds": 0.17,
-            "targets": 6.5,
-            "receptions": 4.5,
+            "targets": 6.7,
+            "receptions": 4.7,
             "carries": 0,
             "completions": 0,
             "attempts": 0
@@ -583770,22 +583770,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -584735,22 +584735,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "TE",
-          "totalYards": 242,
+          "totalYards": 250,
           "passYds": 0,
           "rushYds": 0,
-          "recYds": 242,
+          "recYds": 250,
           "totalTds": 1,
           "perGame": {
-            "yards": 40.3,
+            "yards": 41.7,
             "passYds": 0,
             "rushYds": 0,
-            "recYds": 40.3,
+            "recYds": 41.7,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 0.17,
             "tds": 0.17,
-            "targets": 6.5,
-            "receptions": 4.5,
+            "targets": 6.7,
+            "receptions": 4.7,
             "carries": 0,
             "completions": 0,
             "attempts": 0
@@ -584948,22 +584948,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -585719,22 +585719,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "TE",
-          "totalYards": 242,
+          "totalYards": 250,
           "passYds": 0,
           "rushYds": 0,
-          "recYds": 242,
+          "recYds": 250,
           "totalTds": 1,
           "perGame": {
-            "yards": 40.3,
+            "yards": 41.7,
             "passYds": 0,
             "rushYds": 0,
-            "recYds": 40.3,
+            "recYds": 41.7,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 0.17,
             "tds": 0.17,
-            "targets": 6.5,
-            "receptions": 4.5,
+            "targets": 6.7,
+            "receptions": 4.7,
             "carries": 0,
             "completions": 0,
             "attempts": 0
@@ -586064,22 +586064,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -586961,22 +586961,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "TE",
-          "totalYards": 242,
+          "totalYards": 250,
           "passYds": 0,
           "rushYds": 0,
-          "recYds": 242,
+          "recYds": 250,
           "totalTds": 1,
           "perGame": {
-            "yards": 40.3,
+            "yards": 41.7,
             "passYds": 0,
             "rushYds": 0,
-            "recYds": 40.3,
+            "recYds": 41.7,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 0.17,
             "tds": 0.17,
-            "targets": 6.5,
-            "receptions": 4.5,
+            "targets": 6.7,
+            "receptions": 4.7,
             "carries": 0,
             "completions": 0,
             "attempts": 0
@@ -587262,22 +587262,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -587332,22 +587332,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "TE",
-          "totalYards": 242,
+          "totalYards": 250,
           "passYds": 0,
           "rushYds": 0,
-          "recYds": 242,
+          "recYds": 250,
           "totalTds": 1,
           "perGame": {
-            "yards": 40.3,
+            "yards": 41.7,
             "passYds": 0,
             "rushYds": 0,
-            "recYds": 40.3,
+            "recYds": 41.7,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 0.17,
             "tds": 0.17,
-            "targets": 6.5,
-            "receptions": 4.5,
+            "targets": 6.7,
+            "receptions": 4.7,
             "carries": 0,
             "completions": 0,
             "attempts": 0
@@ -587397,22 +587397,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "TE",
-          "totalYards": 242,
+          "totalYards": 250,
           "passYds": 0,
           "rushYds": 0,
-          "recYds": 242,
+          "recYds": 250,
           "totalTds": 1,
           "perGame": {
-            "yards": 40.3,
+            "yards": 41.7,
             "passYds": 0,
             "rushYds": 0,
-            "recYds": 40.3,
+            "recYds": 41.7,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 0.17,
             "tds": 0.17,
-            "targets": 6.5,
-            "receptions": 4.5,
+            "targets": 6.7,
+            "receptions": 4.7,
             "carries": 0,
             "completions": 0,
             "attempts": 0
@@ -587974,22 +587974,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -588039,22 +588039,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -588418,22 +588418,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -588483,22 +588483,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -588548,22 +588548,22 @@
         "currentSeasonAllowed": {
           "games": 6,
           "position": "WR",
-          "totalYards": 830,
+          "totalYards": 822,
           "passYds": 0,
           "rushYds": 11,
-          "recYds": 819,
+          "recYds": 811,
           "totalTds": 6,
           "perGame": {
-            "yards": 138.3,
+            "yards": 137,
             "passYds": 0,
             "rushYds": 1.8,
-            "recYds": 136.5,
+            "recYds": 135.2,
             "passTds": 0,
             "rushTds": 0,
             "recTds": 1,
             "tds": 1,
-            "targets": 18.7,
-            "receptions": 11.3,
+            "targets": 18.5,
+            "receptions": 11.2,
             "carries": 0.2,
             "completions": 0,
             "attempts": 0
@@ -978053,7 +978053,7 @@
     },
     {
       "espnId": "4875350",
-      "gsisId": null,
+      "gsisId": "00-0041180",
       "pfrId": null,
       "team": "WSH",
       "name": "Quentin Moore",
@@ -978076,7 +978076,7 @@
       "previousSeason": null,
       "currentSeason": null,
       "last5": null,
-      "gameLog": null,
+      "gameLog": [],
       "snapTrend": null,
       "matchup": null
     },
