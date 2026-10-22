@@ -364,6 +364,38 @@ function onHash(){
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
  if(state.sport!==sport||state.page!==page||state.tool!==matched||state.openSport!==null)route(sport,page,matched);
 }
+/* Resilient NBA slate sourced directly from ESPN's published scoreboard.
+   ESPN's scoreboard supports browser CORS. No made-up schedules or team IDs. */
+function normalizeNbaScoreboard(doc){
+ if(!Array.isArray(doc?.events))return [];
+ return doc.events.map(e=>{
+  const c=e.competitions?.[0];
+  const home=c?.competitors?.find(x=>x.homeAway==='home'),away=c?.competitors?.find(x=>x.homeAway==='away');
+  if(!e.id||!home?.team?.id||!away?.team?.id||!Number.isFinite(Date.parse(e.date||'')))return null;
+  const team=x=>({id:String(x.team.id),name:x.team.displayName||x.team.name||null,
+   abbr:x.team.abbreviation||null,logo:x.team.logo||x.team.logos?.[0]?.href||null,
+   score:x.score??null,record:x.records?.find(v=>v.type==='total')?.summary||null});
+  const status=c.status?.type||e.status?.type||{};
+  return {id:String(e.id),league:'nba',home:team(home),away:team(away),
+   startTime:e.date,state:status.completed===true?'post':status.state==='in'?'in':'pre',
+   venue:c.venue?.fullName||null,source:'ESPN NBA scoreboard'};
+ }).filter(Boolean);
+}
+async function officialNbaSlate(){
+ const dates=[0,1,2].map(offset=>{
+  const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+offset);
+  return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('');
+ });
+ const rs=await Promise.allSettled(dates.map(async date=>{
+  const response=await fetch('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates='+date+'&limit=200',{cache:'no-store'});
+  if(!response.ok)throw Error('ESPN NBA scoreboard '+response.status);
+  return normalizeNbaScoreboard(await response.json());
+ }));
+ const games=[...new Map(rs.filter(r=>r.status==='fulfilled').flatMap(r=>r.value).map(g=>[g.id,g])).values()];
+ if(!games.length)throw Error('NBA scoreboard dates unavailable');
+ return games;
+}
+
 async function load(force=false){
  if(state.pending)return;
  if(!force&&Date.now()-state.updated<30000)return;
@@ -372,7 +404,8 @@ async function load(force=false){
   fetch('/api/live?league=all',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Scoreboard HTTP '+r.status);return r.json()}),
   fetch('/api/props?league=all',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Props HTTP '+r.status);return r.json()}),
   fetch('/api/nba-research',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA history HTTP '+r.status);return r.json()}),
-  fetch('/api/nba-models',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA model HTTP '+r.status);return r.json()})
+  fetch('/api/nba-models',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA model HTTP '+r.status);return r.json()}),
+  officialNbaSlate()
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
  else state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');
@@ -381,6 +414,12 @@ async function load(force=false){
  if(pairs[2].status==='fulfilled'&&pairs[2].value?.players){state.nbaResearch=pairs[2].value;state.nbaError=''}
  else {state.nbaError=String(pairs[2].reason?.message||'NBA history source missing')}
  if(pairs[3].status==='fulfilled'&&Array.isArray(pairs[3].value?.models))state.nbaModels=pairs[3].value;
+ if(pairs[4].status==='fulfilled'&&pairs[4].value.length){
+  const oldGames=Array.isArray(state.live?.games)?state.live.games:[];
+  const combined=new Map(oldGames.filter(g=>g.league!=='nba').map(g=>[g.league+':'+g.id,g]));
+  for(const g of pairs[4].value)combined.set('nba:'+g.id,g);
+  state.live={...(state.live||{}),games:[...combined.values()],nbaScoreboard:{source:'ESPN NBA scoreboard',status:'verified',fetchedAt:new Date().toISOString()}};
+ }
  state.nbaPending=false;
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
 }
