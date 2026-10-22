@@ -8,6 +8,7 @@ const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=ut
 const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','x-robots-tag':'noindex, nofollow'};
 const COLLEGE_FEED='https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard';
 const WOMEN_FEED='https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard';
+const FIRST_BASKET_SOURCE='https://tso2-nba-first-basket.jthomas0786-tso.workers.dev/';
 const isoDay=date=>date.toISOString().slice(0,10).replace(/-/g,'');
 async function officialGames(url,league){
  const from=new Date(),until=new Date(Date.now()+8*86400000);
@@ -61,6 +62,20 @@ export default {async fetch(req){
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
  if(u.pathname==='/health')return Response.json({ok:true,service:'tso3-preview',version:'3.0',source:'tso-3.0/tso3',environment:'development'},{headers});
+ if(u.pathname==='/api/first-basket'){
+  const home=String(u.searchParams.get('home')||'').toUpperCase();
+  const away=String(u.searchParams.get('away')||'').toUpperCase();
+  if(!/^[A-Z]{2,4}$/.test(home)||!/^[A-Z]{2,4}$/.test(away)||home===away)
+   return Response.json({available:false,error:'Invalid matchup teams'},{status:400,headers});
+  const p=new URLSearchParams({home,away});
+  const before=String(u.searchParams.get('before')||'');
+  if(Number.isFinite(Date.parse(before)))p.set('before',before);
+  try{
+   const r=await fetch(FIRST_BASKET_SOURCE+'?'+p.toString(),{headers:{accept:'application/json'},signal:AbortSignal.timeout(20000)});
+   if(!r.ok)return Response.json({available:false,error:'Opening-event data unavailable'},{status:503,headers});
+   return new Response(r.body,{headers:{...headers,'content-type':'application/json; charset=utf-8','cache-control':'no-store','x-tso-source':'tso2-nba-first-basket'}});
+  }catch(_){return Response.json({available:false,error:'Opening-event data unavailable'},{status:503,headers})}
+ }
  if(['/api/live','/api/props'].includes(u.pathname)){
   if(u.pathname==='/api/live'){
    try{
