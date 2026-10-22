@@ -265,7 +265,7 @@ function verifiedOddsMatch(q,g){
   &&clubKey(q.homeTeam)===clubKey(g.home.name)
   &&clubKey(q.awayTeam)===clubKey(g.away.name);
 }
-async function safeNbaOdds(){
+async function safeNbaOddsSnapshot(){
  const r=await fetch(NBA_ODDS_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:60},signal:AbortSignal.timeout(16000)});
  if(!r.ok)throw Error('Odds source HTTP '+r.status);
  const data=await r.json();
@@ -305,6 +305,66 @@ async function safeNbaOdds(){
  return {source:'TSO NBA odds cross-checked with ESPN',fetchedAt,available:rows.length>0,stale:rows.length===0,rows,
   ageMinutes:Math.max(0,Math.round(age/60000)),rejectedUnmatched,
   policy:'Only quotes with matching official NBA teams and tip time; timestamped pregame snapshots, not streaming prices'};
+}
+
+async function safeNbaOdds(){
+ const url='https://staging.thesportsoutpost.com/api/props?league=nba';
+ try{
+  const [res,official]=await Promise.all([
+   fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:35},signal:AbortSignal.timeout(15000)}),
+   officialGames(ESPN_SCOREBOARDS.nba,'nba')
+  ]);
+  if(!res.ok)throw Error('TSO staging verified NBA odds '+res.status);
+  const data=await res.json();
+  if(data?.source!=='tso-verified-odds'||!Array.isArray(data?.rows)||!official.length)
+   throw Error('Invalid or unavailable staging NBA source');
+  const now=Date.now();
+  const maxAgeForTip=start=>{
+   const hours=(start-now)/3600000;
+   return hours<=1.5?12*60000:hours<=3?25*60000:hours<=12?45*60000:hours<=48?90*60000:4*3600000;
+  };
+  const records=[],seen=new Set();let mismatches=0,expired=0;
+  for(const q of data.rows){
+   if(q?.sport!=='nba'||String(q.side||'').toLowerCase()!=='over'
+    ||q.preserved===true||!q.player||!q.book||!['points','rebounds','assists','threes','pra'].includes(String(q.market||''))
+    ||!Number.isFinite(Number(q.price))||Number(q.price)===0||!Number.isFinite(Number(q.line)))
+    continue;
+   const start=Date.parse(q.commenceTime||''),updated=Date.parse(q.snapshotTime||'');
+   if(!Number.isFinite(start)||!Number.isFinite(updated)||start<=now-15*60000||start>now+9*86400000
+    ||updated>now+5*60000||now-updated>maxAgeForTip(start)){expired++;continue}
+   const game=official.find(g=>verifiedOddsMatch(q,g)&&g.state==='pre');
+   if(!game){mismatches++;continue}
+   const suffix=String(q.player).match(/\(([A-Za-z]{2,5})\)\s*$/)?.[1]?.toUpperCase()||null;
+   const validTeams=new Set([String(game.home.abbr).toUpperCase(),String(game.away.abbr).toUpperCase()]);
+   const aliases={NY:'NYK',GS:'GS',GSW:'GS',PHO:'PHX',UTAH:'UTAH',SA:'SA',SAS:'SA',NO:'NO',NOP:'NO',
+    BRK:'BKN',BKN:'BKN',PHI:'PHI',CLE:'CLE'};
+   const resolved=suffix?(aliases[suffix]||suffix):null;
+   if(suffix&&!validTeams.has(resolved)){mismatches++;continue}
+   const name=String(q.player).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim();
+   const key=[game.id,normNameForKey(name),q.market,q.line,q.book].join('|');
+   if(seen.has(key))continue;
+   seen.add(key);
+   records.push({sport:'nba',player:name,market:q.market,side:'over',line:Number(q.line),
+    price:Number(q.price),book:String(q.book),eventId:String(q.eventId||''),verifiedGameId:String(game.id),
+    commenceTime:game.startTime,homeTeam:game.home.name,awayTeam:game.away.name,
+    snapshotTime:q.snapshotTime,source:'TSO verified staging NBA sportsbook quote'});
+  }
+  if(records.length){
+   const oldest=Math.min(...records.map(r=>Date.parse(r.snapshotTime)));
+   return {source:'TSO staging verified NBA sportsbook selections cross-checked with ESPN',fetchedAt:new Date(oldest).toISOString(),
+    available:true,stale:false,rows:records,mismatches,expired,
+    notice:'Read-only current sportsbook snapshots; never live streaming market prices'};
+  }
+  // No officially verified staging quotes: fall back to dated and independently
+  // validated public TSO snapshots; never substitute unmatched games.
+  const fallback=await safeNbaOddsSnapshot();
+  return {...fallback,stagingAttempted:true,stagingMismatches:mismatches,stagingExpired:expired};
+ }catch(_){
+  return safeNbaOddsSnapshot();
+ }
+}
+function normNameForKey(n){
+ return String(n||'').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g,'');
 }
 
 async function safeNbaDocument(url,kind,env){
