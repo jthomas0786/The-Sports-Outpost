@@ -102,3 +102,8 @@ The data path includes the TSO ESPN-derived NBA history dataset (154 player reco
 The 3.0 preview now serves an immutable bundle of the checked-in HTML and JavaScript to avoid stale GitHub raw CDN assets. Real-browser QA verified 90 Player Form rows, 90 priced first-page selections, correct -500 juice filtering, 90 Matchup vs Position rows, opponent names and nonempty verified defensive-ratio rankings.
 
 Not yet complete: the existing NBA regression service is unavailable, so regression probabilities deliberately remain blank. The old universal staging scoreboard and props APIs were unavailable during QA, but the NBA-specific ESPN scoreboard and verified TSO odds snapshot were confirmed. Authenticated paid PropFinder screens were not comprehensively inspected and no proprietary ratings, artwork or code were copied. Other sports require their own deep cheatsheet/data implementation. No main, release or production changes were made.
+
+
+## Matchup multi-select / schedule labels — October 22, 2026
+
+Updated the NBA Player Form and Matchup vs Position game picker and the shared six-sport research toolbar to allow independent checkboxes for multiple games. All Matchups resets the filter. Each option includes verified team abbreviations and a day/time label (for example, Thurs 8:30pm), formatted in America/Chicago time. The menu remains open while selecting more games. Direct tests passed for choosing two games and resetting all; live TSO 3.0 preview browser rendering verified the NBA game labels/times and the presence of 22 NBA matchup options at the time of inspection. Development branch and separate preview only; no production or main changes.
