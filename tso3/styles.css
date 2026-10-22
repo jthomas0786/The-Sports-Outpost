@@ -319,3 +319,14 @@ html,body,button,input,select,textarea{
  .nba-controls .nba-matchup-filter,.nba-controls .nba-multi-filter{flex:1 1 160px;min-width:155px}
  .nba-controls .nba-matchup-filter{flex:1 1 180px}
 }
+
+/* NBA deep research — source-driven data views, original TSO design */
+.nba-depth-source{display:flex;align-items:center;gap:9px;background:#132e2f;color:#a8dbc9;border:1px solid #2d6153;border-radius:8px;padding:11px 14px;margin:12px 0 10px;font-size:10px;font-weight:850;letter-spacing:.035em;flex-wrap:wrap}
+.nba-depth-note{padding:14px 17px;background:#192b39;border-left:3px solid #e68a4a;border-radius:0 8px 8px 0;color:#becbd6;font-size:11px;line-height:1.7;margin:12px 0}
+.nba-depth-filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap;margin:14px 0;background:#111d29;border:1px solid #2c3b4c;border-radius:9px;padding:13px}
+.nba-depth-filters label{display:flex;flex-direction:column;gap:5px;color:#9eb1bf;font-size:10px;letter-spacing:.06em;font-weight:800;flex:0 0 185px}
+.nba-depth-filters select,.nba-depth-filters input{min-height:39px;width:100%;border-radius:6px;background:#0a1420;border:1px solid #405161;color:#edf3f7;font-size:11px;padding:9px}
+.nba-depth-filters label:last-child{flex:1 1 220px}
+.nba-depth-table{min-width:1040px}.nba-depth-table tbody tr{cursor:pointer}.nba-depth-table tbody tr:hover{background:#20384a}
+.nba-depth-table td b{font-size:12px;font-weight:800;color:#e3f2f5}.nba-depth-table td small{display:block;color:#9cacba;font-size:10px;margin-top:4px}
+@media(max-width:700px){.nba-depth-filters label{flex:1 1 130px}.nba-depth-source{font-size:9px}.nba-depth-filters label:last-child{flex-basis:100%}}
