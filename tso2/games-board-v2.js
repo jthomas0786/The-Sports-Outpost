@@ -211,6 +211,7 @@ function detail(g,ctx){
   +'<span>'+esc(g.league?.toUpperCase())+' · VERIFIED DATA · '+esc(status(g))+'</span>'
   +'<button type="button" class="gb2-live" data-gb2-live>PLAY BY PLAY & BOX SCORE ↗</button></div>'
   +hero(g,d)+comparison(g,d)
+  +(g.league==='nba'?window.TSO2FirstBasket?.markup?.(g)||'':'')
   +'<section class="gb2-panel gb2-props"><div class="gb2-mi-host mi-embedded">'+(intel?intel.listing(g,rows,{showScouting:false}):'<div class="gb2-empty">Verified player props are connecting…</div>')+'</div></section>'
   +'<div class="gb2-footnote">Prop candidates use existing TSO player-market grades and verified over/yes selections; no unders or fabricated recommendations. Open a player for recent form, matchup and opponent context.</div>';
 }
@@ -243,6 +244,7 @@ function render(ctx){
    state.detailSignature=sig;
    window.TSO2Matchup?.bind?.(view,{game:g,rows,addProp:ctx.addProp,research:ctx.research,history:ctx.history,
     refresh:()=>{state.detailSignature='';render(state.ctx)}});
+   if(g.league==='nba')window.TSO2FirstBasket?.bind?.(view,g);
   }
  }
  const panel=root.querySelector('[data-gb2-dock]');
