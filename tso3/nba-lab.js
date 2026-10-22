@@ -62,18 +62,23 @@ function teamName(team,research){
  const t=research?.teams?.[String(team)]||{};
  return t.abbreviation||t.abbr||t.name||String(team||'');
 }
-function resolveGame(person,models,games,research){
+function resolveGame(person,records,games,research){
  if(!person)return null;
- const entry=models?.find(m=>String(m.playerId||'')===String(person.id))||null;
- let game=entry&&games.find(g=>String(g.id)===String(entry.eventId));
- if(game)return game;
- game=games.find(g=>String(g.home?.id)===String(person.teamId)||String(g.away?.id)===String(person.teamId));
- if(game)return game;
- if(entry?.homeTeam&&entry?.awayTeam){
-  const x=games.find(g=>norm(g.home?.name)===norm(entry.homeTeam)&&norm(g.away?.name)===norm(entry.awayTeam));
-  if(x)return x;
+ const entry=records?.[0]||null;
+ const team=String(person.teamId||'');
+ const isTeam=g=>String(g?.home?.id)===team||String(g?.away?.id)===team;
+ if(entry?.verifiedGameId){
+  const verified=games.find(g=>String(g.id)===String(entry.verifiedGameId)&&isTeam(g));
+  return verified||null;
  }
- return null;
+ if(entry){
+  const direct=games.find(g=>String(g.id)===String(entry.eventId)&&isTeam(g));
+  if(direct)return direct;
+  const when=Date.parse(entry.commenceTime||''),matched=games.find(g=>isTeam(g)
+   &&Number.isFinite(when)&&Math.abs(Date.parse(g.startTime||'')-when)<=90*60000);
+  return matched||null;
+ }
+ return games.filter(isTeam).sort((a,b)=>Date.parse(a.startTime)-Date.parse(b.startTime))[0]||null;
 }
 function opponentId(person,game){
  if(!game)return null;
@@ -103,7 +108,7 @@ function quoteKey(row){return [String(row.eventId||row.gameId||''),norm(row.play
 function prices(rows){
  const m=new Map();
  for(const r of rows||[]){
-  if(String(r.sport||r.league||'').toLowerCase()!=='nba'||!market(r.marketLabel||r.market)||number(r.line)===null||!['over','yes','true'].includes(String(r.side||'over').toLowerCase())||r.available===false||r.active===false||r.suspended===true||r.preserved===true||!number(r.price)||!(r.book||r.bookName||r.sportsbook))continue;
+  if(String(r.sport||r.league||'').toLowerCase()!=='nba'||!market(r.marketLabel||r.market)||number(r.line)===null||!['over','yes','true'].includes(String(r.side||'over').toLowerCase())||r.available===false||r.active===false||r.suspended===true||r.preserved===true||!number(r.price)||!(r.book||r.bookName||r.sportsbook)||!r.verifiedGameId)continue;
   const k=quoteKey(r),old=m.get(k);
   if(!old||number(r.price)!==null&&(number(old.price)===null||Number(r.price)>Number(old.price)))m.set(k,r);
  }
@@ -121,7 +126,8 @@ function rankedRows(ctx){
   const key=[String(m.eventId),String(person.id),metric,String(Number(m.line))].join('|');
   if(seen.has(key))continue;seen.add(key);
   const game=resolveGame(person,[m],games,research);
-  const opp=m.opponentId?String(m.opponentId):opponentId(person,game);
+  if(!game)continue;
+  const opp=opponentId(person,game);
   const quote=odds.get([String(m.eventId),norm(m.player),metric,String(Number(m.line))].join('|'));
   const dvp=defensiveAllowance(research,opp,posGroup(person.position),metric);
   rows.push({id:key,player:person,game,market:metric,line:Number(m.line),quote,model:m,defense:dvp,opponent:opp,log:history(person,metric),from:'exact model line'});
@@ -134,7 +140,8 @@ function rankedRows(ctx){
   if(!metric||!person)continue;
   const key=[String(quote.eventId||quote.gameId||''),String(person.id),metric,String(Number(quote.line))].join('|');
   if(seen.has(key))continue;seen.add(key);
-  const game=resolveGame(person,[],games,research);
+  const game=resolveGame(person,[quote],games,research);
+  if(!game)continue;
   const opp=opponentId(person,game);
   const mi=marks.get(quoteKey(quote))||null;
   rows.push({id:key,player:person,game,market:metric,line:Number(quote.line),quote,model:mi,defense:defensiveAllowance(research,opp,posGroup(person.position),metric),opponent:opp,log:history(person,metric),from:'verified sportsbook line'});
@@ -266,9 +273,9 @@ function tpl(ctx,tool){
   +'<label class="nba-search-label">FIND PLAYER<input data-nba-search type="search" value="'+e(view.search)+'" placeholder="Player or team…"></label>'
   +'<button class="nba-sort-direction" type="button" data-nba-reverse title="Reverse sorting">'+(view.direction==='desc'?'↓':'↑')+'</button></div>';
  const age=date&&Number.isFinite(date.getTime())?Date.now()-date.getTime():null;
- const sourceLabel=age===null?'NBA SOURCE — TIMESTAMP UNAVAILABLE':age>3*86400000?'HISTORICAL NBA SOURCE — CHECK FRESHNESS':'TSO VERIFIED NBA HISTORY';
+ const sourceLabel=age===null?'NBA HISTORY — SOURCE TIMESTAMP UNKNOWN':age>10*3600000?'NBA HISTORICAL STATS — REFRESH OVERDUE':'NBA VERIFIED HISTORY · LAST COMPLETED GAMES';
  const oddsDate=ctx.oddsSnapshot?new Date(ctx.oddsSnapshot):null;
- const oddsLabel=oddsDate&&Number.isFinite(oddsDate.getTime())?'ODDS SNAPSHOT '+oddsDate.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'ODDS FEED UNAVAILABLE';
+ const oddsLabel=oddsDate&&Number.isFinite(oddsDate.getTime())?'BOOK SNAPSHOT (NOT LIVE STREAM) '+oddsDate.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'NO CURRENT VERIFIED BOOK QUOTES';
  const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span><span>'+e(oddsLabel)+'</span></div>';
  const cols=tool==='player-form'?10:10;
  const table='<div class="nba-table-scroll"><table class="nba-table"><thead><tr>'+header+'</tr></thead><tbody>'
@@ -312,7 +319,7 @@ function detail(ctx,row){
 function render(ctx,tool){
  if(!ctx||ctx.sport!=='nba'||!['player-form','matchup-vs-position'].includes(tool))return '';
  stateCtx.value=ctx;
- const key=ctx.research?.generatedAt+'|'+ctx.models?.generatedAt+'|'+ctx.props?.rows?.length+'|'+ctx.games?.length;
+ const key=ctx.research?.generatedAt+'|'+ctx.models?.generatedAt+'|'+ctx.props?.nbaOdds?.fetchedAt+'|'+ctx.props?.rows?.length+'|'+ctx.games?.map(g=>g.id+':'+g.state+':'+g.startTime).join('|');
  if(stateCtx.key!==key){
   view.rows=rankedRows(ctx);stateCtx.key=key;view.limit=90;
  }
