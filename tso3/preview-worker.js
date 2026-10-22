@@ -12,6 +12,7 @@ const FIRST_BASKET_SOURCE='https://tso2-nba-first-basket.jthomas0786-tso.workers
 
 const NBA_MODEL_SOURCE='https://tso2-nba-model.jthomas0786-tso.workers.dev/';
 const NBA_RESEARCH_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-research.json';
+const NBA_ODDS_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-odds.json';
 function sanitizeNbaResearch(doc){
  if(!doc||typeof doc!=='object'||!doc.players||!doc.teams)throw Error('Invalid verified research schema');
  const stats=['points','rebounds','assists','threes','pra','minutes','steals','blocks'];
@@ -29,6 +30,29 @@ function sanitizeNbaResearch(doc){
  return {source:'TSO public NBA research / ESPN-derived history',generatedAt:doc.generatedAt||null,currentSeason:doc.currentSeason||null,
   players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},teamDefense:doc.teamDefense||{},league:doc.league||{},teamProfiles:doc.teamProfiles||{}};
 }
+async function safeNbaOdds(){
+ const r=await fetch(NBA_ODDS_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:60},signal:AbortSignal.timeout(16000)});
+ if(!r.ok)throw Error('Odds source HTTP '+r.status);
+ const data=await r.json();
+ const fetchedAt=data?.meta?.fetchedAt;
+ const time=Date.parse(fetchedAt||'');
+ if(!Array.isArray(data?.rows)||!Number.isFinite(time))throw Error('Invalid NBA odds source metadata');
+ const age=Date.now()-time;
+ // Old snapshots must never be presented as current sportsbook selections.
+ if(age>12*3600000||age< -3600000)return {source:'TSO NBA odds snapshot',fetchedAt,available:false,stale:true,rows:[]};
+ const now=Date.now();
+ const rows=data.rows.filter(q=>{
+  const start=Date.parse(q?.commenceTime||'');
+  return q?.player&&q?.book&&['points','rebounds','assists','threes','pra'].includes(String(q.market||''))&&Number.isFinite(Number(q.line))&&Number.isFinite(Number(q.overPrice))&&Number(q.overPrice)!==0&&Number.isFinite(start)&&start>now-15*60000;
+ }).slice(0,6500).map(q=>({
+  sport:'nba',player:String(q.player),market:String(q.market),side:'over',line:Number(q.line),
+  price:Number(q.overPrice),book:String(q.book),eventId:String(q.eventId||''),
+  commenceTime:q.commenceTime,homeTeam:q.homeTeam||null,awayTeam:q.awayTeam||null,
+  snapshotTime:fetchedAt,source:'TSO NBA odds snapshot'
+ }));
+ return {source:'TSO NBA odds snapshot',fetchedAt,available:true,stale:false,rows};
+}
+
 async function safeNbaDocument(url,kind){
  const r=await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:kind==='research'?300:90},signal:AbortSignal.timeout(16000)});
  if(!r.ok)throw Error('NBA source '+r.status);
@@ -99,6 +123,12 @@ export default {async fetch(req){
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
  if(u.pathname==='/health')return Response.json({ok:true,service:'tso3-preview',version:'3.0',source:'tso-3.0/tso3',environment:'development'},{headers});
+ if(u.pathname==='/api/nba-odds'){
+  try{
+   const doc=await safeNbaOdds();
+   return Response.json(doc,{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO NBA odds snapshot'}});
+  }catch(_){return Response.json({available:false,rows:[],error:'Current NBA odds snapshot unavailable'},{status:503,headers})}
+ }
  if(u.pathname==='/api/nba-models'||u.pathname==='/api/nba-research'){
   const kind=u.pathname.endsWith('research')?'research':'models';
   try{
