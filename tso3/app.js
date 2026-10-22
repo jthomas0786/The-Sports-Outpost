@@ -27,7 +27,7 @@ const bookOf=r=>String(r.book||r.sportsbook||r.bookName||'');
 const gameKey=g=>String(g.id||g.gameId||'');
 const rowKey=r=>[leagueOf(r),r.playerId||nameOf(r),r.team,marketOf(r),String(r.side||''),r.line,r.price,r.book].join('|');
 const escapeSelector=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'');
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaOddsSnapshot:null,nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
@@ -225,7 +225,7 @@ function toolDetail(){
  const ready=toolReady(found[0]);
  if(state.sport==='nba'&&['Player Form','Matchup vs Position'].includes(found[0])){
   const lab=window.TSO3NbaLab;
-  const ctx={sport:state.sport,tool:state.tool,games:state.live?.games||[],props:state.props,models:state.nbaModels,research:state.nbaResearch,error:state.nbaPending?'Retrieving verified player data…':state.nbaError};
+  const ctx={sport:state.sport,tool:state.tool,games:state.live?.games||[],props:state.props,models:state.nbaModels,research:state.nbaResearch,oddsSnapshot:state.nbaOddsSnapshot,error:state.nbaPending?'Retrieving verified player data…':state.nbaError};
   return lab?'<div id="nbaLabSlot">'+lab.render(ctx,state.tool)+'</div>':empty('NBA research module unavailable','The NBA analytics script did not load. Refresh the preview.');
  }
  if(state.sport==='nba'&&found[0]==='First Basket')return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section('First Basket / Opening Tip','Select an NBA matchup for official play-by-play research')+gamesMarkup();
@@ -405,7 +405,8 @@ async function load(force=false){
   fetch('/api/props?league=all',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Props HTTP '+r.status);return r.json()}),
   fetch('/api/nba-research',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA history HTTP '+r.status);return r.json()}),
   fetch('/api/nba-models',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA model HTTP '+r.status);return r.json()}),
-  officialNbaSlate()
+  officialNbaSlate(),
+  fetch('/api/nba-odds',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NBA odds HTTP '+r.status);return r.json()})
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
  else state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');
@@ -419,6 +420,16 @@ async function load(force=false){
   const combined=new Map(oldGames.filter(g=>g.league!=='nba').map(g=>[g.league+':'+g.id,g]));
   for(const g of pairs[4].value)combined.set('nba:'+g.id,g);
   state.live={...(state.live||{}),games:[...combined.values()],nbaScoreboard:{source:'ESPN NBA scoreboard',status:'verified',fetchedAt:new Date().toISOString()}};
+ }
+ if(pairs[5].status==='fulfilled'&&pairs[5].value?.available===true&&Array.isArray(pairs[5].value.rows)){
+  const current=Array.isArray(state.props?.rows)?state.props.rows:[];
+  const merged=new Map();
+  for(const row of current.concat(pairs[5].value.rows)){
+   const key=[row.sport||row.league,row.eventId||row.gameId,row.player,row.market,row.line,row.side,row.book].join('|').toLowerCase();
+   merged.set(key,row);
+  }
+  state.props={...(state.props||{}),rows:[...merged.values()],nbaOdds:{source:pairs[5].value.source,fetchedAt:pairs[5].value.fetchedAt}};
+  state.nbaOddsSnapshot=pairs[5].value.fetchedAt;
  }
  state.nbaPending=false;
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
