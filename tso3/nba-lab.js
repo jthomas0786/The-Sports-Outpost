@@ -21,6 +21,7 @@ function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx
 function statGame(g,m){
  const st=g?.stats;
  if(!st)return null;
+ if(m==='pra'&&number(st.pra)!==null)return number(st.pra);
  const sums={pra:['points','rebounds','assists'],pr:['points','rebounds'],pa:['points','assists'],ra:['rebounds','assists']};
  if(sums[m]){
   // Same completed game, all components required; no missing stats become zeros.
@@ -76,8 +77,8 @@ function resolveGame(person,records,games,research){
  if(entry){
   const when=Date.parse(entry.commenceTime||'');
   if(!Number.isFinite(when))return null;
-  return games.find(g=>isTeam(g)&&Math.abs(Date.parse(g.startTime)-when)<=90*60000
-   &&(!entry.eventId||String(g.id)===String(entry.eventId)))||null;
+  // Sportsbook event IDs may differ from ESPN IDs; team and official tip-off are both required.
+  return games.find(g=>isTeam(g)&&Math.abs(Date.parse(g.startTime)-when)<=90*60000)||null;
  }
  return games.filter(isTeam).sort((a,b)=>Date.parse(a.startTime)-Date.parse(b.startTime))[0]||null;
 }
