@@ -132,7 +132,10 @@ async function verifiedNflSimulations(){
    awayPoints:valid(away.score.mean),homePoints:valid(home.score.mean),
    spread:sim.outcomes?.spread?{homeLine:valid(sim.outcomes.spread.homeLine),
     homeCover:prob(sim.outcomes.spread.homeCover),awayCover:prob(sim.outcomes.spread.awayCover)}:null,
-   total:sim.outcomes?.total?{line:valid(sim.outcomes.total.line),over:prob(sim.outcomes.total.over),under:prob(sim.outcomes.total.under)}:null
+   total:sim.outcomes?.total?{line:valid(sim.outcomes.total.line),over:prob(sim.outcomes.total.over),under:prob(sim.outcomes.total.under)}:null,
+   players:(Array.isArray(sim.players)?sim.players:[]).filter(p=>p?.name&&p?.team)
+    .map(p=>({id:String(p.espnId||p.playerId||''),name:String(p.name),team:nflTeamKey(p.team),
+      position:String(p.position||''),atd:prob(p.probabilities?.atd),twoPlusTd:prob(p.probabilities?.twoPlusTd)}))
   });
  }
  return {source:'TSO existing NFL Monte Carlo simulation; validated current pregame outcomes only',
