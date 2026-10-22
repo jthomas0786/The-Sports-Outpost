@@ -6,12 +6,71 @@ const RAW='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-
 const UPSTREAM='https://tso2-preview.jthomas0786-tso.workers.dev';
 const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8'};
 const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','x-robots-tag':'noindex, nofollow'};
+const COLLEGE_FEED='https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard';
+const WOMEN_FEED='https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard';
+const isoDay=date=>date.toISOString().slice(0,10).replace(/-/g,'');
+async function officialGames(url,league){
+ const from=new Date(),until=new Date(Date.now()+8*86400000);
+ const endpoint=url+'?dates='+isoDay(from)+'-'+isoDay(until)+'&limit=350';
+ const res=await fetch(endpoint,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:300},signal:AbortSignal.timeout(10000)});
+ if(!res.ok)throw Error('Verified ESPN scoreboard unavailable: '+league);
+ const json=await res.json();
+ if(!Array.isArray(json?.events))throw Error('Invalid '+league+' scoreboard schema');
+ const games=[];
+ for(const e of json.events){
+  const comp=e.competitions?.[0];if(!comp)continue;
+  const home=comp.competitors?.find(x=>x.homeAway==='home'),away=comp.competitors?.find(x=>x.homeAway==='away');
+  if(!home?.team?.id||!away?.team?.id||!e.id)continue;
+  const team=c=>({id:String(c.team.id),name:String(c.team.displayName||c.team.name||''),abbr:String(c.team.abbreviation||''),
+   logo:String(c.team.logo||c.team.logos?.[0]?.href||''),score:c.score??null,
+   record:String(c.records?.find(r=>r.type==='total')?.summary||c.records?.[0]?.summary||'')});
+  const status=comp.status?.type||e.status?.type||{};
+  const state=status.completed===true?'post':status.state==='in'?'in':'pre';
+  const startTime=e.date||comp.date;
+  if(!Number.isFinite(Date.parse(startTime||'')))continue;
+  games.push({id:String(e.id),league,state,startTime,away:team(away),home:team(home),
+    venue:String(comp.venue?.fullName||''),period:comp.status?.period||null,clock:comp.status?.displayClock||null,
+    source:'ESPN official scoreboard'});
+ }
+ return games;
+}
+async function sixLeagueLive(){
+ const result=await Promise.allSettled([
+  fetch(UPSTREAM+'/api/live?league=all',{headers:{accept:'application/json'},signal:AbortSignal.timeout(12000)}).then(async r=>{if(!r.ok)throw Error('TSO staging scoreboard '+r.status);const d=await r.json();if(!Array.isArray(d?.games))throw Error('Invalid TSO game schema');return d}),
+  officialGames(COLLEGE_FEED,'cfb'),
+  officialGames(WOMEN_FEED,'wnba')
+ ]);
+ const base=result[0].status==='fulfilled'?result[0].value:{games:[]};
+ const college=result[1].status==='fulfilled'?result[1].value:[];
+ const women=result[2].status==='fulfilled'?result[2].value:[];
+ const merged=new Map();
+ for(const game of [...base.games,...college,...women]){
+  if(!game?.id||!game?.league)continue;
+  merged.set(game.league+':'+game.id,game);
+ }
+ if(result.every(r=>r.status==='rejected'))throw Error('All verified scoreboard feeds unavailable');
+ return {...base,games:[...merged.values()],tso3:{sources:{
+  tso2:result[0].status==='fulfilled'?'verified':'unavailable',
+  cfb:result[1].status==='fulfilled'?'ESPN':'unavailable',
+  wnba:result[2].status==='fulfilled'?'ESPN':'unavailable'
+ },generatedAt:new Date().toISOString()}};
+}
+
 export default {async fetch(req){
  if(req.method==='OPTIONS')return new Response(null,{headers:{...headers,'access-control-allow-methods':'GET, HEAD, OPTIONS'}});
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
  if(u.pathname==='/health')return Response.json({ok:true,service:'tso3-preview',version:'3.0',source:'tso-3.0/tso3',environment:'development'},{headers});
  if(['/api/live','/api/props'].includes(u.pathname)){
+  if(u.pathname==='/api/live'){
+   try{
+    const combined=await sixLeagueLive();
+    const only=String(u.searchParams.get('league')||'all').toLowerCase();
+    if(only!=='all'&&['nfl','nba','mlb','nhl','wnba','cfb'].includes(only))
+     combined.games=combined.games.filter(g=>g.league===only);
+    return Response.json(combined,{headers:{...headers,'cache-control':'no-store','x-tso-source':'tso2-and-espn'}});
+   }catch(error){return Response.json({available:false,error:'Verified scoreboard unavailable',games:[]},{status:503,headers});}
+  }
   const params=new URLSearchParams(u.search);
   // Restrict the proxy's query surface to declared source-feed parameters.
   const safe=new URLSearchParams();
