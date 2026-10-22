@@ -82,6 +82,14 @@ function tdHit(logs,n=5,season=null){
  const xs=(logs||[]).filter(g=>season===null||Number(g.season)===Number(season)).slice(0,n);
  return xs.length?{hits:xs.filter(g=>(num(g.rushTds)||0)+(num(g.recTds)||0)>0).length,n:xs.length}:null;
 }
+function officialAvailability(ctx,player){
+ const all=ctx.injuries?.entries||[];
+ return all.find(x=>String(x.athleteId)===String(player.id)
+  ||(norm(x.name)===norm(player.name)&&canonicalTeam(x.team)===canonicalTeam(player.team)))||null;
+}
+function cannotPlay(report){
+ return /^(out|injured reserve|suspension|inactive)$/i.test(String(report?.status||''));
+}
 function bestQuote(ctx,game,player,market){
  if(!game)return null;
  const rows=ctx.odds?.rows||[];
@@ -105,6 +113,7 @@ function build(ctx,tool){
   const game=matchGame(ctx,player.team);if(!game)continue;
   const mid=String(game.id)+'|'+norm(player.name);
   const m=modeled.get(mid)||null;
+  const officialReport=officialAvailability(ctx,player);
   const key=game.id+'|'+norm(player.name);
   if(seen.has(key))continue;seen.add(key);
   const pos=String(player.position||m?.position||'').toUpperCase();
@@ -116,7 +125,7 @@ function build(ctx,tool){
    .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.week)-Number(a.week));
   const quote=bestQuote(ctx,game,player,tool==='touchdown-opportunities'?'atd':tool==='rushing-matchups'?'rushYds':tool==='quarterback-research'?'passYds':'recYds');
   result.push({id:key,kind:'player',name:player.name,team:canonicalTeam(player.team),position:pos,
-   p:player,m,game,quote,logs,modelProbability:modeledData?num(m?.modelProbability):null});
+   p:player,m,game,quote,logs,officialReport,modelProbability:modeledData&&!cannotPlay(officialReport)?num(m?.modelProbability):null});
  }
  // Model-only players absent from research should remain visible, but no historical logs are inferred.
  if(modelTools.has(tool)){
@@ -124,10 +133,10 @@ function build(ctx,tool){
    const game=games.find(g=>g.id===rec.g.id);if(!game)continue;
    const key=game.id+'|'+norm(rec.p.name);
    if(seen.has(key))continue;seen.add(key);
-   const p=rec.p;
+   const p=rec.p,officialReport=officialAvailability(ctx,p);
    result.push({id:key,kind:'player',name:p.name,team:canonicalTeam(p.team),position:p.position||'',
      p:null,m:p,game,quote:bestQuote(ctx,game,p,'atd'),logs:[],
-     modelProbability:modeledData?num(p.modelProbability):null});
+     officialReport,modelProbability:modeledData&&!cannotPlay(officialReport)?num(p.modelProbability):null});
   }
  }
  return result;
@@ -181,10 +190,10 @@ function row(r){
  }
  const season=r.p?.currentSeason,atd=r.modelProbability,quote=r.quote;
  const logs=r.logs||[],latest=logs.slice(0,5);
- const projected=atd===null?'—':percent(atd);
+ const projected=atd===null?(cannotPlay(r.officialReport)?'OUT / INACTIVE':'—'):percent(atd);
  const isTD=state.tool==='touchdown-opportunities';
  let cells=[];
- if(isTD)cells=[{html:'<b class="'+tdClass(atd)+'">'+projected+'</b><small>'+esc(r.m?.confidence||'')+'</small>'},
+ if(isTD)cells=[{html:'<b class="'+tdClass(atd)+'">'+projected+'</b><small>'+esc(r.officialReport?.status||r.m?.confidence||'')+'</small>'},
   {text:r.m?.modelGrade||'—'}, {text:f(r.m?.opportunityRate)},
   {text:percent(r.m?.snapShare)}, {text:percent(r.m?.opponentRzTdRate)},
   {html:'<b>'+esc(fmtPrice(quote?.price))+'</b><small>'+esc(quote?.book||'NO VERIFIED BOOK')+'</small>'}];
@@ -216,7 +225,7 @@ function render(ctx,tool){
  const source='<div class="nba-depth-source">NFL OFFICIAL SLATE · '+games.length+' UPCOMING GAMES'
   +' · PLAYER RESEARCH '+esc(asof(ctx.research?.generatedAt))
   +' · TSO TD MODEL '+esc(asof(ctx.td?.generatedAt))
-  +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))
+  +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))+' · ESPN INJURIES '+esc(asof(ctx.injuries?.fetchedAt))
   +(tool==='game-projections'?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')+'</div>';
  const modelAlert=ctx.td?.modelFresh===false?'TD MODEL SNAPSHOT EXPIRED — probabilities hidden until refreshed.':
   ctx.td?.modelFresh===true?'TSO ATD estimates use 2025 NFL scoring and red-zone history adjusted for 2026 roster and matchup context.':
@@ -256,7 +265,7 @@ function detail(r,ctx){
   +'<div><small>RZ CARRIES (BASELINE)</small><b>'+esc(r.m?.rzCarries??'—')+'</b></div>'
   +'<div><small>RZ TARGETS (BASELINE)</small><b>'+esc(r.m?.rzTargets??'—')+'</b></div>'
   +'<div><small>OPP RZ TD ALLOWED</small><b>'+percent(r.m?.opponentRzTdRate)+'</b></div>'
-  +'<div><small>INJURY STATUS</small><b>'+esc(r.p?.status||r.m?.injuryStatus||'Unknown')+'</b></div></div>'
+  +'<div><small>INJURY STATUS</small><b>'+esc(r.officialReport?.status||r.p?.status||r.m?.injuryStatus||'Unknown')+'</b></div></div>'
   +'<h3>Last games · observed TD counts</h3>'+bar
   +'<h3>2026 player trends</h3><div class="nfl-detail-grid">'+stats.map(([name,value])=>'<div><small>'+esc(name.toUpperCase())+'</small><b>'+f(value)+'</b></div>').join('')+'</div>'
   +'<h3>Game log</h3><div class="nba-log-scroll"><table class="nba-log"><thead><tr><th>WEEK</th><th>SEASON</th><th>OPP</th><th>CARRIES</th><th>TARGETS</th><th>RUSH YDS</th><th>REC YDS</th><th>TD</th></tr></thead><tbody>'
