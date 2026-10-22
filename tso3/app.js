@@ -39,7 +39,7 @@ function matchupTime(raw){
 function matchRowGame(row,g){
  if(!row||!g)return false;
  if(String(row.gameId||row.eventId||'')===gameKey(g))return true;
- const ab=(v,t)=>canon(v)===canon(t.abbr)||canon(v)===canon(t.name)||canon(v)===canon((t.name||'').replace(/^.*\s/,'')) ;
+ const ab=(v,t)=>Boolean(canon(v))&&[t.abbr,t.name].some(x=>Boolean(canon(x))&&canon(v)===canon(x));
  const teams=ab(row.homeTeam,g.home||{})&&ab(row.awayTeam,g.away||{});
  const start=Date.parse(row.commenceTime||''),gameTime=Date.parse(g.startTime||'');
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
@@ -495,7 +495,23 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerSave'))save(state.selected);
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
-document.addEventListener('change',e=>{window.TSO3NbaLab?.change?.(e)});
+document.addEventListener('change',e=>{
+ const match=e.target.closest?.('[data-global-matchup-check]');
+ if(match){
+  const val=match.dataset.globalMatchupCheck;
+  if(val==='all')state.matchupIds=[];
+  else{
+   const selected=new Set(state.matchupIds);
+   if(match.checked)selected.add(val);else selected.delete(val);
+   state.matchupIds=[...selected];
+  }
+  state.matchupOpen=true;state.maxRows=40;
+  render();
+  el('globalMatchups').querySelector('[data-global-matchup-check="'+val+'"]')?.focus?.({preventScroll:true});
+  return;
+ }
+ window.TSO3NbaLab?.change?.(e);
+});
 document.addEventListener('input',e=>{window.TSO3NbaLab?.input?.(e)});
 el('closeDrawer').addEventListener('click',closeDrawer);
 el('scrim').addEventListener('click',closeDrawer);
@@ -504,6 +520,15 @@ el('refreshBtn').addEventListener('click',()=>load(true));
 el('search').addEventListener('input',e=>{state.search=e.target.value;state.maxRows=40;el('content').innerHTML=(state.page==='trends'?pageTrends():state.page==='games'&&state.game?pageGames():state.page==='overview'?overview():state.page==='cheatsheets'&&state.tool?toolDetail():section('Current selections','Filtered results')+tableMarkup(filteredRows()))});
 for(const id of ['market','book','window','sort'])el(id).addEventListener('change',e=>{state[id]=e.target.value;state.maxRows=40;render()});
 window.addEventListener('hashchange',onHash);
+document.addEventListener('toggle',e=>{
+ if(e.target.matches?.('[data-global-matchup-picker]'))state.matchupOpen=Boolean(e.target.open);
+},true);
+document.addEventListener('click',e=>{
+ if(state.matchupOpen&&!e.target.closest?.('[data-global-matchup-picker]')){
+  const picker=el('globalMatchups').querySelector('[data-global-matchup-picker]');
+  if(picker){picker.open=false;state.matchupOpen=false}
+ }
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(state.openSport!==null){closeSportMenu();el('sportNav').querySelector('[data-sport-toggle="'+state.sport+'"]')?.focus()}else closeDrawer()}});
 const hash=location.hash.replace(/^#\/?/,'').split('/');
 if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1];state.tool=hash[1]==='cheatsheets'&&SPORTS[hash[0]].tools.some(t=>menuToolSlug(t[0])===hash[2])?hash[2]:null}else location.hash='#/nfl/overview';
