@@ -15,7 +15,7 @@ const posGroup=pos=>['PG','SG','G'].includes(String(pos||'').toUpperCase())?'G':
 const fmtDate=t=>{const dt=new Date(t||'');return Number.isFinite(dt.getTime())?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—'};
 const fmtOdds=n=>number(n)===null?'—':(Number(n)>0?'+':'')+Number(n);
 const slugParts=m=>market(m)||null;
-const view={metric:'points',position:'all',game:'all',minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
+const view={metric:'points',position:'all',games:[],matchupOpen:false,minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
 const stateCtx={};
 function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx.research.players).length)}
 function statGame(g,m){
@@ -163,7 +163,7 @@ function visibleRows(ctx){
  let list=all.filter(r=>(view.lineFilter==='all'||(view.lineFilter==='auto'?(!hasLines||r.line!==null):(view.lineFilter==='lines'?r.line!==null:r.line===null)))
  &&(view.metric==='all'||r.market===view.metric)
  &&(view.position==='all'||posGroup(r.player.position)===view.position)
- &&(view.game==='all'||String(r.game?.id||'')===view.game)
+ &&(!view.games.length||view.games.includes(String(r.game?.id||'')))
  &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
  &&(view.maxJuice==='any'||number(r.quote?.price)===null||Number(r.quote.price)>=Number(view.maxJuice))
  &&(!query||[r.player.name,r.player.team,r.player.position,r.model?.opponent,r.game?.home?.abbr,r.game?.away?.abbr].join(' ').toLowerCase().includes(query)));
@@ -202,7 +202,19 @@ function tpl(ctx,tool){
  const dateText=date&&Number.isFinite(date.getTime())?date.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'source timestamp unavailable';
  const rows=visibleRows(ctx);
  const options=(items,chosen)=>items.map(([value,label])=>'<option value="'+e(value)+'" '+(value===chosen?'selected':'')+'>'+e(label)+'</option>').join('');
- const matchupOptions=games.map(g=>[String(g.id),String(g.away?.abbr||'AWAY')+' @ '+String(g.home?.abbr||'HOME')]);
+ const matchupOptions=games.filter(g=>g?.id&&g?.home&&g?.away).sort((a,b)=>Date.parse(a.startTime||0)-Date.parse(b.startTime||0));
+ const matchupIds=new Set(matchupOptions.map(g=>String(g.id)));
+ view.games=view.games.filter(id=>matchupIds.has(id));
+ const timeLabel=window.TSO3?.matchupTime||(()=> 'Time TBA');
+ const matchupPicker='<div class="matchup-filter nba-matchup-filter"><span class="matchup-label">MATCHUPS</span><details class="matchup-picker" data-nba-matchup-picker '+(view.matchupOpen?'open':'')+'>'
+  +'<summary class="matchup-trigger"><span class="matchup-trigger-text">'+(view.games.length?'Selected games ('+view.games.length+')':'All Matchups')+'</span><span class="matchup-chevron" aria-hidden="true">⌄</span></summary>'
+  +'<div class="matchup-options" role="group" aria-label="Select NBA games">'
+  +'<label class="matchup-option all"><input type="checkbox" data-nba-matchup-check="all" '+(!view.games.length?'checked':'')+'><span>All Matchups</span></label>'
+  +(matchupOptions.length?matchupOptions.map(g=>{
+    const id=String(g.id);
+    return '<label class="matchup-option"><input type="checkbox" data-nba-matchup-check="'+e(id)+'" '+(view.games.includes(id)?'checked':'')+'><span class="matchup-name">'+e(g.away?.abbr||'AWAY')+' @ '+e(g.home?.abbr||'HOME')+'</span><span class="matchup-time">'+e(timeLabel(g.startTime))+'</span></label>';
+   }).join(''):'<p class="matchup-empty">No scheduled games available</p>')
+  +'</div></details></div>';
  const first=rows.slice(0,view.limit);
  const header=tool==='player-form'
   ?'<th data-nba-sort="name">PLAYER</th><th>MATCHUP</th><th>MARKET / LINE</th><th data-nba-sort="l5">L5</th><th data-nba-sort="l10">L10</th><th data-nba-sort="l20">L20</th><th data-nba-sort="season">SEASON</th><th data-nba-sort="minutes">L5 MIN</th><th data-nba-sort="dvp">VS POS</th><th data-nba-sort="price">BEST BOOK</th>'
@@ -232,7 +244,7 @@ function tpl(ctx,tool){
   return '<tr tabindex="0" data-nba-row="'+e(id)+'" aria-label="Open '+e(r.player.name)+' research">'+rowBody+'</tr>';
  }).join('');
  const controls='<div class="nba-controls">'
-  +'<label>GAME<select data-nba-filter="game">'+options([['all','All matchups'],...matchupOptions],view.game)+'</select></label>'
+  +matchupPicker
   +'<label>MARKET<select data-nba-filter="metric">'+options([['all','All markets'],...Object.entries(MARKETS)],view.metric)+'</select></label>'
   +'<label>POSITION<select data-nba-filter="position">'+options([['all','All positions'],['G','Guards'],['F','Forwards'],['C','Centers']],view.position)+'</select></label>'
   +'<label>DATA<select data-nba-filter="lineFilter">'+options([['auto','Current lines / fallback'],['all','All verified players'],['lines','Only players with lines'],['history','No current lines']],view.lineFilter)+'</select></label>'
