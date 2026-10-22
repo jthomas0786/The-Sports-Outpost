@@ -592,3 +592,92 @@
  .gb2-root .gb2-matchup-identities .gb2-logo{width:24px;height:24px}
  .gb2-root .gb2-nhl-stats .gb2-compare-row>b{font-size:12px}
 }
+
+
+/* TSO 2.0 Games > NBA First Basket / opening-possession lab */
+.gb2-root .fb-root{overflow:hidden;--fb-orange:var(--outpost-orange);--fb-gold:var(--outpost-gold)}
+.gb2-root .fb-header{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:21px 24px;border-bottom:1px solid var(--gb2-rule)}
+.gb2-root .fb-header small{color:var(--fb-gold);letter-spacing:.11em;font-size:10px;font-weight:800}
+.gb2-root .fb-header h3{font-size:21px;font-weight:900;margin:5px 0 2px}
+.gb2-root .fb-header h3 em{font-size:15px;color:var(--gb2-muted);font-style:normal;font-weight:600}
+.gb2-root .fb-header p{margin:4px 0 0;color:var(--gb2-muted);font-size:12px}
+.gb2-root .fb-stamp{display:inline-flex;white-space:nowrap;background:color-mix(in srgb,var(--fb-orange) 10%,transparent);border:1px solid color-mix(in srgb,var(--fb-orange) 28%,transparent);padding:8px 10px;border-radius:7px;color:var(--fb-gold);font-size:10px;font-weight:800;letter-spacing:.07em}
+.gb2-root .fb-loading{min-height:155px;display:flex;align-items:center;justify-content:center;gap:14px;padding:20px}
+.gb2-root .fb-loading b{display:block;font-size:13px}
+.gb2-root .fb-loading small{display:block;color:var(--gb2-muted);margin-top:5px}
+.gb2-root .fb-stage{margin:17px 20px 0;padding:17px 18px;background:var(--gb2-subpanel);border:1px solid var(--gb2-rule);border-radius:var(--r-sm)}
+.gb2-root .fb-stage-head{display:flex;justify-content:space-between;gap:10px}
+.gb2-root .fb-stage-head b{display:block;color:var(--fb-gold);font-size:12px;letter-spacing:.07em}
+.gb2-root .fb-stage-head small{display:block;font-size:11px;margin-top:5px;color:var(--gb2-muted);letter-spacing:0}
+.gb2-root .fb-team{display:inline-flex;align-items:center;gap:9px;min-width:0}
+.gb2-root .fb-team-logo{width:35px;height:35px;display:inline-flex;align-items:center;justify-content:center;background:var(--gb2-raised);border:1px solid var(--gb2-border);border-radius:50%;flex-shrink:0}
+.gb2-root .fb-team-logo img{max-width:31px;max-height:31px;width:100%;height:100%;object-fit:contain}
+.gb2-root .fb-team b{font-size:16px;letter-spacing:.025em}
+.gb2-root .fb-team small{font-size:10px;color:var(--gb2-muted);font-weight:800;letter-spacing:.09em}
+.gb2-root .fb-versus{display:flex;justify-content:center;align-items:center;gap:24px;margin:16px auto 10px}
+.gb2-root .fb-versus>strong{font-size:12px;color:var(--gb2-muted);letter-spacing:.15em}
+.gb2-root .fb-metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:14px}
+.gb2-root .fb-metric{min-width:0;padding:12px;background:var(--gb2-panel);border:1px solid var(--gb2-rule);border-radius:9px}
+.gb2-root .fb-metric-label{font-size:10px;font-weight:800;letter-spacing:.12em;text-align:center;color:var(--gb2-muted);padding-bottom:10px}
+.gb2-root .fb-metric-sides{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.gb2-root .fb-metric-side{min-width:0;text-align:center;display:flex;flex-direction:column;gap:5px}
+.gb2-root .fb-metric-side b{font-size:20px;font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums}
+.gb2-root .fb-metric-side small{font-size:9px;font-weight:700;color:var(--gb2-muted);white-space:nowrap}
+.gb2-root .fb-metric-side.fb-home b{color:var(--fb-gold)}
+.gb2-root .fb-metric-side.fb-away b{color:var(--blue-2)}
+.gb2-root .fb-meter{display:block;width:100%;height:6px;border-radius:8px;background:var(--gb2-raised);overflow:hidden;font-style:normal}
+.gb2-root .fb-meter>i{display:block;height:100%;border-radius:8px;background:var(--fb-orange)}
+.gb2-root .fb-away .fb-meter>i{background:var(--blue-2)}
+.gb2-root .fb-candidate-head{padding:22px 24px 13px}
+.gb2-root .fb-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;padding:0 20px 18px}
+.gb2-root .fb-column{min-width:0;background:var(--gb2-subpanel);border:1px solid var(--gb2-border);border-radius:var(--r-sm);overflow:hidden}
+.gb2-root .fb-column-home{border-top:3px solid var(--fb-orange)}
+.gb2-root .fb-column-away{border-top:3px solid var(--blue-2)}
+.gb2-root .fb-column-top{padding:15px 16px;display:flex;justify-content:space-between;align-items:center;gap:7px}
+.gb2-root .fb-column-top>span:last-child{font-size:10px;color:var(--gb2-muted);white-space:nowrap;font-weight:700}
+.gb2-root .fb-team-factors{display:flex;flex-wrap:wrap;gap:7px;padding:0 14px 13px}
+.gb2-root .fb-team-factors>span{font-size:9px;letter-spacing:.02em;line-height:1.6;padding:6px 8px;border-radius:6px;background:var(--gb2-panel);border:1px solid var(--gb2-rule);color:var(--gb2-muted)}
+.gb2-root .fb-team-factors b{color:var(--gb2-text);font-size:10px}
+.gb2-root .fb-team-factors small{font-size:9px}
+.gb2-root .fb-list-title{display:flex;justify-content:space-between;align-items:center;gap:6px;font-size:10px;padding:11px 16px;border-block:1px solid var(--gb2-rule);background:var(--gb2-panel)}
+.gb2-root .fb-list-title b{color:var(--gb2-text);letter-spacing:.05em}
+.gb2-root .fb-list-title span{color:var(--gb2-muted);font-size:9px}
+.gb2-root .fb-player{padding:13px 14px;border-bottom:1px solid var(--gb2-rule)}
+.gb2-root .fb-player:last-child{border-bottom:0}
+.gb2-root .fb-player-head{display:flex;align-items:center;gap:9px;min-width:0}
+.gb2-root .fb-player-head>i{font-style:normal;font-size:12px;font-weight:900;color:var(--gb2-muted)}
+.gb2-root .fb-photo{width:47px;height:47px;flex:0 0 47px;background:var(--gb2-raised);border-radius:50%;overflow:hidden;border:1px solid var(--gb2-border);display:flex;align-items:center}
+.gb2-root .fb-photo img{width:100%;height:100%;object-fit:contain}
+.gb2-root .fb-player-head>div{min-width:0;flex:1}
+.gb2-root .fb-player-head>div>b{display:block;color:var(--gb2-text);font-size:13px;line-height:1.3}
+.gb2-root .fb-player-head>div>small{display:block;color:var(--gb2-muted);font-size:9px;margin-top:3px;letter-spacing:.05em}
+.gb2-root .fb-player-head>strong{font-size:20px;color:var(--fb-gold);font-weight:900;font-variant-numeric:tabular-nums}
+.gb2-root .fb-column-away .fb-player-head>strong{color:var(--blue-2)}
+.gb2-root .fb-player-meter{height:5px;border-radius:8px;background:var(--gb2-raised);margin:11px 0;overflow:hidden}
+.gb2-root .fb-player-meter>i{display:block;height:100%;background:var(--fb-orange)}
+.gb2-root .fb-column-away .fb-player-meter>i{background:var(--blue-2)}
+.gb2-root .fb-evidence{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.gb2-root .fb-evidence span{display:flex;flex-direction:column;gap:4px;padding:8px;background:var(--gb2-panel);border-radius:6px}
+.gb2-root .fb-evidence small{font-size:9px;color:var(--gb2-muted);line-height:1.3}
+.gb2-root .fb-evidence b{font-size:13px;font-variant-numeric:tabular-nums}
+.gb2-root .fb-player p{font-size:11px;line-height:1.5;color:var(--gb2-muted);margin:10px 0 0}
+.gb2-root .fb-empty{padding:22px;font-size:13px;line-height:1.6;color:var(--gb2-muted)}
+.gb2-root .fb-empty b{display:block;color:var(--gb2-text);margin-bottom:7px}
+.gb2-root .fb-empty p{margin:0}
+.gb2-root .fb-notes{padding:16px 22px 20px;border-top:1px solid var(--gb2-rule);font-size:11px;line-height:1.65;color:var(--gb2-muted)}
+.gb2-root .fb-notes strong{color:var(--fb-gold)}
+.gb2-root .fb-notes b{color:var(--gb2-text)}
+@media(max-width:850px){.gb2-root .fb-columns{grid-template-columns:1fr}.gb2-root .fb-column{max-width:none}}
+@media(max-width:600px){
+ .gb2-root .fb-header{padding:16px;align-items:start}.gb2-root .fb-header h3{font-size:17px}
+ .gb2-root .fb-header h3 em{display:block;font-size:13px;margin-top:5px}
+ .gb2-root .fb-stamp{white-space:normal;font-size:8px;text-align:center;max-width:80px}
+ .gb2-root .fb-stage{margin:12px 10px 0;padding:12px}
+ .gb2-root .fb-metric-grid{gap:5px}
+ .gb2-root .fb-metric{padding:8px 4px}.gb2-root .fb-metric-label{font-size:9px}
+ .gb2-root .fb-metric-sides{gap:4px}.gb2-root .fb-metric-side b{font-size:15px}.gb2-root .fb-metric-side small{font-size:8px;white-space:normal;min-height:20px}
+ .gb2-root .fb-versus{gap:11px}.gb2-root .fb-team{gap:4px}.gb2-root .fb-team-logo{width:27px;height:27px}.gb2-root .fb-team b{font-size:12px}
+ .gb2-root .fb-candidate-head{padding:19px 13px 11px}.gb2-root .fb-columns{padding:0 10px 12px}
+ .gb2-root .fb-evidence{gap:4px}.gb2-root .fb-evidence span{padding:7px 5px}.gb2-root .fb-evidence b{font-size:12px}
+}
+
