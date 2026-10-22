@@ -164,17 +164,25 @@ function renderNav(){
  el('heroTitle').textContent=state.page==='overview'?'Know the matchup. Own the decision.':(PAGES.find(x=>x[0]===state.page)?.[1]||'Research')+' / '+state.sport.toUpperCase();
  el('heroDescription').textContent=state.page==='overview'?'One research workspace. Lines, matchups, player trends and verified evidence without the tab overload.':SPORTS[state.sport].name+' research with consistent filters, matchup context and transparent data availability.';
  el('heroWatermark').textContent=state.sport.toUpperCase();
- const ready=Boolean(state.live||state.props);
- el('heroState').textContent=ready?'● VERIFIED SOURCE CONNECTED':'◦ FEEDS UNAVAILABLE';
+ const source=state.live?.tso3?.sources?.[state.sport]||'';
+ const when=Date.parse(state.live?.tso3?.scoreboardFetchedAt||state.live?.nbaScoreboard?.fetchedAt||'');
+ const fresh=Number.isFinite(when)&&Date.now()-when<=10*60000;
+ const ready=(source==='ESPN verified scoreboard'||(state.sport==='nba'&&state.live?.nbaScoreboard?.status==='verified'))&&fresh;
+ const asOf=Number.isFinite(when)?new Date(when).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Chicago'}):'unknown';
+ el('heroState').textContent=ready?'● OFFICIAL '+state.sport.toUpperCase()+' SCOREBOARD · '+asOf+' CT':'◦ '+state.sport.toUpperCase()+' SCHEDULE NOT VERIFIED';
  el('heroState').classList.toggle('ok',ready);
  el('sourceLight').classList.toggle('ok',ready);
- el('feedStatus').textContent=ready?'Real data available':'Feed pending / offline';
+ el('feedStatus').textContent=ready?'ESPN checked '+asOf+' CT':'Scoreboard unavailable or out of date';
  el('savedCount').textContent=state.saved.size;
  el('todayLabel').textContent=new Date().toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 }
 function renderMetrics(){
  const games=getGames(),rows=getRows().filter(eligible),exact=rows.filter(r=>exactModel(r)!==null).length,priced=rows.filter(r=>num(r.price)!==null).length;
- const stats=[['Games on feed',state.live?games.length:'—',state.live?'Observed scoreboard':'Scoreboard not connected'],['Over / Yes selections',state.props?rows.length:'—',state.props?'Current TSO lines':'Props feed unavailable'],['Exact model matches',state.props?exact:'—','Strict player / market / line'],['Book quotes',state.props?priced:'—','Available selected quotes']];
+ const fromESPN=state.live?.tso3?.sources?.[state.sport]==='ESPN verified scoreboard'||(state.sport==='nba'&&state.live?.nbaScoreboard?.status==='verified');
+ const stats=[['Current games',fromESPN?games.length:'—',fromESPN?'Official ESPN slate':'No verified current schedule'],
+ ['Pregame Over / Yes',rows.length,'Only active, dated selections'],
+ ['Exact model matches',exact,'Same player, market, side, and line'],
+ ['Verified book prices',priced,state.sport==='nba'?(state.nbaOddsSnapshot?'Quote snapshot '+new Date(state.nbaOddsSnapshot).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit',timeZone:'America/Chicago'})+' CT':'No fresh cross-verified quotes'):'Quotes requiring timestamp check']];
  el('quickStatus').innerHTML=stats.map(x=>'<div class="metric-card"><span>'+text(x[0])+'</span><strong>'+text(x[1])+'</strong><em>'+text(x[2])+'</em></div>').join('');
 }
 function globalMatchupMarkup(){
