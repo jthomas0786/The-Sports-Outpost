@@ -146,6 +146,9 @@ export default {async fetch(req){
  }
  const filepath=u.pathname==='/'?'index.html':u.pathname.replace(/^\//,'');
  if(!/^(index\.html|app\.js|nba-lab\.js|styles\.css)$/.test(filepath))return new Response('Not found',{status:404,headers});
+ // Immutable deployment bundle takes precedence; raw branch source is fallback for local development.
+ const bundled=typeof TSO3_BUNDLED_ASSETS!=='undefined'?TSO3_BUNDLED_ASSETS[filepath]:undefined;
+ if(typeof bundled==='string')return new Response(req.method==='HEAD'?null:bundled,{status:200,headers:{...headers,'content-type':TYPES[u.pathname]||TYPES['/'+filepath],'cache-control':'no-store','x-tso-build':'bundled-branch-assets'}});
  try{
   const response=await fetch(RAW+filepath+'?tso3='+Math.floor(Date.now()/30000),{headers:{accept:'text/plain,*/*'},cf:{cacheTtl:20,cacheEverything:true}});
   if(!response.ok)return new Response('Preview file unavailable',{status:502,headers});
