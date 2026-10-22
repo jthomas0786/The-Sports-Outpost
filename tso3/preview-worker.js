@@ -45,7 +45,7 @@ async function safeNbaOdds(){
   const start=Date.parse(q?.commenceTime||'');
   return q?.player&&q?.book&&['points','rebounds','assists','threes','pra'].includes(String(q.market||''))&&Number.isFinite(Number(q.line))&&Number.isFinite(Number(q.overPrice))&&Number(q.overPrice)!==0&&Number.isFinite(start)&&start>now-15*60000;
  }).slice(0,6500).map(q=>({
-  sport:'nba',player:String(q.player),market:String(q.market),side:'over',line:Number(q.line),
+  sport:'nba',player:String(q.player).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim(),market:String(q.market),side:'over',line:Number(q.line),
   price:Number(q.overPrice),book:String(q.book),eventId:String(q.eventId||''),
   commenceTime:q.commenceTime,homeTeam:q.homeTeam||null,awayTeam:q.awayTeam||null,
   snapshotTime:fetchedAt,source:'TSO NBA odds snapshot'
