@@ -230,7 +230,7 @@ function firstBasketView(g,doc){
  const home=doc.home,away=doc.away;
  if(canon(home?.abbr)!==canon(g.home?.abbr)||canon(away?.abbr)!==canon(g.away?.abbr))
   return empty('Team identity mismatch','The opening-tip data does not match this selected game.');
- const record=value=>num(value?.n)>0?'<b>'+text(value.pct)+'%</b><small>'+text(value.won)+'/'+text(value.n)+' games</small>':'<b>—</b><small>NO SAMPLE</small>';
+ const record=value=>num(value?.n)>0?'<span><b>'+text(value.pct)+'%</b><small>'+text(value.won)+'/'+text(value.n)+' games</small></span>':'<span><b>—</b><small>NO SAMPLE</small></span>';
  const lines=[['LAST 5','last5'],['LAST 10','last10'],['SEASON','season']];
  const stats=(field,label)=>'<div class="fb-section"><h4>'+text(label)+'</h4><div class="fb-three">'+lines.map(([title,k])=>'<div class="fb-three-cell"><strong>'+title+'</strong><div>'+record(home?.[field]?.[k])+record(away?.[field]?.[k])+'</div></div>').join('')+'</div></div>';
  const candidates=(info,side)=>'<div class="fb-candidates"><h4>'+text((side==='home'?g.home:g.away)?.abbr)+' · '+side.toUpperCase()+'</h4>'
