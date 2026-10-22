@@ -8,8 +8,8 @@ const e=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt
 const number=v=>v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Number(v):null;
 const norm=v=>String(v||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim().replace(/\s+/g,' ');
 const code=v=>String(v||'').toLowerCase().replace(/[^a-z0-9]/g,'');
-const market=v=>{const x=code(v);if(['points','playerpoints'].includes(x))return 'points';if(['rebounds','playerrebounds'].includes(x))return 'rebounds';if(['assists','playerassists'].includes(x))return 'assists';if(['threes','threepointersmade','3pointersmade','playerthrees'].includes(x))return 'threes';if(['pra','pointsreboundsassists','playerpra'].includes(x))return 'pra';return null};
-const MARKETS={points:'Points',rebounds:'Rebounds',assists:'Assists',threes:'3-Pointers Made',pra:'PTS + REB + AST'};
+const market=v=>{const x=code(v);if(['points','playerpoints'].includes(x))return 'points';if(['rebounds','playerrebounds'].includes(x))return 'rebounds';if(['assists','playerassists'].includes(x))return 'assists';if(['threes','threepointersmade','3pointersmade','playerthrees'].includes(x))return 'threes';if(['pra','pointsreboundsassists','playerpra'].includes(x))return 'pra';if(['pointsrebounds','playerpointsrebounds','pr'].includes(x))return 'pr';if(['pointsassists','playerpointsassists','pa'].includes(x))return 'pa';if(['reboundsassists','playerreboundsassists','ra'].includes(x))return 'ra';if(['steals','playersteals'].includes(x))return 'steals';if(['blocks','playerblocks'].includes(x))return 'blocks';return null};
+const MARKETS={points:'Points',rebounds:'Rebounds',assists:'Assists',threes:'3-Pointers Made',pra:'PTS + REB + AST',pr:'PTS + REB',pa:'PTS + AST',ra:'REB + AST',steals:'Steals',blocks:'Blocks'};
 const statLabel=(n,precision=1)=>number(n)===null?'—':Number(n).toFixed(precision);
 const posGroup=pos=>['PG','SG','G'].includes(String(pos||'').toUpperCase())?'G':['SF','PF','F'].includes(String(pos||'').toUpperCase())?'F':['C','F-C','C-F','FC'].includes(String(pos||'').toUpperCase())?'C':null;
 const fmtDate=t=>{const dt=new Date(t||'');return Number.isFinite(dt.getTime())?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—'};
@@ -21,11 +21,11 @@ function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx
 function statGame(g,m){
  const st=g?.stats;
  if(!st)return null;
- if(m==='pra'){
-  const explicit=number(st.pra);
-  if(explicit!==null)return explicit;
-  const pts=number(st.points),reb=number(st.rebounds),ast=number(st.assists);
-  return pts===null||reb===null||ast===null?null:pts+reb+ast;
+ const sums={pra:['points','rebounds','assists'],pr:['points','rebounds'],pa:['points','assists'],ra:['rebounds','assists']};
+ if(sums[m]){
+  // Same completed game, all components required; no missing stats become zeros.
+  const values=sums[m].map(k=>number(st[k]));
+  return values.some(v=>v===null)?null:values.reduce((a,b)=>a+b,0);
  }
  return number(st[m]);
 }
@@ -49,14 +49,19 @@ function summary(games,line,currentSeason,n){
 }
 function lookupPerson(research,m){
  if(!research?.players||!m)return null;
- const id=String(m.playerId||'');
- if(id&&research.players[id])return research.players[id];
- return Object.values(research.players).find(p=>norm(p.name)===norm(m.player)&&(m.teamId?String(p.teamId)===String(m.teamId):true))||null;
+ const id=String(m.playerId||''),name=norm(m.player),team=String(m.teamId||'');
+ const candidate=id?research.players[id]:null;
+ if(candidate&&name===norm(candidate.name)&&(!team||team===String(candidate.teamId)))return candidate;
+ const matches=Object.values(research.players).filter(p=>norm(p.name)===name&&(!team||String(p.teamId)===team));
+ return matches.length===1?matches[0]:null;
 }
 function byName(research,name,id){
  if(!research?.players||!name)return null;
- if(id&&research.players[String(id)])return research.players[String(id)];
- return Object.values(research.players).find(p=>norm(p.name)===norm(String(name).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim()))||null;
+ const expected=norm(String(name).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim());
+ const direct=id?research.players[String(id)]:null;
+ if(direct&&norm(direct.name)===expected)return direct;
+ const matches=Object.values(research.players).filter(p=>norm(p.name)===expected);
+ return matches.length===1?matches[0]:null;
 }
 function teamName(team,research){
  const t=research?.teams?.[String(team)]||{};
@@ -64,19 +69,15 @@ function teamName(team,research){
 }
 function resolveGame(person,records,games,research){
  if(!person)return null;
- const entry=records?.[0]||null;
- const team=String(person.teamId||'');
- const isTeam=g=>String(g?.home?.id)===team||String(g?.away?.id)===team;
- if(entry?.verifiedGameId){
-  const verified=games.find(g=>String(g.id)===String(entry.verifiedGameId)&&isTeam(g));
-  return verified||null;
- }
+ const entry=records?.[0]||null,team=String(person.teamId||''),now=Date.now();
+ const isTeam=g=>(String(g?.home?.id)===team||String(g?.away?.id)===team)
+  &&g.state==='pre'&&Number.isFinite(Date.parse(g.startTime||''))&&Date.parse(g.startTime)>now-15*60000;
+ if(entry?.verifiedGameId)return games.find(g=>String(g.id)===String(entry.verifiedGameId)&&isTeam(g))||null;
  if(entry){
-  const direct=games.find(g=>String(g.id)===String(entry.eventId)&&isTeam(g));
-  if(direct)return direct;
-  const when=Date.parse(entry.commenceTime||''),matched=games.find(g=>isTeam(g)
-   &&Number.isFinite(when)&&Math.abs(Date.parse(g.startTime||'')-when)<=90*60000);
-  return matched||null;
+  const when=Date.parse(entry.commenceTime||'');
+  if(!Number.isFinite(when))return null;
+  return games.find(g=>isTeam(g)&&Math.abs(Date.parse(g.startTime)-when)<=90*60000
+   &&(!entry.eventId||String(g.id)===String(entry.eventId)))||null;
  }
  return games.filter(isTeam).sort((a,b)=>Date.parse(a.startTime)-Date.parse(b.startTime))[0]||null;
 }
@@ -99,7 +100,7 @@ function defensiveAllowance(research,opponent,position,m){
 function modelIndex(models){
  const idx=new Map();
  for(const m of models||[]){
-  if(!m?.player||!m?.eventId||!market(m.market)||number(m.line)===null)continue;
+  if(!m?.player||!m?.eventId||!market(m.market)||number(m.line)===null||!Number.isFinite(Date.parse(m.commenceTime||''))||Date.parse(m.commenceTime)<=Date.now()-15*60000)continue;
   idx.set([String(m.eventId),norm(m.player),market(m.market),String(Number(m.line))].join('|'),m);
  }
  return idx;
@@ -115,13 +116,13 @@ function prices(rows){
  return m;
 }
 function rankedRows(ctx){
- const research=ctx.research,games=(ctx.games||[]).filter(g=>g.league==='nba'),mod=ctx.models?.models||[];
+ const research=ctx.research,games=(ctx.games||[]).filter(g=>g.league==='nba'&&g.state==='pre'&&Date.parse(g.startTime||'')>Date.now()-15*60000),mod=ctx.models?.models||[];
  const odds=prices(ctx.props?.rows||[]);
  const marks=modelIndex(mod);
  const rows=[],seen=new Set(),byPerson=new Map();
  // Preserve real model lines even when book prices are unavailable.
  for(const m of mod){
-  const metric=market(m.market);if(!metric||number(m.line)===null)continue;
+  const metric=market(m.market);if(!metric||number(m.line)===null||!Number.isFinite(Date.parse(m.commenceTime||''))||Date.parse(m.commenceTime)<=Date.now()-15*60000)continue;
   const person=lookupPerson(research,m);if(!person)continue;
   const key=[String(m.eventId),String(person.id),metric,String(Number(m.line))].join('|');
   if(seen.has(key))continue;seen.add(key);
@@ -319,7 +320,7 @@ function detail(ctx,row){
 function render(ctx,tool){
  if(!ctx||ctx.sport!=='nba'||!['player-form','matchup-vs-position'].includes(tool))return '';
  stateCtx.value=ctx;
- const key=ctx.research?.generatedAt+'|'+ctx.models?.generatedAt+'|'+ctx.props?.nbaOdds?.fetchedAt+'|'+ctx.props?.rows?.length+'|'+ctx.games?.map(g=>g.id+':'+g.state+':'+g.startTime).join('|');
+ const key=ctx.research?.generatedAt+'|'+ctx.models?.generatedAt+'|'+ctx.props?.nbaOdds?.fetchedAt+'|'+ctx.props?.rows?.length+'|'+ctx.injuries?.fetchedAt+'|'+ctx.injuries?.providerTimestamp+'|'+ctx.games?.map(g=>g.id+':'+g.state+':'+g.startTime).join('|');
  if(stateCtx.key!==key){
   view.rows=rankedRows(ctx);stateCtx.key=key;view.limit=90;
  }
