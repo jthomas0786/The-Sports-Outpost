@@ -92,3 +92,13 @@ This one page showed: window controls (Today / 3 days / This week); subject filt
 Cloudflare Worker named **tso3-preview** points at branch tso-3.0 / folder tso3. Worker enabled at the workers.dev subdomain. External browser smoke test not yet confirmed by available tools, so this is **a staged prototype**, not a production-ready 3.0 replacement.
 
 **Never represent this audit as 100% of all PropFinder pages.**
+
+## NBA Player Form and Matchup milestone — October 21, 2026
+
+Both NBA cheatsheets are implemented on the isolated TSO 3.0 branch and deployed to the independent Cloudflare preview. Each opens directly to a research table (not a second landing screen), supports opponent/game/position/market filters, sample thresholds, a maximum juice filter, sorting and searching, and opens historical-game charts and individual logs.
+
+The data path includes the TSO ESPN-derived NBA history dataset (154 player records observed in production-preview QA); verified NBA scoreboards from ESPN in the browser; TSO-owned source-timestamped NBA odds snapshots (966 eligible records in the backend source, and 181 exact line selections after default juice filtering in final browser QA); and descriptive defense-by-position comparisons against the league positional allowance benchmark.
+
+The 3.0 preview now serves an immutable bundle of the checked-in HTML and JavaScript to avoid stale GitHub raw CDN assets. Real-browser QA verified 90 Player Form rows, 90 priced first-page selections, correct -500 juice filtering, 90 Matchup vs Position rows, opponent names and nonempty verified defensive-ratio rankings.
+
+Not yet complete: the existing NBA regression service is unavailable, so regression probabilities deliberately remain blank. The old universal staging scoreboard and props APIs were unavailable during QA, but the NBA-specific ESPN scoreboard and verified TSO odds snapshot were confirmed. Authenticated paid PropFinder screens were not comprehensively inspected and no proprietary ratings, artwork or code were copied. Other sports require their own deep cheatsheet/data implementation. No main, release or production changes were made.
