@@ -302,6 +302,10 @@ function pageSaved(){
 function render(){
  state.displayedRows.clear();
  renderNav();renderMetrics();renderFilters();
+ const focusLab=state.sport==='nba'&&state.page==='cheatsheets'&&['player-form','matchup-vs-position'].includes(state.tool);
+ el('hero').hidden=focusLab;
+ el('quickStatus').hidden=focusLab;
+ el('toolbar').hidden=focusLab||el('toolbar').hidden;
  let body='';
  if(state.page==='overview')body=overview();
  else if(state.page==='games')body=pageGames();
