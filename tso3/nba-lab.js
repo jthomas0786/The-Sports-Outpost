@@ -15,7 +15,7 @@ const posGroup=pos=>['PG','SG','G'].includes(String(pos||'').toUpperCase())?'G':
 const fmtDate=t=>{const dt=new Date(t||'');return Number.isFinite(dt.getTime())?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—'};
 const fmtOdds=n=>number(n)===null?'—':(Number(n)>0?'+':'')+Number(n);
 const slugParts=m=>market(m)||null;
-const view={markets:['points'],positions:[],openPickers:{market:false,position:false},games:[],matchupOpen:false,minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
+const view={markets:['points'],positions:[],openPickers:{market:false,position:false},games:[],matchupOpen:false,minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',injuryFilter:'all',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
 const stateCtx={};
 function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx.research.players).length)}
 function statGame(g,m){
@@ -115,6 +115,17 @@ function prices(rows){
  }
  return m;
 }
+function currentInjury(ctx,person){
+ // Match both athlete ID and official team ID. Names alone are unsafe after trades.
+ if(!Array.isArray(ctx.injuries?.entries)||!person?.id||!person?.teamId)return null;
+ const row=ctx.injuries.entries.find(i=>String(i.athleteId)===String(person.id)&&String(i.teamId)===String(person.teamId));
+ return row||null;
+}
+function injuryState(record){
+ if(!record)return 'not-reported';
+ const status=norm(record.status);
+ return /^(out|inactive|suspended)$/.test(status)?'out':'reported';
+}
 function rankedRows(ctx){
  const research=ctx.research,games=(ctx.games||[]).filter(g=>g.league==='nba'&&g.state==='pre'&&Date.parse(g.startTime||'')>Date.now()-15*60000),mod=ctx.models?.models||[];
  const odds=prices(ctx.props?.rows||[]);
@@ -164,13 +175,14 @@ function rankedRows(ctx){
    }
   }
  }
- return rows;
+ return rows.map(r=>({...r,injury:currentInjury(ctx,r.player)}));
 }
 function visibleRows(ctx){
  const all=view.rows,query=(view.search||'').toLowerCase(),hasLines=all.some(r=>r.line!==null);
  let list=all.filter(r=>(view.lineFilter==='all'||(view.lineFilter==='auto'?(!hasLines||r.line!==null):(view.lineFilter==='lines'?r.line!==null:r.line===null)))
  &&(!view.markets.length||view.markets.includes(r.market))
  &&(!view.positions.length||view.positions.includes(posGroup(r.player.position)))
+ &&(view.injuryFilter==='all'||(view.injuryFilter==='reported'&&r.injury)||(view.injuryFilter==='out'&&injuryState(r.injury)==='out')||(view.injuryFilter==='not-reported'&&!r.injury))
  &&(!view.games.length||view.games.includes(String(r.game?.id||'')))
  &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
  &&(view.maxJuice==='any'||number(r.quote?.price)===null||Number(r.quote.price)>=Number(view.maxJuice))
@@ -247,7 +259,7 @@ function tpl(ctx,tool){
    opponent= r.model?.opponent||(r.opponent?teamName(r.opponent,ctx.research):null),
    d=r.defense, ratio=d?d.ratio:null;
   const photo=/^https:\/\//i.test(r.player.headshot||'')?'<img src="'+e(r.player.headshot)+'" alt="" loading="lazy">':'<span>'+e((r.player.name||'P').split(' ').map(p=>p[0]).slice(0,2).join(''))+'</span>';
-  const playerCell='<td><div class="nba-person">'+photo+'<div><b>'+e(r.player.name)+'</b><small>'+e(r.player.team||'—')+' · '+e(r.player.position||'—')+'</small></div></div></td>';
+  const playerCell='<td><div class="nba-person">'+photo+'<div><b>'+e(r.player.name)+'</b><small>'+e(r.player.team||'—')+' · '+e(r.player.position||'—')+'</small>'+(r.injury?'<small class="nba-injury-status">ESPN REPORTED: '+e(r.injury.status)+'</small>':'')+'</div></div></td>';
   const oppCell='<td><b>'+e(opponent||'—')+'</b><small>'+e(r.game?String(r.game.away?.abbr)+' @ '+String(r.game.home?.abbr):'MATCHUP UNVERIFIED')+'</small></td>';
   const marketCell='<td><b>'+e(MARKETS[r.market])+'</b><small>'+e(line)+'</small></td>';
   const lastMinutes='<td><b>'+statLabel(mins?.mean)+'</b><small>'+(mins?mins.n+' games':'NO LOG')+'</small></td>';
@@ -269,6 +281,7 @@ function tpl(ctx,tool){
   +multiSelect('position',[['all','All Positions'],['G','Guards'],['F','Forwards'],['C','Centers']],view.positions)
   +'<label>DATA<select data-nba-filter="lineFilter">'+options([['auto','Current lines / fallback'],['all','All verified players'],['lines','Only players with lines'],['history','No current lines']],view.lineFilter)+'</select></label>'
   +'<label>MIN. GAMES<select data-nba-filter="minSample">'+options([['0','Any sample'],['5','5+ games'],['10','10+ games'],['15','15+ games'],['20','20+ games']],view.minSample)+'</select></label>'
+  +'<label>INJURY REPORT<select data-nba-filter="injuryFilter">'+options([['all','All statuses'],['reported','Reported injuries'],['out','Officially out/inactive'],['not-reported','Not listed / unknown']],view.injuryFilter)+'</select></label>'
   +'<label>MAX JUICE<select data-nba-filter="maxJuice">'+options([['-200','-200'],['-300','-300'],['-500','-500'],['any','Any odds']],view.maxJuice)+'</select></label>'
   +'<label>SORT<select data-nba-filter="sort">'+options([['l5','Last 5'],['l10','Last 10'],['l20','Last 20'],['season','Season'],['dvp','Opp. allowance'],['minutes','Minutes'],['model','Model over'],['price','Best price'],['name','Player name']],view.sort)+'</select></label>'
   +'<label class="nba-search-label">FIND PLAYER<input data-nba-search type="search" value="'+e(view.search)+'" placeholder="Player or team…"></label>'
@@ -277,7 +290,8 @@ function tpl(ctx,tool){
  const sourceLabel=age===null?'NBA HISTORY — SOURCE TIMESTAMP UNKNOWN':age>10*3600000?'NBA HISTORICAL STATS — REFRESH OVERDUE':'NBA VERIFIED HISTORY · LAST COMPLETED GAMES';
  const oddsDate=ctx.oddsSnapshot?new Date(ctx.oddsSnapshot):null;
  const oddsLabel=oddsDate&&Number.isFinite(oddsDate.getTime())?'BOOK SNAPSHOT (NOT LIVE STREAM) '+oddsDate.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'NO CURRENT VERIFIED BOOK QUOTES';
- const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span><span>'+e(oddsLabel)+'</span></div>';
+ const injuryLabel=ctx.injuries?.fetchedAt?'ESPN INJURY SNAPSHOT '+new Date(ctx.injuries.fetchedAt).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'INJURY FEED UNAVAILABLE';
+ const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span><span>'+e(oddsLabel)+'</span><span>'+e(injuryLabel)+'</span></div>';
  const cols=tool==='player-form'?10:10;
  const table='<div class="nba-table-scroll"><table class="nba-table"><thead><tr>'+header+'</tr></thead><tbody>'
   +(body||'<tr class="nba-no-rows"><td colspan="'+cols+'">No verified players match these filters. Try another market or position.</td></tr>')
@@ -287,7 +301,7 @@ function tpl(ctx,tool){
   +status+controls
   +'<div class="nba-legend"><span><i class="nba-legend-high"></i>Strong historical rate / more allowed</span><span><i class="nba-legend-low"></i>Lower historical rate / less allowed</span><span>— means not verified · Rates only against an observed exact line</span></div>'
   +table
-  +'<p class="nba-footnote">Source: TSO ESPN-derived game history and NBA regression feed. L5/L10/L20 may bridge seasons; “Season” uses the source’s current season only. Defense vs position aggregates guards (G), forwards (F) and centers (C); a 1.10× rate means 10% more points or other selected stat allowed than its league positional benchmark, <strong>not a 10% betting edge</strong>. Older feeds are marked by their source timestamp. Sportsbook lines and odds appear only when verified.</p></section>';
+  +'<p class="nba-footnote">Source: TSO ESPN-derived game history, official ESPN reported injury entries and NBA regression feed. L5/L10/L20 may bridge seasons; “Season” uses the source’s current season only. Defense vs position aggregates guards (G), forwards (F) and centers (C); a 1.10× rate means 10% more points or other selected stat allowed than its league positional benchmark, <strong>not a 10% betting edge</strong>. Older feeds are marked by their source timestamp. Sportsbook lines and odds appear only when verified.</p></section>';
 }
 function detail(ctx,row){
  const g=row.log,cs=ctx.research?.currentSeason;
@@ -305,7 +319,7 @@ function detail(ctx,row){
  const d=row.defense;
  return '<div class="drawer-contents nba-drawer"><span class="eyebrow">NBA / VERIFIED PLAYER RESEARCH</span><h2>'+e(row.player.name)+'</h2><p class="subtitle">'+e(row.player.team||'—')+' · '+e(row.player.position||'—')+' · '+e(MARKETS[row.market])+' · '+e(row.line===null?'NO CURRENT PROP LINE':'OVER '+statLabel(row.line))+'</p>'
   +'<div class="nba-detail-tags">'+(row.quote?chip(fmtOdds(row.quote.price)+' '+(row.quote.book||'BOOK')):chip('NO VERIFIED BOOK'))+(row.model?chip('EXACT-LINE TSO MODEL'):chip('MODEL NOT MATCHED'))
-  +(row.player.injury?.status?chip('INJURY: '+row.player.injury.status,'warning'):'')+'</div>'
+  +(row.injury?chip('ESPN REPORTED: '+row.injury.status,'warning'):chip('NOT LISTED — AVAILABILITY UNKNOWN'))+'</div>'
   +'<h3>Actual game performance</h3><div class="nba-snapshots">'+chips+'</div><h3>Recent game chart</h3>'+chart
   +'<h3>Minutes and matchup</h3><div class="nba-detail-metrics">'
   +'<div><small>L5 MINUTES</small><b>'+statLabel(r5?.mean)+'</b></div><div><small>VS POS ALLOWED</small><b>'+statLabel(d?.allowed)+'</b></div>'
@@ -313,7 +327,7 @@ function detail(ctx,row){
   +'<div><small>HOME AVG (UP TO 20)</small><b>'+statLabel(home?.mean)+'</b></div><div><small>AWAY AVG (UP TO 20)</small><b>'+statLabel(away?.mean)+'</b></div>'
   +'<div><small>MODEL PROJECTION</small><b>'+statLabel(row.model?.projection)+'</b></div><div><small>MODEL OVER</small><b>'+(number(row.model?.overProbability)===null?'—':statLabel(row.model.overProbability*100,1)+'%')+'</b></div></div>'
   +'<p class="nba-context-note">'+(d?'Opponent allows '+statLabel(d.allowed)+' '+e(MARKETS[row.market])+' per game to the '+e(d.position)+' group, compared with a league benchmark of '+statLabel(d.league)+'. '+(d.rank?'Ranked #'+d.rank+' of '+d.coverage+' by most allowed.':'Insufficient league coverage to publish a rank.'):'Opponent positional rate not independently verified for this matchup.')
-  +' Observed rates are not model probabilities. Verify lineup status before making decisions.</p>'
+  +' Observed rates are not model probabilities. '+(row.injury?'ESPN injury report: '+e(row.injury.status)+(row.injury.detail?' ('+e(row.injury.detail)+')':'')+'. ':'No ESPN injury record for this player/team; this is NOT proof of availability. ')+'Verify lineup status before making decisions.</p>'
   +'<h3>Verified game log</h3><div class="nba-log-scroll"><table class="nba-log"><thead><tr><th>DATE</th><th>OPP</th><th>H/A</th><th>'+e(MARKETS[row.market])+'</th><th>MIN</th><th>RESULT</th></tr></thead><tbody>'+(logs||'<tr><td colspan="6">No verified games</td></tr>')+'</tbody></table></div>'
   +'<div class="drawer-actions"><button class="btn subtle" type="button" data-nba-close>Close research</button></div></div>';
 }
