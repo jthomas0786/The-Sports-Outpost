@@ -13,6 +13,7 @@ const FIRST_BASKET_SOURCE='https://tso2-nba-first-basket.jthomas0786-tso.workers
 const NBA_MODEL_SOURCE='https://tso2-nba-model.jthomas0786-tso.workers.dev/';
 const NBA_RESEARCH_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-research.json';
 const NBA_ODDS_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-odds.json';
+const NBA_INJURIES_SOURCE='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries';
 function sanitizeNbaResearch(doc){
  if(!doc||typeof doc!=='object'||!doc.players||!doc.teams)throw Error('Invalid verified research schema');
  const stats=['points','rebounds','assists','threes','pra','minutes','steals','blocks'];
@@ -29,6 +30,31 @@ function sanitizeNbaResearch(doc){
  }
  return {source:'TSO public NBA research / ESPN-derived history',generatedAt:doc.generatedAt||null,currentSeason:doc.currentSeason||null,
   players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},teamDefense:doc.teamDefense||{},league:doc.league||{},teamProfiles:doc.teamProfiles||{}};
+}
+async function safeNbaInjuries(){
+ const r=await fetch(NBA_INJURIES_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(14000)});
+ if(!r.ok)throw Error('ESPN injury feed '+r.status);
+ const d=await r.json();
+ if(!Array.isArray(d?.injuries))throw Error('Invalid injury schema');
+ const entries=[],seen=new Set();
+ for(const team of d.injuries){
+  for(const i of Array.isArray(team.injuries)?team.injuries:[]){
+   const athlete=i.athlete||{},id=String(athlete.id||'');
+   const teamId=String(athlete.team?.id||team.id||'');
+   if(!id||!athlete.displayName||!teamId)continue;
+   const key=teamId+'|'+id;
+   if(seen.has(key))continue;seen.add(key);
+   const status=String(i.status||i.details?.fantasyStatus?.description||'Unknown');
+   const date=i.date||null;
+   entries.push({athleteId:id,player:String(athlete.displayName),teamId,
+    team:athlete.team?.abbreviation||team.displayName||null,status,
+    updatedAt:date,detail:i.details?.type||null,
+    returnDate:i.details?.returnDate||null,
+    report:i.shortComment?String(i.shortComment).slice(0,500):null});
+  }
+ }
+ return {source:'ESPN NBA injuries',fetchedAt:new Date().toISOString(),providerTimestamp:d.timestamp||null,entries,
+  notice:'Injury feed status is not a verified starting lineup or personal medical diagnosis. Reports can change.'};
 }
 async function safeNbaOdds(){
  const r=await fetch(NBA_ODDS_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:60},signal:AbortSignal.timeout(16000)});
@@ -123,6 +149,11 @@ export default {async fetch(req){
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
  if(u.pathname==='/health')return Response.json({ok:true,service:'tso3-preview',version:'3.0',source:'tso-3.0/tso3',environment:'development'},{headers});
+ if(u.pathname==='/api/nba-injuries'){
+  try{
+   return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
+  }catch(_){return Response.json({available:false,entries:[],error:'Official NBA injury feed unavailable'},{status:503,headers})}
+ }
  if(u.pathname==='/api/nba-odds'){
   try{
    const doc=await safeNbaOdds();
