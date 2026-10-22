@@ -124,7 +124,7 @@ function build(ctx,tool){
   if(tool==='rushing-matchups'&&!['QB','RB','WR'].includes(pos))continue;
   if(['receiving-matchups','coverage-matchups'].includes(tool)&&!['WR','TE','RB'].includes(pos))continue;
   if(modelTools.has(tool)&&!['RB','WR','TE','QB'].includes(pos))continue;
-  if(tool==='defense-vs-position'&&!['RB','WR','TE','QB'].includes(pos))continue;
+  if(tool==='defense-vs-position'&&(!['RB','WR','TE','QB'].includes(pos)||!player.matchup?.currentSeasonAllowed?.perGame))continue;
   const logs=(player.logs||[]).filter(l=>Number(l.season)===Number(ctx.research?.season)||Number(l.season)===Number(ctx.research?.previousSeason))
    .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.week)-Number(a.week));
   const quote=bestQuote(ctx,game,player,tool==='touchdown-opportunities'?'atd':tool==='rushing-matchups'?'rushYds':tool==='quarterback-research'?'passYds':'recYds');
@@ -198,7 +198,7 @@ function row(r){
  const projected=atd===null?(cannotPlay(r.officialReport)?'OUT / INACTIVE':'—'):percent(atd);
  const isTD=state.tool==='touchdown-opportunities';
  let cells=[];
- if(state.tool==='defense-vs-position')cells=[{text:r.defense?.position||'—'},{text:r.position},
+ if(state.tool==='defense-vs-position')cells=[{text:canonicalTeam((canonicalTeam(r.game?.home?.abbr)===canonicalTeam(r.team)?r.game?.away?.abbr:r.game?.home?.abbr))},{text:r.position},
    {text:f(r.defense?.perGame?.yards)},{text:f(r.defense?.perGame?.targets)},
    {text:f(r.defense?.perGame?.tds)},{text:r.defense?.games??'—'}];
  else if(isTD)cells=[{html:'<b class="'+tdClass(atd)+'">'+projected+'</b><small>'+esc(r.officialReport?.status||r.m?.confidence||'')+'</small>'},
