@@ -15,7 +15,7 @@ const posGroup=pos=>['PG','SG','G'].includes(String(pos||'').toUpperCase())?'G':
 const fmtDate=t=>{const dt=new Date(t||'');return Number.isFinite(dt.getTime())?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—'};
 const fmtOdds=n=>number(n)===null?'—':(Number(n)>0?'+':'')+Number(n);
 const slugParts=m=>market(m)||null;
-const view={metric:'points',position:'all',games:[],matchupOpen:false,minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
+const view={markets:['points'],positions:[],openPickers:{market:false,position:false},games:[],matchupOpen:false,minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
 const stateCtx={};
 function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx.research.players).length)}
 function statGame(g,m){
@@ -161,8 +161,8 @@ function rankedRows(ctx){
 function visibleRows(ctx){
  const all=view.rows,query=(view.search||'').toLowerCase(),hasLines=all.some(r=>r.line!==null);
  let list=all.filter(r=>(view.lineFilter==='all'||(view.lineFilter==='auto'?(!hasLines||r.line!==null):(view.lineFilter==='lines'?r.line!==null:r.line===null)))
- &&(view.metric==='all'||r.market===view.metric)
- &&(view.position==='all'||posGroup(r.player.position)===view.position)
+ &&(!view.markets.length||view.markets.includes(r.market))
+ &&(!view.positions.length||view.positions.includes(posGroup(r.player.position)))
  &&(!view.games.length||view.games.includes(String(r.game?.id||'')))
  &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
  &&(view.maxJuice==='any'||number(r.quote?.price)===null||Number(r.quote.price)>=Number(view.maxJuice))
@@ -190,6 +190,18 @@ function visibleRows(ctx){
 const chip=(v,cls='')=>'<span class="nba-chip '+cls+'">'+e(v)+'</span>';
 const rateCell=(sum,line)=>!sum?'<span class="nba-muted">—</span>':number(line)===null?'<b>'+statLabel(sum.mean)+'</b><small>AVG · '+sum.n+' GM</small>':
  '<b class="'+(sum.rate>=70?'nba-good':sum.rate<=30?'nba-low':'')+'">'+Math.round(sum.rate)+'%</b><small>'+sum.hits+'/'+sum.n+' OVER</small>';
+function multiSelect(type,items,selected){
+ const titles=new Map(items.slice(1));
+ const selectedNames=selected.map(id=>titles.get(id)).filter(Boolean);
+ const title=type==='market'?'MARKET':'POSITION';
+ const allLabel=type==='market'?'All Markets':'All Positions';
+ const label=!selectedNames.length?allLabel:selectedNames.length===1?selectedNames[0]:selectedNames.length+(type==='market'?' Markets':' Positions');
+ const options=items.map(([value,name],i)=>'<label class="matchup-option '+(i===0?'all':'')+'"><input type="checkbox" data-nba-check="'+type+'" data-nba-value="'+e(value)+'" '+((value==='all'?!selected.length:selected.includes(value))?'checked':'')+'><span class="matchup-name">'+e(name)+'</span></label>').join('');
+ return '<div class="matchup-filter nba-multi-filter nba-'+type+'-filter"><span class="matchup-label">'+title+'</span>'
+  +'<details class="matchup-picker" data-nba-multi-picker="'+type+'" '+(view.openPickers[type]?'open':'')+'>'
+  +'<summary class="matchup-trigger"><span class="matchup-trigger-text">'+e(label)+'</span><span class="matchup-chevron" aria-hidden="true"></span></summary>'
+  +'<div class="matchup-options" role="group" aria-label="Select one or more '+title.toLowerCase()+' values">'+options+'</div></details></div>';
+}
 function tpl(ctx,tool){
  if(!isAvailable(ctx)){
   return '<section class="nba-lab"><div class="nba-lab-alert"><b>Verified NBA history not connected</b><p>'+e(ctx.error||'The ESPN-derived player history is unavailable; TSO will not show fake hit rates or opponent rankings.')+'</p></div></section>';
@@ -207,7 +219,7 @@ function tpl(ctx,tool){
  view.games=view.games.filter(id=>matchupIds.has(id));
  const timeLabel=window.TSO3?.matchupTime||(()=> 'Time TBA');
  const matchupPicker='<div class="matchup-filter nba-matchup-filter"><span class="matchup-label">MATCHUPS</span><details class="matchup-picker" data-nba-matchup-picker '+(view.matchupOpen?'open':'')+'>'
-  +'<summary class="matchup-trigger"><span class="matchup-trigger-text">'+(view.games.length?'Selected games ('+view.games.length+')':'All Matchups')+'</span><span class="matchup-chevron" aria-hidden="true">⌄</span></summary>'
+  +'<summary class="matchup-trigger"><span class="matchup-trigger-text">'+(view.games.length?'Selected games ('+view.games.length+')':'All Matchups')+'</span><span class="matchup-chevron" aria-hidden="true"></span></summary>'
   +'<div class="matchup-options" role="group" aria-label="Select NBA games">'
   +'<label class="matchup-option all"><input type="checkbox" data-nba-matchup-check="all" '+(!view.games.length?'checked':'')+'><span>All Matchups</span></label>'
   +(matchupOptions.length?matchupOptions.map(g=>{
@@ -245,8 +257,8 @@ function tpl(ctx,tool){
  }).join('');
  const controls='<div class="nba-controls">'
   +matchupPicker
-  +'<label>MARKET<select data-nba-filter="metric">'+options([['all','All markets'],...Object.entries(MARKETS)],view.metric)+'</select></label>'
-  +'<label>POSITION<select data-nba-filter="position">'+options([['all','All positions'],['G','Guards'],['F','Forwards'],['C','Centers']],view.position)+'</select></label>'
+  +multiSelect('market',[['all','All Markets'],...Object.entries(MARKETS)],view.markets)
+  +multiSelect('position',[['all','All Positions'],['G','Guards'],['F','Forwards'],['C','Centers']],view.positions)
   +'<label>DATA<select data-nba-filter="lineFilter">'+options([['auto','Current lines / fallback'],['all','All verified players'],['lines','Only players with lines'],['history','No current lines']],view.lineFilter)+'</select></label>'
   +'<label>MIN. GAMES<select data-nba-filter="minSample">'+options([['0','Any sample'],['5','5+ games'],['10','10+ games'],['15','15+ games'],['20','20+ games']],view.minSample)+'</select></label>'
   +'<label>MAX JUICE<select data-nba-filter="maxJuice">'+options([['-200','-200'],['-300','-300'],['-500','-500'],['any','Any odds']],view.maxJuice)+'</select></label>'
@@ -332,7 +344,26 @@ function click(event){
  return false;
 }
 function change(event){
- const node=event.target,matchup=node.closest('[data-nba-matchup-check]');
+ const node=event.target;
+ const option=node.closest('[data-nba-check]');
+ if(option){
+  const kind=option.dataset.nbaCheck;
+  if(kind!=='market'&&kind!=='position')return false;
+  const property=kind==='market'?'markets':'positions';
+  const val=option.dataset.nbaValue;
+  if(val==='all')view[property]=[];
+  else{
+   const selected=new Set(view[property]);
+   if(option.checked)selected.add(val);else selected.delete(val);
+   view[property]=[...selected];
+  }
+  view.openPickers[kind]=true;
+  view.limit=90;
+  repaint();
+  document.querySelector('[data-nba-check="'+kind+'"][data-nba-value="'+val+'"]')?.focus?.({preventScroll:true});
+  return true;
+ }
+ const matchup=node.closest('[data-nba-matchup-check]');
  if(matchup){
   const value=matchup.dataset.nbaMatchupCheck;
   if(value==='all')view.games=[];
@@ -362,11 +393,19 @@ function input(event){
 }
 document.addEventListener('toggle',event=>{
  if(event.target.matches?.('[data-nba-matchup-picker]'))view.matchupOpen=Boolean(event.target.open);
+ const kind=event.target.dataset?.nbaMultiPicker;
+ if(kind&&(kind==='market'||kind==='position'))view.openPickers[kind]=Boolean(event.target.open);
 },true);
 document.addEventListener('click',event=>{
  if(view.matchupOpen&&!event.target.closest?.('[data-nba-matchup-picker]')){
   const picker=document.querySelector('[data-nba-matchup-picker]');
   if(picker){picker.open=false;view.matchupOpen=false}
+ }
+ for(const kind of ['market','position']){
+  if(view.openPickers[kind]&&!event.target.closest?.('[data-nba-multi-picker="'+kind+'"]')){
+   const picker=document.querySelector('[data-nba-multi-picker="'+kind+'"]');
+   if(picker){picker.open=false;view.openPickers[kind]=false}
+  }
  }
 });
 window.TSO3NbaLab={render,click,change,input,summary,history,defensiveAllowance,rankedRows,view};
