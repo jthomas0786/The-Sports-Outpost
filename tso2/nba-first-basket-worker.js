@@ -11,7 +11,7 @@ const yearEnd=t=>{const d=new Date(t);return d.getUTCFullYear()+(d.getUTCMonth()
 async function espn(url){const r=await fetch(ORIGIN+url,{signal:AbortSignal.timeout(9000),cf:{cacheEverything:true,cacheTtl:1800}});if(!r.ok)throw Error('ESPN '+r.status);return r.json()}
 function games(d,season,cutoff){
  return (d?.events||[]).map(e=>({id:ident(e.id),date:Date.parse(e.date||e.competitions?.[0]?.date),status:String(e.status?.type?.name||e.competitions?.[0]?.status?.type?.name||'').toLowerCase(),season}))
- .filter(e=>e.id&&Number.isFinite(e.date)&&e.date<cutoff&&(/final|post/.test(e.status)||e.date<cutoff-5*3600000))
+ .filter(e=>e.id&&Number.isFinite(e.date)&&e.date<cutoff&&(/final|STATUS_FINAL/i.test(e.status)))
  .sort((a,b)=>b.date-a.date);
 }
 async function history(code,year,cutoff){
