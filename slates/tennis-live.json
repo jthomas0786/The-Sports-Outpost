@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "espn-public",
   "sport": "TENNIS",
-  "generatedAt": "2026-10-22T18:51:16.010Z",
+  "generatedAt": "2026-10-22T21:58:12.898Z",
   "tours": [
     {
       "key": "atp",
@@ -2962,24 +2962,25 @@
       "group": "mens-singles",
       "round": "Round 2",
       "startTime": "2026-10-22T18:45Z",
-      "state": "in",
-      "statusDetail": "1st",
-      "final": false,
-      "period": 1,
+      "state": "post",
+      "statusDetail": "Final",
+      "final": true,
+      "period": 2,
       "bestOf": 5,
-      "gamesPlayed": 0,
-      "setsPlayed": 1,
+      "gamesPlayed": 19,
+      "setsPlayed": 2,
       "players": [
         {
           "id": "3774",
           "name": "Brandon Nakashima",
-          "winner": null,
+          "winner": true,
           "linescores": [
-            0
+            6,
+            6
           ],
-          "gamesWon": 0,
-          "setsWon": 0,
-          "setsPlayed": 1,
+          "gamesWon": 12,
+          "setsWon": 2,
+          "setsPlayed": 2,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
@@ -2988,20 +2989,21 @@
         {
           "id": "7509",
           "name": "Kyrian Jacquet",
-          "winner": null,
+          "winner": false,
           "linescores": [
-            0
+            4,
+            3
           ],
-          "gamesWon": 0,
+          "gamesWon": 7,
           "setsWon": 0,
-          "setsPlayed": 1,
+          "setsPlayed": 2,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
           "firstSetAces": null
         }
       ],
-      "note": "Kyrian Jacquet (FRA) leads (5) Brandon Nakashima (USA) 0-0"
+      "note": "(5) Brandon Nakashima (USA) bt Kyrian Jacquet (FRA) 6-4 6-3"
     },
     "185085": {
       "id": "185085",
@@ -3972,6 +3974,53 @@
         }
       ],
       "note": "(2) Taylor Fritz (USA) bt Pierre-Hugues Herbert (FRA) 6-2 7-5"
+    },
+    "185107": {
+      "id": "185107",
+      "uid": "s:850~l:851~e:110-2026~c:185107",
+      "tournamentId": "110-2026",
+      "tournament": "Grand Prix Auvergne-Rhône-Alpes",
+      "tour": "atp",
+      "tourName": "ATP",
+      "group": "mens-singles",
+      "round": "Quarterfinal",
+      "startTime": "2026-10-23T17:00Z",
+      "state": "pre",
+      "statusDetail": "10/23 - 1:00 PM EDT",
+      "final": false,
+      "period": 1,
+      "bestOf": 5,
+      "gamesPlayed": null,
+      "setsPlayed": null,
+      "players": [
+        {
+          "id": "3774",
+          "name": "Brandon Nakashima",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        },
+        {
+          "id": "7602",
+          "name": "Flavio Cobolli",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        }
+      ],
+      "note": null
     },
     "185108": {
       "id": "185108",
@@ -13264,7 +13313,7 @@
     }
   },
   "meta": {
-    "liveCount": 1,
-    "finalCount": 175
+    "liveCount": 0,
+    "finalCount": 176
   }
 }
