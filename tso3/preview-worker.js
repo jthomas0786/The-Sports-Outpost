@@ -39,7 +39,7 @@ async function safeNbaInjuries(){
  const entries=[],seen=new Set();
  for(const team of d.injuries){
   for(const i of Array.isArray(team.injuries)?team.injuries:[]){
-   const athlete=i.athlete||{},id=String(athlete.id||'');
+   const athlete=i.athlete||{},officialCard=athlete.links?.find(l=>typeof l.href==='string'&&/\/player\/_\/id\/\d+/.test(l.href))?.href||'',id=String(athlete.id||officialCard.match(/\/player\/_\/id\/(\d+)/)?.[1]||'');
    const teamId=String(athlete.team?.id||team.id||'');
    if(!id||!athlete.displayName||!teamId)continue;
    const key=teamId+'|'+id;
