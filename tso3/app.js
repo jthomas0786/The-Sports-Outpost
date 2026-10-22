@@ -275,6 +275,7 @@ function pageGames(){
    +'<div class="tool-panel"><h3>Matchup Intelligence</h3><p>Verified TSO game context, available sportsbook selections and player research for this exact matchup.</p>'
    +'<div class="data-preview"><div><span>GAME STATE</span><b>'+text(g.state||'—')+'</b></div><div><span>AWAY</span><b>'+text(g.away?.record||'—')+'</b></div><div><span>HOME</span><b>'+text(g.home?.record||'—')+'</b></div><div><span>MATCHED PROPS</span><b>'+rows.length+'</b></div></div>'
    +'<p class="explain">Game projections, defense-vs-position and verified advanced matchup grades will appear when the corresponding TSO source is connected. No opposing team stats are mirrored or inferred.</p></div>'
+   +'<section class="tool-panel"><h3>Official Game Box Score</h3><p>Live ESPN game totals and player statistics, refreshed while the page is open.</p><div id="liveGameStats" data-game="'+text(state.sport+':'+gameKey(g))+'">Retrieving current game stats…</div></section>'
    +(state.sport==='nba'?'<section class="tool-panel fb-inline"><h3>First Basket / Opening Tip</h3><p>Verified recent tip wins, first made field goals and current-roster player participation. Observed history, not a calibrated betting probability.</p><div id="fbDetail">Retrieving verified NBA opening-event history…</div></section>':'')
    +section('Player selections for this game','Exact matches only')+tableMarkup(rows);
  }
@@ -403,9 +404,12 @@ function render(){
  else if(state.page==='injuries')body=pageInjuries();
  else if(state.page==='saved')body=pageSaved();
  el('content').innerHTML=body;
- if(state.page==='games'&&state.game&&state.sport==='nba'){
+ if(state.page==='games'&&state.game){
   const game=getGames().find(g=>gameKey(g)===state.game);
-  if(game)void hydrateFirstBasket(game);
+  if(game){
+   void window.TSO3LiveBoxscore?.render?.(game,state.sport);
+   if(state.sport==='nba')void hydrateFirstBasket(game);
+  }
  }
 }
 function openDrawer(r){
