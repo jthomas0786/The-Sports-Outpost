@@ -241,7 +241,9 @@ function tpl(ctx,tool){
   +'<button class="nba-sort-direction" type="button" data-nba-reverse title="Reverse sorting">'+(view.direction==='desc'?'↓':'↑')+'</button></div>';
  const age=date&&Number.isFinite(date.getTime())?Date.now()-date.getTime():null;
  const sourceLabel=age===null?'NBA SOURCE — TIMESTAMP UNAVAILABLE':age>3*86400000?'HISTORICAL NBA SOURCE — CHECK FRESHNESS':'TSO VERIFIED NBA HISTORY';
- const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span></div>';
+ const oddsDate=ctx.oddsSnapshot?new Date(ctx.oddsSnapshot):null;
+ const oddsLabel=oddsDate&&Number.isFinite(oddsDate.getTime())?'ODDS SNAPSHOT '+oddsDate.toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'ODDS FEED UNAVAILABLE';
+ const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span><span>'+e(oddsLabel)+'</span></div>';
  const cols=tool==='player-form'?10:10;
  const table='<div class="nba-table-scroll"><table class="nba-table"><thead><tr>'+header+'</tr></thead><tbody>'
   +(body||'<tr class="nba-no-rows"><td colspan="'+cols+'">No verified players match these filters. Try another market or position.</td></tr>')
