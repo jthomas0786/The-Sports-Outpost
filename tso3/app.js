@@ -27,7 +27,7 @@ const bookOf=r=>String(r.book||r.sportsbook||r.bookName||'');
 const gameKey=g=>String(g.id||g.gameId||'');
 const rowKey=r=>[leagueOf(r),r.playerId||nameOf(r),r.team,marketOf(r),String(r.side||''),r.line,r.price,r.book].join('|');
 const escapeSelector=v=>String(v||'').replace(/[^a-zA-Z0-9_-]/g,'');
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map()};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){return (Array.isArray(state.live?.games)?state.live.games:[]).filter(g=>g.league===state.sport)}
@@ -87,10 +87,38 @@ function filteredRows(){
  });
  return list;
 }
+function menuToolSlug(label){return String(label).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')}
+function renderSportMenu(){
+ const root=el('sportMenu'),sport=state.openSport;
+ if(!sport||!SPORTS[sport]){root.hidden=true;root.innerHTML='';return}
+ const data=SPORTS[sport];
+ const navLinks=(pages)=>pages.map(id=>{
+  const page=PAGES.find(p=>p[0]===id);
+  if(!page)return '';
+  const selected=sport===state.sport&&state.page===id&&!state.tool;
+  return '<a class="menu-link '+(selected?'selected':'')+'" href="#/'+sport+'/'+id+'" data-menu-nav="'+sport+'" data-menu-page="'+id+'"><span class="menu-link-icon">'+page[2]+'</span><span>'+text(page[1])+'</span>'+(selected?'<span class="menu-current">CURRENT</span>':'')+'</a>';
+ }).join('');
+ const toolLinks=data.tools.map(([name,description])=>{
+  const slug=menuToolSlug(name),selected=sport===state.sport&&state.page==='cheatsheets'&&state.tool===slug;
+  return '<a class="menu-tool-link '+(selected?'selected':'')+'" href="#/'+sport+'/cheatsheets/'+slug+'" data-menu-nav="'+sport+'" data-menu-tool="'+slug+'"><b>'+text(name)+'</b><small>'+text(description)+'</small></a>';
+ }).join('');
+ root.innerHTML='<div class="sport-menu-head"><span class="sport-menu-heading"><span class="menu-sport-icon">'+data.icon+'</span><span><strong>'+text(data.name)+'</strong><small>Choose a section or jump straight into a research tool</small></span></span><button type="button" data-close-sport-menu aria-label="Close '+data.label+' menu">✕</button></div>'
+  +'<div class="sport-menu-grid"><section class="sport-menu-column"><h3>RESEARCH</h3>'+navLinks(['overview','games','props','trends','cheatsheets'])+'</section>'
+  +'<section class="sport-menu-column"><h3>ANALYTICS</h3>'+navLinks(['ratings','projections','injuries','saved'])+'</section>'
+  +'<section class="sport-menu-column sport-menu-specialty"><h3>'+data.label+' SPECIALTY TOOLS <span>'+data.tools.length+'</span></h3><div class="menu-tools">'+toolLinks+'</div></section></div>';
+ root.hidden=false;
+}
+function closeSportMenu(){
+ if(state.openSport!==null){state.openSport=null;renderSportNav();renderSportMenu()}
+}
+function renderSportNav(){
+ el('sportNav').innerHTML=Object.entries(SPORTS).map(([k,v])=>{
+  const open=state.openSport===k,active=state.sport===k;
+  return '<button type="button" class="sport-button '+(active?'active ':'')+(open?'open':'')+'" data-sport-toggle="'+k+'" aria-expanded="'+open+'" aria-controls="sportMenu" aria-haspopup="true"><span class="sport-emoji" aria-hidden="true">'+v.icon+'</span><span>'+v.label+'</span><span class="sport-chevron" aria-hidden="true">⌄</span></button>';
+ }).join('');
+}
 function renderNav(){
- el('sportNav').innerHTML=Object.entries(SPORTS).map(([k,v])=>'<button type="button" class="'+(state.sport===k?'active':'')+'" data-sport="'+k+'"><span class="sport-emoji">'+v.icon+'</span>'+v.label+'<small class="mini">'+(getGames().length&&state.sport===k?getGames().length+' games':'')+'</small></button>').join('');
- el('pageNav').innerHTML=PAGES.map(([id,label,icon])=>'<button type="button" data-page="'+id+'" class="'+(state.page===id?'active':'')+'"><span class="nav-icon">'+icon+'</span>'+label+'</button>').join('');
- el('sectionTabs').innerHTML=PAGES.filter(x=>!['saved','injuries'].includes(x[0])).map(([id,label])=>'<button type="button" data-page="'+id+'" class="'+(state.page===id?'active':'')+'">'+label.toUpperCase()+'</button>').join('');
+ renderSportNav();renderSportMenu();
  el('crumbSport').textContent=state.sport.toUpperCase();
  el('crumbPage').textContent=PAGES.find(x=>x[0]===state.page)?.[1]||'Overview';
  el('heroKicker').textContent='TSO INTELLIGENCE · '+SPORTS[state.sport].name.toUpperCase();
@@ -313,14 +341,18 @@ function save(r){
  else state.saved.set(key,{key,sport:leagueOf(r),name:nameOf(r),market:marketOf(r),side:r.side,line:lineOf(r),price:r.price,book:bookOf(r),at:new Date().toISOString()});
  remember();render();if(!el('drawer').hidden&&state.selected)openDrawer(state.selected);
 }
-function route(sport,page){
- if(!SPORTS[sport])sport='nfl';if(!PAGES.some(x=>x[0]===page))page='overview';
- state.sport=sport;state.page=page;state.tool=null;state.game=null;state.market='all';state.book='all';state.search='';state.maxRows=40;
- closeDrawer();el('sidebar').classList.remove('open');el('scrim').hidden=true;el('navToggle').setAttribute('aria-expanded','false');render();el('main').scrollIntoView({block:'start'});
+function route(sport,page,tool=null){
+ if(!SPORTS[sport])sport='nfl';
+ if(!PAGES.some(x=>x[0]===page))page='overview';
+ const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
+ state.sport=sport;state.page=page;state.tool=matched;state.openSport=null;state.game=null;state.market='all';state.book='all';state.search='';state.maxRows=40;
+ closeDrawer();render();el('main').scrollIntoView({block:'start'});
 }
 function onHash(){
- const [sport,page]=location.hash.replace(/^#\/?/,'').split('/');
- if(sport&&page){if(state.sport!==sport||state.page!==page)route(sport,page)}else location.hash='#/nfl/overview';
+ const [sport,page,tool]=location.hash.replace(/^#\/?/,'').split('/');
+ if(!SPORTS[sport]||!PAGES.some(x=>x[0]===page)){location.hash='#/nfl/overview';return}
+ const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
+ if(state.sport!==sport||state.page!==page||state.tool!==matched||state.openSport!==null)route(sport,page,matched);
 }
 async function load(force=false){
  if(state.pending)return;
@@ -337,11 +369,21 @@ async function load(force=false){
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
 }
 document.addEventListener('click',e=>{
- const sp=e.target.closest('[data-sport]');if(sp){location.hash='#/'+sp.dataset.sport+'/overview';return}
- const pg=e.target.closest('[data-page]');if(pg){location.hash='#/'+state.sport+'/'+pg.dataset.page;return}
+ const toggle=e.target.closest('[data-sport-toggle]');
+ if(toggle){const sport=toggle.dataset.sportToggle;state.openSport=state.openSport===sport?null:sport;renderSportNav();renderSportMenu();return}
+ if(e.target.closest('[data-close-sport-menu]')){closeSportMenu();return}
+ const nav=e.target.closest('[data-menu-nav]');
+ if(nav){const sport=nav.dataset.menuNav,slug=nav.dataset.menuTool;const page=slug?'cheatsheets':nav.dataset.menuPage;
+  const target='#/'+sport+'/'+page+(slug?'/'+slug:'');
+  if(location.hash===target)route(sport,page,slug||null);
+  else{location.hash=target;onHash()}
+  return
+ }
+ if(state.openSport&&!e.target.closest('#sportMenu')&&!e.target.closest('#sportNav'))closeSportMenu();
+ const pg=e.target.closest('[data-page]');if(pg){location.hash='#/'+state.sport+'/'+pg.dataset.page;onHash();return}
  const game=e.target.closest('[data-game]');if(game){state.page='games';state.game=game.dataset.game;state.tool=null;state.search='';history.replaceState(null,'','#/'+state.sport+'/games');render();return}
- const tool=e.target.closest('[data-tool]');if(tool){state.page='cheatsheets';state.tool=tool.dataset.tool;history.replaceState(null,'','#/'+state.sport+'/cheatsheets');render();return}
- const back=e.target.closest('[data-back]');if(back){if(back.dataset.back==='game')state.game=null;else state.tool=null;render();return}
+ const tool=e.target.closest('[data-tool]');if(tool){const slug=tool.dataset.tool;location.hash='#/'+state.sport+'/cheatsheets/'+slug;onHash();return}
+ const back=e.target.closest('[data-back]');if(back){if(back.dataset.back==='game'){state.game=null;render()}else{location.hash='#/'+state.sport+'/cheatsheets';onHash()}return}
  const more=e.target.closest('[data-more]');if(more){state.maxRows+=60;render();return}
  const targetRow=e.target.closest('[data-row-key]');
  if(targetRow){const r=state.displayedRows.get(targetRow.dataset.rowKey);if(e.target.closest('[data-save]'))save(r);else openDrawer(r);return}
@@ -350,16 +392,15 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
 el('closeDrawer').addEventListener('click',closeDrawer);
-el('scrim').addEventListener('click',()=>{closeDrawer();el('sidebar').classList.remove('open')});
+el('scrim').addEventListener('click',closeDrawer);
 el('savedBtn').addEventListener('click',()=>{location.hash='#/'+state.sport+'/saved'});
 el('refreshBtn').addEventListener('click',()=>load(true));
-el('navToggle').addEventListener('click',()=>{const v=el('sidebar').classList.toggle('open');el('scrim').hidden=!v;el('navToggle').setAttribute('aria-expanded',String(v))});
 el('search').addEventListener('input',e=>{state.search=e.target.value;state.maxRows=40;el('content').innerHTML=(state.page==='trends'?pageTrends():state.page==='games'&&state.game?pageGames():state.page==='overview'?overview():state.page==='cheatsheets'&&state.tool?toolDetail():section('Current selections','Filtered results')+tableMarkup(filteredRows()))});
 for(const id of ['market','book','window','sort'])el(id).addEventListener('change',e=>{state[id]=e.target.value;state.maxRows=40;render()});
 window.addEventListener('hashchange',onHash);
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();el('sidebar').classList.remove('open')}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(state.openSport!==null){closeSportMenu();el('sportNav').querySelector('[data-sport-toggle="'+state.sport+'"]')?.focus()}else closeDrawer()}});
 const hash=location.hash.replace(/^#\/?/,'').split('/');
-if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1]}else location.hash='#/nfl/overview';
+if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1];state.tool=hash[1]==='cheatsheets'&&SPORTS[hash[0]].tools.some(t=>menuToolSlug(t[0])===hash[2])?hash[2]:null}else location.hash='#/nfl/overview';
 render();load(true);
 setInterval(()=>{if(!document.hidden)load(false)},60000);
 window.TSO3={state,SPORTS,PAGES,render,load,exactModel,recent};
