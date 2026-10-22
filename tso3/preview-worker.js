@@ -34,7 +34,12 @@ function sanitizeNbaResearch(doc){
   outPlayers[id]={id:String(p.id||id),name:String(p.name),position:p.position||null,team:p.team||null,teamId:String(p.teamId),
     headshot:p.headshot||null,injury:p.injury||null,recentGames:games};
  }
- return {source:'TSO public NBA research / ESPN-derived history',generatedAt:doc.generatedAt||null,currentSeason:doc.currentSeason||null,
+ const lastObserved=[...Object.values(outPlayers)].flatMap(p=>p.recentGames.slice(0,1).map(g=>g.date))
+  .map(v=>Date.parse(v)).filter(Number.isFinite).sort((x,y)=>y-x)[0]||null;
+ return {source:'TSO public NBA research / ESPN-derived history',generatedAt:doc.generatedAt||null,
+  latestObservedGame:lastObserved?new Date(lastObserved).toISOString():null,
+  researchAgeHours:Number.isFinite(Date.parse(doc.generatedAt||''))?Math.max(0,Math.round((Date.now()-Date.parse(doc.generatedAt))/3600000)):null,
+  currentSeason:doc.currentSeason||null,
   players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},teamDefense:doc.teamDefense||{},league:doc.league||{},teamProfiles:doc.teamProfiles||{}};
 }
 async function safeNbaInjuries(){
@@ -69,20 +74,25 @@ async function safeNbaOdds(){
  const fetchedAt=data?.meta?.fetchedAt;
  const time=Date.parse(fetchedAt||'');
  if(!Array.isArray(data?.rows)||!Number.isFinite(time))throw Error('Invalid NBA odds source metadata');
- const age=Date.now()-time;
- // Old snapshots must never be presented as current sportsbook selections.
- if(age>12*3600000||age< -3600000)return {source:'TSO NBA odds snapshot',fetchedAt,available:false,stale:true,rows:[]};
- const now=Date.now();
+ const now=Date.now(),age=now-time;
+ // The underlying basketball snapshot job has an adaptive 5/15/30/60-minute cadence.
+ // A quote may only appear if its age is appropriate for the time until tip-off.
+ if(age>4*3600000||age< -5*60000)
+  return {source:'TSO NBA odds snapshot',fetchedAt,available:false,stale:true,rows:[],reason:'Odds snapshot too old to show'};
+ const maxAgeForTip=start=>{
+  const until=start-now;
+  return until<=3*3600000?25*60000:until<=12*3600000?45*60000:until<=48*3600000?90*60000:4*3600000;
+ };
  const rows=data.rows.filter(q=>{
   const start=Date.parse(q?.commenceTime||'');
-  return q?.player&&q?.book&&['points','rebounds','assists','threes','pra'].includes(String(q.market||''))&&Number.isFinite(Number(q.line))&&Number.isFinite(Number(q.overPrice))&&Number(q.overPrice)!==0&&Number.isFinite(start)&&start>now-15*60000;
+  return q?.player&&q?.book&&['points','rebounds','assists','threes','pra'].includes(String(q.market||''))&&Number.isFinite(Number(q.line))&&Number.isFinite(Number(q.overPrice))&&Number(q.overPrice)!==0&&Number.isFinite(start)&&start>now-15*60000&&start<now+9*86400000&&age<=maxAgeForTip(start);
  }).slice(0,6500).map(q=>({
   sport:'nba',player:String(q.player).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim(),market:String(q.market),side:'over',line:Number(q.line),
   price:Number(q.overPrice),book:String(q.book),eventId:String(q.eventId||''),
   commenceTime:q.commenceTime,homeTeam:q.homeTeam||null,awayTeam:q.awayTeam||null,
   snapshotTime:fetchedAt,source:'TSO NBA odds snapshot'
  }));
- return {source:'TSO NBA odds snapshot',fetchedAt,available:true,stale:false,rows};
+ return {source:'TSO NBA odds snapshot',fetchedAt,available:rows.length>0,stale:rows.length===0,rows,ageMinutes:Math.max(0,Math.round(age/60000)),policy:'Time-sensitive pregame snapshot quotes; not streaming live prices'};
 }
 
 async function safeNbaDocument(url,kind,env){
