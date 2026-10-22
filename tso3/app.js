@@ -45,7 +45,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -375,14 +375,14 @@ function nbaFullContext(tool){
 }
 function nflPropsResearch(view='props'){
  const module=window.TSO3NflProps;
- const ctx={games:state.live?.games||[],research:state.nflResearch,td:state.nflTD,odds:state.nflOdds};
+ const ctx={games:state.live?.games||[],research:state.nflResearch,td:state.nflTD,odds:state.nflOdds,injuries:state.nflInjuries};
  return module?'<div id="nflPropsSlot">'+module.render(ctx,view)+'</div>'
   :empty('NFL prop research module unavailable','Refresh this development preview.');
 }
 function nflResearch(tool='touchdown-opportunities'){
  const lab=window.TSO3NflLab;
  const context={sport:'nfl',games:state.live?.games||[],td:state.nflTD,research:state.nflResearch,
-  odds:state.nflOdds,sim:state.nflSim,error:state.nflError};
+  odds:state.nflOdds,sim:state.nflSim,injuries:state.nflInjuries,error:state.nflError};
  return lab?'<div id="nflLabSlot">'+lab.render(context,tool)+'</div>'
   :empty('NFL research unavailable','The dedicated NFL research module did not load.');
 }
@@ -524,7 +524,8 @@ async function load(force=false){
   fetch('/api/nfl-touchdowns',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL TD model HTTP '+r.status);return r.json()}),
   fetch('/api/nfl-research',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL research HTTP '+r.status);return r.json()}),
   fetch('/api/nfl-odds',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL odds HTTP '+r.status);return r.json()}),
-  fetch('/api/nfl-projections',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL simulation HTTP '+r.status);return r.json()})
+  fetch('/api/nfl-projections',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL simulation HTTP '+r.status);return r.json()}),
+  fetch('/api/nfl-injuries',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL injuries HTTP '+r.status);return r.json()})
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
  else{state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');state.live={games:[],tso3:{sources:{}}}}
@@ -555,6 +556,7 @@ async function load(force=false){
  state.nflResearch=pairs[8].status==='fulfilled'&&Array.isArray(pairs[8].value?.players)?pairs[8].value:null;
  state.nflOdds=pairs[9].status==='fulfilled'&&Array.isArray(pairs[9].value?.rows)?pairs[9].value:null;
  state.nflSim=pairs[10].status==='fulfilled'&&Array.isArray(pairs[10].value?.games)?pairs[10].value:null;
+ state.nflInjuries=pairs[11].status==='fulfilled'&&Array.isArray(pairs[11].value?.entries)?pairs[11].value:null;
  state.nflError=[pairs[7],pairs[8],pairs[9]].filter(x=>x.status==='rejected').map(x=>String(x.reason?.message||'NFL feed')).join(' · ');
  state.nbaPending=false;
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
