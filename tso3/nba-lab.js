@@ -143,9 +143,10 @@ function rankedRows(ctx){
  // With no active book line, still show verifiable player averages. Never create synthetic odds or lines.
  if(research?.players){
   const gameTeams=new Set(games.flatMap(g=>[String(g.home?.id||''),String(g.away?.id||'')]));
-  const candidates=Object.values(research.players).filter(p=>p?.name&&Array.isArray(p.recentGames)&&p.recentGames.length>0
-    &&(!gameTeams.size||gameTeams.has(String(p.teamId))));
-  const sorted=candidates.slice().sort((a,b)=>norm(a.name).localeCompare(norm(b.name))).slice(0,220);
+  const eligible=Object.values(research.players).filter(p=>p?.name&&Array.isArray(p.recentGames)&&p.recentGames.length>0);
+  const scoped=eligible.filter(p=>gameTeams.has(String(p.teamId)));
+  // If scoreboard IDs differ, retain history but do not claim a verified matchup.
+  const sorted=(scoped.length?scoped:eligible).sort((a,b)=>norm(a.name).localeCompare(norm(b.name)));
   for(const person of sorted){
    const game=resolveGame(person,[],games,research),opp=opponentId(person,game);
    for(const metric of Object.keys(MARKETS)){
@@ -168,7 +169,7 @@ function visibleRows(ctx){
  const sort=view.sort,descending=view.direction==='desc'?1:-1;
  const value=r=>{
   const recent=summary(r.log,r.line,ctx.research?.currentSeason,sort==='l5'?5:sort==='l10'?10:sort==='l20'?20:'season');
-  if(['l5','l10','l20','season'].includes(sort))return number(recent?.rate??recent?.mean);
+  if(['l5','l10','l20','season'].includes(sort))return number((hasLines&&view.lineFilter==='all')?recent?.rate:(recent?.rate??recent?.mean));
   if(sort==='dvp')return number(r.defense?.ratio);
   if(sort==='model')return r.model?.overProbability!=null?Number(r.model.overProbability)*100:null;
   if(sort==='minutes')return summary(r.log.map(g=>({...g,value:number(g.minutes)})).filter(g=>g.value!==null),null,ctx.research?.currentSeason,5)?.mean??null;
@@ -239,7 +240,7 @@ function tpl(ctx,tool){
   +'<label class="nba-search-label">FIND PLAYER<input data-nba-search type="search" value="'+e(view.search)+'" placeholder="Player or team…"></label>'
   +'<button class="nba-sort-direction" type="button" data-nba-reverse title="Reverse sorting">'+(view.direction==='desc'?'↓':'↑')+'</button></div>';
  const age=date&&Number.isFinite(date.getTime())?Date.now()-date.getTime():null;
- const sourceLabel=age!==null&&age>3*86400000?'HISTORICAL NBA SOURCE — CHECK FRESHNESS':'TSO VERIFIED NBA HISTORY';
+ const sourceLabel=age===null?'NBA SOURCE — TIMESTAMP UNAVAILABLE':age>3*86400000?'HISTORICAL NBA SOURCE — CHECK FRESHNESS':'TSO VERIFIED NBA HISTORY';
  const status='<div class="nba-data-strip"><span class="nba-data-dot"></span><span>'+sourceLabel+'</span><span>'+e(dateText)+'</span><span>'+rows.length+' qualifying research rows</span><span>'+rows.filter(r=>r.line!==null).length+' exact prop lines</span></div>';
  const cols=tool==='player-form'?10:10;
  const table='<div class="nba-table-scroll"><table class="nba-table"><thead><tr>'+header+'</tr></thead><tbody>'
