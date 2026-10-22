@@ -4,7 +4,7 @@
  * No credentials or signup proxy. */
 const RAW='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-3.0/tso3/';
 const UPSTREAM='https://tso2-preview.jthomas0786-tso.workers.dev';
-const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8','/nba-lab.js':'application/javascript; charset=utf-8'};
+const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8','/nba-lab.js':'application/javascript; charset=utf-8','/nba-depth.js':'application/javascript; charset=utf-8'};
 const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','x-robots-tag':'noindex, nofollow'};
 const COLLEGE_FEED='https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard';
 const WOMEN_FEED='https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard';
@@ -206,7 +206,7 @@ export default {async fetch(req){
   }catch(e){return Response.json({available:false,error:'TSO source unavailable'},{status:503,headers})}
  }
  const filepath=u.pathname==='/'?'index.html':u.pathname.replace(/^\//,'');
- if(!/^(index\.html|app\.js|nba-lab\.js|styles\.css)$/.test(filepath))return new Response('Not found',{status:404,headers});
+ if(!/^(index\.html|app\.js|nba-lab\.js|nba-depth\.js|styles\.css)$/.test(filepath))return new Response('Not found',{status:404,headers});
  // Immutable deployment bundle takes precedence; raw branch source is fallback for local development.
  const bundled=typeof TSO3_BUNDLED_ASSETS!=='undefined'?TSO3_BUNDLED_ASSETS[filepath]:undefined;
  if(typeof bundled==='string')return new Response(req.method==='HEAD'?null:bundled,{status:200,headers:{...headers,'content-type':TYPES[u.pathname]||TYPES['/'+filepath],'cache-control':'no-store','x-tso-build':'bundled-branch-assets'}});
