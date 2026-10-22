@@ -533,7 +533,7 @@ async function load(force=false){
  else{state.propsError=String(pairs[1].reason?.message||'Props feed missing');state.props={rows:[]}}
  if(pairs[2].status==='fulfilled'&&pairs[2].value?.players){state.nbaResearch=pairs[2].value;state.nbaError=''}
  else {state.nbaError=String(pairs[2].reason?.message||'NBA history source missing');state.nbaResearch=null}
- if(pairs[3].status==='fulfilled'&&Array.isArray(pairs[3].value?.models))state.nbaModels=pairs[3].value;
+ state.nbaModels=pairs[3].status==='fulfilled'&&Array.isArray(pairs[3].value?.models)?pairs[3].value:null;
  if(pairs[4].status==='fulfilled'&&pairs[4].value.length&&state.live?.tso3?.sources?.nba!=='ESPN verified scoreboard'){
   const oldGames=Array.isArray(state.live?.games)?state.live.games:[];
   const combined=new Map(oldGames.filter(g=>g.league!=='nba').map(g=>[g.league+':'+g.id,g]));
@@ -551,7 +551,7 @@ async function load(force=false){
   state.props={...(state.props||{}),rows:[...merged.values()],nbaOdds:{source:pairs[5].value.source,fetchedAt:pairs[5].value.fetchedAt}};
   state.nbaOddsSnapshot=pairs[5].value.fetchedAt;
  }
- if(pairs[6].status==='fulfilled'&&Array.isArray(pairs[6].value?.entries))state.nbaInjuries=pairs[6].value;
+ state.nbaInjuries=pairs[6].status==='fulfilled'&&Array.isArray(pairs[6].value?.entries)?pairs[6].value:null;
  state.nflTD=pairs[7].status==='fulfilled'&&Array.isArray(pairs[7].value?.games)?pairs[7].value:null;
  state.nflResearch=pairs[8].status==='fulfilled'&&Array.isArray(pairs[8].value?.players)?pairs[8].value:null;
  state.nflOdds=pairs[9].status==='fulfilled'&&Array.isArray(pairs[9].value?.rows)?pairs[9].value:null;
