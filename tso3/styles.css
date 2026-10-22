@@ -164,3 +164,79 @@ html,body,button,input,select,textarea{
   .research-card h3,.tool-card h3{font-size:16px;line-height:1.4}
   .hero h1{font-size:27px;line-height:1.2}
 }
+
+
+/* NBA Player Form & Matchup-vs-Position — in-page research table */
+.nba-lab{margin:17px 0 28px;color:#e7f0f5}
+.nba-lab .nba-intro{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:14px}
+.nba-intro h2{font:800 clamp(20px,2vw,28px)/1.25 'DM Sans',system-ui,sans-serif;color:#f2f7fa;letter-spacing:-.025em;margin:6px 0 7px}
+.nba-intro p{font-size:12px;line-height:1.6;color:#9fb3c2;margin:0;max-width:800px}
+.nba-eyebrow{font-size:9px;color:var(--orange);font-weight:850;letter-spacing:.13em}
+.nba-view-switch{display:flex;gap:4px;align-items:center;flex:0 0 auto;border:1px solid var(--line);border-radius:7px;padding:4px;background:#131e2b}
+.nba-view-switch a{font-size:10px;font-weight:850;color:#b9c8d2;padding:9px 11px;white-space:nowrap;border-radius:4px}
+.nba-view-switch a.active{background:#ff7d4225;color:var(--gold);border:1px solid #ff7d4255}
+.nba-data-strip{background:#101d29;border:1px solid #304353;border-radius:8px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:11px 14px;margin:12px 0 10px;font-size:10px;color:#a6b9c7;font-weight:700}
+.nba-data-strip span:first-of-type:not(.nba-data-dot){color:var(--green);font-weight:850;letter-spacing:.06em}
+.nba-data-dot{background:var(--green);width:7px;height:7px;border-radius:50%;box-shadow:0 0 0 3px #78d4ac20;flex:0 0 7px}
+.nba-controls{display:flex;gap:9px;flex-wrap:wrap;align-items:end;border:1px solid var(--line);border-radius:9px;background:#111d29;padding:12px 13px;margin-bottom:10px}
+.nba-controls label{display:flex;flex-direction:column;gap:5px;font-weight:800;font-size:9px;letter-spacing:.095em;color:#8da7b9;flex:0 0 auto}
+.nba-controls select,.nba-controls input{background:#0a1420;color:#e7f0f6;border:1px solid #364858;padding:9px 10px;border-radius:6px;font-size:11px;letter-spacing:0;min-height:36px;max-width:none;font-weight:600}
+.nba-controls select{padding-right:24px}
+.nba-controls input{width:100%;min-width:165px}
+.nba-controls .nba-search-label{flex:1 1 160px}
+.nba-sort-direction{background:#273644;color:var(--gold);border:1px solid #54606e;border-radius:6px;padding:5px 13px;min-height:36px;font-weight:800}
+.nba-legend{display:flex;gap:14px;flex-wrap:wrap;align-items:center;color:#91a7b8;font-size:10px;padding:8px 0 11px}
+.nba-legend>span{display:flex;gap:6px;align-items:center}.nba-legend i{display:block;width:7px;height:7px;border-radius:50%}.nba-legend-high{background:var(--green)}.nba-legend-low{background:var(--red)}
+.nba-table-scroll{max-width:100%;overflow-x:auto;border:1px solid #344454;border-radius:10px 10px 0 0;background:#111b28;scrollbar-width:thin}
+.nba-table{border-collapse:collapse;width:100%;white-space:nowrap;min-width:1200px;text-align:left}
+.nba-table thead{background:#203040}
+.nba-table th{font-size:10px;letter-spacing:.06em;font-weight:850;color:#aebfcc;padding:15px 13px;border-bottom:1px solid #3a4e60}
+.nba-table th[data-nba-sort]{cursor:pointer;user-select:none}.nba-table th[data-nba-sort]:hover{color:var(--orange)}
+.nba-table tbody tr{border-bottom:1px solid #233443;cursor:pointer;transition:background .12s}
+.nba-table tbody tr:nth-child(even){background:#162230}
+.nba-table tbody tr:hover,.nba-table tbody tr:focus-visible{background:#22394b;outline:1px solid var(--orange);outline-offset:-1px}
+.nba-table td{padding:12px 13px;vertical-align:middle;font-size:11px}
+.nba-table td>b,.nba-table td>span>b{font-size:12px;color:#e9f1f6;font-weight:800}
+.nba-table td small{display:block;font-size:9px;color:#94aaba;margin-top:3px;font-weight:650}
+.nba-table .nba-good{color:var(--green)!important}
+.nba-table .nba-low{color:#f7a199!important}
+.nba-muted{color:#698092;font-size:12px}
+.nba-person{display:flex;gap:9px;align-items:center;min-width:165px}
+.nba-person>img,.nba-person>span{width:33px;height:33px;object-fit:cover;border-radius:50%;background:#2c3c4b;border:1px solid #475d6a;display:grid;place-items:center;font-weight:800;color:#f7bd85;flex:0 0 auto}
+.nba-person>b,.nba-person div>b{color:#f1f7fa;font-size:11px;font-weight:850}
+.nba-table-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 16px;background:#172533;border:1px solid #344454;border-radius:0 0 9px 9px;border-top:0;color:#a4b8c5;font-size:10px}
+.nba-table-foot button{background:#293947;border:1px solid #526276;border-radius:6px;color:#eee;padding:8px 12px;font-weight:800;font-size:10px}
+.nba-footnote{line-height:1.75;font-size:10px;color:#8fa4b4;margin:15px 3px}
+.nba-lab-alert{background:#202c38;border:1px solid #5a5545;border-left:3px solid var(--orange);border-radius:8px;padding:19px;margin:16px 0;color:#d8e4eb;line-height:1.6}
+.nba-lab-alert>b{font-size:14px}.nba-lab-alert p{color:#aebfc9;font-size:12px}
+.nba-no-rows{cursor:default!important;text-align:center;color:#abbac4}
+.nba-drawer h2{font:800 26px/1.25 'DM Sans',system-ui,sans-serif}
+.nba-detail-tags{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0}
+.nba-chip{display:inline-flex;align-items:center;border:1px solid #476a5b;color:#9cddbd;border-radius:6px;font-size:9px;font-weight:800;letter-spacing:.05em;background:#1c3a32;padding:6px 9px}
+.nba-chip.warning{border-color:#a87a50;color:#ffd3a5;background:#473222}
+.nba-drawer h3{font:800 17px/1.35 'DM Sans',system-ui,sans-serif;color:#eef5f8;letter-spacing:-.01em}
+.nba-snapshots{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0 18px}
+.nba-snapshot{display:flex;flex-direction:column;gap:5px;padding:11px;background:#101e2a;border:1px solid #314252;border-radius:8px;min-width:0}
+.nba-snapshot small{font-size:9px;font-weight:800;color:#9db4c4;letter-spacing:.09em}
+.nba-snapshot b{font-size:23px;color:var(--gold);font-weight:850;line-height:1.2}
+.nba-snapshot span{font-size:9px;color:#a5b9c5;line-height:1.4}
+.nba-trend-chart{border:1px solid #384b5b;background:#0d1926;border-radius:8px;padding:13px 10px 9px;overflow-x:auto}
+.nba-chart-bars{min-width:360px;height:200px;display:flex;gap:6px;align-items:flex-end;border-bottom:1px solid #506070}
+.nba-bar-wrap{display:flex;flex:1 0 17px;align-items:center;flex-direction:column;justify-content:flex-end;height:100%;gap:3px;min-width:12px}
+.nba-bar{max-width:26px;width:100%;border-radius:3px 3px 0 0;min-height:2px;background:#56758b}
+.nba-bar.over{background:linear-gradient(180deg,#ffc07a,#fc7d41)}
+.nba-bar-wrap small{font-size:8px;color:#9badb9;display:block;line-height:1}
+.nba-bar-wrap b{font-size:9px;color:#e2eaf0;line-height:1}
+.nba-trend-chart p{color:#a5b8c5;font-size:10px;margin:27px 0 5px;line-height:1.5}
+.nba-detail-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:12px 0}
+.nba-detail-metrics div{border-radius:7px;border:1px solid #314252;background:#152634;padding:12px 9px;min-width:0}
+.nba-detail-metrics small{font-size:9px;color:#9cb4c3;display:block;letter-spacing:.025em;line-height:1.35;min-height:24px}
+.nba-detail-metrics b{font-size:19px;font-weight:850;display:block;margin-top:7px;color:#e9f2f7}
+.nba-context-note{background:#1f3240;border-left:3px solid var(--orange);padding:11px 13px;line-height:1.75;border-radius:0 6px 6px 0;font-size:11px;color:#b6cbd6}
+.nba-log-scroll{overflow-x:auto;border:1px solid #344454;border-radius:8px}
+.nba-log{width:100%;border-collapse:collapse;white-space:nowrap}
+.nba-log th,.nba-log td{text-align:left;padding:9px 10px;border-bottom:1px solid #2e4050;font-size:10px}
+.nba-log th{background:#203040;color:#afc1cc;font-weight:850;letter-spacing:.04em}
+.nba-log td{color:#e4ecf2}
+@media(max-width:950px){.nba-intro{flex-wrap:wrap}.nba-controls label{flex:1 1 115px}.nba-controls .nba-search-label{flex:1 1 200px}}
+@media(max-width:600px){.nba-intro{flex-direction:column;align-items:stretch!important}.nba-intro .nba-view-switch{align-self:stretch}.nba-view-switch a{flex:1;text-align:center}.nba-snapshots{grid-template-columns:repeat(2,minmax(0,1fr))}.nba-detail-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.nba-table-foot{flex-direction:column;align-items:flex-start}.nba-controls .nba-search-label{flex-basis:100%}.nba-lab{margin-top:8px}}
