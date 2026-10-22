@@ -70,9 +70,9 @@ This one page showed: window controls (Today / 3 days / This week); subject filt
 | Injuries | Dedicated page, clear unavailable state | Official injuries and starting lineups |
 | Saved | Local browser shortlist with recorded quote | Account sync, line alerts and Parlay Ping betslip integration |
 
-**Existing TSO source reuse:** staging TSO 2.0 scoreboard/props feeds; NHL goal research, NFL Monte Carlo and MLB model from prior version where independently validated. Exact-market model verification prevents misleading percentages.
+**Existing TSO source reuse:** TSO 2.0 staging scoreboard/props feeds, with independent ESPN CFB and WNBA schedule ingestion added to the 3.0 preview. NBA Games also reuses the independently deployed verified First Basket / Opening Tip play-by-play service. NHL goal research, NFL Monte Carlo and MLB models remain available in 2.0 and must be individually integrated and validated before claiming full parity. Exact-market model verification prevents misleading percentages.
 
-**Missing/blocked:** CFB and WNBA full ingestion, licensed advanced football matchup and MLB pitch-level sources, team ratings for six leagues, lineup/injury provider, historic game logs across all markets, authorized multi-book line histories.
+**Missing/blocked:** CFB and WNBA full props/history/ratings ingestion (their game schedules are integrated), licensed advanced football matchup and MLB pitch-level sources, team ratings for six leagues, lineup/injury provider, historic game logs across all markets, authorized multi-book line histories.
 
 ## Launch checks
 
