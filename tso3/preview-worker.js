@@ -79,14 +79,16 @@ async function safeNbaOdds(){
  return {source:'TSO NBA odds snapshot',fetchedAt,available:true,stale:false,rows};
 }
 
-async function safeNbaDocument(url,kind){
- const r=await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:kind==='research'?300:90},signal:AbortSignal.timeout(16000)});
+async function safeNbaDocument(url,kind,env){
+ const r=kind==='models'&&env?.NBA_MODEL_SERVICE?.fetch
+  ?await env.NBA_MODEL_SERVICE.fetch(new Request(NBA_MODEL_SOURCE,{headers:{accept:'application/json'}}))
+  :await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:kind==='research'?300:90},signal:AbortSignal.timeout(16000)});
  if(!r.ok)throw Error('NBA source '+r.status);
  const data=await r.json();
  if(kind==='research')return sanitizeNbaResearch(data);
  if(!Array.isArray(data?.models))throw Error('Invalid NBA model schema');
  return {source:data.source||'TSO NBA regression',generatedAt:data.generatedAt||null,researchGeneratedAt:data.researchGeneratedAt||null,
-  models:data.models.filter(x=>x?.available!==false).map(m=>({key:m.key,eventId:m.eventId,player:m.player,playerId:m.playerId,
+  models:data.models.filter(x=>x?.available!==false&&Number.isFinite(Date.parse(x.commenceTime||''))&&Date.parse(x.commenceTime)>Date.now()-15*60000).map(m=>({key:m.key,eventId:m.eventId,commenceTime:m.commenceTime,player:m.player,playerId:m.playerId,
     team:m.team,teamId:m.teamId,position:m.position,headshot:m.headshot,market:m.market,line:m.line,
     opponent:m.opponent,opponentId:m.opponentId,venue:m.venue,projection:m.projection,overProbability:m.overProbability,
     sampleGames:m.sampleGames,last5:m.last5,last10:m.last10,seasonBaseline:m.seasonBaseline,
@@ -144,7 +146,7 @@ async function sixLeagueLive(){
  },generatedAt:new Date().toISOString()}};
 }
 
-export default {async fetch(req){
+export default {async fetch(req,env){
  if(req.method==='OPTIONS')return new Response(null,{headers:{...headers,'access-control-allow-methods':'GET, HEAD, OPTIONS'}});
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
@@ -163,7 +165,7 @@ export default {async fetch(req){
  if(u.pathname==='/api/nba-models'||u.pathname==='/api/nba-research'){
   const kind=u.pathname.endsWith('research')?'research':'models';
   try{
-   const data=await safeNbaDocument(kind==='research'?NBA_RESEARCH_SOURCE:NBA_MODEL_SOURCE,kind);
+   const data=await safeNbaDocument(kind==='research'?NBA_RESEARCH_SOURCE:NBA_MODEL_SOURCE,kind,env);
    return Response.json(data,{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO-owned NBA research/model'}});
   }catch(_){
    return Response.json({available:false,error:'Verified NBA '+kind+' source is not accessible'},{status:503,headers:{...headers,'cache-control':'no-store'}});
