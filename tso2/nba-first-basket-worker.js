@@ -22,6 +22,14 @@ async function history(code,year,cutoff){
  return [...games(now,year,cutoff).slice(0,20),...games(prev,year-1,cutoff).slice(0,10)];
 }
 async function parallel(items,callback){let next=0;const result=new Array(items.length);await Promise.all(Array.from({length:Math.min(8,items.length)},async()=>{while(next<items.length){let k=next++;try{result[k]=await callback(items[k])}catch(e){result[k]=null}}}));return result.filter(Boolean)}
+async function activeRoster(code,teamID){
+ try{
+  const name=(ALIAS[code]||code).toLowerCase(),doc=await espn('teams/'+name+'/roster');
+  if(!Array.isArray(doc?.athletes)||String(doc?.team?.id||'')!==String(teamID))return null;
+  const ids=new Set(doc.athletes.filter(a=>a?.id&&a?.displayName).map(a=>ident(a.id)));
+  return ids.size?ids:null;
+ }catch(_){return null}
+}
 function roster(summary){
  const result=new Map();
  for(const group of summary?.boxscore?.players||[])for(const stat of group.statistics||[])for(const entry of stat.athletes||[]){
@@ -73,7 +81,7 @@ function observe(summary,season){
  return {season,tip,firstFG,firstShot,starters,teams:[...known]};
 }
 function stat(g,selector,count){const events=g.slice(0,count).map(selector).filter(x=>x!==null);const won=events.filter(Boolean).length;return{won,n:events.length,pct:events.length?Math.round(100*won/events.length):null}}
-function teamReport(records,team,year){
+function teamReport(records,team,year,active){
  const eligible=records.filter(g=>g.teams.includes(team));
  const current=eligible.filter(g=>g.season===year);
  const p=new Map();
@@ -89,6 +97,7 @@ function teamReport(records,team,year){
  }
  const n=eligible.length;
  const players=[...p.values()].filter(x=>x.firstBaskets||x.firstShots)
+ .filter(x=>active?.has(x.id))
  .sort((a,b)=>3*(b.firstBaskets-a.firstBaskets)+(b.firstShots-a.firstShots)+.1*(b.starts-a.starts)).slice(0,8)
  .map(x=>({...x,games:n,firstBasketRate:n?Math.round(100*x.firstBaskets/n):null,firstShotRate:n?Math.round(100*x.firstShots/n):null,startRate:n?Math.round(100*x.starts/n):null}));
  const tip=g=>g.tip===null?null:g.tip===team,basket=g=>g.firstFG===null?null:g.firstFG.team===team;
@@ -116,12 +125,13 @@ export default {async fetch(request,env,ctx){
   const homeID=codes.get(home)||codes.get(ALIAS[home]||home);
   const awayID=codes.get(away)||codes.get(ALIAS[away]||away);
   if(!homeID||!awayID)throw Error('Could not verify both teams in ESPN game records');
+  const [homeRoster,awayRoster]=await Promise.all([activeRoster(home,homeID),activeRoster(away,awayID)]);
   const observed=summaries.map(x=>({date:x.date,...observe(x.data,x.season)})).filter(x=>x.season&&x.teams).sort((a,b)=>b.date-a.date);
   if(!observed.length)throw Error('ESPN game play-by-play unavailable');
   const body={available:true,season:year,seasonLabel:(year-1)+'–'+String(year).slice(-2),
    generatedAt:new Date().toISOString(),source:'ESPN NBA completed regular-season play-by-play',
-   recentSampleCap:20,home:{abbr:home,id:homeID,...teamReport(observed,homeID,year)},
-   away:{abbr:away,id:awayID,...teamReport(observed,awayID,year)},
+   recentSampleCap:20,home:{abbr:home,id:homeID,rosterVerified:!!homeRoster,...teamReport(observed,homeID,year,homeRoster)},
+   away:{abbr:away,id:awayID,rosterVerified:!!awayRoster,...teamReport(observed,awayID,year,awayRoster)},
    notes:'L5/L10 include prior-season history where needed. Season covers the most recent up-to-20 current-season games per team (not necessarily the entire season). Historical frequencies are not calibrated predictions or sportsbook win probabilities. First basket means first made field goal, not first free throw.'};
   const result=respond(body,200,1200);ctx.waitUntil(cache.put(key,result.clone()));return result;
  }catch(e){return respond({available:false,error:String(e?.message||e),source:'ESPN NBA play-by-play'},503,30)}
