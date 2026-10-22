@@ -339,15 +339,35 @@ function pageSaved(){
  if(!rows.length)return section('Saved research','Personal research shortlist')+empty('Your shortlist is empty','Use the star beside a verified selection to save it locally in this browser.');
  return section('Saved research','Stored locally in this browser · not a sportsbook betslip')+'<div class="table-shell"><div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>PROP</th><th>LINE</th><th>BOOK</th><th>QUOTE AT SAVE</th><th>REMOVE</th></tr></thead><tbody>'+rows.map((r,i)=>'<tr><td><strong>'+text(r.name)+'</strong></td><td>'+text(r.market)+'</td><td>'+text(r.side||'Over')+' '+text(r.line??'—')+'</td><td>'+text(r.book||'—')+'</td><td>'+text(signed(r.price))+'</td><td><button class="save-row active" data-unsave="'+text(r.key)+'">★</button></td></tr>').join('')+'</tbody></table></div></div>';
 }
+function nbaFullContext(tool){
+ return {sport:'nba',tool,games:state.live?.games||[],props:state.props,
+  models:state.nbaModels,research:state.nbaResearch,injuries:state.nbaInjuries,oddsSnapshot:state.nbaOddsSnapshot,
+  error:state.nbaPending?'Fetching source data…':state.nbaError};
+}
+function nbaPlayerResearch(tool='player-form'){
+ const lab=window.TSO3NbaLab;
+ return lab?'<div id="nbaLabSlot">'+lab.render(nbaFullContext(tool),tool)+'</div>'
+  :empty('NBA research unavailable','The dedicated player research script could not load.');
+}
+function nbaDepthResearch(tool){
+ const depth=window.TSO3NbaDepth;
+ return depth?'<div id="nbaDepthSlot">'+depth.render(nbaFullContext(tool),tool)+'</div>'
+  :empty('NBA research unavailable','The dedicated NBA module could not load.');
+}
 function render(){
  state.displayedRows.clear();
  renderNav();renderMetrics();renderFilters();
- const focusLab=state.sport==='nba'&&state.page==='cheatsheets'&&(['player-form','matchup-vs-position'].includes(state.tool)||window.TSO3NbaDepth?.tools?.includes(state.tool));
+ const focusLab=state.sport==='nba'&&((state.page==='cheatsheets'&&(['player-form','matchup-vs-position'].includes(state.tool)||window.TSO3NbaDepth?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
  el('hero').hidden=focusLab;
  el('quickStatus').hidden=focusLab;
  el('toolbar').hidden=focusLab||el('toolbar').hidden;
  let body='';
- if(state.page==='overview')body=overview();
+ if(state.sport==='nba'&&state.page==='props')body=nbaPlayerResearch();
+ else if(state.sport==='nba'&&state.page==='trends')body=nbaPlayerResearch();
+ else if(state.sport==='nba'&&state.page==='ratings')body=nbaDepthResearch('team-stats');
+ else if(state.sport==='nba'&&state.page==='projections')body=nbaDepthResearch('game-projections');
+ else if(state.sport==='nba'&&state.page==='injuries')body=nbaDepthResearch('injury-impact');
+ else if(state.page==='overview')body=overview();
  else if(state.page==='games')body=pageGames();
  else if(state.page==='props')body=section('Player prop explorer','Over / Yes markets only, no fabricated selections')+tableMarkup(filteredRows());
  else if(state.page==='trends')body=pageTrends();
