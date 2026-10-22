@@ -194,7 +194,7 @@ function row(r){
  const isTD=state.tool==='touchdown-opportunities';
  let cells=[];
  if(isTD)cells=[{html:'<b class="'+tdClass(atd)+'">'+projected+'</b><small>'+esc(r.officialReport?.status||r.m?.confidence||'')+'</small>'},
-  {text:r.m?.modelGrade||'—'}, {text:f(r.m?.opportunityRate)},
+  {text:cannotPlay(r.officialReport)?'OUT':(r.modelProbability===null?'—':r.m?.modelGrade||'—')}, {text:f(r.m?.opportunityRate)},
   {text:percent(r.m?.snapShare)}, {text:percent(r.m?.opponentRzTdRate)},
   {html:'<b>'+esc(fmtPrice(quote?.price))+'</b><small>'+esc(quote?.book||'NO VERIFIED BOOK')+'</small>'}];
  else if(state.tool==='red-zone-usage')cells=[{text:r.m?.rzCarries??'—'},{text:r.m?.rzTargets??'—'},
