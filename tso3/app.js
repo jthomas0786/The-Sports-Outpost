@@ -38,7 +38,7 @@ function matchupTime(raw){
 }
 function matchRowGame(row,g){
  if(!row||!g)return false;
- if(String(row.gameId||row.eventId||'')===gameKey(g))return true;
+ if(String(row.verifiedGameId||'')===gameKey(g)||String(row.gameId||row.eventId||'')===gameKey(g))return true;
  const ab=(v,t)=>Boolean(canon(v))&&[t.abbr,t.name].some(x=>Boolean(canon(x))&&canon(v)===canon(x));
  const teams=ab(row.homeTeam,g.home||{})&&ab(row.awayTeam,g.away||{});
  const start=Date.parse(row.commenceTime||''),gameTime=Date.parse(g.startTime||'');
@@ -60,6 +60,7 @@ function getRows(){
  return (Array.isArray(state.props?.rows)?state.props.rows:[])
   .filter(r=>{
    if(leagueOf(r)!==state.sport||r.available===false||r.active===false||r.suspended===true)return false;
+   if(state.sport==='nba'&&!r.verifiedGameId)return false;
    const start=Date.parse(r.commenceTime||r.startTime||r.eventStartTime||'');
    if(!Number.isFinite(start)||start<startMin||start>max)return false;
    const at=Date.parse(r.snapshotTime||r.fetchedAt||r.updatedAt||'');
@@ -115,7 +116,7 @@ function filteredRows(){
   const selected=new Set(state.matchupIds),games=getGames().filter(g=>selected.has(gameKey(g)));
   list=list.filter(r=>games.some(g=>matchRowGame(r,g)));
  }
- if(state.game){const g=getGames().find(x=>gameKey(x)===state.game);if(g)list=list.filter(r=>String(r.gameId||r.eventId||'')===gameKey(g)
+ if(state.game){const g=getGames().find(x=>gameKey(x)===state.game);if(g)list=list.filter(r=>String(r.verifiedGameId||'')===gameKey(g)||String(r.gameId||r.eventId||'')===gameKey(g)
   ||(canon(r.homeTeam)===canon(g.home?.abbr)&&canon(r.awayTeam)===canon(g.away?.abbr))
   ||([g.home?.abbr,g.away?.abbr].map(canon).includes(canon(r.team))&&(!r.commenceTime||Math.abs(Date.parse(r.commenceTime)-Date.parse(g.startTime))<6*3600000))); }
  list.sort((a,b)=>{
