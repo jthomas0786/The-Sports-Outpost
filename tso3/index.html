@@ -6,32 +6,28 @@
 <meta name="theme-color" content="#080e16">
 <title>TSO 3.0 | The Sports Outpost — Research Command Center</title>
 <meta name="description" content="The Sports Outpost 3.0 research workspace for NFL, NBA, MLB, NHL, WNBA and college football.">
-<link rel="stylesheet" href="/styles.css?v=3">
+<link rel="stylesheet" href="/styles.css?v=3.1">
 </head>
 <body>
 <div id="app" class="shell">
-  <aside class="sidebar" id="sidebar" aria-label="Research navigation">
-    <a class="brand" href="#/nfl/overview" aria-label="The Sports Outpost home">
-      <span class="brand-mark" aria-hidden="true"><span class="brand-orbit"></span>◉</span>
+  <header class="topbar" id="siteHeader">
+    <a class="brand brand-horizontal" href="#/nfl/overview" aria-label="The Sports Outpost home">
+      <span class="brand-mark" aria-hidden="true">◉</span>
       <span class="brand-copy"><strong>THE SPORTS<br>OUTPOST</strong><small>RESEARCH 3.0</small></span>
     </a>
-    <div class="side-section-label">SPORTS</div>
-    <nav id="sportNav" class="sport-nav" aria-label="Choose sport"></nav>
-    <div class="side-section-label">WORKSPACE</div>
-    <nav id="pageNav" class="page-nav" aria-label="Choose research tool"></nav>
-    <div class="sidebar-bottom"><div class="source-indicator"><i id="sourceLight"></i><div><b>TSO VERIFIED FEEDS</b><small id="feedStatus">Connecting feeds…</small></div></div><div class="side-disclaimer">Research supports decisions. Historical hit rates are not guaranteed outcomes.</div></div>
-  </aside>
+    <nav id="sportNav" class="sport-nav top-sports" aria-label="Choose a sport and open its research categories"></nav>
+    <div class="top-actions"><span class="date-label" id="todayLabel"></span><button class="btn subtle" id="refreshBtn" title="Refresh verified feeds"><span>↻</span><span class="hide-mobile"> Refresh</span></button><button class="btn saved-trigger" id="savedBtn" aria-label="View saved props">☆ <span id="savedCount">0</span> <span class="hide-mobile">Saved</span></button></div>
+    <div id="sportMenu" class="sport-menu" aria-label="Sport research categories" hidden></div>
+  </header>
+  <div class="contextbar">
+    <div class="crumb"><span>RESEARCH</span><span class="slash">/</span><b id="crumbSport">NFL</b><span class="slash">/</span><b id="crumbPage">Overview</b></div>
+    <div class="source-indicator"><i id="sourceLight"></i><div><b>TSO VERIFIED FEEDS</b><small id="feedStatus">Connecting feeds…</small></div></div>
+  </div>
   <div class="main-wrap">
-    <header class="topbar">
-      <button class="mobile-nav" id="navToggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-      <div class="crumb"><span>THE SPORTS OUTPOST</span><span class="slash">/</span><b id="crumbSport">NFL</b><span class="slash">/</span><b id="crumbPage">Overview</b></div>
-      <div class="top-actions"><span class="date-label" id="todayLabel"></span><button class="btn subtle" id="refreshBtn" title="Refresh verified feeds"><span>↻</span> Refresh</button><button class="btn saved-trigger" id="savedBtn" aria-label="View saved props">☆ <span id="savedCount">0</span> Saved</button></div>
-    </header>
     <main id="main" tabindex="-1">
       <section class="hero">
         <div class="hero-upper"><span class="eyebrow" id="heroKicker">TSO RESEARCH INTELLIGENCE</span><span id="heroState" class="state-pill">◦ CONNECTING</span></div>
         <div class="hero-mid"><div><h1 id="heroTitle">Every game. Every angle.</h1><p id="heroDescription">Six leagues, one place to evaluate matchups, historical form and price.</p></div><span class="hero-watermark" aria-hidden="true" id="heroWatermark">NFL</span></div>
-        <nav id="sectionTabs" class="section-tabs" aria-label="Research views"></nav>
       </section>
       <section class="quick-status" id="quickStatus" aria-label="Data availability"></section>
       <section class="toolbar" id="toolbar">
@@ -47,6 +43,6 @@
     <div class="drawer-head"><span class="eyebrow">TSO DEEP RESEARCH</span><button id="closeDrawer" type="button" aria-label="Close player research">✕</button></div><div id="drawerBody"></div>
   </aside>
 </div>
-<script src="/app.js?v=3" defer></script>
+<script src="/app.js?v=3.1" defer></script>
 </body>
 </html>
