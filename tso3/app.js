@@ -373,6 +373,12 @@ function nbaFullContext(tool){
   models:state.nbaModels,research:state.nbaResearch,injuries:state.nbaInjuries,oddsSnapshot:state.nbaOddsSnapshot,
   error:state.nbaPending?'Fetching source data…':state.nbaError};
 }
+function nflPropsResearch(view='props'){
+ const module=window.TSO3NflProps;
+ const ctx={games:state.live?.games||[],research:state.nflResearch,td:state.nflTD,odds:state.nflOdds};
+ return module?'<div id="nflPropsSlot">'+module.render(ctx,view)+'</div>'
+  :empty('NFL prop research module unavailable','Refresh this development preview.');
+}
 function nflResearch(tool='touchdown-opportunities'){
  const lab=window.TSO3NflLab;
  const context={sport:'nfl',games:state.live?.games||[],td:state.nflTD,research:state.nflResearch,
@@ -399,10 +405,11 @@ function render(){
  el('quickStatus').hidden=focusLab;
  el('toolbar').hidden=focusLab||el('toolbar').hidden;
  let body='';
- if(state.sport==='nfl'&&state.page==='props')body=nflResearch('touchdown-opportunities');
+ if(state.sport==='nfl'&&state.page==='props')body=nflPropsResearch('props');
  else if(state.sport==='nfl'&&state.page==='trends')body=nflResearch('receiving-matchups');
  else if(state.sport==='nfl'&&state.page==='ratings')body=nflResearch('power-ratings');
  else if(state.sport==='nfl'&&state.page==='projections')body=nflResearch('game-projections');
+ else if(state.sport==='nfl'&&state.page==='injuries')body=nflPropsResearch('injuries');
  else if(state.sport==='nba'&&state.page==='props')body=nbaPlayerResearch();
  else if(state.sport==='nba'&&state.page==='trends')body=nbaPlayerResearch();
  else if(state.sport==='nba'&&state.page==='ratings')body=nbaDepthResearch('team-stats');
@@ -551,6 +558,7 @@ async function load(force=false){
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
 }
 document.addEventListener('click',e=>{
+ if(window.TSO3NflProps?.click?.(e))return;
  if(window.TSO3NflLab?.click?.(e))return;
  if(window.TSO3NbaDepth?.click?.(e))return;
  if(window.TSO3NbaLab?.click?.(e))return;
@@ -591,11 +599,12 @@ document.addEventListener('change',e=>{
   el('globalMatchups').querySelector('[data-global-matchup-check="'+val+'"]')?.focus?.({preventScroll:true});
   return;
  }
+ if(window.TSO3NflProps?.change?.(e))return;
  if(window.TSO3NflLab?.change?.(e))return;
  if(window.TSO3NbaDepth?.choose?.(e))return;
  window.TSO3NbaLab?.change?.(e);
 });
-document.addEventListener('input',e=>{if(window.TSO3NflLab?.input?.(e))return;if(window.TSO3NbaDepth?.input?.(e))return;window.TSO3NbaLab?.input?.(e)});
+document.addEventListener('input',e=>{if(window.TSO3NflProps?.input?.(e))return;if(window.TSO3NflLab?.input?.(e))return;if(window.TSO3NbaDepth?.input?.(e))return;window.TSO3NbaLab?.input?.(e)});
 el('closeDrawer').addEventListener('click',closeDrawer);
 el('scrim').addEventListener('click',closeDrawer);
 el('savedBtn').addEventListener('click',()=>{location.hash='#/'+state.sport+'/saved'});
