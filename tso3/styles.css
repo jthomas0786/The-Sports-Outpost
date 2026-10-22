@@ -351,3 +351,33 @@ html,body,button,input,select,textarea{
 .live-box-scroll td:first-child{font-weight:700}
 .live-no-stats{font-size:11px;color:#a0b4c1;padding:12px 0;line-height:1.6}
 @media(max-width:780px){.live-box-grid{grid-template-columns:1fr}}
+
+
+/* TSO 3.0 NFL verified research, player trends and touchdown projections */
+.nfl-lab .nba-intro{margin-bottom:16px}
+.nfl-lab .nba-intro h2{font:800 clamp(20px,2.2vw,28px)/1.3 'DM Sans',system-ui,sans-serif;letter-spacing:-.025em}
+.nfl-lab .nba-intro p{max-width:930px}
+.nfl-lab .nba-controls{overflow:visible;gap:10px;z-index:15;position:relative}
+.nfl-lab .nfl-select{flex:1 1 185px;min-width:155px}
+.nfl-lab .nfl-select:first-child{flex:1.35 1 235px}
+.nfl-lab .matchup-picker{width:100%}
+.nfl-lab .nfl-table{min-width:1050px}
+.nfl-lab .nfl-table tbody tr{cursor:pointer}
+.nfl-lab .nfl-table tbody tr:hover{background:#203a4a}
+.nfl-lab .nfl-table td small{font-size:10px}
+.nfl-lab .nfl-high{color:#7bdfb7!important}
+.nfl-lab .nfl-medium{color:#f5bd7d!important}
+.nfl-lab .nfl-player b{display:block;font-size:12px;line-height:1.45;color:#eff5f9}
+.nfl-lab .nfl-player small{display:block;color:#92a9b8;margin-top:4px}
+.nfl-model-note{background:#1b2e3c;border-left:3px solid #ff9b59;padding:13px;border-radius:0 8px 8px 0;color:#d8e5ee;font-size:11px;line-height:1.7;margin:11px 0 15px}
+.nfl-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:13px 0 21px}
+.nfl-detail-grid>div{background:#122332;border:1px solid #364b59;border-radius:7px;padding:11px;min-width:0}
+.nfl-detail-grid small{font-size:9px;font-weight:750;color:#94afbe;display:block;line-height:1.5}
+.nfl-detail-grid b{color:#f1f6f9;font-size:19px;font-weight:800;display:block;margin-top:6px}
+.nfl-details h3{font:750 17px/1.3 'DM Sans',system-ui,sans-serif;margin:15px 0;color:#edf4f8}
+.nfl-bars{height:120px;border:1px solid #344c5c;background:#152433;border-radius:8px;padding:14px;display:flex;gap:7px;align-items:flex-end;overflow-x:auto}
+.nfl-bars>div{height:88px;min-width:22px;flex:1;display:flex;align-items:center;flex-direction:column;justify-content:flex-end;gap:3px;font-size:9px}
+.nfl-bars i{width:100%;max-width:28px;background:#f89c5b;border-radius:3px 3px 0 0;min-height:2px}
+.nfl-bars span{color:#93aebb}.nfl-bars b{color:#e5eef4}
+@media(max-width:850px){.nfl-detail-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:500px){.nfl-lab .nfl-select{flex-basis:100%}.nfl-lab .nfl-select:first-child{flex-basis:100%}.nfl-detail-grid{gap:6px}.nfl-detail-grid>div{padding:9px}}
