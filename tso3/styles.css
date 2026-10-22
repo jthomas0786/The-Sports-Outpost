@@ -31,9 +31,9 @@
 .brand-horizontal .brand-mark{width:42px;height:42px;flex:0 0 auto}
 .brand-horizontal .brand-copy strong{font-size:19px}
 .brand-horizontal .brand-copy small{font-size:9px;margin-top:5px}
-.top-sports{display:flex;align-items:stretch;justify-content:center;gap:2px;min-width:0;width:100%;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;height:100%}
+.top-sports{display:flex;flex-direction:row;flex-wrap:nowrap;align-items:stretch;justify-content:center;gap:2px;min-width:0;width:100%;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;height:100%}
 .top-sports::-webkit-scrollbar{display:none}
-.top-sports .sport-button{background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:#a4b4c2;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:7px clamp(9px,1.3vw,20px) 5px;font-size:12px;font-weight:850;letter-spacing:.04em;transition:color .12s,background .12s}
+.top-sports .sport-button{width:auto;min-width:max-content;flex:0 0 auto;background:transparent;border:0;border-bottom:3px solid transparent;border-radius:0;color:#a4b4c2;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;padding:7px clamp(9px,1.3vw,20px) 5px;font-size:12px;font-weight:850;letter-spacing:.04em;transition:color .12s,background .12s}
 .top-sports .sport-button:hover,.top-sports .sport-button.open{background:#ffffff09;color:#fff}
 .top-sports .sport-button.active{border-bottom-color:var(--orange);color:#fff}
 .top-sports .sport-button.open{border-bottom-color:var(--gold)}
