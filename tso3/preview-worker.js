@@ -6,8 +6,14 @@ const RAW='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-
 const UPSTREAM='https://tso2-preview.jthomas0786-tso.workers.dev';
 const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8','/nba-lab.js':'application/javascript; charset=utf-8','/nba-depth.js':'application/javascript; charset=utf-8'};
 const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','x-robots-tag':'noindex, nofollow'};
-const COLLEGE_FEED='https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard';
-const WOMEN_FEED='https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard';
+const ESPN_SCOREBOARDS=Object.freeze({
+ nfl:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
+ nba:'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
+ mlb:'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard',
+ nhl:'https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard',
+ wnba:'https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard',
+ cfb:'https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard'
+});
 const FIRST_BASKET_SOURCE='https://tso2-nba-first-basket.jthomas0786-tso.workers.dev/';
 
 const NBA_MODEL_SOURCE='https://tso2-nba-model.jthomas0786-tso.workers.dev/';
@@ -100,9 +106,9 @@ async function safeNbaDocument(url,kind,env){
 
 const isoDay=date=>date.toISOString().slice(0,10).replace(/-/g,'');
 async function officialGames(url,league){
- const from=new Date(),until=new Date(Date.now()+8*86400000);
+ const from=new Date(Date.now()-86400000),until=new Date(Date.now()+8*86400000);
  const endpoint=url+'?dates='+isoDay(from)+'-'+isoDay(until)+'&limit=350';
- const res=await fetch(endpoint,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:300},signal:AbortSignal.timeout(10000)});
+ const res=await fetch(endpoint,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:65},signal:AbortSignal.timeout(11000)});
  if(!res.ok)throw Error('Verified ESPN scoreboard unavailable: '+league);
  const json=await res.json();
  if(!Array.isArray(json?.events))throw Error('Invalid '+league+' scoreboard schema');
@@ -117,7 +123,8 @@ async function officialGames(url,league){
   const status=comp.status?.type||e.status?.type||{};
   const state=status.completed===true?'post':status.state==='in'?'in':'pre';
   const startTime=e.date||comp.date;
-  if(!Number.isFinite(Date.parse(startTime||'')))continue;
+  const stamp=Date.parse(startTime||'');
+  if(!Number.isFinite(stamp)||stamp<Date.now()-18*3600000||stamp>Date.now()+9*86400000)continue;
   games.push({id:String(e.id),league,state,startTime,away:team(away),home:team(home),
     venue:String(comp.venue?.fullName||''),period:comp.status?.period||null,clock:comp.status?.displayClock||null,
     source:'ESPN official scoreboard'});
@@ -125,25 +132,24 @@ async function officialGames(url,league){
  return games;
 }
 async function sixLeagueLive(){
- const result=await Promise.allSettled([
-  fetch(UPSTREAM+'/api/live?league=all',{headers:{accept:'application/json'},signal:AbortSignal.timeout(12000)}).then(async r=>{if(!r.ok)throw Error('TSO staging scoreboard '+r.status);const d=await r.json();if(!Array.isArray(d?.games))throw Error('Invalid TSO game schema');return d}),
-  officialGames(COLLEGE_FEED,'cfb'),
-  officialGames(WOMEN_FEED,'wnba')
- ]);
- const base=result[0].status==='fulfilled'?result[0].value:{games:[]};
- const college=result[1].status==='fulfilled'?result[1].value:[];
- const women=result[2].status==='fulfilled'?result[2].value:[];
- const merged=new Map();
- for(const game of [...base.games,...college,...women]){
-  if(!game?.id||!game?.league)continue;
-  merged.set(game.league+':'+game.id,game);
+ const sports=Object.entries(ESPN_SCOREBOARDS);
+ const responses=await Promise.allSettled(sports.map(([sport,url])=>officialGames(url,sport)));
+ const games=[],sources={};
+ for(let i=0;i<sports.length;i++){
+  const league=sports[i][0],response=responses[i];
+  if(response.status==='fulfilled'){
+   sources[league]='ESPN verified scoreboard';
+   games.push(...response.value);
+  }else{
+   sources[league]='unavailable';
+  }
  }
- if(result.every(r=>r.status==='rejected'))throw Error('All verified scoreboard feeds unavailable');
- return {...base,games:[...merged.values()],tso3:{sources:{
-  tso2:result[0].status==='fulfilled'?'verified':'unavailable',
-  cfb:result[1].status==='fulfilled'?'ESPN':'unavailable',
-  wnba:result[2].status==='fulfilled'?'ESPN':'unavailable'
- },generatedAt:new Date().toISOString()}};
+ if(responses.every(r=>r.status==='rejected'))throw Error('All six official schedule sources unavailable');
+ const unique=[...new Map(games.map(g=>[g.league+':'+g.id,g])).values()]
+  .sort((a,b)=>Date.parse(a.startTime)-Date.parse(b.startTime));
+ return {games:unique,tso3:{sources,scoreboardFetchedAt:new Date().toISOString(),
+  source:'ESPN official sport-specific schedules',freshnessMinutes:1,
+  warning:Object.values(sources).includes('unavailable')?'Some league schedules could not be verified':null}};
 }
 
 export default {async fetch(req,env){
