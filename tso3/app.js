@@ -16,7 +16,7 @@ const el=id=>document.getElementById(id);
 const text=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[c]));
 const num=v=>v===null||v===undefined||v===''?null:Number.isFinite(Number(v))?Number(v):null;
 const canon=v=>String(v||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
-const clock=t=>{const d=new Date(t||'');return Number.isFinite(d.getTime())?d.toLocaleString(undefined,{weekday:'short',hour:'numeric',minute:'2-digit'}):'Time pending'};
+const clock=t=>{const d=new Date(t||'');return Number.isFinite(d.getTime())?d.toLocaleString('en-US',{timeZone:'America/Chicago',weekday:'short',hour:'numeric',minute:'2-digit'})+' CT':'Time pending'};
 const pct=v=>num(v)===null?'—':Math.round(Number(v))+'%';
 const signed=v=>num(v)===null?'—':(Number(v)>0?'+':'')+String(v);
 const nameOf=r=>String(r.player||r.playerName||r.name||'Unnamed player');
