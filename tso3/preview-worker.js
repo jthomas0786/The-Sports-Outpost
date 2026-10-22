@@ -268,6 +268,13 @@ function verifiedOddsMatch(q,g){
   &&clubKey(q.homeTeam)===clubKey(g.home.name)
   &&clubKey(q.awayTeam)===clubKey(g.away.name);
 }
+function verifiedNbaMarket(value){
+ // Known sportsbook/stat markets only. No implied lines, no generated numbers.
+ const key=String(value||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+ return ['points','rebounds','assists','threes','pra','pr','pa','ra','steals','blocks',
+  'pointsrebounds','pointsassists','reboundsassists','playerpointsrebounds',
+  'playerpointsassists','playerreboundsassists','playersteals','playerblocks'].includes(key);
+}
 async function safeNbaOddsSnapshot(){
  const r=await fetch(NBA_ODDS_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:60},signal:AbortSignal.timeout(16000)});
  if(!r.ok)throw Error('Odds source HTTP '+r.status);
@@ -291,7 +298,7 @@ async function safeNbaOddsSnapshot(){
  let rejectedUnmatched=0;
  const rows=data.rows.flatMap(q=>{
   const start=Date.parse(q?.commenceTime||'');
-  if(!q?.player||!q?.book||!['points','rebounds','assists','threes','pra'].includes(String(q.market||''))
+  if(!q?.player||!q?.book||!verifiedNbaMarket(q.market)
    ||!Number.isFinite(Number(q.line))||!Number.isFinite(Number(q.overPrice))||Number(q.overPrice)===0
    ||!Number.isFinite(start)||start<=now-15*60000||start>now+9*86400000||age>maxAgeForTip(start))
    return [];
@@ -329,7 +336,7 @@ async function safeNbaOdds(){
   const records=[],seen=new Set();let mismatches=0,expired=0;
   for(const q of data.rows){
    if(q?.sport!=='nba'||String(q.side||'').toLowerCase()!=='over'
-    ||q.preserved===true||!q.player||!q.book||!['points','rebounds','assists','threes','pra'].includes(String(q.market||''))
+    ||q.preserved===true||!q.player||!q.book||!verifiedNbaMarket(q.market)
     ||!Number.isFinite(Number(q.price))||Number(q.price)===0||!Number.isFinite(Number(q.line)))
     continue;
    const start=Date.parse(q.commenceTime||''),updated=Date.parse(q.snapshotTime||'');
