@@ -198,11 +198,57 @@ async function sixLeagueLive(){
   warning:Object.values(sources).includes('unavailable')?'Some league schedules could not be verified':null}};
 }
 
+
+async function liveGameSummary(sport,eventId){
+ const url=ESPN_SCOREBOARDS[sport].replace(/\/scoreboard$/,'/summary')+'?event='+eventId;
+ const res=await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:25},signal:AbortSignal.timeout(12500)});
+ if(!res.ok)throw Error('ESPN game summary HTTP '+res.status);
+ const d=await res.json(),competition=d.header?.competitions?.[0],headerId=String(d.header?.id||'');
+ if(headerId&&headerId!==eventId)throw Error('Event identity mismatch');
+ const ids=(competition?.competitors||[]).filter(c=>c?.team?.id);
+ const team=(c)=>({id:String(c.team.id),abbr:String(c.team.abbreviation||''),
+  name:String(c.team.displayName||c.team.name||''),homeAway:c.homeAway==='home'?'home':'away',
+  score:c.score??null,record:c.record||null});
+ const teams=ids.map(team);
+ const teamStats=(d.boxscore?.teams||[]).map(v=>({
+  teamId:String(v.team?.id||''),
+  stats:(v.statistics||[]).slice(0,20).map(st=>({name:String(st.label||st.displayName||st.name||''),
+   value:String(st.displayValue??st.value??'')})).filter(st=>st.name&&st.value)
+ }));
+ const players=(d.boxscore?.players||[]).map(t=>({
+  teamId:String(t.team?.id||''),
+  groups:(t.statistics||[]).slice(0,7).map(g=>({
+   name:String(g.name||g.displayName||'Box Score'),
+   labels:(g.labels||[]).slice(0,17).map(String),
+   athletes:(g.athletes||[]).slice(0,40).filter(a=>a.athlete?.displayName&&Array.isArray(a.stats)).map(a=>({
+    id:String(a.athlete.id||''),name:String(a.athlete.displayName),starter:Boolean(a.starter),
+    stats:a.stats.slice(0,17).map(v=>String(v??'—'))
+   }))
+  })).filter(g=>g.athletes.length)
+ }));
+ const kind=competition?.status?.type||d.header?.status?.type||{};
+ return {source:'ESPN current game box score',fetchedAt:new Date().toISOString(),eventId,sport,
+  state:kind.completed?'post':kind.state==='in'?'in':'pre',
+  teams,teamStats,players,
+  note:'Player statistics are official game records as last returned by ESPN, not historical averages or projections'};
+}
+
 export default {async fetch(req,env){
  if(req.method==='OPTIONS')return new Response(null,{headers:{...headers,'access-control-allow-methods':'GET, HEAD, OPTIONS'}});
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
  if(u.pathname==='/health')return Response.json({ok:true,service:'tso3-preview',version:'3.0',source:'tso-3.0/tso3',environment:'development'},{headers});
+ if(u.pathname==='/api/game-summary'){
+  const sport=String(u.searchParams.get('sport')||'').toLowerCase(),event=String(u.searchParams.get('event')||'');
+  if(!Object.hasOwn(ESPN_SCOREBOARDS,sport)||!/^\d{6,14}$/.test(event))
+   return Response.json({available:false,error:'Invalid league or game ID'},{status:400,headers});
+  try{
+   const out=await liveGameSummary(sport,event);
+   return Response.json(out,{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN current game summary'}});
+  }catch(_){
+   return Response.json({available:false,error:'Verified game box score unavailable'},{status:503,headers});
+  }
+ }
  if(u.pathname==='/api/nba-injuries'){
   try{
    return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
