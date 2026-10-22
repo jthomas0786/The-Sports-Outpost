@@ -15,7 +15,7 @@ const posGroup=pos=>['PG','SG','G'].includes(String(pos||'').toUpperCase())?'G':
 const fmtDate=t=>{const dt=new Date(t||'');return Number.isFinite(dt.getTime())?dt.toLocaleDateString(undefined,{month:'short',day:'numeric'}):'—'};
 const fmtOdds=n=>number(n)===null?'—':(Number(n)>0?'+':'')+Number(n);
 const slugParts=m=>market(m)||null;
-const view={metric:'points',position:'all',game:'all',minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',limit:90,rows:[],lastResults:[],dataError:'',date:null};
+const view={metric:'points',position:'all',game:'all',minSample:'0',sort:'l10',direction:'desc',search:'',lineFilter:'auto',maxJuice:'-500',limit:90,rows:[],lastResults:[],dataError:'',date:null};
 const stateCtx={};
 function isAvailable(ctx){return Boolean(ctx?.research?.players&&Object.keys(ctx.research.players).length)}
 function statGame(g,m){
@@ -165,6 +165,7 @@ function visibleRows(ctx){
  &&(view.position==='all'||posGroup(r.player.position)===view.position)
  &&(view.game==='all'||String(r.game?.id||'')===view.game)
  &&(view.minSample==='0'||r.log.length>=Number(view.minSample))
+ &&(view.maxJuice==='any'||number(r.quote?.price)===null||Number(r.quote.price)>=Number(view.maxJuice))
  &&(!query||[r.player.name,r.player.team,r.player.position,r.model?.opponent,r.game?.home?.abbr,r.game?.away?.abbr].join(' ').toLowerCase().includes(query)));
  const sort=view.sort,descending=view.direction==='desc'?1:-1;
  const value=r=>{
@@ -236,6 +237,7 @@ function tpl(ctx,tool){
   +'<label>POSITION<select data-nba-filter="position">'+options([['all','All positions'],['G','Guards'],['F','Forwards'],['C','Centers']],view.position)+'</select></label>'
   +'<label>DATA<select data-nba-filter="lineFilter">'+options([['auto','Current lines / fallback'],['all','All verified players'],['lines','Only players with lines'],['history','No current lines']],view.lineFilter)+'</select></label>'
   +'<label>MIN. GAMES<select data-nba-filter="minSample">'+options([['0','Any sample'],['5','5+ games'],['10','10+ games'],['15','15+ games'],['20','20+ games']],view.minSample)+'</select></label>'
+  +'<label>MAX JUICE<select data-nba-filter="maxJuice">'+options([['-200','-200'],['-300','-300'],['-500','-500'],['any','Any odds']],view.maxJuice)+'</select></label>'
   +'<label>SORT<select data-nba-filter="sort">'+options([['l5','Last 5'],['l10','Last 10'],['l20','Last 20'],['season','Season'],['dvp','Opp. allowance'],['minutes','Minutes'],['model','Model over'],['price','Best price'],['name','Player name']],view.sort)+'</select></label>'
   +'<label class="nba-search-label">FIND PLAYER<input data-nba-search type="search" value="'+e(view.search)+'" placeholder="Player or team…"></label>'
   +'<button class="nba-sort-direction" type="button" data-nba-reverse title="Reverse sorting">'+(view.direction==='desc'?'↓':'↑')+'</button></div>';
