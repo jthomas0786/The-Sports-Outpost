@@ -107,3 +107,14 @@ Not yet complete: the existing NBA regression service is unavailable, so regress
 ## Matchup multi-select / schedule labels — October 22, 2026
 
 Updated the NBA Player Form and Matchup vs Position game picker and the shared six-sport research toolbar to allow independent checkboxes for multiple games. All Matchups resets the filter. Each option includes verified team abbreviations and a day/time label (for example, Thurs 8:30pm), formatted in America/Chicago time. The menu remains open while selecting more games. Direct tests passed for choosing two games and resetting all; live TSO 3.0 preview browser rendering verified the NBA game labels/times and the presence of 22 NBA matchup options at the time of inspection. Development branch and separate preview only; no production or main changes.
+
+
+## Current game and research-data hardening — October 22, 2026
+
+All six league slates now use ESPNs sport-specific scoreboard API with individual daily date requests, merged event IDs, six-date look-ahead, freshness metadata, and date filtering. The direct ESPN API no longer accepts date ranges (HTTP 400). Real preview verification at 2026-10-22 11:05 UTC returned NFL 14, NBA 49, MLB 3, NHL 36, WNBA 3, and CFB 53 current-window game records. These are six-day-window counts, not games occurring today.
+
+Current final scores and live status now display in matchup cards, and the ESPN last-checked time appears in the UI. NBA research labels historical game samples and their last refresh. NBA sportsbook quotes must be source-fresh and match an official ESPN event, its two teams and scheduled tip time. During browser QA the research view contained 90 player rows from this mornings refreshed historical source but zero current verified odds lines; that absence is deliberate when quote snapshots fail freshness or event-matching requirements.
+
+The official ESPN current-game summary route and new live-boxscore.js present player/team game statistics, away on the left and home on the right. Isolated integration tests passed for event identity, scores and player stats. Full live browser verification of the boxscore view was blocked by Cloudflare browser-rendering rate limits and remains pending.
+
+Remaining issues: fix/verify frequent ParlayAPI sportsbook snapshots and provider-to-ESPN event identity, add genuinely streaming in-progress player research updates instead of scheduled history, and provide independent current stats/providers across the remaining sport-specific research modules. No main/production/TSO 2.0 code changes were made.
