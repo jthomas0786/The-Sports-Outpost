@@ -67,6 +67,15 @@ async function safeNbaInjuries(){
  return {source:'ESPN NBA injuries',fetchedAt:new Date().toISOString(),providerTimestamp:d.timestamp||null,entries,
   notice:'Injury feed status is not a verified starting lineup or personal medical diagnosis. Reports can change.'};
 }
+const clubKey=value=>String(value||'').toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'')
+ .replace(/[^a-z0-9]/g,'').replace(/^losangeles/,'la');
+function verifiedOddsMatch(q,g){
+ if(!g?.home?.name||!g?.away?.name||g.league!=='nba')return false;
+ const start=Date.parse(q.commenceTime||''),official=Date.parse(g.startTime||'');
+ return Number.isFinite(start)&&Number.isFinite(official)&&Math.abs(start-official)<=3*3600000
+  &&clubKey(q.homeTeam)===clubKey(g.home.name)
+  &&clubKey(q.awayTeam)===clubKey(g.away.name);
+}
 async function safeNbaOdds(){
  const r=await fetch(NBA_ODDS_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:60},signal:AbortSignal.timeout(16000)});
  if(!r.ok)throw Error('Odds source HTTP '+r.status);
@@ -83,16 +92,30 @@ async function safeNbaOdds(){
   const until=start-now;
   return until<=3*3600000?25*60000:until<=12*3600000?45*60000:until<=48*3600000?90*60000:4*3600000;
  };
- const rows=data.rows.filter(q=>{
+ const official=await officialGames(ESPN_SCOREBOARDS.nba,'nba');
+ if(!Array.isArray(official)||!official.length)
+  return {source:'TSO NBA odds snapshot',fetchedAt,available:false,stale:true,rows:[],
+   reason:'Official NBA schedule unavailable for event verification'};
+ let rejectedUnmatched=0;
+ const rows=data.rows.flatMap(q=>{
   const start=Date.parse(q?.commenceTime||'');
-  return q?.player&&q?.book&&['points','rebounds','assists','threes','pra'].includes(String(q.market||''))&&Number.isFinite(Number(q.line))&&Number.isFinite(Number(q.overPrice))&&Number(q.overPrice)!==0&&Number.isFinite(start)&&start>now-15*60000&&start<now+9*86400000&&age<=maxAgeForTip(start);
- }).slice(0,6500).map(q=>({
-  sport:'nba',player:String(q.player).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim(),market:String(q.market),side:'over',line:Number(q.line),
-  price:Number(q.overPrice),book:String(q.book),eventId:String(q.eventId||''),
-  commenceTime:q.commenceTime,homeTeam:q.homeTeam||null,awayTeam:q.awayTeam||null,
-  snapshotTime:fetchedAt,source:'TSO NBA odds snapshot'
- }));
- return {source:'TSO NBA odds snapshot',fetchedAt,available:rows.length>0,stale:rows.length===0,rows,ageMinutes:Math.max(0,Math.round(age/60000)),policy:'Time-sensitive pregame snapshot quotes; not streaming live prices'};
+  if(!q?.player||!q?.book||!['points','rebounds','assists','threes','pra'].includes(String(q.market||''))
+   ||!Number.isFinite(Number(q.line))||!Number.isFinite(Number(q.overPrice))||Number(q.overPrice)===0
+   ||!Number.isFinite(start)||start<=now-15*60000||start>now+9*86400000||age>maxAgeForTip(start))
+   return [];
+  const game=official.find(g=>verifiedOddsMatch(q,g));
+  if(!game){rejectedUnmatched++;return []}
+  return [{
+   sport:'nba',player:String(q.player).replace(/\s*\([A-Za-z]{2,5}\)\s*$/,'').trim(),market:String(q.market),
+   side:'over',line:Number(q.line),price:Number(q.overPrice),book:String(q.book),
+   eventId:String(q.eventId||''),verifiedGameId:String(game.id),commenceTime:game.startTime,
+   homeTeam:game.home.name,awayTeam:game.away.name,snapshotTime:fetchedAt,
+   source:'TSO NBA odds verified against official ESPN matchup'
+  }];
+ }).slice(0,6500);
+ return {source:'TSO NBA odds cross-checked with ESPN',fetchedAt,available:rows.length>0,stale:rows.length===0,rows,
+  ageMinutes:Math.max(0,Math.round(age/60000)),rejectedUnmatched,
+  policy:'Only quotes with matching official NBA teams and tip time; timestamped pregame snapshots, not streaming prices'};
 }
 
 async function safeNbaDocument(url,kind,env){
