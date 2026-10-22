@@ -25,7 +25,7 @@ function build(ctx,view){
  const athletes=ctx.research?.players||[],playerMap=new Map(athletes.map(p=>[norm(p.name)+'|'+team(p.team),p]));
  if(view==='injuries'){
   const verified=Array.isArray(ctx.injuries?.entries)?ctx.injuries.entries:[];
-  return verified.flatMap(report=>{
+  return verified.filter(report=>!/^active$/i.test(String(report.status||''))).flatMap(report=>{
    const game=games.find(g=>[String(g.home?.id),String(g.away?.id)].includes(String(report.teamId))
      ||[team(g.home?.abbr),team(g.away?.abbr)].includes(team(report.team)));
    if(!game)return [];
@@ -64,13 +64,20 @@ const picker=(id,items)=>{
   +[['all',all],...items].map(([value,title])=>'<label class="matchup-option"><input type="checkbox" data-nfl-prop-check="'+id+'" data-nfl-prop-value="'+text(value)+'" '+((value==='all'?!chosen.length:chosen.includes(value))?'checked':'')+'><span class="matchup-name">'+text(title)+'</span></label>').join('')
   +'</div></details></div>';
 };
+function severity(status){
+ const s=String(status||'').toLowerCase();
+ if(/out|injured reserve|suspension|inactive/.test(s))return 4;
+ if(/doubtful/.test(s))return 3;
+ if(/questionable/.test(s))return 2;
+ return 1;
+}
 function filtered(){
  const q=state.search.trim().toLowerCase();
  let result=state.rows.filter(r=>(!state.games.length||state.games.includes(String(r.game?.id)))
  &&(!state.positions.length||state.positions.includes(String(r.player?.position||'').toUpperCase()))
  &&(state.view==='injuries'||!state.markets.length||state.markets.includes(r.quote?.market))
  &&(!q||[r.player?.name,r.player?.team,r.game?.away?.abbr,r.game?.home?.abbr,r.quote?.market].join(' ').toLowerCase().includes(q)));
- result.sort((a,b)=>state.view==='injuries'?a.player.name.localeCompare(b.player.name)
+ result.sort((a,b)=>state.view==='injuries'?(severity(b.report?.status)-severity(a.report?.status)||a.player.name.localeCompare(b.player.name))
   :(b.l5?.n?b.l5.over/b.l5.n:-1)-(a.l5?.n?a.l5.over/a.l5.n:-1));
  state.shown=result;return result;
 }
@@ -98,7 +105,7 @@ function markup(ctx,view){
    +'<td><b>'+fmt(r.l5?.avg)+'</b></td><td><b>'+text(price(r.quote.price))+'</b><small>'+text(r.quote.book)+'</small></td></tr>';
  }).join('');
  return '<section class="nba-lab nfl-lab nfl-props"><div class="nba-intro"><div><span class="nba-eyebrow">NFL / TSO RESEARCH 3.0</span><h2>'+ (view==='injuries'?'NFL INJURY & DEPTH REPORT':'NFL EXACT-LINE PLAYER PROPS')+'</h2><p>'
-  +(view==='injuries'?'Current ESPN injury reports with 2026 roster and depth context, linked to each official upcoming game. Practice participation is not a final inactive designation.':
+  +(view==='injuries'?'Current ESPN questionable, doubtful, out, IR, and suspension reports, ranked by status severity. Practice participation is not a final inactive designation.':
    'Verified sportsbook lines, L5 and L10 observed results, sample counts, best listed sportsbook prices and individual game logs. No unders or synthetic lines.')
   +'</p></div></div>'
   +'<div class="nba-depth-source">OFFICIAL NFL SCHEDULE · '+allGames.length+' UPCOMING · RESEARCH '+text(asof(ctx.research?.generatedAt))+' · BOOK SNAPSHOT '+text(asof(ctx.odds?.fetchedAt))
