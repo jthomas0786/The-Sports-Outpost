@@ -34,7 +34,7 @@ const notes={
 };
 const columns={
  'defense-vs-position':['PLAYER','MATCHUP','OPP DEFENSE','POSITION','YDS ALLOWED/GM','TARGETS/GM','TD ALLOWED/GM','SOURCE GAMES'],
- 'touchdown-opportunities':['PLAYER','MATCHUP','ATD PROBABILITY','TSO GRADE','OPPORTUNITY / GM','SNAP %','OPP RZ TD RATE','BEST ATD ODDS'],
+ 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','50K SIM 2+ TD','TSO GRADE','RZ OPP / GM','SNAP %','OPP RZ TD RATE','BEST ATD ODDS'],
  'red-zone-usage':['PLAYER','MATCHUP','RZ CARRIES','RZ TARGETS','RZ / GM','OPP RZ TD %','DEPTH','TSO ATD'],
  'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','OPP RUSH YDS/GM','BEST BOOK'],
  'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
@@ -117,6 +117,10 @@ function build(ctx,tool){
   const mid=String(game.id)+'|'+norm(player.name);
   const m=modeled.get(mid)||null;
   const officialReport=officialAvailability(ctx,player);
+  const simPlayer=ctx.sim?.games?.find(g=>String(g.id)===String(game.id))?.players?.find(p=>
+    norm(p.name)===norm(player.name)&&canonicalTeam(p.team)===canonicalTeam(player.team));
+  const simAtd=!cannotPlay(officialReport)?num(simPlayer?.atd):null;
+  const simTwo=!cannotPlay(officialReport)?num(simPlayer?.twoPlusTd):null;
   const key=game.id+'|'+norm(player.name);
   if(seen.has(key))continue;seen.add(key);
   const pos=String(player.position||m?.position||'').toUpperCase();
@@ -129,7 +133,7 @@ function build(ctx,tool){
    .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.week)-Number(a.week));
   const quote=bestQuote(ctx,game,player,tool==='touchdown-opportunities'?'atd':tool==='rushing-matchups'?'rushYds':tool==='quarterback-research'?'passYds':'recYds');
   result.push({id:key,kind:'player',name:player.name,team:canonicalTeam(player.team),position:pos,
-   p:player,m,game,quote,logs,officialReport,defense:player.matchup?.opponent&&canonicalTeam(player.matchup.opponent)===canonicalTeam((canonicalTeam(game.home.abbr)===canonicalTeam(player.team)?game.away.abbr:game.home.abbr))?player.matchup.currentSeasonAllowed:null,modelProbability:modeledData&&!cannotPlay(officialReport)?num(m?.modelProbability):null});
+   p:player,m,game,quote,logs,officialReport,simAtd,simTwo,defense:player.matchup?.opponent&&canonicalTeam(player.matchup.opponent)===canonicalTeam((canonicalTeam(game.home.abbr)===canonicalTeam(player.team)?game.away.abbr:game.home.abbr))?player.matchup.currentSeasonAllowed:null,modelProbability:modeledData&&!cannotPlay(officialReport)?num(m?.modelProbability):null});
  }
  // Model-only players absent from research should remain visible, but no historical logs are inferred.
  if(modelTools.has(tool)){
@@ -138,9 +142,13 @@ function build(ctx,tool){
    const key=game.id+'|'+norm(rec.p.name);
    if(seen.has(key))continue;seen.add(key);
    const p=rec.p,officialReport=officialAvailability(ctx,p);
+   const simPlayer=ctx.sim?.games?.find(g=>String(g.id)===String(game.id))?.players?.find(x=>
+     norm(x.name)===norm(p.name)&&canonicalTeam(x.team)===canonicalTeam(p.team));
+   const simAtd=!cannotPlay(officialReport)?num(simPlayer?.atd):null;
+   const simTwo=!cannotPlay(officialReport)?num(simPlayer?.twoPlusTd):null;
    result.push({id:key,kind:'player',name:p.name,team:canonicalTeam(p.team),position:p.position||'',
      p:null,m:p,game,quote:bestQuote(ctx,game,p,'atd'),logs:[],
-     officialReport,modelProbability:modeledData&&!cannotPlay(officialReport)?num(p.modelProbability):null});
+     officialReport,simAtd,simTwo,modelProbability:modeledData&&!cannotPlay(officialReport)?num(p.modelProbability):null});
   }
  }
  return result;
@@ -154,7 +162,7 @@ function getFiltered(){
   &&(!q||[r.name,r.team,r.position,r.game?.away?.abbr,r.game?.home?.abbr].join(' ').toLowerCase().includes(q)));
  const metric=state.tool,primary=r=>{
   if(metric==='defense-vs-position')return num(r.defense?.perGame?.yards);
-  if(metric==='touchdown-opportunities')return r.modelProbability;
+  if(metric==='touchdown-opportunities')return r.simAtd??r.modelProbability;
   if(metric==='red-zone-usage')return (num(r.m?.rzCarries)||0)+(num(r.m?.rzTargets)||0);
   if(['rushing-matchups','receiving-matchups','coverage-matchups','quarterback-research'].includes(metric))
    return avg(r.logs,historyTool[metric],5);
@@ -202,6 +210,8 @@ function row(r){
    {text:f(r.defense?.perGame?.yards)},{text:f(r.defense?.perGame?.targets)},
    {text:f(r.defense?.perGame?.tds)},{text:r.defense?.games??'—'}];
  else if(isTD)cells=[{html:'<b class="'+tdClass(atd)+'">'+projected+'</b><small>'+esc(r.officialReport?.status||r.m?.confidence||'')+'</small>'},
+  {html:'<b>'+percent(r.simAtd)+'</b><small>50K MODEL</small>'},
+  {html:'<b>'+percent(r.simTwo)+'</b><small>2+ TD</small>'},
   {text:cannotPlay(r.officialReport)?'OUT':(r.modelProbability===null?'—':r.m?.modelGrade||'—')}, {text:f(r.m?.opportunityRate)},
   {text:percent(r.m?.snapShare)}, {text:percent(r.m?.opponentRzTdRate)},
   {html:'<b>'+esc(fmtPrice(quote?.price))+'</b><small>'+esc(quote?.book||'NO VERIFIED BOOK')+'</small>'}];
@@ -234,7 +244,7 @@ function render(ctx,tool){
   +' · PLAYER RESEARCH '+esc(asof(ctx.research?.generatedAt))
   +' · TSO TD MODEL '+esc(asof(ctx.td?.generatedAt))
   +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))+' · ESPN INJURIES '+esc(asof(ctx.injuries?.fetchedAt))
-  +(tool==='game-projections'?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')+'</div>';
+  +((modelTools.has(tool)||tool==='game-projections')?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')+'</div>';
  const modelAlert=ctx.td?.modelFresh===false?'TD MODEL SNAPSHOT EXPIRED — probabilities hidden until refreshed.':
   ctx.td?.modelFresh===true?'TSO ATD estimates use 2025 NFL scoring and red-zone history adjusted for 2026 roster and matchup context.':
   'Verified current NFL touchdown model unavailable.';
@@ -266,7 +276,9 @@ function detail(r,ctx){
  const max=Math.max(1,...logs.map(x=>(num(x.tds)||0)));
  const bar='<div class="nfl-bars">'+logs.slice(0,16).reverse().map(g=>'<div><i style="height:'+Math.round((num(g.tds)||0)/max*100)+'%"></i><span>'+esc(g.week||'')+'</span><b>'+esc(g.tds??'—')+'</b></div>').join('')+'</div>';
  return '<div class="drawer-contents nfl-details"><span class="eyebrow">NFL VERIFIED PLAYER RESEARCH</span><h2>'+esc(r.name)+'</h2><p class="subtitle">'+esc(r.team)+' · '+esc(r.position)+' · '+esc(r.game.away?.abbr)+' @ '+esc(r.game.home?.abbr)+' · '+esc(when(r.game.startTime))+'</p>'
-  +'<div class="nfl-detail-grid"><div><small>TSO ATD ESTIMATE</small><b>'+percent(r.modelProbability)+'</b><small>2025 baseline · 2026 matchup</small></div>'
+  +'<div class="nfl-detail-grid"><div><small>TSO ATD REGRESSED</small><b>'+percent(r.modelProbability)+'</b><small>2025 baseline · 2026 matchup</small></div>'
+  +'<div><small>50K SIM ATD</small><b>'+percent(r.simAtd)+'</b></div>'
+  +'<div><small>50K SIM 2+ TD</small><b>'+percent(r.simTwo)+'</b></div>'
   +'<div><small>LAST 5 TD GAMES</small><b>'+(td?td.hits+'/'+td.n:'—')+'</b><small>Observed games</small></div>'
   +'<div><small>LAST 10 TD GAMES</small><b>'+(td10?td10.hits+'/'+td10.n:'—')+'</b></div>'
   +'<div><small>SNAP SHARE</small><b>'+percent(r.m?.snapShare)+'</b></div>'
