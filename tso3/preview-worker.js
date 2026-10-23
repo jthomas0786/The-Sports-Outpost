@@ -471,7 +471,14 @@ async function officialGamesUncached(url,league){
   const startTime=e.date||comp.date,t=Date.parse(startTime||'');
   if(!Number.isFinite(t)||t<Date.now()-18*3600000||t>Date.now()+5*86400000)continue;
   games.push({id:String(e.id),league,state,startTime,away:team(away),home:team(home),
-   venue:String(comp.venue?.fullName||''),period:comp.status?.period||null,clock:comp.status?.displayClock||null,
+   venue:String(comp.venue?.fullName||''),
+   venueMeta:comp.venue?.id?{
+    id:String(comp.venue.id),name:String(comp.venue.fullName||''),
+    city:String(comp.venue.address?.city||''),state:String(comp.venue.address?.state||''),
+    country:String(comp.venue.address?.country||''),
+    indoor:typeof comp.venue.indoor==='boolean'?comp.venue.indoor:null
+   }:null,
+   period:comp.status?.period||null,clock:comp.status?.displayClock||null,
    source:'ESPN official scoreboard'});
  }
  games.coverageDays=good.length;
