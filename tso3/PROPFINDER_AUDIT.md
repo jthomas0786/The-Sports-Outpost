@@ -145,3 +145,19 @@ Newly deployed and browser-verified in the independent TSO 3.0 Cloudflare previe
 - Weather is **loaded lazily only on the NFL weather page**, rather than delaying all other sports or NFL models. Only the 3.0 branch and standalone worker preview were modified; no TSO 2.0, main or production changes.
 
 **Limitations:** NOAA/NWS coverage is U.S.-only. International games remain unavailable, and NWS can return partial/missing gusts. Dynamic/retractable roof schedules are not independently verified; the indoor flag reflects ESPN's venue designation. Weather is not currently a numerical factor in calibrated NFL player simulations, so do not present it as a probability adjustment.
+
+
+## NFL Coverage Matchups — October 22, 2026
+
+The independent TSO 3.0 preview now has a dedicated, table-first Receiver vs Pass Defense research page under NFL > Coverage Matchups. It uses current ESPN game identities, the 2026 NFL research feed (ESPN rosters and nflverse player logs), team position-group defensive receiving allowances, ESPN injury statuses, current verified ParlayAPI Over lines, and the existing TSO 50K model when the specific market and sportsbook line match.
+
+- Receivers WR/TE/RB are filtered to current scheduled games and 2026 observed logs. Each player is joined to the **actual opposing defense**, by official game and team. WR receiving allowances are opponent-vs-WR group averages, not an individual's cornerback assignment. Group source games are displayed.
+- The table includes 2026 L5/L10 sample averages and counts, target share, snap share, opposing group allowed per game, current book Over line, L5 hit rate versus that exact line and the exact-line 50K Over estimate with inline progress bar. One row per player and upcoming game.
+- Receiving Yards, Receptions and Targets are switchable markets, with game/position multi-select and sort choices (verified model, L5 form, defense allowed, or target share). Tracking-only stats (shadow CB, man vs zone, route/slot alignments) are **not asserted** without a provider.
+- Player details show 2026 receiving statistics, L5/L10 hit rates versus the current line, game-by-game bar chart/log, 2026 opponent allowed receiving to the position group, and opposing DB roster/injury context explicitly labeled as **not a confirmed 1-on-1 assignment**.
+- Multiple sportsbooks' odds are compared **only at the same exact line**, never by comparing e.g. Over 55.5 versus Over 65.5 prices. When different alternate lines are present, the prevalent verified line is selected, favoring a matching model line on ties. Strictly requires same game/player/market/line and pregame source eligibility; no missing model values are fabricated.
+- Controlled tests passed for the opponent-group join, 2026-only logs, multi-line bookmaker comparison, suppression of mismatched 50K estimates, switching receiving markets, defensive roster labels and persisted filters.
+- Cloudflare browser QA after final v5.5 preview deployment rendered **90 first-page player rows**; all 90 shown had current verified receiving-yards Over quotes and exact-line 50K model values as of the snapshot. Live results may fluctuate with odds/model refresh. Multiselect game filters, market controls and sort controls rendered correctly.
+- All work is committed to `tso-3.0` branch and bundled to `tso3-preview` worker only. Main, TSO 2.0 and live production untouched.
+
+**Remaining tracking-data gaps:** actual CB/slot/shadow matchup assignments, coverage scheme breakdown (man/zone), routes run, average separation and route participation; avoid displaying inferred values for these.
