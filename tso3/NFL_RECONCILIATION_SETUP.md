@@ -28,7 +28,7 @@ No public write/capture/reconciliation endpoint is exposed.
 2. Player name, team and ESPN player ID (when archived) must agree. Duplicate/mismatching athletes stay unresolved.
 3. Every market requires actual numeric stat, or a corroborated zero: the player appears in a different statistics category **and** the team's final boxscore explicitly covers the missing market. A missing player or missing market coverage is not a zero.
 4. Grade Over when actual is greater than archived line, push at equality, loss when lower. Passing TDs are a distinct market from the anytime **scoring** TD market.
-5. **ATD non-scorer policy (safety gate):** only explicit eligible player TDs count as verified wins. A blank/zero rushing or receiving TD row cannot certify that the player had no eligible return/defensive TD. These are unresolved until comprehensive all-type scoring verification is implemented. **Do not publish ATD hit rate or Brier from scorer-only data.**
+5. **ATD non-scorer policy (safety gate):** scorer wins can be recorded from explicit positive TD stats, but non-scorer losses require a comprehensive final scoring-play timeline reconciled against final score, type-specific player TD totals, athlete identity, and participation. Scorer-only incomplete-game observations are excluded from descriptive ATD Brier metrics. See `tso3/NFL_ATD_SETTLEMENT_SETUP.md`.
 6. Each distinct ESPN observation becomes an immutable `outcome_observations` event. Any later mismatch against initial settlement outcome or realized stat is a **conflict** and is excluded from the headline accuracy/uncertainty summaries.
 7. Model metrics require both an initial archived postgame grade and a later agreeing reconciliation observation. Only first saved pregame quote per exact game/player/market/side/line/model is counted; cross-book duplicates do not multiply observations.
 8. Missing/unresolved player rows, corrected outcomes and abnormal odds must not be silently treated as losses or profitable picks. One slate is not enough for reliable calibration.
@@ -54,6 +54,10 @@ Read-only `GET /api/nfl-archive-status` includes `reconciliation.lastRun`, `reco
 - Cloudflare preview Worker deployed successfully to 100%, with all nine existing bundled frontend assets retained, schedule `*/30 * * * *`, D1 binding `NFL_ARCHIVE` preserved.
 - **No live postgame fixture exists yet**: first archived kickoff Oct 25, 2026, so no actual settled/reconciled grade has been confirmed. Real-game validation is mandatory after the first finalized slate.
 - Future provider stat corrections are logged as conflicts for audit, not automatically written back to first settlement. Resolve correction policy explicitly after enough real data.
+
+## Anytime TD complete-scoring verification
+
+A dedicated strict scoring-play cross-check is now installed: event and kickoff, final scoreboard equality with the full scoring timeline, recognized touchdown types, type-specific scorer identity, and final athlete TD totals. It can verify both scorers and **non-scorers** when the entire game passes. Incomplete or special-teams/defensive TD entries without identifiable player totals still remain ungraded. Only later rechecked, complete-ledger ATD wins and losses can contribute to descriptive model metrics. See `tso3/NFL_ATD_SETTLEMENT_SETUP.md` and the regression file `tso3/tests/nfl-atd-settlement.test.mjs`.
 
 ## Caveats and future gates
 
