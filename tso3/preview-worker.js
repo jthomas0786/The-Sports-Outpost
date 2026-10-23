@@ -134,8 +134,17 @@ async function verifiedNflSimulations(){
     homeCover:prob(sim.outcomes.spread.homeCover),awayCover:prob(sim.outcomes.spread.awayCover)}:null,
    total:sim.outcomes?.total?{line:valid(sim.outcomes.total.line),over:prob(sim.outcomes.total.over),under:prob(sim.outcomes.total.under)}:null,
    players:(Array.isArray(sim.players)?sim.players:[]).filter(p=>p?.name&&p?.team)
-    .map(p=>({id:String(p.espnId||p.playerId||''),name:String(p.name),team:nflTeamKey(p.team),
-      position:String(p.position||''),atd:prob(p.probabilities?.atd),twoPlusTd:prob(p.probabilities?.twoPlusTd)}))
+    .map(p=>{
+     const exactOver={};
+     for(const [market,record] of Object.entries(p.sportsbook?.over||{})){
+      if(!['passYds','passTds','completions','rushYds','recYds','receptions'].includes(market))continue;
+      const line=valid(record?.line),estimate=prob(record?.probability);
+      if(line!==null&&estimate!==null)exactOver[market]={line,probability:estimate};
+     }
+     return {id:String(p.espnId||p.playerId||''),name:String(p.name),team:nflTeamKey(p.team),
+      position:String(p.position||''),atd:prob(p.probabilities?.atd),
+      twoPlusTd:prob(p.probabilities?.twoPlusTd),exactOver};
+    })
   });
  }
  return {source:'TSO existing NFL Monte Carlo simulation; validated current pregame outcomes only',
