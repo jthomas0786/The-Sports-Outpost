@@ -177,7 +177,7 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare('SELECT model_kind,COUNT(*) observations,COUNT(DISTINCT game_id) games FROM prediction_snapshots GROUP BY model_kind'),
    env.NFL_ARCHIVE.prepare('SELECT COUNT(*) outcomes FROM settled_outcomes'),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,eligible_predictions,inserted_outcomes,unresolved_predictions,error,reason FROM settlement_runs ORDER BY started_at DESC LIMIT 1'),
-   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN s.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes s ON s.snapshot_id=p.id JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND s.outcome IN ('win','loss') AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat GROUP BY p.model_kind,p.market ORDER BY observations DESC"),
+   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN s.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes s ON s.snapshot_id=p.id JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND s.outcome IN ('win','loss') AND p.market<>'atd' AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat GROUP BY p.model_kind,p.market ORDER BY observations DESC"),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,examined_predictions,new_observations,conflicts,unresolved,error,reason FROM reconciliation_runs ORDER BY started_at DESC LIMIT 1'),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT COUNT(*) reviewed,COUNT(DISTINCT v.game_id) games,SUM(CASE WHEN v.observed_outcome='unknown' THEN 1 ELSE 0 END) unresolved,SUM(CASE WHEN s.snapshot_id IS NOT NULL AND (v.observed_outcome='unknown' OR v.observed_outcome<>s.outcome OR v.realized_stat<>s.realized_stat) THEN 1 ELSE 0 END) conflicts,SUM(CASE WHEN s.snapshot_id IS NOT NULL AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat THEN 1 ELSE 0 END) aligned FROM latest v LEFT JOIN settled_outcomes s ON s.snapshot_id=v.snapshot_id WHERE v.rn=1"),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT reason,COUNT(*) observations FROM latest WHERE rn=1 GROUP BY reason ORDER BY observations DESC LIMIT 12")
@@ -406,15 +406,19 @@ async function runNflSettlement(env,trigger='cron'){
  try{
   // No grades until at least 4 hours after kickoff; status must STILL be verified final.
   const eligibleBefore=new Date(now-4*3600000).toISOString();
+  const eligibleFrom=new Date(now-14*86400000).toISOString();
   const games=await env.NFL_ARCHIVE.prepare(
-   'SELECT p.game_id,MIN(p.kickoff_at) kickoff FROM prediction_snapshots p '
-   +'WHERE p.kickoff_at<? AND EXISTS '
+   'SELECT p.game_id,MIN(p.kickoff_at) kickoff,MAX(a.last_audit) last_audit FROM prediction_snapshots p '
+   +'LEFT JOIN (SELECT game_id,MAX(observed_at) last_audit FROM outcome_observations GROUP BY game_id) a ON a.game_id=p.game_id '
+   +'WHERE p.kickoff_at BETWEEN ? AND ? AND EXISTS '
    +'(SELECT 1 FROM prediction_snapshots q LEFT JOIN settled_outcomes s ON s.snapshot_id=q.id '
    +'WHERE q.game_id=p.game_id AND s.snapshot_id IS NULL) '
    +'GROUP BY p.game_id ORDER BY kickoff DESC LIMIT 20'
-  ).bind(eligibleBefore).all();
-  for(let i=0;i<(games.results||[]).length;i+=3){
-   const batch=(games.results||[]).slice(i,i+3);
+  ).bind(eligibleFrom,eligibleBefore).all();
+  const eligibleGames=(games.results||[]).filter(g=>now-Date.parse(g.kickoff)<=72*3600000
+   ||!g.last_audit||now-Date.parse(g.last_audit)>=24*3600000);
+  for(let i=0;i<eligibleGames.length;i+=3){
+   const batch=eligibleGames.slice(i,i+3);
    const outputs=await Promise.allSettled(batch.map(async g=>{
     const id=String(g.game_id||'');
     if(!/^\d{6,14}$/.test(id))throw Error('invalid event ID');
