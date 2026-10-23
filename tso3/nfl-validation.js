@@ -29,7 +29,32 @@ function archiveSummary(a){
   +' · '+esc(last.completed_at?asof(last.completed_at):'Not run yet')
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
-  +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p></section>';
+  +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p>'
+  +settlementSummary(a.settlement)+'</section>';
+}
+function settlementSummary(settlement){
+ const recent=settlement?.lastRun||{},metrics=settlement?.byMarket||[];
+ let body='<div class="nfl-validation-section"><h3>Postgame settlement · verified final box scores</h3>'
+  +'<p>Games are graded only after a confirmed final ESPN NFL box score. Missing or unmatched players stay unresolved, never automatic losses. Results are append-only.</p>'
+  +'<div class="nfl-detail-grid">'
+  +detailItem('LAST SETTLEMENT CHECK',recent.completed_at?asof(recent.completed_at):'Not run yet')
+  +detailItem('JOB STATUS',recent.status||'Awaiting first run')
+  +detailItem('NEWLY GRADED',recent.inserted_outcomes??0)
+  +detailItem('UNRESOLVED',recent.unresolved_predictions??0)
+  +detailItem('NON-DUPLICATED GRADED SELECTIONS',settlement?.independentlyCounted??0)
+  +detailItem('MODEL READINESS','INSUFFICIENT DATA')
+  +'</div>';
+ if(metrics.length){
+  const rows=metrics.map(m=>'<tr>'+tableCell(m.model_kind)
+   +tableCell(m.market)+tableCell(m.observations)
+   +tableCell(m.games)+tableCell(pct(m.mean_probability))
+   +tableCell(pct(m.hit_rate))+tableCell(fixed(m.brier,5))+'</tr>').join('');
+  body+='<div class="nba-table-scroll"><table class="nba-table nfl-validation-table">'
+   +'<thead><tr><th>MODEL</th><th>MARKET</th><th>SELECTIONS</th><th>GAMES</th>'
+   +'<th>AVG FORECAST</th><th>ACTUAL HIT RATE</th><th>BRIER ↓</th></tr></thead>'
+   +'<tbody>'+rows+'</tbody></table></div>';
+ }else body+='<p class="nba-footnote">No final verified outcomes yet. The archive is collecting forward-looking predictions; calibration stays unavailable until actual games finish.</p>';
+ return body+'<p class="nba-footnote">'+esc(settlement?.caveat||'One game or repeated same-game props cannot prove calibration or positive betting returns.')+'</p></div>';
 }
 function render(data,error='',loading=false,archive=null){
  current=data;currentError=error;pending=loading;currentArchive=archive;
