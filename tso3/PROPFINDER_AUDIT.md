@@ -188,3 +188,21 @@ Frontend features: model-scope tabs, source timestamps, heldout Brier/log loss v
 Live Cloudflare Browser Rendering QA: `/api/nfl-validation` returned valid archive data with all four status gates; render at `#/nfl/cheatsheets/model-validation` displayed 126, 0.93111, 0.95770, 4 audit cards and distinct historical pregame stats. Module compilation and Worker deployment HTTP 200 succeeded.
 
 **Open blocker before genuine live calibration:** Durable timestamped/model-versioned snapshots of before-kickoff predictions, exact sportsbook lines, and independently recorded final outcomes across many distinct games. Do not fabricate historic pregame forecasts from current model output or label retrospective replay as out-of-sample live predictions.
+
+
+## NFL automatic pregame prediction archiving — October 22, 2026
+
+Built an **isolated TSO 3.0-only** Cloudflare D1 append-only pregame prediction archive `tso3-nfl-pregame-archive`. Configured `NFL_ARCHIVE` D1 Worker binding and scheduled Worker trigger `*/30 * * * *`. Schema and operational instructions: `tso3/db/nfl-prediction-archive.sql` and `tso3/NFL_ARCHIVE_SETUP.md`.
+
+Worker runtime captures only official ESPN-verified future games and source-fresh NFL sportsbook Over/ATD quotes when the **published** TSO 50K and/or historical regressed ATD model truly matches game/player/team/market/side/**exact line**. Stores immutable original model and sportsbook timestamps, model iteration counts, original engine version where supplied, SHA-256 source fingerprints, model probability and actual quoted book/price. Old snapshots are never overwritten; source-equal reruns are `INSERT OR IGNORE` no-ops. A separate table is reserved for officially scored final-game outcomes, so the forecast record cannot be retroactively edited.
+
+A real preview-only manual capture test (temporary unpublished route removed immediately) was performed using current pregame verified sources. D1 verification found:
+- **786 real snapshots across 13 games**; 442 exact-line 50K Over and 344 50K ATD.
+- **0** captured after kickoff, **0** sources time-stamped later than capture, **786 unique IDs**.
+- Fresh regressed ATD unavailable at capture time; **0** of that model archived, deliberately.
+- The archive currently has **0 settled outcomes**. This is NOT model calibration, win rate or betting ROI.
+- The Worker `/api/nfl-archive-status` and NFL Model Validation dashboard show real saved counts, game coverage and latest run status.
+- Scheduled Worker cron installed every 30 minutes, but its independent firing must still be checked after an actual cron event. The successful manual capture proves the live storage and source matching, not cron reliability.
+- Controlled tests also passed for exact-line mismatch rejection and idempotent duplicate source captures.
+
+No modifications were made to `main`, TSO 2.0 or production. Preserve the D1 binding on every subsequent preview Worker upload.
