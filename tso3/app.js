@@ -45,7 +45,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -414,10 +414,25 @@ async function hydrateNflValidation(){
   if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')render();
  }
 }
+async function hydrateNflArchive(){
+ if(state.nflArchivePending||Date.now()-state.nflArchiveFetched<5*60000)return;
+ state.nflArchivePending=true;state.nflArchiveFetched=Date.now();
+ try{
+  const r=await fetch('/api/nfl-archive-status',{cache:'no-store'});
+  if(!r.ok)throw Error('Archive status HTTP '+r.status);
+  const d=await r.json();
+  if(!d.configured)throw Error('Archive not yet configured');
+  state.nflArchive=d;
+ }catch(e){state.nflArchive={available:false,reason:String(e?.message||'Archive status unavailable').slice(0,110)};}
+ finally{
+  state.nflArchivePending=false;
+  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')render();
+ }
+}
 function nflValidationResearch(){
  const module=window.TSO3NflValidation;
  return module?'<div id="nflValidationSlot">'+module.render(state.nflValidation,state.nflValidationError,
-  state.nflValidationPending||!state.nflValidationFetched)+'</div>'
+  state.nflValidationPending||!state.nflValidationFetched,state.nflArchive)+'</div>'
   :empty('NFL validation module unavailable','The archived audit module did not load.');
 }
 function nflResearch(tool='touchdown-opportunities'){
@@ -469,8 +484,9 @@ function render(){
  el('content').innerHTML=body;
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='weather-impact'&&state.live?.games?.length)
   void hydrateNflWeather();
- if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')
-  void hydrateNflValidation();
+ if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation'){
+  void hydrateNflValidation();void hydrateNflArchive();
+ }
  if(state.page==='games'&&state.game){
   const game=getGames().find(g=>gameKey(g)===state.game);
   if(game){
