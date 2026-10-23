@@ -407,3 +407,32 @@ html,body,button,input,select,textarea{
 .nfl-dvp-table td:nth-child(7) b.nfl-high{color:#83dbaa!important}
 .nfl-dvp-table td:nth-child(7) b.nfl-low{color:#f9ae9b!important}
 .nfl-dvp-table tbody tr:hover{background:#244356}
+
+
+/* TSO NFL coverage research: 2026 receiver opportunities vs position-group defenses. */
+.nfl-lab .nfl-coverage-table{min-width:1550px}
+.nfl-coverage-table td{vertical-align:middle;white-space:nowrap}
+.nfl-coverage-table td:nth-child(3) small{display:block;font-size:9px;color:#91a8b7;margin-top:4px}
+.nfl-coverage-table td:nth-child(9) small{display:block;font-size:9px;color:#8ba9bd}
+.nfl-coverage-table tbody tr:hover{background:#223e50}
+.nfl-controls .nfl-coverage-markets{display:flex;align-items:center;flex:1 1 255px;gap:5px;flex-wrap:wrap;max-width:400px}
+.nfl-coverage-markets>span{flex-basis:100%;color:#94afbd;font-size:9px;font-weight:850;letter-spacing:.07em}
+.nfl-coverage-markets button{border-radius:6px;border:1px solid #455e70;background:#1d2d3a;color:#acbcca;padding:9px 10px;font-size:10px;font-weight:800;cursor:pointer}
+.nfl-coverage-markets button.active{background:#ff873326;border-color:#f89b54;color:#fbd4a6}
+.nfl-coverage-markets button:hover{border-color:#f89b54;color:#f9e4cf}
+.nfl-coverage-prob{position:relative;min-width:102px;display:flex;flex-direction:column;gap:5px;font-size:12px}
+.nfl-coverage-prob b{color:#84e8bf;font-weight:850}
+.nfl-coverage-prob i{display:block;max-width:100%;height:5px;border-radius:6px;background:#53d6ae;box-shadow:0 0 0 1px #227b63}
+.nfl-coverage-missing{color:#718795}
+.nfl-coverage-details .nfl-context-note{line-height:1.65}
+.nfl-coverage-chart{height:156px;max-width:100%;display:flex;gap:7px;align-items:flex-end;border:1px solid #364a59;background:#142534;border-radius:7px;padding:18px 12px;overflow-x:auto}
+.nfl-coverage-bar{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;min-width:32px;flex:1 0 33px;height:119px;gap:3px}
+.nfl-coverage-bar b{font-size:10px;color:#e5f2f6}
+.nfl-coverage-bar i{width:70%;max-width:35px;display:block;min-height:2px;background:#587d94;border-radius:4px 4px 0 0}
+.nfl-coverage-bar i.above{background:#60d6af}
+.nfl-coverage-bar span{font-size:9px;color:#91acbe}
+.nfl-secondary-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:12px 0 17px}
+.nfl-secondary-person{padding:10px;border:1px solid #3a5060;border-radius:7px;background:#172a39;min-width:0}
+.nfl-secondary-person b{color:#eaf4f7;font-size:12px;display:block;font-weight:800}
+.nfl-secondary-person small{display:block;color:#9bb0bf;margin-top:5px;font-size:10px}
+@media(max-width:720px){.nfl-secondary-grid{grid-template-columns:1fr}.nfl-coverage-chart{gap:4px}.nfl-controls .nfl-coverage-markets{flex-basis:100%;max-width:none}}
