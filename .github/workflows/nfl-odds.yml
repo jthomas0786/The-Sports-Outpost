@@ -25,9 +25,14 @@ on:
 permissions:
   contents: write
 
+# The workflow wakes every five minutes, but paid ParlayAPI updates may
+# take longer (especially split prop-market fetches and retry backoff).
+# Never cancel an active paid refresh on the next scheduler tick.
+# GitHub will keep at most one pending run for this concurrency group; the
+# age-based gate in the Node script prevents unnecessary repeated paid calls.
 concurrency:
   group: nfl-odds-refresh
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   refresh:
