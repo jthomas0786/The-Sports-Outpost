@@ -8,7 +8,7 @@ const tools=['defense-vs-position','coverage-matchups','touchdown-opportunities'
  'red-zone-usage','offensive-line-matchups','power-ratings','weather-impact','game-projections'];
 const titles={
  'defense-vs-position':'NFL DEFENSE VS POSITION · 2026',
- 'coverage-matchups':'COVERAGE & RECEIVER RESEARCH',
+ 'coverage-matchups':'RECEIVER VS PASS DEFENSE',
  'touchdown-opportunities':'ANYTIME TOUCHDOWN PROJECTIONS',
  'rushing-matchups':'RUSHING RESEARCH',
  'receiving-matchups':'RECEIVING RESEARCH',
@@ -21,7 +21,7 @@ const titles={
 };
 const notes={
  'defense-vs-position':'Compare each NFL defense against QB, RB, WR, and TE as a position group—not individual players. One row per matchup, defensive team, and position, using verified 2026 defensive allowances.',
- 'coverage-matchups':'Verified 2026 targets, receptions, target share and opponent position-specific allowances. Cornerback matchups, man/zone coverage rates, and route assignments require licensed tracking and are not inferred.',
+ 'coverage-matchups':'Verified 2026 receiving usage against the next defense’s positional WR/TE/RB allowances, with current sportsbook Over lines and exact 50K model comparisons. No invented cornerback assignments or man/zone grades.',
  'touchdown-opportunities':'TSO regressed anytime-rushing/receiving-touchdown estimates, 2025 production baseline and 2026 roster/availability context. Passing TDs do not count as quarterback ATDs.',
  'rushing-matchups':'Current NFL player history, carries, rush yards, rushing TDs, recent volume and exact verified sportsbook lines.',
  'receiving-matchups':'Verified target volume, receptions, yards, target share and season game logs. Coverage assignment grades are not inferred.',
@@ -38,7 +38,7 @@ const columns={
  'red-zone-usage':['PLAYER','MATCHUP','2025 RZ CARRIES','2025 RZ TARGETS','2025 RZ/GM','2026 TARGET SHARE','2026 SNAP L5','2026 TD/GM','OPP RZ TD %','TSO ATD'],
  'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','OPP RUSH YDS/GM','BEST BOOK'],
  'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
- 'coverage-matchups':['PLAYER','MATCHUP','L5 TARGETS','L5 RECEPTIONS','L5 REC YDS','2026 TARGET SHARE','OPP TARGETS/GM','OPP REC YDS/GM','ALIGNMENT DATA'],
+ 'coverage-matchups':['RECEIVER','MATCHUP','OPP DEFENSE','MARKET','2026 L5 AVG','2026 L10 AVG','TGT SHARE','L5 SNAP %','DEF VS POS / GM','BOOK OVER LINE','L5 OVER','50K EXACT OVER'],
  'quarterback-research':['PLAYER','MATCHUP','L5 PASS YDS','L5 ATTEMPTS','L5 COMPLETIONS','L5 PASS TD','OPP PASS YDS/GM','BEST BOOK'],
  'offensive-line-matchups':['MATCHUP','KICKOFF','AWAY QB: HOME DEF','HOME QB: AWAY DEF','AWAY RB: HOME DEF','HOME RB: AWAY DEF','SAMPLE','TRACKING STATUS'],
  'power-ratings':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','AWAY WIN PROB','HOME WIN PROB','MODEL POINT DIFF','RATING STATUS'],
@@ -49,7 +49,7 @@ const historyTool={
  'rushing-matchups':'rushYds','receiving-matchups':'recYds','coverage-matchups':'targets','quarterback-research':'passYds',
  'touchdown-opportunities':'tds','red-zone-usage':'tds'
 };
-const state={tool:'touchdown-opportunities',games:[],positions:[],search:'',minGames:0,conflictsOnly:false,tdOrder:'tso',sort:'model',reverse:false,open:{games:false,positions:false},max:90,all:[],visible:[],context:null,selected:null,version:null};
+const state={tool:'touchdown-opportunities',games:[],positions:[],search:'',minGames:0,conflictsOnly:false,tdOrder:'tso',coverageMarket:'recYds',coverageSort:'model',sort:'model',reverse:false,open:{games:false,positions:false},max:90,all:[],visible:[],context:null,selected:null,version:null};
 const modelTools=new Set(['touchdown-opportunities','red-zone-usage']);
 const ppGap=(r)=>r.modelProbability===null||r.simAtd===null?null:Math.abs(r.modelProbability-r.simAtd)*100;
 const gapLabel=r=>{
@@ -165,9 +165,70 @@ function defensePositionRows(ctx,games,benchmarks){
  }
  return rows;
 }
+const COVERAGE_MARKETS={recYds:'Receiving Yards',receptions:'Receptions',targets:'Targets'};
+function coverageSample(logs,market,count,season){
+ const values=(logs||[]).filter(g=>Number(g.season)===Number(season)).slice(0,count)
+  .map(g=>num(g[market])).filter(x=>x!==null);
+ return values.length?{n:values.length,values,avg:values.reduce((a,b)=>a+b,0)/values.length}:null;
+}
+function coverageQuote(ctx,r){
+ const found=(ctx.odds?.rows||[]).filter(q=>
+  String(q.verifiedGameId)===String(r.game.id)&&canonicalTeam(q.team)===r.team
+  &&norm(q.player)===norm(r.name)&&q.market===state.coverageMarket
+  &&String(q.side||'').toLowerCase()==='over'&&num(q.line)!==null&&num(q.price)!==null&&q.book);
+ return found.sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;
+}
+function coveragePrepare(ctx,r){
+ const market=state.coverageMarket,quote=coverageQuote(ctx,r);
+ const l5=coverageSample(r.logs,market,5,ctx.research?.season),
+  l10=coverageSample(r.logs,market,10,ctx.research?.season);
+ const sim=ctx.sim?.games?.find(g=>String(g.id)===String(r.game.id))?.players?.find(p=>
+  canonicalTeam(p.team)===r.team&&norm(p.name)===norm(r.name));
+ const model=sim?.exactOver?.[market],line=num(quote?.line),value=num(model?.probability);
+ const modelProb=!cannotPlay(r.officialReport)&&quote&&line!==null&&num(model?.line)!==null
+  &&Math.abs(Number(model.line)-line)<0.000001&&value!==null&&value>=0&&value<=1?value:null;
+ const over=sample=>sample&&line!==null?{hits:sample.values.filter(x=>x>line).length,n:sample.n}:null;
+ const allowed=market==='recYds'?num(r.defense?.perGame?.recYds):
+  market==='receptions'?num(r.defense?.perGame?.receptions):num(r.defense?.perGame?.targets);
+ return {...r,market,quote,l5,l10,l5Over:over(l5),l10Over:over(l10),
+  modelProb,allowed,defGames:num(r.defense?.games)};
+}
+function buildCoverage(ctx,games,benchmarks){
+ const defenses=new Map(defensePositionRows(ctx,games,benchmarks).map(d=>
+  [String(d.game.id)+'|'+d.team+'|'+d.position,d]));
+ const rows=[],seen=new Set(),season=Number(ctx.research?.season);
+ for(const p of ctx.research?.players||[]){
+  const pos=String(p.position||'').toUpperCase();
+  if(!['WR','TE','RB'].includes(pos)||!p.name||!p.team)continue;
+  const game=games.find(g=>[canonicalTeam(g.away?.abbr),canonicalTeam(g.home?.abbr)].includes(canonicalTeam(p.team)));
+  if(!game)continue;
+  const team=canonicalTeam(p.team),defTeam=canonicalTeam(gameside(game,team)),id='coverage|'+game.id+'|'+team+'|'+norm(p.name);
+  if(seen.has(id))continue;seen.add(id);
+  const logs=(p.logs||[]).filter(g=>Number(g.season)===season)
+   .sort((a,b)=>Number(b.week)-Number(a.week));
+  if(!logs.length&&num(p.currentSeason?.perGame?.targets)===null)continue;
+  const def=defenses.get(String(game.id)+'|'+defTeam+'|'+pos);
+  rows.push({kind:'coverage',id,game,name:p.name,team,defTeam,position:pos,p,logs,
+   officialReport:officialAvailability(ctx,p),defense:def?.defense||null,sourceConflict:Boolean(def?.sourceConflict)});
+ }
+ return rows;
+}
+function gameside(game,team){return canonicalTeam(game.away?.abbr)===team?game.home?.abbr:game.away?.abbr}
+function coverageSecondary(ctx,row){
+ const out=(ctx.research?.players||[]).filter(p=>canonicalTeam(p.team)===row.defTeam
+  &&['CB','DB','FS','SS','S'].includes(String(p.position||'').toUpperCase())&&p.name);
+ const seen=new Set();
+ return out.filter(p=>{const id=norm(p.name);if(seen.has(id))return false;seen.add(id);return true})
+  .sort((a,b)=>(num(a.depthRank)??99)-(num(b.depthRank)??99)||a.name.localeCompare(b.name))
+  .slice(0,14).map(p=>({name:p.name,position:p.position,depthRank:p.depthRank,
+   report:officialAvailability(ctx,p)}));
+}
+const coverageHit=rate=>rate?rate.hits+'/'+rate.n+' ('+Math.round(rate.hits/rate.n*100)+'%)':'—';
+
 function build(ctx,tool){
  const games=upcoming(ctx),slate=ctx.td?.games||[],benchmarks=positionalBenchmarks(ctx);
  if(tool==='defense-vs-position')return defensePositionRows(ctx,games,benchmarks);
+ if(tool==='coverage-matchups')return buildCoverage(ctx,games,benchmarks);
  if(gameTools.has(tool))return games.map(g=>{
   const original=slate.find(x=>String(x.id)===String(g.id));
   return {id:g.id,game:g,original,weather:ctx.weather?.games?.find(x=>String(x.id)===String(g.id))||null,sim:ctx.sim?.games?.find(x=>String(x.id)===String(g.id))||null,
@@ -237,6 +298,13 @@ function getFiltered(){
   &&(state.tool!=='touchdown-opportunities'||!state.conflictsOnly||ppGap(r)>=12)
   &&(!q||[r.name,r.team,r.offense,r.position,r.game?.away?.abbr,r.game?.home?.abbr].join(' ').toLowerCase().includes(q)));
  const metric=state.tool,primary=r=>{
+  if(metric==='coverage-matchups'){
+   const c=coveragePrepare(state.context,r);
+   if(state.coverageSort==='model')return c.modelProb;
+   if(state.coverageSort==='allowed')return c.allowed;
+   if(state.coverageSort==='share')return num(c.p?.currentSeason?.targetShare);
+   return c.l5?.avg??null;
+  }
   if(metric==='defense-vs-position')return num(r.dvpDiff);
   if(metric==='touchdown-opportunities')return state.tdOrder==='sim'?(r.simAtd??r.modelProbability):state.tdOrder==='gap'?ppGap(r):(r.modelProbability??r.simAtd);
   if(metric==='red-zone-usage')return (num(r.m?.rzCarries)||0)+(num(r.m?.rzTargets)||0);
@@ -263,6 +331,23 @@ const nameCell=r=>'<td><div class="nfl-player"><b>'+esc(r.name)+'</b><small>'+es
 const matchCell=r=>'<td><b>'+esc(r.game?.away?.abbr||'—')+' @ '+esc(r.game?.home?.abbr||'—')+'</b><small>'+esc(when(r.game?.startTime))+'</small></td>';
 const statCell=(n,hint='')=>'<td><b>'+f(n)+'</b>'+(hint?'<small>'+esc(hint)+'</small>':'')+'</td>';
 function row(r){
+ if(r.kind==='coverage'){
+  const c=coveragePrepare(state.context,r),share=num(r.p?.currentSeason?.targetShare),
+   snap=num(r.p?.snapTrend?.avgOffensePct),fmt=sample=>sample?f(sample.avg)+' <small>n='+sample.n+'</small>':'—';
+  const line=c.quote?'Over '+f(c.quote.line):'—';
+  return '<tr data-nfl-row="'+esc(r.id)+'" class="nfl-coverage-row">'
+   +nameCell(r)+matchCell(r)
+   +'<td><b>'+esc(r.defTeam)+' vs '+esc(r.position)+'</b><small>'+esc(c.defGames??'—')+' DEF GAMES</small></td>'
+   +'<td>'+esc(COVERAGE_MARKETS[c.market])+'</td>'
+   +'<td>'+fmt(c.l5)+'</td><td>'+fmt(c.l10)+'</td>'
+   +'<td><b>'+(share===null?'—':f(share)+'%')+'</b></td>'
+   +'<td><b>'+(snap===null?'—':f(snap)+'%')+'</b></td>'
+   +'<td><b>'+f(c.allowed)+'</b><small>'+esc(r.position)+' GROUP</small></td>'
+   +'<td><b>'+esc(line)+'</b><small>'+esc(c.quote?c.quote.book+' '+fmtPrice(c.quote.price):'NO VERIFIED LINE')+'</small></td>'
+   +'<td><b>'+coverageHit(c.l5Over)+'</b></td>'
+   +'<td>'+(c.modelProb===null?'<span class="nfl-coverage-missing">—</span>':
+    '<div class="nfl-coverage-prob"><b>'+percent(c.modelProb)+'</b><i style="width:'+Math.round(c.modelProb*100)+'%"></i></div>')+'</td></tr>';
+ }
  if(r.kind==='defense'){
   const data=r.defense?.perGame||{},diff=r.dvpDiff;
   const cell=value=>'<td><b>'+esc(value)+'</b></td>';
