@@ -6,6 +6,10 @@ const RAW='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-
 const UPSTREAM='https://tso2-preview.jthomas0786-tso.workers.dev';
 const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8','/nba-lab.js':'application/javascript; charset=utf-8','/nba-depth.js':'application/javascript; charset=utf-8','/live-boxscore.js':'application/javascript; charset=utf-8','/nfl-lab.js':'application/javascript; charset=utf-8','/nfl-props.js':'application/javascript; charset=utf-8'};
 const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','x-robots-tag':'noindex, nofollow'};
+function decodeVenueName(name){
+ return String(name||'').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"')
+  .replace(/&#39;|&#x27;|&apos;/gi,"'");
+}
 const ESPN_SCOREBOARDS=Object.freeze({
  nfl:'https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard',
  nba:'https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard',
@@ -198,7 +202,7 @@ const STADIUM_GEO_SOURCE='https://raw.githubusercontent.com/greerreNFL/stadiums/
 const NWS_HEADERS={'Accept':'application/geo+json',
  'User-Agent':'TheSportsOutpost/3.0 (https://thesportsoutpost.com)'};
 const weatherCache={venues:null,at:0,forecasts:new Map()};
-const venueKey=x=>String(x||'').toLowerCase().normalize('NFKD')
+const venueKey=x=>decodeVenueName(x).toLowerCase().normalize('NFKD')
  .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
 function stadiumCsvRows(text){
  const rows=[];let row=[],cell='',quote=false;
@@ -613,9 +617,9 @@ async function officialGamesUncached(url,league){
   const startTime=e.date||comp.date,t=Date.parse(startTime||'');
   if(!Number.isFinite(t)||t<Date.now()-18*3600000||t>Date.now()+5*86400000)continue;
   games.push({id:String(e.id),league,state,startTime,away:team(away),home:team(home),
-   venue:String(comp.venue?.fullName||''),
+   venue:decodeVenueName(comp.venue?.fullName),
    venueMeta:comp.venue?.id?{
-    id:String(comp.venue.id),name:String(comp.venue.fullName||''),
+    id:String(comp.venue.id),name:decodeVenueName(comp.venue.fullName),
     city:String(comp.venue.address?.city||''),state:String(comp.venue.address?.state||''),
     country:String(comp.venue.address?.country||''),
     indoor:typeof comp.venue.indoor==='boolean'?comp.venue.indoor:null
