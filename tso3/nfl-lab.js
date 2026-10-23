@@ -228,8 +228,10 @@ const statCell=(n,hint='')=>'<td><b>'+f(n)+'</b>'+(hint?'<small>'+esc(hint)+'</s
 function row(r){
  if(r.kind==='game'){
   const g=r.game,venue=r.original?.venue||'';
+  const sample=[r.context?.awayPass?.games,r.context?.homePass?.games,r.context?.awayRush?.games,r.context?.homeRush?.games].filter(Number.isFinite);
+  const sourceGames=sample.length?Math.min(...sample):'—';
   const values={
-   'offensive-line-matchups':[r.name,when(g.startTime),f(r.context?.awayPass?.value)+' pass yd/g',f(r.context?.homePass?.value)+' pass yd/g',f(r.context?.awayRush?.value)+' rush yd/g',f(r.context?.homeRush?.value)+' rush yd/g',Math.min(...[r.context?.awayPass?.games,r.context?.homePass?.games,r.context?.awayRush?.games,r.context?.homeRush?.games].filter(n=>Number.isFinite(n)))||'—','OL grades not connected'],
+   'offensive-line-matchups':[r.name,when(g.startTime),f(r.context?.awayPass?.value)+' pass yd/g',f(r.context?.homePass?.value)+' pass yd/g',f(r.context?.awayRush?.value)+' rush yd/g',f(r.context?.homeRush?.value)+' rush yd/g',sourceGames,'OL grades not connected'],
    'power-ratings':[r.name,when(g.startTime),g.away?.record||'—',g.home?.record||'—',percent(r.sim?.awayWin),percent(r.sim?.homeWin),r.sim?.awayPoints==null||r.sim?.homePoints==null?'—':(r.sim.awayPoints-r.sim.homePoints).toFixed(1)+' away pts',r.sim?'Game-level simulation; no power rating':'No verified rating'],
    'weather-impact':[r.name,when(g.startTime),venue||g.venue||'—',r.original?.indoor===true?'Indoor':r.original?.indoor===false?'Outdoor':'—','—','—','—','Forecast unavailable'],
    'game-projections':[r.name,when(g.startTime),
