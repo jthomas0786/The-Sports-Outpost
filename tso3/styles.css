@@ -396,3 +396,14 @@ html,body,button,input,select,textarea{
 .nfl-context-note{background:#1a3040;border:1px solid #475263;border-left:3px solid var(--orange);border-radius:6px;padding:13px;margin:13px 0 18px;color:#e6c4a8;font-size:11px;line-height:1.65}
 .nfl-table{min-width:1320px}
 @media(max-width:760px){.nfl-controls .nfl-sort-views{flex:1 1 100%;max-width:none}.nfl-conflict-control{flex:1 1 170px}}
+
+
+/* Defense vs Position is team-level research, not a player list. */
+.nfl-lab .nfl-dvp-table{min-width:1030px}
+.nfl-dvp-table td{vertical-align:middle}
+.nfl-dvp-table td:nth-child(2) b{font-size:13px;font-weight:850;color:#f5f9fa}
+.nfl-dvp-table td:nth-child(3) b{font-size:12px;font-weight:750;color:#a5c2d4}
+.nfl-dvp-table .nfl-position-pill{display:inline-flex;align-items:center;justify-content:center;min-width:37px;border-radius:5px;padding:6px 9px;background:#273b4b;border:1px solid #4b6375;font-size:11px;font-weight:850;color:#f6c491}
+.nfl-dvp-table td:nth-child(7) b.nfl-high{color:#83dbaa!important}
+.nfl-dvp-table td:nth-child(7) b.nfl-low{color:#f9ae9b!important}
+.nfl-dvp-table tbody tr:hover{background:#244356}
