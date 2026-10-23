@@ -25,7 +25,7 @@ function archiveSummary(a){
   +box('DISTINCT GAMES',a.gameCount??0,'Unique ESPN event IDs')
   +box('SETTLED OUTCOMES',a.outcomeCount??0,'Separate from prediction history')
   +box('MOST RECENT CAPTURE',a.latestCapture?asof(a.latestCapture):'None','Stored source-time snapshots')
-  +'</div><p class="nba-footnote">Latest scheduled run: '+esc(last.status||'Awaiting first run')
+  +'</div><p class="nba-footnote">Latest capture run: '+esc(last.status||'Awaiting first run')
   +' · '+esc(last.completed_at?asof(last.completed_at):'Not run yet')
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
