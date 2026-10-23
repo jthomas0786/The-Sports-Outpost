@@ -183,7 +183,10 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT reason,COUNT(*) observations FROM latest WHERE rn=1 GROUP BY reason ORDER BY observations DESC LIMIT 12"),
    env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN v.reason='scoring_plays_verified_td' AND v.observed_outcome='win' THEN 1 ELSE 0 END),0) wins,COALESCE(SUM(CASE WHEN v.reason='zero_from_complete_scoring_log' AND v.observed_outcome='loss' THEN 1 ELSE 0 END),0) losses,COALESCE(COUNT(DISTINCT CASE WHEN v.reason IN ('scoring_plays_verified_td','zero_from_complete_scoring_log') THEN p.game_id ELSE NULL END),0) verified_games FROM first_quote p LEFT JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND p.market='atd'"),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT action_state,COUNT(*) AS observations,COUNT(DISTINCT game_id) AS games FROM latest WHERE rn=1 GROUP BY action_state ORDER BY observations DESC"),
-   env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT sportsbook,action_state,COUNT(*) AS observations FROM latest WHERE rn=1 GROUP BY sportsbook,action_state ORDER BY sportsbook,action_state")
+   env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT sportsbook,action_state,COUNT(*) AS observations FROM latest WHERE rn=1 GROUP BY sportsbook,action_state ORDER BY sportsbook,action_state"),
+   env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_snapshot_at,source_age_minutes,eligible_quote_rows,verified_games,games_rejected_for_age,earliest_kickoff_at,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 1'),
+   env.NFL_ARCHIVE.prepare('SELECT status,COUNT(*) checks FROM (SELECT status FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 12) GROUP BY status'),
+   env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_age_minutes,eligible_quote_rows,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 8')
   ]);
   return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
    snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
@@ -199,6 +202,8 @@ async function nflArchiveStatus(env){
     note:'Initial settlement grades remain immutable. Distinct ESPN final-game observations are checked for drift. Conflicting, absent or ambiguous stats are quarantined from calibrated metrics; this is a same-provider recheck, NOT a separate independent official data provider.'},
    sportsbookAction:{byState:q[10].results||[],byBook:q[11].results||[],
     note:'ESPN final-game participation evidence, not sportsbook-paid bet confirmations. FanDuel and DraftKings one-play/snap rules mapped; other sportsbooks require jurisdiction/market rule review. Absent players are not presumed void.'},
+   feedHealth:{latest:q[12].results?.[0]||null,recentStates:q[13].results||[],history:q[14].results||[],
+    note:'ParlayAPI source is published by the existing TSO main NFL odds workflow. No stale quotes are promoted to current; capture skips quotes older than the time-to-kickoff policy. The scheduled Worker cannot force a paid upstream provider refresh.'},
    modelValidationStatus:'INSUFFICIENT',
    note:'Postgame grading starts only after ESPN confirms final player boxscores. Brier and observed hit rate are descriptive and cannot establish ROI or model calibration without multiweek evidence.'};
  }catch(_){return{available:false,configured:true,reason:'D1 archive query unavailable'}}
@@ -208,15 +213,29 @@ async function runNflArchive(env,trigger='cron'){
  const now=Date.now(),started=new Date(now).toISOString();
  const runId=await archiveHash('nflarchive|'+trigger+'|'+started);
  const diag={games:0,eligible:0,inserted:0,status:'saved',reason:'',error:''};
+ const feed={status:'unavailable',sourceAt:null,ageMinutes:null,quoteRows:0,verifiedGames:0,rejectedForAge:0,earliestKickoff:null,reason:'Source has not returned yet'};
  try{
   const incoming=await Promise.allSettled([verifiedNflOdds(),verifiedNflSimulations(),verifiedNflSlate()]);
   const odds=incoming[0].status==='fulfilled'?incoming[0].value:null;
+  if(incoming[0].status==='rejected'){
+   feed.status='unavailable';
+   feed.reason='NFL odds source verification failed: '+String(incoming[0].reason?.message||'unknown').slice(0,140);
+  }else{
+   feed.sourceAt=odds?.fetchedAt||null;
+   feed.ageMinutes=Number.isFinite(odds?.ageMinutes)?odds.ageMinutes:null;
+   feed.quoteRows=odds?.rows?.length||0;
+   feed.verifiedGames=Number(odds?.verifiedGames||0);
+   feed.rejectedForAge=Number(odds?.rejectedForAge||0);
+   feed.earliestKickoff=odds?.earliestKickoff||null;
+   feed.status=odds?.available?'fresh':odds?.stale?'stale':'no_matching_games';
+   feed.reason=String(odds?.reason||'No valid NFL sportsbook quotes').slice(0,180);
+  }
   const simulations=incoming[1].status==='fulfilled'?incoming[1].value:null;
   const atd=incoming[2].status==='fulfilled'?incoming[2].value:null;
   if(!odds?.available||!Array.isArray(odds.rows)||!odds.rows.length){
-   diag.status='no_fresh_sources';diag.reason='Official-game verified sportsbook snapshot unavailable or stale';
+   diag.status='no_fresh_sources';diag.reason=feed.reason;
   }else if(archiveTime(odds.fetchedAt,now,4*3600000)===null){
-   diag.status='no_fresh_sources';diag.reason='Sportsbook source timestamp failed freshness requirements';
+   diag.status='no_fresh_sources';feed.status='stale';diag.reason='Sportsbook source timestamp failed freshness requirements';feed.reason=diag.reason;
   }else{
    const simMap=new Map((simulations?.games||[]).filter(g=>g.phase==='pregame').map(g=>[String(g.id),g]));
    const atdMap=new Map((atd?.modelFresh&&archiveTime(atd.generatedAt,now,48*3600000)!==null?atd.games:[]).map(g=>[String(g.id),g]));
@@ -276,8 +295,8 @@ async function runNflArchive(env,trigger='cron'){
     const batch=await env.NFL_ARCHIVE.batch(statements);
     diag.inserted+=batch.reduce((sum,r)=>sum+Number(r.meta?.changes||0),0);
    }
-   if(!rows.length){diag.status='no_fresh_sources';
-    diag.reason='No source-fresh exact game, player, market and line predictions are available';
+   if(!rows.length){diag.status='no_fresh_sources';feed.status='no_model_matches';
+    diag.reason='Verified sportsbook quotes available, but no source-fresh exact game/player/market/line model matches';feed.reason=diag.reason;
    }else if(rows.length>2500){diag.reason='Per-run capture capped at 2500 records';
    }else{diag.reason='All rows verified pregame, append-only and idempotent by original source timestamps'}
   }
@@ -286,6 +305,14 @@ async function runNflArchive(env,trigger='cron'){
   'INSERT INTO capture_runs (run_id,started_at,completed_at,status,forecast_games,eligible_predictions,inserted_predictions,error,reason) VALUES (?,?,?,?,?,?,?,?,?)'
  ).bind(runId,started,new Date().toISOString(),diag.status,diag.games,diag.eligible,
   diag.inserted,diag.error||null,diag.reason||null).run();
+ // Preserve separate source diagnostics; never mutate an archived forecast.
+ try{
+  await env.NFL_ARCHIVE.prepare(
+   'INSERT OR IGNORE INTO nfl_feed_checks (run_id,checked_at,source,status,source_snapshot_at,source_age_minutes,eligible_quote_rows,verified_games,games_rejected_for_age,earliest_kickoff_at,reason,observed_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)'
+  ).bind(runId,started,'published-parlayapi-nfl-odds',
+   feed.status,feed.sourceAt,feed.ageMinutes,feed.quoteRows,feed.verifiedGames,
+   feed.rejectedForAge,feed.earliestKickoff,feed.reason,new Date().toISOString()).run();
+ }catch(e){console.warn('TSO3 source diagnostic failed',String(e?.message||e).slice(0,100))}
  if(diag.status==='failed')throw Error('NFL prediction archiving failed: '+diag.error);
  return diag;
 }
@@ -1007,16 +1034,18 @@ async function verifiedNflOdds(){
  if(!Array.isArray(doc?.games)||!Number.isFinite(date)||doc.meta?.source!=='parlayapi'||doc.meta?.sample!==false)
   throw Error('Invalid NFL sportsbook snapshot');
  const age=(Date.now()-date)/60000;
- if(age< -5||age>240)return {available:false,fetchedAt:doc.meta.fetchedAt,stale:true,games:[],rows:[],reason:'Odds snapshot refresh overdue'};
+ if(age< -5||age>240)return {available:false,fetchedAt:doc.meta.fetchedAt,ageMinutes:Math.round(age),stale:true,games:[],rows:[],reason:'Odds snapshot exceeds 240-minute global maximum',verifiedGames:0,rejectedForAge:0,earliestKickoff:null};
  const marketSet=new Set(['atd','firstTd','passYds','rushYds','recYds','receptions','targets','carries','passTds','passAttempts','completions']);
  const rows=[];
- let unmatched=0;
+ let unmatched=0,rejectedForAge=0,verifiedGames=0,earliestKickoff=null;
  for(const g of doc.games){
   const officialGame=official.find(x=>nflEventMatch(g.away,g.home,g.startDateUTC,x));
   if(!officialGame||officialGame.state!=='pre'||Date.parse(officialGame.startTime)<Date.now()-15*60000){unmatched++;continue}
   const hours=(Date.parse(officialGame.startTime)-Date.now())/3600000;
   const cap=hours<=1.5?12:hours<=3?25:hours<=12?45:hours<=48?75:150;
-  if(age>cap)continue;
+  if(age>cap){rejectedForAge++;continue}
+  verifiedGames++;
+  if(!earliestKickoff||Date.parse(officialGame.startTime)<Date.parse(earliestKickoff))earliestKickoff=officialGame.startTime;
   for(const p of g.players||[]){
    if(!p?.name||!p.odds||typeof p.odds!=='object')continue;
    for(const [key,odds] of Object.entries(p.odds)){
@@ -1036,6 +1065,7 @@ async function verifiedNflOdds(){
  }
  return {source:'ParlayAPI NFL sportsbook snapshot, official ESPN game identity',fetchedAt:doc.meta.fetchedAt,
   ageMinutes:Math.round(age),available:rows.length>0,stale:rows.length===0,rows,unmatchedGames:unmatched,
+  verifiedGames,rejectedForAge,earliestKickoff,reason:rows.length?'Verified pregame sportsbook quotes':rejectedForAge?'Odds source older than kickoff-specific freshness caps':'No official-game verified player quotes',
   note:'Snapshot prices are not continuously streaming. Only valid pregame books matched to official kickoff are shown.'};
 }
 
