@@ -472,3 +472,14 @@ html,body,button,input,select,textarea{
 .nfl-validation .nfl-context-note ul{padding-left:20px}
 @media(max-width:870px){.nfl-validation-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.nfl-audit-grid{grid-template-columns:1fr}}
 @media(max-width:620px){.nfl-validation-stats{gap:7px}.nfl-validation-stats>div{padding:10px}.nfl-validation-stats b{font-size:22px}.nfl-validation-checks{grid-template-columns:1fr}}
+
+/* NFL automated pregame archive status, only real append-only counts. */
+.nfl-validation-archive{margin:16px 0 24px;padding:18px;background:#132b39;border:1px solid #3b6072;border-radius:9px}
+.nfl-validation-archive h3{font-size:16px;margin:0 0 12px;color:#eaf5fa}
+.nfl-validation-archive-metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+.nfl-validation-archive-metrics>div{border:1px solid #435a68;background:#1c3646;border-radius:8px;padding:13px}
+.nfl-validation-archive-metrics small{display:block;font-size:9px;font-weight:850;color:#9ebccc;letter-spacing:.04em;line-height:1.5}
+.nfl-validation-archive-metrics b{display:block;margin:6px 0;font-size:22px;font-weight:900;color:#f3f8fb}
+.nfl-validation-archive-metrics span{display:block;color:#97b0c1;font-size:10px}
+.nfl-validation-archive .nba-footnote{margin:11px 0 0}
+@media(max-width:800px){.nfl-validation-archive-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
