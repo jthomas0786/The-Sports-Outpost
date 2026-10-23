@@ -69,7 +69,7 @@ function render(data,error='',loading=false,archive=null){
   ['firstTd','First TD historical heuristic',String(n)+' held-out games'],
   ['current50k','50K game simulation',String(pre.games??0)+' historic completed game'],
   ['currentAtd','Live regressed Anytime TD','No model-version-controlled holdout'],
-  ['currentExactOver','Live exact-line prop Over','No pregame line-outcome archive']
+  ['currentExactOver','Live exact-line prop Over',String(archive?.snapshotCount??0)+' archived forecasts · '+String(archive?.outcomeCount??0)+' graded']
  ];
  const choices='<div class="nfl-validation-tabs">'
   +[['all','All audits'],...models.map(m=>[m[0],m[1]])].map(([key,label])=>
