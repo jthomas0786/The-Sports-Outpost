@@ -162,7 +162,7 @@ function archiveSafeNumber(v){if(v===null||v===undefined||v==='')return null;con
 const archiveName=x=>String(x||'').trim().toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
 function archiveTime(x,now,maxAge){
  const t=Date.parse(String(x||''));
- return Number.isFinite(t)&&t<=now+60000&&now-t>=-60000&&now-t<=maxAge?t:null;
+ return Number.isFinite(t)&&t<=now&&now-t>=0&&now-t<=maxAge?t:null;
 }
 async function archiveHash(input){
  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(input));
@@ -243,7 +243,7 @@ async function runNflArchive(env,trigger='cron'){
      if(t===null||t>=kickoff||quoteTime>=kickoff)continue;
      const row={gameId,team,name,playerId:q.playerId||null,market,side:market==='atd'?'yes':'over',
       line,book:String(q.book).slice(0,60),price,p:c.p,kind:c.kind,modelTime:new Date(t).toISOString(),
-      modelVersion:String(c.version).slice(0,90),quoteTime:new Date(quoteTime).toISOString(),
+      modelVersion:(String(c.version).slice(0,48)+'|source-sha256:'+(await archiveHash([gameId,team,name,c.kind,c.time,market,line,c.p].join('|'))).slice(0,18)),quoteTime:new Date(quoteTime).toISOString(),
       kickoff:new Date(kickoff).toISOString(),iterations:c.iterations};
      row.id=await archiveHash([row.gameId,row.team,row.name,row.market,row.side,row.line,row.book,row.price,
       row.kind,row.p,row.modelTime,row.modelVersion,row.quoteTime].join('|'));
