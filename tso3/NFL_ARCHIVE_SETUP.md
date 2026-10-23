@@ -26,9 +26,13 @@ For each published current pregame sportsbook quote, require:
 5. SHA-256 deterministic ID over source identity and original quote/model timestamps. `INSERT OR IGNORE` guarantees repeated cron runs cannot overwrite predictions or multiply unchanged snapshots. Later legitimately changed snapshots create new rows.
 6. Missing/stale input is logged as `no_fresh_sources`; never create fake predictions or historical pregame estimates.
 
-## Validation is not active until outcomes are linked
+## Postgame settlement now deployed in preview (Oct 23, 2026)
 
-The archive initially saves forward-only before-kickoff predictions. This is **not** a calibration or ROI measure. No final outcome is inferred or filled in by this capture. A future dedicated settlement pass must use official postgame final scores/statistics and separate `settled_outcomes`, marking pushes and voids rather than guessing losses. Metrics must avoid treating correlated same-game player bets or repeated pregame snapshots as independent observations.
+Scheduled `runNflSettlement` is installed, independently verified at 03:30 UTC, and reads ESPN finalized game summaries. It writes idempotent grades into `settled_outcomes` and activity into `settlement_runs` (separate migration `tso3/db/nfl-settlement.sql`). The 13 upcoming archived games have not completed; there are zero real graded outcomes. Details, limitations, and operator queries: `tso3/NFL_SETTLEMENT_SETUP.md`.
+
+## Original validation design note (archival history)
+
+The archive initially saves forward-only before-kickoff predictions. This is **not** a calibration or ROI measure. No final outcome is inferred or filled in by this capture. The dedicated settlement pass now uses ESPN-reported final player box scores. It grades confirmed Over wins/losses and pushes, but cannot infer sportsbook-specific voids and leaves unmatched or absent athletes unresolved rather than guessing losses. Metrics must avoid treating correlated same-game player bets or repeated pregame snapshots as independent observations.
 
 ## Operational inspection
 
