@@ -37,3 +37,19 @@ The archive initially saves forward-only before-kickoff predictions. This is **n
 - Worker binding: Cloudflare GET `/accounts/{account_id}/workers/scripts/tso3-preview/settings`.
 - D1 query `SELECT COUNT(*) FROM prediction_snapshots;` and `SELECT * FROM capture_runs ORDER BY started_at DESC LIMIT 3;`.
 - The first confirmed snapshot count may remain zero until the scheduled Worker has successfully captured fresh matched odds and models; the existence of a cron schedule is **not** proof of a successful capture.
+
+
+## First real capture verification — October 22, 2026 Chicago / October 23 UTC
+
+The one-time privately scoped test route (deployed only in-memory to the isolated preview Worker) performed a genuine before-kickoff archive capture, then was removed immediately by redeploying the unmodified `tso-3.0` source code. No permanent manual write endpoint exists.
+
+- First capture: `2026-10-23T02:38:32.932Z`.
+- **786** inserted, **786** distinct SHA-256 snapshot IDs across **13** official upcoming NFL games.
+- `50k_exact_over`: **442**; `50k_atd`: **344**; `tso_regressed_atd`: **0** because the relevant source was not eligible for fresh capture.
+- Verified D1 SQL: **0** captured at or after kickoff; **0** model/odds source timestamps after capture.
+- Source example: original model version `v89.18.0` plus prediction-source SHA-256 fingerprint. Book and model source timestamps are preserved independently.
+- Live source test: 786 eligible, 786 inserted, status `saved`; one-time source-level test replay demonstrated deterministic IDs, mismatched-line rejection and zero re-inserts when source snapshots were unchanged.
+- Cron restored to `*/30 * * * *` and D1 binding verified. **A successful private capture does not yet prove the recurring cron job has run.** Verify `capture_runs` after the scheduled trigger.
+- No calibration or outcome-settlement claims are made. Current `settled_outcomes` count is zero.
+
+**Deployment warning:** Every future Worker multipart upload must include the `NFL_ARCHIVE` D1 binding. Do not paste older unbound deployment recipes; doing so disconnects the archive.
