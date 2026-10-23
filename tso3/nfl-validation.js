@@ -30,7 +30,7 @@ function archiveSummary(a){
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
   +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p>'
-  +settlementSummary(a.settlement)+reconciliationSummary(a.reconciliation)+'</section>';
+  +settlementSummary(a.settlement)+actionSummary(a.sportsbookAction)+reconciliationSummary(a.reconciliation)+'</section>';
 }
 function settlementSummary(settlement){
  const recent=settlement?.lastRun||{},metrics=settlement?.byMarket||[],atd=settlement?.atdCoverage||{};
@@ -65,6 +65,26 @@ function settlementSummary(settlement){
    +'<tbody>'+rows+'</tbody></table></div>';
  }else body+='<p class="nba-footnote">No final verified outcomes yet. The archive is collecting forward-looking predictions; calibration stays unavailable until actual games finish.</p>';
  return body+'<p class="nba-footnote">'+esc(settlement?.caveat||'One game or repeated same-game props cannot prove calibration or positive betting returns.')+'</p></div>';
+}
+function actionSummary(a){
+ const states=a?.byState||[],books=a?.byBook||[];
+ const count=key=>states.find(x=>x.action_state===key)?.observations??0;
+ let body='<div class="nfl-validation-section"><h3>Sportsbook participation & void evidence</h3>'
+  +'<p>Participation is confirmed from explicit final-game evidence. “Void evidence” means the player was explicitly marked inactive or did-not-play under a mapped sportsbook rule, not that the sportsbook paid or voided a ticket.</p>'
+  +'<div class="nfl-detail-grid">'
+  +detailItem('CONFIRMED PARTICIPATION',count('action_confirmed'))
+  +detailItem('DNP / INACTIVE VOID EVIDENCE',count('void_evidence'))
+  +detailItem('REQUIRES REVIEW',count('review_required'))
+  +detailItem('RULE MAPPING','FANDUEL · DRAFTKINGS')
+  +'</div>';
+ if(books.length){
+  body+='<div class="nba-table-scroll"><table class="nba-table nfl-validation-table">'
+   +'<thead><tr><th>SPORTSBOOK</th><th>PARTICIPATION RESULT</th><th>OBSERVATIONS</th></tr></thead><tbody>'
+   +books.slice(0,30).map(x=>'<tr>'+tableCell(x.sportsbook)+tableCell(String(x.action_state||'unknown').replaceAll('_',' '))+tableCell(x.observations??0)+'</tr>').join('')
+   +'</tbody></table></div>';
+ }
+ return body+'<p class="nba-footnote">'+esc(a?.note||'Awaiting first completed games for sportsbook action evidence.')
+  +' No automatic void is assigned from a missing player alone. Rules vary by book, state and market.</p></div>';
 }
 function reconciliationSummary(reconciliation){
  const run=reconciliation?.lastRun||{},audit=reconciliation?.coverage||{},reasons=reconciliation?.unresolvedReasons||[];
