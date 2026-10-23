@@ -97,9 +97,9 @@ test('an archived player absent from the boxscore cannot be called a TD loser',(
  assert.equal(x.evidence.complete,true);assert.equal(x.result.grade,null);
 });
 
-const actionCheck=(doc,name,id,book)=>{
+const actionCheck=(doc,name,id,book,team='LA')=>{
  const final=nflFinalBoxscore(doc,event,kickoff);
- const quote={player_name:name,player_id:id,team:'LA',market:'atd',
+ const quote={player_name:name,player_id:id,team,market:'atd',
   side:'yes',line:0.5,sportsbook:book};
  return {action:nflSportsbookAction(quote,final),grade:auditNflSnapshot(quote,final)};
 };
@@ -164,12 +164,12 @@ const withDefensiveTouchdown=()=>{
  return d;
 };
 test('FanDuel ordinary individual ATD does not treat defensive team TD as player win',()=>{
- const x=actionCheck(withDefensiveTouchdown(),'Other Defender','303','FanDuel');
+ const x=actionCheck(withDefensiveTouchdown(),'Other Defender','303','FanDuel','ARI');
  assert.equal(x.action.action_state,'action_confirmed');
  assert.equal(x.grade.grade?.outcome,'loss');
 });
 test('unmapped defensive TD scorer remains unresolved rather than assumed win',()=>{
- const x=actionCheck(withDefensiveTouchdown(),'Other Defender','303','DraftKings');
+ const x=actionCheck(withDefensiveTouchdown(),'Other Defender','303','DraftKings','ARI');
  assert.equal(x.grade.grade,null);
  assert.equal(x.grade.reason,'book_specific_defensive_td_rules_unverified');
 });
