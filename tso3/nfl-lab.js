@@ -363,7 +363,7 @@ function render(ctx,tool){
   +'<button type="button" class="nba-sort-direction" data-nfl-sort title="Reverse sorting">'+(state.reverse?'↑':'↓')+'</button></div>';
  return '<section class="nba-lab nfl-lab"><div class="nba-intro"><div><span class="nba-eyebrow">THE SPORTS OUTPOST / NFL VERIFIED RESEARCH</span><h2>'+esc(titles[tool])+'</h2><p>'+esc(notes[tool])+'</p></div></div>'
  +source+(modelTools.has(tool)?'<p class="nfl-model-note">'+esc(modelAlert)+'</p>':'')
- +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table"><thead><tr>'
+ +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table'+(tool==='defense-vs-position'?' nfl-dvp-table':'')+'"><thead><tr>'
  +columns[tool].map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'
  +(list.map(row).join('')||'<tr><td colspan="8">No verified records meet these filters. Defense-vs-position groups with unavailable source data show dashes; no player-specific stats are substituted.</td></tr>')
  +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+state.visible.length+' verified rows · click any row for details</span>'
@@ -436,6 +436,7 @@ function click(event){
  const selected=target.closest('[data-nfl-row]');if(selected){
   const r=state.all.find(x=>x.id===selected.dataset.nflRow);if(!r)return true;
   document.getElementById('drawerBody').innerHTML=detail(r,state.context);
+  document.getElementById('drawer').setAttribute('aria-label',r.kind==='defense'?'Defensive position research':r.kind==='game'?'Team matchup research':'Player research');
   document.getElementById('drawer').hidden=false;
   document.getElementById('scrim').hidden=false;
   return true;
