@@ -12,6 +12,7 @@ on:
     paths:
       - 'scripts/nfl-odds-refresh.mjs'
       - 'scripts/nfl-odds-refresh-v891.mjs'
+      - 'scripts/nfl-odds-refresh-diagnostics.mjs'
       - 'scripts/nfl-week-window.mjs'
       - 'scripts/nfl-v881-selftest.mjs'
       - '.github/workflows/nfl-odds.yml'
@@ -25,9 +26,14 @@ on:
 permissions:
   contents: write
 
+# The workflow wakes every five minutes, but paid ParlayAPI updates may
+# take longer (especially split prop-market fetches and retry backoff).
+# Never cancel an active paid refresh on the next scheduler tick.
+# GitHub will keep at most one pending run for this concurrency group; the
+# age-based gate in the Node script prevents unnecessary repeated paid calls.
 concurrency:
   group: nfl-odds-refresh
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -49,6 +55,13 @@ jobs:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_ODDS_FORCE: ${{ github.event_name == 'push' && '1' || (inputs.force == true && '1' || '0') }}
         run: node scripts/nfl-odds-refresh-v891.mjs
+
+      # Free local diagnostics only: no extra ParlayAPI requests or secrets.
+      # Runs even when paid-refresh step fails, to expose how old the last
+      # published odds file is relative to the actual game-time threshold.
+      - name: Diagnose NFL publisher freshness
+        if: always()
+        run: node scripts/nfl-odds-refresh-diagnostics.mjs
 
       - name: Validate odds file when changed
         run: |
