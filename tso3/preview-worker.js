@@ -155,6 +155,125 @@ async function verifiedNflSimulations(){
   generatedAt:data.generatedAt||null,engineVersion:data.engineVersion||null,games,
   note:'Simulated point means and win probabilities from TSO worlds; model estimates, not observed scores or guaranteed outcomes.'};
 }
+
+/* Immutable scheduled NFL pregame archiving. Separate outcome settlements; no backfills. */
+const ARCHIVE_MARKETS=new Set(['passYds','passTds','completions','rushYds','recYds','receptions']);
+function archiveSafeNumber(v){if(v===null||v===undefined||v==='')return null;const n=Number(v);return Number.isFinite(n)?n:null}
+const archiveName=x=>String(x||'').trim().toLowerCase().normalize('NFKD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+function archiveTime(x,now,maxAge){
+ const t=Date.parse(String(x||''));
+ return Number.isFinite(t)&&t<=now+60000&&now-t>=-60000&&now-t<=maxAge?t:null;
+}
+async function archiveHash(input){
+ const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(input));
+ return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+async function nflArchiveStatus(env){
+ if(!env?.NFL_ARCHIVE)return{available:false,configured:false,reason:'Isolated D1 archive is not attached'};
+ try{
+  const q=await env.NFL_ARCHIVE.batch([
+   env.NFL_ARCHIVE.prepare('SELECT COUNT(*) snapshots, COUNT(DISTINCT game_id) games, MIN(captured_at) first_capture, MAX(captured_at) last_capture FROM prediction_snapshots'),
+   env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,forecast_games,eligible_predictions,inserted_predictions,reason,error FROM capture_runs ORDER BY started_at DESC LIMIT 1'),
+   env.NFL_ARCHIVE.prepare('SELECT model_kind,COUNT(*) observations,COUNT(DISTINCT game_id) games FROM prediction_snapshots GROUP BY model_kind'),
+   env.NFL_ARCHIVE.prepare('SELECT COUNT(*) outcomes FROM settled_outcomes')
+  ]);
+  return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
+   snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
+   gameCount:Number(q[0].results?.[0]?.games||0),
+   firstCapture:q[0].results?.[0]?.first_capture||null,
+   latestCapture:q[0].results?.[0]?.last_capture||null,lastRun:q[1].results?.[0]||null,
+   byModel:q[2].results||[],outcomeCount:Number(q[3].results?.[0]?.outcomes||0),
+   modelValidationStatus:'UNVALIDATED',
+   note:'Before-kickoff predictions only, saved with model and quote source times. Capture count is not model accuracy or ROI.'};
+ }catch(_){return{available:false,configured:true,reason:'D1 archive query unavailable'}}
+}
+async function runNflArchive(env,trigger='cron'){
+ if(!env?.NFL_ARCHIVE)throw Error('Missing isolated TSO3 NFL D1 archive binding');
+ const now=Date.now(),started=new Date(now).toISOString();
+ const runId=await archiveHash('nflarchive|'+trigger+'|'+started);
+ const diag={games:0,eligible:0,inserted:0,status:'saved',reason:'',error:''};
+ try{
+  const incoming=await Promise.allSettled([verifiedNflOdds(),verifiedNflSimulations(),verifiedNflSlate()]);
+  const odds=incoming[0].status==='fulfilled'?incoming[0].value:null;
+  const simulations=incoming[1].status==='fulfilled'?incoming[1].value:null;
+  const atd=incoming[2].status==='fulfilled'?incoming[2].value:null;
+  if(!odds?.available||!Array.isArray(odds.rows)||!odds.rows.length){
+   diag.status='no_fresh_sources';diag.reason='Official-game verified sportsbook snapshot unavailable or stale';
+  }else if(archiveTime(odds.fetchedAt,now,4*3600000)===null){
+   diag.status='no_fresh_sources';diag.reason='Sportsbook source timestamp failed freshness requirements';
+  }else{
+   const simMap=new Map((simulations?.games||[]).filter(g=>g.phase==='pregame').map(g=>[String(g.id),g]));
+   const atdMap=new Map((atd?.modelFresh&&archiveTime(atd.generatedAt,now,48*3600000)!==null?atd.games:[]).map(g=>[String(g.id),g]));
+   const rows=[],seen=new Set(),gameIDs=new Set();
+   for(const q of odds.rows){
+    const gameId=String(q.verifiedGameId||''),team=nflTeamKey(q.team||''),
+     name=archiveName(q.player),line=archiveSafeNumber(q.line),
+     price=archiveSafeNumber(q.price),quoteTime=archiveTime(q.snapshotTime,now,4*3600000),
+     kickoff=Date.parse(q.commenceTime||''),market=String(q.market||'');
+    if(!/^\d{6,14}$/.test(gameId)||!team||!name||!q.book||quoteTime===null
+     ||line===null||!Number.isInteger(price)||price===0||!Number.isFinite(kickoff)
+     ||kickoff<=now+15*60000||kickoff>now+14*86400000
+     ||!(market==='atd'||ARCHIVE_MARKETS.has(market))
+     ||String(q.side||'').toLowerCase()!==(market==='atd'?'yes':'over'))continue;
+    const dedup=[gameId,team,name,market,line,q.book,q.side].join('|');
+    if(seen.has(dedup))continue;seen.add(dedup);gameIDs.add(gameId);
+    const sim=simMap.get(gameId),td=atdMap.get(gameId),candidates=[];
+    if(sim&&Date.parse(sim.startTime)===kickoff
+     &&archiveTime(sim.runAt,now,48*3600000)!==null&&Number(sim.iterations)>=10000){
+     const player=(sim.players||[]).find(p=>nflTeamKey(p.team||'')===team&&archiveName(p.name)===name);
+     if(player&&market==='atd'&&line===0.5){
+      const p=archiveSafeNumber(player.atd);
+      if(p!==null&&p>=0&&p<=1)candidates.push({kind:'50k_atd',p,time:sim.runAt,iterations:sim.iterations,
+       version:simulations.engineVersion||'source-unversioned'});
+     }else if(player&&ARCHIVE_MARKETS.has(market)){
+      const m=player.exactOver?.[market],p=archiveSafeNumber(m?.probability);
+      if(p!==null&&p>=0&&p<=1&&archiveSafeNumber(m?.line)===line)
+       candidates.push({kind:'50k_exact_over',p,time:sim.runAt,iterations:sim.iterations,
+        version:simulations.engineVersion||'source-unversioned'});
+     }
+    }
+    if(td&&market==='atd'&&line===0.5&&Date.parse(td.startTime)===kickoff){
+     const player=(td.players||[]).find(p=>nflTeamKey(p.team||'')===team&&archiveName(p.name)===name);
+     const p=archiveSafeNumber(player?.modelProbability);
+     if(p!==null&&p>=0&&p<=1)candidates.push({kind:'tso_regressed_atd',p,time:atd.generatedAt,iterations:null,
+      version:'source-unversioned-2025-baseline'});
+    }
+    for(const c of candidates){
+     const t=archiveTime(c.time,now,48*3600000);
+     if(t===null||t>=kickoff||quoteTime>=kickoff)continue;
+     const row={gameId,team,name,playerId:q.playerId||null,market,side:market==='atd'?'yes':'over',
+      line,book:String(q.book).slice(0,60),price,p:c.p,kind:c.kind,modelTime:new Date(t).toISOString(),
+      modelVersion:String(c.version).slice(0,90),quoteTime:new Date(quoteTime).toISOString(),
+      kickoff:new Date(kickoff).toISOString(),iterations:c.iterations};
+     row.id=await archiveHash([row.gameId,row.team,row.name,row.market,row.side,row.line,row.book,row.price,
+      row.kind,row.p,row.modelTime,row.modelVersion,row.quoteTime].join('|'));
+     rows.push(row);
+    }
+   }
+   diag.games=gameIDs.size;diag.eligible=rows.length;
+   for(let i=0;i<Math.min(rows.length,2500);i+=60){
+    const statements=rows.slice(i,i+60).map(r=>env.NFL_ARCHIVE.prepare(
+     'INSERT OR IGNORE INTO prediction_snapshots (id,captured_at,game_id,kickoff_at,player_id,player_name,team,market,side,line,sportsbook,book_price,probability,model_kind,model_generated_at,model_version,odds_snapshot_at,model_iterations,verified_game_source,created_by) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+    ).bind(r.id,started,r.gameId,r.kickoff,r.playerId,r.name,r.team,r.market,r.side,r.line,
+     r.book,r.price,r.p,r.kind,r.modelTime,r.modelVersion,r.quoteTime,r.iterations,
+     'ESPN','tso3-preview-'+trigger));
+    const batch=await env.NFL_ARCHIVE.batch(statements);
+    diag.inserted+=batch.reduce((sum,r)=>sum+Number(r.meta?.changes||0),0);
+   }
+   if(!rows.length){diag.status='no_fresh_sources';
+    diag.reason='No source-fresh exact game, player, market and line predictions are available';
+   }else if(rows.length>2500){diag.reason='Per-run capture capped at 2500 records';
+   }else{diag.reason='All rows verified pregame, append-only and idempotent by original source timestamps'}
+  }
+ }catch(e){diag.status='failed';diag.error=String(e?.message||e).slice(0,180)}
+ await env.NFL_ARCHIVE.prepare(
+  'INSERT INTO capture_runs (run_id,started_at,completed_at,status,forecast_games,eligible_predictions,inserted_predictions,error,reason) VALUES (?,?,?,?,?,?,?,?,?)'
+ ).bind(runId,started,new Date().toISOString(),diag.status,diag.games,diag.eligible,
+  diag.inserted,diag.error||null,diag.reason||null).run();
+ if(diag.status==='failed')throw Error('NFL prediction archiving failed: '+diag.error);
+ return diag;
+}
+
 /* Read-only, historically scored NFL validation artifacts. Importantly,
  this endpoint NEVER backfits today's probabilities into past final scores. */
 const NFL_VALIDATION_REPLAY='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/docs/nfl-accuracy-validation.json';
@@ -748,7 +867,7 @@ async function liveGameSummary(sport,eventId){
   note:'Player statistics are official game records as last returned by ESPN, not historical averages or projections'};
 }
 
-export default {async fetch(req,env){
+export default {async scheduled(event,env,ctx){ctx.waitUntil(runNflArchive(env,'cron'))},async fetch(req,env){
  if(req.method==='OPTIONS')return new Response(null,{headers:{...headers,'access-control-allow-methods':'GET, HEAD, OPTIONS'}});
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
@@ -783,6 +902,7 @@ export default {async fetch(req,env){
     {status:503,headers:{...headers,'cache-control':'no-store'}});
   }
  }
+ if(u.pathname==='/api/nfl-archive-status')return Response.json(await nflArchiveStatus(env),{headers:{...headers,'cache-control':'no-store'}});
  if(u.pathname==='/api/nba-odds'){
   try{
    const doc=await safeNbaOdds();
