@@ -481,6 +481,73 @@ function render(ctx,tool){
  +'<p class="nba-footnote">Data sources: current ESPN NFL scoreboards and 2026 rosters; nflverse verified player game logs (CC BY 4.0); the existing TSO regressed 2025-baseline anytime-touchdown model; ParlayAPI time-limited sportsbook snapshots where available. No sportsbook odds, model percentages, opponent coverage ratings, or forecast measurements are fabricated.</p></section>';
 }
 function detail(r,ctx){
+ if(r.kind==='coverage'){
+  const c=coveragePrepare(ctx,r),group=r.defense?.perGame||{},line=num(c.quote?.line);
+  const year=Number(ctx.research?.season),unit=state.coverageMarket==='recYds'?'yards':
+   state.coverageMarket==='receptions'?'receptions':'targets';
+  const stats=[['2026 L5 AVG',f(c.l5?.avg)+' '+unit],
+   ['2026 L10 AVG',f(c.l10?.avg)+' '+unit],
+   ['2026 TGT SHARE',num(r.p?.currentSeason?.targetShare)===null?'—':f(r.p.currentSeason.targetShare)+'%'],
+   ['2026 L5 SNAP',num(r.p?.snapTrend?.avgOffensePct)===null?'—':f(r.p.snapTrend.avgOffensePct)+'%'],
+   ['DEF '+r.position+' '+unit.toUpperCase()+'/GM',f(c.allowed)],
+   ['DEF VS '+r.position+' TARGETS/GM',f(group.targets)],
+   ['DEF VS '+r.position+' RECEPTIONS/GM',f(group.receptions)],
+   ['DEF VS '+r.position+' REC YDS/GM',f(group.recYds)],
+   ['DEF VS '+r.position+' REC TD/GM',f(group.recTds)],
+   ['DEF SAMPLE GAMES',r.defense?.games??'—'],
+   ['BOOK OVER LINE',c.quote?'Over '+f(line):'—'],
+   ['2026 L5 OVER',coverageHit(c.l5Over)],
+   ['2026 L10 OVER',coverageHit(c.l10Over)],
+   ['50K EXACT-LINE OVER',c.modelProb===null?'—':percent(c.modelProb)]];
+  const logs=r.logs.slice(0,10);
+  const observed=logs.map(g=>num(g[c.market]));
+  const max=Math.max(1,line||0,...observed.filter(v=>v!==null&&v>0));
+  const bars='<div class="nfl-coverage-chart" aria-label="Observed 2026 receiving performance">'
+   +logs.slice().reverse().map(g=>{
+    const v=num(g[c.market]),height=v===null?0:Math.max(2,Math.round(Math.max(0,v)/max*104));
+    return '<div class="nfl-coverage-bar"><b>'+esc(v===null?'—':v)+'</b>'
+     +'<i style="height:'+height+'px" class="'+(line!==null&&v!==null&&v>line?'above':'')+'"></i>'
+     +'<span>WK '+esc(g.week??'—')+'</span></div>';
+   }).join('')+'</div>';
+  const secondary=coverageSecondary(ctx,r);
+  const defenders=secondary.length?secondary.map(p=>'<div class="nfl-secondary-person"><b>'
+   +esc(p.name)+'</b><small>'+esc(p.position||'DB')+(num(p.depthRank)!==null?' · DEPTH '+esc(p.depthRank):'')
+   +(p.report&&!/^active$/i.test(String(p.report.status||''))?' · '+esc(p.report.status):'')
+   +'</small></div>').join('')
+   :'<p class="live-no-stats">Verified opposing DB roster details are not present in this source.</p>';
+  const warning=r.sourceConflict?'The defensive positional source contains conflicting records; group values have been withheld.':
+   !r.defense?'A reliable 2026 position-group record for this opposing defense is unavailable.':
+   'Opponent defensive totals describe production allowed to all '+esc(r.position)+'s as a group; they are not an estimate of this individual receiver’s final game output.';
+  const modelMsg=c.modelProb!==null?'The 50K model matches this player, official ESPN event, '+esc(COVERAGE_MARKETS[c.market])+' Over and the exact book line.':
+   'No verified 50K Over projection matches this exact game, player, market and sportsbook line. No estimate has been substituted.';
+  return '<div class="drawer-contents nfl-details nfl-coverage-details">'
+   +'<span class="eyebrow">TSO VERIFIED COVERAGE & RECEIVING MATCHUPS</span>'
+   +'<h2>'+esc(r.name)+'</h2><p class="subtitle">'+esc(r.team)+' '+esc(r.position)+' vs '+esc(r.defTeam)
+   +' DEFENSE · '+esc(r.game.away?.abbr)+' @ '+esc(r.game.home?.abbr)+' · '+esc(when(r.game.startTime))+'</p>'
+   +'<div class="nfl-context-note">'+warning+'</div>'
+   +'<h3>'+esc(COVERAGE_MARKETS[c.market])+' · 2026 player trends</h3>'
+   +'<div class="nfl-detail-grid">'+stats.map(([name,value])=>
+    '<div><small>'+esc(name)+'</small><b>'+esc(value)+'</b></div>').join('')+'</div>'
+   +'<h3>Observed 2026 game results'+(line!==null?' · current Over '+esc(f(line)):'')+'</h3>'
+   +bars+'<p class="nba-footnote">Bars represent observed results, not predictions. Highlighted bars exceeded the current verified Over line, where available.</p>'
+   +'<h3>Current sportsbook and exact-line model</h3><div class="nfl-context-note">'
+   +'<b>'+esc(c.quote?'Over '+f(c.quote.line)+' at '+c.quote.book+' '+fmtPrice(c.quote.price):'No currently verified book line')+'</b>. '
+   +modelMsg+'</div>'
+   +'<h3>Opposing defensive secondary · roster context only</h3>'
+   +'<div class="nfl-secondary-grid">'+defenders+'</div>'
+   +'<div class="nfl-context-note">These are defensive backs listed in the 2026 opposing-team roster, not confirmed individual coverage assignments. Slot/outside alignment, man/zone rates, shadow coverage and route participation are unavailable without tracking data.</div>'
+   +'<h3>2026 game logs</h3><div class="nba-log-scroll"><table class="nba-log">'
+   +'<thead><tr><th>WEEK</th><th>OPPONENT</th><th>TARGETS</th><th>RECEPTIONS</th><th>REC YARDS</th><th>REC TD</th><th>VS OVER '+esc(f(line))+'</th></tr></thead><tbody>'
+   +(logs.map(g=>{const v=num(g[c.market]);return '<tr><td>'+esc(g.week??'—')+'</td><td>'+esc(g.opponent||'—')
+    +'</td><td>'+esc(g.targets??'—')+'</td><td>'+esc(g.receptions??'—')+'</td><td>'+esc(g.recYds??'—')
+    +'</td><td>'+esc(g.recTds??'—')+'</td><td>'+(line===null||v===null?'—':v>line?'OVER':'NOT OVER')+'</td></tr>';
+   }).join('')||'<tr><td colspan="7">No verified 2026 games available.</td></tr>')
+   +'</tbody></table></div>'
+   +'<p class="nba-footnote">Player history: '+esc(asof(ctx.research?.generatedAt))
+   +' · Book snapshot: '+esc(asof(ctx.odds?.fetchedAt))
+   +' · 50K simulation: '+esc(asof(ctx.sim?.generatedAt))
+   +' · Injuries: '+esc(asof(ctx.injuries?.fetchedAt))+'. Historical performance is descriptive, not a guarantee of future outcomes.</p></div>';
+ }
  if(r.kind==='game'&&state.tool==='weather-impact'){
   const venue=r.game.venueMeta||{},w=r.weather,hour=w?.weather||{},out=w?.status==='forecast';
   const stats=[['VENUE',venue.name||r.game.venue||'—'],['ROOF',venue.indoor===true?'INDOORS':venue.indoor===false?'OUTDOORS':'UNCONFIRMED'],
