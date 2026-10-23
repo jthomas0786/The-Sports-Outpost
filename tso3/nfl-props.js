@@ -8,7 +8,7 @@ const label={atd:'Anytime TD',firstTd:'First TD',passYds:'Passing Yards',rushYds
  receptions:'Receptions',targets:'Targets',carries:'Rush Attempts',passTds:'Passing TDs',passAttempts:'Pass Attempts',completions:'Completions'};
 const fields={passYds:'passYds',rushYds:'rushYds',recYds:'recYds',receptions:'receptions',targets:'targets',
  carries:'carries',passTds:'passTds',passAttempts:'attempts',completions:'completions'};
-const state={view:'props',games:[],markets:[],positions:[],search:'',window:'l5',open:{games:false,markets:false,positions:false},rows:[],shown:[],max:90,ctx:null,signature:''};
+const state={view:'props',games:[],markets:[],positions:[],search:'',window:'l5',order:'model',open:{games:false,markets:false,positions:false},rows:[],shown:[],max:90,ctx:null,signature:''};
 const fmt=v=>n(v)===null?'—':Number(v).toFixed(1);
 const price=v=>n(v)===null?'—':(Number(v)>0?'+':'')+Number(v);
 const when=v=>{const d=new Date(v||'');return Number.isFinite(d.getTime())?d.toLocaleString('en-US',{weekday:'short',hour:'numeric',minute:'2-digit',timeZone:'America/Chicago'})+' CT':'—'};
@@ -84,8 +84,15 @@ function filtered(){
  &&(!state.positions.length||state.positions.includes(String(r.player?.position||'').toUpperCase()))
  &&(state.view==='injuries'||!state.markets.length||state.markets.includes(r.quote?.market))
  &&(!q||[r.player?.name,r.player?.team,r.game?.away?.abbr,r.game?.home?.abbr,r.quote?.market].join(' ').toLowerCase().includes(q)));
- result.sort((a,b)=>state.view==='injuries'?(severity(b.report?.status)-severity(a.report?.status)||a.player.name.localeCompare(b.player.name))
-  :(b.l5?.n?b.l5.over/b.l5.n:-1)-(a.l5?.n?a.l5.over/a.l5.n:-1));
+ result.sort((a,b)=>{
+  if(state.view==='injuries')return severity(b.report?.status)-severity(a.report?.status)||a.player.name.localeCompare(b.player.name);
+  const value=r=>state.order==='l5'?(r.l5?.n?r.l5.over/r.l5.n:null):
+   (r.exactModelOver??(r.l5?.n?r.l5.over/r.l5.n:null));
+  const aVal=value(a),bVal=value(b);
+  if(aVal===null&&bVal===null)return a.player.name.localeCompare(b.player.name);
+  if(aVal===null)return 1;if(bVal===null)return -1;
+  return bVal-aVal||a.player.name.localeCompare(b.player.name);
+ });
  state.shown=result;return result;
 }
 function markup(ctx,view){
@@ -101,9 +108,13 @@ function markup(ctx,view){
  }
  const allGames=(ctx.games||[]).filter(g=>g.league==='nfl'&&g.state!=='post'&&Date.parse(g.startTime)>Date.now()-15*60000);
  const opts=allGames.map(g=>[String(g.id),(g.away?.abbr||'—')+' @ '+(g.home?.abbr||'—')+' · '+when(g.startTime)]);
+ const modelCount=state.rows.filter(r=>r.exactModelOver!==null).length;
  const controls='<div class="nba-controls nfl-props-controls">'+picker('games',opts)
   +(view==='props'?picker('markets',Object.entries(label)):'')
   +picker('positions',['QB','RB','WR','TE'].map(x=>[x,x]))
+  +(view==='props'?'<div class="nfl-sort-views"><span>RANK BY</span>'
+    +[['model','50K MODEL'],['l5','L5 HIT RATE']].map(([id,label])=>
+      '<button type="button" data-nfl-prop-sort="'+id+'" class="'+(state.order===id?'active':'')+'">'+label+'</button>').join('')+'</div>':'')
   +'<label class="nba-search-label">SEARCH<input type="search" data-nfl-prop-search value="'+text(state.search)+'" placeholder="Player / team"></label></div>';
  const result=filtered(),list=result.slice(0,state.max);
  const rows=list.map(r=>{
@@ -124,7 +135,7 @@ function markup(ctx,view){
    'Current verified Over lines, observed L5/L10 results and 50K model percentages only when the exact player, event, market and line match. No unders, fabricated projections or implied probabilities.')
   +'</p></div></div>'
   +'<div class="nba-depth-source">OFFICIAL NFL SCHEDULE · '+allGames.length+' UPCOMING · RESEARCH '+text(asof(ctx.research?.generatedAt))+' · BOOK SNAPSHOT '+text(asof(ctx.odds?.fetchedAt))
-  +(view==='injuries'?' · ESPN INJURIES '+text(asof(ctx.injuries?.fetchedAt)):' · 50K SIM '+text(asof(ctx.sim?.generatedAt))+' · '+(ctx.odds?.available?'FRESH VERIFIED PRE-GAME BOOKS':'CURRENT VERIFIED BOOKS UNAVAILABLE'))+'</div>'
+  +(view==='injuries'?' · ESPN INJURIES '+text(asof(ctx.injuries?.fetchedAt)):' · 50K SIM '+text(asof(ctx.sim?.generatedAt))+' · '+modelCount+' EXACT MODEL MATCHES · '+(ctx.odds?.available?'FRESH VERIFIED PRE-GAME BOOKS':'CURRENT VERIFIED BOOKS UNAVAILABLE'))+'</div>'
   +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table"><thead><tr>'
   +(view==='injuries'?['PLAYER','MATCHUP','STATUS','DEPTH','INJURY','L5 SNAP %','RESEARCH UPDATED']:['PLAYER','MATCHUP','MARKET','CURRENT LINE','L5 OVER','L10 OVER','50K EXACT OVER','L5 AVG','BEST BOOK'])
    .map(x=>'<th>'+text(x)+'</th>').join('')+'</tr></thead><tbody>'
@@ -146,6 +157,8 @@ function details(r){
 }
 function repaint(){const root=document.getElementById('nflPropsSlot');if(root)root.innerHTML=markup(state.ctx,state.view)}
 function click(event){
+ const sort=event.target.closest('[data-nfl-prop-sort]');
+ if(sort){state.order=sort.dataset.nflPropSort;repaint();return true}
  if(event.target.closest('[data-nfl-prop-more]')){state.max+=100;repaint();return true}
  const node=event.target.closest('[data-nfl-prop-row]');if(!node)return false;
  const r=state.rows.find(x=>x.id===node.dataset.nflPropRow);if(!r)return true;
