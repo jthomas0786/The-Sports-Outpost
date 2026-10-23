@@ -29,7 +29,7 @@ const notes={
  'red-zone-usage':'2025 baseline red-zone targets and carries from the existing TSO model, compared with observed 2026 role, production and opponent red-zone defense. No unsupported 2026 red-zone splits.',
  'offensive-line-matchups':'Verified 2026 opponent defense allowances as an initial passing/rushing matchup proxy; these are NOT offensive-line pass-block win rates, pressure rates or protection grades.',
  'power-ratings':'Current ESPN records plus event-specific TSO 50K simulation probabilities and model point differentials. A calibrated, independently sourced team power rating remains unavailable.',
- 'weather-impact':'Official schedule, venue and indoor/outdoor status when the original TSO NFL slate reports it. Weather forecasts are not inferred from stadium location.',
+ 'weather-impact':'Official ESPN kickoff times and roof designation, paired with NOAA National Weather Service hourly forecasts at verified U.S. stadium coordinates. Indoor and international games are labeled; missing forecasts stay blank.',
  'game-projections':'Current official NFL matchups matched to TSO Monte Carlo simulations. Estimated team scores, win probabilities, spread and total shown only for current verified model runs.'
 };
 const columns={
@@ -42,7 +42,7 @@ const columns={
  'quarterback-research':['PLAYER','MATCHUP','L5 PASS YDS','L5 ATTEMPTS','L5 COMPLETIONS','L5 PASS TD','OPP PASS YDS/GM','BEST BOOK'],
  'offensive-line-matchups':['MATCHUP','KICKOFF','AWAY QB: HOME DEF','HOME QB: AWAY DEF','AWAY RB: HOME DEF','HOME RB: AWAY DEF','SAMPLE','TRACKING STATUS'],
  'power-ratings':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','AWAY WIN PROB','HOME WIN PROB','MODEL POINT DIFF','RATING STATUS'],
- 'weather-impact':['MATCHUP','KICKOFF','VENUE','INDOOR','FORECAST WIND','PRECIPITATION','TEMP','SOURCE STATUS'],
+ 'weather-impact':['MATCHUP','KICKOFF','STADIUM','ROOF','KICKOFF TEMP','WIND','WIND GUST','RAIN/SNOW %','FORECAST','SOURCE'],
  'game-projections':['MATCHUP','KICKOFF','AWAY WIN %','HOME WIN %','AWAY SCORE','HOME SCORE','SPREAD / TOTAL','SIM WORLDS']
 };
 const historyTool={
@@ -170,7 +170,7 @@ function build(ctx,tool){
  if(tool==='defense-vs-position')return defensePositionRows(ctx,games,benchmarks);
  if(gameTools.has(tool))return games.map(g=>{
   const original=slate.find(x=>String(x.id)===String(g.id));
-  return {id:g.id,game:g,original,sim:ctx.sim?.games?.find(x=>String(x.id)===String(g.id))||null,
+  return {id:g.id,game:g,original,weather:ctx.weather?.games?.find(x=>String(x.id)===String(g.id))||null,sim:ctx.sim?.games?.find(x=>String(x.id)===String(g.id))||null,
    context:{awayPass:defenseAllowed(ctx,g.home.abbr,'QB','passYds'),
     homePass:defenseAllowed(ctx,g.away.abbr,'QB','passYds'),
     awayRush:defenseAllowed(ctx,g.home.abbr,'RB','rushYds'),
@@ -283,7 +283,18 @@ function row(r){
   const values={
    'offensive-line-matchups':[r.name,when(g.startTime),f(r.context?.awayPass?.value)+' pass yd/g',f(r.context?.homePass?.value)+' pass yd/g',f(r.context?.awayRush?.value)+' rush yd/g',f(r.context?.homeRush?.value)+' rush yd/g',sourceGames,'OL grades not connected'],
    'power-ratings':[r.name,when(g.startTime),g.away?.record||'—',g.home?.record||'—',percent(r.sim?.awayWin),percent(r.sim?.homeWin),r.sim?.awayPoints==null||r.sim?.homePoints==null?'—':(r.sim.awayPoints-r.sim.homePoints).toFixed(1)+' away pts',r.sim?'Game-level simulation; no power rating':'No verified rating'],
-   'weather-impact':[r.name,when(g.startTime),venue||g.venue||'—',r.original?.indoor===true?'Indoor':r.original?.indoor===false?'Outdoor':'—','—','—','—','Forecast unavailable'],
+   'weather-impact':[r.name,when(g.startTime),g.venueMeta?.name||venue||g.venue||'—',
+    g.venueMeta?.indoor===true?'INDOORS':g.venueMeta?.indoor===false?'OUTDOORS':'ROOF UNKNOWN',
+    r.weather?.weather?.temperature===null||r.weather?.weather?.temperature===undefined?'—':
+     String(r.weather.weather.temperature)+'°'+(r.weather.weather.temperatureUnit==='F'?'F':r.weather.weather.temperatureUnit||''),
+    r.weather?.status==='forecast'?r.weather.weather.windSpeed||'—':'—',
+    r.weather?.status==='forecast'?r.weather.weather.windGust||'—':'—',
+    r.weather?.status==='forecast'&&r.weather.weather.precipitationProbability!==null?
+      String(r.weather.weather.precipitationProbability)+'%':'—',
+    r.weather?.status==='forecast'?r.weather.weather.condition||'—':
+     r.weather?.status==='indoor'?'WEATHER SHIELDED':r.weather?.status==='international'?'NO NOAA COVERAGE':'UNAVAILABLE',
+    r.weather?.status==='forecast'?'NOAA/NWS'+(r.weather.issuedAt?' ISSUED':''):
+     r.weather?.status==='indoor'?'ESPN VENUE':r.weather?.status==='international'?'INTERNATIONAL':'NO VERIFIED FORECAST'],
    'game-projections':[r.name,when(g.startTime),
     r.sim?.awayWin==null?'—':percent(r.sim.awayWin),r.sim?.homeWin==null?'—':percent(r.sim.homeWin),
     r.sim?.awayPoints==null?'—':f(r.sim.awayPoints),r.sim?.homePoints==null?'—':f(r.sim.homePoints),
@@ -333,7 +344,7 @@ function row(r){
 function render(ctx,tool){
  if(!tools.includes(tool))return '';
  state.tool=tool;state.context=ctx;
- const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
+ const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,ctx.weather?.fetchedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
  if(state.version!==signature){
   state.version=signature;state.all=build(ctx,tool);state.max=90;
   // Keep user-picked matchups and positions through the automatic live refresh.
@@ -347,7 +358,8 @@ function render(ctx,tool){
   +' · PLAYER RESEARCH '+esc(asof(ctx.research?.generatedAt))
   +' · TSO TD MODEL '+esc(asof(ctx.td?.generatedAt))
   +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))+' · ESPN INJURIES '+esc(asof(ctx.injuries?.fetchedAt))
-  +((modelTools.has(tool)||tool==='game-projections')?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')+'</div>';
+  +((modelTools.has(tool)||tool==='game-projections')?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')
+  +(tool==='weather-impact'?' · NOAA NWS WEATHER '+(ctx.weather?.fetchedAt?esc(asof(ctx.weather.fetchedAt)):ctx.weatherError?'FORECAST UNAVAILABLE':'FETCHING...'):'')+'</div>';
  const modelAlert=ctx.td?.modelFresh===false?'TD MODEL SNAPSHOT EXPIRED — probabilities hidden until refreshed.':
   ctx.td?.modelFresh===true?'TSO ATD uses 2025 production adjusted for 2026 roles; 50K ATD and 2+ TD use a separate game simulation. Gaps of 12+ percentage points are flagged as a comparison prompt—not a validated risk score. Sort by either model.':
   'Verified current NFL touchdown model unavailable.';
@@ -368,12 +380,29 @@ function render(ctx,tool){
  +(list.map(row).join('')||'<tr><td colspan="8">No verified records meet these filters. Defense-vs-position groups with unavailable source data show dashes; no player-specific stats are substituted.</td></tr>')
  +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+state.visible.length+' verified rows · click any row for details</span>'
  +(list.length<state.visible.length?'<button data-nfl-more type="button">SHOW MORE →</button>':'')+'</div>'
+ +'<p class="nba-footnote">Weather Impact uses ESPN venue designation and NOAA/NWS hourly forecasts for the kickoff hour at matched U.S. stadium coordinates. The forecasts are predictive weather, not observed game conditions. For indoor games, outdoor weather is not assigned; outside the United States, no NOAA forecast is claimed. Forecast may be unavailable if the source or stadium match cannot be verified.</p>'
  +'<p class="nba-footnote">Offensive Line Matchups shows 2026 QB-pass and RB-rush yards allowed by the opposite defense as a matchup proxy only. These are not offensive-line grades, pressure rates or run-block win rates. Power Ratings uses game-specific simulations, not a season-long team rating.</p>'
  +(tool==='defense-vs-position'?'<p class="nba-footnote">One row per upcoming defense and opposing position (two defenses × QB/RB/WR/TE = eight rows per game). Rows are defense-wide position-group allowances, not individual player statistics. Dashes mean data is unavailable or inconsistent. Select multiple games or positions using the filters above.</p>':'')
  +'<p class="nba-footnote">For Defense vs Position, the 2026 reference is an unweighted mean of distinct defenses in the available TSO season dataset, each with three or more observed games (currently 28 defenses, not all 32). Positive differences indicate more yards allowed to the position than the sample reference. Descriptive, not predictive, and not a tracking-based coverage grade.</p>'
  +'<p class="nba-footnote">Data sources: current ESPN NFL scoreboards and 2026 rosters; nflverse verified player game logs (CC BY 4.0); the existing TSO regressed 2025-baseline anytime-touchdown model; ParlayAPI time-limited sportsbook snapshots where available. No sportsbook odds, model percentages, opponent coverage ratings, or forecast measurements are fabricated.</p></section>';
 }
 function detail(r,ctx){
+ if(r.kind==='game'&&state.tool==='weather-impact'){
+  const venue=r.game.venueMeta||{},w=r.weather,hour=w?.weather||{},out=w?.status==='forecast';
+  const stats=[['VENUE',venue.name||r.game.venue||'—'],['ROOF',venue.indoor===true?'INDOORS':venue.indoor===false?'OUTDOORS':'UNCONFIRMED'],
+   ['KICKOFF TEMP',out&&hour.temperature!==null?hour.temperature+'°'+(hour.temperatureUnit||'F'):'—'],
+   ['WIND SPEED',out?hour.windSpeed||'—':'—'],['WIND GUST',out?hour.windGust||'—':'—'],
+   ['WIND DIRECTION',out?hour.windDirection||'—':'—'],
+   ['PRECIPITATION CHANCE',out&&hour.precipitationProbability!==null?hour.precipitationProbability+'%':'—'],
+   ['FORECAST',out?hour.condition||'—':'—']];
+  return '<div class="drawer-contents nfl-details"><span class="eyebrow">NFL GAME-DAY WEATHER · NOAA/NWS</span>'
+   +'<h2>'+esc(r.name)+'</h2><p class="subtitle">'+esc(when(r.game.startTime))
+   +' · '+esc(venue.name||r.game.venue||'Unknown venue')+'</p>'
+   +'<div class="nfl-detail-grid">'+stats.map(([key,val])=>'<div><small>'+esc(key)+'</small><b>'+esc(val)+'</b></div>').join('')+'</div>'
+   +'<div class="nfl-context-note">'+esc(out?'Official NWS hourly forecast valid from '+asof(hour.validFrom)+' to '+asof(hour.validTo)+'. Forecast issued '+asof(w.issuedAt)+'.':
+      w?.reason||'Hourly forecast unavailable or still being retrieved.')
+   +'</div><p class="nba-footnote">Source: verified ESPN stadium and game; U.S. NOAA/NWS forecast. Forecast conditions may change. The weather is not a calibrated player-prop prediction, and indoor stadiums are not assigned outdoor wind/rain values.</p></div>';
+ }
  if(r.kind==='defense'){
   const vals=r.defense?.perGame||{};
   return '<div class="drawer-contents nfl-details"><span class="eyebrow">2026 NFL DEFENSE VS POSITION</span>'
