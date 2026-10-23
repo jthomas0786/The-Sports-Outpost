@@ -33,7 +33,7 @@ function archiveSummary(a){
   +settlementSummary(a.settlement)+reconciliationSummary(a.reconciliation)+'</section>';
 }
 function settlementSummary(settlement){
- const recent=settlement?.lastRun||{},metrics=settlement?.byMarket||[];
+ const recent=settlement?.lastRun||{},metrics=settlement?.byMarket||[],atd=settlement?.atdCoverage||{};
  let body='<div class="nfl-validation-section"><h3>Postgame settlement · verified final box scores</h3>'
   +'<p>Games are graded only after a confirmed final ESPN NFL box score. Missing or unmatched players stay unresolved, never automatic losses. Results are append-only.</p>'
   +'<div class="nfl-detail-grid">'
@@ -43,7 +43,17 @@ function settlementSummary(settlement){
   +detailItem('UNRESOLVED',recent.unresolved_predictions??0)
   +detailItem('NON-DUPLICATED GRADED SELECTIONS',settlement?.independentlyCounted??0)
   +detailItem('MODEL READINESS','INSUFFICIENT DATA')
-  +'</div>';
+  +'</div>'
+  +'<h4>Anytime touchdown · complete scoring evidence</h4>'
+  +'<div class="nfl-detail-grid">'
+  +detailItem('ARCHIVED ATD SELECTIONS',atd.total??0)
+  +detailItem('VERIFIED ATD WINS',atd.wins??0)
+  +detailItem('VERIFIED ATD LOSSES',atd.losses??0)
+  +detailItem('NOT COMPREHENSIVELY VERIFIED',Math.max(0,Number(atd.total||0)-Number(atd.wins||0)-Number(atd.losses||0)))
+  +detailItem('GAMES WITH VERIFIED SCORING',atd.verified_games??0)
+  +detailItem('ATD CALIBRATION',Number(atd.verified_games||0)<10?'COLLECTING GAMES':'REVIEW REQUIRED')
+  +'</div>'
+  +'<p class="nba-footnote">A non-scorer counts as a verified loss only when the final scoring plays reconcile to the scoreboard and player TD statistics. Unknown or ambiguous scoring plays are excluded, not forced into the loss column. Verified individual winners from incomplete games are tracked outside these completeness totals.</p>';
  if(metrics.length){
   const rows=metrics.map(m=>'<tr>'+tableCell(m.model_kind)
    +tableCell(m.market)+tableCell(m.observations)
@@ -77,7 +87,7 @@ function reconciliationSummary(reconciliation){
    +'</tbody></table></div>';
  }
  body+='<p class="nba-footnote">'+esc(reconciliation?.note||'No official postgame audit recorded yet.')+'</p>'
-  +'<p class="nba-footnote">The first real grading/reconciliation test requires completed games. TD losses remain unresolved until comprehensive TD evidence is available; no accuracy claims from this incomplete subset.</p></div>';
+  +'<p class="nba-footnote">The first real grading/reconciliation test requires completed archived games. Anytime TD losses stay unresolved if the complete scoring log cannot be independently reconciled with the same-provider final box score; do not claim calibration from incomplete or one-week samples.</p></div>';
  return body;
 }
 function render(data,error='',loading=false,archive=null){
