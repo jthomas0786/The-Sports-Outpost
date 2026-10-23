@@ -177,11 +177,13 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare('SELECT model_kind,COUNT(*) observations,COUNT(DISTINCT game_id) games FROM prediction_snapshots GROUP BY model_kind'),
    env.NFL_ARCHIVE.prepare('SELECT COUNT(*) outcomes FROM settled_outcomes'),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,eligible_predictions,inserted_outcomes,unresolved_predictions,error,reason FROM settlement_runs ORDER BY started_at DESC LIMIT 1'),
-   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN s.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes s ON s.snapshot_id=p.id JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND s.outcome IN ('win','loss') AND (p.market<>'atd' OR v.reason IN ('scoring_plays_verified_td','zero_from_complete_scoring_log')) AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat GROUP BY p.model_kind,p.market ORDER BY observations DESC"),
+   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o),action AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN s.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes s ON s.snapshot_id=p.id JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 JOIN action a ON a.snapshot_id=p.id AND a.rn=1 WHERE p.rank=1 AND a.action_state='action_confirmed' AND s.outcome IN ('win','loss') AND (p.market<>'atd' OR v.reason IN ('scoring_plays_verified_td','zero_from_complete_scoring_log')) AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat GROUP BY p.model_kind,p.market ORDER BY observations DESC"),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,examined_predictions,new_observations,conflicts,unresolved,error,reason FROM reconciliation_runs ORDER BY started_at DESC LIMIT 1'),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT COUNT(*) reviewed,COUNT(DISTINCT v.game_id) games,SUM(CASE WHEN v.observed_outcome='unknown' THEN 1 ELSE 0 END) unresolved,SUM(CASE WHEN s.snapshot_id IS NOT NULL AND (v.observed_outcome='unknown' OR v.observed_outcome<>s.outcome OR v.realized_stat<>s.realized_stat) THEN 1 ELSE 0 END) conflicts,SUM(CASE WHEN s.snapshot_id IS NOT NULL AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat THEN 1 ELSE 0 END) aligned FROM latest v LEFT JOIN settled_outcomes s ON s.snapshot_id=v.snapshot_id WHERE v.rn=1"),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT reason,COUNT(*) observations FROM latest WHERE rn=1 GROUP BY reason ORDER BY observations DESC LIMIT 12"),
-   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN v.reason='scoring_plays_verified_td' AND v.observed_outcome='win' THEN 1 ELSE 0 END),0) wins,COALESCE(SUM(CASE WHEN v.reason='zero_from_complete_scoring_log' AND v.observed_outcome='loss' THEN 1 ELSE 0 END),0) losses,COALESCE(COUNT(DISTINCT CASE WHEN v.reason IN ('scoring_plays_verified_td','zero_from_complete_scoring_log') THEN p.game_id ELSE NULL END),0) verified_games FROM first_quote p LEFT JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND p.market='atd'")
+   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT COUNT(*) total,COALESCE(SUM(CASE WHEN v.reason='scoring_plays_verified_td' AND v.observed_outcome='win' THEN 1 ELSE 0 END),0) wins,COALESCE(SUM(CASE WHEN v.reason='zero_from_complete_scoring_log' AND v.observed_outcome='loss' THEN 1 ELSE 0 END),0) losses,COALESCE(COUNT(DISTINCT CASE WHEN v.reason IN ('scoring_plays_verified_td','zero_from_complete_scoring_log') THEN p.game_id ELSE NULL END),0) verified_games FROM first_quote p LEFT JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND p.market='atd'"),
+   env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT action_state,COUNT(*) AS observations,COUNT(DISTINCT game_id) AS games FROM latest WHERE rn=1 GROUP BY action_state ORDER BY observations DESC"),
+   env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT sportsbook,action_state,COUNT(*) AS observations FROM latest WHERE rn=1 GROUP BY sportsbook,action_state ORDER BY sportsbook,action_state")
   ]);
   return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
    snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
@@ -195,6 +197,8 @@ async function nflArchiveStatus(env){
    reconciliation:{lastRun:q[6].results?.[0]||null,
     coverage:q[7].results?.[0]||null,unresolvedReasons:q[8].results||[],
     note:'Initial settlement grades remain immutable. Distinct ESPN final-game observations are checked for drift. Conflicting, absent or ambiguous stats are quarantined from calibrated metrics; this is a same-provider recheck, NOT a separate independent official data provider.'},
+   sportsbookAction:{byState:q[10].results||[],byBook:q[11].results||[],
+    note:'ESPN final-game participation evidence, not sportsbook-paid bet confirmations. FanDuel and DraftKings one-play/snap rules mapped; other sportsbooks require jurisdiction/market rule review. Absent players are not presumed void.'},
    modelValidationStatus:'INSUFFICIENT',
    note:'Postgame grading starts only after ESPN confirms final player boxscores. Brier and observed hit rate are descriptive and cannot establish ROI or model calibration without multiweek evidence.'};
  }catch(_){return{available:false,configured:true,reason:'D1 archive query unavailable'}}
@@ -672,9 +676,19 @@ async function runNflReconciliation(env,trigger='cron'){
      +'FROM prediction_snapshots p LEFT JOIN settled_outcomes s ON s.snapshot_id=p.id '
      +'WHERE p.game_id=? ORDER BY p.id LIMIT 3500'
     ).bind(gid).all();
-    const statements=[];
+    const statements=[],actionStatements=[];
     for(const s of rows.results||[]){
      diag.examined++;
+     const action=nflSportsbookAction(s,final);
+     const evidenceFingerprint=await archiveHash([action.action_state,action.evidence_code,
+      action.policy_code].join('|'));
+     const actionId=await archiveHash(s.id+'|action|'+evidenceFingerprint);
+     actionStatements.push(env.NFL_ARCHIVE.prepare(
+      'INSERT OR IGNORE INTO sportsbook_action_observations '
+      +'(observation_id,snapshot_id,game_id,sportsbook,action_state,evidence_code,'
+      +'policy_code,observed_at,source,evidence_fingerprint) VALUES (?,?,?,?,?,?,?,?,?,?)'
+     ).bind(actionId,s.id,gid,String(s.sportsbook),action.action_state,action.evidence_code,
+      action.policy_code,started,SETTLEMENT_SOURCE,evidenceFingerprint));
      const result=auditNflSnapshot(s,final);
      const grade=result.grade,actual=grade?.outcome||'unknown';
      const realized=grade?.realizedStat??null;
@@ -688,6 +702,9 @@ async function runNflReconciliation(env,trigger='cron'){
       +'(observation_id,snapshot_id,game_id,observed_at,source,source_fingerprint,'
       +'observed_outcome,realized_stat,reason) VALUES (?,?,?,?,?,?,?,?,?)'
      ).bind(observationId,s.id,gid,started,SETTLEMENT_SOURCE,fp,actual,realized,result.reason));
+    }
+    for(let k=0;k<actionStatements.length;k+=40){
+     await env.NFL_ARCHIVE.batch(actionStatements.slice(k,k+40));
     }
     for(let k=0;k<statements.length;k+=40){
      const out=await env.NFL_ARCHIVE.batch(statements.slice(k,k+40));
