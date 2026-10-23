@@ -177,7 +177,7 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare('SELECT model_kind,COUNT(*) observations,COUNT(DISTINCT game_id) games FROM prediction_snapshots GROUP BY model_kind'),
    env.NFL_ARCHIVE.prepare('SELECT COUNT(*) outcomes FROM settled_outcomes'),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,eligible_predictions,inserted_outcomes,unresolved_predictions,error,reason FROM settlement_runs ORDER BY started_at DESC LIMIT 1'),
-   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN s.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes s ON s.snapshot_id=p.id JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND s.outcome IN ('win','loss') AND p.market<>'atd' AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat GROUP BY p.model_kind,p.market ORDER BY observations DESC"),
+   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p),latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN s.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN s.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes s ON s.snapshot_id=p.id JOIN latest v ON v.snapshot_id=p.id AND v.rn=1 WHERE p.rank=1 AND s.outcome IN ('win','loss') AND (p.market<>'atd' OR v.reason IN ('scoring_plays_verified_td','zero_from_complete_scoring_log')) AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat GROUP BY p.model_kind,p.market ORDER BY observations DESC"),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,examined_predictions,new_observations,conflicts,unresolved,error,reason FROM reconciliation_runs ORDER BY started_at DESC LIMIT 1'),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT COUNT(*) reviewed,COUNT(DISTINCT v.game_id) games,SUM(CASE WHEN v.observed_outcome='unknown' THEN 1 ELSE 0 END) unresolved,SUM(CASE WHEN s.snapshot_id IS NOT NULL AND (v.observed_outcome='unknown' OR v.observed_outcome<>s.outcome OR v.realized_stat<>s.realized_stat) THEN 1 ELSE 0 END) conflicts,SUM(CASE WHEN s.snapshot_id IS NOT NULL AND v.observed_outcome=s.outcome AND v.realized_stat=s.realized_stat THEN 1 ELSE 0 END) aligned FROM latest v LEFT JOIN settled_outcomes s ON s.snapshot_id=v.snapshot_id WHERE v.rn=1"),
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT o.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM outcome_observations o) SELECT reason,COUNT(*) observations FROM latest WHERE rn=1 GROUP BY reason ORDER BY observations DESC LIMIT 12")
@@ -190,7 +190,7 @@ async function nflArchiveStatus(env){
    byModel:q[2].results||[],outcomeCount:Number(q[3].results?.[0]?.outcomes||0),
    settlement:{lastRun:q[4].results?.[0]||null,byMarket:q[5].results||[],
     independentlyCounted:(q[5].results||[]).reduce((n,r)=>n+Number(r.observations||0),0),
-    caveat:'Only the first archived pregame quote per player/game/market/line/model with a matching later recheck is counted, once across sportsbooks. Verified TD scorers alone cannot establish ATD hit rates while non-scorers are unresolved. Missing players and boxscore gaps may bias reported hit rates. Same-game selections are correlated; pushes, voids and unresolved bets are excluded from Brier.'},
+    caveat:'First archived pregame quote per player/game/market/line/model with agreeing subsequent ESPN recheck, once across sportsbooks. ATD is graded as a loss ONLY for a played athlete when every official scoring touchdown is type/player/score matched and all player TD counters reconcile; otherwise zero stays unresolved. Incomplete games and DNPs can bias results. Same-game selections are correlated; pushes and unresolved bets excluded.'},
    reconciliation:{lastRun:q[6].results?.[0]||null,
     coverage:q[7].results?.[0]||null,unresolvedReasons:q[8].results||[],
     note:'Initial settlement grades remain immutable. Distinct ESPN final-game observations are checked for drift. Conflicting, absent or ambiguous stats are quarantined from calibrated metrics; this is a same-provider recheck, NOT a separate independent official data provider.'},
@@ -294,6 +294,76 @@ const settleValue=x=>{
  const v=String(x??'').replace(/,/g,'').trim();
  return /^-?\d+(?:\.\d+)?$/.test(v)?Number(v):null;
 };
+/* ATD full-game scorer proof: require EVERY scoring play, final scoreboard parity,
+   typed TD, unambiguous scoring athlete, and TD totals cross-check.
+   Missing type/name/team/clock/status => entire game cannot certify ATD losses. */
+function verifyNflAtdScoringLog(summary,competition,teams,players){
+ const fail=reason=>({complete:false,reason,scorers:new Map(),touchdowns:0});
+ const all=summary?.scoringPlays;
+ if(!Array.isArray(all))return fail('missing_scoring_plays');
+ const compTeams=competition.competitors||[];
+ const home=compTeams.find(x=>x.homeAway==='home');
+ const away=compTeams.find(x=>x.homeAway==='away');
+ if(!home||!away)return fail('unknown_home_away');
+ const homeScore=settleValue(home.score),awayScore=settleValue(away.score);
+ if(!Number.isInteger(homeScore)||!Number.isInteger(awayScore)
+  ||homeScore<0||awayScore<0)return fail('missing_final_score');
+ const scorerCounts=new Map(),kindsByScorer=new Map(),usedPlayIds=new Set();
+ let h=0,a=0,touchdowns=0;
+ const norm=v=>archiveName(v);
+ for(const play of all){
+  const key=String(play?.id||'');
+  if(!key||usedPlayIds.has(key))return fail('duplicate_or_missing_play_id');
+  usedPlayIds.add(key);
+  const ph=settleValue(play.homeScore),pa=settleValue(play.awayScore);
+  if(!Number.isInteger(ph)||!Number.isInteger(pa)||ph<h||pa<a
+   ||ph>homeScore||pa>awayScore)return fail('invalid_scoring_sequence');
+  const points=(ph-h)+(pa-a);
+  if(points<1||points>8||((ph-h)>0&&(pa-a)>0))return fail('invalid_score_delta');
+  h=ph;a=pa;
+  const descriptor=String(play.type?.text||play.scoringType?.text||'').toLowerCase();
+  const text=String(play.text||'');
+  const tdType=/touchdown/.test(descriptor);
+  if(!tdType){
+   if(points>3 || !/(field goal|safety|extra point|conversion|pat)/.test(descriptor))
+    return fail('unclassified_scoring_play');
+   continue;
+  }
+  if(points<6)return fail('inconsistent_touchdown_points');
+  let kind=null;
+  if(/pass/.test(descriptor))kind='receiving';
+  else if(/rush|run/.test(descriptor))kind='rushing';
+  else if(/kick/.test(descriptor)&&/return/.test(descriptor))kind='kickreturns';
+  else if(/punt/.test(descriptor)&&/return/.test(descriptor))kind='puntreturns';
+  else if(/interception/.test(descriptor))kind='interceptions';
+  else if(/fumble/.test(descriptor))kind='fumbles';
+  if(!kind)return fail('unknown_touchdown_type');
+  const team=nflTeamKey(teams.get(String(play.team?.id||''))||play.team?.abbreviation||'');
+  if(!team||![...teams.values()].includes(team))return fail('touchdown_team_unverified');
+  // Explicit scoring-type specific TD counters; a QB appearing as the passer
+  // must never be confused for the receiving touchdown scorer.
+  const matches=[...players.values()].filter(p=>p.team===team
+   &&p.ids.size===1&&!p.ambiguous&&Number(p.tdByKind?.[kind])>0
+   &&norm(text).includes(p.name));
+  if(matches.length!==1)return fail('touchdown_scorer_ambiguous_or_missing');
+  const keyPlayer=team+'|'+matches[0].name;
+  scorerCounts.set(keyPlayer,(scorerCounts.get(keyPlayer)||0)+1);
+  const byKind=kindsByScorer.get(keyPlayer)||{};
+  byKind[kind]=(byKind[kind]||0)+1;kindsByScorer.set(keyPlayer,byKind);
+  touchdowns++;
+ }
+ if(h!==homeScore||a!==awayScore)return fail('scoring_plays_do_not_match_final_score');
+ for(const athlete of players.values()){
+  // Validate actual scorer counts against every known nonpassing TD statistic.
+  const actual=kindsByScorer.get(athlete.team+'|'+athlete.name)||{};
+  for(const [kind,count] of Object.entries(athlete.tdByKind||{})){
+   if(Number(count)!==(actual[kind]||0))return fail('scoring_log_boxscore_td_disagreement');
+  }
+ }
+ return {complete:true,reason:'all_td_plays_and_final_score_verified',
+  scorers:scorerCounts,touchdowns};
+}
+
 function nflFinalBoxscore(summary,gameId,kickoff){
  const comp=summary?.header?.competitions?.[0],type=comp?.status?.type||{};
  if(String(summary?.header?.id||comp?.id||'')!==String(gameId)
@@ -325,7 +395,7 @@ function nflFinalBoxscore(summary,gameId,kickoff){
     if(!name||!Array.isArray(row.stats)||row.didNotPlay===true||athlete.didNotPlay===true)continue;
     const key=team+'|'+name;
     let entry=players.get(key);
-    if(!entry){entry={team,name,ids:new Set(),hasNumeric:false,market:{},td:0,tdKnown:false,presentKinds:new Set()};players.set(key,entry)}
+    if(!entry){entry={team,name,ids:new Set(),hasNumeric:false,market:{},td:0,tdKnown:false,tdByKind:{},presentKinds:new Set()};players.set(key,entry)}
     entry.presentKinds.add(kind);
     if(athlete.id)entry.ids.add(String(athlete.id));
     if(entry.ids.size>1)entry.ambiguous=true;
@@ -358,12 +428,13 @@ function nflFinalBoxscore(summary,gameId,kickoff){
     }
     if(['rushing','receiving','kickreturns','puntreturns','interceptions','defensive','fumbles'].includes(kind)){
      const td=get('TD');
-     if(td!==null){entry.tdKnown=true;if(td>0)entry.td=Math.max(entry.td,td)}
+     if(td!==null){entry.tdKnown=true;entry.tdByKind[kind]=td;entry.td=Object.values(entry.tdByKind).reduce((n,x)=>n+x,0)}
     }
    }
   }
  }
- return {players,teams:[...teams.values()],coverage};
+ const atdEvidence=verifyNflAtdScoringLog(summary,comp,teams,players);
+ return {players,teams:[...teams.values()],coverage,atdEvidence};
 }
 function auditNflSnapshot(s,final){
  const name=archiveName(s.player_name),team=nflTeamKey(s.team),market=s.market;
@@ -377,9 +448,16 @@ function auditNflSnapshot(s,final){
  if(expectedId&&/^\d+$/.test(expectedId)
   &&(athlete.ids.size!==1||!athlete.ids.has(expectedId)))return fail('player_id_mismatch');
  if(market==='atd'){
-  if(athlete.td>0)return {grade:{outcome:'win',realizedStat:athlete.td},reason:'confirmed_touchdown'};
-  // A player can score a return/defensive TD. One absent stat category is NOT
-  // proof that all eligible TD types are zero; avoid silently fabricating losses.
+  const verified=final.atdEvidence;
+  if(verified?.complete){
+   const touchdowns=verified.scorers.get(team+'|'+name)||0;
+   return {grade:{outcome:touchdowns?'win':'loss',realizedStat:touchdowns},
+    reason:touchdowns?'scoring_plays_verified_td':'zero_from_complete_scoring_log'};
+  }
+  // An individual positive TD boxscore still proves an Anytime TD winner.
+  // It does NOT prove the game has complete TD scoring evidence for any loser.
+  if(athlete.td>0)return {grade:{outcome:'win',realizedStat:athlete.td},
+   reason:'confirmed_touchdown_in_incomplete_log'};
   return fail('atd_zero_not_comprehensively_verified');
  }
  let value=athlete.market[market],reason='confirmed_player_stat';
