@@ -413,7 +413,25 @@ async function safeNbaDocument(url,kind,env){
 }
 
 const isoDay=date=>date.toISOString().slice(0,10).replace(/-/g,'');
+const officialGameCache=new Map();
 async function officialGames(url,league){
+ // Multiple TSO research endpoints request the same source concurrently.
+ // Single-flight the verified schedule, with at most 45 seconds of age.
+ const key=league+'|'+url,existing=officialGameCache.get(key);
+ if(existing&&(existing.promise||Date.now()-existing.checkedAt<45000))
+  return existing.promise||existing.data;
+ const pending=officialGamesUncached(url,league);
+ officialGameCache.set(key,{promise:pending,checkedAt:0,data:null});
+ try{
+  const data=await pending;
+  officialGameCache.set(key,{promise:null,checkedAt:Date.now(),data});
+  return data;
+ }catch(error){
+  officialGameCache.delete(key);
+  throw error;
+ }
+}
+async function officialGamesUncached(url,league){
  // ESPN site v2 date RANGES have returned HTTP 400 since Sep 2026.
  // Request individual calendar dates and merge by stable event ID.
  const now=Date.now(),days=[-1,0,1,2,3,4];
