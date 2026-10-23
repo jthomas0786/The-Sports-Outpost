@@ -84,7 +84,14 @@ function filtered(){
 function markup(ctx,view){
  state.ctx=ctx;state.view=view;
  const id=[view,ctx.research?.generatedAt,ctx.injuries?.fetchedAt,ctx.odds?.fetchedAt,ctx.td?.generatedAt,(ctx.games||[]).map(g=>g.id).join(',')].join('|');
- if(id!==state.signature){state.signature=id;state.rows=build(ctx,view);state.games=[];state.markets=[];state.positions=[];state.max=90}
+ if(id!==state.signature){
+  state.signature=id;state.rows=build(ctx,view);state.max=90;
+  // Preserve multi-select filters when odds, injuries or schedules refresh.
+  const scheduled=new Set((ctx.games||[]).filter(g=>g.league==='nfl'&&g.state!=='post').map(g=>String(g.id)));
+  state.games=state.games.filter(id=>scheduled.has(String(id)));
+  state.markets=state.markets.filter(id=>Object.hasOwn(label,id));
+  state.positions=state.positions.filter(pos=>['QB','RB','WR','TE'].includes(pos));
+ }
  const allGames=(ctx.games||[]).filter(g=>g.league==='nfl'&&g.state!=='post'&&Date.parse(g.startTime)>Date.now()-15*60000);
  const opts=allGames.map(g=>[String(g.id),(g.away?.abbr||'—')+' @ '+(g.home?.abbr||'—')+' · '+when(g.startTime)]);
  const controls='<div class="nba-controls nfl-props-controls">'+picker('games',opts)
