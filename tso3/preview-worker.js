@@ -218,8 +218,9 @@ async function runNflArchive(env,trigger='cron'){
   const incoming=await Promise.allSettled([verifiedNflOdds(),verifiedNflSimulations(),verifiedNflSlate()]);
   const odds=incoming[0].status==='fulfilled'?incoming[0].value:null;
   if(incoming[0].status==='rejected'){
-   feed.status='unavailable';
-   feed.reason='NFL odds source verification failed: '+String(incoming[0].reason?.message||'unknown').slice(0,140);
+   const issue=String(incoming[0].reason?.message||'unknown').slice(0,140);
+   feed.status=/^Invalid NFL sportsbook snapshot/.test(issue)?'invalid':'unavailable';
+   feed.reason='NFL odds source verification failed: '+issue;
   }else{
    feed.sourceAt=odds?.fetchedAt||null;
    feed.ageMinutes=Number.isFinite(odds?.ageMinutes)?odds.ageMinutes:null;
@@ -227,7 +228,7 @@ async function runNflArchive(env,trigger='cron'){
    feed.verifiedGames=Number(odds?.verifiedGames||0);
    feed.rejectedForAge=Number(odds?.rejectedForAge||0);
    feed.earliestKickoff=odds?.earliestKickoff||null;
-   feed.status=odds?.available?'fresh':odds?.stale?'stale':'no_matching_games';
+   feed.status=odds?.available?'fresh':(Number(odds?.rejectedForAge)>0||/240-minute global maximum/.test(String(odds?.reason||'')))?'stale':'no_matching_games';
    feed.reason=String(odds?.reason||'No valid NFL sportsbook quotes').slice(0,180);
   }
   const simulations=incoming[1].status==='fulfilled'?incoming[1].value:null;
