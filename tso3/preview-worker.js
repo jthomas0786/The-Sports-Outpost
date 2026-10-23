@@ -274,6 +274,172 @@ async function runNflArchive(env,trigger='cron'){
  return diag;
 }
 
+/* Independent, append-only grading of ESPN-verified completed NFL game boxscores.
+   Unmatched/inactive players and incomplete stats stay unresolved; NEVER count them as losses. */
+const SETTLEMENT_SOURCE='ESPN site v2 NFL completed-game summary';
+const SETTLEMENT_MARKETS=new Set(['passYds','passTds','completions','rushYds','recYds','receptions','atd']);
+const settleValue=x=>{
+ if(typeof x==='number')return Number.isFinite(x)?x:null;
+ const v=String(x??'').replace(/,/g,'').trim();
+ return /^-?\d+(?:\.\d+)?$/.test(v)?Number(v):null;
+};
+function nflFinalBoxscore(summary,gameId,kickoff){
+ const comp=summary?.header?.competitions?.[0],type=comp?.status?.type||{};
+ if(String(summary?.header?.id||comp?.id||'')!==String(gameId)
+  ||type.completed!==true||type.state!=='post')return null;
+ const date=Date.parse(comp?.date||'');
+ if(!Number.isFinite(date)||Math.abs(date-Date.parse(kickoff))>90*60000)return null;
+ const teams=new Map((comp.competitors||[]).filter(t=>t?.team?.id)
+  .map(t=>[String(t.team.id),nflTeamKey(t.team.abbreviation)]));
+ if(teams.size!==2||!Array.isArray(summary.boxscore?.players)||summary.boxscore.players.length!==2)return null;
+ const players=new Map();
+ for(const bt of summary.boxscore.players){
+  const team=nflTeamKey(bt.team?.abbreviation||teams.get(String(bt.team?.id||'')));
+  if(!team||![...teams.values()].includes(team))return null;
+  for(const group of bt.statistics||[]){
+   const kind=String(group.name||group.type||group.displayName||'').toLowerCase().replace(/[^a-z]/g,'');
+   const labels=(group.labels||[]).map(v=>String(v).toUpperCase().replace(/\s/g,''));
+   for(const row of group.athletes||[]){
+    const athlete=row.athlete||{},name=archiveName(athlete.displayName||'');
+    if(!name||!Array.isArray(row.stats))continue;
+    const key=team+'|'+name;
+    let entry=players.get(key);
+    if(!entry){entry={team,name,ids:new Set(),hasNumeric:false,market:{},td:0,tdKnown:false};players.set(key,entry)}
+    if(athlete.id)entry.ids.add(String(athlete.id));
+    if(entry.ids.size>1)entry.ambiguous=true;
+    const get=(label)=>{
+     const i=labels.indexOf(label);
+     return i<0?null:settleValue(row.stats[i]);
+    };
+    const numbers=row.stats.map(settleValue);
+    if(numbers.some(v=>v!==null))entry.hasNumeric=true;
+    if(kind==='passing'){
+     const pa=get('YDS'),pt=get('TD'),c=get('CMP'),attempt=get('C/ATT');
+     if(pa!==null)entry.market.passYds=pa;
+     if(pt!==null)entry.market.passTds=pt;
+     if(c!==null)entry.market.completions=c;
+     else if(attempt!==null)entry.market.completions=attempt;
+     else {
+      const n=labels.findIndex(x=>/^(C\/ATT|CMP\/ATT|COMP\/ATT)$/.test(x));
+      const text=n>=0?String(row.stats[n]||''):'';
+      const m=text.match(/^(\d+)\s*\/\s*\d+$/);
+      if(m)entry.market.completions=Number(m[1]);
+     }
+    }
+    if(kind==='rushing'){
+     const y=get('YDS');if(y!==null)entry.market.rushYds=y;
+    }
+    if(kind==='receiving'){
+     const y=get('YDS'),rec=get('REC');
+     if(y!==null)entry.market.recYds=y;
+     if(rec!==null)entry.market.receptions=rec;
+    }
+    if(['rushing','receiving','kickreturns','puntreturns','interceptions','defensive','fumbles'].includes(kind)){
+     const td=get('TD');
+     if(td!==null){entry.tdKnown=true;if(td>0)entry.td+=td}
+    }
+   }
+  }
+ }
+ return {players,teams:[...teams.values()]};
+}
+function gradeNflSnapshot(s,final){
+ const name=archiveName(s.player_name),team=nflTeamKey(s.team);
+ if(!SETTLEMENT_MARKETS.has(s.market)||!final.teams.includes(team))return null;
+ const athlete=final.players.get(team+'|'+name);
+ // ESPN sometimes omits athletes with zero stats. Never assume absent = played or 0 TDs.
+ if(!athlete||athlete.ambiguous||!athlete.hasNumeric)return null;
+ const expectedId=String(s.player_id||'');
+ if(expectedId&&/^\d+$/.test(expectedId)&&athlete.ids.size>0
+  &&!athlete.ids.has(expectedId))return null;
+ const value=s.market==='atd'?athlete.td:(athlete.market[s.market]??0);
+ if(!Number.isFinite(value))return null;
+ const line=Number(s.line);
+ if(!Number.isFinite(line))return null;
+ const outcome=s.market==='atd'?(value>0?'win':'loss')
+  :value>line?'win':value===line?'push':'loss';
+ return {outcome,realizedStat:value};
+}
+async function runNflSettlement(env,trigger='cron'){
+ if(!env?.NFL_ARCHIVE)throw Error('TSO3 NFL settlement requires independent archive D1');
+ const started=new Date().toISOString(),now=Date.now();
+ const runId=await archiveHash('nflsettlement|'+trigger+'|'+started);
+ const diag={status:'nothing_final',checked:0,final:0,eligible:0,inserted:0,
+  unresolved:0,errors:[],reason:'No completed archive games ready for verified grading'};
+ try{
+  // No grades until at least 4 hours after kickoff; status must STILL be verified final.
+  const eligibleBefore=new Date(now-4*3600000).toISOString();
+  const games=await env.NFL_ARCHIVE.prepare(
+   'SELECT p.game_id,MIN(p.kickoff_at) kickoff FROM prediction_snapshots p '
+   +'WHERE p.kickoff_at<? AND EXISTS '
+   +'(SELECT 1 FROM prediction_snapshots q LEFT JOIN settled_outcomes s ON s.snapshot_id=q.id '
+   +'WHERE q.game_id=p.game_id AND s.snapshot_id IS NULL) '
+   +'GROUP BY p.game_id ORDER BY kickoff DESC LIMIT 20'
+  ).bind(eligibleBefore).all();
+  for(let i=0;i<(games.results||[]).length;i+=3){
+   const batch=(games.results||[]).slice(i,i+3);
+   const outputs=await Promise.allSettled(batch.map(async g=>{
+    const id=String(g.game_id||'');
+    if(!/^\d{6,14}$/.test(id))throw Error('invalid event ID');
+    const u=ESPN_SCOREBOARDS.nfl.replace(/\/scoreboard$/,'/summary')+'?event='+id;
+    const res=await fetch(u,{headers:{accept:'application/json'},
+     cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(15000)});
+    if(!res.ok)throw Error('ESPN summary HTTP '+res.status);
+    const doc=await res.json();
+    return {id,kickoff:g.kickoff,final:nflFinalBoxscore(doc,id,g.kickoff)};
+   }));
+   for(let j=0;j<batch.length;j++){
+    diag.checked++;
+    const response=outputs[j];
+    if(response.status==='rejected'){
+     diag.errors.push(batch[j].game_id+': '+String(response.reason?.message||'source error').slice(0,75));
+     continue;
+    }
+    const {id,final}=response.value;
+    if(!final)continue;
+    diag.final++;
+    const pending=await env.NFL_ARCHIVE.prepare(
+     'SELECT p.id,p.player_id,p.player_name,p.team,p.market,p.side,p.line '
+     +'FROM prediction_snapshots p LEFT JOIN settled_outcomes s ON s.snapshot_id=p.id '
+     +'WHERE p.game_id=? AND s.snapshot_id IS NULL LIMIT 3500'
+    ).bind(id).all();
+    const writes=[];
+    for(const p of pending.results||[]){
+     diag.eligible++;
+     const grade=gradeNflSnapshot(p,final);
+     if(!grade){diag.unresolved++;continue}
+     writes.push(env.NFL_ARCHIVE.prepare(
+      'INSERT OR IGNORE INTO settled_outcomes '
+      +'(snapshot_id,outcome,realized_stat,final_game_state,source,source_snapshot_at,settled_at) '
+      +'VALUES (?,?,?,?,?,?,?)'
+     ).bind(p.id,grade.outcome,grade.realizedStat,'post',SETTLEMENT_SOURCE,
+      new Date().toISOString(),new Date().toISOString()));
+    }
+    for(let k=0;k<writes.length;k+=50){
+     const saved=await env.NFL_ARCHIVE.batch(writes.slice(k,k+50));
+     diag.inserted+=saved.reduce((n,r)=>n+Number(r.meta?.changes||0),0);
+    }
+   }
+  }
+  if(diag.inserted)diag.status=diag.errors.length||diag.unresolved?'partial':'settled';
+  else if(diag.errors.length)diag.status='partial';
+  else if(diag.final&&diag.unresolved)diag.status='partial';
+  diag.reason=diag.status==='nothing_final'?'No completed, verified event/player boxscore ready':
+   diag.status==='settled'?'Verified completed-game outcomes stored once':
+   'Some outcomes are unresolved or sources unavailable; no guessed losses';
+ }catch(e){
+  diag.status='failed';diag.errors.push(String(e?.message||e).slice(0,140));
+  diag.reason='Settlement processing failed; no unverified outcomes written';
+ }
+ await env.NFL_ARCHIVE.prepare(
+  'INSERT INTO settlement_runs (run_id,started_at,completed_at,status,checked_games,final_games,'
+  +'eligible_predictions,inserted_outcomes,unresolved_predictions,error,reason) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
+ ).bind(runId,started,new Date().toISOString(),diag.status,diag.checked,diag.final,
+  diag.eligible,diag.inserted,diag.unresolved,diag.errors.slice(0,5).join('; ')||null,diag.reason).run();
+ if(diag.status==='failed')throw Error('NFL postgame settlement failed: '+diag.errors[0]);
+ return diag;
+}
+
 /* Read-only, historically scored NFL validation artifacts. Importantly,
  this endpoint NEVER backfits today's probabilities into past final scores. */
 const NFL_VALIDATION_REPLAY='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/docs/nfl-accuracy-validation.json';
@@ -867,7 +1033,7 @@ async function liveGameSummary(sport,eventId){
   note:'Player statistics are official game records as last returned by ESPN, not historical averages or projections'};
 }
 
-export default {async scheduled(event,env,ctx){ctx.waitUntil(runNflArchive(env,'cron'))},async fetch(req,env){
+export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNflArchive(env,'cron'),runNflSettlement(env,'cron')]))},async fetch(req,env){
  if(req.method==='OPTIONS')return new Response(null,{headers:{...headers,'access-control-allow-methods':'GET, HEAD, OPTIONS'}});
  if(!['GET','HEAD'].includes(req.method))return new Response('Method not allowed',{status:405,headers});
  const u=new URL(req.url);
