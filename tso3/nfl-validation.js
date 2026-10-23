@@ -30,7 +30,7 @@ function archiveSummary(a){
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
   +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p>'
-  +settlementSummary(a.settlement)+'</section>';
+  +settlementSummary(a.settlement)+reconciliationSummary(a.reconciliation)+'</section>';
 }
 function settlementSummary(settlement){
  const recent=settlement?.lastRun||{},metrics=settlement?.byMarket||[];
@@ -55,6 +55,30 @@ function settlementSummary(settlement){
    +'<tbody>'+rows+'</tbody></table></div>';
  }else body+='<p class="nba-footnote">No final verified outcomes yet. The archive is collecting forward-looking predictions; calibration stays unavailable until actual games finish.</p>';
  return body+'<p class="nba-footnote">'+esc(settlement?.caveat||'One game or repeated same-game props cannot prove calibration or positive betting returns.')+'</p></div>';
+}
+function reconciliationSummary(reconciliation){
+ const run=reconciliation?.lastRun||{},audit=reconciliation?.coverage||{},reasons=reconciliation?.unresolvedReasons||[];
+ let body='<div class="nfl-validation-section"><h3>Official result reconciliation</h3>'
+  +'<p>Rechecks previously finalized ESPN box scores, tracks missing player statistics and records distinct result revisions without overwriting the pregame model or first postgame grade.</p>'
+  +'<div class="nfl-detail-grid">'
+  +detailItem('LAST RECHECK',run.completed_at?asof(run.completed_at):'Pending')
+  +detailItem('RECHECK STATUS',run.status||'Awaiting first cron run')
+  +detailItem('FINAL GAMES REVIEWED',audit.games??0)
+  +detailItem('PREDICTIONS CHECKED',audit.reviewed??0)
+  +detailItem('ALIGNED SETTLEMENTS',audit.aligned??0)
+  +detailItem('STAT CONFLICTS',audit.conflicts??0)
+  +detailItem('MISSING / UNVERIFIABLE',audit.unresolved??0)
+  +detailItem('NEW RESULT OBSERVATIONS',run.new_observations??0)
+  +'</div>';
+ if(reasons.length){
+  body+='<div class="nba-table-scroll"><table class="nba-table nfl-validation-table"><thead>'
+   +'<tr><th>FINAL RESULT COVERAGE</th><th>ROWS</th></tr></thead><tbody>'
+   +reasons.map(x=>'<tr>'+tableCell(String(x.reason||'unknown').replaceAll('_',' '))+tableCell(x.observations??0)+'</tr>').join('')
+   +'</tbody></table></div>';
+ }
+ body+='<p class="nba-footnote">'+esc(reconciliation?.note||'No official postgame audit recorded yet.')+'</p>'
+  +'<p class="nba-footnote">The first real grading/reconciliation test requires completed games. TD losses remain unresolved until comprehensive TD evidence is available; no accuracy claims from this incomplete subset.</p></div>';
+ return body;
 }
 function render(data,error='',loading=false,archive=null){
  current=data;currentError=error;pending=loading;currentArchive=archive;
