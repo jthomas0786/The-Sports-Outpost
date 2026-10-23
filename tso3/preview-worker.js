@@ -155,6 +155,66 @@ async function verifiedNflSimulations(){
   generatedAt:data.generatedAt||null,engineVersion:data.engineVersion||null,games,
   note:'Simulated point means and win probabilities from TSO worlds; model estimates, not observed scores or guaranteed outcomes.'};
 }
+/* Read-only, historically scored NFL validation artifacts. Importantly,
+ this endpoint NEVER backfits today's probabilities into past final scores. */
+const NFL_VALIDATION_REPLAY='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/docs/nfl-accuracy-validation.json';
+const NFL_VALIDATION_FIRST='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/tso2/data/nfl-first-td-backtest.json';
+async function verifiedNflValidation(){
+ const [replay,first]=await Promise.all([nflRaw(NFL_VALIDATION_REPLAY,600),nflRaw(NFL_VALIDATION_FIRST,600)]);
+ if(!Number.isInteger(replay.scoredGames)||replay.scoredGames<1||!Array.isArray(replay.sources)
+  ||!replay.byPhase?.pregame?.projections||!Array.isArray(replay.limitations)
+  ||!Number.isInteger(first.schemaVersion)||first.schemaVersion!==1||first.calibration?.eligibleForLive!==false
+  ||first.publishCalibratedFirstTd!==false||!Number.isInteger(first.heldOut?.rawHeuristic?.games))
+  throw Error('Historical validation artifacts failed integrity checks');
+ const metrics=['passYds','rushYds','recYds','receptions'];
+ const safeCount=n=>Number.isInteger(n)&&n>=0?n:0;
+ const safeMetric=n=>typeof n==='number'&&Number.isFinite(n)?n:null;
+ const phase=(name)=>Object.fromEntries(metrics.map(key=>{
+  const p=replay.byPhase?.[name]?.projections?.[key];
+  return [key,p?{observations:safeCount(p.observations),mae:safeMetric(p.mae),
+    rmse:safeMetric(p.rmse),bias:safeMetric(p.bias),interval80Coverage:safeMetric(p.interval80Coverage),
+    intervalObservations:safeCount(p.intervalObservations)}:null];
+ }));
+ const pre=replay.byPhase.pregame;
+ const firstMetrics=first.heldOut,baseline=firstMetrics.baselineHistoricalScoring,raw=firstMetrics.rawHeuristic;
+ const replayAtd=pre.probabilities?.atd;
+ const dateFirst=first.generatedAt;
+ const note='These scores are separate historical experiments, not universal 2026 calibration of live TSO ATD, first TD, or player Over predictions.';
+ return {schemaVersion:1,source:'Existing TSO audited NFL historical validation artifacts; read only',
+  retrievedAt:new Date().toISOString(),available:true,
+  firstTouchdown:{model:'Historical first-scoring-player heuristic (NOT current anytime TD model)',
+   publishedAt:dateFirst,source:first.source||null,
+   method:first.method||null,heldOutGames:safeCount(raw.games),
+   seasons:[2025,2026],heldOut2025Games:safeCount(firstMetrics.year2025),
+   heldOut2026Games:safeCount(firstMetrics.year2026),
+   raw:{multiclassBrier:safeMetric(raw.multiclassBrier),logLoss:safeMetric(raw.logLoss),
+    capturedScorer:safeCount(raw.scoringPlayerInModel),otherOutcomes:safeCount(raw.otherOutcomes)},
+   baseline:{multiclassBrier:safeMetric(baseline?.multiclassBrier),logLoss:safeMetric(baseline?.logLoss)},
+   selectedScale:safeMetric(first.calibration.selectedScale),
+   eligibleForLive:false,holdoutPartitions:firstMetrics.partitions||[],
+   caveats:first.calibration.caveats||[],interpretation:first.interpretation},
+  fiftyKReplay:{model:'Existing TSO historical simulation replay (retrospective)',
+   scoredGames:safeCount(replay.scoredGames),forecastFrames:safeCount(replay.forecastFrames),
+   gameId:String(replay.gameId||''),selection:String(replay.selection||''),
+   pregame:{forecasts:safeCount(pre.forecastCount),games:safeCount(pre.gameCount),
+    metrics:phase('pregame'),winner:pre.winner?{
+     observations:safeCount(pre.winner.observations),multiclassBrier:safeMetric(pre.winner.multiclassBrier)}:null,
+    atd:replayAtd?{observations:safeCount(replayAtd.observations),
+     brier:safeMetric(replayAtd.brier)}:null},
+   liveQ3:replay.byPhase['live:Q3']?{forecasts:safeCount(replay.byPhase['live:Q3'].forecastCount),
+    metrics:phase('live:Q3')}:null,
+   limitations:replay.limitations.slice(0,10),sourceReports:replay.sources.map(r=>({
+    file:r.file,sha256:r.sha256||null})),historicalPeriod:'2026-09',
+   heldOut:false},
+  currentModelGates:{
+   currentAtd:{status:'UNVALIDATED',reason:'The one-game replay does not establish calibration of the current live regressed 2025-baseline Anytime TD model.'},
+   current50k:{status:'INSUFFICIENT',reason:'One completed historical game with correlated player predictions is insufficient to infer robust pregame calibration.'},
+   currentExactOver:{status:'UNVALIDATED',reason:'No independently archived multi-game, before-kickoff exact-line probability versus final result dataset is published here.'},
+   firstTd:{status:'EXPERIMENTAL',reason:'Held-out 126-game first-scorer result is for a historical heuristic, not the live ATD model. Calibration scale was not approved for live.'}
+  },
+  note};
+}
+
 async function verifiedNflResearch(){
  const [doc,official]=await Promise.all([nflRaw(NFL_RESEARCH_URL,300),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
  if(!Array.isArray(doc?.players)||!Number.isFinite(Date.parse(doc?.generatedAt||'')))throw Error('Invalid NFL research source');
@@ -709,13 +769,14 @@ export default {async fetch(req,env){
    return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
   }catch(_){return Response.json({available:false,entries:[],error:'Official NBA injury feed unavailable'},{status:503,headers})}
  }
- if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections','/api/nfl-injuries','/api/nfl-weather'].includes(u.pathname)){
+ if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections','/api/nfl-injuries','/api/nfl-weather','/api/nfl-validation'].includes(u.pathname)){
   try{
    const doc=u.pathname==='/api/nfl-touchdowns'?await verifiedNflSlate()
     :u.pathname==='/api/nfl-research'?await verifiedNflResearch()
     :u.pathname==='/api/nfl-projections'?await verifiedNflSimulations()
     :u.pathname==='/api/nfl-injuries'?await verifiedNflInjuries()
-    :u.pathname==='/api/nfl-weather'?await verifiedNflWeather():await verifiedNflOdds();
+    :u.pathname==='/api/nfl-weather'?await verifiedNflWeather()
+    :u.pathname==='/api/nfl-validation'?await verifiedNflValidation():await verifiedNflOdds();
    return Response.json(doc,{headers:{...headers,'cache-control':'no-store','x-tso-source':'verified TSO NFL model/nflverse/ParlayAPI'}});
   }catch(error){
    return Response.json({available:false,error:'Verified NFL data unavailable',detail:String(error?.message||'').slice(0,160)},
