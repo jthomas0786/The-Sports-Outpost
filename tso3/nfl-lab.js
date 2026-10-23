@@ -49,7 +49,7 @@ const historyTool={
  'rushing-matchups':'rushYds','receiving-matchups':'recYds','coverage-matchups':'targets','quarterback-research':'passYds',
  'touchdown-opportunities':'tds','red-zone-usage':'tds'
 };
-const state={tool:'touchdown-opportunities',games:[],positions:[],search:'',minGames:0,conflictsOnly:false,sort:'model',reverse:false,open:{games:false,positions:false},max:90,all:[],visible:[],context:null,selected:null,version:null};
+const state={tool:'touchdown-opportunities',games:[],positions:[],search:'',minGames:0,conflictsOnly:false,tdOrder:'tso',sort:'model',reverse:false,open:{games:false,positions:false},max:90,all:[],visible:[],context:null,selected:null,version:null};
 const modelTools=new Set(['touchdown-opportunities','red-zone-usage']);
 const ppGap=(r)=>r.modelProbability===null||r.simAtd===null?null:Math.abs(r.modelProbability-r.simAtd)*100;
 const gapLabel=r=>{
@@ -109,22 +109,15 @@ function bestQuote(ctx,game,player,market){
  return matches.sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;
 }
 function positionalBenchmarks(ctx){
- const samples=new Map();
- const dedup=new Set();
- for(const p of ctx.research?.players||[]){
-  const data=p.matchup?.currentSeasonAllowed;
-  const pos=String(p.matchup?.positionGroup||p.position||'').toUpperCase();
-  const opp=canonicalTeam(p.matchup?.opponent||'');
-  const y=num(data?.perGame?.yards),n=num(data?.games);
-  if(!['QB','RB','WR','TE'].includes(pos)||!opp||y===null||n===null||n<3)continue;
-  const key=opp+'|'+pos;
-  if(dedup.has(key))continue;
-  dedup.add(key);
-  if(!samples.has(pos))samples.set(pos,[]);
-  samples.get(pos).push(y);
- }
- return new Map([...samples.entries()].map(([k,v])=>[k,v.length>=10?v.reduce((a,b)=>a+b,0)/v.length:null]));
+ const benchmark=ctx.research?.positionalBenchmarks||{};
+ return new Map(['QB','RB','WR','TE'].map(pos=>{
+  const row=benchmark[pos];
+  const eligible=row&&Number(row.season)===Number(ctx.research?.season)
+   &&Number(row.defenses)>=16&&Number(row.minGames)>=3;
+  return [pos,eligible?num(row.yardsPerGame):null];
+ }));
 }
+
 function build(ctx,tool){
  const games=upcoming(ctx),slate=ctx.td?.games||[],benchmarks=positionalBenchmarks(ctx);
  if(gameTools.has(tool))return games.map(g=>{
@@ -192,7 +185,7 @@ function getFiltered(){
   &&(!q||[r.name,r.team,r.position,r.game?.away?.abbr,r.game?.home?.abbr].join(' ').toLowerCase().includes(q)));
  const metric=state.tool,primary=r=>{
   if(metric==='defense-vs-position')return num(r.dvpDiff);
-  if(metric==='touchdown-opportunities')return r.simAtd??r.modelProbability;
+  if(metric==='touchdown-opportunities')return state.tdOrder==='sim'?(r.simAtd??r.modelProbability):state.tdOrder==='gap'?ppGap(r):(r.modelProbability??r.simAtd);
   if(metric==='red-zone-usage')return (num(r.m?.rzCarries)||0)+(num(r.m?.rzTargets)||0);
   if(['rushing-matchups','receiving-matchups','coverage-matchups','quarterback-research'].includes(metric))
    return avg(r.logs,historyTool[metric],5);
@@ -274,7 +267,7 @@ function render(ctx,tool){
  state.tool=tool;state.context=ctx;
  const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
  if(state.version!==signature){state.version=signature;state.all=build(ctx,tool);state.max=90;
-  state.games=[];state.positions=[];state.minGames=0;state.conflictsOnly=false}
+  state.games=[];state.positions=[];state.minGames=0;state.conflictsOnly=false;state.tdOrder='tso'}
  const games=upcoming(ctx),gameOptions=games.map(g=>[String(g.id),
   (g.away?.abbr||'AWAY')+' @ '+(g.home?.abbr||'HOME')+' · '+when(g.startTime)]);
  const source='<div class="nba-depth-source">NFL OFFICIAL SLATE · '+games.length+' UPCOMING GAMES'
@@ -283,12 +276,15 @@ function render(ctx,tool){
   +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))+' · ESPN INJURIES '+esc(asof(ctx.injuries?.fetchedAt))
   +((modelTools.has(tool)||tool==='game-projections')?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')+'</div>';
  const modelAlert=ctx.td?.modelFresh===false?'TD MODEL SNAPSHOT EXPIRED — probabilities hidden until refreshed.':
-  ctx.td?.modelFresh===true?'TSO ATD estimates use 2025 NFL scoring and red-zone history adjusted for 2026 roster and matchup context.':
+  ctx.td?.modelFresh===true?'TSO ATD uses 2025 production adjusted for 2026 roles; 50K ATD and 2+ TD use a separate game simulation. Gaps of 12+ percentage points are flagged as a comparison prompt—not a validated risk score. Sort by either model.':
   'Verified current NFL touchdown model unavailable.';
  const list=getFiltered().slice(0,state.max);
  const controls='<div class="nba-controls nfl-controls">'+selectBox('games',gameOptions)
   +(gameTools.has(tool)?'':selectBox('positions',['QB','RB','WR','TE'].map(x=>[x,x])))
-  +(tool==='touchdown-opportunities'?'<label class="nfl-conflict-control"><input type="checkbox" data-nfl-conflicts '+(state.conflictsOnly?'checked':'')+'> Disagreements ≥12 pp</label>':'')
+  +(tool==='touchdown-opportunities'?'<div class="nfl-sort-views"><span>SORT BY</span>'
+  +[['tso','TSO ATD'],['sim','50K ATD'],['gap','MODEL GAP']].map(([key,label])=>
+    '<button type="button" data-nfl-tdorder="'+key+'" class="'+(state.tdOrder===key?'active':'')+'">'+label+'</button>').join('')
+   +'</div><label class="nfl-conflict-control"><input type="checkbox" data-nfl-conflicts '+(state.conflictsOnly?'checked':'')+'> Disagreements ≥12 pp</label>':'')
   +'<label>MIN GAMES<select data-nfl-min>'+[0,3,5,10].map(x=>'<option value="'+x+'" '+(state.minGames===x?'selected':'')+'>'+(x?x+'+ game logs':'Any sample')+'</option>').join('')+'</select></label>'
   +'<label class="nba-search-label">SEARCH<input data-nfl-search placeholder="Player or team" value="'+esc(state.search)+'"></label>'
   +'<button type="button" class="nba-sort-direction" data-nfl-sort title="Reverse sorting">'+(state.reverse?'↑':'↓')+'</button></div>';
@@ -299,7 +295,7 @@ function render(ctx,tool){
  +(list.map(row).join('')||'<tr><td colspan="8">No verified records meet these filters. Missing data is never filled with simulated stats.</td></tr>')
  +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+state.visible.length+' verified rows · click any row for details</span>'
  +(list.length<state.visible.length?'<button data-nfl-more type="button">SHOW MORE →</button>':'')+'</div>'
- +'<p class="nba-footnote">For Defense vs Position, league benchmarks are unweighted means across unique NFL defenses with at least three 2026 games; positive differences mean that opponent has allowed more yards to the listed position than the 2026 NFL average. These are descriptive, not matchup guarantees.</p>'
+ +'<p class="nba-footnote">For Defense vs Position, 2026 league reference is the unweighted mean of 16+ distinct NFL defenses with at least three games each (computed across the full TSO source, not only games on this slate). Positive differences indicate more yards allowed to that position than the reference; this is descriptive, not a probability. These are descriptive, not matchup guarantees.</p>'
  +'<p class="nba-footnote">Data sources: current ESPN NFL scoreboards and 2026 rosters; nflverse verified player game logs (CC BY 4.0); the existing TSO regressed 2025-baseline anytime-touchdown model; ParlayAPI time-limited sportsbook snapshots where available. No sportsbook odds, model percentages, opponent coverage ratings, or forecast measurements are fabricated.</p></section>';
 }
 function detail(r,ctx){
@@ -339,6 +335,8 @@ function repaint(){
 }
 function click(event){
  const target=event.target;
+ const tdOrder=target.closest('[data-nfl-tdorder]');
+ if(tdOrder){state.tdOrder=tdOrder.dataset.nflTdorder;state.reverse=false;repaint();return true}
  if(target.closest('[data-nfl-sort]')){state.reverse=!state.reverse;repaint();return true}
  if(target.closest('[data-nfl-more]')){state.max+=100;repaint();return true}
  const selected=target.closest('[data-nfl-row]');if(selected){
