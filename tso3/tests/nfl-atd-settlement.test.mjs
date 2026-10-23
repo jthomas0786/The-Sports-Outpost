@@ -14,8 +14,8 @@ const extract=(begin,end)=>{
 const snippets=extract('function nflTeamKey(','function nflEventMatch(')
  +extract('const archiveName=','function archiveTime(')
  +extract('const SETTLEMENT_SOURCE=','async function runNflSettlement(');
-const {nflFinalBoxscore,auditNflSnapshot}=runInNewContext(
- snippets+';({nflFinalBoxscore,auditNflSnapshot})');
+const {nflFinalBoxscore,auditNflSnapshot,nflSportsbookAction}=runInNewContext(
+ snippets+';({nflFinalBoxscore,auditNflSnapshot,nflSportsbookAction})');
 const event='401873004',kickoff='2026-10-18T20:00:00.000Z';
 const player=(id,displayName,stats)=>({athlete:{id,displayName},stats});
 const baseline=()=>({
@@ -95,4 +95,58 @@ test('unrecognized scoring type blocks certified loss',()=>{
 test('an archived player absent from the boxscore cannot be called a TD loser',()=>{
  const x=inspect(baseline(),'Missing Player','899');
  assert.equal(x.evidence.complete,true);assert.equal(x.result.grade,null);
+});
+
+const actionCheck=(doc,name,id,book)=>{
+ const final=nflFinalBoxscore(doc,event,kickoff);
+ const quote={player_name:name,player_id:id,team:'LA',market:'atd',
+  side:'yes',line:0.5,sportsbook:book};
+ return {action:nflSportsbookAction(quote,final),grade:auditNflSnapshot(quote,final)};
+};
+const withDnp=()=>{
+ const d=baseline();
+ d.boxscore.players[0].statistics[2].athletes.push({
+  athlete:{id:'300',displayName:'DNP Receiver'},stats:['0','0','0'],didNotPlay:true
+ });
+ return d;
+};
+test('FanDuel explicitly DNP player has void evidence, not losing prop',()=>{
+ const {action,grade}=actionCheck(withDnp(),'DNP Receiver','300','FanDuel');
+ assert.equal(action.action_state,'void_evidence');
+ assert.equal(grade.grade,null);
+});
+test('DraftKings explicitly DNP player has void evidence',()=>{
+ assert.equal(actionCheck(withDnp(),'DNP Receiver','300','DraftKings')
+  .action.action_state,'void_evidence');
+});
+test('unmapped sportsbook DNP requires policy review',()=>{
+ const x=actionCheck(withDnp(),'DNP Receiver','300','BetMGM');
+ assert.equal(x.action.action_state,'review_required');assert.equal(x.grade.grade,null);
+});
+test('participant with observed receiving stats confirms action',()=>{
+ const x=actionCheck(baseline(),'Bench Player','103','FanDuel');
+ assert.equal(x.action.action_state,'action_confirmed');
+ assert.equal(x.grade.grade?.outcome,'loss');
+});
+test('mismatched ESPN player ID blocks action confirmation',()=>{
+ const x=actionCheck(baseline(),'Bench Player','999','FanDuel');
+ assert.equal(x.action.action_state,'review_required');
+ assert.equal(x.grade.grade,null);
+});
+test('zero-only row does not prove a snap or justify a loss',()=>{
+ const d=baseline();
+ d.boxscore.players[0].statistics[2].athletes.push({
+  athlete:{id:'301',displayName:'Zero Receiver'},stats:['0','0','0']
+ });
+ const x=actionCheck(d,'Zero Receiver','301','FanDuel');
+ assert.equal(x.action.action_state,'review_required');
+ assert.equal(x.grade.grade,null);
+});
+test('inactive flag without explicit game-day DNP reason cannot void',()=>{
+ const d=baseline();
+ d.boxscore.players[0].statistics[2].athletes.push({
+  athlete:{id:'302',displayName:'Unknown Active'},stats:['0','0','0'],active:false
+ });
+ assert.equal(actionCheck(d,'Unknown Active','302','FanDuel')
+  .action.action_state,'review_required');
 });
