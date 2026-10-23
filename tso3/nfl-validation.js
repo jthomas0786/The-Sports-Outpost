@@ -30,7 +30,35 @@ function archiveSummary(a){
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
   +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p>'
-  +settlementSummary(a.settlement)+actionSummary(a.sportsbookAction)+reconciliationSummary(a.reconciliation)+'</section>';
+  +feedHealthSummary(a.feedHealth)+settlementSummary(a.settlement)+actionSummary(a.sportsbookAction)+reconciliationSummary(a.reconciliation)+'</section>';
+}
+function feedHealthSummary(health){
+ const latest=health?.latest||{},history=health?.history||[],states=health?.recentStates||[];
+ const statusLabel=x=>({fresh:'Source verified',stale:'Snapshot stale',unavailable:'Source failed',invalid:'Invalid snapshot',no_matching_games:'No verified games',no_model_matches:'No exact model matches'})[x]||'Not checked';
+ const recent=states.map(x=>(x.status||'unknown')+': '+(x.checks??0)).join(' · ');
+ let body='<div class="nfl-validation-section"><h3>Pregame sportsbook source health</h3>'
+  +'<p>This shows whether the upstream published ParlayAPI NFL odds meet TSO’s kickoff-specific freshness requirements. A scheduled capture may succeed while inserting zero unchanged predictions.</p>'
+  +'<div class="nfl-detail-grid">'
+  +detailItem('SOURCE CHECK',latest.checked_at?asof(latest.checked_at):'Awaiting first check')
+  +detailItem('CURRENT SOURCE STATUS',statusLabel(latest.status))
+  +detailItem('ORIGINAL QUOTE TIMESTAMP',latest.source_snapshot_at?asof(latest.source_snapshot_at):'Unavailable')
+  +detailItem('QUOTES AGE',num(latest.source_age_minutes)===null?'Unknown':Math.round(Number(latest.source_age_minutes))+' min')
+  +detailItem('FRESH VERIFIED QUOTES',latest.eligible_quote_rows??0)
+  +detailItem('FRESH OFFICIAL GAMES',latest.verified_games??0)
+  +detailItem('GAMES REJECTED FOR AGE',latest.games_rejected_for_age??0)
+  +detailItem('RECENT 12 CHECKS',recent||'No checks yet')
+  +'</div>';
+ if(latest.reason)body+='<p class="nba-footnote">Most recent source check: '+esc(latest.reason)+'</p>';
+ if(history.length){
+  body+='<div class="nba-table-scroll"><table class="nba-table nfl-validation-table">'
+   +'<thead><tr><th>CHECKED</th><th>RESULT</th><th>QUOTE AGE</th><th>VALID QUOTES</th><th>REASON</th></tr></thead><tbody>'
+   +history.map(x=>'<tr>'+tableCell(asof(x.checked_at))+tableCell(statusLabel(x.status))
+    +tableCell(num(x.source_age_minutes)===null?'—':Math.round(Number(x.source_age_minutes))+' min')
+    +tableCell(x.eligible_quote_rows??0)+tableCell(x.reason||'—')+'</tr>').join('')
+   +'</tbody></table></div>';
+ }
+ return body+'<p class="nba-footnote">'+esc(health?.note||'Source diagnostic history will appear after the next scheduled run.')
+  +' This monitor is read-only; it never creates odds or changes the upstream provider schedule.</p></div>';
 }
 function settlementSummary(settlement){
  const recent=settlement?.lastRun||{},metrics=settlement?.byMarket||[],atd=settlement?.atdCoverage||{};
