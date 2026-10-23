@@ -175,7 +175,9 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare('SELECT COUNT(*) snapshots, COUNT(DISTINCT game_id) games, MIN(captured_at) first_capture, MAX(captured_at) last_capture FROM prediction_snapshots'),
    env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,forecast_games,eligible_predictions,inserted_predictions,reason,error FROM capture_runs ORDER BY started_at DESC LIMIT 1'),
    env.NFL_ARCHIVE.prepare('SELECT model_kind,COUNT(*) observations,COUNT(DISTINCT game_id) games FROM prediction_snapshots GROUP BY model_kind'),
-   env.NFL_ARCHIVE.prepare('SELECT COUNT(*) outcomes FROM settled_outcomes')
+   env.NFL_ARCHIVE.prepare('SELECT COUNT(*) outcomes FROM settled_outcomes'),
+   env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,checked_games,final_games,eligible_predictions,inserted_outcomes,unresolved_predictions,error,reason FROM settlement_runs ORDER BY started_at DESC LIMIT 1'),
+   env.NFL_ARCHIVE.prepare("WITH first_quote AS (SELECT p.*,ROW_NUMBER() OVER (PARTITION BY game_id,team,player_name,market,side,line,model_kind ORDER BY captured_at ASC,id ASC) rank FROM prediction_snapshots p) SELECT p.model_kind,p.market,COUNT(*) observations,COUNT(DISTINCT p.game_id) games,SUM(CASE WHEN o.outcome='win' THEN 1 ELSE 0 END) wins,ROUND(AVG(p.probability),5) mean_probability,ROUND(AVG(CASE WHEN o.outcome='win' THEN 1.0 ELSE 0.0 END),5) hit_rate,ROUND(AVG((p.probability-(CASE WHEN o.outcome='win' THEN 1.0 ELSE 0.0 END))*(p.probability-(CASE WHEN o.outcome='win' THEN 1.0 ELSE 0.0 END))),6) brier FROM first_quote p JOIN settled_outcomes o ON o.snapshot_id=p.id WHERE p.rank=1 AND o.outcome IN ('win','loss') GROUP BY p.model_kind,p.market ORDER BY observations DESC")
   ]);
   return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
    snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
@@ -183,8 +185,11 @@ async function nflArchiveStatus(env){
    firstCapture:q[0].results?.[0]?.first_capture||null,
    latestCapture:q[0].results?.[0]?.last_capture||null,lastRun:q[1].results?.[0]||null,
    byModel:q[2].results||[],outcomeCount:Number(q[3].results?.[0]?.outcomes||0),
-   modelValidationStatus:'UNVALIDATED',
-   note:'Before-kickoff predictions only, saved with model and quote source times. Capture count is not model accuracy or ROI.'};
+   settlement:{lastRun:q[4].results?.[0]||null,byMarket:q[5].results||[],
+    independentlyCounted:(q[5].results||[]).reduce((n,r)=>n+Number(r.observations||0),0),
+    caveat:'Earliest archived pregame quote per exact player/game/line/model is counted once across sportsbooks. Markets and players in the same game remain correlated. No pushes, voids or unknowns in Brier scores.'},
+   modelValidationStatus:'INSUFFICIENT',
+   note:'Postgame grading starts only after ESPN confirms final player boxscores. Brier and observed hit rate are descriptive and cannot establish ROI or model calibration without multiweek evidence.'};
  }catch(_){return{available:false,configured:true,reason:'D1 archive query unavailable'}}
 }
 async function runNflArchive(env,trigger='cron'){
