@@ -176,7 +176,24 @@ function coverageQuote(ctx,r){
   String(q.verifiedGameId)===String(r.game.id)&&canonicalTeam(q.team)===r.team
   &&norm(q.player)===norm(r.name)&&q.market===state.coverageMarket
   &&String(q.side||'').toLowerCase()==='over'&&num(q.line)!==null&&num(q.price)!==null&&q.book);
- return found.sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;
+ if(!found.length)return null;
+ const grouped=new Map();
+ for(const quote of found){
+  const key=String(Number(quote.line)),items=grouped.get(key)||[];
+  items.push(quote);grouped.set(key,items);
+ }
+ const sim=ctx.sim?.games?.find(g=>String(g.id)===String(r.game.id))?.players?.find(p=>
+  canonicalTeam(p.team)===r.team&&norm(p.name)===norm(r.name));
+ const simLine=num(sim?.exactOver?.[state.coverageMarket]?.line);
+ const all=found.map(q=>Number(q.line)).sort((a,b)=>a-b);
+ const median=all[Math.floor(all.length/2)];
+ const lines=[...grouped.entries()].sort((a,b)=>
+  b[1].length-a[1].length
+  ||(simLine===null?0:Math.abs(Number(a[0])-simLine)-Math.abs(Number(b[0])-simLine))
+  ||Math.abs(Number(a[0])-median)-Math.abs(Number(b[0])-median)
+  ||Number(a[0])-Number(b[0]));
+ // Compare prices only at the SAME actual sportsbook line.
+ return lines[0][1].sort((a,b)=>Number(b.price)-Number(a.price))[0]||null;
 }
 function coveragePrepare(ctx,r){
  const market=state.coverageMarket,quote=coverageQuote(ctx,r);
