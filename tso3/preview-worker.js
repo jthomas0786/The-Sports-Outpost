@@ -145,6 +145,22 @@ async function verifiedNflSimulations(){
 async function verifiedNflResearch(){
  const [doc,official]=await Promise.all([nflRaw(NFL_RESEARCH_URL,300),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
  if(!Array.isArray(doc?.players)||!Number.isFinite(Date.parse(doc?.generatedAt||'')))throw Error('Invalid NFL research source');
+ const baselineGroups=new Map(),observed=new Set();
+ for(const p of doc.players){
+  const matchup=p?.matchup,opp=nflTeamKey(matchup?.opponent||'');
+  const pos=String(matchup?.positionGroup||p?.position||'').toUpperCase();
+  const n=Number(matchup?.currentSeasonAllowed?.games),yds=matchup?.currentSeasonAllowed?.perGame?.yards;
+  const key=opp+'|'+pos;
+  if(!opp||!['QB','RB','WR','TE'].includes(pos)||observed.has(key)
+   ||!Number.isFinite(n)||n<3||yds===null||yds===undefined||!Number.isFinite(Number(yds))
+   ||Number(matchup.season)!==Number(doc.season))continue;
+  observed.add(key);
+  if(!baselineGroups.has(pos))baselineGroups.set(pos,[]);
+  baselineGroups.get(pos).push(Number(yds));
+ }
+ const positionalBenchmarks=Object.fromEntries([...baselineGroups.entries()].map(([pos,values])=>
+  [pos,{yardsPerGame:values.length>=16?values.reduce((a,b)=>a+b,0)/values.length:null,
+   defenses:values.length,minGames:3,season:doc.season}]));
  const activeTeams=new Set(official.filter(g=>g.state!=='post').flatMap(g=>[nflTeamKey(g.home.abbr),nflTeamKey(g.away.abbr)]));
  const list=doc.players.filter(p=>p?.name&&activeTeams.has(nflTeamKey(p.team))).map(p=>({
   id:String(p.espnId||p.gsisId||''),gsisId:p.gsisId||null,name:String(p.name),team:nflTeamKey(p.team),
@@ -162,7 +178,7 @@ async function verifiedNflResearch(){
  return {source:'ESPN 2026 NFL rosters, depth/injuries + nflverse CC BY 4.0 player history',
   generatedAt:doc.generatedAt,season:doc.season,previousSeason:doc.previousSeason,
   ageHours:Math.round((Date.now()-Date.parse(doc.generatedAt))/360000)/10,
-  playerCount:list.length,players:list,
+  positionalBenchmarks,playerCount:list.length,players:list,
   note:'Current-season production and previous-season history are separate. No simulated games are counted as observed.'};
 }
 async function verifiedNflInjuries(){
