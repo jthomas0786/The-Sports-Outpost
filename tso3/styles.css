@@ -436,3 +436,39 @@ html,body,button,input,select,textarea{
 .nfl-secondary-person b{color:#eaf4f7;font-size:12px;display:block;font-weight:800}
 .nfl-secondary-person small{display:block;color:#9bb0bf;margin-top:5px;font-size:10px}
 @media(max-width:720px){.nfl-secondary-grid{grid-template-columns:1fr}.nfl-coverage-chart{gap:4px}.nfl-controls .nfl-coverage-markets{flex-basis:100%;max-width:none}}
+
+
+/* NFL independently archived validation — explicit sample counts and evidence gates. */
+.nfl-validation{max-width:100%}
+.nfl-validation .nfl-model-note{line-height:1.7}
+.nfl-validation-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:14px 0 22px}
+.nfl-validation-stats>div{background:#1a2c3a;border:1px solid #3f5360;border-radius:9px;padding:17px;min-width:0}
+.nfl-validation-stats small{display:block;font-weight:850;letter-spacing:.065em;font-size:9px;color:#abc0cc;line-height:1.6}
+.nfl-validation-stats b{display:block;font-size:27px;font-weight:900;color:#f7fafc;line-height:1.5;margin:7px 0}
+.nfl-validation-stats span{font-size:10px;line-height:1.5;color:#92aab9}
+.nfl-validation-toolbar{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.nfl-validation-toolbar>span{font-size:10px;color:#b6c6d1;font-weight:850;letter-spacing:.06em}
+.nfl-validation-tabs{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.nfl-validation-tabs button{background:#213240;border:1px solid #455a67;color:#b8cad4;padding:9px 12px;font-size:11px;font-weight:750;border-radius:7px;cursor:pointer}
+.nfl-validation-tabs button.active{color:#ffcf9e;background:#5d3a26;border-color:#d88a54}
+.nfl-audit-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 20px}
+.nfl-audit-card{padding:16px;background:#182b39;border:1px solid #405463;border-radius:8px;min-width:0}
+.nfl-audit-card>div{display:flex;flex-wrap:wrap;gap:5px;justify-content:space-between;align-items:center}
+.nfl-audit-card b{font-size:12px;color:#f2f8fa}
+.nfl-audit-card small{font-size:10px;color:#a6bbc7}
+.nfl-audit-card p{font-size:11px;line-height:1.7;color:#bed1dc;margin-top:10px}
+.nfl-audit-status{display:inline-block;color:#ffbb88;font-size:10px;font-weight:900;margin-top:12px;border-bottom:1px solid #a7785c;padding-bottom:4px}
+.nfl-validation-section{margin:24px 0;padding-top:10px;border-top:1px solid #354958}
+.nfl-validation-section h3{font-size:19px;letter-spacing:-.03em;font-weight:850;margin:13px 0}
+.nfl-validation-section>p{font-size:12px;color:#c2d0d8;line-height:1.7}
+.nfl-validation-table{min-width:770px}
+.nfl-validation-table td:first-child{font-weight:850}
+.nfl-validation-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.nfl-validation-checks>div{border:1px solid #3a5362;padding:13px;border-radius:7px;background:#1a2e3d}
+.nfl-validation-checks b{font-size:12px;color:#e7f1f6;display:flex;gap:9px}
+.nfl-validation-checks b>span{color:#ffb06f;min-width:18px}
+.nfl-validation-checks p{font-size:11px;color:#adbfcb;margin:9px 0 0;line-height:1.7}
+.nfl-validation-method{margin:16px 0;padding:10px 16px;border-radius:6px;border:1px solid #57768b;background:#243947;color:#cfe8f5;cursor:pointer;font-weight:750}
+.nfl-validation .nfl-context-note ul{padding-left:20px}
+@media(max-width:870px){.nfl-validation-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.nfl-audit-grid{grid-template-columns:1fr}}
+@media(max-width:620px){.nfl-validation-stats{gap:7px}.nfl-validation-stats>div{padding:10px}.nfl-validation-stats b{font-size:22px}.nfl-validation-checks{grid-template-columns:1fr}}
