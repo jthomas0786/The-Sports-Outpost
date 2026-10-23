@@ -187,7 +187,7 @@ async function nflArchiveStatus(env){
    byModel:q[2].results||[],outcomeCount:Number(q[3].results?.[0]?.outcomes||0),
    settlement:{lastRun:q[4].results?.[0]||null,byMarket:q[5].results||[],
     independentlyCounted:(q[5].results||[]).reduce((n,r)=>n+Number(r.observations||0),0),
-    caveat:'Earliest archived pregame quote per exact player/game/line/model is counted once across sportsbooks. Markets and players in the same game remain correlated. No pushes, voids or unknowns in Brier scores.'},
+    caveat:'First archived pregame quote per exact player/game/line/model is counted once across sportsbooks. Unmatched players and athletes absent from the boxscore are excluded, which can bias observed hit rates upward. Same-game markets remain correlated. Pushes, voids and unresolved bets are excluded from Brier.'},
    modelValidationStatus:'INSUFFICIENT',
    note:'Postgame grading starts only after ESPN confirms final player boxscores. Brier and observed hit rate are descriptive and cannot establish ROI or model calibration without multiweek evidence.'};
  }catch(_){return{available:false,configured:true,reason:'D1 archive query unavailable'}}
@@ -306,7 +306,7 @@ function nflFinalBoxscore(summary,gameId,kickoff){
    const labels=(group.labels||[]).map(v=>String(v).toUpperCase().replace(/\s/g,''));
    for(const row of group.athletes||[]){
     const athlete=row.athlete||{},name=archiveName(athlete.displayName||'');
-    if(!name||!Array.isArray(row.stats))continue;
+    if(!name||!Array.isArray(row.stats)||row.didNotPlay===true||athlete.didNotPlay===true)continue;
     const key=team+'|'+name;
     let entry=players.get(key);
     if(!entry){entry={team,name,ids:new Set(),hasNumeric:false,market:{},td:0,tdKnown:false};players.set(key,entry)}
