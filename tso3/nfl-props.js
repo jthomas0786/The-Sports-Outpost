@@ -86,8 +86,13 @@ function filtered(){
  &&(!q||[r.player?.name,r.player?.team,r.game?.away?.abbr,r.game?.home?.abbr,r.quote?.market].join(' ').toLowerCase().includes(q)));
  result.sort((a,b)=>{
   if(state.view==='injuries')return severity(b.report?.status)-severity(a.report?.status)||a.player.name.localeCompare(b.player.name);
-  const value=r=>state.order==='l5'?(r.l5?.n?r.l5.over/r.l5.n:null):
-   (r.exactModelOver??(r.l5?.n?r.l5.over/r.l5.n:null));
+  if(state.order==='model'){
+   if(a.exactModelOver!==null&&b.exactModelOver!==null)
+    return b.exactModelOver-a.exactModelOver||a.player.name.localeCompare(b.player.name);
+   if(a.exactModelOver!==null)return -1;
+   if(b.exactModelOver!==null)return 1;
+  }
+  const value=r=>r.l5?.n?r.l5.over/r.l5.n:null;
   const aVal=value(a),bVal=value(b);
   if(aVal===null&&bVal===null)return a.player.name.localeCompare(b.player.name);
   if(aVal===null)return 1;if(bVal===null)return -1;
