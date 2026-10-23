@@ -190,6 +190,148 @@ async function verifiedNflResearch(){
   positionalBenchmarks,playerCount:list.length,players:list,
   note:'Current-season production and previous-season history are separate. No simulated games are counted as observed.'};
 }
+
+/* Official U.S. NWS kickoff forecast; stadium coordinates are third-party
+   venue facts, never inferred from a home team's city. No international
+   forecast is invented and no third-party free commercial weather API used. */
+const STADIUM_GEO_SOURCE='https://raw.githubusercontent.com/greerreNFL/stadiums/main/data/stadiums.csv';
+const NWS_HEADERS={'Accept':'application/geo+json',
+ 'User-Agent':'TheSportsOutpost/3.0 (https://thesportsoutpost.com)'};
+const weatherCache={venues:null,at:0,forecasts:new Map()};
+const venueKey=x=>String(x||'').toLowerCase().normalize('NFKD')
+ .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+function stadiumCsvRows(text){
+ const rows=[];let row=[],cell='',quote=false;
+ for(let i=0;i<text.length;i++){
+  const c=text[i];
+  if(c==='"'){if(quote&&text[i+1]==='"'){cell+='"';i++}else quote=!quote}
+  else if(c===','&&!quote){row.push(cell);cell=''}
+  else if((c==='\r'||c==='\n')&&!quote){
+   if(c==='\r'&&text[i+1]==='\n')i++;
+   row.push(cell);cell='';if(row.length>1)rows.push(row);row=[];
+  }else cell+=c;
+ }
+ row.push(cell);if(row.length>1)rows.push(row);
+ return rows;
+}
+async function stadiumPositions(){
+ if(weatherCache.venues&&Date.now()-weatherCache.at<12*3600000)return weatherCache.venues;
+ const res=await fetch(STADIUM_GEO_SOURCE,{headers:{accept:'text/plain'},
+  cf:{cacheEverything:true,cacheTtl:3600*12},signal:AbortSignal.timeout(12000)});
+ if(!res.ok)throw Error('Stadium coordinates source unavailable');
+ const data=await res.text();
+ if(data.length<1000||data.length>600000)throw Error('Stadium position data invalid');
+ const rows=stadiumCsvRows(data);const fields=rows.shift()||[];
+ const index=Object.fromEntries(fields.map((k,i)=>[k,i]));
+ for(const field of ['stadium_name','lat','lon','country'])if(!Number.isInteger(index[field]))
+  throw Error('Unrecognized venue coordinate schema');
+ const mapped=new Map();
+ for(const row of rows){
+  const name=row[index.stadium_name],lat=Number(row[index.lat]),lon=Number(row[index.lon]);
+  if(!name||!Number.isFinite(lat)||!Number.isFinite(lon)||Math.abs(lat)>90||Math.abs(lon)>180)continue;
+  mapped.set(venueKey(name),{lat,lon,sourceName:name,country:row[index.country]||''});
+ }
+ if(mapped.size<28)throw Error('Not enough verified venues to match');
+ weatherCache.venues=mapped;weatherCache.at=Date.now();
+ return mapped;
+}
+async function nwsGameForecast(geo,kickoff){
+ const key=geo.lat.toFixed(4)+','+geo.lon.toFixed(4);
+ const cached=weatherCache.forecasts.get(key);
+ if(cached&&Date.now()-cached.at<15*60000)return cached.forecast;
+ const pointUrl='https://api.weather.gov/points/'+key;
+ const point=await fetch(pointUrl,{headers:NWS_HEADERS,cf:{cacheEverything:true,cacheTtl:86400},
+  signal:AbortSignal.timeout(13000)});
+ if(!point.ok)throw Error('NOAA point lookup HTTP '+point.status);
+ const loc=await point.json();
+ const hourlyUrl=String(loc.properties?.forecastHourly||'');
+ if(!/^https:\/\/api\.weather\.gov\/gridpoints\/[A-Za-z]{3,4}\/\d+,\d+\/forecast\/hourly$/.test(hourlyUrl))
+  throw Error('NWS hourly forecast not provided for this stadium');
+ const hourly=await fetch(hourlyUrl,{headers:NWS_HEADERS,cf:{cacheEverything:true,cacheTtl:900},
+  signal:AbortSignal.timeout(15000)});
+ if(!hourly.ok)throw Error('NWS forecast HTTP '+hourly.status);
+ const data=await hourly.json(),periods=data.properties?.periods;
+ if(!Array.isArray(periods)||!periods.length)throw Error('NWS hourly periods absent');
+ const update=data.properties?.updateTime||data.properties?.generatedAt||null;
+ const forecast={periods:periods.map(p=>({
+  startTime:p.startTime,endTime:p.endTime,temperature:p.temperature,
+  temperatureUnit:p.temperatureUnit,windSpeed:p.windSpeed,
+  windGust:p.windGust||null,windDirection:p.windDirection||null,
+  precipChance:p.probabilityOfPrecipitation?.value??null,
+  shortForecast:p.shortForecast||null})),issuedAt:update};
+ weatherCache.forecasts.set(key,{at:Date.now(),forecast});
+ return forecast;
+}
+function selectKickoffHour(doc,kickoff){
+ const date=Date.parse(kickoff||'');if(!Number.isFinite(date))return null;
+ const covering=doc.periods.find(p=>Date.parse(p.startTime)<=date&&Date.parse(p.endTime)>date);
+ if(covering)return covering;
+ const close=doc.periods.map(p=>({p,diff:Math.abs(Date.parse(p.startTime)-date)}))
+  .sort((a,b)=>a.diff-b.diff)[0];
+ return close&&close.diff<=90*60000?close.p:null;
+}
+async function verifiedNflWeather(){
+ const official=await officialGames(ESPN_SCOREBOARDS.nfl,'nfl');
+ const now=Date.now(),games=official.filter(g=>g.state==='pre'&&Date.parse(g.startTime)>now
+  &&Date.parse(g.startTime)<now+6*86400000);
+ let stadiums=null,geoFailure=null;
+ try{stadiums=await stadiumPositions()}catch(error){geoFailure=String(error?.message||'Venue geolocation failed').slice(0,120)}
+ const entries=[];
+ const tasks=games.map(game=>async()=>{
+  const v=game.venueMeta||{};
+  const meta={id:game.id,matchup:(game.away?.abbr||'')+' @ '+(game.home?.abbr||''),
+   kickoff:game.startTime,venue:v.name||game.venue||'',city:v.city||'',
+   indoor:v.indoor,source:'Official ESPN matchup and venue',forecastSource:null,
+   fetchedAt:null,issuedAt:null,weather:null,status:'unavailable',reason:null};
+  if(v.indoor===true){
+   meta.status='indoor';meta.reason='ESPN lists this venue as indoors; outdoor wind/rain not applied';
+   return meta;
+  }
+  if(v.indoor!==false){
+   meta.reason='Official venue roof/indoor designation not confirmed';
+   return meta;
+  }
+  if(!['USA','US','United States','United States of America'].includes(v.country)){
+   meta.status='international';meta.reason='NOAA/NWS does not forecast this country';
+   return meta;
+  }
+  if(geoFailure){meta.reason=geoFailure;return meta}
+  const geo=stadiums?.get(venueKey(meta.venue));
+  if(!geo||!/united states/i.test(geo.country)){
+   meta.reason='No exact stadium-coordinate match to verified venue';return meta;
+  }
+  try{
+   const forecast=await nwsGameForecast(geo,game.startTime),hour=selectKickoffHour(forecast,game.startTime);
+   if(!hour){meta.reason='Kickoff is beyond the issued hourly forecast window';return meta}
+   const temp=Number(hour.temperature),pop=Number(hour.precipChance);
+   meta.weather={temperature:Number.isFinite(temp)?temp:null,
+    temperatureUnit:String(hour.temperatureUnit||'F'),windSpeed:hour.windSpeed||null,
+    windGust:hour.windGust||null,windDirection:hour.windDirection||null,
+    precipitationProbability:hour.precipChance===null?null:Number.isFinite(pop)?pop:null,
+    condition:String(hour.shortForecast||''),validFrom:hour.startTime,validTo:hour.endTime,
+    locationType:'Stadium coordinates'};
+   meta.status='forecast';meta.source='ESPN verified stadium / third-party geolocation';
+   meta.forecastSource='NOAA National Weather Service hourly forecast';
+   meta.fetchedAt=new Date().toISOString();meta.issuedAt=forecast.issuedAt;
+   return meta;
+  }catch(error){meta.reason=String(error?.message||'NWS forecast temporarily unavailable').slice(0,100);return meta}
+ });
+ // Bound request fan-out and respect NWS public API request limits.
+ for(let i=0;i<tasks.length;i+=4){
+  const results=await Promise.allSettled(tasks.slice(i,i+4).map(task=>task()));
+  entries.push(...results.map((result,j)=>result.status==='fulfilled'?result.value:{
+   id:games[i+j]?.id,status:'unavailable',reason:'Official forecast temporarily unavailable'}));
+ }
+ const coverage={forecast:entries.filter(x=>x.status==='forecast').length,
+  indoor:entries.filter(x=>x.status==='indoor').length,
+  unavailable:entries.filter(x=>x.status==='unavailable').length,
+  international:entries.filter(x=>x.status==='international').length};
+ return {source:'ESPN official venues + NOAA NWS U.S. hourly forecast',
+  geolocation:'Verified venue-name match against greerreNFL stadium coordinates',
+  fetchedAt:new Date().toISOString(),games:entries,coverage,
+  note:'Kickoff forecasts, not observed game conditions. NOAA is U.S. only; an unavailable source is never treated as calm or dry. Venue coordinates are matched by exact stadium name.'};
+}
+
 async function verifiedNflInjuries(){
  const url='https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries';
  const response=await fetch(url,{headers:{accept:'application/json'},
@@ -563,12 +705,13 @@ export default {async fetch(req,env){
    return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
   }catch(_){return Response.json({available:false,entries:[],error:'Official NBA injury feed unavailable'},{status:503,headers})}
  }
- if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections','/api/nfl-injuries'].includes(u.pathname)){
+ if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections','/api/nfl-injuries','/api/nfl-weather'].includes(u.pathname)){
   try{
    const doc=u.pathname==='/api/nfl-touchdowns'?await verifiedNflSlate()
     :u.pathname==='/api/nfl-research'?await verifiedNflResearch()
     :u.pathname==='/api/nfl-projections'?await verifiedNflSimulations()
-    :u.pathname==='/api/nfl-injuries'?await verifiedNflInjuries():await verifiedNflOdds();
+    :u.pathname==='/api/nfl-injuries'?await verifiedNflInjuries()
+    :u.pathname==='/api/nfl-weather'?await verifiedNflWeather():await verifiedNflOdds();
    return Response.json(doc,{headers:{...headers,'cache-control':'no-store','x-tso-source':'verified TSO NFL model/nflverse/ParlayAPI'}});
   }catch(error){
    return Response.json({available:false,error:'Verified NFL data unavailable',detail:String(error?.message||'').slice(0,160)},
