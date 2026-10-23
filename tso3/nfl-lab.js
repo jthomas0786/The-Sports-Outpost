@@ -290,8 +290,13 @@ function render(ctx,tool){
  if(!tools.includes(tool))return '';
  state.tool=tool;state.context=ctx;
  const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
- if(state.version!==signature){state.version=signature;state.all=build(ctx,tool);state.max=90;
-  state.games=[];state.positions=[];state.minGames=0;state.conflictsOnly=false;state.tdOrder='tso'}
+ if(state.version!==signature){
+  state.version=signature;state.all=build(ctx,tool);state.max=90;
+  // Keep user-picked matchups and positions through the automatic live refresh.
+  const stillScheduled=new Set(upcoming(ctx).map(g=>String(g.id)));
+  state.games=state.games.filter(id=>stillScheduled.has(String(id)));
+  state.positions=state.positions.filter(v=>['QB','RB','WR','TE'].includes(v));
+ }
  const games=upcoming(ctx),gameOptions=games.map(g=>[String(g.id),
   (g.away?.abbr||'AWAY')+' @ '+(g.home?.abbr||'HOME')+' · '+when(g.startTime)]);
  const source='<div class="nba-depth-source">NFL OFFICIAL SLATE · '+games.length+' UPCOMING GAMES'
