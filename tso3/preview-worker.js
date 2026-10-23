@@ -469,7 +469,7 @@ function nflSportsbookAction(s,final){
  const person=final.players.get(team+'|'+name);
  const inactive=final.nonparticipants?.get(team+'|'+name);
  const expected=String(s.player_id||'');
- const matchesId=e=>!expected||!/^\\d+$/.test(expected)
+ const matchesId=e=>!expected||!/^\d+$/.test(expected)
   ||e?.ids?.size===1&&e.ids.has(expected);
  const info=(action_state,evidence_code)=>({action_state,evidence_code,policy_code:policyCode});
  if(!final.teams.includes(team))return info('review_required','event_team_mismatch');
