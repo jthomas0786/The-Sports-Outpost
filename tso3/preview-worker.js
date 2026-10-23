@@ -362,7 +362,7 @@ function verifyNflAtdScoringLog(summary,competition,teams,players){
   }
  }
  return {complete:true,reason:'all_td_plays_and_final_score_verified',
-  scorers:scorerCounts,touchdowns};
+  scorers:scorerCounts,scorerTypes:kindsByScorer,touchdowns};
 }
 
 function nflFinalBoxscore(summary,gameId,kickoff){
@@ -374,7 +374,7 @@ function nflFinalBoxscore(summary,gameId,kickoff){
  const teams=new Map((comp.competitors||[]).filter(t=>t?.team?.id)
   .map(t=>[String(t.team.id),nflTeamKey(t.team.abbreviation)]));
  if(teams.size!==2||!Array.isArray(summary.boxscore?.players)||summary.boxscore.players.length!==2)return null;
- const players=new Map(),coverage=new Map();
+ const players=new Map(),coverage=new Map(),nonparticipants=new Map();
  for(const bt of summary.boxscore.players){
   const team=nflTeamKey(bt.team?.abbreviation||teams.get(String(bt.team?.id||'')));
   if(!team||![...teams.values()].includes(team)||coverage.has(team))return null;
@@ -393,12 +393,27 @@ function nflFinalBoxscore(summary,gameId,kickoff){
    }
    for(const row of group.athletes||[]){
     const athlete=row.athlete||{},name=archiveName(athlete.displayName||'');
-    if(!name||!Array.isArray(row.stats)||row.didNotPlay===true||athlete.didNotPlay===true)continue;
+    if(!name)continue;
     const key=team+'|'+name;
+    const explicitlyDnp=row.didNotPlay===true||athlete.didNotPlay===true;
+    const explicitlyInactive=row.active===false||athlete.active===false;
+    if(explicitlyDnp||explicitlyInactive){
+     const prev=nonparticipants.get(key)||{team,name,ids:new Set(),reasons:new Set()};
+     if(athlete.id)prev.ids.add(String(athlete.id));
+     prev.reasons.add(explicitlyDnp?'explicit_did_not_play':'explicit_inactive');
+     nonparticipants.set(key,prev);
+     continue;
+    }
+    if(!Array.isArray(row.stats))continue;
     let entry=players.get(key);
-    if(!entry){entry={team,name,ids:new Set(),hasNumeric:false,market:{},td:0,tdKnown:false,tdByKind:{},presentKinds:new Set()};players.set(key,entry)}
+    if(!entry){entry={team,name,ids:new Set(),hasNumeric:false,market:{},td:0,tdKnown:false,tdByKind:{},presentKinds:new Set(),participationEvidence:false};players.set(key,entry)}
     entry.presentKinds.add(kind);
     if(athlete.id)entry.ids.add(String(athlete.id));
+    if(row.didNotPlay===false||athlete.didNotPlay===false)entry.participationEvidence=true;
+    const rawStats=row.stats||[];
+    if(rawStats.some(x=>{const n=settleValue(x);return n!==null&&n!==0})
+     ||rawStats.some(x=>/^\s*\d+\s*\/\s*[1-9]\d*\s*$/.test(String(x))))
+     entry.participationEvidence=true;
     if(entry.ids.size>1)entry.ambiguous=true;
     const get=(label)=>{
      const i=labels.indexOf(label);
@@ -435,11 +450,45 @@ function nflFinalBoxscore(summary,gameId,kickoff){
   }
  }
  const atdEvidence=verifyNflAtdScoringLog(summary,comp,teams,players);
- return {players,teams:[...teams.values()],coverage,atdEvidence};
+ return {players,teams:[...teams.values()],coverage,atdEvidence,nonparticipants};
 }
+/* Narrow house-rule implementation. `void_evidence` means the ESPN
+   postgame record explicitly says DNP/inactive AND a supported book requires
+   one play; it is NOT a verified sportsbook ledger settlement.
+   Unsupported books remain review-required on DNP; no inferred voids. */
+function nflSportsbookAction(s,final){
+ const book=String(s.sportsbook||'').trim().toLowerCase();
+ const supported=book==='fanduel'||book==='draftkings';
+ const policyCode=book==='fanduel'?'FD_US_NFL_ONE_SNAP_2026':
+  book==='draftkings'?'DK_US_NFL_ONE_PLAY_2026':'BOOK_RULE_NOT_VERIFIED';
+ const team=nflTeamKey(s.team),name=archiveName(s.player_name);
+ const person=final.players.get(team+'|'+name);
+ const inactive=final.nonparticipants?.get(team+'|'+name);
+ const expected=String(s.player_id||'');
+ const matchesId=e=>!expected||!/^\\d+$/.test(expected)
+  ||e?.ids?.size===1&&e.ids.has(expected);
+ const info=(action_state,evidence_code)=>({action_state,evidence_code,policy_code:policyCode});
+ if(!final.teams.includes(team))return info('review_required','event_team_mismatch');
+ if(inactive&&person)return info('review_required','conflicting_participation_records');
+ if(inactive){
+  if(!matchesId(inactive))return info('review_required','dnp_player_id_mismatch');
+  return supported?info('void_evidence',[...inactive.reasons].sort().join('_')):
+   info('review_required','explicit_dnp_book_rule_unverified');
+ }
+ if(!person)return info('review_required','player_not_found_in_final_boxscore');
+ if(person.ambiguous||!matchesId(person))return info('review_required','player_identity_unverified');
+ const scored=final.atdEvidence?.complete
+  &&Number(final.atdEvidence.scorers.get(team+'|'+name)||0)>0;
+ if(person.participationEvidence||scored)return info('action_confirmed','confirmed_game_participation');
+ return info('review_required','no_qualifying_snap_evidence');
+}
+
 function auditNflSnapshot(s,final){
  const name=archiveName(s.player_name),team=nflTeamKey(s.team),market=s.market;
  const fail=reason=>({grade:null,reason});
+ const eligibility=nflSportsbookAction(s,final);
+ if(eligibility.action_state!=='action_confirmed')
+  return fail('participation_'+eligibility.evidence_code);
  if(!SETTLEMENT_MARKETS.has(market)||!final.teams.includes(team))return fail('unsupported_market_or_team');
  const athlete=final.players.get(team+'|'+name);
  // Absent/inactive athletes have NO trusted zero stat. Incomplete boxscore = unresolved.
@@ -451,14 +500,27 @@ function auditNflSnapshot(s,final){
  if(market==='atd'){
   const verified=final.atdEvidence;
   if(verified?.complete){
-   const touchdowns=verified.scorers.get(team+'|'+name)||0;
+   const types=verified.scorerTypes?.get(team+'|'+name)||{};
+   const nondefensive=Object.entries(types).filter(([k])=>!['interceptions','fumbles','defensive'].includes(k))
+    .reduce((n,[,v])=>n+Number(v||0),0);
+   const defensive=Object.entries(types).filter(([k])=>['interceptions','fumbles','defensive'].includes(k))
+    .reduce((n,[,v])=>n+Number(v||0),0);
+   const book=String(s.sportsbook||'').toLowerCase();
+   // FanDuel's standard individual ATD excludes defensive unit scores.
+   // Other books' handling is not inferred when a defensive player scores.
+   if(defensive&&book!=='fanduel')return fail('book_specific_defensive_td_rules_unverified');
+   const touchdowns=nondefensive;
    return {grade:{outcome:touchdowns?'win':'loss',realizedStat:touchdowns},
     reason:touchdowns?'scoring_plays_verified_td':'zero_from_complete_scoring_log'};
   }
   // An individual positive TD boxscore still proves an Anytime TD winner.
   // It does NOT prove the game has complete TD scoring evidence for any loser.
-  if(athlete.td>0)return {grade:{outcome:'win',realizedStat:athlete.td},
-   reason:'confirmed_touchdown_in_incomplete_log'};
+  if(athlete.td>0){
+   if(Object.keys(athlete.tdByKind||{}).some(k=>['interceptions','fumbles','defensive'].includes(k)
+    &&athlete.tdByKind[k]>0))return fail('defensive_td_requires_complete_play_verification');
+   return {grade:{outcome:'win',realizedStat:athlete.td},
+    reason:'confirmed_touchdown_in_incomplete_log'};
+  }
   return fail('atd_zero_not_comprehensively_verified');
  }
  let value=athlete.market[market],reason='confirmed_player_stat';
@@ -519,7 +581,7 @@ async function runNflSettlement(env,trigger='cron'){
     if(!final)continue;
     diag.final++;
     const pending=await env.NFL_ARCHIVE.prepare(
-     'SELECT p.id,p.player_id,p.player_name,p.team,p.market,p.side,p.line '
+     'SELECT p.id,p.player_id,p.player_name,p.team,p.market,p.side,p.line,p.sportsbook '
      +'FROM prediction_snapshots p LEFT JOIN settled_outcomes s ON s.snapshot_id=p.id '
      +'WHERE p.game_id=? AND s.snapshot_id IS NULL LIMIT 3500'
     ).bind(id).all();
@@ -605,7 +667,7 @@ async function runNflReconciliation(env,trigger='cron'){
     const {gid,final}=checked[j].value;
     if(!final)continue;diag.final++;
     const rows=await env.NFL_ARCHIVE.prepare(
-     'SELECT p.id,p.player_id,p.player_name,p.team,p.market,p.side,p.line,'
+     'SELECT p.id,p.player_id,p.player_name,p.team,p.market,p.side,p.line,p.sportsbook,'
      +'s.outcome settled_outcome,s.realized_stat settled_stat '
      +'FROM prediction_snapshots p LEFT JOIN settled_outcomes s ON s.snapshot_id=p.id '
      +'WHERE p.game_id=? ORDER BY p.id LIMIT 3500'
