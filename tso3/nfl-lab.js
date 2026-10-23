@@ -27,8 +27,8 @@ const notes={
  'receiving-matchups':'Verified target volume, receptions, yards, target share and season game logs. Coverage assignment grades are not inferred.',
  'quarterback-research':'Verified passing attempts, completions, passing yards, passing touchdowns, game logs and opponent context.',
  'red-zone-usage':'2025 baseline red-zone targets and carries from the existing TSO model, compared with observed 2026 role, production and opponent red-zone defense. No unsupported 2026 red-zone splits.',
- 'offensive-line-matchups':'Official opponent and available team context. Independent pass-block and run-block win rates are not connected; no fabricated grades.',
- 'power-ratings':'Current official team records and game slate. TSO has not verified a calibrated team power-rating input for this page.',
+ 'offensive-line-matchups':'Verified 2026 opponent defense allowances as an initial passing/rushing matchup proxy; these are NOT offensive-line pass-block win rates, pressure rates or protection grades.',
+ 'power-ratings':'Current ESPN records plus event-specific TSO 50K simulation probabilities and model point differentials. A calibrated, independently sourced team power rating remains unavailable.',
  'weather-impact':'Official schedule, venue and indoor/outdoor status when the original TSO NFL slate reports it. Weather forecasts are not inferred from stadium location.',
  'game-projections':'Current official NFL matchups matched to TSO Monte Carlo simulations. Estimated team scores, win probabilities, spread and total shown only for current verified model runs.'
 };
@@ -40,8 +40,8 @@ const columns={
  'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
  'coverage-matchups':['PLAYER','MATCHUP','L5 TARGETS','L5 RECEPTIONS','L5 REC YDS','2026 TARGET SHARE','OPP TARGETS/GM','OPP REC YDS/GM','ALIGNMENT DATA'],
  'quarterback-research':['PLAYER','MATCHUP','L5 PASS YDS','L5 ATTEMPTS','L5 COMPLETIONS','L5 PASS TD','OPP PASS YDS/GM','BEST BOOK'],
- 'offensive-line-matchups':['MATCHUP','KICKOFF','AWAY TEAM','HOME TEAM','PASS BLOCK GRADE','RUN BLOCK GRADE','PRESSURE RATE','SOURCE STATUS'],
- 'power-ratings':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','POWER RATING','INJURY CONTEXT','GAME STATUS','SOURCE STATUS'],
+ 'offensive-line-matchups':['MATCHUP','KICKOFF','AWAY QB: HOME DEF','HOME QB: AWAY DEF','AWAY RB: HOME DEF','HOME RB: AWAY DEF','SAMPLE','TRACKING STATUS'],
+ 'power-ratings':['MATCHUP','KICKOFF','AWAY RECORD','HOME RECORD','AWAY WIN PROB','HOME WIN PROB','MODEL POINT DIFF','RATING STATUS'],
  'weather-impact':['MATCHUP','KICKOFF','VENUE','INDOOR','FORECAST WIND','PRECIPITATION','TEMP','SOURCE STATUS'],
  'game-projections':['MATCHUP','KICKOFF','AWAY WIN %','HOME WIN %','AWAY SCORE','HOME SCORE','SPREAD / TOTAL','SIM WORLDS']
 };
@@ -118,11 +118,27 @@ function positionalBenchmarks(ctx){
  }));
 }
 
+function defenseAllowed(ctx,team,pos,category){
+ const name=canonicalTeam(team);
+ const source=(ctx.research?.players||[]).find(p=>canonicalTeam(p.matchup?.opponent)===name
+  &&String(p.matchup?.positionGroup||'').toUpperCase()===pos
+  &&Number(p.matchup?.season)===Number(ctx.research?.season)
+  &&Number(p.matchup?.currentSeasonAllowed?.games)>=3
+  &&num(p.matchup?.currentSeasonAllowed?.perGame?.[category])!==null);
+ if(!source)return null;
+ return {value:num(source.matchup.currentSeasonAllowed.perGame[category]),
+  games:num(source.matchup.currentSeasonAllowed.games)};
+}
 function build(ctx,tool){
  const games=upcoming(ctx),slate=ctx.td?.games||[],benchmarks=positionalBenchmarks(ctx);
  if(gameTools.has(tool))return games.map(g=>{
   const original=slate.find(x=>String(x.id)===String(g.id));
-  return {id:g.id,game:g,original,sim:ctx.sim?.games?.find(x=>String(x.id)===String(g.id))||null,kind:'game',name:(g.away?.abbr||'AWAY')+' @ '+(g.home?.abbr||'HOME')};
+  return {id:g.id,game:g,original,sim:ctx.sim?.games?.find(x=>String(x.id)===String(g.id))||null,
+   context:{awayPass:defenseAllowed(ctx,g.home.abbr,'QB','passYds'),
+    homePass:defenseAllowed(ctx,g.away.abbr,'QB','passYds'),
+    awayRush:defenseAllowed(ctx,g.home.abbr,'RB','rushYds'),
+    homeRush:defenseAllowed(ctx,g.away.abbr,'RB','rushYds')},
+   kind:'game',name:(g.away?.abbr||'AWAY')+' @ '+(g.home?.abbr||'HOME')};
  });
  const all=slate.flatMap(g=>(g.players||[]).map(p=>({p,g})));
  const modeled=new Map();
@@ -213,8 +229,8 @@ function row(r){
  if(r.kind==='game'){
   const g=r.game,venue=r.original?.venue||'';
   const values={
-   'offensive-line-matchups':[r.name,when(g.startTime),g.away?.name||'—',g.home?.name||'—','—','—','—','Not sourced'],
-   'power-ratings':[r.name,when(g.startTime),g.away?.record||'—',g.home?.record||'—','—','—',g.state,'Not rated'],
+   'offensive-line-matchups':[r.name,when(g.startTime),f(r.context?.awayPass?.value)+' pass yd/g',f(r.context?.homePass?.value)+' pass yd/g',f(r.context?.awayRush?.value)+' rush yd/g',f(r.context?.homeRush?.value)+' rush yd/g',Math.min(...[r.context?.awayPass?.games,r.context?.homePass?.games,r.context?.awayRush?.games,r.context?.homeRush?.games].filter(n=>Number.isFinite(n)))||'—','OL grades not connected'],
+   'power-ratings':[r.name,when(g.startTime),g.away?.record||'—',g.home?.record||'—',percent(r.sim?.awayWin),percent(r.sim?.homeWin),r.sim?.awayPoints==null||r.sim?.homePoints==null?'—':(r.sim.awayPoints-r.sim.homePoints).toFixed(1)+' away pts',r.sim?'Game-level simulation; no power rating':'No verified rating'],
    'weather-impact':[r.name,when(g.startTime),venue||g.venue||'—',r.original?.indoor===true?'Indoor':r.original?.indoor===false?'Outdoor':'—','—','—','—','Forecast unavailable'],
    'game-projections':[r.name,when(g.startTime),
     r.sim?.awayWin==null?'—':percent(r.sim.awayWin),r.sim?.homeWin==null?'—':percent(r.sim.homeWin),
@@ -301,6 +317,7 @@ function render(ctx,tool){
  +(list.map(row).join('')||'<tr><td colspan="8">No verified records meet these filters. Missing data is never filled with simulated stats.</td></tr>')
  +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+state.visible.length+' verified rows · click any row for details</span>'
  +(list.length<state.visible.length?'<button data-nfl-more type="button">SHOW MORE →</button>':'')+'</div>'
+ +'<p class="nba-footnote">Offensive Line Matchups shows 2026 QB-pass and RB-rush yards allowed by the opposite defense as a matchup proxy only. These are not offensive-line grades, pressure rates or run-block win rates. Power Ratings uses game-specific simulations, not a season-long team rating.</p>'
  +'<p class="nba-footnote">For Defense vs Position, the 2026 reference is an unweighted mean of distinct defenses in the available TSO season dataset, each with three or more observed games (currently 28 defenses, not all 32). Positive differences indicate more yards allowed to the position than the sample reference. Descriptive, not predictive, and not a tracking-based coverage grade.</p>'
  +'<p class="nba-footnote">Data sources: current ESPN NFL scoreboards and 2026 rosters; nflverse verified player game logs (CC BY 4.0); the existing TSO regressed 2025-baseline anytime-touchdown model; ParlayAPI time-limited sportsbook snapshots where available. No sportsbook odds, model percentages, opponent coverage ratings, or forecast measurements are fabricated.</p></section>';
 }
