@@ -34,8 +34,8 @@ const notes={
 };
 const columns={
  'defense-vs-position':['PLAYER','MATCHUP','DEFENSE','POSITION','YDS / GM','NFL POS AVG','DIFF VS NFL','TD / GM','TARGETS / GM','GAMES'],
- 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','MODEL GAP','50K SIM 2+ TD','TSO GRADE','RZ OPP / GM','SNAP %','OPP RZ TD RATE','BEST ATD ODDS'],
- 'red-zone-usage':['PLAYER','MATCHUP','RZ CARRIES','RZ TARGETS','RZ / GM','OPP RZ TD %','DEPTH','TSO ATD'],
+ 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','MODEL GAP','50K SIM 2+ TD','TSO GRADE','2025 RZ OPP/GM','2026 SNAP L5','2026 TGT SHARE','OPP RZ TD RATE','BEST ATD ODDS'],
+ 'red-zone-usage':['PLAYER','MATCHUP','2025 RZ CARRIES','2025 RZ TARGETS','2025 RZ/GM','2026 TARGET SHARE','2026 SNAP L5','2026 TD/GM','OPP RZ TD %','TSO ATD'],
  'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','OPP RUSH YDS/GM','BEST BOOK'],
  'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
  'coverage-matchups':['PLAYER','MATCHUP','L5 TARGETS','L5 RECEPTIONS','L5 REC YDS','2026 TARGET SHARE','OPP TARGETS/GM','OPP REC YDS/GM','ALIGNMENT DATA'],
@@ -240,11 +240,17 @@ function row(r){
   {html:'<b class="'+(ppGap(r)>=20?'nfl-low':ppGap(r)>=12?'nfl-medium':'')+'">'+gapLabel(r)+'</b><small>'+esc(divergence(r)||'ESTIMATE DELTA')+'</small>'},
   {html:'<b>'+percent(r.simTwo)+'</b><small>2+ TD</small>'},
   {text:cannotPlay(r.officialReport)?'OUT':(r.modelProbability===null?'—':r.m?.modelGrade||'—')}, {text:f(r.m?.opportunityRate)},
-  {text:percent(r.m?.snapShare)}, {text:percent(r.m?.opponentRzTdRate)},
+  {text:r.p?.snapTrend?.avgOffensePct===null||r.p?.snapTrend?.avgOffensePct===undefined?'—':f(r.p.snapTrend.avgOffensePct)+'%'},
+  {text:r.p?.currentSeason?.targetShare==null?'—':f(r.p.currentSeason.targetShare)+'%'},
+  {text:percent(r.m?.opponentRzTdRate)},
   {html:'<b>'+esc(fmtPrice(quote?.price))+'</b><small>'+esc(quote?.book||'NO VERIFIED BOOK')+'</small>'}];
  else if(state.tool==='red-zone-usage')cells=[{text:r.m?.rzCarries??'—'},{text:r.m?.rzTargets??'—'},
-  {text:f(r.m?.opportunityRate)},{text:percent(r.m?.opponentRzTdRate)},
-  {text:r.p?.depthRank||r.m?.depthRank||'—'},{html:'<b class="'+tdClass(atd)+'">'+projected+'</b>'}];
+  {text:f(r.m?.opportunityRate)},
+  {text:r.p?.currentSeason?.targetShare==null?'—':f(r.p.currentSeason.targetShare)+'%'},
+  {text:r.p?.snapTrend?.avgOffensePct==null?'—':f(r.p.snapTrend.avgOffensePct)+'%'},
+  {text:f(r.p?.currentSeason?.perGame?.tds)},
+  {text:percent(r.m?.opponentRzTdRate)},
+  {html:'<b class="'+tdClass(atd)+'">'+projected+'</b>'}];
  else if(state.tool==='rushing-matchups')cells=[{text:f(avg(logs,'rushYds',5))},{text:f(avg(logs,'rushYds',10))},
   {text:f(avg(logs,'carries',5))},{text:f(season?.perGame?.rushYds)},
   {text:f(r.p?.matchup?.currentSeasonAllowed?.perGame?.rushYds)},{text:fmtPrice(quote?.price)}];
@@ -317,7 +323,9 @@ function detail(r,ctx){
   +'<div><small>MODEL GAP</small><b>'+gapLabel(r)+'</b><small>'+esc(divergence(r)||'Absolute difference')+'</small></div>'
   +'<div><small>LAST 5 TD GAMES</small><b>'+(td?td.hits+'/'+td.n:'—')+'</b><small>Observed games</small></div>'
   +'<div><small>LAST 10 TD GAMES</small><b>'+(td10?td10.hits+'/'+td10.n:'—')+'</b></div>'
-  +'<div><small>SNAP SHARE</small><b>'+percent(r.m?.snapShare)+'</b></div>'
+  +'<div><small>2025 BASELINE SNAP SHARE</small><b>'+percent(r.m?.snapShare)+'</b></div>'
+  +'<div><small>2026 L5 OFFENSIVE SNAP %</small><b>'+(r.p?.snapTrend?.avgOffensePct==null?'—':f(r.p.snapTrend.avgOffensePct)+'%')+'</b></div>'
+  +'<div><small>2026 TARGET SHARE</small><b>'+(r.p?.currentSeason?.targetShare==null?'—':f(r.p.currentSeason.targetShare)+'%')+'</b></div>'
   +'<div><small>RZ CARRIES (BASELINE)</small><b>'+esc(r.m?.rzCarries??'—')+'</b></div>'
   +'<div><small>RZ TARGETS (BASELINE)</small><b>'+esc(r.m?.rzTargets??'—')+'</b></div>'
   +'<div><small>OPP RZ TD ALLOWED</small><b>'+percent(r.m?.opponentRzTdRate)+'</b></div>'
