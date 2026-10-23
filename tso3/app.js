@@ -4,7 +4,7 @@
 (()=>{
 'use strict';
 const SPORTS={
- nfl:{label:'NFL',icon:'🏈',name:'National Football League',markets:['Player Passing Yards','Player Passing Touchdowns','Player Passing Attempts','Player Completions','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Player Longest Reception','Player Longest Rush','Player Targets'],tools:[['Defense vs Position','2026 defense against QB, RB, WR and TE'], ['Coverage Matchups','2026 receiver form vs opposing position groups'],['Touchdown Opportunities','Red zone, goal line and target share'],['Rushing Matchups','Carry volume and run defense'],['Receiving Matchups','Targets, routes and coverage'],['Quarterback Research','Attempts, depth and pressure'],['Red-Zone Usage','Inside-20 opportunities and conversion'],['Offensive Line Matchups','Run and pass protection'],['Power Ratings','Team strength and quarterback adjustments'],['Weather Impact','Wind, precipitation and playing surface'],['Game Projections','Spread, moneyline and totals']]},
+ nfl:{label:'NFL',icon:'🏈',name:'National Football League',markets:['Player Passing Yards','Player Passing Touchdowns','Player Passing Attempts','Player Completions','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Player Longest Reception','Player Longest Rush','Player Targets'],tools:[['Defense vs Position','2026 defense against QB, RB, WR and TE'], ['Coverage Matchups','2026 receiver form vs opposing position groups'],['Touchdown Opportunities','Red zone, goal line and target share'],['Rushing Matchups','Carry volume and run defense'],['Receiving Matchups','Targets, routes and coverage'],['Quarterback Research','Attempts, depth and pressure'],['Red-Zone Usage','Inside-20 opportunities and conversion'],['Offensive Line Matchups','Run and pass protection'],['Power Ratings','Team strength and quarterback adjustments'],['Weather Impact','Wind, precipitation and playing surface'],['Game Projections','Spread, moneyline and totals'],['Model Validation','Archived accuracy and held-out First TD results']]},
  nba:{label:'NBA',icon:'🏀',name:'National Basketball Association',markets:['Points','Rebounds','Assists','3-Pointers Made','PRA','Points + Rebounds','Points + Assists','Rebounds + Assists','Steals','Blocks','First Basket'],tools:[['Player Form','Points, rebounds and assists trends'],['Matchup vs Position','Opponent production by player role'],['First Basket','Opening tip and first field-goal history'],['Pace & Possessions','Pace and expected opportunities'],['Minutes & Rotation','On-court availability and substitution patterns'],['Usage & Touches','Shot, assist and possession share'],['Team Stats','Offensive and defensive splits'],['Injury Impact','Available and missing rotation players'],['Game Projections','Model score and team totals']]},
  mlb:{label:'MLB',icon:'⚾',name:'Major League Baseball',markets:['Home Runs','Hits','Total Bases','RBIs','Runs','Hits + Runs + RBIs','Stolen Bases','Pitcher Strikeouts','Walks','Singles','Doubles'],tools:[['Home Run Matchups','Power, contact quality and pitcher tendencies'],['Exit Velocity','Batted-ball speed and launch profile'],['Pitch Mix','Pitch-type usage and batter splits'],['Pitcher vs Lineup','Projected opposing lineup profile'],['Strikeout Matchups','Pitcher K rates and batter swing tendencies'],['Stolen Bases','Attempt rate and catcher control'],['Bullpen Usage','Recent relief workloads'],['Pitcher Summary','Starter repertoire and workload'],['Weather & Park','Ballpark and conditions'],['Team vs Pitch Mix','Pitch-specific lineup strengths']]},
  nhl:{label:'NHL',icon:'🏒',name:'National Hockey League',markets:['Anytime Goal','First Goal','Shots on Goal','Points','Assists','Goalie Saves','Power Play Points'],tools:[['Goal Scorer Matchups','Shot quality and scoring opportunities'],['Skater Statistics','Usage, ice time and recent form'],['Team Statistics','Shots, possession and special teams'],['Shots on Goal','Volume and opponent allowances'],['Goalie Matchups','Expected starts and save environment'],['Power Play Analysis','Man-advantage unit usage'],['First Goal','First-goal history and opportunity'],['Game Projections','Moneyline, puckline and total']]},
@@ -45,7 +45,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -250,6 +250,7 @@ function toolCard(pair,i){
  return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+['◈','⌁','▤','◇','▦','◉'][i%6]+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
+ if(state.sport==='nfl'&&name==='Model Validation')return Boolean(window.TSO3NflValidation);
  if(state.sport==='nfl'&&SPORTS.nfl.tools.some(x=>x[0]===name))return Boolean(state.nflResearch?.players||state.nflTD?.games||state.live?.games);
  if(state.sport==='nba'&&/^(Player Form|Matchup vs Position|Pace & Possessions|Minutes & Rotation|Usage & Touches|Team Stats|Injury Impact|Game Projections)$/.test(name))return name==='Injury Impact'?Boolean(state.nbaInjuries?.entries):Boolean(state.nbaResearch?.players);
  if(/First Basket/i.test(name))return state.sport==='nba'&&Boolean(state.live);
@@ -396,6 +397,29 @@ async function hydrateNflWeather(){
  }
 }
 
+async function hydrateNflValidation(){
+ if(state.nflValidationPending||Date.now()-state.nflValidationFetched<20*60000)return;
+ state.nflValidationPending=true;state.nflValidationFetched=Date.now();state.nflValidationError='';
+ try{
+  const response=await fetch('/api/nfl-validation',{cache:'no-store'});
+  if(!response.ok)throw Error('NFL historical validation HTTP '+response.status);
+  const result=await response.json();
+  if(!result.available||!result.firstTouchdown||!result.fiftyKReplay)
+   throw Error('Historical validation report is unavailable or invalid');
+  state.nflValidation=result;
+ }catch(error){
+  state.nflValidation=null;state.nflValidationError=String(error?.message||'Historical NFL audit unavailable').slice(0,140);
+ }finally{
+  state.nflValidationPending=false;
+  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')render();
+ }
+}
+function nflValidationResearch(){
+ const module=window.TSO3NflValidation;
+ return module?'<div id="nflValidationSlot">'+module.render(state.nflValidation,state.nflValidationError,
+  state.nflValidationPending||!state.nflValidationFetched)+'</div>'
+  :empty('NFL validation module unavailable','The archived audit module did not load.');
+}
 function nflResearch(tool='touchdown-opportunities'){
  const lab=window.TSO3NflLab;
  const context={sport:'nfl',games:state.live?.games||[],td:state.nflTD,research:state.nflResearch,
@@ -416,13 +440,14 @@ function nbaDepthResearch(tool){
 function render(){
  state.displayedRows.clear();
  renderNav();renderMetrics();renderFilters();
- const nflFocused=state.sport==='nfl'&&((state.page==='cheatsheets'&&window.TSO3NflLab?.tools?.includes(state.tool))||['props','trends','ratings','projections','injuries'].includes(state.page));
+ const nflFocused=state.sport==='nfl'&&((state.page==='cheatsheets'&&(state.tool==='model-validation'||window.TSO3NflLab?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
  const focusLab=nflFocused||state.sport==='nba'&&((state.page==='cheatsheets'&&(['player-form','matchup-vs-position'].includes(state.tool)||window.TSO3NbaDepth?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
  el('hero').hidden=focusLab;
  el('quickStatus').hidden=focusLab;
  el('toolbar').hidden=focusLab||el('toolbar').hidden;
  let body='';
- if(state.sport==='nfl'&&state.page==='props')body=nflPropsResearch('props');
+ if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')body=nflValidationResearch();
+ else if(state.sport==='nfl'&&state.page==='props')body=nflPropsResearch('props');
  else if(state.sport==='nfl'&&state.page==='trends')body=nflResearch('receiving-matchups');
  else if(state.sport==='nfl'&&state.page==='ratings')body=nflResearch('power-ratings');
  else if(state.sport==='nfl'&&state.page==='projections')body=nflResearch('game-projections');
@@ -444,6 +469,8 @@ function render(){
  el('content').innerHTML=body;
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='weather-impact'&&state.live?.games?.length)
   void hydrateNflWeather();
+ if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')
+  void hydrateNflValidation();
  if(state.page==='games'&&state.game){
   const game=getGames().find(g=>gameKey(g)===state.game);
   if(game){
@@ -581,6 +608,7 @@ async function load(force=false){
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
 }
 document.addEventListener('click',e=>{
+ if(window.TSO3NflValidation?.click?.(e))return;
  if(window.TSO3NflProps?.click?.(e))return;
  if(window.TSO3NflLab?.click?.(e))return;
  if(window.TSO3NbaDepth?.click?.(e))return;
