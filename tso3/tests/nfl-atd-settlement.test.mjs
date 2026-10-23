@@ -150,3 +150,26 @@ test('inactive flag without explicit game-day DNP reason cannot void',()=>{
  assert.equal(actionCheck(d,'Unknown Active','302','FanDuel')
   .action.action_state,'review_required');
 });
+
+const withDefensiveTouchdown=()=>{
+ const d=baseline();
+ d.boxscore.players[1].statistics[0].athletes[0].stats[2]='0';
+ d.boxscore.players[1].statistics[2].athletes[0].stats[2]='0';
+ d.boxscore.players[1].statistics.push({
+  name:'interceptions',labels:['INT','YDS','TD'],
+  athletes:[player('303','Other Defender',['1','20','1'])]
+ });
+ d.scoringPlays[1].type.text='Interception Return Touchdown';
+ d.scoringPlays[1].text='Other Defender interception return touchdown';
+ return d;
+};
+test('FanDuel ordinary individual ATD does not treat defensive team TD as player win',()=>{
+ const x=actionCheck(withDefensiveTouchdown(),'Other Defender','303','FanDuel');
+ assert.equal(x.action.action_state,'action_confirmed');
+ assert.equal(x.grade.grade?.outcome,'loss');
+});
+test('unmapped defensive TD scorer remains unresolved rather than assumed win',()=>{
+ const x=actionCheck(withDefensiveTouchdown(),'Other Defender','303','DraftKings');
+ assert.equal(x.grade.grade,null);
+ assert.equal(x.grade.reason,'book_specific_defensive_td_rules_unverified');
+});
