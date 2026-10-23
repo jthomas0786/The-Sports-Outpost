@@ -37,7 +37,7 @@ function build(ctx,view){
    return [{id:'inj|'+report.teamId+'|'+report.athleteId,player,game,mode:view,report}];
   });
  }
- const odds=ctx.odds?.rows||[],tdGames=ctx.td?.games||[];
+ const odds=ctx.odds?.rows||[],tdGames=ctx.td?.games||[],simGames=ctx.sim?.games||[];
  const out=new Map();
  for(const q of odds){
   const game=games.find(g=>String(g.id)===String(q.verifiedGameId));
@@ -53,6 +53,13 @@ function build(ctx,view){
   r.l5=actual(player.logs,q.market,line,5);r.l10=actual(player.logs,q.market,line,10);
   const modelPlayer=tdGames.find(g=>String(g.id)===String(game.id))?.players?.find(p=>norm(p.name)===norm(player.name)&&team(p.team)===team(player.team));
   r.atd=ctx.td?.modelFresh&&q.market==='atd'?n(modelPlayer?.modelProbability):null;
+  const simPlayer=simGames.find(g=>String(g.id)===String(game.id))?.players?.find(p=>
+   norm(p.name)===norm(player.name)&&team(p.team)===team(player.team));
+  // Compare player, official game, Over side, market and the EXACT book line.
+  const over=simPlayer?.exactOver?.[q.market];
+  const probability=q.market==='atd'&&Number(q.line)===0.5?n(simPlayer?.atd)
+   :over&&Math.abs(Number(over.line)-Number(q.line))<0.000001?n(over.probability):null;
+  r.exactModelOver=probability!==null&&probability>=0&&probability<=1?probability:null;
   out.set(id,r);
  }
  return [...out.values()];
@@ -83,7 +90,7 @@ function filtered(){
 }
 function markup(ctx,view){
  state.ctx=ctx;state.view=view;
- const id=[view,ctx.research?.generatedAt,ctx.injuries?.fetchedAt,ctx.odds?.fetchedAt,ctx.td?.generatedAt,(ctx.games||[]).map(g=>g.id).join(',')].join('|');
+ const id=[view,ctx.research?.generatedAt,ctx.injuries?.fetchedAt,ctx.odds?.fetchedAt,ctx.td?.generatedAt,ctx.sim?.generatedAt,(ctx.games||[]).map(g=>g.id).join(',')].join('|');
  if(id!==state.signature){
   state.signature=id;state.rows=build(ctx,view);state.max=90;
   // Preserve multi-select filters when odds, injuries or schedules refresh.
@@ -109,16 +116,17 @@ function markup(ctx,view){
   return '<tr data-nfl-prop-row="'+text(r.id)+'">'+who+match
    +'<td><b>'+text(label[r.quote.market])+'</b></td><td><b>Over '+fmt(r.quote.line)+'</b></td>'
    +'<td><b>'+text(pct(r.l5))+'</b></td><td><b>'+text(pct(r.l10))+'</b></td>'
+   +'<td><b class="'+(r.exactModelOver!==null&&r.exactModelOver>=.65?'nfl-high':'')+'">'+(r.exactModelOver===null?'—':(r.exactModelOver*100).toFixed(1)+'%')+'</b><small>EXACT LINE ONLY</small></td>'
    +'<td><b>'+fmt(r.l5?.avg)+'</b></td><td><b>'+text(price(r.quote.price))+'</b><small>'+text(r.quote.book)+'</small></td></tr>';
  }).join('');
  return '<section class="nba-lab nfl-lab nfl-props"><div class="nba-intro"><div><span class="nba-eyebrow">NFL / TSO RESEARCH 3.0</span><h2>'+ (view==='injuries'?'NFL INJURY & DEPTH REPORT':'NFL EXACT-LINE PLAYER PROPS')+'</h2><p>'
   +(view==='injuries'?'Current ESPN questionable, doubtful, out, IR, and suspension reports, ranked by status severity. Practice participation is not a final inactive designation.':
-   'Verified sportsbook lines, L5 and L10 observed results, sample counts, best listed sportsbook prices and individual game logs. No unders or synthetic lines.')
+   'Current verified Over lines, observed L5/L10 results and 50K model percentages only when the exact player, event, market and line match. No unders, fabricated projections or implied probabilities.')
   +'</p></div></div>'
   +'<div class="nba-depth-source">OFFICIAL NFL SCHEDULE · '+allGames.length+' UPCOMING · RESEARCH '+text(asof(ctx.research?.generatedAt))+' · BOOK SNAPSHOT '+text(asof(ctx.odds?.fetchedAt))
-  +(view==='injuries'?' · ESPN INJURIES '+text(asof(ctx.injuries?.fetchedAt)):' · '+(ctx.odds?.available?'FRESH VERIFIED PRE-GAME BOOKS':'CURRENT VERIFIED BOOKS UNAVAILABLE'))+'</div>'
+  +(view==='injuries'?' · ESPN INJURIES '+text(asof(ctx.injuries?.fetchedAt)):' · 50K SIM '+text(asof(ctx.sim?.generatedAt))+' · '+(ctx.odds?.available?'FRESH VERIFIED PRE-GAME BOOKS':'CURRENT VERIFIED BOOKS UNAVAILABLE'))+'</div>'
   +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table"><thead><tr>'
-  +(view==='injuries'?['PLAYER','MATCHUP','STATUS','DEPTH','INJURY','L5 SNAP %','RESEARCH UPDATED']:['PLAYER','MATCHUP','MARKET','CURRENT LINE','L5 OVER','L10 OVER','L5 AVG','BEST BOOK'])
+  +(view==='injuries'?['PLAYER','MATCHUP','STATUS','DEPTH','INJURY','L5 SNAP %','RESEARCH UPDATED']:['PLAYER','MATCHUP','MARKET','CURRENT LINE','L5 OVER','L10 OVER','50K EXACT OVER','L5 AVG','BEST BOOK'])
    .map(x=>'<th>'+text(x)+'</th>').join('')+'</tr></thead><tbody>'
   +(rows||'<tr><td colspan="8">No current verified '+(view==='injuries'?'injury reports':'NFL sportsbook quotes')+' meet these filters. No historical or unmatched selections are substituted.</td></tr>')
   +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+result.length+' exact, verified records</span>'
@@ -130,10 +138,11 @@ function details(r){
  const q=r.quote,log=r.player.logs||[];
  return '<div class="drawer-contents"><span class="eyebrow">NFL / VERIFIED MARKET</span><h2>'+text(r.player.name)+'</h2><p>'+text(label[q.market])+' · OVER '+fmt(q.line)+' · '+price(q.price)+' '+text(q.book)+'</p>'
   +'<div class="nfl-detail-grid"><div><small>L5 OVER</small><b>'+text(pct(r.l5))+'</b></div><div><small>L10 OVER</small><b>'+text(pct(r.l10))+'</b></div>'
+  +'<div><small>50K EXACT-LINE OVER</small><b>'+(r.exactModelOver===null?'—':(r.exactModelOver*100).toFixed(1)+'%')+'</b><small>Model estimate, not sportsbook odds</small></div>'
   +'<div><small>L5 AVERAGE</small><b>'+fmt(r.l5?.avg)+'</b></div><div><small>TSO ATD MODEL</small><b>'+(r.atd===null?'—':(r.atd*100).toFixed(1)+'%')+'</b></div></div>'
   +'<h3>Verified recent game log</h3><div class="nba-log-scroll"><table class="nba-log"><thead><tr><th>WEEK</th><th>SEASON</th><th>OPP</th><th>RESULT</th><th>VS LINE</th></tr></thead><tbody>'
   +log.slice(0,20).map(g=>{const value=metrics(g,q.market);return '<tr><td>'+text(g.week)+'</td><td>'+text(g.season)+'</td><td>'+text(g.opponent)+'</td><td>'+fmt(value)+'</td><td>'+ (value===null?'—':value>q.line?'OVER':'NOT OVER')+'</td></tr>'}).join('')
-  +'</tbody></table></div><p class="nba-footnote">Last source update: '+text(asof(state.ctx.odds?.fetchedAt))+'. Odds are snapshot observations, not a streaming sportsbook order book.</p></div>';
+  +'</tbody></table></div><p class="nba-footnote">Last source update: '+text(asof(state.ctx.odds?.fetchedAt))+'. The 50K model requires an exact game, player, Over side, prop category and current line. If a line differs or a simulation is unavailable, no model percentage appears. Odds are timestamped snapshots, not a live streaming book.</p></div>';
 }
 function repaint(){const root=document.getElementById('nflPropsSlot');if(root)root.innerHTML=markup(state.ctx,state.view)}
 function click(event){
