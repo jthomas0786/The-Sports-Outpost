@@ -12,7 +12,6 @@ on:
     paths:
       - 'scripts/nfl-odds-refresh.mjs'
       - 'scripts/nfl-odds-refresh-v891.mjs'
-      - 'scripts/nfl-odds-refresh-diagnostics.mjs'
       - 'scripts/nfl-week-window.mjs'
       - 'scripts/nfl-v881-selftest.mjs'
       - '.github/workflows/nfl-odds.yml'
@@ -55,13 +54,6 @@ jobs:
           PARLAY_API_KEY: ${{ secrets.PARLAY_API_KEY }}
           NFL_ODDS_FORCE: ${{ github.event_name == 'push' && '1' || (inputs.force == true && '1' || '0') }}
         run: node scripts/nfl-odds-refresh-v891.mjs
-
-      # Free local diagnostics only: no extra ParlayAPI requests or secrets.
-      # Runs even when paid-refresh step fails, to expose how old the last
-      # published odds file is relative to the actual game-time threshold.
-      - name: Diagnose NFL publisher freshness
-        if: always()
-        run: node scripts/nfl-odds-refresh-diagnostics.mjs
 
       - name: Validate odds file when changed
         run: |
