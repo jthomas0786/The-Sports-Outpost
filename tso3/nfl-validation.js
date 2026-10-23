@@ -10,14 +10,29 @@ const asof=v=>{const d=new Date(v||'');return Number.isNaN(d.getTime())?'Unavail
 const status={UNVALIDATED:'No independent backtest',INSUFFICIENT:'Insufficient sample',EXPERIMENTAL:'Experimental only'};
 const titles={passYds:'Passing yards',rushYds:'Rushing yards',recYds:'Receiving yards',receptions:'Receptions'};
 const state={scope:'all',showMethod:false};
-let current=null,currentError='',pending=false;
+let current=null,currentError='',pending=false,currentArchive=null;
 function box(key,value,description){
  return '<div><small>'+esc(key)+'</small><b>'+esc(value)+'</b><span>'+esc(description||'')+'</span></div>';
 }
 function tableCell(value){return '<td>'+esc(value)+'</td>'}
 function detailItem(label,value){return '<div><small>'+esc(label)+'</small><b>'+esc(value)+'</b></div>'}
-function render(data,error='',loading=false){
- current=data;currentError=error;pending=loading;
+function archiveSummary(a){
+ if(!a?.available)return '<section class="nfl-validation-archive"><h3>Scheduled pregame archive</h3><p>'+esc(a?.reason||'Waiting for archive status')+'</p></section>';
+ const last=a.lastRun||{};
+ return '<section class="nfl-validation-archive"><h3>Scheduled NFL pregame archive · append-only</h3>'
+  +'<div class="nfl-validation-archive-metrics">'
+  +box('SAVED PREDICTION SNAPSHOTS',a.snapshotCount??0,'Immutable pre-kickoff captures')
+  +box('DISTINCT GAMES',a.gameCount??0,'Unique ESPN event IDs')
+  +box('SETTLED OUTCOMES',a.outcomeCount??0,'Separate from prediction history')
+  +box('MOST RECENT CAPTURE',a.latestCapture?asof(a.latestCapture):'None','Stored source-time snapshots')
+  +'</div><p class="nba-footnote">Latest scheduled run: '+esc(last.status||'Awaiting first run')
+  +' · '+esc(last.completed_at?asof(last.completed_at):'Not run yet')
+  +' · newly saved '+esc(last.inserted_predictions??0)
+  +(last.reason?' · '+esc(last.reason):'')+'</p>'
+  +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p></section>';
+}
+function render(data,error='',loading=false,archive=null){
+ current=data;currentError=error;pending=loading;currentArchive=archive;
  if(!data||data.available!==true)return '<section class="nba-lab nfl-lab nfl-validation"><div class="nba-intro"><div>'
   +'<span class="nba-eyebrow">NFL / RESEARCH QUALITY</span><h2>MODEL BACKTEST & VALIDATION</h2>'
   +'<p>Original archived results only, never a made-up predictive accuracy score.</p></div></div>'
@@ -47,6 +62,7 @@ function render(data,error='',loading=false){
   +'</div></div><div class="nba-depth-source">AUDITED SOURCES · FIRST TD '+esc(asof(td.publishedAt))
   +' · RETROSPECTIVE 50K REPLAY '+esc(sim.historicalPeriod||'—')+' · READ ONLY</div>'
   +'<p class="nfl-model-note"><b>Important:</b> these are different model experiments. Their combined sample does not constitute a live TSO model accuracy grade or a profitable betting system.</p>'
+   +archiveSummary(archive)
   +'<div class="nfl-validation-stats">'
   +box('HISTORICAL FIRST TD HOLDOUT',n,'Independent completed games')
   +box('HISTORICAL HEURISTIC BRIER',fixed(v,5),'Multiclass, lower is better')
@@ -115,7 +131,7 @@ function render(data,error='',loading=false){
 }
 function refresh(){
  const slot=document.getElementById('nflValidationSlot');
- if(slot)slot.innerHTML=render(current,currentError,pending);
+ if(slot)slot.innerHTML=render(current,currentError,pending,currentArchive);
 }
 function click(e){
  const tab=e.target.closest?.('[data-nfl-validation-scope]');
