@@ -443,14 +443,21 @@ function render(ctx,tool){
   +' · PLAYER RESEARCH '+esc(asof(ctx.research?.generatedAt))
   +' · TSO TD MODEL '+esc(asof(ctx.td?.generatedAt))
   +' · BOOKS '+esc(asof(ctx.odds?.fetchedAt))+' · ESPN INJURIES '+esc(asof(ctx.injuries?.fetchedAt))
-  +((modelTools.has(tool)||tool==='game-projections')?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')
+  +((modelTools.has(tool)||tool==='game-projections'||tool==='coverage-matchups')?' · 50K SIM '+esc(asof(ctx.sim?.generatedAt)):'')
   +(tool==='weather-impact'?' · NOAA NWS WEATHER '+(ctx.weather?.fetchedAt?esc(asof(ctx.weather.fetchedAt)):ctx.weatherError?'FORECAST UNAVAILABLE':'FETCHING...'):'')+'</div>';
  const modelAlert=ctx.td?.modelFresh===false?'TD MODEL SNAPSHOT EXPIRED — probabilities hidden until refreshed.':
   ctx.td?.modelFresh===true?'TSO ATD uses 2025 production adjusted for 2026 roles; 50K ATD and 2+ TD use a separate game simulation. Gaps of 12+ percentage points are flagged as a comparison prompt—not a validated risk score. Sort by either model.':
   'Verified current NFL touchdown model unavailable.';
  const list=getFiltered().slice(0,state.max);
  const controls='<div class="nba-controls nfl-controls">'+selectBox('games',gameOptions)
-  +(gameTools.has(tool)?'':selectBox('positions',['QB','RB','WR','TE'].map(x=>[x,x])))
+  +(gameTools.has(tool)?'':selectBox('positions',(tool==='coverage-matchups'?['WR','TE','RB']:['QB','RB','WR','TE']).map(x=>[x,x])))
+  +(tool==='coverage-matchups'?'<div class="nfl-coverage-markets"><span>RECEIVING MARKET</span>'
+   +Object.entries(COVERAGE_MARKETS).map(([id,label])=>
+    '<button type="button" data-nfl-coverage-market="'+id+'" class="'+(state.coverageMarket===id?'active':'')+'">'+esc(label)+'</button>').join('')
+   +'</div><div class="nfl-sort-views"><span>SORT BY</span>'
+   +[['model','50K EXACT OVER'],['form','L5 FORM'],['allowed','DEF ALLOWED'],['share','TARGET SHARE']].map(([id,label])=>
+    '<button type="button" data-nfl-coverage-sort="'+id+'" class="'+(state.coverageSort===id?'active':'')+'">'+label+'</button>').join('')
+   +'</div>':'')
   +(tool==='touchdown-opportunities'?'<div class="nfl-sort-views"><span>SORT BY</span>'
   +[['tso','TSO ATD'],['sim','50K ATD'],['gap','MODEL GAP']].map(([key,label])=>
     '<button type="button" data-nfl-tdorder="'+key+'" class="'+(state.tdOrder===key?'active':'')+'">'+label+'</button>').join('')
@@ -459,13 +466,15 @@ function render(ctx,tool){
   +'<label class="nba-search-label">SEARCH<input data-nfl-search placeholder="Player or team" value="'+esc(state.search)+'"></label>'
   +'<button type="button" class="nba-sort-direction" data-nfl-sort title="Reverse sorting">'+(state.reverse?'↑':'↓')+'</button></div>';
  return '<section class="nba-lab nfl-lab"><div class="nba-intro"><div><span class="nba-eyebrow">THE SPORTS OUTPOST / NFL VERIFIED RESEARCH</span><h2>'+esc(titles[tool])+'</h2><p>'+esc(notes[tool])+'</p></div></div>'
- +source+(modelTools.has(tool)?'<p class="nfl-model-note">'+esc(modelAlert)+'</p>':'')
- +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table'+(tool==='defense-vs-position'?' nfl-dvp-table':'')+'"><thead><tr>'
+ +source+(tool==='coverage-matchups'?'<p class="nfl-model-note">2026 opponent allowances measure an entire WR, TE or RB position group, not one receiver’s expected output. L5/L10 are observed 2026 games. The 50K model must match the exact player, matchup, Over market and line. Cornerback assignments and man/zone grades are unavailable.</p>':'')
+ +(modelTools.has(tool)?'<p class="nfl-model-note">'+esc(modelAlert)+'</p>':'')
+ +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table'+(tool==='defense-vs-position'?' nfl-dvp-table':tool==='coverage-matchups'?' nfl-coverage-table':'')+'"><thead><tr>'
  +columns[tool].map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'
- +(list.map(row).join('')||'<tr><td colspan="8">No verified records meet these filters. Defense-vs-position groups with unavailable source data show dashes; no player-specific stats are substituted.</td></tr>')
+ +(list.map(row).join('')||'<tr><td colspan="'+columns[tool].length+'">No verified records match the selected matchup, position or sample filters. Unavailable defensive, sportsbook and model values are not estimated.</td></tr>')
  +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+state.visible.length+' verified rows · click any row for details</span>'
  +(list.length<state.visible.length?'<button data-nfl-more type="button">SHOW MORE →</button>':'')+'</div>'
  +'<p class="nba-footnote">Weather Impact uses ESPN venue designation and NOAA/NWS hourly forecasts for the kickoff hour at matched U.S. stadium coordinates. The forecasts are predictive weather, not observed game conditions. For indoor games, outdoor weather is not assigned; outside the United States, no NOAA forecast is claimed. Forecast may be unavailable if the source or stadium match cannot be verified.</p>'
+ +(tool==='coverage-matchups'?'<p class="nba-footnote">Coverage research uses current ESPN games, observed nflverse 2026 receiver production, defense-wide allowances to matching WR/TE/RB position groups, and only verified current sportsbook Over prices and exact-line 50K model predictions. The defensive secondary roster is context—not a claimed 1-on-1 coverage assignment.</p>':'')
  +'<p class="nba-footnote">Offensive Line Matchups shows 2026 QB-pass and RB-rush yards allowed by the opposite defense as a matchup proxy only. These are not offensive-line grades, pressure rates or run-block win rates. Power Ratings uses game-specific simulations, not a season-long team rating.</p>'
  +(tool==='defense-vs-position'?'<p class="nba-footnote">One row per upcoming defense and opposing position (two defenses × QB/RB/WR/TE = eight rows per game). Rows are defense-wide position-group allowances, not individual player statistics. Dashes mean data is unavailable or inconsistent. Select multiple games or positions using the filters above.</p>':'')
  +'<p class="nba-footnote">For Defense vs Position, the 2026 reference is an unweighted mean of distinct defenses in the available TSO season dataset, each with three or more observed games (currently 28 defenses, not all 32). Positive differences indicate more yards allowed to the position than the sample reference. Descriptive, not predictive, and not a tracking-based coverage grade.</p>'
@@ -543,6 +552,10 @@ function repaint(){
 }
 function click(event){
  const target=event.target;
+ const market=target.closest('[data-nfl-coverage-market]');
+ if(market){state.coverageMarket=market.dataset.nflCoverageMarket;state.max=90;state.reverse=false;repaint();return true}
+ const sort=target.closest('[data-nfl-coverage-sort]');
+ if(sort){state.coverageSort=sort.dataset.nflCoverageSort;state.max=90;state.reverse=false;repaint();return true}
  const tdOrder=target.closest('[data-nfl-tdorder]');
  if(tdOrder){state.tdOrder=tdOrder.dataset.nflTdorder;state.reverse=false;repaint();return true}
  if(target.closest('[data-nfl-sort]')){state.reverse=!state.reverse;repaint();return true}
