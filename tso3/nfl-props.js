@@ -15,8 +15,8 @@ const when=v=>{const d=new Date(v||'');return Number.isFinite(d.getTime())?d.toL
 const asof=v=>{const d=new Date(v||'');return Number.isFinite(d.getTime())?d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZone:'America/Chicago'})+' CT':'unavailable'};
 const team=t=>({LAR:'LA',WSH:'WAS',JAX:'JAC'}[String(t||'').toUpperCase()]||String(t||'').toUpperCase());
 const metrics=(r,market)=>market==='atd'?(n(r.rushTds)||0)+(n(r.recTds)||0):market==='firstTd'?null:n(r[fields[market]]);
-function actual(logs,key,line,count){
- const values=(logs||[]).slice(0,count).map(g=>metrics(g,key)).filter(x=>x!==null);
+function actual(logs,key,line,count,season){
+ const values=(logs||[]).filter(g=>Number(g.season)===Number(season)).slice(0,count).map(g=>metrics(g,key)).filter(x=>x!==null);
  if(!values.length)return null;
  return {n:values.length,over:values.filter(x=>x>line).length,avg:values.reduce((a,b)=>a+b,0)/values.length};
 }
@@ -54,7 +54,7 @@ function build(ctx,view){
    (norm(injury.name)===norm(player.name)&&team(injury.team)===team(player.team)))||null;
   const ruledOut=/^(out|injured reserve|inactive|suspended|suspension)$/i.test(String(officialInjury?.status||''));
   const r={id,player,game,quote:q,mode:view,officialInjury,ruledOut};
-  r.l5=actual(player.logs,q.market,line,5);r.l10=actual(player.logs,q.market,line,10);
+  r.l5=actual(player.logs,q.market,line,5,ctx.research?.season);r.l10=actual(player.logs,q.market,line,10,ctx.research?.season);
   const modelPlayer=tdGames.find(g=>String(g.id)===String(game.id))?.players?.find(p=>norm(p.name)===norm(player.name)&&team(p.team)===team(player.team));
   r.atd=!ruledOut&&ctx.td?.modelFresh&&q.market==='atd'?n(modelPlayer?.modelProbability):null;
   const simPlayer=simGames.find(g=>String(g.id)===String(game.id))?.players?.find(p=>
@@ -141,17 +141,17 @@ function markup(ctx,view){
  }).join('');
  return '<section class="nba-lab nfl-lab nfl-props"><div class="nba-intro"><div><span class="nba-eyebrow">NFL / TSO RESEARCH 3.0</span><h2>'+ (view==='injuries'?'NFL INJURY & DEPTH REPORT':'NFL EXACT-LINE PLAYER PROPS')+'</h2><p>'
   +(view==='injuries'?'Current ESPN questionable, doubtful, out, IR, and suspension reports, ranked by status severity. Practice participation is not a final inactive designation.':
-   'Current verified Over lines, observed L5/L10 results and 50K model percentages only when the exact player, event, market and line match. No unders, fabricated projections or implied probabilities.')
+   'Current verified Over lines, observed 2026-season L5/L10 results (actual sample counts shown) and 50K model percentages only when the exact player, event, market and line match. No unders, fabricated projections or implied probabilities.')
   +'</p></div></div>'
   +'<div class="nba-depth-source">OFFICIAL NFL SCHEDULE · '+allGames.length+' UPCOMING · RESEARCH '+text(asof(ctx.research?.generatedAt))+' · BOOK SNAPSHOT '+text(asof(ctx.odds?.fetchedAt))
   +(view==='injuries'?' · ESPN INJURIES '+text(asof(ctx.injuries?.fetchedAt)):' · 50K SIM '+text(asof(ctx.sim?.generatedAt))+' · ESPN INJURIES '+text(asof(ctx.injuries?.fetchedAt))+' · '+modelCount+' ACTIVE/ELIGIBLE EXACT MODEL MATCHES · '+(ctx.odds?.available?'FRESH VERIFIED PRE-GAME BOOKS':'CURRENT VERIFIED BOOKS UNAVAILABLE'))+'</div>'
   +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table"><thead><tr>'
-  +(view==='injuries'?['PLAYER','MATCHUP','STATUS','DEPTH','INJURY','L5 SNAP %','RESEARCH UPDATED']:['PLAYER','MATCHUP','MARKET','CURRENT LINE','L5 OVER','L10 OVER','50K EXACT OVER','L5 AVG','BEST BOOK'])
+  +(view==='injuries'?['PLAYER','MATCHUP','STATUS','DEPTH','INJURY','L5 SNAP %','RESEARCH UPDATED']:['PLAYER','MATCHUP','MARKET','CURRENT LINE','2026 L5 OVER','2026 L10 OVER','50K EXACT OVER','2026 L5 AVG','BEST BOOK'])
    .map(x=>'<th>'+text(x)+'</th>').join('')+'</tr></thead><tbody>'
   +(rows||'<tr><td colspan="8">No current verified '+(view==='injuries'?'injury reports':'NFL sportsbook quotes')+' meet these filters. No historical or unmatched selections are substituted.</td></tr>')
   +'</tbody></table></div><div class="nba-table-foot"><span>'+list.length+' shown of '+result.length+' exact, verified records</span>'
   +(list.length<result.length?'<button type="button" data-nfl-prop-more>SHOW MORE →</button>':'')+'</div>'
-  +'<p class="nba-footnote">Source: TSO ParlayAPI snapshot matched by two teams and kickoff to official ESPN NFL events; nflverse 2026 observed game logs (CC BY 4.0), ESPN rosters/injuries. Historical hit rates count games exceeding the displayed exact line; missing games remain excluded. Touchdown projections on the separate TSO ATD page use a calibrated model and are not implied by sportsbook odds.</p></section>';
+  +'<p class="nba-footnote">Source: TSO ParlayAPI snapshot matched by two teams and kickoff to official ESPN NFL events; nflverse 2026 observed game logs (CC BY 4.0), ESPN rosters/injuries. L5 and L10 hit rates use completed 2026 regular-season player game logs only, with the actual n shown when fewer than ten games exist. Each Over hit requires the observed result to exceed the exact listed line; missing games remain excluded. Touchdown projections on the separate TSO ATD page use a calibrated model and are not implied by sportsbook odds.</p></section>';
 }
 function details(r){
  if(state.view==='injuries')return '<div class="drawer-contents"><h2>'+text(r.player.name)+'</h2><p>'+text(r.player.injury?.status||'Status unknown')+'</p><p>'+text(r.player.injury?.detail||'No official detail attached.')+'</p><p>ESPN NFL injury feed checked '+text(asof(state.ctx.injuries?.fetchedAt))+'. This is not a final official game-day inactive list.</p></div>';
