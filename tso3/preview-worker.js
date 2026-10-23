@@ -400,7 +400,8 @@ function nflFinalBoxscore(summary,gameId,kickoff){
     if(!name)continue;
     const key=team+'|'+name;
     const explicitlyDnp=row.didNotPlay===true||athlete.didNotPlay===true;
-    const explicitlyInactive=row.active===false||athlete.active===false;
+    const explicitlyInactive=(row.active===false||athlete.active===false)
+     &&/\b(inactive|did not play|dnp)\b/i.test(String(row.reason||athlete.reason||''));
     if(explicitlyDnp||explicitlyInactive){
      const prev=nonparticipants.get(key)||{team,name,ids:new Set(),reasons:new Set()};
      if(athlete.id)prev.ids.add(String(athlete.id));
