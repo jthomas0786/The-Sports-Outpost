@@ -375,7 +375,7 @@ function nbaFullContext(tool){
 }
 function nflPropsResearch(view='props'){
  const module=window.TSO3NflProps;
- const ctx={games:state.live?.games||[],research:state.nflResearch,td:state.nflTD,odds:state.nflOdds,injuries:state.nflInjuries};
+ const ctx={games:state.live?.games||[],research:state.nflResearch,td:state.nflTD,odds:state.nflOdds,sim:state.nflSim,injuries:state.nflInjuries};
  return module?'<div id="nflPropsSlot">'+module.render(ctx,view)+'</div>'
   :empty('NFL prop research module unavailable','Refresh this development preview.');
 }
