@@ -161,3 +161,30 @@ The independent TSO 3.0 preview now has a dedicated, table-first Receiver vs Pas
 - All work is committed to `tso-3.0` branch and bundled to `tso3-preview` worker only. Main, TSO 2.0 and live production untouched.
 
 **Remaining tracking-data gaps:** actual CB/slot/shadow matchup assignments, coverage scheme breakdown (man/zone), routes run, average separation and route participation; avoid displaying inferred values for these.
+
+
+## NFL model validation — October 22, 2026
+
+Published new `NFL → Model Validation` view and `/api/nfl-validation` endpoint on isolated TSO 3.0 preview, revision `5.6-validation`. Code was committed only to `tso-3.0`; no changes to `main`, TSO 2.0 or production.
+
+**Evidence 1 — First touchdown heuristic (NOT Anytime TD):**
+- Read-only source: `main/tso2/data/nfl-first-td-backtest.json` (published Oct 8, 2026). Original historical first-scoring-player heuristic uses nflverse play-by-play, chronologically held-out games.
+- 126 held-out NFL games: 94 from 2025 and 32 from 2026. Multiclass Brier: heuristic `0.93111` vs historical baseline `0.95770`. Multiclass log loss: `3.03294` vs `3.65012`.
+- The source explicitly has `eligibleForLive=false`, selected player-probability-mass scale `1.0`, `publishCalibratedFirstTd=false`. Do not treat as a live calibration or an anytime TD backtest.
+
+**Evidence 2 — 50K simulation historical replay:**
+- Read-only source: `main/docs/nfl-accuracy-validation.json`, scoring game `401872657`.
+- Exactly **one scored game**, 3 archived forecast frames across separate phases; earliest archived pregame frame is selected independently of Q3. Pregame observed player counts: passYds n=3 MAE 42.88, rushYds n=9 MAE 14.22, recYds n=17 MAE 13.25, receptions n=17 MAE 1.30. Pregame ATD Brier 0.44661 on **7 correlated player observations within the same single game**. Winner n=1. The replay uses current model with historically archived inputs, *not* the original model version at that moment.
+- Missing player fields excluded rather than imputed; pushes excluded. Live-Q3 phase is **not** combined with pregame scoring.
+
+**Displayed validation gates:**
+- Current regressed Anytime TD: **UNVALIDATED**. The archival first-TD heuristic is different and the simulation replay does not establish current model calibration.
+- Current 50K pregame simulation: **INSUFFICIENT**; only 1 completed game in replay.
+- Current exact sportsbook-line Over probabilities: **UNVALIDATED**; no multi-game immutable pre-kickoff forecasts + settled outcomes.
+- Historical first-TD heuristic: **EXPERIMENTAL ONLY**, not approved for live calibration.
+
+Frontend features: model-scope tabs, source timestamps, heldout Brier/log loss vs baseline, pregame-only error metrics and interval coverage, small-sample warnings, methodology steps for immutable pregame snapshots and future official final outcomes. Page contains **no invented win rate, ROI, calibrated reliability curve, or cross-model accuracy grade**.
+
+Live Cloudflare Browser Rendering QA: `/api/nfl-validation` returned valid archive data with all four status gates; render at `#/nfl/cheatsheets/model-validation` displayed 126, 0.93111, 0.95770, 4 audit cards and distinct historical pregame stats. Module compilation and Worker deployment HTTP 200 succeeded.
+
+**Open blocker before genuine live calibration:** Durable timestamped/model-versioned snapshots of before-kickoff predictions, exact sportsbook lines, and independently recorded final outcomes across many distinct games. Do not fabricate historic pregame forecasts from current model output or label retrospective replay as out-of-sample live predictions.
