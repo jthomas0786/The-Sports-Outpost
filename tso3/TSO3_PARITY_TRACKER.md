@@ -208,3 +208,21 @@ The previous section accurately described the branch-only state **before** this 
 - The modified app route, source data table and source disclosures are bundled, not raw-branch fallbacks.
 - This verification covers deployment/configuration, **not** actual end-user browser interactivity or data availability in every upcoming matchup. Cloudflare Browser Rendering was not completed for the repaired route; the manual TD Matchups browser acceptance check remains outstanding.
 - Protected production/main and TSO 2.0 remain untouched. All league-wide sportsbook freshness and advanced coverage-feed requirements remain blockers to production.
+
+## NFL TD Matchups missing-field explanations & control repair — October 24, 2026, 17:28 UTC
+
+**Reported by owner:** TD Matchups showed stale regressed TD model and many blank cells; the checkbox for `Disagreements ≥12 pp` was rendered as an oversized square.
+
+**Source-trace:** The TSO regressed TD snapshot in the owner-visible table was generated October 20 and rejected by the Worker's 72-hour model freshness gate; the separately fresh 50K simulation correctly remained usable. The 2026 snap/target fields depend on partial `nfl-research.json` player coverage. The opponent TD-allowed fields depend on present, consistent 2026 defense/position observations with at least three defensive games. The general NFL sportsbook feed's fresh timestamp does **not** imply qualifying same-player/same-team/0.5 Yes anytime-TD prices.
+
+**Fixes pushed only to isolated `tso-3.0`:**
+
+- CSS checkbox sizing explicitly overrides generic input width, minimum dimensions and padding, with accessible square 16px checkbox. Corrected disabled visual state.
+- When the regressed ATD model expires, auto-select **50K ATD** sort instead of silently sorting by a fallback under a falsely highlighted `TSO ATD` button; disable model-gap comparisons and `≥12 pp` filter until fresh model is available.
+- Show live **field coverage counts** for selected player rows: L5 offensive snaps, current target share, defense TD group, and matched ATD prices. When there are zero source-verified current slate ATD sportsbook offers, show an explanatory warning; do not invent bookmaker prices.
+- Tightened book-quote join to exact official NFL game, normalized **player AND team**, `atd` market, `yes` side and `0.5` line.
+- Five focused test cases passed isolated checks; checked bundled source parses. No unsupported player stat values introduced.
+
+**Cloudflare isolated preview deployment:** Worker version **84** `4a7991f5-97a4-4c11-b11b-fd16e85ab7f9`, deployment `16154029-3a67-4713-bee5-a739f3695f7a`, read back at **100% preview traffic**. All 14 UI assets bundled. Original D1 `NFL_ARCHIVE` `b976a673-0fe5-4440-84c7-15b0475758ba` and `*/30 * * * *` cron independently confirmed unchanged. Main and production untouched. GitHub Actions and live browser interaction not independently verified.
+
+**Still unresolved:** Upstream TSO regressed ATD publisher needs a **fresh, validated** new run; historical NFL snap/target coverage, position defense records and genuine ParlayAPI ATD quotes must expand. Do not relax age limits or impute missing numbers merely to fill the table.
