@@ -1353,15 +1353,29 @@ function athleteStatFields(names,labels,values){
  const n=Array.isArray(names)?names:[],l=Array.isArray(labels)?labels:[];
  const size=values.length;
  if(!size||size>80)return [];
- return values.map((value,i)=>{
+ return values.flatMap((value,i)=>{
   const off=n.length===size?i:n.length>size?n.length-size+i:-1;
   const name=off>=0?String(n[off]||''):String(l[i]||'');
   const label=l.length===size?l[i]:off>=0?l[off]:null;
-  const number=Number(value);
-  return {name:name.slice(0,70),label:String(label||name||'STAT').slice(0,36),
-   value:String(value??'').slice(0,60),
-   numeric:value!==null&&value!==''&&Number.isFinite(number)?number:null};
- }).filter(x=>x.name);
+  if(!name)return [];
+  const number=Number(value),raw=String(value??'').slice(0,60);
+  const result=[{name:name.slice(0,70),label:String(label||name||'STAT').slice(0,36),
+   value:raw,numeric:value!==null&&value!==''&&Number.isFinite(number)?number:null}];
+  // ESPN publishes composites such as fieldGoalsMade-fieldGoalsAttempted = "14-26".
+  // Only split where BOTH literal source field names and numeric entries align.
+  // The original 14-26 remains intact; never turn a dash/missing value into 0.
+  const parts=name.split('-'),figures=raw.split('-');
+  if(parts.length>=2&&parts.length<=3&&parts.length===figures.length
+   &&parts.every(p=>/^[A-Za-z][A-Za-z0-9]*$/.test(p))
+   &&figures.every(v=>/^\\d+(?:\\.\\d+)?$/.test(v))){
+   for(let j=0;j<parts.length;j++)result.push({
+    name:parts[j],label:parts[j].replace(/([a-z])([A-Z])/g,'$1 $2').slice(0,36),
+    value:figures[j],numeric:Number(figures[j]),source:'ESPN literal paired field',
+    compositeOriginal:raw
+   });
+  }
+  return result;
+ });
 }
 function athleteGamelogEntries(doc,now){
  // ESPN gamelogs store opponent/date in root events, numeric values in
@@ -1420,6 +1434,37 @@ function athleteGamelogEntries(doc,now){
   if(fields.length)put(e,id,'',fields,'Unknown');
  }
  return [...assembled.values()].sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,42);
+}
+/* Exact same-game arithmetic only; never construct an observed player hit
+   from data that was missing in any contributing ESPN statistical category. */
+function verifiedDerivedAthleteStats(events,sport){
+ const named=(row)=>String(row?.name||'').split(':').at(-1)
+  .toLowerCase().replace(/[^a-z0-9]/g,'');
+ const composites={
+  nba:[['pointsReboundsAssists',['points','rebounds','assists'],'PTS + REB + AST'],
+       ['pointsRebounds',['points','rebounds'],'PTS + REB'],
+       ['pointsAssists',['points','assists'],'PTS + AST'],
+       ['reboundsAssists',['rebounds','assists'],'REB + AST']],
+  wnba:[['pointsReboundsAssists',['points','rebounds','assists'],'PTS + REB + AST'],
+       ['pointsRebounds',['points','rebounds'],'PTS + REB'],
+       ['pointsAssists',['points','assists'],'PTS + AST'],
+       ['reboundsAssists',['rebounds','assists'],'REB + AST']],
+  mlb:[['hitsRunsRbis',['hits','runs','rbis'],'H + R + RBI']],
+  nfl:[['passingRushingYards',['passingyards','rushingyards'],'PASS + RUSH YDS']]
+ }[sport]||[];
+ if(!composites.length)return events;
+ return events.map(event=>{
+  const values=Array.isArray(event.stats)?event.stats.slice():[];
+  for(const [name,inputs,label] of composites){
+   if(values.some(x=>named(x)===name.toLowerCase()))continue;
+   const matched=inputs.map(input=>values.find(v=>named(v)===input&&typeof v.numeric==='number'&&Number.isFinite(v.numeric)));
+   if(matched.some(v=>!v))continue;
+   const total=matched.reduce((n,v)=>n+v.numeric,0);
+   values.push({name:'TSO Derived:'+name,label,value:String(total),numeric:total,
+    source:'TSO arithmetic from same ESPN game',derivedFrom:matched.map(v=>v.name)});
+  }
+  return {...event,stats:values};
+ });
 }
 function athleteSeasonStats(doc){
  const categories=Array.isArray(doc?.categories)?doc.categories:[];
@@ -1494,7 +1539,7 @@ async function verifiedAthleteDepth(sport,id,season){
   }
  };
  const [gameDoc,seasonDoc,splitDoc]=await Promise.all([load('gamelog'),load('stats'),load('splits')]);
- const now=Date.now(),events=gameDoc?athleteGamelogEntries(gameDoc,now):[];
+ const now=Date.now(),events=gameDoc?verifiedDerivedAthleteStats(athleteGamelogEntries(gameDoc,now),sport):[];
  const stats=seasonDoc?athleteSeasonStats(seasonDoc):[];
  const officialSplits=splitDoc?athleteOfficialSplits(splitDoc):[];
  if(!events.length&&!stats.length&&!officialSplits.length)return {available:false,sport,athleteId:id,season,
