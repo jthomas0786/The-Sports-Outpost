@@ -525,6 +525,13 @@ async function hydrateFullPlayerDashboard(){
  if(doc.athleteName&&player.name&&canon(doc.athleteName)!==canon(player.name)){
   el('fullPlayerDashboardSlot').innerHTML='<p class="page-note">Official ESPN identity mismatch; no different player game logs were attached. Check the player roster.</p>';return;
  }
+ // Retain the originating exact market when opening a dashboard from a
+ // verified sportsbook prop; do not default to unrelated alphabetic stat.
+ if(!state.playerUI.metric&&player.market&&doc?.available){
+  const statNames=renderer.statList(doc);
+  const matched=statNames.find(x=>renderer.marketStatMatches(player.market,x.key));
+  if(matched)state.playerUI.metric=matched.key;
+ }
  const quotes=getRows().filter(q=>{
   const sameId=String(q.playerId||'')===id;
   const verifiedName=player.name&&canon(nameOf(q))===canon(player.name);
@@ -532,6 +539,12 @@ async function hydrateFullPlayerDashboard(){
   return (sameId||verifiedName&&sameGame)&&(!player.team||!q.team||canon(q.team)===canon(player.team));
  });
  const game=getGames().find(g=>player.verifiedGameId&&String(g.id)===String(player.verifiedGameId))||null;
+ if(!state.playerUI.lineKey&&player.market&&player.line!==undefined&&player.line!==null){
+  const selected=quotes.find(q=>renderer.marketStatMatches(q.market,state.playerUI.metric)
+    &&Number(q.line)===Number(player.line));
+  if(selected)state.playerUI.lineKey=String(selected.market||'').toUpperCase()
+    .replace(/[^A-Z0-9]/g,'')+':'+Number(selected.line);
+ }
  el('fullPlayerDashboardSlot').innerHTML=renderer.render({sport,doc,player,game,odds:quotes,ui:state.playerUI});
 }
 function refreshFullPlayerDashboard(){
