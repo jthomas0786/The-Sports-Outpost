@@ -285,7 +285,7 @@ function renderFilters(){
  el('bookPicker').innerHTML=buildMulti('Sportsbooks',books,state.bookSelections,'books',state.bookOpen);
  el('window').value=state.window;el('sort').value=state.sort;el('search').value=state.search;
  el('globalMatchups').innerHTML=globalMatchupMarkup();
- el('toolbar').hidden=['games','cheatsheets','ratings','projections','injuries'].includes(state.page)&&!state.tool&&!state.game;
+ // render() owns visibility so navigation never inherits a hidden filter.
 }
 function section(title,subtitle){return '<div class="section-heading"><h2>'+text(title)+'</h2><small>'+text(subtitle||'')+'</small></div>'}
 function empty(title,body){return '<div class="empty"><span class="empty-symbol">'+iconSvg('database')+'</span><h3>'+text(title)+'</h3><p>'+text(body)+'</p></div>'}
@@ -620,9 +620,15 @@ function render(){
  renderNav();renderMetrics();renderFilters();
  const nflFocused=state.sport==='nfl'&&((state.page==='cheatsheets'&&(state.tool==='model-validation'||window.TSO3NflLab?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
  const focusLab=nflFocused||state.sport==='nba'&&((state.page==='cheatsheets'&&(['player-form','matchup-vs-position'].includes(state.tool)||window.TSO3NbaDepth?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
- el('hero').hidden=focusLab;
- el('quickStatus').hidden=focusLab;
- el('toolbar').hidden=focusLab||el('toolbar').hidden;
+ // A research-first layout across all six leagues: large artwork belongs to
+ // the overview only. Recompute filter visibility from route every time;
+ // never OR with an old DOM hidden state from a previous page.
+ el('hero').hidden=state.page!=='overview';
+ el('quickStatus').hidden=state.page!=='overview';
+ const filtersAllowed=['overview','props','trends'].includes(state.page)
+  ||state.page==='games'&&Boolean(state.game)
+  ||state.page==='projections'&&state.sport!=='nfl'&&state.sport!=='nba';
+ el('toolbar').hidden=focusLab||!filtersAllowed;
  let body='';
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation')body=nflValidationResearch();
  else if(state.sport==='nfl'&&state.page==='props')body=nflPropsResearch('props');
