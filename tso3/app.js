@@ -112,7 +112,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,playerId:null,playerProfile:null,playerUI:{tab:'overview',metric:null,split:'all',opponent:'',window:'l10',phase:null,lineKey:''},search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nhlDefense:null,nhlDefenseFetched:0,nhlDefensePosition:'C',nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,playerId:null,playerProfile:null,playerUI:{tab:'overview',metric:null,split:'all',opponent:'',window:'l10',phase:null,season:null,lineKey:''},search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nhlDefense:null,nhlDefenseFetched:0,nhlDefensePosition:'C',nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -511,7 +511,10 @@ async function hydrateFullPlayerDashboard(){
  const container=el('fullPlayerDashboardSlot'),renderer=window.TSO3PlayerDashboard;
  if(!container)return;
  if(!renderer){container.innerHTML='<p class="page-note">Player dashboard module unavailable. Refresh the preview.</p>';return}
- const season=ATHLETE_SEASON[sport]||2026,key=sport+':'+id+':'+season,player=dashboardSelectedPlayer()||{playerId:id};
+ const current=ATHLETE_SEASON[sport]||2026;
+ const requested=Number(state.playerUI.season||current);
+ const season=Number.isInteger(requested)&&requested>=current-2&&requested<=current?requested:current;
+ const key=sport+':'+id+':'+season,player=dashboardSelectedPlayer()||{playerId:id};
  let doc=athleteDepthCache.get(key);
  if(!doc){
   try{
@@ -1229,7 +1232,7 @@ function route(sport,page,tool=null,athleteId=null){
  state.matchupOpen=false;
  const safeId=page==='player'&&/^\d{3,12}$/.test(String(athleteId||''))?String(athleteId):null;
  const samePerson=state.sport===sport&&state.playerId===safeId;
- if(!samePerson)state.playerUI={tab:'overview',metric:null,split:'all',opponent:'',window:'l10',phase:null,lineKey:''};
+ if(!samePerson)state.playerUI={tab:'overview',metric:null,split:'all',opponent:'',window:'l10',phase:null,season:null,lineKey:''};
  state.playerId=safeId;
  state.sport=sport;state.page=page;state.tool=matched;state.openSport=null;state.game=null;state.market='all';state.book='all';state.marketSelections=[];state.bookSelections=[];state.marketOpen=false;state.bookOpen=false;state.search='';state.maxRows=40;
  closeDrawer();render();el('main').scrollIntoView({block:'start'});
@@ -1472,9 +1475,14 @@ document.addEventListener('change',e=>{
  const playerOption=e.target.closest?.('[data-pd-setting]');
  if(playerOption&&state.page==='player'){
   const kind=playerOption.dataset.pdSetting;
-  if(['metric','window','split','opponent','lineKey','phase'].includes(kind)){
+  if(['metric','window','split','opponent','lineKey','phase','season'].includes(kind)){
    state.playerUI[kind]=playerOption.value;
    if(kind==='metric')state.playerUI.lineKey='';
+   if(kind==='season'){
+    state.playerUI.metric=null;state.playerUI.lineKey='';state.playerUI.phase=null;
+    const slot=el('fullPlayerDashboardSlot');
+    if(slot)slot.innerHTML='<div class="tso-pd-loading">Loading official ESPN season '+text(playerOption.value)+'...</div>';
+   }
    if(kind==='split'&&state.playerUI.split!=='opponent')state.playerUI.opponent='';
    refreshFullPlayerDashboard();
   }
