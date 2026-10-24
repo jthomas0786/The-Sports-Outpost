@@ -35,7 +35,8 @@ test('no non-source-backed specialized categories are marked ready',()=>{
 });
 test('no current fixture does not manufacture starting lineup or projected stats',()=>{
  const view=module.render({sport:'wnba',games:[],title:'Player Trends'},'player-trends');
- assert.match(view,/no current matchup roster/i);
+ assert.match(view,/data-observed-team/);
+ assert.match(view,/Browse ESPN official team rosters/);
  assert.doesNotMatch(view,/data-observed-player=/);
 });
 test('all registered sport modules use exact ESPN fixture and athlete IDs',()=>{
