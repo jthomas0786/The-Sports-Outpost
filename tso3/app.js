@@ -1191,7 +1191,7 @@ function route(sport,page,tool=null,athleteId=null){
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
  if(state.sport!==sport)state.matchupIds=[];
  state.matchupOpen=false;
- const safeId=page==='player'&&/^d{3,12}$/.test(String(athleteId||''))?String(athleteId):null;
+ const safeId=page==='player'&&/^\d{3,12}$/.test(String(athleteId||''))?String(athleteId):null;
  const samePerson=state.sport===sport&&state.playerId===safeId;
  if(!samePerson)state.playerUI={tab:'overview',metric:null,split:'all',opponent:'',window:'l10',lineKey:''};
  state.playerId=safeId;
@@ -1200,7 +1200,7 @@ function route(sport,page,tool=null,athleteId=null){
 }
 function onHash(){
  const [sport,page,tool]=location.hash.replace(/^#\/?/,'').split('/');
- const athleteId=page==='player'&&/^d{3,12}$/.test(tool||'')?tool:null;
+ const athleteId=page==='player'&&/^\d{3,12}$/.test(tool||'')?tool:null;
  if(!SPORTS[sport]||!PAGES.some(x=>x[0]===page)){location.hash='#/nfl/overview';return}
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
  if(state.sport!==sport||state.page!==page||state.tool!==matched||state.openSport!==null
@@ -1522,7 +1522,7 @@ document.addEventListener('click',e=>{
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(state.openSport!==null){closeSportMenu();el('sportNav').querySelector('[data-sport-toggle="'+state.sport+'"]')?.focus()}else closeDrawer()}});
 const hash=location.hash.replace(/^#\/?/,'').split('/');
 if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1];
- state.playerId=hash[1]==='player'&&/^d{3,12}$/.test(hash[2]||'')?hash[2]:null;
+ state.playerId=hash[1]==='player'&&/^\d{3,12}$/.test(hash[2]||'')?hash[2]:null;
  state.tool=hash[1]==='cheatsheets'&&SPORTS[hash[0]].tools.some(t=>menuToolSlug(t[0])===hash[2])?hash[2]:null}else location.hash='#/nfl/overview';
 render();load(true);
 setInterval(()=>{if(!document.hidden)load(false)},60000);
