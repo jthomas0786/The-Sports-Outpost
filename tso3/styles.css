@@ -561,3 +561,71 @@ html,body,button,input,select,textarea{
 .tso-roster-more{margin-top:9px}
 .tso-roster-more>summary{cursor:pointer;color:#8bcae3;font-weight:700;font-size:11px;padding:8px 0}
 @media(max-width:740px){.tso-game-rosters{grid-template-columns:1fr;gap:10px}.tso-roster-team{padding:10px}}
+
+/* TSO 3.0 full player dashboards · one consistent six-sport workspace. */
+.tso-player-dashboard{display:flex;flex-direction:column;gap:16px;min-width:0;max-width:100%}
+.tso-pd-hero{display:flex;align-items:center;gap:22px;justify-content:space-between;min-height:154px;padding:25px 30px;border:1px solid #31526b;border-radius:14px;background:linear-gradient(112deg,#112f42,#0d1a2a 78%);box-shadow:0 6px 18px #0002}
+.tso-pd-hero>div:first-of-type{flex:1;min-width:0}
+.tso-pd-hero h2{font-size:clamp(22px,3vw,36px);letter-spacing:-.03em;font-weight:800;margin:7px 0 5px;color:#f5f6f2}
+.tso-pd-hero p{color:#b5cbd7;font-size:12px;margin:0}
+.tso-pd-headshot{width:116px;height:116px;min-width:116px;object-fit:contain;object-position:center bottom;border-radius:12px;background:#213c50}
+.tso-pd-source{display:flex;flex-direction:column;gap:5px;text-align:right;max-width:240px;min-width:120px}
+.tso-pd-source strong{font-size:12px;color:#f4af7e}
+.tso-pd-source small{font-size:10px;color:#aac0cc;line-height:1.4}
+.tso-pd-tabs{display:flex;flex-wrap:wrap;gap:4px;align-items:center;border-bottom:1px solid #2b4a60;padding:0 2px 2px;overflow-x:auto}
+.tso-pd-tabs button{padding:13px 16px;min-width:max-content;border:0;border-bottom:2px solid transparent;background:transparent;color:#bdcdd7;font:inherit;font-size:12px;font-weight:750;cursor:pointer}
+.tso-pd-tabs button:hover{color:#f0eee7}
+.tso-pd-tabs button.active{border-bottom-color:#fd9255;color:#ffd5b7}
+.tso-pd-toolbar{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;background:#0c1c2b;border:1px solid #264157;border-radius:10px;padding:13px 16px}
+.tso-pd-toolbar label{display:flex;flex-direction:column;flex:1 1 125px;min-width:110px;gap:6px;color:#a4becc;font-size:10px;letter-spacing:.03em;font-weight:800}
+.tso-pd-toolbar select{background:#152b3c;border:1px solid #365265;border-radius:6px;color:#e7eff4;padding:9px 10px;font-size:11px;max-width:100%;height:38px}
+.tso-pd-toolbar select:focus-visible,.tso-pd-tabs button:focus-visible{outline:2px solid #ec985d;outline-offset:2px}
+.tso-pd-panel{background:#111f2f;border:1px solid #2b475c;border-radius:12px;padding:19px;min-width:0;overflow:hidden}
+.tso-pd-panel h3{font-size:16px;line-height:1.3;color:#f6f8f7;margin:0 0 12px}
+.tso-pd-panel h3:not(:first-child){margin-top:22px}
+.tso-pd-panel p{font-size:12px;line-height:1.55;color:#a8bfcb}
+.tso-pd-panel-head{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;flex-wrap:wrap}
+.tso-pd-panel-head>div:first-child{flex:1}
+.tso-pd-big-rate{font-size:31px;font-weight:850;color:#f3a570;font-variant-numeric:tabular-nums;text-align:right}
+.tso-pd-big-rate small{display:block;color:#a6beca;font-size:10px;white-space:nowrap;font-weight:600}
+.tso-pd-kpi-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:12px 0 18px}
+.tso-pd-kpi{display:flex;flex-direction:column;min-width:0;gap:6px;background:#0c2132;border:1px solid #2d4b5e;border-radius:9px;padding:13px}
+.tso-pd-kpi span{color:#a9bfd0;font-size:10px;text-transform:uppercase;font-weight:750;letter-spacing:.04em}
+.tso-pd-kpi strong{color:#f5efe9;font-size:24px;font-weight:850;font-variant-numeric:tabular-nums}
+.tso-pd-kpi small{color:#9db4c0;font-size:10px;line-height:1.4}
+.tso-pd-two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:15px}
+.tso-pd-two .tso-pd-kpi-grid{grid-template-columns:1fr 1fr}
+.tso-pd-chart{position:relative;display:flex;align-items:flex-end;justify-content:space-around;gap:5px;height:230px;padding:19px 10px 28px;margin:16px 0;border:1px solid #28455a;border-radius:9px;background:repeating-linear-gradient(0deg,transparent,transparent 48px,#36536b44 49px,#36536b44 50px),#0a1d2e;overflow:hidden}
+.tso-pd-target{position:absolute;left:3%;right:3%;border-top:2px dashed #f7be9b;pointer-events:none;z-index:3}
+.tso-pd-target span{position:absolute;right:0;bottom:2px;color:#ffc7a0;font-size:10px;background:#132b40b8;padding:3px 5px}
+.tso-pd-column{display:flex;flex:1 1 0;align-items:center;justify-content:end;flex-direction:column;height:100%;gap:5px;min-width:0;z-index:2}
+.tso-pd-column .tso-pd-bar{display:block;width:min(75%,32px);border-radius:4px 4px 0 0;background:#598eac;min-height:3px;transition:height .15s ease}
+.tso-pd-column .tso-pd-bar.above{background:linear-gradient(#f3bb82,#db7b48)}
+.tso-pd-column .tso-pd-bar.below{background:#426b85}
+.tso-pd-column small{font-size:10px;color:#e1edf2;white-space:nowrap;overflow:hidden}
+.tso-pd-table .tso-pd-number{text-align:right;font-weight:850;color:#f3d0b3}
+.tso-pd-outcome{font-size:9px;font-weight:800;white-space:nowrap}
+.tso-pd-outcome.positive{color:#89ddb7}
+.tso-pd-outcome.negative{color:#d1a694}
+.tso-pd-neutral{font-size:10px;color:#9faeb8}
+.tso-pd-model-row{display:flex;gap:12px;justify-content:space-between;align-items:center;border-bottom:1px solid #284053;padding:13px 0}
+.tso-pd-model-row strong{font-size:12px;color:#dceaf0}
+.tso-pd-model-row b{color:#eea66e;font-size:18px;font-variant-numeric:tabular-nums}
+.tso-pd-model-row small{font-size:10px;color:#92bbc9}
+.tso-pd-relevant{background:#284d5930}
+.tso-pd-season details{border:1px solid #28475b;border-radius:8px;margin:8px 0;background:#0c2133;padding:0}
+.tso-pd-season summary{padding:13px;cursor:pointer;font-size:12px;font-weight:800;color:#e2edf2}
+.tso-pd-season-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;padding:13px}
+.tso-pd-season-grid>div{display:flex;flex-direction:column;gap:3px}
+.tso-pd-season-grid small{font-size:10px;color:#9fc0cf}
+.tso-pd-season-grid strong{font-size:15px;color:#e7ebef}
+.tso-pd-pending,.tso-pd-loading{background:#122638;border:1px dashed #416176;border-radius:10px;padding:22px;color:#b9d0db;line-height:1.6;font-size:13px}
+.tso-pd-loading h2{font-size:23px;color:#eff6f5;margin:7px 0}
+.tso-pd-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:18px 0}
+.tso-pd-directory button{display:flex;flex-direction:column;gap:7px;text-align:left;background:#132638;border:1px solid #315068;border-radius:8px;cursor:pointer;padding:14px;color:#f1f5f6}
+.tso-pd-directory button:hover,.tso-pd-directory button:focus-visible{border-color:#eb9a65}
+.tso-pd-directory small{font-size:10px;color:#adc4ce}
+.tso-pd-disclaimer{color:#9caebb;font-size:11px;line-height:1.6}
+@media(max-width:1080px){.tso-pd-two{grid-template-columns:1fr}.tso-pd-season-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:760px){.tso-pd-hero{padding:17px;gap:12px;flex-wrap:wrap}.tso-pd-hero .tso-pd-source{width:100%;max-width:none;text-align:left}.tso-pd-headshot{width:78px;min-width:78px;height:78px}.tso-pd-panel{padding:13px}.tso-pd-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-pd-directory{grid-template-columns:1fr 1fr}.tso-pd-tabs{flex-wrap:nowrap}.tso-pd-chart{height:170px;gap:2px}.tso-pd-column small{font-size:8px}}
+@media(max-width:480px){.tso-pd-directory{grid-template-columns:1fr}.tso-pd-kpi strong{font-size:20px}.tso-pd-season-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-pd-toolbar label{flex:1 1 100%}}
