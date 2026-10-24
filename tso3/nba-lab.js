@@ -304,7 +304,9 @@ function tpl(ctx,tool){
   +'</tbody></table></div><div class="nba-table-foot"><span>Showing '+first.length+' / '+rows.length+' · Select any row for game logs, trends and matchup context</span>'
   +(first.length<rows.length?'<button type="button" data-nba-more>SHOW MORE →</button>':'')+'</div>';
  return '<section class="nba-lab"><div class="nba-intro"><div><span class="nba-eyebrow">THE SPORTS OUTPOST / NBA INTELLIGENCE</span><h2>'+e(title)+'</h2><p>'+e(desc)+'</p></div><div class="nba-view-switch"><a class="'+(tool==='player-form'?'active':'')+'" href="#/nba/cheatsheets/player-form">PLAYER FORM</a><a class="'+(tool==='matchup-vs-position'?'active':'')+'" href="#/nba/cheatsheets/matchup-vs-position">VS POSITION</a></div></div>'
-  +status+coverage+controls
+  +status+coverage
+  +(ctx.research?.defenseDataQuality?.verified===false?'<p class="nba-depth-note">Previous mixed-season opponent DvP and team pace values are withheld. Use the current-season Matchup vs Position sheet for independently verified 2026–27 opponent defensive sample data.</p>':'')
+  +controls
   +'<div class="nba-legend"><span><i class="nba-legend-high"></i>Strong historical rate / more allowed</span><span><i class="nba-legend-low"></i>Lower historical rate / less allowed</span><span>— means not verified · Rates only against an observed exact line</span></div>'
   +table
   +'<p class="nba-footnote">Source: TSO ESPN-derived game history, official ESPN reported injury entries and NBA regression feed. L5/L10/L20 may bridge seasons; “Season” uses the source’s current season only. Defense vs position aggregates guards (G), forwards (F) and centers (C); a 1.10× rate means 10% more points or other selected stat allowed than its league positional benchmark, <strong>not a 10% betting edge</strong>. Older feeds are marked by their source timestamp. Sportsbook lines and odds appear only when verified.</p></section>';
