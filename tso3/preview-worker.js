@@ -1428,6 +1428,21 @@ function athleteSeasonStats(doc){
   values:athleteStatFields(c.names,c.labels,c.totals||c.values)
  })).filter(c=>c.category&&c.values.length);
 }
+/* Provider-authored season splits, distinct from TSO L5/L10/L20 calculations.
+   Preserve split names, reported sample labels and individual ESPN stat values. */
+function athleteOfficialSplits(doc){
+ const categories=Array.isArray(doc?.splitCategories)?doc.splitCategories:[];
+ const names=Array.isArray(doc?.names)?doc.names:[],
+  labels=Array.isArray(doc?.labels)?doc.labels:[];
+ return categories.slice(0,20).map(category=>({
+  name:String(category?.displayName||category?.name||'').slice(0,75),
+  splits:(Array.isArray(category?.splits)?category.splits:[]).slice(0,40).map(split=>({
+   name:String(split?.displayName||split?.name||'').slice(0,75),
+   abbreviation:String(split?.abbreviation||'').slice(0,25),
+   values:athleteStatFields(names,labels,split?.stats).slice(0,65)
+  })).filter(part=>part.name&&part.values.length)
+ })).filter(group=>group.name&&group.splits.length);
+}
 async function verifiedAthleteDepth(sport,id,season){
  if(!Object.hasOwn(ATHLETE_PATHS,sport)||!/^\d{3,12}$/.test(id)
   ||!Number.isInteger(season)||season<2024||season>2027)
@@ -1452,11 +1467,12 @@ async function verifiedAthleteDepth(sport,id,season){
    return null;
   }
  };
- const [gameDoc,seasonDoc]=await Promise.all([load('gamelog'),load('stats')]);
+ const [gameDoc,seasonDoc,splitDoc]=await Promise.all([load('gamelog'),load('stats'),load('splits')]);
  const now=Date.now(),events=gameDoc?athleteGamelogEntries(gameDoc,now):[];
  const stats=seasonDoc?athleteSeasonStats(seasonDoc):[];
- if(!events.length&&!stats.length)return {available:false,sport,athleteId:id,season,
-  events:[],seasonStats:[],providerChecks,
+ const officialSplits=splitDoc?athleteOfficialSplits(splitDoc):[];
+ if(!events.length&&!stats.length&&!officialSplits.length)return {available:false,sport,athleteId:id,season,
+  events:[],seasonStats:[],officialSplits:[],providerChecks,
   reason:!gameDoc&&!seasonDoc?'ESPN athlete provider requests failed for this Worker':
    'ESPN response received but no parsable season game log or summary statistics'};
  const foundId=String(gameDoc?.athlete?.id||seasonDoc?.athlete?.id||'');
@@ -1472,7 +1488,7 @@ async function verifiedAthleteDepth(sport,id,season){
   fetchedAt:new Date(now).toISOString(),
   source:'ESPN official athlete season stats/game log; original records',
   sourceIdentification:foundId?'ESPN athlete ID confirmed':'ESPN requested athlete ID, name not independently confirmed',
-  events,seasonStats:stats,providerChecks,gameLogAvailable:events.length>0,
+  events,seasonStats:stats,officialSplits,providerChecks,gameLogAvailable:events.length>0,
   note:'Observed league season stats, not a betting probability. Incomplete/missing ESPN games remain unavailable; do not interpret a missing game as 0.'};
 }
 /* Strict official-roster player identity resolution for sportsbook records
