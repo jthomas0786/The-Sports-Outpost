@@ -1443,6 +1443,28 @@ function athleteOfficialSplits(doc){
   })).filter(part=>part.name&&part.values.length)
  })).filter(group=>group.name&&group.splits.length);
 }
+/* When ESPN's gamelog omits athlete metadata, resolve the same numeric
+   player ID through a source-team's official roster. Never match by name,
+   guess a team, or claim the player is a confirmed active starter. */
+async function rosterBackedAthleteIdentity(sport,id,gameLogDoc){
+ const raw=gameLogDoc?.events;
+ const events=Array.isArray(raw)?raw:raw&&typeof raw==='object'?Object.values(raw):[];
+ const teamIds=[...new Set(events.filter(e=>e&&typeof e==='object')
+  .sort((a,b)=>Date.parse(b.gameDate||b.date||'')-Date.parse(a.gameDate||a.date||''))
+  .map(e=>String(e.team?.id||e.teamId||'')).filter(x=>/^\d{1,6}$/.test(x)))].slice(0,3);
+ for(const teamId of teamIds){
+  try{
+   const url='https://site.api.espn.com/apis/site/v2/sports/'+ATHLETE_PATHS[sport]+'/teams/'+teamId+'/roster';
+   const r=await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:900},
+    signal:AbortSignal.timeout(11000)});
+   if(!r.ok)continue;
+   const doc=await r.json();
+   const found=officialRosterAthletes(doc).find(p=>p.id===id);
+   if(found)return {...found,teamId,source:'ESPN exact athlete ID matched to official team roster'};
+  }catch(_){/* other team history may still confirm the numeric athlete ID */}
+ }
+ return null;
+}
 async function verifiedAthleteDepth(sport,id,season){
  if(!Object.hasOwn(ATHLETE_PATHS,sport)||!/^\d{3,12}$/.test(id)
   ||!Number.isInteger(season)||season<2024||season>2027)
@@ -1479,11 +1501,13 @@ async function verifiedAthleteDepth(sport,id,season){
  if(foundId&&foundId!==id)throw Error('ESPN athlete ID mismatch');
  const athlete=gameDoc?.athlete||seasonDoc?.athlete||{};
  const person=String(athlete.displayName||athlete.fullName||'').slice(0,90);
- const headshot=String(athlete.headshot?.href||athlete.headshot||'');
+ const profile=person?null:await rosterBackedAthleteIdentity(sport,id,gameDoc).catch(()=>null);
+ const headshot=String(athlete.headshot?.href||athlete.headshot||profile?.headshot||'');
  const safeHeadshot=/^https:\/\/(a\.espncdn\.com|cdn\.espn\.com)\//.test(headshot)?headshot:null;
- return {available:true,sport,athleteId:id,season,athleteName:person||null,
-  athletePosition:String(athlete.position?.abbreviation||'').slice(0,12)||null,
-  athleteTeam:String(athlete.team?.abbreviation||athlete.team?.displayName||'').slice(0,80)||null,
+ return {available:true,sport,athleteId:id,season,athleteName:person||profile?.name||null,
+  athletePosition:String(athlete.position?.abbreviation||profile?.position||'').slice(0,12)||null,
+  athleteTeam:String(athlete.team?.abbreviation||profile?.teamAbbr||'').slice(0,80)||null,
+  identitySource:person?'ESPN athlete metadata':profile?.source||'ESPN requested athlete ID not independently named',
   headshot:safeHeadshot,
   fetchedAt:new Date(now).toISOString(),
   source:'ESPN official athlete season stats/game log; original records',
@@ -1501,7 +1525,10 @@ function officialRosterAthletes(doc){
   .map(x=>{const p=x.athlete||x;return {
    id:String(p.id),name:String(p.displayName||p.fullName||''),
    position:String(p.position?.abbreviation||''),
-   status:String(p.status?.name||p.status?.type||'')
+   status:String(p.status?.name||p.status?.type||''),
+   headshot:/^https:\/\/(a\.espncdn\.com|cdn\.espn\.com)\//.test(String(p.headshot?.href||p.headshot||''))
+    ?String(p.headshot?.href||p.headshot):null,
+   teamAbbr:String(doc.team?.abbreviation||'').slice(0,12)
   }}).filter(p=>p.name);
 }
 /* All six leagues: attach official players to the verified game even if
