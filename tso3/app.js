@@ -666,6 +666,12 @@ function toolDetail(){
      :['role-matchups','team-share','receiving-value'].includes(state.tool)?'<p class="nfl-model-note">Current 2026 player opportunity, target/carry share and verified sportsbook lines are shown where sourced. Individual role matchups, route grades and value certifications are not claimed.</p>':'';
   return (original?'<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section(found[0],found[1])+scope:'')+nflResearch(mapped);
  }
+ if(state.sport==='nba'&&state.tool==='matchup-vs-position'){
+  const module=window.TSO3NbaMatchupBoard;
+  return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+
+    (module?'<div id="nbaMatchupBoard">'+module.render(nbaFullContext(state.tool))+'</div>':
+      empty('NBA Matchup Board unavailable','Refresh the isolated preview to load the verified season research.'));
+ }
  if(state.sport==='nba'&&['Player Form','Matchup vs Position'].includes(found[0])){
   const lab=window.TSO3NbaLab;
   const ctx={sport:state.sport,tool:state.tool,games:state.live?.games||[],props:state.props,models:state.nbaModels,research:state.nbaResearch,oddsSnapshot:state.nbaOddsSnapshot,error:state.nbaPending?'Retrieving verified player data…':state.nbaError};
@@ -924,6 +930,8 @@ function render(){
  else if(state.page==='data')body=pageData();
  else if(state.page==='saved')body=pageSaved();
  el('content').innerHTML=body;
+ if(state.sport==='nba'&&state.page==='cheatsheets'&&state.tool==='matchup-vs-position'
+    &&window.TSO3NbaMatchupBoard)void window.TSO3NbaMatchupBoard.hydrate(nbaFullContext(state.tool));
  if(state.page==='cheatsheets'&&state.tool&&window.TSO3ObservedResearch?.supports?.(state.sport,state.tool))
   void window.TSO3ObservedResearch.hydrate({sport:state.sport,games:state.live?.games||[],title:state.tool},state.tool);
  if(state.sport==='nhl'&&state.page==='cheatsheets'&&['team-statistics','defense-vs-position','shots-on-goal','goal-scorer-matchups'].includes(state.tool))void hydrateNhlDefenseMatrix();
