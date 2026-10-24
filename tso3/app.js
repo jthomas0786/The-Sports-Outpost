@@ -7,7 +7,7 @@ const SPORTS={
  nfl:{label:'NFL',icon:'football',name:'National Football League',markets:['Player Passing Yards','Player Passing Touchdowns','Player Passing Attempts','Player Completions','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Player Longest Reception','Player Longest Rush','Player Targets'],tools:[['Defense vs Position','2026 defense against QB, RB, WR and TE'], ['Coverage Matchups','2026 receiver form vs opposing position groups'],['Touchdown Opportunities','Red zone, goal line and target share'],['Rushing Matchups','Carry volume and run defense'],['Receiving Matchups','Targets, routes and coverage'],['Quarterback Research','Attempts, depth and pressure'],['Red-Zone Usage','Inside-20 opportunities and conversion'],['Offensive Line Matchups','Run and pass protection'],['Power Ratings','Team strength and quarterback adjustments'],['Weather Impact','Wind, precipitation and playing surface'],['Game Projections','Spread, moneyline and totals'],['Model Validation','Archived accuracy and held-out First TD results'],['Alignment Matchups','Receiver alignment, slot and wide coverage'],['Market Grades','Market grading supported by current verified outcomes'],['Home Field Advantage','Venue and travel adjustments'],['Win Totals','Season outcome scenarios and futures']]},
  nba:{label:'NBA',icon:'basketball',name:'National Basketball Association',markets:['Points','Rebounds','Assists','3-Pointers Made','PRA','Points + Rebounds','Points + Assists','Rebounds + Assists','Steals','Blocks','First Basket'],tools:[['Player Form','Points, rebounds and assists trends'],['Matchup vs Position','Opponent production by player role'],['First Basket','Opening tip and first field-goal history'],['Pace & Possessions','Pace and expected opportunities'],['Minutes & Rotation','On-court availability and substitution patterns'],['Usage & Touches','Shot, assist and possession share'],['Team Stats','Offensive and defensive splits'],['Injury Impact','Available and missing rotation players'],['Game Projections','Model score and team totals']]},
  mlb:{label:'MLB',icon:'baseball',name:'Major League Baseball',markets:['Home Runs','Hits','Total Bases','RBIs','Runs','Hits + Runs + RBIs','Stolen Bases','Pitcher Strikeouts','Walks','Singles','Doubles'],tools:[['Home Run Matchups','Power, contact quality and pitcher tendencies'],['Exit Velocity','Batted-ball speed and launch profile'],['Pitch Mix','Pitch-type usage and batter splits'],['Pitcher vs Lineup','Projected opposing lineup profile'],['Strikeout Matchups','Pitcher K rates and batter swing tendencies'],['Stolen Bases','Attempt rate and catcher control'],['Bullpen Usage','Recent relief workloads'],['Pitcher Summary','Starter repertoire and workload'],['Weather & Park','Ballpark and conditions'],['Team vs Pitch Mix','Pitch-specific lineup strengths'],['Team vs Pitcher','Historical contact, handedness and starter matchups'],['Enhanced Home Run Matchups','Power, launch and pitcher exposure'],['Park Factors','Ballpark run and home run environment']]},
- nhl:{label:'NHL',icon:'hockey',name:'National Hockey League',markets:['Anytime Goal','First Goal','Shots on Goal','Points','Assists','Goalie Saves','Power Play Points'],tools:[['Goal Scorer Matchups','Shot quality and scoring opportunities'],['Skater Statistics','Usage, ice time and recent form'],['Team Statistics','Shots, possession and special teams'],['Shots on Goal','Volume and opponent allowances'],['Goalie Matchups','Expected starts and save environment'],['Power Play Analysis','Man-advantage unit usage'],['First Goal','First-goal history and opportunity'],['Game Projections','Moneyline, puckline and total'],['Scoring Chances','High-danger opportunities and shot locations'],['Special Teams Matchups','Power-play and penalty-kill effectiveness']]},
+ nhl:{label:'NHL',icon:'hockey',name:'National Hockey League',markets:['Anytime Goal','First Goal','Shots on Goal','Points','Assists','Goalie Saves','Power Play Points'],tools:[['Goal Scorer Matchups','Shot quality and scoring opportunities'],['Skater Statistics','Usage, ice time and recent form'],['Team Statistics','Shots, possession and special teams'],['Defense Vs Position','Opponent chances allowed by C, LW, RW and D'],['Shots on Goal','Volume and opponent allowances'],['Goalie Matchups','Expected starts and save environment'],['Power Play Analysis','Man-advantage unit usage'],['First Goal','First-goal history and opportunity'],['Game Projections','Moneyline, puckline and total'],['Scoring Chances','High-danger opportunities and shot locations'],['Special Teams Matchups','Power-play and penalty-kill effectiveness']]},
  wnba:{label:'WNBA',icon:'basketball',name:"Women's National Basketball Association",markets:['Points','Rebounds','Assists','3-Pointers Made','PRA','Steals','Blocks'],tools:[['Player Trends','Last 5, 10, 20 and season'],['Matchup vs Position','Opponent positional allowances'],['Minutes & Usage','Rotations and offensive involvement'],['Pace & Possessions','Tempo-adjusted opportunity'],['Team Statistics','Recent offensive and defensive production'],['Injury Impact','Lineup availability'],['Game Projections','Game lines and totals']]},
  cfb:{label:'CFB',icon:'school',name:'College Football',markets:['Player Passing Yards','Player Passing Touchdowns','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Spread','Moneyline','Total Points'],tools:[['Player Trends','Recent passing, rushing and receiving results'],['Team Matchups','Offense against defensive scheme'],['Touchdown Matchups','Scoring opportunities and opponent yield'],['Power Ratings','FBS offense and defense strength'],['Game Projections','Model spread, total and win outcome'],['Quarterback Rankings','Passing and rushing quarterback trends'],['Conference Filters','Conference-specific analysis'],['Weather & Situational','Rest and game-day conditions'],['Market Grades','Opponent and line-specific grades'],['Rushing Matchups','Backfield usage and front-seven defense'],['Receiving Matchups','Coverage and target volume']]}
 };
@@ -112,7 +112,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nhlDefense:null,nhlDefenseFetched:0,nhlDefensePosition:'C',nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -359,6 +359,7 @@ function toolReady(name){
   if(name==='Game Projections')return Boolean(state.nbaModels?.models?.length);
  }
  if(state.sport==='nhl'){
+  if(['Team Statistics','Defense Vs Position','Shots on Goal','Goal Scorer Matchups'].includes(name))return Boolean(state.nhlDefense?.available);
   if(name==='First Goal'||name==='Goal Scorer Matchups')return Boolean(state.nhlModel?.games?.length);
   if(name==='Shots on Goal')return rows.some(r=>canon(r.market)==='SOG');
  }
@@ -452,6 +453,11 @@ function toolDetail(){
  const found=SPORTS[state.sport].tools.find(x=>String(x[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-')===state.tool);
  if(!found){state.tool=null;return pageTools()}
  const ready=toolReady(found[0]);
+ if(state.sport==='nhl'&&['Team Statistics','Defense Vs Position','Shots on Goal','Goal Scorer Matchups'].includes(found[0])){
+  return '<button type="button" class="btn subtle" data-back="tool">Back to NHL cheatsheets</button>'
+   +section(found[0],'ESPN-derived actual shots and goals allowed; position and venue splits with verified game samples')
+   +'<div id="nhlDefenseSlot" class="tool-panel">Loading TSO official NHL opponent-defense data…</div>';
+ }
  if(found[0]==='Alternate Lines')return alternateLinesResearch();
  if(found[0]==='Odds Comparison'||found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
  if(found[0]==='Hit Rate Matrix')return pageTrends();
@@ -488,13 +494,14 @@ const SOURCE_LINEAGE={
  nfl:[['Current matchups','ESPN NFL official schedule','live'],['2026 player opportunity, team defense','TSO NFL research / nflverse-derived','nflResearch'],['Real sportsbook lines','ParlayAPI published odds / 4h max plus kickoff age','nflOdds'],['50,000-run projections','TSO pregame Monte Carlo, exact matching','nflSim'],['Injuries','ESPN official NFL injuries','nflInjuries'],['Calibration','Immutable 2026 archive and checked postgame outcomes','nflArchive']],
  nba:[['Current matchups','ESPN NBA scoreboard','live'],['Player L5/L10/L20 game logs','TSO NBA research / ESPN history','nbaResearch'],['Sportsbook prop prices','TSO published NBA odds snapshot','nbaOdds'],['Injuries','ESPN NBA injury report','nbaInjuries'],['Projected outcomes','TSO NBA model; MARKET ONLY without exact model','nbaModels']],
  mlb:[['Current matchups','ESPN MLB scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Pitch mix, contact and park factors','Specialized verified feeds pending','pending']],
- nhl:[['Current matchups','ESPN NHL scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Goal / First Goal projections','TSO own matchup-adjusted goal hazard model','nhlModel'],['High-danger chances, goalie starts','Specialized verified feeds pending','pending']],
+ nhl:[['Current matchups','ESPN NHL scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Goal / First Goal projections','TSO own matchup-adjusted goal hazard model','nhlModel'],['Player history & defense by position','TSO ESPN NHL season event logs and 30-game position profiles','nhlDefense'],['High-danger chances, goalie starts','Specialized verified feeds pending','pending']],
  wnba:[['Current matchups','ESPN WNBA scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Verified player histories, usage and DvP','Specialized verified feeds pending','pending']],
  cfb:[['Current matchups','ESPN college football scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['FBS power ratings and game projections','Specialized source and method verification pending','pending']]
 };
 function sourceState(kind){
  if(kind==='live')return Boolean(state.live?.tso3?.sources?.[state.sport]==='ESPN verified scoreboard'||(state.sport==='nba'&&state.live?.nbaScoreboard?.status==='verified'));
  if(kind==='props')return getRows().some(eligible);
+ if(kind==='nhlDefense')return Boolean(state.nhlDefense?.available&&state.nhlDefense.teams?.length);
  if(kind==='nhlModel')return Boolean(state.nhlModel?.available&&state.nhlModel.games?.length);
  if(kind==='nflResearch')return Boolean(state.nflResearch?.players);
  if(kind==='nflOdds')return Boolean(state.nflOdds?.available);
@@ -706,6 +713,7 @@ function render(){
  else if(state.page==='data')body=pageData();
  else if(state.page==='saved')body=pageSaved();
  el('content').innerHTML=body;
+ if(state.sport==='nhl'&&state.page==='cheatsheets'&&['team-statistics','defense-vs-position','shots-on-goal','goal-scorer-matchups'].includes(state.tool))void hydrateNhlDefenseMatrix();
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='weather-impact'&&state.live?.games?.length)
   void hydrateNflWeather();
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation'){
@@ -916,6 +924,54 @@ async function hydrateAthleteDepth(row){
   +'<small>'+text(identity.teamAbbr||'')+' · '+text(identity.position||'position pending')
   +' · roster status '+text(identity.rosterStatus||'unavailable')+'</small></div>':'')
   +renderAthleteDepth(doc,row);
+}
+/* TSO defense vs position is a TEAM/POSITION observation, not an invented
+   player grade. Live feed is independently sourced, 32 official teams. */
+function renderNhlDefenseMatrix(doc,position='C',type='goals'){
+ if(!doc?.available)return '<p class="page-note">'+text(doc?.reason||'Verified TSO NHL defense history is unavailable')+'</p>';
+ const teams=doc.teams||[],ranked=teams.filter(t=>t.position?.[position]?.games>0)
+  .slice().sort((a,b)=>{
+   const aVal=num(a.position?.[position]?.[type==='shots'?'shotsPerGame':'goalsPerGame']),
+    bVal=num(b.position?.[position]?.[type==='shots'?'shotsPerGame':'goalsPerGame']);
+   return (bVal??-1)-(aVal??-1);
+  });
+ const fmt=v=>num(v)===null?'—':Number(v).toFixed(2);
+ const select='<label class="tso-depth-select">Opponent position filter <select id="nhlDefensePosition">'
+  +[['C','Centers'],['LW','Left Wings'],['RW','Right Wings'],['D','Defensemen']].map(([v,label])=>
+   '<option value="'+v+'" '+(v===position?'selected':'')+'>'+label+'</option>').join('')+'</select></label>';
+ const rows=ranked.map((t,i)=>{
+  const p=t.position[position]||{};
+  return '<tr><td>'+text(i+1)+'</td><td><b>'+text(t.abbr)+'</b></td>'
+   +'<td>'+fmt(p.goalsPerGame)+'</td><td>'+fmt(p.shotsPerGame)+'</td>'
+   +'<td>'+text(p.goalAllowedRank??'—')+' / '+text(p.rankedTeams??'—')+'</td>'
+   +'<td>'+text(p.games)+'</td><td>'+fmt(t.goalsAllowedPerGame)+'</td>'
+   +'<td>'+fmt(t.recent10GoalsAllowedPerGame)+'</td>'
+   +'<td>'+fmt(t.shotsAllowedPerGame)+'</td></tr>';
+ }).join('');
+ return '<div class="tso-athlete-source"><strong>'+text(teams.length)+' teams · '+text(doc.playerCount??0)+' researched players</strong>'
+  +'<small>Source updated '+text(doc.generatedAt?clock(doc.generatedAt):'Not verified')+'</small></div>'
+  +'<p class="page-note">Sorted by observed '+(type==='shots'?'shots':'goals')+' conceded per game to the selected position (highest first). This is defense versus <strong>position</strong>, not player-specific market grading.</p>'
+  +select+'<div class="table-scroller"><table class="data-table"><thead><tr>'
+  +'<th>SORT</th><th>DEFENSE</th><th>GOALS / POS / GAME</th><th>SHOTS / POS / GAME</th>'
+  +'<th>GOAL ALLOWANCE RANK</th><th>DEFENSE GAMES</th><th>TEAM GA / GAME</th><th>TEAM L10 GA</th><th>TEAM SHOTS ALLOWED</th>'
+  +'</tr></thead><tbody>'+rows+'</tbody></table></div>'
+  +'<p class="nba-footnote">Position sample is tied to '+text(doc.samplePolicy||'ESPN historical games')+'. Latest source season '+text(doc.currentSeason||'—')+'. These are observed averages, not guaranteed outcomes or no-vig sportsbook probabilities.</p>';
+}
+async function hydrateNhlDefenseMatrix(){
+ const slot=el('nhlDefenseSlot');
+ if(!slot||state.sport!=='nhl')return;
+ const now=Date.now();let data=state.nhlDefense;
+ if(!data||now-state.nhlDefenseFetched>10*60000){
+  try{
+   const resp=await fetch('/api/nhl-defense',{cache:'default'});
+   data=await resp.json();
+   if(!resp.ok)data={available:false,reason:data?.reason||'Live TSO NHL defense data unavailable'};
+  }catch(_){data={available:false,reason:'NHL defensive position statistics not reachable'}}
+  state.nhlDefense=data;state.nhlDefenseFetched=Date.now();
+ }
+ if(!el('nhlDefenseSlot')||state.sport!=='nhl'||state.page!=='cheatsheets')return;
+ const type=state.tool==='shots-on-goal'?'shots':'goals';
+ el('nhlDefenseSlot').innerHTML=renderNhlDefenseMatrix(data,state.nhlDefensePosition,type);
 }
 /* NHL evidence: TSO's current ESPN game-summary research dataset (30 games)
    and opponent team/position defense, independently from betting odds. */
@@ -1249,6 +1305,12 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='nhlDefensePosition'&&state.nhlDefense){
+  state.nhlDefensePosition=e.target.value;
+  const type=state.tool==='shots-on-goal'?'shots':'goals',slot=el('nhlDefenseSlot');
+  if(slot)slot.innerHTML=renderNhlDefenseMatrix(state.nhlDefense,state.nhlDefensePosition,type);
+  return;
+ }
  if(e.target.id==='nhlHistoryMetric'&&state.selected){
   const key=String(state.selected.verifiedGameId||'')+':'+String(state.selected.verifiedAthleteId||state.selected.playerId||'');
   const doc=nhlDetailedCache.get(key)?.doc,slot=el('nhlResearchSlot');
