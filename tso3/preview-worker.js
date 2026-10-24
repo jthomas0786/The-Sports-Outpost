@@ -1208,6 +1208,71 @@ async function verifiedOtherOdds(league){
 }
 /* Original TSO NHL goal model. Disclose only pregame probabilities with
    unchanged ESPN game ID and current model version; no implied scores. */
+/* Full-depth TSO NHL research already published from ESPN athlete eventlogs,
+   actual game summaries and opponent defensive splits. Match player membership
+   to the *official current matchup roster* before exposing positional metrics.
+   This does not derive or invent sportsbook probabilities. */
+const TSO_NHL_RESEARCH_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nhl-research.json';
+let tsoNhlResearchMemo=null;
+async function tsoNhlResearchData(){
+ const now=Date.now();
+ if(tsoNhlResearchMemo&&now-tsoNhlResearchMemo.at<8*60000)
+  return tsoNhlResearchMemo.promise;
+ const promise=(async()=>{
+  const result=await fetch(TSO_NHL_RESEARCH_URL,{headers:{accept:'application/json'},
+   cf:{cacheEverything:true,cacheTtl:480},signal:AbortSignal.timeout(23000)});
+  if(!result.ok)throw Error('Published NHL research unavailable');
+  const doc=await result.json(),age=(Date.now()-Date.parse(doc.generatedAt||''))/3600000;
+  if(Number(doc.version)<4||Number(doc.currentSeason)!==2027
+   ||!doc.players||!doc.teamDefense?.teams||!Number.isFinite(age)||age< -0.1||age>36)
+   throw Error('Published NHL player history is missing or too old');
+  return doc;
+ })();
+ tsoNhlResearchMemo={at:now,promise};
+ try{return await promise}catch(e){tsoNhlResearchMemo=null;throw e}
+}
+async function verifiedNhlMatchupHistory(gameId,athleteId){
+ const roster=await officialGameRosters('nhl',gameId);
+ if(!roster.available)return {available:false,reason:roster.reason||'Official NHL matchup missing'};
+ const matches=roster.teams.flatMap(t=>t.available?(t.players||[])
+  .filter(p=>String(p.id)===athleteId).map(p=>({team:t,athlete:p})):[]);
+ if(matches.length!==1||roster.teams.some(t=>!t.available))
+  return {available:false,reason:'Current player is not uniquely verified on both official team rosters'};
+ const {team,athlete}=matches[0],opponent=roster.teams.find(t=>t.id!==team.id);
+ if(!opponent)return {available:false,reason:'Official opponent identity is missing'};
+ const doc=await tsoNhlResearchData(),player=doc.players[athleteId];
+ if(!player)return {available:false,reason:'No recorded NHL season history for this rostered player'};
+ const now=Date.now(),history=(Array.isArray(player.recentGames)?player.recentGames:[])
+  .filter(g=>Number.isFinite(Date.parse(g.date||''))&&Date.parse(g.date)<=now
+   &&g?.stats&&typeof g.stats==='object'&&Number(g.seasonType)===2)
+  .sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,30)
+  .map(g=>({date:g.date,eventId:String(g.eventId||''),season:g.season,
+   opponent:g.opponent||null,homeAway:g.homeAway||null,firstGoal:g.firstGoal===true,
+   stats:Object.fromEntries(['goals','assists','sog','points','blocks','saves','ppGoals','goalsAgainst','shotsAgainst']
+    .map(k=>[k,Number(g.stats?.[k])]).filter(([k,v])=>g.stats?.[k]!==null&&g.stats?.[k]!==undefined&&Number.isFinite(v)))}));
+ const teamDefense=doc.teamDefense.teams[opponent.abbr]||null,
+  positionKey=String(athlete.position||'').toUpperCase(),
+  pos=teamDefense?.position?.[positionKey]||null;
+ const limitedDefense=teamDefense?{
+  source:teamDefense.source||'TSO ESPN game summaries',
+  games:teamDefense.games||null,currentSeasonGames:teamDefense.currentSeasonGames||null,
+  goalsAllowedPerGame:teamDefense.goalsAllowedPerGame??null,
+  shotsAllowedPerGame:teamDefense.shotsAllowedPerGame??null,
+  recent10GoalsAllowedPerGame:teamDefense.recent10GoalsAllowedPerGame??null,
+  recent10ShotsAllowedPerGame:teamDefense.recent10ShotsAllowedPerGame??null,
+  defenseAtVenue:(roster.home===opponent.abbr?teamDefense.homeDefense:teamDefense.awayDefense)||null,
+  position:pos?{position:positionKey,games:pos.games,
+   goalAllowedRank:pos.goalAllowedRank,rankedTeams:pos.rankedTeams,
+   goalsPerGame:pos.goalsPerGame,shotsPerGame:pos.shotsPerGame,
+   firstGoalRate:pos.firstGoalRate}:null
+ }:null;
+ return{available:history.length>0||Boolean(player.rates),source:'TSO NHL research v4 · ESPN original athlete events + final game summaries',
+  generatedAt:doc.generatedAt,gameId,athleteId,athleteName:athlete.name,
+  position:positionKey,team:team.abbr,opponent:opponent.abbr,
+  games:history,priorSeason:Number(doc.season),currentSeason:Number(doc.currentSeason),
+  priorSeasonRates:player.rates||null,defense:limitedDefense,
+  caveat:'Observed stats and opponent opportunity splits; not calibrated player prop probabilities. Team roster does not certify an active starter.'};
+}
 async function verifiedNhlGoalModel(){
  const source='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nhl-first-goal.json';
  const [r,official]=await Promise.all([
@@ -1814,6 +1879,16 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
    headers:{...headers,'cache-control':'public, max-age=240','x-tso-source':'ESPN verified athlete statistics'}})}
   catch(_){return Response.json({available:false,error:'ESPN athlete statistics unavailable',
    events:[],seasonStats:[]},{status:503,headers:{...headers,'cache-control':'no-store'}})}
+ }
+ if(u.pathname==='/api/nhl-player-research'){
+  const event=String(u.searchParams.get('gameId')||''),
+   player=String(u.searchParams.get('playerId')||'');
+  if(!/^[0-9]{6,14}$/.test(event)||!/^[0-9]{3,12}$/.test(player))
+   return Response.json({available:false,error:'Invalid game or player ID'},{status:400,headers});
+  try{return Response.json(await verifiedNhlMatchupHistory(event,player),{
+   headers:{...headers,'cache-control':'public, max-age=300','x-tso-source':'TSO ESPN NHL verified history'}})}
+  catch(_){return Response.json({available:false,reason:'NHL research feed currently unavailable'},
+   {status:503,headers:{...headers,'cache-control':'no-store'}})}
  }
  if(u.pathname==='/api/nhl-goal-model'){
   try{return Response.json(await verifiedNhlGoalModel(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO NHL historical hazard model'}})}
