@@ -58,12 +58,12 @@ function render(ctx,tool){
    (options.map(g=>'<option value="'+esc(g.id)+'" '+(game&&g.id===game.id?'selected':'')+'>'+esc(g.away?.abbr||'Away')+' @ '+esc(g.home?.abbr||'Home')+' · '+esc(date(g.startTime))+'</option>').join(''))+
   '</select></label>'+
   (game?'<div id="tsoObservedResult">Loading ESPN verified rosters and player history…</div>':
-   '<div class="page-note">No current verified ESPN fixture in the displayed schedule window for this league. The historical athlete endpoint remains connected, but there is no current matchup roster to attach safely. No hypothetical lineup has been generated.</div>')+
+   '<p class="page-note">No current official fixture in the displayed schedule window. Browse ESPN official team rosters and historical game logs instead; these are not predicted starters or odds.</p><label class="tso-observed-select">OFFICIAL TEAM <select data-observed-team><option>Connecting ESPN league directory…</option></select></label><div id="tsoObservedResult">Retrieving ESPN official league teams…</div>')+
  '</section>';
 }
 async function hydrate(ctx,tool){
  const root=document.getElementById('tsoObservedResearch'),games=gamesFor(ctx);
- if(!root||root.dataset.observedSport!==ctx.sport||root.dataset.observedTool!==tool||!games.length)return;
+ if(!root||root.dataset.observedSport!==ctx.sport||root.dataset.observedTool!==tool)return;
  const unique=++sequence,session=ctx.sport+'|'+tool;
  const panel=()=>{const node=document.getElementById('tsoObservedResearch');return node&&node.dataset.observedSport===ctx.sport&&node.dataset.observedTool===tool&&unique===sequence?node:null};
  const holder=()=>panel()?.querySelector('#tsoObservedResult');
@@ -92,10 +92,25 @@ async function hydrate(ctx,tool){
      '<div id="tsoObservedStats"><p class="page-note">Choose an athlete to read verified season and game logs without needing sportsbook odds.</p></div>');
   }catch(e){show('<p class="page-note">Official roster source unavailable: '+esc(e?.message||'Provider error')+'. No players or stats have been inferred.</p>')}
  }
+ async function loadTeam(teamId){
+  show('<p class="page-note">Retrieving official ESPN team roster…</p>');
+  try{
+   const r=await fetch('/api/sport-team-roster?'+new URLSearchParams({league:ctx.sport,teamId}),{cache:'default'}),doc=await r.json();
+   if(!r.ok||!doc.available||doc.league!==ctx.sport||String(doc.team?.id)!==teamId)throw Error(doc.error||'Verified team roster unavailable');
+   show('<h4>'+esc(doc.team.name)+' · '+esc(doc.players.length)+' ESPN rostered athletes</h4>'+
+    '<p class="nba-footnote">Official roster membership only, not a verified game-day lineup or availability report.</p>'+
+    '<div class="tso-observed-players">'+doc.players.filter(p=>/^\d{3,12}$/.test(String(p.id||''))).slice(0,90).map(p=>
+     '<button type="button" class="btn subtle" data-observed-player="'+esc(p.id)+'" data-observed-name="'+esc(p.name)+'"><b>'+esc(p.name)+'</b> <small>'+esc(p.position||'')+'</small></button>').join('')+'</div>'+
+    '<div id="tsoObservedStats"><p class="page-note">Choose a verified athlete to inspect official historical player statistics.</p></div>');
+  }catch(e){show('<p class="page-note">Official ESPN team roster unavailable: '+esc(e?.message||'Source error')+'</p>')}
+ }
  root.addEventListener('change',e=>{
-  const select=e.target.closest('[data-observed-game]');if(!select)return;
-  if(!games.some(g=>String(g.id)===select.value))return;
-  chosen.set(session,select.value);void loadRosters(select.value);
+  const select=e.target.closest('[data-observed-game]');if(select){
+   if(!games.some(g=>String(g.id)===select.value))return;
+   chosen.set(session,select.value);void loadRosters(select.value);return;
+  }
+  const team=e.target.closest('[data-observed-team]');
+  if(team&&/^\d{1,7}$/.test(team.value))void loadTeam(team.value);
  });
  root.addEventListener('click',async e=>{
   const button=e.target.closest('[data-observed-player]');if(!button)return;
@@ -139,8 +154,20 @@ async function hydrate(ctx,tool){
     '<p><a href="#/'+esc(ctx.sport)+'/player/'+esc(athlete)+'">Open full verified player dashboard →</a></p></div>';
   }catch(_){const here=panel()?.querySelector('#tsoObservedStats');if(here)here.innerHTML='<p class="page-note">Official ESPN player history request failed; no statistical values have been substituted.</p>'}
  });
- const initial=games.find(g=>String(g.id)===String(chosen.get(session)))||games[0];
- await loadRosters(String(initial.id));
+ if(games.length){
+  const initial=games.find(g=>String(g.id)===String(chosen.get(session)))||games[0];
+  await loadRosters(String(initial.id));
+ }else{
+  try{
+   const r=await fetch('/api/sport-teams?'+new URLSearchParams({league:ctx.sport}),{cache:'default'});
+   const doc=await r.json();
+   if(!r.ok||!doc.available||doc.league!==ctx.sport||!Array.isArray(doc.teams)||!doc.teams.length)
+    throw Error(doc.error||'ESPN official team directory unavailable');
+   const dropdown=panel()?.querySelector('[data-observed-team]');if(!dropdown)return;
+   dropdown.innerHTML=doc.teams.map(t=>'<option value="'+esc(t.id)+'">'+esc(t.name)+'</option>').join('');
+   await loadTeam(String(doc.teams[0].id));
+  }catch(e){show('<p class="page-note">Verified ESPN league directory unavailable: '+esc(e?.message||'Provider error')+'</p>')}
+ }
 }
 window.TSO3ObservedResearch={supports,render,hydrate,tools};
 })();
