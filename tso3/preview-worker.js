@@ -1447,15 +1447,17 @@ function athleteProviderCategory(doc,sport){
  return category==='pitching'||category==='batting'?category:null;
 }
 function scopeMlbAthleteValues(values,category){
- if(category!=='pitching'||!Array.isArray(values))return values;
+ if(!['pitching','unknown'].includes(category)||!Array.isArray(values))return values;
  const pairs={hits:['hitsAllowed','Hits allowed'],runs:['runsAllowed','Runs allowed'],
   homeRuns:['homeRunsAllowed','Home runs allowed'],walks:['walksAllowed','Walks allowed']};
  return values.map(v=>{
   const old=String(v.name||''),sep=old.lastIndexOf(':'),field=old.slice(sep+1);
   const found=pairs[field];
   if(!found)return v;
-  return {...v,name:(sep>=0?old.slice(0,sep+1):'')+found[0],
-   label:found[1],originalESPNStat:old,scope:'pitching'};
+  const target=category==='unknown'?'unverified'+found[0][0].toUpperCase()+found[0].slice(1):found[0];
+  return {...v,name:(sep>=0?old.slice(0,sep+1):'')+target,
+   label:category==='unknown'?'Unverified '+found[1]:found[1],
+   originalESPNStat:old,scope:category};
  });
 }
 function verifiedDerivedAthleteStats(events,sport){
@@ -1570,12 +1572,12 @@ async function verifiedAthleteDepth(sport,id,season){
  const now=Date.now(),gameScope=athleteProviderCategory(gameDoc,sport),
   statsScope=athleteProviderCategory(seasonDoc,sport),splitScope=athleteProviderCategory(splitDoc,sport);
  const games=gameDoc?athleteGamelogEntries(gameDoc,now).map(e=>({
-  ...e,stats:scopeMlbAthleteValues(e.stats,gameScope)})):[];
+  ...e,stats:scopeMlbAthleteValues(e.stats,sport==='mlb'?(gameScope||'unknown'):null)})):[];
  const events=verifiedDerivedAthleteStats(games,sport);
  const stats=seasonDoc?athleteSeasonStats(seasonDoc).map(c=>({
-  ...c,values:scopeMlbAthleteValues(c.values,statsScope)})):[];
+  ...c,values:scopeMlbAthleteValues(c.values,sport==='mlb'?(statsScope||'unknown'):null)})):[];
  const officialSplits=splitDoc?athleteOfficialSplits(splitDoc).map(c=>({
-  ...c,splits:c.splits.map(v=>({...v,values:scopeMlbAthleteValues(v.values,splitScope)}))})) :[];
+  ...c,splits:c.splits.map(v=>({...v,values:scopeMlbAthleteValues(v.values,sport==='mlb'?(splitScope||'unknown'):null)}))})) :[];
  if(!events.length&&!stats.length&&!officialSplits.length)return {available:false,sport,athleteId:id,season,
   events:[],seasonStats:[],officialSplits:[],providerChecks,
   reason:!gameDoc&&!seasonDoc?'ESPN athlete provider requests failed for this Worker':
