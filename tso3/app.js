@@ -47,7 +47,7 @@ for(const sport of Object.values(SPORTS)){
  if(!sport.tools.some(([title])=>title==='Alternate Lines'))
   sport.tools.push(['Alternate Lines','Only actually published alternate thresholds and price quotes']);
 }
-const PAGES=[['overview','Overview','layout-dashboard'],['games','Games','calendar-days'],['props','Player Props','chart-no-axes-combined'],['trends','Trends','trending-up'],['cheatsheets','Cheatsheets','notebook-tabs'],['ratings','Power Ratings','gauge'],['projections','Projections','activity'],['injuries','Injuries','heart-pulse'],['data','Data Sources','database'],['saved','Saved Research','bookmark']];
+const PAGES=[['overview','Overview','layout-dashboard'],['games','Games','calendar-days'],['props','Player Props','chart-no-axes-combined'],['trends','Trends','trending-up'],['player','Player Dashboard','activity'],['cheatsheets','Cheatsheets','notebook-tabs'],['ratings','Power Ratings','gauge'],['projections','Projections','activity'],['injuries','Injuries','heart-pulse'],['data','Data Sources','database'],['saved','Saved Research','bookmark']];
 /* Original inline SVG icons (Lucide-inspired line geometry), no emoji or remote icon kit.
    Built locally and reused across the six-sport navigation and research cards. */
 const ICONS={
@@ -112,7 +112,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nhlDefense:null,nhlDefenseFetched:0,nhlDefensePosition:'C',nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,playerId:null,playerProfile:null,playerUI:{tab:'overview',metric:null,split:'all',opponent:'',window:'l10',lineKey:''},search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nhlDefense:null,nhlDefenseFetched:0,nhlDefensePosition:'C',nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -210,7 +210,7 @@ function renderSportMenu(){
   return '<a class="menu-tool-link '+(selected?'selected':'')+'" href="#/'+sport+'/cheatsheets/'+slug+'" data-menu-nav="'+sport+'" data-menu-tool="'+slug+'"><b>'+text(name)+'</b><small>'+text(description)+'</small></a>';
  }).join('');
  root.innerHTML='<div class="sport-menu-head"><span class="sport-menu-heading"><span class="menu-sport-icon">'+iconSvg(data.icon)+'</span><span><strong>'+text(data.name)+'</strong><small>Choose a section or jump straight into a research tool</small></span></span><button type="button" data-close-sport-menu aria-label="Close '+data.label+' menu">'+iconSvg('close')+'</button></div>'
-  +'<div class="sport-menu-grid"><section class="sport-menu-column"><h3>RESEARCH</h3>'+navLinks(['overview','games','props','trends','cheatsheets'])+'</section>'
+  +'<div class="sport-menu-grid"><section class="sport-menu-column"><h3>RESEARCH</h3>'+navLinks(['overview','games','props','trends','player','cheatsheets'])+'</section>'
   +'<section class="sport-menu-column"><h3>ANALYTICS</h3>'+navLinks(['ratings','projections','injuries','data','saved'])+'</section>'
   +'<section class="sport-menu-column sport-menu-specialty"><h3>'+data.label+' SPECIALTY TOOLS <span>'+data.tools.length+'</span></h3><div class="menu-tools">'+toolLinks+'</div></section></div>';
  root.hidden=false;
@@ -429,6 +429,108 @@ function openOfficialRosterPlayer(player){
  el('closeDrawer').focus();
  void hydrateAthleteDepth(row);
  if(state.sport==='nhl')void hydrateNhlPlayerResearch(row);
+}
+/* Full-size research destination across all six sports.
+   A shareable ESPN player ID is required; name-only sportsbook rows must pass
+   the existing verified two-team roster identity lookup before navigation. */
+const playerDirectory=new Map();
+let playerResearchNonce=0;
+function playerDashboardKey(sport,id){return sport+':'+String(id)}
+function captureDashboardPlayer(row){
+ const id=String(row?.verifiedAthleteId||row?.playerId||row?.id||'');
+ if(!/^\d{3,12}$/.test(id))return null;
+ const key=playerDashboardKey(state.sport,id);
+ const person={...row,playerId:id,verifiedAthleteId:id,
+  name:row.name||row.player||null,team:row.team||null};
+ playerDirectory.set(key,person);
+ return person;
+}
+async function openFullPlayerDashboard(row){
+ if(!row)return;
+ let profile=captureDashboardPlayer(row);
+ if(!profile){
+  const event=String(row.verifiedGameId||''),player=nameOf(row);
+  if(!/^\d{6,14}$/.test(event)||!player){
+   if(!el('drawer').hidden){
+    const place=el('drawerBody');place.insertAdjacentHTML('beforeend','<p class="page-note">A verified ESPN player identity is required for the full dashboard. Open an official matchup roster to identify this athlete.</p>');
+   }
+   return;
+  }
+  const league=state.sport;
+  try{
+   const r=await fetch('/api/athlete-identity?'+new URLSearchParams({league,gameId:event,player}),{cache:'default'});
+   const doc=await r.json();
+   if(!r.ok||!doc.available||!/^\d{3,12}$/.test(String(doc.athleteId||'')))throw Error('Official roster identity not verified');
+   profile=captureDashboardPlayer({...row,playerId:doc.athleteId,verifiedAthleteId:doc.athleteId,
+    name:doc.athleteName||player,team:doc.teamAbbr||row.team,position:doc.position||row.position});
+  }catch(_){
+   if(!el('drawer').hidden)el('drawerBody').insertAdjacentHTML('beforeend',
+    '<p class="page-note">No unique official ESPN player match was returned. The full dashboard cannot safely attach unverified player history.</p>');
+   return;
+  }
+ }
+ const destination='#/'+state.sport+'/player/'+profile.playerId;
+ state.playerProfile=profile;
+ if(location.hash===destination)route(state.sport,'player',null,profile.playerId);
+ else{location.hash=destination;onHash();}
+}
+function dashboardSelectedPlayer(){
+ if(!state.playerId)return null;
+ const k=playerDashboardKey(state.sport,state.playerId);
+ return playerDirectory.get(k)||state.playerProfile&&String(state.playerProfile.playerId)===String(state.playerId)?playerDirectory.get(k)||state.playerProfile:null;
+}
+function pageFullPlayerDashboard(){
+ const player=dashboardSelectedPlayer();
+ if(!state.playerId){
+  const found=new Map();
+  for(const r of getRows().filter(eligible)){
+   const p=captureDashboardPlayer(r);if(p)found.set(p.playerId,p);
+  }
+  for(const p of gameRostersPlayers.values())if(p.sport===state.sport){
+   const added=captureDashboardPlayer({...p,player:p.name});if(added)found.set(added.playerId,added);
+  }
+  return section('Full Player Dashboards','Verified official athlete identity, game logs, splits, matchup context, current sportsbook prices and TSO model provenance')
+   +(found.size?'<div class="tso-pd-directory">'+[...found.values()].slice(0,150).map(p=>
+    '<button type="button" data-pd-open-id="'+text(p.playerId)+'"><strong>'+text(p.name||p.player||'ESPN player #'+p.playerId)+'</strong>'
+    +'<small>'+text(p.team||'Team pending')+' · ESPN #'+text(p.playerId)+'</small></button>').join('')+'</div>':
+    '<div class="tso-pd-pending">No athlete IDs are verified in this sports current published props. Open <a href="#/'+state.sport+'/games">Games</a>, select a verified matchup, and choose a player from the official roster.</div>');
+ }
+ return '<div id="fullPlayerDashboardSlot" data-athlete-id="'+text(state.playerId)+'">'
+  +'<div class="tso-pd-loading"><span class="eyebrow">'+text(state.sport.toUpperCase())+' · FULL PLAYER DASHBOARD</span>'
+  +'<h2>'+text(player?.name||player?.player||'ESPN Athlete #'+state.playerId)+'</h2>'
+  +'<p>Connecting verified season game logs, opponent and venue splits, matchup evidence, and current sportsbook lines…</p></div></div>';
+}
+async function hydrateFullPlayerDashboard(){
+ if(state.page!=='player'||!state.playerId)return;
+ const id=String(state.playerId),sport=state.sport,nonce=++playerResearchNonce;
+ const container=el('fullPlayerDashboardSlot'),renderer=window.TSO3PlayerDashboard;
+ if(!container)return;
+ if(!renderer){container.innerHTML='<p class="page-note">Player dashboard module unavailable. Refresh the preview.</p>';return}
+ const season=ATHLETE_SEASON[sport]||2026,key=sport+':'+id+':'+season,player=dashboardSelectedPlayer()||{playerId:id};
+ let doc=athleteDepthCache.get(key);
+ if(!doc){
+  try{
+   const r=await fetch('/api/athlete-depth?'+new URLSearchParams({league:sport,playerId:id,season:String(season)}),{cache:'default'});
+   doc=await r.json();
+   if(!r.ok||!doc?.available)doc={available:false,athleteId:id,season,reason:doc?.reason||'Official ESPN player game logs and season statistics unavailable'};
+  }catch(_){doc={available:false,athleteId:id,season,reason:'Official ESPN athlete feed unavailable'}}
+  athleteDepthCache.set(key,doc);
+ }
+ if(nonce!==playerResearchNonce||state.page!=='player'||state.playerId!==id||state.sport!==sport||!el('fullPlayerDashboardSlot'))return;
+ if(doc.athleteName&&player.name&&canon(doc.athleteName)!==canon(player.name)){
+  el('fullPlayerDashboardSlot').innerHTML='<p class="page-note">Official ESPN identity mismatch; no different player game logs were attached. Check the player roster.</p>';return;
+ }
+ const quotes=getRows().filter(q=>{
+  const sameId=String(q.playerId||'')===id;
+  const verifiedName=player.name&&canon(nameOf(q))===canon(player.name);
+  const sameGame=!player.verifiedGameId||String(q.verifiedGameId||'')===String(player.verifiedGameId);
+  return (sameId||verifiedName&&sameGame)&&(!player.team||!q.team||canon(q.team)===canon(player.team));
+ });
+ const game=getGames().find(g=>player.verifiedGameId&&String(g.id)===String(player.verifiedGameId))||null;
+ el('fullPlayerDashboardSlot').innerHTML=renderer.render({sport,doc,player,game,odds:quotes,ui:state.playerUI});
+}
+function refreshFullPlayerDashboard(){
+ if(state.page==='player'&&state.playerId)void hydrateFullPlayerDashboard();
 }
 function pageGames(){
  if(state.game){
@@ -704,6 +806,7 @@ function render(){
  else if(state.sport==='nba'&&state.page==='injuries')body=nbaDepthResearch('injury-impact');
  else if(state.page==='overview')body=overview();
  else if(state.page==='games')body=pageGames();
+ else if(state.page==='player')body=pageFullPlayerDashboard();
  else if(state.page==='props')body=section('Player prop explorer','Over / Yes markets only, no fabricated selections')+tableMarkup(filteredRows());
  else if(state.page==='trends')body=pageTrends();
  else if(state.page==='cheatsheets')body=pageTools();
@@ -719,6 +822,7 @@ function render(){
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='model-validation'){
   void hydrateNflValidation();void hydrateNflArchive();
  }
+ if(state.page==='player'&&state.playerId)void hydrateFullPlayerDashboard();
  if(state.page==='games'&&state.game){
   const game=getGames().find(g=>gameKey(g)===state.game);
   if(game){
@@ -1069,7 +1173,7 @@ function openDrawer(r){
   +'<div><span>RUN ITERATIONS</span><b>'+text(r.model?.iterations??'Unavailable')+'</b></div>'
   +'<div><span>MODEL GENERATED</span><b>'+text(r.model?.generatedAt?clock(r.model.generatedAt):'Unavailable')+'</b></div></div>'
   +'<h3>What to validate</h3><div class="detail-tags"><span class="tag '+(model===null?'pending':'verified')+'">Exact line '+(model===null?'not modeled':'matched')+'</span><span class="tag '+(logs?'verified':'pending')+'">Observed game logs '+(logs?'verified':'pending')+'</span><span class="tag pending">Opponent positional split required</span><span class="tag pending">Confirmed lineup required</span></div>'
-  +'<div class="drawer-actions"><button class="btn" id="drawerSave" type="button">'+(state.saved.has(rowKey(r))?'Remove from saved':'Save selection')+'</button><button class="btn subtle" id="drawerClose2">Close</button></div></div>';
+  +'<div class="drawer-actions"><button class="btn" type="button" data-open-full-dashboard>Full Player Dashboard</button><button class="btn" id="drawerSave" type="button">'+(state.saved.has(rowKey(r))?'Remove from saved':'Save selection')+'</button><button class="btn subtle" id="drawerClose2">Close</button></div></div>';
  el('drawerBody').innerHTML=html;el('drawer').hidden=false;el('scrim').hidden=false;el('closeDrawer').focus();
  void hydrateAthleteDepth(r);
  if(state.sport==='nhl')void hydrateNhlPlayerResearch(r);
@@ -1081,20 +1185,26 @@ function save(r){
  else state.saved.set(key,{key,sport:leagueOf(r),name:nameOf(r),market:marketOf(r),side:r.side,line:lineOf(r),price:r.price,book:bookOf(r),at:new Date().toISOString()});
  remember();render();if(!el('drawer').hidden&&state.selected)openDrawer(state.selected);
 }
-function route(sport,page,tool=null){
+function route(sport,page,tool=null,athleteId=null){
  if(!SPORTS[sport])sport='nfl';
  if(!PAGES.some(x=>x[0]===page))page='overview';
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
  if(state.sport!==sport)state.matchupIds=[];
  state.matchupOpen=false;
+ const safeId=page==='player'&&/^d{3,12}$/.test(String(athleteId||''))?String(athleteId):null;
+ const samePerson=state.sport===sport&&state.playerId===safeId;
+ if(!samePerson)state.playerUI={tab:'overview',metric:null,split:'all',opponent:'',window:'l10',lineKey:''};
+ state.playerId=safeId;
  state.sport=sport;state.page=page;state.tool=matched;state.openSport=null;state.game=null;state.market='all';state.book='all';state.marketSelections=[];state.bookSelections=[];state.marketOpen=false;state.bookOpen=false;state.search='';state.maxRows=40;
  closeDrawer();render();el('main').scrollIntoView({block:'start'});
 }
 function onHash(){
  const [sport,page,tool]=location.hash.replace(/^#\/?/,'').split('/');
+ const athleteId=page==='player'&&/^d{3,12}$/.test(tool||'')?tool:null;
  if(!SPORTS[sport]||!PAGES.some(x=>x[0]===page)){location.hash='#/nfl/overview';return}
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
- if(state.sport!==sport||state.page!==page||state.tool!==matched||state.openSport!==null)route(sport,page,matched);
+ if(state.sport!==sport||state.page!==page||state.tool!==matched||state.openSport!==null
+  ||page==='player'&&state.playerId!==athleteId)route(sport,page,matched,athleteId);
 }
 /* Resilient NBA slate sourced directly from ESPN's published scoreboard.
    ESPN's scoreboard supports browser CORS. No made-up schedules or team IDs. */
@@ -1291,13 +1401,31 @@ document.addEventListener('click',e=>{
  const rosterPlayer=e.target.closest('[data-roster-player]');
  if(rosterPlayer){
   const athlete=gameRostersPlayers.get(rosterPlayer.dataset.rosterPlayer);
-  if(athlete)openOfficialRosterPlayer(athlete);
+  if(athlete)void openFullPlayerDashboard(athlete);
   return;
  }
  const game=e.target.closest('[data-game]');if(game){state.page='games';state.game=game.dataset.game;state.tool=null;state.search='';history.replaceState(null,'','#/'+state.sport+'/games');render();return}
  const tool=e.target.closest('[data-tool]');if(tool){const slug=tool.dataset.tool;location.hash='#/'+state.sport+'/cheatsheets/'+slug;onHash();return}
  const back=e.target.closest('[data-back]');if(back){if(back.dataset.back==='game'){state.game=null;render()}else{location.hash='#/'+state.sport+'/cheatsheets';onHash()}return}
  const more=e.target.closest('[data-more]');if(more){state.maxRows+=60;render();return}
+ const full=e.target.closest('[data-open-full-dashboard]');
+ if(full){
+  const row=state.selected;
+  if(row)void openFullPlayerDashboard(row);
+  return;
+ }
+ const direct=e.target.closest('[data-pd-open-id]');
+ if(direct){
+  const p=playerDirectory.get(playerDashboardKey(state.sport,direct.dataset.pdOpenId));
+  if(p)void openFullPlayerDashboard(p);
+  return;
+ }
+ const pdTab=e.target.closest('[data-pd-tab]');
+ if(pdTab&&state.page==='player'){
+  state.playerUI.tab=pdTab.dataset.pdTab;
+  void refreshFullPlayerDashboard();
+  return;
+ }
  const targetRow=e.target.closest('[data-row-key]');
  if(targetRow){const r=state.displayedRows.get(targetRow.dataset.rowKey);if(e.target.closest('[data-save]'))save(r);else openDrawer(r);return}
  const remove=e.target.closest('[data-unsave]');if(remove){state.saved.delete(remove.dataset.unsave);remember();render();return}
@@ -1305,6 +1433,17 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
 document.addEventListener('change',e=>{
+ const playerOption=e.target.closest?.('[data-pd-setting]');
+ if(playerOption&&state.page==='player'){
+  const kind=playerOption.dataset.pdSetting;
+  if(['metric','window','split','opponent','lineKey'].includes(kind)){
+   state.playerUI[kind]=playerOption.value;
+   if(kind==='metric')state.playerUI.lineKey='';
+   if(kind==='split'&&state.playerUI.split!=='opponent')state.playerUI.opponent='';
+   refreshFullPlayerDashboard();
+  }
+  return;
+ }
  if(e.target.id==='nhlDefensePosition'&&state.nhlDefense){
   state.nhlDefensePosition=e.target.value;
   const type=state.tool==='shots-on-goal'?'shots':'goals',slot=el('nhlDefenseSlot');
@@ -1382,7 +1521,9 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(state.openSport!==null){closeSportMenu();el('sportNav').querySelector('[data-sport-toggle="'+state.sport+'"]')?.focus()}else closeDrawer()}});
 const hash=location.hash.replace(/^#\/?/,'').split('/');
-if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1];state.tool=hash[1]==='cheatsheets'&&SPORTS[hash[0]].tools.some(t=>menuToolSlug(t[0])===hash[2])?hash[2]:null}else location.hash='#/nfl/overview';
+if(SPORTS[hash[0]]&&PAGES.some(x=>x[0]===hash[1])){state.sport=hash[0];state.page=hash[1];
+ state.playerId=hash[1]==='player'&&/^d{3,12}$/.test(hash[2]||'')?hash[2]:null;
+ state.tool=hash[1]==='cheatsheets'&&SPORTS[hash[0]].tools.some(t=>menuToolSlug(t[0])===hash[2])?hash[2]:null}else location.hash='#/nfl/overview';
 render();load(true);
 setInterval(()=>{if(!document.hidden)load(false)},60000);
 window.TSO3={state,SPORTS,PAGES,render,load,exactModel,recent,matchupTime,matchRowGame};
