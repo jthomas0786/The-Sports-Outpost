@@ -16,8 +16,14 @@ on:
     # the correct weekly slate already exists.
     - cron: '5 9 * * 2'
     - cron: '35 9 * * 2'
-    # Same-week Sunday refresh: updates roster/inactive context without creating
-    # a new slate/week. The slateId remains the same until the next Tuesday roll.
+    # Tuesday predictions expire after 72 hours in the TSO3 Worker.
+    # Refresh within 48h during the week and again before early Sunday games,
+    # instead of letting models/grades disappear Friday through Sunday.
+    # 10:15 UTC = 05:15 CDT or 04:15 CST, early enough for an 08:30 CT kickoff.
+    # These are same-week REBUILDS (not weekly rollover changes).
+    - cron: '15 10 * * 0,1,4,6'
+    # Additional Sunday roster/injury refresh, useful for later kickoffs;
+    # the 10:15 UTC Sunday run above protects early international kickoffs.
     - cron: '0 16 * * 0'
   workflow_dispatch:
     inputs:
@@ -25,6 +31,9 @@ on:
         description: 'Optional build date override (YYYY-MM-DD); blank = current NFL week'
         required: false
   push:
+    # The proposed repair is safe to develop on a branch; only a reviewed
+    # main merge is allowed to automatically publish production NFL slates.
+    branches: [main]
     paths:
       - '.github/workflows/nfl-slate.yml'
 
@@ -157,9 +166,11 @@ jobs:
           if (existsSync('slates/nfl.json')) {
             try {
               const s = JSON.parse(readFileSync('slates/nfl.json', 'utf8'));
+              const ageMs = Date.now() - Date.parse(s.generatedAt || '');
               fresh = Number(s.season) === Number(process.env.NFL_SEASON)
                 && Number(s.week) === Number(process.env.NFL_WEEK)
-                && String(s.seasonType) === shortType;
+                && String(s.seasonType) === shortType
+                && Number.isFinite(ageMs) && ageMs >= 0 && ageMs < 4 * 3600000;
             } catch {}
           }
           if (fresh) {
@@ -203,6 +214,33 @@ jobs:
           }
           if (!Array.isArray(s.games)) { console.error('::error::malformed slate — no games array'); process.exit(1); }
           const players = s.games.reduce((n, g) => n + (g.players || []).length, 0);
+          const generatedMs = Date.parse(s.generatedAt || '');
+          const ageMs = Date.now() - generatedMs;
+          if (!Number.isFinite(ageMs) || ageMs < 0 || ageMs > 60 * 60000) {
+            console.error('::error::Refusing to publish an NFL ATD prediction file not rebuilt in this run.');
+            process.exit(1);
+          }
+          if (!String(s.rosters?.source || '').startsWith('nflverse roster_2026')) {
+            console.error('::error::Refusing NFL ATD update: 2026 roster feed failed or source fell back to 2025.');
+            process.exit(1);
+          }
+          if (s.availability?.ok !== true) {
+            console.error('::error::Refusing NFL ATD update: current injury/availability feed was not verified.');
+            process.exit(1);
+          }
+          const bad = [];
+          for (const g of s.games) for (const p of g.players || []) {
+            const probability = p.props?.atd?.probability;
+            if (typeof probability !== 'number' || !Number.isFinite(probability) ||
+                probability < 0 || probability > 1 ||
+                !['A', 'B', 'C', 'D', 'F'].includes(p.props?.atd?.grade)) {
+              bad.push(String(g.gameId) + '/' + String(p.name));
+            }
+          }
+          if (bad.length) {
+            console.error('::error::Invalid NFL ATD player scores: ' + bad.slice(0, 12).join(', '));
+            process.exit(1);
+          }
           console.log('✓ ' + s.games.length + ' games, ' + players + ' players graded');
           console.log('  ' + s.seasonType + ' week ' + s.week + ' for ' + s.date + ', generated ' + s.generatedAt);
           const byStatus = s.games.reduce((a, g) => ((a[g.status] = (a[g.status] || 0) + 1), a), {});
