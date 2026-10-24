@@ -698,6 +698,49 @@ async function load(force=false){
  state.nflResearch=pairs[8].status==='fulfilled'&&Array.isArray(pairs[8].value?.players)?pairs[8].value:null;
  state.nflOdds=pairs[9].status==='fulfilled'&&Array.isArray(pairs[9].value?.rows)?pairs[9].value:null;
  state.nflSim=pairs[10].status==='fulfilled'&&Array.isArray(pairs[10].value?.games)?pairs[10].value:null;
+ // Put current verified ParlayAPI sportsbook Over/Yes selections into the
+ // shared six-sport explorer. The dedicated NFL module already read these;
+ // omission here previously caused a misleading "zero NFL props" table.
+ if(state.nflOdds?.available&&Array.isArray(state.nflOdds.rows)&&state.nflOdds.rows.length){
+  const current=Array.isArray(state.props?.rows)?state.props.rows:[];
+  const merged=new Map();
+  const now=Date.now(),sims=new Map((state.nflSim?.games||[])
+   .filter(g=>g.phase==='pregame'&&Number(g.iterations)>=10000&&Date.parse(g.runAt)<=now
+    &&now-Date.parse(g.runAt)<=48*3600000)
+   .map(g=>[String(g.id),g]));
+  const label={atd:'Player Touchdowns',firstTd:'First Touchdown',
+   passYds:'Player Passing Yards',passTds:'Player Passing Touchdowns',
+   passAttempts:'Player Passing Attempts',completions:'Player Completions',
+   rushYds:'Player Rushing Yards',rushAttempts:'Player Rushing Attempts',
+   recYds:'Player Receiving Yards',receptions:'Player Receptions',
+   targets:'Player Targets',carries:'Player Rushing Attempts'};
+  const teamKey=v=>({LAR:'LA',RAMS:'LA',JAX:'JAC',AZ:'ARI',WSH:'WAS'}[canon(v)]||canon(v));
+  for(const row of current.concat(state.nflOdds.rows.map(q=>{
+   const m=sims.get(String(q.verifiedGameId||'')),start=Date.parse(q.commenceTime||'');
+   const player=(m?.players||[]).find(p=>teamKey(p.team)===teamKey(q.team)
+    &&canon(p.name)===canon(q.player));
+   let probability=null;
+   const fresh=m&&Date.parse(m.startTime)===start&&Date.parse(q.snapshotTime)<=now
+    &&Date.parse(q.snapshotTime)<start&&Date.parse(m.runAt)<start;
+   if(fresh&&player&&q.market==='atd'&&Number(q.line)===0.5)
+    probability=num(player.atd);
+   else if(fresh&&player&&String(q.side)==='over'){
+    const exact=player.exactOver?.[q.market];
+    if(exact&&Number(exact.line)===Number(q.line))probability=num(exact.probability);
+   }
+   if(probability!==null&&(probability<0||probability>1))probability=null;
+   return {...q,marketLabel:label[q.market]||q.market,
+    model:probability===null?null:{probabilityPct:probability*100,
+     exactMatch:true,lineMatch:true,matchType:'exact-line',source:'TSO pregame 50K Monte Carlo',
+     generatedAt:m.runAt,iterations:m.iterations}};
+  }))){
+   const key=[row.sport||row.league,row.verifiedGameId||row.eventId||row.gameId,
+    row.playerId||row.player,canon(row.market),row.line,canon(row.side),canon(row.book)].join('|').toLowerCase();
+   merged.set(key,row);
+  }
+  state.props={...(state.props||{}),rows:[...merged.values()],
+   nflOdds:{source:state.nflOdds.source,fetchedAt:state.nflOdds.fetchedAt}};
+ }
  state.nflInjuries=pairs[11].status==='fulfilled'&&Array.isArray(pairs[11].value?.entries)?pairs[11].value:null;
  state.nflError=[pairs[7],pairs[8],pairs[9]].filter(x=>x.status==='rejected').map(x=>String(x.reason?.message||'NFL feed')).join(' · ');
  state.nbaPending=false;
