@@ -39,6 +39,14 @@ SPORTS.nfl.tools=[
  ...NFL_CHEATSHEET_CATALOG,
  ...SPORTS.nfl.tools.filter(([name])=>!NFL_CHEATSHEET_CATALOG.some(([title])=>title===name))
 ];
+/* Verified multi-book price and actual alternate-threshold research for every
+   league. Tools return unavailable when quotes cannot independently be read. */
+for(const sport of Object.values(SPORTS)){
+ if(!sport.tools.some(([title])=>title==='Odds Comparison'))
+  sport.tools.push(['Odds Comparison','Verify prices from multiple sportsbooks at the exact same player prop']);
+ if(!sport.tools.some(([title])=>title==='Alternate Lines'))
+  sport.tools.push(['Alternate Lines','Only actually published alternate thresholds and price quotes']);
+}
 const PAGES=[['overview','Overview','layout-dashboard'],['games','Games','calendar-days'],['props','Player Props','chart-no-axes-combined'],['trends','Trends','trending-up'],['cheatsheets','Cheatsheets','notebook-tabs'],['ratings','Power Ratings','gauge'],['projections','Projections','activity'],['injuries','Injuries','heart-pulse'],['data','Data Sources','database'],['saved','Saved Research','bookmark']];
 /* Original inline SVG icons (Lucide-inspired line geometry), no emoji or remote icon kit.
    Built locally and reused across the six-sport navigation and research cards. */
@@ -318,14 +326,49 @@ function toolCard(pair,i){
  return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
- if(state.sport==='nfl'&&name==='Model Validation')return Boolean(window.TSO3NflValidation);
- if(state.sport==='nfl'&&window.TSO3NflLab?.tools?.includes(menuToolSlug(name)))return Boolean(state.nflResearch?.players||state.nflTD?.games||state.live?.games);
- if(state.sport==='nba'&&/^(Player Form|Matchup vs Position|Pace & Possessions|Minutes & Rotation|Usage & Touches|Team Stats|Injury Impact|Game Projections)$/.test(name))return name==='Injury Impact'?Boolean(state.nbaInjuries?.entries):Boolean(state.nbaResearch?.players);
- if(/First Basket/i.test(name))return state.sport==='nba'&&Boolean(state.live);
- if(/Player Form|Player Trends|Skater Statistics|Player Trends|Home Run Matchups|Shots on Goal|Receiving Matchups|Touchdown Opportunities/i.test(name))return Boolean(state.props);
- if(/Team Statistics|Team Stats|Game Projections|Team Matchups|Game Projections/i.test(name))return Boolean(state.live);
+ const rows=getRows().filter(eligible);
+ if(name==='Odds Comparison'||name==='Odds Discrepancies'){
+  const seen=new Map();
+  for(const r of rows){
+   if(lineOf(r)===null||num(r.price)===null)continue;
+   const k=[r.verifiedGameId||r.gameId||r.eventId,canon(nameOf(r)),canon(r.market),lineOf(r),canon(r.side)].join('|');
+   const books=seen.get(k)||new Set();if(bookOf(r))books.add(bookOf(r));seen.set(k,books);
+  }
+  return [...seen.values()].some(set=>set.size>=2);
+ }
+ if(name==='Alternate Lines'){
+  const seen=new Map();
+  for(const r of rows){
+   const k=[r.verifiedGameId||r.gameId||r.eventId,canon(nameOf(r)),canon(r.market)].join('|');
+   const lines=seen.get(k)||new Set();if(lineOf(r)!==null)lines.add(lineOf(r));seen.set(k,lines);
+  }
+  return [...seen.values()].some(set=>set.size>=2);
+ }
+ if(state.sport==='nfl'){
+  if(name==='Model Validation')return Boolean(state.nflArchive?.available);
+  if(name==='Touchdown Opportunities')return Boolean(state.nflTD?.games?.length);
+  if(name==='Game Projections'||name==='Power Ratings')return Boolean(state.nflSim?.games?.length);
+  if(window.TSO3NflLab?.tools?.includes(menuToolSlug(name)))return Boolean(state.nflResearch?.players?.length);
+  if(name==='Hit Rate Matrix')return rows.some(r=>verifiedGames(r).length>=5);
+ }
+ if(state.sport==='nba'){
+  if(name==='Injury Impact')return Boolean(state.nbaInjuries?.entries?.length);
+  if(name==='First Basket')return Boolean(getGames().length);
+  if(['Player Form','Matchup vs Position','Pace & Possessions','Minutes & Rotation',
+   'Usage & Touches','Team Stats'].includes(name))return Boolean(state.nbaResearch?.players?.length);
+  if(name==='Game Projections')return Boolean(state.nbaModels?.models?.length);
+ }
+ if(state.sport==='nhl'){
+  if(name==='First Goal'||name==='Goal Scorer Matchups')return Boolean(state.nhlModel?.games?.length);
+  if(name==='Shots on Goal')return rows.some(r=>canon(r.market)==='SOG');
+ }
+ if(name==='Player Trends'||name==='Player Form'||name==='Skater Statistics')
+  return rows.some(r=>verifiedGames(r).length>=5);
+ // Odds alone do not certify a proprietary DvP, park, coverage, projection,
+ // ratings, play-by-play, usage or injury analysis.
  return false;
 }
+
 function overview(){
  const t=SPORTS[state.sport];
  return section('Explore '+t.label+' intelligence','Research modules grouped by the question they answer')
@@ -355,7 +398,8 @@ function toolDetail(){
  const found=SPORTS[state.sport].tools.find(x=>String(x[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-')===state.tool);
  if(!found){state.tool=null;return pageTools()}
  const ready=toolReady(found[0]);
- if(found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
+ if(found[0]==='Alternate Lines')return alternateLinesResearch();
+ if(found[0]==='Odds Comparison'||found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
  if(found[0]==='Hit Rate Matrix')return pageTrends();
  if(state.sport==='nfl'&&window.TSO3NflLab?.tools?.includes(state.tool))return nflResearch(state.tool);
  if(state.sport==='nba'&&['Player Form','Matchup vs Position'].includes(found[0])){
@@ -639,6 +683,31 @@ function quoteComparisonMarkup(r){
   +quotes.slice(0,20).map(q=>'<tr><td>'+text(q.line)+'</td><td>'+text(bookOf(q.best))+'</td><td>'+text(signed(q.best.price))+'</td>'
    +'<td>'+new Set(q.all.map(bookOf)).size+'</td><td>'+text(q.best.snapshotTime?clock(q.best.snapshotTime):'Unknown')+'</td></tr>').join('')
   +'</tbody></table></div><p class="nba-footnote">Only published bookmaker prices are shown. Other thresholds and model percentages are never invented.</p>';
+}
+function alternateLinesResearch(){
+ const map=new Map();
+ for(const q of getRows().filter(eligible)){
+  if(lineOf(q)===null||num(q.price)===null)continue;
+  const key=[q.verifiedGameId||q.gameId||q.eventId,canon(nameOf(q)),canon(q.market)].join('|');
+  const v=map.get(key)||[];v.push(q);map.set(key,v);
+ }
+ const profiles=[...map.values()].filter(g=>new Set(g.map(lineOf)).size>=2)
+  .sort((a,b)=>nameOf(a[0]).localeCompare(nameOf(b[0])));
+ const rows=profiles.flatMap(group=>{
+  const byLine=new Map();
+  for(const q of group){
+   const old=byLine.get(lineOf(q));
+   if(!old||Number(q.price)>Number(old.price))byLine.set(lineOf(q),q);
+  }
+  return [...byLine.values()].sort((a,b)=>lineOf(a)-lineOf(b));
+ }).slice(0,180);
+ return section('Published alternative prop lines','Compare real sportsbook Over/Yes thresholds, never a shifted or estimated line')
+  +(rows.length?'<div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>MARKET</th><th>EXACT LINE</th><th>BEST BOOK</th><th>PRICE</th><th>ORIGINAL QUOTE TIME</th></tr></thead><tbody>'
+   +rows.map(q=>'<tr><td>'+text(nameOf(q))+'</td><td>'+text(marketOf(q))+'</td><td>'+text(lineOf(q))+'</td>'
+    +'<td>'+text(bookOf(q))+'</td><td>'+text(signed(q.price))+'</td>'
+    +'<td>'+text(q.snapshotTime?clock(q.snapshotTime):'Unavailable')+'</td></tr>').join('')
+   +'</tbody></table></div>':empty('No verified alternate thresholds','The current sportsbook source has not published two distinct lines for the same player and market.'))
+  +'<p class="nba-footnote">Multiple actual thresholds are required. Inclusive milestones, inferred sportsbook odds and withdrawn historical quotes are never represented as currently bettable Overs.</p>';
 }
 function oddsDiscrepancyResearch(){
  const map=new Map();
