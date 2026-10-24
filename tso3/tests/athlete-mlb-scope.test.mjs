@@ -50,3 +50,10 @@ test('batting source keys and complete same-game H+R+RBI remain unchanged',()=>{
 test('missing MLB category stays unknown instead of inferring the batter/pitcher stat',()=>{
  assert.equal(athleteProviderCategory({filters:[]},'mlb'),null);
 });
+
+test('unknown ESPN MLB batting/pitching scope cannot claim a batter hits history',()=>{
+ const rows=scopeMlbAthleteValues([{name:'october:hits',label:'H',value:'2',numeric:2}], 'unknown');
+ assert.equal(rows[0].scope,'unknown');
+ assert.equal(marketStatMatches('hits',rows[0].name),false);
+ assert.equal(marketStatMatches('hitsAllowed',rows[0].name),false);
+});
