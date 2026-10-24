@@ -1249,6 +1249,85 @@ async function verifiedNhlGoalModel(){
   modelName:doc.model,generatedAt:doc.generatedAt,season:doc.season||null,games,
   note:'Pregame-only player scoring estimates matched to official ESPN game IDs. TSO model probabilities are NOT sportsbook prices. Unknown goalie starts remain unverified.'};
 }
+/* Original ESPN player-depth layer. Unlike sportsbook projections, these are
+   recorded season statistics and actual completed game logs. The ESPN athlete
+   ID must be explicit; no same-name player guessing. */
+const ATHLETE_PATHS=Object.freeze({
+ nfl:'football/nfl',nba:'basketball/nba',mlb:'baseball/mlb',
+ nhl:'hockey/nhl',wnba:'basketball/wnba',cfb:'football/college-football'
+});
+function athleteStatFields(names,labels,values){
+ if(!Array.isArray(values))return [];
+ const n=Array.isArray(names)?names:[],l=Array.isArray(labels)?labels:[];
+ const size=values.length;
+ if(!size||size>80)return [];
+ return values.map((value,i)=>{
+  const off=n.length===size?i:n.length>size?n.length-size+i:-1;
+  const name=off>=0?String(n[off]||''):String(l[i]||'');
+  const label=l.length===size?l[i]:off>=0?l[off]:null;
+  const number=Number(value);
+  return {name:name.slice(0,70),label:String(label||name||'STAT').slice(0,36),
+   value:String(value??'').slice(0,60),
+   numeric:value!==null&&value!==''&&Number.isFinite(number)?number:null};
+ }).filter(x=>x.name);
+}
+function athleteGamelogEntries(doc,now){
+ const root=doc?.events;
+ const fromRoot=Array.isArray(root)?root:(root&&typeof root==='object'?Object.values(root).filter(x=>x&&typeof x==='object'):[]);
+ const fromPeriods=(doc?.seasonTypes||[]).flatMap(s=>(s?.categories||[]).flatMap(c=>
+  Array.isArray(c.events)?c.events:[]));
+ const events=[...fromRoot,...fromPeriods],seen=new Set(),out=[];
+ for(const e of events){
+  const id=String(e?.id||e?.eventId||''),date=Date.parse(e?.date||'');
+  if(!/^\d{6,14}$/.test(id)||seen.has(id)||!Number.isFinite(date)||date>now)continue;
+  if(!Array.isArray(e.stats)||!e.stats.length||e.stats.length>80)continue;
+  // The public ESPN gamelog may return fewer stats than its top-level labels.
+  // Take the same-length tail only; never pretend data from another game.
+  const values=athleteStatFields(doc.names,doc.labels,e.stats);
+  if(!values.length)continue;
+  seen.add(id);
+  out.push({eventId:id,date:new Date(date).toISOString(),
+   opponent:String(e.opponent?.abbreviation||e.opponent?.displayName||'').slice(0,65),
+   opponentId:e.opponent?.id?String(e.opponent.id):null,
+   result:String(e.gameResult||'').slice(0,20),stats:values});
+ }
+ return out.sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,42);
+}
+function athleteSeasonStats(doc){
+ const categories=Array.isArray(doc?.categories)?doc.categories:[];
+ return categories.slice(0,12).map(c=>({
+  category:String(c.displayName||c.name||'').slice(0,60),
+  values:athleteStatFields(c.names,c.labels,c.totals||c.values)
+ })).filter(c=>c.category&&c.values.length);
+}
+async function verifiedAthleteDepth(sport,id,season){
+ if(!Object.hasOwn(ATHLETE_PATHS,sport)||!/^\d{3,12}$/.test(id)
+  ||!Number.isInteger(season)||season<2024||season>2027)
+  throw Error('Unsupported athlete, league or season');
+ const api='https://site.web.api.espn.com/apis/common/v3/sports/'+ATHLETE_PATHS[sport]+'/athletes/'+id;
+ const load=async(type)=>{
+  const r=await fetch(api+'/'+type+'?season='+season+'&seasontype=2',{
+   headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:300},
+   signal:AbortSignal.timeout(12500)});
+  if(!r.ok)return null;
+  const data=await r.json();
+  return data&&typeof data==='object'?data:null;
+ };
+ const [gameDoc,seasonDoc]=await Promise.all([load('gamelog').catch(()=>null),load('stats').catch(()=>null)]);
+ const now=Date.now(),events=gameDoc?athleteGamelogEntries(gameDoc,now):[];
+ const stats=seasonDoc?athleteSeasonStats(seasonDoc):[];
+ if(!events.length&&!stats.length)return {available:false,sport,athleteId:id,season,
+  events:[],seasonStats:[],reason:'Official ESPN season game log/statistics unavailable'};
+ const foundId=String(gameDoc?.athlete?.id||seasonDoc?.athlete?.id||'');
+ if(foundId&&foundId!==id)throw Error('ESPN athlete ID mismatch');
+ const person=String(gameDoc?.athlete?.displayName||seasonDoc?.athlete?.displayName||'').slice(0,90);
+ return {available:true,sport,athleteId:id,season,athleteName:person||null,
+  fetchedAt:new Date(now).toISOString(),
+  source:'ESPN official athlete season stats/game log; original records',
+  sourceIdentification:foundId?'ESPN athlete ID confirmed':'ESPN requested athlete ID, name not independently confirmed',
+  events,seasonStats:stats,gameLogAvailable:events.length>0,
+  note:'Observed league season stats, not a betting probability. Incomplete/missing ESPN games remain unavailable; do not interpret a missing game as 0.'};
+}
 async function safeNbaInjuries(){
  const r=await fetch(NBA_INJURIES_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(14000)});
  if(!r.ok)throw Error('ESPN injury feed '+r.status);
@@ -1568,6 +1647,18 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   }
  }
  if(u.pathname==='/api/nfl-archive-status')return Response.json(await nflArchiveStatus(env),{headers:{...headers,'cache-control':'no-store'}});
+ if(u.pathname==='/api/athlete-depth'){
+  const league=String(u.searchParams.get('league')||'').toLowerCase();
+  const playerId=String(u.searchParams.get('playerId')||'');
+  const season=Number(u.searchParams.get('season')||({nba:2027,nhl:2027,mlb:2026,nfl:2026,wnba:2026,cfb:2026}[league]||2026));
+  if(!Object.hasOwn(ATHLETE_PATHS,league)||!/^[0-9]{3,12}$/.test(playerId)
+    ||!Number.isInteger(season)||season<2024||season>2027)
+   return Response.json({available:false,error:'Invalid athlete or league'},{status:400,headers});
+  try{return Response.json(await verifiedAthleteDepth(league,playerId,season),{
+   headers:{...headers,'cache-control':'public, max-age=240','x-tso-source':'ESPN verified athlete statistics'}})}
+  catch(_){return Response.json({available:false,error:'ESPN athlete statistics unavailable',
+   events:[],seasonStats:[]},{status:503,headers:{...headers,'cache-control':'no-store'}})}
+ }
  if(u.pathname==='/api/nhl-goal-model'){
   try{return Response.json(await verifiedNhlGoalModel(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO NHL historical hazard model'}})}
   catch(e){return Response.json({available:false,source:'TSO NHL model',games:[],reason:String(e?.message||'').slice(0,150)},{status:503,headers})}
