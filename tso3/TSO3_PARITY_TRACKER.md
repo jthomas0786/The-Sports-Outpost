@@ -125,3 +125,35 @@ NHL research is built from an approximately **17.7 MB** published source. The is
 **Still NOT full parity:** each remaining sport (NFL, NBA, NHL, WNBA, college football) needs recorded real player-profile E2E checks; specialized advanced player statistics, injury/availability evidence, MLB pitch-level Statcast/exit-velocity filters, NHL expected-goal/shifts/goalie confirmations, NFL receiver coverage/role usage, complete defense-vs-position matchup engines, verifiable line-movement archives and reliable all-slate sportsbook freshness remain incomplete. Do not assert 100%, claim calibration or deploy this branch to production.
 
 **Important upstream blocker still active:** the isolated D1 monitor last checked at `2026-10-24T04:00:44Z` and recorded sportsbook source `stale`, `0` age-verified NFL games and `0` eligible quote rows. Archive integrity remains 9,410 immutable predictions across 13 games, with zero invalid original timestamps and no real postgame outcomes. **Production release remains blocked** until odds publishing and the above missing sport research engines are verified.
+ 
+## Six-sport live player-data validation and advanced-stat source integrity — October 23–24, 2026
+
+**All six TSO 3.0 full-player dashboard leagues were verified against real named athletes and ESPN's three public official sources.** These are individual player-source smoke tests, **not** proof of all-league every-player coverage:
+
+| League | Named athlete / ESPN ID | ESPN season | Recorded games | Season-stat groups | Official split groups | Gamelog/Stats/Splits |
+|---|---|---|---:|---:|---:|---|
+| NFL | Patrick Mahomes / 3139477 | 2026 | 5 | 5 | 16 | All HTTP 200 |
+| NBA | Jayson Tatum / 4065648 | 2026–27 (ESPN 2027) | 4 | 3 | 6 | All HTTP 200 |
+| MLB | Bryan Baker / 40884 | 2026 | 42 | 4 | 12 | All HTTP 200 |
+| NHL | Connor McDavid / 3895074 | 2026–27 (ESPN 2027) | 10 | 1 | 7 | All HTTP 200 |
+| WNBA | Caitlin Clark / 4433403 | 2026 | 42 | 3 | 3 | All HTTP 200 |
+| College football | Arch Manning / 4870906 | 2026 | 6 | 4 | 1 | All HTTP 200 |
+
+**Player model implementation added and preview-deployed:**
+
+- ESPN publishes combined made/attempted values, e.g. NBA **FG 14–26** or **3PT 3–10**. TSO now preserves the literal source observation while extracting numeric component fields (14 made, 26 attempted; 3 made, 10 attempted), only when the provider-supplied compound field name and numeric components align.
+- Derived historical NBA/WNBA P+R+A, P+R, P+A and R+A, MLB H+R+RBI, and NFL combined passing/rushing yards are calculated **only** if every contributing stat is a verified numeric observation in the **same ESPN game**; no missing input is treated as zero. Official `totalRebounds`, `RBI` and related source aliases are handled explicitly.
+- Full dashboard source windows now distinguish regular season, postseason and all recorded games. Unknown-season games are not silently assigned to regular or postseason L5/L10/L20. Separately published ESPN season splits retain their own period semantics.
+- A prop selection that opens the full dashboard selects the matching observed statistic and literal line when a verified identity, market and threshold match exists.
+- NHL's existing **TSO v4 verified opponent-defense dataset** is now wired into the full dashboard **Matchup & Advanced** panel for an official current matchup/athlete pairing: opponent goals and shots allowed/game, recent defensive form and position-specific allowance and ranking where present. It is strictly time-gated (source age no more than 36h); a stale or missing snapshot remains unavailable. This new matchup panel passed 4 synthetic checks; a complete named live player/opponent E2E render has not yet been established.
+- **Critical MLB scope protection:** ESPN MLB pitcher game logs may label *hits allowed* simply as `hits` and *runs allowed* as `runs`. The Worker now reads the ESPN `filters.category` field and scopes batting and pitching separately in game logs, season aggregates, and split categories. On official pitching logs, the fields become `hitsAllowed`, `runsAllowed` with the unchanged original ESPN field preserved; the app will not classify these as batter hits, runs, or H+R+RBI. If the source category is missing, ambiguous fields remain unverified. Live verified on Bryan Baker / 40884: scope `pitching`, 42 records, original hit/runs fields present as allowed, **no falsely derived H+R+RBI**.
+- Synthetic checks for source components, phase separation, NHL matchup safety, and MLB scope isolation were run on source code; 22/22 previous combined-stat/player checks, 4/4 NHL matchup checks, and 28/28 later combined-regression checks passed. These checks are not presented as official completed browser E2E for all sport-specific markets.
+- Latest preview release: Cloudflare Worker `1d67c0e4-213f-4c6f-b84f-f8fcd8d796ca`, 100% of **tso3-preview** traffic, 14 bundled assets; independent `NFL_ARCHIVE` D1 binding and 30-minute cron preserved. **Main, TSO2 staging and production remain unchanged.**
+
+**Still blocking 100% / production:**
+
+1. NFL source monitor checked `2026-10-24T04:30:44.791Z`: `status=stale`, 0 verified active games, 0 eligible bookmaker selections; recurring capture `no_fresh_sources`, reason: "Odds source older than kickoff-specific freshness caps." Archive still **9,410** immutable pregame predictions on 13 games, zero invalid timestamps and zero postgame outcome grades. This is a publisher freshness issue, not resolved by ESPN player-stat connectivity.
+2. Comprehensive coverage validation by position/market/player for every sport, every ESPN source category, all current rosters and active fixtures; athlete names, source events and advanced splits need continued game-by-game audits.
+3. Proprietary-reference functional equivalents still missing independent advanced verified sources: MLB Statcast/pitch arsenals and park/weather, NFL cornerback/coverage and target-share analyses, NBA on/off and possession-based analytics, WNBA and college-football defensive-role research, real historical sportsbook line-movement snapshots, official active starters, and complete injury availability.
+4. Final mobile/tablet real-browser visual QA, PWA install tests, production user auth/payments preservation, source-budget/reliability and rollback verification. Do **not** overwrite production merely because all six sample player histories connect.
+
