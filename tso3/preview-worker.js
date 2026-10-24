@@ -1367,7 +1367,7 @@ function athleteStatFields(names,labels,values){
   const parts=name.split('-'),figures=raw.split('-');
   if(parts.length>=2&&parts.length<=3&&parts.length===figures.length
    &&parts.every(p=>/^[A-Za-z][A-Za-z0-9]*$/.test(p))
-   &&figures.every(v=>/^\\d+(?:\\.\\d+)?$/.test(v))){
+   &&figures.every(v=>/^\d+(?:\.\d+)?$/.test(v))){
    for(let j=0;j<parts.length;j++)result.push({
     name:parts[j],label:parts[j].replace(/([a-z])([A-Z])/g,'$1 $2').slice(0,36),
     value:figures[j],numeric:Number(figures[j]),source:'ESPN literal paired field',
