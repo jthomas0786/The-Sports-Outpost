@@ -195,8 +195,11 @@ function render(ctx){
   +'<label>Published line<select data-pd-setting="lineKey"><option value="">'+(possible.length?'Most recent actual quote':'No verified line')+'</option>'
   +[...uniq].slice(0,60).map(([k,v])=>'<option value="'+esc(k)+'" '+(ui.lineKey===k?'selected':'')+'>'+esc(v)+'</option>').join('')
   +'</select></label></div>';
- const head='<header class="tso-pd-hero"><div><span class="eyebrow">'+esc(sport.toUpperCase())+' · TSO VERIFIED PLAYER INTELLIGENCE</span><h2>'+esc(name)+'</h2>'
-  +'<p>'+esc(player?.team||'Team not verified')+' · '+esc(player?.position||'Position unavailable')+' · ESPN Athlete #'+esc(doc?.athleteId||player?.playerId||'—')+'</p></div>'
+ const headshot=String(doc?.headshot||'');
+ const safeHeadshot=/^https:\/\/(a\.espncdn\.com|cdn\.espn\.com)\//.test(headshot)
+  ?'<img class="tso-pd-headshot" src="'+esc(headshot)+'" alt="'+esc(name)+' official ESPN player headshot" loading="lazy">':'';
+ const head='<header class="tso-pd-hero">'+safeHeadshot+'<div><span class="eyebrow">'+esc(sport.toUpperCase())+' · TSO VERIFIED PLAYER INTELLIGENCE</span><h2>'+esc(name)+'</h2>'
+  +'<p>'+esc(player?.team||doc?.athleteTeam||'Team not verified')+' · '+esc(player?.position||doc?.athletePosition||'Position unavailable')+' · ESPN Athlete #'+esc(doc?.athleteId||player?.playerId||'—')+'</p></div>'
   +'<div class="tso-pd-source"><strong>Official season '+esc(doc?.season||'—')+'</strong><small>'+esc(doc?.sourceIdentification||'Source verification pending')+'</small>'
   +'<small>ESPN observations / independent TSO odds & models</small></div></header>';
  let body='';
@@ -239,7 +242,9 @@ function render(ctx){
    +linesPanel(odds.slice(0,100),selected)+'</section></div>';
  }
  return '<div class="tso-player-dashboard">'+head+tabsHtml+control
-  +(doc?.available?body:'<p class="tso-pd-pending">Official athlete season data unavailable. '+esc(doc?.reason||'The provider returned no verifiable results.')+'</p>')
+  +(doc?.available||ui.tab==='odds'?body:
+   '<p class="tso-pd-pending">Official athlete season data unavailable. '+esc(doc?.reason||'The provider returned no verifiable results.')+'</p>'
+   +'<p class="page-note">If current sportsbook quotes exist, select Odds & Alt Lines; those quotes are not athlete game logs.</p>')
   +'<p class="tso-pd-disclaimer">TSO independent research, not a clone of proprietary grades. ESPN records, sportsbook quotes, and TSO projections are different sources with different evidence requirements.</p></div>';
 }
 window.TSO3PlayerDashboard={render,statList,statRows,analysis,choose,marketStatMatches};
