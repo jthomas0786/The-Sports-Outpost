@@ -629,3 +629,13 @@ html,body,button,input,select,textarea{
 @media(max-width:1080px){.tso-pd-two{grid-template-columns:1fr}.tso-pd-season-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:760px){.tso-pd-hero{padding:17px;gap:12px;flex-wrap:wrap}.tso-pd-hero .tso-pd-source{width:100%;max-width:none;text-align:left}.tso-pd-headshot{width:78px;min-width:78px;height:78px}.tso-pd-panel{padding:13px}.tso-pd-kpi-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-pd-directory{grid-template-columns:1fr 1fr}.tso-pd-tabs{flex-wrap:nowrap}.tso-pd-chart{height:170px;gap:2px}.tso-pd-column small{font-size:8px}}
 @media(max-width:480px){.tso-pd-directory{grid-template-columns:1fr}.tso-pd-kpi strong{font-size:20px}.tso-pd-season-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-pd-toolbar label{flex:1 1 100%}}
+
+/* Independently sourced ESPN full-season athlete split groups. */
+.tso-pd-official-groups{margin-top:12px}
+.tso-pd-official-groups>details{margin:9px 0;border:1px solid #315066;border-radius:9px;background:#0c2234}
+.tso-pd-official-groups>details>summary{padding:14px;color:#edf3f4;cursor:pointer;font-size:12px;font-weight:800}
+.tso-pd-official-split{margin:9px 13px 14px;background:#132d3e;border:1px solid #294a60;border-radius:7px;padding:12px}
+.tso-pd-official-split h4{margin:0 0 9px;color:#edb587;font-size:12px;font-weight:800}
+.tso-pd-official-split .tso-pd-season-grid{padding:0;gap:9px}
+.tso-pd-official-split .tso-pd-season-grid strong{font-size:14px}
+@media(max-width:760px){.tso-pd-official-split{padding:9px;margin:8px}.tso-pd-official-split .tso-pd-season-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
