@@ -1918,6 +1918,30 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   catch(_){return Response.json({available:false,reason:'Current official player roster unavailable'},
    {status:503,headers:{...headers,'cache-control':'no-store'}})}
  }
+ // Isolated preview-only provider reachability diagnostics: fixed safe URLs,
+ // no user-controlled fetch target, no response bodies, and no paid API calls.
+ if(u.pathname==='/api/athlete-source-health'){
+  const tests=[
+   ['web-gamelog','https://site.web.api.espn.com/apis/common/v3/sports/baseball/mlb/athletes/40884/gamelog?season=2026'],
+   ['site-common','https://site.api.espn.com/apis/common/v3/sports/baseball/mlb/athletes/40884/gamelog?season=2026'],
+   ['site-athlete','https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/athletes/40884'],
+   ['site-gamelog','https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/athletes/40884/gamelog?season=2026'],
+   ['core-athlete','https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/40884'],
+   ['core-log','https://sports.core.api.espn.com/v2/sports/baseball/leagues/mlb/athletes/40884/statisticslog?season=2026'],
+   ['site-summary','https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/summary?event=401908042']
+  ];
+  const rows=await Promise.all(tests.map(async ([name,url])=>{
+   try{
+    const r=await fetch(url,{headers:{accept:'application/json'},
+     signal:AbortSignal.timeout(9000)});
+    const result={name,status:r.status,contentType:String(r.headers.get('content-type')||'').slice(0,50)};
+    await r.body?.cancel().catch(()=>{});
+    return result;
+   }catch(e){return {name,error:String(e?.name||'request-failed').slice(0,35)}}
+  }));
+  return Response.json({source:'isolated preview provider diagnostics; fixed public ESPN URLs',rows},
+   {headers:{...headers,'cache-control':'no-store'}});
+ }
  if(u.pathname==='/api/athlete-depth'){
   const league=String(u.searchParams.get('league')||'').toLowerCase();
   const playerId=String(u.searchParams.get('playerId')||'');
