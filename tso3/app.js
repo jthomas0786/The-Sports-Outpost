@@ -749,17 +749,17 @@ function athleteDepthMetrics(data){
 function athleteCurrentMarketMetric(r,available){
  const market=canon(r.market||marketOf(r));
  const statAliases={
-  ATD:['TOUCHDOWNS','TOTALTOUCHDOWNS','RECEIVINGTOUCHDOWNS','RUSHINGTOUCHDOWNS'],
+  ATD:['TOTALTOUCHDOWNS'],
   RECYDS:['RECEIVINGYARDS','RECYDS'],RUSHYDS:['RUSHINGYARDS','RUSHYDS'],
   PASSYDS:['PASSINGYARDS','PASSYDS'],PASSATTEMPTS:['PASSINGATTEMPTS'],
   RECEPTIONS:['RECEPTIONS'],COMPLETIONS:['COMPLETIONS'],
   HITS:['HITS'],HOMERUN:['HOMERUNS'],TOTALBASES:['TOTALBASES'],
-  SOG:['SHOTS','SHOTSONGOAL','SHOTSTOTAL'],ANYTIMEGOAL:['GOALS'],FIRSTGOAL:['GOALS'],
+  SOG:['SHOTS','SHOTSONGOAL','SHOTSTOTAL'],ANYTIMEGOAL:['GOALS'],FIRSTGOAL:[],
   THREES:['THREEPOINTERSMADE'],PRA:['PRA'],POINTS:['POINTS'],REBOUNDS:['REBOUNDS'],
   ASSISTS:['ASSISTS'],RBIS:['RBI'],RBI:['RBI']
  };
  const prefixes=[market,market.replace(/^(PLAYER|TOTAL)/,'')];
- const candidates=new Set(prefixes.flatMap(x=>statAliases[x]||[x]));
+ const candidates=new Set(prefixes.flatMap(x=>Object.hasOwn(statAliases,x)?statAliases[x]:[x]));
  return available.find(v=>candidates.has(canon(v.key.split(':').at(-1))))?.key||null;
 }
 function renderAthleteDepth(doc,row,chosen=null){
@@ -798,7 +798,7 @@ function renderAthleteDepth(doc,row,chosen=null){
    '<option value="'+text(v.key)+'" '+(v.key===selected?'selected':'')+'>'+text(v.label)+' · '+v.n+' games</option>').join('')+'</select></label>'+cards+bars+table:
    '<p class="page-note">ESPN has not returned an individually verifiable game log for this player/season.</p>')
   +'<h4>Official season statistics</h4>'+ (season||'<p class="page-note">Season totals not supplied by the official provider.</p>')
-  +'<p class="nba-footnote">Observed games only. A missing game never counts as zero. L5/L10/L20 are descriptive, not independent model probabilities. Model/line comparisons require an exact market statistic.</p>';
+  +'<p class="nba-footnote">Observed games only. A missing game never counts as zero. L5/L10/L20 are descriptive, not independent model probabilities. First-goal and combined touchdown markets cannot be inferred from ordinary goal or partial rushing/receiving logs.</p>';
 }
 async function hydrateAthleteDepth(row){
  const container=el('athleteDepthSlot');
