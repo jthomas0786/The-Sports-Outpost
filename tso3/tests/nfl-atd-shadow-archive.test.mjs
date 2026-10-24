@@ -20,16 +20,23 @@ const game={id:'401873017',startTime:'2026-10-25T17:00:00Z',
  position:'RB',modelProbability:0.4,injuryStatus:'Active'}]};
 const logs=Array.from({length:5},(_,i)=>({season:2026,week:i+1,
  date:'2026-09-'+String(6+i*6).padStart(2,'0'),rushTds:i<3?1:0,recTds:0,carries:15,targets:4}));
-const player={id:'3117251',name:'Example',team:'SF',position:'RB',previousSeason:{
+const player={id:'3117251',gsisId:'00-0033280',name:'Example',team:'SF',position:'RB',previousSeason:{
  games:17,perGame:{carries:17,targets:5}},matchup:{opponent:'ATL',season:2026,
  positionGroup:'RB',currentSeasonAllowed:{games:5,perGame:{rushTds:0.5,recTds:0.5}}},logs};
 const refs=Array.from({length:16},(_,i)=>({matchup:{opponent:i===0?'ATL':'TEAM'+i,
  season:2026,positionGroup:'RB',currentSeasonAllowed:{games:5,
  perGame:{rushTds:0.5,recTds:0.5}}}}));
 const research={season:2026,generatedAt:stamp,players:[player,...refs]};
+const redzone={available:true,season:2026,generatedAt:stamp,
+ lastObservedGameDate:'2026-10-22',gamesScanned:94,players:{'00-0033280':{
+ team:'SF',current:{gamesWithOpportunities:5,redZoneOpps:15,goalLineOpps:8,
+ redZoneSharePct:30,goalLineSharePct:25},
+ previous:{gamesWithOpportunities:17,redZoneOpps:40,goalLineOpps:13,
+ redZoneSharePct:20,goalLineSharePct:20}}}};
 function harness(overrides={}){
  const saved=new Set(),inserted=[];
  const db={prepare(sql){return {sql,
+   async all(){return {results:[]}},
    async run(){return {meta:{changes:0}}},
    bind(...args){return {sql,args}}}},
    async batch(batch){
@@ -40,6 +47,8 @@ function harness(overrides={}){
   TSO3AtdShadow:overrides.shadow===false?null:shadow,
   archiveTime(x,at,max){const d=Date.parse(x),age=at-d;return Number.isFinite(d)&&age>=0&&age<=max?d:null},
   verifiedNflResearch:async()=>overrides.research||research,
+  verifiedNflRedZone:async()=>overrides.redzone||redzone,
+  console:{warn(){}},
   archiveHash:async x=>'digest:'+x,
   archiveSafeNumber:x=>typeof x==='number'&&Number.isFinite(x)?x:null,
   archiveName:x=>String(x||'').toLowerCase().replace(/[^a-z0-9]/g,''),
@@ -53,9 +62,12 @@ test('captures only a genuine future-game 2026 shadow prediction without odds',a
  const h=harness(),r=await h.run();assert.equal(r.status,'saved');
  assert.equal(r.inserted,1);assert.equal(r.eligible,1);assert.equal(h.inserted.length,1);
  assert.match(h.inserted[0].sql,/INSERT OR IGNORE INTO atd_shadow_forecasts/);
+ assert.match(h.inserted[0].sql,/redzone_factor,redzone_source_at/);
  assert.equal(h.inserted[0].args[2],'401873017');
- assert.equal(h.inserted[0].args[13],shadow.VERSION);
+ assert.ok(h.inserted[0].args[13]>1);
  assert.equal(h.inserted[0].args[14],stamp);
+ assert.equal(h.inserted[0].args[15],shadow.VERSION);
+ assert.equal(h.inserted[0].args[16],stamp);
 });
 test('identical 30-minute cron observations are idempotent',async()=>{
  const h=harness();
