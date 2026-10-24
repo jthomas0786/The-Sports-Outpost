@@ -30,17 +30,47 @@ function archiveSummary(a){
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
   +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p>'
-  +feedHealthSummary(a.feedHealth)+settlementSummary(a.settlement)+actionSummary(a.sportsbookAction)+reconciliationSummary(a.reconciliation)+'</section>';
+  +slateReadinessSummary(a.slateReadiness)+feedHealthSummary(a.feedHealth)+settlementSummary(a.settlement)+actionSummary(a.sportsbookAction)+reconciliationSummary(a.reconciliation)+'</section>';
+}
+function slateReadinessSummary(readiness){
+ const r=readiness||{},games=r.games||[];
+ const statusName={
+  READY_FOR_CAPTURE:'Full archived-slate capture coverage',
+  PARTIAL_COVERAGE:'Partial sportsbook / model coverage',
+  CHECK_DELAYED:'Source monitoring delayed',
+  SOURCE_UNAVAILABLE:'Verified sportsbook source unavailable',
+  NO_UPCOMING_ARCHIVED_GAMES:'No upcoming archived games'
+ }[r.status]||'Awaiting first readiness check';
+ let out='<div class="nfl-validation-section"><h3>NFL pregame capture readiness</h3>'
+  +'<p>Requires a current sportsbook source and source-fresh exact model matches in <b>both</b> NFL model families for each upcoming game already in the prediction archive. Does not claim betting accuracy, every available player prop, or full NFL schedule completeness.</p>'
+  +'<div class="nfl-detail-grid">'
+  +detailItem('CAPTURE READINESS',statusName)
+  +detailItem('SOURCE + MODEL GAME COVERAGE',(r.readyGames??0)+' / '+(r.expectedGames??0))
+  +detailItem('LATEST SOURCE MATCHES',(r.sourceMatchedGames??0)+' / '+(r.expectedGames??0))
+  +detailItem('LAST ODDS SOURCE CHECK',r.latestSourceCheck?asof(r.latestSourceCheck):'Not yet checked')
+  +'</div>';
+ if(games.length){
+  out+='<div class="nba-table-scroll"><table class="nba-table nfl-validation-table">'
+   +'<thead><tr><th>ESPN GAME</th><th>KICKOFF</th><th>CAPTURE COVERAGE</th><th>QUOTE AGE</th><th>BOOKS</th><th>MARKETS</th><th>EXPLANATION</th></tr></thead><tbody>'
+   +games.slice(0,25).map(g=>'<tr>'+tableCell(g.gameId)
+    +tableCell(asof(g.kickoff))
+    +tableCell(g.eligible?'SOURCE-FRESH':'NEEDS ATTENTION')
+    +tableCell(g.quotesAgeMinutes===null?'—':g.quotesAgeMinutes+' / '+g.maxAgeMinutes+' min')
+    +tableCell(g.sportsbooks??0)+tableCell(g.markets??0)
+    +tableCell(g.reason||'—')+'</tr>').join('')
+   +'</tbody></table></div>';
+ }
+ return out+'<p class="nba-footnote">'+esc(r.note||'Waiting for verified NFL pregame coverage.')+'</p></div>';
 }
 function feedHealthSummary(health){
  const latest=health?.latest||{},history=health?.history||[],states=health?.recentStates||[];
- const statusLabel=x=>({fresh:'Source verified',stale:'Snapshot stale',unavailable:'Source failed',invalid:'Invalid snapshot',no_matching_games:'No verified games',no_model_matches:'No exact model matches'})[x]||'Not checked';
+ const statusLabel=(x,rejected=0)=>x==='fresh'&&Number(rejected)>0?'Partial · games age-gated':({fresh:'At least one quote verified',stale:'Snapshot stale',unavailable:'Source failed',invalid:'Invalid snapshot',no_matching_games:'No verified games',no_model_matches:'No exact model matches'})[x]||'Not checked';
  const recent=states.map(x=>(x.status||'unknown')+': '+(x.checks??0)).join(' · ');
  let body='<div class="nfl-validation-section"><h3>Pregame sportsbook source health</h3>'
   +'<p>This shows whether the upstream published ParlayAPI NFL odds meet TSO’s kickoff-specific freshness requirements. A scheduled capture may succeed while inserting zero unchanged predictions.</p>'
   +'<div class="nfl-detail-grid">'
   +detailItem('SOURCE CHECK',latest.checked_at?asof(latest.checked_at):'Awaiting first check')
-  +detailItem('CURRENT SOURCE STATUS',statusLabel(latest.status))
+  +detailItem('CURRENT SOURCE STATUS',statusLabel(latest.status,latest.games_rejected_for_age))
   +detailItem('ORIGINAL QUOTE TIMESTAMP',latest.source_snapshot_at?asof(latest.source_snapshot_at):'Unavailable')
   +detailItem('QUOTES AGE',num(latest.source_age_minutes)===null?'Unknown':Math.round(Number(latest.source_age_minutes))+' min')
   +detailItem('FRESH VERIFIED QUOTES',latest.eligible_quote_rows??0)
@@ -52,7 +82,7 @@ function feedHealthSummary(health){
  if(history.length){
   body+='<div class="nba-table-scroll"><table class="nba-table nfl-validation-table">'
    +'<thead><tr><th>CHECKED</th><th>RESULT</th><th>QUOTE AGE</th><th>VALID QUOTES</th><th>REASON</th></tr></thead><tbody>'
-   +history.map(x=>'<tr>'+tableCell(asof(x.checked_at))+tableCell(statusLabel(x.status))
+   +history.map(x=>'<tr>'+tableCell(asof(x.checked_at))+tableCell(statusLabel(x.status,x.games_rejected_for_age))
     +tableCell(num(x.source_age_minutes)===null?'—':Math.round(Number(x.source_age_minutes))+' min')
     +tableCell(x.eligible_quote_rows??0)+tableCell(x.reason||'—')+'</tr>').join('')
    +'</tbody></table></div>';
