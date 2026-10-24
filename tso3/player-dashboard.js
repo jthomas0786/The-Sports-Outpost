@@ -159,6 +159,21 @@ function splitsPanel(all,metric,line,ui){
     +'<small>'+a.n+' games'+(a.rate!==null?' · '+round(a.rate,0)+'% above line':'')+'</small></div>';
   }).join('')+'</div></div>';
 }
+function officialSplitPanel(doc){
+ const categories=Array.isArray(doc?.officialSplits)?doc.officialSplits:[];
+ if(!categories.length)return '<section class="tso-pd-panel"><h3>Official ESPN full-season splits</h3>'
+  +'<p class="page-note">ESPN has not supplied verified official split groups for this player and season. The observed-game splits above are separate calculations.</p></section>';
+ const groups=categories.slice(0,20).map((category,index)=>
+  '<details '+(index<2?'open':'')+'><summary>'+esc(category.name)+' · '+category.splits.length+' published splits</summary>'
+  +(category.splits||[]).map(split=>'<div class="tso-pd-official-split"><h4>'
+   +esc(split.name)+(split.abbreviation?' ('+esc(split.abbreviation)+')':'')+'</h4>'
+   +'<div class="tso-pd-season-grid">'+(split.values||[]).map(v=>
+    '<div><small>'+esc(v.label||v.name)+'</small><strong>'+esc(v.value)+'</strong></div>').join('')
+   +'</div></div>').join('')+'</details>').join('');
+ return '<section class="tso-pd-panel"><h3>Official ESPN full-season splits</h3>'
+  +'<p>ESPN-authored statistical splits for this athlete and selected season. These are separate from the L5/L10/L20 game-log calculations; no unavailable denominator or percentage is inferred.</p>'
+  +'<div class="tso-pd-season tso-pd-official-groups">'+groups+'</div></section>';
+}
 function seasonPanel(doc){
  const cats=doc?.seasonStats||[];
  if(!cats.length)return '<p class="page-note">Official season summary statistics unavailable for this athlete.</p>';
@@ -209,7 +224,7 @@ function render(ctx){
   +'<p>Showing '+target.length+' games for the chosen window, location and opponent.</p>'+gameTable(target,line)+'</section>';
   break;
  case 'splits':
-  body=splitsPanel(all,selected,line,ui);
+  body=splitsPanel(all,selected,line,ui)+officialSplitPanel(doc);
   break;
  case 'odds':
   body='<section class="tso-pd-panel"><h3>All active verified lines / sportsbooks</h3>'
@@ -228,7 +243,7 @@ function render(ctx){
     '<div class="tso-pd-model-row"><strong>'+esc(q.marketLabel||q.market)+' '+esc(q.line)+'</strong><b>'+round(model(q),1)+'%</b>'
     +'<small>'+esc(q.model?.source||'TSO exact-line model')+'</small></div>').join(''):
     '<p class="page-note">No source-verified exact-line model forecast is available for this player and market.</p>')
-   +'</section></div><section class="tso-pd-panel"><h3>Official season statistical categories</h3>'+seasonPanel(doc)+'</section>';
+   +'</section></div><section class="tso-pd-panel"><h3>Official season statistical categories</h3>'+seasonPanel(doc)+'</section>'+officialSplitPanel(doc);
   break;
  default:
   body='<section class="tso-pd-panel"><div class="tso-pd-panel-head"><div><h3>Observed performance · '+esc(categoryName(selected||'Statistic'))+'</h3>'
