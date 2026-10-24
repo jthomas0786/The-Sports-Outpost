@@ -3,7 +3,7 @@
    NO in-sample calibration or retrospective predictions are claimed. */
 (function(root){
 'use strict';
-const SEASON=2026,VERSION='atd-2026-shadow-v1';
+const SEASON=2026,VERSION='atd-2026-shadow-v2-rz';
 const num=x=>typeof x==='number'&&Number.isFinite(x)?x:null;
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 const team=x=>{const s=String(x||'').toUpperCase().replace(/[^A-Z]/g,'');
@@ -34,7 +34,7 @@ function context(research){
  return {available:true,ref:refs,conflicts:bad,means};
 }
 function project(input,now=Date.now()){
- const {baseProbability:base,player,game,report,reference,generatedAt}=input||{};
+ const {baseProbability:base,player,game,report,reference,generatedAt,redzone}=input||{};
  if(num(base)===null||base<0||base>1)return {available:false,reason:'No fresh current TSO ATD source'};
  if(!player||!game||!reference?.available)return {available:false,reason:'No verified 2026 research'};
  const pos=String(player.position||'').toUpperCase();
@@ -65,7 +65,7 @@ function project(input,now=Date.now()){
  if(logs.length<3)return {available:false,reason:'Fewer than three dated 2026 games'};
  const wins=logs.filter(g=>g.rushTds+g.recTds>0).length,n=logs.length;
  const priorGames=8,posterior=(priorGames*base+wins)/(priorGames+n);
- // Small capped opportunity adjustment; no unsupported 2026 inside-20 metrics.
+ // Small capped observed opportunity adjustment from completed games.
  const prev=player.previousSeason,prevPg=prev?.perGame;
  let roleFactor=1,roleSignal='none';
  if(Number(prev?.games)>=8&&prevPg){
@@ -89,10 +89,39 @@ function project(input,now=Date.now()){
   defenseGames=ref.games;defenseRate=ref.tds;leagueRate=avg.avg;
   defenseFactor=1+clamp((ref.tds/avg.avg-1)*(ref.games/(ref.games+8))*0.25,-0.12,0.12);
  }
- const probability=clamp(posterior*roleFactor*defenseFactor,0.005,0.8);
+ // Only source-verified 2026 rush/target opportunity shares. Crosswalk strictly
+ // by the stable nflverse GSIS ID and identical team; no player-name guesses.
+ let redzoneFactor=1,redzoneGames=null,redzoneShare=null,goalLineShare=null,
+  redzoneSourceAt=null,redzoneSignal='not verified';
+ const pbpAt=Date.parse(redzone?.generatedAt||''),
+  lastGame=Date.parse(String(redzone?.lastObservedGameDate||'')+'T23:59:59Z');
+ if(redzone?.available===true&&Number(redzone.season)===SEASON&&player.gsisId
+  &&Number.isFinite(pbpAt)&&pbpAt<=now+60000&&pbpAt<=kickoff
+  &&now-pbpAt<=10*86400000&&Number.isFinite(lastGame)&&lastGame<=now+86400000
+  &&now-lastGame<=8*86400000&&Number(redzone.gamesScanned)>=80){
+  const record=redzone.players?.[String(player.gsisId)],a=record?.current,b=record?.previous;
+  if(team(record?.team)===team(player.team)&&Number(a?.gamesWithOpportunities)>=3
+   &&Number(b?.gamesWithOpportunities)>=8&&Number(a?.redZoneOpps)>=5
+   &&Number(b?.redZoneOpps)>=12&&num(a?.redZoneSharePct)!==null
+   &&num(b?.redZoneSharePct)!==null&&a.redZoneSharePct<=100&&b.redZoneSharePct<=100){
+   redzoneGames=a.gamesWithOpportunities;redzoneShare=a.redZoneSharePct;
+   goalLineShare=num(a?.goalLineSharePct);
+   const rzRatio=(a.redZoneSharePct+8)/(b.redZoneSharePct+8);
+   let glRatio=1;
+   if(Number(a?.goalLineOpps)>=3&&Number(b?.goalLineOpps)>=5
+    &&num(a.goalLineSharePct)!==null&&num(b.goalLineSharePct)!==null
+    &&a.goalLineSharePct<=100&&b.goalLineSharePct<=100)
+    glRatio=(a.goalLineSharePct+5)/(b.goalLineSharePct+5);
+   const adjust=(0.75*(rzRatio-1)+0.25*(glRatio-1))*0.28*(a.gamesWithOpportunities/(a.gamesWithOpportunities+8));
+   redzoneFactor=1+clamp(adjust,-0.10,0.10);
+   redzoneSourceAt=redzone.generatedAt;redzoneSignal='verified 2026 inside-20 and inside-5 PBP opportunity shares';
+  }
+ }
+ const probability=clamp(posterior*roleFactor*defenseFactor*redzoneFactor,0.005,0.8);
  return {available:true,probability,version:VERSION,observedGames:n,tdGames:wins,asOf:generatedAt,
   base,posterior,roleFactor,roleSignal,defenseFactor,defenseGames,defenseRate,leagueRate,
-  caveat:'Experimental 2026 observation update; not backtested, calibrated, or an independently validated grade. No verified 2026 inside-20 play-by-play inputs.'};
+  redzoneFactor,redzoneGames,redzoneShare,goalLineShare,redzoneSourceAt,redzoneSignal,
+  caveat:'Experimental 2026 observation update; not backtested, calibrated, or an independently validated grade. Where available, 2026 inside-20/inside-5 inputs come strictly from nflverse play-by-play.'};
 }
 const api={VERSION,context,project};
 if(typeof module==='object'&&module.exports)module.exports=api;
