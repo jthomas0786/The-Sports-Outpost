@@ -1127,6 +1127,62 @@ async function verifiedNflOdds(){
   note:'Snapshot prices are not continuously streaming. Only valid pregame books matched to official kickoff are shown.'};
 }
 
+/* Four published TSO sportsbook feeds, verified against official ESPN fixtures.
+   Timestamp is each original bookmaker quote, NEVER the fetch timestamp. */
+const OTHER_ODDS_SOURCES={mlb:'mlb-odds.json',nhl:'nhl-odds.json',wnba:'wnba-odds.json',cfb:'ncaaf-odds.json'};
+const OTHER_MARKETS={
+ mlb:{homeRun:'Home Runs',hits:'Hits',totalBases:'Total Bases',rbi:'RBIs',runs:'Runs',hrr:'Hits + Runs + RBIs',stolenBases:'Stolen Bases',pitcherStrikeouts:'Pitcher Strikeouts',walks:'Walks',earnedRuns:'Earned Runs',hitsAllowed:'Hits Allowed',pitchingOuts:'Pitching Outs'},
+ nhl:{anytimeGoal:'Anytime Goal',firstGoal:'First Goal',sog:'Shots on Goal',goals:'Anytime Goal',assists:'Assists',points:'Points',saves:'Goalie Saves',goalieSaves:'Goalie Saves',powerPlayPoints:'Power Play Points'},
+ wnba:{points:'Points',rebounds:'Rebounds',assists:'Assists',threes:'3-Pointers Made',pra:'PRA',steals:'Steals',blocks:'Blocks'},
+ cfb:{passYds:'Player Passing Yards',passTds:'Player Passing Touchdowns',completions:'Player Completions',rushYds:'Player Rushing Yards',recYds:'Player Receiving Yards',receptions:'Player Receptions',atd:'Player Touchdowns'}
+};
+function otherOddsMatch(row,game,league){
+ const clean=x=>String(x||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+ const id=String(row.gameId||row.verifiedGameId||'');
+ const start=Date.parse(row.commenceTime||''),official=Date.parse(game.startTime||'');
+ const sameTeams=clean(row.awayTeam)===clean(game.away?.name)&&clean(row.homeTeam)===clean(game.home?.name);
+ return game.league===league&&game.state==='pre'&&Number.isFinite(start)&&Number.isFinite(official)
+  &&Math.abs(start-official)<=90*60000&&(id===String(game.id)&&id||sameTeams);
+}
+async function verifiedOtherOdds(league){
+ if(!Object.hasOwn(OTHER_ODDS_SOURCES,league))throw Error('Invalid sports feed');
+ const url='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/'+OTHER_ODDS_SOURCES[league];
+ const response=await fetch(url,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:60},signal:AbortSignal.timeout(19000)});
+ if(!response.ok)throw Error('Published sports feed HTTP '+response.status);
+ const doc=await response.json(),meta=doc?.meta||{},now=Date.now();
+ const fetched=Date.parse(meta.fetchedAt||'');
+ if(meta.source!=='parlayapi'||meta.sample!==false||!Number.isFinite(fetched))
+  throw Error('Invalid published sportsbook source metadata');
+ if(fetched>now+5*60000||now-fetched>240*60000)
+  return {available:false,league,source:'TSO published ParlayAPI',fetchedAt:meta.fetchedAt,rows:[],reason:'Published source stale or future-dated'};
+ const values=league==='nhl'?doc.quotes:doc.rows;
+ if(!Array.isArray(values))throw Error('Invalid published sportsbook rows');
+ const official=await officialGames(ESPN_SCOREBOARDS[league],league),rows=[],rejected={event:0,quote:0,price:0,market:0};
+ for(const q of values.slice(0,25000)){
+  if(!q?.player||!q?.book||!Object.hasOwn(OTHER_MARKETS[league],String(q.market))||q.inclusive===true
+   ||q.period&&q.period!=='FULL'){rejected.market++;continue}
+  const start=Date.parse(q.commenceTime||''),stamp=Date.parse(q.snapshotTime||'');
+  const stampN=Number.isFinite(stamp)?stamp:league==='nhl'?Number(q.ts):NaN;
+  if(!Number.isFinite(start)||start<=now+15*60000||start>now+9*86400000){rejected.event++;continue}
+  const game=official.find(g=>otherOddsMatch(q,g,league));
+  if(!game){rejected.event++;continue}
+  const sourceAge=(now-stampN)/60000;
+  if(!Number.isFinite(sourceAge)||sourceAge<0||sourceAge>Math.min(240,nflOddsAgeLimitMinutes((start-now)/3600000))
+   ||stampN>=start){rejected.quote++;continue}
+  const price=Number(q.overPrice??q.over),line=Number(q.line);
+  if(!Number.isInteger(price)||price===0||Math.abs(price)<100||!Number.isFinite(line)){rejected.price++;continue}
+  const binary=['anytimeGoal','firstGoal','homeRun','atd'].includes(String(q.market));
+  rows.push({sport:league,verifiedGameId:String(game.id),eventId:String(q.eventId||q.gameId||''),
+   player:String(q.player),playerId:q.playerId||null,team:q.team||null,market:String(q.market),
+   marketLabel:OTHER_MARKETS[league][q.market],line,side:binary?'yes':'over',
+   price,book:String(q.book),snapshotTime:new Date(stampN).toISOString(),commenceTime:game.startTime,
+   awayTeam:game.away.name,homeTeam:game.home.name,model:null,
+   source:'TSO ParlayAPI published bookmaker quote · ESPN verified fixture'});
+ }
+ return {available:rows.length>0,league,source:'TSO ParlayAPI published sportsbook snapshot · ESPN verified event',
+  fetchedAt:meta.fetchedAt,rawRows:values.length,rejected,rows,
+  reason:rows.length?'Verified current Over/Yes sportsbook quotes':'No current verified bookmaker selections'};
+}
 async function safeNbaInjuries(){
  const r=await fetch(NBA_INJURIES_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(14000)});
  if(!r.ok)throw Error('ESPN injury feed '+r.status);
@@ -1446,6 +1502,13 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   }
  }
  if(u.pathname==='/api/nfl-archive-status')return Response.json(await nflArchiveStatus(env),{headers:{...headers,'cache-control':'no-store'}});
+ if(u.pathname==='/api/sport-odds'){
+  const league=String(u.searchParams.get('league')||'').toLowerCase();
+  if(!Object.hasOwn(OTHER_ODDS_SOURCES,league))
+   return Response.json({available:false,error:'Unsupported sport'},{status:400,headers});
+  try{return Response.json(await verifiedOtherOdds(league),{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO sportsbook odds / verified ESPN fixture'}})}
+  catch(e){return Response.json({available:false,league,rows:[],error:'Verified sportsbook source unavailable',reason:String(e?.message||'').slice(0,120)},{status:503,headers})}
+ }
  if(u.pathname==='/api/nba-odds'){
   try{
    const doc=await safeNbaOdds();
