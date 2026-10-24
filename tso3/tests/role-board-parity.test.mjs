@@ -85,3 +85,19 @@ test('shared cross-sport sheets preserve official sources and drawn-from-observa
  assert.match(other,/data-observed-player/);
  assert.match(other,/api\/athlete-depth/);
 });
+
+
+test('advanced view reveals only observed season role shares and preserves missing values',()=>{
+ board.state.advanced=true;
+ try{
+  const view=board.render(ctx);
+  assert.match(view,/TARGET SHARE/);assert.match(view,/AIR YDS SHARE/);
+  assert.match(view,/SNAP L5/);assert.match(view,/RZ SHARE/);
+  assert.match(view,/No verified defense-wide individual role-share record/);
+  assert.match(view,/Advanced columns show real 2026 player season shares/);
+ }finally{board.state.advanced=false;}
+});
+test('player-detail charts reject missing numeric values rather than injecting zero bars',()=>{
+ assert.match(source,/filter\(x=>V\(x\[key\]\)!==null\)/);
+ assert.match(source,/No verified completed-game observations for this metric/);
+});
