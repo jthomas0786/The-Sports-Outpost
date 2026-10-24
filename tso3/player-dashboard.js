@@ -187,8 +187,35 @@ function seasonPanel(doc){
    +(c.values||[]).slice(0,50).map(v=>'<div><small>'+esc(v.label||v.name)+'</small><strong>'+esc(v.value)+'</strong></div>').join('')
   +'</div></details>').join('')+'</div>';
 }
+function verifiedNhlOpponentPanel(match){
+ if(!match?.available||!match?.defense)return '';
+ const timestamp=Date.parse(match.generatedAt||'');
+ // An explicitly dated, source-verifiable NHL research snapshot only.
+ if(!Number.isFinite(timestamp)||timestamp>Date.now()+5*60000||Date.now()-timestamp>36*3600000)return '';
+ const d=match.defense,p=d.position||{},fmt=v=>valid(v)===null?'—':round(valid(v),2);
+ const cards=[
+  ['Opp. goals allowed/game',fmt(d.goalsAllowedPerGame),d.games??'—','Recorded game count'],
+  ['Opp. shots allowed/game',fmt(d.shotsAllowedPerGame),d.games??'—','Recorded game count'],
+  ['Opp. L10 goals allowed/game',fmt(d.recent10GoalsAllowedPerGame),'10 game window','Recent observed allowance'],
+  ['Opp. L10 shots allowed/game',fmt(d.recent10ShotsAllowedPerGame),'10 game window','Recent observed allowance'],
+  [match.position+' goals allowed/game',fmt(p.goalsPerGame),p.games??'—','Defense vs verified player position'],
+  [match.position+' shots allowed/game',fmt(p.shotsPerGame),p.games??'—','Defense vs verified player position']
+ ];
+ const rank=valid(p.goalAllowedRank),total=valid(p.rankedTeams);
+ return '<section class="tso-pd-panel"><h3>TSO NHL verified opponent defense vs position</h3>'
+  +'<p><strong>'+esc(match.team)+' player vs '+esc(match.opponent)+' defense</strong> · '+esc(match.position)+' · Official current game '+esc(match.gameId)+'</p>'
+  +'<div class="tso-pd-kpi-grid">'+cards.map(([title,v,games,note])=>
+   '<div class="tso-pd-kpi"><span>'+esc(title)+'</span><strong>'+esc(v)+'</strong>'
+    +'<small>'+esc(games)+' · '+esc(note)+'</small></div>').join('')+'</div>'
+  +(rank!==null&&total!==null?'<p class="tso-pd-evidence">Position goal-allowance rank: '
+   +esc(rank)+' of '+esc(total)+' source-ranked NHL teams.</p>':'')
+  +'<p class="nba-footnote">'+esc(match.source||'TSO NHL original research')
+  +' · Source checked '+esc(date(match.generatedAt))
+  +'. Opponent and player roster IDs are verified independently. These are observed defense/opportunity statistics, not certified starters or model win probabilities.</p>'
+  +'</section>';
+}
 function render(ctx){
- const {sport,player,doc,ui,odds=[],game=null}=ctx;
+ const {sport,player,doc,ui,odds=[],game=null,nhlMatchup=null}=ctx;
  const name=doc?.athleteName||player?.name||player?.player||'ESPN player';
  const stats=statList(doc),selected=stats.some(x=>x.key===ui.metric)?ui.metric:(stats[0]?.key||null);
  const observed=statRows(doc,selected);
@@ -256,7 +283,8 @@ function render(ctx){
     '<div class="tso-pd-model-row"><strong>'+esc(q.marketLabel||q.market)+' '+esc(q.line)+'</strong><b>'+round(model(q),1)+'%</b>'
     +'<small>'+esc(q.model?.source||'TSO exact-line model')+'</small></div>').join(''):
     '<p class="page-note">No source-verified exact-line model forecast is available for this player and market.</p>')
-   +'</section></div><section class="tso-pd-panel"><h3>Official season statistical categories</h3>'+seasonPanel(doc)+'</section>'+officialSplitPanel(doc);
+   +'</section></div>'+(sport==='nhl'?verifiedNhlOpponentPanel(nhlMatchup):'')
+   +'<section class="tso-pd-panel"><h3>Official season statistical categories</h3>'+seasonPanel(doc)+'</section>'+officialSplitPanel(doc);
   break;
  default:
   body='<section class="tso-pd-panel"><div class="tso-pd-panel-head"><div><h3>Observed performance · '+esc(categoryName(selected||'Statistic'))+'</h3>'
