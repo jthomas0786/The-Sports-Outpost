@@ -104,7 +104,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -378,10 +378,10 @@ function pageTrends(){
 const SOURCE_LINEAGE={
  nfl:[['Current matchups','ESPN NFL official schedule','live'],['2026 player opportunity, team defense','TSO NFL research / nflverse-derived','nflResearch'],['Real sportsbook lines','ParlayAPI published odds / 4h max plus kickoff age','nflOdds'],['50,000-run projections','TSO pregame Monte Carlo, exact matching','nflSim'],['Injuries','ESPN official NFL injuries','nflInjuries'],['Calibration','Immutable 2026 archive and checked postgame outcomes','nflArchive']],
  nba:[['Current matchups','ESPN NBA scoreboard','live'],['Player L5/L10/L20 game logs','TSO NBA research / ESPN history','nbaResearch'],['Sportsbook prop prices','TSO published NBA odds snapshot','nbaOdds'],['Injuries','ESPN NBA injury report','nbaInjuries'],['Projected outcomes','TSO NBA model; MARKET ONLY without exact model','nbaModels']],
- mlb:[['Current matchups','ESPN MLB scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['Pitch mix, contact and park factors','Specialized verified feeds pending','pending']],
- nhl:[['Current matchups','ESPN NHL scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['Goal / First Goal projections','TSO NHL models require exact live verification','pending'],['High-danger chances, goalie starts','Specialized verified feeds pending','pending']],
- wnba:[['Current matchups','ESPN WNBA scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['Verified player histories, usage and DvP','Specialized verified feeds pending','pending']],
- cfb:[['Current matchups','ESPN college football scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['FBS power ratings and game projections','Specialized source and method verification pending','pending']]
+ mlb:[['Current matchups','ESPN MLB scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Pitch mix, contact and park factors','Specialized verified feeds pending','pending']],
+ nhl:[['Current matchups','ESPN NHL scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Goal / First Goal projections','TSO NHL models require exact live verification','pending'],['High-danger chances, goalie starts','Specialized verified feeds pending','pending']],
+ wnba:[['Current matchups','ESPN WNBA scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['Verified player histories, usage and DvP','Specialized verified feeds pending','pending']],
+ cfb:[['Current matchups','ESPN college football scoreboard','live'],['Published player props','TSO ParlayAPI sportsbook snapshots / ESPN event verified','props'],['FBS power ratings and game projections','Specialized source and method verification pending','pending']]
 };
 function sourceState(kind){
  if(kind==='live')return Boolean(state.live?.tso3?.sources?.[state.sport]==='ESPN verified scoreboard'||(state.sport==='nba'&&state.live?.nbaScoreboard?.status==='verified'));
@@ -695,7 +695,8 @@ async function load(force=false){
   fetch('/api/nfl-research',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL research HTTP '+r.status);return r.json()}),
   fetch('/api/nfl-odds',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL odds HTTP '+r.status);return r.json()}),
   fetch('/api/nfl-projections',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL simulation HTTP '+r.status);return r.json()}),
-  fetch('/api/nfl-injuries',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL injuries HTTP '+r.status);return r.json()})
+  fetch('/api/nfl-injuries',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL injuries HTTP '+r.status);return r.json()}),
+  ...['mlb','nhl','wnba','cfb'].map(league=>fetch('/api/sport-odds?league='+league,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(league.toUpperCase()+' odds HTTP '+r.status);return r.json()}))
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
  else{state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');state.live={games:[],tso3:{sources:{}}}}
@@ -770,6 +771,26 @@ async function load(force=false){
    nflOdds:{source:state.nflOdds.source,fetchedAt:state.nflOdds.fetchedAt}};
  }
  state.nflInjuries=pairs[11].status==='fulfilled'&&Array.isArray(pairs[11].value?.entries)?pairs[11].value:null;
+ // Other published TSO sportsbook sources are separate from proprietary models.
+ // Only ESPN-matched pregame quotes with their ORIGINAL sportsbook timestamp
+ // survive the dedicated Worker verifier. No implied prices, no stale fallbacks.
+ state.otherOdds={};
+ const booksMerged=new Map((state.props?.rows||[]).map(row=>[
+  [row.sport||row.league,row.verifiedGameId||row.eventId||row.gameId,row.playerId||row.player,
+   canon(row.market),row.line,canon(row.side),canon(row.book)].join('|').toLowerCase(),row]));
+ for(const [i,league] of ['mlb','nhl','wnba','cfb'].entries()){
+  const result=pairs[12+i];
+  const doc=result?.status==='fulfilled'?result.value:null;
+  state.otherOdds[league]=doc?.available?doc:{available:false,reason:doc?.reason||result?.reason?.message||'Verified source unavailable'};
+  if(doc?.available&&Array.isArray(doc.rows)){
+   for(const row of doc.rows){
+    const key=[league,row.verifiedGameId||row.eventId,row.playerId||row.player,
+     canon(row.market),row.line,canon(row.side),canon(row.book)].join('|').toLowerCase();
+    booksMerged.set(key,row);
+   }
+  }
+ }
+ state.props={...(state.props||{}),rows:[...booksMerged.values()]};
  state.nflError=[pairs[7],pairs[8],pairs[9]].filter(x=>x.status==='rejected').map(x=>String(x.reason?.message||'NFL feed')).join(' · ');
  state.nbaPending=false;
  state.pending=false;state.updated=Date.now();el('refreshBtn').disabled=false;render();
