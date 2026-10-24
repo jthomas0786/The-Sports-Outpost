@@ -54,3 +54,29 @@ Development branch: `tso-3.0`; Cloudflare Worker: `tso3-preview`; independent D1
 Dedicated workflow: `.github/workflows/tso3-six-sport-qa.yml` on pushes to `tso-3.0`, Node 20, no provider requests; checks JavaScript syntax and `node --test tso3/tests/*.test.mjs`. GitHub Actions remote job success is **not claimed** until a run has been inspected.
 
 Bundled original assets: 9 previous UI files + 4 new SVG/PWA files = 13. Cloudflare cron remains `*/30 * * * *` and binding `NFL_ARCHIVE` remains isolated. **Never deploy this branch to production without explicit approval.**
+
+## Development continuation and production gate (October 23–24, 2026)
+
+**Latest isolated Worker build:** `4d18a93a-b701-4475-aa9a-d406383c56a5`, deployed to `tso3-preview` at 100% on October 24 UTC. **NOT LIVE PRODUCTION.** All 13 bundled assets, isolated `NFL_ARCHIVE` D1 binding and `*/30 * * * *` cron retained.
+
+Changes added after original parity tracker:
+
+- Cross-sport ESPN athlete depth: on-demand `/api/athlete-depth` reads recorded athlete gamelogs and season stats for an explicitly identified numeric ESPN player; joins per-category statistic arrays to the original dated game/opponent metadata, handles absent/future data conservatively. Display includes selectable historical stat, original individual game values, L5/L10/L20 observed averages, season stat groups and provenance. In-house synthetic checks passed **8 of 8**.
+- Roster identity: `/api/athlete-identity` resolves missing ESPN IDs only when an exact normalized full player name occurs **once** across both teams' successfully loaded ESPN rosters for the verified upcoming fixture. A missing roster, ambiguity, ended event, or no exact match returns unavailable; no name guessing. Client caches an identity for at most 15 minutes. Synthetic checks passed **6 of 6**.
+- 6-sport research-first layout: enlarged hero shown on overview only; route-derived toolbar visibility no longer inherits a hidden state from the previously selected page, preserving matchup/market/book filtering between sections.
+- In goal-scorer history, an ordinary goals log is not mislabeled first-goal hit frequency; rushing-only or receiving-only TD records are not mislabeled a fully reconciled anytime TD hit.
+
+Observed **browser** QA: October 24 UTC, TSO 3.0 NHL/NFL overview/cheatsheet shell rendered original SVG branding, menu and checkboxes. MLB Props rendered a current official ESPN five-game board including Tampa Bay–Milwaukee but **zero verified pregame sportsbook selections**, so MLB price coverage is **NOT VERIFIED** and cannot be marked complete. The MLB source can expire even while the ESPN schedule is current. Additional full browser QA was throttled by Cloudflare Browser Rendering HTTP 429.
+
+Latest **D1** audit: 9,410 immutable NFL predictions across 13 archived games, zero invalid timestamps, zero real settled outcomes. At 2026-10-24T03:00:44Z the **nfl_feed_checks** monitor recorded `status='fresh'` but only **1/13** upcoming archived games had age-verified quote coverage (112 eligible selections). The new slate-readiness UI is required to distinguish one-game source freshness from all-game coverage. This is a release blocker, not a production pass.
+
+**Production requires affirmative evidence, not just route existence:**
+
+1. For **every supported sport**, official fixture availability and real sportsbook market coverage audited throughout the league's active slate; empty markets properly excluded and documented offseason. All alternate lines, multi-book prices, game-level filters, and sample sizes tested in a browser at desktop/mobile widths.
+2. For every publicly listed sport/category, a fully implemented statistics engine with provider or independently calculated evidence, current-roster validation, statistical methodology, data lineage, source age, and missing-data behavior. No cards claiming advanced DvP, player coverage, Statcast, shift-level NHL, or calibrated ratings if only the schedule/odds are supplied.
+3. NFL pregame archive and postgame audit require complete ESPN scoring and sportsbook action/DNP evidence before calibrating; verify every independent 30-minute run, not just code presence. Odds source must cover the expected archived games (e.g., 13/13 for the current NFL slate, not 1/13).
+4. Browser E2E across all six sports: navigation, props, trends, matchup selectors, multi-market/book checkboxes, history drawer, line comparison, source pages, chart switching, full-site mobile/responsive behavior, PWA installation, and image icons.
+5. Source-backed performance/latency/load test and external-provider budget audits, live error telemetry, rollback plan, domain/SSL/auth preservation, production secrets and billing isolation, and owner release acceptance.
+6. No copying PropFinder's proprietary database, source code, brand imagery or closed algorithms. Reimplement functional research experiences using original TSO calculations and legally accessible data.
+
+**Go-live status as of this update:** BLOCKED. The user's new authorization permits a release **when the platform genuinely passes these checks**, not a premature migration from 2.0 production. Do not modify `main` or redirect the domain merely to make the release checkbox appear complete.
