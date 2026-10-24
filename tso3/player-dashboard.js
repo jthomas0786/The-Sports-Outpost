@@ -191,7 +191,12 @@ function render(ctx){
  const {sport,player,doc,ui,odds=[],game=null}=ctx;
  const name=doc?.athleteName||player?.name||player?.player||'ESPN player';
  const stats=statList(doc),selected=stats.some(x=>x.key===ui.metric)?ui.metric:(stats[0]?.key||null);
- const all=statRows(doc,selected),possible=odds.filter(q=>marketStatMatches(q.market,selected));
+ const observed=statRows(doc,selected);
+ const hasKnownPhase=observed.some(x=>/regular|postseason|playoff/i.test(x.seasonType||''));
+ const phase=['regular','postseason','all'].includes(ui.phase)?ui.phase:(hasKnownPhase?'regular':'all');
+ const all=observed.filter(x=>phase==='all'||(phase==='regular'
+  ?/regular/i.test(x.seasonType||''):/postseason|playoff/i.test(x.seasonType||'')));
+ const possible=odds.filter(q=>marketStatMatches(q.market,selected));
  const defaultQuote=matchedQuote(possible,selected),lineRecord=possible.find(q=>
   [key(q.market),Number(q.line)].join(':')===ui.lineKey)||defaultQuote||null;
  const line=lineRecord?valid(lineRecord.line):null;
@@ -206,7 +211,10 @@ function render(ctx){
  const uniq=new Map(bookOptions.map(([k,label])=>[k,label]));
  const tabsHtml='<nav class="tso-pd-tabs" aria-label="Player dashboard sections">'+tabs.map(([id,label])=>
   '<button type="button" data-pd-tab="'+id+'" class="'+(ui.tab===id?'active':'')+'" aria-current="'+(ui.tab===id?'page':'false')+'">'+esc(label)+'</button>').join('')+'</nav>';
+ const phaseOptions=[['regular','Regular season'],['postseason','Postseason'],['all','All recorded']];
  const control='<div class="tso-pd-toolbar"><label>Statistic<select data-pd-setting="metric">'+options+'</select></label>'
+  +'<label>Game phase<select data-pd-setting="phase">'+phaseOptions.map(([k,v])=>
+   '<option value="'+k+'" '+(phase===k?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'
   +'<label>Window<select data-pd-setting="window">'+[['l5','L5'],['l10','L10'],['l20','L20'],['season','Season']]
    .map(([k,v])=>'<option value="'+k+'" '+(ui.window===k?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'
   +'<label>Location<select data-pd-setting="split">'+split.map(([k,v])=>
@@ -265,7 +273,8 @@ function render(ctx){
   +(doc?.available||ui.tab==='odds'?body:
    '<p class="tso-pd-pending">Official athlete season data unavailable. '+esc(doc?.reason||'The provider returned no verifiable results.')+'</p>'
    +'<p class="page-note">If current sportsbook quotes exist, select Odds & Alt Lines; those quotes are not athlete game logs.</p>')
-  +'<p class="tso-pd-disclaimer">TSO independent research, not a clone of proprietary grades. ESPN records, sportsbook quotes, and TSO projections are different sources with different evidence requirements.</p></div>';
+  +'<p class="tso-pd-disclaimer">Recorded game metrics use '+esc(phase==='all'?'all phase-labelled games':phase+' only')+
+   '. A missing or unlabelled game is not assigned to regular season or playoffs. Full-season ESPN-authored split tables use their own published source period, separately from filtered L5/L10/L20. TSO sportsbook odds and model forecasts are independent sources.</p></div>';
 }
 window.TSO3PlayerDashboard={render,statList,statRows,analysis,choose,marketStatMatches};
 })();
