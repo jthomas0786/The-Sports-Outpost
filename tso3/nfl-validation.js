@@ -25,11 +25,14 @@ function archiveSummary(a){
   +box('DISTINCT GAMES',a.gameCount??0,'Unique ESPN event IDs')
   +box('SETTLED OUTCOMES',a.outcomeCount??0,'Separate from prediction history')
   +box('MOST RECENT CAPTURE',a.latestCapture?asof(a.latestCapture):'None','Stored source-time snapshots')
+  +box('2026 SHADOW FORECASTS',a.shadowForecasts?.snapshots??0,'Ungraded · independent pre-kickoff captures')
+  +box('2026 SHADOW GAMES',a.shadowForecasts?.games??0,'No retrospective probabilities')
   +'</div><p class="nba-footnote">Latest capture run: '+esc(last.status||'Awaiting first run')
   +' · '+esc(last.completed_at?asof(last.completed_at):'Not run yet')
   +' · newly saved '+esc(last.inserted_predictions??0)
   +(last.reason?' · '+esc(last.reason):'')+'</p>'
   +'<p class="nba-footnote">Captured predictions are not calibrated or settled results. An unchanged quote/source remains one immutable snapshot; later updates create new records.</p>'
+  +'<p class="nba-footnote">The 2026 experimental shadow is archived separately from bookmaker and 50K forecasts. '+esc(a.shadowForecasts?.caveat||'Calibration requires future verified postgame outcomes; there is no independently validated 2026 shadow accuracy score.')+'</p>'
   +slateReadinessSummary(a.slateReadiness)+feedHealthSummary(a.feedHealth)+settlementSummary(a.settlement)+actionSummary(a.sportsbookAction)+reconciliationSummary(a.reconciliation)+'</section>';
 }
 function slateReadinessSummary(readiness){
