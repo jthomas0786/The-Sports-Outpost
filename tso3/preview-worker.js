@@ -168,6 +168,56 @@ async function archiveHash(input){
  const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(input));
  return [...new Uint8Array(digest)].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
+/* This is a pregame CAPTURE readiness check, never a betting signal.
+   It checks only already-archived upcoming games; not a full official slate.
+   A single fresh quoted game does NOT imply the slate is fresh. */
+function nflOddsAgeLimitMinutes(hours){
+ return hours<=1.5?12:hours<=3?25:hours<=12?45:hours<=48?75:150;
+}
+function nflCaptureReadiness(latest,archivedGames,now=Date.now()){
+ const sourceTime=Date.parse(latest?.source_snapshot_at||'');
+ const checkedTime=Date.parse(latest?.checked_at||'');
+ const scheduledCheckRecent=Number.isFinite(checkedTime)&&checkedTime<=now&&now-checkedTime<=45*60000;
+ const sourceValid=Number.isFinite(sourceTime)&&sourceTime<=now&&now-sourceTime<=240*60000;
+ const rows=(archivedGames||[]).filter(g=>Date.parse(g.kickoff)>now+15*60000);
+ const results=rows.map(g=>{
+  const kickoff=Date.parse(g.kickoff),hours=(kickoff-now)/3600000;
+  const allowed=nflOddsAgeLimitMinutes(hours);
+  const quote=Date.parse(g.quote_at||''),model=Date.parse(g.model_at||'');
+  const sameSource=Number.isFinite(quote)&&Number.isFinite(sourceTime)&&quote===sourceTime;
+  const quoteAge=Number.isFinite(quote)?(now-quote)/60000:null;
+  const modelAge=Number.isFinite(model)?(now-model)/60000:null;
+  const quoteWithinLimit=sameSource&&quoteAge!==null&&quoteAge>=0&&quoteAge<=Math.min(allowed,240);
+  const modelFresh=modelAge!==null&&modelAge>=0&&modelAge<=48*60;
+  const bothModelFamilies=Number(g.atd||0)>0&&Number(g.exact||0)>0;
+  const eligible=quoteWithinLimit&&modelFresh&&bothModelFamilies;
+  return {gameId:String(g.game_id),kickoff:g.kickoff,
+   sourceAt:g.quote_at||null,quotesAgeMinutes:quoteAge===null?null:Math.round(quoteAge),
+   modelAgeMinutes:modelAge===null?null:Math.round(modelAge),
+   maxAgeMinutes:allowed,markets:Number(g.markets||0),sportsbooks:Number(g.books||0),
+   atdModelObserved:Number(g.atd||0)>0,exactOverModelObserved:Number(g.exact||0)>0,
+   sourceMatchesCurrent:sameSource,eligible,
+   reason:!sameSource?'No matching archived model selection at latest published odds time':
+    !quoteWithinLimit?'Sportsbook quote exceeds kickoff-specific freshness cap':
+    !modelFresh?'Archived model result older than 48 hours':
+    !bothModelFamilies?'Both NFL model families not represented in this game':
+    'At least one archived exact-model quote from each family is source-fresh'};
+ });
+ const covered=results.filter(g=>g.eligible).length;
+ const snapshotMatched=results.filter(g=>g.sourceMatchesCurrent).length;
+ let status='NO_UPCOMING_ARCHIVED_GAMES';
+ if(results.length){
+  if(!scheduledCheckRecent)status='CHECK_DELAYED';
+  else if(!sourceValid||latest?.status==='unavailable'||latest?.status==='invalid')status='SOURCE_UNAVAILABLE';
+  else if(covered===results.length)status='READY_FOR_CAPTURE';
+  else status='PARTIAL_COVERAGE';
+ }
+ return {status,expectedGames:results.length,readyGames:covered,
+  sourceMatchedGames:snapshotMatched,latestSourceCheck:latest?.checked_at||null,
+  sourceSnapshotAt:latest?.source_snapshot_at||null,
+  note:'Capture QA only. Expected count refers to upcoming games previously archived, NOT a certified full NFL slate; per-game coverage means evidence from both model families at the latest source timestamp, not every market/player, a sportsbook settlement, or profitable picks.',
+  games:results};
+}
 async function nflArchiveStatus(env){
  if(!env?.NFL_ARCHIVE)return{available:false,configured:false,reason:'Isolated D1 archive is not attached'};
  try{
@@ -186,7 +236,8 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT sportsbook,action_state,COUNT(*) AS observations FROM latest WHERE rn=1 GROUP BY sportsbook,action_state ORDER BY sportsbook,action_state"),
    env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_snapshot_at,source_age_minutes,eligible_quote_rows,verified_games,games_rejected_for_age,earliest_kickoff_at,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 1'),
    env.NFL_ARCHIVE.prepare('SELECT status,COUNT(*) checks FROM (SELECT status FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 12) GROUP BY status'),
-   env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_age_minutes,eligible_quote_rows,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 8')
+   env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_age_minutes,eligible_quote_rows,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 8'),
+   env.NFL_ARCHIVE.prepare('SELECT game_id,MIN(kickoff_at) kickoff,MAX(odds_snapshot_at) quote_at,MAX(model_generated_at) model_at,COUNT(DISTINCT market) markets,COUNT(DISTINCT sportsbook) books,SUM(CASE WHEN model_kind=\'50k_atd\' THEN 1 ELSE 0 END) atd,SUM(CASE WHEN model_kind=\'50k_exact_over\' THEN 1 ELSE 0 END) exact FROM prediction_snapshots WHERE kickoff_at>? GROUP BY game_id ORDER BY kickoff ASC LIMIT 25').bind(new Date().toISOString())
   ]);
   return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
    snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
@@ -202,6 +253,7 @@ async function nflArchiveStatus(env){
     note:'Initial settlement grades remain immutable. Distinct ESPN final-game observations are checked for drift. Conflicting, absent or ambiguous stats are quarantined from calibrated metrics; this is a same-provider recheck, NOT a separate independent official data provider.'},
    sportsbookAction:{byState:q[10].results||[],byBook:q[11].results||[],
     note:'ESPN final-game participation evidence, not sportsbook-paid bet confirmations. FanDuel and DraftKings one-play/snap rules mapped; other sportsbooks require jurisdiction/market rule review. Absent players are not presumed void.'},
+   slateReadiness:nflCaptureReadiness(q[12].results?.[0]||null,q[15].results||[]),
    feedHealth:{latest:q[12].results?.[0]||null,recentStates:q[13].results||[],history:q[14].results||[],
     note:'ParlayAPI source is published by the existing TSO main NFL odds workflow. No stale quotes are promoted to current; capture skips quotes older than the time-to-kickoff policy. The scheduled Worker cannot force a paid upstream provider refresh.'},
    modelValidationStatus:'INSUFFICIENT',
@@ -1043,7 +1095,7 @@ async function verifiedNflOdds(){
   const officialGame=official.find(x=>nflEventMatch(g.away,g.home,g.startDateUTC,x));
   if(!officialGame||officialGame.state!=='pre'||Date.parse(officialGame.startTime)<Date.now()-15*60000){unmatched++;continue}
   const hours=(Date.parse(officialGame.startTime)-Date.now())/3600000;
-  const cap=hours<=1.5?12:hours<=3?25:hours<=12?45:hours<=48?75:150;
+  const cap=nflOddsAgeLimitMinutes(hours);
   if(age>cap){rejectedForAge++;continue}
   verifiedGames++;
   if(!earliestKickoff||Date.parse(officialGame.startTime)<Date.parse(earliestKickoff))earliestKickoff=officialGame.startTime;
