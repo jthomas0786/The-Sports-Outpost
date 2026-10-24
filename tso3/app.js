@@ -610,6 +610,30 @@ function pageGames(){
  }
  return section('Game slate','Select any matchup; all sports share one interaction pattern')+gamesMarkup();
 }
+function nhlFirstGoalResearch(){
+ const model=state.nhlModel,now=Date.now(),generated=Date.parse(model?.generatedAt||'');
+ if(!model?.available||!Array.isArray(model.games)||!Number.isFinite(generated)
+  ||generated>now+60000||now-generated>48*3600000)
+  return empty('Current TSO First Goal forecast unavailable','No source-fresh official NHL matchup/first-goal model is available. Ordinary goals are not treated as first-goal observations.');
+ const official=new Map(getGames().filter(g=>g.league==='nhl').map(g=>[String(g.id),g]));
+ const matched=[];
+ for(const game of model.games){
+  const actual=official.get(String(game.gameId||''));
+  if(!actual||Date.parse(actual.startTime||'')!==Date.parse(game.startTime||''))continue;
+  for(const player of game.players||[]){
+   const probability=num(player.firstGoalProbability);
+   if(!player.name||probability===null||probability<0||probability>1)continue;
+   matched.push({name:player.name,team:player.team,game:actual,p:probability});
+  }
+ }
+ matched.sort((a,b)=>b.p-a.p);
+ return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+
+  section('TSO NHL First Goal','Current verified matchup and TSO first-goal model, not historical observed hit rate')+
+  '<p class="page-note">First-goal probability is the original TSO NHL hazard-model estimate from its published source, matched to an official ESPN game. It is not a sportsbook price or a calibrated accuracy grade. Goalie status is never inferred.</p>'+
+  (matched.length?'<div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>TEAM</th><th>OFFICIAL MATCHUP</th><th>TSO FIRST GOAL</th></tr></thead><tbody>'+
+   matched.slice(0,160).map(p=>'<tr><td>'+text(p.name)+'</td><td>'+text(p.team||'—')+'</td><td>'+text(p.game.away?.abbr)+' @ '+text(p.game.home?.abbr)+'</td><td>'+text((p.p*100).toFixed(1))+'%</td></tr>').join('')+
+   '</tbody></table></div>':empty('No exact NHL model matches','No source-fresh NHL First Goal forecasts match the official games in the current schedule window.'));
+}
 function toolDetail(){
  const found=SPORTS[state.sport].tools.find(x=>String(x[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-')===state.tool);
  if(!found){state.tool=null;return pageTools()}
@@ -619,6 +643,7 @@ function toolDetail(){
    +section(found[0],'ESPN-derived actual shots and goals allowed; position and venue splits with verified game samples')
    +'<div id="nhlDefenseSlot" class="tool-panel">Loading TSO official NHL opponent-defense data…</div>';
  }
+ if(state.sport==='nhl'&&found[0]==='First Goal')return nhlFirstGoalResearch();
  if(found[0]==='Alternate Lines')return alternateLinesResearch();
  if(found[0]==='Odds Comparison'||found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
  if(found[0]==='Hit Rate Matrix')return pageTrends();
