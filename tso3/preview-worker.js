@@ -265,11 +265,83 @@ async function nflArchiveStatus(env){
    note:'Postgame grading starts only after ESPN confirms final player boxscores. Brier and observed hit rate are descriptive and cannot establish ROI or model calibration without multiweek evidence.'};
  }catch(_){return{available:false,configured:true,reason:'D1 archive query unavailable'}}
 }
+/* Append-only 2026 shadow forecasts before NFL kickoff, independent of sportsbook coverage.
+   The live TSO model and the existing bookmaker-specific archive are not modified.
+   First pregame and later distinct recalculations retain their original timestamps.
+   A future settlement pass must evaluate ONLY actually archived pre-kickoff forecasts. */
+async function archive2026AtdShadow(env,td,started,now){
+ const api=globalThis.TSO3AtdShadow;
+ if(!api||!td?.modelFresh||!Array.isArray(td.games)||!td.games.length)
+  return {status:'not_available',inserted:0,eligible:0,reason:'Verified live model or shared shadow code unavailable'};
+ if(archiveTime(td.generatedAt,now,48*3600000)===null)
+  return {status:'source_stale',inserted:0,eligible:0,reason:'TSO source fails timestamp check'};
+ // Dedicated independent table; never replace or rewrite the legacy prediction_snapshots schema.
+ await env.NFL_ARCHIVE.prepare(
+  'CREATE TABLE IF NOT EXISTS atd_shadow_forecasts (id TEXT PRIMARY KEY,captured_at TEXT NOT NULL,game_id TEXT NOT NULL,kickoff_at TEXT NOT NULL,player_id TEXT,player_name TEXT NOT NULL,team TEXT NOT NULL,probability REAL NOT NULL,baseline_probability REAL NOT NULL,observed_games INTEGER NOT NULL,observed_td_games INTEGER NOT NULL,role_factor REAL NOT NULL,defense_factor REAL NOT NULL,model_version TEXT NOT NULL,model_source_at TEXT NOT NULL,research_source_at TEXT NOT NULL)'
+ ).run();
+ await env.NFL_ARCHIVE.prepare(
+  'CREATE INDEX IF NOT EXISTS idx_atd_shadow_game ON atd_shadow_forecasts(game_id,kickoff_at,captured_at)'
+ ).run();
+ const research=await verifiedNflResearch();
+ const t=archiveTime(research.generatedAt,now,30*3600000);
+ if(t===null)return {status:'source_stale',inserted:0,eligible:0,reason:'2026 research failed freshness gate'};
+ const ref=api.context(research);
+ if(!ref?.available)return {status:'no_research',inserted:0,eligible:0};
+ const players=new Map(),conflicts=new Set();
+ for(const p of research.players||[]){
+  if(!p?.name||!p?.team)continue;
+  const k=nflTeamKey(p.team)+'|'+archiveName(p.name),prior=players.get(k);
+  if(prior&&String(prior.id||prior.gsisId||'')!==String(p.id||p.gsisId||'')){
+   conflicts.add(k);continue;
+  }
+  players.set(k,p);
+ }
+ const rows=[],seen=new Set();
+ for(const g of td.games){
+  const kickoff=Date.parse(g.startTime||'');
+  if(!/^\d{6,14}$/.test(String(g.id||''))||!Number.isFinite(kickoff)
+   ||kickoff<=now+15*60000||kickoff>now+14*86400000)continue;
+  for(const modelPlayer of g.players||[]){
+   const team=nflTeamKey(modelPlayer.team),name=archiveName(modelPlayer.name);
+   const key=team+'|'+name,player=players.get(key);
+   if(!player||conflicts.has(key)||seen.has(String(g.id)+'|'+key))continue;
+   if(modelPlayer.id&&player.id&&String(modelPlayer.id)!==String(player.id))continue;
+   const out=api.project({baseProbability:modelPlayer.modelProbability,player,game:g,
+    report:{status:modelPlayer.injuryStatus},reference:ref,generatedAt:research.generatedAt},now);
+   if(!out?.available)continue;
+   seen.add(String(g.id)+'|'+key);
+   const p=archiveSafeNumber(out.probability);
+   if(p===null||p<0||p>1)continue;
+   const fingerprint=[api.VERSION,g.id,team,name,modelPlayer.id||'',p.toFixed(7),
+    out.base.toFixed(7),out.observedGames,out.tdGames,out.roleFactor.toFixed(6),
+    out.defenseFactor.toFixed(6)].join('|');
+   const id=await archiveHash(fingerprint);
+   rows.push({id,gameId:String(g.id),kickoff:new Date(kickoff).toISOString(),
+    playerId:String(modelPlayer.id||player.id||''),name,team,probability:p,
+    base:out.base,n:out.observedGames,wins:out.tdGames,role:out.roleFactor,
+    defense:out.defenseFactor,version:api.VERSION});
+  }
+ }
+ let inserted=0;
+ // Only auditable, future-event forecasts. Batches are idempotent across cron runs.
+ for(let i=0;i<rows.length;i+=50){
+  const stmts=rows.slice(i,i+50).map(r=>env.NFL_ARCHIVE.prepare(
+   'INSERT OR IGNORE INTO atd_shadow_forecasts (id,captured_at,game_id,kickoff_at,player_id,player_name,team,probability,baseline_probability,observed_games,observed_td_games,role_factor,defense_factor,model_version,model_source_at,research_source_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+  ).bind(r.id,started,r.gameId,r.kickoff,r.playerId||null,r.name,r.team,r.probability,r.base,r.n,
+   r.wins,r.role,r.defense,r.version,td.generatedAt,research.generatedAt));
+  const batch=await env.NFL_ARCHIVE.batch(stmts);
+  inserted+=batch.reduce((a,x)=>a+Number(x.meta?.changes||0),0);
+ }
+ return {status:'saved',eligible:rows.length,inserted,sourceGeneratedAt:research.generatedAt,
+  note:'Append-only pregame shadow forecasts. No settled accuracy claim.'};
+}
+
 async function runNflArchive(env,trigger='cron'){
  if(!env?.NFL_ARCHIVE)throw Error('Missing isolated TSO3 NFL D1 archive binding');
  const now=Date.now(),started=new Date(now).toISOString();
  const runId=await archiveHash('nflarchive|'+trigger+'|'+started);
  const diag={games:0,eligible:0,inserted:0,status:'saved',reason:'',error:''};
+ let shadowAtd=null;
  const feed={status:'unavailable',sourceAt:null,ageMinutes:null,quoteRows:0,verifiedGames:0,rejectedForAge:0,earliestKickoff:null,reason:'Source has not returned yet'};
  try{
   const incoming=await Promise.allSettled([verifiedNflOdds(),verifiedNflSimulations(),verifiedNflSlate()]);
@@ -290,6 +362,7 @@ async function runNflArchive(env,trigger='cron'){
   }
   const simulations=incoming[1].status==='fulfilled'?incoming[1].value:null;
   const atd=incoming[2].status==='fulfilled'?incoming[2].value:null;
+  shadowAtd=atd;
   if(!odds?.available||!Array.isArray(odds.rows)||!odds.rows.length){
    diag.status='no_fresh_sources';diag.reason=feed.reason;
   }else if(archiveTime(odds.fetchedAt,now,4*3600000)===null){
@@ -371,6 +444,10 @@ async function runNflArchive(env,trigger='cron'){
    feed.status,feed.sourceAt,feed.ageMinutes,feed.quoteRows,feed.verifiedGames,
    feed.rejectedForAge,feed.earliestKickoff,feed.reason,new Date().toISOString()).run();
  }catch(e){console.warn('TSO3 source diagnostic failed',String(e?.message||e).slice(0,100))}
+ // Shadow capture is independent of any sportsbook offer and cannot corrupt legacy archiving.
+ try{diag.shadow=await archive2026AtdShadow(env,shadowAtd,started,now)}
+ catch(e){diag.shadow={status:'failed',error:String(e?.message||e).slice(0,150)};
+  console.warn('TSO3 shadow ATD archival failed',diag.shadow.error)}
  if(diag.status==='failed')throw Error('NFL prediction archiving failed: '+diag.error);
  return diag;
 }
