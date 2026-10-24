@@ -1371,6 +1371,41 @@ function officialRosterAthletes(doc){
    status:String(p.status?.name||p.status?.type||'')
   }}).filter(p=>p.name);
 }
+/* All six leagues: attach official players to the verified game even if
+   the upstream sportsbook publisher has no current quotes. This is roster
+   research, NOT confirmed starters/lineups or an implicit bettable market. */
+async function officialGameRosters(league,gameId){
+ if(!Object.hasOwn(ATHLETE_PATHS,league)||!Object.hasOwn(ESPN_SCOREBOARDS,league)
+  ||!/^\d{6,14}$/.test(gameId))throw Error('Invalid roster lookup');
+ const schedule=await officialGames(ESPN_SCOREBOARDS[league],league);
+ const game=schedule.find(g=>g.league===league&&String(g.id)===gameId
+  &&(g.state==='pre'||g.state==='in'));
+ if(!game)return {available:false,gameId,league,teams:[],reason:'No current ESPN-verified game'};
+ const teams=[game.away,game.home];
+ const loaded=await Promise.allSettled(teams.map(async team=>{
+  const endpoint='https://site.api.espn.com/apis/site/v2/sports/'+ATHLETE_PATHS[league]+'/teams/'+team.id+'/roster';
+  const result=await fetch(endpoint,{headers:{accept:'application/json'},
+   cf:{cacheEverything:true,cacheTtl:480},signal:AbortSignal.timeout(13000)});
+  if(!result.ok)throw Error('ESPN roster endpoint HTTP '+result.status);
+  const data=await result.json();
+  if(!Array.isArray(data?.athletes))throw Error('Official roster missing athlete groups');
+  const seen=new Map();
+  for(const p of officialRosterAthletes(data)){
+   if(!seen.has(p.id))seen.set(p.id,p);
+  }
+  if(!seen.size)throw Error('Official roster empty');
+  return {id:String(team.id),name:team.name,abbr:team.abbr,players:[...seen.values()].slice(0,90)};
+ }));
+ return {available:loaded.some(x=>x.status==='fulfilled'),league,gameId,
+  gameState:game.state,home:game.home.abbr,away:game.away.abbr,
+  teams:loaded.map((result,i)=>result.status==='fulfilled'
+   ?{...result.value,available:true,rosterType:'Team roster; starters not verified'}
+   :{id:String(teams[i].id),name:teams[i].name,abbr:teams[i].abbr,
+    available:false,players:[],reason:'Official roster feed unavailable'}),
+  checkedAt:new Date().toISOString(),
+  source:'ESPN official team rosters matched to ESPN official game schedule',
+  note:'Team roster membership is not a verified game-day starter or availability designation. Injuries and actual lineups require separate current evidence.'};
+}
 async function verifiedPlayerRosterIdentity(league,gameId,player){
  if(!Object.hasOwn(ESPN_SCOREBOARDS,league)||!Object.hasOwn(ATHLETE_PATHS,league)
   ||!/^\d{6,14}$/.test(String(gameId))||!/^[\p{L}\p{N} .'\-]{2,80}$/u.test(player))
@@ -1721,6 +1756,19 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   }
  }
  if(u.pathname==='/api/nfl-archive-status')return Response.json(await nflArchiveStatus(env),{headers:{...headers,'cache-control':'no-store'}});
+ if(u.pathname==='/api/game-roster'){
+  const league=String(u.searchParams.get('league')||'').toLowerCase(),
+   gameId=String(u.searchParams.get('gameId')||'');
+  if(!Object.hasOwn(ATHLETE_PATHS,league)||!/^[0-9]{6,14}$/.test(gameId))
+   return Response.json({available:false,error:'Invalid league/game identifier'},{status:400,headers});
+  try{
+   return Response.json(await officialGameRosters(league,gameId),{
+    headers:{...headers,'cache-control':'public, max-age=180','x-tso-source':'ESPN official team roster'}});
+  }catch(_){
+   return Response.json({available:false,league,gameId,teams:[],reason:'Verified team roster source unavailable'},
+    {status:503,headers:{...headers,'cache-control':'no-store'}});
+  }
+ }
  if(u.pathname==='/api/athlete-identity'){
   const league=String(u.searchParams.get('league')||'').toLowerCase(),
    gameId=String(u.searchParams.get('gameId')||''),name=String(u.searchParams.get('player')||'');
