@@ -97,4 +97,4 @@ function project(input,now=Date.now()){
 const api={VERSION,context,project};
 if(typeof module==='object'&&module.exports)module.exports=api;
 if(root)root.TSO3AtdShadow=api;
-})(typeof window!=='undefined'?window:undefined);
+})(typeof window!=='undefined'?window:(typeof globalThis!=='undefined'?globalThis:undefined));
