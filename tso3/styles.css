@@ -528,3 +528,22 @@ html,body,button,input,select,textarea{
 .tso-option-picker .matchup-option{font-size:11px;text-transform:none;letter-spacing:0}
 .tso-option-picker .matchup-chevron .tso-icon{width:13px;height:13px}
 @media(max-width:850px){.tso-multi-select{flex:1 1 140px;min-width:125px}.tso-option-picker{min-width:125px}.tso-option-picker .matchup-options{max-width:calc(100vw - 30px)}}
+
+/* Verified athlete research drawer — accessible charts and source-backed logs */
+.tso-depth{margin:9px 0 18px;border:1px solid var(--line);border-radius:10px;padding:14px;background:#101e2b}
+.tso-athlete-source{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:9px;margin-bottom:12px;color:var(--text)}
+.tso-athlete-source>strong{font-size:12px;font-weight:800}
+.tso-athlete-source>small{font-size:10px;color:var(--muted)}
+.tso-depth-select{display:flex;flex-direction:column;gap:6px;max-width:100%;margin:12px 0;color:#c6dbe5;font-size:11px;font-weight:750}
+.tso-depth-select select{max-width:100%;font-size:11px}
+.tso-depth-bars{display:flex;height:120px;padding:7px;gap:4px;align-items:flex-end;justify-content:center;margin:12px 0;overflow:hidden;background:#071724;border:1px solid #244358;border-radius:9px}
+.tso-depth-bar{display:flex;flex:1 1 0;min-width:0;height:100%;align-items:center;justify-content:end;flex-direction:column;gap:4px}
+.tso-depth-bar>span{width:75%;max-width:24px;min-height:2px;background:linear-gradient(0deg,#d96e3a,#ffb672);border-radius:3px 3px 0 0}
+.tso-depth-bar>small{font-size:9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;color:#d2e4ee}
+.tso-season-details{background:#102433;border:1px solid #2a4656;border-radius:8px;margin:7px 0}
+.tso-season-details>summary{cursor:pointer;padding:11px 13px;color:#e4edf2;font-weight:760;font-size:12px}
+.tso-season-stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:5px 12px 13px}
+.tso-season-stats>div{display:flex;flex-direction:column;gap:3px;min-width:0}
+.tso-season-stats small{color:#a4c4d0;font-size:10px}
+.tso-season-stats b{font-size:15px;color:#f7fafb}
+@media(max-width:620px){.tso-depth{padding:10px}.tso-season-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.tso-depth-bars{gap:2px}}
