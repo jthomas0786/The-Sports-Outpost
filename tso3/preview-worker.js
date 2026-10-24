@@ -1437,6 +1437,27 @@ function athleteGamelogEntries(doc,now){
 }
 /* Exact same-game arithmetic only; never construct an observed player hit
    from data that was missing in any contributing ESPN statistical category. */
+/* ESPN MLB pitcher gamelogs label opponent hits/runs with batting-like
+   keys. Scope by the provider's explicit batting/pitching category before
+   any exact market comparison or same-game combined-prop arithmetic. */
+function athleteProviderCategory(doc,sport){
+ if(sport!=='mlb')return null;
+ const filter=Array.isArray(doc?.filters)?doc.filters.find(f=>f?.name==='category'):null;
+ const category=String(filter?.value||'').toLowerCase();
+ return category==='pitching'||category==='batting'?category:null;
+}
+function scopeMlbAthleteValues(values,category){
+ if(category!=='pitching'||!Array.isArray(values))return values;
+ const pairs={hits:['hitsAllowed','Hits allowed'],runs:['runsAllowed','Runs allowed'],
+  homeRuns:['homeRunsAllowed','Home runs allowed'],walks:['walksAllowed','Walks allowed']};
+ return values.map(v=>{
+  const old=String(v.name||''),sep=old.lastIndexOf(':'),field=old.slice(sep+1);
+  const found=pairs[field];
+  if(!found)return v;
+  return {...v,name:(sep>=0?old.slice(0,sep+1):'')+found[0],
+   label:found[1],originalESPNStat:old,scope:'pitching'};
+ });
+}
 function verifiedDerivedAthleteStats(events,sport){
  const named=(row)=>String(row?.name||'').split(':').at(-1)
   .toLowerCase().replace(/[^a-z0-9]/g,'');
@@ -1546,9 +1567,15 @@ async function verifiedAthleteDepth(sport,id,season){
   }
  };
  const [gameDoc,seasonDoc,splitDoc]=await Promise.all([load('gamelog'),load('stats'),load('splits')]);
- const now=Date.now(),events=gameDoc?verifiedDerivedAthleteStats(athleteGamelogEntries(gameDoc,now),sport):[];
- const stats=seasonDoc?athleteSeasonStats(seasonDoc):[];
- const officialSplits=splitDoc?athleteOfficialSplits(splitDoc):[];
+ const now=Date.now(),gameScope=athleteProviderCategory(gameDoc,sport),
+  statsScope=athleteProviderCategory(seasonDoc,sport),splitScope=athleteProviderCategory(splitDoc,sport);
+ const games=gameDoc?athleteGamelogEntries(gameDoc,now).map(e=>({
+  ...e,stats:scopeMlbAthleteValues(e.stats,gameScope)})):[];
+ const events=verifiedDerivedAthleteStats(games,sport);
+ const stats=seasonDoc?athleteSeasonStats(seasonDoc).map(c=>({
+  ...c,values:scopeMlbAthleteValues(c.values,statsScope)})):[];
+ const officialSplits=splitDoc?athleteOfficialSplits(splitDoc).map(c=>({
+  ...c,splits:c.splits.map(v=>({...v,values:scopeMlbAthleteValues(v.values,splitScope)}))})) :[];
  if(!events.length&&!stats.length&&!officialSplits.length)return {available:false,sport,athleteId:id,season,
   events:[],seasonStats:[],officialSplits:[],providerChecks,
   reason:!gameDoc&&!seasonDoc?'ESPN athlete provider requests failed for this Worker':
@@ -1568,7 +1595,8 @@ async function verifiedAthleteDepth(sport,id,season){
   fetchedAt:new Date(now).toISOString(),
   source:'ESPN official athlete season stats/game log; original records',
   sourceIdentification:foundId?'ESPN athlete ID confirmed':'ESPN requested athlete ID, name not independently confirmed',
-  events,seasonStats:stats,officialSplits,providerChecks,gameLogAvailable:events.length>0,
+  events,seasonStats:stats,officialSplits,providerChecks,
+  statScope:gameScope,statsScope,splitScope,gameLogAvailable:events.length>0,
   note:'Observed league season stats, not a betting probability. Incomplete/missing ESPN games remain unavailable; do not interpret a missing game as 0.'};
 }
 /* Strict official-roster player identity resolution for sportsbook records
