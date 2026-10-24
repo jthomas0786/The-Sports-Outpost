@@ -405,7 +405,7 @@ async function hydrateGameRosters(game){
   const players=(team.players||[]).slice().sort((a,b)=>String(a.position||'').localeCompare(String(b.position||''))||a.name.localeCompare(b.name));
   const entries=players.map((p,i)=>{
    const ref=key+':'+String(p.id);
-   gameRostersPlayers.set(ref,{...p,sport:league,team:team.abbr,verifiedGameId:String(game.id)});
+   gameRostersPlayers.set(ref,{...p,sport:league,team:team.abbr,verifiedGameId:String(game.id),espnRosterVerified:true});
    return '<button type="button" class="tso-roster-player" data-roster-player="'+text(ref)+'" aria-label="View official game history for '+text(p.name)+'">'
     +'<span>'+text(p.name)+'</span><small>'+text(p.position||'—')+'</small></button>';
   });
@@ -447,7 +447,11 @@ function captureDashboardPlayer(row){
 }
 async function openFullPlayerDashboard(row){
  if(!row)return;
- let profile=captureDashboardPlayer(row);
+ // Numeric IDs supplied by a sportsbook are not assumed to be ESPN IDs.
+ // Only a proven official roster selection or an already verified ESPN player
+ // identity can bypass the exact two-team roster matcher.
+ let profile=row.espnRosterVerified===true||/^d{3,12}$/.test(String(row.verifiedAthleteId||''))
+  ?captureDashboardPlayer(row):null;
  if(!profile){
   const event=String(row.verifiedGameId||''),player=nameOf(row);
   if(!/^\d{6,14}$/.test(event)||!player){
@@ -484,6 +488,7 @@ function pageFullPlayerDashboard(){
  if(!state.playerId){
   const found=new Map();
   for(const r of getRows().filter(eligible)){
+   if(r.espnRosterVerified!==true&&!/^d{3,12}$/.test(String(r.verifiedAthleteId||'')))continue;
    const p=captureDashboardPlayer(r);if(p)found.set(p.playerId,p);
   }
   for(const p of gameRostersPlayers.values())if(p.sport===state.sport){
