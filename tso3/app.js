@@ -4,12 +4,12 @@
 (()=>{
 'use strict';
 const SPORTS={
- nfl:{label:'NFL',icon:'football',name:'National Football League',markets:['Player Passing Yards','Player Passing Touchdowns','Player Passing Attempts','Player Completions','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Player Longest Reception','Player Longest Rush','Player Targets'],tools:[['Defense vs Position','2026 defense against QB, RB, WR and TE'], ['Coverage Matchups','2026 receiver form vs opposing position groups'],['Touchdown Opportunities','Red zone, goal line and target share'],['Rushing Matchups','Carry volume and run defense'],['Receiving Matchups','Targets, routes and coverage'],['Quarterback Research','Attempts, depth and pressure'],['Red-Zone Usage','Inside-20 opportunities and conversion'],['Offensive Line Matchups','Run and pass protection'],['Power Ratings','Team strength and quarterback adjustments'],['Weather Impact','Wind, precipitation and playing surface'],['Game Projections','Spread, moneyline and totals'],['Model Validation','Archived accuracy and held-out First TD results']]},
+ nfl:{label:'NFL',icon:'football',name:'National Football League',markets:['Player Passing Yards','Player Passing Touchdowns','Player Passing Attempts','Player Completions','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Player Longest Reception','Player Longest Rush','Player Targets'],tools:[['Defense vs Position','2026 defense against QB, RB, WR and TE'], ['Coverage Matchups','2026 receiver form vs opposing position groups'],['Touchdown Opportunities','Red zone, goal line and target share'],['Rushing Matchups','Carry volume and run defense'],['Receiving Matchups','Targets, routes and coverage'],['Quarterback Research','Attempts, depth and pressure'],['Red-Zone Usage','Inside-20 opportunities and conversion'],['Offensive Line Matchups','Run and pass protection'],['Power Ratings','Team strength and quarterback adjustments'],['Weather Impact','Wind, precipitation and playing surface'],['Game Projections','Spread, moneyline and totals'],['Model Validation','Archived accuracy and held-out First TD results'],['Alignment Matchups','Receiver alignment, slot and wide coverage'],['Market Grades','Market grading supported by current verified outcomes'],['Home Field Advantage','Venue and travel adjustments'],['Win Totals','Season outcome scenarios and futures']]},
  nba:{label:'NBA',icon:'basketball',name:'National Basketball Association',markets:['Points','Rebounds','Assists','3-Pointers Made','PRA','Points + Rebounds','Points + Assists','Rebounds + Assists','Steals','Blocks','First Basket'],tools:[['Player Form','Points, rebounds and assists trends'],['Matchup vs Position','Opponent production by player role'],['First Basket','Opening tip and first field-goal history'],['Pace & Possessions','Pace and expected opportunities'],['Minutes & Rotation','On-court availability and substitution patterns'],['Usage & Touches','Shot, assist and possession share'],['Team Stats','Offensive and defensive splits'],['Injury Impact','Available and missing rotation players'],['Game Projections','Model score and team totals']]},
- mlb:{label:'MLB',icon:'baseball',name:'Major League Baseball',markets:['Home Runs','Hits','Total Bases','RBIs','Runs','Hits + Runs + RBIs','Stolen Bases','Pitcher Strikeouts','Walks','Singles','Doubles'],tools:[['Home Run Matchups','Power, contact quality and pitcher tendencies'],['Exit Velocity','Batted-ball speed and launch profile'],['Pitch Mix','Pitch-type usage and batter splits'],['Pitcher vs Lineup','Projected opposing lineup profile'],['Strikeout Matchups','Pitcher K rates and batter swing tendencies'],['Stolen Bases','Attempt rate and catcher control'],['Bullpen Usage','Recent relief workloads'],['Pitcher Summary','Starter repertoire and workload'],['Weather & Park','Ballpark and conditions'],['Team vs Pitch Mix','Pitch-specific lineup strengths']]},
- nhl:{label:'NHL',icon:'hockey',name:'National Hockey League',markets:['Anytime Goal','First Goal','Shots on Goal','Points','Assists','Goalie Saves','Power Play Points'],tools:[['Goal Scorer Matchups','Shot quality and scoring opportunities'],['Skater Statistics','Usage, ice time and recent form'],['Team Statistics','Shots, possession and special teams'],['Shots on Goal','Volume and opponent allowances'],['Goalie Matchups','Expected starts and save environment'],['Power Play Analysis','Man-advantage unit usage'],['First Goal','First-goal history and opportunity'],['Game Projections','Moneyline, puckline and total']]},
+ mlb:{label:'MLB',icon:'baseball',name:'Major League Baseball',markets:['Home Runs','Hits','Total Bases','RBIs','Runs','Hits + Runs + RBIs','Stolen Bases','Pitcher Strikeouts','Walks','Singles','Doubles'],tools:[['Home Run Matchups','Power, contact quality and pitcher tendencies'],['Exit Velocity','Batted-ball speed and launch profile'],['Pitch Mix','Pitch-type usage and batter splits'],['Pitcher vs Lineup','Projected opposing lineup profile'],['Strikeout Matchups','Pitcher K rates and batter swing tendencies'],['Stolen Bases','Attempt rate and catcher control'],['Bullpen Usage','Recent relief workloads'],['Pitcher Summary','Starter repertoire and workload'],['Weather & Park','Ballpark and conditions'],['Team vs Pitch Mix','Pitch-specific lineup strengths'],['Team vs Pitcher','Historical contact, handedness and starter matchups'],['Enhanced Home Run Matchups','Power, launch and pitcher exposure'],['Park Factors','Ballpark run and home run environment']]},
+ nhl:{label:'NHL',icon:'hockey',name:'National Hockey League',markets:['Anytime Goal','First Goal','Shots on Goal','Points','Assists','Goalie Saves','Power Play Points'],tools:[['Goal Scorer Matchups','Shot quality and scoring opportunities'],['Skater Statistics','Usage, ice time and recent form'],['Team Statistics','Shots, possession and special teams'],['Shots on Goal','Volume and opponent allowances'],['Goalie Matchups','Expected starts and save environment'],['Power Play Analysis','Man-advantage unit usage'],['First Goal','First-goal history and opportunity'],['Game Projections','Moneyline, puckline and total'],['Scoring Chances','High-danger opportunities and shot locations'],['Special Teams Matchups','Power-play and penalty-kill effectiveness']]},
  wnba:{label:'WNBA',icon:'basketball',name:"Women's National Basketball Association",markets:['Points','Rebounds','Assists','3-Pointers Made','PRA','Steals','Blocks'],tools:[['Player Trends','Last 5, 10, 20 and season'],['Matchup vs Position','Opponent positional allowances'],['Minutes & Usage','Rotations and offensive involvement'],['Pace & Possessions','Tempo-adjusted opportunity'],['Team Statistics','Recent offensive and defensive production'],['Injury Impact','Lineup availability'],['Game Projections','Game lines and totals']]},
- cfb:{label:'CFB',icon:'school',name:'College Football',markets:['Player Passing Yards','Player Passing Touchdowns','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Spread','Moneyline','Total Points'],tools:[['Player Trends','Recent passing, rushing and receiving results'],['Team Matchups','Offense against defensive scheme'],['Touchdown Matchups','Scoring opportunities and opponent yield'],['Power Ratings','FBS offense and defense strength'],['Game Projections','Model spread, total and win outcome'],['Quarterback Rankings','Passing and rushing quarterback trends'],['Conference Filters','Conference-specific analysis'],['Weather & Situational','Rest and game-day conditions']]}
+ cfb:{label:'CFB',icon:'school',name:'College Football',markets:['Player Passing Yards','Player Passing Touchdowns','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Spread','Moneyline','Total Points'],tools:[['Player Trends','Recent passing, rushing and receiving results'],['Team Matchups','Offense against defensive scheme'],['Touchdown Matchups','Scoring opportunities and opponent yield'],['Power Ratings','FBS offense and defense strength'],['Game Projections','Model spread, total and win outcome'],['Quarterback Rankings','Passing and rushing quarterback trends'],['Conference Filters','Conference-specific analysis'],['Weather & Situational','Rest and game-day conditions'],['Market Grades','Opponent and line-specific grades'],['Rushing Matchups','Backfield usage and front-seven defense'],['Receiving Matchups','Coverage and target volume']]}
 };
 const PAGES=[['overview','Overview','layout-dashboard'],['games','Games','calendar-days'],['props','Player Props','chart-no-axes-combined'],['trends','Trends','trending-up'],['cheatsheets','Cheatsheets','notebook-tabs'],['ratings','Power Ratings','gauge'],['projections','Projections','activity'],['injuries','Injuries','heart-pulse'],['data','Data Sources','database'],['saved','Saved Research','bookmark']];
 /* Original inline SVG icons (Lucide-inspired line geometry), no emoji or remote icon kit.
@@ -175,7 +175,7 @@ function renderSportMenu(){
  }).join('');
  root.innerHTML='<div class="sport-menu-head"><span class="sport-menu-heading"><span class="menu-sport-icon">'+iconSvg(data.icon)+'</span><span><strong>'+text(data.name)+'</strong><small>Choose a section or jump straight into a research tool</small></span></span><button type="button" data-close-sport-menu aria-label="Close '+data.label+' menu">'+iconSvg('close')+'</button></div>'
   +'<div class="sport-menu-grid"><section class="sport-menu-column"><h3>RESEARCH</h3>'+navLinks(['overview','games','props','trends','cheatsheets'])+'</section>'
-  +'<section class="sport-menu-column"><h3>ANALYTICS</h3>'+navLinks(['ratings','projections','injuries','saved'])+'</section>'
+  +'<section class="sport-menu-column"><h3>ANALYTICS</h3>'+navLinks(['ratings','projections','injuries','data','saved'])+'</section>'
   +'<section class="sport-menu-column sport-menu-specialty"><h3>'+data.label+' SPECIALTY TOOLS <span>'+data.tools.length+'</span></h3><div class="menu-tools">'+toolLinks+'</div></section></div>';
  root.hidden=false;
 }
@@ -282,7 +282,7 @@ function toolCard(pair,i){
 }
 function toolReady(name){
  if(state.sport==='nfl'&&name==='Model Validation')return Boolean(window.TSO3NflValidation);
- if(state.sport==='nfl'&&SPORTS.nfl.tools.some(x=>x[0]===name))return Boolean(state.nflResearch?.players||state.nflTD?.games||state.live?.games);
+ if(state.sport==='nfl'&&window.TSO3NflLab?.tools?.includes(menuToolSlug(name)))return Boolean(state.nflResearch?.players||state.nflTD?.games||state.live?.games);
  if(state.sport==='nba'&&/^(Player Form|Matchup vs Position|Pace & Possessions|Minutes & Rotation|Usage & Touches|Team Stats|Injury Impact|Game Projections)$/.test(name))return name==='Injury Impact'?Boolean(state.nbaInjuries?.entries):Boolean(state.nbaResearch?.players);
  if(/First Basket/i.test(name))return state.sport==='nba'&&Boolean(state.live);
  if(/Player Form|Player Trends|Skater Statistics|Player Trends|Home Run Matchups|Shots on Goal|Receiving Matchups|Touchdown Opportunities/i.test(name))return Boolean(state.props);
@@ -344,6 +344,54 @@ function pageTrends(){
  return '<div class="page-note">L5 / L10 / L20 / season rates are calculated from individual observed game logs at the <strong>current exact line</strong>, where those game logs are available. A missing observation stays blank.</div>'
   +section('Player trends','Ordered by sample-backed observed frequency')
   +(verified.length?tableMarkup(verified.sort((a,b)=>(windowRate(b)?.rate||0)-(windowRate(a)?.rate||0))):empty('Trend history not yet verified','The live sportsbook feed does not provide sufficient game-by-game observations here. Historical hit percentages must be sourced separately.'));
+}
+/* Transparent research inventory: publicly documented categories are visible
+   even when TSO has not independently verified the underlying statistics. */
+const SOURCE_LINEAGE={
+ nfl:[['Current matchups','ESPN NFL official schedule','live'],['2026 player opportunity, team defense','TSO NFL research / nflverse-derived','nflResearch'],['Real sportsbook lines','ParlayAPI published odds / 4h max plus kickoff age','nflOdds'],['50,000-run projections','TSO pregame Monte Carlo, exact matching','nflSim'],['Injuries','ESPN official NFL injuries','nflInjuries'],['Calibration','Immutable 2026 archive and checked postgame outcomes','nflArchive']],
+ nba:[['Current matchups','ESPN NBA scoreboard','live'],['Player L5/L10/L20 game logs','TSO NBA research / ESPN history','nbaResearch'],['Sportsbook prop prices','TSO published NBA odds snapshot','nbaOdds'],['Injuries','ESPN NBA injury report','nbaInjuries'],['Projected outcomes','TSO NBA model; MARKET ONLY without exact model','nbaModels']],
+ mlb:[['Current matchups','ESPN MLB scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['Pitch mix, contact and park factors','Specialized verified feeds pending','pending']],
+ nhl:[['Current matchups','ESPN NHL scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['Goal / First Goal projections','TSO NHL models require exact live verification','pending'],['High-danger chances, goalie starts','Specialized verified feeds pending','pending']],
+ wnba:[['Current matchups','ESPN WNBA scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['Verified player histories, usage and DvP','Specialized verified feeds pending','pending']],
+ cfb:[['Current matchups','ESPN college football scoreboard','live'],['Published player props','TSO 2.0 staging verified props','props'],['FBS power ratings and game projections','Specialized source and method verification pending','pending']]
+};
+function sourceState(kind){
+ if(kind==='live')return Boolean(state.live?.tso3?.sources?.[state.sport]==='ESPN verified scoreboard'||(state.sport==='nba'&&state.live?.nbaScoreboard?.status==='verified'));
+ if(kind==='props')return getRows().some(eligible);
+ if(kind==='nflResearch')return Boolean(state.nflResearch?.players);
+ if(kind==='nflOdds')return Boolean(state.nflOdds?.available);
+ if(kind==='nflSim')return Boolean(state.nflSim?.games?.length);
+ if(kind==='nflInjuries')return Boolean(state.nflInjuries?.entries);
+ if(kind==='nflArchive')return Boolean(state.nflArchive?.available);
+ if(kind==='nbaResearch')return Boolean(state.nbaResearch?.players);
+ if(kind==='nbaOdds')return Boolean(state.nbaOddsSnapshot);
+ if(kind==='nbaInjuries')return Boolean(state.nbaInjuries?.entries);
+ if(kind==='nbaModels')return Boolean(state.nbaModels?.models?.length);
+ return false;
+}
+function pageData(){
+ const sport=SPORTS[state.sport];
+ const active=getRows().filter(eligible),byMarket=new Map();
+ for(const item of active){
+  const key=canon(marketOf(item));
+  if(key)byMarket.set(key,(byMarket.get(key)||0)+1);
+ }
+ const sourceList=SOURCE_LINEAGE[state.sport]||[];
+ const categories=sport.markets.map(m=>{
+  const n=byMarket.get(canon(m))||0;
+  return '<div class="tso-source-row"><div><strong>'+text(m)+'</strong><small>'+text(sport.label)+' market category</small></div>'
+   +'<span class="tso-source-state '+(n?'active':'')+'">'+(n?n+' CURRENT OVER/YES QUOTES':'QUOTE NOT VERIFIED')+'</span></div>';
+ }).join('');
+ const technical=sourceList.map(([name,provider,key])=>{
+  const ok=sourceState(key);
+  return '<div class="tso-source-row"><div><strong>'+text(name)+'</strong><small>'+text(provider)+'</small></div>'
+   +'<span class="tso-source-state '+(ok?'active':'')+'">'+(ok?'SOURCE AVAILABLE':'NOT VERIFIED')+'</span></div>';
+ }).join('');
+ return section(sport.label+' Data Sources & Market Coverage','Audit where every visible market, ranking and game detail comes from')
+  +'<p class="page-note">This is TSO-owned research. Market category listing does not mean live odds, licensed proprietary data or a calibrated projection exists. A blank or unverified category remains pending. We do not scrape or redistribute PropFinder data.</p>'
+  +'<div class="tso-lineage-grid"><section class="tool-panel"><h3>Live source inventory</h3><p>Independently identified sources and current availability, not marketing labels.</p>'+technical+'</section>'
+  +'<section class="tool-panel"><h3>All '+text(sport.label)+' market categories</h3><p>'+sport.markets.length+' named categories, live coverage indicated only by returned verified bets.</p>'+categories+'</section></div>'
+  +'<div class="tool-panel"><h3>How TSO calculations work</h3><p><b>Observed rates:</b> counts of actual recorded game outcomes above a specific listed line, using available L5/L10/L20/season logs. <b>TSO model:</b> only a source-backed simulation that matches player, market, side and exact line. <b>TSO Prop Signal:</b> never inferred from a sportsbook price. <b>Missing stats:</b> displayed as unavailable, not zero.</p></div>';
 }
 function pageModels(){
  const rows=filteredRows().filter(r=>exactModel(r)!==null);
@@ -511,6 +559,7 @@ function render(){
  else if(state.page==='ratings')body=pageRatings();
  else if(state.page==='projections')body=pageModels();
  else if(state.page==='injuries')body=pageInjuries();
+ else if(state.page==='data')body=pageData();
  else if(state.page==='saved')body=pageSaved();
  el('content').innerHTML=body;
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='weather-impact'&&state.live?.games?.length)
