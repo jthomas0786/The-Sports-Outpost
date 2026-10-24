@@ -518,3 +518,13 @@ html,body,button,input,select,textarea{
 .tso-source-state{font-size:9px;font-weight:850;letter-spacing:.03em;color:#ffc186;background:#54392745;border:1px solid #87623f4a;padding:5px 8px;border-radius:6px;flex:none;text-align:center;max-width:42%}
 .tso-source-state.active{color:#82e2bb;background:#153f373b;border-color:#32866d63}
 @media(max-width:860px){.tso-lineage-grid{grid-template-columns:1fr}.tso-source-row{align-items:flex-start}.tso-source-state{max-width:50%}}
+
+/* Market and sportsbook checkbox pickers share the existing matchup UX. */
+.tso-multi-select{min-width:150px;position:relative;flex:0 1 auto}
+.tso-option-picker{min-width:160px;width:100%;z-index:15}
+.tso-option-picker[open]{z-index:55}
+.tso-option-picker .matchup-trigger{min-height:39px;padding:9px 11px;color:#e3edf2;font-size:11px;border:1px solid var(--line);border-radius:7px;background:#0a1420}
+.tso-option-picker .matchup-options{max-height:310px;overflow:auto;min-width:220px}
+.tso-option-picker .matchup-option{font-size:11px;text-transform:none;letter-spacing:0}
+.tso-option-picker .matchup-chevron .tso-icon{width:13px;height:13px}
+@media(max-width:850px){.tso-multi-select{flex:1 1 140px;min-width:125px}.tso-option-picker{min-width:125px}.tso-option-picker .matchup-options{max-width:calc(100vw - 30px)}}
