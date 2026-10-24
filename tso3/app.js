@@ -450,7 +450,7 @@ async function openFullPlayerDashboard(row){
  // Numeric IDs supplied by a sportsbook are not assumed to be ESPN IDs.
  // Only a proven official roster selection or an already verified ESPN player
  // identity can bypass the exact two-team roster matcher.
- let profile=row.espnRosterVerified===true||/^d{3,12}$/.test(String(row.verifiedAthleteId||''))
+ let profile=row.espnRosterVerified===true||/^\d{3,12}$/.test(String(row.verifiedAthleteId||''))
   ?captureDashboardPlayer(row):null;
  if(!profile){
   const event=String(row.verifiedGameId||''),player=nameOf(row);
@@ -488,7 +488,7 @@ function pageFullPlayerDashboard(){
  if(!state.playerId){
   const found=new Map();
   for(const r of getRows().filter(eligible)){
-   if(r.espnRosterVerified!==true&&!/^d{3,12}$/.test(String(r.verifiedAthleteId||'')))continue;
+   if(r.espnRosterVerified!==true&&!/^\d{3,12}$/.test(String(r.verifiedAthleteId||'')))continue;
    const p=captureDashboardPlayer(r);if(p)found.set(p.playerId,p);
   }
   for(const p of gameRostersPlayers.values())if(p.sport===state.sport){
