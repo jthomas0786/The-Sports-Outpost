@@ -62,7 +62,7 @@ test('sport-specific sportsbook lines and charts are rendered with real quotes',
  assert.match(html,/tso-pd-chart/);
  assert.match(html,/Verified/);
  assert.match(html,/FanDuel/);
- assert.match(html,/Last 10/);
+ assert.match(html,/L10/);
  assert.match(html,/Test Athlete/);
 });
 test('all five dashboard sections are actionable tabs',()=>{
