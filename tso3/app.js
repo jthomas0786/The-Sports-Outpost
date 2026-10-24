@@ -53,7 +53,11 @@ for(const sport of Object.values(SPORTS)){
 const NFL_CHEATSHEET_LAB={
  'td-matchups':'touchdown-opportunities',
  'redzone-matchups':'red-zone-usage',
- 'team-defensive-stats':'defense-vs-position'
+ 'team-defensive-stats':'defense-vs-position',
+ 'role-matchups':'receiving-matchups',
+ 'receiving-value':'coverage-matchups',
+ 'team-share':'red-zone-usage',
+ 'line-matchups':'offensive-line-matchups'
 };
 function nflLabTool(slug){
  const tool=NFL_CHEATSHEET_LAB[slug]||slug;
@@ -336,7 +340,7 @@ function toolCard(pair,i){
  const code=String(pair[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-');
  const ready=toolReady(pair[0]);
  const foundation=Boolean(window.TSO3ObservedResearch?.supports?.(state.sport,code));
- return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(foundation?(ready?'VERIFIED PLAYER HISTORY':'HISTORY SOURCE CONNECTED · MATCHUP NEEDED'):(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED'))+'</span><span class="arrow">↗</span></footer></button>';
+ return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(foundation?(ready?'VERIFIED PLAYER HISTORY':'ESPN HISTORY CONNECTED · SELECT TEAM'):(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED'))+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
  const rows=getRows().filter(eligible);
@@ -622,11 +626,13 @@ function toolDetail(){
   const mapped=nflLabTool(state.tool);
   const original=Boolean(NFL_CHEATSHEET_LAB[state.tool]);
   const scope=state.tool==='td-matchups'
-   ?'<p class="nfl-model-note">Source-backed player TD estimates, 2026 positional defensive allowances, prior-season red-zone baselines and current odds where independently verified. Individual CB assignments, receiver alignment and 2026 inside-20 play tracking are NOT connected; missing figures remain blank.</p>'
+   ?'<p class="nfl-model-note">Source-backed player TD estimates, 2026 positional defensive allowances, prior-season red-zone baselines and current odds where independently verified. Verified 2026 nflverse inside-20 and goal-line play-by-play is connected to the separately labeled experimental 2026 ATD Shadow. Individual CB assignments and receiver alignment remain unverified.</p>'
    :state.tool==='redzone-matchups'
-    ?'<p class="nfl-model-note">Red-zone usage is a published 2025-model baseline with observed 2026 opportunity context, NOT independently tracked 2026 inside-20 touches.</p>'
+    ?'<p class="nfl-model-note">Red-zone usage columns preserve their labeled 2025 model baseline. Verified 2026 inside-20 and inside-5 play-by-play is separately shown in the 2026 Shadow player details; never relabel a 2025 count as 2026.</p>'
     :state.tool==='team-defensive-stats'
-     ?'<p class="nfl-model-note">Observed 2026 defense-versus-position production. These are group-level allowances, not player-to-defender assignments or proprietary grades.</p>':'';
+     ?'<p class="nfl-model-note">Observed 2026 defense-versus-position production. These are group-level allowances, not player-to-defender assignments or proprietary grades.</p>'
+     :state.tool==='line-matchups'?'<p class="nfl-model-note">Observed opponent passing/rushing allowances are a proxy only. True offensive line blocking grades, defender pressure and assignments remain unavailable.</p>'
+     :['role-matchups','team-share','receiving-value'].includes(state.tool)?'<p class="nfl-model-note">Current 2026 player opportunity, target/carry share and verified sportsbook lines are shown where sourced. Individual role matchups, route grades and value certifications are not claimed.</p>':'';
   return (original?'<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section(found[0],found[1])+scope:'')+nflResearch(mapped);
  }
  if(state.sport==='nba'&&['Player Form','Matchup vs Position'].includes(found[0])){
