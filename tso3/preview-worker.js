@@ -1206,6 +1206,49 @@ async function verifiedOtherOdds(league){
   fetchedAt:meta.fetchedAt,rawRows:values.length,rejected,rows,
   reason:rows.length?'Verified current Over/Yes sportsbook quotes':'No current verified bookmaker selections'};
 }
+/* Original TSO NHL goal model. Disclose only pregame probabilities with
+   unchanged ESPN game ID and current model version; no implied scores. */
+async function verifiedNhlGoalModel(){
+ const source='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nhl-first-goal.json';
+ const [r,official]=await Promise.all([
+  fetch(source,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:90},signal:AbortSignal.timeout(19000)}),
+  officialGames(ESPN_SCOREBOARDS.nhl,'nhl')
+ ]);
+ if(!r.ok)throw Error('NHL goal source HTTP '+r.status);
+ const doc=await r.json(),now=Date.now(),generated=Date.parse(doc?.generatedAt||'');
+ if(doc?.source!=='TSO NHL first-goal model'||!Array.isArray(doc.games)||!Number.isFinite(generated)
+  ||generated>now||now-generated>48*3600000)
+  return {available:false,source:'TSO NHL First Goal model',rows:[],reason:'No current verified pregame NHL goal simulation'};
+ const games=[];
+ for(const g of doc.games){
+  const matched=official.find(o=>o.league==='nhl'&&o.state==='pre'&&String(o.id)===String(g.gameId)
+   &&Math.abs(Date.parse(o.startTime)-Date.parse(g.startTime))<90*60000
+   &&Date.parse(o.startTime)>now+15*60000);
+  if(!matched||generated>=Date.parse(matched.startTime))continue;
+  const players=[];
+  for(const side of [g.home,g.away]){
+   for(const p of side?.players||[]){
+    if(!p?.name||!p.id||!p.team)continue;
+    const first=Number(p.probability),anytime=Number(p.anytimeProbability);
+    players.push({playerId:String(p.id),name:String(p.name),team:nflTeamKey(p.team),
+     position:p.position||null,
+     firstGoalProbability:Number.isFinite(first)&&first>=0&&first<=1?first:null,
+     anytimeGoalProbability:Number.isFinite(anytime)&&anytime>=0&&anytime<=1?anytime:null,
+     opponent:p.matchup?.opponent||null,
+     defenseRank:Number.isFinite(Number(p.matchup?.goalAllowedRank))?Number(p.matchup.goalAllowedRank):null,
+     allowedPerGame:Number.isFinite(Number(p.matchup?.goalsAllowedPerGame))?Number(p.matchup.goalsAllowedPerGame):null,
+     shootingPct:Number.isFinite(Number(p.shootingPct))?Number(p.shootingPct):null,
+     recentGoals:Number.isFinite(Number(p.recentGoals))?Number(p.recentGoals):null,
+     recentGames:Number.isFinite(Number(p.recentGames))?Number(p.recentGames):null,
+     goalieVerified:p.matchup?.goalie?.verified===true});
+   }
+  }
+  if(players.length)games.push({gameId:String(matched.id),startTime:matched.startTime,players});
+ }
+ return {available:games.length>0,source:'TSO NHL FGS-Hazard Ensemble v3 / own published model',
+  modelName:doc.model,generatedAt:doc.generatedAt,season:doc.season||null,games,
+  note:'Pregame-only player scoring estimates matched to official ESPN game IDs. TSO model probabilities are NOT sportsbook prices. Unknown goalie starts remain unverified.'};
+}
 async function safeNbaInjuries(){
  const r=await fetch(NBA_INJURIES_SOURCE,{headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:120},signal:AbortSignal.timeout(14000)});
  if(!r.ok)throw Error('ESPN injury feed '+r.status);
@@ -1525,6 +1568,10 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   }
  }
  if(u.pathname==='/api/nfl-archive-status')return Response.json(await nflArchiveStatus(env),{headers:{...headers,'cache-control':'no-store'}});
+ if(u.pathname==='/api/nhl-goal-model'){
+  try{return Response.json(await verifiedNhlGoalModel(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO NHL historical hazard model'}})}
+  catch(e){return Response.json({available:false,source:'TSO NHL model',games:[],reason:String(e?.message||'').slice(0,150)},{status:503,headers})}
+ }
  if(u.pathname==='/api/sport-odds'){
   const league=String(u.searchParams.get('league')||'').toLowerCase();
   if(!Object.hasOwn(OTHER_ODDS_SOURCES,league))
