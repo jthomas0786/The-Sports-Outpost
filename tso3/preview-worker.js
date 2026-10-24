@@ -1159,6 +1159,7 @@ async function verifiedOtherOdds(league){
  if(!Array.isArray(values))throw Error('Invalid published sportsbook rows');
  const official=await officialGames(ESPN_SCOREBOARDS[league],league),rows=[],rejected={event:0,quote:0,price:0,market:0};
  for(const q of values.slice(0,25000)){
+  if(q?.preserved===true){rejected.quote++;continue}
   if(!q?.player||!q?.book||!Object.hasOwn(OTHER_MARKETS[league],String(q.market))||q.inclusive===true
    ||q.period&&q.period!=='FULL'){rejected.market++;continue}
   const start=Date.parse(q.commenceTime||''),stamp=Date.parse(q.snapshotTime||'');
