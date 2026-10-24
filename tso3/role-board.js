@@ -147,8 +147,20 @@ function cell(value,rank,scale=1,na='—'){
    (rank?'<small title="Observed 2026 defense ranking: #'+rank.rank+' of '+rank.n+' (more allowed ranks higher)">#'+rank.rank+'/'+rank.n+'</small>':'')+
    '</div></td>';
 }
+function advancedCols(tab){return tab==='receiving'?[['TARGET SHARE','targetShare'],['AIR YDS SHARE','airYardsShare'],['SNAP L5','snapL5'],['RZ SHARE','rzShare']]:
+ tab==='rushing'?[['SNAP L5','snapL5'],['RZ SHARE','rzShare'],['GOAL-LINE SHARE','glShare']]:
+ [['SNAP L5','snapL5']];}
+function advancedHeaders(tab){return state.advanced?advancedCols(tab).map(([name])=>'<th title="Observed 2026 season role data, not projected prop probability">'+E(name)+'</th>').join(''):'';}
+function advancedGroup(tab){return state.advanced?advancedCols(tab).map(()=>'<td class="ts-role-numeric" title="No verified defense-wide individual role-share record">—</td>').join(''):'';}
+function advancedPlayer(p,tab){
+ if(!state.advanced)return '';
+ const data=p.player.currentSeason||{},rz=p.rz,snaps=p.player.snapTrend||{};
+ const value={targetShare:V(data.targetShare),airYardsShare:V(data.airYardsShare),snapL5:V(snaps.avgOffensePct),
+  rzShare:rz?V(rz.share):null,glShare:rz?V(rz.goalShare):null};
+ return advancedCols(tab).map(([,key])=>'<td class="ts-role-numeric">'+(value[key]===null?'—':E(fmt(value[key]))+'%')+'</td>').join('');
+}
 function tinyHeader(tab){
- return METRICS[tab].map(m=>'<th><button type="button" data-role-sort="'+m.key+'" aria-label="Sort by '+E(m.title)+'">'+E(m.title)+'</button></th>').join('');
+ return METRICS[tab].map(m=>'<th><button type="button" data-role-sort="'+m.key+'" aria-label="Sort by '+E(m.title)+'">'+E(m.title)+'</button></th>').join('')+advancedHeaders(tab);
 }
 function offenseRows(ctx,def,group,tab){
  const filter=state.search.toLowerCase().trim();
@@ -170,8 +182,8 @@ function offenseRows(ctx,def,group,tab){
     const opposition=allowed(def,group.defense,p.pos,tab,metric);
     const value=p.values[metric.key],rank=opposition.rank;
     return cell(value,rank);
-   }).join('')+'</tr>';
- }).join('')||'<tr><td colspan="'+(2+METRICS[tab].length)+'">No independently observed '+E(tab)+' players for this offense and selected range.</td></tr>';
+   }).join('')+advancedPlayer(p,tab)+'</tr>';
+ }).join('')||'<tr><td colspan="'+(2+METRICS[tab].length+(state.advanced?advancedCols(tab).length:0))+'">No independently observed '+E(tab)+' players for this offense and selected range.</td></tr>';
 }
 function panel(ctx,def,game,offense,defense,tab){
  const groups=groupRows(ctx,def,defense,tab);
@@ -181,7 +193,7 @@ function panel(ctx,def,game,offense,defense,tab){
   '<div class="ts-role-band"><b>'+opponent(defense)+' allows</b><small>2026 observed position-group production per game · highest allowed = rank 1</small></div>'+
   '<div class="ts-role-scroll"><table class="ts-role-table"><thead><tr><th>GROUP</th><th>GP</th>'+tinyHeader(tab)+'</tr></thead><tbody>'+
   groups.map(r=>'<tr><td class="ts-role-player"><b>'+E(r.groupLabel)+'</b></td><td class="ts-role-numeric">'+E(r.games??'—')+'</td>'+
-   r.values.map(x=>cell(x.value,x.rank)).join('')+'</tr>').join('')+'</tbody></table></div>'+
+   r.values.map(x=>cell(x.value,x.rank)).join('')+advancedGroup(tab)+'</tr>').join('')+'</tbody></table></div>'+
   '<div class="ts-role-band"><b>'+opponent(offense)+' players</b><small>'+E(state.range==='season'?'2026 season':state.range.toUpperCase()+' actual games')+' per-game production · colored by opposing defense rank, not player rank</small></div>'+
   '<div class="ts-role-scroll"><table class="ts-role-table"><thead><tr><th>PLAYER / ROLE</th><th>GP</th>'+tinyHeader(tab)+'</tr></thead><tbody>'+
    offenseRows(ctx,def,{game,offense,defense,players},tab)+'</tbody></table></div></div>';
@@ -189,14 +201,14 @@ function panel(ctx,def,game,offense,defense,tab){
 function playerDrill(p,tab){
  if(!p)return '';
  const key=tab==='receiving'?'recYds':tab==='rushing'?'rushYds':'passYds',
-  logs=p.sample.logs.slice(0,10).reverse(),nums=logs.map(x=>V(x[key])??0),
-  maximum=Math.max(1,...nums);
+  logs=p.sample.logs.filter(x=>V(x[key])!==null).slice(0,10).reverse(),
+  nums=logs.map(x=>V(x[key])),maximum=Math.max(1,...nums);
  return '<section class="ts-role-drill"><div class="ts-role-drill-head"><div><h3>'+E(p.name)+'</h3>'+
   '<p>'+E(p.offense)+' · '+E(p.role)+' · 2026 observed game history</p></div>'+
   (/^\d{3,12}$/.test(String(p.player.id||''))?'<a href="#/nfl/player/'+E(p.player.id)+'">Full player dashboard ↗</a>':'')+
   '<button type="button" data-role-close aria-label="Close player history">×</button></div>'+
-  '<div class="ts-role-chart" role="img" aria-label="Last recorded games '+E(key)+' chart, actual completed games">'+
-  logs.map((g,i)=>'<div class="ts-role-bar-wrap" title="'+E(g.date+' vs '+g.opponent+': '+fmt(V(g[key])))+'"><span>'+E(fmt(V(g[key]),0))+'</span><i style="height:'+Math.max(2,Math.round((nums[i]/maximum)*96))+'%"></i><small>'+E(String(g.week||'—'))+'</small></div>').join('')+'</div>'+
+  (logs.length?'<div class="ts-role-chart" role="img" aria-label="Last recorded games '+E(key)+' chart, actual completed games">'+
+  logs.map((g,i)=>'<div class="ts-role-bar-wrap" title="'+E(g.date+' vs '+g.opponent+': '+fmt(V(g[key])))+'"><span>'+E(fmt(V(g[key]),0))+'</span><i style="height:'+Math.max(2,Math.round((nums[i]/maximum)*96))+'%"></i><small>'+E(String(g.week||'—'))+'</small></div>').join('')+'</div>':'<p>No verified completed-game observations for this metric.</p>')+
   '<p class="ts-role-fine">Each bar is one completed 2026 game ('+E(key)+'). Missing source values are shown as unavailable in the tables. Heat colors describe the <b>opposing defense group</b>, not a player-vs-CB assignment or a calibrated prop probability.</p></section>';
 }
 function render(ctx){
@@ -229,7 +241,7 @@ function render(ctx){
  return '<section class="ts-role-board">'+h+'<div class="ts-role-source">'+E(sources)+'</div>'+nav+
  '<div class="ts-role-legend"><span><i class="favorable"></i> Top third (most allowed)</span><span><i class="neutral"></i> Middle third</span><span><i class="difficult"></i> Bottom third (least allowed)</span><span>Ranked only with ≥16 verified defenses</span></div>'+
  content+
- '<p class="ts-role-fine"><b>Data scope:</b> All opponent defensive numbers are observed 2026 season position-group allowances; L5/L10 only change the individual player rows because defensive L5/L10 breakdowns are not present. Defensive red-zone opportunity columns intentionally show —: this feed cannot verify defense-specific inside-20 targets. Player RZ OPP uses current 2026 nflverse goal-area carries/targets combined when individually validated, season-only. Longer/shortest receptions and true WR–CB assignments are not sourced. Ranking colors reflect opponent defense allowances rather than a calculated individual player grade. Ties share rank.</p></section>';
+ '<p class="ts-role-fine"><b>Data scope:</b> All opponent defensive numbers are observed 2026 season position-group allowances; L5/L10 only change the individual player rows because defensive L5/L10 breakdowns are not present. Defensive red-zone opportunity columns intentionally show —: this feed cannot verify defense-specific inside-20 targets. Advanced columns show real 2026 player season shares (plus observed L5 snaps) and do not receive artificial defensive numbers. Player RZ OPP uses current 2026 nflverse goal-area carries/targets combined when individually validated, season-only. Longer/shortest receptions and true WR–CB assignments are not sourced. Ranking colors reflect opponent defense allowances rather than a calculated individual player grade. Ties share rank.</p></section>';
 }
 function repaint(){const root=document.getElementById('tsoRoleBoard');if(root&&state.ctx)root.innerHTML=render(state.ctx);}
 function click(e){
