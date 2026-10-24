@@ -85,10 +85,10 @@ async function hydrate(ctx,tool){
    const teams=data.teams||[];
    show('<p class="nba-footnote">Official ESPN fixture '+esc(data.away)+' @ '+esc(data.home)+' · roster snapshot '+esc(date(data.checkedAt))+
     ' · team rosters do not prove game-day starters or athlete availability.</p>'+
-    teams.map(t=>'<section><h4>'+esc(t.abbr||t.name)+' · '+(t.available?t.players.length+' rostered players':'Roster source unavailable')+'</h4>'+
+    '<div class="ts-role-comparison tso-observed-matrix">'+teams.map(t=>'<section class="ts-role-side"><div class="ts-role-side-head"><strong>'+esc(t.abbr||t.name)+'</strong><span>OFFICIAL TEAM ROSTER</span></div><div class="ts-role-band"><b>'+esc(t.available?t.players.length+' ESPN rostered athletes':'Official roster unavailable')+'</b><small>Click a player for observed game-by-game statistics</small></div>'+
      (t.available?'<div class="tso-observed-players">'+t.players.filter(p=>/^\d{3,12}$/.test(String(p.id||''))).slice(0,75).map(p=>
       '<button class="btn subtle" type="button" data-observed-player="'+esc(p.id)+'" data-observed-name="'+esc(p.name)+'"><b>'+esc(p.name)+'</b> <small>'+esc(p.position||'')+'</small></button>').join('')+'</div>':
-      '<p>'+esc(t.reason||'Verified team roster unavailable')+'</p>')+'</section>').join('')+
+      '<p>'+esc(t.reason||'Verified team roster unavailable')+'</p>')+'</section>').join('')+'</div>'+
      '<div id="tsoObservedStats"><p class="page-note">Choose an athlete to read verified season and game logs without needing sportsbook odds.</p></div>');
   }catch(e){show('<p class="page-note">Official roster source unavailable: '+esc(e?.message||'Provider error')+'. No players or stats have been inferred.</p>')}
  }
@@ -97,11 +97,11 @@ async function hydrate(ctx,tool){
   try{
    const r=await fetch('/api/sport-team-roster?'+new URLSearchParams({league:ctx.sport,teamId}),{cache:'default'}),doc=await r.json();
    if(!r.ok||!doc.available||doc.league!==ctx.sport||String(doc.team?.id)!==teamId)throw Error(doc.error||'Verified team roster unavailable');
-   show('<h4>'+esc(doc.team.name)+' · '+esc(doc.players.length)+' ESPN rostered athletes</h4>'+
+   show('<div class="ts-role-side tso-observed-single"><div class="ts-role-side-head"><strong>'+esc(doc.team.name)+'</strong><span>OFFICIAL TEAM ROSTER</span></div><div class="ts-role-band"><b>'+esc(doc.players.length)+' ESPN rostered athletes</b></div>'+
     '<p class="nba-footnote">Official roster membership only, not a verified game-day lineup or availability report.</p>'+
     '<div class="tso-observed-players">'+doc.players.filter(p=>/^\d{3,12}$/.test(String(p.id||''))).slice(0,90).map(p=>
      '<button type="button" class="btn subtle" data-observed-player="'+esc(p.id)+'" data-observed-name="'+esc(p.name)+'"><b>'+esc(p.name)+'</b> <small>'+esc(p.position||'')+'</small></button>').join('')+'</div>'+
-    '<div id="tsoObservedStats"><p class="page-note">Choose a verified athlete to inspect official historical player statistics.</p></div>');
+    '</div><div id="tsoObservedStats"><p class="page-note">Choose a verified athlete to inspect official historical player statistics.</p></div>');
   }catch(e){show('<p class="page-note">Official ESPN team roster unavailable: '+esc(e?.message||'Source error')+'</p>')}
  }
  root.addEventListener('change',e=>{
@@ -144,12 +144,14 @@ async function hydrate(ctx,tool){
     const vals=dated.map(g=>({g,record:(g.stats||[]).find(x=>canon(x.name)===canon(stat.name))}))
      .filter(x=>numeric(x.record?.numeric)!==null);
     const l5=vals.slice(0,5),avg=l5.length?l5.reduce((n,x)=>n+x.record.numeric,0)/l5.length:null;
+    const bars=vals.slice(0,5).reverse(),peak=Math.max(1,...bars.map(x=>x.record.numeric));
+    const spark=bars.length?'<div class="tso-observed-spark" aria-label="Last '+bars.length+' actual game values">'+bars.map(x=>'<span title="'+esc(date(x.g.date)+' · '+x.record.numeric)+'" style="height:'+Math.max(3,Math.round(x.record.numeric/peak*26))+'px"></span>').join('')+'</div>':'—';
     return '<tr><td>'+esc(stat.label)+'</td><td>'+esc(l5.length?avg.toFixed(1):'—')+'</td>'+
-     '<td>'+esc(vals.length)+'</td><td>'+esc(vals.slice(0,5).map(x=>x.record.numeric).join(' / ')||'—')+'</td></tr>';
+     '<td>'+esc(vals.length)+'</td><td>'+esc(vals.slice(0,5).map(x=>x.record.numeric).join(' / ')||'—')+'</td><td>'+spark+'</td></tr>';
    }).join('');
    here.innerHTML='<div class="tool-panel"><h4>'+esc(name)+' · '+esc(data.season||leagueSeason[ctx.sport])+' Official ESPN Logs</h4>'+
     '<p class="nba-footnote">Observed completed games only. L5 is the average of up to five verified records for each statistic; no missing game is treated as zero. Metric labels are supplied by ESPN, not simulated.</p>'+
-    (statistics?'<div class="table-scroller"><table class="data-table"><thead><tr><th>OBSERVED STAT</th><th>L5 AVG</th><th>GAMES IN L10</th><th>LAST 5 VALUES</th></tr></thead><tbody>'+statistics+'</tbody></table></div>':
+    (statistics?'<div class="table-scroller"><table class="data-table"><thead><tr><th>OBSERVED STAT</th><th>L5 AVG</th><th>GAMES IN L10</th><th>LAST 5 VALUES</th><th>5-GAME CHART</th></tr></thead><tbody>'+statistics+'</tbody></table></div>':
      '<p class="page-note">No matching statistics in available ESPN game records.</p>')+
     '<p><a href="#/'+esc(ctx.sport)+'/player/'+esc(athlete)+'">Open full verified player dashboard →</a></p></div>';
   }catch(_){const here=panel()?.querySelector('#tsoObservedStats');if(here)here.innerHTML='<p class="page-note">Official ESPN player history request failed; no statistical values have been substituted.</p>'}
