@@ -100,3 +100,9 @@ test('the dedicated split tab includes official full-season categories without o
  assert.match(html,/2\.10/);
  assert.match(html,/Verified home \/ away \/ opponent splits/);
 });
+
+test('sportsbook numeric IDs cannot bypass official roster identity confirmation',()=>{
+ assert.match(appCode,/espnRosterVerified===true/);
+ assert.match(appCode,/verifiedAthleteId/);
+ assert.doesNotMatch(appCode,/\/\^d\{3,12\}\$\//);
+});
