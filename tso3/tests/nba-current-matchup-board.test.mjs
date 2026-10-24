@@ -79,3 +79,22 @@ test('server refuses mixed-season cached aggregates, and requires complete offic
  assert.match(body,/played\.get\(t\)\.length<7/);
  assert.match(body,/summary\.some\(x=>!x\)/);
 });
+
+
+test('shared NBA feed suppresses old cached opponent defense and pace unless explicit 2027 evidence is supplied',()=>{
+ const lo=worker.indexOf('function sanitizeNbaResearch('),hi=worker.indexOf('\n/* NFL data sourced',lo);
+ assert.ok(lo>=0&&hi>lo);
+ const fun=runInNewContext(worker.slice(lo,hi)+';sanitizeNbaResearch',{Date,Number,String,Object,Math});
+ const legacy={currentSeason:2027,generatedAt:new Date().toISOString(),
+  teams:{'8':{name:'Example'}},players:{'9':{id:'9',name:'Example',teamId:'8',recentGames:[]}},
+  teamDefense:{'8':{byPosition:{G:{points:57.6}}}},teamProfiles:{'8':{games:83,pace:100}},
+  league:{pace:100,allowByPosition:{G:{points:56}}}};
+ const current=fun(legacy);
+ assert.deepEqual(Object.keys(current.teamDefense),[]);
+ assert.deepEqual(Object.keys(current.teamProfiles),[]);
+ assert.deepEqual(Object.keys(current.league),[]);
+ assert.equal(current.defenseDataQuality.verified,false);
+ const sourced=fun({...legacy,teamDefenseSeason:2027,teamDefenseScope:'current_season_completed_games'});
+ assert.equal(sourced.defenseDataQuality.verified,true);
+ assert.equal(sourced.teamDefense['8'].byPosition.G.points,57.6);
+});
