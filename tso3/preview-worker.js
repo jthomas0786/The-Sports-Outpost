@@ -244,9 +244,19 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_age_minutes,eligible_quote_rows,verified_games,games_rejected_for_age,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 8'),
    env.NFL_ARCHIVE.prepare('SELECT game_id,MIN(kickoff_at) kickoff,MAX(odds_snapshot_at) quote_at,MAX(model_generated_at) model_at,COUNT(DISTINCT market) markets,COUNT(DISTINCT sportsbook) books,SUM(CASE WHEN model_kind=\'50k_atd\' THEN 1 ELSE 0 END) atd,SUM(CASE WHEN model_kind=\'50k_exact_over\' THEN 1 ELSE 0 END) exact,MAX(CASE WHEN model_kind=\'50k_atd\' THEN odds_snapshot_at END) atd_quote_at,MAX(CASE WHEN model_kind=\'50k_exact_over\' THEN odds_snapshot_at END) exact_quote_at,MAX(CASE WHEN model_kind=\'50k_atd\' THEN model_generated_at END) atd_model_at,MAX(CASE WHEN model_kind=\'50k_exact_over\' THEN model_generated_at END) exact_model_at FROM prediction_snapshots WHERE kickoff_at>? GROUP BY game_id ORDER BY kickoff ASC LIMIT 25').bind(new Date().toISOString())
   ]);
+  let shadowForecasts=null;
+  try{
+   const v=await env.NFL_ARCHIVE.prepare('SELECT COUNT(*) snapshots,COUNT(DISTINCT game_id) games,MIN(captured_at) first_capture,MAX(captured_at) last_capture FROM atd_shadow_forecasts').first();
+   shadowForecasts={snapshots:Number(v?.snapshots||0),games:Number(v?.games||0),
+    firstCapture:v?.first_capture||null,lastCapture:v?.last_capture||null,
+    model:'2026 ATD experimental shadow',settledOutcomes:0,
+    caveat:'Forward-only independent pregame captures. No shadow outcome settlement/calibration has been run.'};
+  }catch(_){shadowForecasts={snapshots:0,games:0,status:'not_initialized',
+   caveat:'Separate 2026 shadow table is awaiting its first cron capture; not a calibration report'};}
   return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
    snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
    gameCount:Number(q[0].results?.[0]?.games||0),
+   shadowForecasts,
    firstCapture:q[0].results?.[0]?.first_capture||null,
    latestCapture:q[0].results?.[0]?.last_capture||null,lastRun:q[1].results?.[0]||null,
    byModel:q[2].results||[],outcomeCount:Number(q[3].results?.[0]?.outcomes||0),
