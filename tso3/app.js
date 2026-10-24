@@ -378,6 +378,56 @@ function overview(){
   +section('Current player props','Verified lines, not hypothetical picks')
   +tableMarkup(filteredRows(),8);
 }
+/* Official matchup rosters make player research available without bookmaker
+   prices. Cached by matchup, but never treated as verified starters/lineups. */
+const gameRostersCache=new Map();
+const gameRostersPlayers=new Map();
+async function hydrateGameRosters(game){
+ const elSlot=el('gameRosterSlot'),league=state.sport,key=league+':'+String(game.id);
+ if(!elSlot)return;
+ let saved=gameRostersCache.get(key);
+ if(!saved||Date.now()-saved.checkedAt>5*60000){
+  try{
+   const response=await fetch('/api/game-roster?'+new URLSearchParams({league,gameId:String(game.id)}),{cache:'default'});
+   const doc=await response.json();
+   saved={checkedAt:Date.now(),doc:response.ok?doc:{available:false,reason:doc?.reason||'Official rosters unavailable'}};
+  }catch(_){saved={checkedAt:Date.now(),doc:{available:false,reason:'ESPN official team roster could not be loaded'}}}
+  gameRostersCache.set(key,saved);
+ }
+ if(state.page!=='games'||state.sport!==league||state.game!==gameKey(game)||!el('gameRosterSlot'))return;
+ const doc=saved.doc;
+ if(!doc?.available){
+  el('gameRosterSlot').innerHTML='<p class="page-note">'+text(doc?.reason||'Official rosters unavailable')+'</p>';return;
+ }
+ const cards=(doc.teams||[]).map((team,i)=>{
+  if(!team.available)return '<section class="tso-roster-team"><h4>'+text(team.name||team.abbr||'Team')+'</h4><p class="page-note">'+text(team.reason||'Official team roster unavailable')+'</p></section>';
+  const players=(team.players||[]).slice().sort((a,b)=>String(a.position||'').localeCompare(String(b.position||''))||a.name.localeCompare(b.name));
+  const entries=players.map((p,i)=>{
+   const ref=key+':'+String(p.id);
+   gameRostersPlayers.set(ref,{...p,sport:league,team:team.abbr,verifiedGameId:String(game.id)});
+   return '<button type="button" class="tso-roster-player" data-roster-player="'+text(ref)+'" aria-label="View official game history for '+text(p.name)+'">'
+    +'<span>'+text(p.name)+'</span><small>'+text(p.position||'—')+'</small></button>';
+  });
+  return '<section class="tso-roster-team"><h4>'+text(team.name||team.abbr||'Team')+' <small>'+players.length+' listed</small></h4>'
+   +'<div class="tso-roster-players">'+entries.slice(0,12).join('')+'</div>'
+   +(entries.length>12?'<details class="tso-roster-more"><summary>Show '+(entries.length-12)+' additional team players</summary>'
+    +'<div class="tso-roster-players">'+entries.slice(12).join('')+'</div></details>':'')+'</section>';
+ }).join('');
+ el('gameRosterSlot').innerHTML='<div class="tso-game-rosters">'+cards+'</div>'
+  +'<p class="nba-footnote">ESPN official current team rosters; membership does not confirm starting lineups or player availability. Select a player for independently recorded ESPN game logs even if no sportsbook price is listed.</p>';
+}
+function openOfficialRosterPlayer(player){
+ const row={sport:state.sport,playerId:String(player.id),player:player.name,name:player.name,
+  team:player.team,verifiedGameId:player.verifiedGameId};
+ state.selected=row;
+ el('drawerBody').innerHTML='<div class="drawer-contents"><span class="eyebrow">ESPN · OFFICIAL ROSTER RESEARCH</span>'
+  +'<h2>'+text(player.name)+'</h2><p class="subtitle">'+text(player.team||'')+' · '+text(player.position||'Player')+'</p>'
+  +'<p class="page-note">This player profile uses actual game logs and season totals. There is no implied sportsbook price, projected hit probability, or confirmed starting role.</p>'
+  +'<h3>Recorded player statistics</h3><div id="athleteDepthSlot" class="tso-depth"><p class="page-note">Retrieving official ESPN player history…</p></div></div>';
+ el('drawer').hidden=false;el('scrim').hidden=false;
+ el('closeDrawer').focus();
+ void hydrateAthleteDepth(row);
+}
 function pageGames(){
  if(state.game){
   const g=getGames().find(g=>gameKey(g)===state.game);
@@ -390,6 +440,9 @@ function pageGames(){
    +'<p class="explain">Game projections, defense-vs-position and verified advanced matchup grades will appear when the corresponding TSO source is connected. No opposing team stats are mirrored or inferred.</p></div>'
    +'<section class="tool-panel"><h3>Official Game Box Score</h3><p>Live ESPN game totals and player statistics, refreshed while the page is open.</p><div id="liveGameStats" data-game="'+text(state.sport+':'+gameKey(g))+'">Retrieving current game stats…</div></section>'
    +(state.sport==='nba'?'<section class="tool-panel fb-inline"><h3>First Basket / Opening Tip</h3><p>Verified recent tip wins, first made field goals and current-roster player participation. Observed history, not a calibrated betting probability.</p><div id="fbDetail">Retrieving verified NBA opening-event history…</div></section>':'')
+   +'<section class="tool-panel"><h3>Official team rosters & player game logs</h3>'
+   +'<p>Team players and independently recorded season stats remain accessible even if sportsbook data is stale or missing. This is not a verified starting lineup.</p>'
+   +'<div id="gameRosterSlot">Retrieving ESPN official team rosters…</div></section>'
    +section('Player selections for this game','Exact matches only')+tableMarkup(rows);
  }
  return section('Game slate','Select any matchup; all sports share one interaction pattern')+gamesMarkup();
@@ -661,6 +714,7 @@ function render(){
   const game=getGames().find(g=>gameKey(g)===state.game);
   if(game){
    void window.TSO3LiveBoxscore?.render?.(game,state.sport);
+   void hydrateGameRosters(game);
    if(state.sport==='nba')void hydrateFirstBasket(game);
   }
  }
@@ -1116,6 +1170,12 @@ document.addEventListener('click',e=>{
  }
  if(state.openSport&&!e.target.closest('#sportMenu')&&!e.target.closest('#sportNav'))closeSportMenu();
  const pg=e.target.closest('[data-page]');if(pg){location.hash='#/'+state.sport+'/'+pg.dataset.page;onHash();return}
+ const rosterPlayer=e.target.closest('[data-roster-player]');
+ if(rosterPlayer){
+  const athlete=gameRostersPlayers.get(rosterPlayer.dataset.rosterPlayer);
+  if(athlete)openOfficialRosterPlayer(athlete);
+  return;
+ }
  const game=e.target.closest('[data-game]');if(game){state.page='games';state.game=game.dataset.game;state.tool=null;state.search='';history.replaceState(null,'','#/'+state.sport+'/games');render();return}
  const tool=e.target.closest('[data-tool]');if(tool){const slug=tool.dataset.tool;location.hash='#/'+state.sport+'/cheatsheets/'+slug;onHash();return}
  const back=e.target.closest('[data-back]');if(back){if(back.dataset.back==='game'){state.game=null;render()}else{location.hash='#/'+state.sport+'/cheatsheets';onHash()}return}
