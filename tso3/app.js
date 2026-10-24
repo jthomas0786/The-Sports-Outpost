@@ -47,6 +47,18 @@ for(const sport of Object.values(SPORTS)){
  if(!sport.tools.some(([title])=>title==='Alternate Lines'))
   sport.tools.push(['Alternate Lines','Only actually published alternate thresholds and price quotes']);
 }
+/* Existing independent NFL research views are connected to the matching
+   publicly listed cheatsheet category. The mapping is not a claim that
+   advanced alignment, individual coverage or other missing feeds exist. */
+const NFL_CHEATSHEET_LAB={
+ 'td-matchups':'touchdown-opportunities',
+ 'redzone-matchups':'red-zone-usage',
+ 'team-defensive-stats':'defense-vs-position'
+};
+function nflLabTool(slug){
+ const tool=NFL_CHEATSHEET_LAB[slug]||slug;
+ return window.TSO3NflLab?.tools?.includes(tool)?tool:null;
+}
 const PAGES=[['overview','Overview','layout-dashboard'],['games','Games','calendar-days'],['props','Player Props','chart-no-axes-combined'],['trends','Trends','trending-up'],['player','Player Dashboard','activity'],['cheatsheets','Cheatsheets','notebook-tabs'],['ratings','Power Ratings','gauge'],['projections','Projections','activity'],['injuries','Injuries','heart-pulse'],['data','Data Sources','database'],['saved','Saved Research','bookmark']];
 /* Original inline SVG icons (Lucide-inspired line geometry), no emoji or remote icon kit.
    Built locally and reused across the six-sport navigation and research cards. */
@@ -347,8 +359,9 @@ function toolReady(name){
  if(state.sport==='nfl'){
   if(name==='Model Validation')return Boolean(state.nflArchive?.available);
   if(name==='Touchdown Opportunities')return Boolean(state.nflTD?.games?.length);
+  if(name==='TD Matchups')return Boolean(state.nflTD?.games?.length||state.nflResearch?.players?.length);
   if(name==='Game Projections'||name==='Power Ratings')return Boolean(state.nflSim?.games?.length);
-  if(window.TSO3NflLab?.tools?.includes(menuToolSlug(name)))return Boolean(state.nflResearch?.players?.length);
+  if(nflLabTool(menuToolSlug(name)))return Boolean(state.nflResearch?.players?.length);
   if(name==='Hit Rate Matrix')return rows.some(r=>verifiedGames(r).length>=5);
  }
  if(state.sport==='nba'){
@@ -602,7 +615,17 @@ function toolDetail(){
  if(found[0]==='Alternate Lines')return alternateLinesResearch();
  if(found[0]==='Odds Comparison'||found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
  if(found[0]==='Hit Rate Matrix')return pageTrends();
- if(state.sport==='nfl'&&window.TSO3NflLab?.tools?.includes(state.tool))return nflResearch(state.tool);
+ if(state.sport==='nfl'&&nflLabTool(state.tool)){
+  const mapped=nflLabTool(state.tool);
+  const original=Boolean(NFL_CHEATSHEET_LAB[state.tool]);
+  const scope=state.tool==='td-matchups'
+   ?'<p class="nfl-model-note">Source-backed player TD estimates, 2026 positional defensive allowances, prior-season red-zone baselines and current odds where independently verified. Individual CB assignments, receiver alignment and 2026 inside-20 play tracking are NOT connected; missing figures remain blank.</p>'
+   :state.tool==='redzone-matchups'
+    ?'<p class="nfl-model-note">Red-zone usage is a published 2025-model baseline with observed 2026 opportunity context, NOT independently tracked 2026 inside-20 touches.</p>'
+    :state.tool==='team-defensive-stats'
+     ?'<p class="nfl-model-note">Observed 2026 defense-versus-position production. These are group-level allowances, not player-to-defender assignments or proprietary grades.</p>':'';
+  return (original?'<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section(found[0],found[1])+scope:'')+nflResearch(mapped);
+ }
  if(state.sport==='nba'&&['Player Form','Matchup vs Position'].includes(found[0])){
   const lab=window.TSO3NbaLab;
   const ctx={sport:state.sport,tool:state.tool,games:state.live?.games||[],props:state.props,models:state.nbaModels,research:state.nbaResearch,oddsSnapshot:state.nbaOddsSnapshot,error:state.nbaPending?'Retrieving verified player data…':state.nbaError};
@@ -820,7 +843,7 @@ function nbaDepthResearch(tool){
 function render(){
  state.displayedRows.clear();
  renderNav();renderMetrics();renderFilters();
- const nflFocused=state.sport==='nfl'&&((state.page==='cheatsheets'&&(state.tool==='model-validation'||window.TSO3NflLab?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
+ const nflFocused=state.sport==='nfl'&&((state.page==='cheatsheets'&&(state.tool==='model-validation'||nflLabTool(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
  const focusLab=nflFocused||state.sport==='nba'&&((state.page==='cheatsheets'&&(['player-form','matchup-vs-position'].includes(state.tool)||window.TSO3NbaDepth?.tools?.includes(state.tool)))||['props','trends','ratings','projections','injuries'].includes(state.page));
  // A research-first layout across all six leagues: large artwork belongs to
  // the overview only. Recompute filter visibility from route every time;
