@@ -4,7 +4,7 @@
  * No credentials or signup proxy. */
 const RAW='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-3.0/tso3/';
 const UPSTREAM='https://tso2-preview.jthomas0786-tso.workers.dev';
-const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8','/nba-lab.js':'application/javascript; charset=utf-8','/nba-depth.js':'application/javascript; charset=utf-8','/live-boxscore.js':'application/javascript; charset=utf-8','/nfl-lab.js':'application/javascript; charset=utf-8','/nfl-props.js':'application/javascript; charset=utf-8','/nfl-validation.js':'application/javascript; charset=utf-8','/player-dashboard.js':'application/javascript; charset=utf-8' ,'/manifest.webmanifest':'application/manifest+json; charset=utf-8','/assets/tso-mark.svg':'image/svg+xml; charset=utf-8','/assets/tso-app-icon.svg':'image/svg+xml; charset=utf-8','/assets/tso-research-hero.svg':'image/svg+xml; charset=utf-8'};
+const TYPES={'/':'text/html; charset=utf-8','/index.html':'text/html; charset=utf-8','/app.js':'application/javascript; charset=utf-8','/styles.css':'text/css; charset=utf-8','/nba-lab.js':'application/javascript; charset=utf-8','/nba-depth.js':'application/javascript; charset=utf-8','/live-boxscore.js':'application/javascript; charset=utf-8','/nfl-atd-shadow.js':'application/javascript; charset=utf-8','/nfl-lab.js':'application/javascript; charset=utf-8','/nfl-props.js':'application/javascript; charset=utf-8','/nfl-validation.js':'application/javascript; charset=utf-8','/player-dashboard.js':'application/javascript; charset=utf-8' ,'/manifest.webmanifest':'application/manifest+json; charset=utf-8','/assets/tso-mark.svg':'image/svg+xml; charset=utf-8','/assets/tso-app-icon.svg':'image/svg+xml; charset=utf-8','/assets/tso-research-hero.svg':'image/svg+xml; charset=utf-8'};
 const headers={'access-control-allow-origin':'*','x-tso-version':'3.0-preview','x-robots-tag':'noindex, nofollow'};
 function decodeVenueName(name){
  return String(name||'').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"')
@@ -2140,7 +2140,7 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   }catch(e){return Response.json({available:false,error:'TSO source unavailable'},{status:503,headers})}
  }
  const filepath=u.pathname==='/'?'index.html':u.pathname.replace(/^\//,'');
- if(!/^(index\.html|app\.js|nba-lab\.js|nba-depth\.js|live-boxscore\.js|nfl-lab\.js|nfl-props\.js|nfl-validation\.js|player-dashboard\.js|styles\.css|manifest\.webmanifest|assets\/tso-mark\.svg|assets\/tso-app-icon\.svg|assets\/tso-research-hero\.svg)$/.test(filepath))return new Response('Not found',{status:404,headers});
+ if(!/^(index\.html|app\.js|nba-lab\.js|nba-depth\.js|live-boxscore\.js|nfl-lab\.js|nfl-atd-shadow\.js|nfl-props\.js|nfl-validation\.js|player-dashboard\.js|styles\.css|manifest\.webmanifest|assets\/tso-mark\.svg|assets\/tso-app-icon\.svg|assets\/tso-research-hero\.svg)$/.test(filepath))return new Response('Not found',{status:404,headers});
  // Immutable deployment bundle takes precedence; raw branch source is fallback for local development.
  const bundled=typeof TSO3_BUNDLED_ASSETS!=='undefined'?TSO3_BUNDLED_ASSETS[filepath]:undefined;
  if(typeof bundled==='string')return new Response(req.method==='HEAD'?null:bundled,{status:200,headers:{...headers,'content-type':TYPES[u.pathname]||TYPES['/'+filepath],'cache-control':'no-store','x-tso-build':'bundled-branch-assets'}});
