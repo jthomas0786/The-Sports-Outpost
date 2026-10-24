@@ -157,3 +157,24 @@ NHL research is built from an approximately **17.7 MB** published source. The is
 3. Proprietary-reference functional equivalents still missing independent advanced verified sources: MLB Statcast/pitch arsenals and park/weather, NFL cornerback/coverage and target-share analyses, NBA on/off and possession-based analytics, WNBA and college-football defensive-role research, real historical sportsbook line-movement snapshots, official active starters, and complete injury availability.
 4. Final mobile/tablet real-browser visual QA, PWA install tests, production user auth/payments preservation, source-budget/reliability and rollback verification. Do **not** overwrite production merely because all six sample player histories connect.
 
+
+## Real six-league ESPN player connection & multi-season dashboard — October 24, 2026
+
+All six athlete-history data connections returned populated **official ESPN** player observations via the isolated `tso3-preview` Worker and the official `site.api.espn.com/apis/common/v3` endpoint. These are point-in-time sample checks, **not** full roster/market acceptance:
+
+| League | ESPN athlete example | Selected season | Actual recorded game logs | ESPN season stat categories | Official split categories | ESPN gamelog / stats / splits status |
+|---|---|---:|---:|---:|---:|---|
+| NFL | Patrick Mahomes (3139477) | 2026 | 5 | 5 | 16 | HTTP 200 / 200 / 200 |
+| NBA | Jayson Tatum (4065648) | 2027 (2026–27) | 4 | 3 | 6 | HTTP 200 / 200 / 200 |
+| MLB | Bryan Baker (40884) | 2026 | 42 | 4 | 12 | HTTP 200 / 200 / 200 |
+| NHL | Connor McDavid (3895074) | 2027 (2026–27) | 10 | 1 | 7 | HTTP 200 / 200 / 200 |
+| WNBA | Caitlin Clark (4433403) | 2026 | 42 | 3 | 3 | HTTP 200 / 200 / 200 |
+| CFB | Arch Manning (4870906) | 2026 | 6 | 4 | 1 | HTTP 200 / 200 / 200 |
+
+The player dashboard now supports previous seasons (three seasons shown, explicitly year-labelled), isolated per-sport/athlete/season source-cache keys, historical-window disclaimers and season-sensitive category filters. NBA Jayson Tatum 2026 (2025–26) was directly verified with **22 games / 3 stat categories / 6 splits**, all three HTTP 200. This is especially useful when the current season has a small sample. Multi-season behavior passed 5/5 dedicated deterministic regression checks. `tso3-preview` Cloudflare deployment: `ff5b6c6f-2d97-41e0-a053-abcbbe62ea8b` (100% preview traffic), 14 assets preserved, correct independent NFL D1 binding and `*/30 * * * *` cron intact.
+
+Combined-stat enrichment also deployed after regression: ESPN's original paired made-attempt values are preserved, literal made and attempted fields extracted only with validated source naming and both numbers present. TSO NBA PRA, P+R, P+A and MLB H+R+RBI are calculated only when **all component categories are separately recorded for the same ESPN completed game**; missing components never become zero. These are observed record calculations and cannot substitute for the proprietary independent model probability. Seven dedicated composite regression tests passed.
+
+**Current sportsbook data (not parity-complete):** An October 24 06:32:56Z published WNBA snapshot returned **40 verified current Over/Yes selections** in TSO 3.0 after examining 161 original source quotes; 120 were rejected by quote freshness and 1 invalid price. This proves the sportsbook verification can populate a real game without weakening its freshness checks. NHL/MLB/CFB exact current quote coverage and all-slate coverage still need repeated live checks; Cloudflare Browser Rendering can return HTTP 429 and is **not evidence** of missing sportsbook quotes. Official season data, rosters, verified book prices, and model forecasts each remain separately identified.
+
+**Production status remains BLOCKED:** parity requires the advanced matchup/player-role/weather/coverage/Statcast data pipelines, all-slate verified sportsbook depth and confirmed browser/mobile end-to-end releases across six leagues, not merely six sample athlete connections. Do not modify `main` or production until release acceptance is actually verified.
