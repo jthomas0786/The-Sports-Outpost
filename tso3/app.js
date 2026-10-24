@@ -647,6 +647,12 @@ function toolDetail(){
  if(found[0]==='Alternate Lines')return alternateLinesResearch();
  if(found[0]==='Odds Comparison'||found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
  if(found[0]==='Hit Rate Matrix')return pageTrends();
+ if(state.sport==='nfl'&&state.tool==='role-matchups'){
+  const board=window.TSO3RoleBoard;
+  return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+
+   (board?'<div id="tsoRoleBoard">'+board.render(nflResearchContext())+'</div>':
+    empty('Role research module unavailable','Refresh the preview to load verified matchup research.'));
+ }
  if(state.sport==='nfl'&&nflLabTool(state.tool)){
   const mapped=nflLabTool(state.tool);
   const original=Boolean(NFL_CHEATSHEET_LAB[state.tool]);
@@ -861,11 +867,13 @@ function nflValidationResearch(){
   state.nflValidationPending||!state.nflValidationFetched,state.nflArchive)+'</div>'
   :empty('NFL validation module unavailable','The archived audit module did not load.');
 }
+function nflResearchContext(){return {sport:'nfl',games:state.live?.games||[],
+ td:state.nflTD,research:state.nflResearch,odds:state.nflOdds,sim:state.nflSim,
+ injuries:state.nflInjuries,redzone:state.nflRedZone,weather:state.nflWeather,
+ weatherError:state.nflWeatherError,error:state.nflError};}
 function nflResearch(tool='touchdown-opportunities'){
  const lab=window.TSO3NflLab;
- const context={sport:'nfl',games:state.live?.games||[],td:state.nflTD,research:state.nflResearch,
-  odds:state.nflOdds,sim:state.nflSim,injuries:state.nflInjuries,redzone:state.nflRedZone,weather:state.nflWeather,weatherError:state.nflWeatherError,error:state.nflError};
- return lab?'<div id="nflLabSlot">'+lab.render(context,tool)+'</div>'
+ return lab?'<div id="nflLabSlot">'+lab.render(nflResearchContext(),tool)+'</div>'
   :empty('NFL research unavailable','The dedicated NFL research module did not load.');
 }
 function nbaPlayerResearch(tool='player-form'){
