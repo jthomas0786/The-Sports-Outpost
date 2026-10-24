@@ -1432,7 +1432,9 @@ async function verifiedAthleteDepth(sport,id,season){
  if(!Object.hasOwn(ATHLETE_PATHS,sport)||!/^\d{3,12}$/.test(id)
   ||!Number.isInteger(season)||season<2024||season>2027)
   throw Error('Unsupported athlete, league or season');
- const api='https://site.web.api.espn.com/apis/common/v3/sports/'+ATHLETE_PATHS[sport]+'/athletes/'+id;
+ // Cloudflare Worker egress receives 403 on site.web.api.espn.com. The
+ // same official ESPN common/v3 game-log API is reachable on site.api.espn.com.
+ const api='https://site.api.espn.com/apis/common/v3/sports/'+ATHLETE_PATHS[sport]+'/athletes/'+id;
  const providerChecks={};
  const load=async(type)=>{
   try{
