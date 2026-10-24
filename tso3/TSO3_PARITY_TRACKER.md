@@ -178,3 +178,20 @@ Combined-stat enrichment also deployed after regression: ESPN's original paired 
 **Current sportsbook data (not parity-complete):** An October 24 06:32:56Z published WNBA snapshot returned **40 verified current Over/Yes selections** in TSO 3.0 after examining 161 original source quotes; 120 were rejected by quote freshness and 1 invalid price. This proves the sportsbook verification can populate a real game without weakening its freshness checks. NHL/MLB/CFB exact current quote coverage and all-slate coverage still need repeated live checks; Cloudflare Browser Rendering can return HTTP 429 and is **not evidence** of missing sportsbook quotes. Official season data, rosters, verified book prices, and model forecasts each remain separately identified.
 
 **Production status remains BLOCKED:** parity requires the advanced matchup/player-role/weather/coverage/Statcast data pipelines, all-slate verified sportsbook depth and confirmed browser/mobile end-to-end releases across six leagues, not merely six sample athlete connections. Do not modify `main` or production until release acceptance is actually verified.
+
+## NFL cheatsheet data wiring repair — October 24, 2026 (development branch only)
+
+**Observed UI issue:** NFL > Cheatsheets > TD Matchups displayed a generic "Research Source Status / Data connection still needed" placeholder even though an independent NFL Touchdown Opportunities research table already existed. The category catalog did not map its public label to the underlying module.
+
+**Changes committed on `tso-3.0`:**
+
+- Route `#/nfl/cheatsheets/td-matchups` to TSO's existing `touchdown-opportunities` view. The source-backed page supports scheduled matchup/position filters, TSO regressed ATD model when fresh, separately labeled 50K simulated ATD/2+ TD, 2025 red-zone baseline, 2026 observed NFL usage and currently verified sportsbook ATD quotes.
+- Route existing `redzone-matchups` to TSO red-zone usage and `team-defensive-stats` to the team/position defensive allowance view. Explicitly disclose their limitations rather than presenting them as new feeds.
+- Add 2026 opponent **position-group TD allowed per game** and underlying **defensive game sample count** to touchdown research. The data is drawn from the same-season opponent-position index used by Defense vs Position; require at least 3 observed games; reject conflicting group data; never infer individual man/zone, CB alignment, or inside-20 2026 data. Null and unverified group values remain blank.
+- Added `tso3/tests/nfl-td-cheatsheet.test.mjs` covering route mapping, research availability guards, verified defensive group/sample gate and explicit missing-data copy.
+
+**Checks performed:** the newly committed `app.js` and `nfl-lab.js` parsed successfully in a JavaScript compiler; three scoped regression assertions passed in isolated execution. The GitHub Actions workflow is configured to run `node --check` and `node --test tso3/tests/*.test.mjs` on the branch, but **its remote result has not been verified**. All evidence is branch-level, not full-browser integration.
+
+**Deployment:** GitHub commits are **not** Cloudflare deployments. Cloudflare's currently observed active isolated preview deployment was Worker version `ff5b6c6f-2d97-41e0-a053-abcbbe62ea8b` (uploaded earlier October 24 UTC). Its bundle has not been confirmed to contain this route fix. The updated screens **must not** be represented as live preview until the complete 14-asset bundle is safely redeployed and verified, retaining the separate D1 binding and cron. Main/production was not changed.
+
+**Outstanding source requirement:** true receiver alignment/CB-specific coverage, current-season inside-20 play events, fresh all-slate ATD quotes, reconciled injury and lineup status, and model calibration remain open. No claims of PropFinder feature-equivalence or 100% production readiness.
