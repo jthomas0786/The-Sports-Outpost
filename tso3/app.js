@@ -423,10 +423,11 @@ function openOfficialRosterPlayer(player){
  el('drawerBody').innerHTML='<div class="drawer-contents"><span class="eyebrow">ESPN · OFFICIAL ROSTER RESEARCH</span>'
   +'<h2>'+text(player.name)+'</h2><p class="subtitle">'+text(player.team||'')+' · '+text(player.position||'Player')+'</p>'
   +'<p class="page-note">This player profile uses actual game logs and season totals. There is no implied sportsbook price, projected hit probability, or confirmed starting role.</p>'
-  +'<h3>Recorded player statistics</h3><div id="athleteDepthSlot" class="tso-depth"><p class="page-note">Retrieving official ESPN player history…</p></div></div>';
+  +'<h3>TSO NHL game and opponent research</h3>'+(state.sport==='nhl'?'<div id="nhlResearchSlot" class="tso-depth">Loading verified NHL matchups…</div>':'')+'<h3>Recorded player statistics</h3><div id="athleteDepthSlot" class="tso-depth"><p class="page-note">Retrieving official ESPN player history…</p></div></div>';
  el('drawer').hidden=false;el('scrim').hidden=false;
  el('closeDrawer').focus();
  void hydrateAthleteDepth(row);
+ if(state.sport==='nhl')void hydrateNhlPlayerResearch(row);
 }
 function pageGames(){
  if(state.game){
@@ -893,6 +894,7 @@ async function hydrateAthleteDepth(row){
   container.innerHTML='<p class="page-note">ESPN roster match verified. Loading recorded season stats…</p>';
  }
  row.verifiedAthleteId=id;
+ if(sport==='nhl')void hydrateNhlPlayerResearch(row);
  const key=sport+':'+id+':'+season;
  let doc=athleteDepthCache.get(key);
  if(!doc){
@@ -914,6 +916,65 @@ async function hydrateAthleteDepth(row){
   +'<small>'+text(identity.teamAbbr||'')+' · '+text(identity.position||'position pending')
   +' · roster status '+text(identity.rosterStatus||'unavailable')+'</small></div>':'')
   +renderAthleteDepth(doc,row);
+}
+/* NHL evidence: TSO's current ESPN game-summary research dataset (30 games)
+   and opponent team/position defense, independently from betting odds. */
+const nhlDetailedCache=new Map();
+function renderNhlPlayerResearch(data,metric=''){
+ if(!data?.available)return '<div class="page-note">'+text(data?.reason||'TSO NHL verified player history is unavailable')+'</div>';
+ const games=data.games||[],isGoalie=data.position==='G';
+ const choices=[
+  ['sog','Shots on Goal'],['goals','Goals'],['assists','Assists'],
+  ['points','Points'],['blocks','Blocked Shots'],['ppGoals','Power-Play Goals'],
+  ['saves','Goalie Saves'],['firstGoal','First Goal']
+ ].filter(([key])=>games.some(g=>key==='firstGoal'?typeof g.firstGoal==='boolean':num(g.stats?.[key])!==null));
+ const selected=choices.some(x=>x[0]===metric)?metric:
+  (isGoalie&&choices.some(x=>x[0]==='saves')?'saves':choices[0]?.[0]);
+ const values=games.map(g=>({...g,value:selected==='firstGoal'?Number(g.firstGoal):num(g.stats?.[selected])}))
+  .filter(g=>g.value!==null&&Number.isFinite(g.value));
+ const avg=n=>{const sample=values.slice(0,n);return {games:sample.length,mean:sample.length?
+  sample.reduce((sum,g)=>sum+g.value,0)/sample.length:null}};
+ const summary=[5,10,20].map(n=>({window:n,...avg(n)}));
+ const d=data.defense||null,p=d?.position||null,fmt=n=>num(n)===null?'—':Number(n).toFixed(2);
+ const cards='<div class="data-preview">'+summary.map(x=>'<div><span>RECORDED L'+x.window+' '+text(choices.find(t=>t[0]===selected)?.[1]||'STAT')+'</span><b>'+fmt(x.mean)+'</b><small>'+x.games+' actual games</small></div>').join('')+'</div>';
+ const table=values.length?'<div class="table-scroller"><table class="data-table"><thead><tr><th>GAME DATE</th><th>OPPONENT</th><th>SEASON</th><th>HOME / AWAY</th><th>ACTUAL STAT</th></tr></thead><tbody>'
+  +values.slice(0,30).map(g=>'<tr><td>'+text(g.date?.slice(0,10)||'—')+'</td><td>'+text(g.opponent||'—')+'</td>'
+   +'<td>'+text(g.season||'—')+'</td><td>'+text(g.homeAway||'—')+'</td><td>'+text(g.value)+'</td></tr>').join('')
+  +'</tbody></table></div>':'<p class="page-note">No complete recorded events for the selected statistic.</p>';
+ const versus='<div class="data-preview">'
+  +'<div><span>OPPONENT GOALS ALLOWED/GAME</span><b>'+fmt(d?.goalsAllowedPerGame)+'</b><small>'+text(d?.games??0)+' total games</small></div>'
+  +'<div><span>RECENT 10 GOALS ALLOWED/GAME</span><b>'+fmt(d?.recent10GoalsAllowedPerGame)+'</b></div>'
+  +'<div><span>OPPONENT SHOTS ALLOWED/GAME</span><b>'+fmt(d?.shotsAllowedPerGame)+'</b></div>'
+  +'<div><span>'+text(data.position||'PLAYER')+' GOAL ALLOWANCE RANK</span><b>'+text(p?.goalAllowedRank??'—')+'</b>'
+  +'<small>'+text(p?.rankedTeams||'—')+' ranked teams</small></div>'
+  +'<div><span>'+text(data.position||'PLAYER')+' GOALS ALLOWED/GAME</span><b>'+fmt(p?.goalsPerGame)+'</b></div>'
+  +'<div><span>'+text(data.position||'PLAYER')+' SHOTS ALLOWED/GAME</span><b>'+fmt(p?.shotsPerGame)+'</b></div></div>';
+ return '<div class="tso-athlete-source"><strong>TSO NHL verified research · '+text(data.team||'')+' vs '+text(data.opponent||'')+'</strong>'
+  +'<small>ESPN-derived update '+text(data.generatedAt?clock(data.generatedAt):'unknown')+'</small></div>'
+  +'<p class="nba-footnote">Current-season games and prior-season history retain their original season identifiers. No invented results or inferred starters.</p>'
+  +(choices.length?'<label class="tso-depth-select">Recorded NHL statistic<select id="nhlHistoryMetric">'+choices.map(v=>'<option value="'+text(v[0])+'" '+(v[0]===selected?'selected':'')+'>'+text(v[1])+'</option>').join('')+'</select></label>'+cards+table:
+   '<p class="page-note">ESPN has not returned full game logs for this exact player.</p>')
+  +'<h4>Opponent team and position defense</h4>'+versus
+  +'<p class="nba-footnote">Defense sample: '+text(d?.games??0)+' verified games ('+text(d?.currentSeasonGames??0)+' current season). Observed opponent production, not a player model probability. Source: '+text(d?.source||'TSO ESPN summaries')+'.</p>';
+}
+async function hydrateNhlPlayerResearch(row){
+ if(state.sport!=='nhl'||!el('nhlResearchSlot'))return;
+ const gameId=String(row.verifiedGameId||''),athleteId=String(row.verifiedAthleteId||row.playerId||'');
+ if(!/^\d{6,14}$/.test(gameId)||!/^\d{3,12}$/.test(athleteId)){
+  el('nhlResearchSlot').innerHTML='<p class="page-note">Official NHL matchup/player IDs have not both been verified.</p>';return;
+ }
+ const key=gameId+':'+athleteId,saved=nhlDetailedCache.get(key);
+ let doc=saved?.doc;
+ if(!saved||Date.now()-saved.at>10*60000){
+  try{
+   const res=await fetch('/api/nhl-player-research?'+new URLSearchParams({gameId,playerId:athleteId}),{cache:'default'});
+   doc=await res.json();
+   if(!res.ok)doc={available:false,reason:doc?.reason||'Published NHL research is unavailable'};
+  }catch(_){doc={available:false,reason:'Recorded NHL player research could not be retrieved'}}
+  nhlDetailedCache.set(key,{at:Date.now(),doc});
+ }
+ if(state.selected!==row||el('drawer').hidden||!el('nhlResearchSlot'))return;
+ el('nhlResearchSlot').innerHTML=renderNhlPlayerResearch(doc);
 }
 function openDrawer(r){
  if(!r)return;
@@ -944,7 +1005,7 @@ function openDrawer(r){
    +' · starting goalie '+(q.goalieVerified?'verified':'not independently verified')
    +'. These are TSO-sourced matchup observations, not proprietary third-party rankings.</p>';
  }
- html+='<h3>Official player statistics & game log</h3><div id="athleteDepthSlot" class="tso-depth"><p class="page-note">Checking current ESPN season game history…</p></div>';
+ html+='<h3>TSO NHL matchup research</h3>'+(state.sport==='nhl'?'<div id="nhlResearchSlot" class="tso-depth">Loading TSO official NHL history…</div>':'')+'<h3>Official player statistics & game log</h3><div id="athleteDepthSlot" class="tso-depth"><p class="page-note">Checking current ESPN season game history…</p></div>';
  html+='<h3>Verified sportsbook lines</h3>'+quoteComparisonMarkup(r)
   +'<h3>Original source & model details</h3><div class="data-preview">'
   +'<div><span>PRICE OBSERVED</span><b>'+text(r.snapshotTime?clock(r.snapshotTime):'Not verified')+'</b></div>'
@@ -955,6 +1016,7 @@ function openDrawer(r){
   +'<div class="drawer-actions"><button class="btn" id="drawerSave" type="button">'+(state.saved.has(rowKey(r))?'Remove from saved':'Save selection')+'</button><button class="btn subtle" id="drawerClose2">Close</button></div></div>';
  el('drawerBody').innerHTML=html;el('drawer').hidden=false;el('scrim').hidden=false;el('closeDrawer').focus();
  void hydrateAthleteDepth(r);
+ if(state.sport==='nhl')void hydrateNhlPlayerResearch(r);
 }
 function closeDrawer(){el('drawer').hidden=true;el('scrim').hidden=true;state.selected=null}
 function save(r){
@@ -1187,6 +1249,12 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='nhlHistoryMetric'&&state.selected){
+  const key=String(state.selected.verifiedGameId||'')+':'+String(state.selected.verifiedAthleteId||state.selected.playerId||'');
+  const doc=nhlDetailedCache.get(key)?.doc,slot=el('nhlResearchSlot');
+  if(doc&&slot)slot.innerHTML=renderNhlPlayerResearch(doc,e.target.value);
+  return;
+ }
  if(e.target.id==='athleteDepthMetric'&&state.selected){
   const key=state.sport+':'+String(state.selected.verifiedAthleteId||state.selected.playerId||'')+':'+ATHLETE_SEASON[state.sport];
   const doc=athleteDepthCache.get(key),root=el('athleteDepthSlot');
