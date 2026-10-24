@@ -654,3 +654,77 @@ html,body,button,input,select,textarea{
 
 /* Base ESPN player history is connected; specialized projections/grades remain pending. */
 .tool-tag.partial{color:#c2d9e5;border-color:#48677b;background:#102535}
+
+/* Unified TSO dense research-sheet design: real-source team/role comparisons.
+   TSO typography and spacing; an original implementation of a familiar
+   two-sided match-up research layout, not a copy of PropFinder assets. */
+.ts-role-board{--role-surface:#171f2a;--role-panel:#202a36;--role-line:rgba(176,198,216,.15);--role-text:#edf4f7;--role-muted:#9fb4c4;--role-pink:#d88cce;color:var(--role-text);width:100%;max-width:none;padding-bottom:22px;font-family:inherit}
+.ts-role-top{background:linear-gradient(110deg,#1c2531,#19212b);border:1px solid var(--role-line);border-radius:12px;padding:18px 20px;display:flex;justify-content:space-between;gap:22px;align-items:flex-start}
+.ts-role-top>div:first-child{max-width:660px;flex:1 1 370px}
+.ts-role-top span{color:#ef9a70;font-size:10px;font-weight:850;letter-spacing:.09em}
+.ts-role-top h2{font-size:27px;line-height:1.1;color:var(--role-text);margin:5px 0 9px}
+.ts-role-top h2 small{font-size:10px;font-weight:700;letter-spacing:.03em;padding:4px 7px;vertical-align:middle;border:1px solid var(--role-line);border-radius:4px;color:var(--role-muted)}
+.ts-role-top p{color:#d4e2eb;font-size:12px;line-height:1.6;margin:0;max-width:790px}
+.ts-role-filter{display:flex;flex-wrap:wrap;gap:9px;align-items:end;justify-content:flex-end;flex:0 1 750px}
+.ts-role-filter label,.ts-role-smallcontrols label{display:flex;flex-direction:column;gap:5px;color:var(--role-muted);font-size:9px;font-weight:850;letter-spacing:.075em;min-width:138px}
+.ts-role-filter label:first-child{flex:1 1 250px;min-width:220px}
+.ts-role-filter select,.ts-role-filter input,.ts-role-smallcontrols select{font:inherit;font-size:12px;font-weight:650;letter-spacing:0;color:var(--role-text);background:#293345;border:1px solid #536275;border-radius:6px;padding:9px 27px 9px 10px;max-width:100%;min-height:36px;width:100%}
+.ts-role-filter input::placeholder{color:#879ba9}
+.ts-role-source{font-size:10px;line-height:1.5;margin:9px 1px;padding:8px 11px;border-radius:5px;border:1px solid #1b625e;background:#102e30;color:#a8ddd6;font-weight:750}
+.ts-role-tools{display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;margin:14px 0 8px}
+.ts-role-tabs{display:inline-flex;align-items:center;background:#212a36;border:1px solid #48525f;padding:3px;border-radius:7px}
+.ts-role-tabs button{font-size:11px;font-weight:850;letter-spacing:.03em;color:#d0dbe4;padding:9px 17px;border-radius:5px;border:none;background:transparent;cursor:pointer}
+.ts-role-tabs button.active{background:#be67b8;color:#fff;box-shadow:0 0 0 1px #e4a4dd inset}
+.ts-role-tabs button:hover,.ts-role-smallcontrols button:hover{filter:brightness(1.13)}
+.ts-role-smallcontrols{display:flex;align-items:end;gap:9px}
+.ts-role-smallcontrols label{min-width:156px}
+.ts-role-smallcontrols button{background:#253242;border:1px solid #516275;color:var(--role-text);border-radius:6px;font-size:11px;font-weight:750;padding:10px 13px;cursor:pointer}
+.ts-role-smallcontrols button[aria-pressed=true]{border-color:var(--role-pink);color:#f7d6ef}
+.ts-role-legend{display:flex;justify-content:flex-end;flex-wrap:wrap;align-items:center;gap:13px;font-size:9px;color:#c5d2db;line-height:1.6;margin:6px 1px 12px}
+.ts-role-legend span{display:flex;align-items:center;gap:5px}
+.ts-role-legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.ts-role-legend i.favorable{background:#2c8d68}.ts-role-legend i.neutral{background:#a88235}.ts-role-legend i.difficult{background:#a95b69}
+.ts-role-comparison{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;align-items:start}
+.ts-role-side{min-width:0;background:var(--role-surface);border:1px solid var(--role-line);border-radius:10px;overflow:hidden}
+.ts-role-side-head{display:flex;align-items:center;gap:8px;padding:11px 13px;background:#273443;border-bottom:1px solid var(--role-line);font-size:13px;line-height:1.35}
+.ts-role-side-head strong:first-child{color:#fff}.ts-role-side-head strong:last-child{color:#ffca94}
+.ts-role-side-head span{font-size:10px;color:var(--role-muted)}
+.ts-role-band{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;padding:8px 12px 6px;background:#222d3a;border-bottom:1px solid var(--role-line)}
+.ts-role-band b{font-size:11px;font-weight:820;color:#e9f2fa}
+.ts-role-band small{color:#aabbc8;font-size:9px;font-weight:600}
+.ts-role-scroll{overflow-x:auto;scrollbar-width:thin}
+.ts-role-table{border-collapse:collapse;width:100%;min-width:555px;font-size:10.5px;line-height:1.12;table-layout:auto}
+.ts-role-table th{background:#1e2834;text-align:right;color:#bad0e0;font-size:9px;font-weight:850;white-space:nowrap;letter-spacing:.015em;padding:8px 5px;border-bottom:1px solid var(--role-line)}
+.ts-role-table th:first-child{text-align:left;width:30%;padding-left:10px}
+.ts-role-table th:nth-child(2){width:33px;text-align:center}
+.ts-role-table th button{font:inherit;color:inherit;border:0;background:transparent;cursor:pointer;text-transform:uppercase;padding:0}
+.ts-role-table th button:hover{text-decoration:underline;color:#f7bcea}
+.ts-role-table td{padding:3px 4px;border-bottom:1px solid rgba(180,193,209,.11);background:#17212d;vertical-align:middle}
+.ts-role-table tr:nth-child(even) td{background:#1d2935}
+.ts-role-table tbody tr:hover td{background:#2c3946}
+.ts-role-player{max-width:215px;text-align:left!important;padding-left:10px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:750}
+.ts-role-player button{font:inherit;display:inline-block;padding:0;text-align:left;background:none;border:0;color:#f2f7fb;cursor:pointer;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts-role-player button:hover{text-decoration:underline}
+.ts-role-player small{display:block;color:#ffc286;font-size:9px;margin:2px 0}
+.ts-role-position{color:#e8c4fa;background:#49345d;border:1px solid #78538d;border-radius:4px;font-size:9px;padding:3px 4px;margin-right:5px;display:inline-block;line-height:1}
+.ts-role-numeric{text-align:center!important;color:#bcd0df;font-weight:650}
+.ts-role-number{text-align:right}
+.ts-role-heat{display:flex;justify-content:flex-end;align-items:center;gap:4px;border-radius:3px;min-height:23px;padding:3px 4px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.ts-role-heat strong{font-size:10.5px;font-weight:850;color:#f1f5f8}
+.ts-role-heat small{font-size:8px;color:#c0ccda;font-weight:650}
+.ts-role-heat.favorable{background:rgba(51,143,112,.25)}.ts-role-heat.neutral{background:rgba(166,125,42,.28)}.ts-role-heat.difficult{background:rgba(165,79,98,.29)}.ts-role-heat.unknown{background:rgba(110,136,152,.06)}
+.ts-role-fine{font-size:11px;line-height:1.7;color:#aebfc9;padding:9px 2px 0;margin:8px 0}
+.ts-role-fine b{color:#d6e5ee}
+.ts-role-drill{border:1px solid #416476;border-radius:9px;background:#192836;margin-top:17px;padding:15px}
+.ts-role-drill-head{display:flex;align-items:center;gap:12px}
+.ts-role-drill-head>div{flex:1}.ts-role-drill-head h3{color:#f1f5f8;font-size:18px;margin:0 0 2px}
+.ts-role-drill-head p{font-size:10px;color:#bbccda;margin:0}
+.ts-role-drill-head a{color:#ddb0ef;font-size:12px;text-decoration:underline}
+.ts-role-drill-head button{background:#26384a;border:1px solid #627588;border-radius:5px;color:#f4f8f8;font-size:19px;width:34px;height:32px;cursor:pointer}
+.ts-role-chart{display:flex;align-items:flex-end;gap:7px;justify-content:flex-start;overflow-x:auto;border-bottom:1px solid #4e6070;margin-top:10px;padding:8px 6px 2px;min-height:125px}
+.ts-role-bar-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:0 0 39px;height:114px;gap:3px}
+.ts-role-bar-wrap span{font-size:9px;color:#d6e8f4;font-variant-numeric:tabular-nums}
+.ts-role-bar-wrap i{display:block;width:20px;background:linear-gradient(180deg,#e49ad6,#9b65b3);min-height:2px;border-radius:3px 3px 0 0}
+.ts-role-bar-wrap small{font-size:9px;color:#acc3d2}
+@media(max-width:1250px){.ts-role-top{flex-wrap:wrap}.ts-role-filter{justify-content:flex-start;flex:1 1 100%}.ts-role-comparison{grid-template-columns:1fr}}
+@media(max-width:680px){.ts-role-top{padding:13px}.ts-role-top h2{font-size:23px}.ts-role-filter{gap:7px}.ts-role-filter label,.ts-role-filter label:first-child{min-width:180px;flex:1}.ts-role-side-head{flex-wrap:wrap}.ts-role-tools{flex-direction:column;align-items:flex-start}.ts-role-tabs button{padding:9px 12px}.ts-role-legend{justify-content:flex-start}.ts-role-comparison{grid-template-columns:minmax(0,1fr)}}
