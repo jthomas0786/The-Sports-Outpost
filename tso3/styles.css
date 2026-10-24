@@ -633,7 +633,7 @@ html,body,button,input,select,textarea{
 .tso-pd-season-grid strong{font-size:15px;color:#e7ebef}
 .tso-pd-pending,.tso-pd-loading{background:#122638;border:1px dashed #416176;border-radius:10px;padding:22px;color:#b9d0db;line-height:1.6;font-size:13px}
 .tso-pd-loading h2{font-size:23px;color:#eff6f5;margin:7px 0}
-.tso-pd-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:18px 0}
+.tso-observed-players{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;max-height:330px;overflow:auto;margin:10px 0 16px}.tso-observed-players button{font-size:12px;justify-content:flex-start;text-align:left;white-space:normal;min-height:36px}.tso-observed-select{display:flex;flex-direction:column;gap:6px;margin:14px 0;color:var(--muted);font-size:12px;font-weight:700;max-width:430px}.tso-observed-select select{color:var(--text);background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:9px;min-height:42px}.tso-verified-research h4{color:var(--text);margin:18px 0 8px}.tso-verified-research .table-scroller{margin-top:8px}.tso-pd-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin:18px 0}
 .tso-pd-directory button{display:flex;flex-direction:column;gap:7px;text-align:left;background:#132638;border:1px solid #315068;border-radius:8px;cursor:pointer;padding:14px;color:#f1f5f6}
 .tso-pd-directory button:hover,.tso-pd-directory button:focus-visible{border-color:#eb9a65}
 .tso-pd-directory small{font-size:10px;color:#adc4ce}
