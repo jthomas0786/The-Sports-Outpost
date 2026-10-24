@@ -1232,6 +1232,32 @@ async function tsoNhlResearchData(){
  tsoNhlResearchMemo={at:now,promise};
  try{return await promise}catch(e){tsoNhlResearchMemo=null;throw e}
 }
+async function verifiedNhlDefenseMatrix(){
+ const doc=await tsoNhlResearchData(),defense=doc.teamDefense||{};
+ const teams=Object.entries(defense.teams||{}).map(([abbr,p])=>{
+  const num=v=>v===null||v===undefined?null:Number.isFinite(Number(v))?Number(v):null;
+  const position={};
+  for(const key of ['C','LW','RW','D']){
+   const x=p.position?.[key];
+   if(!x||num(x.games)===null||x.games<1)continue;
+   position[key]={games:num(x.games),goalsPerGame:num(x.goalsPerGame),
+    shotsPerGame:num(x.shotsPerGame),goalAllowedRank:num(x.goalAllowedRank),
+    rankedTeams:num(x.rankedTeams),firstGoalRate:num(x.firstGoalRate)};
+  }
+  return{abbr,games:num(p.games),currentSeasonGames:num(p.currentSeasonGames),
+   goalsAllowedPerGame:num(p.goalsAllowedPerGame),
+   shotsAllowedPerGame:num(p.shotsAllowedPerGame),
+   recent10GoalsAllowedPerGame:num(p.recent10GoalsAllowedPerGame),
+   recent10ShotsAllowedPerGame:num(p.recent10ShotsAllowedPerGame),
+   homeGoalsAllowedPerGame:num(p.homeDefense?.goalsAllowedPerGame),
+   awayGoalsAllowedPerGame:num(p.awayDefense?.goalsAllowedPerGame),position};
+ }).filter(t=>t.games>=1);
+ return{available:teams.length>0,generatedAt:doc.generatedAt,
+  currentSeason:doc.currentSeason,playerCount:Object.keys(doc.players||{}).length,
+  source:'TSO NHL v4 · official ESPN completed game summaries and athlete event logs',
+  samplePolicy:'Last 30 regular-season games; recent-ten windows independently labeled',
+  teams,note:'Observed defensive allowances and sample ranks, not a sportsbook prop projection or guarantee'};
+}
 async function verifiedNhlMatchupHistory(gameId,athleteId){
  const roster=await officialGameRosters('nhl',gameId);
  if(!roster.available)return {available:false,reason:roster.reason||'Official NHL matchup missing'};
@@ -1880,6 +1906,12 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
    headers:{...headers,'cache-control':'public, max-age=240','x-tso-source':'ESPN verified athlete statistics'}})}
   catch(_){return Response.json({available:false,error:'ESPN athlete statistics unavailable',
    events:[],seasonStats:[]},{status:503,headers:{...headers,'cache-control':'no-store'}})}
+ }
+ if(u.pathname==='/api/nhl-defense'){
+  try{return Response.json(await verifiedNhlDefenseMatrix(),{
+   headers:{...headers,'cache-control':'public, max-age=300','x-tso-source':'TSO ESPN historical NHL defense matrix'}})}
+  catch(_){return Response.json({available:false,reason:'Current NHL defense history unavailable',teams:[]},
+   {status:503,headers:{...headers,'cache-control':'no-store'}})}
  }
  if(u.pathname==='/api/nhl-player-research'){
   const event=String(u.searchParams.get('gameId')||''),
