@@ -1108,16 +1108,38 @@ async function verifiedNflOdds(){
    if(!p?.name||!p.odds||typeof p.odds!=='object')continue;
    for(const [key,odds] of Object.entries(p.odds)){
     if(!marketSet.has(key))continue;
-    const best=key==='atd'||key==='firstTd'?odds.best:odds.over?.best;
-    if(!best)continue;
-    const price=Number(best.price??best.odds??best.american??best.value);
-    const line=key==='atd'||key==='firstTd'?0.5:Number(odds.line);
-    const book=best.book||best.bookmaker||best.sportsbook;
-    if(!Number.isFinite(price)||price===0||!Number.isFinite(line)||!book)continue;
-    rows.push({sport:'nfl',eventId:String(g.fixtureId||''),verifiedGameId:String(officialGame.id),
-     player:String(p.name),playerId:p.playerId||null,team:nflTeamKey(p.team),market:key,
-     line,side:key==='atd'||key==='firstTd'?'yes':'over',price,book:String(book),snapshotTime:doc.meta.fetchedAt,
-     homeTeam:officialGame.home.name,awayTeam:officialGame.away.name,commenceTime:officialGame.startTime});
+    // Published primary AND alternate Over prices, never infer an alternate
+    // from an unrelated line. Preserve the quote's underlying timestamp when
+    // present; source-file fetchedAt is an upper bound, not freshness proof.
+    const binary=key==='atd'||key==='firstTd';
+    const offers=binary?[{line:0.5,best:odds.best,alternate:false}]
+     :[{line:odds.line,best:odds.over?.best,alternate:false},
+       ...(Array.isArray(odds.alternates)?odds.alternates.map(a=>({
+        line:a.line,best:a.over?.best,alternate:Number(a.line)!==Number(odds.line)})):[])];
+    const distinct=new Set();
+    for(const offer of offers){
+     const best=offer.best;
+     if(!best)continue;
+     const price=Number(best.price??best.odds??best.american??best.value),
+      line=Number(offer.line),book=best.book||best.bookmaker||best.sportsbook;
+     if(!Number.isInteger(price)||price===0||!Number.isFinite(line)||!book)continue;
+     const id=[String(book).toLowerCase(),line].join('|');
+     if(distinct.has(id))continue;distinct.add(id);
+     const ts=Number(best.ts);
+     const original=Number.isFinite(ts)&&ts>1e12?ts:Number.isFinite(ts)&&ts>1e9?ts*1000:null;
+     const ageSeconds=Number(best.ageSeconds);
+     const byAge=Number.isFinite(ageSeconds)&&ageSeconds>=0?date-ageSeconds*1000:null;
+     const observed=Math.min(date,original??date,byAge??date);
+     const measuredAge=(Date.now()-observed)/60000;
+     if(!Number.isFinite(measuredAge)||measuredAge<0||measuredAge>Math.min(240,cap)
+      ||observed>=Date.parse(officialGame.startTime))continue;
+     rows.push({sport:'nfl',eventId:String(g.fixtureId||''),verifiedGameId:String(officialGame.id),
+      player:String(p.name),playerId:p.playerId||null,team:nflTeamKey(p.team),market:key,
+      line,side:binary?'yes':'over',price,book:String(book),snapshotTime:new Date(observed).toISOString(),
+      timestampEvidence:original!==null?'provider-time':byAge!==null?'provider-age':'published-snapshot',
+      alternateLine:Boolean(offer.alternate),
+      homeTeam:officialGame.home.name,awayTeam:officialGame.away.name,commenceTime:officialGame.startTime});
+    }
    }
   }
  }
