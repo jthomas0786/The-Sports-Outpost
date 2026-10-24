@@ -739,6 +739,7 @@ function oddsDiscrepancyResearch(){
 /* On-demand official player histories: no default-zero games, no guessed ID. */
 const ATHLETE_SEASON={nfl:2026,nba:2027,mlb:2026,nhl:2027,wnba:2026,cfb:2026};
 const athleteDepthCache=new Map();
+const rosterIdentityCache=new Map();
 let athleteDepthNonce=0;
 function athleteDepthMetrics(data){
  const bag=new Map();
@@ -809,12 +810,35 @@ function renderAthleteDepth(doc,row,chosen=null){
 async function hydrateAthleteDepth(row){
  const container=el('athleteDepthSlot');
  if(!container)return;
- const id=String(row.playerId||'');
+ const sport=state.sport,season=ATHLETE_SEASON[sport],nonce=++athleteDepthNonce;
+ let id=String(row.playerId||''),identity=null;
  if(!/^\d{3,12}$/.test(id)){
-  container.innerHTML='<p class="page-note">ESPN player identity is not yet verified for this sportsbook selection. Season game logs cannot be safely joined by name alone.</p>';
-  return;
+  const eventId=String(row.verifiedGameId||'');
+  if(!/^\d{6,14}$/.test(eventId)){
+   container.innerHTML='<p class="page-note">The selection has no verified ESPN game/player identifier. Player histories cannot be joined safely by name alone.</p>';
+   return;
+  }
+  const req=sport+'|'+eventId+'|'+canon(nameOf(row));
+  const remembered=rosterIdentityCache.get(req);
+  if(remembered&&Date.now()-remembered.time<15*60000)identity=remembered.doc;
+  else{
+   try{
+    const response=await fetch('/api/athlete-identity?'+new URLSearchParams({
+     league:sport,gameId:eventId,player:nameOf(row)}),{cache:'default'});
+    identity=await response.json();
+    if(!response.ok)identity={available:false,reason:'Official roster lookup unavailable'};
+   }catch(_){identity={available:false,reason:'Official roster lookup unavailable'}}
+   rosterIdentityCache.set(req,{time:Date.now(),doc:identity});
+  }
+  if(nonce!==athleteDepthNonce||el('drawer').hidden||state.selected!==row)return;
+  if(!identity?.available||!/^\d{3,12}$/.test(String(identity.athleteId||''))){
+   container.innerHTML='<p class="page-note">Official player identity not confirmed. '+text(identity?.reason||'An exact unique match on the two game rosters is required.')+'</p>';
+   return;
+  }
+  id=String(identity.athleteId);
+  container.innerHTML='<p class="page-note">ESPN roster match verified. Loading recorded season stats…</p>';
  }
- const sport=state.sport,season=ATHLETE_SEASON[sport],key=sport+':'+id+':'+season,nonce=++athleteDepthNonce;
+ const key=sport+':'+id+':'+season;
  let doc=athleteDepthCache.get(key);
  if(!doc){
   try{
@@ -830,7 +854,11 @@ async function hydrateAthleteDepth(row){
   container.innerHTML='<p class="page-note">ESPN returned a different player identity. No history was attached to this sportsbook prop.</p>';
   return;
  }
- container.innerHTML=renderAthleteDepth(doc,row);
+ container.innerHTML=(identity?.available?
+  '<div class="tso-athlete-source"><strong>Unique official roster match: '+text(identity.athleteName)+'</strong>'
+  +'<small>'+text(identity.teamAbbr||'')+' · '+text(identity.position||'position pending')
+  +' · roster status '+text(identity.rosterStatus||'unavailable')+'</small></div>':'')
+  +renderAthleteDepth(doc,row);
 }
 function openDrawer(r){
  if(!r)return;
