@@ -730,6 +730,102 @@ function oddsDiscrepancyResearch(){
    +'</tbody></table></div>':empty('No verified sportsbook discrepancies','Two actual current bookmakers at exactly the same selection are required.'))
   +'<p class="nba-footnote">Price differences alone do not establish positive expected value, arbitrage, or a profitable wager.</p>';
 }
+/* On-demand official player histories: no default-zero games, no guessed ID. */
+const ATHLETE_SEASON={nfl:2026,nba:2027,mlb:2026,nhl:2027,wnba:2026,cfb:2026};
+const athleteDepthCache=new Map();
+let athleteDepthNonce=0;
+function athleteDepthMetrics(data){
+ const bag=new Map();
+ for(const e of data.events||[]){
+  for(const v of e.stats||[]){
+   if(v.numeric===null||!v.name||/^(date|opponent|gameResult)$/i.test(v.name))continue;
+   const entry=bag.get(v.name)||{key:v.name,label:v.label||v.name,n:0};
+   entry.n++;bag.set(v.name,entry);
+  }
+ }
+ return [...bag.values()].filter(v=>v.n>0)
+  .sort((a,b)=>b.n-a.n||a.label.localeCompare(b.label));
+}
+function athleteCurrentMarketMetric(r,available){
+ const market=canon(r.market||marketOf(r));
+ const statAliases={
+  ATD:['TOUCHDOWNS','TOTALTOUCHDOWNS','RECEIVINGTOUCHDOWNS','RUSHINGTOUCHDOWNS'],
+  RECYDS:['RECEIVINGYARDS','RECYDS'],RUSHYDS:['RUSHINGYARDS','RUSHYDS'],
+  PASSYDS:['PASSINGYARDS','PASSYDS'],PASSATTEMPTS:['PASSINGATTEMPTS'],
+  RECEPTIONS:['RECEPTIONS'],COMPLETIONS:['COMPLETIONS'],
+  HITS:['HITS'],HOMERUN:['HOMERUNS'],TOTALBASES:['TOTALBASES'],
+  SOG:['SHOTS','SHOTSONGOAL','SHOTSTOTAL'],ANYTIMEGOAL:['GOALS'],FIRSTGOAL:['GOALS'],
+  THREES:['THREEPOINTERSMADE'],PRA:['PRA'],POINTS:['POINTS'],REBOUNDS:['REBOUNDS'],
+  ASSISTS:['ASSISTS'],RBIS:['RBI'],RBI:['RBI']
+ };
+ const prefixes=[market,market.replace(/^(PLAYER|TOTAL)/,'')];
+ const candidates=new Set(prefixes.flatMap(x=>statAliases[x]||[x]));
+ return available.find(v=>candidates.has(canon(v.key.split(':').at(-1))))?.key||null;
+}
+function renderAthleteDepth(doc,row,chosen=null){
+ if(!doc?.available)return '<div class="page-note">Verified player depth unavailable. '+text(doc?.reason||'The official ESPN feed returned no data for this athlete and season.')+'</div>';
+ const all=athleteDepthMetrics(doc),selected=all.find(v=>v.key===chosen)?.key
+  ||athleteCurrentMarketMetric(row,all)||all[0]?.key||null;
+ const samples=(doc.events||[]).map(e=>({date:e.date,opponent:e.opponent,
+  numeric:e.stats?.find(v=>v.name===selected)?.numeric,value:e.stats?.find(v=>v.name===selected)?.value,
+  eventId:e.eventId,seasonType:e.seasonType})).filter(x=>x.numeric!==null&&x.numeric!==undefined);
+ const rate=n=>{
+  const values=samples.slice(0,n),total=values.length;
+  if(!total)return {mean:null,hits:null,n:0};
+  const exact=selected===athleteCurrentMarketMetric(row,all)&&lineOf(row)!==null;
+  return {n:total,mean:values.reduce((a,b)=>a+b.numeric,0)/total,
+   hits:exact?values.filter(x=>x.numeric>lineOf(row)).length:null};
+ };
+ const numbers=[5,10,20].map(n=>({n,...rate(n)})),evidence=samples.slice(0,20);
+ const bars=evidence.length?('<div class="tso-depth-bars" aria-label="Observed game log stat chart">'+
+  evidence.slice().reverse().map(x=>{
+   const top=Math.max(1,...evidence.map(q=>q.numeric));
+   return '<div class="tso-depth-bar"><span style="height:'+Math.round(100*Math.max(0,x.numeric)/top)+'%" title="'+text(x.value)+'"></span><small>'+text(x.value)+'</small></div>';
+  }).join('')+'</div>'):'<p>No verified per-game observations for this stat.</p>';
+ const cards='<div class="data-preview">'+numbers.map(x=>'<div><span>L'+x.n+' VERIFIED AVG</span><b>'+(x.mean===null?'—':x.mean.toFixed(1))+'</b>'
+  +'<small>'+x.n+' observed games'+(x.hits===null?'':' · '+x.hits+'/'+x.n+' above '+text(lineOf(row)))+'</small></div>').join('')+'</div>';
+ const table=evidence.length?'<div class="table-scroller"><table class="data-table"><thead><tr><th>DATE</th><th>OPPONENT</th><th>RESULT</th><th>'+text(all.find(v=>v.key===selected)?.label||'STAT')+'</th></tr></thead><tbody>'
+  +evidence.map(x=>'<tr><td>'+text(new Date(x.date).toLocaleDateString('en-US',{month:'short',day:'numeric'}))+'</td>'
+   +'<td>'+text(x.opponent||'—')+'</td><td>'+text(x.seasonType||'Season')+'</td><td>'+text(x.value)+'</td></tr>').join('')
+  +'</tbody></table></div>':'';
+ const season=(doc.seasonStats||[]).slice(0,10).map(c=>
+  '<details class="tso-season-details"><summary>'+text(c.category)+'</summary>'
+  +'<div class="tso-season-stats">'+c.values.slice(0,32).map(v=>
+    '<div><small>'+text(v.label||v.name)+'</small><b>'+text(v.value)+'</b></div>').join('')+'</div></details>').join('');
+ return '<div class="tso-athlete-source"><strong>ESPN season '+text(doc.season)+' · Official recorded data</strong>'
+  +'<small>'+text(doc.sourceIdentification||'Source ID requested')+'</small></div>'
+  +(all.length?'<label class="tso-depth-select">Game-log statistic <select id="athleteDepthMetric">'+all.map(v=>
+   '<option value="'+text(v.key)+'" '+(v.key===selected?'selected':'')+'>'+text(v.label)+' · '+v.n+' games</option>').join('')+'</select></label>'+cards+bars+table:
+   '<p class="page-note">ESPN has not returned an individually verifiable game log for this player/season.</p>')
+  +'<h4>Official season statistics</h4>'+ (season||'<p class="page-note">Season totals not supplied by the official provider.</p>')
+  +'<p class="nba-footnote">Observed games only. A missing game never counts as zero. L5/L10/L20 are descriptive, not independent model probabilities. Model/line comparisons require an exact market statistic.</p>';
+}
+async function hydrateAthleteDepth(row){
+ const container=el('athleteDepthSlot');
+ if(!container)return;
+ const id=String(row.playerId||'');
+ if(!/^\d{3,12}$/.test(id)){
+  container.innerHTML='<p class="page-note">ESPN player identity is not yet verified for this sportsbook selection. Season game logs cannot be safely joined by name alone.</p>';
+  return;
+ }
+ const sport=state.sport,season=ATHLETE_SEASON[sport],key=sport+':'+id+':'+season,nonce=++athleteDepthNonce;
+ let doc=athleteDepthCache.get(key);
+ if(!doc){
+  try{
+   const r=await fetch('/api/athlete-depth?'+new URLSearchParams({league:sport,playerId:id,season:String(season)}),{cache:'default'});
+   doc=await r.json();
+   if(!r.ok||!doc?.available)doc={available:false,reason:doc?.reason||'ESPN did not return a verified season record'};
+  }catch(_){doc={available:false,reason:'Player statistics request unavailable'}}
+  athleteDepthCache.set(key,doc);
+ }
+ if(nonce!==athleteDepthNonce||el('drawer').hidden||state.selected!==row)return;
+ // Name mismatch is a potential provider-ID crossover, not evidence.
+ if(doc.athleteName&&canon(doc.athleteName)!==canon(nameOf(row))){
+  container.innerHTML='<p class="page-note">ESPN returned a different player identity. No history was attached to this sportsbook prop.</p>';
+  return;
+ }
+ container.innerHTML=renderAthleteDepth(doc,row);
+}
 function openDrawer(r){
  if(!r)return;
  state.selected=r;
@@ -759,6 +855,7 @@ function openDrawer(r){
    +' · starting goalie '+(q.goalieVerified?'verified':'not independently verified')
    +'. These are TSO-sourced matchup observations, not proprietary third-party rankings.</p>';
  }
+ html+='<h3>Official player statistics & game log</h3><div id="athleteDepthSlot" class="tso-depth"><p class="page-note">Checking current ESPN season game history…</p></div>';
  html+='<h3>Verified sportsbook lines</h3>'+quoteComparisonMarkup(r)
   +'<h3>Original source & model details</h3><div class="data-preview">'
   +'<div><span>PRICE OBSERVED</span><b>'+text(r.snapshotTime?clock(r.snapshotTime):'Not verified')+'</b></div>'
@@ -768,6 +865,7 @@ function openDrawer(r){
   +'<h3>What to validate</h3><div class="detail-tags"><span class="tag '+(model===null?'pending':'verified')+'">Exact line '+(model===null?'not modeled':'matched')+'</span><span class="tag '+(logs?'verified':'pending')+'">Observed game logs '+(logs?'verified':'pending')+'</span><span class="tag pending">Opponent positional split required</span><span class="tag pending">Confirmed lineup required</span></div>'
   +'<div class="drawer-actions"><button class="btn" id="drawerSave" type="button">'+(state.saved.has(rowKey(r))?'Remove from saved':'Save selection')+'</button><button class="btn subtle" id="drawerClose2">Close</button></div></div>';
  el('drawerBody').innerHTML=html;el('drawer').hidden=false;el('scrim').hidden=false;el('closeDrawer').focus();
+ void hydrateAthleteDepth(r);
 }
 function closeDrawer(){el('drawer').hidden=true;el('scrim').hidden=true;state.selected=null}
 function save(r){
@@ -994,6 +1092,12 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
 document.addEventListener('change',e=>{
+ if(e.target.id==='athleteDepthMetric'&&state.selected){
+  const key=state.sport+':'+String(state.selected.playerId||'')+':'+ATHLETE_SEASON[state.sport];
+  const doc=athleteDepthCache.get(key),root=el('athleteDepthSlot');
+  if(doc&&root)root.innerHTML=renderAthleteDepth(doc,state.selected,e.target.value);
+  return;
+ }
  const check=e.target.closest?.('[data-tso-check]');
  if(check){
   const kind=check.dataset.tsoCheck,field=kind==='markets'?'marketSelections':'bookSelections';
