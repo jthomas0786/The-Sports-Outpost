@@ -11,6 +11,34 @@ const SPORTS={
  wnba:{label:'WNBA',icon:'basketball',name:"Women's National Basketball Association",markets:['Points','Rebounds','Assists','3-Pointers Made','PRA','Steals','Blocks'],tools:[['Player Trends','Last 5, 10, 20 and season'],['Matchup vs Position','Opponent positional allowances'],['Minutes & Usage','Rotations and offensive involvement'],['Pace & Possessions','Tempo-adjusted opportunity'],['Team Statistics','Recent offensive and defensive production'],['Injury Impact','Lineup availability'],['Game Projections','Game lines and totals']]},
  cfb:{label:'CFB',icon:'school',name:'College Football',markets:['Player Passing Yards','Player Passing Touchdowns','Player Rushing Yards','Player Rushing Attempts','Player Receiving Yards','Player Receptions','Player Touchdowns','Spread','Moneyline','Total Points'],tools:[['Player Trends','Recent passing, rushing and receiving results'],['Team Matchups','Offense against defensive scheme'],['Touchdown Matchups','Scoring opportunities and opponent yield'],['Power Ratings','FBS offense and defense strength'],['Game Projections','Model spread, total and win outcome'],['Quarterback Rankings','Passing and rushing quarterback trends'],['Conference Filters','Conference-specific analysis'],['Weather & Situational','Rest and game-day conditions'],['Market Grades','Opponent and line-specific grades'],['Rushing Matchups','Backfield usage and front-seven defense'],['Receiving Matchups','Coverage and target volume']]}
 };
+/* Publicly visible NFL cheatsheet taxonomy (19 research categories).
+   Category parity is navigation only until an independently sourced TSO module
+   is implemented. PropFinder proprietary grades, values and data are NOT copied. */
+const NFL_CHEATSHEET_CATALOG=[
+ ['TD Matchups','Touchdown opportunities against opponent positional and alignment defense'],
+ ['First TD','Who initiates scoring and team opening possessions'],
+ ['Role Matchups','WR1/WR2, RB1/RB2 and TE roles versus defense'],
+ ['Market Grades','Source-backed market strength and recent opponent evidence'],
+ ['Coverage Matchups','Receiver targets against coverage scheme'],
+ ['Alignment Matchups','Slot, wide and tight end deployment'],
+ ['WR vs CB Matchups','Receiver and cornerback coverage assignments'],
+ ['Rushing Matchups','Carry share, attempts, yards and defensive front'],
+ ['Redzone Matchups','Inside-20 targets, carries and scoring opportunities'],
+ ['Line Matchups','Offensive versus defensive line performance'],
+ ['Hit Rate Matrix','Exact-line hit frequency by market and rolling window'],
+ ['Team Share %','Team touches, targets and carries by role'],
+ ['Team Defensive Stats','Opponent production allowed by position'],
+ ['Coverage Matrix','Defense coverage types and observed pass outcomes'],
+ ['Team Tendencies','Game script, pass rate and play selection'],
+ ['Coverage Players','Player-specific route and coverage role'],
+ ['Odds Discrepancies','Verified multi-book price differences for the exact selection'],
+ ['Receiving Value','Reception and receiving-yard opportunity versus price'],
+ ['Explosive Plays','Big plays, longest reception and rushing breakaway usage']
+];
+SPORTS.nfl.tools=[
+ ...NFL_CHEATSHEET_CATALOG,
+ ...SPORTS.nfl.tools.filter(([name])=>!NFL_CHEATSHEET_CATALOG.some(([title])=>title===name))
+];
 const PAGES=[['overview','Overview','layout-dashboard'],['games','Games','calendar-days'],['props','Player Props','chart-no-axes-combined'],['trends','Trends','trending-up'],['cheatsheets','Cheatsheets','notebook-tabs'],['ratings','Power Ratings','gauge'],['projections','Projections','activity'],['injuries','Injuries','heart-pulse'],['data','Data Sources','database'],['saved','Saved Research','bookmark']];
 /* Original inline SVG icons (Lucide-inspired line geometry), no emoji or remote icon kit.
    Built locally and reused across the six-sport navigation and research cards. */
