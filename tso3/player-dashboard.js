@@ -37,7 +37,7 @@ function categoryName(stat){return trim(stat).split(':').at(-1);}
 function marketStatMatches(market,metric){
  const k=key(market),m=key(categoryName(metric));
  const maps={
-  POINTS:['POINTS'],REBOUNDS:['REBOUNDS'],ASSISTS:['ASSISTS'],
+  POINTS:['POINTS'],REBOUNDS:['REBOUNDS','TOTALREBOUNDS'],ASSISTS:['ASSISTS'],
   THREES:['THREEPOINTERSMADE','THREEPOINTFIELDGOALSMADE','THREES'],RECEPTIONS:['RECEPTIONS'],
   RECYDS:['RECEIVINGYARDS','RECYDS'],RUSHYDS:['RUSHINGYARDS','RUSHYDS'],
   PASSYDS:['PASSINGYARDS','PASSYDS'],PASSATTEMPTS:['PASSINGATTEMPTS'],
