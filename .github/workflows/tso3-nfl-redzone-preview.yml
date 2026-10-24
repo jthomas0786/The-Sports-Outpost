@@ -1,0 +1,59 @@
+name: TSO 3.0 NFL 2026 Red-Zone Preview Source
+on:
+  push:
+    branches: [tso-3.0]
+    paths:
+      - 'tso3/build-nfl-td-opportunities.py'
+      - '.github/workflows/tso3-nfl-redzone-preview.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: tso3-redzone-preview
+  cancel-in-progress: false
+jobs:
+  build:
+    name: Verify 2026 nflverse PBP and publish isolated staging artifact
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: tso-3.0
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate nflverse red-zone and goal-line mapping
+        run: python tso3/build-nfl-td-opportunities.py --selftest
+      - name: Build official observed 2025 and 2026 NFL play-by-play opportunities
+        run: python tso3/build-nfl-td-opportunities.py --seasons 2025 2026
+      - name: Reject insufficient current-season data or time leaks
+        run: |
+          python - <<'PY'
+          import json
+          from datetime import date
+          d=json.load(open('tso3/data/nfl-td-opportunities.json'))
+          assert d['schemaVersion']==1 and d['source'].startswith('nflverse')
+          assert set(d['seasons'])=={'2025','2026'}
+          y=d['seasons']['2026']
+          age=(date.today()-date.fromisoformat(y['lastObservedGameDate'])).days
+          assert 0<=age<=8 and y['gamesScanned']>=80 and y['playerCount']>=200, (age,y['gamesScanned'],y['playerCount'])
+          assert len(y['teams'])>=28
+          assert all(r['gamesWithOpportunities']>0 for r in y['players'].values())
+          assert all(r['redZoneOpps']>=r['goalLineOpps'] for r in y['players'].values())
+          print('PASS',y['gamesScanned'],'NFL 2026 games; latest observed',y['lastObservedGameDate'],'age',age,'days')
+          PY
+      - name: Publish 2026 research ONLY on the isolated tso-3.0 branch
+        run: |
+          git config user.name "TSO 3.0 Red-Zone Research Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tso3/data/nfl-td-opportunities.json
+          if git diff --cached --quiet; then echo "No new data"; exit 0; fi
+          git commit -m "TSO3 preview: updated audited NFL red-zone opportunities"
+          for attempt in 1 2 3; do
+            if git push origin HEAD:tso-3.0; then exit 0; fi
+            git pull --rebase --autostash origin tso-3.0
+          done
+          echo "::error::Could not update isolated staging artifact"
+          exit 1
