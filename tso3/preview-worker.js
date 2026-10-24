@@ -1374,13 +1374,35 @@ function officialRosterAthletes(doc){
 /* All six leagues: attach official players to the verified game even if
    the upstream sportsbook publisher has no current quotes. This is roster
    research, NOT confirmed starters/lineups or an implicit bettable market. */
+async function officialVerifiedGameById(league,gameId){
+ const schedule=await officialGames(ESPN_SCOREBOARDS[league],league);
+ const onBoard=schedule.find(g=>g.league===league&&String(g.id)===gameId);
+ if(onBoard)return {...onBoard,verification:'ESPN official scoreboard exact ID'};
+ // Some official dated scoreboards omit recently starting/postponed games.
+ // Recover ONLY by the exact event ID from the same league's ESPN summary.
+ const summaryUrl=ESPN_SCOREBOARDS[league].replace(/\/scoreboard$/,'/summary')+'?event='+gameId;
+ const response=await fetch(summaryUrl,{headers:{accept:'application/json'},
+  cf:{cacheEverything:true,cacheTtl:70},signal:AbortSignal.timeout(13500)});
+ if(!response.ok)return null;
+ const doc=await response.json(),header=doc?.header,comp=header?.competitions?.[0];
+ if(String(header?.id||'')!==gameId||!comp)return null;
+ const home=comp.competitors?.find(c=>c.homeAway==='home'),
+  away=comp.competitors?.find(c=>c.homeAway==='away');
+ const stamp=Date.parse(comp.date||header.date||'');
+ if(!home?.team?.id||!away?.team?.id||!Number.isFinite(stamp)
+  ||stamp<Date.now()-18*3600000||stamp>Date.now()+9*86400000)return null;
+ const team=c=>({id:String(c.team.id),name:String(c.team.displayName||c.team.name||''),
+  abbr:String(c.team.abbreviation||''),score:c.score??null});
+ const status=comp.status?.type||header.status?.type||{};
+ const state=status.completed===true?'post':status.state==='in'?'in':'pre';
+ return {id:gameId,league,state,startTime:new Date(stamp).toISOString(),
+  home:team(home),away:team(away),verification:'ESPN official game summary exact ID'};
+}
 async function officialGameRosters(league,gameId){
  if(!Object.hasOwn(ATHLETE_PATHS,league)||!Object.hasOwn(ESPN_SCOREBOARDS,league)
   ||!/^\d{6,14}$/.test(gameId))throw Error('Invalid roster lookup');
- const schedule=await officialGames(ESPN_SCOREBOARDS[league],league);
- const game=schedule.find(g=>g.league===league&&String(g.id)===gameId
-  &&(g.state==='pre'||g.state==='in'));
- if(!game)return {available:false,gameId,league,teams:[],reason:'No current ESPN-verified game'};
+ const game=await officialVerifiedGameById(league,gameId);
+ if(!game)return {available:false,gameId,league,teams:[],reason:'No recently verified ESPN event with this exact ID'};
  const teams=[game.away,game.home];
  const loaded=await Promise.allSettled(teams.map(async team=>{
   const endpoint='https://site.api.espn.com/apis/site/v2/sports/'+ATHLETE_PATHS[league]+'/teams/'+team.id+'/roster';
@@ -1398,6 +1420,7 @@ async function officialGameRosters(league,gameId){
  }));
  return {available:loaded.some(x=>x.status==='fulfilled'),league,gameId,
   gameState:game.state,home:game.home.abbr,away:game.away.abbr,
+  gameVerification:game.verification||'ESPN official fixture',
   teams:loaded.map((result,i)=>result.status==='fulfilled'
    ?{...result.value,available:true,rosterType:'Team roster; starters not verified'}
    :{id:String(teams[i].id),name:teams[i].name,abbr:teams[i].abbr,
