@@ -81,3 +81,11 @@ test('HTML inputs from a player profile cannot inject untrusted markup',()=>{
  assert.doesNotMatch(x,/<script>alert/);
  assert.match(x,/&lt;script&gt;/);
 });
+
+test('numeric ESPN athlete deep links survive both initial load and hash navigation',()=>{
+ const pattern=/^\d{3,12}$/;
+ assert.equal(pattern.test('40884'),true);
+ assert.equal(pattern.test('anything'),false);
+ assert.ok(appCode.includes("const athleteId=page==='player'&&/^\\d{3,12}$/".replace('\\\\d','\\d')));
+ assert.ok(appCode.includes("state.playerId=hash[1]==='player'&&/^\\d{3,12}$/".replace('\\\\d','\\d')));
+});
