@@ -12,12 +12,13 @@ test('TD Matchups route renders independent current NFL touchdown research',()=>
  assert.match(app,/if\(state\.sport==='nfl'&&nflLabTool\(state\.tool\)\)/);
  assert.match(app,/nflResearch\(mapped\)/);
  assert.match(app,/state\.nflTD\?\.games\?\.length\|\|state\.nflResearch\?\.players\?\.length/);
- assert.match(app,/Individual CB assignments, receiver alignment/);
+ assert.match(app,/Individual CB assignments and receiver alignment remain unverified/);
+ assert.match(app,/Verified 2026 nflverse inside-20 and goal-line play-by-play/);
 });
 test('red-zone and team defense categories link to observed sources with honest scope',()=>{
  assert.match(app,/'redzone-matchups':'red-zone-usage'/);
  assert.match(app,/'team-defensive-stats':'defense-vs-position'/);
- assert.match(app,/NOT independently tracked 2026 inside-20 touches/);
+ assert.match(app,/Verified 2026 inside-20 and inside-5 play-by-play is separately shown/);
  assert.match(app,/group-level allowances, not player-to-defender assignments/);
 });
 test('TD research uses opponent-position, same-season observations and withholds conflicting samples',()=>{
