@@ -247,9 +247,11 @@ async function nflArchiveStatus(env){
   let shadowForecasts=null;
   try{
    const v=await env.NFL_ARCHIVE.prepare('SELECT COUNT(*) snapshots,COUNT(DISTINCT game_id) games,MIN(captured_at) first_capture,MAX(captured_at) last_capture FROM atd_shadow_forecasts').first();
+   let lastRun=null;
+   try{lastRun=await env.NFL_ARCHIVE.prepare('SELECT started_at,completed_at,status,eligible_predictions,inserted_predictions,reason FROM atd_shadow_capture_runs ORDER BY started_at DESC LIMIT 1').first()}catch(_){}
    shadowForecasts={snapshots:Number(v?.snapshots||0),games:Number(v?.games||0),
     firstCapture:v?.first_capture||null,lastCapture:v?.last_capture||null,
-    model:'2026 ATD experimental shadow',settledOutcomes:0,
+    lastRun:lastRun||null,model:'2026 ATD experimental shadow',settledOutcomes:0,
     caveat:'Forward-only independent pregame captures. No shadow outcome settlement/calibration has been run.'};
   }catch(_){shadowForecasts={snapshots:0,games:0,status:'not_initialized',
    caveat:'Separate 2026 shadow table is awaiting its first cron capture; not a calibration report'};}
@@ -458,6 +460,14 @@ async function runNflArchive(env,trigger='cron'){
  try{diag.shadow=await archive2026AtdShadow(env,shadowAtd,started,now)}
  catch(e){diag.shadow={status:'failed',error:String(e?.message||e).slice(0,150)};
   console.warn('TSO3 shadow ATD archival failed',diag.shadow.error)}
+ // Persist outcomes of every shadow capture attempt; zero rows is not proof of success.
+ try{
+  await env.NFL_ARCHIVE.prepare('CREATE TABLE IF NOT EXISTS atd_shadow_capture_runs (run_id TEXT PRIMARY KEY,started_at TEXT NOT NULL,completed_at TEXT NOT NULL,status TEXT NOT NULL,eligible_predictions INTEGER NOT NULL,inserted_predictions INTEGER NOT NULL,reason TEXT)').run();
+  await env.NFL_ARCHIVE.prepare('INSERT OR IGNORE INTO atd_shadow_capture_runs (run_id,started_at,completed_at,status,eligible_predictions,inserted_predictions,reason) VALUES (?,?,?,?,?,?,?)')
+   .bind(runId,started,new Date().toISOString(),String(diag.shadow?.status||'unavailable'),
+    Number(diag.shadow?.eligible||0),Number(diag.shadow?.inserted||0),
+    String(diag.shadow?.reason||diag.shadow?.error||diag.shadow?.note||'').slice(0,180)).run();
+ }catch(e){console.warn('TSO3 shadow audit write failed',String(e?.message||e).slice(0,130))}
  if(diag.status==='failed')throw Error('NFL prediction archiving failed: '+diag.error);
  return diag;
 }
