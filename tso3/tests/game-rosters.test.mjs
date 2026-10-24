@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {runInNewContext} from 'node:vm';
 const worker=readFileSync(new URL('../preview-worker.js',import.meta.url),'utf8');
-const start=worker.indexOf('async function officialGameRosters(');
+const start=worker.indexOf('async function officialVerifiedGameById(');
 const end=worker.indexOf('async function verifiedPlayerRosterIdentity(',start);
 assert.ok(start>=0&&end>start,'Verified matchup roster function must exist');
 const fixture={league:'mlb',id:'401073007',state:'pre',
@@ -39,10 +39,11 @@ test('failed team roster is visibly unavailable, not an invented empty lineup',a
  assert.equal(result.teams[1].available,false);
  assert.match(result.teams[1].reason,/unavailable/);
 });
-test('completed game is not passed off as an upcoming roster research slate',async()=>{
+test('recent completed games retain official rosters without claiming a starting lineup',async()=>{
  const result=await check([{...fixture,state:'post'}])('mlb','401073007');
- assert.equal(result.available,false);
- assert.equal(result.teams.length,0);
+ assert.equal(result.available,true);
+ assert.equal(result.gameState,'post');
+ assert.equal(result.teams[0].rosterType,'Team roster; starters not verified');
 });
 test('unverified ESPN game and arbitrary event IDs rejected',async()=>{
  const fn=check([]);
@@ -55,4 +56,24 @@ test('each athlete is deduplicated by ESPN ID inside a team roster',async()=>{
  both['11'].athletes[0].items.push(structuredClone(both['11'].athletes[0].items[0]));
  const r=await check([fixture],both)('mlb','401073007');
  assert.equal(r.teams[0].players.length,1);
+});
+
+test('official exact ESPN game summary recovers an event missing from dated board',async()=>{
+ const event={header:{id:'401073007',competitions:[{
+  date:new Date().toISOString(),
+  competitors:[
+   {homeAway:'away',team:{id:'11',displayName:'Tampa Bay Rays',abbreviation:'TB'}},
+   {homeAway:'home',team:{id:'12',displayName:'Milwaukee Brewers',abbreviation:'MIL'}}
+  ]
+ }]}};
+ const ctx={ATHLETE_PATHS:{mlb:'baseball/mlb'},ESPN_SCOREBOARDS:{mlb:'https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard'},
+  officialGames:async()=>[],
+  officialRosterAthletes:doc=>doc.athletes.flatMap(g=>g.items||[]).map(p=>({id:p.id,name:p.displayName})),
+  fetch:async url=>url.includes('summary?event=')?{ok:true,json:async()=>event}
+   :{ok:true,json:async()=>rosters[url.match(/\/teams\/(\d+)\/roster/)?.[1]]},
+  AbortSignal:{timeout:()=>null},Date,Promise,Number,String,Object};
+ const fn=runInNewContext(worker.slice(start,end)+';officialGameRosters',ctx);
+ const res=await fn('mlb','401073007');
+ assert.equal(res.available,true);
+ assert.equal(res.gameVerification,'ESPN official game summary exact ID');
 });
