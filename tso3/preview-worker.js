@@ -1457,7 +1457,14 @@ function verifiedDerivedAthleteStats(events,sport){
   const values=Array.isArray(event.stats)?event.stats.slice():[];
   for(const [name,inputs,label] of composites){
    if(values.some(x=>named(x)===name.toLowerCase()))continue;
-   const matched=inputs.map(input=>values.find(v=>named(v)===input&&typeof v.numeric==='number'&&Number.isFinite(v.numeric)));
+   // ESPN aliases differ by sport and year. Only documented equivalent
+   // stat fields qualify; never estimate a component from other categories.
+   const alternatives={rebounds:['rebounds','totalrebounds'],
+    rbis:['rbis','rbi'],passingyards:['passingyards','passyards'],
+    rushingyards:['rushingyards','rushyards']};
+   const matched=inputs.map(input=>values.find(v=>
+    (alternatives[input]||[input]).includes(named(v))
+    &&typeof v.numeric==='number'&&Number.isFinite(v.numeric)));
    if(matched.some(v=>!v))continue;
    const total=matched.reduce((n,v)=>n+v.numeric,0);
    values.push({name:'TSO Derived:'+name,label,value:String(total),numeric:total,
