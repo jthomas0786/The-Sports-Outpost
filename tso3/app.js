@@ -826,7 +826,7 @@ function nflValidationResearch(){
 function nflResearch(tool='touchdown-opportunities'){
  const lab=window.TSO3NflLab;
  const context={sport:'nfl',games:state.live?.games||[],td:state.nflTD,research:state.nflResearch,
-  odds:state.nflOdds,sim:state.nflSim,injuries:state.nflInjuries,weather:state.nflWeather,weatherError:state.nflWeatherError,error:state.nflError};
+  odds:state.nflOdds,sim:state.nflSim,injuries:state.nflInjuries,redzone:state.nflRedZone,weather:state.nflWeather,weatherError:state.nflWeatherError,error:state.nflError};
  return lab?'<div id="nflLabSlot">'+lab.render(context,tool)+'</div>'
   :empty('NFL research unavailable','The dedicated NFL research module did not load.');
 }
@@ -1318,7 +1318,8 @@ async function load(force=false){
   fetch('/api/nfl-projections',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL simulation HTTP '+r.status);return r.json()}),
   fetch('/api/nfl-injuries',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL injuries HTTP '+r.status);return r.json()}),
   ...['mlb','nhl','wnba','cfb'].map(league=>fetch('/api/sport-odds?league='+league,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error(league.toUpperCase()+' odds HTTP '+r.status);return r.json()})),
-  fetch('/api/nhl-goal-model',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NHL goal model HTTP '+r.status);return r.json()})
+  fetch('/api/nhl-goal-model',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NHL goal model HTTP '+r.status);return r.json()}),
+  fetch('/api/nfl-redzone',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('NFL 2026 verified red-zone source HTTP '+r.status);return r.json()})
  ]);
  if(pairs[0].status==='fulfilled'&&Array.isArray(pairs[0].value.games)){state.live=pairs[0].value;state.liveError=''}
  else{state.liveError=String(pairs[0].reason?.message||'Scoreboard feed missing');state.live={games:[],tso3:{sources:{}}}}
@@ -1349,6 +1350,7 @@ async function load(force=false){
  state.nflResearch=pairs[8].status==='fulfilled'&&Array.isArray(pairs[8].value?.players)?pairs[8].value:null;
  state.nflOdds=pairs[9].status==='fulfilled'&&Array.isArray(pairs[9].value?.rows)?pairs[9].value:null;
  state.nflSim=pairs[10].status==='fulfilled'&&Array.isArray(pairs[10].value?.games)?pairs[10].value:null;
+ state.nflRedZone=pairs[17]?.status==='fulfilled'&&pairs[17].value?.available===true?pairs[17].value:null;
  // Put current verified ParlayAPI sportsbook Over/Yes selections into the
  // shared six-sport explorer. The dedicated NFL module already read these;
  // omission here previously caused a misleading "zero NFL props" table.
