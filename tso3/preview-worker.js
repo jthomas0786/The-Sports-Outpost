@@ -1448,8 +1448,14 @@ async function verifiedAthleteDepth(sport,id,season){
   events:[],seasonStats:[],reason:'Official ESPN season game log/statistics unavailable'};
  const foundId=String(gameDoc?.athlete?.id||seasonDoc?.athlete?.id||'');
  if(foundId&&foundId!==id)throw Error('ESPN athlete ID mismatch');
- const person=String(gameDoc?.athlete?.displayName||seasonDoc?.athlete?.displayName||'').slice(0,90);
+ const athlete=gameDoc?.athlete||seasonDoc?.athlete||{};
+ const person=String(athlete.displayName||athlete.fullName||'').slice(0,90);
+ const headshot=String(athlete.headshot?.href||athlete.headshot||'');
+ const safeHeadshot=/^https:\/\/(a\.espncdn\.com|cdn\.espn\.com)\//.test(headshot)?headshot:null;
  return {available:true,sport,athleteId:id,season,athleteName:person||null,
+  athletePosition:String(athlete.position?.abbreviation||'').slice(0,12)||null,
+  athleteTeam:String(athlete.team?.abbreviation||athlete.team?.displayName||'').slice(0,80)||null,
+  headshot:safeHeadshot,
   fetchedAt:new Date(now).toISOString(),
   source:'ESPN official athlete season stats/game log; original records',
   sourceIdentification:foundId?'ESPN athlete ID confirmed':'ESPN requested athlete ID, name not independently confirmed',
