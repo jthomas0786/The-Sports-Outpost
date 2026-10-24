@@ -234,8 +234,6 @@ def build(seasons, output):
             age = (today - observed).days
             if age < 0 or age > 8:
                 raise ValueError(f"2026 PBP source not current; last game {latest}, age {age} days")
-        if False:
-            raise ValueError(f"Unusable {season} source ({current['gamesScanned']} games, {current['playerCount']} players)")
         data["seasons"][str(season)] = {**current, "season": season, "url": url}
         print(f"  {season}: {current['gamesScanned']} games, {current['playerCount']} players", flush=True)
     output.parent.mkdir(parents=True, exist_ok=True)
