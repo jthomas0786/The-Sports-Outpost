@@ -188,19 +188,24 @@ function nflCaptureReadiness(latest,archivedGames,now=Date.now()){
   const quoteAge=Number.isFinite(quote)?(now-quote)/60000:null;
   const modelAge=Number.isFinite(model)?(now-model)/60000:null;
   const quoteWithinLimit=sameSource&&quoteAge!==null&&quoteAge>=0&&quoteAge<=Math.min(allowed,240);
-  const modelFresh=modelAge!==null&&modelAge>=0&&modelAge<=48*60;
-  const bothModelFamilies=Number(g.atd||0)>0&&Number(g.exact||0)>0;
-  const eligible=quoteWithinLimit&&modelFresh&&bothModelFamilies;
+  const familyQuoteMatches=Number(g.atd||0)>0&&Number(g.exact||0)>0
+   &&g.atd_quote_at===latest?.source_snapshot_at&&g.exact_quote_at===latest?.source_snapshot_at;
+  const atdModelAge=(now-Date.parse(g.atd_model_at||''))/60000;
+  const exactModelAge=(now-Date.parse(g.exact_model_at||''))/60000;
+  const modelFresh=Number.isFinite(atdModelAge)&&atdModelAge>=0&&atdModelAge<=48*60
+   &&Number.isFinite(exactModelAge)&&exactModelAge>=0&&exactModelAge<=48*60;
+  const eligible=quoteWithinLimit&&familyQuoteMatches&&modelFresh;
   return {gameId:String(g.game_id),kickoff:g.kickoff,
    sourceAt:g.quote_at||null,quotesAgeMinutes:quoteAge===null?null:Math.round(quoteAge),
    modelAgeMinutes:modelAge===null?null:Math.round(modelAge),
    maxAgeMinutes:allowed,markets:Number(g.markets||0),sportsbooks:Number(g.books||0),
    atdModelObserved:Number(g.atd||0)>0,exactOverModelObserved:Number(g.exact||0)>0,
+   bothModelsAtCurrentSource:familyQuoteMatches,
    sourceMatchesCurrent:sameSource,eligible,
    reason:!sameSource?'No matching archived model selection at latest published odds time':
     !quoteWithinLimit?'Sportsbook quote exceeds kickoff-specific freshness cap':
-    !modelFresh?'Archived model result older than 48 hours':
-    !bothModelFamilies?'Both NFL model families not represented in this game':
+    !familyQuoteMatches?'Both model families do not match the latest sportsbook source time':
+    !modelFresh?'At least one archived model family result is older than 48 hours':
     'At least one archived exact-model quote from each family is source-fresh'};
  });
  const covered=results.filter(g=>g.eligible).length;
@@ -236,8 +241,8 @@ async function nflArchiveStatus(env){
    env.NFL_ARCHIVE.prepare("WITH latest AS (SELECT a.*,ROW_NUMBER() OVER (PARTITION BY snapshot_id ORDER BY observed_at DESC,observation_id DESC) rn FROM sportsbook_action_observations a) SELECT sportsbook,action_state,COUNT(*) AS observations FROM latest WHERE rn=1 GROUP BY sportsbook,action_state ORDER BY sportsbook,action_state"),
    env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_snapshot_at,source_age_minutes,eligible_quote_rows,verified_games,games_rejected_for_age,earliest_kickoff_at,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 1'),
    env.NFL_ARCHIVE.prepare('SELECT status,COUNT(*) checks FROM (SELECT status FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 12) GROUP BY status'),
-   env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_age_minutes,eligible_quote_rows,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 8'),
-   env.NFL_ARCHIVE.prepare('SELECT game_id,MIN(kickoff_at) kickoff,MAX(odds_snapshot_at) quote_at,MAX(model_generated_at) model_at,COUNT(DISTINCT market) markets,COUNT(DISTINCT sportsbook) books,SUM(CASE WHEN model_kind=\'50k_atd\' THEN 1 ELSE 0 END) atd,SUM(CASE WHEN model_kind=\'50k_exact_over\' THEN 1 ELSE 0 END) exact FROM prediction_snapshots WHERE kickoff_at>? GROUP BY game_id ORDER BY kickoff ASC LIMIT 25').bind(new Date().toISOString())
+   env.NFL_ARCHIVE.prepare('SELECT checked_at,status,source_age_minutes,eligible_quote_rows,verified_games,games_rejected_for_age,reason FROM nfl_feed_checks ORDER BY checked_at DESC LIMIT 8'),
+   env.NFL_ARCHIVE.prepare('SELECT game_id,MIN(kickoff_at) kickoff,MAX(odds_snapshot_at) quote_at,MAX(model_generated_at) model_at,COUNT(DISTINCT market) markets,COUNT(DISTINCT sportsbook) books,SUM(CASE WHEN model_kind=\'50k_atd\' THEN 1 ELSE 0 END) atd,SUM(CASE WHEN model_kind=\'50k_exact_over\' THEN 1 ELSE 0 END) exact,MAX(CASE WHEN model_kind=\'50k_atd\' THEN odds_snapshot_at END) atd_quote_at,MAX(CASE WHEN model_kind=\'50k_exact_over\' THEN odds_snapshot_at END) exact_quote_at,MAX(CASE WHEN model_kind=\'50k_atd\' THEN model_generated_at END) atd_model_at,MAX(CASE WHEN model_kind=\'50k_exact_over\' THEN model_generated_at END) exact_model_at FROM prediction_snapshots WHERE kickoff_at>? GROUP BY game_id ORDER BY kickoff ASC LIMIT 25').bind(new Date().toISOString())
   ]);
   return{available:true,configured:true,source:'TSO3 independent append-only NFL D1 archive',
    snapshotCount:Number(q[0].results?.[0]?.snapshots||0),
