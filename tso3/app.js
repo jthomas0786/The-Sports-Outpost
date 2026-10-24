@@ -104,7 +104,7 @@ function matchRowGame(row,g){
  return teams&&(!Number.isFinite(start)||!Number.isFinite(gameTime)||Math.abs(start-gameTime)<=20*3600000);
 }
 
-const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
+const state={sport:'nfl',page:'overview',tool:null,game:null,search:'',market:'all',book:'all',marketSelections:[],bookSelections:[],marketOpen:false,bookOpen:false,matchupIds:[],matchupOpen:false,window:'l10',sort:'signal',maxRows:40,live:null,props:null,liveError:'',propsError:'',pending:false,updated:0,selected:null,saved:new Map(),displayedRows:new Map(),firstBasketCache:new Map(),openSport:null,nbaResearch:null,nbaModels:null,nbaInjuries:null,nbaOddsSnapshot:null,nflResearch:null,nflTD:null,nflOdds:null,nflSim:null,nflInjuries:null,nflWeather:null,nflWeatherError:'',nflWeatherFetched:0,nflWeatherPending:false,nflValidation:null,nflValidationError:'',nflValidationFetched:0,nflValidationPending:false,otherOdds:{},nhlModel:null,nflArchive:null,nflArchiveFetched:0,nflArchivePending:false,nflError:'',nbaError:'',nbaPending:true};
 try{const saved=JSON.parse(localStorage.getItem('tso3-saved')||'[]');if(Array.isArray(saved))saved.forEach(r=>{if(r?.key)state.saved.set(r.key,r)})}catch(_){}
 function remember(){try{localStorage.setItem('tso3-saved',JSON.stringify([...state.saved.values()].slice(-200)))}catch(_){}}
 function getGames(){
@@ -168,8 +168,8 @@ function eligible(r){
 function filteredRows(){
  const all=getRows().filter(eligible);
  const q=state.search.trim().toLowerCase();
- let list=all.filter(r=>(state.market==='all'||canon(marketOf(r))===state.market)
-  &&(state.book==='all'||canon(bookOf(r))===state.book)
+ let list=all.filter(r=>(!state.marketSelections.length||state.marketSelections.includes(canon(marketOf(r))))
+  &&(!state.bookSelections.length||state.bookSelections.includes(canon(bookOf(r))))
   &&(!q||[nameOf(r),r.team,marketOf(r),r.homeTeam,r.awayTeam].join(' ').toLowerCase().includes(q)));
  if(state.matchupIds.length){
   const selected=new Set(state.matchupIds),games=getGames().filter(g=>selected.has(gameKey(g)));
@@ -261,11 +261,20 @@ function renderFilters(){
  const rows=getRows().filter(eligible);
  const unique=(vals)=>[...new Set(vals.filter(Boolean))].sort((a,b)=>a.localeCompare(b));
  const mk=unique(rows.map(r=>marketOf(r)));const books=unique(rows.map(bookOf));
- const currentMarket=mk.some(x=>canon(x)===state.market)?state.market:'all';
- const currentBook=books.some(x=>canon(x)===state.book)?state.book:'all';
- state.market=currentMarket;state.book=currentBook;
- el('market').innerHTML='<option value="all">All markets</option>'+mk.map(x=>'<option value="'+text(canon(x))+'" '+(canon(x)===currentMarket?'selected':'')+'>'+text(x)+'</option>').join('');
- el('book').innerHTML='<option value="all">All sportsbooks</option>'+books.map(x=>'<option value="'+text(canon(x))+'" '+(canon(x)===currentBook?'selected':'')+'>'+text(x)+'</option>').join('');
+ const marketIds=new Set(mk.map(canon)),bookIds=new Set(books.map(canon));
+ state.marketSelections=state.marketSelections.filter(k=>marketIds.has(k));
+ state.bookSelections=state.bookSelections.filter(k=>bookIds.has(k));
+ const buildMulti=(label,choices,selected,kind,open)=>{
+  const selectedCount=selected.length,caption=selectedCount?selectedCount+' selected':'All '+label;
+  return '<details class="matchup-picker tso-option-picker" '+(open?'open':'')+' data-tso-picker="'+kind+'">'
+   +'<summary class="matchup-trigger"><span>'+text(caption)+'</span><span class="matchup-chevron">'+iconSvg('chevron')+'</span></summary>'
+   +'<div class="matchup-options" role="group" aria-label="Select multiple '+label+'">'
+   +'<label class="matchup-option all"><input type="checkbox" data-tso-check="'+kind+'" value="all" '+(!selectedCount?'checked':'')+'><span>All '+label+'</span></label>'
+   +(choices.length?choices.map(x=>'<label class="matchup-option"><input type="checkbox" data-tso-check="'+kind+'" value="'+text(canon(x))+'" '+(selected.includes(canon(x))?'checked':'')+'><span>'+text(x)+'</span></label>').join(''):'<p class="matchup-empty">No current verified '+label+'</p>')
+   +'</div></details>';
+ };
+ el('marketPicker').innerHTML=buildMulti('Markets',mk,state.marketSelections,'markets',state.marketOpen);
+ el('bookPicker').innerHTML=buildMulti('Sportsbooks',books,state.bookSelections,'books',state.bookOpen);
  el('window').value=state.window;el('sort').value=state.sort;el('search').value=state.search;
  el('globalMatchups').innerHTML=globalMatchupMarkup();
  el('toolbar').hidden=['games','cheatsheets','ratings','projections','injuries'].includes(state.page)&&!state.tool&&!state.game;
@@ -704,7 +713,7 @@ function route(sport,page,tool=null){
  const matched=page==='cheatsheets'&&SPORTS[sport].tools.some(t=>menuToolSlug(t[0])===tool)?tool:null;
  if(state.sport!==sport)state.matchupIds=[];
  state.matchupOpen=false;
- state.sport=sport;state.page=page;state.tool=matched;state.openSport=null;state.game=null;state.market='all';state.book='all';state.search='';state.maxRows=40;
+ state.sport=sport;state.page=page;state.tool=matched;state.openSport=null;state.game=null;state.market='all';state.book='all';state.marketSelections=[];state.bookSelections=[];state.marketOpen=false;state.bookOpen=false;state.search='';state.maxRows=40;
  closeDrawer();render();el('main').scrollIntoView({block:'start'});
 }
 function onHash(){
@@ -916,6 +925,20 @@ document.addEventListener('click',e=>{
  if(e.target.closest('#drawerClose2'))closeDrawer();
 });
 document.addEventListener('change',e=>{
+ const check=e.target.closest?.('[data-tso-check]');
+ if(check){
+  const kind=check.dataset.tsoCheck,field=kind==='markets'?'marketSelections':'bookSelections';
+  const opened=kind==='markets'?'marketOpen':'bookOpen';
+  if(!['markets','books'].includes(kind))return;
+  if(check.value==='all')state[field]=[];
+  else{
+   const next=new Set(state[field]);
+   if(check.checked)next.add(check.value);else next.delete(check.value);
+   state[field]=[...next];
+  }
+  state[opened]=true;state.maxRows=40;render();
+  return;
+ }
  const match=e.target.closest?.('[data-global-matchup-check]');
  if(match){
   const val=match.dataset.globalMatchupCheck;
@@ -941,12 +964,19 @@ el('scrim').addEventListener('click',closeDrawer);
 el('savedBtn').addEventListener('click',()=>{location.hash='#/'+state.sport+'/saved'});
 el('refreshBtn').addEventListener('click',()=>load(true));
 el('search').addEventListener('input',e=>{state.search=e.target.value;state.maxRows=40;el('content').innerHTML=(state.page==='trends'?pageTrends():state.page==='games'&&state.game?pageGames():state.page==='overview'?overview():state.page==='cheatsheets'&&state.tool?toolDetail():section('Current selections','Filtered results')+tableMarkup(filteredRows()))});
-for(const id of ['market','book','window','sort'])el(id).addEventListener('change',e=>{state[id]=e.target.value;state.maxRows=40;render()});
+for(const id of ['window','sort'])el(id).addEventListener('change',e=>{state[id]=e.target.value;state.maxRows=40;render()});
 window.addEventListener('hashchange',onHash);
 document.addEventListener('toggle',e=>{
  if(e.target.matches?.('[data-global-matchup-picker]'))state.matchupOpen=Boolean(e.target.open);
+ if(e.target.matches?.('[data-tso-picker]'))state[e.target.dataset.tsoPicker==='markets'?'marketOpen':'bookOpen']=Boolean(e.target.open);
 },true);
 document.addEventListener('click',e=>{
+ for(const [name,openField] of [['marketPicker','marketOpen'],['bookPicker','bookOpen']]){
+  if(state[openField]&&!e.target.closest?.('#'+name)){
+   const picker=el(name).querySelector('[data-tso-picker]');
+   if(picker){picker.open=false;state[openField]=false}
+  }
+ }
  if(state.matchupOpen&&!e.target.closest?.('[data-global-matchup-picker]')){
   const picker=el('globalMatchups').querySelector('[data-global-matchup-picker]');
   if(picker){picker.open=false;state.matchupOpen=false}
