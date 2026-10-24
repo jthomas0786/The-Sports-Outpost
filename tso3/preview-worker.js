@@ -52,6 +52,7 @@ function sanitizeNbaResearch(doc){
    freshness are verified before a market or projection is shown. */
 const NFL_SLATE_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nfl.json';
 const NFL_RESEARCH_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nfl-research.json';
+const NFL_TSO3_REDZONE_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/tso-3.0/tso3/data/nfl-td-opportunities.json';
 const NFL_ODDS_URL='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nfl-odds.json';
 function nflTeamKey(v){
  const x=String(v||'').toUpperCase().replace(/[^A-Z]/g,'');
@@ -70,6 +71,37 @@ async function nflRaw(url,ttl=120){
  if(!r.ok)throw Error('Published NFL feed HTTP '+r.status);
  return r.json();
 }
+
+/* Officially observed nflverse play-by-play, never reconstructed player tracking.
+   Independent TSO3 branch artifact is accepted only with current 2026 game dates.
+   No stale files are silently upgraded by refreshing an HTTP cache timestamp. */
+async function verifiedNflRedZone(){
+ const doc=await nflRaw(NFL_TSO3_REDZONE_URL,300),cur=doc?.seasons?.['2026'],prev=doc?.seasons?.['2025'];
+ const now=Date.now(),generated=Date.parse(doc?.generatedAt||''),
+  latest=Date.parse(String(cur?.lastObservedGameDate||'')+'T23:59:59Z');
+ if(doc?.schemaVersion!==1||!String(doc.source||'').startsWith('nflverse')
+  ||doc.license!=='CC BY 4.0'||!Number.isFinite(generated)||generated>now+60000
+  ||now-generated>10*86400000||!Number.isFinite(latest)||latest>now+86400000
+  ||now-latest>8*86400000||Number(cur?.gamesScanned)<80
+  ||Number(cur?.playerCount)<200||!cur?.players||!prev?.players)
+  throw Error('Verified 2026 red-zone source missing, incomplete or out of date');
+ const players={};
+ for(const [id,p] of Object.entries(cur.players)){
+  if(!/^00-\d{7}$/.test(id)||!p?.team||Number(p.gamesWithOpportunities)<1)continue;
+  const fields=['gamesWithOpportunities','redZoneOpps','goalLineOpps','redZoneSharePct','goalLineSharePct','redZoneTds'];
+  const safe=src=>Object.fromEntries(fields.map(k=>{
+   const n=src?.[k];return [k,typeof n==='number'&&Number.isFinite(n)&&n>=0?n:null];
+  }));
+  players[id]={team:nflTeamKey(p.team),current:safe(p),previous:
+   prev.players[id]&&nflTeamKey(prev.players[id].team)===nflTeamKey(p.team)?safe(prev.players[id]):null};
+ }
+ if(Object.keys(players).length<200)throw Error('Verified 2026 red-zone player identity coverage insufficient');
+ return {available:true,season:2026,source:'nflverse NFL play-by-play / CC BY 4.0',
+  generatedAt:doc.generatedAt,lastObservedGameDate:cur.lastObservedGameDate,
+  gamesScanned:cur.gamesScanned,playerCount:Object.keys(players).length,players,
+  note:'Dated actual 2026 inside-20 and inside-5 rush/target opportunities; no inferred routes, player coverage or synthetic live red-zone data.'};
+}
+
 async function verifiedNflSlate(){
  const [slate,official]=await Promise.all([nflRaw(NFL_SLATE_URL,120),officialGames(ESPN_SCOREBOARDS.nfl,'nfl')]);
  if(!Array.isArray(slate?.games)||!Number.isFinite(Date.parse(slate?.generatedAt||'')))throw Error('Invalid NFL model data');
@@ -2106,6 +2138,10 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
   try{
    return Response.json(await safeNbaInjuries(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'ESPN NBA injuries'}});
   }catch(_){return Response.json({available:false,entries:[],error:'Official NBA injury feed unavailable'},{status:503,headers})}
+ }
+ if(u.pathname==='/api/nfl-redzone'){
+  try{return Response.json(await verifiedNflRedZone(),{headers:{...headers,'cache-control':'no-store','x-tso-source':'nflverse-2026-PBP-verified'}})}
+  catch(e){return Response.json({available:false,error:String(e?.message||'').slice(0,130),players:{}},{status:503,headers})}
  }
  if(['/api/nfl-touchdowns','/api/nfl-research','/api/nfl-odds','/api/nfl-projections','/api/nfl-injuries','/api/nfl-weather','/api/nfl-validation'].includes(u.pathname)){
   try{
