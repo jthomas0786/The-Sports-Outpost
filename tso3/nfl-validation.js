@@ -27,6 +27,7 @@ function archiveSummary(a){
   +box('MOST RECENT CAPTURE',a.latestCapture?asof(a.latestCapture):'None','Stored source-time snapshots')
   +box('2026 SHADOW FORECASTS',a.shadowForecasts?.snapshots??0,'Ungraded · independent pre-kickoff captures')
   +box('2026 SHADOW GAMES',a.shadowForecasts?.games??0,'No retrospective probabilities')
+  +box('SHADOW CAPTURE STATUS',a.shadowForecasts?.lastRun?.status||'Awaiting first run','Independent from sportsbook-priced archives')
   +'</div><p class="nba-footnote">Latest capture run: '+esc(last.status||'Awaiting first run')
   +' · '+esc(last.completed_at?asof(last.completed_at):'Not run yet')
   +' · newly saved '+esc(last.inserted_predictions??0)
