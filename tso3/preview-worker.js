@@ -1433,19 +1433,30 @@ async function verifiedAthleteDepth(sport,id,season){
   ||!Number.isInteger(season)||season<2024||season>2027)
   throw Error('Unsupported athlete, league or season');
  const api='https://site.web.api.espn.com/apis/common/v3/sports/'+ATHLETE_PATHS[sport]+'/athletes/'+id;
+ const providerChecks={};
  const load=async(type)=>{
-  const r=await fetch(api+'/'+type+'?season='+season+'&seasontype=2',{
-   headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:300},
-   signal:AbortSignal.timeout(12500)});
-  if(!r.ok)return null;
-  const data=await r.json();
-  return data&&typeof data==='object'?data:null;
+  try{
+   const r=await fetch(api+'/'+type+'?season='+season+'&seasontype=2',{
+    headers:{accept:'application/json'},cf:{cacheEverything:true,cacheTtl:300},
+    signal:AbortSignal.timeout(16000)});
+   if(!r.ok){providerChecks[type]='HTTP_'+r.status;return null}
+   const data=await r.json();
+   if(!data||typeof data!=='object'){providerChecks[type]='INVALID_JSON';return null}
+   providerChecks[type]='HTTP_200';
+   return data;
+  }catch(e){
+   const message=String(e?.name||e?.message||'request-error');
+   providerChecks[type]=message.includes('Timeout')?'TIMEOUT':'REQUEST_FAILED';
+   return null;
+  }
  };
- const [gameDoc,seasonDoc]=await Promise.all([load('gamelog').catch(()=>null),load('stats').catch(()=>null)]);
+ const [gameDoc,seasonDoc]=await Promise.all([load('gamelog'),load('stats')]);
  const now=Date.now(),events=gameDoc?athleteGamelogEntries(gameDoc,now):[];
  const stats=seasonDoc?athleteSeasonStats(seasonDoc):[];
  if(!events.length&&!stats.length)return {available:false,sport,athleteId:id,season,
-  events:[],seasonStats:[],reason:'Official ESPN season game log/statistics unavailable'};
+  events:[],seasonStats:[],providerChecks,
+  reason:!gameDoc&&!seasonDoc?'ESPN athlete provider requests failed for this Worker':
+   'ESPN response received but no parsable season game log or summary statistics'};
  const foundId=String(gameDoc?.athlete?.id||seasonDoc?.athlete?.id||'');
  if(foundId&&foundId!==id)throw Error('ESPN athlete ID mismatch');
  const athlete=gameDoc?.athlete||seasonDoc?.athlete||{};
@@ -1459,7 +1470,7 @@ async function verifiedAthleteDepth(sport,id,season){
   fetchedAt:new Date(now).toISOString(),
   source:'ESPN official athlete season stats/game log; original records',
   sourceIdentification:foundId?'ESPN athlete ID confirmed':'ESPN requested athlete ID, name not independently confirmed',
-  events,seasonStats:stats,gameLogAvailable:events.length>0,
+  events,seasonStats:stats,providerChecks,gameLogAvailable:events.length>0,
   note:'Observed league season stats, not a betting probability. Incomplete/missing ESPN games remain unavailable; do not interpret a missing game as 0.'};
 }
 /* Strict official-roster player identity resolution for sportsbook records
