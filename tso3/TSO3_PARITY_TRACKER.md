@@ -195,3 +195,16 @@ Combined-stat enrichment also deployed after regression: ESPN's original paired 
 **Deployment:** GitHub commits are **not** Cloudflare deployments. Cloudflare's currently observed active isolated preview deployment was Worker version `ff5b6c6f-2d97-41e0-a053-abcbbe62ea8b` (uploaded earlier October 24 UTC). Its bundle has not been confirmed to contain this route fix. The updated screens **must not** be represented as live preview until the complete 14-asset bundle is safely redeployed and verified, retaining the separate D1 binding and cron. Main/production was not changed.
 
 **Outstanding source requirement:** true receiver alignment/CB-specific coverage, current-season inside-20 play events, fresh all-slate ATD quotes, reconciled injury and lineup status, and model calibration remain open. No claims of PropFinder feature-equivalence or 100% production readiness.
+
+### Follow-up deployment evidence — October 24, 2026 at 16:11 UTC
+
+The previous section accurately described the branch-only state **before** this follow-up. The complete checked-in `tso3/preview-worker.js` plus **all 14** current `tso3` UI assets (including both repaired JS files) were then assembled into a single immutable preview bundle; `app.js`, `nfl-lab.js`, and the bundled Worker script all passed parse checks.
+
+- Cloudflare new Worker **version 83**: `e41b6d58-ce50-4058-8880-1bc50c42dedd`.
+- Cloudflare deployment: `abe0c7d0-dd28-4b58-9d8a-66591c0f77bf`; independently read back as **100%** `tso3-preview` traffic.
+- Worker handlers independently read back: `fetch` and `scheduled`.
+- Independent D1 `NFL_ARCHIVE` binding independently read back as `b976a673-0fe5-4440-84c7-15b0475758ba`.
+- Existing Worker cron independently read back as `*/30 * * * *`, unchanged since October 23.
+- The modified app route, source data table and source disclosures are bundled, not raw-branch fallbacks.
+- This verification covers deployment/configuration, **not** actual end-user browser interactivity or data availability in every upcoming matchup. Cloudflare Browser Rendering was not completed for the repaired route; the manual TD Matchups browser acceptance check remains outstanding.
+- Protected production/main and TSO 2.0 remain untouched. All league-wide sportsbook freshness and advanced coverage-feed requirements remain blockers to production.
