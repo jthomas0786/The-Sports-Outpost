@@ -340,7 +340,7 @@ function toolCard(pair,i){
  const code=String(pair[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-');
  const ready=toolReady(pair[0]);
  const foundation=Boolean(window.TSO3ObservedResearch?.supports?.(state.sport,code));
- return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(foundation?(ready?'VERIFIED PLAYER HISTORY':'ESPN HISTORY CONNECTED · SELECT TEAM'):(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED'))+'</span><span class="arrow">↗</span></footer></button>';
+ return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(foundation?'partial':ready?'':'pending')+'">'+(foundation?'ESPN PLAYER DATA · ADVANCED PENDING':(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED'))+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
  const rows=getRows().filter(eligible);
