@@ -34,7 +34,7 @@ const notes={
 };
 const columns={
  'defense-vs-position':['MATCHUP','DEFENSE','FACING OFFENSE','VS POSITION','YDS / GM','REFERENCE AVG','DIFF VS REF','TD / GM','TARGETS / GM','GAMES'],
- 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','MODEL GAP','50K SIM 2+ TD','TSO GRADE','2025 RZ OPP/GM','2026 SNAP L5','2026 TGT SHARE','OPP RZ TD RATE','DEF VS POS TD/GM','DEF GAMES','BEST ATD ODDS'],
+ 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','MODEL GAP','50K SIM 2+ TD','TSO GRADE','2026 SHADOW (EXPERIMENTAL)','2025 RZ OPP/GM','2026 SNAP L5','2026 TGT SHARE','OPP RZ TD RATE','DEF VS POS TD/GM','DEF GAMES','BEST ATD ODDS'],
  'red-zone-usage':['PLAYER','MATCHUP','2025 RZ CARRIES','2025 RZ TARGETS','2025 RZ/GM','2026 TARGET SHARE','2026 SNAP L5','2026 TD/GM','OPP RZ TD %','TSO ATD'],
  'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','OPP RUSH YDS/GM','BEST BOOK'],
  'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
@@ -310,6 +310,13 @@ function build(ctx,tool){
      officialReport,simAtd,simTwo,modelProbability:modeledData&&!cannotPlay(officialReport)?num(p.modelProbability):null});
   }
  }
+ // Shadow probabilities never replace archived or currently published TSO model results.
+ if(tool==='touchdown-opportunities'){
+  const shadow=window.TSO3AtdShadow,ref=shadow?.context?.(ctx.research);
+  for(const r of result)r.shadow=shadow?.project?.({baseProbability:r.modelProbability,
+   player:r.p,game:r.game,report:r.officialReport,reference:ref,
+   generatedAt:ctx.research?.generatedAt})||{available:false,reason:'2026 shadow model unavailable'};
+ }
  for(const r of result){
   const yards=num(r.defense?.perGame?.yards),mean=num(r.dvpMean);
   r.dvpDiff=yards===null||mean===null||mean<=0?null:(yards/mean-1)*100;
@@ -424,7 +431,8 @@ function row(r){
   {html:'<b>'+percent(r.simAtd)+'</b><small>50K MODEL</small>'},
   {html:'<b class="'+(ppGap(r)>=20?'nfl-low':ppGap(r)>=12?'nfl-medium':'')+'">'+gapLabel(r)+'</b><small>'+esc(divergence(r)||'ESTIMATE DELTA')+'</small>'},
   {html:'<b>'+percent(r.simTwo)+'</b><small>2+ TD</small>'},
-  {text:cannotPlay(r.officialReport)?'OUT':(r.modelProbability===null?'—':r.m?.modelGrade||'—')}, {text:f(r.m?.opportunityRate)},
+  {text:cannotPlay(r.officialReport)?'OUT':(r.modelProbability===null?'—':r.m?.modelGrade||'—')},
+  {html:r.shadow?.available?'<b>'+percent(r.shadow.probability)+'</b><small>UNVALIDATED · '+r.shadow.observedGames+' games</small>':'<b>—</b><small>'+esc(r.shadow?.reason||'Insufficient source')+'</small>'}, {text:f(r.m?.opportunityRate)},
   {text:r.p?.snapTrend?.avgOffensePct===null||r.p?.snapTrend?.avgOffensePct===undefined?'—':f(r.p.snapTrend.avgOffensePct)+'%'},
   {text:r.p?.currentSeason?.targetShare==null?'—':f(r.p.currentSeason.targetShare)+'%'},
   {text:percent(r.m?.opponentRzTdRate)},
@@ -493,6 +501,7 @@ function render(ctx,tool){
   ' · TARGET SHARE '+state.visible.filter(r=>num(r.p?.currentSeason?.targetShare)!==null).length+'/'+state.visible.length+
   ' · DEFENSE TD GROUP '+state.visible.filter(r=>num(r.oppTdGroup?.tdsPerGame)!==null).length+'/'+state.visible.length+
   ' · MATCHED ATD PRICES '+state.visible.filter(r=>Boolean(r.quote)).length+'/'+state.visible.length+
+  ' · 2026 SHADOW '+state.visible.filter(r=>r.shadow?.available).length+'/'+state.visible.length+
   '. Missing records are excluded, never treated as zero.</p>':'';
  const controls='<div class="nba-controls nfl-controls">'+selectBox('games',gameOptions)
   +(gameTools.has(tool)?'':selectBox('positions',(tool==='coverage-matchups'?['WR','TE','RB']:['QB','RB','WR','TE']).map(x=>[x,x])))
@@ -515,6 +524,7 @@ function render(ctx,tool){
  +(modelTools.has(tool)?'<p class="nfl-model-note">'+esc(modelAlert)+'</p>':'')
  +(tool==='touchdown-opportunities'&&actualTdQuotes.length===0?'<p class="nfl-model-note">NO VERIFIED ATD BOOK PRICES for the current official NFL slate. A recent timestamp for the general sportsbook feed does not guarantee anytime-TD market coverage. Prices will remain blank until independently checked quotes arrive.</p>':'')
  +coverage
+ +(tool==='touchdown-opportunities'?'<p class="nfl-model-note"><b>2026 SHADOW IS NOT THE OFFICIAL TSO MODEL OR AN APPROVED GRADE.</b> Experimental estimates shrink observed 2026 rushing/receiving TD-game frequency toward the unchanged TSO prior, with capped carry/target and verified same-position opponent-defense adjustments. Requires three dated 2026 game logs. No unsupported 2026 goal-line or red-zone touches are invented. No historical game is treated as a prospective shadow forecast. Calibration requires future settled archive outcomes.</p>':'')
  +(tool==='touchdown-opportunities'?'<p class="nfl-model-note">DEF VS POS TD/GM measures observed 2026 touchdowns allowed to the listed position group by the next opponent, only with at least 3 defensive games and no conflicting records. It is NOT an individual scoring probability, alignment grade or man/zone matchup. Blank cells remain unverified.</p>':'')
  +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table'+(tool==='defense-vs-position'?' nfl-dvp-table':tool==='coverage-matchups'?' nfl-coverage-table':'')+'"><thead><tr>'
  +columns[tool].map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'
@@ -642,6 +652,9 @@ function detail(r,ctx){
  const bar='<div class="nfl-bars">'+logs.slice(0,16).reverse().map(g=>'<div><i style="height:'+Math.round((num(g.tds)||0)/max*100)+'%"></i><span>'+esc(g.week||'')+'</span><b>'+esc(g.tds??'—')+'</b></div>').join('')+'</div>';
  return '<div class="drawer-contents nfl-details"><span class="eyebrow">NFL VERIFIED PLAYER RESEARCH</span><h2>'+esc(r.name)+'</h2><p class="subtitle">'+esc(r.team)+' · '+esc(r.position)+' · '+esc(r.game.away?.abbr)+' @ '+esc(r.game.home?.abbr)+' · '+esc(when(r.game.startTime))+'</p>'
   +'<div class="nfl-detail-grid"><div><small>TSO ATD REGRESSED</small><b>'+percent(r.modelProbability)+'</b><small>2025 baseline · 2026 matchup</small></div>'
+  +'<div><small>2026 SHADOW · NOT GRADED</small><b>'+(r.shadow?.available?percent(r.shadow.probability):'—')+'</b><small>'+(r.shadow?.available?esc(r.shadow.tdGames+'/'+r.shadow.observedGames+' 2026 TD games'):esc(r.shadow?.reason||'Unavailable'))+'</small></div>'
+  +'<div><small>2026 SHADOW ROLE FACTOR</small><b>'+(r.shadow?.available?f(r.shadow.roleFactor):'—')+'</b></div>'
+  +'<div><small>2026 SHADOW DEF FACTOR</small><b>'+(r.shadow?.available?f(r.shadow.defenseFactor):'—')+'</b></div>'
   +'<div><small>50K SIM ATD</small><b>'+percent(r.simAtd)+'</b></div>'
   +'<div><small>50K SIM 2+ TD</small><b>'+percent(r.simTwo)+'</b></div>'
   +'<div><small>MODEL GAP</small><b>'+gapLabel(r)+'</b><small>'+esc(divergence(r)||'Absolute difference')+'</small></div>'
@@ -654,6 +667,7 @@ function detail(r,ctx){
   +'<div><small>RZ TARGETS (BASELINE)</small><b>'+esc(r.m?.rzTargets??'—')+'</b></div>'
   +'<div><small>OPP RZ TD ALLOWED</small><b>'+percent(r.m?.opponentRzTdRate)+'</b></div>'
   +'<div><small>INJURY STATUS</small><b>'+esc(r.officialReport?.status||r.p?.status||r.m?.injuryStatus||'Unknown')+'</b></div></div>'
+  +'<p class="nba-footnote">2026 Shadow is experimental with fixed shrinkage parameters; it is not calibrated, has no postgame backtest and never replaces TSO ATD or the A–F grade. Only dated observed 2026 rushing/receiving TD games are counted (no passing TDs for QBs).</p>'
   +'<div class="nfl-context-note">'+(ppGap(r)===null?'Only one or neither current TD model is available for this player.':ppGap(r)>=12?'MODEL DISAGREEMENT: the regressed ATD model and the 50K simulation differ by '+gapLabel(r)+'. Compare their assumptions, current role, injury status and opponent before interpreting either number.':'Two separate models are shown. Their agreement does not prove calibration or guarantee a touchdown.')+'</div>'
   +'<h3>2026 games · observed rushing/receiving touchdowns</h3>'+bar
   +'<h3>2026 player trends</h3><div class="nfl-detail-grid">'+stats.map(([name,value])=>'<div><small>'+esc(name.toUpperCase())+'</small><b>'+f(value)+'</b></div>').join('')+'</div>'
