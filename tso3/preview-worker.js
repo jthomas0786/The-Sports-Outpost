@@ -1375,7 +1375,7 @@ function officialRosterAthletes(doc){
    the upstream sportsbook publisher has no current quotes. This is roster
    research, NOT confirmed starters/lineups or an implicit bettable market. */
 async function officialVerifiedGameById(league,gameId){
- const schedule=await officialGames(ESPN_SCOREBOARDS[league],league);
+ const schedule=await officialGames(ESPN_SCOREBOARDS[league],league).catch(()=>[]);
  const onBoard=schedule.find(g=>g.league===league&&String(g.id)===gameId);
  if(onBoard)return {...onBoard,verification:'ESPN official scoreboard exact ID'};
  // Some official dated scoreboards omit recently starting/postponed games.
