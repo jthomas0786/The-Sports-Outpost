@@ -1223,7 +1223,8 @@ async function tsoNhlResearchData(){
    cf:{cacheEverything:true,cacheTtl:480},signal:AbortSignal.timeout(23000)});
   if(!result.ok)throw Error('Published NHL research unavailable');
   const doc=await result.json(),age=(Date.now()-Date.parse(doc.generatedAt||''))/3600000;
-  if(Number(doc.version)<4||Number(doc.currentSeason)!==2027
+  const expectedSeason=new Date().getUTCMonth()>=6?new Date().getUTCFullYear()+1:new Date().getUTCFullYear();
+  if(Number(doc.version)<4||Number(doc.currentSeason)!==expectedSeason
    ||!doc.players||!doc.teamDefense?.teams||!Number.isFinite(age)||age< -0.1||age>36)
    throw Error('Published NHL player history is missing or too old');
   return doc;
