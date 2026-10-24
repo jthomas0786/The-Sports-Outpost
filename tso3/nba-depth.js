@@ -110,7 +110,9 @@ function render(ctx,tool){
   +(selected.length?selected.map(tableRow).join(""):"<tr><td colspan='"+header.length+"'>No verified records available for these filters.</td></tr>")+"</tbody></table></div>"
   +"<div class='nba-table-foot'><span>Showing "+selected.length+" of "+list.length+" verified records</span>"+(selected.length<list.length?"<button data-depth-more>SHOW MORE →</button>":"")+"</div>";
  return "<section class='nba-lab nba-depth'><div class='nba-intro'><div><span class='nba-eyebrow'>THE SPORTS OUTPOST / NBA RESEARCH</span><h2>"+esc(names[tool])+"</h2><p>"+esc(descriptions[tool])+"</p></div></div>"
-  +source+"<div class='nba-depth-note'>"+esc(warning)+"</div>"+fields+table
+  +source+"<div class='nba-depth-note'>"+esc(warning)+"</div>"
+  +(ctx.research?.defenseDataQuality?.verified===false?"<div class='nba-depth-note'><b>Defensive and team pace aggregates withheld:</b> historical cache mixes NBA seasons. See the independent current-season NBA Matchup vs Position sheet for verified boxscore-based DvP samples.</div>":"")
+  +fields+table
   +"<p class='nba-footnote'>ESPN-derived NBA game histories and team statistics; current schedule and live ESPN injury status where available. No invented model outputs.</p></section>";
 }
 function repaint(){const node=document.getElementById("nbaDepthSlot");if(node&&state.ctx)node.innerHTML=render(state.ctx,state.tool)}
