@@ -24,6 +24,110 @@ const NBA_MODEL_SOURCE='https://tso2-nba-model.jthomas0786-tso.workers.dev/';
 const NBA_RESEARCH_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-research.json';
 const NBA_ODDS_SOURCE='https://raw.githubusercontent.com/jthomas0786/The-Sports-Outpost/main/slates/nba-odds.json';
 const NBA_INJURIES_SOURCE='https://site.api.espn.com/apis/site/v2/sports/basketball/nba/injuries';
+
+/* Experimental official ESPN *current* NBA defensive position research.
+   Never mixes the multi-season cached teamDefense table into 2026-27 rankings.
+   The first 14 days of a new season can be reconstructed from ALL completed
+   official games. Later, refuse season-complete rankings until an archival
+   current-season source is available. Only played athletes in finished games.
+*/
+async function verifiedNbaCurrentDefense(){
+ const now=Date.now(),season=new Date(now).getUTCMonth()>=6?new Date(now).getUTCFullYear()+1:new Date(now).getUTCFullYear();
+ const start=Date.UTC(season-1,9,20),today=new Date(now);
+ if(now<start)return {available:false,season,reason:'Current NBA season has not started',groups:[]};
+ const span=Math.floor((now-start)/86400000);
+ if(span>13)return {available:false,season,reason:'Complete current-season defensive boxscore coverage requires a persistent season archive; an isolated recent window cannot be labeled full-season',groups:[]};
+ const fetchJson=async(url)=>{
+  const r=await fetch(url,{headers:{accept:'application/json'},signal:AbortSignal.timeout(16000),
+    cf:{cacheEverything:true,cacheTtl:900}});
+  if(!r.ok)throw Error('Official ESPN basketball source HTTP '+r.status);
+  return r.json();
+ };
+ const days=Array.from({length:span+1},(_,i)=>{
+  const d=new Date(start+i*86400000);
+  return d.getUTCFullYear()+String(d.getUTCMonth()+1).padStart(2,'0')+String(d.getUTCDate()).padStart(2,'0');
+ });
+ const scoreboards=await Promise.all(days.map(async day=>{
+  try{return await fetchJson('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates='+day+'&limit=90')}
+  catch(_){return null}
+ }));
+ if(scoreboards.some(x=>!x))throw Error('Missing official ESPN daily NBA scoreboard prevents complete current-season coverage');
+ const events=new Map();
+ for(const doc of scoreboards)for(const g of doc.events||[]){
+  const comp=g.competitions?.[0],final=g.status?.type?.completed===true||comp?.status?.type?.completed===true;
+  if(final&&/^\d{8,14}$/.test(String(g.id||''))&&Number.isFinite(Date.parse(g.date||''))
+    &&Date.parse(g.date)<=now&&Date.parse(g.date)>=start)
+   events.set(String(g.id),g);
+ }
+ if(!events.size)return {available:true,season,source:'ESPN NBA official completed box scores',gamesScanned:0,groups:[],
+   updatedAt:new Date(now).toISOString(),disclosure:'Current-season defensive matchup samples are not yet available'};
+ if(events.size>45)throw Error('Unexpectedly large NBA new-season event set; source paging not verified');
+ const list=[...events.values()],summary=[];
+ for(let i=0;i<list.length;i+=6){
+  const page=await Promise.all(list.slice(i,i+6).map(async game=>{
+   try{return {game,doc:await fetchJson('https://site.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event='+game.id)}}
+   catch(_){return null}
+  }));
+  summary.push(...page);
+ }
+ if(summary.some(x=>!x))throw Error('One or more official completed NBA box scores unavailable; no incomplete season totals published');
+ const metrics=['points','rebounds','assists','threes','pra'];
+ const n=v=>typeof v==='number'&&Number.isFinite(v)?v:null;
+ const pos=p=>{const v=String(p||'').toUpperCase();return ['PG','SG','G'].includes(v)?'G':['SF','PF','F'].includes(v)?'F':['C','FC','F-C','C-F'].includes(v)?'C':null};
+ const map=new Map(),completed=[];
+ for(const {game,doc} of summary){
+  const comp=doc.header?.competitions?.[0],headerType=comp?.status?.type||{},
+   current=Number(doc.header?.season?.year||0),kind=Number(doc.header?.season?.type?.id||doc.header?.season?.type||0);
+  if(current!==season||kind!==2||!(headerType.completed===true||headerType.state==='post'))
+   throw Error('NBA boxscore season, season-type or completion mismatch');
+  const teams=(comp.competitors||[]).map(c=>String(c.team?.id||'')).filter(Boolean);
+  if(teams.length!==2||new Set(teams).size!==2)throw Error('Incomplete NBA official competitors');
+  const played=new Map(teams.map(t=>[t,[]]));
+  for(const block of doc.boxscore?.players||[]){
+   const id=String(block.team?.id||'');
+   if(!played.has(id))continue;
+   const stat=(block.statistics||[]).find(x=>Array.isArray(x.athletes)&&x.athletes.length)||(block.statistics||[])[0];
+   if(!stat)continue;
+   const labels=stat.labels||stat.names||[];
+   for(const entry of stat.athletes||[]){
+    if(entry.didNotPlay)continue;
+    const m=Object.fromEntries(labels.map((k,i)=>[String(k).toUpperCase(),entry.stats?.[i]]));
+    const raw=String(m.MIN??m.MINUTES??'');
+    const minutes=/^\d+:\d{1,2}$/.test(raw)?Number(raw.split(':')[0])+Number(raw.split(':')[1])/60:Number(raw);
+    if(!Number.isFinite(minutes)||minutes<=0)continue;
+    const group=pos(entry.athlete?.position?.abbreviation||entry.position?.abbreviation);
+    if(!group&&minutes>=8)throw Error('Unclassified NBA player position in official completed boxscore');
+    if(!group)continue;
+    const split=String(m['3PT']||m['3PM-A']||'').split('-');
+    const threes=/^\d+$/.test(split[0])?Number(split[0]):null;
+    const statNum=k=>{const v=Number(m[k]);return m[k]!==undefined&&m[k]!==null&&Number.isFinite(v)?v:null};
+    const points=statNum('PTS'),reb=statNum('REB'),ast=statNum('AST');
+    if(points===null||reb===null||ast===null||threes===null)throw Error('Official played NBA boxscore has missing points, rebounds, assists or threes');
+    played.get(id).push({position:group,points,rebounds:reb,assists:ast,threes,pra:points+reb+ast});
+   }
+  }
+  if(teams.some(t=>played.get(t).length<7))throw Error('Incomplete official NBA player positions/boxscore for at least one team');
+  for(const defense of teams){
+   const offense=teams.find(t=>t!==defense),rows=played.get(offense);
+   for(const group of ['G','F','C']){
+    const players=rows.filter(x=>x.position===group);
+    if(!players.length)continue;
+    const key=defense+'|'+group,r=map.get(key)||{teamId:defense,position:group,games:0,sums:Object.fromEntries(metrics.map(m=>[m,0]))};
+    r.games++;
+    for(const m of metrics)r.sums[m]+=players.reduce((a,x)=>a+x[m],0);
+    map.set(key,r);
+   }
+  }
+  completed.push({id:String(game.id),at:game.date});
+ }
+ const groups=[...map.values()].map(r=>({teamId:r.teamId,position:r.position,games:r.games,
+  perGame:Object.fromEntries(metrics.map(k=>[k,Math.round(r.sums[k]/r.games*100)/100]))}));
+ return {available:true,season,source:'ESPN official 2026-27 completed NBA scoreboard/boxscores',updatedAt:new Date(now).toISOString(),
+  gamesScanned:completed.length,latestGame:completed.map(g=>g.at).sort().at(-1)||null,
+  groups,coverageComplete:true,rankingRule:'No comparative rank until 16+ defenses each have at least 3 completed current-season games',
+  disclosure:'Individual player box scores, aggregate full opposing guard/forward/center groups; not defense-to-individual assignments or betting probabilities'};
+}
+
 function sanitizeNbaResearch(doc){
  if(!doc||typeof doc!=='object'||!doc.players||!doc.teams)throw Error('Invalid verified research schema');
  const stats=['points','rebounds','assists','threes','pra','minutes','steals','blocks'];
@@ -2273,6 +2377,11 @@ export default {async scheduled(event,env,ctx){ctx.waitUntil(Promise.all([runNfl
    const doc=await safeNbaOdds();
    return Response.json(doc,{headers:{...headers,'cache-control':'no-store','x-tso-source':'TSO NBA odds snapshot'}});
   }catch(_){return Response.json({available:false,rows:[],error:'Current NBA odds snapshot unavailable'},{status:503,headers})}
+ }
+ if(u.pathname==='/api/nba-current-dvp'){
+  try{return Response.json(await verifiedNbaCurrentDefense(),{headers:{...headers,'cache-control':'public, max-age=900','x-tso-source':'ESPN-current-NBA-boxscores'}})}
+  catch(error){return Response.json({available:false,season:2027,groups:[],error:String(error?.message||'unverified current NBA defense').slice(0,175)},
+    {status:503,headers:{...headers,'cache-control':'no-store'}})}
  }
  if(u.pathname==='/api/nba-models'||u.pathname==='/api/nba-research'){
   const kind=u.pathname.endsWith('research')?'research':'models';
