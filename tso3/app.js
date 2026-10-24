@@ -545,7 +545,25 @@ async function hydrateFullPlayerDashboard(){
   if(selected)state.playerUI.lineKey=String(selected.market||'').toUpperCase()
     .replace(/[^A-Z0-9]/g,'')+':'+Number(selected.line);
  }
- el('fullPlayerDashboardSlot').innerHTML=renderer.render({sport,doc,player,game,odds:quotes,ui:state.playerUI});
+ let nhlMatchup=null;
+ if(sport==='nhl'&&game&&/^\d{6,14}$/.test(String(game.id))){
+  const sourceKey=String(game.id)+':'+id,saved=nhlDetailedCache.get(sourceKey);
+  if(saved&&Date.now()-saved.at<10*60000)nhlMatchup=saved.doc;
+  else{
+   try{
+    const res=await fetch('/api/nhl-player-research?'+new URLSearchParams({
+     gameId:String(game.id),playerId:id}),{cache:'default'});
+    const body=await res.json();
+    nhlMatchup=res.ok&&body?.available&&body?.gameId===String(game.id)
+      &&body?.athleteId===id?body:null;
+   }catch(_){nhlMatchup=null}
+   nhlDetailedCache.set(sourceKey,{at:Date.now(),doc:nhlMatchup});
+  }
+ }
+ if(nonce!==playerResearchNonce||state.page!=='player'||state.playerId!==id||state.sport!==sport
+   ||!el('fullPlayerDashboardSlot'))return;
+ el('fullPlayerDashboardSlot').innerHTML=renderer.render({
+  sport,doc,player,game,odds:quotes,nhlMatchup,ui:state.playerUI});
 }
 function refreshFullPlayerDashboard(){
  if(state.page==='player'&&state.playerId)void hydrateFullPlayerDashboard();
