@@ -253,7 +253,8 @@ function render(ctx){
  const headshot=String(doc?.headshot||'');
  const safeHeadshot=/^https:\/\/(a\.espncdn\.com|cdn\.espn\.com)\//.test(headshot)
   ?'<img class="tso-pd-headshot" src="'+esc(headshot)+'" alt="'+esc(name)+' official ESPN player headshot" loading="lazy">':'';
- const head='<header class="tso-pd-hero">'+safeHeadshot+'<div><span class="eyebrow">'+esc(sport.toUpperCase())+' · TSO VERIFIED PLAYER INTELLIGENCE</span><h2>'+esc(name)+'</h2>'
+ const context=sport==='mlb'?(doc?.statScope==='pitching'?'ESPN PITCHING · HITS ARE HITS ALLOWED':doc?.statScope==='batting'?'ESPN BATTING': 'ESPN BATTING/PITCHING SCOPE UNKNOWN'):'TSO VERIFIED PLAYER INTELLIGENCE';
+ const head='<header class="tso-pd-hero">'+safeHeadshot+'<div><span class="eyebrow">'+esc(sport.toUpperCase())+' · '+esc(context)+'</span><h2>'+esc(name)+'</h2>'
   +'<p>'+esc(player?.team||doc?.athleteTeam||'Team not verified')+' · '+esc(player?.position||doc?.athletePosition||'Position unavailable')+' · ESPN Athlete #'+esc(doc?.athleteId||player?.playerId||'—')+'</p></div>'
   +'<div class="tso-pd-source"><strong>Official season '+esc(doc?.season||'—')+'</strong><small>'+esc(doc?.sourceIdentification||'Source verification pending')+'</small>'
   +'<small>ESPN observations / independent TSO odds & models</small></div></header>';
