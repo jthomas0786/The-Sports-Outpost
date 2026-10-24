@@ -38,7 +38,7 @@ function marketStatMatches(market,metric){
  const k=key(market),m=key(categoryName(metric));
  const maps={
   POINTS:['POINTS'],REBOUNDS:['REBOUNDS'],ASSISTS:['ASSISTS'],
-  THREES:['THREEPOINTERSMADE','THREES'],RECEPTIONS:['RECEPTIONS'],
+  THREES:['THREEPOINTERSMADE','THREEPOINTFIELDGOALSMADE','THREES'],RECEPTIONS:['RECEPTIONS'],
   RECYDS:['RECEIVINGYARDS','RECYDS'],RUSHYDS:['RUSHINGYARDS','RUSHYDS'],
   PASSYDS:['PASSINGYARDS','PASSYDS'],PASSATTEMPTS:['PASSINGATTEMPTS'],
   COMPLETIONS:['COMPLETIONS'],SOG:['SHOTS','SHOTSONGOAL','SHOTSTOTAL'],
@@ -46,11 +46,16 @@ function marketStatMatches(market,metric){
   TOTALBASES:['TOTALBASES'],RBIS:['RBI'],RBI:['RBI'],RUNS:['RUNS'],
   STOLENBASES:['STOLENBASES'],PITCHERSTRIKEOUTS:['STRIKEOUTS','PITCHERSTRIKEOUTS'],
   ANYTIMEGOAL:['GOALS'],FIRSTGOAL:[],
+  PRA:['POINTSREBOUNDSASSISTS'],PTSREB:['POINTSREBOUNDS'],
+  POINTSREBOUNDS:['POINTSREBOUNDS'],POINTSASSISTS:['POINTSASSISTS'],
+  REBOUNDSASSISTS:['REBOUNDSASSISTS'],RA:['REBOUNDSASSISTS'],
+  HRRBI:['HITSRUNSRBIS'],HRR:['HITSRUNSRBIS'],
+  PASSINGRUSHINGYARDS:['PASSINGRUSHINGYARDS'],
   ATD:['TOTALTOUCHDOWNS']
  };
  const named=Object.hasOwn(maps,k)?maps[k]:null;
  // Never infer a scoring-first or multi-stat category from a single unrelated log stat.
- const unsupported=['FIRSTGOAL','PRA','HRR','ATD'];
+ const unsupported=['FIRSTGOAL','ATD'];
  if(unsupported.includes(k)&&!named)return false;
  return named?named.includes(m):k===m;
 }
