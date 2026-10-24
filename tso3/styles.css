@@ -728,3 +728,18 @@ html,body,button,input,select,textarea{
 .ts-role-bar-wrap small{font-size:9px;color:#acc3d2}
 @media(max-width:1250px){.ts-role-top{flex-wrap:wrap}.ts-role-filter{justify-content:flex-start;flex:1 1 100%}.ts-role-comparison{grid-template-columns:1fr}}
 @media(max-width:680px){.ts-role-top{padding:13px}.ts-role-top h2{font-size:23px}.ts-role-filter{gap:7px}.ts-role-filter label,.ts-role-filter label:first-child{min-width:180px;flex:1}.ts-role-side-head{flex-wrap:wrap}.ts-role-tools{flex-direction:column;align-items:flex-start}.ts-role-tabs button{padding:9px 12px}.ts-role-legend{justify-content:flex-start}.ts-role-comparison{grid-template-columns:minmax(0,1fr)}}
+
+/* Shared paired-team research sheet frame for MLB, NHL, WNBA, CFB and others.
+   Only official roster records and genuine historical player data are drawn. */
+.tso-observed-matrix{margin:13px 0 16px}
+.tso-observed-matrix .ts-role-side{padding-bottom:9px}
+.tso-observed-matrix .ts-role-band{margin-bottom:9px}
+.tso-observed-matrix .tso-observed-players{padding:0 11px}
+.tso-observed-single{margin:13px 0}
+.tso-observed-single .tso-observed-players{padding:10px}
+.tso-observed-players button{background:#202d3b!important;border:1px solid #344b5d!important;color:#e2edf6!important;border-radius:5px!important;padding:9px!important;font-weight:700!important}
+.tso-observed-players button small{color:#c89fe1}
+.tso-verified-research .tool-panel{background:#1b2938;border-color:#31465a}
+.tso-verified-research .tso-observed-matrix + #tsoObservedStats{border:1px solid #334a5e;background:#162533;padding:11px;border-radius:8px;margin-top:8px}
+.tso-observed-spark{display:flex;align-items:flex-end;gap:3px;height:32px;min-width:65px}
+.tso-observed-spark span{display:block;width:8px;min-height:3px;background:#b784b9;border-radius:2px 2px 0 0}
