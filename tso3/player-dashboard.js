@@ -239,7 +239,15 @@ function render(ctx){
  const tabsHtml='<nav class="tso-pd-tabs" aria-label="Player dashboard sections">'+tabs.map(([id,label])=>
   '<button type="button" data-pd-tab="'+id+'" class="'+(ui.tab===id?'active':'')+'" aria-current="'+(ui.tab===id?'page':'false')+'">'+esc(label)+'</button>').join('')+'</nav>';
  const phaseOptions=[['regular','Regular season'],['postseason','Postseason'],['all','All recorded']];
- const control='<div class="tso-pd-toolbar"><label>Statistic<select data-pd-setting="metric">'+options+'</select></label>'
+ const currentSeason=(sport==='nba'||sport==='nhl')?2027:2026;
+ const selectedSeason=Number(doc?.season||ui.season||currentSeason);
+ const seasons=[currentSeason,currentSeason-1,currentSeason-2];
+ const seasonOptions=seasons.map(year=>{
+  const label=(sport==='nba'||sport==='nhl')?(year-1)+'–'+String(year).slice(-2):String(year);
+  return '<option value="'+year+'" '+(selectedSeason===year?'selected':'')+'>'+label+'</option>';
+ }).join('');
+ const control='<div class="tso-pd-toolbar"><label>ESPN season<select data-pd-setting="season">'+seasonOptions+'</select></label>'
+  +'<label>Statistic<select data-pd-setting="metric">'+options+'</select></label>'
   +'<label>Game phase<select data-pd-setting="phase">'+phaseOptions.map(([k,v])=>
    '<option value="'+k+'" '+(phase===k?'selected':'')+'>'+v+'</option>').join('')+'</select></label>'
   +'<label>Window<select data-pd-setting="window">'+[['l5','L5'],['l10','L10'],['l20','L20'],['season','Season']]
@@ -303,7 +311,7 @@ function render(ctx){
    '<p class="tso-pd-pending">Official athlete season data unavailable. '+esc(doc?.reason||'The provider returned no verifiable results.')+'</p>'
    +'<p class="page-note">If current sportsbook quotes exist, select Odds & Alt Lines; those quotes are not athlete game logs.</p>')
   +'<p class="tso-pd-disclaimer">Recorded game metrics use '+esc(phase==='all'?'all phase-labelled games':phase+' only')+
-   '. A missing or unlabelled game is not assigned to regular season or playoffs. Full-season ESPN-authored split tables use their own published source period, separately from filtered L5/L10/L20. TSO sportsbook odds and model forecasts are independent sources.</p></div>';
+   '. A missing or unlabelled game is not assigned to regular season or playoffs. Full-season ESPN-authored split tables use their own published source period, separately from filtered L5/L10/L20. TSO sportsbook odds and model forecasts are independent sources. When a past ESPN season is selected, comparisons to currently observed sportsbook lines are historical context, NOT evidence that those odds existed then.</p></div>';
 }
 window.TSO3PlayerDashboard={render,statList,statRows,analysis,choose,marketStatMatches};
 })();
