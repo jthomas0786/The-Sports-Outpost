@@ -65,3 +65,14 @@ test('published three-point field goals composite made stat maps to 3PM prop, no
 test('literal goals do not count as NHL first goal',()=>{
  assert.equal(model.marketStatMatches('firstGoal','October:goals'),false);
 });
+
+test('ESPN totalRebounds alias supports NBA PRA and actual rebound props',()=>{
+ const ev=game({points:25,totalRebounds:8,assists:7});
+ const got=verifiedDerivedAthleteStats([ev],'nba')[0].stats;
+ assert.equal(got.find(x=>x.name.endsWith('pointsReboundsAssists')).numeric,40);
+ assert.equal(model.marketStatMatches('rebounds','October:totalRebounds'),true);
+});
+test('MLB singular RBI provider aliases build an observed H+R+RBI from same game only',()=>{
+ const got=verifiedDerivedAthleteStats([game({hits:3,runs:1,RBI:2})],'mlb')[0].stats;
+ assert.equal(got.find(x=>x.name.endsWith('hitsRunsRbis')).numeric,6);
+});
