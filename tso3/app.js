@@ -167,13 +167,13 @@ function renderSportMenu(){
   const page=PAGES.find(p=>p[0]===id);
   if(!page)return '';
   const selected=sport===state.sport&&state.page===id&&!state.tool;
-  return '<a class="menu-link '+(selected?'selected':'')+'" href="#/'+sport+'/'+id+'" data-menu-nav="'+sport+'" data-menu-page="'+id+'"><span class="menu-link-icon">'+page[2]+'</span><span>'+text(page[1])+'</span>'+(selected?'<span class="menu-current">CURRENT</span>':'')+'</a>';
+  return '<a class="menu-link '+(selected?'selected':'')+'" href="#/'+sport+'/'+id+'" data-menu-nav="'+sport+'" data-menu-page="'+id+'"><span class="menu-link-icon">'+iconSvg(page[2])+'</span><span>'+text(page[1])+'</span>'+(selected?'<span class="menu-current">CURRENT</span>':'')+'</a>';
  }).join('');
  const toolLinks=data.tools.map(([name,description])=>{
   const slug=menuToolSlug(name),selected=sport===state.sport&&state.page==='cheatsheets'&&state.tool===slug;
   return '<a class="menu-tool-link '+(selected?'selected':'')+'" href="#/'+sport+'/cheatsheets/'+slug+'" data-menu-nav="'+sport+'" data-menu-tool="'+slug+'"><b>'+text(name)+'</b><small>'+text(description)+'</small></a>';
  }).join('');
- root.innerHTML='<div class="sport-menu-head"><span class="sport-menu-heading"><span class="menu-sport-icon">'+data.icon+'</span><span><strong>'+text(data.name)+'</strong><small>Choose a section or jump straight into a research tool</small></span></span><button type="button" data-close-sport-menu aria-label="Close '+data.label+' menu">✕</button></div>'
+ root.innerHTML='<div class="sport-menu-head"><span class="sport-menu-heading"><span class="menu-sport-icon">'+iconSvg(data.icon)+'</span><span><strong>'+text(data.name)+'</strong><small>Choose a section or jump straight into a research tool</small></span></span><button type="button" data-close-sport-menu aria-label="Close '+data.label+' menu">'+iconSvg('close')+'</button></div>'
   +'<div class="sport-menu-grid"><section class="sport-menu-column"><h3>RESEARCH</h3>'+navLinks(['overview','games','props','trends','cheatsheets'])+'</section>'
   +'<section class="sport-menu-column"><h3>ANALYTICS</h3>'+navLinks(['ratings','projections','injuries','saved'])+'</section>'
   +'<section class="sport-menu-column sport-menu-specialty"><h3>'+data.label+' SPECIALTY TOOLS <span>'+data.tools.length+'</span></h3><div class="menu-tools">'+toolLinks+'</div></section></div>';
@@ -185,7 +185,7 @@ function closeSportMenu(){
 function renderSportNav(){
  el('sportNav').innerHTML=Object.entries(SPORTS).map(([k,v])=>{
   const open=state.openSport===k,active=state.sport===k;
-  return '<button type="button" class="sport-button '+(active?'active ':'')+(open?'open':'')+'" data-sport-toggle="'+k+'" aria-expanded="'+open+'" aria-controls="sportMenu" aria-haspopup="true"><span class="sport-emoji" aria-hidden="true">'+v.icon+'</span><span>'+v.label+'</span><span class="sport-chevron" aria-hidden="true">⌄</span></button>';
+  return '<button type="button" class="sport-button '+(active?'active ':'')+(open?'open':'')+'" data-sport-toggle="'+k+'" aria-expanded="'+open+'" aria-controls="sportMenu" aria-haspopup="true"><span class="sport-emoji" aria-hidden="true">'+iconSvg(v.icon)+'</span><span>'+v.label+'</span><span class="sport-chevron" aria-hidden="true">'+iconSvg('chevron')+'</span></button>';
  }).join('');
 }
 function renderNav(){
@@ -243,7 +243,7 @@ function renderFilters(){
  el('toolbar').hidden=['games','cheatsheets','ratings','projections','injuries'].includes(state.page)&&!state.tool&&!state.game;
 }
 function section(title,subtitle){return '<div class="section-heading"><h2>'+text(title)+'</h2><small>'+text(subtitle||'')+'</small></div>'}
-function empty(title,body){return '<div class="empty"><span class="empty-symbol">◇</span><h3>'+text(title)+'</h3><p>'+text(body)+'</p></div>'}
+function empty(title,body){return '<div class="empty"><span class="empty-symbol">'+iconSvg('database')+'</span><h3>'+text(title)+'</h3><p>'+text(body)+'</p></div>'}
 function gamesMarkup(limit){
  const games=getGames();
  if(!state.live)return empty('Games feed not connected',state.liveError||'TSO scoreboard is not accessible from this preview.');
@@ -278,7 +278,7 @@ function tableMarkup(list,limit=state.maxRows){
 function toolCard(pair,i){
  const code=String(pair[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-');
  const ready=toolReady(pair[0]);
- return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+['◈','⌁','▤','◇','▦','◉'][i%6]+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
+ return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
  if(state.sport==='nfl'&&name==='Model Validation')return Boolean(window.TSO3NflValidation);
@@ -398,7 +398,7 @@ async function hydrateFirstBasket(g){
 function pageSaved(){
  const rows=[...state.saved.values()].filter(x=>x.sport===state.sport);
  if(!rows.length)return section('Saved research','Personal research shortlist')+empty('Your shortlist is empty','Use the star beside a verified selection to save it locally in this browser.');
- return section('Saved research','Stored locally in this browser · not a sportsbook betslip')+'<div class="table-shell"><div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>PROP</th><th>LINE</th><th>BOOK</th><th>QUOTE AT SAVE</th><th>REMOVE</th></tr></thead><tbody>'+rows.map((r,i)=>'<tr><td><strong>'+text(r.name)+'</strong></td><td>'+text(r.market)+'</td><td>'+text(r.side||'Over')+' '+text(r.line??'—')+'</td><td>'+text(r.book||'—')+'</td><td>'+text(signed(r.price))+'</td><td><button class="save-row active" data-unsave="'+text(r.key)+'">★</button></td></tr>').join('')+'</tbody></table></div></div>';
+ return section('Saved research','Stored locally in this browser · not a sportsbook betslip')+'<div class="table-shell"><div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>PROP</th><th>LINE</th><th>BOOK</th><th>QUOTE AT SAVE</th><th>REMOVE</th></tr></thead><tbody>'+rows.map((r,i)=>'<tr><td><strong>'+text(r.name)+'</strong></td><td>'+text(r.market)+'</td><td>'+text(r.side||'Over')+' '+text(r.line??'—')+'</td><td>'+text(r.book||'—')+'</td><td>'+text(signed(r.price))+'</td><td><button class="save-row active" data-unsave="'+text(r.key)+'">'+iconSvg('star','filled')+'</button></td></tr>').join('')+'</tbody></table></div></div>';
 }
 function nbaFullContext(tool){
  return {sport:'nba',tool,games:state.live?.games||[],props:state.props,
