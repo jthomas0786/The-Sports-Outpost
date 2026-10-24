@@ -74,3 +74,39 @@ test('model requires original probability and cannot assign official A-F grades'
  assert.equal(forecast({baseProbability:1.5}).available,false);
  assert.equal(forecast({baseProbability:-0.5}).available,false);
 });
+
+
+test('verified 2026 PBP red-zone/goal-line shares adjust shadow only, not its TSO baseline',()=>{
+ const pbp={available:true,season:2026,generatedAt:'2026-10-24T17:42:00Z',
+  lastObservedGameDate:'2026-10-22',gamesScanned:94,
+  players:{'00-0033280':{team:'SF',
+   current:{gamesWithOpportunities:6,redZoneOpps:22,goalLineOpps:9,
+    redZoneSharePct:40,goalLineSharePct:32},
+   previous:{gamesWithOpportunities:17,redZoneOpps:55,goalLineOpps:14,
+    redZoneSharePct:20,goalLineSharePct:18}}}};
+ const p={...player,gsisId:'00-0033280'};
+ const base=forecast({player:p}),enhanced=model.project({
+  baseProbability:0.4,player:p,game,redzone:pbp,
+  reference:model.context(source),generatedAt:'2026-10-24T17:42:00Z'},now);
+ assert.equal(enhanced.available,true);
+ assert.equal(enhanced.redzoneSourceAt,pbp.generatedAt);
+ assert.ok(enhanced.redzoneFactor>1&&enhanced.redzoneFactor<=1.1);
+ assert.ok(enhanced.probability>base.probability);
+ assert.equal(enhanced.base,0.4);
+ assert.equal(Object.hasOwn(enhanced,'grade'),false);
+});
+test('stale 2026 PBP, GSIS mismatch and team changes are neutral, never synthetic touches',()=>{
+ const pbp={available:true,season:2026,generatedAt:'2026-10-24T17:42:00Z',
+  lastObservedGameDate:'2026-10-08',gamesScanned:94,
+  players:{'00-0033280':{team:'SF',current:{gamesWithOpportunities:6,redZoneOpps:22,
+    redZoneSharePct:40},previous:{gamesWithOpportunities:17,redZoneOpps:60,redZoneSharePct:20}}}};
+ const p={...player,gsisId:'00-0033280'};
+ const args={baseProbability:0.4,player:p,game,reference:model.context(source),generatedAt:'2026-10-24T17:42:00Z'};
+ const stale=model.project({...args,redzone:pbp},now);
+ assert.equal(stale.redzoneFactor,1);assert.equal(stale.redzoneSourceAt,null);
+ const current={...pbp,lastObservedGameDate:'2026-10-22'};
+ const wrongTeam=model.project({...args,redzone:{...current,players:{'00-0033280':{...pbp.players['00-0033280'],team:'DAL'}}}},now);
+ assert.equal(wrongTeam.redzoneFactor,1);
+ const missing=model.project({...args,player:{...p,gsisId:'00-0099999'},redzone:current},now);
+ assert.equal(missing.redzoneFactor,1);
+});
