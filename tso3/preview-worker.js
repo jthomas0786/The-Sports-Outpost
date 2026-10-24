@@ -1460,7 +1460,11 @@ async function rosterBackedAthleteIdentity(sport,id,gameLogDoc){
    if(!r.ok)continue;
    const doc=await r.json();
    const found=officialRosterAthletes(doc).find(p=>p.id===id);
-   if(found)return {...found,teamId,source:'ESPN exact athlete ID matched to official team roster'};
+   if(found){
+    const eventTeam=events.find(e=>String(e?.team?.id||e?.teamId||'')===teamId)?.team;
+    return {...found,teamId,teamAbbr:found.teamAbbr||String(eventTeam?.abbreviation||'').slice(0,12)||null,
+     source:'ESPN exact athlete ID matched to official team roster'};
+   }
   }catch(_){/* other team history may still confirm the numeric athlete ID */}
  }
  return null;
