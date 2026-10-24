@@ -34,7 +34,7 @@ const notes={
 };
 const columns={
  'defense-vs-position':['MATCHUP','DEFENSE','FACING OFFENSE','VS POSITION','YDS / GM','REFERENCE AVG','DIFF VS REF','TD / GM','TARGETS / GM','GAMES'],
- 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','MODEL GAP','50K SIM 2+ TD','TSO GRADE','2025 RZ OPP/GM','2026 SNAP L5','2026 TGT SHARE','OPP RZ TD RATE','BEST ATD ODDS'],
+ 'touchdown-opportunities':['PLAYER','MATCHUP','TSO ATD MODEL','50K SIM ATD','MODEL GAP','50K SIM 2+ TD','TSO GRADE','2025 RZ OPP/GM','2026 SNAP L5','2026 TGT SHARE','OPP RZ TD RATE','DEF VS POS TD/GM','DEF GAMES','BEST ATD ODDS'],
  'red-zone-usage':['PLAYER','MATCHUP','2025 RZ CARRIES','2025 RZ TARGETS','2025 RZ/GM','2026 TARGET SHARE','2026 SNAP L5','2026 TD/GM','OPP RZ TD %','TSO ATD'],
  'rushing-matchups':['PLAYER','MATCHUP','L5 RUSH YDS','L10 RUSH YDS','L5 CARRIES','2026 YDS / GM','OPP RUSH YDS/GM','BEST BOOK'],
  'receiving-matchups':['PLAYER','MATCHUP','L5 REC YDS','L10 REC YDS','L5 TARGETS','L5 RECEPTIONS','OPP REC YDS/GM','BEST BOOK'],
@@ -244,6 +244,9 @@ const coverageHit=rate=>rate?rate.hits+'/'+rate.n+' ('+Math.round(rate.hits/rate
 
 function build(ctx,tool){
  const games=upcoming(ctx),slate=ctx.td?.games||[],benchmarks=positionalBenchmarks(ctx);
+ // Reuse deduplicated, conflict-checked same-season defense/position records.
+ // Never substitute overall team TDs or another opponent for position TDs.
+ const positionGroups=new Map(defensePositionRows(ctx,games,benchmarks).map(r=>[r.id,r]));
  if(tool==='defense-vs-position')return defensePositionRows(ctx,games,benchmarks);
  if(tool==='coverage-matchups')return buildCoverage(ctx,games,benchmarks);
  if(gameTools.has(tool))return games.map(g=>{
@@ -273,6 +276,11 @@ function build(ctx,tool){
   const key=game.id+'|'+norm(player.name);
   if(seen.has(key))continue;seen.add(key);
   const pos=String(player.position||m?.position||'').toUpperCase();
+  const opp=canonicalTeam(gameside(game,player.team));
+  const group=positionGroups.get('dvp|'+game.id+'|'+opp+'|'+pos);
+  const oppTdGroup=group&&!group.sourceConflict&&num(group.defense?.games)>=3
+   &&num(group.defense?.perGame?.tds)!==null
+   ?{tdsPerGame:num(group.defense.perGame.tds),games:num(group.defense.games)}:null;
   if(tool==='quarterback-research'&&pos!=='QB')continue;
   if(tool==='rushing-matchups'&&!['QB','RB','WR'].includes(pos))continue;
   if(['receiving-matchups','coverage-matchups'].includes(tool)&&!['WR','TE','RB'].includes(pos))continue;
@@ -282,7 +290,7 @@ function build(ctx,tool){
    .sort((a,b)=>Number(b.season)-Number(a.season)||Number(b.week)-Number(a.week));
   const quote=bestQuote(ctx,game,player,tool==='touchdown-opportunities'?'atd':tool==='rushing-matchups'?'rushYds':tool==='quarterback-research'?'passYds':'recYds');
   result.push({id:key,kind:'player',name:player.name,team:canonicalTeam(player.team),position:pos,
-   p:player,m,game,quote,logs,officialReport,simAtd,simTwo,defense:player.matchup?.opponent&&canonicalTeam(player.matchup.opponent)===canonicalTeam((canonicalTeam(game.home.abbr)===canonicalTeam(player.team)?game.away.abbr:game.home.abbr))?player.matchup.currentSeasonAllowed:null,dvpMean:benchmarks.get(pos)??null,modelProbability:modeledData&&!cannotPlay(officialReport)?num(m?.modelProbability):null});
+   p:player,m,game,quote,logs,officialReport,simAtd,simTwo,oppTdGroup,defense:player.matchup?.opponent&&canonicalTeam(player.matchup.opponent)===canonicalTeam((canonicalTeam(game.home.abbr)===canonicalTeam(player.team)?game.away.abbr:game.home.abbr))?player.matchup.currentSeasonAllowed:null,dvpMean:benchmarks.get(pos)??null,modelProbability:modeledData&&!cannotPlay(officialReport)?num(m?.modelProbability):null});
  }
  // Model-only players absent from research should remain visible, but no historical logs are inferred.
  if(modelTools.has(tool)){
@@ -418,6 +426,8 @@ function row(r){
   {text:r.p?.snapTrend?.avgOffensePct===null||r.p?.snapTrend?.avgOffensePct===undefined?'—':f(r.p.snapTrend.avgOffensePct)+'%'},
   {text:r.p?.currentSeason?.targetShare==null?'—':f(r.p.currentSeason.targetShare)+'%'},
   {text:percent(r.m?.opponentRzTdRate)},
+  {text:f(r.oppTdGroup?.tdsPerGame)},
+  {text:r.oppTdGroup?.games??'—'},
   {html:'<b>'+esc(fmtPrice(quote?.price))+'</b><small>'+esc(quote?.book||'NO VERIFIED BOOK')+'</small>'}];
  else if(state.tool==='red-zone-usage')cells=[{text:r.m?.rzCarries??'—'},{text:r.m?.rzTargets??'—'},
   {text:f(r.m?.opportunityRate)},
@@ -485,6 +495,7 @@ function render(ctx,tool){
  return '<section class="nba-lab nfl-lab"><div class="nba-intro"><div><span class="nba-eyebrow">THE SPORTS OUTPOST / NFL VERIFIED RESEARCH</span><h2>'+esc(titles[tool])+'</h2><p>'+esc(notes[tool])+'</p></div></div>'
  +source+(tool==='coverage-matchups'?'<p class="nfl-model-note">2026 opponent allowances measure an entire WR, TE or RB position group, not one receiver’s expected output. L5/L10 are observed 2026 games. The 50K model must match the exact player, matchup, Over market and line. Cornerback assignments and man/zone grades are unavailable.</p>':'')
  +(modelTools.has(tool)?'<p class="nfl-model-note">'+esc(modelAlert)+'</p>':'')
+ +(tool==='touchdown-opportunities'?'<p class="nfl-model-note">DEF VS POS TD/GM measures observed 2026 touchdowns allowed to the listed position group by the next opponent, only with at least 3 defensive games and no conflicting records. It is NOT an individual scoring probability, alignment grade or man/zone matchup. Blank cells remain unverified.</p>':'')
  +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table'+(tool==='defense-vs-position'?' nfl-dvp-table':tool==='coverage-matchups'?' nfl-coverage-table':'')+'"><thead><tr>'
  +columns[tool].map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'
  +(list.map(row).join('')||'<tr><td colspan="'+columns[tool].length+'">No verified records match the selected matchup, position or sample filters. Unavailable defensive, sportsbook and model values are not estimated.</td></tr>')
