@@ -89,3 +89,14 @@ test('numeric ESPN athlete deep links survive both initial load and hash navigat
  assert.ok(appCode.includes("const athleteId=page==='player'&&/^\\d{3,12}$/".replace('\\\\d','\\d')));
  assert.ok(appCode.includes("state.playerId=hash[1]==='player'&&/^\\d{3,12}$/".replace('\\\\d','\\d')));
 });
+
+test('the dedicated split tab includes official full-season categories without overwriting observed L10',()=>{
+ const enriched={...doc,officialSplits:[{name:'Home/Away',
+  splits:[{name:'Home Games',abbreviation:'Home',
+   values:[{name:'era',label:'ERA',value:'2.10',numeric:2.1}]}]}]};
+ const html=dash.render({...ctx,doc:enriched,ui:{...ctx.ui,tab:'splits'}});
+ assert.match(html,/Official ESPN full-season splits/);
+ assert.match(html,/Home Games/);
+ assert.match(html,/2\.10/);
+ assert.match(html,/Verified home \/ away \/ opponent splits/);
+});
