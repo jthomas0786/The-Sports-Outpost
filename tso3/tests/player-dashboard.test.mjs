@@ -106,3 +106,19 @@ test('sportsbook numeric IDs cannot bypass official roster identity confirmation
  assert.match(appCode,/verifiedAthleteId/);
  assert.doesNotMatch(appCode,/\/\^d\{3,12\}\$\//);
 });
+
+test('regular season and postseason cannot silently mix in L5 hit-rate calculations',()=>{
+ const dated={...doc,events:[
+  {...doc.events[0],seasonType:'2026 Regular Season'},
+  {...doc.events[1],seasonType:'2026 Postseason'},
+  {...doc.events[2],seasonType:'2026 Regular Season'}
+ ]};
+ const regular=dash.render({...ctx,doc:dated,ui:{...ctx.ui,phase:'regular'}});
+ const playoffs=dash.render({...ctx,doc:dated,ui:{...ctx.ui,phase:'postseason'}});
+ const combined=dash.render({...ctx,doc:dated,ui:{...ctx.ui,phase:'all'}});
+ assert.match(regular,/Regular season/);
+ assert.match(regular,/2 games/);
+ assert.match(playoffs,/Postseason/);
+ assert.match(playoffs,/1 games/);
+ assert.match(combined,/3 games/);
+});
