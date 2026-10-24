@@ -80,3 +80,27 @@ Latest **D1** audit: 9,410 immutable NFL predictions across 13 archived games, z
 6. No copying PropFinder's proprietary database, source code, brand imagery or closed algorithms. Reimplement functional research experiences using original TSO calculations and legally accessible data.
 
 **Go-live status as of this update:** BLOCKED. The user's new authorization permits a release **when the platform genuinely passes these checks**, not a premature migration from 2.0 production. Do not modify `main` or redirect the domain merely to make the release checkbox appear complete.
+
+## ESPN data connection milestone — October 24, 2026 UTC
+
+**Deployed in isolated TSO3 preview, not production.** Release version `8d0d86ab-d08e-446b-b25c-afc4bc95c532` at **100% preview traffic**; 13 web assets, separate D1 archive, and `*/30 * * * *` cron preserved.
+
+### Real roster / game metadata, all six leagues
+
+- `/api/game-roster?league={league}&gameId={ESPN_ID}` retrieves the **exact ESPN event**, then two current official team roster feeds, all tied to numeric ESPN identities and two real teams. A missed dated scoreboard event can be re-verified by `summary?event={exact ID}`; summary data must confirm the same event ID and official team IDs.
+- Games page now shows away on the left/home on the right, source-backed roster membership, positions and clickable player season-history drawer **even when odds are 0**. Roster membership is *not* a verified starter/lineup/injury certification.
+- Browser tested official MLB World Series matchup **401908042**: 26 rostered Tampa Bay players plus 26 Milwaukee players; exact ESPN scoreboard ID, recent completed game. Prior API failure was resolved by the combined event verification path. No wagers or fake prices were introduced.
+
+### NHL model and independently observed data
+
+- TSO's published `slates/nhl-research.json` (NHL historical research v4) was audited: **936 athletes**, **32 team defensive profiles**, up to **30 actual player game summaries**, current NHL season code `2027`, prior season `2026`, source generated at `2026-10-24T01:36:41.746Z`.
+- `/api/nhl-player-research?gameId={ESPN_ID}&playerId={ESPN_ATHLETE_ID}` validates exact team-roster membership, game identity and fresh research. Returns source-backed skater/game results plus position and venue defensive allowances. Browser verified **Anton Frondell** (`5291935`), Chicago vs Montreal NHL game `401892564`: **22 real individual NHL games**, Montreal's **30-game** defensive profile and a real positional allowance rank.
+- `/api/nhl-defense` returns observed game-averaged goals/shots allowed overall, recent 10, and **C/LW/RW/D** splits and source-ranked allowances for all 32 NHL defenses. Browser verified `available=true`, 32 teams, 936 researched players, and FLA center goal-allowance rank **11 of 32** over 30 games.
+- The preview NHL **Defense Vs Position** screen was tested in a real browser at desktop size: **33 HTML table rows** (header plus all 32 team rows), visible position selector, and Florida defensive profile. **Team Statistics**, **Shots on Goal**, and **Goal Scorer Matchups** share this documented defensive source. They are observed statistics, not TSO model probabilities.
+- Regression: `tso3/tests/game-rosters.test.mjs`, `tso3/tests/nhl-research-depth.test.mjs`, `tso3/tests/nhl-defense-matrix.test.mjs`. Manual evaluations additionally tested missing/mismatched athlete ID, ESPN summary fallback, roster failures, 30-game history bounds and stale source quarantine.
+
+### Open release blockers
+
+The existing MLB, NFL, WNBA and college-football sportsbook publishers remain subject to timestamp freshness; a valid ESPN schedule or roster does **not** mean valid bookmaker odds exist. More importantly, other sports still need equivalent full historical player-log depth, matchup defense metrics, lineups, roles, position and advanced/statcast coverage; no TSO3 production cutover until those modules, publisher freshness, browser QA and sportsbook settlement validation pass.
+
+NHL research is built from an approximately **17.7 MB** published source. The isolated preview performs time-bounded caching and returns compact individual/matrix responses. Load/latency testing across multiple concurrent users remains an acceptance test before production.
