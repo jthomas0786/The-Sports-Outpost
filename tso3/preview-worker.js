@@ -1378,6 +1378,12 @@ function athleteGamelogEntries(doc,now){
    eventId:id,date:new Date(t).toISOString(),
    opponent:String(base?.opponent?.abbreviation||base?.opponent?.displayName||'').slice(0,65),
    opponentId:base?.opponent?.id?String(base.opponent.id):null,
+   // ESPN returns home/away or atVs in some (not all) league gamelogs.
+   // If absent, the home/away split MUST remain unavailable.
+   homeAway:['home','away'].includes(String(base?.homeAway||record?.homeAway||'').toLowerCase())
+    ?String(base?.homeAway||record?.homeAway).toLowerCase()
+    :String(base?.atVs||record?.atVs||'').trim()==='@'?'away':
+     String(base?.atVs||record?.atVs||'').trim().toLowerCase()==='vs'?'home':null,
    result:String(base?.gameResult||'').slice(0,20),
    seasonType:period,stats:[]
   };
