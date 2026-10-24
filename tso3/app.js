@@ -838,6 +838,7 @@ async function hydrateAthleteDepth(row){
   id=String(identity.athleteId);
   container.innerHTML='<p class="page-note">ESPN roster match verified. Loading recorded season stats…</p>';
  }
+ row.verifiedAthleteId=id;
  const key=sport+':'+id+':'+season;
  let doc=athleteDepthCache.get(key);
  if(!doc){
@@ -1127,7 +1128,7 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('change',e=>{
  if(e.target.id==='athleteDepthMetric'&&state.selected){
-  const key=state.sport+':'+String(state.selected.playerId||'')+':'+ATHLETE_SEASON[state.sport];
+  const key=state.sport+':'+String(state.selected.verifiedAthleteId||state.selected.playerId||'')+':'+ATHLETE_SEASON[state.sport];
   const doc=athleteDepthCache.get(key),root=el('athleteDepthSlot');
   if(doc&&root)root.innerHTML=renderAthleteDepth(doc,state.selected,e.target.value);
   return;
