@@ -148,7 +148,21 @@ function sanitizeNbaResearch(doc){
   latestObservedGame:lastObserved?new Date(lastObserved).toISOString():null,
   researchAgeHours:Number.isFinite(Date.parse(doc.generatedAt||''))?Math.max(0,Math.round((Date.now()-Date.parse(doc.generatedAt))/3600000)):null,
   currentSeason:doc.currentSeason||null,
-  players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},teamDefense:doc.teamDefense||{},league:doc.league||{},teamProfiles:doc.teamProfiles||{}};
+  players:outPlayers,teams:doc.teams,teamIndex:doc.teamIndex||{},
+  // Old shared builder assembles these from its entire multi-season event cache.
+  // In v1 it does not publish group game dates or a season-scoped defense
+  // provenance marker. A newly refreshed timestamp does not make them 2027.
+  // Reject the aggregates until the upstream source explicitly proves a
+  // comparable current-season, all-completed-game sample.
+  teamDefense:Number(doc.teamDefenseSeason)===Number(doc.currentSeason)
+    &&doc.teamDefenseScope==='current_season_completed_games'&&doc.teamDefense?doc.teamDefense:{},
+  league:Number(doc.teamDefenseSeason)===Number(doc.currentSeason)
+    &&doc.teamDefenseScope==='current_season_completed_games'&&doc.league?doc.league:{},
+  teamProfiles:Number(doc.teamDefenseSeason)===Number(doc.currentSeason)
+    &&doc.teamDefenseScope==='current_season_completed_games'&&doc.teamProfiles?doc.teamProfiles:{},
+  defenseDataQuality:{verified:Number(doc.teamDefenseSeason)===Number(doc.currentSeason)
+   &&doc.teamDefenseScope==='current_season_completed_games',
+   reason:'Season-mixed cached NBA defense/pace numbers are excluded from current-season research. Independently verified 2027 DvP is available at /api/nba-current-dvp.'}};
 }
 
 /* NFL data sourced from TSO's published 2026 slate, nflverse/ESPN-derived
