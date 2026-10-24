@@ -1272,26 +1272,56 @@ function athleteStatFields(names,labels,values){
  }).filter(x=>x.name);
 }
 function athleteGamelogEntries(doc,now){
- const root=doc?.events;
- const fromRoot=Array.isArray(root)?root:(root&&typeof root==='object'?Object.values(root).filter(x=>x&&typeof x==='object'):[]);
- const fromPeriods=(doc?.seasonTypes||[]).flatMap(s=>(s?.categories||[]).flatMap(c=>
-  Array.isArray(c.events)?c.events:[]));
- const events=[...fromRoot,...fromPeriods],seen=new Set(),out=[];
- for(const e of events){
-  const id=String(e?.id||e?.eventId||''),date=Date.parse(e?.date||'');
-  if(!/^\d{6,14}$/.test(id)||seen.has(id)||!Number.isFinite(date)||date>now)continue;
-  if(!Array.isArray(e.stats)||!e.stats.length||e.stats.length>80)continue;
-  // The public ESPN gamelog may return fewer stats than its top-level labels.
-  // Take the same-length tail only; never pretend data from another game.
-  const values=athleteStatFields(doc.names,doc.labels,e.stats);
-  if(!values.length)continue;
-  seen.add(id);
-  out.push({eventId:id,date:new Date(date).toISOString(),
-   opponent:String(e.opponent?.abbreviation||e.opponent?.displayName||'').slice(0,65),
-   opponentId:e.opponent?.id?String(e.opponent.id):null,
-   result:String(e.gameResult||'').slice(0,20),stats:values});
+ // ESPN gamelogs store opponent/date in root events, numeric values in
+ // seasonTypes[].categories[].events[]. These cannot be read independently.
+ const raw=doc?.events;
+ const meta=Array.isArray(raw)?raw:raw&&typeof raw==='object'?Object.values(raw):[];
+ const byId=new Map(meta.filter(x=>x&&/^\d{6,14}$/.test(String(x.id||''))).map(x=>[String(x.id),x]));
+ const assembled=new Map();
+ const put=(record,id,category,fields,period)=>{
+  const base=byId.get(id)||record;
+  const t=Date.parse(base?.gameDate||base?.date||record?.date||'');
+  if(!Number.isFinite(t)||t>now)return;
+  const old=assembled.get(id)||{
+   eventId:id,date:new Date(t).toISOString(),
+   opponent:String(base?.opponent?.abbreviation||base?.opponent?.displayName||'').slice(0,65),
+   opponentId:base?.opponent?.id?String(base.opponent.id):null,
+   result:String(base?.gameResult||'').slice(0,20),
+   seasonType:period,stats:[]
+  };
+  for(const value of fields){
+   const name=(category?category+':':'')+value.name;
+   if(!old.stats.some(x=>x.name===name))
+    old.stats.push({...value,name:name.slice(0,85)});
+  }
+  assembled.set(id,old);
+ };
+ const period=(doc?.seasonTypes||[]).filter(x=>x&&Array.isArray(x.categories));
+ for(const season of period){
+  const tag=String(season.displayName||season.name||'Season').slice(0,55);
+  for(const category of season.categories){
+   const cat=String(category?.displayName||category?.name||'').slice(0,40);
+   for(const e of category?.events||[]){
+    const id=String(e?.eventId||e?.id||'');
+    if(!/^\d{6,14}$/.test(id)||!Array.isArray(e?.stats))continue;
+    const names=Array.isArray(category?.names)&&category.names.length===e.stats.length?
+     category.names:doc?.names;
+    const labels=Array.isArray(category?.labels)&&category.labels.length===e.stats.length?
+     category.labels:doc?.labels;
+    const fields=athleteStatFields(names,labels,e.stats);
+    if(fields.length)put(e,id,cat,fields,tag);
+   }
+  }
  }
- return out.sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,42);
+ // Some endpoints also include full standalone game rows with their own
+ // stats arrays. Never backfill an absent stat with a guessed zero.
+ for(const e of meta){
+  const id=String(e?.id||'');
+  if(assembled.has(id)||!/^\d{6,14}$/.test(id)||!Array.isArray(e?.stats))continue;
+  const fields=athleteStatFields(doc?.names,doc?.labels,e.stats);
+  if(fields.length)put(e,id,'',fields,'Unknown');
+ }
+ return [...assembled.values()].sort((a,b)=>Date.parse(b.date)-Date.parse(a.date)).slice(0,42);
 }
 function athleteSeasonStats(doc){
  const categories=Array.isArray(doc?.categories)?doc.categories:[];
