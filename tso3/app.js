@@ -346,6 +346,8 @@ function toolDetail(){
  const found=SPORTS[state.sport].tools.find(x=>String(x[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-')===state.tool);
  if(!found){state.tool=null;return pageTools()}
  const ready=toolReady(found[0]);
+ if(found[0]==='Odds Discrepancies')return oddsDiscrepancyResearch();
+ if(found[0]==='Hit Rate Matrix')return pageTrends();
  if(state.sport==='nfl'&&window.TSO3NflLab?.tools?.includes(state.tool))return nflResearch(state.tool);
  if(state.sport==='nba'&&['Player Form','Matchup vs Position'].includes(found[0])){
   const lab=window.TSO3NbaLab;
@@ -603,6 +605,52 @@ function render(){
   }
  }
 }
+/* Price comparison is only sourced from published sportsbook selections. */
+function sameSelectionRows(p){
+ const e=String(p.verifiedGameId||p.eventId||p.gameId||'');
+ return getRows().filter(q=>eligible(q)&&canon(nameOf(q))===canon(nameOf(p))
+  &&canon(q.market||q.marketLabel)===canon(p.market||p.marketLabel)
+  &&(!e||String(q.verifiedGameId||q.eventId||q.gameId)===e));
+}
+function quotedLines(player){
+ const lines=new Map();
+ for(const p of sameSelectionRows(player)){
+  const v=lineOf(p);if(v===null||num(p.price)===null)continue;
+  const group=lines.get(v)||[];
+  group.push(p);lines.set(v,group);
+ }
+ return [...lines].map(([line,all])=>({line,all,best:all.slice().sort((a,b)=>Number(b.price)-Number(a.price))[0]}))
+  .sort((a,b)=>a.line-b.line);
+}
+function quoteComparisonMarkup(r){
+ const quotes=quotedLines(r);
+ if(!quotes.length)return '<p class="page-note">No additional source-verified odds are available for this player and market.</p>';
+ return '<div class="table-scroller"><table class="data-table"><thead><tr><th>EXACT LINE</th><th>BEST BOOK</th><th>BEST QUOTE</th><th>BOOKS</th><th>OBSERVED</th></tr></thead><tbody>'
+  +quotes.slice(0,20).map(q=>'<tr><td>'+text(q.line)+'</td><td>'+text(bookOf(q.best))+'</td><td>'+text(signed(q.best.price))+'</td>'
+   +'<td>'+new Set(q.all.map(bookOf)).size+'</td><td>'+text(q.best.snapshotTime?clock(q.best.snapshotTime):'Unknown')+'</td></tr>').join('')
+  +'</tbody></table></div><p class="nba-footnote">Only published bookmaker prices are shown. Other thresholds and model percentages are never invented.</p>';
+}
+function oddsDiscrepancyResearch(){
+ const map=new Map();
+ for(const r of getRows().filter(eligible)){
+  const price=num(r.price),line=lineOf(r);
+  if(price===null||line===null)continue;
+  const k=[r.verifiedGameId||r.eventId||r.gameId,canon(nameOf(r)),canon(r.market),line,canon(r.side)].join('|');
+  const list=map.get(k)||[];list.push(r);map.set(k,list);
+ }
+ const rows=[...map.values()].filter(a=>new Set(a.map(bookOf)).size>=2).map(a=>{
+  const values=a.slice().sort((x,y)=>Number(y.price)-Number(x.price));
+  return {best:values[0],worst:values[values.length-1],count:new Set(a.map(bookOf)).size,
+   spread:Number(values[0].price)-Number(values[values.length-1].price)};
+ }).sort((a,b)=>b.spread-a.spread);
+ return section('Exact-line sportsbook differences','Identical player, game, market, side and threshold — genuine published quotes')
+  +(rows.length?'<div class="table-scroller"><table class="data-table"><thead><tr><th>PLAYER</th><th>MARKET / EXACT LINE</th><th>BEST BOOK</th><th>OTHER BOOK</th><th>PRICE DIFFERENCE</th></tr></thead><tbody>'
+   +rows.slice(0,100).map(a=>'<tr><td>'+text(nameOf(a.best))+'</td><td>'+text(marketOf(a.best))+' '+text(lineOf(a.best))+'</td>'
+   +'<td>'+text(bookOf(a.best))+' '+text(signed(a.best.price))+'</td>'
+   +'<td>'+text(bookOf(a.worst))+' '+text(signed(a.worst.price))+'</td><td>'+text(a.spread)+'</td></tr>').join('')
+   +'</tbody></table></div>':empty('No verified sportsbook discrepancies','Two actual current bookmakers at exactly the same selection are required.'))
+  +'<p class="nba-footnote">Price differences alone do not establish positive expected value, arbitrage, or a profitable wager.</p>';
+}
 function openDrawer(r){
  if(!r)return;
  state.selected=r;
@@ -621,7 +669,13 @@ function openDrawer(r){
   html+='<h3>Verified game results (most recent first)</h3><div class="stat-bars" aria-label="Recent player game results">'
   +logs.values.slice(0,20).reverse().map((v,i)=>'<span><i style="height:'+Math.max(2,Math.round(v/max*115))+'px" title="'+text(v)+'"></i><small>'+text(v)+'</small></span>').join('')+'</div>';
  }else html+='<div class="page-note">A verified game-by-game chart is not available for this exact player and market. No values have been inferred.</div>';
- html+='<h3>What to validate</h3><div class="detail-tags"><span class="tag '+(model===null?'pending':'verified')+'">Exact line '+(model===null?'not modeled':'matched')+'</span><span class="tag '+(logs?'verified':'pending')+'">Observed game logs '+(logs?'verified':'pending')+'</span><span class="tag pending">Opponent positional split required</span><span class="tag pending">Confirmed lineup required</span></div>'
+ html+='<h3>Verified sportsbook lines</h3>'+quoteComparisonMarkup(r)
+  +'<h3>Original source & model details</h3><div class="data-preview">'
+  +'<div><span>PRICE OBSERVED</span><b>'+text(r.snapshotTime?clock(r.snapshotTime):'Not verified')+'</b></div>'
+  +'<div><span>MODEL SOURCE</span><b>'+text(r.model?.source||'No exact model')+'</b></div>'
+  +'<div><span>RUN ITERATIONS</span><b>'+text(r.model?.iterations??'Unavailable')+'</b></div>'
+  +'<div><span>MODEL GENERATED</span><b>'+text(r.model?.generatedAt?clock(r.model.generatedAt):'Unavailable')+'</b></div></div>'
+  +'<h3>What to validate</h3><div class="detail-tags"><span class="tag '+(model===null?'pending':'verified')+'">Exact line '+(model===null?'not modeled':'matched')+'</span><span class="tag '+(logs?'verified':'pending')+'">Observed game logs '+(logs?'verified':'pending')+'</span><span class="tag pending">Opponent positional split required</span><span class="tag pending">Confirmed lineup required</span></div>'
   +'<div class="drawer-actions"><button class="btn" id="drawerSave" type="button">'+(state.saved.has(rowKey(r))?'Remove from saved':'Save selection')+'</button><button class="btn subtle" id="drawerClose2">Close</button></div></div>';
  el('drawerBody').innerHTML=html;el('drawer').hidden=false;el('scrim').hidden=false;el('closeDrawer').focus();
 }
