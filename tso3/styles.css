@@ -390,7 +390,19 @@ html,body,button,input,select,textarea{
 .nfl-sort-views>button.active{background:#ff843922;border-color:#d78451;color:#ffd2a1}
 .nfl-sort-views>button:hover{border-color:var(--orange);color:#fff}
 .nfl-conflict-control{display:flex!important;align-items:center;flex-direction:row!important;gap:8px;align-self:end;min-height:36px;font-size:10px!important;letter-spacing:0!important;color:#e2c4a6!important;font-weight:800!important}
-.nfl-conflict-control input{width:15px;height:15px;accent-color:var(--orange)}
+/* Override the generic .nba-controls input 100%-width/min-size rule.
+   The disagreement control is a single ordinary square checkbox. */
+.nfl-controls .nfl-conflict-control>input[type="checkbox"]{
+ appearance:auto;box-sizing:border-box;width:16px;min-width:16px;max-width:16px;
+ height:16px;min-height:16px;max-height:16px;flex:0 0 16px;
+ padding:0;margin:0;border-radius:3px;accent-color:var(--orange);
+ cursor:pointer
+}
+.nfl-controls .nfl-conflict-control>input[type="checkbox"]:disabled{cursor:not-allowed;opacity:.5}
+.nfl-controls .nfl-conflict-control:has(input:disabled){color:#8da2b1!important}
+.nfl-controls .nfl-conflict-control>span{white-space:normal;line-height:1.35}
+.nfl-sort-views>button:disabled{opacity:.43;cursor:not-allowed;border-color:#34495a;color:#a4b6c2}
+.nfl-sort-views>button:disabled:hover{border-color:#34495a;color:#a4b6c2}
 .nfl-table td b.nfl-low{color:#fb9f91!important}
 .nfl-table td b.nfl-medium{color:#ffd08e!important}
 .nfl-context-note{background:#1a3040;border:1px solid #475263;border-left:3px solid var(--orange);border-radius:6px;padding:13px;margin:13px 0 18px;color:#e6c4a8;font-size:11px;line-height:1.65}
