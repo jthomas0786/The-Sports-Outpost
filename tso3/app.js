@@ -335,7 +335,8 @@ function tableMarkup(list,limit=state.maxRows){
 function toolCard(pair,i){
  const code=String(pair[0]).toLowerCase().replace(/[^a-z0-9]+/g,'-');
  const ready=toolReady(pair[0]);
- return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED')+'</span><span class="arrow">↗</span></footer></button>';
+ const foundation=Boolean(window.TSO3ObservedResearch?.supports?.(state.sport,code));
+ return '<button class="tool-card" type="button" data-tool="'+text(code)+'"><div class="tool-top"><span class="tool-icon">'+iconSvg(['spark','trending-up','notebook-tabs','gauge','database','activity'][i%6])+'</span><div><h3>'+text(pair[0])+'</h3><p>'+text(pair[1])+'</p></div></div><footer><span class="tool-tag '+(ready?'':'pending')+'">'+(foundation?(ready?'VERIFIED PLAYER HISTORY':'HISTORY SOURCE CONNECTED · MATCHUP NEEDED'):(ready?'DATA VIEW AVAILABLE':'DATA INTEGRATION REQUIRED'))+'</span><span class="arrow">↗</span></footer></button>';
 }
 function toolReady(name){
  const rows=getRows().filter(eligible);
@@ -376,6 +377,8 @@ function toolReady(name){
   if(name==='First Goal'||name==='Goal Scorer Matchups')return Boolean(state.nhlModel?.games?.length);
   if(name==='Shots on Goal')return rows.some(r=>canon(r.market)==='SOG');
  }
+ if(window.TSO3ObservedResearch?.supports?.(state.sport,menuToolSlug(name)))
+  return getGames().some(g=>/^\d{6,14}$/.test(String(g.id||'')));
  if(name==='Player Trends'||name==='Player Form'||name==='Skater Statistics')
   return rows.some(r=>verifiedGames(r).length>=5);
  // Odds alone do not certify a proprietary DvP, park, coverage, projection,
@@ -636,6 +639,10 @@ function toolDetail(){
   const ctx={sport:'nba',games:state.live?.games||[],research:state.nbaResearch,injuries:state.nbaInjuries,models:state.nbaModels,props:state.props};
   return '<div id="nbaDepthSlot">'+depth.render(ctx,state.tool)+'</div>';
  }
+ if(window.TSO3ObservedResearch?.supports?.(state.sport,state.tool)){
+  return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+
+   window.TSO3ObservedResearch.render({sport:state.sport,games:state.live?.games||[],title:found[0]},state.tool);
+ }
  if(state.sport==='nba'&&found[0]==='First Basket')return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'+section('First Basket / Opening Tip','Select an NBA matchup for official play-by-play research')+gamesMarkup();
  return '<button type="button" class="btn subtle" data-back="tool">← ALL CHEATSHEETS</button>'
   +section(found[0],found[1])
@@ -878,6 +885,8 @@ function render(){
  else if(state.page==='data')body=pageData();
  else if(state.page==='saved')body=pageSaved();
  el('content').innerHTML=body;
+ if(state.page==='cheatsheets'&&state.tool&&window.TSO3ObservedResearch?.supports?.(state.sport,state.tool))
+  void window.TSO3ObservedResearch.hydrate({sport:state.sport,games:state.live?.games||[],title:state.tool},state.tool);
  if(state.sport==='nhl'&&state.page==='cheatsheets'&&['team-statistics','defense-vs-position','shots-on-goal','goal-scorer-matchups'].includes(state.tool))void hydrateNhlDefenseMatrix();
  if(state.sport==='nfl'&&state.page==='cheatsheets'&&state.tool==='weather-impact'&&state.live?.games?.length)
   void hydrateNflWeather();
