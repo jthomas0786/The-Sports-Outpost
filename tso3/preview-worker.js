@@ -326,7 +326,16 @@ async function archive2026AtdShadow(env,td,started,now){
  await env.NFL_ARCHIVE.prepare(
   'CREATE INDEX IF NOT EXISTS idx_atd_shadow_game ON atd_shadow_forecasts(game_id,kickoff_at,captured_at)'
  ).run();
+ // Non-destructive migration for the new actual 2026 goal-line/red-zone evidence.
+ const info=await env.NFL_ARCHIVE.prepare('PRAGMA table_info(atd_shadow_forecasts)').all();
+ const columns=new Set((info.results||[]).map(x=>x.name));
+ if(!columns.has('redzone_factor'))
+  await env.NFL_ARCHIVE.prepare('ALTER TABLE atd_shadow_forecasts ADD COLUMN redzone_factor REAL NOT NULL DEFAULT 1').run();
+ if(!columns.has('redzone_source_at'))
+  await env.NFL_ARCHIVE.prepare('ALTER TABLE atd_shadow_forecasts ADD COLUMN redzone_source_at TEXT').run();
  const research=await verifiedNflResearch();
+ let redzone=null;
+ try{redzone=await verifiedNflRedZone()}catch(e){console.warn('Current 2026 PBP unavailable; shadow RZ factor stays neutral',String(e?.message||e).slice(0,90))}
  const t=archiveTime(research.generatedAt,now,30*3600000);
  if(t===null)return {status:'source_stale',inserted:0,eligible:0,reason:'2026 research failed freshness gate'};
  const ref=api.context(research);
@@ -351,28 +360,28 @@ async function archive2026AtdShadow(env,td,started,now){
    if(!player||conflicts.has(key)||seen.has(String(g.id)+'|'+key))continue;
    if(modelPlayer.id&&player.id&&String(modelPlayer.id)!==String(player.id))continue;
    const out=api.project({baseProbability:modelPlayer.modelProbability,player,game:g,
-    report:{status:modelPlayer.injuryStatus},reference:ref,generatedAt:research.generatedAt},now);
+    report:{status:modelPlayer.injuryStatus},reference:ref,generatedAt:research.generatedAt,redzone},now);
    if(!out?.available)continue;
    seen.add(String(g.id)+'|'+key);
    const p=archiveSafeNumber(out.probability);
    if(p===null||p<0||p>1)continue;
    const fingerprint=[api.VERSION,g.id,team,name,modelPlayer.id||'',p.toFixed(7),
     out.base.toFixed(7),out.observedGames,out.tdGames,out.roleFactor.toFixed(6),
-    out.defenseFactor.toFixed(6)].join('|');
+    out.defenseFactor.toFixed(6),out.redzoneFactor.toFixed(6),out.redzoneSourceAt||'none'].join('|');
    const id=await archiveHash(fingerprint);
    rows.push({id,gameId:String(g.id),kickoff:new Date(kickoff).toISOString(),
     playerId:String(modelPlayer.id||player.id||''),name,team,probability:p,
     base:out.base,n:out.observedGames,wins:out.tdGames,role:out.roleFactor,
-    defense:out.defenseFactor,version:api.VERSION});
+    defense:out.defenseFactor,redzoneFactor:out.redzoneFactor,redzoneSourceAt:out.redzoneSourceAt||null,version:api.VERSION});
   }
  }
  let inserted=0;
  // Only auditable, future-event forecasts. Batches are idempotent across cron runs.
  for(let i=0;i<rows.length;i+=50){
   const stmts=rows.slice(i,i+50).map(r=>env.NFL_ARCHIVE.prepare(
-   'INSERT OR IGNORE INTO atd_shadow_forecasts (id,captured_at,game_id,kickoff_at,player_id,player_name,team,probability,baseline_probability,observed_games,observed_td_games,role_factor,defense_factor,model_version,model_source_at,research_source_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
+   'INSERT OR IGNORE INTO atd_shadow_forecasts (id,captured_at,game_id,kickoff_at,player_id,player_name,team,probability,baseline_probability,observed_games,observed_td_games,role_factor,defense_factor,redzone_factor,redzone_source_at,model_version,model_source_at,research_source_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)'
   ).bind(r.id,started,r.gameId,r.kickoff,r.playerId||null,r.name,r.team,r.probability,r.base,r.n,
-   r.wins,r.role,r.defense,r.version,td.generatedAt,research.generatedAt));
+   r.wins,r.role,r.defense,r.redzoneFactor,r.redzoneSourceAt,r.version,td.generatedAt,research.generatedAt));
   const batch=await env.NFL_ARCHIVE.batch(stmts);
   inserted+=batch.reduce((a,x)=>a+Number(x.meta?.changes||0),0);
  }
