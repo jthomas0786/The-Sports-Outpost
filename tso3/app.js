@@ -670,6 +670,17 @@ function openDrawer(r){
   html+='<h3>Verified game results (most recent first)</h3><div class="stat-bars" aria-label="Recent player game results">'
   +logs.values.slice(0,20).reverse().map((v,i)=>'<span><i style="height:'+Math.max(2,Math.round(v/max*115))+'px" title="'+text(v)+'"></i><small>'+text(v)+'</small></span>').join('')+'</div>';
  }else html+='<div class="page-note">A verified game-by-game chart is not available for this exact player and market. No values have been inferred.</div>';
+ if(r.matchupEvidence){
+  const q=r.matchupEvidence;
+  html+='<h3>TSO verified goal matchup evidence</h3><div class="data-preview">'
+   +'<div><span>OPPONENT RANK BY POSITION</span><b>'+text(q.defenseRank??'—')+'</b></div>'
+   +'<div><span>GOALS ALLOWED / GAME</span><b>'+text(q.goalsAllowedPerGame==null?'—':Number(q.goalsAllowedPerGame).toFixed(2))+'</b></div>'
+   +'<div><span>PLAYER RECENT GOALS</span><b>'+text(q.recentGoals??'—')+'</b></div>'
+   +'<div><span>RECENT GAMES</span><b>'+text(q.recentGames??'—')+'</b></div></div>'
+   +'<p class="nba-footnote">Opponent '+text(q.opponent||'not verified')+' · '+text(q.position||'position unknown')
+   +' · starting goalie '+(q.goalieVerified?'verified':'not independently verified')
+   +'. These are TSO-sourced matchup observations, not proprietary third-party rankings.</p>';
+ }
  html+='<h3>Verified sportsbook lines</h3>'+quoteComparisonMarkup(r)
   +'<h3>Original source & model details</h3><div class="data-preview">'
   +'<div><span>PRICE OBSERVED</span><b>'+text(r.snapshotTime?clock(r.snapshotTime):'Not verified')+'</b></div>'
