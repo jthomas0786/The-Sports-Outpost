@@ -315,7 +315,7 @@ function build(ctx,tool){
   const shadow=window.TSO3AtdShadow,ref=shadow?.context?.(ctx.research);
   for(const r of result)r.shadow=shadow?.project?.({baseProbability:r.modelProbability,
    player:r.p,game:r.game,report:r.officialReport,reference:ref,
-   generatedAt:ctx.research?.generatedAt})||{available:false,reason:'2026 shadow model unavailable'};
+   generatedAt:ctx.research?.generatedAt,redzone:ctx.redzone})||{available:false,reason:'2026 shadow model unavailable'};
  }
  for(const r of result){
   const yards=num(r.defense?.perGame?.yards),mean=num(r.dvpMean);
@@ -466,7 +466,7 @@ function row(r){
 function render(ctx,tool){
  if(!tools.includes(tool))return '';
  state.tool=tool;state.context=ctx;
- const signature=[tool,ctx.research?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,ctx.weather?.fetchedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
+ const signature=[tool,ctx.research?.generatedAt,ctx.redzone?.generatedAt,ctx.td?.generatedAt,ctx.odds?.fetchedAt,ctx.sim?.generatedAt,ctx.weather?.fetchedAt,(ctx.games||[]).map(g=>g.id+':'+g.startTime).join(',')].join('|');
  if(state.version!==signature){
   state.version=signature;state.all=build(ctx,tool);state.max=90;
   // Keep user-picked matchups and positions through the automatic live refresh.
@@ -502,6 +502,7 @@ function render(ctx,tool){
   ' · DEFENSE TD GROUP '+state.visible.filter(r=>num(r.oppTdGroup?.tdsPerGame)!==null).length+'/'+state.visible.length+
   ' · MATCHED ATD PRICES '+state.visible.filter(r=>Boolean(r.quote)).length+'/'+state.visible.length+
   ' · 2026 SHADOW '+state.visible.filter(r=>r.shadow?.available).length+'/'+state.visible.length+
+  ' · VERIFIED INSIDE-20 PBP '+state.visible.filter(r=>r.shadow?.redzoneSourceAt).length+'/'+state.visible.length+
   '. Missing records are excluded, never treated as zero.</p>':'';
  const controls='<div class="nba-controls nfl-controls">'+selectBox('games',gameOptions)
   +(gameTools.has(tool)?'':selectBox('positions',(tool==='coverage-matchups'?['WR','TE','RB']:['QB','RB','WR','TE']).map(x=>[x,x])))
@@ -524,7 +525,7 @@ function render(ctx,tool){
  +(modelTools.has(tool)?'<p class="nfl-model-note">'+esc(modelAlert)+'</p>':'')
  +(tool==='touchdown-opportunities'&&actualTdQuotes.length===0?'<p class="nfl-model-note">NO VERIFIED ATD BOOK PRICES for the current official NFL slate. A recent timestamp for the general sportsbook feed does not guarantee anytime-TD market coverage. Prices will remain blank until independently checked quotes arrive.</p>':'')
  +coverage
- +(tool==='touchdown-opportunities'?'<p class="nfl-model-note"><b>2026 SHADOW IS NOT THE OFFICIAL TSO MODEL OR AN APPROVED GRADE.</b> Experimental estimates shrink observed 2026 rushing/receiving TD-game frequency toward the unchanged TSO prior, with capped carry/target and verified same-position opponent-defense adjustments. Requires three dated 2026 game logs. No unsupported 2026 goal-line or red-zone touches are invented. No historical game is treated as a prospective shadow forecast. Calibration requires future settled archive outcomes.</p>':'')
+ +(tool==='touchdown-opportunities'?'<p class="nfl-model-note"><b>2026 SHADOW IS NOT THE OFFICIAL TSO MODEL OR AN APPROVED GRADE.</b> Experimental estimates shrink observed 2026 rushing/receiving TD-game frequency toward the unchanged TSO prior, with capped carry/target and verified same-position opponent-defense adjustments. Requires three dated 2026 game logs. When a separately verified 2026 nflverse play-by-play source is current, inside-the-20 and inside-the-5 opportunity shares are compared with the same athletes own 2025 baseline by GSIS ID and team; the adjustment is capped. No gaps are filled with guessed touches. No historical game is treated as a prospective shadow forecast. Calibration requires future settled archive outcomes.</p>':'')
  +(tool==='touchdown-opportunities'?'<p class="nfl-model-note">DEF VS POS TD/GM measures observed 2026 touchdowns allowed to the listed position group by the next opponent, only with at least 3 defensive games and no conflicting records. It is NOT an individual scoring probability, alignment grade or man/zone matchup. Blank cells remain unverified.</p>':'')
  +controls+'<div class="nba-table-scroll"><table class="nba-table nfl-table'+(tool==='defense-vs-position'?' nfl-dvp-table':tool==='coverage-matchups'?' nfl-coverage-table':'')+'"><thead><tr>'
  +columns[tool].map(x=>'<th>'+esc(x)+'</th>').join('')+'</tr></thead><tbody>'
@@ -655,6 +656,9 @@ function detail(r,ctx){
   +'<div><small>2026 SHADOW · NOT GRADED</small><b>'+(r.shadow?.available?percent(r.shadow.probability):'—')+'</b><small>'+(r.shadow?.available?esc(r.shadow.tdGames+'/'+r.shadow.observedGames+' 2026 TD games'):esc(r.shadow?.reason||'Unavailable'))+'</small></div>'
   +'<div><small>2026 SHADOW ROLE FACTOR</small><b>'+(r.shadow?.available?f(r.shadow.roleFactor):'—')+'</b></div>'
   +'<div><small>2026 SHADOW DEF FACTOR</small><b>'+(r.shadow?.available?f(r.shadow.defenseFactor):'—')+'</b></div>'
+  +'<div><small>2026 INSIDE-20 SHARE</small><b>'+(r.shadow?.redzoneSourceAt?f(r.shadow.redzoneShare)+'%':'—')+'</b></div>'
+  +'<div><small>2026 INSIDE-5 SHARE</small><b>'+(r.shadow?.redzoneSourceAt&&r.shadow.goalLineShare!=null?f(r.shadow.goalLineShare)+'%':'—')+'</b></div>'
+  +'<div><small>2026 PBP TD OPPORTUNITY FACTOR</small><b>'+(r.shadow?.redzoneSourceAt?f(r.shadow.redzoneFactor):'—')+'</b><small>'+(r.shadow?.redzoneSourceAt?'Actual nflverse 2026 play-by-play':'Current play-by-play not source-verified for this player')+'</small></div>'
   +'<div><small>50K SIM ATD</small><b>'+percent(r.simAtd)+'</b></div>'
   +'<div><small>50K SIM 2+ TD</small><b>'+percent(r.simTwo)+'</b></div>'
   +'<div><small>MODEL GAP</small><b>'+gapLabel(r)+'</b><small>'+esc(divergence(r)||'Absolute difference')+'</small></div>'
@@ -667,7 +671,7 @@ function detail(r,ctx){
   +'<div><small>RZ TARGETS (BASELINE)</small><b>'+esc(r.m?.rzTargets??'—')+'</b></div>'
   +'<div><small>OPP RZ TD ALLOWED</small><b>'+percent(r.m?.opponentRzTdRate)+'</b></div>'
   +'<div><small>INJURY STATUS</small><b>'+esc(r.officialReport?.status||r.p?.status||r.m?.injuryStatus||'Unknown')+'</b></div></div>'
-  +'<p class="nba-footnote">2026 Shadow is experimental with fixed shrinkage parameters; it is not calibrated, has no postgame backtest and never replaces TSO ATD or the A–F grade. Only dated observed 2026 rushing/receiving TD games are counted (no passing TDs for QBs).</p>'
+  +'<p class="nba-footnote">2026 Shadow is experimental with fixed shrinkage parameters; it is not calibrated, has no postgame backtest and never replaces TSO ATD or the A–F grade. Only dated observed 2026 rushing/receiving TD games are counted (no passing TDs for QBs). A separate verified nflverse play-by-play source supplies 2026 red-zone/goal-line shares when present; otherwise its factor is neutral.</p>'
   +'<div class="nfl-context-note">'+(ppGap(r)===null?'Only one or neither current TD model is available for this player.':ppGap(r)>=12?'MODEL DISAGREEMENT: the regressed ATD model and the 50K simulation differ by '+gapLabel(r)+'. Compare their assumptions, current role, injury status and opponent before interpreting either number.':'Two separate models are shown. Their agreement does not prove calibration or guarantee a touchdown.')+'</div>'
   +'<h3>2026 games · observed rushing/receiving touchdowns</h3>'+bar
   +'<h3>2026 player trends</h3><div class="nfl-detail-grid">'+stats.map(([name,value])=>'<div><small>'+esc(name.toUpperCase())+'</small><b>'+f(value)+'</b></div>').join('')+'</div>'
