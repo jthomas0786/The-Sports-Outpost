@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-10-24T20:50:59.140Z",
+  "generatedAt": "2026-10-25T04:42:54.695Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -13,37 +13,25 @@
       "ok": true,
       "rows": 7548
     },
-    "espnTeams": {
+    "nflverseRosterCurrent": {
       "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ],
-      "rows": 32
+      "rows": 3054
     },
-    "nflverseCurrentRegular": {
+    "nflverseCurrentSnaps": {
       "ok": true,
-      "rows": 1654
+      "rows": 8763
     },
     "nflversePrevRegular": {
       "ok": true,
       "rows": 2020
     },
-    "nflverseRosterCurrent": {
+    "nflverseCurrentRegular": {
       "ok": true,
-      "rows": 3054
-    },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26613
+      "rows": 1654
     },
     "nflverseCurrentWeekly": {
       "ok": true,
       "rows": 6558
-    },
-    "nflverseCurrentSnaps": {
-      "ok": true,
-      "rows": 8763
     },
     "nflversePrevWeekly": {
       "ok": true,
@@ -53,56 +41,19 @@
       "ok": true,
       "rows": 24861
     },
+    "espnTeams": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ],
+      "rows": 32
+    },
+    "nflversePrevSnaps": {
+      "ok": true,
+      "rows": 26613
+    },
     "espnInjuries": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ARI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:BAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:BAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -116,6 +67,27 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:BAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -123,42 +95,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CAR": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:CIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:DAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:DAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
+    "espnDepth:BAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -172,14 +109,49 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DET": {
+    "espnDepth:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DET": {
+    "espnDepth:ATL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:BUF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:ATL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:CIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -200,14 +172,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:GB": {
+    "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -221,7 +186,42 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:DAL": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:DET": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:DET": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -235,7 +235,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:HOU": {
+    "espnDepth:JAX": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -256,21 +263,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:JAX": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:JAX": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -292,6 +285,13 @@
       ]
     },
     "espnRoster:LV": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -340,35 +340,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:MIA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NO": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:NO": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -382,7 +354,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:NE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NO": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:NYG": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:NO": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -396,7 +396,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NYJ": {
+    "espnDepth:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -410,14 +410,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PHI": {
+    "espnRoster:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PHI": {
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -431,13 +431,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PIT": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -445,14 +438,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:TB": {
+    "espnRoster:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -466,7 +452,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TB": {
+    "espnDepth:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -480,7 +466,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TEN": {
+    "espnRoster:SF": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -494,6 +487,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:WSH": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -501,7 +501,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:WSH": {
+    "espnRoster:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -510,7 +510,7 @@
     }
   },
   "teamCount": 32,
-  "playerCount": 2598,
+  "playerCount": 2599,
   "teams": [
     {
       "id": "22",
@@ -550,7 +550,7 @@
       "name": "Carolina Panthers",
       "shortName": "Panthers",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/car.png",
-      "rosterCount": 78
+      "rosterCount": 80
     },
     {
       "id": "3",
@@ -622,7 +622,7 @@
       "name": "Indianapolis Colts",
       "shortName": "Colts",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ind.png",
-      "rosterCount": 80
+      "rosterCount": 79
     },
     {
       "id": "30",
@@ -734,7 +734,7 @@
       "name": "San Francisco 49ers",
       "shortName": "49ers",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sf.png",
-      "rosterCount": 89
+      "rosterCount": 88
     },
     {
       "id": "26",
@@ -742,7 +742,7 @@
       "name": "Seattle Seahawks",
       "shortName": "Seahawks",
       "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/sea.png",
-      "rosterCount": 85
+      "rosterCount": 86
     },
     {
       "id": "27",
@@ -83388,7 +83388,7 @@
       "position": "LB",
       "jersey": "50",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4426372.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 3,
       "age": 25,
@@ -86051,7 +86051,7 @@
       "position": "LB",
       "jersey": "95",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4690179.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 4,
       "age": 27,
@@ -139279,6 +139279,35 @@
       "matchup": null
     },
     {
+      "espnId": "5225251",
+      "gsisId": "00-0041188",
+      "pfrId": "DeWaMa00",
+      "team": "CAR",
+      "name": "Malcolm DeWalt IV",
+      "position": "DB",
+      "jersey": "36",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/5225251.png",
+      "rosterStatus": "Practice Squad",
+      "active": true,
+      "experience": 0,
+      "age": 24,
+      "depth": {
+        "rank": null,
+        "position": "DB",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": null,
+      "currentSeason": null,
+      "last5": null,
+      "gameLog": [],
+      "snapTrend": null,
+      "matchup": null
+    },
+    {
       "espnId": "4602967",
       "gsisId": "00-0041148",
       "pfrId": "HallAa00",
@@ -147409,6 +147438,315 @@
       "matchup": null
     },
     {
+      "espnId": "4360773",
+      "gsisId": "00-0039076",
+      "pfrId": "HampNi00",
+      "team": "CAR",
+      "name": "Nick Hampton",
+      "position": "LB",
+      "jersey": "39",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4360773.png",
+      "rosterStatus": "Active",
+      "active": true,
+      "experience": 4,
+      "age": 26,
+      "depth": {
+        "rank": null,
+        "position": "LB",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": {
+        "games": 5,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "currentSeason": null,
+      "last5": {
+        "games": 5,
+        "avg": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "tdGames": 0,
+        "gamesLog": [
+          {
+            "season": 2025,
+            "week": 13,
+            "team": "LA",
+            "opponent": "CAR",
+            "date": "2025-11-30",
+            "homeAway": "away",
+            "gameId": "2025_13_LA_CAR",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 12,
+            "team": "LA",
+            "opponent": "TB",
+            "date": "2025-11-23",
+            "homeAway": "home",
+            "gameId": "2025_12_TB_LA",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 11,
+            "team": "LA",
+            "opponent": "SEA",
+            "date": "2025-11-16",
+            "homeAway": "home",
+            "gameId": "2025_11_SEA_LA",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 6,
+            "team": "LA",
+            "opponent": "BAL",
+            "date": "2025-10-12",
+            "homeAway": "away",
+            "gameId": "2025_06_LA_BAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 1,
+            "team": "LA",
+            "opponent": "HOU",
+            "date": "2025-09-07",
+            "homeAway": "home",
+            "gameId": "2025_01_HOU_LA",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          }
+        ]
+      },
+      "gameLog": [
+        {
+          "season": 2025,
+          "week": 13,
+          "team": "LA",
+          "opponent": "CAR",
+          "date": "2025-11-30",
+          "homeAway": "away",
+          "gameId": "2025_13_LA_CAR",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 12,
+          "team": "LA",
+          "opponent": "TB",
+          "date": "2025-11-23",
+          "homeAway": "home",
+          "gameId": "2025_12_TB_LA",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 11,
+          "team": "LA",
+          "opponent": "SEA",
+          "date": "2025-11-16",
+          "homeAway": "home",
+          "gameId": "2025_11_SEA_LA",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 6,
+          "team": "LA",
+          "opponent": "BAL",
+          "date": "2025-10-12",
+          "homeAway": "away",
+          "gameId": "2025_06_LA_BAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 1,
+          "team": "LA",
+          "opponent": "HOU",
+          "date": "2025-09-07",
+          "homeAway": "home",
+          "gameId": "2025_01_HOU_LA",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        }
+      ],
+      "snapTrend": {
+        "games": 5,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
+      "matchup": null
+    },
+    {
       "espnId": "4036063",
       "gsisId": "00-0037007",
       "pfrId": "JonePa00",
@@ -148455,7 +148793,7 @@
       "position": "LB",
       "jersey": "48",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4714157.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 4,
       "age": 27,
@@ -287853,7 +288191,7 @@
       "position": "RB",
       "jersey": "28",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4362748.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 3,
       "age": 26,
@@ -289804,7 +290142,7 @@
       "position": "RB",
       "jersey": "20",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4702555.png",
-      "rosterStatus": "Day-To-Day",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 0,
       "age": 23,
@@ -302431,7 +302769,7 @@
       "position": "LB",
       "jersey": "52",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4687592.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 3,
       "age": 23,
@@ -338968,7 +339306,7 @@
       "position": "S",
       "jersey": "32",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4692025.png",
-      "rosterStatus": "Day-To-Day",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 4,
       "age": 25,
@@ -399259,7 +399597,7 @@
       "position": "LB",
       "jersey": "50",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4241394.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 7,
       "age": 27,
@@ -430164,7 +430502,7 @@
       "position": "LB",
       "jersey": "53",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3116724.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 7,
       "age": 30,
@@ -432789,535 +433127,6 @@
           "date": "2025-09-21",
           "homeAway": "away",
           "gameId": "2025_03_IND_TEN",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        }
-      ],
-      "snapTrend": {
-        "games": 5,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
-      },
-      "matchup": null
-    },
-    {
-      "espnId": "12701",
-      "gsisId": "00-0027114",
-      "pfrId": "MorsTh00",
-      "team": "IND",
-      "name": "Thomas Morstead",
-      "position": "P",
-      "jersey": "4",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/12701.png",
-      "rosterStatus": "Practice Squad",
-      "active": true,
-      "experience": 18,
-      "age": 40,
-      "depth": {
-        "rank": null,
-        "position": "P",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": {
-        "games": 15,
-        "carries": 0,
-        "targets": 0,
-        "receptions": 0,
-        "rushYds": 0,
-        "recYds": 0,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
-        "perGame": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 0,
-        "airYardsShare": 0,
-        "fantasyPpr": 0
-      },
-      "currentSeason": null,
-      "last5": {
-        "games": 5,
-        "avg": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "tdGames": 0,
-        "gamesLog": [
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "SF",
-            "opponent": "SEA",
-            "date": "2026-01-03",
-            "homeAway": "home",
-            "gameId": "2025_18_SEA_SF",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 17,
-            "team": "SF",
-            "opponent": "CHI",
-            "date": "2025-12-28",
-            "homeAway": "home",
-            "gameId": "2025_17_CHI_SF",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 13,
-            "team": "SF",
-            "opponent": "CLE",
-            "date": "2025-11-30",
-            "homeAway": "away",
-            "gameId": "2025_13_SF_CLE",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 12,
-            "team": "SF",
-            "opponent": "CAR",
-            "date": "2025-11-24",
-            "homeAway": "home",
-            "gameId": "2025_12_CAR_SF",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 11,
-            "team": "SF",
-            "opponent": "ARI",
-            "date": "2025-11-16",
-            "homeAway": "away",
-            "gameId": "2025_11_SF_ARI",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          }
-        ]
-      },
-      "gameLog": [
-        {
-          "season": 2025,
-          "week": 18,
-          "team": "SF",
-          "opponent": "SEA",
-          "date": "2026-01-03",
-          "homeAway": "home",
-          "gameId": "2025_18_SEA_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 17,
-          "team": "SF",
-          "opponent": "CHI",
-          "date": "2025-12-28",
-          "homeAway": "home",
-          "gameId": "2025_17_CHI_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 13,
-          "team": "SF",
-          "opponent": "CLE",
-          "date": "2025-11-30",
-          "homeAway": "away",
-          "gameId": "2025_13_SF_CLE",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 12,
-          "team": "SF",
-          "opponent": "CAR",
-          "date": "2025-11-24",
-          "homeAway": "home",
-          "gameId": "2025_12_CAR_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 11,
-          "team": "SF",
-          "opponent": "ARI",
-          "date": "2025-11-16",
-          "homeAway": "away",
-          "gameId": "2025_11_SF_ARI",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 10,
-          "team": "SF",
-          "opponent": "LA",
-          "date": "2025-11-09",
-          "homeAway": "home",
-          "gameId": "2025_10_LA_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 9,
-          "team": "SF",
-          "opponent": "NYG",
-          "date": "2025-11-02",
-          "homeAway": "away",
-          "gameId": "2025_09_SF_NYG",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 8,
-          "team": "SF",
-          "opponent": "HOU",
-          "date": "2025-10-26",
-          "homeAway": "away",
-          "gameId": "2025_08_SF_HOU",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 7,
-          "team": "SF",
-          "opponent": "ATL",
-          "date": "2025-10-19",
-          "homeAway": "home",
-          "gameId": "2025_07_ATL_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 6,
-          "team": "SF",
-          "opponent": "TB",
-          "date": "2025-10-12",
-          "homeAway": "away",
-          "gameId": "2025_06_SF_TB",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 5,
-          "team": "SF",
-          "opponent": "LA",
-          "date": "2025-10-02",
-          "homeAway": "away",
-          "gameId": "2025_05_SF_LA",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 4,
-          "team": "SF",
-          "opponent": "JAX",
-          "date": "2025-09-28",
-          "homeAway": "home",
-          "gameId": "2025_04_JAX_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 3,
-          "team": "SF",
-          "opponent": "ARI",
-          "date": "2025-09-21",
-          "homeAway": "home",
-          "gameId": "2025_03_ARI_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 2,
-          "team": "SF",
-          "opponent": "NO",
-          "date": "2025-09-14",
-          "homeAway": "away",
-          "gameId": "2025_02_SF_NO",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 1,
-          "team": "SF",
-          "opponent": "SEA",
-          "date": "2025-09-07",
-          "homeAway": "away",
-          "gameId": "2025_01_SF_SEA",
           "carries": 0,
           "targets": 0,
           "receptions": 0,
@@ -470642,7 +470451,7 @@
       "position": "RB",
       "jersey": "24",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4596602.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 2,
       "age": 23,
@@ -472944,7 +472753,7 @@
       "position": "RB",
       "jersey": "42",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4685489.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 0,
       "age": 23,
@@ -512260,7 +512069,7 @@
       "position": "LB",
       "jersey": "54",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/2510863.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 11,
       "age": 34,
@@ -572999,7 +572808,7 @@
       "position": "DT",
       "jersey": "96",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4431414.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 0,
       "age": 23,
@@ -603329,7 +603138,7 @@
       "position": "PK",
       "jersey": "45",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3043234.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 9,
       "age": 31,
@@ -618423,425 +618232,6 @@
       "matchup": null
     },
     {
-      "espnId": "4689989",
-      "gsisId": "00-0038966",
-      "pfrId": "BrooNa01",
-      "team": "MIN",
-      "name": "Natrone Brooks",
-      "position": "CB",
-      "jersey": "28",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4689989.png",
-      "rosterStatus": "Practice Squad",
-      "active": true,
-      "experience": 3,
-      "age": 26,
-      "depth": {
-        "rank": null,
-        "position": "CB",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": {
-        "games": 10,
-        "carries": 0,
-        "targets": 0,
-        "receptions": 0,
-        "rushYds": 0,
-        "recYds": 0,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
-        "perGame": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 0,
-        "airYardsShare": 0,
-        "fantasyPpr": 0
-      },
-      "currentSeason": null,
-      "last5": {
-        "games": 5,
-        "avg": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "tdGames": 0,
-        "gamesLog": [
-          {
-            "season": 2025,
-            "week": 18,
-            "team": "ATL",
-            "opponent": "NO",
-            "date": "2026-01-04",
-            "homeAway": "home",
-            "gameId": "2025_18_NO_ATL",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 13,
-            "team": "ATL",
-            "opponent": "NYJ",
-            "date": "2025-11-30",
-            "homeAway": "away",
-            "gameId": "2025_13_ATL_NYJ",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 11,
-            "team": "ATL",
-            "opponent": "CAR",
-            "date": "2025-11-16",
-            "homeAway": "home",
-            "gameId": "2025_11_CAR_ATL",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 10,
-            "team": "ATL",
-            "opponent": "IND",
-            "date": "2025-11-09",
-            "homeAway": "away",
-            "gameId": "2025_10_ATL_IND",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 9,
-            "team": "ATL",
-            "opponent": "NE",
-            "date": "2025-11-02",
-            "homeAway": "away",
-            "gameId": "2025_09_ATL_NE",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          }
-        ]
-      },
-      "gameLog": [
-        {
-          "season": 2025,
-          "week": 18,
-          "team": "ATL",
-          "opponent": "NO",
-          "date": "2026-01-04",
-          "homeAway": "home",
-          "gameId": "2025_18_NO_ATL",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 13,
-          "team": "ATL",
-          "opponent": "NYJ",
-          "date": "2025-11-30",
-          "homeAway": "away",
-          "gameId": "2025_13_ATL_NYJ",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 11,
-          "team": "ATL",
-          "opponent": "CAR",
-          "date": "2025-11-16",
-          "homeAway": "home",
-          "gameId": "2025_11_CAR_ATL",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 10,
-          "team": "ATL",
-          "opponent": "IND",
-          "date": "2025-11-09",
-          "homeAway": "away",
-          "gameId": "2025_10_ATL_IND",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 9,
-          "team": "ATL",
-          "opponent": "NE",
-          "date": "2025-11-02",
-          "homeAway": "away",
-          "gameId": "2025_09_ATL_NE",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 8,
-          "team": "ATL",
-          "opponent": "MIA",
-          "date": "2025-10-26",
-          "homeAway": "home",
-          "gameId": "2025_08_MIA_ATL",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 7,
-          "team": "ATL",
-          "opponent": "SF",
-          "date": "2025-10-19",
-          "homeAway": "away",
-          "gameId": "2025_07_ATL_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 3,
-          "team": "ATL",
-          "opponent": "CAR",
-          "date": "2025-09-21",
-          "homeAway": "away",
-          "gameId": "2025_03_ATL_CAR",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 2,
-          "team": "ATL",
-          "opponent": "MIN",
-          "date": "2025-09-14",
-          "homeAway": "away",
-          "gameId": "2025_02_ATL_MIN",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 1,
-          "team": "ATL",
-          "opponent": "TB",
-          "date": "2025-09-07",
-          "homeAway": "home",
-          "gameId": "2025_01_TB_ATL",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        }
-      ],
-      "snapTrend": {
-        "games": 5,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
-      },
-      "matchup": null
-    },
-    {
       "espnId": "4695609",
       "gsisId": "00-0040507",
       "pfrId": "VaugZe00",
@@ -631988,6 +631378,459 @@
         "avgOffensePct": 0,
         "lastOffensePct": 0,
         "avgOffenseSnaps": 0
+      },
+      "matchup": null
+    },
+    {
+      "espnId": "4240631",
+      "gsisId": "00-0036425",
+      "pfrId": "DallDe00",
+      "team": "MIN",
+      "name": "DeeJay Dallas",
+      "position": "RB",
+      "jersey": "31",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4240631.png",
+      "rosterStatus": "Practice Squad",
+      "active": true,
+      "experience": 7,
+      "age": 28,
+      "depth": {
+        "rank": null,
+        "position": "RB",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": {
+        "games": 5,
+        "carries": 3,
+        "targets": 1,
+        "receptions": 0,
+        "rushYds": 21,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 3,
+        "scrimmageYds": 21,
+        "perGame": {
+          "carries": 0.6,
+          "targets": 0.2,
+          "receptions": 0,
+          "rushYds": 4.2,
+          "recYds": 0,
+          "scrimmageYds": 4.2,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0.2,
+        "airYardsShare": 0,
+        "fantasyPpr": 2.1
+      },
+      "currentSeason": {
+        "games": 5,
+        "carries": 3,
+        "targets": 4,
+        "receptions": 4,
+        "rushYds": 10,
+        "recYds": 34,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 7,
+        "scrimmageYds": 44,
+        "perGame": {
+          "carries": 0.6,
+          "targets": 0.8,
+          "receptions": 0.8,
+          "rushYds": 2,
+          "recYds": 6.8,
+          "scrimmageYds": 8.8,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 3.1,
+        "airYardsShare": 0.8,
+        "fantasyPpr": 8.4
+      },
+      "last5": {
+        "games": 5,
+        "avg": {
+          "carries": 0.6,
+          "targets": 0.8,
+          "receptions": 0.8,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 2,
+          "recYds": 6.8,
+          "scrimmageYds": 8.8,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "tdGames": 0,
+        "gamesLog": [
+          {
+            "season": 2026,
+            "week": 5,
+            "team": "MIN",
+            "opponent": "NO",
+            "date": "2026-10-11",
+            "homeAway": "away",
+            "gameId": "2026_05_MIN_NO",
+            "carries": 0,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 11,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 11
+          },
+          {
+            "season": 2026,
+            "week": 4,
+            "team": "MIN",
+            "opponent": "MIA",
+            "date": "2026-10-04",
+            "homeAway": "home",
+            "gameId": "2026_04_MIA_MIN",
+            "carries": 0,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 10,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 10
+          },
+          {
+            "season": 2026,
+            "week": 3,
+            "team": "MIN",
+            "opponent": "TB",
+            "date": "2026-09-27",
+            "homeAway": "away",
+            "gameId": "2026_03_MIN_TB",
+            "carries": 1,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 2,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 2
+          },
+          {
+            "season": 2026,
+            "week": 2,
+            "team": "MIN",
+            "opponent": "CHI",
+            "date": "2026-09-20",
+            "homeAway": "away",
+            "gameId": "2026_02_MIN_CHI",
+            "carries": 2,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 8,
+            "recYds": 12,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 20
+          },
+          {
+            "season": 2026,
+            "week": 1,
+            "team": "MIN",
+            "opponent": "GB",
+            "date": "2026-09-13",
+            "homeAway": "home",
+            "gameId": "2026_01_GB_MIN",
+            "carries": 0,
+            "targets": 1,
+            "receptions": 1,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 1,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 1
+          }
+        ]
+      },
+      "gameLog": [
+        {
+          "season": 2026,
+          "week": 5,
+          "team": "MIN",
+          "opponent": "NO",
+          "date": "2026-10-11",
+          "homeAway": "away",
+          "gameId": "2026_05_MIN_NO",
+          "carries": 0,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 11,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 11
+        },
+        {
+          "season": 2026,
+          "week": 4,
+          "team": "MIN",
+          "opponent": "MIA",
+          "date": "2026-10-04",
+          "homeAway": "home",
+          "gameId": "2026_04_MIA_MIN",
+          "carries": 0,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 10,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 10
+        },
+        {
+          "season": 2026,
+          "week": 3,
+          "team": "MIN",
+          "opponent": "TB",
+          "date": "2026-09-27",
+          "homeAway": "away",
+          "gameId": "2026_03_MIN_TB",
+          "carries": 1,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 2,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 2
+        },
+        {
+          "season": 2026,
+          "week": 2,
+          "team": "MIN",
+          "opponent": "CHI",
+          "date": "2026-09-20",
+          "homeAway": "away",
+          "gameId": "2026_02_MIN_CHI",
+          "carries": 2,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 8,
+          "recYds": 12,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 20
+        },
+        {
+          "season": 2026,
+          "week": 1,
+          "team": "MIN",
+          "opponent": "GB",
+          "date": "2026-09-13",
+          "homeAway": "home",
+          "gameId": "2026_01_GB_MIN",
+          "carries": 0,
+          "targets": 1,
+          "receptions": 1,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 1,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 1
+        },
+        {
+          "season": 2025,
+          "week": 18,
+          "team": "JAX",
+          "opponent": "TEN",
+          "date": "2026-01-04",
+          "homeAway": "home",
+          "gameId": "2025_18_TEN_JAX",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 17,
+          "team": "JAX",
+          "opponent": "IND",
+          "date": "2025-12-28",
+          "homeAway": "away",
+          "gameId": "2025_17_JAX_IND",
+          "carries": 2,
+          "targets": 1,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 21,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 21
+        },
+        {
+          "season": 2025,
+          "week": 16,
+          "team": "JAX",
+          "opponent": "DEN",
+          "date": "2025-12-21",
+          "homeAway": "away",
+          "gameId": "2025_16_JAX_DEN",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 6,
+          "team": "CAR",
+          "opponent": "DAL",
+          "date": "2025-10-12",
+          "homeAway": "home",
+          "gameId": "2025_06_DAL_CAR",
+          "carries": 1,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 5,
+          "team": "CAR",
+          "opponent": "MIA",
+          "date": "2025-10-05",
+          "homeAway": "home",
+          "gameId": "2025_05_MIA_CAR",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        }
+      ],
+      "snapTrend": {
+        "games": 5,
+        "avgOffensePct": 4,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 2.8
       },
       "matchup": null
     },
@@ -712009,7 +711852,7 @@
       "position": "WR",
       "jersey": "13",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4692590.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 4,
       "age": 25,
@@ -726410,7 +726253,7 @@
       "position": "LB",
       "jersey": "49",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3929950.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 9,
       "age": 28,
@@ -728107,7 +727950,7 @@
       "position": "OT",
       "jersey": "65",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4870914.png",
-      "rosterStatus": "Active",
+      "rosterStatus": "Day-To-Day",
       "active": true,
       "experience": 0,
       "age": 21,
@@ -732274,7 +732117,7 @@
       "position": "S",
       "jersey": "43",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4258237.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 3,
       "age": 27,
@@ -758693,7 +758536,7 @@
       "position": "LB",
       "jersey": "50",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3116177.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 7,
       "age": 32,
@@ -759942,7 +759785,7 @@
       "position": "OT",
       "jersey": "75",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4426623.png",
-      "rosterStatus": "Practice Squad",
+      "rosterStatus": "Active",
       "active": true,
       "experience": 1,
       "age": 26,
@@ -842312,6 +842155,459 @@
       "matchup": null
     },
     {
+      "espnId": "4040966",
+      "gsisId": "00-0036361",
+      "pfrId": "DiggTr00",
+      "team": "SEA",
+      "name": "Trevon Diggs",
+      "position": "CB",
+      "jersey": "16",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4040966.png",
+      "rosterStatus": "Active",
+      "active": true,
+      "experience": 6,
+      "age": 28,
+      "depth": {
+        "rank": null,
+        "position": "CB",
+        "slot": null
+      },
+      "injury": null,
+      "opponent": null,
+      "gameId": null,
+      "model": null,
+      "previousSeason": {
+        "games": 9,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "currentSeason": {
+        "games": 1,
+        "carries": 0,
+        "targets": 0,
+        "receptions": 0,
+        "rushYds": 0,
+        "recYds": 0,
+        "passYds": 0,
+        "completions": 0,
+        "attempts": 0,
+        "passTds": 0,
+        "rushTds": 0,
+        "recTds": 0,
+        "totalTds": 0,
+        "touches": 0,
+        "scrimmageYds": 0,
+        "perGame": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "completions": 0,
+          "attempts": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "targetShare": 0,
+        "airYardsShare": 0,
+        "fantasyPpr": 0
+      },
+      "last5": {
+        "games": 5,
+        "avg": {
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "scrimmageYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0
+        },
+        "tdGames": 0,
+        "gamesLog": [
+          {
+            "season": 2026,
+            "week": 6,
+            "team": "SEA",
+            "opponent": "DEN",
+            "date": "2026-10-15",
+            "homeAway": "away",
+            "gameId": "2026_06_SEA_DEN",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 18,
+            "team": "GB",
+            "opponent": "MIN",
+            "date": "2026-01-04",
+            "homeAway": "away",
+            "gameId": "2025_18_GB_MIN",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 17,
+            "team": "DAL",
+            "opponent": "WSH",
+            "date": "2025-12-25",
+            "homeAway": "away",
+            "gameId": "2025_17_DAL_WAS",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 16,
+            "team": "DAL",
+            "opponent": "LAC",
+            "date": "2025-12-21",
+            "homeAway": "home",
+            "gameId": "2025_16_LAC_DAL",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          },
+          {
+            "season": 2025,
+            "week": 6,
+            "team": "DAL",
+            "opponent": "CAR",
+            "date": "2025-10-12",
+            "homeAway": "away",
+            "gameId": "2025_06_DAL_CAR",
+            "carries": 0,
+            "targets": 0,
+            "receptions": 0,
+            "completions": 0,
+            "attempts": 0,
+            "rushYds": 0,
+            "recYds": 0,
+            "passYds": 0,
+            "passTds": 0,
+            "rushTds": 0,
+            "recTds": 0,
+            "tds": 0,
+            "scrimmageYds": 0
+          }
+        ]
+      },
+      "gameLog": [
+        {
+          "season": 2026,
+          "week": 6,
+          "team": "SEA",
+          "opponent": "DEN",
+          "date": "2026-10-15",
+          "homeAway": "away",
+          "gameId": "2026_06_SEA_DEN",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 18,
+          "team": "GB",
+          "opponent": "MIN",
+          "date": "2026-01-04",
+          "homeAway": "away",
+          "gameId": "2025_18_GB_MIN",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 17,
+          "team": "DAL",
+          "opponent": "WSH",
+          "date": "2025-12-25",
+          "homeAway": "away",
+          "gameId": "2025_17_DAL_WAS",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 16,
+          "team": "DAL",
+          "opponent": "LAC",
+          "date": "2025-12-21",
+          "homeAway": "home",
+          "gameId": "2025_16_LAC_DAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 6,
+          "team": "DAL",
+          "opponent": "CAR",
+          "date": "2025-10-12",
+          "homeAway": "away",
+          "gameId": "2025_06_DAL_CAR",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 5,
+          "team": "DAL",
+          "opponent": "NYJ",
+          "date": "2025-10-05",
+          "homeAway": "away",
+          "gameId": "2025_05_DAL_NYJ",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 4,
+          "team": "DAL",
+          "opponent": "GB",
+          "date": "2025-09-28",
+          "homeAway": "home",
+          "gameId": "2025_04_GB_DAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 3,
+          "team": "DAL",
+          "opponent": "CHI",
+          "date": "2025-09-21",
+          "homeAway": "away",
+          "gameId": "2025_03_DAL_CHI",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 2,
+          "team": "DAL",
+          "opponent": "NYG",
+          "date": "2025-09-14",
+          "homeAway": "home",
+          "gameId": "2025_02_NYG_DAL",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        },
+        {
+          "season": 2025,
+          "week": 1,
+          "team": "DAL",
+          "opponent": "PHI",
+          "date": "2025-09-04",
+          "homeAway": "away",
+          "gameId": "2025_01_DAL_PHI",
+          "carries": 0,
+          "targets": 0,
+          "receptions": 0,
+          "completions": 0,
+          "attempts": 0,
+          "rushYds": 0,
+          "recYds": 0,
+          "passYds": 0,
+          "passTds": 0,
+          "rushTds": 0,
+          "recTds": 0,
+          "tds": 0,
+          "scrimmageYds": 0
+        }
+      ],
+      "snapTrend": {
+        "games": 5,
+        "avgOffensePct": 0,
+        "lastOffensePct": 0,
+        "avgOffenseSnaps": 0
+      },
+      "matchup": null
+    },
+    {
       "espnId": "4572055",
       "gsisId": "00-0038591",
       "pfrId": "MorrMi00",
@@ -877757,261 +878053,6 @@
       "last5": null,
       "gameLog": [],
       "snapTrend": null,
-      "matchup": null
-    },
-    {
-      "espnId": "3929641",
-      "gsisId": "00-0035026",
-      "pfrId": "GiveKe01",
-      "team": "SF",
-      "name": "Kevin Givens",
-      "position": "DT",
-      "jersey": "90",
-      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/3929641.png",
-      "rosterStatus": "Active",
-      "active": true,
-      "experience": 7,
-      "age": 29,
-      "depth": {
-        "rank": null,
-        "position": "DT",
-        "slot": null
-      },
-      "injury": null,
-      "opponent": null,
-      "gameId": null,
-      "model": null,
-      "previousSeason": {
-        "games": 2,
-        "carries": 0,
-        "targets": 0,
-        "receptions": 0,
-        "rushYds": 0,
-        "recYds": 0,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
-        "perGame": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 0,
-        "airYardsShare": 0,
-        "fantasyPpr": 0
-      },
-      "currentSeason": {
-        "games": 1,
-        "carries": 0,
-        "targets": 0,
-        "receptions": 0,
-        "rushYds": 0,
-        "recYds": 0,
-        "passYds": 0,
-        "completions": 0,
-        "attempts": 0,
-        "passTds": 0,
-        "rushTds": 0,
-        "recTds": 0,
-        "totalTds": 0,
-        "touches": 0,
-        "scrimmageYds": 0,
-        "perGame": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "completions": 0,
-          "attempts": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "targetShare": 0,
-        "airYardsShare": 0,
-        "fantasyPpr": 0
-      },
-      "last5": {
-        "games": 3,
-        "avg": {
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "scrimmageYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0
-        },
-        "tdGames": 0,
-        "gamesLog": [
-          {
-            "season": 2026,
-            "week": 3,
-            "team": "SF",
-            "opponent": "ARI",
-            "date": "2026-09-27",
-            "homeAway": "home",
-            "gameId": "2026_03_ARI_SF",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 10,
-            "team": "SF",
-            "opponent": "LA",
-            "date": "2025-11-09",
-            "homeAway": "home",
-            "gameId": "2025_10_LA_SF",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          },
-          {
-            "season": 2025,
-            "week": 9,
-            "team": "SF",
-            "opponent": "NYG",
-            "date": "2025-11-02",
-            "homeAway": "away",
-            "gameId": "2025_09_SF_NYG",
-            "carries": 0,
-            "targets": 0,
-            "receptions": 0,
-            "completions": 0,
-            "attempts": 0,
-            "rushYds": 0,
-            "recYds": 0,
-            "passYds": 0,
-            "passTds": 0,
-            "rushTds": 0,
-            "recTds": 0,
-            "tds": 0,
-            "scrimmageYds": 0
-          }
-        ]
-      },
-      "gameLog": [
-        {
-          "season": 2026,
-          "week": 3,
-          "team": "SF",
-          "opponent": "ARI",
-          "date": "2026-09-27",
-          "homeAway": "home",
-          "gameId": "2026_03_ARI_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 10,
-          "team": "SF",
-          "opponent": "LA",
-          "date": "2025-11-09",
-          "homeAway": "home",
-          "gameId": "2025_10_LA_SF",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        },
-        {
-          "season": 2025,
-          "week": 9,
-          "team": "SF",
-          "opponent": "NYG",
-          "date": "2025-11-02",
-          "homeAway": "away",
-          "gameId": "2025_09_SF_NYG",
-          "carries": 0,
-          "targets": 0,
-          "receptions": 0,
-          "completions": 0,
-          "attempts": 0,
-          "rushYds": 0,
-          "recYds": 0,
-          "passYds": 0,
-          "passTds": 0,
-          "rushTds": 0,
-          "recTds": 0,
-          "tds": 0,
-          "scrimmageYds": 0
-        }
-      ],
-      "snapTrend": {
-        "games": 5,
-        "avgOffensePct": 0,
-        "lastOffensePct": 0,
-        "avgOffenseSnaps": 0
-      },
       "matchup": null
     },
     {
