@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-10-27T15:18:20.935Z",
+  "generatedAt": "2026-10-27T18:02:20.233Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -13,21 +13,37 @@
       "ok": true,
       "rows": 7548
     },
-    "nflverseCurrentWeekly": {
+    "nflverseRosterCurrent": {
       "ok": true,
-      "rows": 7447
+      "rows": 3055
+    },
+    "nflversePrevSnaps": {
+      "ok": true,
+      "rows": 26613
+    },
+    "nflversePrevWeekly": {
+      "ok": true,
+      "rows": 19422
     },
     "nflversePrevRegular": {
       "ok": true,
       "rows": 2020
     },
+    "nflverseCurrentWeekly": {
+      "ok": true,
+      "rows": 7447
+    },
+    "nflversePlayers": {
+      "ok": true,
+      "rows": 24861
+    },
+    "nflverseCurrentRegular": {
+      "ok": true,
+      "rows": 1691
+    },
     "nflverseCurrentSnaps": {
       "ok": true,
       "rows": 9981
-    },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26613
     },
     "espnTeams": {
       "ok": true,
@@ -37,23 +53,14 @@
       ],
       "rows": 32
     },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 3055
-    },
-    "nflversePlayers": {
-      "ok": true,
-      "rows": 24861
-    },
-    "nflversePrevWeekly": {
-      "ok": true,
-      "rows": 19422
-    },
-    "nflverseCurrentRegular": {
-      "ok": true,
-      "rows": 1691
-    },
     "espnInjuries": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:ARI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -74,21 +81,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:BAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CHI": {
+    "espnRoster:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -102,21 +95,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:BUF": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CAR": {
+    "espnDepth:BAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -130,14 +109,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:ARI": {
+    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:ATL": {
+    "espnDepth:CAR": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -151,14 +137,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CIN": {
+    "espnRoster:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DAL": {
+    "espnDepth:CHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CLE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -172,7 +165,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DEN": {
+    "espnRoster:CIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -186,6 +179,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -193,7 +193,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CLE": {
+    "espnRoster:DET": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -214,13 +214,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:DET": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -228,7 +221,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:HOU": {
+    "espnDepth:DAL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -242,21 +235,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:IND": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:KC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:JAX": {
+    "espnDepth:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -270,7 +249,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:JAX": {
+    "espnDepth:IND": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:JAX": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -284,7 +277,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:LV": {
+    "espnRoster:JAX": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -298,7 +298,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:LV": {
+    "espnDepth:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -326,20 +326,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:MIA": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -361,28 +347,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:MIN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:NE": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NO": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NYJ": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:NYG": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -396,7 +368,35 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:NE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NO": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYG": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnRoster:NYG": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -410,14 +410,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PHI": {
+    "espnRoster:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PIT": {
+    "espnDepth:PHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -431,7 +431,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PHI": {
+    "espnDepth:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -466,14 +466,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TB": {
+    "espnRoster:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TEN": {
+    "espnDepth:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -487,7 +487,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TB": {
+    "espnDepth:TEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
