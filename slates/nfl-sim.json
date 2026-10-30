@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "engineVersion": "v89.18.0",
-  "generatedAt": "2026-10-27T16:05:17.174Z",
+  "generatedAt": "2026-10-30T02:54:17.292Z",
   "meta": {
     "automatic": true,
     "pollMinutes": 5,
@@ -23,9 +23,11 @@
     "propPeriodVersion": "v94.0",
     "propStyleVersion": "v94.2",
     "lastRun": {
-      "games": 0,
-      "totalIterations": 0,
-      "reasonCounts": {}
+      "games": 1,
+      "totalIterations": 15000,
+      "reasonCounts": {
+        "first live state": 1
+      }
     }
   },
   "source": {
@@ -34,6 +36,5655 @@
     "odds": "slates/nfl-odds.json",
     "live": "https://hjhfbhpuuxnrexddplxd.supabase.co/functions/v1/nfl-live"
   },
-  "gameCount": 0,
-  "games": []
+  "gameCount": 1,
+  "games": [
+    {
+      "schemaVersion": 1,
+      "engineVersion": "v89.18.0",
+      "generatedAt": "2026-10-30T02:54:20.088Z",
+      "game": {
+        "gameId": "401873023",
+        "away": {
+          "abbr": "CAR",
+          "name": "Carolina Panthers"
+        },
+        "home": {
+          "abbr": "GB",
+          "name": "Green Bay Packers"
+        },
+        "anchor": {
+          "total": 44,
+          "homeSpread": null,
+          "homeExpected": 22.75,
+          "awayExpected": 21.25
+        },
+        "currentScore": {
+          "away": 13,
+          "home": 27
+        },
+        "remainingFraction": 0.1319,
+        "liveStatus": "in",
+        "diagnostics": {
+          "playerCount": 29,
+          "researchPlayers": 29,
+          "oddsAvailable": false,
+          "liveState": "in"
+        },
+        "specialists": {
+          "CAR": {
+            "kicker": "Ryan Fitzgerald",
+            "punter": "Sam Martin"
+          },
+          "GB": {
+            "kicker": "Trey Smack",
+            "punter": "Daniel Whelan"
+          }
+        }
+      },
+      "iterations": 15000,
+      "seed": 3545897387,
+      "outcomes": {
+        "away": {
+          "abbr": "CAR",
+          "winProbability": 0.0497,
+          "score": {
+            "mean": 18.23,
+            "median": 16,
+            "p10": 13,
+            "p25": 13,
+            "p75": 20,
+            "p90": 27,
+            "min": 13,
+            "max": 51
+          }
+        },
+        "home": {
+          "abbr": "GB",
+          "winProbability": 0.9071,
+          "score": {
+            "mean": 28.6,
+            "median": 27,
+            "p10": 27,
+            "p25": 27,
+            "p75": 30,
+            "p90": 34,
+            "min": 27,
+            "max": 51
+          }
+        },
+        "tieProbability": 0.0431,
+        "spread": {
+          "homeLine": 0,
+          "homeCover": 0.9071,
+          "awayCover": 0.0497,
+          "push": 0.0431
+        },
+        "total": {
+          "line": 44,
+          "over": 0.5666,
+          "under": 0.432,
+          "push": 0.0014
+        }
+      },
+      "players": [
+        {
+          "playerId": "00-0036555",
+          "espnId": "4241416",
+          "gsisId": "00-0036555",
+          "name": "Chuba Hubbard",
+          "team": "CAR",
+          "position": "RB",
+          "depthRank": 1,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 80,
+            "carries": 20,
+            "rushTds": 1,
+            "recYds": 21,
+            "receptions": 5,
+            "targets": 6,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 89.36,
+              "median": 88,
+              "p10": 80,
+              "p25": 84,
+              "p75": 94,
+              "p90": 99,
+              "min": 80,
+              "max": 128
+            },
+            "carries": {
+              "mean": 22.23,
+              "median": 22,
+              "p10": 21,
+              "p25": 21,
+              "p75": 23,
+              "p90": 24,
+              "min": 20,
+              "max": 27
+            },
+            "rushTds": {
+              "mean": 1.1,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 4
+            },
+            "recYds": {
+              "mean": 24.29,
+              "median": 21,
+              "p10": 21,
+              "p25": 21,
+              "p75": 25,
+              "p90": 31,
+              "min": 21,
+              "max": 97
+            },
+            "receptions": {
+              "mean": 5.5,
+              "median": 5,
+              "p10": 5,
+              "p25": 5,
+              "p75": 6,
+              "p90": 6,
+              "min": 5,
+              "max": 10
+            },
+            "targets": {
+              "mean": 6.78,
+              "median": 7,
+              "p10": 6,
+              "p25": 6,
+              "p75": 7,
+              "p90": 8,
+              "min": 6,
+              "max": 11
+            },
+            "recTds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 1.13,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            }
+          },
+          "probabilities": {
+            "atd": 1,
+            "twoPlusTd": 0.1217
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0035700",
+          "espnId": "4047365",
+          "gsisId": "00-0035700",
+          "name": "Josh Jacobs",
+          "team": "GB",
+          "position": "RB",
+          "depthRank": 1,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 33,
+            "carries": 16,
+            "rushTds": 1,
+            "recYds": 8,
+            "receptions": 5,
+            "targets": 5,
+            "recTds": 1
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 39.6,
+              "median": 39,
+              "p10": 33,
+              "p25": 35,
+              "p75": 43,
+              "p90": 48,
+              "min": 33,
+              "max": 78
+            },
+            "carries": {
+              "mean": 18.4,
+              "median": 18,
+              "p10": 17,
+              "p25": 17,
+              "p75": 19,
+              "p90": 20,
+              "min": 16,
+              "max": 25
+            },
+            "rushTds": {
+              "mean": 1.02,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 3
+            },
+            "recYds": {
+              "mean": 10.96,
+              "median": 8,
+              "p10": 8,
+              "p25": 8,
+              "p75": 12,
+              "p90": 17,
+              "min": 8,
+              "max": 93
+            },
+            "receptions": {
+              "mean": 5.45,
+              "median": 5,
+              "p10": 5,
+              "p25": 5,
+              "p75": 6,
+              "p90": 6,
+              "min": 5,
+              "max": 10
+            },
+            "targets": {
+              "mean": 5.6,
+              "median": 5,
+              "p10": 5,
+              "p25": 5,
+              "p75": 6,
+              "p90": 7,
+              "min": 5,
+              "max": 10
+            },
+            "recTds": {
+              "mean": 1.03,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 3
+            },
+            "tds": {
+              "mean": 2.05,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 2,
+              "p90": 2,
+              "min": 2,
+              "max": 4
+            }
+          },
+          "probabilities": {
+            "atd": 1,
+            "twoPlusTd": 1
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040667",
+          "espnId": "4701936",
+          "gsisId": "00-0040667",
+          "name": "Matthew Golden",
+          "team": "GB",
+          "position": "WR",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 79,
+            "receptions": 7,
+            "targets": 12,
+            "recTds": 1
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.08,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 17
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 88.01,
+              "median": 84,
+              "p10": 79,
+              "p25": 79,
+              "p75": 94,
+              "p90": 104,
+              "min": 79,
+              "max": 169
+            },
+            "receptions": {
+              "mean": 7.81,
+              "median": 8,
+              "p10": 7,
+              "p25": 7,
+              "p75": 8,
+              "p90": 9,
+              "min": 7,
+              "max": 12
+            },
+            "targets": {
+              "mean": 13.22,
+              "median": 13,
+              "p10": 12,
+              "p25": 12,
+              "p75": 14,
+              "p90": 15,
+              "min": 12,
+              "max": 18
+            },
+            "recTds": {
+              "mean": 1.01,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 3
+            },
+            "tds": {
+              "mean": 1.01,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 3
+            }
+          },
+          "probabilities": {
+            "atd": 1,
+            "twoPlusTd": 0.0148
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0038996",
+          "espnId": "4572680",
+          "gsisId": "00-0038996",
+          "name": "Tucker Kraft",
+          "team": "GB",
+          "position": "TE",
+          "depthRank": 1,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 53,
+            "receptions": 6,
+            "targets": 6,
+            "recTds": 1
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.06,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 13
+            },
+            "carries": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 58.27,
+              "median": 53,
+              "p10": 53,
+              "p25": 53,
+              "p75": 62,
+              "p90": 69,
+              "min": 53,
+              "max": 134
+            },
+            "receptions": {
+              "mean": 6.55,
+              "median": 6,
+              "p10": 6,
+              "p25": 6,
+              "p75": 7,
+              "p90": 8,
+              "min": 6,
+              "max": 11
+            },
+            "targets": {
+              "mean": 6.74,
+              "median": 7,
+              "p10": 6,
+              "p25": 6,
+              "p75": 7,
+              "p90": 8,
+              "min": 6,
+              "max": 12
+            },
+            "recTds": {
+              "mean": 1.02,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 3
+            },
+            "tds": {
+              "mean": 1.03,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 3
+            }
+          },
+          "probabilities": {
+            "atd": 1,
+            "twoPlusTd": 0.0253
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040124",
+          "espnId": "4685472",
+          "gsisId": "00-0040124",
+          "name": "Tetairoa McMillan",
+          "team": "CAR",
+          "position": "WR",
+          "depthRank": 1,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 50,
+            "receptions": 5,
+            "targets": 8,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.22,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 20
+            },
+            "carries": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 59.5,
+              "median": 55,
+              "p10": 50,
+              "p25": 50,
+              "p75": 66,
+              "p90": 76,
+              "min": 50,
+              "max": 147
+            },
+            "receptions": {
+              "mean": 5.83,
+              "median": 6,
+              "p10": 5,
+              "p25": 5,
+              "p75": 6,
+              "p90": 7,
+              "min": 5,
+              "max": 11
+            },
+            "targets": {
+              "mean": 9.4,
+              "median": 9,
+              "p10": 8,
+              "p25": 9,
+              "p75": 10,
+              "p90": 11,
+              "min": 8,
+              "max": 15
+            },
+            "recTds": {
+              "mean": 0.05,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.06,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.059,
+            "twoPlusTd": 0.0013
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0031610",
+          "espnId": "2576925",
+          "gsisId": "00-0031610",
+          "name": "Darren Waller",
+          "team": "CAR",
+          "position": "TE",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 1,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 12
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recYds": {
+              "mean": 2.1,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 9,
+              "min": 0,
+              "max": 67
+            },
+            "receptions": {
+              "mean": 0.16,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "targets": {
+              "mean": 1.32,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 2,
+              "p90": 2,
+              "min": 1,
+              "max": 5
+            },
+            "recTds": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "tds": {
+              "mean": 0.05,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            }
+          },
+          "probabilities": {
+            "atd": 0.0469,
+            "twoPlusTd": 0.0009
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0039491",
+          "espnId": "4695883",
+          "gsisId": "00-0039491",
+          "name": "Jalen Coker",
+          "team": "CAR",
+          "position": "WR",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 9,
+            "receptions": 1,
+            "targets": 4,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.2,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 22
+            },
+            "carries": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 14.39,
+              "median": 9,
+              "p10": 9,
+              "p25": 9,
+              "p75": 18,
+              "p90": 28,
+              "min": 9,
+              "max": 85
+            },
+            "receptions": {
+              "mean": 1.44,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 2,
+              "p90": 2,
+              "min": 1,
+              "max": 5
+            },
+            "targets": {
+              "mean": 4.88,
+              "median": 5,
+              "p10": 4,
+              "p25": 4,
+              "p75": 5,
+              "p90": 6,
+              "min": 4,
+              "max": 10
+            },
+            "recTds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0395,
+            "twoPlusTd": 0.0007
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0039150",
+          "espnId": "4685720",
+          "gsisId": "00-0039150",
+          "name": "Bryce Young",
+          "team": "CAR",
+          "position": "QB",
+          "depthRank": 1,
+          "current": {
+            "passYds": 142,
+            "completions": 17,
+            "attempts": 31,
+            "passTds": 0,
+            "interceptions": 1,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 173.82,
+              "median": 173,
+              "p10": 152,
+              "p25": 161,
+              "p75": 185,
+              "p90": 197,
+              "min": 142,
+              "max": 265
+            },
+            "completions": {
+              "mean": 20,
+              "median": 20,
+              "p10": 18,
+              "p25": 19,
+              "p75": 21,
+              "p90": 22,
+              "min": 17,
+              "max": 26
+            },
+            "attempts": {
+              "mean": 36.27,
+              "median": 36,
+              "p10": 34,
+              "p25": 35,
+              "p75": 37,
+              "p90": 38,
+              "min": 31,
+              "max": 41
+            },
+            "passTds": {
+              "mean": 0.25,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 4
+            },
+            "interceptions": {
+              "mean": 1.13,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "rushYds": {
+              "mean": 0.41,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 19
+            },
+            "carries": {
+              "mean": 0.09,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "rushTds": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "receptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "targets": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "tds": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0358,
+            "twoPlusTd": 0.0005
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040644",
+          "espnId": "4685350",
+          "gsisId": "00-0040644",
+          "name": "Trevor Etienne",
+          "team": "CAR",
+          "position": "RB",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 1,
+            "carries": 1,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 1.51,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 22
+            },
+            "carries": {
+              "mean": 1.16,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "rushTds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recYds": {
+              "mean": 0.26,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 54
+            },
+            "receptions": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "targets": {
+              "mean": 0.05,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0331,
+            "twoPlusTd": 0.0006
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0037005",
+          "espnId": "4372780",
+          "gsisId": "00-0037005",
+          "name": "Tommy Tremble",
+          "team": "CAR",
+          "position": "TE",
+          "depthRank": 1,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 19,
+            "receptions": 1,
+            "targets": 3,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 12
+            },
+            "carries": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 22.02,
+              "median": 19,
+              "p10": 19,
+              "p25": 19,
+              "p75": 19,
+              "p90": 31,
+              "min": 19,
+              "max": 106
+            },
+            "receptions": {
+              "mean": 1.26,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 5
+            },
+            "targets": {
+              "mean": 3.51,
+              "median": 3,
+              "p10": 3,
+              "p25": 3,
+              "p75": 4,
+              "p90": 4,
+              "min": 3,
+              "max": 8
+            },
+            "recTds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0329,
+            "twoPlusTd": 0.0007
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040394",
+          "espnId": "4709392",
+          "gsisId": "00-0040394",
+          "name": "Anthony Tyus III",
+          "team": "CAR",
+          "position": "RB",
+          "depthRank": 3,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.28,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 23
+            },
+            "carries": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recYds": {
+              "mean": 0.86,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 70
+            },
+            "receptions": {
+              "mean": 0.09,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "targets": {
+              "mean": 0.16,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "recTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0256,
+            "twoPlusTd": 0.0003
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0037614",
+          "espnId": "4567096",
+          "gsisId": "00-0037614",
+          "name": "John Metchie III",
+          "team": "CAR",
+          "position": "WR",
+          "depthRank": 4,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 10,
+            "receptions": 2,
+            "targets": 2,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 19
+            },
+            "carries": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 12.31,
+              "median": 10,
+              "p10": 10,
+              "p25": 10,
+              "p75": 10,
+              "p90": 19,
+              "min": 10,
+              "max": 94
+            },
+            "receptions": {
+              "mean": 2.26,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 2,
+              "p90": 3,
+              "min": 2,
+              "max": 6
+            },
+            "targets": {
+              "mean": 2.43,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 3,
+              "p90": 3,
+              "min": 2,
+              "max": 7
+            },
+            "recTds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0241,
+            "twoPlusTd": 0.0003
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0038124",
+          "espnId": "4248528",
+          "gsisId": "00-0038124",
+          "name": "Christian Watson",
+          "team": "GB",
+          "position": "WR",
+          "depthRank": 1,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 106,
+            "receptions": 7,
+            "targets": 9,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 11
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 115.15,
+              "median": 108,
+              "p10": 106,
+              "p25": 106,
+              "p75": 122,
+              "p90": 132,
+              "min": 106,
+              "max": 197
+            },
+            "receptions": {
+              "mean": 7.71,
+              "median": 8,
+              "p10": 7,
+              "p25": 7,
+              "p75": 8,
+              "p90": 9,
+              "min": 7,
+              "max": 12
+            },
+            "targets": {
+              "mean": 9.99,
+              "median": 10,
+              "p10": 9,
+              "p25": 9,
+              "p75": 11,
+              "p90": 11,
+              "min": 9,
+              "max": 15
+            },
+            "recTds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0229,
+            "twoPlusTd": 0.0003
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0038840",
+          "espnId": "4360763",
+          "gsisId": "00-0038840",
+          "name": "Brycen Tremayne",
+          "team": "CAR",
+          "position": "WR",
+          "depthRank": 3,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 11,
+            "receptions": 1,
+            "targets": 1,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.14,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 17
+            },
+            "carries": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 12.42,
+              "median": 11,
+              "p10": 11,
+              "p25": 11,
+              "p75": 11,
+              "p90": 14,
+              "min": 11,
+              "max": 73
+            },
+            "receptions": {
+              "mean": 1.11,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "targets": {
+              "mean": 1.18,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "recTds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "tds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            }
+          },
+          "probabilities": {
+            "atd": 0.0212,
+            "twoPlusTd": 0.0003
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040187",
+          "espnId": "4683243",
+          "gsisId": "00-0040187",
+          "name": "Mitchell Evans",
+          "team": "CAR",
+          "position": "TE",
+          "depthRank": 3,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 22,
+            "receptions": 2,
+            "targets": 2,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 11
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recYds": {
+              "mean": 24.24,
+              "median": 22,
+              "p10": 22,
+              "p25": 22,
+              "p75": 22,
+              "p90": 31,
+              "min": 22,
+              "max": 84
+            },
+            "receptions": {
+              "mean": 2.2,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 2,
+              "p90": 3,
+              "min": 2,
+              "max": 5
+            },
+            "targets": {
+              "mean": 2.31,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 3,
+              "p90": 3,
+              "min": 2,
+              "max": 6
+            },
+            "recTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0132,
+            "twoPlusTd": 0.0001
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0033589",
+          "espnId": "4212909",
+          "gsisId": "00-0033589",
+          "name": "David Moore",
+          "team": "CAR",
+          "position": "WR",
+          "depthRank": 5,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 16
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0.59,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 67
+            },
+            "receptions": {
+              "mean": 0.05,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "targets": {
+              "mean": 0.13,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "recTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0111,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040265",
+          "espnId": "4876995",
+          "gsisId": "00-0040265",
+          "name": "Ja'seem Reed",
+          "team": "CAR",
+          "position": "WR",
+          "depthRank": 6,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 15
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 1.08,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 76
+            },
+            "receptions": {
+              "mean": 0.07,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "targets": {
+              "mean": 0.13,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "recTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0097,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0036825",
+          "espnId": "4034948",
+          "gsisId": "00-0036825",
+          "name": "Feleipe Franks",
+          "team": "CAR",
+          "position": "TE",
+          "depthRank": 4,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 13
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0.41,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 56
+            },
+            "receptions": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "targets": {
+              "mean": 0.07,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0078,
+            "twoPlusTd": 0.0001
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0039811",
+          "espnId": "4429023",
+          "gsisId": "00-0039811",
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "position": "RB",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 7,
+            "carries": 3,
+            "rushTds": 0,
+            "recYds": 9,
+            "receptions": 1,
+            "targets": 1,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 8.98,
+              "median": 7,
+              "p10": 7,
+              "p25": 7,
+              "p75": 10,
+              "p90": 14,
+              "min": 7,
+              "max": 39
+            },
+            "carries": {
+              "mean": 3.63,
+              "median": 3,
+              "p10": 3,
+              "p25": 3,
+              "p75": 4,
+              "p90": 5,
+              "min": 3,
+              "max": 8
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 10.07,
+              "median": 9,
+              "p10": 9,
+              "p25": 9,
+              "p75": 9,
+              "p90": 13,
+              "min": 9,
+              "max": 61
+            },
+            "receptions": {
+              "mean": 1.12,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "targets": {
+              "mean": 1.18,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 5
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "tds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            }
+          },
+          "probabilities": {
+            "atd": 0.0065,
+            "twoPlusTd": 0.0001
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040009",
+          "espnId": "4431487",
+          "gsisId": "00-0040009",
+          "name": "Savion Williams",
+          "team": "GB",
+          "position": "WR",
+          "depthRank": 3,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 18,
+            "carries": 1,
+            "rushTds": 0,
+            "recYds": 5,
+            "receptions": 1,
+            "targets": 2,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 19.13,
+              "median": 18,
+              "p10": 18,
+              "p25": 18,
+              "p75": 18,
+              "p90": 23,
+              "min": 18,
+              "max": 46
+            },
+            "carries": {
+              "mean": 1.15,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 5
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 6.67,
+              "median": 5,
+              "p10": 5,
+              "p25": 5,
+              "p75": 5,
+              "p90": 12,
+              "min": 5,
+              "max": 66
+            },
+            "receptions": {
+              "mean": 1.15,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "targets": {
+              "mean": 2.23,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 2,
+              "p90": 3,
+              "min": 2,
+              "max": 5
+            },
+            "recTds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0064,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0038589",
+          "espnId": "4360086",
+          "gsisId": "00-0038589",
+          "name": "Josh Whyle",
+          "team": "GB",
+          "position": "TE",
+          "depthRank": 4,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 11
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0.67,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 80
+            },
+            "receptions": {
+              "mean": 0.07,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "targets": {
+              "mean": 0.1,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0.1,
+              "min": 0,
+              "max": 2
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0041,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040948",
+          "espnId": "4635009",
+          "gsisId": "00-0040948",
+          "name": "J. Michael Sturdivant",
+          "team": "GB",
+          "position": "WR",
+          "depthRank": 5,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 16,
+            "receptions": 1,
+            "targets": 1,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.05,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 16
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 16.65,
+              "median": 16,
+              "p10": 16,
+              "p25": 16,
+              "p75": 16,
+              "p90": 16,
+              "min": 16,
+              "max": 65
+            },
+            "receptions": {
+              "mean": 1.07,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 4
+            },
+            "targets": {
+              "mean": 1.1,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 1,
+              "min": 1,
+              "max": 4
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0039,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0036264",
+          "espnId": "4036378",
+          "gsisId": "00-0036264",
+          "name": "Jordan Love",
+          "team": "GB",
+          "position": "QB",
+          "depthRank": 1,
+          "current": {
+            "passYds": 276,
+            "completions": 28,
+            "attempts": 37,
+            "passTds": 3,
+            "interceptions": 1,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 309.13,
+              "median": 307,
+              "p10": 287,
+              "p25": 296,
+              "p75": 321,
+              "p90": 333,
+              "min": 276,
+              "max": 394
+            },
+            "completions": {
+              "mean": 31.19,
+              "median": 31,
+              "p10": 29,
+              "p25": 30,
+              "p75": 32,
+              "p90": 33,
+              "min": 28,
+              "max": 37
+            },
+            "attempts": {
+              "mean": 41.54,
+              "median": 42,
+              "p10": 40,
+              "p25": 40,
+              "p75": 43,
+              "p90": 44,
+              "min": 37,
+              "max": 47
+            },
+            "passTds": {
+              "mean": 3.11,
+              "median": 3,
+              "p10": 3,
+              "p25": 3,
+              "p75": 3,
+              "p90": 3,
+              "min": 3,
+              "max": 6
+            },
+            "interceptions": {
+              "mean": 1.12,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 1,
+              "p90": 2,
+              "min": 1,
+              "max": 4
+            },
+            "rushYds": {
+              "mean": 0.29,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 18
+            },
+            "carries": {
+              "mean": 0.09,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "receptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "targets": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0037,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0038098",
+          "espnId": "4249836",
+          "gsisId": "00-0038098",
+          "name": "Pierre Strong Jr.",
+          "team": "GB",
+          "position": "RB",
+          "depthRank": 3,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 2,
+            "carries": 1,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 3.43,
+              "median": 2,
+              "p10": 2,
+              "p25": 2,
+              "p75": 3,
+              "p90": 8,
+              "min": 2,
+              "max": 26
+            },
+            "carries": {
+              "mean": 1.46,
+              "median": 1,
+              "p10": 1,
+              "p25": 1,
+              "p75": 2,
+              "p90": 2,
+              "min": 1,
+              "max": 5
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 1.29,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 5,
+              "min": 0,
+              "max": 61
+            },
+            "receptions": {
+              "mean": 0.15,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "targets": {
+              "mean": 0.21,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0037,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0038102",
+          "espnId": "4240703",
+          "gsisId": "00-0038102",
+          "name": "Kenny Pickett",
+          "team": "CAR",
+          "position": "QB",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0.6,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 72
+            },
+            "completions": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 4
+            },
+            "attempts": {
+              "mean": 0.08,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 5
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushYds": {
+              "mean": 0.72,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 25
+            },
+            "carries": {
+              "mean": 0.1,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "receptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "targets": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0036,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040352",
+          "espnId": "4578436",
+          "gsisId": "00-0040352",
+          "name": "Coleman Owen",
+          "team": "GB",
+          "position": "WR",
+          "depthRank": 6,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 11
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0.3,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 32
+            },
+            "receptions": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "targets": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0026,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0037091",
+          "espnId": "4259305",
+          "gsisId": "00-0037091",
+          "name": "Bo Melton",
+          "team": "GB",
+          "position": "WR",
+          "depthRank": 4,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.02,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 12
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0.22,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 40
+            },
+            "receptions": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "targets": {
+              "mean": 0.06,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0025,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0040598",
+          "espnId": "4431346",
+          "gsisId": "00-0040598",
+          "name": "Mark Redman",
+          "team": "GB",
+          "position": "TE",
+          "depthRank": 3,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "completions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "attempts": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "rushYds": {
+              "mean": 0.03,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 11
+            },
+            "carries": {
+              "mean": 0.01,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 1.34,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 2,
+              "min": 0,
+              "max": 71
+            },
+            "receptions": {
+              "mean": 0.1,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "targets": {
+              "mean": 0.15,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0025,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        },
+        {
+          "playerId": "00-0028118",
+          "espnId": "14163",
+          "gsisId": "00-0028118",
+          "name": "Tyrod Taylor",
+          "team": "GB",
+          "position": "QB",
+          "depthRank": 2,
+          "current": {
+            "passYds": 0,
+            "completions": 0,
+            "attempts": 0,
+            "passTds": 0,
+            "interceptions": 0,
+            "rushYds": 0,
+            "carries": 0,
+            "rushTds": 0,
+            "recYds": 0,
+            "receptions": 0,
+            "targets": 0,
+            "recTds": 0
+          },
+          "distributions": {
+            "passYds": {
+              "mean": 0.41,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 72
+            },
+            "completions": {
+              "mean": 0.04,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 3
+            },
+            "attempts": {
+              "mean": 0.07,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 5
+            },
+            "passTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 2
+            },
+            "interceptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "rushYds": {
+              "mean": 0.76,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 3,
+              "min": 0,
+              "max": 18
+            },
+            "carries": {
+              "mean": 0.24,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 1,
+              "min": 0,
+              "max": 3
+            },
+            "rushTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            },
+            "recYds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "receptions": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "targets": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "recTds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 0
+            },
+            "tds": {
+              "mean": 0,
+              "median": 0,
+              "p10": 0,
+              "p25": 0,
+              "p75": 0,
+              "p90": 0,
+              "min": 0,
+              "max": 1
+            }
+          },
+          "probabilities": {
+            "atd": 0.0007,
+            "twoPlusTd": 0
+          },
+          "sportsbook": {
+            "over": {},
+            "under": {},
+            "markets": []
+          }
+        }
+      ],
+      "notes": [
+        "Correlated Monte Carlo: team pace, scoring, game script and player usage are simulated in the same world.",
+        "Live runs add current box-score stats to every world and simulate only the remaining game fraction.",
+        "Sportsbook lines are comparison anchors when available; simulation probabilities are model outputs, not implied sportsbook probabilities.",
+        "v86 adds automatic pregame/live/halftime orchestration and publishes blended probabilities for the NFL UI.",
+        "v89.18 recalibrates remaining-game player usage, pace and the current possession drive before each live Monte Carlo refresh."
+      ],
+      "liveModel": {
+        "version": "v89.18.0",
+        "active": true,
+        "status": "in",
+        "elapsed": 0.8681,
+        "period": 4,
+        "clockMin": 7.916666666666667,
+        "possession": "away",
+        "yardFromOwn": 0,
+        "matchedPlayers": 22,
+        "adjustedPlayers": 22,
+        "pace": {
+          "prior": 63.5,
+          "awayObserved": 52,
+          "homeObserved": 58,
+          "awayProjected": 61.27,
+          "homeProjected": 65.56,
+          "modelPlaysPerTeam": 63.413
+        },
+        "driveBonus": {
+          "away": 0.2,
+          "home": 0
+        },
+        "anchorAdjusted": false,
+        "replacements": {
+          "unavailablePlayers": [],
+          "adjustments": []
+        }
+      },
+      "availabilityAudit": {
+        "season": 2026,
+        "updatedAt": "2026-10-16",
+        "rosterVerified": true,
+        "rosterAudit": {
+          "season": 2026,
+          "checkedAt": "2026-10-30T02:54:17.830Z",
+          "source": "ESPN 2026 active roster + league injury report",
+          "teams": [
+            "CAR",
+            "GB"
+          ],
+          "counts": [
+            23,
+            22
+          ],
+          "specialists": {
+            "CAR": {
+              "kicker": "Ryan Fitzgerald",
+              "punter": "Sam Martin"
+            },
+            "GB": {
+              "kicker": "Trey Smack",
+              "punter": "Daniel Whelan"
+            }
+          },
+          "injuryReportVerified": true,
+          "injuryReportCheckedAt": "2026-10-30T02:54:17.818Z",
+          "injuryReportSource": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
+          "injuryTeams": [
+            {
+              "team": "CAR",
+              "rows": 25,
+              "reported": true,
+              "excluded": [
+                {
+                  "name": "Akayleb Evans",
+                  "status": "Injured Reserve",
+                  "position": "CB"
+                },
+                {
+                  "name": "Bobby Brown III",
+                  "status": "Out",
+                  "position": "DT"
+                },
+                {
+                  "name": "Haynes King",
+                  "status": "Out",
+                  "position": "QB"
+                },
+                {
+                  "name": "Ja'Tavion Sanders",
+                  "status": "Out",
+                  "position": "TE"
+                },
+                {
+                  "name": "AJ Dillon",
+                  "status": "Out",
+                  "position": "RB"
+                },
+                {
+                  "name": "Torricelli Simpkins III",
+                  "status": "Out",
+                  "position": "G"
+                },
+                {
+                  "name": "Damien Lewis",
+                  "status": "Out",
+                  "position": "G"
+                },
+                {
+                  "name": "Jaelan Phillips",
+                  "status": "Out",
+                  "position": "LB"
+                },
+                {
+                  "name": "Taylor Moton",
+                  "status": "Injured Reserve",
+                  "position": "OT"
+                }
+              ],
+              "uncertain": [
+                {
+                  "name": "Will Lee III",
+                  "status": "Questionable",
+                  "position": "CB"
+                }
+              ]
+            },
+            {
+              "team": "GB",
+              "rows": 25,
+              "reported": true,
+              "excluded": [
+                {
+                  "name": "Kaleb Johnson",
+                  "status": "Out",
+                  "position": "RB"
+                },
+                {
+                  "name": "Jonnu Smith",
+                  "status": "Out",
+                  "position": "TE"
+                },
+                {
+                  "name": "Sean Rhyan",
+                  "status": "Out",
+                  "position": "G"
+                },
+                {
+                  "name": "Travis Glover",
+                  "status": "Out",
+                  "position": "OT"
+                },
+                {
+                  "name": "Donovan Jennings",
+                  "status": "Out",
+                  "position": "G"
+                },
+                {
+                  "name": "Zaire Franklin",
+                  "status": "Out",
+                  "position": "LB"
+                },
+                {
+                  "name": "Micah Parsons",
+                  "status": "Out",
+                  "position": "DE"
+                },
+                {
+                  "name": "Jacob Monk",
+                  "status": "Injured Reserve",
+                  "position": "C"
+                }
+              ],
+              "uncertain": []
+            }
+          ],
+          "finalInactivesVerified": false
+        },
+        "exclusions": [
+          {
+            "name": "Jonnu Smith",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Pierre Strong",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Chris Brazzell II",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Xavier Legette",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jayden Reed",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Quincy Skinner Jr.",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Isaiah Neyor",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Kaleb Johnson",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Drake Dabney",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ihmir Smith-Marsette",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Casey Washington",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "AJ Dillon",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Jonathon Brooks",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ahmani Marshall",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ja'Tavion Sanders",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Skyy Moore",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "McCallan Castles",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Thomas Yassmin",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Chris Brooks",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Haynes King",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Kedon Slovis",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Luke Musgrave",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Akayleb Evans",
+            "team": "CAR",
+            "status": "Injured Reserve"
+          },
+          {
+            "name": "Chau Smith-Wade",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Corey Thornton",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "DeVonta Smith",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jaycee Horn",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Marco Wilson",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Mike Jackson",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Robert Rochell",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Will Lee III",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Zion Childress",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Malcolm DeWalt IV",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Aaron Hall",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Bobby Brown III",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Cam Jackson",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Derrick Brown",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Keith Cooper Jr.",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Lee Hunter",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Parker Petersen",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "TeRah Edwards",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Tershawn Wharton",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Brady Christensen",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Damien Lewis",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Saahdiq Charles",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Torricelli Simpkins III",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Bam Martin-Scott",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Bobby Okereke",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Devin Lloyd",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ja'Markis Weston",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jackson Kuwatch",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jaelan Phillips",
+            "team": "CAR",
+            "status": "Out"
+          },
+          {
+            "name": "Jeremiah Moon",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Maema Njongmeta",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Mapalo Mwansa",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Nic Scourton",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Nick Hampton",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Patrick Jones II",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Princely Umanmielen",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Thomas Incoom",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Trevis Gipson",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Tyrel Dodson",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "JJ Jansen",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ikem Ekwonu",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Taylor Moton",
+            "team": "CAR",
+            "status": "Injured Reserve"
+          },
+          {
+            "name": "Sam Martin",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ryan Fitzgerald",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Isaiah Simmons",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Lathan Ransom",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Nick Scott",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Tre'von Moehrig",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Zakee Wheatley",
+            "team": "CAR",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jacob Monk",
+            "team": "GB",
+            "status": "Injured Reserve"
+          },
+          {
+            "name": "Benjamin St-Juste",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Brandon Cisse",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Carrington Valentine",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Domani Jackson",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Elijah Culp",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Kamal Hadden",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Keisean Nixon",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Kahlef Hailassie",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Arron Mosby",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Barryn Sorrell",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Brenton Cox Jr.",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Collin Oliver",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Dani Dennis-Sutton",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Lukas Van Ness",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Micah Parsons",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Nyjalik Kelly",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Anthony Campbell",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Chris McClellan",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "David Blay Jr.",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Devonte Wyatt",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Javon Hargrave",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jonathan Ford",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Jordon Riley",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Karl Brooks",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Mazi Smith",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Warren Brinson",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Dillon Wade",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Donovan Jennings",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Sean Rhyan",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Edgerrin Cooper",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Isaiah McDuffie",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Kristian Welch",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Nick Niemann",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Ty'Ron Hopper",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Zaire Franklin",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Matt Orzech",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Dalton Cooper",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Travis Glover",
+            "team": "GB",
+            "status": "Out"
+          },
+          {
+            "name": "Zach Bako-Bewele",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Daniel Whelan",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Lenny Krieg",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Trey Smack",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Evan Williams",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Javon Bullard",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Johnathan Baldwin II",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Kitan Oladapo",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          },
+          {
+            "name": "Xavier McKinney",
+            "team": "GB",
+            "status": "NOT_ACTIVE_2026_ROSTER"
+          }
+        ]
+      },
+      "automation": {
+        "automatic": true,
+        "phase": "live",
+        "reason": "first live state",
+        "checkpointMinutes": null,
+        "inputFingerprint": "3580b3ea",
+        "runAt": "2026-10-30T02:54:17.292Z",
+        "probabilityBlend": {
+          "simulationWeight": 0.7,
+          "existingModelWeight": 0.3,
+          "lineTolerance": 0.01,
+          "note": "Initial v86 blend. Calibrate per market after enough completed-game results."
+        },
+        "halftimeCandidatesReady": null,
+        "halftimeHasLiveOdds": null,
+        "halftimeCandidateCount": null,
+        "quarterParlayReady": null,
+        "propPeriodsReady": null,
+        "propStylesReady": null,
+        "propStyleCandidates": null,
+        "liveModelVersion": "v89.18.0"
+      }
+    }
+  ]
 }
