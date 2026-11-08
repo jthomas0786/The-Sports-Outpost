@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "season": 2026,
   "previousSeason": 2025,
-  "generatedAt": "2026-11-08T16:39:21.860Z",
+  "generatedAt": "2026-11-08T20:08:13.290Z",
   "sources": {
     "espn": "Current rosters, depth charts, injuries",
     "nflverse": "Player ID crosswalk, historical/current player statistics, snap counts, and schedule metadata (CC BY 4.0)",
@@ -13,6 +13,22 @@
       "ok": true,
       "rows": 7548
     },
+    "nflversePrevSnaps": {
+      "ok": true,
+      "rows": 26613
+    },
+    "nflversePrevRegular": {
+      "ok": true,
+      "rows": 2020
+    },
+    "nflverseCurrentSnaps": {
+      "ok": true,
+      "rows": 11385
+    },
+    "nflverseRosterCurrent": {
+      "ok": true,
+      "rows": 3069
+    },
     "espnTeams": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -21,37 +37,13 @@
       ],
       "rows": 32
     },
-    "nflversePrevRegular": {
-      "ok": true,
-      "rows": 2020
-    },
     "nflverseCurrentRegular": {
       "ok": true,
       "rows": 1736
     },
-    "nflverseRosterCurrent": {
-      "ok": true,
-      "rows": 3069
-    },
-    "nflverseCurrentSnaps": {
-      "ok": true,
-      "rows": 11385
-    },
-    "nflversePrevSnaps": {
-      "ok": true,
-      "rows": 26613
-    },
     "nflverseCurrentWeekly": {
       "ok": true,
       "rows": 8500
-    },
-    "nflversePrevWeekly": {
-      "ok": true,
-      "rows": 19422
-    },
-    "nflversePlayers": {
-      "ok": true,
-      "rows": 24867
     },
     "espnInjuries": {
       "ok": true,
@@ -60,7 +52,15 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:ARI": {
+    "nflversePlayers": {
+      "ok": true,
+      "rows": 24867
+    },
+    "nflversePrevWeekly": {
+      "ok": true,
+      "rows": 19422
+    },
+    "espnDepth:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -74,14 +74,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:ATL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:CAR": {
+    "espnRoster:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -95,21 +88,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CHI": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:BAL": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -123,14 +102,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:BUF": {
+    "espnDepth:ARI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CAR": {
+    "espnDepth:CAR": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -138,6 +117,13 @@
       ]
     },
     "espnRoster:ARI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:CHI": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -158,14 +144,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:CLE": {
+    "espnRoster:CLE": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:CLE": {
+    "espnDepth:DEN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -186,7 +172,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:DEN": {
+    "espnDepth:CLE": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:BUF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -194,6 +187,13 @@
       ]
     },
     "espnRoster:DEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:ATL": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -214,27 +214,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:HOU": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:GB": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:IND": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:HOU": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -249,7 +228,28 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnDepth:HOU": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:GB": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:IND": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:GB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -270,14 +270,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:LV": {
+    "espnRoster:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:KC": {
+    "espnDepth:LV": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -291,7 +291,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:KC": {
+    "espnDepth:LAC": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:KC": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -305,13 +312,6 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:LA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnDepth:LA": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -319,28 +319,21 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:MIA": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:LAC": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnDepth:MIN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
     "espnRoster:MIA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnRoster:LA": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:MIA": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -361,7 +354,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NO": {
+    "espnDepth:MIN": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -389,7 +382,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:NYJ": {
+    "espnRoster:NO": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -403,14 +396,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:NYJ": {
+    "espnDepth:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:PHI": {
+    "espnRoster:NYJ": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -424,7 +417,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:PIT": {
+    "espnDepth:PHI": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
+    "espnDepth:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -438,14 +438,14 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:SF": {
+    "espnRoster:PIT": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:SF": {
+    "espnRoster:SF": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -466,14 +466,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnRoster:TEN": {
-      "ok": true,
-      "host": "site.web.api.espn.com",
-      "attempts": [
-        "site.api.espn.com: 403 Forbidden"
-      ]
-    },
-    "espnRoster:TB": {
+    "espnDepth:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -487,6 +480,13 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
+    "espnRoster:TEN": {
+      "ok": true,
+      "host": "site.web.api.espn.com",
+      "attempts": [
+        "site.api.espn.com: 403 Forbidden"
+      ]
+    },
     "espnDepth:WSH": {
       "ok": true,
       "host": "site.web.api.espn.com",
@@ -494,7 +494,7 @@
         "site.api.espn.com: 403 Forbidden"
       ]
     },
-    "espnDepth:TB": {
+    "espnRoster:TB": {
       "ok": true,
       "host": "site.web.api.espn.com",
       "attempts": [
@@ -45203,7 +45203,7 @@
       "opponent": "CIN",
       "gameId": "401873038",
       "model": {
-        "atdProbability": 0.103,
+        "atdProbability": 0.1211,
         "atdGrade": "D",
         "snapShare": 0.536,
         "rzTargets": 13,
@@ -142830,7 +142830,7 @@
       "opponent": "DEN",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.0117,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -142895,7 +142895,7 @@
       "opponent": "DEN",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.0449,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -237642,7 +237642,7 @@
       "opponent": "NO",
       "gameId": "401873039",
       "model": {
-        "atdProbability": 0.0714,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -243941,7 +243941,7 @@
       "opponent": "NO",
       "gameId": "401873039",
       "model": {
-        "atdProbability": 0.0141,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -272674,7 +272674,7 @@
       "opponent": "IND",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.3034,
+        "atdProbability": 0.3569,
         "atdGrade": "B",
         "snapShare": 0.667,
         "rzTargets": 25,
@@ -274267,8 +274267,8 @@
       "opponent": "IND",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.0883,
-        "atdGrade": "D",
+        "atdProbability": 0.0751,
+        "atdGrade": "F",
         "snapShare": 0.061,
         "rzTargets": 1,
         "rzCarries": 0,
@@ -275663,8 +275663,8 @@
       "opponent": "IND",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.3164,
-        "atdGrade": "B",
+        "atdProbability": 0,
+        "atdGrade": "F",
         "snapShare": 0.811,
         "rzTargets": 24,
         "rzCarries": 0,
@@ -277067,7 +277067,7 @@
       "opponent": "IND",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.0082,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.329,
         "rzTargets": 2,
@@ -305883,8 +305883,8 @@
       "opponent": "CAR",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.1225,
-        "atdGrade": "D",
+        "atdProbability": 0,
+        "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
         "rzCarries": 0,
@@ -308976,7 +308976,7 @@
       "opponent": "CAR",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.0083,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -309721,8 +309721,8 @@
       "opponent": "CAR",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.0748,
-        "atdGrade": "F",
+        "atdProbability": 0.088,
+        "atdGrade": "D",
         "snapShare": 0.477,
         "rzTargets": 8,
         "rzCarries": 0,
@@ -311506,7 +311506,7 @@
       "opponent": "CAR",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.0298,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -314108,7 +314108,7 @@
       "opponent": "CAR",
       "gameId": "401873041",
       "model": {
-        "atdProbability": 0.0343,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.484,
         "rzTargets": 4,
@@ -339375,7 +339375,7 @@
       "opponent": "MIA",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.5017,
+        "atdProbability": 0.5903,
         "atdGrade": "A",
         "snapShare": 0.852,
         "rzTargets": 35,
@@ -340473,8 +340473,8 @@
       "opponent": "MIA",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.1691,
-        "atdGrade": "D",
+        "atdProbability": 0.1989,
+        "atdGrade": "C",
         "snapShare": 0.01,
         "rzTargets": 0,
         "rzCarries": 0,
@@ -342489,7 +342489,7 @@
       "opponent": "MIA",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.0614,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.033,
         "rzTargets": 0,
@@ -344586,7 +344586,7 @@
       "opponent": "MIA",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.0289,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.045,
         "rzTargets": 0,
@@ -371435,8 +371435,8 @@
       "opponent": "NE",
       "gameId": "401873049",
       "model": {
-        "atdProbability": 0.1033,
-        "atdGrade": "D",
+        "atdProbability": 0,
+        "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
         "rzCarries": 0,
@@ -407378,7 +407378,7 @@
       "opponent": "LAC",
       "gameId": "401873046",
       "model": {
-        "atdProbability": 0.0134,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.44,
         "rzTargets": 3,
@@ -441041,7 +441041,7 @@
       "opponent": "DAL",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.0436,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -442129,7 +442129,7 @@
       "opponent": "DAL",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.0272,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.394,
         "rzTargets": 0,
@@ -446023,7 +446023,7 @@
       "opponent": "DAL",
       "gameId": "401873040",
       "model": {
-        "atdProbability": 0.0188,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.13,
         "rzTargets": 1,
@@ -500070,8 +500070,8 @@
       "opponent": "NYJ",
       "gameId": "401873045",
       "model": {
-        "atdProbability": 0.1002,
-        "atdGrade": "D",
+        "atdProbability": 0,
+        "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
         "rzCarries": 0,
@@ -505555,7 +505555,7 @@
       "opponent": "NYJ",
       "gameId": "401873045",
       "model": {
-        "atdProbability": 0.0157,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -508589,7 +508589,7 @@
       "opponent": "NYJ",
       "gameId": "401873045",
       "model": {
-        "atdProbability": 0.022,
+        "atdProbability": 0.0259,
         "atdGrade": "F",
         "snapShare": 0.051,
         "rzTargets": 0,
@@ -532967,8 +532967,8 @@
       "opponent": "WAS",
       "gameId": "401873043",
       "model": {
-        "atdProbability": 0.1694,
-        "atdGrade": "D",
+        "atdProbability": 0.1993,
+        "atdGrade": "C",
         "snapShare": 0.604,
         "rzTargets": 22,
         "rzCarries": 0,
@@ -534319,7 +534319,7 @@
       "opponent": "WAS",
       "gameId": "401873043",
       "model": {
-        "atdProbability": 0.0191,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -536572,7 +536572,7 @@
       "opponent": "WAS",
       "gameId": "401873043",
       "model": {
-        "atdProbability": 0.0283,
+        "atdProbability": 0.0333,
         "atdGrade": "F",
         "snapShare": 0.434,
         "rzTargets": 1,
@@ -572067,7 +572067,7 @@
       "opponent": "HOU",
       "gameId": "401873046",
       "model": {
-        "atdProbability": 0.0133,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -573041,7 +573041,7 @@
       "opponent": "HOU",
       "gameId": "401873046",
       "model": {
-        "atdProbability": 0.0607,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.323,
         "rzTargets": 1,
@@ -599792,7 +599792,7 @@
       "opponent": "SF",
       "gameId": "401873047",
       "model": {
-        "atdProbability": 0.0138,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.82,
         "rzTargets": 0,
@@ -602325,7 +602325,7 @@
       "opponent": "SF",
       "gameId": "401873047",
       "model": {
-        "atdProbability": 0.0332,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.453,
         "rzTargets": 2,
@@ -604037,7 +604037,7 @@
       "opponent": "SF",
       "gameId": "401873047",
       "model": {
-        "atdProbability": 0.046,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -628064,8 +628064,8 @@
       "opponent": "DET",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.1307,
-        "atdGrade": "D",
+        "atdProbability": 0,
+        "atdGrade": "F",
         "snapShare": 0.215,
         "rzTargets": 0,
         "rzCarries": 12,
@@ -628663,7 +628663,7 @@
       "opponent": "DET",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.0695,
+        "atdProbability": 0.0591,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -629676,8 +629676,8 @@
       "opponent": "DET",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.0725,
-        "atdGrade": "F",
+        "atdProbability": 0.0852,
+        "atdGrade": "D",
         "snapShare": 0,
         "rzTargets": 0,
         "rzCarries": 0,
@@ -630763,7 +630763,7 @@
       "opponent": "DET",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.0284,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -632022,7 +632022,7 @@
       "opponent": "DET",
       "gameId": "401873042",
       "model": {
-        "atdProbability": 0.028,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.513,
         "rzTargets": 5,
@@ -687332,7 +687332,7 @@
       "opponent": "GB",
       "gameId": "401873049",
       "model": {
-        "atdProbability": 0.0133,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -720016,7 +720016,7 @@
       "opponent": "CLE",
       "gameId": "401873039",
       "model": {
-        "atdProbability": 0.205,
+        "atdProbability": 0.2412,
         "atdGrade": "C",
         "snapShare": 0,
         "rzTargets": 0,
@@ -720081,7 +720081,7 @@
       "opponent": "CLE",
       "gameId": "401873039",
       "model": {
-        "atdProbability": 0.0103,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.113,
         "rzTargets": 0,
@@ -722205,7 +722205,7 @@
       "team": "NO",
       "name": "Zamir White",
       "position": "RB",
-      "jersey": "33",
+      "jersey": "26",
       "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4361777.png",
       "rosterStatus": "Active",
       "active": true,
@@ -751096,8 +751096,8 @@
       "opponent": "PHI",
       "gameId": "401873044",
       "model": {
-        "atdProbability": 0.1452,
-        "atdGrade": "D",
+        "atdProbability": 0,
+        "atdGrade": "F",
         "snapShare": 0.523,
         "rzTargets": 4,
         "rzCarries": 24,
@@ -756688,7 +756688,7 @@
       "opponent": "PHI",
       "gameId": "401873044",
       "model": {
-        "atdProbability": 0.0239,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.115,
         "rzTargets": 0,
@@ -756979,7 +756979,7 @@
       "opponent": "PHI",
       "gameId": "401873044",
       "model": {
-        "atdProbability": 0.0403,
+        "atdProbability": 0.0474,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -791899,7 +791899,7 @@
       "opponent": "KC",
       "gameId": "401873045",
       "model": {
-        "atdProbability": 0.0431,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0.318,
         "rzTargets": 9,
@@ -817762,7 +817762,7 @@
       "opponent": "NYG",
       "gameId": "401873044",
       "model": {
-        "atdProbability": 0.0113,
+        "atdProbability": 0.0133,
         "atdGrade": "F",
         "snapShare": 0.345,
         "rzTargets": 0,
@@ -918400,7 +918400,7 @@
       "opponent": "LV",
       "gameId": "401873047",
       "model": {
-        "atdProbability": 0.0078,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -945865,7 +945865,7 @@
       "name": "Barika Kpeenu",
       "position": "RB",
       "jersey": "49",
-      "headshot": "https://a.espncdn.com/i/headshots/college-football/players/full/4879256.png",
+      "headshot": "https://a.espncdn.com/i/headshots/nfl/players/full/4879256.png",
       "rosterStatus": "Active",
       "active": true,
       "experience": 0,
@@ -1012829,7 +1012829,7 @@
       "opponent": "LA",
       "gameId": "401873043",
       "model": {
-        "atdProbability": 0.0119,
+        "atdProbability": 0,
         "atdGrade": "F",
         "snapShare": 0,
         "rzTargets": 0,
@@ -1019579,7 +1019579,7 @@
       "opponent": "LA",
       "gameId": "401873043",
       "model": {
-        "atdProbability": 0,
+        "atdProbability": 0.0508,
         "atdGrade": "F",
         "snapShare": 0.704,
         "rzTargets": 8,
