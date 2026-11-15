@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "source": "espn-public",
   "sport": "TENNIS",
-  "generatedAt": "2026-11-14T22:37:24.782Z",
+  "generatedAt": "2026-11-15T02:07:46.426Z",
   "tours": [
     {
       "key": "atp",
@@ -4571,24 +4571,25 @@
       "group": "womens-singles",
       "round": "Semifinal",
       "startTime": "2026-11-14T22:00Z",
-      "state": "in",
-      "statusDetail": "1st",
-      "final": false,
-      "period": 1,
+      "state": "post",
+      "statusDetail": "Final",
+      "final": true,
+      "period": 2,
       "bestOf": 3,
-      "gamesPlayed": 7,
-      "setsPlayed": 1,
+      "gamesPlayed": 15,
+      "setsPlayed": 2,
       "players": [
         {
           "id": "1797",
           "name": "Elina Svitolina",
-          "winner": null,
+          "winner": true,
           "linescores": [
-            5
+            6,
+            6
           ],
-          "gamesWon": 5,
-          "setsWon": 1,
-          "setsPlayed": 1,
+          "gamesWon": 12,
+          "setsWon": 2,
+          "setsPlayed": 2,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
@@ -4597,20 +4598,21 @@
         {
           "id": "6970",
           "name": "Linda Noskova",
-          "winner": null,
+          "winner": false,
           "linescores": [
-            2
+            2,
+            1
           ],
-          "gamesWon": 2,
+          "gamesWon": 3,
           "setsWon": 0,
-          "setsPlayed": 1,
+          "setsPlayed": 2,
           "aces": null,
           "doubleFaults": null,
           "breakPointsWon": null,
           "firstSetAces": null
         }
       ],
-      "note": "(6) Elina Svitolina (UKR) leads (8) Linda Noskova (CZE) 5-2"
+      "note": "(6) Elina Svitolina (UKR) bt (8) Linda Noskova (CZE) 6-2 6-1"
     },
     "187441": {
       "id": "187441",
@@ -4664,6 +4666,53 @@
         }
       ],
       "note": "(3) Mirra Andreeva (RUS) bt (5) Jessica Pegula (USA) 6-3 6-4"
+    },
+    "187442": {
+      "id": "187442",
+      "uid": "s:850~l:900~e:382-2026~c:187442",
+      "tournamentId": "382-2026",
+      "tournament": "FAGE WTA Finals Indian Wells",
+      "tour": "wta",
+      "tourName": "WTA",
+      "group": "womens-singles",
+      "round": "Final",
+      "startTime": "2026-11-15T05:00Z",
+      "state": "pre",
+      "statusDetail": "TBD",
+      "final": false,
+      "period": 1,
+      "bestOf": 3,
+      "gamesPlayed": null,
+      "setsPlayed": null,
+      "players": [
+        {
+          "id": "9820",
+          "name": "Mirra Andreeva",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        },
+        {
+          "id": "1797",
+          "name": "Elina Svitolina",
+          "winner": null,
+          "linescores": [],
+          "gamesWon": null,
+          "setsWon": null,
+          "setsPlayed": null,
+          "aces": null,
+          "doubleFaults": null,
+          "breakPointsWon": null,
+          "firstSetAces": null
+        }
+      ],
+      "note": null
     },
     "187446": {
       "id": "187446",
@@ -5519,7 +5568,7 @@
     }
   },
   "meta": {
-    "liveCount": 1,
-    "finalCount": 87
+    "liveCount": 0,
+    "finalCount": 88
   }
 }
